@@ -18,22 +18,21 @@ package com.bc.ceres.swing.binding.internal;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValueRange;
+import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.bc.ceres.swing.binding.internal.NumericEditor;
+import junit.framework.TestCase;
 
 import javax.swing.JComponent;
 import javax.swing.JTextField;
-
-import junit.framework.TestCase;
 
 public class NumericEditorTest extends TestCase {
 
     public void testIsApplicable() throws Exception {
         NumericEditor numericEditor = new NumericEditor();
-        
+
         PropertyDescriptor doubleDescriptor = new PropertyDescriptor("test", Double.class);
         assertTrue(numericEditor.isValidFor(doubleDescriptor));
-        
+
         doubleDescriptor = new PropertyDescriptor("test", Double.TYPE);
         assertTrue(numericEditor.isValidFor(doubleDescriptor));
 
@@ -41,40 +40,45 @@ public class NumericEditorTest extends TestCase {
         ValueRange valueRange = ValueRange.parseValueRange("[2.0,*)");
         doubleDescriptor.setValueRange(valueRange);
         assertTrue(numericEditor.isValidFor(doubleDescriptor));
-        
+
         doubleDescriptor = new PropertyDescriptor("test", Double.TYPE);
         valueRange = ValueRange.parseValueRange("[*,4.6)");
         doubleDescriptor.setValueRange(valueRange);
         assertTrue(numericEditor.isValidFor(doubleDescriptor));
-        
+
         doubleDescriptor = new PropertyDescriptor("test", Double.TYPE);
         valueRange = ValueRange.parseValueRange("[2.0,4.6]");
         doubleDescriptor.setValueRange(valueRange);
         assertTrue(numericEditor.isValidFor(doubleDescriptor));
-        
+
+        final PropertyDescriptor valueSetDescriptor = new PropertyDescriptor("test", Integer.TYPE);
+        valueSetDescriptor.setValueSet(new ValueSet(new Integer[]{50, 150}));
+        assertFalse(numericEditor.isValidFor(valueSetDescriptor));
+
         PropertyDescriptor booleanDescriptor = new PropertyDescriptor("test", Boolean.TYPE);
         assertFalse(numericEditor.isValidFor(booleanDescriptor));
     }
-    
+
     public void testCreateEditorComponent() throws Exception {
         NumericEditor numericEditor = new NumericEditor();
-        
+
         PropertyContainer propertyContainer = PropertyContainer.createValueBacked(V.class);
         BindingContext bindingContext = new BindingContext(propertyContainer);
         PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor("value");
         assertSame(Double.TYPE, propertyDescriptor.getType());
-        
+
         assertTrue(numericEditor.isValidFor(propertyDescriptor));
         JComponent editorComponent = numericEditor.createEditorComponent(propertyDescriptor, bindingContext);
         assertNotNull(editorComponent);
         assertSame(JTextField.class, editorComponent.getClass());
-        
+
         JComponent[] components = bindingContext.getBinding("value").getComponents();
         assertEquals(1, components.length);
         assertSame(JTextField.class, components[0].getClass());
     }
-    
+
     private static class V {
+
         double value;
     }
 }

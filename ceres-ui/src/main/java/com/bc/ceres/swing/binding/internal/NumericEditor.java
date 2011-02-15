@@ -16,15 +16,15 @@
 package com.bc.ceres.swing.binding.internal;
 
 import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.ComponentAdapter;
 import com.bc.ceres.swing.binding.PropertyEditor;
 
-import java.awt.Font;
-
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import java.awt.Font;
 
 /**
  * An editor for numeric values with an unlimited range.
@@ -37,10 +37,11 @@ public class NumericEditor extends PropertyEditor {
 
     @Override
     public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
+        ValueSet valueSet = propertyDescriptor.getValueSet();
         Class<?> type = propertyDescriptor.getType();
-        return isNumericType(type);
+        return valueSet == null && isNumericType(type);
     }
-    
+
     @Override
     public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         JTextField textField = new JTextField();
@@ -54,11 +55,11 @@ public class NumericEditor extends PropertyEditor {
 
     protected static boolean isNumericType(Class<?> type) {
         return Byte.TYPE.equals(type)
-        || Short.TYPE.equals(type)
-        || Integer.TYPE.equals(type)
-        || Long.TYPE.equals(type)
-        || Float.TYPE.equals(type)
-        || Double.TYPE.equals(type)
-        || Number.class.isAssignableFrom(type);
+               || Short.TYPE.equals(type)
+               || Integer.TYPE.equals(type)
+               || Long.TYPE.equals(type)
+               || Float.TYPE.equals(type)
+               || Double.TYPE.equals(type)
+               || Number.class.isAssignableFrom(type);
     }
 }
