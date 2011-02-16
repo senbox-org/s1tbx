@@ -60,11 +60,17 @@ import java.util.logging.Logger;
  */
 public class EnvisatProductReader extends AbstractProductReader {
 
-    /** @since BEAM 4.9 */
+    /**
+     * @since BEAM 4.9
+     */
     private static final String SYSPROP_ENVISAT_USE_PIXEL_GEO_CODING = "beam.envisat.usePixelGeoCoding";
-    /** @since BEAM 4.9 */
+    /**
+     * @since BEAM 4.9
+     */
     private static final String SYSPROP_ENVISAT_TILE_WIDTH = "beam.envisat.tileWidth";
-    /** @since BEAM 4.9 */
+    /**
+     * @since BEAM 4.9
+     */
     private static final String SYSPROP_ENVISAT_TILE_HEIGHT = "beam.envisat.tileHeight";
 
     @Deprecated
@@ -501,8 +507,16 @@ public class EnvisatProductReader extends AbstractProductReader {
     }
 
     private void setPreferredTileSize(Product product) {
-        Integer tileWidth = Integer.getInteger(SYSPROP_ENVISAT_TILE_WIDTH);
-        Integer tileHeight = Integer.getInteger(SYSPROP_ENVISAT_TILE_HEIGHT);
+        Integer tileWidth = null;
+        String tileWidthStr = System.getProperty(SYSPROP_ENVISAT_TILE_WIDTH);
+        if (tileWidthStr != null) {
+            tileWidth = "*".equals(tileWidthStr) ? sceneRasterWidth : Integer.getInteger(SYSPROP_ENVISAT_TILE_WIDTH);
+        }
+        Integer tileHeight = null;
+        String tileHeightStr = System.getProperty(SYSPROP_ENVISAT_TILE_HEIGHT);
+        if (tileHeightStr != null) {
+            tileHeight = "*".equals(tileWidthStr) ? sceneRasterHeight : Integer.getInteger(SYSPROP_ENVISAT_TILE_HEIGHT);
+        }
         if (tileWidth != null || tileHeight != null) {
             Dimension tileSize = product.getPreferredTileSize();
             Logger logger = BeamLogManager.getSystemLogger();
@@ -510,8 +524,8 @@ public class EnvisatProductReader extends AbstractProductReader {
             if (tileSize != null) {
                 logger.warning(MessageFormat.format("Overwriting tile size {0} x {1}", tileSize.width, tileSize.height));
             }
-            tileWidth = tileWidth != null ? tileWidth : sceneRasterWidth;
-            tileHeight = tileHeight != null ? tileHeight : sceneRasterHeight;
+            tileWidth = tileWidth != null ? tileWidth : (tileSize != null ? tileSize.width : tileHeight);
+            tileHeight = tileHeight != null ? tileHeight : (tileSize != null ? tileSize.height : tileWidth);
             product.setPreferredTileSize(tileWidth, tileHeight);
             logger.info(MessageFormat.format("Tile size set to {0} x {1}", tileWidth, tileHeight));
         }
