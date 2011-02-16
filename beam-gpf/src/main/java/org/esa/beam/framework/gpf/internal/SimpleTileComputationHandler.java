@@ -28,8 +28,12 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A recorder for tile computation events.
@@ -41,42 +45,52 @@ import java.util.List;
 public class SimpleTileComputationHandler extends TileComputationHandler {
     public static final int CHART_WIDTH = 1500;
     private final List<TileComputationEvent> recordedEventList = Collections.synchronizedList(new LinkedList<TileComputationEvent>());
+    private File[] files;
+    private boolean active;
 
     @Override
     public void start() {
-        getLogger().info("Starting observation of tile computation events.");
+        File cwd = new File(".");
+        files = cwd.listFiles(new VmFilenameFilter());
+        if (files != null && files.length > 0) {
+            getLogger().info("Starting observation of tile computation events.");
+            active = true;
+        } else {
+            getLogger().warning(String.format("No Velocity template files (*.vm) found in %s", cwd.getAbsolutePath()));
+        }
     }
 
     @Override
     public void tileComputed(TileComputationEvent event) {
-        recordedEventList.add(event);
+        if (active) {
+            recordedEventList.add(event);
+        }
     }
 
     @Override
     public void stop() {
-        getLogger().info("Stopping observation of tile computation events.");
-        File cwd = new File(".");
-        File[] files = cwd.listFiles(new VmFilenameFilter());
-        if (files == null || files.length == 0) {
-            getLogger().warning(String.format("No Velocity template files (*.vm) found in %s", cwd.getAbsolutePath()));
+        if (!active) {
             return;
         }
+
+        getLogger().info("Stopped observation of tile computation events. Generating reports...");
 
         TileComputationEvent[] events = recordedEventList.toArray(new TileComputationEvent[0]);
         Arrays.sort(events, new GroupingComparator(
                 new StartTimeComparator(),
                 new TileIndicesComparator()
         ));
+
+
         long startNanosMin = Long.MAX_VALUE;
         long endNanosMax = Long.MIN_VALUE;
         for (TileComputationEvent event : events) {
             startNanosMin = Math.min(startNanosMin, event.getStartNanos());
             endNanosMax = Math.max(endNanosMax, event.getEndNanos());
         }
-        Task[] tasks = new Task[events.length];
-        for (int i = 0; i < tasks.length; i++) {
-            tasks[i] = new Task(events[i], startNanosMin, endNanosMax);
-        }
+
+        Task[] tasks = getTasks(events, startNanosMin, endNanosMax);
+        setSameTasks(tasks);
 
         VelocityEngine ve = new VelocityEngine();
         try {
@@ -110,6 +124,48 @@ public class SimpleTileComputationHandler extends TileComputationHandler {
             }
         }
 
+    }
+
+    private void setSameTasks(Task[] tasks) {
+        Map<String, Set<Task>> sameTasksMap = getSameTasksMap(tasks);
+
+        Set<Map.Entry<String, Set<Task>>> entries = sameTasksMap.entrySet();
+        for (Map.Entry<String, Set<Task>> entry : entries) {
+            Task[] sameTasks = entry.getValue().toArray(new Task[entry.getValue().size()]);
+            if (sameTasks.length > 1) {
+                Arrays.sort(sameTasks, new Comparator<Task>() {
+                    @Override
+                    public int compare(Task o1, Task o2) {
+                        double delta = o1.getStart() - o2.getStart();
+                        return delta < 0 ? -1 : delta > 0 ? 1 : 0;
+                    }
+                });
+                for (int i = 1; i < sameTasks.length; i++) {
+                    sameTasks[i].setSameTask(sameTasks[0]);
+                }
+            }
+        }
+    }
+
+    private Map<String, Set<Task>> getSameTasksMap(Task[] tasks) {
+        Map<String, Set<Task>> sameTasksMap = new HashMap<String, Set<Task>>();
+        for (Task task : tasks) {
+            Set<Task> sameTasks = sameTasksMap.get(task.getTileId());
+            if (sameTasks == null) {
+                sameTasks = new HashSet<Task>();
+                sameTasksMap.put(task.getTileId(), sameTasks);
+            }
+            sameTasks.add(task);
+        }
+        return sameTasksMap;
+    }
+
+    private Task[] getTasks(TileComputationEvent[] events, long startNanosMin, long endNanosMax) {
+        Task[] tasks = new Task[events.length];
+        for (int i = 0; i < tasks.length; i++) {
+            tasks[i] = new Task(events[i], startNanosMin, endNanosMax);
+        }
+        return tasks;
     }
 
     private static double nanosToRoundedSecs(long nanos) {
@@ -193,10 +249,12 @@ public class SimpleTileComputationHandler extends TileComputationHandler {
         private final Band band;
         private final Operator operator;
         private String imageId;
+        private String tileId;
         private double start;
         private double duration;
         private final int barX;
         private final int barWidth;
+        private Task sameTask;
 
         public Task(TileComputationEvent event, long startNanosMin, long endNanosMax) {
             this.event = event;
@@ -206,6 +264,8 @@ public class SimpleTileComputationHandler extends TileComputationHandler {
             imageId = String.format("%s@%s",
                                     image.getClass().getSimpleName(),
                                     Integer.toHexString(System.identityHashCode(image)));
+            tileId = String.format("%s.%d.%d",
+                                   imageId, event.getTileX(), event.getTileY());
             band = image.getTargetBand();
             operator = image.getOperatorContext().getOperator();
             double scale = CHART_WIDTH / ((endNanosMax - startNanosMin) * 1.0E-9);
@@ -229,6 +289,10 @@ public class SimpleTileComputationHandler extends TileComputationHandler {
             return imageId;
         }
 
+        public String getTileId() {
+            return tileId;
+        }
+
         public double getStart() {
             return start;
         }
@@ -243,6 +307,14 @@ public class SimpleTileComputationHandler extends TileComputationHandler {
 
         public int getBarWidth() {
             return barWidth;
+        }
+
+        public Task getSameTask() {
+            return sameTask;
+        }
+
+        public void setSameTask(Task sameTask) {
+            this.sameTask = sameTask;
         }
     }
 }
