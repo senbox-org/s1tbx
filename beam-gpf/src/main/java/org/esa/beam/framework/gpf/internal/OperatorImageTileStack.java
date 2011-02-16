@@ -127,7 +127,7 @@ public class OperatorImageTileStack extends OperatorImage {
             /*
             getOperatorContext().addTileToLocalCache(band, tileX, tileY, writableRaster);
             */
-            operatorImage.updateMetrics(destRect, startNanos);
+            getOperatorContext().fireTileComputed(operatorImage, destRect, startNanos);
         }
     }
 

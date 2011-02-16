@@ -25,8 +25,6 @@ import org.esa.beam.framework.gpf.internal.OperatorContext;
 
 import javax.media.jai.BorderExtender;
 import java.awt.Rectangle;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -503,8 +501,8 @@ public abstract class Operator {
     /**
      * Non-API.
      */
-    public void logPerformanceAnalysis() {
-        context.logPerformanceAnalysis();
+    public void stopTileComputationObservation() {
+        context.stopTileComputationObservation();
     }
 
     /**

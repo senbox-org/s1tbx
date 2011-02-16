@@ -28,7 +28,6 @@ import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
-import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -57,10 +56,6 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -69,7 +64,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -84,11 +78,8 @@ import java.util.regex.Pattern;
  */
 public class OperatorContext {
 
-    private static final String SYS_PROP_NAME_PERFORMANCE_FILE = "beam.gpf.performance.file";
-    private static final String SYS_PROP_NAME_PERFORMANCE_TRACE = "beam.gpf.performance.trace";
-
-    private static final String SYS_PROP_VALUE_PERFORMANCE_FILE = System.getProperty(SYS_PROP_NAME_PERFORMANCE_FILE, "gpf-performance.txt");
-    static final boolean SYS_PROP_VALUE_PERFORMANCE_TRACE = Boolean.parseBoolean(System.getProperty(SYS_PROP_NAME_PERFORMANCE_TRACE, "false"));
+    private static final String SYS_PROP_NAME_TILE_COMPUTATION_HANDLER = "beam.gpf.tileComputationHandler";
+    private static TileComputationHandler tileComputationHandler;
 
     private final Operator operator;
     private final List<Product> sourceProductList;
@@ -115,6 +106,7 @@ public class OperatorContext {
         if (operator == null) {
             throw new NullPointerException("operator");
         }
+
         this.operator = operator;
         this.computeTileMethodUsable = canOperatorComputeTile(operator.getClass());
         this.computeTileStackMethodUsable = canOperatorComputeTileStack(operator.getClass());
@@ -123,6 +115,8 @@ public class OperatorContext {
         this.targetPropertyMap = new HashMap<String, Object>(3);
         this.logger = BeamLogManager.getSystemLogger();
         this.renderingHints = new RenderingHints(JAI.KEY_TILE_CACHE_METRIC, this);
+
+        startTileComputationObservation();
     }
 
     public String getId() {
@@ -1009,174 +1003,38 @@ public class OperatorContext {
         return String.format("Operator '%s': " + format, allArgs);
     }
 
-    /**
-     * @param product The product.
-     * @return The operator context for the given product, or null.
-     */
-    static OperatorContext getOperatorContext(Product product) {
-        ProductReader productReader = product.getProductReader();
-        if (productReader instanceof OperatorProductReader) {
-            OperatorProductReader operatorProductReader = (OperatorProductReader) productReader;
-            return operatorProductReader.getOperatorContext();
-        }
-        return null;
-    }
-
-
-    public Set<OperatorImage> collectOperatorImages() {
-        HashSet<OperatorImage> operatorImages = new HashSet<OperatorImage>();
-        collectOperatorImages(operatorImages);
-        return operatorImages;
-    }
-
-    private void collectOperatorImages(HashSet<OperatorImage> operatorImages) {
-        operatorImages.addAll(targetImageMap.values());
-        for (Product product : sourceProductList) {
-            Band[] bands = product.getBands();
-            for (Band band : bands) {
-                if (band.isSourceImageSet()) {
-                    MultiLevelImage sourceImage = band.getSourceImage();
-                    if (sourceImage.getImage(0) instanceof OperatorImage) {
-                        OperatorImage operatorImage = (OperatorImage) sourceImage.getImage(0);
-                        if (operatorImages.contains(operatorImage)) {
-                            operatorImages.add(operatorImage);
-                            operatorImage.getOperatorContext().collectOperatorImages(operatorImages);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public void logPerformanceAnalysis() {
-        if (SYS_PROP_VALUE_PERFORMANCE_TRACE) {
-            File file = new File(SYS_PROP_VALUE_PERFORMANCE_FILE);
-            try {
-                PrintWriter writer = new PrintWriter(new FileWriter(file));
+    private void startTileComputationObservation() {
+        if (tileComputationHandler == null) {
+            String tchClass = System.getProperty(SYS_PROP_NAME_TILE_COMPUTATION_HANDLER);
+            if (tchClass != null) {
                 try {
-                    logPerformanceAnalysis(writer);
-                    getLogger().info("GPF performance analysis has been written to " + file);
-                } finally {
-                    writer.close();
-                }
-            } catch (IOException e) {
-                getLogger().severe("Failed to write GPF performance analysis to " + file);
-            }
-        }
-    }
-
-    public void logPerformanceAnalysis(PrintWriter writer) {
-        writer.printf("" +
-                              /*01*/ "Depth\t" +
-                              /*02*/ "Product\t" +
-                              /*03*/ "Operator\t" +
-                              /*04*/ "Band\t" +
-                              /*05*/ "Image\t" +
-                              /*06*/ "TileX\t" +
-                              /*07*/ "TileY\t" +
-                              /*08*/ "Calls\t" +
-                              /*09*/ "Min(s)\t" +
-                              /*10*/ "Max(s)\t" +
-                              /*11*/ "Sum(s)\t" +
-                              /*12*/ "Avg(s)\t" +
-                              /*13*/ "Comment\n");
-        HashSet<OperatorImage> operatorImages = new HashSet<OperatorImage>();
-        logPerformanceAnalysis(writer, 0, operatorImages);
-    }
-
-    private static void logPerformanceAnalysis(PrintWriter writer, int depth, String targetProductName, OperatorImage operatorImage) {
-
-        String operatorName = operatorImage.getOperatorContext().getOperatorSpi().getOperatorClass().getSimpleName();
-        Band targetBand = operatorImage.getTargetBand();
-        String imageInstance = String.format("%s@%s",
-                                             operatorImage.getClass().getSimpleName(),
-                                             Integer.toHexString(System.identityHashCode(operatorImage)));
-        TileComputationStatistic[] tileComputationStatistics = operatorImage.getTileComputationStatistics();
-        for (int i = 0, tileComputationStatisticsLength = tileComputationStatistics.length; i < tileComputationStatisticsLength; i++) {
-            TileComputationStatistic tileComputationStatistic = tileComputationStatistics[i];
-            if (tileComputationStatistic != null) {
-                String comment = "-";
-                if (tileComputationStatistic.getCount() > 1) {
-                    comment = "WARNING: same tile computed multiple times!";
-                } else if (depth > 10) {
-                    comment = "WARNING: deep nesting of operators!";
-                }
-                writer.printf(Locale.GERMANY, "%d\t%s\t%s\t%s\t%s\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%s\n",
-                              /*01*/ depth,
-                              /*02*/ targetProductName,
-                              /*03*/ operatorName,
-                              /*04*/ targetBand.getName(),
-                              /*05*/ imageInstance,
-                              /*06*/ tileComputationStatistic.getTileX(),
-                              /*07*/ tileComputationStatistic.getTileY(),
-                              /*08*/ tileComputationStatistic.getCount(),
-                              /*09*/ tileComputationStatistic.getNanosMin() / 1.0E9,
-                              /*10*/ tileComputationStatistic.getNanosMax() / 1.0E9,
-                              /*11*/ tileComputationStatistic.getNanosSum() / 1.0E9,
-                              /*12*/ tileComputationStatistic.getNanosAvg() / 1.0E9,
-                              /*13*/ comment);
-            }
-        }
-    }
-
-    private void logPerformanceAnalysis(PrintWriter writer, int depth, HashSet<OperatorImage> processedImages) {
-
-        logProductImages(writer, depth, targetProduct, processedImages);
-        for (Product product : sourceProductList) {
-            logProductImages(writer, depth + 1, product, processedImages);
-        }
-
-        ArrayList<Product> products = new ArrayList<Product>();
-        products.add(targetProduct);
-        for (Product product : sourceProductList) {
-            products.add(product);
-            for (Band band : product.getBands()) {
-                OperatorImage operatorImage = imageOf(band);
-                if (operatorImage != null) {
-                    OperatorContext operatorContext = operatorImage.getOperatorContext();
-                    if (operatorContext != this) {
-                        products.add(operatorContext.targetProduct);
-                        products.addAll(operatorContext.sourceProductList);
-                    }
-                }
-            }
-        }
-
-        for (Product product : products) {
-            for (Band band : product.getBands()) {
-                OperatorImage operatorImage = imageOf(band);
-                if (operatorImage != null && !processedImages.contains(operatorImage)) {
-                    OperatorContext operatorContext = operatorImage.getOperatorContext();
-                    if (operatorContext != this) {
-                        operatorContext.logPerformanceAnalysis(writer, depth + 1, processedImages);
-                    }
+                    tileComputationHandler = (TileComputationHandler) Class.forName(tchClass).newInstance();
+                    tileComputationHandler.setLogger(logger);
+                    tileComputationHandler.start();
+                } catch (Throwable t) {
+                    getLogger().warning("Failed to instantiate tile computation handler: " + t.getMessage());
                 }
             }
         }
     }
 
-    private static void logProductImages(PrintWriter writer, int depth, Product product, HashSet<OperatorImage> processedImages) {
-        final Band[] targetBands = product.getBands();
-        for (Band band : targetBands) {
-            OperatorImage operatorImage = imageOf(band);
-            if (operatorImage != null && !processedImages.contains(operatorImage)) {
-                processedImages.add(operatorImage);
-                logPerformanceAnalysis(writer, depth, product.getName(), operatorImage);
-            }
+    public void stopTileComputationObservation() {
+        if (tileComputationHandler != null) {
+            tileComputationHandler.stop();
+            tileComputationHandler = null;
         }
     }
 
-    static OperatorImage imageOf(Band band) {
-        if (band.isSourceImageSet()) {
-            MultiLevelImage sourceImage = band.getSourceImage();
-            if (sourceImage.getImage(0) instanceof OperatorImage) {
-                return (OperatorImage) sourceImage.getImage(0);
-            }
-        }
-        return null;
-    }
+    public void fireTileComputed(OperatorImage operatorImage, Rectangle destRect, long startNanos) {
+         if (tileComputationHandler != null) {
+             long endNanos = System.nanoTime();
+             int tileX = operatorImage.XToTileX(destRect.x);
+             int tileY = operatorImage.YToTileY(destRect.y);
+             tileComputationHandler.tileComputed(new TileComputationEvent(operatorImage, tileX, tileY, startNanos, endNanos));
+         }
+     }
 
-    boolean isComputingImageOf(Band band) {
+     boolean isComputingImageOf(Band band) {
         if (band.isSourceImageSet()) {
             RenderedImage sourceImage = band.getSourceImage().getImage(0);
             OperatorImage targetImage = getTargetImage(band);

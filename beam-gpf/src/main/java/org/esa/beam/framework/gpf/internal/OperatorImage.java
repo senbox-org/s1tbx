@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -89,25 +89,7 @@ public class OperatorImage extends SourcelessOpImage {
             getOperatorContext().getOperator().computeTile(getTargetBand(), targetTile, ProgressMonitor.NULL);
         }
 
-        updateMetrics(destRect, startNanos);
-    }
-
-
-    public TileComputationStatistic[] getTileComputationStatistics() {
-        return tileComputationStatistics;
-    }
-
-    protected void updateMetrics(Rectangle destRect, long startNanos) {
-        if (OperatorContext.SYS_PROP_VALUE_PERFORMANCE_TRACE) {
-            int tileX = this.XToTileX(destRect.x);
-            int tileY = this.YToTileY(destRect.y);
-            TileComputationStatistic tileComputationStatistic = tileComputationStatistics[numXTiles * tileY + tileX];
-            if (tileComputationStatistic == null) {
-                tileComputationStatistic = new TileComputationStatistic(tileX, tileY);
-                tileComputationStatistics[numXTiles * tileY + tileX] = tileComputationStatistic;
-            }
-            tileComputationStatistic.tileComputed(System.nanoTime() - startNanos);
-        }
+        getOperatorContext().fireTileComputed(this, destRect, startNanos);
     }
 
     protected boolean requiresAllBands() {
