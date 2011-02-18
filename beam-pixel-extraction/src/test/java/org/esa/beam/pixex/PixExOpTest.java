@@ -116,8 +116,8 @@ public class PixExOpTest {
         sourceProducts.add(readProduct(DUMMY_PRODUCT2));
 
 
-        String data = outStream.toString();
-        checkOutput(data.split("\n"), sourceProducts.toArray(new Product[sourceProducts.size()]), coordinates,
+        final String[] lines = getDataFromStream(outStream);
+        checkOutput(lines, sourceProducts.toArray(new Product[sourceProducts.size()]), coordinates,
                     windowSize, null);
     }
 
@@ -406,7 +406,7 @@ public class PixExOpTest {
     }
 
     private static String[] getDataFromStream(ByteArrayOutputStream outStream) {
-        return outStream.toString().split("\n");
+        return outStream.toString().split(System.getProperty("line.separator"));
     }
 
     private static Product createTestProduct(String name, String type, String[] bandNames) throws FactoryException,
@@ -451,6 +451,7 @@ public class PixExOpTest {
         lineCount += mainHeaderLength; // add offset for the main header
         lineCount += productIdMapLength;
         lineCount += productTypes.size() * 3; // 3 lines for each product type header
+        lineCount -= 1; // minus last line empty
 
         assertEquals(lineCount, lines.length);
 

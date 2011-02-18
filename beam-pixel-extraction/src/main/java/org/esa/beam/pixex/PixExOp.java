@@ -51,6 +51,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
@@ -66,9 +67,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 @SuppressWarnings({
-        "IOResourceOpenedButNotSafelyClosed", "MismatchedReadAndWriteOfArray",
-        "FieldCanBeLocal", "UnusedDeclaration"
-})
+                          "IOResourceOpenedButNotSafelyClosed", "MismatchedReadAndWriteOfArray",
+                          "FieldCanBeLocal", "UnusedDeclaration"
+                  })
 @OperatorMetadata(
         alias = "PixEx",
         version = "1.0",
@@ -178,7 +179,7 @@ public class PixExOp extends Operator {
             StringWriter writer = new StringWriter();
             writeOutputToWriter(writer);
             if (outputDir == null) {
-                System.out.println(writer.toString());
+                System.out.print(writer.toString());
             }
             if (copyToClipboard) {
                 SystemUtils.copyToClipboard(writer.toString());
@@ -452,46 +453,46 @@ public class PixExOp extends Operator {
         }
     }
 
-    private void writeOutputToWriter(Writer stringWriter) throws IOException {
-        writeHeader(stringWriter);
+    private void writeOutputToWriter(Writer writer) throws IOException {
+        writeHeader(writer);
         for (String productType : measurements.keySet()) {
             List<Measurement> measurementList = measurements.get(productType);
+            final PrintWriter printWriter = new PrintWriter(writer);
             try {
                 String[] rasterNames = rasterNamesMap.get(productType);
-                stringWriter.append(String.format("# %s\n", productType));
-                MeasurementWriter.write(measurementList, stringWriter, rasterNames, expression, exportExpressionResult);
-                stringWriter.append("\n");
+                printWriter.printf("# %s%n", productType);
+                MeasurementWriter.write(measurementList, printWriter, rasterNames, expression, exportExpressionResult);
+                printWriter.println();
             } finally {
-                try {
-                    stringWriter.close();
-                } catch (IOException ignore) {
-                }
+                printWriter.close();
             }
         }
-        writeProductIdMap(stringWriter);
+        writeProductIdMap(writer);
     }
 
-    private void writeHeader(Writer writer) throws IOException {
-        writer.append("# BEAM pixel extraction export table\n");
-        writer.append("#\n");
-        writer.append(String.format("# Window size: %d\n", windowSize));
+    private void writeHeader(Writer writer) {
+        final PrintWriter printWriter = new PrintWriter(writer);
+        printWriter.println("# BEAM pixel extraction export table");
+        printWriter.println('#');
+        printWriter.printf("# Window size: %d%n", windowSize);
         if (expression != null) {
-            writer.append(String.format("# Expression: %s\n", expression));
+            printWriter.printf("# Expression: %s%n", expression);
         }
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        writer.append(String.format("# Created on:\t%s\n", dateFormat.format(new Date())));
-        writer.append("\n");
+        printWriter.printf("# Created on:\t%s%n", dateFormat.format(new Date()));
+        printWriter.println();
     }
 
-    private void writeProductIdMap(Writer writer) throws IOException {
-        writer.append("# Product ID Map\n");
-        writer.append("\n");
-        writer.append("ProductID\tProductType\tProductLocation\n");
+    private void writeProductIdMap(Writer writer) {
+        final PrintWriter printWriter = new PrintWriter(writer);
+        printWriter.println("# Product ID Map");
+        printWriter.println();
+        printWriter.println("ProductID\tProductType\tProductLocation");
         for (int id = 0; id < productLocationList.size(); id++) {
             ProductDescription productDescription = productLocationList.get(id);
-            writer.append(String.format("%d\t", id));
-            writer.append(String.format("%s\t", productDescription.getProductType()));
-            writer.append(String.format("%s\n", productDescription.getProductLocation()));
+            final String productType = productDescription.getProductType();
+            final String productLocation = productDescription.getProductLocation();
+            printWriter.printf("%d\t%s\t%s%n", id, productType, productLocation);
         }
     }
 
