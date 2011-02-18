@@ -18,18 +18,12 @@ import org.esa.beam.util.StringUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Color;
-import java.awt.HeadlessException;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.geom.AffineTransform;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -46,45 +40,34 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-@Ignore
 public class PixExOpTest {
 
     private static final String DUMMY_PRODUCT1 = "dummyProduct1.dim";
     private static final String DUMMY_PRODUCT2 = "dummyProduct2.dim";
 
-    private Transferable clipboardContents;
     private PrintStream defaultOutStream;
     private PixExOp.Spi pixExOpSpi;
+    private ByteArrayOutputStream outStream;
 
 
     @Before
     public void before() {
-        try {
-            pixExOpSpi = new PixExOp.Spi();
-            GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(pixExOpSpi);
-            clipboardContents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-            defaultOutStream = System.out;
-            System.setOut(new PrintStream(new ByteArrayOutputStream(100))); // suppressing output to std.out
-        } catch (HeadlessException e) {
-            System.out.println("A " + PixExOpTest.class + " test has not been performed: HeadlessException");
-        }
+        pixExOpSpi = new PixExOp.Spi();
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(pixExOpSpi);
+        defaultOutStream = System.out;
+        outStream = new ByteArrayOutputStream(10000);
+        System.setOut(new PrintStream(outStream)); // redirecting std.out to outStream
     }
 
     @After
     public void tearDown() throws IOException {
-        try {
-            GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(pixExOpSpi);
-            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(clipboardContents, null);
-            System.setOut(defaultOutStream);
-        } catch (HeadlessException ignore) {
-        }
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(pixExOpSpi);
+        System.setOut(defaultOutStream);
+        outStream.close();
     }
 
     @Test
-    public void testUsingGraph() throws GraphException, IOException, UnsupportedFlavorException {
-        if (clipboardContents == null) {
-            return;
-        }
+    public void testUsingGraph() throws GraphException, IOException {
         String parentDir = new File(getClass().getResource("dummyProduct1.dim").getFile()).getParent();
         int windowSize = 11;
         Coordinate[] coordinates = new Coordinate[]{
@@ -133,17 +116,13 @@ public class PixExOpTest {
         sourceProducts.add(readProduct(DUMMY_PRODUCT2));
 
 
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        String data = String.valueOf(clipboard.getData(clipboard.getAvailableDataFlavors()[0]));
-        checkClipboardData(data.split("\n"), sourceProducts.toArray(new Product[sourceProducts.size()]), coordinates,
-                           windowSize, null);
+        String data = outStream.toString();
+        checkOutput(data.split("\n"), sourceProducts.toArray(new Product[sourceProducts.size()]), coordinates,
+                    windowSize, null);
     }
 
     @Test
     public void testSingleProduct() throws Exception {
-        if (clipboardContents == null) {
-            return;
-        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
@@ -159,18 +138,15 @@ public class PixExOpTest {
         parameterMap.put("copyToClipboard", true);
 
         String[] bandNames = {"rad_1", "rad_2"};
-        Product[] sourceProduct = {createTestProduct("andi", "level1", bandNames)};
+        Product[] sourceProduct = {createTestProduct("andi", "type1", bandNames)};
 
         computeData(parameterMap, sourceProduct);
-        final String[] lines = getDataFromClipboard();
-        checkClipboardData(lines, sourceProduct, coordinates, windowSize, null);
+        final String[] lines = getDataFromStream(outStream);
+        checkOutput(lines, sourceProduct, coordinates, windowSize, null);
     }
 
     @Test
     public void testTwoProductsSameType() throws Exception {
-        if (clipboardContents == null) {
-            return;
-        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
@@ -189,20 +165,17 @@ public class PixExOpTest {
         String[] bandNames = {"rad_1", "rad_2"};
 
         Product[] products = {
-                createTestProduct("kallegrabowski", "level1", bandNames),
-                createTestProduct("keek", "level1", bandNames)
+                createTestProduct("kallegrabowski", "type1", bandNames),
+                createTestProduct("keek", "type1", bandNames)
         };
 
         computeData(parameterMap, products);
-        final String[] lines = getDataFromClipboard();
-        checkClipboardData(lines, products, coordinates, windowSize, null);
+        final String[] lines = getDataFromStream(outStream);
+        checkOutput(lines, products, coordinates, windowSize, null);
     }
 
     @Test
     public void testTwentyProductsSameType() throws Exception {
-        if (clipboardContents == null) {
-            return;
-        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
@@ -227,15 +200,12 @@ public class PixExOpTest {
         Product[] products = productList.toArray(new Product[productList.size()]);
 
         computeData(parameterMap, products);
-        final String[] lines = getDataFromClipboard();
-        checkClipboardData(lines, products, coordinates, windowSize, null);
+        final String[] lines = getDataFromStream(outStream);
+        checkOutput(lines, products, coordinates, windowSize, null);
     }
 
     @Test
     public void testTwoProductsTwoDifferentTypes() throws Exception {
-        if (clipboardContents == null) {
-            return;
-        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
@@ -255,20 +225,17 @@ public class PixExOpTest {
         String[] bandNames2 = {"refl_1", "refl_2"};
 
         Product[] products = {
-                createTestProduct("kallegrabowski", "level1", bandNames),
+                createTestProduct("kallegrabowski", "type1", bandNames),
                 createTestProduct("keek", "level2", bandNames2)
         };
 
         computeData(parameterMap, products);
-        final String[] lines = getDataFromClipboard();
-        checkClipboardData(lines, products, coordinates, windowSize, null);
+        final String[] lines = getDataFromStream(outStream);
+        checkOutput(lines, products, coordinates, windowSize, null);
     }
 
     @Test
     public void testTwoProductsWithTimeConstraints() throws Exception {
-        if (clipboardContents == null) {
-            return;
-        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         final Calendar calInP1 = Calendar.getInstance();
@@ -294,10 +261,10 @@ public class PixExOpTest {
         String[] bandNames = {"rad_1", "rad_2"};
         String[] bandNames2 = {"refl_1", "refl_2"};
 
-        final Product p1 = createTestProduct("kallegrabowski", "level1", bandNames);
+        final Product p1 = createTestProduct("kallegrabowski", "type1", bandNames);
         p1.setStartTime(ProductData.UTC.parse("01-MAR-2005 12:00:00"));
         p1.setEndTime(ProductData.UTC.parse("01-MAR-2005 13:00:00"));
-        final Product p2 = createTestProduct("keek", "level1", bandNames2);
+        final Product p2 = createTestProduct("keek", "type1", bandNames2);
         p2.setStartTime(ProductData.UTC.parse("01-Jan-2006 0:00:00"));
         p2.setEndTime(ProductData.UTC.parse("01-Jan-2006 12:00:00"));
         final Map<String, Product> productMap = new HashMap<String, Product>();
@@ -309,16 +276,13 @@ public class PixExOpTest {
         final Map<String, List<Measurement>> map = pixEx.getMeasurements();
 
         assertEquals(1, map.size()); // one product type
-        final List<Measurement> measurementList = map.get("level1");
+        final List<Measurement> measurementList = map.get("type1");
         assertEquals(2, measurementList.size());
         final Measurement measurement = measurementList.get(0);
     }
 
     @Test
     public void testTwentyProductsWithDifferentTypes() throws Exception {
-        if (clipboardContents == null) {
-            return;
-        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
@@ -343,15 +307,12 @@ public class PixExOpTest {
         Product[] products = productList.toArray(new Product[productList.size()]);
 
         computeData(parameterMap, products);
-        final String[] lines = getDataFromClipboard();
-        checkClipboardData(lines, products, coordinates, windowSize, null);
+        final String[] lines = getDataFromStream(outStream);
+        checkOutput(lines, products, coordinates, windowSize, null);
     }
 
     @Test(expected = OperatorException.class)
     public void testFailForEvenWindowSize() throws Exception {
-        if (clipboardContents == null) {
-            throw new OperatorException("");
-        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
@@ -363,18 +324,15 @@ public class PixExOpTest {
         parameterMap.put("windowSize", windowSize);
 
         String[] bandNames = {"rad_1", "rad_2"};
-        Product[] sourceProduct = {createTestProduct("werner", "level1", bandNames)};
+        Product[] sourceProduct = {createTestProduct("werner", "type1", bandNames)};
         computeData(parameterMap, sourceProduct);
 
-        final String[] lines = getDataFromClipboard();
-        checkClipboardData(lines, sourceProduct, coordinates, windowSize, null);
+        final String[] lines = getDataFromStream(outStream);
+        checkOutput(lines, sourceProduct, coordinates, windowSize, null);
     }
 
     @Test
     public void testReadMeasurement() throws TransformException, FactoryException, IOException {
-        if (clipboardContents == null) {
-            return;
-        }
         PixExOp op = new PixExOp();
         String[] bandNames = {"band_1", "band_2", "band_3"};
         Product product = createTestProduct("horst", "horse", bandNames);
@@ -417,9 +375,6 @@ public class PixExOpTest {
 
     @Test
     public void testTimeDeltaParsing() throws Exception {
-        if (clipboardContents == null) {
-            return;
-        }
         final PixExOp op = new PixExOp();
         op.parseTimeDelta("2D");
         assertEquals(2, op.getTimeDelta());
@@ -450,14 +405,12 @@ public class PixExOpTest {
         GPF.createProduct("PixEx", parameterMap, sourceProducts);
     }
 
-    private static String[] getDataFromClipboard() throws UnsupportedFlavorException, IOException {
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        String data = String.valueOf(clipboard.getData(clipboard.getAvailableDataFlavors()[0]));
-        return data.split("\n");
+    private static String[] getDataFromStream(ByteArrayOutputStream outStream) {
+        return outStream.toString().split("\n");
     }
 
     private static Product createTestProduct(String name, String type, String[] bandNames) throws FactoryException,
-                                                                                          TransformException {
+                                                                                                  TransformException {
         Rectangle bounds = new Rectangle(360, 180);
         Product product = new Product(name, type, bounds.width, bounds.height);
         AffineTransform i2mTransform = new AffineTransform();
@@ -482,7 +435,7 @@ public class PixExOpTest {
         return floats;
     }
 
-    private static void checkClipboardData(String[] lines, Product[] products, Coordinate[] coordinates, int windowSize,
+    private static void checkOutput(String[] lines, Product[] products, Coordinate[] coordinates, int windowSize,
                                     String expression) {
 
         List<String> productTypes = new ArrayList<String>();
@@ -497,9 +450,7 @@ public class PixExOpTest {
         int lineCount = windowSize * windowSize * coordinates.length * products.length;
         lineCount += mainHeaderLength; // add offset for the main header
         lineCount += productIdMapLength;
-        lineCount += productTypes.size() * 2; // add two lines for each header
-        lineCount += productTypes.size() > 1 ? productTypes.size() : 0; // if more than one product type is present, add a line for each
-        lineCount -= productTypes.size() > 1 ? 1 : 0; // if more than one product type is present, the last productType has no line break
+        lineCount += productTypes.size() * 3; // 3 lines for each product type header
 
         assertEquals(lineCount, lines.length);
 
