@@ -15,6 +15,7 @@
  */
 package org.esa.beam.dataio.avhrr;
 
+import org.esa.beam.dataio.avhrr.noaa.NoaaAvhrrFile;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -44,10 +45,7 @@ public class AvhrrReaderPlugIn implements ProductReaderPlugIn {
 
     public DecodeQualification getDecodeQualification(Object input) {
         File file = getInputFile(input);
-        if (file != null && AvhrrReader.canOpenFile(file)) {
-            return DecodeQualification.INTENDED;
-        }
-        return DecodeQualification.UNABLE;
+        return NoaaAvhrrFile.canDecode(file);
     }
 
     public static File getInputFile(Object input) {

@@ -16,20 +16,16 @@
 package org.esa.beam.dataio.avhrr;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.dataio.avhrr.noaa.CloudReader;
-import org.esa.beam.dataio.avhrr.noaa.NoaaFile;
+import org.esa.beam.dataio.avhrr.noaa.NoaaAvhrrFile;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 
-import javax.imageio.stream.FileImageInputStream;
-import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.text.MessageFormat;
 
@@ -39,8 +35,6 @@ import java.text.MessageFormat;
  * @see <a href="http://www2.ncdc.noaa.gov/doc/klm/">NOAA KLM User's Guide</a>
  */
 public class AvhrrReader extends AbstractProductReader implements AvhrrConstants {
-
-    protected ImageInputStream imageInputStream;
 
     protected Product product;
 
@@ -68,8 +62,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
         final File dataFile = AvhrrReaderPlugIn.getInputFile(getInput());
 
         try {
-            imageInputStream = new FileImageInputStream(dataFile);
-            avhrrFile = new NoaaFile(imageInputStream);
+            avhrrFile = new NoaaAvhrrFile(dataFile);
             avhrrFile.readHeader();
             createProduct();
             product.setFileLocation(dataFile);
@@ -127,11 +120,9 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
     @Override
     public void close() throws IOException {
         super.close();
+        avhrrFile.dispose();
+        avhrrFile = null;
         product = null;
-        if (imageInputStream != null) {
-            imageInputStream.close();
-            imageInputStream = null;
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -189,36 +180,28 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
         addCloudBand();
         product.setStartTime(avhrrFile.getStartDate());
         product.setEndTime(avhrrFile.getEndDate());
-
-        final MetadataElement metadataRoot = product.getMetadataRoot();
-        final List<MetadataElement> metadataElements = avhrrFile.getMetaData();
-        for (final MetadataElement metadataElement : metadataElements) {
-            metadataRoot.addElement(metadataElement);
-        }
+        avhrrFile.addMetaData(product.getMetadataRoot());
 
         addTiePointGrids();
     }
 
-    protected Band createVisibleRadianceBand(int channel) {
-        BandReader bandReader = avhrrFile
-                .createVisibleRadianceBandReader(channel);
+    protected Band createVisibleRadianceBand(int channel) throws IOException {
+        BandReader bandReader = avhrrFile.createVisibleRadianceBandReader(channel);
         return createBand(bandReader, channel);
     }
 
-    protected Band createIrRadianceBand(int channel) {
+    protected Band createIrRadianceBand(int channel) throws IOException {
         BandReader bandReader = avhrrFile.createIrRadianceBandReader(channel);
         return createBand(bandReader, channel);
     }
 
-    protected Band createIrTemperatureBand(int channel) {
-        BandReader bandReader = avhrrFile
-                .createIrTemperatureBandReader(channel);
+    protected Band createIrTemperatureBand(int channel) throws IOException {
+        BandReader bandReader = avhrrFile.createIrTemperatureBandReader(channel);
         return createBand(bandReader, channel);
     }
 
     protected Band createReflectanceFactorBand(int channel) {
-        BandReader bandReader = avhrrFile
-                .createReflectanceFactorBandReader(channel);
+        BandReader bandReader = avhrrFile.createReflectanceFactorBandReader(channel);
         return createBand(bandReader, channel);
     }
 
@@ -257,7 +240,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
     }
 
     protected void addFlagCodingAndBitmaskDef() {
-        BandReader bandReader = new FlagReader(avhrrFile, imageInputStream);
+        BandReader bandReader = avhrrFile.createFlagBandReader();
 
         Band flagsBand = new Band(bandReader.getBandName(), bandReader
                 .getDataType(), avhrrFile.getProductWidth(), avhrrFile
@@ -281,28 +264,24 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
     }
 
     protected void addCloudBand() {
-        if (avhrrFile instanceof NoaaFile) {
-            NoaaFile noaaFile = (NoaaFile) avhrrFile;
-            if (noaaFile.hasCloudBand()) {
-                BandReader cloudReader = new CloudReader(noaaFile,
-                        imageInputStream);
-                Band cloudMaskBand = new Band(cloudReader.getBandName(),
-                        cloudReader.getDataType(), avhrrFile.getProductWidth(),
-                        avhrrFile.getProductHeight());
+        if (avhrrFile.hasCloudBand()) {
+            BandReader cloudReader = avhrrFile.createCloudBandReader();
+            Band cloudMaskBand = new Band(cloudReader.getBandName(),
+                    cloudReader.getDataType(), avhrrFile.getProductWidth(),
+                    avhrrFile.getProductHeight());
 
-                final String cloudBandName = cloudReader.getBandName();
-                product.addBitmaskDef(new BitmaskDef("clear", "",
-                        cloudBandName + "==0", Color.LIGHT_GRAY, 0.4f));
-                product.addBitmaskDef(new BitmaskDef("probably_clear", "",
-                        cloudBandName + "==1", Color.YELLOW, 0.4f));
-                product.addBitmaskDef(new BitmaskDef("probably_cloudy", "",
-                        cloudBandName + "==2", Color.ORANGE, 0.4f));
-                product.addBitmaskDef(new BitmaskDef("cloudy", "",
-                        cloudBandName + "==3", Color.RED, 0.4f));
+            final String cloudBandName = cloudReader.getBandName();
+            product.addBitmaskDef(new BitmaskDef("clear", "",
+                    cloudBandName + "==0", Color.LIGHT_GRAY, 0.4f));
+            product.addBitmaskDef(new BitmaskDef("probably_clear", "",
+                    cloudBandName + "==1", Color.YELLOW, 0.4f));
+            product.addBitmaskDef(new BitmaskDef("probably_cloudy", "",
+                    cloudBandName + "==2", Color.ORANGE, 0.4f));
+            product.addBitmaskDef(new BitmaskDef("cloudy", "",
+                    cloudBandName + "==3", Color.RED, 0.4f));
 
-                product.addBand(cloudMaskBand);
-                bandReaders.put(cloudMaskBand, cloudReader);
-            }
+            product.addBand(cloudMaskBand);
+            bandReaders.put(cloudMaskBand, cloudReader);
         }
     }
 
@@ -324,7 +303,8 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
     }
 
     protected void addTiePointGrids() throws IOException {
-        final int gridHeight = avhrrFile.getProductHeight() / TP_SUB_SAMPLING_Y + 1;
+        int tpSubsampling = avhrrFile.getTiePointSupsampling();
+        final int gridHeight = avhrrFile.getProductHeight() / tpSubsampling + 1;
 
         String[] tiePointNames = avhrrFile.getTiePointNames();
         float[][] tiePointData = avhrrFile.getTiePointData();
@@ -334,7 +314,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
 
         for (int i = 0; i < grid.length; i++) {
             grid[i] = createTiePointGrid(tiePointNames[i], TP_GRID_WIDTH,
-                    gridHeight, TP_OFFSET_X, TP_OFFSET_Y, TP_SUB_SAMPLING_X, TP_SUB_SAMPLING_Y,
+                    gridHeight, TP_OFFSET_X, TP_OFFSET_Y, tpSubsampling, tpSubsampling,
                     tiePointData[i]);
             grid[i].setUnit(UNIT_DEG);
             product.addTiePointGrid(grid[i]);
@@ -343,14 +323,6 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
         GeoCoding geoCoding = new TiePointGeoCoding(grid[numGrids - 2],
                 grid[numGrids - 1], Datum.WGS_72);
         product.setGeoCoding(geoCoding);
-    }
-
-    public static boolean canOpenFile(File file) {
-        try {
-            return NoaaFile.canOpenFile(file);
-        } catch (IOException e) {
-            return false;
-        }
     }
 
     public static String format(String pattern, String arg) {

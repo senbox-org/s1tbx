@@ -16,8 +16,8 @@
 package org.esa.beam.dataio.avhrr;
 
 import java.io.IOException;
-import java.util.List;
 
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 
 public abstract class AvhrrFile {
@@ -32,7 +32,7 @@ public abstract class AvhrrFile {
 	
 	abstract public void readHeader() throws IOException;
 	
-	abstract public String getProductName();
+	abstract public String getProductName() throws IOException;
 	
 	public int getProductWidth() {
 		return productWidth;
@@ -42,24 +42,30 @@ public abstract class AvhrrFile {
 		return productHeight;
 	}
 	
-	abstract public ProductData.UTC getStartDate();
+	abstract public ProductData.UTC getStartDate() throws IOException;
 	
-	abstract public ProductData.UTC getEndDate();
+	abstract public ProductData.UTC getEndDate() throws IOException;
 	
 	public int getChannel3abState() {
 		return channel3ab;
 	}
 	
-	abstract public List getMetaData();
+	abstract public void addMetaData(MetadataElement metadataRoot) throws IOException;
 	
-	abstract public BandReader createVisibleRadianceBandReader(int channel);
+	abstract public BandReader createVisibleRadianceBandReader(int channel) throws IOException;
 	
-	abstract public BandReader createIrRadianceBandReader(int channel);
+	abstract public BandReader createIrRadianceBandReader(int channel) throws IOException;
 	
-	abstract public BandReader createIrTemperatureBandReader(int channel);
+	abstract public BandReader createIrTemperatureBandReader(int channel) throws IOException;
 
 	abstract public BandReader createReflectanceFactorBandReader(int channel);
-	
+
+    abstract public BandReader createFlagBandReader();
+
+    abstract public boolean hasCloudBand();
+
+    abstract public BandReader createCloudBandReader();
+
 	abstract public String[] getTiePointNames();
 	
 	abstract public float[][] getTiePointData() throws IOException;
@@ -67,7 +73,11 @@ public abstract class AvhrrFile {
 	abstract public int getScanLineOffset(int rawY);
 
 	abstract public int getFlagOffset(int rawY);
-		
+
+    public abstract int getTiePointTrimX();
+
+    public abstract int getTiePointSupsampling();
+
 	public RawCoordinates getRawCoordiantes(int sourceOffsetX,
 			int sourceOffsetY, int sourceWidth, int sourceHeight) {
 		RawCoordinates coordinates = new RawCoordinates();
@@ -86,12 +96,15 @@ public abstract class AvhrrFile {
 			coordinates.targetStart = 0;
 			coordinates.targetIncrement = 1;
 		}
-		coordinates.minX += AvhrrConstants.TP_TRIM_X;
-		coordinates.maxX += AvhrrConstants.TP_TRIM_X;
+        final int tpTrimX = getTiePointTrimX();
+        coordinates.minX += tpTrimX;
+		coordinates.maxX += tpTrimX;
 		return coordinates;
 	}
-	
-	public class RawCoordinates {
+
+    public abstract void dispose() throws IOException;
+
+    public class RawCoordinates {
 		public int minX;
 		public int maxX;
 		public int minY;

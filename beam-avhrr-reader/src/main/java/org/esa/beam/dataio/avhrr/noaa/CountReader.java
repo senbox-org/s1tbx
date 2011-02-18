@@ -13,8 +13,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
+
 package org.esa.beam.dataio.avhrr.noaa;
 
+import com.bc.ceres.binio.CompoundData;
+import com.bc.ceres.binio.SequenceData;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.avhrr.AvhrrConstants;
 import org.esa.beam.dataio.avhrr.AvhrrFile;
@@ -22,33 +25,26 @@ import org.esa.beam.dataio.avhrr.BandReader;
 import org.esa.beam.dataio.avhrr.calibration.Calibrator;
 import org.esa.beam.framework.datamodel.ProductData;
 
-import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
 abstract class CountReader implements BandReader {
 
-    protected static final int DATA_OFFSET = 1264;
+    protected final Calibrator calibrator;
 
-    protected Calibrator calibrator;
+    protected final int[] calibrationData;
 
-    protected int[] calibrationData;
+    protected final int[] lineOfCounts;
 
-    protected ImageInputStream inputStream;
+    protected final int channel;
 
-    protected int[] lineOfCounts;
+    protected final NoaaAvhrrFile noaaFile;
 
-    protected int channel;
-
-    private NoaaFile noaaFile;
-
-    public CountReader(int channel, NoaaFile noaaFile,
-                       ImageInputStream inputStream, Calibrator calibrator) {
+    public CountReader(int channel, NoaaAvhrrFile noaaFile, Calibrator calibrator, int dataWidth) {
         this.channel = channel;
         this.noaaFile = noaaFile;
-        this.inputStream = inputStream;
         this.calibrator = calibrator;
         calibrationData = new int[AvhrrConstants.CALIB_COEFF_LENGTH];
-        lineOfCounts = new int[AvhrrConstants.RAW_SCENE_RASTER_WIDTH];
+        lineOfCounts = new int[dataWidth];
     }
 
     @Override
@@ -89,20 +85,19 @@ abstract class CountReader implements BandReader {
         int targetIdx = rawCoord.targetStart;
         pm.beginTask("Reading AVHRR band '" + getBandName() + "'...", rawCoord.maxY - rawCoord.minY);
         try {
-            for (int sourceY = rawCoord.minY; sourceY <= rawCoord.maxY; sourceY += sourceStepY) {
+            for (int rawY = rawCoord.minY; rawY <= rawCoord.maxY; rawY += sourceStepY) {
                 if (pm.isCanceled()) {
                     break;
                 }
 
-                boolean validData = hasData(sourceY);
+                boolean validData = hasData(rawY);
                 if (validData) {
                     if (calibrator.requiresCalibrationData()) {
-                        readCalibCoefficients(sourceY, calibrationData);
+                        readCalibCoefficients(rawY, calibrationData);
                         validData = calibrator.processCalibrationData(calibrationData);
                     }
                     if (validData) {
-                        final int dataOffset = getScanLineDataOffset(sourceY);
-                        readData(dataOffset);
+                        readData(rawY);
                         validData = containsValidCounts();
                         if (validData) {
                             for (int sourceX = rawCoord.minX; sourceX <= rawCoord.maxX; sourceX += sourceStepX) {
@@ -129,14 +124,14 @@ abstract class CountReader implements BandReader {
         if (channel != AvhrrConstants.CH_3A && channel != AvhrrConstants.CH_3B) {
             return true;
         }
-        final int bitField = noaaFile.readScanLineBitField(rawY);
+        final int bitField = noaaFile.getScanlineBitfield(rawY);
         final int channel3ab = bitField & 3;
         return (channel3ab == 1 && channel == AvhrrConstants.CH_3A)
                || (channel3ab == 0 && channel == AvhrrConstants.CH_3B);
     }
 
     private boolean containsValidCounts() {
-        for (int i = 0; i < AvhrrConstants.RAW_SCENE_RASTER_WIDTH; i++) {
+        for (int i = 0; i < lineOfCounts.length; i++) {
             if (lineOfCounts[i] <= 0 || lineOfCounts[i] >= 1024) {
                 return false;
             }
@@ -144,20 +139,13 @@ abstract class CountReader implements BandReader {
         return true;
     }
 
-    private void readCalibCoefficients(int rawY, int[] calibCoeff)
-            throws IOException {
-        int calOffset = noaaFile.getScanLineOffset(rawY)
-                        + AvhrrConstants.CALIB_COEFF_OFFSET;
-        synchronized (inputStream) {
-            inputStream.seek(calOffset);
-            inputStream.readFully(calibCoeff, 0,
-                                  AvhrrConstants.CALIB_COEFF_LENGTH);
+    private void readCalibCoefficients(int rawY, int[] calibCoeff) throws IOException {
+        CompoundData dataRecord = noaaFile.getDataRecord(rawY);
+        SequenceData calibration_coefficients = dataRecord.getSequence("CALIBRATION_COEFFICIENTS");
+        for (int i = 0; i < calibCoeff.length; i++) {
+            calibCoeff[i] = calibration_coefficients.getInt(i);
         }
     }
 
-    private int getScanLineDataOffset(int rawY) {
-        return noaaFile.getScanLineOffset(rawY) + DATA_OFFSET;
-    }
-
-    protected abstract void readData(int dataOffset) throws IOException;
+    protected abstract void readData(int rawY) throws IOException;
 }

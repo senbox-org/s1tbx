@@ -70,6 +70,7 @@ public interface AvhrrConstants {
     public static final String UNIT_KM = "km";
     public static final String UNIT_M_PER_S = "m/s";
     public static final String UNIT_KM_PER_S = "km/s";
+    public static final String UNIT_PER_CM = "1/cm";
     public static final String UNIT_YEARS = "year";
     public static final String UNIT_DAYS = "day";
     public static final String UNIT_MINUTES = "min";

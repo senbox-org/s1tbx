@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.avhrr.binio;
+package org.esa.beam.dataio.avhrr.noaa;
 
 import com.bc.ceres.binio.CompoundData;
 import com.bc.ceres.binio.CompoundMember;
@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * A wrapper for a header of the NOAA AVHRR file base on a binio compound.
  */
-public class HeaderWrapper {
+class HeaderWrapper {
 
     private final CompoundData compoundData;
 
@@ -55,7 +55,7 @@ public class HeaderWrapper {
                 //ignore
             } else if (formatMetadata != null && formatMetadata.getType().equals("string")) {
                 String stringValue = getAsString(compoundData.getSequence(i));
-                Map<Object, String> map = getMetaData(member).getItems();
+                Map<Object, String> map = getMetaData(member).getItemMap();
                 if (map != null) {
                     stringValue = map.get(stringValue);
                 }
@@ -66,25 +66,33 @@ public class HeaderWrapper {
                 metadataElement.addAttribute(attribute);
             } else if (member.getType().getName().equals("DATE")) {
                 CompoundData dateCompound = compoundData.getCompound(i);
-                int year = dateCompound.getInt("year");
-                int dayOfYear = dateCompound.getInt("dayOfYear");
-                int millisInDay = dateCompound.getInt("UTCmillis");
-                ProductData data = HeaderUtil.createUTCDate(year, dayOfYear, millisInDay);
+                ProductData data = createDate(dateCompound);
                 MetadataAttribute attribute = new MetadataAttribute(typeName, data, true);
                 attribute.setDescription(getDescription(member));
                 attribute.setUnit(getUnits(member));
                 metadataElement.addAttribute(attribute);
+            } else if (member.getType().isSequenceType()) {
+                SequenceData sequence = compoundData.getSequence(i);
+                for (int j = 0; j < sequence.getType().getElementCount(); j++) {
+                    CompoundData compound = sequence.getCompound(j);
+                    metadataElement.addElement(getAsMetadataElement(compound));
+                }
             } else if (member.getType().isCompoundType()) {
                 metadataElement.addElement(getAsMetadataElement(compoundData.getCompound(i)));
             } else if (member.getType().isSimpleType()) {
                 int intValue = compoundData.getInt(i);
-                Map<Object, String> map = getMetaData(member).getItems();
+                Map<Object, String> map = getMetaData(member).getItemMap();
                 ProductData data;
                 if (map != null) {
                     String stringValue = map.get(intValue);
                     data = ProductData.createInstance(stringValue);
                 } else {
-                    data = ProductData.createInstance(new int[]{intValue});
+                    double scalingFactor = getMetaData(member).getScalingFactor();
+                    if (scalingFactor == 1.0) {
+                        data = ProductData.createInstance(new int[]{intValue});
+                    } else {
+                        data = ProductData.createInstance(new double[]{intValue*scalingFactor});
+                    }
                 }
                 MetadataAttribute attribute = new MetadataAttribute(typeName, data, true);
                 attribute.setDescription(getDescription(member));
@@ -98,12 +106,32 @@ public class HeaderWrapper {
         return metadataElement;
     }
 
+    static ProductData.UTC createDate(CompoundData dateCompound) throws IOException {
+        int year = dateCompound.getInt("year");
+        int dayOfYear = dateCompound.getInt("dayOfYear");
+        int millisInDay = dateCompound.getInt("UTCmillis");
+        return HeaderUtil.createUTCDate(year, dayOfYear, millisInDay);
+    }
+
     static String getAsString(SequenceData valueSequence) throws IOException {
         byte[] data = new byte[valueSequence.getElementCount()];
         for (int i = 0; i < data.length; i++) {
             data[i] = valueSequence.getByte(i);
         }
         return new String(data).trim();
+    }
+
+    static double getValue(CompoundData compoundData, String name) throws IOException {
+        CompoundType type = compoundData.getType();
+        int memberIndex = type.getMemberIndex(name);
+        double v = compoundData.getDouble(memberIndex);
+        double scalingFactor = getScalingFactor(type.getMember(memberIndex));
+        return  v * scalingFactor;
+    }
+
+    private static double getScalingFactor(CompoundMember member) {
+        FormatMetadata metaData = getMetaData(member);
+        return metaData.getScalingFactor();
     }
 
     private static String getDescription(CompoundMember member) {

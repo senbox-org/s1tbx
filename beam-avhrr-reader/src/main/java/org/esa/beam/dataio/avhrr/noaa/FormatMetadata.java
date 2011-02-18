@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.dataio.avhrr.binio;
+package org.esa.beam.dataio.avhrr.noaa;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +23,7 @@ class FormatMetadata {
     private String type;
     private String description;
     private String units;
-    private String scalingFactor;
+    private double scalingFactor = 1.0;
     private Map<Object, String> itemMap;
 
     public FormatMetadata setType(String typeString) {
@@ -53,12 +53,12 @@ class FormatMetadata {
         return units != null ? units : "";
     }
 
-    public FormatMetadata setScalingFactor(String scalingFactor) {
+    public FormatMetadata setScalingFactor(double scalingFactor) {
         this.scalingFactor = scalingFactor;
         return this;
     }
     
-    public String getScalingFactor() {
+    public double getScalingFactor() {
         return scalingFactor;
     }
 
@@ -70,7 +70,7 @@ class FormatMetadata {
         return this;
     }
 
-    public Map<Object, String> getItems() {
+    public Map<Object, String> getItemMap() {
         return itemMap;
     }
 }

@@ -13,38 +13,38 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
+
 package org.esa.beam.dataio.avhrr.noaa;
 
-import java.io.IOException;
-
-import javax.imageio.stream.ImageInputStream;
-
+import com.bc.ceres.binio.CompoundData;
+import com.bc.ceres.binio.SequenceData;
 import org.esa.beam.dataio.avhrr.AvhrrConstants;
 import org.esa.beam.dataio.avhrr.calibration.Calibrator;
 
-class CountReader16Bit extends CountReader {
-    public static final int DATA_RECORD_LENGTH = 22528;
+import java.io.IOException;
 
-    private static final int SCAN_LINE_LENGTH = 2048 * 5;
+class CountReader16Bit extends CountReader {
     private short[] scanLineBuffer;
 
-    public CountReader16Bit(int channel, NoaaFile noaaFile, ImageInputStream inputStream, Calibrator calibrator) {
-    	super(channel, noaaFile, inputStream, calibrator);
-        scanLineBuffer = new short[SCAN_LINE_LENGTH];
+    public CountReader16Bit(int channel, NoaaAvhrrFile noaaFile, Calibrator calibrator, int elementCount, int dataWidth) {
+    	super(channel, noaaFile, calibrator, dataWidth);
+        scanLineBuffer = new short[elementCount];
     }
 
     @Override
-    protected void readData(int dataOffset) throws IOException {
-        synchronized (inputStream) {
-            inputStream.seek(dataOffset);
-            inputStream.readFully(scanLineBuffer, 0, SCAN_LINE_LENGTH);
+    protected void readData(int rawY) throws IOException {
+        CompoundData dataRecord = noaaFile.getDataRecord(rawY);
+        SequenceData avhrr_sensor_data = dataRecord.getSequence("AVHRR_SENSOR_DATA");
+        for (int i = 0; i < scanLineBuffer.length; i++) {
+            scanLineBuffer[i] = avhrr_sensor_data.getShort(i);
         }
+
         extractCounts(scanLineBuffer);
     }
 
     private void extractCounts(short[] rawData) {
         int indexRaw = AvhrrConstants.CH_DATASET_INDEXES[channel];
-        for (int i = 0; i < AvhrrConstants.RAW_SCENE_RASTER_WIDTH; i++) {
+        for (int i = 0; i < lineOfCounts.length; i++) {
             lineOfCounts[i] = rawData[indexRaw];
             indexRaw += 5;
         }

@@ -15,29 +15,30 @@
  */
 package org.esa.beam.dataio.avhrr.noaa;
 
+import com.bc.ceres.binio.CompoundData;
+import com.bc.ceres.binio.SequenceData;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.avhrr.AvhrrFile;
 import org.esa.beam.dataio.avhrr.BandReader;
 import org.esa.beam.framework.datamodel.ProductData;
 
-import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
-public class CloudReader implements BandReader {
+class CloudReader implements BandReader {
 
-    private NoaaFile noaaFile;
-
-    private ImageInputStream inputStream;
+    private NoaaAvhrrFile noaaFile;
 
     private byte[] rawBuffer;
 
     private byte[] flagBuffer;
 
-    public CloudReader(NoaaFile noaaFile, ImageInputStream inputStream) {
+    public CloudReader(NoaaAvhrrFile noaaFile) {
         this.noaaFile = noaaFile;
-        this.inputStream = inputStream;
-        rawBuffer = new byte[512];
-        flagBuffer = new byte[2048];
+        ProductFormat productFormat = noaaFile.getProductFormat();
+        int dataWidth = productFormat.getProductDimension().getDataWidth();
+        int cloudBytes = productFormat.getProductDimension().getCloudBytes();
+        rawBuffer = new byte[cloudBytes];
+        flagBuffer = new byte[dataWidth];
     }
 
     public String getBandDescription() {
@@ -61,8 +62,8 @@ public class CloudReader implements BandReader {
     }
 
     public synchronized void readBandRasterData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                                   int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm) throws
-                                                                                                                 IOException {
+                                                int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm) throws
+            IOException {
 
         AvhrrFile.RawCoordinates rawCoord = noaaFile.getRawCoordiantes(
                 sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight);
@@ -93,23 +94,16 @@ public class CloudReader implements BandReader {
     }
 
     private boolean hasClouds(int sourceY) throws IOException {
-        final int offset = noaaFile.getScanLineOffset(sourceY) + 14976;
-        boolean hasCloud = false;
-        synchronized (inputStream) {
-            inputStream.seek(offset);
-            final long cloudFlag = inputStream.readUnsignedInt();
-            if (cloudFlag == 1) {
-                hasCloud = true;
-            }
-        }
-        return hasCloud;
+        CompoundData dataRecord = noaaFile.getDataRecord(sourceY);
+        int cloudFlag = dataRecord.getInt("CLAVR_STATUS_BIT_FIELD");
+        return cloudFlag == 1;
     }
 
     private void readClouds(int sourceY) throws IOException {
-        final int offset = noaaFile.getScanLineOffset(sourceY) + 14984;
-        synchronized (inputStream) {
-            inputStream.seek(offset);
-            inputStream.read(rawBuffer);
+        CompoundData dataRecord = noaaFile.getDataRecord(sourceY);
+        SequenceData ccm = dataRecord.getSequence("CCM");
+        for (int i = 0; i < rawBuffer.length; i++) {
+            rawBuffer[i] = ccm.getByte(i);
         }
         for (int i = 0; i < flagBuffer.length; i++) {
             flagBuffer[i] = (byte) (rawBuffer[i / 4] >> (3 - (i % 4)) & 3);
