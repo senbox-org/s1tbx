@@ -44,7 +44,7 @@ class MeasurementWriter {
         for (String name : rasterNames) {
             printWriter.append(String.format("%s\t", name));
         }
-        printWriter.append("\n");
+        printWriter.println();
         for (Measurement measurement : measurementList) {
             if (expression == null || exportExpressionResult || measurement.isValid()) {
                 final Integer productId = measurement.getProductId();
@@ -72,7 +72,7 @@ class MeasurementWriter {
                 for (Number value : values) {
                     printWriter.append(String.format("%s\t", value));
                 }
-                printWriter.append("\n");
+                printWriter.println();
             }
         }
     }
