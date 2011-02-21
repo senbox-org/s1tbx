@@ -122,6 +122,39 @@ public class PixExOpTest {
     }
 
     @Test
+    public void testGetParsedInputPaths() throws Exception {
+        final File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        final File testDir = new File(tmpDir, getClass().getSimpleName());
+        final File subDir1 = new File(testDir, "subDir1");
+        final File subDir2 = new File(testDir, "subDir2");
+        final File subDir2_1 = new File(subDir2, "subDir2_1");
+        final File subDir2_2 = new File(subDir2, "subDir2_2");
+        testDir.mkdir();
+        subDir1.mkdir();
+        subDir2.mkdir();
+        subDir2_1.mkdir();
+        subDir2_2.mkdir();
+
+        File[] parsedInputPaths = PixExOp.getParsedInputPaths(
+                new File[]{new File(testDir.getAbsolutePath() + PixExOp.RECURSIVE_INDICATOR)});
+
+        assertEquals(5, parsedInputPaths.length);
+        List<File> dirList = Arrays.asList(parsedInputPaths);
+        assertTrue("Missing dir '" + testDir.getAbsolutePath() + "'.", dirList.contains(testDir));
+        assertTrue("Missing dir '" + subDir1.getAbsolutePath() + "'.", dirList.contains(subDir1));
+        assertTrue("Missing dir '" + subDir2.getAbsolutePath() + "'.", dirList.contains(subDir2));
+        assertTrue("Missing dir '" + subDir2_1.getAbsolutePath() + "'.", dirList.contains(subDir2_1));
+        assertTrue("Missing dir '" + subDir2_2.getAbsolutePath() + "'.", dirList.contains(subDir2_2));
+
+        parsedInputPaths = PixExOp.getParsedInputPaths(new File[]{testDir, subDir2_1});
+        assertEquals(2, parsedInputPaths.length);
+        dirList = Arrays.asList(parsedInputPaths);
+        assertTrue("Missing dir '" + testDir.getAbsolutePath() + "'.", dirList.contains(testDir));
+        assertTrue("Missing dir '" + subDir2_1.getAbsolutePath() + "'.", dirList.contains(subDir2_1));
+
+    }
+
+    @Test
     public void testSingleProduct() throws Exception {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 

@@ -48,6 +48,7 @@ import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -64,6 +65,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @SuppressWarnings({
@@ -78,13 +80,16 @@ import java.util.logging.Logger;
         description = "Generates a CSV file from a given pixel location and source products.")
 public class PixExOp extends Operator {
 
+    public static final String RECURSIVE_INDICATOR = "**";
+
     @SourceProducts()
     private Product[] sourceProducts;
 
     @TargetProperty()
     private Map<String, List<Measurement>> measurements;
 
-    @Parameter(description = "The paths to be scanned for input products. May point to a single file or a directory.")
+    @Parameter(description = "The paths to be scanned for input products. May point to a single file or a directory. " +
+                             "If path ends with '**' the directory is scanned recursively.")
     private File[] inputPaths;
 
     @Parameter(description = "Specifies if bands are to be exported", defaultValue = "true")
@@ -169,7 +174,10 @@ public class PixExOp extends Operator {
             }
         }
         if (inputPaths != null) {
-            inputPaths = cleanPathNames(inputPaths);
+            inputPaths = getParsedInputPaths(inputPaths);
+            if (inputPaths.length == 0) {
+                getLogger().log(Level.WARNING, "No valid input path found.");
+            }
             extractMeasurements(inputPaths);
         }
         try {
@@ -496,12 +504,38 @@ public class PixExOp extends Operator {
         }
     }
 
-    private static File[] cleanPathNames(File[] paths) {
-        for (int i = 0; i < paths.length; i++) {
-            File path = paths[i];
-            paths[i] = new File(path.getPath().trim());
+    static File[] getParsedInputPaths(File[] filePaths) {
+        final ArrayList<File> directoryList = new ArrayList<File>();
+        for (File file : filePaths) {
+            String trimmedPath = file.getPath().trim();
+            if (trimmedPath.endsWith(RECURSIVE_INDICATOR)) {
+                trimmedPath = trimmedPath.substring(0, trimmedPath.lastIndexOf(RECURSIVE_INDICATOR));
+
+                final File directory = new File(trimmedPath);
+                collectDirectoriesRecursive(directory, directoryList);
+            } else {
+                directoryList.add(new File(trimmedPath));
+            }
         }
-        return paths;
+        return directoryList.toArray(new File[directoryList.size()]);
+    }
+
+    private static void collectDirectoriesRecursive(File directory, ArrayList<File> directoryList) {
+        if (directory.isDirectory()) {
+            directoryList.add(directory);
+            final File[] subDirs = directory.listFiles(new DirectoryFileFilter());
+            for (File subDir : subDirs) {
+                collectDirectoriesRecursive(subDir, directoryList);
+            }
+        }
+    }
+
+    private static class DirectoryFileFilter implements FileFilter {
+
+        @Override
+        public boolean accept(File pathname) {
+            return pathname.isDirectory();
+        }
     }
 
     private class ProductValidator {
