@@ -515,7 +515,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         Integer tileHeight = null;
         String tileHeightStr = System.getProperty(SYSPROP_ENVISAT_TILE_HEIGHT);
         if (tileHeightStr != null) {
-            tileHeight = "*".equals(tileWidthStr) ? sceneRasterHeight : Integer.getInteger(SYSPROP_ENVISAT_TILE_HEIGHT);
+            tileHeight = "*".equals(tileHeightStr) ? sceneRasterHeight : Integer.getInteger(SYSPROP_ENVISAT_TILE_HEIGHT);
         }
         if (tileWidth != null || tileHeight != null) {
             Dimension tileSize = product.getPreferredTileSize();
