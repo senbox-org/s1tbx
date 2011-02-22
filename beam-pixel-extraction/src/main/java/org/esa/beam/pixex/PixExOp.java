@@ -88,8 +88,9 @@ public class PixExOp extends Operator {
     @TargetProperty()
     private Map<String, List<Measurement>> measurements;
 
-    @Parameter(description = "The paths to be scanned for input products. May point to a single file or a directory. " +
-                             "If path ends with '**' the directory is scanned recursively.")
+    @Parameter(
+            description = "The paths to be scanned for input products. May point to a single file or a directory.\n" +
+                          "If path ends with '**' the directory is scanned recursively.")
     private File[] inputPaths;
 
     @Parameter(description = "Specifies if bands are to be exported", defaultValue = "true")
@@ -104,7 +105,8 @@ public class PixExOp extends Operator {
     @Parameter(description = "The geo-coordinates", itemAlias = "coordinate")
     private Coordinate[] coordinates;
 
-    @Parameter(description = "The acceptable time difference compared to the time given for a coordinate.",
+    @Parameter(description = "The acceptable time difference compared to the time given for a coordinate.\n" +
+                             "The format is a number followed by (D)ay, (H)our or (M)inute.",
                defaultValue = "1D")
     private String timeDifference;
 
