@@ -19,10 +19,12 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -148,6 +150,47 @@ public class PlacemarkIOTest {
             final Object actualDateTimeAttribute = actualPlacemark.getFeature().getAttribute("dateTime");
             assertEquals(expectedDateTimeAttribute, actualDateTimeAttribute);
         }
+    }
+
+    @Test
+    public void testReadPlacemarkTextFileWithDateTimeFromConstanInput() throws Exception {
+        final StringWriter stringWriter = new StringWriter(WRITER_INITIAL_SIZE);
+        PrintWriter writer = new PrintWriter(stringWriter);
+        writer.printf("Name	Lat	Lon	DateTime%n");
+        writer.printf("One	59.885	10.664	2005-04-18T17:53:58%n");
+        writer.printf("Two	59.883	10.657	2006-08-06T12:54:58%n");
+        writer.printf("Three	59.88	10.65	2007-09-01T07:55:58%n");
+
+        List<Placemark> actualPlacemarks = PlacemarkIO.readPlacemarks(new StringReader(stringWriter.toString()),
+                                                                      GEO_CODING,
+                                                                      PinDescriptor.INSTANCE);
+        assertEquals(3, actualPlacemarks.size());
+        final Placemark mark1 = actualPlacemarks.get(0);
+        assertEquals("One", mark1.getLabel());
+        assertDateTime(mark1, 2005, 3, 18, 17, 53, 58);
+        assertEquals(59.885, mark1.getGeoPos().getLat(), 1.0e-3);
+        assertEquals(10.664, mark1.getGeoPos().getLon(), 1.0e-3);
+        final Placemark mark2 = actualPlacemarks.get(1);
+        assertEquals("Two", mark2.getLabel());
+        assertDateTime(mark2, 2006, 7, 6, 12, 54, 58);
+        assertEquals(59.883, mark2.getGeoPos().getLat(), 1.0e-3);
+        assertEquals(10.657, mark2.getGeoPos().getLon(), 1.0e-3);
+        final Placemark mark3 = actualPlacemarks.get(2);
+        assertEquals("Three", mark3.getLabel());
+        assertDateTime(mark3, 2007, 8, 1, 7, 55, 58);
+        assertEquals(59.88, mark3.getGeoPos().getLat(), 1.0e-3);
+        assertEquals(10.65, mark3.getGeoPos().getLon(), 1.0e-3);
+    }
+
+    private void assertDateTime(Placemark mark, int year, int month, int day, int hourOfDay, int minute, int second) {
+        final Calendar cal = Calendar.getInstance();
+        cal.setTime((Date) mark.getFeature().getAttribute("dateTime"));
+        assertEquals(year, cal.get(Calendar.YEAR));
+        assertEquals(month, cal.get(Calendar.MONTH));
+        assertEquals(day, cal.get(Calendar.DATE));
+        assertEquals(hourOfDay, cal.get(Calendar.HOUR_OF_DAY));
+        assertEquals(minute, cal.get(Calendar.MINUTE));
+        assertEquals(second, cal.get(Calendar.SECOND));
     }
 
     private void testReadWritePlacemarkXmlFile(PlacemarkDescriptor descriptorInstance) throws IOException {
