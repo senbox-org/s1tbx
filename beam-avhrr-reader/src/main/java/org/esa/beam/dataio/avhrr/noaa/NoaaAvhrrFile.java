@@ -246,7 +246,6 @@ public class NoaaAvhrrFile extends AvhrrFile implements AvhrrConstants {
 
 		for (int scanLine = 0; scanLine < productHeight; scanLine += tiePointSupsampling) {
             CompoundData dataRecord = getDataRecord(scanLine);
-            System.out.println("dataRecord.getSize() = " + dataRecord.getSize());
             SequenceData angularRelationships = dataRecord.getSequence("ANGULAR_RELATIONSHIPS");
             for (int i = 0; i < numRawAngles; i++) {
                 rawAngles[i] = angularRelationships.getShort(i);
@@ -307,7 +306,7 @@ public class NoaaAvhrrFile extends AvhrrFile implements AvhrrConstants {
         try {
             formatDetector = new FormatDetector(file);
             return formatDetector.getDecodeQualification();
-        } catch (FileNotFoundException e) {
+        } catch (Throwable e) {
             return DecodeQualification.UNABLE;
         } finally {
             if (formatDetector != null) {
