@@ -59,7 +59,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -320,7 +319,6 @@ public class PixExOp extends Operator {
     }
 
     private Integer getProductId(Product product) {
-
         final ProductDescription productDescription = ProductDescription.create(product);
         if (!productLocationList.contains(productDescription)) {
             productLocationList.add(productDescription);
@@ -353,8 +351,8 @@ public class PixExOp extends Operator {
                     extractedCoordinates.add(coordinate);
                 }
             }
-        } catch (IOException ignore) {
-            return Collections.emptyList();
+        } catch (IOException cause) {
+            throw new OperatorException(cause);
         }
         return extractedCoordinates;
     }
