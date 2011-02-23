@@ -22,6 +22,10 @@
         [BEAM-874] Ensure thread safety of product reader<br/>
         ]]>
     </changelog>
+
+    <dependency>
+        <module>ceres-binio</module>
+    </dependency>
     <dependency>
         <module>beam-core</module>
     </dependency>
@@ -73,6 +77,5 @@
             <blue>-radiance_4</blue>
         </rgbProfile>
     </extension>
-
 
 </module>
