@@ -297,7 +297,7 @@ public class PixExOp extends Operator {
         final Calendar upperTimeBound = (Calendar) currentDate.clone();
         upperTimeBound.add(calendarField, timeDiff);
 
-        Calendar coordinateCal = Calendar.getInstance();
+        Calendar coordinateCal = ProductData.UTC.createCalendar();
         coordinateCal.setTime(coordinate.getDateTime());
 
         return lowerTimeBound.compareTo(coordinateCal) <= 0 && upperTimeBound.compareTo(coordinateCal) >= 0;

@@ -17,11 +17,10 @@
 package org.esa.beam.pixex;
 
 import com.bc.ceres.binding.converters.DateFormatConverter;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class Coordinate {
 
@@ -71,7 +70,7 @@ public class Coordinate {
     public static class ISO8601Converter extends DateFormatConverter {
 
         public ISO8601Converter() {
-            super(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()));
+            super(ProductData.UTC.createDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
         }
     }
 
