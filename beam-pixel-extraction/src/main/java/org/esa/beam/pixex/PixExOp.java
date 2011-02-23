@@ -43,6 +43,7 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
+import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
@@ -164,7 +165,6 @@ public class PixExOp extends Operator {
             throw new OperatorException("Output directory does not exist and could not be created.");
         }
         coordinateList = initCoordinateList();
-
         parseTimeDelta(timeDifference);
 
         validator = new ProductValidator();
@@ -211,15 +211,15 @@ public class PixExOp extends Operator {
     }
 
     void readMeasurement(Product product, Coordinate coordinate, int coordinateID,
-                         Map<String, List<Measurement>> measurements) throws IOException {
+                         Map<String, List<Measurement>> measurements, RenderedImage validMaskImage) throws IOException {
         PixelPos centerPos = product.getGeoCoding().getPixelPos(new GeoPos(coordinate.getLat(), coordinate.getLon()),
                                                                 null);
         if (!product.containsPixel(centerPos)) {
             return;
         }
         final ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, centerPos.y);
-        if (coordinate.getDateTime() != null && scanLineTime != null) {
-            if (!isPixelInTimeSpan(coordinate, timeDelta, calendarField, scanLineTime)) {
+        if (coordinate.getDateTime() != null) {
+            if (scanLineTime == null || !isPixelInTimeSpan(coordinate, timeDelta, calendarField, scanLineTime)) {
                 return;
             }
         }
@@ -233,17 +233,7 @@ public class PixExOp extends Operator {
         final Number[] values = new Number[rasterNames.length];
         Arrays.fill(values, Double.NaN);
         final int numPixels = windowSize * windowSize;
-        final RenderedImage expressionImage;
-
-        if (expression != null && product.isCompatibleBandArithmeticExpression(expression)) {
-            expressionImage = VirtualBandOpImage.create(expression, ProductData.TYPE_UINT8, 0,
-                                                        product, ResolutionLevel.MAXRES);
-        } else {
-            expressionImage = ConstantDescriptor.create((float) product.getSceneRasterWidth(),
-                                                        (float) product.getSceneRasterHeight(),
-                                                        new Byte[]{-1}, null);
-        }
-        final Raster validData = expressionImage.getData(new Rectangle(upperLeftX, upperLeftY, windowSize, windowSize));
+        final Raster validData = validMaskImage.getData(new Rectangle(upperLeftX, upperLeftY, windowSize, windowSize));
         for (int n = 0; n < numPixels; n++) {
             int x = upperLeftX + n % windowSize;
             int y = upperLeftY + n / windowSize;
@@ -284,6 +274,17 @@ public class PixExOp extends Operator {
                 measurements.put(productType, measurementList);
             }
             measurementList.add(measure);
+        }
+    }
+
+    PlanarImage createValidMaskImage(Product product) {
+        if (expression != null && product.isCompatibleBandArithmeticExpression(expression)) {
+            return VirtualBandOpImage.create(expression, ProductData.TYPE_UINT8, 0,
+                                             product, ResolutionLevel.MAXRES);
+        } else {
+            return ConstantDescriptor.create((float) product.getSceneRasterWidth(),
+                                             (float) product.getSceneRasterHeight(),
+                                             new Byte[]{-1}, null);
         }
     }
 
@@ -407,13 +408,18 @@ public class PixExOp extends Operator {
             rasterNamesMap.put(product.getProductType(), getAllRasterNames(product));
         }
 
-        for (int i = 0, coordinateListSize = coordinateList.size(); i < coordinateListSize; i++) {
-            Coordinate coordinate = coordinateList.get(i);
-            try {
-                readMeasurement(product, coordinate, i + 1, measurements);
-            } catch (IOException e) {
-                getLogger().warning(e.getMessage());
+        final PlanarImage validMaskImage = createValidMaskImage(product);
+        try {
+            for (int i = 0, coordinateListSize = coordinateList.size(); i < coordinateListSize; i++) {
+                Coordinate coordinate = coordinateList.get(i);
+                try {
+                    readMeasurement(product, coordinate, i + 1, measurements, validMaskImage);
+                } catch (IOException e) {
+                    getLogger().warning(e.getMessage());
+                }
             }
+        } finally {
+            validMaskImage.dispose();
         }
     }
 

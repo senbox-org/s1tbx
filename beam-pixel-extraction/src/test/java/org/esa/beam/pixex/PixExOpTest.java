@@ -25,6 +25,7 @@ import org.opengis.referencing.operation.TransformException;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -381,7 +382,9 @@ public class PixExOpTest {
         op.setWindowSize(3);
         Map<String, List<Measurement>> measurements = new HashMap<String, List<Measurement>>();
         GeoPos geoPos = new GeoPos(20.5f, 10.5f);
-        op.readMeasurement(product, new Coordinate("Coord_1", geoPos.lat, geoPos.lon, null), 1, measurements);
+        final RenderedImage validMaskImage = op.createValidMaskImage(product);
+        final Coordinate coord = new Coordinate("Coord_1", geoPos.lat, geoPos.lon, null);
+        op.readMeasurement(product, coord, 1, measurements, validMaskImage);
         geoPos = new GeoPos(21.5f, 9.5f);
 
         List<Measurement> measurementList = measurements.get(productType);
