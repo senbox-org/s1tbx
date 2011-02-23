@@ -43,11 +43,10 @@ import java.io.Writer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
 
 public class PlacemarkIO {
@@ -72,10 +71,13 @@ public class PlacemarkIO {
     private static final String DATETIME_COL_NAME = "DateTime";
 
     private static final String ISO8601_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(ISO8601_PATTERN, Locale.getDefault());
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(ISO8601_PATTERN);
 
     static {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        // setting the locale as constructor parameter seems not to work correctly
+        dateFormat.setCalendar(Calendar.getInstance(Locale.UK));
+
     }
 
     private PlacemarkIO() {
@@ -107,7 +109,6 @@ public class PlacemarkIO {
         try {
             int row = 0;
             List<Integer> stdColIndexes = null;
-            Map<String, Integer> additionalCols = new HashMap<String, Integer>();
             int biggestIndex = 0;
             while (true) {
                 String line = lineReader.readLine();

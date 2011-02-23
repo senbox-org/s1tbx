@@ -45,6 +45,7 @@ public class Coordinate {
         this.name = name;
         this.lat = lat;
         this.lon = lon;
+        //noinspection AssignmentToDateFieldFromParameter
         this.dateTime = dateTime;
     }
 
@@ -58,12 +59,6 @@ public class Coordinate {
 
     public Float getLon() {
         return lon;
-    }
-
-    public void setDateTime(Date dateTime) {
-        if (dateTime != null) {
-            this.dateTime = (Date) dateTime.clone();
-        }
     }
 
     public Date getDateTime() {
