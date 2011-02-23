@@ -290,6 +290,9 @@ public class PixExOp extends Operator {
     private boolean isPixelInTimeSpan(Product product, PixelPos pixelPos, Coordinate coordinate, int timeDiff,
                                       int calendarField) {
         final ProductData.UTC utcCurrentLine = ProductUtils.getScanLineTime(product, pixelPos.y);
+        if (utcCurrentLine == null) {
+            return false;
+        }
         final Calendar currentDate = utcCurrentLine.getAsCalendar();
 
         final Calendar lowerTimeBound = (Calendar) currentDate.clone();
