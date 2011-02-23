@@ -217,8 +217,9 @@ public class PixExOp extends Operator {
         if (!product.containsPixel(centerPos)) {
             return;
         }
-        if (coordinate.getDateTime() != null) {
-            if (!isPixelInTimeSpan(product, centerPos, coordinate, timeDelta, calendarField)) {
+        final ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, centerPos.y);
+        if (coordinate.getDateTime() != null && scanLineTime != null) {
+            if (!isPixelInTimeSpan(coordinate, timeDelta, calendarField, scanLineTime)) {
                 return;
             }
         }
@@ -273,10 +274,9 @@ public class PixExOp extends Operator {
             final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
             GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(pixelPos, null);
             boolean isValid = validData.getSample(x, y, 0) != 0;
-            final ProductData.UTC utcCurrentLine = ProductUtils.getScanLineTime(product, pixelPos.y);
 
             final Measurement measure = new Measurement(coordinateID, coordinate.getName(), id,
-                                                        pixelPos.x, pixelPos.y, utcCurrentLine, currentGeoPos, values,
+                                                        pixelPos.x, pixelPos.y, scanLineTime, currentGeoPos, values,
                                                         isValid);
             List<Measurement> measurementList = measurements.get(productType);
             if (measurementList == null) {
@@ -287,13 +287,9 @@ public class PixExOp extends Operator {
         }
     }
 
-    private boolean isPixelInTimeSpan(Product product, PixelPos pixelPos, Coordinate coordinate, int timeDiff,
-                                      int calendarField) {
-        final ProductData.UTC utcCurrentLine = ProductUtils.getScanLineTime(product, pixelPos.y);
-        if (utcCurrentLine == null) {
-            return false;
-        }
-        final Calendar currentDate = utcCurrentLine.getAsCalendar();
+    private boolean isPixelInTimeSpan(Coordinate coordinate, int timeDiff, int calendarField,
+                                      ProductData.UTC timeAtPixel) {
+        final Calendar currentDate = timeAtPixel.getAsCalendar();
 
         final Calendar lowerTimeBound = (Calendar) currentDate.clone();
         lowerTimeBound.add(calendarField, -timeDiff);
@@ -342,8 +338,10 @@ public class PixExOp extends Operator {
 
     private List<Coordinate> extractCoordinates(File coordinatesFile) {
         final List<Coordinate> extractedCoordinates = new ArrayList<Coordinate>();
+        FileReader fileReader = null;
         try {
-            final List<Placemark> pins = PlacemarkIO.readPlacemarks(new FileReader(coordinatesFile),
+            fileReader = new FileReader(coordinatesFile);
+            final List<Placemark> pins = PlacemarkIO.readPlacemarks(fileReader,
                                                                     null, // no GeoCoding needed
                                                                     PinDescriptor.INSTANCE);
             for (Placemark pin : pins) {
@@ -356,6 +354,13 @@ public class PixExOp extends Operator {
             }
         } catch (IOException cause) {
             throw new OperatorException(cause);
+        } finally {
+            if (fileReader != null) {
+                try {
+                    fileReader.close();
+                } catch (IOException ignored) {
+                }
+            }
         }
         return extractedCoordinates;
     }
@@ -464,7 +469,7 @@ public class PixExOp extends Operator {
         }
     }
 
-    private void writeOutputToWriter(Writer writer) throws IOException {
+    private void writeOutputToWriter(Writer writer) {
         writeHeader(writer);
         for (String productType : measurements.keySet()) {
             List<Measurement> measurementList = measurements.get(productType);
