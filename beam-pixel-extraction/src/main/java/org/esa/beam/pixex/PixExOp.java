@@ -40,7 +40,6 @@ import org.esa.beam.framework.gpf.annotations.TargetProperty;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.PlanarImage;
@@ -117,9 +116,6 @@ public class PixExOp extends Operator {
                validator = WindowSizeValidator.class)
     private Integer windowSize;
 
-    @Parameter(description = "Specifies if the output should be copied to the system clipboard.",
-               defaultValue = "false")
-    private boolean copyToClipboard;
 
     @Parameter(description = "The output directory. If not specified the output is written to std.out.")
     private File outputDir;
@@ -189,9 +185,6 @@ public class PixExOp extends Operator {
             writeOutputToWriter(writer);
             if (outputDir == null) {
                 System.out.print(writer.toString());
-            }
-            if (copyToClipboard) {
-                SystemUtils.copyToClipboard(writer.toString());
             }
         } catch (IOException e) {
             throw new OperatorException("Could not write output.", e);

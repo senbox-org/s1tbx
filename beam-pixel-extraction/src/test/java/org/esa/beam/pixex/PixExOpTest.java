@@ -100,7 +100,6 @@ public class PixExOpTest {
                 "          </coordinate>\n" +
                 "        </coordinates>\n" +
                 "        <windowSize>" + windowSize + "</windowSize>\n" +
-                "        <copyToClipboard>false</copyToClipboard>\n" +
                 "      </parameters>\n" +
                 "    </node>\n" +
                 "  </graph>";
@@ -169,7 +168,6 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
-        parameterMap.put("copyToClipboard", false);
 
         String[] bandNames = {"rad_1", "rad_2"};
         Product[] sourceProduct = {createTestProduct("andi", "type1", bandNames)};
@@ -194,7 +192,6 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
-        parameterMap.put("copyToClipboard", false);
 
         String[] bandNames = {"rad_1", "rad_2"};
 
@@ -222,7 +219,6 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
-        parameterMap.put("copyToClipboard", false);
 
         String[] bandNames = {"rad_1", "rad_2, radiance_3"};
 
@@ -253,7 +249,6 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
-        parameterMap.put("copyToClipboard", false);
 
         String[] bandNames = {"rad_1", "rad_2"};
         String[] bandNames2 = {"refl_1", "refl_2"};
@@ -289,7 +284,6 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
-        parameterMap.put("copyToClipboard", false);
         parameterMap.put("timeDifference", "1D");
 
         String[] bandNames = {"rad_1", "rad_2"};
@@ -331,7 +325,6 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
-        parameterMap.put("copyToClipboard", false);
 
         List<Product> productList = new ArrayList<Product>();
         for (int i = 0; i < 20; i++) {

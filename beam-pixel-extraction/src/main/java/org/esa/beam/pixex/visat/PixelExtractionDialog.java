@@ -148,7 +148,7 @@ class PixelExtractionDialog extends ModalDialog {
                             "The pixel extraction tool has run successfully and written the result file(s) to %s.",
                             outputDir.toString());
                 } else {
-                    message = "The pixel extraction tool has run successfully and written the result file to the clipboard.";
+                    message = "The pixel extraction tool has run successfully and written the result file to to std.out.";
                 }
 
                 JOptionPane.showMessageDialog(getJDialog(), message);
