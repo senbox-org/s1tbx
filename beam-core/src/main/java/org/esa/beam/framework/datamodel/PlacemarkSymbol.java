@@ -88,7 +88,7 @@ public class PlacemarkSymbol extends ShapeFigure {
 
             setFillPaint(null);
 
-            int[] alphas = new int[] {64, 128, 192};
+            int[] alphas = new int[]{64, 128, 192};
             for (int i = 0; i < alphas.length; i++) {
 
                 BasicStroke selectionStroke = new BasicStroke(lineWidth + 2 * (alphas.length - i));
@@ -200,32 +200,15 @@ public class PlacemarkSymbol extends ShapeFigure {
 
     public static PlacemarkSymbol createDefaultPinSymbol() {
 
-        // create symbol shape
-        //
-        final float r = 14.0f;
-        final float h = 24.0f;
-        final float h34 = 3 * h / 4;
-        final float h14 = 1 * h / 4;
-        final GeneralPath path = new GeneralPath();
-        path.moveTo(0, h);
-        path.lineTo(h34 - 1, h14 - 1);
-        path.lineTo(h34 + 1, h14 + 1);
-        path.closePath();
-        final Ellipse2D.Float knob = new Ellipse2D.Float(h34 - r / 2, h14 - r / 2, r, r);
-        final Area needle = new Area(path);
-        needle.subtract(new Area(knob));
-        final GeneralPath symbolShape = new GeneralPath();
-        symbolShape.append(needle, false);
-        symbolShape.append(knob, false);
-
         // create symbol
         //
+        final Shape symbolShape = (Shape) PinSymbolShapeHolder.symbolShape.clone();
         final PlacemarkSymbol pinSymbol = new PlacemarkSymbol("Pin-Symbol", symbolShape);
         pinSymbol.setFillPaint(new Color(128, 128, 255));
         pinSymbol.setFilled(true);
         pinSymbol.setOutlineColor(new Color(0, 0, 64));
         pinSymbol.setOutlineStroke(new BasicStroke(1.0f));
-        pinSymbol.setRefPoint(new PixelPos(0, h));
+        pinSymbol.setRefPoint(new PixelPos(0, (float) PinSymbolShapeHolder.PIN_SYMBOL_HEIGHT));
         return pinSymbol;
     }
 
@@ -258,4 +241,36 @@ public class PlacemarkSymbol extends ShapeFigure {
         return gcpSymbol;
 
     }
+
+    private static class PinSymbolShapeHolder {
+
+        private static final float PIN_SYMBOL_HEIGHT = 24;
+        private static final float PIN_SYMBOL_RADIUS = 14;
+
+        private static final GeneralPath symbolShape = createPinSymbolShape();
+
+        private PinSymbolShapeHolder() {
+        }
+
+        private static GeneralPath createPinSymbolShape() {
+            float h = PIN_SYMBOL_HEIGHT;
+            float r = PIN_SYMBOL_RADIUS;
+            final float h34 = 3 * h / 4;
+            final float h14 = 1 * h / 4;
+            final GeneralPath path = new GeneralPath();
+            path.moveTo(0, h);
+            path.lineTo(h34 - 1, h14 - 1);
+            path.lineTo(h34 + 1, h14 + 1);
+            path.closePath();
+            final Ellipse2D.Float knob = new Ellipse2D.Float(h34 - r / 2, h14 - r / 2, r, r);
+            final Area needle = new Area(path);
+            needle.subtract(new Area(knob));
+            final GeneralPath symbolShape = new GeneralPath();
+            symbolShape.append(needle, false);
+            symbolShape.append(knob, false);
+            return symbolShape;
+        }
+    }
+
+
 }
