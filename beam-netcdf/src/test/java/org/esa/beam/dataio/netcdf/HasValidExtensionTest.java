@@ -22,9 +22,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class HasValidExtensionTest {
+
     @Test
     public void testNumberOfExtensions() {
-        assertEquals(4, Constants.FILE_EXTENSIONS.length);
+        assertEquals(6, Constants.FILE_EXTENSIONS.length);
     }
 
     @Test
@@ -37,12 +38,16 @@ public class HasValidExtensionTest {
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.nc"));
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.nC"));
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.Nc"));
-        assertTrue(ReaderUtils.hasValidExtension("AnyPathname.NC"));
+        assertTrue(ReaderUtils.hasValidExtension("AnyPathname.Nc.gz"));
+        assertTrue(ReaderUtils.hasValidExtension("AnyPathname.Nc"));
+        assertTrue(ReaderUtils.hasValidExtension("AnyPathname.grb"));
+        assertTrue(ReaderUtils.hasValidExtension("AnyPathname.grb.gz"));
     }
 
     @Test
     public void testValid_HDF_Extensions() {
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.hdf"));
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.HDF"));
+        assertTrue(ReaderUtils.hasValidExtension("AnyPathname.HDF.gz"));
     }
 }
