@@ -40,22 +40,22 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
 
     @Override
     public final DecodeQualification getDecodeQualification(Object input) {
-        final NetcdfFile netcdfFile;
+        NetcdfFile netcdfFile = null;
         try {
             netcdfFile = NetcdfFile.open(input.toString());
-        } catch (Throwable ignored) {
-            return DecodeQualification.UNABLE;
-        }
-
-        try {
             return getDecodeQualification(netcdfFile);
+        } catch (Throwable ignored) {
+            // ok -- just clean up and return UNABLE
         } finally {
             try {
-                netcdfFile.close();
+                if (netcdfFile != null) {
+                    netcdfFile.close();
+                }
             } catch (IOException ignore) {
                 // OK, ignored
             }
         }
+        return DecodeQualification.UNABLE;
     }
 
     @Override
