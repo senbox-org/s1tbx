@@ -43,7 +43,7 @@ public class CfNetCdfReaderPlugIn extends AbstractNetCdfReaderPlugIn {
 
     @Override
     public String[] getDefaultFileExtensions() {
-        return new String[]{".nc", ".nc.gz"};
+        return new String[]{".nc", ".nc.gz", ".grb", ".grb.gz"};
     }
 
     @Override

@@ -31,7 +31,8 @@ public interface Constants {
     String FILE_EXTENSION_HDF_GZ = ".hdf.gz";
     String[] FILE_EXTENSIONS = new String[]{
             FILE_EXTENSION_NC, FILE_EXTENSION_NC_GZ,
-            FILE_EXTENSION_HDF, FILE_EXTENSION_HDF_GZ
+            FILE_EXTENSION_HDF, FILE_EXTENSION_HDF_GZ,
+            ".grb", ".grb.gz"
     };
     Class[] READER_INPUT_TYPES = new Class[]{
             String.class,
