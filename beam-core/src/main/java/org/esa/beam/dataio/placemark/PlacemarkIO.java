@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.XmlWriter;
 import org.esa.beam.util.io.BeamFileFilter;
@@ -40,14 +41,11 @@ import java.io.PrintWriter;
 import java.io.PushbackReader;
 import java.io.Reader;
 import java.io.Writer;
+import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 public class PlacemarkIO {
 
@@ -71,14 +69,7 @@ public class PlacemarkIO {
     private static final String DATETIME_COL_NAME = "DateTime";
 
     private static final String ISO8601_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(ISO8601_PATTERN);
-
-    static {
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        // setting the locale as constructor parameter seems not to work correctly
-        dateFormat.setCalendar(Calendar.getInstance(Locale.UK));
-
-    }
+    private static final DateFormat dateFormat = ProductData.UTC.createDateFormat(ISO8601_PATTERN);
 
     private PlacemarkIO() {
 

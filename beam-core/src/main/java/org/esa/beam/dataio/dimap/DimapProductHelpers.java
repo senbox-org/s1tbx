@@ -240,7 +240,7 @@ public class DimapProductHelpers {
     }
 
 
-    static GeoCoding[] createGeoCoding(Document dom, Product product) {
+    public static GeoCoding[] createGeoCoding(Document dom, Product product) {
         Debug.assertNotNull(dom);
         Debug.assertNotNull(product);
         final Element rootElem = dom.getRootElement();

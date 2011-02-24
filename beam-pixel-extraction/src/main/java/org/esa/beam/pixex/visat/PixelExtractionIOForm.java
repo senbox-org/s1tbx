@@ -34,8 +34,6 @@ import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -67,13 +65,9 @@ class PixelExtractionIOForm {
     private ChangeListener inputChangeListener;
 
     private final JPanel panel;
-    private final JLabel outputDirLabel;
     private final JList inputPathsList;
     private final JTextField outputDirTextField;
     private final PropertyContainer container;
-    private final AbstractButton outputDirChooserButton;
-    private final JLabel filePrefixLabel;
-    private final JTextField filePrefixField;
     private InputListModel listModel;
     private BindingContext context;
 
@@ -91,9 +85,7 @@ class PixelExtractionIOForm {
         tableLayout.setColumnWeightX(1, 1.0);
         tableLayout.setCellWeightY(0, 1, 1.0);
         tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH);
-        tableLayout.setCellColspan(1, 0, 3);
-        tableLayout.setCellColspan(2, 0, 3);
-        tableLayout.setCellWeightX(3, 1, 0.0); // output dir path field
+        tableLayout.setCellColspan(2, 1, 2);
         panel = new JPanel(tableLayout);
 
         listModel = new InputListModel(container.getProperty("inputPaths"));
@@ -110,11 +102,7 @@ class PixelExtractionIOForm {
         addRemoveButtonPanel.add(createRemoveInputButton());
         panel.add(addRemoveButtonPanel);
 
-        panel.add(createClipboardCheckbox());
-        final JCheckBox outputDirCheckBox = createOutputCheckBox();
-        panel.add(outputDirCheckBox);
-
-        outputDirLabel = new JLabel("Output directory:");
+        JLabel outputDirLabel = new JLabel("Output directory:");
         panel.add(outputDirLabel);
         outputDirTextField = new JTextField();
         outputDirTextField.setEditable(false);
@@ -122,15 +110,13 @@ class PixelExtractionIOForm {
         String path = getDefaultOutputPath(appContext);
         setOutputDirPath(path);
         panel.add(outputDirTextField);
-        outputDirChooserButton = createOutputDirChooserButton(container.getProperty("outputDir"));
+        AbstractButton outputDirChooserButton = createOutputDirChooserButton(container.getProperty("outputDir"));
         panel.add(outputDirChooserButton);
 
-        filePrefixLabel = new JLabel("File prefix:");
-        filePrefixField = createFilePrefixField(container.getProperty("outputFilePrefix"));
+        JLabel filePrefixLabel = new JLabel("File prefix:");
+        JTextField filePrefixField = createFilePrefixField(container.getProperty("outputFilePrefix"));
         panel.add(filePrefixLabel);
         panel.add(filePrefixField);
-
-        setOutputUiEnabled(outputDirCheckBox.isSelected());
     }
 
     JPanel getPanel() {
@@ -154,35 +140,6 @@ class PixelExtractionIOForm {
 
     Product[] getSourceProducts() {
         return listModel.getSourceProducts();
-    }
-
-    private JComponent createClipboardCheckbox() {
-        final JCheckBox clipboardButton = new JCheckBox("Copy output to system clipboard");
-        context.bind("copyToClipboard", clipboardButton);
-        return clipboardButton;
-    }
-
-    private JCheckBox createOutputCheckBox() {
-        final JCheckBox exportButton = new JCheckBox("Export to output directory", true);
-
-        exportButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setOutputUiEnabled(exportButton.isSelected());
-                final File dir = exportButton.isSelected() ? new File(outputDirTextField.getText()) : null;
-                container.setValue("outputDir", dir);
-            }
-        });
-
-        return exportButton;
-    }
-
-    private void setOutputUiEnabled(boolean enable) {
-        outputDirLabel.setEnabled(enable);
-        outputDirTextField.setEnabled(enable);
-        outputDirChooserButton.setEnabled(enable);
-        filePrefixField.setEnabled(enable);
-        filePrefixLabel.setEnabled(enable);
     }
 
     private String getDefaultOutputPath(AppContext appContext) {

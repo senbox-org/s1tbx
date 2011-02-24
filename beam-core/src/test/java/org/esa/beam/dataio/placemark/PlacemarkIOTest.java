@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import static org.junit.Assert.*;
 
@@ -153,7 +154,7 @@ public class PlacemarkIOTest {
     }
 
     @Test
-    public void testReadPlacemarkTextFileWithDateTimeFromConstanInput() throws Exception {
+    public void testReadPlacemarkTextFileWithDateTimeFromConstantInput() throws Exception {
         final StringWriter stringWriter = new StringWriter(WRITER_INITIAL_SIZE);
         PrintWriter writer = new PrintWriter(stringWriter);
         writer.printf("Name	Lat	Lon	DateTime%n");
@@ -183,7 +184,7 @@ public class PlacemarkIOTest {
     }
 
     private void assertDateTime(Placemark mark, int year, int month, int day, int hourOfDay, int minute, int second) {
-        final Calendar cal = Calendar.getInstance();
+        final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         cal.setTime((Date) mark.getFeature().getAttribute("dateTime"));
         assertEquals(year, cal.get(Calendar.YEAR));
         assertEquals(month, cal.get(Calendar.MONTH));

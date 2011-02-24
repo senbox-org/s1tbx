@@ -47,7 +47,7 @@ class MeasurementWriter {
         printWriter.println();
         for (Measurement measurement : measurementList) {
             if (expression == null || exportExpressionResult || measurement.isValid()) {
-                final Integer productId = measurement.getProductId();
+                final int productId = measurement.getProductId();
                 final float pixelX = measurement.getPixelX();
                 final float pixelY = measurement.getPixelY();
                 final int coordinateID = measurement.getCoordinateID();
@@ -66,7 +66,7 @@ class MeasurementWriter {
                     printWriter.append(String.format("%s\t", String.valueOf(measurement.isValid())));
                 }
                 printWriter.append(String.format("%d\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t",
-                                                 productId != null ? productId : -1, coordinateID,
+                                                 productId, coordinateID,
                                                  measurement.getCoordinateName(), lat, lon, pixelX, pixelY,
                                                  timeString));
                 for (Number value : values) {

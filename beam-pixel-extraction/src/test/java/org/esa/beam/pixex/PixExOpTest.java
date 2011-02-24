@@ -25,6 +25,7 @@ import org.opengis.referencing.operation.TransformException;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -99,7 +100,6 @@ public class PixExOpTest {
                 "          </coordinate>\n" +
                 "        </coordinates>\n" +
                 "        <windowSize>" + windowSize + "</windowSize>\n" +
-                "        <copyToClipboard>false</copyToClipboard>\n" +
                 "      </parameters>\n" +
                 "    </node>\n" +
                 "  </graph>";
@@ -168,7 +168,6 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
-        parameterMap.put("copyToClipboard", false);
 
         String[] bandNames = {"rad_1", "rad_2"};
         Product[] sourceProduct = {createTestProduct("andi", "type1", bandNames)};
@@ -193,7 +192,6 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
-        parameterMap.put("copyToClipboard", false);
 
         String[] bandNames = {"rad_1", "rad_2"};
 
@@ -221,7 +219,6 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
-        parameterMap.put("copyToClipboard", false);
 
         String[] bandNames = {"rad_1", "rad_2, radiance_3"};
 
@@ -252,7 +249,6 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
-        parameterMap.put("copyToClipboard", false);
 
         String[] bandNames = {"rad_1", "rad_2"};
         String[] bandNames2 = {"refl_1", "refl_2"};
@@ -288,7 +284,6 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
-        parameterMap.put("copyToClipboard", false);
         parameterMap.put("timeDifference", "1D");
 
         String[] bandNames = {"rad_1", "rad_2"};
@@ -330,7 +325,6 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
-        parameterMap.put("copyToClipboard", false);
 
         List<Product> productList = new ArrayList<Product>();
         for (int i = 0; i < 20; i++) {
@@ -381,7 +375,9 @@ public class PixExOpTest {
         op.setWindowSize(3);
         Map<String, List<Measurement>> measurements = new HashMap<String, List<Measurement>>();
         GeoPos geoPos = new GeoPos(20.5f, 10.5f);
-        op.readMeasurement(product, new Coordinate("Coord_1", geoPos.lat, geoPos.lon, null), 1, measurements);
+        final RenderedImage validMaskImage = op.createValidMaskImage(product);
+        final Coordinate coord = new Coordinate("Coord_1", geoPos.lat, geoPos.lon, null);
+        op.readMeasurement(product, coord, 1, measurements, validMaskImage);
         geoPos = new GeoPos(21.5f, 9.5f);
 
         List<Measurement> measurementList = measurements.get(productType);
