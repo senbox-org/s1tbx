@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
+import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -265,7 +266,14 @@ public class PixExOpTest {
 
     @Test
     public void testTwoProductsWithTimeConstraints() throws Exception {
-        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
+        String[] bandNames = {"rad_1", "rad_2"};
+
+        final Product p1 = createTestProduct("kallegrabowski", "type1", bandNames);
+        p1.setStartTime(ProductData.UTC.parse("01-MAR-2005 12:00:00"));
+        p1.setEndTime(ProductData.UTC.parse("01-MAR-2005 13:00:00"));
+        final Product p2 = createTestProduct("keek", "type1", bandNames);
+        p2.setStartTime(ProductData.UTC.parse("01-Jan-2006 0:00:00"));
+        p2.setEndTime(ProductData.UTC.parse("01-Jan-2006 12:00:00"));
 
         final Calendar calInP1 = Calendar.getInstance();
         calInP1.set(2005, 2, 1, 12, 30, 0);
@@ -278,36 +286,45 @@ public class PixExOpTest {
                 new Coordinate("coord2", 20.0f, 20.0f, calInP2.getTime()),
                 new Coordinate("coord3", 0.5f, 0.5f, calOutsideBoth.getTime())
         };
-        int windowSize = 1;
 
-        parameterMap.put("exportTiePoints", false);
-        parameterMap.put("exportMasks", false);
-        parameterMap.put("coordinates", coordinates);
-        parameterMap.put("windowSize", windowSize);
-        parameterMap.put("timeDifference", "1D");
 
-        String[] bandNames = {"rad_1", "rad_2"};
-        String[] bandNames2 = {"refl_1", "refl_2"};
+        PixExOp pixEx = new PixExOp();
+        pixEx.setParameter("exportTiePoints", false);
+        pixEx.setParameter("exportMasks", false);
+        pixEx.setParameter("coordinates", coordinates);
+        pixEx.setParameter("windowSize", 1);
+        pixEx.setParameter("timeDifference", "1D");
+        pixEx.setSourceProducts(new Product[]{p1, p2});
 
-        final Product p1 = createTestProduct("kallegrabowski", "type1", bandNames);
-        p1.setStartTime(ProductData.UTC.parse("01-MAR-2005 12:00:00"));
-        p1.setEndTime(ProductData.UTC.parse("01-MAR-2005 13:00:00"));
-        final Product p2 = createTestProduct("keek", "type1", bandNames2);
-        p2.setStartTime(ProductData.UTC.parse("01-Jan-2006 0:00:00"));
-        p2.setEndTime(ProductData.UTC.parse("01-Jan-2006 12:00:00"));
-        final Map<String, Product> productMap = new HashMap<String, Product>();
-        productMap.put("sourceProduct.0", p1);
-        productMap.put("sourceProduct.1", p2);
-
-        PixExOp pixEx = (PixExOp) pixExOpSpi.createOperator(parameterMap, productMap, null);
         pixEx.getTargetProduct(); // trigger computation
         final Map<String, List<Measurement>> map = pixEx.getMeasurements();
 
         assertEquals(1, map.size()); // one product type
         final List<Measurement> measurementList = map.get("type1");
         assertEquals(2, measurementList.size());
-        final Measurement measurement = measurementList.get(0);
+        final Double[] values = {0.0, 1.0};
+        testForExistingMeasurement(measurementList, "coord1", 1, 9.5f, 10.5f, 190.5, 80.5, values);
+        testForExistingMeasurement(measurementList, "coord2", 2, 19.5f, 20.5f, 200.5, 70.5, values);
+
     }
+
+    private void testForExistingMeasurement(List<Measurement> measurementList, String coordinateName, int id,
+                                            float lat, float lon, double x, double y, Number[] values) {
+        final String message = String.format("Error for measurement %s:", coordinateName);
+        for (Measurement measurement : measurementList) {
+            if (measurement.getCoordinateName().equals(coordinateName)) {
+                assertEquals(message, id, measurement.getCoordinateID());
+                assertEquals(message, lat, measurement.getLat(), 1.0e-6);
+                assertEquals(message, lon, measurement.getLon(), 1.0e-6);
+                assertEquals(message, x, measurement.getPixelX(), 1.0e-6);
+                assertEquals(message, y, measurement.getPixelY(), 1.0e-6);
+                assertArrayEquals(message, values, measurement.getValues());
+                return;
+            }
+        }
+        fail("No measurement with the name " + coordinateName);
+    }
+
 
     @Test
     public void testTwentyProductsWithDifferentTypes() throws Exception {
@@ -453,7 +470,8 @@ public class PixExOpTest {
         product.setGeoCoding(geoCoding);
         for (int i = 0; i < bandNames.length; i++) {
             Band band = product.addBand(bandNames[i], ProductData.TYPE_FLOAT32);
-            band.setDataElems(generateData(bounds, i));
+            band.setSourceImage(ConstantDescriptor.create((float) bounds.width, (float) bounds.height,
+                                                          new Float[]{(float) i}, null));
         }
         return product;
     }
