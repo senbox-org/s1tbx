@@ -25,13 +25,13 @@ class Measurement {
     private GeoPos geoPos;
     private final Number[] values;
     private int coordinateID;
-    private final Integer productId;
+    private final int productId;
     private final float pixelX;
     private final float pixelY;
     private String coordinateName;
     private boolean isValid;
 
-    Measurement(int coordinateID, String name, Integer productId, float pixelX, float pixelY, ProductData.UTC time,
+    Measurement(int coordinateID, String name, int productId, float pixelX, float pixelY, ProductData.UTC time,
                 GeoPos geoPos, Number[] values, boolean isValid) {
         this.coordinateID = coordinateID;
         this.productId = productId;
@@ -81,7 +81,7 @@ class Measurement {
         return pixelY;
     }
 
-    Integer getProductId() {
+    int getProductId() {
         return productId;
     }
 
