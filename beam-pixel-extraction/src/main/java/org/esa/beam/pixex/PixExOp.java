@@ -59,6 +59,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -417,21 +418,17 @@ public class PixExOp extends Operator {
     }
 
     private String[] getAllRasterNames(Product product) {
-        final List<RasterDataNode> allRasterList = new ArrayList<RasterDataNode>();
+        final List<String> allRasterList = new ArrayList<String>();
         if (exportBands) {
-            allRasterList.addAll(Arrays.asList(product.getBands()));
+            Collections.addAll(allRasterList, product.getBandNames());
         }
         if (exportTiePoints) {
-            allRasterList.addAll(Arrays.asList(product.getTiePointGrids()));
+            Collections.addAll(allRasterList, product.getTiePointGridNames());
         }
         if (exportMasks) {
-            allRasterList.addAll(Arrays.asList(product.getMaskGroup().toArray(new Mask[0])));
+            Collections.addAll(allRasterList, product.getMaskGroup().getNodeNames());
         }
-        String[] allRasterNames = new String[allRasterList.size()];
-        for (int i = 0; i < allRasterList.size(); i++) {
-            allRasterNames[i] = allRasterList.get(i).getName();
-        }
-        return allRasterNames;
+        return allRasterList.toArray(new String[allRasterList.size()]);
     }
 
     private void setDummyProduct() {
