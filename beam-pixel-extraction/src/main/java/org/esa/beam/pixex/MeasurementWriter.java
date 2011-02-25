@@ -20,12 +20,13 @@ import org.esa.beam.framework.datamodel.ProductData;
 
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.List;
-import java.util.Locale;
 
 @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
 class MeasurementWriter {
+
+    private static final DateFormat DATE_FORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd\tHH:mm:ss");
 
     static void write(List<Measurement> measurementList, Writer writer, String[] rasterNames, String expression,
                       boolean exportExpressionResult) {
@@ -33,7 +34,6 @@ class MeasurementWriter {
             return;
         }
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd\tHH:mm:ss", Locale.ENGLISH);
         PrintWriter printWriter = new PrintWriter(writer);
 
         if (expression != null && exportExpressionResult) {
@@ -57,7 +57,7 @@ class MeasurementWriter {
                 final Number[] values = measurement.getValues();
                 String timeString;
                 if (time != null) {
-                    timeString = sdf.format(time.getAsDate());
+                    timeString = DATE_FORMAT.format(time.getAsDate());
                 } else {
                     timeString = " \t ";
                 }
