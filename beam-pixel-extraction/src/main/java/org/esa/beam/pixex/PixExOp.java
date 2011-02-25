@@ -312,7 +312,7 @@ public class PixExOp extends Operator {
 
     }
 
-    private Integer getProductId(Product product) {
+    private int getProductId(Product product) {
         final ProductDescription productDescription = ProductDescription.create(product);
         if (!productLocationList.contains(productDescription)) {
             productLocationList.add(productDescription);
