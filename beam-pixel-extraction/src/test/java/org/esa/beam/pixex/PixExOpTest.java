@@ -476,12 +476,6 @@ public class PixExOpTest {
         return product;
     }
 
-    private static float[] generateData(Rectangle bounds, int val) {
-        float[] floats = new float[bounds.width * bounds.height];
-        Arrays.fill(floats, val);
-        return floats;
-    }
-
     private static void checkOutput(String[] lines, Product[] products, Coordinate[] coordinates, int windowSize,
                                     String expression) {
 
