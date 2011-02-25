@@ -26,7 +26,6 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.cs.DefaultCoordinateSystemAxis;
 import org.geotools.referencing.cs.DefaultEllipsoidalCS;
 import org.geotools.referencing.operation.AbstractCoordinateOperationFactory;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
@@ -35,7 +34,6 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.DerivedCRS;
-import org.opengis.referencing.cs.EllipsoidalCS;
 import org.opengis.referencing.datum.GeodeticDatum;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
 import org.opengis.referencing.operation.MathTransform;
@@ -49,7 +47,7 @@ import java.awt.geom.AffineTransform;
  * A geo-coding that is based on a well-known coordinate reference system (CRS) and affine transformation used to
  * locate a product's scene image within the CRS.
  *
- * @since BEAM 4.7 
+ * @since BEAM 4.7
  */
 public class CrsGeoCoding extends AbstractGeoCoding {
 
@@ -67,13 +65,14 @@ public class CrsGeoCoding extends AbstractGeoCoding {
      * The reference pixel is set to the BEAM default value, namely the center of the upper left image pixel
      * (i.e. {@code referencePixelX = referencePixelY = 0.5}).
      *
-     * @param mapCRS          the map CRS.
-     * @param imageWidth      the width of the image.
-     * @param imageHeight     the height of the image.
-     * @param easting         the easting of the reference pixel position.
-     * @param northing        the northing of the reference pixel position.
-     * @param pixelSizeX      the size of a pixel along the x-axis in map units.
-     * @param pixelSizeY      the size of a pixel along the y-axis in map units (negative, if positive image Y-axis points up).
+     * @param mapCRS      the map CRS.
+     * @param imageWidth  the width of the image.
+     * @param imageHeight the height of the image.
+     * @param easting     the easting of the reference pixel position.
+     * @param northing    the northing of the reference pixel position.
+     * @param pixelSizeX  the size of a pixel along the x-axis in map units.
+     * @param pixelSizeY  the size of a pixel along the y-axis in map units (negative, if positive image Y-axis points up).
+     *
      * @throws FactoryException   when an error occurred.
      * @throws TransformException when an error occurred.
      */
@@ -100,6 +99,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
      * @param pixelSizeY      the size of a pixel along the y-axis in map units (negative, if positive image Y-axis points up).
      * @param referencePixelX the x-position of the reference pixel.
      * @param referencePixelY the y-position of the reference pixel.
+     *
      * @throws FactoryException   when an error occurred.
      * @throws TransformException when an error occurred.
      */
@@ -134,7 +134,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
 
         MathTransform i2m = new AffineTransform2D(imageToMap);
 
-        if (mapCRS instanceof DerivedCRS) {
+        if (mapCRS instanceof DerivedCRS) { // TODO - ts, rq - check why not GeneralDerivedCRS
             DerivedCRS derivedCRS = (DerivedCRS) mapCRS;
             CoordinateReferenceSystem baseCRS = derivedCRS.getBaseCRS();
             setGeoCRS(baseCRS);
