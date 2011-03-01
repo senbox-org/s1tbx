@@ -19,17 +19,19 @@ package org.esa.beam.pixex;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ProductData;
 
-class Measurement {
+import java.util.Arrays;
+
+public class Measurement {
 
     private final ProductData.UTC time;
-    private GeoPos geoPos;
+    private final GeoPos geoPos;
     private final Number[] values;
-    private int coordinateID;
+    private final int coordinateID;
     private final int productId;
     private final float pixelX;
     private final float pixelY;
-    private String coordinateName;
-    private boolean isValid;
+    private final String coordinateName;
+    private final boolean isValid;
 
     Measurement(int coordinateID, String name, int productId, float pixelX, float pixelY, ProductData.UTC time,
                 GeoPos geoPos, Number[] values, boolean isValid) {
@@ -85,4 +87,59 @@ class Measurement {
         return productId;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Measurement that = (Measurement) o;
+
+        if (coordinateID != that.coordinateID) {
+            return false;
+        }
+        if (isValid != that.isValid) {
+            return false;
+        }
+        if (Float.compare(that.pixelX, pixelX) != 0) {
+            return false;
+        }
+        if (Float.compare(that.pixelY, pixelY) != 0) {
+            return false;
+        }
+        if (productId != that.productId) {
+            return false;
+        }
+        if (!coordinateName.equals(that.coordinateName)) {
+            return false;
+        }
+        if (!geoPos.equals(that.geoPos)) {
+            return false;
+        }
+        if (!time.equalElems(that.time)) {
+            return false;
+        }
+        if (!Arrays.equals(values, that.values)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = time.hashCode();
+        result = 31 * result + geoPos.hashCode();
+        result = 31 * result + Arrays.hashCode(values);
+        result = 31 * result + coordinateID;
+        result = 31 * result + productId;
+        result = 31 * result + (pixelX != +0.0f ? Float.floatToIntBits(pixelX) : 0);
+        result = 31 * result + (pixelY != +0.0f ? Float.floatToIntBits(pixelY) : 0);
+        result = 31 * result + coordinateName.hashCode();
+        result = 31 * result + (isValid ? 1 : 0);
+        return result;
+    }
 }

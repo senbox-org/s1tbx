@@ -50,20 +50,15 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -86,7 +81,7 @@ public class PixExOp extends Operator {
     private Product[] sourceProducts;
 
     @TargetProperty()
-    private Map<String, List<Measurement>> measurements;
+    private MeasurementReader measurements;
 
     @Parameter(
             description = "The paths to be scanned for input products. May point to a single file or a directory.\n" +
@@ -118,7 +113,7 @@ public class PixExOp extends Operator {
     private Integer windowSize;
 
 
-    @Parameter(description = "The output directory. If not specified the output is written to std.out.")
+    @Parameter(description = "The output directory.", notNull = true)
     private File outputDir;
 
     @Parameter(description = "The prefix is used to name the output files.", defaultValue = "pixEx")
@@ -139,6 +134,7 @@ public class PixExOp extends Operator {
     private Integer productId = 0;
     private int timeDelta = 0;
     private int calendarField = -1;
+    private MeasurementWriter measurementWriter;
 
 
     int getTimeDelta() {
@@ -149,7 +145,7 @@ public class PixExOp extends Operator {
         return calendarField;
     }
 
-    Map<String, List<Measurement>> getMeasurements() {
+    Iterator<Measurement> getMeasurements() {
         return measurements;
     }
 
@@ -165,47 +161,49 @@ public class PixExOp extends Operator {
         parseTimeDelta(timeDifference);
 
         validator = new ProductValidator();
-        measurements = new HashMap<String, List<Measurement>>();
-        if (sourceProducts != null) {
-            for (Product product : sourceProducts) {
-                extractMeasurements(product);
-            }
-        }
-        if (inputPaths != null) {
-            inputPaths = getParsedInputPaths(inputPaths);
-            if (inputPaths.length == 0) {
-                getLogger().log(Level.WARNING, "No valid input path found.");
-            }
-            extractMeasurements(inputPaths);
-        }
+        measurementWriter = new MeasurementWriter(outputDir, outputFilePrefix, windowSize,
+                                                  expression, exportExpressionResult);
         try {
-            if (outputDir != null) {
-                writeOutputToFile();
+            if (sourceProducts != null) {
+                for (Product product : sourceProducts) {
+                    extractMeasurements(product);
+                }
             }
-            StringWriter writer = new StringWriter();
-            writeOutputToWriter(writer);
-            if (outputDir == null) {
-                System.out.print(writer.toString());
+            if (inputPaths != null) {
+                inputPaths = getParsedInputPaths(inputPaths);
+                if (inputPaths.length == 0) {
+                    getLogger().log(Level.WARNING, "No valid input path found.");
+                }
+                extractMeasurements(inputPaths);
             }
+            if (!isTargetProductInitialized) {
+                setDummyProduct();
+            }
+        } finally {
+            measurementWriter.close();
+        }
+
+        try {
+            measurements = new MeasurementReader(outputDir);
         } catch (IOException e) {
-            throw new OperatorException("Could not write output.", e);
+            throw new OperatorException("Could not create measurement reader.", e);
         }
 
-        if (!isTargetProductInitialized) {
-            setDummyProduct();
+    }
+
+    @Override
+    public void dispose() {
+        try {
+            measurements.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        super.dispose();
     }
 
-    void setWindowSize(Integer windowSize) {
-        this.windowSize = windowSize;
-    }
 
-    void setRasterNamesMap(Map<String, String[]> rasterNamesMap) {
-        this.rasterNamesMap = rasterNamesMap;
-    }
-
-    void readMeasurement(Product product, Coordinate coordinate, int coordinateID,
-                         Map<String, List<Measurement>> measurements, RenderedImage validMaskImage) throws IOException {
+    private void readMeasurement(Product product, Coordinate coordinate,
+                                 int coordinateID, RenderedImage validMaskImage) throws IOException {
         PixelPos centerPos = product.getGeoCoding().getPixelPos(new GeoPos(coordinate.getLat(), coordinate.getLon()),
                                                                 null);
         if (!product.containsPixel(centerPos)) {
@@ -217,58 +215,66 @@ public class PixExOp extends Operator {
                 return;
             }
         }
-
-        String productType = product.getProductType();
-        int id = getProductId(product);
-        String[] rasterNames = rasterNamesMap.get(productType);
         int offset = MathUtils.floorInt(windowSize / 2);
-        int upperLeftX = MathUtils.floorInt(centerPos.x - offset);
-        int upperLeftY = MathUtils.floorInt(centerPos.y - offset);
+        final int upperLeftX = MathUtils.floorInt(centerPos.x - offset);
+        final int upperLeftY = MathUtils.floorInt(centerPos.y - offset);
+        final Raster validData = validMaskImage.getData(new Rectangle(upperLeftX, upperLeftY, windowSize, windowSize));
+        final String[] rasterNames = rasterNamesMap.get(product.getProductType());
+        writeMeasurementRegion(coordinateID, coordinate.getName(), upperLeftX, upperLeftY, product,
+                               rasterNames, validData);
+    }
+
+    private void writeMeasurementRegion(int coordinateID, String coordinateName, int upperLeftX, int upperLeftY,
+                                        Product product, String[] rasterNames, Raster validData) throws IOException {
+        final int productId = measurementWriter.registerProduct(product);
         final Number[] values = new Number[rasterNames.length];
         Arrays.fill(values, Double.NaN);
         final int numPixels = windowSize * windowSize;
-        final Raster validData = validMaskImage.getData(new Rectangle(upperLeftX, upperLeftY, windowSize, windowSize));
         for (int n = 0; n < numPixels; n++) {
             int x = upperLeftX + n % windowSize;
             int y = upperLeftY + n / windowSize;
 
-            for (int i = 0; i < rasterNames.length; i++) {
-                RasterDataNode raster = product.getRasterDataNode(rasterNames[i]);
-                if (raster != null && product.containsPixel(x, y)) {
-                    final int type = raster.getDataType();
-                    if (raster.isFloatingPointType()) {
-                        double[] temp = new double[1];
-                        raster.readPixels(x, y, 1, 1, temp);
-                        values[i] = temp[0];
+            final Measurement measure = createMeasurement(product, productId, coordinateID,
+                                                          coordinateName, rasterNames, values, validData, x, y);
+            measurementWriter.write(product, measure);
+        }
+    }
+
+    public static Measurement createMeasurement(Product product, int productId,
+                                                int coordinateID,
+                                                String coordinateName, String[] rasterNames, Number[] values,
+                                                Raster validData, int x, int y) throws IOException {
+        for (int i = 0; i < rasterNames.length; i++) {
+            RasterDataNode raster = product.getRasterDataNode(rasterNames[i]);
+            if (raster != null && product.containsPixel(x, y)) {
+                final int type = raster.getDataType();
+                if (raster.isFloatingPointType()) {
+                    double[] temp = new double[1];
+                    raster.readPixels(x, y, 1, 1, temp);
+                    values[i] = temp[0];
+                } else {
+                    int[] temp = new int[1];
+                    raster.readPixels(x, y, 1, 1, temp);
+                    if (raster instanceof Mask) {
+                        values[i] = temp[0] == 0 ? 0 : 1; // normalize to 0 for false and 1 for true
                     } else {
-                        int[] temp = new int[1];
-                        raster.readPixels(x, y, 1, 1, temp);
-                        if (raster instanceof Mask) {
-                            values[i] = temp[0] == 0 ? 0 : 1; // normalize to 0 for false and 1 for true
+                        if (raster.getDataType() == ProductData.TYPE_UINT32) {
+                            values[i] = temp[0] & 0xffffL;
                         } else {
-                            if (raster.getDataType() == ProductData.TYPE_UINT32) {
-                                values[i] = temp[0] & 0xffffL;
-                            } else {
-                                values[i] = temp[0];
-                            }
+                            values[i] = temp[0];
                         }
                     }
                 }
             }
-            final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
-            GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(pixelPos, null);
-            boolean isValid = validData.getSample(x, y, 0) != 0;
-
-            final Measurement measure = new Measurement(coordinateID, coordinate.getName(), id,
-                                                        pixelPos.x, pixelPos.y, scanLineTime, currentGeoPos, values,
-                                                        isValid);
-            List<Measurement> measurementList = measurements.get(productType);
-            if (measurementList == null) {
-                measurementList = new ArrayList<Measurement>();
-                measurements.put(productType, measurementList);
-            }
-            measurementList.add(measure);
         }
+        final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
+        GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(pixelPos, null);
+        boolean isValid = validData.getSample(x, y, 0) != 0;
+        final ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, pixelPos.y);
+
+        return new Measurement(coordinateID, coordinateName, productId,
+                               pixelPos.x, pixelPos.y, scanLineTime, currentGeoPos, values,
+                               isValid);
     }
 
     PlanarImage createValidMaskImage(Product product) {
@@ -310,14 +316,6 @@ public class PixExOp extends Operator {
             calendarField = Calendar.DATE;
         }
 
-    }
-
-    private int getProductId(Product product) {
-        final ProductDescription productDescription = ProductDescription.create(product);
-        if (!productLocationList.contains(productDescription)) {
-            productLocationList.add(productDescription);
-        }
-        return productLocationList.indexOf(productDescription);
     }
 
     private List<Coordinate> initCoordinateList() {
@@ -407,7 +405,7 @@ public class PixExOp extends Operator {
             for (int i = 0, coordinateListSize = coordinateList.size(); i < coordinateListSize; i++) {
                 Coordinate coordinate = coordinateList.get(i);
                 try {
-                    readMeasurement(product, coordinate, i + 1, measurements, validMaskImage);
+                    readMeasurement(product, coordinate, i + 1, validMaskImage);
                 } catch (IOException e) {
                     getLogger().warning(e.getMessage());
                 }
@@ -435,77 +433,6 @@ public class PixExOp extends Operator {
         final Product product = new Product("dummy", "dummy", 2, 2);
         product.addBand("dummy", ProductData.TYPE_INT8);
         setTargetProduct(product);
-    }
-
-    @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
-    private void writeOutputToFile() throws IOException {
-        FileWriter writer = null;
-
-        for (String productType : measurements.keySet()) {
-            List<Measurement> measurementList = measurements.get(productType);
-            try {
-                final String fileName = String.format("%s_%s.txt", outputFilePrefix, productType);
-                writer = new FileWriter(new File(outputDir.getAbsolutePath(), fileName));
-                String[] rasterNames = rasterNamesMap.get(productType);
-                writeHeader(writer);
-                MeasurementWriter.write(measurementList, writer, rasterNames, expression, exportExpressionResult);
-            } finally {
-                if (writer != null) {
-                    writer.close();
-                }
-            }
-        }
-
-        final String fileName = String.format("%s_productIdMap.txt", outputFilePrefix);
-        writer = new FileWriter(new File(outputDir.getAbsolutePath(), fileName));
-        try {
-            writeProductIdMap(writer);
-        } finally {
-            writer.close();
-        }
-    }
-
-    private void writeOutputToWriter(Writer writer) {
-        writeHeader(writer);
-        for (String productType : measurements.keySet()) {
-            List<Measurement> measurementList = measurements.get(productType);
-            final PrintWriter printWriter = new PrintWriter(writer);
-            try {
-                String[] rasterNames = rasterNamesMap.get(productType);
-                printWriter.printf("# %s%n", productType);
-                MeasurementWriter.write(measurementList, printWriter, rasterNames, expression, exportExpressionResult);
-                printWriter.println();
-            } finally {
-                printWriter.close();
-            }
-        }
-        writeProductIdMap(writer);
-    }
-
-    private void writeHeader(Writer writer) {
-        final PrintWriter printWriter = new PrintWriter(writer);
-        printWriter.println("# BEAM pixel extraction export table");
-        printWriter.println('#');
-        printWriter.printf("# Window size: %d%n", windowSize);
-        if (expression != null) {
-            printWriter.printf("# Expression: %s%n", expression);
-        }
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        printWriter.printf("# Created on:\t%s%n", dateFormat.format(new Date()));
-        printWriter.println();
-    }
-
-    private void writeProductIdMap(Writer writer) {
-        final PrintWriter printWriter = new PrintWriter(writer);
-        printWriter.println("# Product ID Map");
-        printWriter.println();
-        printWriter.println("ProductID\tProductType\tProductLocation");
-        for (int id = 0; id < productLocationList.size(); id++) {
-            ProductDescription productDescription = productLocationList.get(id);
-            final String productType = productDescription.getProductType();
-            final String productLocation = productDescription.getProductLocation();
-            printWriter.printf("%d\t%s\t%s%n", id, productType, productLocation);
-        }
     }
 
     static File[] getParsedInputPaths(File[] filePaths) {
@@ -582,67 +509,6 @@ public class PixExOp extends Operator {
             if (((Integer) value) % 2 == 0) {
                 throw new ValidationException("Value of squareSize must be uneven");
             }
-        }
-    }
-
-    private static class ProductDescription {
-
-        private final String productType;
-        private final String productLocation;
-
-        static ProductDescription create(Product product) {
-            String location = getProductLocation(product);
-            return new ProductDescription(product.getProductType(), location);
-        }
-
-        private static String getProductLocation(Product product) {
-            final File fileLocation = product.getFileLocation();
-            if (fileLocation != null) {
-                return fileLocation.getAbsolutePath();
-            } else {
-                return String.format("Not saved to disk [%s]", product.getName());
-            }
-        }
-
-        private ProductDescription(String productType, String productLocation) {
-            this.productType = productType;
-            this.productLocation = productLocation;
-        }
-
-        public String getProductType() {
-            return productType;
-        }
-
-        public String getProductLocation() {
-            return productLocation;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            ProductDescription that = (ProductDescription) o;
-
-            if (!productLocation.equals(that.productLocation)) {
-                return false;
-            }
-            if (!productType.equals(that.productType)) {
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = productType.hashCode();
-            result = 31 * result + productLocation.hashCode();
-            return result;
         }
     }
 
