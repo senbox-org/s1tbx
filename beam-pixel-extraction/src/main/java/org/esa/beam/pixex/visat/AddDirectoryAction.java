@@ -105,7 +105,7 @@ class AddDirectoryAction extends AbstractAction {
 
         private final File currentDir;
 
-        public MyProgressMonitorSwingWorker(File currentDir) {
+        private MyProgressMonitorSwingWorker(File currentDir) {
             super(appContext.getApplicationWindow(), "Collecting source directories");
             this.currentDir = currentDir;
         }

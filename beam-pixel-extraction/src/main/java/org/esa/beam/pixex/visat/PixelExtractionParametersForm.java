@@ -80,7 +80,7 @@ class PixelExtractionParametersForm {
     private JPanel mainPanel;
     private JLabel windowLabel;
     private JSpinner windowSpinner;
-    private AppContext appContext;
+    private final AppContext appContext;
 
     private final CoordinateTableModel coordinateTableModel;
     private JButton editExpressionButton;
@@ -404,7 +404,7 @@ class PixelExtractionParametersForm {
 
     private class EditExpressionActionListener implements ActionListener {
 
-        private Window parentWindow;
+        private final Window parentWindow;
 
         private EditExpressionActionListener(Window parentWindow) {
             this.parentWindow = parentWindow;

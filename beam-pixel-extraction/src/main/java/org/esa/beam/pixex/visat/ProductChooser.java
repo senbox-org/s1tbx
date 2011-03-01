@@ -43,9 +43,9 @@ import java.util.List;
  */
 class ProductChooser extends ModalDialog {
 
-    private CheckBoxList productsList;
-    private JCheckBox selectAll;
-    private JCheckBox selectNone;
+    private final CheckBoxList productsList;
+    private final JCheckBox selectAll;
+    private final JCheckBox selectNone;
 
     ProductChooser(Window parent, String title, int buttonMask, String helpID, Product[] products) {
         super(parent, title, buttonMask, helpID);

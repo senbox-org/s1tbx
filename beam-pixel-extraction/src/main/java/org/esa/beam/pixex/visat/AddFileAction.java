@@ -41,8 +41,8 @@ import java.util.Iterator;
  */
 class AddFileAction extends AbstractAction {
 
-    private AppContext appContext;
-    private InputListModel listModel;
+    private final AppContext appContext;
+    private final InputListModel listModel;
 
     AddFileAction(AppContext appContext, InputListModel listModel) {
         super("Add product file(s)...");

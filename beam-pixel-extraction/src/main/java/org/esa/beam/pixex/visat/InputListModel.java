@@ -30,9 +30,9 @@ import java.util.List;
  */
 class InputListModel extends AbstractListModel {
 
-    private List<Object> list = new ArrayList<Object>();
+    private final List<Object> list = new ArrayList<Object>();
     private List<Product> sourceProducts = new ArrayList<Product>();
-    private Property inputPaths;
+    private final Property inputPaths;
 
     InputListModel(Property inputPaths) {
         this.inputPaths = inputPaths;

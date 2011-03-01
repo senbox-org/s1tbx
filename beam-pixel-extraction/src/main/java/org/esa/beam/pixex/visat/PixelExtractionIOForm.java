@@ -68,8 +68,8 @@ class PixelExtractionIOForm {
     private final JList inputPathsList;
     private final JTextField outputDirTextField;
     private final PropertyContainer container;
-    private InputListModel listModel;
-    private BindingContext context;
+    private final InputListModel listModel;
+    private final BindingContext context;
 
     PixelExtractionIOForm(final AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
