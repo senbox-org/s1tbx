@@ -16,9 +16,15 @@
 
 package org.esa.beam.pixex;
 
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.util.ProductUtils;
 
+import java.awt.image.Raster;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -27,6 +33,7 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -47,11 +54,13 @@ public class MeasurementWriter {
     private final int windowSize;
     private final String expression;
     private final boolean exportExpressionResult;
+    private final List<ProductDescription> productList;
+    private final Map<String, String[]> rasterNamesMap;
     private PrintWriter productMapWriter;
     private boolean exportBands;
     private boolean exportTiePoints;
     private boolean exportMasks;
-    private List<ProductDescription> productList;
+
 
     public MeasurementWriter(File outputDir, String filenamePrefix, int windowSize, String expression,
                              boolean exportExpressionResult) {
@@ -68,7 +77,9 @@ public class MeasurementWriter {
         exportMasks = true;
         this.exportExpressionResult = exportExpressionResult;
         productList = new ArrayList<ProductDescription>();
+        rasterNamesMap = new HashMap<String, String[]>(37);
     }
+
 
     public void setExportBands(boolean exportBands) {
         this.exportBands = exportBands;
@@ -82,23 +93,44 @@ public class MeasurementWriter {
         this.exportMasks = exportMasks;
     }
 
-    public void write(Product product, Measurement measurement) throws IOException {
+    public void writeMeasurementRegion(int coordinateID, String coordinateName, int upperLeftX, int upperLeftY,
+                                       Product product, Raster validData) throws IOException {
+        final int productId = registerProduct(product);
         final PrintWriter writer = getMeasurementWriter(product);
-        write(writer, measurement);
+        try {
+            final String[] rasterNames = rasterNamesMap.get(product.getProductType());
+            final Number[] values = new Number[rasterNames.length];
+            Arrays.fill(values, Double.NaN);
+            final int numPixels = windowSize * windowSize;
+            for (int n = 0; n < numPixels; n++) {
+                int x = upperLeftX + n % windowSize;
+                int y = upperLeftY + n / windowSize;
 
+                final Measurement measure = createMeasurement(product, productId, coordinateID,
+                                                              coordinateName, rasterNames, values, validData, x, y);
+                write(writer, measure);
+            }
+        } finally {
+            writer.flush();
+        }
         if (writer.checkError()) {
             throw new IOException("Error occurred while writing measurement.");
         }
     }
 
-    public int registerProduct(Product product) throws IOException {
+    private int registerProduct(Product product) throws IOException {
         final ProductDescription description = ProductDescription.create(product);
         if (!productList.contains(description)) {
             if (productMapWriter == null) {
                 productMapWriter = createProductMapWriter();
             }
             productList.add(description);
-            productMapWriter.printf("%d\t%s\t%s", productList.indexOf(description), product.getProductType(),
+
+            final String[] rasterNamesToBeExported = getRasterNamesToBeExported(product);
+            final String productType = product.getProductType();
+            rasterNamesMap.put(productType, rasterNamesToBeExported);
+
+            productMapWriter.printf("%d\t%s\t%s%n", productList.indexOf(description), productType,
                                     description.getLocation());
 
             if (productMapWriter.checkError()) {
@@ -154,10 +186,10 @@ public class MeasurementWriter {
         if (writer == null) {
             final String fileName = String.format(MEASUREMENTS_FILE_NAME_PATTERN, filenamePrefix, productType);
             File coordinateFile = new File(outputDir, fileName);
-            writer = new PrintWriter(new FileOutputStream(coordinateFile), true);
+            writer = new PrintWriter(new FileOutputStream(coordinateFile));
             writerMap.put(productType, writer);
 
-            writeMeasurementFileHeader(writer, getRasterNamesToBeExported(product));
+            writeMeasurementFileHeader(writer, rasterNamesMap.get(productType));
         }
         return writer;
     }
@@ -211,6 +243,42 @@ public class MeasurementWriter {
     void writeProductMapHeader(PrintWriter printWriter) {   // package local for testing
         printWriter.printf("# Product ID Map%n");
         printWriter.printf("ProductID\tProductType\tProductLocation%n");
+    }
+
+    private static Measurement createMeasurement(Product product, int productId,
+                                                 int coordinateID,
+                                                 String coordinateName, String[] rasterNames, Number[] values,
+                                                 Raster validData, int x, int y) throws IOException {
+        for (int i = 0; i < rasterNames.length; i++) {
+            RasterDataNode raster = product.getRasterDataNode(rasterNames[i]);
+            if (raster != null && product.containsPixel(x, y)) {
+                if (raster.isFloatingPointType()) {
+                    double[] temp = new double[1];
+                    raster.readPixels(x, y, 1, 1, temp);
+                    values[i] = temp[0];
+                } else {
+                    int[] temp = new int[1];
+                    raster.readPixels(x, y, 1, 1, temp);
+                    if (raster instanceof Mask) {
+                        values[i] = temp[0] == 0 ? 0 : 1; // normalize to 0 for false and 1 for true
+                    } else {
+                        if (raster.getDataType() == ProductData.TYPE_UINT32) {
+                            values[i] = temp[0] & 0xffffL;
+                        } else {
+                            values[i] = temp[0];
+                        }
+                    }
+                }
+            }
+        }
+        final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
+        GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(pixelPos, null);
+        boolean isValid = validData.getSample(x, y, 0) != 0;
+        final ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, pixelPos.y);
+
+        return new Measurement(coordinateID, coordinateName, productId,
+                               pixelPos.x, pixelPos.y, scanLineTime, currentGeoPos, values,
+                               isValid);
     }
 
 }

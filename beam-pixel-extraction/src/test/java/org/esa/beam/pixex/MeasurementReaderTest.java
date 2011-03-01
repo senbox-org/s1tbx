@@ -20,6 +20,10 @@ import org.esa.beam.framework.datamodel.Product;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.ConstantDescriptor;
+import java.awt.Rectangle;
+import java.awt.image.Raster;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -28,6 +32,7 @@ import static junit.framework.Assert.*;
 public class MeasurementReaderTest {
 
     private File inputDir;
+    private int windowSize;
 
     @Before
     public void setup() throws Exception {
@@ -38,20 +43,28 @@ public class MeasurementReaderTest {
                 file.delete();
             }
         }
-        final MeasurementWriter writer = new MeasurementWriter(inputDir, "MeasurementReaderTest", 1,
+        windowSize = 3;
+        final int width = 360;
+        final int height = 180;
+        final MeasurementWriter writer = new MeasurementWriter(inputDir, "MeasurementReaderTest", windowSize,
                                                                "expression", true);
-        final Product p1 = MeasurementWriterTest.createTestProduct("N1", "T1",
-                                                                   new String[]{"rad_1", "rad_2", "rad_3"});
-        final Product p2 = MeasurementWriterTest.createTestProduct("N2", "T1",
-                                                                   new String[]{"rad_1", "rad_2", "rad_3"});
+        writer.setExportMasks(false);
+        final String[] radianceNames = {"rad_1", "rad_2", "rad_3"};
+        final Product p1 = MeasurementWriterTest.createTestProduct("N1", "T1", radianceNames, width, height);
+        final Product p2 = MeasurementWriterTest.createTestProduct("N2", "T1", radianceNames, width, height);
         final Product p3 = MeasurementWriterTest.createTestProduct("N3", "T2",
-                                                                   new String[]{"refl_1", "refl_2", "refl_3"});
-        writer.write(p1, MeasurementWriterTest.getMeasurement(0, 0));
-        writer.write(p1, MeasurementWriterTest.getMeasurement(1, 0));
-        writer.write(p2, MeasurementWriterTest.getMeasurement(2, 1));
-        writer.write(p2, MeasurementWriterTest.getMeasurement(3, 1));
-        writer.write(p3, MeasurementWriterTest.getMeasurement(4, 2));
-        writer.write(p3, MeasurementWriterTest.getMeasurement(5, 2));
+                                                                   new String[]{"refl_1", "refl_2", "refl_3"},
+                                                                   width, height);
+        final int pixelX = 20;
+        final int pixelY = 42;
+        final RenderedOp renderedOp = ConstantDescriptor.create((float) width, (float) height, new Byte[]{-1}, null);
+        final Raster validData = renderedOp.getData(new Rectangle(pixelX, pixelY, windowSize, windowSize));
+        writer.writeMeasurementRegion(0, "coord" + 0, pixelX, pixelY, p1, validData);
+        writer.writeMeasurementRegion(1, "coord" + 1, pixelX, pixelY, p1, validData);
+        writer.writeMeasurementRegion(2, "coord" + 2, pixelX, pixelY, p2, validData);
+        writer.writeMeasurementRegion(3, "coord" + 3, pixelX, pixelY, p2, validData);
+        writer.writeMeasurementRegion(4, "coord" + 4, pixelX, pixelY, p3, validData);
+        writer.writeMeasurementRegion(5, "coord" + 5, pixelX, pixelY, p3, validData);
     }
 
     @Test
@@ -61,13 +74,25 @@ public class MeasurementReaderTest {
         while (reader.hasNext()) {
             measurementList.add(reader.next());
         }
-        assertEquals(6, measurementList.size());
-        assertTrue(measurementList.contains(MeasurementWriterTest.getMeasurement(0, 0)));
-        assertTrue(measurementList.contains(MeasurementWriterTest.getMeasurement(1, 0)));
-        assertTrue(measurementList.contains(MeasurementWriterTest.getMeasurement(2, 1)));
-        assertTrue(measurementList.contains(MeasurementWriterTest.getMeasurement(3, 1)));
-        assertTrue(measurementList.contains(MeasurementWriterTest.getMeasurement(4, 2)));
-        assertTrue(measurementList.contains(MeasurementWriterTest.getMeasurement(5, 2)));
+        assertEquals(windowSize * windowSize * 6, measurementList.size());
+        testForExistingMeasurement(measurementList, 0, "coord" + 0);
+        testForExistingMeasurement(measurementList, 1, "coord" + 1);
+        testForExistingMeasurement(measurementList, 2, "coord" + 2);
+        testForExistingMeasurement(measurementList, 3, "coord" + 3);
+        testForExistingMeasurement(measurementList, 4, "coord" + 4);
+        testForExistingMeasurement(measurementList, 5, "coord" + 5);
+    }
+
+    private void testForExistingMeasurement(ArrayList<Measurement> measurementList, int coordId, String coordName) {
+        for (Measurement measurement : measurementList) {
+            if (measurement.getCoordinateID() == coordId &&
+                measurement.getCoordinateName().equals(coordName) &&
+                Double.compare(measurement.getPixelX(), 20.5) == 0 &&
+                Double.compare(measurement.getPixelY(), 42.5) == 0) {
+                return;
+            }
+        }
+        fail("Measurement with name '" + coordName + "' not found");
     }
 
     @Test(expected = UnsupportedOperationException.class)

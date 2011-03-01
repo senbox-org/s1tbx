@@ -136,8 +136,8 @@ public class Measurement {
         result = 31 * result + Arrays.hashCode(values);
         result = 31 * result + coordinateID;
         result = 31 * result + productId;
-        result = 31 * result + (pixelX != +0.0f ? Float.floatToIntBits(pixelX) : 0);
-        result = 31 * result + (pixelY != +0.0f ? Float.floatToIntBits(pixelY) : 0);
+        result = 31 * result + (pixelX == +0.0f ? 0 : Float.floatToIntBits(pixelX));
+        result = 31 * result + (pixelY == +0.0f ? 0 : Float.floatToIntBits(pixelY));
         result = 31 * result + coordinateName.hashCode();
         result = 31 * result + (isValid ? 1 : 0);
         return result;

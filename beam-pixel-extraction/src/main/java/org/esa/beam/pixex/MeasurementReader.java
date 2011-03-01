@@ -33,19 +33,18 @@ import java.util.Scanner;
 
 public class MeasurementReader implements Iterator<Measurement>, Closeable {
 
-    private final File[] measurementFiles;
     private int readerIndex;
     private boolean withExpression;
     private BufferedReader[] bufferedReaders;
     private String measurementLine;
 
     public MeasurementReader(File inputDir) throws IOException {
-        measurementFiles = inputDir.listFiles(new MeasurementFilenameFilter());
         readerIndex = 0;
-        bufferedReaders = initReader(measurementFiles);
+        bufferedReaders = initReader(inputDir.listFiles(new MeasurementFilenameFilter()));
         measurementLine = getNextMeasurementLine();
     }
 
+    @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
     private BufferedReader[] initReader(File[] measurementFiles) throws IOException {
         BufferedReader[] readers = new BufferedReader[measurementFiles.length];
         for (int i = 0; i < measurementFiles.length; i++) {

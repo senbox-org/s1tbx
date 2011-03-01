@@ -46,14 +46,6 @@ class ProductDescription {
         productLocation = location;
     }
 
-    public String getProductName() {
-        return productName;
-    }
-
-    public String getProductType() {
-        return productType;
-    }
-
     public String getLocation() {
         return productLocation;
     }

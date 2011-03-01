@@ -23,13 +23,11 @@ import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -54,18 +52,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @SuppressWarnings({
-                          "IOResourceOpenedButNotSafelyClosed", "MismatchedReadAndWriteOfArray",
-                          "FieldCanBeLocal", "UnusedDeclaration"
+                          "MismatchedReadAndWriteOfArray",
+                          "UnusedDeclaration"
                   })
 @OperatorMetadata(
         alias = "PixEx",
@@ -126,13 +121,10 @@ public class PixExOp extends Operator {
                defaultValue = "true")
     private Boolean exportExpressionResult;
 
-    private Map<String, String[]> rasterNamesMap = new HashMap<String, String[]>(37);
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
-    private boolean isTargetProductInitialized = false;
-    private List<ProductDescription> productLocationList = new ArrayList<ProductDescription>();
-    private Integer productId = 0;
-    private int timeDelta = 0;
+    private boolean isTargetProductInitialized;
+    private int timeDelta;
     private int calendarField = -1;
     private MeasurementWriter measurementWriter;
 
@@ -163,6 +155,9 @@ public class PixExOp extends Operator {
         validator = new ProductValidator();
         measurementWriter = new MeasurementWriter(outputDir, outputFilePrefix, windowSize,
                                                   expression, exportExpressionResult);
+        measurementWriter.setExportBands(exportBands);
+        measurementWriter.setExportTiePoints(exportTiePoints);
+        measurementWriter.setExportMasks(exportMasks);
         try {
             if (sourceProducts != null) {
                 for (Product product : sourceProducts) {
@@ -202,8 +197,8 @@ public class PixExOp extends Operator {
     }
 
 
-    private void readMeasurement(Product product, Coordinate coordinate,
-                                 int coordinateID, RenderedImage validMaskImage) throws IOException {
+    private void extractMeasurement(Product product, Coordinate coordinate,
+                                    int coordinateID, RenderedImage validMaskImage) throws IOException {
         PixelPos centerPos = product.getGeoCoding().getPixelPos(new GeoPos(coordinate.getLat(), coordinate.getLon()),
                                                                 null);
         if (!product.containsPixel(centerPos)) {
@@ -219,62 +214,8 @@ public class PixExOp extends Operator {
         final int upperLeftX = MathUtils.floorInt(centerPos.x - offset);
         final int upperLeftY = MathUtils.floorInt(centerPos.y - offset);
         final Raster validData = validMaskImage.getData(new Rectangle(upperLeftX, upperLeftY, windowSize, windowSize));
-        final String[] rasterNames = rasterNamesMap.get(product.getProductType());
-        writeMeasurementRegion(coordinateID, coordinate.getName(), upperLeftX, upperLeftY, product,
-                               rasterNames, validData);
-    }
-
-    private void writeMeasurementRegion(int coordinateID, String coordinateName, int upperLeftX, int upperLeftY,
-                                        Product product, String[] rasterNames, Raster validData) throws IOException {
-        final int productId = measurementWriter.registerProduct(product);
-        final Number[] values = new Number[rasterNames.length];
-        Arrays.fill(values, Double.NaN);
-        final int numPixels = windowSize * windowSize;
-        for (int n = 0; n < numPixels; n++) {
-            int x = upperLeftX + n % windowSize;
-            int y = upperLeftY + n / windowSize;
-
-            final Measurement measure = createMeasurement(product, productId, coordinateID,
-                                                          coordinateName, rasterNames, values, validData, x, y);
-            measurementWriter.write(product, measure);
-        }
-    }
-
-    public static Measurement createMeasurement(Product product, int productId,
-                                                int coordinateID,
-                                                String coordinateName, String[] rasterNames, Number[] values,
-                                                Raster validData, int x, int y) throws IOException {
-        for (int i = 0; i < rasterNames.length; i++) {
-            RasterDataNode raster = product.getRasterDataNode(rasterNames[i]);
-            if (raster != null && product.containsPixel(x, y)) {
-                final int type = raster.getDataType();
-                if (raster.isFloatingPointType()) {
-                    double[] temp = new double[1];
-                    raster.readPixels(x, y, 1, 1, temp);
-                    values[i] = temp[0];
-                } else {
-                    int[] temp = new int[1];
-                    raster.readPixels(x, y, 1, 1, temp);
-                    if (raster instanceof Mask) {
-                        values[i] = temp[0] == 0 ? 0 : 1; // normalize to 0 for false and 1 for true
-                    } else {
-                        if (raster.getDataType() == ProductData.TYPE_UINT32) {
-                            values[i] = temp[0] & 0xffffL;
-                        } else {
-                            values[i] = temp[0];
-                        }
-                    }
-                }
-            }
-        }
-        final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
-        GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(pixelPos, null);
-        boolean isValid = validData.getSample(x, y, 0) != 0;
-        final ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, pixelPos.y);
-
-        return new Measurement(coordinateID, coordinateName, productId,
-                               pixelPos.x, pixelPos.y, scanLineTime, currentGeoPos, values,
-                               isValid);
+        measurementWriter.writeMeasurementRegion(coordinateID, coordinate.getName(), upperLeftX, upperLeftY, product,
+                                                 validData);
     }
 
     PlanarImage createValidMaskImage(Product product) {
@@ -396,16 +337,12 @@ public class PixExOp extends Operator {
             return;
         }
 
-        if (!rasterNamesMap.containsKey(product.getProductType())) {
-            rasterNamesMap.put(product.getProductType(), getAllRasterNames(product));
-        }
-
         final PlanarImage validMaskImage = createValidMaskImage(product);
         try {
             for (int i = 0, coordinateListSize = coordinateList.size(); i < coordinateListSize; i++) {
                 Coordinate coordinate = coordinateList.get(i);
                 try {
-                    readMeasurement(product, coordinate, i + 1, validMaskImage);
+                    extractMeasurement(product, coordinate, i + 1, validMaskImage);
                 } catch (IOException e) {
                     getLogger().warning(e.getMessage());
                 }
@@ -413,20 +350,6 @@ public class PixExOp extends Operator {
         } finally {
             validMaskImage.dispose();
         }
-    }
-
-    private String[] getAllRasterNames(Product product) {
-        final List<String> allRasterList = new ArrayList<String>();
-        if (exportBands) {
-            Collections.addAll(allRasterList, product.getBandNames());
-        }
-        if (exportTiePoints) {
-            Collections.addAll(allRasterList, product.getTiePointGridNames());
-        }
-        if (exportMasks) {
-            Collections.addAll(allRasterList, product.getMaskGroup().getNodeNames());
-        }
-        return allRasterList.toArray(new String[allRasterList.size()]);
     }
 
     private void setDummyProduct() {
