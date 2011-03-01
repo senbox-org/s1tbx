@@ -266,16 +266,25 @@ public class MeasurementWriterTest {
         assertNotNull("Nothing written to ProductMap.", line);
         assertFalse(line.isEmpty());
         assertProductMapEntryEquals(0, "T1", testProduct.getFileLocation().getAbsolutePath(), line);
+
         writeRegion(writer, testProduct, 2, windowSize);
         assertNull("No new entry expected.", reader.readLine());
 
         final Product testProduct2 = createTestProduct("N2", "T1", varNames, 360, 180);
         testProduct2.setFileLocation(new File("somewhere/on/disk2.txt"));
         writeRegion(writer, testProduct2, 1, windowSize);
+        final Product testProduct3 = createTestProduct("N2", "T2", varNames, 360, 180);
+        testProduct3.setFileLocation(new File("somewhere/on/disk3.txt"));
+        writeRegion(writer, testProduct3, 1, windowSize);
+
         line = reader.readLine();
         assertNotNull("Nothing written to ProductMap.", line);
         assertFalse(line.isEmpty());
         assertProductMapEntryEquals(1, "T1", testProduct2.getFileLocation().getAbsolutePath(), line);
+        line = reader.readLine();
+        assertNotNull("Nothing written to ProductMap.", line);
+        assertFalse(line.isEmpty());
+        assertProductMapEntryEquals(2, "T2", testProduct3.getFileLocation().getAbsolutePath(), line);
 
     }
 
