@@ -399,9 +399,12 @@ public class PixExOpTest {
         final File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File baseTestDir = new File(tmpDir, getClass().getSimpleName());
         final File dir = new File(baseTestDir, methodName);
-        if (!dir.mkdir()) { // already exists, so delete content
-            for (File file : dir.listFiles()) {
-                file.delete();
+        if (!dir.mkdirs()) { // already exists, so delete content
+            final File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    file.delete();
+                }
             }
         }
         return dir;

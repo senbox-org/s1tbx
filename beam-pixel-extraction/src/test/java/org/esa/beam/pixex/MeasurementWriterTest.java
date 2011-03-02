@@ -290,6 +290,7 @@ public class MeasurementWriterTest {
 
     private void assertProductMapEntryEquals(int productId, String productType, String location, String line) {
         final Scanner scanner = new Scanner(line);
+        scanner.useLocale(Locale.ENGLISH);
         scanner.useDelimiter("\t");
         assertEquals(productId, scanner.nextInt());
         assertEquals(productType, scanner.next());
@@ -317,6 +318,7 @@ public class MeasurementWriterTest {
     private void assertMeasurementEquals(Measurement measurement, String line, boolean withExpression) throws
                                                                                                        ParseException {
         final Scanner scanner = new Scanner(line);
+        scanner.useLocale(Locale.ENGLISH);
         scanner.useDelimiter("\t");
         if (withExpression) {
             assertEquals(measurement.isValid(), scanner.nextBoolean());

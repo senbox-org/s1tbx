@@ -29,6 +29,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 /**
@@ -71,6 +72,7 @@ public class MeasurementReader implements Iterator<Measurement>, Closeable {
     @Override
     public Measurement next() {
         final Scanner scanner = new Scanner(measurementLine);
+        scanner.useLocale(Locale.ENGLISH);
         scanner.useDelimiter("\t");
         boolean isValid = true;
         if (withExpression) {

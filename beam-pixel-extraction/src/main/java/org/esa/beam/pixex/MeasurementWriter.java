@@ -31,7 +31,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -160,7 +159,7 @@ public class MeasurementWriter {
     private void write(PrintWriter writer, Measurement measurement) {
         if (expression == null || exportExpressionResult || measurement.isValid()) {
             if (expression != null && exportExpressionResult) {
-                writer.printf("%s\t", String.valueOf(measurement.isValid()));
+                writer.printf(Locale.ENGLISH, "%s\t", String.valueOf(measurement.isValid()));
             }
             final ProductData.UTC time = measurement.getTime();
             String timeString;
@@ -169,7 +168,8 @@ public class MeasurementWriter {
             } else {
                 timeString = " \t ";
             }
-            writer.printf("%d\t%d\t%s\t%s\t%s\t%s\t%s\t%s",
+            writer.printf(Locale.ENGLISH,
+                          "%d\t%d\t%s\t%s\t%s\t%s\t%s\t%s",
                           measurement.getProductId(), measurement.getCoordinateID(),
                           measurement.getCoordinateName(),
                           measurement.getLat(), measurement.getLon(),
@@ -177,7 +177,7 @@ public class MeasurementWriter {
                           timeString);
             final Number[] values = measurement.getValues();
             for (Number value : values) {
-                writer.printf("\t%s", value);
+                writer.printf(Locale.ENGLISH, "\t%s", value);
             }
             writer.println();
         }
@@ -224,14 +224,15 @@ public class MeasurementWriter {
     }
 
     void writeMeasurementFileHeader(PrintWriter writer, String[] variableNames) {   // package local for testing
-        writer.println("# BEAM pixel extraction export table");
-        writer.println('#');
-        writer.printf("# Window size: %d%n", windowSize);
+        writer.printf("# BEAM pixel extraction export table%n");
+        writer.printf("#%n");
+        writer.printf(Locale.ENGLISH, "# Window size: %d%n", windowSize);
         if (expression != null) {
             writer.printf("# Expression: %s%n", expression);
         }
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        writer.printf("# Created on:\t%s%n%n", dateFormat.format(new Date()));
+
+        final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+        writer.printf(Locale.ENGLISH, "# Created on:\t%s%n%n", dateFormat.format(new Date()));
 
         if (expression != null && exportExpressionResult) {
             writer.print("Expression result\t");
@@ -239,7 +240,7 @@ public class MeasurementWriter {
         writer.print(
                 "ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)");
         for (String name : variableNames) {
-            writer.append(String.format("\t%s", name));
+            writer.printf(Locale.ENGLISH, "\t%s", name);
         }
         writer.println();
     }
