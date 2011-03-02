@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -303,6 +304,7 @@ public class PixExOp extends Operator {
         for (File file : files) {
             if (file.isDirectory()) {
                 final File[] subFiles = file.listFiles();
+                Arrays.sort(subFiles);
                 for (File subFile : subFiles) {
                     if (subFile.isFile()) {
                         extractMeasurements(subFile);
@@ -371,6 +373,7 @@ public class PixExOp extends Operator {
                 directoryList.add(new File(trimmedPath));
             }
         }
+        Collections.sort(directoryList);
         return directoryList.toArray(new File[directoryList.size()]);
     }
 
