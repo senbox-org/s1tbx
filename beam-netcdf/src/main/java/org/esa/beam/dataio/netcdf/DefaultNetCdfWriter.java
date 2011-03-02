@@ -34,15 +34,15 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
- * User: Marco
- * Date: 08.11.2010
+ * Default NetCDF writer configured by an implementation of {@link AbstractNetCdfWriterPlugIn}.
  */
 class DefaultNetCdfWriter extends AbstractProductWriter {
+
     private HashMap<String, Variable> variableMap;
     private NetcdfFileWriteable writeable;
     private boolean isYFlipped;
 
-    public DefaultNetCdfWriter(AbstractNetCdfWriterPlugIn writerPlugIn) {
+    DefaultNetCdfWriter(AbstractNetCdfWriterPlugIn writerPlugIn) {
         super(writerPlugIn);
         variableMap = new HashMap<String, Variable>();
     }
@@ -84,7 +84,8 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
     }
 
     @Override
-    public void writeBandRasterData(Band sourceBand, int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight, ProductData sourceBuffer, ProgressMonitor pm) throws IOException {
+    public void writeBandRasterData(Band sourceBand, int sourceOffsetX, int sourceOffsetY, int sourceWidth,
+                                    int sourceHeight, ProductData sourceBuffer, ProgressMonitor pm) throws IOException {
         final int yIndex = 0;
         final int xIndex = 1;
         final String variableName = ReaderUtils.getVariableName(sourceBand);
