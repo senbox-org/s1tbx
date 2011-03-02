@@ -22,6 +22,9 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 
 import java.util.Date;
 
+/**
+ * A coordinate is composed by a name, altitude, longitude and can optionally have a date.
+ */
 public class Coordinate {
 
     @Parameter(pattern = "[a-zA-Z_0-9]*")

@@ -21,6 +21,9 @@ import org.esa.beam.framework.datamodel.ProductData;
 
 import java.util.Arrays;
 
+/**
+ * A container class which holds all information of an measurement.
+ */
 public class Measurement {
 
     private final ProductData.UTC time;

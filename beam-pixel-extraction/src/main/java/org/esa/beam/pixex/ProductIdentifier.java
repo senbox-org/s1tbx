@@ -20,15 +20,18 @@ import org.esa.beam.framework.datamodel.Product;
 
 import java.io.File;
 
-class ProductDescription {
+/**
+ * Used to identify a product within the {@link MeasurementWriter}.
+ */
+class ProductIdentifier {
 
     private final String productName;
     private final String productType;
     private final String productLocation;
 
-    static ProductDescription create(Product product) {
+    static ProductIdentifier create(Product product) {
         String location = getProductLocation(product);
-        return new ProductDescription(product.getName(), product.getProductType(), location);
+        return new ProductIdentifier(product.getName(), product.getProductType(), location);
     }
 
     private static String getProductLocation(Product product) {
@@ -40,7 +43,7 @@ class ProductDescription {
         }
     }
 
-    ProductDescription(String name, String type, String location) {
+    ProductIdentifier(String name, String type, String location) {
         productName = name;
         productType = type;
         productLocation = location;
@@ -59,7 +62,7 @@ class ProductDescription {
             return false;
         }
 
-        ProductDescription that = (ProductDescription) o;
+        ProductIdentifier that = (ProductIdentifier) o;
 
         if (!productLocation.equals(that.productLocation)) {
             return false;

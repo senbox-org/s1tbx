@@ -42,6 +42,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Writes measurements into CSV text files along with a file containing the paths to the products which
+ * contributed to the list of measurements.
+ */
 public class MeasurementWriter {
 
     private static final DateFormat DATE_FORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd\tHH:mm:ss");
@@ -54,7 +58,7 @@ public class MeasurementWriter {
     private final int windowSize;
     private final String expression;
     private final boolean exportExpressionResult;
-    private final List<ProductDescription> productList;
+    private final List<ProductIdentifier> productList;
     private final Map<String, String[]> rasterNamesMap;
     private PrintWriter productMapWriter;
     private boolean exportBands;
@@ -76,7 +80,7 @@ public class MeasurementWriter {
         exportTiePoints = true;
         exportMasks = true;
         this.exportExpressionResult = exportExpressionResult;
-        productList = new ArrayList<ProductDescription>();
+        productList = new ArrayList<ProductIdentifier>();
         rasterNamesMap = new HashMap<String, String[]>(37);
     }
 
@@ -119,26 +123,26 @@ public class MeasurementWriter {
     }
 
     private int registerProduct(Product product) throws IOException {
-        final ProductDescription description = ProductDescription.create(product);
-        if (!productList.contains(description)) {
+        final ProductIdentifier identifier = ProductIdentifier.create(product);
+        if (!productList.contains(identifier)) {
             if (productMapWriter == null) {
                 productMapWriter = createProductMapWriter();
             }
-            productList.add(description);
+            productList.add(identifier);
 
             final String[] rasterNamesToBeExported = getRasterNamesToBeExported(product);
             final String productType = product.getProductType();
             rasterNamesMap.put(productType, rasterNamesToBeExported);
 
-            productMapWriter.printf("%d\t%s\t%s%n", productList.indexOf(description), productType,
-                                    description.getLocation());
+            productMapWriter.printf("%d\t%s\t%s%n", productList.indexOf(identifier), productType,
+                                    identifier.getLocation());
 
             if (productMapWriter.checkError()) {
                 throw new IOException("Error occurred while writing measurement.");
             }
 
         }
-        return productList.indexOf(description);
+        return productList.indexOf(identifier);
     }
 
     public void close() {

@@ -31,6 +31,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Reads all measurements from a specified directory. All measurement files are combined.
+ */
 public class MeasurementReader implements Iterator<Measurement>, Closeable {
 
     private int readerIndex;
