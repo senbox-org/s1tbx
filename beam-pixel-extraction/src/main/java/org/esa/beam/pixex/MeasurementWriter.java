@@ -169,7 +169,7 @@ public class MeasurementWriter {
                 timeString = " \t ";
             }
             writer.printf(Locale.ENGLISH,
-                          "%d\t%d\t%s\t%.6f\t%.6f\t%.3f\t%.6f\t%s",
+                          "%d\t%d\t%s\t%.6f\t%.6f\t%.3f\t%.3f\t%s",
                           measurement.getProductId(), measurement.getCoordinateID(),
                           measurement.getCoordinateName(),
                           measurement.getLat(), measurement.getLon(),
