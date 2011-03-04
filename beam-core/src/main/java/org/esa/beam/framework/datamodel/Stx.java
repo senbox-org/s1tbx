@@ -23,10 +23,13 @@ import com.bc.ceres.jai.NoDataRaster;
 import org.esa.beam.jai.ImageManager;
 
 import javax.media.jai.Histogram;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
 import javax.media.jai.PixelAccessor;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.MinDescriptor;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.image.DataBuffer;
@@ -357,7 +360,11 @@ public class Stx {
         RenderedImage maskImage = ImageManager.getInstance().getValidMaskImage(raster, level);
         if (roiImage != null) {
             if (maskImage != null) {
-                maskImage = MinDescriptor.create(maskImage, roiImage, null);
+                final ImageLayout imageLayout = new ImageLayout();
+                imageLayout.setTileWidth(maskImage.getTileWidth());
+                imageLayout.setTileHeight(maskImage.getTileHeight());
+                final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
+                maskImage = MinDescriptor.create(maskImage, roiImage, hints);
             } else {
                 maskImage = roiImage;
             }
