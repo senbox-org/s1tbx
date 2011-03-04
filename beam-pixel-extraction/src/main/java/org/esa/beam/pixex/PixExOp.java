@@ -212,11 +212,16 @@ public class PixExOp extends Operator {
             }
         }
         int offset = MathUtils.floorInt(windowSize / 2);
-        final int upperLeftX = MathUtils.floorInt(centerPos.x - offset);
-        final int upperLeftY = MathUtils.floorInt(centerPos.y - offset);
+        final int centerX = MathUtils.floorInt(centerPos.x);
+        final int centerY = MathUtils.floorInt(centerPos.y);
+        final int upperLeftX = centerX - offset;
+        final int upperLeftY = centerY - offset;
         final Raster validData = validMaskImage.getData(new Rectangle(upperLeftX, upperLeftY, windowSize, windowSize));
-        measurementWriter.writeMeasurementRegion(coordinateID, coordinate.getName(), upperLeftX, upperLeftY, product,
-                                                 validData);
+        boolean isValid = validData.getSample(centerX, centerY, 0) != 0;
+        if (isValid) {
+            measurementWriter.writeMeasurementRegion(coordinateID, coordinate.getName(), upperLeftX, upperLeftY,
+                                                     product, validData);
+        }
     }
 
     PlanarImage createValidMaskImage(Product product) {
@@ -320,7 +325,9 @@ public class PixExOp extends Operator {
         Product product = null;
         try {
             product = ProductIO.readProduct(file);
-            extractMeasurements(product);
+            if (product != null) {
+                extractMeasurements(product);
+            }
         } catch (IOException ignore) {
         } finally {
             if (product != null) {
