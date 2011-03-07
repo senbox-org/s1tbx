@@ -115,10 +115,11 @@ public class PixExOp extends Operator {
     @Parameter(description = "The prefix is used to name the output files.", defaultValue = "pixEx")
     private String outputFilePrefix;
 
-    @Parameter(description = "Band maths expression (optional)")
+    @Parameter(description = "Band maths expression (optional). Defines valid pixels.")
     private String expression;
 
-    @Parameter(description = "If true, the expression result is exported, otherwise the expression is used as filter.",
+    @Parameter(description = "If true, the expression result is exported per pixel, otherwise the expression \n" +
+                             "is used as filter (all pixels in given window must be valid).",
                defaultValue = "true")
     private Boolean exportExpressionResult;
 
@@ -217,12 +218,26 @@ public class PixExOp extends Operator {
         final int upperLeftX = centerX - offset;
         final int upperLeftY = centerY - offset;
         final Raster validData = validMaskImage.getData(new Rectangle(upperLeftX, upperLeftY, windowSize, windowSize));
-        boolean isValid = validData.getSample(centerX, centerY, 0) != 0;
-        if (isValid) {
+        boolean areAllPixelsValid = areAllPixelsInWindowValid(upperLeftX, upperLeftY, validData);
+        if (areAllPixelsValid || exportExpressionResult) {
             measurementWriter.writeMeasurementRegion(coordinateID, coordinate.getName(), upperLeftX, upperLeftY,
                                                      product, validData);
         }
     }
+
+    private boolean areAllPixelsInWindowValid(int upperLeftX, int upperLeftY, Raster validData) {
+        final int numPixels = windowSize * windowSize;
+        for (int n = 0; n < numPixels; n++) {
+            int x = upperLeftX + n % windowSize;
+            int y = upperLeftY + n / windowSize;
+            final boolean isPixelValid = validData.getSample(x, y, 0) != 0;
+            if (!isPixelValid) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     PlanarImage createValidMaskImage(Product product) {
         if (expression != null && product.isCompatibleBandArithmeticExpression(expression)) {
