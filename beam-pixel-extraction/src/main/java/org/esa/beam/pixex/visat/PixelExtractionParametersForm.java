@@ -257,7 +257,7 @@ class PixelExtractionParametersForm {
         tableLayout.setCellFill(3, 0, TableLayout.Fill.BOTH);
         final JPanel panel = new JPanel(tableLayout);
 
-        useExpressionCheckBox = new JCheckBox("Use band maths");
+        useExpressionCheckBox = new JCheckBox("Use expression");
         useExpressionCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -284,7 +284,11 @@ class PixelExtractionParametersForm {
         final Property exportResultProperty = bindingContext.getPropertySet().getProperty("exportExpressionResult");
         final Boolean defaultValue = (Boolean) exportResultProperty.getDescriptor().getDefaultValue();
         exportExpressionResultButton.setSelected(defaultValue);
+        exportExpressionResultButton.setToolTipText(
+                "Expression result is exported to the output file for each exported pixel.");
         expressionAsFilterButton.setSelected(!defaultValue);
+        expressionAsFilterButton.setToolTipText(
+                "Expression is used as filter (all pixels in given window must be valid).");
 
         final JPanel expressionButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         expressionButtonPanel.add(expressionAsFilterButton);
