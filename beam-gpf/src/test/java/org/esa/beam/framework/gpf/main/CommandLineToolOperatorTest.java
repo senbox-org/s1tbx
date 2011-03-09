@@ -39,6 +39,7 @@ public class CommandLineToolOperatorTest extends TestCase {
     private static final TestOps.Op3.Spi OP3_SPI = new TestOps.Op3.Spi();
     private static final TestOps.Op4.Spi OP4_SPI = new TestOps.Op4.Spi();
     private static final TestOps.Op5.Spi OP5_SPI = new TestOps.Op5.Spi();
+    private static final TestOps.OpImplementingOutput.Spi OUTPUT_OP_SPI = new TestOps.OpImplementingOutput.Spi();
     private TileScheduler jaiTileScheduler;
 
     @Override
@@ -48,6 +49,7 @@ public class CommandLineToolOperatorTest extends TestCase {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP3_SPI);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP4_SPI);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP5_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OUTPUT_OP_SPI);
         JAI jai = JAI.getDefaultInstance();
         jaiTileScheduler = jai.getTileScheduler();
         SunTileScheduler tileScheduler = new SunTileScheduler();
@@ -60,6 +62,7 @@ public class CommandLineToolOperatorTest extends TestCase {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP3_SPI);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP4_SPI);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP5_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OUTPUT_OP_SPI);
         JAI.getDefaultInstance().setTileScheduler(jaiTileScheduler);
     }
 
@@ -80,11 +83,11 @@ public class CommandLineToolOperatorTest extends TestCase {
         clTool.run(new String[]{"Op4", "-h"});
         assertTrue(context.output.startsWith(
                 "Usage:\n" +
-                        "  gpt Op4 [options] \n" +
-                        "\n" +
-                        "Computed Properties:\n" +
-                        "String[] names\n" +
-                        "double PI         The ratio of any circle's circumference to its diameter"
+                "  gpt Op4 [options] \n" +
+                "\n" +
+                "Computed Properties:\n" +
+                "String[] names\n" +
+                "double PI         The ratio of any circle's circumference to its diameter"
         ));
 
     }
@@ -100,8 +103,8 @@ public class CommandLineToolOperatorTest extends TestCase {
     public void testOperatorTwoSources() throws Exception {
         clTool.run(new String[]{"Op3", "-Sinput1=vercingetorix.dim", "-Sinput2=asterix.N1"});
         String expectedLog = "s0=" + new File("vercingetorix.dim").getCanonicalPath() + ";" +
-                "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
-                "o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
+                             "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
+                             "o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
         assertEquals(expectedLog, context.logString);
         assertEquals("Op3", context.opName);
         assertNotNull(context.parameters);
@@ -110,9 +113,9 @@ public class CommandLineToolOperatorTest extends TestCase {
     public void testOperatorMultiSources() throws Exception {
         clTool.run(new String[]{"Op5", "-SVincent=vincent.dim", "asterix.N1", "obelix.nc"});
         String expectedLog = "s0=" + new File("vincent.dim").getCanonicalPath() + ";" +
-                "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
-                "s2=" + new File("obelix.nc").getCanonicalPath() + ";" +
-                "o=Op5;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
+                             "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
+                             "s2=" + new File("obelix.nc").getCanonicalPath() + ";" +
+                             "o=Op5;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
         assertEquals(expectedLog, context.logString);
         assertEquals("Op5", context.opName);
         assertNotNull(context.parameters);
@@ -165,6 +168,11 @@ public class CommandLineToolOperatorTest extends TestCase {
         assertEquals(true, parameters.get("ignoreSign"));
         assertEquals(0.99, parameters.get("factor"));
         assertEquals("NN", parameters.get("interpolMethod"));
+    }
+
+    public void testOperatorImplementingOutputInterface() throws Exception {
+        clTool.run(new String[]{"OutputOp"});
+        assertEquals(0, context.writeProductCounter);
     }
 
     public void testFailureNoReaderFound() {

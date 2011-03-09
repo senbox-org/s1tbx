@@ -35,6 +35,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
+import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.ProductUtils;
@@ -59,17 +60,14 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@SuppressWarnings({
-                          "MismatchedReadAndWriteOfArray",
-                          "UnusedDeclaration"
-                  })
+@SuppressWarnings({"MismatchedReadAndWriteOfArray", "UnusedDeclaration"})
 @OperatorMetadata(
         alias = "PixEx",
         version = "1.0",
         authors = "Marco Peters, Thomas Storm",
         copyright = "(c) 2010 by Brockmann Consult",
         description = "Generates a CSV file from a given pixel location and source products.")
-public class PixExOp extends Operator {
+public class PixExOp extends Operator implements Output {
 
     public static final String RECURSIVE_INDICATOR = "**";
 

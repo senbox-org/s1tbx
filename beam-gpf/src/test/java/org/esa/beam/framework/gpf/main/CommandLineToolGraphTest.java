@@ -20,7 +20,9 @@ import com.bc.ceres.binding.dom.DomElement;
 import com.sun.media.jai.util.SunTileScheduler;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
@@ -34,25 +36,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CommandLineToolGraphTest extends TestCase {
+
     private GraphCommandLineContext context;
     private CommandLineTool clTool;
     private TileScheduler jaiTileScheduler;
+    private static final TestOps.Op2.Spi OP2_SPI = new TestOps.Op2.Spi();
+    private static final TestOps.Op3.Spi OP3_SPI = new TestOps.Op3.Spi();
+    private static final TestOps.OpImplementingOutput.Spi OUTPUT_OP_SPI = new TestOps.OpImplementingOutput.Spi();
 
 
     @Override
     protected void setUp() throws Exception {
         context = new GraphCommandLineContext();
         clTool = new CommandLineTool(context);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP2_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP3_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OUTPUT_OP_SPI);
+
         JAI jai = JAI.getDefaultInstance();
         jaiTileScheduler = jai.getTileScheduler();
         SunTileScheduler tileScheduler = new SunTileScheduler();
         tileScheduler.setParallelism(Runtime.getRuntime().availableProcessors());
         jai.setTileScheduler(tileScheduler);
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
         JAI.getDefaultInstance().setTileScheduler(jaiTileScheduler);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP2_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP3_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OUTPUT_OP_SPI);
     }
 
     public void testGraphUsageMessage() throws Exception {
@@ -117,7 +130,8 @@ public class CommandLineToolGraphTest extends TestCase {
                 "-Pexpression=a+b/c",
                 "-Pthreshold=2.5",
                 "-SsourceProduct=ernie.dim",
-                "-SsourceProduct2=idefix.dim"},
+                "-SsourceProduct2=idefix.dim"
+        },
                   5,
                   "g=graph.xml;e=chain1;",
                   "ReadProduct$0",
@@ -138,7 +152,8 @@ public class CommandLineToolGraphTest extends TestCase {
                 "-p",
                 "paramFile.properties",
                 "-SsourceProduct=ernie.dim",
-                "-SsourceProduct2=idefix.dim"},
+                "-SsourceProduct2=idefix.dim"
+        },
                   5,
                   "g=graph.xml;e=chain1;",
                   "ReadProduct$0",
@@ -160,7 +175,8 @@ public class CommandLineToolGraphTest extends TestCase {
                 "paramFile.properties",
                 "-Pexpression=atan(y/x)",
                 "-SsourceProduct=ernie.dim",
-                "-SsourceProduct2=idefix.dim"},
+                "-SsourceProduct2=idefix.dim"
+        },
                   5,
                   "g=graph.xml;e=chain1;",
                   "ReadProduct$0",
@@ -176,6 +192,13 @@ public class CommandLineToolGraphTest extends TestCase {
 
     }
 
+    public void testGraphWithOpImplementingOutputInterface() throws Exception {
+        final String[] args = new String[]{"graphWithOutput.xml"};
+
+        clTool.run(args);
+        assertEquals(0, context.writeProductCounter);
+
+    }
 
     private void testGraph(String[] args,
                            int expectedNodeCount,
@@ -230,6 +253,7 @@ public class CommandLineToolGraphTest extends TestCase {
 
 
     private static class GraphCommandLineContext implements CommandLineContext {
+
         public String logString;
         private int readProductCounter;
         private int writeProductCounter;
@@ -248,7 +272,8 @@ public class CommandLineToolGraphTest extends TestCase {
         }
 
         @Override
-        public void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException {
+        public void writeProduct(Product targetProduct, String filePath, String formatName,
+                                 boolean clearCacheAfterRowWrite) throws IOException {
             logString += "t" + writeProductCounter + "=" + filePath + ";";
             writeProductCounter++;
         }
@@ -257,38 +282,48 @@ public class CommandLineToolGraphTest extends TestCase {
         public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException, GraphException {
 
             logString += "g=" + filepath + ";";
-
-            String xml =
-                    "<graph id=\"chain1\">" +
-                            "<version>1.0</version>\n" +
-                            "<header>\n" +
-                            "<target refid=\"node2\"/>\n" +
-                            "<source name=\"sourceProduct1\" description=\"First source product\"/>\n" +
-                            "<source name=\"sourceProduct2\"/>\n" +
-                            "<parameter name=\"threshold\" type=\"double\" description=\"Threshold value\"/>\n" +
-                            "<parameter name=\"expression\" type=\"String\"/>\n" +
-                            "</header>\n" +
-                            "<node id=\"node1\">" +
-                            "  <operator>org.esa.beam.framework.gpf.TestOps$Op2$Spi</operator>\n" +
-                            "  <sources>\n" +
-                            "    <input>${sourceProduct}</input>\n" +
-                            "  </sources>\n" +
-                            "  <parameters>\n" +
-                            "    <threshold>${threshold}</threshold>\n" +
-                            "  </parameters>\n" +
-                            "</node>" +
-                            "<node id=\"node2\">" +
-                            "  <operator>org.esa.beam.framework.gpf.TestOps$Op3$Spi</operator>\n" +
-                            "  <sources>\n" +
-                            "    <input1 refid=\"node1\"/>\n" +
-                            "    <input2>${sourceProduct2}</input2>\n" +
-                            "  </sources>\n" +
-                            "  <parameters>\n" +
-                            "    <expression>${expression}</expression>\n" +
-                            "  </parameters>\n" +
-                            "</node>" +
-                            "</graph>";
-
+            String xml;
+            if ("graph.xml".equals(filepath)) {
+                xml = "<graph id=\"chain1\">" +
+                      "<version>1.0</version>\n" +
+                      "<header>\n" +
+                      "<target refid=\"node2\"/>\n" +
+                      "<source name=\"sourceProduct1\" description=\"First source product\"/>\n" +
+                      "<source name=\"sourceProduct2\"/>\n" +
+                      "<parameter name=\"threshold\" type=\"double\" description=\"Threshold value\"/>\n" +
+                      "<parameter name=\"expression\" type=\"String\"/>\n" +
+                      "</header>\n" +
+                      "<node id=\"node1\">" +
+                      "  <operator>org.esa.beam.framework.gpf.TestOps$Op2$Spi</operator>\n" +
+                      "  <sources>\n" +
+                      "    <input>${sourceProduct}</input>\n" +
+                      "  </sources>\n" +
+                      "  <parameters>\n" +
+                      "    <threshold>${threshold}</threshold>\n" +
+                      "  </parameters>\n" +
+                      "</node>" +
+                      "<node id=\"node2\">" +
+                      "  <operator>org.esa.beam.framework.gpf.TestOps$Op3$Spi</operator>\n" +
+                      "  <sources>\n" +
+                      "    <input1 refid=\"node1\"/>\n" +
+                      "    <input2>${sourceProduct2}</input2>\n" +
+                      "  </sources>\n" +
+                      "  <parameters>\n" +
+                      "    <expression>${expression}</expression>\n" +
+                      "  </parameters>\n" +
+                      "</node>" +
+                      "</graph>";
+            } else if ("graphWithOutput.xml".equals(filepath)) {
+                xml = "<graph id=\"chain1\">" +
+                      "<version>1.0</version>\n" +
+                      "<node id=\"node1\">" +
+                      "  <operator>org.esa.beam.framework.gpf.TestOps$OpImplementingOutput$Spi</operator>\n" +
+                      "</node>" +
+                      "</graph>";
+            } else {
+                throw new IllegalArgumentException(
+                        "Path to graph file must be either 'graph.xml' or 'graphWithOutput.xml'");
+            }
             return GraphIO.read(new StringReader(xml), parameterMap);
         }
 
@@ -300,7 +335,8 @@ public class CommandLineToolGraphTest extends TestCase {
 
 
         @Override
-        public Product createOpProduct(String opName, Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
+        public Product createOpProduct(String opName, Map<String, Object> parameters,
+                                       Map<String, Product> sourceProducts) throws OperatorException {
             fail("did not expect to come here");
             return null;
         }

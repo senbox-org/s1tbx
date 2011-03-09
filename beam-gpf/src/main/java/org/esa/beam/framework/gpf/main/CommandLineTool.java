@@ -16,7 +16,6 @@
 
 package org.esa.beam.framework.gpf.main;
 
-import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
@@ -27,7 +26,9 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.Node;
@@ -45,6 +46,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 /**
  * The common command-line tool for the GPF.
@@ -107,8 +109,96 @@ class CommandLineTool {
         }
     }
 
-    private void run(CommandLineArgs lineArgs) throws ValidationException, ConversionException, IOException, GraphException {
-        long memoryCapacity = lineArgs.getTileCacheCapacity();
+    private void run(CommandLineArgs lineArgs) throws ValidationException, IOException, GraphException {
+        initializeJAI(lineArgs.getTileCacheCapacity(), lineArgs.getTileSchedulerParallelism());
+
+        final OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+
+        if (lineArgs.getOperatorName() != null) {
+            // Operator name given: parameters and sources are parsed from command-line args
+            runOperator(lineArgs, operatorSpiRegistry);
+        } else if (lineArgs.getGraphFilepath() != null) {
+            // Path to Graph XML given: parameters and sources are parsed from command-line args
+            runGraph(lineArgs, operatorSpiRegistry);
+        }
+    }
+
+
+    private void runOperator(CommandLineArgs lineArgs, OperatorSpiRegistry operatorSpiRegistry) throws IOException,
+                                                                                                       ValidationException {
+        Map<String, Product> sourceProducts = getSourceProductMap(lineArgs);
+        Map<String, Object> parameters = getParameterMap(lineArgs);
+        String opName = lineArgs.getOperatorName();
+        Product targetProduct = createOpProduct(opName, parameters, sourceProducts);
+        final OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(opName);
+        // write product only if Operator does not implement the Output interface
+        if (!Output.class.isAssignableFrom(operatorSpi.getOperatorClass())) {
+            String filePath = lineArgs.getTargetFilepath();
+            String formatName = lineArgs.getTargetFormatName();
+            writeProduct(targetProduct, filePath, formatName, lineArgs.isClearCacheAfterRowWrite());
+        }
+    }
+
+    private void runGraph(CommandLineArgs lineArgs, OperatorSpiRegistry operatorSpiRegistry) throws IOException,
+                                                                                                    GraphException {
+        Map<String, String> sourceNodeIdMap = getSourceNodeIdMap(lineArgs);
+        Map<String, String> parameters = new TreeMap<String, String>(sourceNodeIdMap);
+        if (lineArgs.getParameterFilepath() != null) {
+            parameters.putAll(readParameterFile(lineArgs.getParameterFilepath()));
+        }
+        parameters.putAll(lineArgs.getParameterMap());
+        Graph graph = readGraph(lineArgs.getGraphFilepath(), parameters);
+        Node lastNode = graph.getNode(graph.getNodeCount() - 1);
+        SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
+
+        // For each source path add a ReadOp to the graph
+        String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadOp.class);
+        for (Entry<String, String> entry : sourceFilepathsMap.entrySet()) {
+            String sourceId = entry.getKey();
+            String sourceFilepath = entry.getValue();
+            String sourceNodeId = sourceNodeIdMap.get(sourceId);
+            if (graph.getNode(sourceNodeId) == null) {
+
+                DomElement configuration = new DefaultDomElement("parameters");
+                configuration.createChild("file").setValue(sourceFilepath);
+
+                Node sourceNode = new Node(sourceNodeId, readOperatorAlias);
+                sourceNode.setConfiguration(configuration);
+
+                graph.addNode(sourceNode);
+            }
+        }
+
+        final String operatorName = lastNode.getOperatorName();
+        final OperatorSpi lastOpSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
+        if (lastOpSpi == null) {
+            throw new GraphException(String.format("Unknown operator name'%s'. No SPI found.", operatorName));
+        }
+        if (Output.class.isAssignableFrom(lastOpSpi.getOperatorClass())) {
+            // lastNode is already an operator which takes care of its output
+            // no need to append WriteOp
+            return;
+        }
+
+        // If the graph's last node does not implement Output, then add a WriteOp
+        String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
+
+        DomElement configuration = new DefaultDomElement("parameters");
+        configuration.createChild("file").setValue(lineArgs.getTargetFilepath());
+        configuration.createChild("formatName").setValue(lineArgs.getTargetFormatName());
+        configuration.createChild("clearCacheAfterRowWrite").setValue(
+                Boolean.toString(lineArgs.isClearCacheAfterRowWrite()));
+
+        Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
+        targetNode.addSource(new NodeSource("source", lastNode.getId()));
+        targetNode.setConfiguration(configuration);
+
+        graph.addNode(targetNode);
+
+        executeGraph(graph);
+    }
+
+    private void initializeJAI(long memoryCapacity, int parallelism) {
         if (memoryCapacity > 0) {
             JAI.enableDefaultTileCache();
             JAI.getDefaultInstance().getTileCache().setMemoryCapacity(memoryCapacity);
@@ -116,71 +206,18 @@ class CommandLineTool {
             JAI.getDefaultInstance().getTileCache().setMemoryCapacity(0L);
             JAI.disableDefaultTileCache();
         }
-        int parallelism = lineArgs.getTileSchedulerParallelism();
         if (parallelism > 0) {
             JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
         }
-        BeamLogManager.getSystemLogger().info(MessageFormat.format("JAI tile cache size is {0} MB", JAI.getDefaultInstance().getTileCache().getMemoryCapacity() / (1024*1024)));
-        BeamLogManager.getSystemLogger().info(MessageFormat.format("JAI tile scheduler parallelism is {0}", JAI.getDefaultInstance().getTileScheduler().getParallelism()));
 
-        if (lineArgs.getOperatorName() != null) {
-            // Operator name given: parameters and sources are parsed from command-line args
-            Map<String, Product> sourceProducts = getSourceProductMap(lineArgs);
-            Map<String, Object> parameters = getParameterMap(lineArgs);
-            String opName = lineArgs.getOperatorName();
-            Product targetProduct = createOpProduct(opName, parameters, sourceProducts);
-            String filePath = lineArgs.getTargetFilepath();
-            String formatName = lineArgs.getTargetFormatName();
-            writeProduct(targetProduct, filePath, formatName, lineArgs.isClearCacheAfterRowWrite());
-        } else if (lineArgs.getGraphFilepath() != null) {
-            // Path to Graph XML given: parameters and sources are parsed from command-line args
-            Map<String, String> sourceNodeIdMap = getSourceNodeIdMap(lineArgs);
-            Map<String, String> parameters = new TreeMap<String, String>(sourceNodeIdMap);
-            if (lineArgs.getParameterFilepath() != null) {
-                parameters.putAll(readParameterFile(lineArgs.getParameterFilepath()));
-            }
-            parameters.putAll(lineArgs.getParameterMap());
-            Graph graph = readGraph(lineArgs.getGraphFilepath(), parameters);
-            Node lastNode = graph.getNode(graph.getNodeCount() - 1);
-            SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
+        final long tileCacheSize = JAI.getDefaultInstance().getTileCache().getMemoryCapacity() / (1024L * 1024L);
+        final Logger systemLogger = BeamLogManager.getSystemLogger();
+        systemLogger.info(MessageFormat.format("JAI tile cache size is {0} MB", tileCacheSize));
+        final int schedulerParallelism = JAI.getDefaultInstance().getTileScheduler().getParallelism();
+        systemLogger.info(MessageFormat.format("JAI tile scheduler parallelism is {0}", schedulerParallelism));
 
-            // For each source path add a ReadOp to the graph
-            String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadOp.class);
-            for (Entry<String, String> entry : sourceFilepathsMap.entrySet()) {
-                String sourceId = entry.getKey();
-                String sourceFilepath = entry.getValue();
-                String sourceNodeId = sourceNodeIdMap.get(sourceId);
-                if (graph.getNode(sourceNodeId) == null) {
-
-                    DomElement configuration = new DefaultDomElement("parameters");
-                    configuration.createChild("file").setValue(sourceFilepath);
-
-                    Node sourceNode = new Node(sourceNodeId, readOperatorAlias);
-                    sourceNode.setConfiguration(configuration);
-
-                    graph.addNode(sourceNode);
-                }
-            }
-
-            // If the graph's last node isn't a WriteOp, then add one
-            String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
-            if (!lastNode.getOperatorName().equals(writeOperatorAlias)) {
-
-                DomElement configuration = new DefaultDomElement("parameters");
-                configuration.createChild("file").setValue(lineArgs.getTargetFilepath());
-                configuration.createChild("formatName").setValue(lineArgs.getTargetFormatName());
-                configuration.createChild("clearCacheAfterRowWrite").setValue(Boolean.toString(lineArgs.isClearCacheAfterRowWrite()));
-
-                Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
-                targetNode.addSource(new NodeSource("source", lastNode.getId()));
-                targetNode.setConfiguration(configuration);
-
-                graph.addNode(targetNode);
-            }
-
-            executeGraph(graph);
-        }
     }
+
 
     private Map<String, Object> getParameterMap(CommandLineArgs lineArgs) throws ValidationException, IOException {
         Map<String, String> parameterMap = new HashMap<String, String>();
@@ -193,9 +230,11 @@ class CommandLineTool {
         return convertParameterMap(operatorName, parameterMap);
     }
 
-    private static Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap) throws ValidationException {
+    private static Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap) throws
+                                                                                                                  ValidationException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
-        PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName, parameters);
+        PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName,
+                                                                                                          parameters);
         // explicitly set default values for putting them into the backing map
         container.setDefaultValues();
         for (Entry<String, String> entry : parameterMap.entrySet()) {
@@ -266,7 +305,8 @@ class CommandLineTool {
         return commandLineContext.readProduct(productFilepath);
     }
 
-    void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException {
+    void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws
+                                                                                                                  IOException {
         commandLineContext.writeProduct(targetProduct, filePath, formatName, clearCacheAfterRowWrite);
     }
 
@@ -282,7 +322,8 @@ class CommandLineTool {
         return commandLineContext.readParameterFile(propertiesFilepath);
     }
 
-    private Product createOpProduct(String opName, Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
+    private Product createOpProduct(String opName, Map<String, Object> parameters,
+                                    Map<String, Product> sourceProducts) throws OperatorException {
         return commandLineContext.createOpProduct(opName, parameters, sourceProducts);
     }
 }

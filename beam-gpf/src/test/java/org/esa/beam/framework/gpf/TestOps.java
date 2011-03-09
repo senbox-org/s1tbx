@@ -26,6 +26,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
+import org.esa.beam.framework.gpf.experimental.Output;
 
 import java.awt.Rectangle;
 import java.util.Map;
@@ -50,6 +51,7 @@ public class TestOps {
 
     @OperatorMetadata(alias = "Op1")
     public static class Op1 extends Operator {
+
         @TargetProduct
         private Product targetProduct;
 
@@ -94,7 +96,8 @@ public class TestOps {
         }
 
         @Override
-        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
+        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws
+                                                                                                           OperatorException {
             //System.out.println("=====>>>>>> Op2.computeAllBands  start");
             Tile tile1A = getSourceTile(input.getBand("Op1A"), rectangle, pm);
 
@@ -106,6 +109,7 @@ public class TestOps {
         }
 
         public static class Spi extends OperatorSpi {
+
             public Spi() {
                 super(Op2.class);
             }
@@ -149,7 +153,8 @@ public class TestOps {
         }
 
         @Override
-        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
+        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws
+                                                                                                           OperatorException {
             //System.out.println("=====>>>>>> Op3.computeAllBands  start");
 
             Tile tile1A = getSourceTile(input1.getBand("Op1A"), rectangle, pm);
@@ -166,6 +171,7 @@ public class TestOps {
         }
 
         public static class Spi extends OperatorSpi {
+
             public Spi() {
                 super(Op3.class);
             }
@@ -174,12 +180,13 @@ public class TestOps {
 
     @OperatorMetadata(alias = "Op4")
     public static class Op4 extends Operator {
+
         @TargetProduct
         private Product targetProduct;
 
         @TargetProperty(alias = "PI", description = "The ratio of any circle's circumference to its diameter")
         private double pi;
-        
+
         @TargetProperty
         private String[] names;
 
@@ -208,10 +215,11 @@ public class TestOps {
 
     @OperatorMetadata(alias = "Op5")
     public static class Op5 extends Operator {
+
         @SourceProducts
         Product[] sourceProducts;
 
-        @SourceProduct(alias="Vincent")
+        @SourceProduct(alias = "Vincent")
         Product namedProduct;
 
         @TargetProduct
@@ -234,6 +242,33 @@ public class TestOps {
 
             public Spi() {
                 super(Op5.class);
+            }
+        }
+    }
+
+    @OperatorMetadata(alias = "OutputOp")
+    public static class OpImplementingOutput extends Operator implements Output {
+
+        @TargetProduct
+        private Product targetProduct;
+
+        @Override
+        public void initialize() {
+            targetProduct = new Product("OutputOp", "OutputOp", RASTER_WIDTH, RASTER_HEIGHT);
+            targetProduct.addBand(new Band("OutputOp", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
+        }
+
+        @Override
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
+            //System.out.println("=====>>>>>> Op4.computeBand  start");
+            registerCall("OutputOp;");
+            //System.out.println("=====>>>>>> Op4.computeBand  end");
+        }
+
+        public static class Spi extends OperatorSpi {
+
+            public Spi() {
+                super(OpImplementingOutput.class);
             }
         }
     }

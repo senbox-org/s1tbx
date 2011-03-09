@@ -32,6 +32,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor.ExecutionOrder;
 import org.esa.beam.jai.ImageManager;
@@ -57,7 +58,7 @@ import java.util.Map;
  * <p/>
  * It may also be used by clients to write out break-point product files. This is done by placing
  * a {@code WriteOp} node after any node in a processing graph:
- *
+ * <p/>
  * <pre>
  * &lt;node id="anyNodeId"&gt;
  *     &lt;operator&gt;Write&lt;/operator&gt;
@@ -73,7 +74,7 @@ import java.util.Map;
  *     &lt;/parameters&gt;
  * &lt;/node&gt;
  * </pre>
- *
+ * <p/>
  * Clients may also use this operator in a programmatic way:
  * <pre>
  *   WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
@@ -87,7 +88,7 @@ import java.util.Map;
                   authors = "Marco Zuehlke, Norman Fomferra",
                   copyright = "(c) 2010 by Brockmann Consult",
                   description = "Writes a data product to a file.")
-public class WriteOp extends Operator {
+public class WriteOp extends Operator implements Output {
 
     @TargetProduct
     private Product targetProduct;
@@ -200,7 +201,7 @@ public class WriteOp extends Operator {
 
             getLogger().info("End writing product " + getTargetProduct().getName() + " to " + getFile());
 
-            double seconds = (System.nanoTime() - startNanos)/1.0E9;
+            double seconds = (System.nanoTime() - startNanos) / 1.0E9;
             int w = getTargetProduct().getSceneRasterWidth();
             int h = getTargetProduct().getSceneRasterHeight();
 
@@ -269,7 +270,8 @@ public class WriteOp extends Operator {
             } else {
                 final ProductData rawSamples = targetTile.getRawSamples();
                 synchronized (productWriter) {
-                    productWriter.writeBandRasterData(targetBand, rect.x, rect.y, rect.width, rect.height, rawSamples, pm);
+                    productWriter.writeBandRasterData(targetBand, rect.x, rect.y, rect.width, rect.height, rawSamples,
+                                                      pm);
                 }
             }
             markTileDone(targetBand, targetTile);
@@ -452,6 +454,7 @@ public class WriteOp extends Operator {
     }
 
     private static class Row {
+
         private final Band band;
         private final int tileY;
 
