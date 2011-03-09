@@ -21,6 +21,8 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
 import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductSubsetBuilder;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PinDescriptor;
@@ -54,11 +56,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.lang.Math.*;
 
 @SuppressWarnings({"MismatchedReadAndWriteOfArray", "UnusedDeclaration"})
 @OperatorMetadata(
@@ -70,6 +75,7 @@ import java.util.logging.Logger;
 public class PixExOp extends Operator implements Output {
 
     public static final String RECURSIVE_INDICATOR = "**";
+    private static final String SUB_SCENES_DIR_NAME = "subScenes";
 
     @SourceProducts()
     private Product[] sourceProducts;
@@ -121,12 +127,20 @@ public class PixExOp extends Operator implements Output {
                defaultValue = "true")
     private Boolean exportExpressionResult;
 
+    @Parameter(description = "If set to true, sub-scenes of the regions, where pixels are found, are exported.",
+               defaultValue = "false")
+    private boolean exportSubScenes;
+
+    @Parameter(description = "An additional border around the region where pixels are found.", defaultValue = "0")
+    private int subSceneBorderSize;
+
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
     private boolean isTargetProductInitialized;
     private int timeDelta;
     private int calendarField = -1;
     private MeasurementWriter measurementWriter;
+    private File subScenesDir;
 
 
     int getTimeDelta() {
@@ -149,6 +163,12 @@ public class PixExOp extends Operator implements Output {
         if (outputDir != null && !outputDir.exists() && !outputDir.mkdirs()) {
             throw new OperatorException("Output directory does not exist and could not be created.");
         }
+        if (exportSubScenes) {
+            subScenesDir = new File(outputDir, SUB_SCENES_DIR_NAME);
+            if (!subScenesDir.exists() && !subScenesDir.mkdirs()) {
+                throw new OperatorException("Directory for sub-scenes does not exist and could not be created.");
+            }
+        }
         coordinateList = initCoordinateList();
         parseTimeDelta(timeDifference);
 
@@ -160,6 +180,7 @@ public class PixExOp extends Operator implements Output {
         measurementWriter.setExportMasks(exportMasks);
         try {
             if (sourceProducts != null) {
+                Arrays.sort(sourceProducts, new ProductComparator());
                 for (Product product : sourceProducts) {
                     extractMeasurements(product);
                 }
@@ -197,17 +218,16 @@ public class PixExOp extends Operator implements Output {
     }
 
 
-    private void extractMeasurement(Product product, Coordinate coordinate,
-                                    int coordinateID, RenderedImage validMaskImage) throws IOException {
-        PixelPos centerPos = product.getGeoCoding().getPixelPos(new GeoPos(coordinate.getLat(), coordinate.getLon()),
-                                                                null);
+    private boolean extractMeasurement(Product product, Coordinate coordinate,
+                                       int coordinateID, RenderedImage validMaskImage) throws IOException {
+        PixelPos centerPos = getPixelPosition(product, coordinate);
         if (!product.containsPixel(centerPos)) {
-            return;
+            return false;
         }
         final ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, centerPos.y);
         if (coordinate.getDateTime() != null) {
             if (scanLineTime == null || !isPixelInTimeSpan(coordinate, timeDelta, calendarField, scanLineTime)) {
-                return;
+                return false;
             }
         }
         int offset = MathUtils.floorInt(windowSize / 2);
@@ -220,7 +240,14 @@ public class PixExOp extends Operator implements Output {
         if (areAllPixelsValid || exportExpressionResult) {
             measurementWriter.writeMeasurementRegion(coordinateID, coordinate.getName(), upperLeftX, upperLeftY,
                                                      product, validData);
+            return true;
         }
+        return false;
+    }
+
+    private PixelPos getPixelPosition(Product product, Coordinate coordinate) {
+        return product.getGeoCoding().getPixelPos(new GeoPos(coordinate.getLat(), coordinate.getLon()),
+                                                  null);
     }
 
     private boolean areAllPixelsInWindowValid(int upperLeftX, int upperLeftY, Raster validData) {
@@ -361,17 +388,56 @@ public class PixExOp extends Operator implements Output {
 
         final PlanarImage validMaskImage = createValidMaskImage(product);
         try {
+            List<Coordinate> matchedCoordinates = new ArrayList<Coordinate>();
+
             for (int i = 0, coordinateListSize = coordinateList.size(); i < coordinateListSize; i++) {
                 Coordinate coordinate = coordinateList.get(i);
                 try {
-                    extractMeasurement(product, coordinate, i + 1, validMaskImage);
+                    final boolean measurementExtracted = extractMeasurement(product, coordinate, i + 1, validMaskImage);
+                    if (measurementExtracted && exportSubScenes) {
+                        matchedCoordinates.add(coordinate);
+                    }
                 } catch (IOException e) {
                     getLogger().warning(e.getMessage());
+                }
+            }
+            if (exportSubScenes && !matchedCoordinates.isEmpty()) {
+                try {
+                    exportSubScene(product, matchedCoordinates);
+                } catch (IOException e) {
+                    getLogger().log(Level.WARNING,
+                                    "Could not export sub-scene for product: " + product.getFileLocation(), e);
                 }
             }
         } finally {
             validMaskImage.dispose();
         }
+    }
+
+    private void exportSubScene(Product product, List<Coordinate> coordinates) throws IOException {
+        final ProductSubsetDef subsetDef = new ProductSubsetDef(product.getName() + "Subset");
+
+        int x1 = Integer.MAX_VALUE;
+        int x2 = Integer.MIN_VALUE;
+        int y1 = Integer.MAX_VALUE;
+        int y2 = Integer.MIN_VALUE;
+        for (Coordinate coordinate : coordinates) {
+            final PixelPos pixelPos = getPixelPosition(product, coordinate);
+            x1 = min(x1, (int) floor(pixelPos.x));
+            x2 = max(x2, (int) ceil(pixelPos.x));
+            y1 = min(y1, (int) floor(pixelPos.y));
+            y2 = max(y2, (int) ceil(pixelPos.y));
+        }
+        Rectangle region = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+        region.grow(subSceneBorderSize, subSceneBorderSize);
+        final Rectangle productBounds = new Rectangle(0, 0, product.getSceneRasterWidth(),
+                                                      product.getSceneRasterHeight());
+        Rectangle finalRegion = productBounds.intersection(region);
+        subsetDef.setRegion(finalRegion);
+        final Product subset = ProductSubsetBuilder.createProductSubset(product, subsetDef, null, null);
+        final String[] extension = ProductIO.getProductWriterExtensions(ProductIO.DEFAULT_FORMAT_NAME);
+        final File productFile = new File(subScenesDir, product.getName() + extension[0]);
+        ProductIO.writeProduct(subset, productFile.getAbsolutePath(), ProductIO.DEFAULT_FORMAT_NAME);
     }
 
     private void setDummyProduct() {
@@ -412,6 +478,14 @@ public class PixExOp extends Operator implements Output {
         @Override
         public boolean accept(File pathname) {
             return pathname.isDirectory();
+        }
+    }
+
+    private static class ProductComparator implements Comparator<Product> {
+
+        @Override
+        public int compare(Product p1, Product p2) {
+            return p1.getName().compareTo(p2.getName());
         }
     }
 

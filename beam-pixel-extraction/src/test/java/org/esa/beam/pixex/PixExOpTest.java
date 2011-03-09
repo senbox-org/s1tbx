@@ -58,7 +58,7 @@ public class PixExOpTest {
                 new Coordinate("carlCoordinate", 60.1f, 3.0f, null),
                 new Coordinate("cassandraCoordinate", 59.1f, 0.5f, null)
         };
-        final File outputDir = getOutpuDir("testUsingGraph");
+        final File outputDir = getOutpuDir("testUsingGraph", getClass());
         String graphOpXml =
                 "<graph id=\"someGraphId\">\n" +
                 "    <version>1.0</version>\n" +
@@ -104,7 +104,7 @@ public class PixExOpTest {
 
     @Test
     public void testGetParsedInputPaths() throws Exception {
-        final File testDir = getOutpuDir("testGetParsedInputPaths");
+        final File testDir = getOutpuDir("testGetParsedInputPaths", getClass());
         final File subDir1 = new File(testDir, "subDir1");
         final File subDir2 = new File(testDir, "subDir2");
         final File subDir2_1 = new File(subDir2, "subDir2_1");
@@ -144,7 +144,7 @@ public class PixExOpTest {
         int windowSize = 3;
 
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
-        final File outputDir = getOutpuDir("testSingleProduct");
+        final File outputDir = getOutpuDir("testSingleProduct", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("exportTiePoints", false);
         parameterMap.put("exportMasks", false);
@@ -177,7 +177,7 @@ public class PixExOpTest {
         int windowSize = 5;
 
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
-        File outputDir = getOutpuDir("testTwoProductsSameType");
+        File outputDir = getOutpuDir("testTwoProductsSameType", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("exportTiePoints", false);
         parameterMap.put("exportMasks", false);
@@ -213,7 +213,7 @@ public class PixExOpTest {
         int windowSize = 1;
 
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
-        File outputDir = getOutpuDir("testTwentyProductsSameType");
+        File outputDir = getOutpuDir("testTwentyProductsSameType", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("exportTiePoints", false);
         parameterMap.put("exportMasks", false);
@@ -251,7 +251,7 @@ public class PixExOpTest {
         };
         int windowSize = 5;
 
-        File outputDir = getOutpuDir("testTwoProductsTwoDifferentTypes");
+        File outputDir = getOutpuDir("testTwoProductsTwoDifferentTypes", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("exportTiePoints", false);
         parameterMap.put("exportMasks", false);
@@ -304,7 +304,7 @@ public class PixExOpTest {
 
 
         PixExOp pixEx = new PixExOp();
-        File outputDir = getOutpuDir("testTwoProductsWithTimeConstraints");
+        File outputDir = getOutpuDir("testTwoProductsWithTimeConstraints", getClass());
         pixEx.setParameter("outputDir", outputDir);
         pixEx.setParameter("exportTiePoints", false);
         pixEx.setParameter("exportMasks", false);
@@ -336,7 +336,7 @@ public class PixExOpTest {
         int windowSize = 1;
 
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
-        File outputDir = getOutpuDir("testTwentyProductsWithDifferentTypes");
+        File outputDir = getOutpuDir("testTwentyProductsWithDifferentTypes", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("exportTiePoints", false);
         parameterMap.put("exportMasks", false);
@@ -395,9 +395,9 @@ public class PixExOpTest {
         assertEquals(Calendar.HOUR, op.getCalendarField());
     }
 
-    private File getOutpuDir(String methodName) {
+    public static File getOutpuDir(String methodName, Class testClass) {
         final File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        File baseTestDir = new File(tmpDir, getClass().getSimpleName());
+        File baseTestDir = new File(tmpDir, testClass.getSimpleName());
         final File dir = new File(baseTestDir, methodName);
         if (!dir.mkdirs()) { // already exists, so delete content
             final File[] files = dir.listFiles();
@@ -434,8 +434,8 @@ public class PixExOpTest {
         GPF.createProduct("PixEx", parameterMap, sourceProducts);
     }
 
-    private static Product createTestProduct(String name, String type, String[] bandNames) throws FactoryException,
-                                                                                                  TransformException {
+    public static Product createTestProduct(String name, String type, String[] bandNames) throws FactoryException,
+                                                                                                 TransformException {
         Rectangle bounds = new Rectangle(360, 180);
         Product product = new Product(name, type, bounds.width, bounds.height);
         AffineTransform i2mTransform = new AffineTransform();
