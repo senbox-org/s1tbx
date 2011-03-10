@@ -71,7 +71,13 @@ public class MeasurementReader implements Iterator<Measurement>, Closeable {
 
     @Override
     public Measurement next() {
-        final Scanner scanner = new Scanner(measurementLine);
+        final Measurement measurement = readMeasurement(measurementLine, withExpression);
+        measurementLine = getNextMeasurementLine();
+        return measurement;
+    }
+
+    static Measurement readMeasurement(String line, boolean withExpression) {
+        final Scanner scanner = new Scanner(line);
         scanner.useLocale(Locale.ENGLISH);
         scanner.useDelimiter("\t");
         boolean isValid = true;
@@ -96,12 +102,19 @@ public class MeasurementReader implements Iterator<Measurement>, Closeable {
             }
         }
         List<Number> valueList = new ArrayList<Number>();
-        while (scanner.hasNextFloat()) {
-            valueList.add(scanner.nextFloat());
+        while (scanner.hasNext()) {
+            if (scanner.hasNextDouble()) {
+                valueList.add(scanner.nextDouble());
+            } else { // empty column
+                final String next = scanner.next().trim();
+                if (next.isEmpty()) {
+                    valueList.add(Double.NaN);
+                }
+            }
+
         }
 
         final Number[] values = valueList.toArray(new Number[valueList.size()]);
-        measurementLine = getNextMeasurementLine();
         return new Measurement(coordId, name, productId, pixelX, pixelY, dateTime,
                                new GeoPos(lat, lon), values, isValid);
     }

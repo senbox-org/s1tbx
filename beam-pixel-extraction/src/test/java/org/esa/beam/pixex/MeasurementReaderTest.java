@@ -17,6 +17,7 @@
 package org.esa.beam.pixex;
 
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,6 +27,7 @@ import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 
 import static junit.framework.Assert.*;
 
@@ -83,6 +85,34 @@ public class MeasurementReaderTest {
         testForExistingMeasurement(measurementList, 5, "coord" + 5);
     }
 
+    @Test
+    public void testReadingWithEmptyColumns() throws Exception {
+        final Measurement measurement = MeasurementReader.readMeasurement(
+                "12\t83744\t10083743\t57.936592\t10.130839\t520.5\t240.5\t2005-07-09\t10:12:03\t65.272634\t \t42.278252\t0\t500",
+                false);
+        assertEquals(12, measurement.getProductId());
+        assertEquals(83744, measurement.getCoordinateID());
+        assertEquals("10083743", measurement.getCoordinateName());
+        assertEquals(57.936592f, measurement.getLat(), 1.0e-6);
+        assertEquals(10.130839, measurement.getLon(), 1.0e-6);
+        assertEquals(520.5, measurement.getPixelX(), 1.0e-6);
+        assertEquals(240.5, measurement.getPixelY(), 1.0e-6);
+        final Date expectedDate = ProductData.UTC.parse("2005-07-09T10:12:03", "yyyy-MM-dd'T'hh:mm:ss").getAsDate();
+        assertEquals(expectedDate, measurement.getTime().getAsDate());
+        final Number[] values = measurement.getValues();
+        assertEquals(65.272634, values[0].doubleValue(), 1.0e-6);
+        assertEquals(Double.NaN, values[1].doubleValue(), 1.0e-6);
+        assertEquals(42.278252, values[2].doubleValue(), 1.0e-6);
+        assertEquals(0, values[3].intValue());
+        assertEquals(500, values[4].intValue());
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testRemoveThrowsException() throws Exception {
+        final MeasurementReader reader = new MeasurementReader(inputDir);
+        reader.remove();
+    }
+
     private void testForExistingMeasurement(ArrayList<Measurement> measurementList, int coordId, String coordName) {
         for (Measurement measurement : measurementList) {
             if (measurement.getCoordinateID() == coordId &&
@@ -95,9 +125,4 @@ public class MeasurementReaderTest {
         fail("Measurement with name '" + coordName + "' not found");
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testRemoveThrowsException() throws Exception {
-        final MeasurementReader reader = new MeasurementReader(inputDir);
-        reader.remove();
-    }
 }

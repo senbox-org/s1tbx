@@ -158,30 +158,39 @@ public class MeasurementWriter {
 
     private void write(PrintWriter writer, Measurement measurement) {
         if (expression == null || exportExpressionResult || measurement.isValid()) {
-            if (expression != null && exportExpressionResult) {
-                writer.printf(Locale.ENGLISH, "%s\t", String.valueOf(measurement.isValid()));
-            }
-            final ProductData.UTC time = measurement.getTime();
-            String timeString;
-            if (time != null) {
-                timeString = DATE_FORMAT.format(time.getAsDate());
-            } else {
-                timeString = " \t ";
-            }
-            writer.printf(Locale.ENGLISH,
-                          "%d\t%d\t%s\t%.6f\t%.6f\t%.3f\t%.3f\t%s",
-                          measurement.getProductId(), measurement.getCoordinateID(),
-                          measurement.getCoordinateName(),
-                          measurement.getLat(), measurement.getLon(),
-                          measurement.getPixelX(), measurement.getPixelY(),
-                          timeString);
-            final Number[] values = measurement.getValues();
-            for (Number value : values) {
-                writer.printf(Locale.ENGLISH, "\t%s", value);
-            }
-            writer.println();
+            final boolean withExpression = expression != null && exportExpressionResult;
+            writeLine(writer, measurement, withExpression);
         }
 
+    }
+
+    static void writeLine(PrintWriter writer, Measurement measurement, boolean withExpression) {
+        if (withExpression) {
+            writer.printf(Locale.ENGLISH, "%s\t", String.valueOf(measurement.isValid()));
+        }
+        final ProductData.UTC time = measurement.getTime();
+        String timeString;
+        if (time != null) {
+            timeString = DATE_FORMAT.format(time.getAsDate());
+        } else {
+            timeString = " \t ";
+        }
+        writer.printf(Locale.ENGLISH,
+                      "%d\t%d\t%s\t%.6f\t%.6f\t%.3f\t%.3f\t%s",
+                      measurement.getProductId(), measurement.getCoordinateID(),
+                      measurement.getCoordinateName(),
+                      measurement.getLat(), measurement.getLon(),
+                      measurement.getPixelX(), measurement.getPixelY(),
+                      timeString);
+        final Number[] values = measurement.getValues();
+        for (Number value : values) {
+            if (Double.isNaN(value.doubleValue())) {
+                writer.printf(Locale.ENGLISH, "\t%s", "");
+            } else {
+                writer.printf(Locale.ENGLISH, "\t%s", value);
+            }
+        }
+        writer.println();
     }
 
     private PrintWriter getMeasurementWriter(Product product) throws IOException {
@@ -257,7 +266,9 @@ public class MeasurementWriter {
         for (int i = 0; i < rasterNames.length; i++) {
             RasterDataNode raster = product.getRasterDataNode(rasterNames[i]);
             if (raster != null && product.containsPixel(x, y)) {
-                if (raster.isFloatingPointType()) {
+                if (!raster.isPixelValid(x, y)) {
+                    values[i] = Double.NaN;
+                } else if (raster.isFloatingPointType()) {
                     double[] temp = new double[1];
                     raster.readPixels(x, y, 1, 1, temp);
                     values[i] = temp[0];

@@ -203,6 +203,23 @@ public class MeasurementWriterTest {
     }
 
     @Test
+    public void testMeasurementWritingWithNaNValues() throws Exception {
+
+        final Number[] values = new Number[]{12.4, Double.NaN, 1.0345, 7};
+        final Measurement measurement = new Measurement(12, "Name", 27, 13.5f, 0.5f,
+                                                        ProductData.UTC.parse("2005-07-09T10:12:03",
+                                                                              "yyyy-MM-dd'T'hh:mm:ss"),
+                                                        new GeoPos(30, 60),
+                                                        values, true);
+        final StringWriter writer = new StringWriter();
+        MeasurementWriter.writeLine(new PrintWriter(writer), measurement, false);
+        final String line = writer.getBuffer().toString();
+        final String expected = String.format(
+                "27\t12\tName\t30.000000\t60.000000\t13.500\t0.500\t2005-07-09\t10:12:03\t12.4\t\t1.0345\t7%n");
+        assertEquals(expected, line);
+    }
+
+    @Test
     public void testWritingMeasurements() throws Exception {
         final int windowSize = 1;
         final MeasurementWriter writer = new MeasurementWriter(outputDir, "testWritingMeasurements", windowSize, null,
