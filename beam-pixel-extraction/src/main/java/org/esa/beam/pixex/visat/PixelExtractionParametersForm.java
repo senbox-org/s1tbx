@@ -26,6 +26,7 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.DecimalTableCellRenderer;
 import org.esa.beam.framework.ui.FloatCellEditor;
@@ -67,11 +68,9 @@ import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 class PixelExtractionParametersForm {
 
@@ -349,14 +348,12 @@ class PixelExtractionParametersForm {
         coordinateTable.getColumnModel().getColumn(1).setCellEditor(new FloatCellEditor(-90, 90));
         coordinateTable.getColumnModel().getColumn(2).setCellEditor(new FloatCellEditor(-180, 180));
         final DefaultDateModel dateModel = new DefaultDateModel();
-        final String ISO8601_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
-        final SimpleDateFormat dateFormat = new SimpleDateFormat(ISO8601_PATTERN, Locale.getDefault());
+        final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd'T'HH:mm:ss"); // ISO 8601
         dateModel.setDateFormat(dateFormat);
         final DateCellEditor dateCellEditor = new DateCellEditor(dateModel, true);
         dateCellEditor.setTimeDisplayed(true);
         coordinateTable.getColumnModel().getColumn(3).setCellEditor(dateCellEditor);
         coordinateTable.getColumnModel().getColumn(3).setPreferredWidth(200);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         final DateCellRenderer dateCellRenderer = new DateCellRenderer(dateFormat);
         dateCellRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
         coordinateTable.getColumnModel().getColumn(3).setCellRenderer(dateCellRenderer);
