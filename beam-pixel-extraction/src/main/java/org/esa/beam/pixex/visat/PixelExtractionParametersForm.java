@@ -52,6 +52,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
@@ -147,6 +148,8 @@ class PixelExtractionParametersForm {
         tableLayout.setCellPadding(4, 1, new Insets(0, 0, 0, 0));
         tableLayout.setCellWeightX(4, 1, 1.0);
         tableLayout.setCellWeightY(4, 1, 3.0);
+        tableLayout.setCellPadding(5, 0, new Insets(8, 4, 4, 4)); //Sub-scene label
+        tableLayout.setCellPadding(5, 1, new Insets(0, 0, 0, 0));
 
         mainPanel = new JPanel(tableLayout);
         mainPanel.add(new JLabel("Coordinates:"));
@@ -162,7 +165,7 @@ class PixelExtractionParametersForm {
 
         mainPanel.add(new JLabel("Export:"));
         mainPanel.add(createExportPanel(bindingContext));
-        mainPanel.add(new JLabel());
+        mainPanel.add(tableLayout.createHorizontalSpacer());
 
         mainPanel.add(new JLabel("Window size:"));
         windowSpinner = createWindowSizeEditor(bindingContext);
@@ -180,7 +183,36 @@ class PixelExtractionParametersForm {
 
         mainPanel.add(new JLabel("Expression:"));
         mainPanel.add(createExpressionPanel(bindingContext));
-        mainPanel.add(new JLabel());
+        mainPanel.add(tableLayout.createHorizontalSpacer());
+
+        mainPanel.add(new JLabel("Sub-scenes:"));
+        mainPanel.add(createSubSceneExportPanel(bindingContext));
+        mainPanel.add(tableLayout.createHorizontalSpacer());
+
+    }
+
+    private JPanel createSubSceneExportPanel(BindingContext bindingContext) {
+        final TableLayout tableLayout = new TableLayout(4);
+        tableLayout.setTablePadding(4, 4);
+        tableLayout.setTableFill(TableLayout.Fill.BOTH);
+        tableLayout.setTableWeightX(0.0);
+        tableLayout.setTableWeightY(0.0);
+        tableLayout.setColumnWeightX(1, 0.3);
+        tableLayout.setColumnWeightX(3, 1.0);
+        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        final JPanel exportPanel = new JPanel(tableLayout);
+        final JCheckBox exportSubScenesCheckBox = new JCheckBox("Enable export");
+        final JLabel borderSizeLabel = new JLabel("Border size:");
+        final JTextField borderSizeTextField = new JTextField();
+        borderSizeTextField.setHorizontalAlignment(JTextField.RIGHT);
+        bindingContext.bind("exportSubScenes", exportSubScenesCheckBox);
+        bindingContext.bind("subSceneBorderSize", borderSizeTextField);
+        bindingContext.bindEnabledState("subSceneBorderSize", false, "exportSubScenes", false);
+        exportPanel.add(exportSubScenesCheckBox);
+        exportPanel.add(new JLabel());
+        exportPanel.add(borderSizeLabel);
+        exportPanel.add(borderSizeTextField);
+        return exportPanel;
     }
 
     private JComponent[] createTimeDeltaComponents() {
