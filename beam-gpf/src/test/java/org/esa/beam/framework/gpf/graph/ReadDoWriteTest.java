@@ -35,7 +35,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,8 +46,7 @@ import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 
 public class ReadDoWriteTest {
@@ -75,7 +74,7 @@ public class ReadDoWriteTest {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(doSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(writeSpi);
         File parentFile = outputFile.getParentFile();
-        SystemUtils.deleteFileTree(parentFile);
+        FileUtils.deleteTree(parentFile);
     }
 
     @Test

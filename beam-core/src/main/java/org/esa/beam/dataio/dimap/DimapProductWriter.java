@@ -33,7 +33,6 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
@@ -192,7 +191,7 @@ public class DimapProductWriter extends AbstractProductWriter {
         }
 
         if (_dataOutputDir != null && _dataOutputDir.exists() && _dataOutputDir.isDirectory()) {
-            SystemUtils.deleteFileTree(_dataOutputDir);
+            FileUtils.deleteTree(_dataOutputDir);
         }
     }
 

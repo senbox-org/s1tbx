@@ -15,21 +15,20 @@
  */
 package org.esa.beam.util.io;
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import com.bc.ceres.core.Assert;
 
 /**
  * This class provides additional functionality in handling with files. All methods in this class dealing with
@@ -46,7 +45,6 @@ public class FileUtils {
      * Gets the extension (which always includes a leading dot) of a file.
      *
      * @param file the file whose extension is to be extracted.
-     *
      * @return the extension string which always includes a leading dot. Returns <code>null</code> if the file has
      *         no extension.
      */
@@ -59,7 +57,6 @@ public class FileUtils {
      * Gets the extension of a file path.
      *
      * @param path the file path whose extension is to be extracted.
-     *
      * @return the extension string which always includes a leading dot. Returns <code>null</code> if the file path has
      *         no extension.
      */
@@ -76,7 +73,6 @@ public class FileUtils {
      * Gets the filename without its extension from the given file path.
      *
      * @param file the file whose filename is to be extracted.
-     *
      * @return the filename without its extension.
      */
     public static String getFilenameWithoutExtension(File file) {
@@ -87,7 +83,6 @@ public class FileUtils {
      * Gets the filename without its extension from the given filename.
      *
      * @param fileName the name of the file whose filename is to be extracted.
-     *
      * @return the filename without its extension.
      */
     public static String getFilenameWithoutExtension(String fileName) {
@@ -114,7 +109,6 @@ public class FileUtils {
      *
      * @param path      the string to change the extension
      * @param extension the new file extension including a leading dot (e.g. <code>".raw"</code>).
-     *
      * @throws java.lang.IllegalArgumentException
      *          if one of the given strings are null or empty.
      */
@@ -150,7 +144,6 @@ public class FileUtils {
      *
      * @param file      the file to change the extension
      * @param extension the new file extension including a leading dot (e.g. <code>".raw"</code>).
-     *
      * @throws java.lang.IllegalArgumentException
      *          if one of the parameter strings are null or empty.
      */
@@ -184,7 +177,6 @@ public class FileUtils {
      *
      * @param path      the string to ensure the extension
      * @param extension the new file extension including a leading dot (e.g. <code>".raw"</code>).
-     *
      * @throws java.lang.IllegalArgumentException
      *          if one of the given strings are null or empty.
      */
@@ -223,7 +215,6 @@ public class FileUtils {
      *
      * @param file      the file to ensure the extension
      * @param extension the new file extension including a leading dot (e.g. <code>".raw"</code>).
-     *
      * @throws java.lang.IllegalArgumentException
      *          if one of the parameter strings are null or empty.
      */
@@ -310,7 +301,7 @@ public class FileUtils {
         return new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.length() > extensionLC.length()
-                       && name.toLowerCase().endsWith(extensionLC);
+                        && name.toLowerCase().endsWith(extensionLC);
             }
         };
     }
@@ -400,7 +391,6 @@ public class FileUtils {
      * <p>See also the 'Usage Note' of the {@link java.io.File#toURL()} API documentation.
      *
      * @param file the file
-     *
      * @return a normalized URL representation
      */
     public static URL getFileAsUrl(File file) throws MalformedURLException {
@@ -412,7 +402,6 @@ public class FileUtils {
      * Inverse of {@link #getFileAsUrl(java.io.File)}.
      *
      * @param url the URL
-     *
      * @return the file
      */
     public static File getUrlAsFile(URL url) throws URISyntaxException {
@@ -422,7 +411,7 @@ public class FileUtils {
     public static String getDisplayText(File file, int maxLength) {
         Assert.notNull(file, "file");
         Assert.argument(maxLength >= 4, "maxLength >= 4");
-        
+
         String text = file.getPath();
         if (text.length() <= maxLength) {
             return text;
@@ -456,5 +445,29 @@ public class FileUtils {
             text.append("\n");
         }
         return text.toString();
+    }
+
+    /**
+     * Recursively deletes the directory <code>tree</code>.
+     *
+     * @param tree directory to be deleted
+     * @return <code>true</code> if and only if the file or directory is
+     *         successfully deleted; <code>false</code> otherwise
+     */
+    public static boolean deleteTree(File tree) {
+        Guardian.assertNotNull("tree", tree);
+
+        File[] files = tree.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteTree(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
+
+        return tree.delete();
     }
 }

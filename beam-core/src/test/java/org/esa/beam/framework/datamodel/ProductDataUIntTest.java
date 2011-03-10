@@ -15,11 +15,9 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.esa.beam.GlobalTestConfig;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.io.FileUtils;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
@@ -50,7 +48,7 @@ public class ProductDataUIntTest extends TestCase {
             _outputStream.close();
         } catch (IOException e) {
         }
-        SystemUtils.deleteFileTree(GlobalTestConfig.getBeamTestDataOutputDirectory());
+        FileUtils.deleteTree(GlobalTestConfig.getBeamTestDataOutputDirectory());
     }
 
     public void testSingleValueConstructor() {

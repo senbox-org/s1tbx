@@ -30,7 +30,7 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.jai.ImageHeader;
 import org.esa.beam.jai.TiledFileOpImage;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.io.FileUtils;
 
 import javax.imageio.stream.FileImageOutputStream;
 import java.awt.image.Raster;
@@ -219,7 +219,7 @@ public class RawTiledPyramidsProductWriter extends AbstractProductWriter {
         for (String bandName : bandNames) {
             final File imageDir = new File(dir, bandName);
             if (imageDir.isDirectory()) {
-                SystemUtils.deleteFileTree(imageDir);
+                FileUtils.deleteTree(imageDir);
             }
         }
         dir.delete();

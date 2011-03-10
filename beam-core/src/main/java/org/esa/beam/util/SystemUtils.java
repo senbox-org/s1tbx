@@ -16,6 +16,7 @@
 package org.esa.beam.util;
 
 import com.bc.ceres.core.runtime.RuntimeContext;
+import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
@@ -366,24 +367,11 @@ public class SystemUtils {
     }
 
     /**
-     * Deletes the directory <code>treeRoot</code> and all the content recursively.
-     *
-     * @param treeRoot directory to be deleted
+     * @deprecated Since BEAM 4.9, use {@link FileUtils#deleteTree(File)} instead
      */
+    @Deprecated
     public static void deleteFileTree(File treeRoot) {
-        Guardian.assertNotNull("treeRoot", treeRoot);
-
-        File[] files = treeRoot.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    deleteFileTree(file);
-                } else {
-                    file.delete();
-                }
-            }
-        }
-        treeRoot.delete();
+        FileUtils.deleteTree(treeRoot);
     }
 
     /**

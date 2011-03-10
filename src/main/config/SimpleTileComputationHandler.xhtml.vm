@@ -47,7 +47,7 @@
         <tr>
             <td>${task.event.id}</td>
             #if( $task.sameTask )
-                <td style="background-color:red">${task.sameTask.event.id}</td>
+                <td style="background-color:red;">${task.sameTask.event.id}</td>
             #else
                 <td>-</td>
             #end
@@ -64,7 +64,7 @@
                 <svg:svg version="1.1" baseProfile="full" width="${chartWidth}" height="10">
                     <svg:rect x="${task.barX}" y="0" width="${task.barWidth}" height="10"
                               style="fill:green; stroke:black;"/>
-                    <svg:text x="${textPosX}" y="8">${task.duration}s</svg:text>
+                    <svg:text x="${textPosX}" y="8">${task.duration} s</svg:text>
                 </svg:svg>
             </td>
         </tr>

@@ -16,11 +16,15 @@
 package org.esa.beam.processor.binning.store;
 
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Point;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -125,7 +129,7 @@ class QuadTreeFile {
      */
     public void delete() throws IOException {
         close();
-        SystemUtils.deleteFileTree(_qtDir);
+        FileUtils.deleteTree(_qtDir);
     }
 
     /**

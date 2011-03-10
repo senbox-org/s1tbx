@@ -35,10 +35,9 @@ import org.esa.beam.framework.gpf.Tile.Pos;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.graph.Graph;
-import org.esa.beam.framework.gpf.graph.GraphContext;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.io.FileUtils;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileScheduler;
@@ -74,7 +73,7 @@ public class WriteOpTest extends TestCase {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(algoSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(writeSpi);
         File parentFile = outputFile.getParentFile();
-        SystemUtils.deleteFileTree(parentFile);
+        FileUtils.deleteTree(parentFile);
 
         TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
         tileScheduler.setParallelism(oldParallelism);

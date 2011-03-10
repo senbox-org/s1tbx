@@ -19,10 +19,8 @@ package org.esa.beam.util;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.esa.beam.GlobalTestConfig;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -106,77 +104,6 @@ public class SystemUtilsTest extends TestCase {
         String s = File.separator;
         String expected = s + "a" + s + "b" + s + "cdef" + s + "g";
         assertEquals(expected, SystemUtils.convertToLocalPath("/a/b/cdef/g"));
-    }
-
-    public void testDeleteFileTree() {
-        File treeRoot = GlobalTestConfig.getBeamTestDataOutputDirectory();
-        File firstDir = new File(treeRoot, "firstDir");
-        File firstFile = new File(treeRoot, "firstFile");
-        File secondDir = new File(firstDir, "secondDir");
-        File secondFile = new File(firstDir, "secondFile");
-        File thirdFile = new File(secondDir, "thirdFile");
-        File writeProtectedFile = new File(secondDir, "protFile");
-
-        try {
-            treeRoot.mkdirs();
-            assertTrue(treeRoot.exists());
-
-            firstDir.mkdirs();
-            assertTrue(firstDir.exists());
-
-            firstFile.createNewFile();
-            assertTrue(firstFile.exists());
-
-            secondDir.mkdirs();
-            assertTrue(secondDir.exists());
-
-            secondFile.createNewFile();
-            assertTrue(secondFile.exists());
-
-            thirdFile.createNewFile();
-            assertTrue(thirdFile.exists());
-
-            writeProtectedFile.createNewFile();
-            assertTrue(writeProtectedFile.setReadOnly());
-            assertTrue(writeProtectedFile.exists());
-
-        } catch (IOException e) {
-            fail("unable to create file");
-        }
-
-        SystemUtils.deleteFileTree(treeRoot);
-
-        assertTrue(!treeRoot.exists());
-        assertTrue(!firstDir.exists());
-        assertTrue(!firstFile.exists());
-        assertTrue(!secondDir.exists());
-        assertTrue(!secondFile.exists());
-        assertTrue(!thirdFile.exists());
-        assertTrue(!writeProtectedFile.exists());
-    }
-
-    public void testDeleteFileTreeExceptions() {
-        try {
-            SystemUtils.deleteFileTree(null);
-            fail("invalid null argument");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testDeleteFileTree_DeleteEmptyDirectories() {
-        File treeRoot = GlobalTestConfig.getBeamTestDataOutputDirectory();
-        treeRoot.mkdirs();
-        assertTrue("treeRoot exists expected", treeRoot.exists());
-        File firstDir = new File(treeRoot, "firstDir");
-        firstDir.mkdirs();
-        assertTrue("firstDir exists expected", firstDir.exists());
-        File emptyDir = new File(firstDir, "emptyDir");
-        emptyDir.mkdirs();
-        assertTrue("emptyDir exists expected", emptyDir.exists());
-
-        SystemUtils.deleteFileTree(treeRoot);
-
-        assertTrue("treeRoot not exists expected", !treeRoot.exists());
     }
 
     public void testGetBuildNumber() {

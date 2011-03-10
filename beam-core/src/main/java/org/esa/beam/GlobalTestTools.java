@@ -15,7 +15,7 @@
  */
 package org.esa.beam;
 
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.io.FileUtils;
 
 import javax.imageio.stream.ImageOutputStream;
 import java.io.File;
@@ -25,11 +25,11 @@ import java.util.Arrays;
 public class GlobalTestTools {
 
     public static void deleteTestDataOutputDirectory() {
-        SystemUtils.deleteFileTree(GlobalTestConfig.getBeamTestDataOutputDirectory());
+        FileUtils.deleteTree(GlobalTestConfig.getBeamTestDataOutputDirectory());
     }
 
     public static void deleteTestDataInputDirectory() {
-        SystemUtils.deleteFileTree(GlobalTestConfig.getBeamTestDataInputDirectory());
+        FileUtils.deleteTree(GlobalTestConfig.getBeamTestDataInputDirectory());
     }
 
     public static void deleteTestDirectory() {
