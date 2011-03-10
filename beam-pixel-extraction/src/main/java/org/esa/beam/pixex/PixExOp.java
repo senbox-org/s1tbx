@@ -368,7 +368,7 @@ public class PixExOp extends Operator implements Output {
             if (product != null) {
                 extractMeasurements(product);
             }
-        } catch (IOException ignore) {
+        } catch (Exception ignore) {
         } finally {
             if (product != null) {
                 if (isTargetProductInitialized) {
