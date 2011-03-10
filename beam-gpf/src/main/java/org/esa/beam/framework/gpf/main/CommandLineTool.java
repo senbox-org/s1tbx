@@ -174,27 +174,24 @@ class CommandLineTool {
         if (lastOpSpi == null) {
             throw new GraphException(String.format("Unknown operator name'%s'. No SPI found.", operatorName));
         }
-        if (Output.class.isAssignableFrom(lastOpSpi.getOperatorClass())) {
-            // lastNode is already an operator which takes care of its output
-            // no need to append WriteOp
-            return;
+
+        if (!Output.class.isAssignableFrom(lastOpSpi.getOperatorClass())) {
+
+            // If the graph's last node does not implement Output, then add a WriteOp
+            String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
+
+            DomElement configuration = new DefaultDomElement("parameters");
+            configuration.createChild("file").setValue(lineArgs.getTargetFilepath());
+            configuration.createChild("formatName").setValue(lineArgs.getTargetFormatName());
+            configuration.createChild("clearCacheAfterRowWrite").setValue(
+                    Boolean.toString(lineArgs.isClearCacheAfterRowWrite()));
+
+            Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
+            targetNode.addSource(new NodeSource("source", lastNode.getId()));
+            targetNode.setConfiguration(configuration);
+
+            graph.addNode(targetNode);
         }
-
-        // If the graph's last node does not implement Output, then add a WriteOp
-        String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
-
-        DomElement configuration = new DefaultDomElement("parameters");
-        configuration.createChild("file").setValue(lineArgs.getTargetFilepath());
-        configuration.createChild("formatName").setValue(lineArgs.getTargetFormatName());
-        configuration.createChild("clearCacheAfterRowWrite").setValue(
-                Boolean.toString(lineArgs.isClearCacheAfterRowWrite()));
-
-        Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
-        targetNode.addSource(new NodeSource("source", lastNode.getId()));
-        targetNode.setConfiguration(configuration);
-
-        graph.addNode(targetNode);
-
         executeGraph(graph);
     }
 
