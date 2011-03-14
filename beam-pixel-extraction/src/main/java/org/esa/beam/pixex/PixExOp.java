@@ -471,12 +471,13 @@ public class PixExOp extends Operator implements Output {
         int x2 = Integer.MIN_VALUE;
         int y1 = Integer.MAX_VALUE;
         int y2 = Integer.MIN_VALUE;
+        int width = (windowSize - 1) / 2;
         for (Coordinate coordinate : coordinates) {
             final PixelPos pixelPos = getPixelPosition(product, coordinate);
-            x1 = min(x1, (int) floor(pixelPos.x));
-            x2 = max(x2, (int) ceil(pixelPos.x));
-            y1 = min(y1, (int) floor(pixelPos.y));
-            y2 = max(y2, (int) ceil(pixelPos.y));
+            x1 = min(x1, (int) floor(pixelPos.x - width));
+            x2 = max(x2, (int) floor(pixelPos.x + width));
+            y1 = min(y1, (int) floor(pixelPos.y - width));
+            y2 = max(y2, (int) floor(pixelPos.y + width));
         }
         Rectangle region = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
         region.grow(subSceneBorderSize, subSceneBorderSize);
