@@ -19,6 +19,7 @@ package org.esa.beam.pixex;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
@@ -41,15 +42,20 @@ import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.kmz.KmlDocument;
+import org.esa.beam.util.kmz.KmlPlacemark;
+import org.esa.beam.util.kmz.KmzExporter;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Rectangle;
+import java.awt.geom.Point2D;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -62,6 +68,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipOutputStream;
 
 import static java.lang.Math.*;
 
@@ -134,6 +141,11 @@ public class PixExOp extends Operator implements Output {
     @Parameter(description = "An additional border around the region where pixels are found.", defaultValue = "0")
     private int subSceneBorderSize;
 
+    @Parameter(description = "If set to true, a Google KMZ file will be created, which contains the coordinates " +
+                             "where pixels are found.",
+               defaultValue = "false")
+    private boolean exportKmz;
+
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
     private boolean isTargetProductInitialized;
@@ -141,6 +153,8 @@ public class PixExOp extends Operator implements Output {
     private int calendarField = -1;
     private MeasurementWriter measurementWriter;
     private File subScenesDir;
+    private KmlDocument kmlDocument;
+    private ArrayList<String> knownKmzPlacemarks;
 
 
     int getTimeDelta() {
@@ -169,6 +183,10 @@ public class PixExOp extends Operator implements Output {
                 throw new OperatorException("Directory for sub-scenes does not exist and could not be created.");
             }
         }
+        if (exportKmz) {
+            kmlDocument = new KmlDocument("placemarks", null);
+            knownKmzPlacemarks = new ArrayList<String>();
+        }
         coordinateList = initCoordinateList();
         parseTimeDelta(timeDifference);
 
@@ -194,6 +212,25 @@ public class PixExOp extends Operator implements Output {
             }
             if (!isTargetProductInitialized) {
                 setDummyProduct();
+            }
+            if (exportKmz) {
+                KmzExporter kmzExporter = new KmzExporter();
+                ZipOutputStream zos = null;
+                try {
+                    FileOutputStream fos = new FileOutputStream(
+                            new File(outputDir, outputFilePrefix + "_coordinates.kmz"));
+                    zos = new ZipOutputStream(fos);
+                    kmzExporter.export(kmlDocument, zos, ProgressMonitor.NULL);
+                } catch (IOException e) {
+                    getLogger().log(Level.SEVERE, "Problem writing KMZ file.", e);
+                } finally {
+                    if (zos != null) {
+                        try {
+                            zos.close();
+                        } catch (IOException ignored) {
+                        }
+                    }
+                }
             }
         } finally {
             measurementWriter.close();
@@ -246,8 +283,7 @@ public class PixExOp extends Operator implements Output {
     }
 
     private PixelPos getPixelPosition(Product product, Coordinate coordinate) {
-        return product.getGeoCoding().getPixelPos(new GeoPos(coordinate.getLat(), coordinate.getLon()),
-                                                  null);
+        return product.getGeoCoding().getPixelPos(new GeoPos(coordinate.getLat(), coordinate.getLon()), null);
     }
 
     private boolean areAllPixelsInWindowValid(int upperLeftX, int upperLeftY, Raster validData) {
@@ -394,19 +430,33 @@ public class PixExOp extends Operator implements Output {
                 Coordinate coordinate = coordinateList.get(i);
                 try {
                     final boolean measurementExtracted = extractMeasurement(product, coordinate, i + 1, validMaskImage);
-                    if (measurementExtracted && exportSubScenes) {
+                    if (measurementExtracted && (exportSubScenes || exportKmz)) {
                         matchedCoordinates.add(coordinate);
                     }
                 } catch (IOException e) {
                     getLogger().warning(e.getMessage());
                 }
             }
-            if (exportSubScenes && !matchedCoordinates.isEmpty()) {
-                try {
-                    exportSubScene(product, matchedCoordinates);
-                } catch (IOException e) {
-                    getLogger().log(Level.WARNING,
-                                    "Could not export sub-scene for product: " + product.getFileLocation(), e);
+            if (!matchedCoordinates.isEmpty()) {
+                if (exportSubScenes) {
+                    try {
+                        exportSubScene(product, matchedCoordinates);
+                    } catch (IOException e) {
+                        getLogger().log(Level.WARNING,
+                                        "Could not export sub-scene for product: " + product.getFileLocation(), e);
+                    }
+                }
+                if (exportKmz) {
+                    for (Coordinate matchedCoordinate : matchedCoordinates) {
+                        final String coordinateName = matchedCoordinate.getName();
+                        if (!knownKmzPlacemarks.contains(coordinateName)) {
+                            final Point2D.Float position = new Point2D.Float(matchedCoordinate.getLon(),
+                                                                             matchedCoordinate.getLat());
+                            kmlDocument.addChild(new KmlPlacemark(coordinateName, null, position));
+                            knownKmzPlacemarks.add(coordinateName);
+                        }
+
+                    }
                 }
             }
         } finally {
@@ -415,7 +465,7 @@ public class PixExOp extends Operator implements Output {
     }
 
     private void exportSubScene(Product product, List<Coordinate> coordinates) throws IOException {
-        final ProductSubsetDef subsetDef = new ProductSubsetDef(product.getName() + "Subset");
+        final ProductSubsetDef subsetDef = new ProductSubsetDef(product.getName() + "_subScene");
 
         int x1 = Integer.MAX_VALUE;
         int x2 = Integer.MIN_VALUE;

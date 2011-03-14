@@ -142,13 +142,15 @@ class PixelExtractionParametersForm {
         tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH); // coordinate table
         tableLayout.setCellWeightY(0, 1, 7.0);
         tableLayout.setRowFill(3, TableLayout.Fill.BOTH); // windowSize
-        tableLayout.setCellPadding(4, 0, new Insets(8, 4, 4, 4)); //expression label
+        tableLayout.setCellPadding(4, 0, new Insets(8, 4, 4, 4)); // expression label
         tableLayout.setCellFill(4, 1, TableLayout.Fill.BOTH); // expression panel
         tableLayout.setCellPadding(4, 1, new Insets(0, 0, 0, 0));
         tableLayout.setCellWeightX(4, 1, 1.0);
         tableLayout.setCellWeightY(4, 1, 3.0);
-        tableLayout.setCellPadding(5, 0, new Insets(8, 4, 4, 4)); //Sub-scene label
+        tableLayout.setCellPadding(5, 0, new Insets(8, 4, 4, 4)); // Sub-scene label
         tableLayout.setCellPadding(5, 1, new Insets(0, 0, 0, 0));
+        tableLayout.setCellPadding(6, 0, new Insets(8, 4, 4, 4)); // Sub-scene label
+        tableLayout.setCellPadding(6, 1, new Insets(0, 0, 0, 0));
 
         mainPanel = new JPanel(tableLayout);
         mainPanel.add(new JLabel("Coordinates:"));
@@ -188,6 +190,24 @@ class PixelExtractionParametersForm {
         mainPanel.add(createSubSceneExportPanel(bindingContext));
         mainPanel.add(tableLayout.createHorizontalSpacer());
 
+        mainPanel.add(new JLabel("KMZ coordinates:"));
+        mainPanel.add(createKmzExportPanel(bindingContext));
+        mainPanel.add(tableLayout.createHorizontalSpacer());
+
+    }
+
+    private Component createKmzExportPanel(BindingContext bindingContext) {
+        final TableLayout tableLayout = new TableLayout(1);
+        tableLayout.setTablePadding(4, 4);
+        tableLayout.setTableWeightX(1.0);
+        tableLayout.setTableWeightY(0.0);
+        tableLayout.setTableFill(TableLayout.Fill.BOTH);
+        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        final JPanel panel = new JPanel(tableLayout);
+        final JCheckBox exportKmzBox = new JCheckBox("Export found coordinates in Google KMZ format");
+        bindingContext.bind("exportKmz", exportKmzBox);
+        panel.add(exportKmzBox);
+        return panel;
     }
 
     private JPanel createSubSceneExportPanel(BindingContext bindingContext) {

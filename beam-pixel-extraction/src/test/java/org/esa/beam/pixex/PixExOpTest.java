@@ -146,15 +146,20 @@ public class PixExOpTest {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
         final File outputDir = getOutpuDir("testSingleProduct", getClass());
         parameterMap.put("outputDir", outputDir);
+        parameterMap.put("outputFilePrefix", "pixels");
         parameterMap.put("exportTiePoints", false);
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
+        parameterMap.put("exportKmz", true);
 
         String[] bandNames = {"rad_1", "rad_2"};
         Product[] sourceProducts = {createTestProduct("andi", "type1", bandNames)};
 
         computeData(parameterMap, sourceProducts);
+
+        assertTrue("Kmz file does not exists", new File(outputDir, "pixels_coordinates.kmz").exists());
+
         final MeasurementReader reader = new MeasurementReader(outputDir);
         try {
             final List<Measurement> measurementList = convertToList(reader);
