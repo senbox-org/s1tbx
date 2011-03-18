@@ -33,18 +33,49 @@ _____________________________________________________________________________
 
 1) New BEAM Features
 
+o Product files can now be dragged from the file explorer into the products view.
+
+o Introduced a new operator for MERIS named 'Radiometry Correction'. It combines a
+  SMILE correction, an equalisation, a radiance-to-reflectance conversion and a new
+  radiometric re-calibration.
+
+o A new tool for exporting match-ups from a bunch of data products has been introduced.
+
+
 2) Complete list of BEAM 4.9 bug fixes and improvements
 
 New Features
 [BEAM-1180] - Allow dragging files into VISAT
+[BEAM-1216] - The NOAA AVHRR reader should support GAC products
 
 Improvements
+[BEAM-1234] - The target product of some operators shall not be written
+[BEAM-1231] - gpt command-line tool should have a 'parallelism' option
+[BEAM-1221] - Need an option to configure multi-threading
+[BEAM-1219]	- GPF API should implicitly convert parameter values
+[BEAM-1183] - Improve reprojection UI usability
 [BEAM-1156] - SubsetOp does not copy metadata
-[BEAM-1183] - Improve reprojection UI usability 
 
 Bugs
+[BEAM-1229] - OBPG SeaWiFS L2 files can not be opened
+[BEAM-1228] - Rangefinder does not work
+[BEAM-1227] - PConvert doesn't generate images if profile contains calculated RGB bands
+[BEAM-1223] - gpt command-line usage generates incorrect XML templates
+[BEAM-1222] - gpt command-line tool ignores -p option
+[BEAM-1220] - GPF API does not use progress monitor
+[BEAM-1215] - NetCDF product appears inverted
+[BEAM-1212] - RasterDataNode.isPixelValid(x,y) is not thread safe
+[BEAM-1211] - SPOT VGT reader parses product time using a locale timezone
+[BEAM-1209] - Unable to collocate two data sets
+[BEAM-1208] - ProductUtils.copyFlagBands doesn't copy masks
+[BEAM-1206] - CF Profile does not write latitude longitude data when writing pixel geo-coding
+[BEAM-1205] - SPOT VGT reader dosn not treat unsigned bands correctly
+[BEAM-1204] - Reprojection changes product type
+[BEAM-1203]	- Application returns with exit code zero in error case
 [BEAM-1202] - PConvert does use the user LOCAL instead of ENGLISH
 [BEAM-1201] - GPT does use the user LOCAL instead of ENGLISH
+[BEAM-1200] - PConvert doesn't generate images
+[BEAM-1197] - GPF N1 patcher is not thread safe
 [BEAM-1196] - Latitude shift for non-WGS84 datums
 [BEAM-1194] - Open RGB in image view leads to "Unknown band:" error
 [BEAM-1192] - Title in histogram does not adjust to current band
@@ -57,7 +88,11 @@ Bugs
 [BEAM-1174] - DIMAP stores the band grouping only if a product has a description
 [BEAM-1172] - Boolean parameter values are overridden by default values
 [BEAM-1171] - NetCDF file not readable if variable name contains '.' or '/'
+[BEAM-1156] - SubsetOp does not copy metadata
+[BEAM-1151] - Geometry subset operator
+[BEAM-1125] - Outer scene region is not invalid for certain reprojected products
 [BEAM-1067] - Histogram title doesn't update when changing band
+
 
  _____________________________________________________________________________
 
