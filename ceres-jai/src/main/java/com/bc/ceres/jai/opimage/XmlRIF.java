@@ -229,9 +229,9 @@ public class XmlRIF implements RenderedImageFactory {
     }
 
     private Object parse(OperationDescriptor operationDescriptor, Class type, String text) {
-        System.out.println("operationDescriptor: " + operationDescriptor.getName());
-        System.out.println("  type = " + type);
-        System.out.println("  text = " + text);
+//        System.out.println("operationDescriptor: " + operationDescriptor.getName());
+//        System.out.println("  type = " + type);
+//        System.out.println("  text = " + text);
         if (type.equals(String.class)) {
             return text;
         } else if (type.equals(Byte.class) || type.equals(Byte.TYPE)) {
