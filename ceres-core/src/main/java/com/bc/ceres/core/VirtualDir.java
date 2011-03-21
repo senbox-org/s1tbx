@@ -185,7 +185,7 @@ public abstract class VirtualDir {
             ZipEntry zipEntry = getEntry(path);
 
             if (tempZipFileDir == null) {
-                tempZipFileDir = new File(getTempDir(), getFilenameWithoutExtension(zipFile.getName()));
+                tempZipFileDir = new File(getTempDir(), getFilenameWithoutExtensionFromPath(getBasePath()));
             }
 
             File tempFile = new File(tempZipFileDir, zipEntry.getName());
@@ -290,17 +290,29 @@ public abstract class VirtualDir {
     /**
      * Gets the filename without its extension from the given filename.
      *
-     * @param fileName the name of the file whose filename is to be extracted.
+     * @param path the path of the file whose filename is to be extracted.
      *
      * @return the filename without its extension.
      */
-    static String getFilenameWithoutExtension(String fileName) {
+    private static String getFilenameWithoutExtensionFromPath(String path) {
+        String fileName = getFileNameFromPath(path);
         int i = fileName.lastIndexOf('.');
         if (i > 0 && i < fileName.length() - 1) {
             return fileName.substring(0, i);
         }
         return fileName;
     }
+
+     private static String getFileNameFromPath(String path) {
+        String fileName;
+        int lastChar = path.lastIndexOf(File.separator);
+        if (lastChar >= 0) {
+            fileName = path.substring(lastChar + 1, path.length());
+        } else {
+            fileName = path;
+        }
+        return fileName;
+     }
 
     /**
      * Deletes the directory <code>treeRoot</code> and all the content recursively.
