@@ -194,7 +194,7 @@ public class SubsetOp extends Operator {
         }
     }
 
-    static Rectangle computePixelRegion(Product product, Geometry geoRegion, int numBorderPixels) {
+    public static Rectangle computePixelRegion(Product product, Geometry geoRegion, int numBorderPixels) {
         final Geometry productGeometry = computeProductGeometry(product);
         final Geometry regionIntersection = geoRegion.intersection(productGeometry);
         if (regionIntersection.isEmpty()) {
