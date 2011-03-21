@@ -48,6 +48,7 @@ public class JaiShell {
     String opt;
 
     public static void main(String[] args) {
+
         if (args.length == 0) {
             printUsage();
         }
@@ -84,6 +85,9 @@ public class JaiShell {
         }
 
         if (interactive) {
+            System.out.println("Note: The interactive shell is not yet implemented. \n" +
+                               "      You can only use the '?' or '?<op>' function.");
+
             BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
             while (true) {
                 System.out.print("\n> ");
@@ -111,8 +115,9 @@ public class JaiShell {
 
     private static URI createInput(File file, HashMap<String, String> conf) throws IOException {
         String text = readText(file, conf);
-        System.out.println(text);
+        // System.out.println(text);
         File tempFile = File.createTempFile("jai", "xml");
+        // todo - I (nf) don't remember, why I need the following?!
         FileWriter writer = new FileWriter(tempFile);
         try {
             writer.write(text);

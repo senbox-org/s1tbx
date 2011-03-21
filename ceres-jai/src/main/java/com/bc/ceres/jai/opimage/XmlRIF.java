@@ -22,29 +22,36 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
+import javax.media.jai.EnumeratedParameter;
+import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
+import javax.media.jai.OperationDescriptor;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.RenderedOp;
-import javax.media.jai.EnumeratedParameter;
-import javax.media.jai.OperationDescriptor;
 import java.awt.RenderingHints;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.awt.image.renderable.RenderedImageFactory;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
-import java.lang.reflect.Field;
 
 /**
  * @see com.sun.media.jai.opimage.ConvolveOpImage
  */
 public class XmlRIF implements RenderedImageFactory {
+
+    private static final String ENAME_PARAMETER = "parameter";
+    private static final String ENAME_SOURCE = "source";
+    private static final String ENAME_TARGET = "target";
+    private static final String ENAME_OP = "op";
+    private static final String ANAME_ID = "id";
+    private static final String ANAME_REFID = "refid";
 
     /**
      * Constructor.
@@ -77,14 +84,14 @@ public class XmlRIF implements RenderedImageFactory {
         SAXBuilder builder = new SAXBuilder();
         Document document = builder.build(location.toURL());
         Element rootElement = document.getRootElement();
-        Map<String, Element> sourceMap = getElementMap(rootElement, "source");
-        Map<String, Element> parameterMap = getElementMap(rootElement, "parameter");
-        Element targetElement = rootElement.getChild("target");
+        Map<String, Element> sourceMap = getElementMap(rootElement, ENAME_SOURCE);
+        Map<String, Element> parameterMap = getElementMap(rootElement, ENAME_PARAMETER);
+        Element targetElement = rootElement.getChild(ENAME_TARGET);
         return parseImage(targetElement, sourceMap, parameterMap, configuration, renderingHints, "rendered");
     }
 
     private RenderedOp parseImage(Element targetElement, Map<String, Element> definedSourceElements, Map<String, Element> definedParameterElements, Map<String, Object> configuration, RenderingHints renderHints, String modeName) {
-        Element opElement = targetElement.getChild("op");
+        Element opElement = targetElement.getChild(ENAME_OP);
         String opName = opElement.getValue();
 
         ParameterBlockJAI parameterBlock = new ParameterBlockJAI(opName, modeName);
@@ -110,11 +117,11 @@ public class XmlRIF implements RenderedImageFactory {
                               Map<String, Element> definedParameterElements,
                               Map<String, Object> configuration,
                               RenderingHints renderingHints) {
-        List sourceElements = targetElement.getChildren("source");
+        List sourceElements = targetElement.getChildren(ENAME_SOURCE);
         for (int i = 0; i < sourceElements.size(); i++) {
             Element sourceElement = (Element) sourceElements.get(i);
-            String sourceName = sourceElement.getAttributeValue("name");
-            String sourceId = sourceElement.getAttributeValue("refid");
+            String sourceName = sourceElement.getAttributeValue(ANAME_ID);
+            String sourceId = sourceElement.getAttributeValue(ANAME_REFID);
             Object source;
             if (sourceId != null) {
                 source = configuration.get(sourceId);
@@ -150,10 +157,10 @@ public class XmlRIF implements RenderedImageFactory {
                                  Element targetElement,
                                  Map<String, Element> definedParameterElements,
                                  Map<String, Object> configuration) {
-        List parameterElements = targetElement.getChildren("parameter");
+        List parameterElements = targetElement.getChildren(ENAME_PARAMETER);
         for (int i = 0; i < parameterElements.size(); i++) {
             Element parameterElement = (Element) parameterElements.get(i);
-            String parameterName = parameterElement.getAttributeValue("name");
+            String parameterName = parameterElement.getAttributeValue(ANAME_ID);
             if (parameterName == null) {
                 String[] paramNames = parameterBlock.getParameterListDescriptor().getParamNames();
                 if (i < paramNames.length) {
@@ -162,7 +169,7 @@ public class XmlRIF implements RenderedImageFactory {
                     throw new IllegalArgumentException(MessageFormat.format("Operation ''{0}'': Unknown parameter #{1}'", parameterBlock.getOperationDescriptor().getName(), i));
                 }
             }
-            String parameterId = parameterElement.getAttributeValue("refid");
+            String parameterId = parameterElement.getAttributeValue(ANAME_REFID);
             Object parameterValue;
 
             if (parameterId != null) {
@@ -192,9 +199,9 @@ public class XmlRIF implements RenderedImageFactory {
         List elements = rootElement.getChildren(elementName);
         for (int i = 0; i < elements.size(); i++) {
             Element element = (Element) elements.get(i);
-            String name = element.getAttributeValue("id");
+            String name = element.getAttributeValue(ANAME_ID);
             if (name == null) {
-                throw new IllegalArgumentException(MessageFormat.format("Missing attribute ''id'' in element ''{0}''", elementName));
+                throw new IllegalArgumentException(MessageFormat.format("Missing attribute ''{0}'' in element ''{1}''", ANAME_ID, elementName));
             }
             elementMap.put(name, element);
         }
@@ -222,6 +229,9 @@ public class XmlRIF implements RenderedImageFactory {
     }
 
     private Object parse(OperationDescriptor operationDescriptor, Class type, String text) {
+        System.out.println("operationDescriptor: " + operationDescriptor.getName());
+        System.out.println("  type = " + type);
+        System.out.println("  text = " + text);
         if (type.equals(String.class)) {
             return text;
         } else if (type.equals(Byte.class) || type.equals(Byte.TYPE)) {
@@ -242,11 +252,22 @@ public class XmlRIF implements RenderedImageFactory {
             return parseFloatArray(text);
         } else if (type.equals(double[].class)) {
             return parseDoubleArray(text);
+        } else if (type.equals(Interpolation.class)) {
+            if ("INTERP_NEAREST".equals(text)) {
+                return Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+            } else if ("INTERP_BILINEAR".equals(text)) {
+                return Interpolation.getInstance(Interpolation.INTERP_BILINEAR);
+            } else if ("INTERP_BICUBIC".equals(text)) {
+                return Interpolation.getInstance(Interpolation.INTERP_BICUBIC);
+            } else if ("INTERP_BICUBIC_2".equals(text)) {
+                return Interpolation.getInstance(Interpolation.INTERP_BICUBIC_2);
+            }
+            throw new IllegalArgumentException("Unknown interpolation method: " + text);
         } else if (EnumeratedParameter.class.isAssignableFrom(type)) {
             try {
                 Field field = operationDescriptor.getClass().getField(text);
                 field.setAccessible(true);
-                Object  value = field.get(operationDescriptor);
+                Object value = field.get(operationDescriptor);
                 return (EnumeratedParameter) value;
             } catch (Exception e) {
                 throw new IllegalArgumentException("Enumerated value not found: " + text);
