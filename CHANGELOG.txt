@@ -47,6 +47,7 @@ o A new tool for exporting match-ups from a bunch of data products has been intr
 New Features
 [BEAM-1180] - Allow dragging files into VISAT
 [BEAM-1216] - The NOAA AVHRR reader should support GAC products
+[BEAM-1151] - Geometry subset operator
 
 Improvements
 [BEAM-1234] - The target product of some operators shall not be written
@@ -89,7 +90,6 @@ Bugs
 [BEAM-1172] - Boolean parameter values are overridden by default values
 [BEAM-1171] - NetCDF file not readable if variable name contains '.' or '/'
 [BEAM-1156] - SubsetOp does not copy metadata
-[BEAM-1151] - Geometry subset operator
 [BEAM-1125] - Outer scene region is not invalid for certain reprojected products
 [BEAM-1067] - Histogram title doesn't update when changing band
 
