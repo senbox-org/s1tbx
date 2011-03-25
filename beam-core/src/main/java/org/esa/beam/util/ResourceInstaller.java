@@ -88,7 +88,7 @@ public class ResourceInstaller {
                     targetFile.getParentFile().mkdirs();
                     targetFile.createNewFile();
                     fos = new FileOutputStream(targetFile);
-                    byte[] bytes = new byte[100];
+                    byte[] bytes = new byte[1024 * 1024];
                     int bytesRead = is.read(bytes);
                     while (bytesRead != -1) {
                         fos.write(bytes, 0, bytesRead);
@@ -98,14 +98,14 @@ public class ResourceInstaller {
                     if (is != null) {
                         try {
                             is.close();
-                        } catch (IOException e) {
+                        } catch (IOException ignored) {
                             // Ignore
                         }
                     }
                     if (fos != null) {
                         try {
                             fos.close();
-                        } catch (IOException e) {
+                        } catch (IOException ignored) {
                             // Ignore
                         }
                     }

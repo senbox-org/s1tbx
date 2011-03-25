@@ -55,8 +55,7 @@ import static java.lang.Math.*;
 @OperatorMetadata(alias = "Subset",
                   authors = "Marco Zuehlke, Norman Fomferra, Marco Peters",
                   copyright = "(c) 2010 by Brockmann Consult",
-                  description = "Create a spatial and/or spectral subset of data product.",
-                  internal = true)
+                  description = "Create a spatial and/or spectral subset of data product.")
 public class SubsetOp extends Operator {
 
     @SourceProduct(alias = "source", description = "The source product to create the subset from.")
@@ -68,12 +67,13 @@ public class SubsetOp extends Operator {
     private Rectangle region;
     @Parameter(defaultValue = "1")
     private int subSamplingX;
-    @Parameter(defaultValue = "false", description = "Forces the operator to extend the subset region to the full swath.")
+    @Parameter(defaultValue = "false",
+               description = "Forces the operator to extend the subset region to the full swath.")
     private boolean fullSwath;
     @Parameter(converter = JtsGeometryConverter.class,
                description = "The region in geographical coordinates using WKT-format,\n" +
-                       "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
-                       "(make sure to quote the option due to spaces in <geometry>)")
+                             "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
+                             "(make sure to quote the option due to spaces in <geometry>)")
     private Geometry geoRegion;
 
     @Parameter(defaultValue = "1")
@@ -194,7 +194,7 @@ public class SubsetOp extends Operator {
         }
     }
 
-    static Rectangle computePixelRegion(Product product, Geometry geoRegion, int numBorderPixels) {
+    public static Rectangle computePixelRegion(Product product, Geometry geoRegion, int numBorderPixels) {
         final Geometry productGeometry = computeProductGeometry(product);
         final Geometry regionIntersection = geoRegion.intersection(productGeometry);
         if (regionIntersection.isEmpty()) {
