@@ -197,19 +197,19 @@ public class PixExOp extends Operator implements Output {
         measurementWriter.setExportTiePoints(exportTiePoints);
         measurementWriter.setExportMasks(exportMasks);
         try {
+            boolean measurementsFound = false;
             if (sourceProducts != null) {
                 Arrays.sort(sourceProducts, new ProductComparator());
                 for (Product product : sourceProducts) {
-                    extractMeasurements(product);
+                    measurementsFound |= extractMeasurements(product);
                 }
             }
-            boolean measurementsFound = false;
             if (inputPaths != null) {
                 inputPaths = getParsedInputPaths(inputPaths);
                 if (inputPaths.length == 0) {
                     getLogger().log(Level.WARNING, "No valid input path found.");
                 }
-                measurementsFound = extractMeasurements(inputPaths);
+                measurementsFound |= extractMeasurements(inputPaths);
             }
             if (!isTargetProductInitialized) {
                 setDummyProduct();
