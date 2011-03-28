@@ -121,6 +121,9 @@ public class MeasurementReader implements Iterator<Measurement>, Closeable {
 
 
     private String getNextMeasurementLine() {
+        if (bufferedReaders == null || bufferedReaders.length == 0) {
+            return null;
+        }
         BufferedReader reader = bufferedReaders[readerIndex];
         String line;
         try {

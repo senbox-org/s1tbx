@@ -203,17 +203,18 @@ public class PixExOp extends Operator implements Output {
                     extractMeasurements(product);
                 }
             }
+            boolean measurementsFound = false;
             if (inputPaths != null) {
                 inputPaths = getParsedInputPaths(inputPaths);
                 if (inputPaths.length == 0) {
                     getLogger().log(Level.WARNING, "No valid input path found.");
                 }
-                extractMeasurements(inputPaths);
+                measurementsFound = extractMeasurements(inputPaths);
             }
             if (!isTargetProductInitialized) {
                 setDummyProduct();
             }
-            if (exportKmz) {
+            if (exportKmz && measurementsFound) {
                 KmzExporter kmzExporter = new KmzExporter();
                 ZipOutputStream zos = null;
                 try {
@@ -381,28 +382,30 @@ public class PixExOp extends Operator implements Output {
         return extractedCoordinates;
     }
 
-    private void extractMeasurements(File[] files) {
+    private boolean extractMeasurements(File[] files) {
+        boolean measurementsFound = false;
         for (File file : files) {
             if (file.isDirectory()) {
                 final File[] subFiles = file.listFiles();
                 Arrays.sort(subFiles);
                 for (File subFile : subFiles) {
                     if (subFile.isFile()) {
-                        extractMeasurements(subFile);
+                        measurementsFound |= extractMeasurements(subFile);
                     }
                 }
             } else {
-                extractMeasurements(file);
+                measurementsFound |= extractMeasurements(file);
             }
         }
+        return measurementsFound;
     }
 
-    private void extractMeasurements(File file) {
+    private boolean extractMeasurements(File file) {
         Product product = null;
         try {
             product = ProductIO.readProduct(file);
             if (product != null) {
-                extractMeasurements(product);
+                return extractMeasurements(product);
             }
         } catch (Exception ignore) {
         } finally {
@@ -415,11 +418,13 @@ public class PixExOp extends Operator implements Output {
                 }
             }
         }
+        return false;
     }
 
-    private void extractMeasurements(Product product) {
+    private boolean extractMeasurements(Product product) {
+        boolean coordinatesFound = false;
         if (!validator.validate(product)) {
-            return;
+            return coordinatesFound;
         }
 
         final PlanarImage validMaskImage = createValidMaskImage(product);
@@ -437,7 +442,8 @@ public class PixExOp extends Operator implements Output {
                     getLogger().warning(e.getMessage());
                 }
             }
-            if (!matchedCoordinates.isEmpty()) {
+            coordinatesFound = !matchedCoordinates.isEmpty();
+            if (coordinatesFound) {
                 if (exportSubScenes) {
                     try {
                         exportSubScene(product, matchedCoordinates);
@@ -462,6 +468,7 @@ public class PixExOp extends Operator implements Output {
         } finally {
             validMaskImage.dispose();
         }
+        return coordinatesFound;
     }
 
     private void exportSubScene(Product product, List<Coordinate> coordinates) throws IOException {
