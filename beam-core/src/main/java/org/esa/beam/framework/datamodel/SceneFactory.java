@@ -28,7 +28,9 @@ public final class SceneFactory {
 
     /**
      * Creates a scene wrapper around the given product node.
+     *
      * @param node the product node
+     *
      * @return a scene instance or null if it could not be created
      */
     public static Scene createScene(final ProductNode node) {
@@ -75,7 +77,11 @@ public final class SceneFactory {
                 }
             }
         }
-        return numTransferred > 0;
+        if (numTransferred == 0) {
+            return transferGeoCoding(sourceScene, targetScene, subsetDef);
+        } else {
+            return numTransferred > 0;
+        }
     }
 
     private static class ProductScene implements Scene {
