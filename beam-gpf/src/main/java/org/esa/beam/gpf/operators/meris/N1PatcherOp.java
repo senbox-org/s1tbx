@@ -132,6 +132,12 @@ public class N1PatcherOp extends MerisBasisOp {
                 ProductUtils.copyBand(bandName, n1Product, targetProduct);
             }
         }
+        final File patchedFileDir = patchedFile.getParentFile();
+        if (!patchedFileDir.exists()) {
+            if (!patchedFileDir.mkdirs()) {
+                throw new OperatorException("Could not create path to file: " + patchedFile);
+            }
+        }
         ProductUtils.copyFlagBands(n1Product, targetProduct);
         try {
             File originalFileLocation = n1Product.getFileLocation();
@@ -212,7 +218,7 @@ public class N1PatcherOp extends MerisBasisOp {
             byte[] buf = new byte[descriptor.dsSize];
 
             if (descriptor.dsName == null
-                    || !descriptor.dsName.startsWith("Radiance")) {
+                || !descriptor.dsName.startsWith("Radiance")) {
                 inputStream.seek(descriptor.dsOffset);
                 inputStream.read(buf);
                 outputStream.seek(descriptor.dsOffset);
