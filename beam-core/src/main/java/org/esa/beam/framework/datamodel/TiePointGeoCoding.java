@@ -207,18 +207,21 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
 
             if (isValidGeoPos(lat, lon)) {
                 Approximation approximation = getBestApproximation(approximations, lat, lon);
-                if (approximation != null) {
-                    final float squareDistance = approximation.getSquareDistance(lat, lon);
-                    // retry with pixel in overlap range, re-normalise
-                    // solves the problem with overlapping normalized and unnormalized orbit areas (AATSR)
-                    if (lon >= overlapStart && lon <= overlapEnd) {
-                        float tempLon = lon + 360;
-                        final Approximation renormalizedApproximation = findRenormalizedApproximation(lat, tempLon,
-                                                                                                      squareDistance);
-                        if (renormalizedApproximation != null) {
-                            approximation = renormalizedApproximation;
-                            lon = tempLon;
-                        }
+                // retry with pixel in overlap range, re-normalise
+                // solves the problem with overlapping normalized and unnormalized orbit areas (AATSR)
+                if (lon >= overlapStart && lon <= overlapEnd) {
+                    final float squareDistance;
+                    if (approximation != null) {
+                        squareDistance = approximation.getSquareDistance(lat, lon);
+                    } else {
+                        squareDistance = Float.MAX_VALUE;
+                    }
+                    float tempLon = lon + 360;
+                    final Approximation renormalizedApproximation = findRenormalizedApproximation(lat, tempLon,
+                                                                                                  squareDistance);
+                    if (renormalizedApproximation != null) {
+                        approximation = renormalizedApproximation;
+                        lon = tempLon;
                     }
                 }
                 if (approximation != null) {
@@ -675,11 +678,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         return approximation;
     }
 
-    private Approximation findRenormalizedApproximation(final float lat, final float tempLon,
+    private Approximation findRenormalizedApproximation(final float lat, final float renormalizedLon,
                                                         final float distance) {
-        Approximation renormalizedApproximation = getBestApproximation(approximations, lat, tempLon);
+        Approximation renormalizedApproximation = getBestApproximation(approximations, lat, renormalizedLon);
         if (renormalizedApproximation != null) {
-            float renormalizedDistance = renormalizedApproximation.getSquareDistance(lat, tempLon);
+            float renormalizedDistance = renormalizedApproximation.getSquareDistance(lat, renormalizedLon);
             if (renormalizedDistance < distance) {
                 return renormalizedApproximation;
             }
@@ -710,7 +713,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      *
      * @param srcScene  the source scene
      * @param destScene the destination scene
-     * @param subsetDef the definition of the subset, may be <code>null</code>
+     * @param subsetDef the definition of the subset, may be <code>null</code
+     *                  >
      *
      * @return true, if the geo-coding could be transferred.
      */
@@ -784,8 +788,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
          *
          * @param lat the latitude value
          * @param lon the longitude value
-         *
-         * @return the square distance
+         *            <p/>
+         *            * @return the square distance
          */
         public final float getSquareDistance(float lat, float lon) {
             final float dx = lon - _centerLon;
