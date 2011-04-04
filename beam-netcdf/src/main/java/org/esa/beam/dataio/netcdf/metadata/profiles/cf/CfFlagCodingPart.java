@@ -78,11 +78,14 @@ public class CfFlagCodingPart extends ProfilePartIO {
     public static FlagCoding readFlagCoding(ProfileReadContext ctx, String variableName) throws ProductIOException {
         final Variable variable = ctx.getNetcdfFile().getRootGroup().findVariable(variableName);
         final String codingName = variableName + "_flag_coding";
-        return readFlagCoding(variable, codingName);
+        if (variable != null) {
+            return readFlagCoding(variable, codingName);
+        } else {
+            return null;
+        }
     }
 
-    private static FlagCoding readFlagCoding(Variable variable, String codingName)
-            throws ProductIOException {
+    private static FlagCoding readFlagCoding(Variable variable, String codingName) throws ProductIOException {
         final Attribute flagMasks = variable.findAttribute(FLAG_MASKS);
         final int[] maskValues;
         if (flagMasks != null) {
