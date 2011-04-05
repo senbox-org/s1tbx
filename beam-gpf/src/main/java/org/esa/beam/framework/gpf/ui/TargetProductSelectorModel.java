@@ -22,17 +22,18 @@ import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.validators.NotNullValidator;
-
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.io.FileUtils;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -44,6 +45,7 @@ import java.util.Iterator;
 @SuppressWarnings({"UnusedDeclaration"})
 public class TargetProductSelectorModel {
 
+    private static final String ENVISAT_FORMAT_NAME = "ENVISAT";
     // used by object binding
     private String productName;
     private boolean saveToFileSelected;
@@ -54,7 +56,11 @@ public class TargetProductSelectorModel {
 
     private final PropertyContainer propertyContainer;
 
-    TargetProductSelectorModel() {
+    public TargetProductSelectorModel() {
+        this(ProductIOPlugInManager.getInstance().getAllProductWriterFormatStrings());
+    }
+
+    public TargetProductSelectorModel(String[] formatNames) {
         propertyContainer = PropertyContainer.createObjectBacked(this);
         propertyContainer.addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
@@ -80,12 +86,16 @@ public class TargetProductSelectorModel {
 
         setOpenInAppSelected(true);
         setSaveToFileSelected(true);
-        formatNames = ProductIOPlugInManager.getInstance().getAllProductWriterFormatStrings();
-        if (StringUtils.contains(formatNames, ProductIO.DEFAULT_FORMAT_NAME)) {
+        this.formatNames = formatNames;
+        if (StringUtils.contains(this.formatNames, ProductIO.DEFAULT_FORMAT_NAME)) {
             setFormatName(ProductIO.DEFAULT_FORMAT_NAME);
         } else {
             setFormatName(formatNames[0]);
         }
+    }
+
+    public static TargetProductSelectorModel createEnvisatTargetProductSelectorModel() {
+        return new EnvisatTargetProductSelectorModel();
     }
 
     public String getProductName() {
@@ -163,7 +173,7 @@ public class TargetProductSelectorModel {
     private void setValueContainerValue(String name, Object value) {
         propertyContainer.setValue(name, value);
     }
-    
+
     private static class ProductNameValidator implements Validator {
 
         @Override
@@ -179,4 +189,28 @@ public class TargetProductSelectorModel {
         }
     }
 
+    public static class EnvisatTargetProductSelectorModel extends TargetProductSelectorModel {
+
+        private EnvisatTargetProductSelectorModel() {
+            super(createFormats());
+        }
+
+        @Override
+        public File getProductFile() {
+            if (!ENVISAT_FORMAT_NAME.equals(getFormatName())) {
+                return super.getProductFile();
+            }
+            final String productName = getProductName();
+            return new File(getProductDir(), FileUtils.ensureExtension(productName, ".N1"));
+
+        }
+
+        private static String[] createFormats() {
+            final String[] productWriterFormatStrings = ProductIOPlugInManager.getInstance().getAllProductWriterFormatStrings();
+            final String[] formatNames = Arrays.copyOf(productWriterFormatStrings,
+                                                       productWriterFormatStrings.length + 1);
+            formatNames[formatNames.length - 1] = ENVISAT_FORMAT_NAME;
+            return formatNames;
+        }
+    }
 }

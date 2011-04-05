@@ -18,11 +18,20 @@ package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
-
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.util.io.FileChooserFactory;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -56,7 +65,11 @@ public class TargetProductSelector {
     private TargetProductSelectorModel model;
 
     public TargetProductSelector() {
-        this.model = new TargetProductSelectorModel();
+        this(new TargetProductSelectorModel());
+    }
+
+    public TargetProductSelector(TargetProductSelectorModel model) {
+        this.model = model;
 
         initComponents();
         bindComponents();
@@ -81,7 +94,7 @@ public class TargetProductSelector {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 final String formatName = (String) formatNameComboBox.getSelectedItem();
-                if(!canReadOutputFormat(formatName)) {
+                if (!canReadOutputFormat(formatName)) {
                     model.setOpenInAppSelected(false);
                 }
             }

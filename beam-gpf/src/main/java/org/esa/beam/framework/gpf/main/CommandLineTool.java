@@ -21,9 +21,11 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
@@ -33,6 +35,8 @@ import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.framework.gpf.graph.NodeSource;
+import org.esa.beam.framework.gpf.internal.OperatorExecutor;
+import org.esa.beam.framework.gpf.internal.OperatorProductReader;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.logging.BeamLogManager;
@@ -130,9 +134,13 @@ class CommandLineTool {
         Map<String, Object> parameters = getParameterMap(lineArgs);
         String opName = lineArgs.getOperatorName();
         Product targetProduct = createOpProduct(opName, parameters, sourceProducts);
-        final OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(opName);
         // write product only if Operator does not implement the Output interface
-        if (!Output.class.isAssignableFrom(operatorSpi.getOperatorClass())) {
+        final OperatorProductReader opProductReader = (OperatorProductReader) targetProduct.getProductReader();
+        if (opProductReader != null && opProductReader.getOperatorContext().getOperator() instanceof Output) {
+            final Operator operator = opProductReader.getOperatorContext().getOperator();
+            final OperatorExecutor executor = OperatorExecutor.create(operator);
+            executor.execute(ProgressMonitor.NULL);
+        } else {
             String filePath = lineArgs.getTargetFilepath();
             String formatName = lineArgs.getTargetFormatName();
             writeProduct(targetProduct, filePath, formatName, lineArgs.isClearCacheAfterRowWrite());

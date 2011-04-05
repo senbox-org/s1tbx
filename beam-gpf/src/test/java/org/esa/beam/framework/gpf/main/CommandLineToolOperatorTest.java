@@ -20,10 +20,14 @@ import com.sun.media.jai.util.SunTileScheduler;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
+import org.esa.beam.framework.gpf.internal.OperatorContext;
+import org.esa.beam.framework.gpf.internal.OperatorProductReader;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileScheduler;
@@ -178,7 +182,7 @@ public class CommandLineToolOperatorTest extends TestCase {
     public void testFailureNoReaderFound() {
         CommandLineTool tool = new CommandLineTool(new OpCommandLineContext() {
             @Override
-            public Product readProduct(String productFilepath) throws IOException {
+            public Product readProduct(String productFilepath) {
                 return null;  // returning null to simulate an error
             }
         });
@@ -253,7 +257,12 @@ public class CommandLineToolOperatorTest extends TestCase {
             this.parameters = parameters;
             this.sourceProducts = sourceProducts;
             logString += "o=" + opName + ";";
-            return new Product("T", "TT", 10, 10);
+
+            final Product product = new Product("T", "TT", 10, 10);
+            final OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+            final Operator operator = operatorSpiRegistry.getOperatorSpi(opName).createOperator();
+            product.setProductReader(new OperatorProductReader(new OperatorContext(operator)));
+            return product;
         }
 
         @Override

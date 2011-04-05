@@ -26,6 +26,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.util.ProductUtils;
 
 import javax.imageio.stream.FileImageInputStream;
@@ -50,7 +51,7 @@ import java.io.IOException;
  * @author Marco Zuehlke
  */
 @OperatorMetadata(alias = "N1Patcher", internal = true)
-public class N1PatcherOp extends MerisBasisOp {
+public class N1PatcherOp extends MerisBasisOp implements Output {
 
     // MPH:
     private static final int MPH_PRODUCTNAME_OFFSET = 9;
@@ -246,7 +247,7 @@ public class N1PatcherOp extends MerisBasisOp {
         Rectangle rectangle = targetTile.getRectangle();
         pm.beginTask("Patching product...", rectangle.height);
         try {
-            Tile srcTile = getSourceTile(sourceProduct.getBand(band.getName()), rectangle, pm);
+            Tile srcTile = getSourceTile(sourceProduct.getBand(band.getName()), rectangle);
             for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
                 for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
                     targetTile.setSample(x, y, srcTile.getSampleDouble(x, y));
@@ -271,7 +272,7 @@ public class N1PatcherOp extends MerisBasisOp {
                                 outputStream.writeShort(data[x + y * rectangle.width]);
                             }
                             outputStream.skipBytes((rectangle.x) * 2);
-                            checkForCancellation(pm);
+                            checkForCancellation();
                             pm.worked(1);
                         }
                     }
@@ -290,7 +291,7 @@ public class N1PatcherOp extends MerisBasisOp {
                             }
                             outputStream.skipBytes(rectangle.x);
                             outputStream.skipBytes(targetProduct.getSceneRasterWidth() * 2);
-                            checkForCancellation(pm);
+                            checkForCancellation();
                             pm.worked(1);
                         }
                     }
@@ -305,10 +306,9 @@ public class N1PatcherOp extends MerisBasisOp {
 
     private DatasetDescriptor getDatasetDescriptorForFlagBand() {
         for (DatasetDescriptor dsDescriptor : dsDescriptors) {
-            DatasetDescriptor descriptor = dsDescriptor;
-            final String dsName = descriptor.dsName;
+            final String dsName = dsDescriptor.dsName;
             if (dsName != null && dsName.startsWith("Flag")) {
-                return descriptor;
+                return dsDescriptor;
             }
         }
         return null;
@@ -316,15 +316,14 @@ public class N1PatcherOp extends MerisBasisOp {
 
     private DatasetDescriptor getDatasetDescriptorForBand(Band band) {
         for (DatasetDescriptor dsDescriptor : dsDescriptors) {
-            DatasetDescriptor descriptor = dsDescriptor;
-            final String dsName = descriptor.dsName;
+            final String dsName = dsDescriptor.dsName;
             if (dsName != null && dsName.startsWith("Radiance")) {
                 int beginIndex = dsName.indexOf('(');
                 int endIndex = dsName.indexOf(')', beginIndex);
                 String bandNumber = dsName.substring(beginIndex + 1, endIndex);
                 String bandName = "radiance_" + bandNumber;
                 if (bandName.equals(band.getName())) {
-                    return descriptor;
+                    return dsDescriptor;
                 }
             }
         }
