@@ -144,16 +144,12 @@ public class MergeOp extends Operator {
         destBand.setSourceImage(srcBand.getSourceImage());
         if (srcBand.getFlagCoding() != null) {
             FlagCoding srcFlagCoding = srcBand.getFlagCoding();
-            if (!outputProduct.getFlagCodingGroup().contains(srcFlagCoding.getName())) {
-                ProductUtils.copyFlagCoding(srcFlagCoding, outputProduct);
-            }
+            ProductUtils.copyFlagCoding(srcFlagCoding, outputProduct);
             destBand.setSampleCoding(outputProduct.getFlagCodingGroup().get(srcFlagCoding.getName()));
         }
         if (srcBand.getIndexCoding() != null) {
             IndexCoding srcIndexCoding = srcBand.getIndexCoding();
-            if (!outputProduct.getIndexCodingGroup().contains(srcIndexCoding.getName())) {
-                ProductUtils.copyIndexCoding(srcIndexCoding, outputProduct);
-            }
+            ProductUtils.copyIndexCoding(srcIndexCoding, outputProduct);
             destBand.setSampleCoding(outputProduct.getIndexCodingGroup().get(srcIndexCoding.getName()));
         }
         return destBand;

@@ -1020,6 +1020,10 @@ public class ProductUtils {
      * @param target           the target product
      */
     public static void copyFlagCoding(FlagCoding sourceFlagCoding, Product target) {
+        if (target.getFlagCodingGroup().contains(sourceFlagCoding.getName())) {
+            // target already has a flag coding of that name
+            return;
+        }
         FlagCoding flagCoding = new FlagCoding(sourceFlagCoding.getName());
         flagCoding.setDescription(sourceFlagCoding.getDescription());
         target.getFlagCodingGroup().add(flagCoding);
@@ -1033,6 +1037,10 @@ public class ProductUtils {
      * @param target            the target product
      */
     public static void copyIndexCoding(IndexCoding sourceIndexCoding, Product target) {
+        if (target.getIndexCodingGroup().contains(sourceIndexCoding.getName())) {
+            // target already has a index coding of that name
+            return;
+        }
         IndexCoding indexCoding = new IndexCoding(sourceIndexCoding.getName());
         indexCoding.setDescription(sourceIndexCoding.getDescription());
         target.getIndexCodingGroup().add(indexCoding);

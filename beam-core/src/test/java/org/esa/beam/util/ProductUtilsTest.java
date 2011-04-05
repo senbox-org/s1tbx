@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ProductUtilsTest {
 
@@ -475,6 +476,7 @@ public class ProductUtilsTest {
 
         final ProductNodeGroup<FlagCoding> flagCodingGroup = product.getFlagCodingGroup();
         assertNotNull(flagCodingGroup);
+        assertEquals(1, flagCodingGroup.getNodeCount());
 
         final FlagCoding actualFlagCoding = flagCodingGroup.get("sesame street character flags");
         assertNotNull(actualFlagCoding);
@@ -483,6 +485,10 @@ public class ProductUtilsTest {
         assertMetadataAttributeEqualityInt(originalFlagCoding.getFlag("erni"), actualFlagCoding.getFlag("erni"));
         assertMetadataAttributeEqualityInt(originalFlagCoding.getFlag("bert"), actualFlagCoding.getFlag("bert"));
         assertMetadataAttributeEqualityInt(originalFlagCoding.getFlag("bibo"), actualFlagCoding.getFlag("bibo"));
+
+        // try to copy the same coding a second time
+        ProductUtils.copyFlagCoding(originalFlagCoding, product);
+        assertEquals(1, flagCodingGroup.getNodeCount());
     }
 
     @Test
@@ -496,6 +502,8 @@ public class ProductUtilsTest {
 
         final ProductNodeGroup<IndexCoding> indexCodingGroup = product.getIndexCodingGroup();
         assertNotNull(indexCodingGroup);
+        assertEquals(1, indexCodingGroup.getNodeCount());
+
 
         final IndexCoding actualIndexCoding = indexCodingGroup.get("sesame street characters");
         assertNotNull(actualIndexCoding);
@@ -503,6 +511,11 @@ public class ProductUtilsTest {
 
         assertMetadataAttributeEqualityInt(originalIndexCoding.getIndex("erni"), actualIndexCoding.getIndex("erni"));
         assertMetadataAttributeEqualityInt(originalIndexCoding.getIndex("bert"), actualIndexCoding.getIndex("bert"));
+
+        // try to copy the same coding a second time
+        ProductUtils.copyIndexCoding(originalIndexCoding, product);
+        assertEquals(1, indexCodingGroup.getNodeCount());
+
     }
 
     @Test
