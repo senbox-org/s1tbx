@@ -23,6 +23,8 @@ import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.jai.ResolutionLevel;
+import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -58,6 +60,10 @@ import java.io.IOException;
  * the valid mask (if any) into memory.</i></p>
  */
 public class PixelGeoCoding extends AbstractGeoCoding {
+    /**
+     * @since BEAM 4.9
+     */
+    private static final String SYSPROP_PIXEL_GEO_CODING_USE_TILING = "beam.pixelGeoCoding.useTiling";
 
     // TODO - (nf) make EPS for quad-tree search dependent on current scene
     private static final float EPS = 0.04F; // used by quad-tree search
@@ -69,10 +75,14 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     private final Band _lonBand;
     private final String _validMask;
     private final int _searchRadius; // used by direct search only
+    private final int rasterWidth;
+    private final int rasterHeight;
+    private final boolean useTiling;
     private GeoCoding _pixelPosEstimator;
     private PixelGrid _latGrid;
     private PixelGrid _lonGrid;
     private boolean initialized;
+    private VirtualBandOpImage validMask;
 
     /**
      * Constructs a new pixel-based geo-coding.
@@ -109,6 +119,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             throw new IllegalArgumentException("searchRadius <= 0");
         }
         _latBand = latBand;
+        rasterWidth = _latBand.getSceneRasterWidth();
+        rasterHeight = _latBand.getSceneRasterHeight();
         _lonBand = lonBand;
         _validMask = validMask;
         _searchRadius = searchRadius;
@@ -117,6 +129,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             _crossingMeridianAt180 = _pixelPosEstimator.isCrossingMeridianAt180();
         }
         initialized = false;
+        useTiling = Boolean.getBoolean(SYSPROP_PIXEL_GEO_CODING_USE_TILING);
     }
 
     /**
@@ -145,21 +158,26 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
     private void initData(final Band latBand, final Band lonBand,
                           final String validMaskExpr, ProgressMonitor pm) throws IOException {
-        try {
-            pm.beginTask("Preparing data for pixel based geo-coding...", 4);
-            _latGrid = PixelGrid.create(latBand, SubProgressMonitor.create(pm, 1));
-            _lonGrid = PixelGrid.create(lonBand, SubProgressMonitor.create(pm, 1));
+
+        if (useTiling) {
             if (validMaskExpr != null && validMaskExpr.trim().length() > 0) {
-                final BitRaster validMask = latBand.getProduct().createValidMask(validMaskExpr,
-                                                                                 SubProgressMonitor.create(pm, 1));
-                fillInvalidGaps(_latGrid.getRasterWidth(),
-                                _latGrid.getRasterHeight(),
-                                new RasterDataNode.ValidMaskValidator(_latGrid.getRasterHeight(), 0, validMask),
-                                (float[]) _latGrid.getDataElems(),
-                                (float[]) _lonGrid.getDataElems(), SubProgressMonitor.create(pm, 1));
+                validMask = VirtualBandOpImage.createMask(validMaskExpr, latBand.getProduct(), ResolutionLevel.MAXRES);
             }
-        } finally {
-            pm.done();
+        } else {
+            try {
+                pm.beginTask("Preparing data for pixel based geo-coding...", 4);
+                _latGrid = PixelGrid.create(latBand, SubProgressMonitor.create(pm, 1));
+                _lonGrid = PixelGrid.create(lonBand, SubProgressMonitor.create(pm, 1));
+                if (validMaskExpr != null && validMaskExpr.trim().length() > 0) {
+                    final BitRaster validMask = latBand.getProduct().createValidMask(validMaskExpr,
+                                                                                     SubProgressMonitor.create(pm, 1));
+                    fillInvalidGaps(new RasterDataNode.ValidMaskValidator(rasterHeight, 0, validMask),
+                                    (float[]) _latGrid.getDataElems(),
+                                    (float[]) _lonGrid.getDataElems(), SubProgressMonitor.create(pm, 1));
+                }
+            } finally {
+                pm.done();
+            }
         }
     }
 
@@ -171,26 +189,22 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * <p>The default implementation uses the underlying {@link #getPixelPosEstimator() estimator} (if any)
      * to find default values for the gaps.</p>
      *
-     * @param w         the raster width
-     * @param h         the raster height
      * @param validator the pixel validator, never null
      * @param latElems  the latitude data buffer in row-major order
      * @param lonElems  the longitude data buffer in row-major order
      * @param pm        a monitor to inform the user about progress
      */
-    protected void fillInvalidGaps(final int w,
-                                   final int h,
-                                   final IndexValidator validator,
+    protected void fillInvalidGaps(final IndexValidator validator,
                                    final float[] latElems,
                                    final float[] lonElems, ProgressMonitor pm) {
         if (_pixelPosEstimator != null) {
             try {
-                pm.beginTask("Filling invalid pixel gaps", h);
+                pm.beginTask("Filling invalid pixel gaps", rasterHeight);
                 final PixelPos pixelPos = new PixelPos();
                 GeoPos geoPos = new GeoPos();
-                for (int y = 0; y < h; y++) {
-                    for (int x = 0; x < w; x++) {
-                        int i = y * w + x;
+                for (int y = 0; y < rasterHeight; y++) {
+                    for (int x = 0; x < rasterWidth; x++) {
+                        int i = y * rasterWidth + x;
                         if (!validator.validateIndex(i)) {
                             pixelPos.x = x;
                             pixelPos.y = y;
@@ -356,8 +370,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         }
         final int x0 = (int) Math.floor(pixelPos.x);
         final int y0 = (int) Math.floor(pixelPos.y);
-        final int rasterWidth = _latGrid.getSceneRasterWidth();
-        final int rasterHeight = _latGrid.getSceneRasterHeight();
         if (x0 >= 0 && x0 < rasterWidth && y0 >= 0 && y0 < rasterHeight) {
             int bestX = -1;
             int bestY = -1;
@@ -370,35 +382,60 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             x2 = Math.min(x2, rasterWidth - 1);
             y2 = Math.min(y2, rasterHeight - 1);
 
-            final float[] latArray = (float[]) _latGrid.getRasterData().getElems();
-            final float[] lonArray = (float[]) _lonGrid.getRasterData().getElems();
             final float lat0 = geoPos.lat;
             final float lon0 = geoPos.lon;
             int bestCount = 0;
 
+            if (useTiling) {
+                getGeoPosInternal(x0, y0, geoPos);
+                float r = (float) Math.cos(geoPos.lat * D2R);
+                float dlat = Math.abs(geoPos.lat - lat0);
+                float dlon = r * lonDiff(geoPos.lon, lon0);
+                float minDelta = dlat * dlat + dlon * dlon;
 
-            int i = rasterWidth * y0 + x0;
-            float lat = latArray[i];
-            float lon = lonArray[i];
-            float r = (float) Math.cos(lat * D2R);
-            float dlat = Math.abs(lat - lat0);
-            float dlon = r * lonDiff(lon, lon0);
-            float delta, minDelta = dlat * dlat + dlon * dlon;
+                for (int y = y1; y <= y2; y++) {
+                    for (int x = x1; x <= x2; x++) {
+                        if (!(x == x0 && y == y0)) {
+                            getGeoPosInternal(x, y, geoPos);
+                            dlat = Math.abs(geoPos.lat - lat0);
+                            dlon = r * lonDiff(geoPos.lon, lon0);
+                            float delta = dlat * dlat + dlon * dlon;
+                            if (delta < minDelta) {
+                                minDelta = delta;
+                                bestX = x;
+                                bestY = y;
+                                bestCount++;
+                            }
+                        }
+                    }
+                }
+            } else {
+                final float[] latArray = (float[]) _latGrid.getRasterData().getElems();
+                final float[] lonArray = (float[]) _lonGrid.getRasterData().getElems();
 
-            for (int y = y1; y <= y2; y++) {
-                for (int x = x1; x <= x2; x++) {
-                    if (!(x == x0 && y == y0)) {
-                        i = rasterWidth * y + x;
-                        lat = latArray[i];
-                        lon = lonArray[i];
-                        dlat = Math.abs(lat - lat0);
-                        dlon = r * lonDiff(lon, lon0);
-                        delta = dlat * dlat + dlon * dlon;
-                        if (delta < minDelta) {
-                            minDelta = delta;
-                            bestX = x;
-                            bestY = y;
-                            bestCount++;
+                int i = rasterWidth * y0 + x0;
+                float lat = latArray[i];
+                float lon = lonArray[i];
+                float r = (float) Math.cos(lat * D2R);
+                float dlat = Math.abs(lat - lat0);
+                float dlon = r * lonDiff(lon, lon0);
+                float minDelta = dlat * dlat + dlon * dlon;
+
+                for (int y = y1; y <= y2; y++) {
+                    for (int x = x1; x <= x2; x++) {
+                        if (!(x == x0 && y == y0)) {
+                            i = rasterWidth * y + x;
+                            lat = latArray[i];
+                            lon = lonArray[i];
+                            dlat = Math.abs(lat - lat0);
+                            dlon = r * lonDiff(lon, lon0);
+                            float delta = dlat * dlat + dlon * dlon;
+                            if (delta < minDelta) {
+                                minDelta = delta;
+                                bestX = x;
+                                bestY = y;
+                                bestCount++;
+                            }
                         }
                     }
                 }
@@ -425,9 +462,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         initialize();
 
         final Result result = new Result();
-        final int rasterWidth = _latGrid.getSceneRasterWidth();
-        final int rasterHeight = _latGrid.getSceneRasterHeight();
-
         boolean pixelFound = quadTreeSearch(0,
                                             geoPos.lat, geoPos.lon,
                                             0, 0,
@@ -472,12 +506,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         if (pixelPos.isValid()) {
             final int x0 = (int) Math.floor(pixelPos.x);
             final int y0 = (int) Math.floor(pixelPos.y);
-            final int rasterWidth = _latGrid.getSceneRasterWidth();
-            final int rasterHeight = _latGrid.getSceneRasterHeight();
             if (x0 >= 0 && x0 < rasterWidth && y0 >= 0 && y0 < rasterHeight) {
-                final float lat = _latGrid.getPixelFloat(x0, y0);
-                final float lon = _lonGrid.getPixelFloat(x0, y0);
-                geoPos.setLocation(lat, lon);
+                getGeoPosInternal(x0, y0, geoPos);
                 return geoPos;
             }
         }
@@ -502,13 +532,17 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         if (_latGrid != null) {
             _latGrid.dispose();
             _latGrid = null;
-
+        }
+        if (_lonGrid != null) {
             _lonGrid.dispose();
             _lonGrid = null;
-
-            // Don't dispose the estimator, it is not our's!
-            _pixelPosEstimator = null;
         }
+        if (validMask != null) {
+            validMask.dispose();
+            validMask = null;
+        }
+        // Don't dispose the estimator, it is not our's!
+        _pixelPosEstimator = null;
     }
 
     private boolean quadTreeSearch(final int depth,
@@ -527,22 +561,20 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         final int y1 = y;
         final int y2 = y1 + h - 1;
 
-        final float[] latArray = (float[]) _latGrid.getRasterData().getElems();
-        final float[] lonArray = (float[]) _lonGrid.getRasterData().getElems();
-        final int lineWidth = _latGrid.getSceneRasterWidth();
-
-        final int lineOffset1 = y1 * lineWidth;
-        final int lineOffset2 = y2 * lineWidth;
-        final float lat0 = latArray[x1 + lineOffset1];
-        final float lat1 = latArray[x1 + lineOffset2];
-        final float lat2 = latArray[x2 + lineOffset1];
-        final float lat3 = latArray[x2 + lineOffset2];
-
         // todo - solve 180° longitude problem here
-        final float lon0 = lonArray[x1 + lineOffset1];
-        final float lon1 = lonArray[x1 + lineOffset2];
-        final float lon2 = lonArray[x2 + lineOffset1];
-        final float lon3 = lonArray[x2 + lineOffset2];
+        GeoPos geoPos = new GeoPos();
+        getGeoPosInternal(x1, y1, geoPos);
+        final float lat0 = geoPos.lat;
+        final float lon0 = geoPos.lon;
+        getGeoPosInternal(x1, y2, geoPos);
+        final float lat1 = geoPos.lat;
+        final float lon1 = geoPos.lon;
+        getGeoPosInternal(x2, y1, geoPos);
+        final float lat2 = geoPos.lat;
+        final float lon2 = geoPos.lon;
+        getGeoPosInternal(x2, y2, geoPos);
+        final float lat3 = geoPos.lat;
+        final float lon3 = geoPos.lon;
 
         final float epsL = EPS;
         final float latMin = min(lat0, min(lat1, min(lat2, lat3))) - epsL;
@@ -582,6 +614,26 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         return pixelFound;
     }
 
+    private void getGeoPosInternal(int pixelX, int pixelY, GeoPos geoPos) {
+        if (useTiling) {
+            if (validMask != null) {
+                final int tileX = validMask.XToTileX(pixelX);
+                final int tileY = validMask.YToTileY(pixelY);
+                if (validMask.getTile(tileX, tileY).getSample(pixelX, pixelY, 0) == 0) {
+                    _pixelPosEstimator.getGeoPos(new PixelPos(pixelX, pixelY), geoPos);
+                    return;
+                }
+            }
+            final float lat = (float) ProductUtils.getGeophysicalSampleDouble(_latBand, pixelX, pixelY, 0);
+            final float lon = (float) ProductUtils.getGeophysicalSampleDouble(_lonBand, pixelX, pixelY, 0);
+            geoPos.setLocation(lat, lon);
+        } else {
+            int i = rasterWidth * pixelY + pixelX;
+            final float lat = _latGrid.getRasterData().getElemFloatAt(i);
+            final float lon = _lonGrid.getRasterData().getElemFloatAt(i);
+            geoPos.setLocation(lat, lon);
+        }
+    }
 
     private boolean quadTreeRecursion(final int depth,
                                       final float lat, final float lon,
