@@ -34,17 +34,18 @@
     <extension point="beam-ui:actions">
         <action>
             <id>merisRadiometryCorrection</id>
-            <helpId>merisRadiometryCorrection</helpId>
-            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <class>org.esa.beam.meris.radiometry.visat.MerisRadiometryCorrectionAction</class>
             <parent>tools</parent>
-            <text>Radiometry Correction (MERIS)...</text>
-            <mnemonic>E</mnemonic>
             <placeAfter>flhMciScientificTool</placeAfter>
             <placeBefore>cloudScientificTool</placeBefore>
-            <operatorName>Meris.CorrectRadiometry</operatorName>
-            <dialogTitle>MERIS L1b Radiometry Correction</dialogTitle>
-            <targetProductNameSuffix>_radiometry</targetProductNameSuffix>
+            <helpID>merisRadiometryCorrection</helpID>
+            <text>Radiometry Correction (MERIS)...</text>
+            <shortDescr>Performs radiometric correction on MERIS</shortDescr>
+            <longDescr>Performs radiometric correction on MERIS data products</longDescr>
+            <mnemonic>E</mnemonic>
+
         </action>
+
     </extension>
 
 

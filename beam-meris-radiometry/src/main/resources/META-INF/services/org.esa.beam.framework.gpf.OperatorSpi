@@ -1,1 +1,2 @@
 org.esa.beam.meris.radiometry.MerisRadiometryCorrectionOp$Spi
+org.esa.beam.meris.radiometry.InternalMerisRadiometryCorrectionOp$Spi
