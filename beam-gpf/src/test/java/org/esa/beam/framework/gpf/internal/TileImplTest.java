@@ -25,6 +25,7 @@ import org.esa.beam.framework.gpf.Tile;
 import java.util.Arrays;
 
 public class TileImplTest extends TestCase {
+
     private static final int W = 16;
     private static final int H = 8;
     private static final int N = W * H;
@@ -166,16 +167,29 @@ public class TileImplTest extends TestCase {
     }
 
     public void testGetSamplesDouble() {
-        Tile tile = createScaledTileWithNaNs(ProductData.TYPE_UINT16, 2.5, 7.5);
+        Tile tile;
+        double[] samples;
+
+        tile = createScaledTileWithNaNs(ProductData.TYPE_UINT16, 2.5, 7.5);
 
         assertNull(tile.getDataBufferDouble());
-        double[] samples = tile.getSamplesDouble();
+        samples = tile.getSamplesDouble();
         assertNotNull(samples);
         assertEquals(N, samples.length);
         assertEquals(2.5, samples[0], 1e-10);
         assertEquals(5.0, samples[1], 1e-10);
         assertEquals(true, Double.isNaN(samples[2])); // no-data = 7.5
         assertEquals(320.0, samples[N - 1], 1e-10);
+
+        tile = createRawTile(ProductData.TYPE_FLOAT32);
+
+        assertNull(tile.getDataBufferDouble());
+        samples = tile.getSamplesDouble();
+        assertNotNull(samples);
+        assertEquals(N, samples.length);
+        assertEquals(1.1, samples[0], 1e-5F);
+        assertEquals(2.1, samples[1], 1e-5F);
+        assertEquals(128.1F, samples[N - 1], 1e-5F);
     }
 
     public void testSetSamples() {
