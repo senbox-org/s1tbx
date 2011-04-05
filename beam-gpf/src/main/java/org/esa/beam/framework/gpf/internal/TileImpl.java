@@ -61,7 +61,8 @@ public class TileImpl implements Tile {
     private boolean mustWriteSampleData;
 
     public TileImpl(RasterDataNode rasterDataNode, Raster raster) {
-        this(rasterDataNode, raster, new Rectangle(raster.getMinX(), raster.getMinY(), raster.getWidth(), raster.getHeight()), false);
+        this(rasterDataNode, raster,
+             new Rectangle(raster.getMinX(), raster.getMinY(), raster.getWidth(), raster.getHeight()), false);
     }
 
     public TileImpl(RasterDataNode rasterDataNode, WritableRaster raster, Rectangle rectangle) {
@@ -190,7 +191,8 @@ public class TileImpl implements Tile {
     @Override
     public synchronized ProductData getDataBuffer() {
         if (dataBuffer == null) {
-            dataBuffer = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getPrimitiveArray(raster.getDataBuffer()));
+            dataBuffer = ProductData.createInstance(rasterDataNode.getDataType(),
+                                                    ImageUtils.getPrimitiveArray(raster.getDataBuffer()));
         }
         return dataBuffer;
     }
@@ -345,7 +347,7 @@ public class TileImpl implements Tile {
             return samples;
         } else {
             final ProductData data = getRawSamples();
-            if (!scaled && data.getType() == ProductData.TYPE_FLOAT32) {
+            if (!scaled && data.getType() == ProductData.TYPE_FLOAT64) {
                 return (double[]) data.getElems();
             }
             final int size = data.getNumElems();
