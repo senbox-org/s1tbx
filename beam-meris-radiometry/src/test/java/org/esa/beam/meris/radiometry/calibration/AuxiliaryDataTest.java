@@ -89,7 +89,6 @@ public class AuxiliaryDataTest {
                        new int[]{1, RR_ELEMENT_COUNT, RR_ELEMENT_COUNT, RR_ELEMENT_COUNT});
     }
 
-    @Ignore
     @Test
     public void equalGains() throws IOException {
         for (int b = 0; b < 15; b++) {
@@ -97,7 +96,6 @@ public class AuxiliaryDataTest {
         }
     }
 
-    @Ignore
     @Test
     public void equalBetas() throws IOException {
         for (int b = 0; b < 15; b++) {
@@ -105,7 +103,6 @@ public class AuxiliaryDataTest {
         }
     }
 
-    @Ignore
     @Test
     public void equalGammas() throws IOException {
         for (int b = 0; b < 15; b++) {
@@ -113,7 +110,6 @@ public class AuxiliaryDataTest {
         }
     }
 
-    @Ignore
     @Test
     public void equalDeltas() throws IOException {
         for (int b = 0; b < 15; b++) {
@@ -191,11 +187,11 @@ public class AuxiliaryDataTest {
         }
         for (int i = 0; i < FR_ELEMENT_COUNT; i++) {
             // values in ACR files are the same
-            assertEquals(arrayList.get(0)[i], arrayList.get(1)[i], 0.0f);
+            assertEquals(arrayList.get(0)[i], arrayList.get(1)[i], 1.0e-8);
             // values in IEC files are the same
-            assertEquals(arrayList.get(2)[i], arrayList.get(3)[i], 0.0f);
-            assertEquals(arrayList.get(3)[i], arrayList.get(4)[i], 0.0f);
-            assertEquals(arrayList.get(4)[i], arrayList.get(5)[i], 0.0f);
+            assertEquals(arrayList.get(2)[i], arrayList.get(3)[i], 1.0e-8);
+            assertEquals(arrayList.get(3)[i], arrayList.get(4)[i], 1.0e-8);
+            assertEquals(arrayList.get(4)[i], arrayList.get(5)[i], 1.0e-8);
         }
     }
 

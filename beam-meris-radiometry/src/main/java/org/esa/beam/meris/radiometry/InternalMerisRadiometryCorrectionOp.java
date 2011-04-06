@@ -248,7 +248,11 @@ public class InternalMerisRadiometryCorrectionOp extends SampleOperator {
             final boolean invalid = sourceSamples[invalidMaskSampleIndex].getBoolean();
             if (!invalid && detectorIndex != -1) {
                 final boolean land = sourceSamples[landMaskSampleIndex].getBoolean();
-                value = smileCorrAlgorithm.correct(bandIndex, detectorIndex, sourceSamples, land);
+                double[] sourceValues = new double[15];
+                for (int i = 0; i < sourceValues.length; i++) {
+                    sourceValues[i] = sourceSamples[i].getDouble();
+                }
+                value = smileCorrAlgorithm.correct(bandIndex, detectorIndex, sourceValues, land);
             }
         }
         if (doRadToRefl) {

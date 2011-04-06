@@ -16,18 +16,34 @@
 
 package org.esa.beam.meris.radiometry.smilecorr;
 
-import org.esa.beam.framework.gpf.experimental.PointOperator;
-
+/**
+ * Applies a SMILE correction on the given MERIS L1b sample.
+ */
 public class SmileCorrectionAlgorithm {
 
     private final SmileCorrectionAuxdata auxdata;
 
+    /**
+     * Creates an instance of this class with the given auxiliary data.
+     *
+     * @param auxdata the auxiliary data
+     */
     public SmileCorrectionAlgorithm(SmileCorrectionAuxdata auxdata) {
         this.auxdata = auxdata;
     }
 
-    public double correct(int bandIndex, int detectorIndex, PointOperator.Sample[] radianceSamples, boolean isLand) {
-        double originalValue = radianceSamples[bandIndex].getDouble();
+    /**
+     * Corrects the sample at a given index of the provided spectra.
+     *
+     * @param bandIndex       the index specifying the sample in the given spectra
+     * @param detectorIndex   the detector index at the pixel location of the spectra.
+     * @param radianceSamples the spectra
+     * @param isLand          whether the spectra shall be treated as land or as water
+     *
+     * @return the corrected value
+     */
+    public double correct(int bandIndex, int detectorIndex, double[] radianceSamples, boolean isLand) {
+        double originalValue = radianceSamples[bandIndex];
         if (detectorIndex < 0 || detectorIndex >= auxdata.getDetectorWavelengths().length) {
             return originalValue;
         }
@@ -56,8 +72,8 @@ public class SmileCorrectionAlgorithm {
             // perform reflectance correction
             int lowerIndex = lowerIndexes[bandIndex];
             int upperIndex = upperIndexes[bandIndex];
-            double r1 = radianceSamples[lowerIndex].getDouble() / detectorE0s[lowerIndex];
-            double r2 = radianceSamples[upperIndex].getDouble() / detectorE0s[upperIndex];
+            double r1 = radianceSamples[lowerIndex] / detectorE0s[lowerIndex];
+            double r2 = radianceSamples[upperIndex] / detectorE0s[upperIndex];
             double dl = (theoretWLs[bandIndex] - detectorWLs[bandIndex]) / (detectorWLs[upperIndex] - detectorWLs[lowerIndex]);
             double dr = (r2 - r1) * dl * theoretE0s[bandIndex];
             rc += dr;
