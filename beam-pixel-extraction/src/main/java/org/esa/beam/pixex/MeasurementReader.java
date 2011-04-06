@@ -30,7 +30,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Reads all measurements from a specified directory. All measurement files are combined.
@@ -41,11 +43,22 @@ public class MeasurementReader implements Iterator<Measurement>, Closeable {
     private boolean withExpression;
     private BufferedReader[] bufferedReaders;
     private String measurementLine;
+    private File inputDir;
+    private AtomicBoolean isInitialzed;
 
-    public MeasurementReader(File inputDir) throws IOException {
+    public MeasurementReader(File inputDir) {
+        this.inputDir = inputDir;
         readerIndex = 0;
-        bufferedReaders = initReader(inputDir.listFiles(new MeasurementFilenameFilter()));
-        measurementLine = getNextMeasurementLine();
+        isInitialzed = new AtomicBoolean(false);
+    }
+
+    private void initialize(File inputDir) {
+        try {
+            bufferedReaders = initReader(inputDir.listFiles(new MeasurementFilenameFilter()));
+            measurementLine = getNextMeasurementLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
@@ -66,11 +79,20 @@ public class MeasurementReader implements Iterator<Measurement>, Closeable {
 
     @Override
     public boolean hasNext() {
+        if (isInitialzed.compareAndSet(false, true)) {
+            initialize(inputDir);
+        }
         return measurementLine != null;
     }
 
     @Override
     public Measurement next() {
+        if (isInitialzed.compareAndSet(false, true)) {
+            initialize(inputDir);
+        }
+        if (measurementLine == null) {
+            throw new NoSuchElementException("No more measurements.");
+        }
         final Measurement measurement = readMeasurement(measurementLine, withExpression);
         measurementLine = getNextMeasurementLine();
         return measurement;
@@ -151,8 +173,10 @@ public class MeasurementReader implements Iterator<Measurement>, Closeable {
 
     @Override
     public void close() throws IOException {
-        for (BufferedReader bufferedReader : bufferedReaders) {
-            bufferedReader.close();
+        if (isInitialzed.get()) {
+            for (BufferedReader bufferedReader : bufferedReaders) {
+                bufferedReader.close();
+            }
         }
     }
 

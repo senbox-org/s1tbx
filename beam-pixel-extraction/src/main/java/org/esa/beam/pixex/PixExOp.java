@@ -237,12 +237,7 @@ public class PixExOp extends Operator implements Output {
             measurementWriter.close();
         }
 
-        try {
-            measurements = new MeasurementReader(outputDir);
-        } catch (IOException e) {
-            throw new OperatorException("Could not create measurement reader.", e);
-        }
-
+        measurements = new MeasurementReader(outputDir);
     }
 
     @Override

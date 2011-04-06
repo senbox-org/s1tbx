@@ -70,7 +70,7 @@ public class MeasurementReaderTest {
     }
 
     @Test
-    public void testReading() throws Exception {
+    public void testReading() {
         final MeasurementReader reader = new MeasurementReader(inputDir);
         final ArrayList<Measurement> measurementList = new ArrayList<Measurement>();
         while (reader.hasNext()) {
@@ -108,7 +108,7 @@ public class MeasurementReaderTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void testRemoveThrowsException() throws Exception {
+    public void testRemoveThrowsException() {
         final MeasurementReader reader = new MeasurementReader(inputDir);
         reader.remove();
     }
