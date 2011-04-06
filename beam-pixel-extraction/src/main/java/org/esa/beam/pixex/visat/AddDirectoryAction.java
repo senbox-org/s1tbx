@@ -17,8 +17,6 @@
 package org.esa.beam.pixex.visat;
 
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.PropertyMap;
@@ -70,53 +68,22 @@ class AddDirectoryAction extends AbstractAction {
             return;
         }
 
-
-        if (!recursive) {
-            File[] selectedDirs = folderChooser.getSelectedFiles();
-            try {
-                listModel.addElements(selectedDirs);
-                preferences.setPropertyString(PixelExtractionIOForm.LAST_OPEN_INPUT_DIR,
-                                              selectedDirs[0].getAbsolutePath());
-
-            } catch (ValidationException ve) {
-                // not expected to ever come here
-                appContext.handleError("Invalid input path", ve);
-            }
-        } else {
+        File[] selectedDirs;
+        if (recursive) {
             File selectedDir = folderChooser.getSelectedFolder();
+            selectedDirs = new File[]{new File(selectedDir, "**")};
+        } else {
+            selectedDirs = folderChooser.getSelectedFiles();
+        }
+        try {
+            listModel.addElements(selectedDirs);
             preferences.setPropertyString(PixelExtractionIOForm.LAST_OPEN_INPUT_DIR,
-                                          selectedDir.getAbsolutePath());
-            new MyProgressMonitorSwingWorker(selectedDir).executeWithBlocking();
-        }
+                                          selectedDirs[0].getAbsolutePath());
 
-
-    }
-
-    private void addFiles(File[] files) throws ValidationException {
-        for (File file : files) {
-            if (file.isDirectory()) {
-                listModel.addElements(file);
-                addFiles(file.listFiles());
-            }
+        } catch (ValidationException ve) {
+            // not expected to ever come here
+            appContext.handleError("Invalid input path", ve);
         }
     }
 
-    private class MyProgressMonitorSwingWorker extends ProgressMonitorSwingWorker<Void, Void> {
-
-        private final File currentDir;
-
-        private MyProgressMonitorSwingWorker(File currentDir) {
-            super(appContext.getApplicationWindow(), "Collecting source directories");
-            this.currentDir = currentDir;
-        }
-
-        @Override
-        protected Void doInBackground(ProgressMonitor pm) throws Exception {
-            pm.beginTask("Collecting source directories", 1);
-            listModel.addElements(currentDir);
-            addFiles(currentDir.listFiles());
-            pm.done();
-            return null;
-        }
-    }
 }
