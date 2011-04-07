@@ -84,15 +84,15 @@ public class MeasurementWriter {
     }
 
 
-    public void setExportBands(boolean exportBands) {
+    void setExportBands(boolean exportBands) {
         this.exportBands = exportBands;
     }
 
-    public void setExportTiePoints(boolean exportTiePoints) {
+    void setExportTiePoints(boolean exportTiePoints) {
         this.exportTiePoints = exportTiePoints;
     }
 
-    public void setExportMasks(boolean exportMasks) {
+    void setExportMasks(boolean exportMasks) {
         this.exportMasks = exportMasks;
     }
 
