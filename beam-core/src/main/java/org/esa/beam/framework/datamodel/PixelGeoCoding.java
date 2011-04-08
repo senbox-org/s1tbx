@@ -19,10 +19,12 @@ import Jama.LUDecomposition;
 import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.BitRaster;
@@ -82,7 +84,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     private PixelGrid _latGrid;
     private PixelGrid _lonGrid;
     private boolean initialized;
-    private VirtualBandOpImage validMask;
+    private MultiLevelImage validMask;
 
     /**
      * Constructs a new pixel-based geo-coding.
@@ -160,8 +162,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                           final String validMaskExpr, ProgressMonitor pm) throws IOException {
 
         if (useTiling) {
-            if (validMaskExpr != null && validMaskExpr.trim().length() > 0) {
-                validMask = VirtualBandOpImage.createMask(validMaskExpr, latBand.getProduct(), ResolutionLevel.MAXRES);
+            if (validMaskExpr != null && validMaskExpr.trim().length() > 0 && _pixelPosEstimator != null) {
+                validMask = ImageManager.getInstance().getMaskImage(validMaskExpr, latBand.getProduct());
             }
         } else {
             try {
