@@ -220,11 +220,10 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
         private void createUI() {
             final JPanel panel = new JPanel(new GridBagLayout());
             final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
-            panel.setBorder(BorderFactory.createTitledBorder("Select Bands:"));     /*I18N*/
-            final JLabel lonLabel = new JLabel("Longitude Band:");      /*I18N*/
-            final JLabel latLabel = new JLabel("Latitude Band:");       /*I18N*/
-            final JLabel radiusLabel = new JLabel("Search Radius:");    /*I18N*/
-            final JLabel maskLabel = new JLabel("Valid Mask:");         /*I18N*/
+            final JLabel lonLabel = new JLabel("Longitude band:");      /*I18N*/
+            final JLabel latLabel = new JLabel("Latitude band:");       /*I18N*/
+            final JLabel radiusLabel = new JLabel("Search radius:");    /*I18N*/
+            final JLabel maskLabel = new JLabel("Valid mask:");         /*I18N*/
             _lonBox = new JComboBox(_bandNames);
             _latBox = new JComboBox(_bandNames);
             doPreSelection(_lonBox, "lon");
@@ -289,7 +288,9 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
             gbc.fill = GridBagConstraints.NONE;
             gbc.anchor = GridBagConstraints.EAST;
             panel.add(_radiusSpinner, gbc);
-
+            gbc.weightx = 0;
+            gbc.gridx++;
+            panel.add(new JLabel("pixels"), gbc);
             setContent(panel);
         }
 
