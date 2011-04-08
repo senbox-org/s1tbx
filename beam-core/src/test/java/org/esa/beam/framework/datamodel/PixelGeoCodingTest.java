@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 
+import java.awt.image.Raster;
 import java.io.IOException;
 
 public class PixelGeoCodingTest extends TestCase {
@@ -107,8 +108,20 @@ public class PixelGeoCodingTest extends TestCase {
             // OK
         }
     }
-
     public void testGetGeoPos() throws IOException {
+        doTestGetGeoPos();
+    }
+
+    public void testGetGeoPos_useTiling() throws IOException {
+        try {
+            System.setProperty("beam.pixelGeoCoding.useTiling", "true");
+            doTestGetGeoPos();
+        } finally {
+            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
+        }
+    }
+
+    private void doTestGetGeoPos() throws IOException {
         Product product = createProduct();
         TiePointGeoCoding oldGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
         PixelGeoCoding newGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
@@ -139,6 +152,19 @@ public class PixelGeoCodingTest extends TestCase {
     }
 
     public void testTransferGeoCoding() throws IOException {
+        doTestTransferGeoCoding();
+    }
+
+    public void testTransferGeoCoding_useTiling() throws IOException {
+        try {
+            System.setProperty("beam.pixelGeoCoding.useTiling", "true");
+            doTestTransferGeoCoding();
+        } finally {
+            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
+        }
+    }
+
+    private void doTestTransferGeoCoding() throws IOException {
         Product sourceProduct = createProduct();
         PixelGeoCoding newGeoCoding = new PixelGeoCoding(sourceProduct.getBand("latBand"),
                                                          sourceProduct.getBand("lonBand"), null, 5,
@@ -155,6 +181,19 @@ public class PixelGeoCodingTest extends TestCase {
     }
 
     public void testTransferGeoCoding_WithSpatialSubset() throws IOException {
+        doTestTransferGeoCoding_WithSpatialSubset();
+    }
+
+    public void testTransferGeoCoding_WithSpatialSubset_useTiling() throws IOException {
+        try {
+            System.setProperty("beam.pixelGeoCoding.useTiling", "true");
+            doTestTransferGeoCoding_WithSpatialSubset();
+        } finally {
+            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
+        }
+    }
+
+    private void doTestTransferGeoCoding_WithSpatialSubset() throws IOException {
         Product sourceProduct = createProduct();
         PixelGeoCoding newGeoCoding = new PixelGeoCoding(sourceProduct.getBand("latBand"),
                                                          sourceProduct.getBand("lonBand"), "flagomat.valid", 5,
@@ -190,6 +229,14 @@ public class PixelGeoCodingTest extends TestCase {
         final GeoPos targetGeoPos = targetProduct.getGeoCoding().getGeoPos(new PixelPos(4.5f, 3.5f), null);
         assertEquals(sourceGeoPos.getLat(), targetGeoPos.getLat(), 1.0e-1);
         assertEquals(sourceGeoPos.getLon(), targetGeoPos.getLon(), 1.0e-1);
+
+        assertEquals(6, targetProduct.getSceneRasterWidth());
+        assertEquals(7, targetProduct.getSceneRasterHeight());
+        Raster data = targetProduct.getBand("latBand").getSourceImage().getData();
+        assertNotNull(data);
+        assertEquals(6, data.getWidth());
+        assertEquals(7, data.getHeight());
+
     }
 
     private Product createProduct() {
