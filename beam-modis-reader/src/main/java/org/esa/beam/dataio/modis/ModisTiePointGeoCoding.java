@@ -23,7 +23,6 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.Range;
 
-import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,6 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
     private boolean _cross180;
     private List<PolyLine> _centerLineList;
     private int _lastCenterLineIndex;
-    private Area _generalArea;
     private int _smallestValidIndex;
     private int _biggestValidIndex;
     private int _gcStripeSceneHeight;
@@ -178,6 +176,26 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      */
     public Datum getDatum() {
         return _datum;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ModisTiePointGeoCoding that = (ModisTiePointGeoCoding) o;
+
+        if (!_latGrid.equals(that._latGrid)) return false;
+        if (!_lonGrid.equals(that._lonGrid)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = _latGrid.hashCode();
+        result = 31 * result + _lonGrid.hashCode();
+        return result;
     }
 
     /**

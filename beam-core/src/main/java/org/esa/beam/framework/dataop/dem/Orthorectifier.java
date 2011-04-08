@@ -22,7 +22,6 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Pointing;
 import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.RsMathUtils;
 import org.geotools.referencing.CRS;
@@ -229,6 +228,26 @@ public class Orthorectifier implements GeoCoding {
     @Override
     public boolean isCrossingMeridianAt180() {
         return getGeoCoding().isCrossingMeridianAt180();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Orthorectifier that = (Orthorectifier) o;
+
+        if (!elevationModel.getDescriptor().getName().equals(that.elevationModel.getDescriptor().getName())) return false;
+        if (!geoCoding.equals(that.geoCoding)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = geoCoding.hashCode();
+        result = 31 * result + elevationModel.hashCode();
+        return result;
     }
 
     /**

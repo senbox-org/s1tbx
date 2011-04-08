@@ -184,6 +184,32 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         return datum;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GcpGeoCoding that = (GcpGeoCoding) o;
+
+        if (!Arrays.equals(lats, that.lats)) return false;
+        if (!Arrays.equals(lons, that.lons)) return false;
+        if (method != that.method) return false;
+        if (!Arrays.equals(x, that.x)) return false;
+        if (!Arrays.equals(y, that.y)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(x);
+        result = 31 * result + Arrays.hashCode(y);
+        result = 31 * result + Arrays.hashCode(lons);
+        result = 31 * result + Arrays.hashCode(lats);
+        result = 31 * result + method.hashCode();
+        return result;
+    }
+
     /**
      * {@inheritDoc}
      */

@@ -281,6 +281,26 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         return normalizedLon;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TiePointGeoCoding that = (TiePointGeoCoding) o;
+
+        if (!latGrid.equals(that.latGrid)) return false;
+        if (!lonGrid.equals(that.lonGrid)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = latGrid.hashCode();
+        result = 31 * result + lonGrid.hashCode();
+        return result;
+    }
+
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.

@@ -108,6 +108,17 @@ public class PixelGeoCodingTest extends TestCase {
             // OK
         }
     }
+
+    public void testEquals() throws Exception {
+        Product product = createProduct();
+        PixelGeoCoding geoCoding1 = new PixelGeoCoding(product.getBand("latBand"), product.getBand("lonBand"), null, 5);
+        PixelGeoCoding geoCoding2 = new PixelGeoCoding(product.getBand("latBand"), product.getBand("lonBand"), null, 5);
+        PixelGeoCoding geoCoding3 = new PixelGeoCoding(product.getBand("latBand"), product.getBand("lonBand"), null, 7);
+        product.setGeoCoding(geoCoding1);
+        assertEquals(geoCoding1, geoCoding2);
+        assertFalse(geoCoding1.equals(geoCoding3));
+    }
+
     public void testGetGeoPos() throws IOException {
         doTestGetGeoPos();
     }

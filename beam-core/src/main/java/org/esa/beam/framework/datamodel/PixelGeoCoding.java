@@ -25,8 +25,6 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.jai.ResolutionLevel;
-import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -75,7 +73,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     private Boolean _crossingMeridianAt180;
     private final Band _latBand;
     private final Band _lonBand;
-    private final String _validMask;
+    private final String validMaskExpression;
     private final int _searchRadius; // used by direct search only
     private final int rasterWidth;
     private final int rasterHeight;
@@ -124,7 +122,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         rasterWidth = _latBand.getSceneRasterWidth();
         rasterHeight = _latBand.getSceneRasterHeight();
         _lonBand = lonBand;
-        _validMask = validMask;
+        validMaskExpression = validMask;
         _searchRadius = searchRadius;
         _pixelPosEstimator = latBand.getProduct().getGeoCoding();
         if (_pixelPosEstimator != null) {
@@ -258,7 +256,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     }
 
     public String getValidMask() {
-        return _validMask;
+        return validMaskExpression;
     }
 
     /**
@@ -481,7 +479,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     private synchronized void initialize() {
         if (!initialized) {
             try {
-                initData(_latBand, _lonBand, _validMask, ProgressMonitor.NULL);
+                initData(_latBand, _lonBand, validMaskExpression, ProgressMonitor.NULL);
             } catch (IOException e) {
                 throw new IllegalStateException("Unable to initialse data for pixel geo-coding", e);
             }
@@ -520,6 +518,30 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
         geoPos.setInvalid();
         return geoPos;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PixelGeoCoding that = (PixelGeoCoding) o;
+
+        if (_searchRadius != that._searchRadius) return false;
+        if (!_latBand.equals(that._latBand)) return false;
+        if (!_lonBand.equals(that._lonBand)) return false;
+        if (validMaskExpression != null ? !validMaskExpression.equals(that.validMaskExpression) : that.validMaskExpression != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = _latBand.hashCode();
+        result = 31 * result + _lonBand.hashCode();
+        result = 31 * result + (validMaskExpression != null ? validMaskExpression.hashCode() : 0);
+        result = 31 * result + _searchRadius;
+        return result;
     }
 
     /**
