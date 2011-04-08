@@ -132,12 +132,8 @@ public class ProductIO {
      * <p>The method does not automatically load band raster data, so
      * {@link org.esa.beam.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
      * for all bands in the product returned by this method.</p>
-     * <p> The given subset info can be used to specify spatial and spectral portions of the original
-     * proudct. If the subset is omitted, the complete product is read in.
      *
      * @param file        the data product file
-     * @param subsetDef   the optional spectral and spatial subset, can be <code>null</code> in order to
-     *                    accept all data in the original data product.
      * @param formatNames a list of product format names defining the preference, if more than one reader
      *                    found in the registry is capable of decoding the file.
      *
@@ -147,11 +143,10 @@ public class ProductIO {
      * @throws IOException if an I/O error occurs
      * @see #readProduct(String)
      * @see #readProduct(File)
-     * @since 4.0
-     * @deprecated since BEAM 4.7, no replacement
+     * @since 4.9
      */
     @Deprecated
-    public static Product readProduct(File file, ProductSubsetDef subsetDef, String[] formatNames) throws IOException {
+    public static Product readProduct(File file, String ... formatNames) throws IOException {
         Guardian.assertNotNull("file", file);
 
         if (!file.exists()) {
@@ -177,12 +172,12 @@ public class ProductIO {
             if (selectedPlugIn != null) {
                 ProductReader productReader = selectedPlugIn.createReaderInstance();
                 if (productReader != null) {
-                    return productReader.readProductNodes(file, subsetDef);
+                    return productReader.readProductNodes(file, null);
                 }
             }
         }
 
-        return readProductImpl(file, subsetDef);
+        return readProductImpl(file, null);
     }
 
     /**
