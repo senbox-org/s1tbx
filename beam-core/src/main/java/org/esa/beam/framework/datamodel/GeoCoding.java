@@ -119,30 +119,4 @@ public interface GeoCoding {
      */
     MathTransform getImageToMapTransform();
 
-    /**
-     * @return The base coordinate reference system (CRS). It may be either a geographical CRS (nominal case is
-     *         "WGS-84") or a derived projected CRS, e.g. "UTM 32 - North".
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMapCRS()} instead.
-     */
-    @Deprecated
-    CoordinateReferenceSystem getBaseCRS();
-
-    /**
-     * @return The model coordinate reference system (CRS). It may be the same as the base CRS for rectified,
-     *         geo-referenced images or may be same as the image CRS for unrectified images still in satellite coordinates.
-     *
-     * @deprecated since BEAM 4.7, use {@link org.esa.beam.jai.ImageManager#getModelCrs(GeoCoding)} instead.
-     */
-    @Deprecated
-    CoordinateReferenceSystem getModelCRS();
-
-    /**
-     * @return The affine transformation used to convert image coordinates to model coordinates.
-     *
-     * @deprecated since BEAM 4.7, use {@link org.esa.beam.jai.ImageManager#getImageToModelTransform(GeoCoding)} instead.
-     */
-    @Deprecated
-    AffineTransform getImageToModelTransform();
-
 }

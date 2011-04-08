@@ -98,11 +98,6 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
         }
 
         return geoCoding.equals(that.geoCoding);
-//        if (areGeoCodingsEqual(geoCoding, that.geoCoding)) {
-//            return true;
-//        }
-//
-//        return false;
     }
 
     @Override
@@ -113,28 +108,6 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
         return result;
     }
     
-    private static boolean areGeoCodingsEqual(GeoCoding oneGeoCoding, GeoCoding otherGeoCoding) {
-        try {
-            final PixelPos pixelPos0 = new PixelPos(0, 0);
-            final GeoPos geoPos = oneGeoCoding.getGeoPos(pixelPos0, null);
-            final GeoPos thatGeoPos = otherGeoCoding.getGeoPos(pixelPos0, null);
-            if (!equalsGeoPos(geoPos, thatGeoPos)) {
-                return false;
-            }
-            final PixelPos pixelPos1 = new PixelPos(1, 1);
-            final GeoPos geoPos1 = oneGeoCoding.getGeoPos(pixelPos1, null);
-            final GeoPos thatGeoPos1 = otherGeoCoding.getGeoPos(pixelPos1, null);
-            return equalsGeoPos(geoPos1, thatGeoPos1);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private static boolean equalsGeoPos(GeoPos geoPos, GeoPos thatGeoPos) {
-        return Math.abs(geoPos.getLat() - thatGeoPos.getLat()) < 1.0e-6 &&
-               Math.abs(geoPos.getLon() - thatGeoPos.getLon()) < 1.0e-6;
-    }
-
     private interface T {
 
         void transform(GeoCoding geoCoding, double[] srcPts, int srcOff,

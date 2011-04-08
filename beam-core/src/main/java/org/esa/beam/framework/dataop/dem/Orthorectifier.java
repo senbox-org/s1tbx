@@ -108,33 +108,9 @@ public class Orthorectifier implements GeoCoding {
         return geoCoding.getDatum();
     }
 
-    @Deprecated
-    @Override
-    public CoordinateReferenceSystem getBaseCRS() {
-        return geoCoding.getMapCRS();
-    }
-
     @Override
     public CoordinateReferenceSystem getImageCRS() {
         return imageCRS;
-    }
-
-    /**
-     * @deprecated since BEAM 4.7, use {@link #getMapCRS()} instead.
-     */
-    @Deprecated
-    @Override
-    public CoordinateReferenceSystem getModelCRS() {
-        return getMapCRS();
-    }
-
-    /**
-     * @deprecated since BEAM 4.7, use {@link ????} instead. TODO
-     */
-    @Deprecated
-    @Override
-    public AffineTransform getImageToModelTransform() {
-        return ImageManager.getImageToModelTransform(this);
     }
 
     @Override

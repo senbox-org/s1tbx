@@ -83,15 +83,9 @@ public class WorldMapPainter {
         return new GeoCoding() {
 
             @Override
-            public AffineTransform getImageToModelTransform() {
-                return null;
-            }
-
-            @Override
             public boolean isCrossingMeridianAt180() {
                 return false;
             }
-
 
             @Override
             public CoordinateReferenceSystem getImageCRS() {
@@ -133,17 +127,7 @@ public class WorldMapPainter {
             }
 
             @Override
-            public CoordinateReferenceSystem getBaseCRS() {
-                return null;
-            }
-
-            @Override
             public CoordinateReferenceSystem getMapCRS() {
-                return null;
-            }
-
-            @Override
-            public CoordinateReferenceSystem getModelCRS() {
                 return null;
             }
 

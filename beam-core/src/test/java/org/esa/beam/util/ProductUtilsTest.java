@@ -576,11 +576,6 @@ public class ProductUtilsTest {
     public static class SGeoCoding implements GeoCoding {
 
         @Override
-        public AffineTransform getImageToModelTransform() {
-            return null;
-        }
-
-        @Override
         public boolean isCrossingMeridianAt180() {
             return false;
         }
@@ -620,22 +615,12 @@ public class ProductUtilsTest {
         }
 
         @Override
-        public CoordinateReferenceSystem getBaseCRS() {
-            return null;
-        }
-
-        @Override
         public CoordinateReferenceSystem getMapCRS() {
             return null;
         }
 
         @Override
         public CoordinateReferenceSystem getImageCRS() {
-            return null;
-        }
-
-        @Override
-        public CoordinateReferenceSystem getModelCRS() {
             return null;
         }
 
@@ -697,17 +682,7 @@ public class ProductUtilsTest {
         }
 
         @Override
-        public CoordinateReferenceSystem getBaseCRS() {
-            return null;
-        }
-
-        @Override
         public CoordinateReferenceSystem getMapCRS() {
-            return null;
-        }
-
-        @Override
-        public CoordinateReferenceSystem getModelCRS() {
             return null;
         }
 
@@ -721,10 +696,6 @@ public class ProductUtilsTest {
             return null;
         }
 
-        @Override
-        public AffineTransform getImageToModelTransform() {
-            return null;
-        }
     }
 
     private static void assertMetadataAttributeEqualityInt(MetadataAttribute expected, MetadataAttribute actual) {
