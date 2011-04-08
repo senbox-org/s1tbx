@@ -20,14 +20,11 @@ import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -59,7 +56,6 @@ public class ProductIO {
      * Gets a product reader for the given format name.
      *
      * @param formatName the product format name
-     *
      * @return a suitable product reader or <code>null</code> if none was found
      */
     public static ProductReader getProductReader(String formatName) {
@@ -76,7 +72,6 @@ public class ProductIO {
      * Gets an array of writer product file extensions for the given format name.
      *
      * @param formatName the format name
-     *
      * @return an array of extensions or null if the format does not exist
      * @deprecated since BEAM 4.9 due to typo in name, use {@link #getProductWriterExtensions(String)} instead.
      */
@@ -89,7 +84,6 @@ public class ProductIO {
      * Gets an array of writer product file extensions for the given format name.
      *
      * @param formatName the format name
-     *
      * @return an array of extensions or null if the format does not exist
      */
     public static String[] getProductWriterExtensions(String formatName) {
@@ -106,7 +100,6 @@ public class ProductIO {
      * Gets a product writer for the given format name.
      *
      * @param formatName the product format name
-     *
      * @return a suitable product writer or <code>null</code> if none was found
      */
     public static ProductWriter getProductWriter(String formatName) {
@@ -136,17 +129,15 @@ public class ProductIO {
      * @param file        the data product file
      * @param formatNames a list of product format names defining the preference, if more than one reader
      *                    found in the registry is capable of decoding the file.
-     *
      * @return a data model as an in-memory representation of the given product file or <code>null</code>,
      *         if no appropriate reader was found for the given product file
-     *
      * @throws IOException if an I/O error occurs
      * @see #readProduct(String)
      * @see #readProduct(File)
      * @since 4.9
      */
     @Deprecated
-    public static Product readProduct(File file, String ... formatNames) throws IOException {
+    public static Product readProduct(File file, String... formatNames) throws IOException {
         Guardian.assertNotNull("file", file);
 
         if (!file.exists()) {
@@ -188,11 +179,9 @@ public class ProductIO {
      * {@link org.esa.beam.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
      * for all bands in the product returned by this method.</p>
      *
-     * @param filePath  the data product file path
-     *
+     * @param filePath the data product file path
      * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
      *         appropriate reader was found for the given product file
-     *
      * @throws IOException if an I/O error occurs
      * @see #readProduct(File)
      */
@@ -208,112 +197,16 @@ public class ProductIO {
      * {@link org.esa.beam.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
      * for all bands in the product returned by this method.</p>
      *
-     * @param file      the data product file
-     *
+     * @param file the data product file
      * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
      *         appropriate reader was found for the given product file
-     *
      * @throws IOException if an I/O error occurs
      * @see #readProduct(String)
      */
     public static Product readProduct(File file) throws IOException {
         return readProductImpl(file, null);
-    }    
-    
-    /**
-     * Reads the data product specified by the given file path.
-     * <p>The product returned will be associated with the reader appropriate for the given
-     * file format (see also {@link org.esa.beam.framework.datamodel.Product#getProductReader() Product.productReader}).</p>
-     * <p>The method does not automatically read band data, thus
-     * {@link org.esa.beam.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
-     * for all bands in the product returned by this method.</p>
-     * <p> The given subset info can be used to specify spatial and spectral portions of the original proudct. If the
-     * subset is omitted, the complete product is read in.</p>
-     *      
-     * @param filePath  the data product file path
-     * @param subsetDef the optional spectral and spatial subset, can be <code>null</code> in order to accept all data
-     *                  in the original data product.
-     *
-     * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
-     *         appropriate reader was found for the given product file
-     *
-     * @throws IOException if an I/O error occurs
-     * @see #readProduct(File)
-     * @see #readProduct(String)
-     * 
-     * @deprecated since BEAM 4.7, use {@link #readProduct(String)} instead. (Because most readers don't support reading of subsets)
-     */
-    @Deprecated
-    public static Product readProduct(String filePath, ProductSubsetDef subsetDef) throws IOException {
-        return readProductImpl(new File(filePath), subsetDef);
     }
 
-    /**
-     * Reads the data product specified by the given file.
-     * <p>The product returned will be associated with the reader appropriate for the given
-     * file format (see also {@link org.esa.beam.framework.datamodel.Product#getProductReader() Product.productReader}).</p>
-     * <p>The method does not automatically read band data, thus
-     * {@link org.esa.beam.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
-     * for all bands in the product returned by this method.</p>
-     * <p> The given subset info can be used to specify spatial and spectral portions of the original proudct. If the
-     * subset is omitted, the complete product is read in.
-     *
-     * @param file      the data product file
-     * @param subsetDef the optional spectral and spatial subset, can be <code>null</code> in order to accept all data
-     *                  in the original data product.
-     *
-     * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
-     *         appropriate reader was found for the given product file
-     *
-     * @throws IOException if an I/O error occurs
-     * @see #readProduct(String)
-     * @see #readProduct(File)
-     * 
-     * @deprecated since BEAM 4.7, use {@link #readProduct(File)} instead. (Because most readers don't support reading of subsets)
-     */
-    @Deprecated
-    public static Product readProduct(File file, ProductSubsetDef subsetDef) throws IOException {
-        return readProductImpl(file, subsetDef);
-    }
-
-    /**
-     * Reads the data product specified by the given URL.
-     * <p>The product returned will be associated with the reader appropriate for the given
-     * file format (see also {@link org.esa.beam.framework.datamodel.Product#getProductReader() Product.productReader}).</p>
-     * <p>The method does not automatically read band data, thus
-     * {@link org.esa.beam.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
-     * for all bands in the product returned by this method.</p>
-     * <p/>
-     * <p><b>WARNING:</b> Only URLs representing files in the local filesystem are currently supported.
-     * <p/>
-     * <p> The given subset info can be used to specify spatial and spectral portions of the original proudct. If the
-     * subset is omitted, the complete product is read in.
-     *
-     * @param url       the data product's URL
-     * @param subsetDef the optional spectral and spatial subset, can be <code>null</code> in order to accept all data
-     *                  in the original data product.
-     *
-     * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
-     *         appropriate reader was found for the given product file
-     *
-     * @throws IOException if an I/O error occurs
-     * @see #readProduct(String)
-     * @see #readProduct(File)
-     * 
-     * @deprecated since BEAM 4.7, use {@link #readProduct(File)} instead.
-     */
-    @Deprecated
-    public static Product readProduct(URL url, ProductSubsetDef subsetDef) throws IOException {
-        Debug.trace("WARNING: general URLs are currently not supported by the ProductIO.readProductNodes method");
-        try {
-            return readProductImpl(new File(url.toURI()), subsetDef);
-        } catch (URISyntaxException e) {
-            IOException ioe = new IOException("URL not valid [" + url + "]");
-            ioe.initCause(e);
-            throw ioe;
-        }
-    }
-    
     private static Product readProductImpl(File file, ProductSubsetDef subsetDef) throws IOException {
         Guardian.assertNotNull("file", file);
         if (!file.exists()) {
@@ -323,49 +216,13 @@ public class ProductIO {
         if (productReader != null) {
             return productReader.readProductNodes(file, subsetDef);
         }
-        return null;        
-    }
-
-    private static Product readProductImpl(File file, ProductSubsetDef subsetDef, String[] formatNames) throws
-                                                                                                        IOException {
-        Guardian.assertNotNull("file", file);
-
-        if (!file.exists()) {
-            throw new FileNotFoundException("File not found: " + file.getPath());
-        }
-
-        final ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
-
-        for (String formatName : formatNames) {
-            final Iterator<ProductReaderPlugIn> it = registry.getReaderPlugIns(formatName);
-
-            ProductReaderPlugIn selectedPlugIn = null;
-            while (it.hasNext()) {
-                ProductReaderPlugIn plugIn = it.next();
-                DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
-                if (decodeQualification == DecodeQualification.INTENDED) {
-                    selectedPlugIn = plugIn;
-                    break;
-                } else if (decodeQualification == DecodeQualification.SUITABLE) {
-                    selectedPlugIn = plugIn;
-                }
-            }
-            if (selectedPlugIn != null) {
-                ProductReader productReader = selectedPlugIn.createReaderInstance();
-                if (productReader != null) {
-                    return productReader.readProductNodes(file, subsetDef);
-                }
-            }
-        }
-
-        return readProductImpl(file, subsetDef);
+        return null;
     }
 
     /**
      * Returns a product reader instance for the given file if any registered product reader can decode the given file.
      *
      * @param file the file to decode.
-     *
      * @return a product reader for the given file or <code>null</code> if the file cannot be decoded.
      */
     public static ProductReader getProductReaderForFile(File file) {
@@ -400,7 +257,6 @@ public class ProductIO {
      * @param filePath   the file path
      * @param formatName the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
      *                   "BEAM-DIMAP" will be used
-     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -422,7 +278,6 @@ public class ProductIO {
      * @param formatName the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
      *                   "BEAM-DIMAP" will be used
      * @param pm         a monitor to inform the user about progress
-     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -445,7 +300,6 @@ public class ProductIO {
      * @param formatName  the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
      *                    "BEAM-DIMAP" will be used
      * @param incremental switch the product writer in incremental mode or not.
-     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -469,7 +323,6 @@ public class ProductIO {
      *                    "BEAM-DIMAP" will be used
      * @param incremental switch the product writer in incremental mode or not.
      * @param pm          a monitor to inform the user about progress
-     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -514,7 +367,7 @@ public class ProductIO {
         }
     }
 
-    /**
+    /*
      * This implementation helper methods writes all bands of the given product using the specified product writer. If a
      * band is entirely loaded its data is written out immediately, if not, a band's data raster is written out
      * line-by-line without producing any memory overhead.
@@ -532,7 +385,7 @@ public class ProductIO {
             }
         }
 
-        if (bandsToWrite.size() > 0) {
+        if (!bandsToWrite.isEmpty()) {
             pm.beginTask("Writing bands of product '" + product.getName() + "'...", bandsToWrite.size());
             try {
                 for (Band band : bandsToWrite) {
