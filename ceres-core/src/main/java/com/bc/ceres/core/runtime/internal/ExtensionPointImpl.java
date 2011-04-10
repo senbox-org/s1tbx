@@ -95,9 +95,4 @@ public class ExtensionPointImpl implements ExtensionPoint {
     public ConfigurationSchemaElement getConfigurationSchemaElement() {
         return configurationSchemaElement;
     }
-
-    @Override
-    public ConfigurationShemaElement getConfigurationShemaElement() {
-        return configurationSchemaElement;
-    }
 }

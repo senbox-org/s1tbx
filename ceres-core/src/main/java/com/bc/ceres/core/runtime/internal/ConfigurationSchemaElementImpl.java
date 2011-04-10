@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ConfigurationSchemaElementImpl extends ConfigurationElementBaseImpl<ConfigurationSchemaElement>
-        implements ConfigurationSchemaElement, ConfigurationShemaElement {
+        implements ConfigurationSchemaElement {
 
     private ExtensionPointImpl declaringExtensionPoint;
     private XStream xStream;

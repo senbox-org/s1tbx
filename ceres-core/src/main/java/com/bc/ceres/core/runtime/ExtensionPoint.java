@@ -54,15 +54,6 @@ public interface ExtensionPoint {
     ConfigurationSchemaElement getConfigurationSchemaElement();
 
     /**
-     * Gets the configuration shema element of this extension point.
-     *
-     * @return The configuration shema element.
-     * @deprecated since Ceres 0.10, use {@link #getConfigurationSchemaElement()} instead
-     */
-    @Deprecated
-    ConfigurationShemaElement getConfigurationShemaElement();
-
-    /**
      * Gets the module in which this extension point is declared.
      *
      * @return The declaring module.

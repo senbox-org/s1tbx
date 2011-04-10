@@ -53,12 +53,6 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
     }
 
     @Override
-    @Deprecated
-    public ConfigurationShemaElement getShemaElement() {
-        return schemaElement;
-    }
-
-    @Override
     public Extension getDeclaringExtension() {
         return declaringExtension;
     }
