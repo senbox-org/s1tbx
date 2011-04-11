@@ -261,7 +261,7 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
             ConfigurationElementImpl child = new ConfigurationElementImpl(this, doms[i]);
             child.setDeclaringExtension(declaringExtension);
             if (schemaElement != null) {
-                child.setShemaElement((ConfigurationSchemaElementImpl) schemaElement.getChild(child.getName()));
+                child.setSchemaElement((ConfigurationSchemaElementImpl) schemaElement.getChild(child.getName()));
             }
             children[i] = child;
         }
@@ -277,7 +277,7 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
         this.declaringExtension = declaringExtension;
     }
 
-    void setShemaElement(ConfigurationSchemaElementImpl schemaElement) {
+    void setSchemaElement(ConfigurationSchemaElementImpl schemaElement) {
         this.schemaElement = schemaElement;
     }
 }

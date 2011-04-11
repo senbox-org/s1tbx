@@ -27,9 +27,9 @@ import com.bc.ceres.core.CoreException;
 public interface ConfigurationElement extends ConfigurationElementBase<ConfigurationElement> {
 
     /**
-     * Gets the corresponding shema element, if this is an element of an extension configuration.
+     * Gets the corresponding schema element, if this is an element of an extension configuration.
      *
-     * @return The shema element, or {@code null} if this is a shema element.
+     * @return The schema element, or {@code null} if this is a schema element.
      *
      * @see #getDeclaringExtension()
      */
@@ -38,7 +38,7 @@ public interface ConfigurationElement extends ConfigurationElementBase<Configura
     /**
      * Gets the declaring extension, if this is an element of an extension configuration.
      *
-     * @return The declaring extension, or {@code null} if this is a shema element.
+     * @return The declaring extension, or {@code null} if this is a schema element.
      *
      * @see #getSchemaElement()
      */
@@ -59,7 +59,7 @@ public interface ConfigurationElement extends ConfigurationElementBase<Configura
      * @return the executable instance
      *
      * @throws CoreException    if an instance of the executable extension could not be created for any reason.
-     * @throws RuntimeException if this is a shema element
+     * @throws RuntimeException if this is a schema element
      */
     <T> T createExecutableExtension(Class<T> extensionType) throws CoreException;
 }
