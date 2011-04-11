@@ -21,13 +21,14 @@ import junit.framework.TestCase;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.util.Arrays;
 import java.util.List;
 
 public class VirtualDirTest extends TestCase {
 
     public void testZip() throws IOException {
-        File zipFile = get("FileNodeTest.zip");
+        File zipFile = getTestDataDir("VirtualDirTest.zip");
         final VirtualDir virtualDir = VirtualDir.create(zipFile);
         final File file1 = virtualDir.getFile("File1");
         assertTrue(file1.exists());
@@ -38,7 +39,8 @@ public class VirtualDirTest extends TestCase {
     }
 
     public void testDir() throws IOException {
-        File file = get("FileNodeTest.dir");
+        File file = getTestDataDir("VirtualDirTest.dir");
+        // make empty "dir2", because git removes empty dirs
         File dir2 = new File(file, "dir2");
         dir2.mkdir();
         dir2.deleteOnExit();
@@ -51,16 +53,39 @@ public class VirtualDirTest extends TestCase {
             assertEquals(file.getPath(), virtualDir.getBasePath());
             assertNotNull(virtualDir.getFile("File1"));
             assertNotNull(virtualDir.getFile("File2"));
+            assertNotNull(virtualDir.getFile("File5.gz"));
             assertNotNull(virtualDir.getFile("dir1"));
             assertNotNull(virtualDir.getFile("dir1/File3"));
             assertNotNull(virtualDir.getFile("dir1/File4"));
             assertNotNull(virtualDir.getFile("dir2"));
+
+            assertEquals(36, virtualDir.getFile("File5.gz").length());
+            LineNumberReader reader = new LineNumberReader(virtualDir.getReader("File5.gz"));
+            try {
+                assertEquals("Norman was was was here!", reader.readLine());
+            } finally {
+                reader.close();
+            }
+
+
+            List<String> dirNames = Arrays.asList(virtualDir.list("."));
+            assertNotNull(dirNames);
+            assertEquals(5, dirNames.size());
+            assertTrue(dirNames.contains("dir1"));
+            assertTrue(dirNames.contains("dir2"));
+            assertTrue(dirNames.contains("File1"));
+            assertTrue(dirNames.contains("File2"));
+            assertTrue(dirNames.contains("File5.gz"));
+
+            // todo - test other cases with same result, e.g. "dir1/.."
 
             List<String> dir1Names = Arrays.asList(virtualDir.list("dir1"));
             assertNotNull(dir1Names);
             assertEquals(2, dir1Names.size());
             assertTrue(dir1Names.contains("File3"));
             assertTrue(dir1Names.contains("File4"));
+
+            // todo - test other cases with same result, e.g. "./dir1"
 
             String[] dir2Names = virtualDir.list("dir2");
             assertNotNull(dir2Names);
@@ -90,7 +115,7 @@ public class VirtualDirTest extends TestCase {
     }
 
     public void testNoZip() throws IOException {
-        File file = get("FileNodeTest.nozip");
+        File file = getTestDataDir("VirtualDirTest.nozip");
         VirtualDir virtualDir = VirtualDir.create(file);
         assertNull(virtualDir);
     }
@@ -105,7 +130,7 @@ public class VirtualDirTest extends TestCase {
         }
     }
 
-    private static File get() {
+    private static File getTestDataDir() {
         File dir = new File("./src/test/data/");
         if (!dir.exists()) {
             dir = new File("./ceres-core/src/test/data/");
@@ -116,8 +141,8 @@ public class VirtualDirTest extends TestCase {
         return dir;
     }
 
-    private static File get(String path) {
-        return new File(get(), path);
+    private static File getTestDataDir(String path) {
+        return new File(getTestDataDir(), path);
     }
 
 }

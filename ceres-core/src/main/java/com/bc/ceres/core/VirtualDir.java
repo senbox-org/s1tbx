@@ -27,14 +27,20 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.TreeSet;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+// todo - fully support "." and ".." directories.
+
 /**
  * A read-only directory that can either be a directory in the file system or a ZIP-file.
+ * Files having '.gz' extensions are automatically decompressed.
  *
  * @author Norman Fomferra
- * @since BEAM 4.8
+ * @since Ceres 0.11
  */
 public abstract class VirtualDir {
 
@@ -47,9 +53,7 @@ public abstract class VirtualDir {
      * Opens a reader for the given relative path.
      *
      * @param path The relative file path.
-     *
      * @return A reader for the specified relative path.
-     *
      * @throws IOException If the file does not exist or if it can't be opened for reading.
      */
     public Reader getReader(String path) throws IOException {
@@ -58,11 +62,10 @@ public abstract class VirtualDir {
 
     /**
      * Opens an input stream for the given relative file path.
+     * Files having '.gz' extensions are automatically decompressed.
      *
      * @param path The relative file path.
-     *
      * @return An input stream for the specified relative path.
-     *
      * @throws IOException If the file does not exist or if it can't be opened for reading.
      */
     public abstract InputStream getInputStream(String path) throws IOException;
@@ -71,9 +74,7 @@ public abstract class VirtualDir {
      * Gets the file for the given relative path.
      *
      * @param path The relative file or directory path.
-     *
      * @return Gets the file or directory for the specified file path.
-     *
      * @throws IOException If the file or directory does not exist or if it can't be extracted from a ZIP-file.
      */
     public abstract File getFile(String path) throws IOException;
@@ -87,11 +88,9 @@ public abstract class VirtualDir {
      * guaranteed to appear in alphabetical order.
      *
      * @param path The relative directory path.
-     *
      * @return An array of strings naming the files and directories in the
      *         directory denoted by the given relative directory path.
      *         The array will be empty if the directory is empty.
-     *
      * @throws IOException If the directory given by the relative path does not exists.
      */
     public abstract String[] list(String path) throws IOException;
@@ -105,7 +104,6 @@ public abstract class VirtualDir {
      * Creates an instance of a virtual directory object from a given directory or ZIP-file.
      *
      * @param file A directory or a ZIP-file.
-     *
      * @return The virtual directory instance, or {@code null} if {@code file} is not a directory or a ZIP-file or
      *         the ZIP-file could not be opened for read access..
      */
@@ -135,6 +133,9 @@ public abstract class VirtualDir {
 
         @Override
         public InputStream getInputStream(String path) throws IOException {
+            if (path.endsWith(".gz")) {
+                return new GZIPInputStream(new FileInputStream(getFile(path)));
+            }
             return new FileInputStream(getFile(path));
         }
 
@@ -205,16 +206,28 @@ public abstract class VirtualDir {
 
         @Override
         public String[] list(String path) throws IOException {
+            if (path.equals(".")) {
+                path = "";
+            } else if (!path.endsWith("/")) {
+                path += "/";
+            }
             boolean dirSeen = false;
-            ArrayList<String> names = new ArrayList<String>(32);
+            TreeSet<String> nameSet = new TreeSet<String>();
             Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
             while (enumeration.hasMoreElements()) {
                 ZipEntry zipEntry = enumeration.nextElement();
                 String name = zipEntry.getName();
                 if (name.startsWith(path)) {
-                    String entryName = name.substring(path.length() + ("".equals(path) ? 0 : 1));
-                    if (!entryName.isEmpty()) {
-                        names.add(entryName);
+                    int i1 = path.length();
+                    int i2 = name.indexOf("/", i1);
+                    String entryName;
+                    if (i2 == -1) {
+                        entryName = name.substring(i1);
+                    } else {
+                        entryName = name.substring(i1, i2);
+                    }
+                    if (!entryName.isEmpty() && !nameSet.contains(entryName)) {
+                        nameSet.add(entryName);
                     }
                     dirSeen = true;
                 }
@@ -222,7 +235,7 @@ public abstract class VirtualDir {
             if (!dirSeen) {
                 throw new FileNotFoundException(getBasePath() + "!" + path);
             }
-            return names.toArray(new String[names.size()]);
+            return nameSet.toArray(new String[nameSet.size()]);
         }
 
         @Override
@@ -238,7 +251,11 @@ public abstract class VirtualDir {
         }
 
         private InputStream getInputStream(ZipEntry zipEntry) throws IOException {
-            return zipFile.getInputStream(zipEntry);
+            InputStream inputStream = zipFile.getInputStream(zipEntry);
+            if (zipEntry.getName().endsWith(".gz")) {
+                return new GZIPInputStream(inputStream);
+            }
+            return inputStream;
         }
 
         private ZipEntry getEntry(String path) throws FileNotFoundException {
@@ -291,7 +308,6 @@ public abstract class VirtualDir {
      * Gets the filename without its extension from the given filename.
      *
      * @param path the path of the file whose filename is to be extracted.
-     *
      * @return the filename without its extension.
      */
     private static String getFilenameWithoutExtensionFromPath(String path) {
@@ -303,7 +319,7 @@ public abstract class VirtualDir {
         return fileName;
     }
 
-     private static String getFileNameFromPath(String path) {
+    private static String getFileNameFromPath(String path) {
         String fileName;
         int lastChar = path.lastIndexOf(File.separator);
         if (lastChar >= 0) {
@@ -312,7 +328,7 @@ public abstract class VirtualDir {
             fileName = path;
         }
         return fileName;
-     }
+    }
 
     /**
      * Deletes the directory <code>treeRoot</code> and all the content recursively.
