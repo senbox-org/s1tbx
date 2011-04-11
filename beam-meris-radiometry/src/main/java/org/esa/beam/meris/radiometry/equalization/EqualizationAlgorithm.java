@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,8 +34,14 @@ import java.util.TimeZone;
 
 public class EqualizationAlgorithm {
 
-    private static final String ELEM_NAME_MPH = "MPH";
-    private static final String ATTRIB_SOFTWARE_VER = "SOFTWARE_VER";
+    private static final String ELEM_NAME_DSD = "DSD";
+    private static final String ELEM_NAME_DSD23 = "DSD.23";
+    private static final String ATTRIBUTE_FILE_NAME = "FILE_NAME";
+    private static final String REDUCED_RESOLUTION_PREFIX = "MER_R";
+    private static final int REPRO2_RR_START_DATE = 20050607;
+    private static final int REPRO2_FR_START_DATE = 20050708;
+    private static final int REPRO3_RR_START_DATE = 20091008;
+    private static final int REPRO3_FR_START_DATE = 20091008;
 
     private EqualizationLUT equalizationLUT;
     private long julianDate;
@@ -106,66 +113,43 @@ public class EqualizationAlgorithm {
     }
 
     private static int autoDetectReprocessingVersion(Product product) {
-        final MetadataElement mphElement = product.getMetadataRoot().getElement(ELEM_NAME_MPH);
-        if (mphElement != null) {
-            final String softwareVer = mphElement.getAttributeString(ATTRIB_SOFTWARE_VER);
-            if (softwareVer != null) {
-                final String[] strings = softwareVer.split("/");
-                final String processorName = strings[0];
-                final int maxLength = Math.min(strings[1].length(), 5); // first 5 characters
-                final String processorVersion = strings[1].substring(0, maxLength);
-                try {
-                    return detectReprocessingVersion(processorName, processorVersion);
-                } catch (Exception e) {
-                    final String msgPattern = String.format("Not able to detect reprocessing version [%s=%s]. \n" +
-                                                            "Please specify reprocessing version manually.",
-                                                            ATTRIB_SOFTWARE_VER, softwareVer);
-                    throw new OperatorException(msgPattern, e);
+        final MetadataElement dsdElement = product.getMetadataRoot().getElement(ELEM_NAME_DSD);
+        if (dsdElement != null) {
+            final MetadataElement dsd23 = dsdElement.getElement(ELEM_NAME_DSD23);
+            final String calibrationFileName = dsd23.getAttributeString(ATTRIBUTE_FILE_NAME);
+            if (StringUtils.isNotNullAndNotEmpty(calibrationFileName)) {
+                final boolean reduced = product.getProductType().startsWith(REDUCED_RESOLUTION_PREFIX);
+                final int version = detectReprocessingVersion(calibrationFileName, reduced);
+                if (version != -1) {
+                    return version;
                 }
             }
         }
-        throw new OperatorException(
-                "Not able to detect reprocessing version.\nMetadata attribute 'MPH/SOFTWARE_VER' not found.");
+        throw new OperatorException("Reprocessing version could not be detected.\n" +
+                                    "Please specify reprocessing version manually.");
     }
 
-    static int detectReprocessingVersion(String processorName, String processorVersion) throws Exception {
-        final float version;
-        version = versionToFloat(processorVersion);
-        if ("MERIS".equalsIgnoreCase(processorName)) {
-            if (version >= 4.1f && version <= 5.06f) {
-                return 2;
-            }
+    static int detectReprocessingVersion(String calibrationFileName, boolean isReduced) {
+        if (StringUtils.isNullOrEmpty(calibrationFileName)) {
+            return -1;
         }
-        if ("MEGS-PC".equalsIgnoreCase(processorName)) {
-            if (version >= 7.4f && version <= 7.5f) {
-                return 2;
-            } else if (version >= 8.0f) {
-                return 3;
-            }
+        final String parsedDate = calibrationFileName.substring(14, 22);
+        final int date = Integer.parseInt(parsedDate);
+        if (isReduced) {
+            return getReprocessingVersion(date, REPRO2_RR_START_DATE, REPRO3_RR_START_DATE);
+        } else {
+            return getReprocessingVersion(date, REPRO2_FR_START_DATE, REPRO3_FR_START_DATE);
         }
-
-        throw new Exception("Unknown reprocessing version.");
     }
 
-    static float versionToFloat(String processorVersion) throws Exception {
-        final String[] values = processorVersion.trim().split("\\.");
-        float version = 0.0f;
-        try {
-            for (int i = 0; i < values.length; i++) {
-                String value = values[i];
-                final int integer = Integer.parseInt(value);
-                int leadingZeros = 0;
-                for (int j = 0; j < value.length(); j++) {
-                    if (value.charAt(j) == '0') {
-                        leadingZeros++;
-                    }
-                }
-                version += integer / Math.pow(10, i + leadingZeros);
-            }
-        } catch (NumberFormatException nfe) {
-            throw new Exception(String.format("Could not parse version [%s]", processorVersion), nfe);
+    private static int getReprocessingVersion(int date, int repro2RrStartDate, int repro3FrStartDate) {
+        if (date >= repro2RrStartDate && date < repro3FrStartDate) {
+            return 2;
+        } else if (date >= repro3FrStartDate) {
+            return 3;
+        } else {
+            return -1;
         }
-        return version;
     }
 
     private static EqualizationLUT createLut(int reprocessingVersion, boolean fullResolution) {

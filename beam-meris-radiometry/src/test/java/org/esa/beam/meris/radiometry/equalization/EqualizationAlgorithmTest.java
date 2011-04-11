@@ -26,6 +26,7 @@ import java.text.ParseException;
 import java.util.Date;
 
 import static junit.framework.Assert.*;
+import static org.esa.beam.meris.radiometry.equalization.EqualizationAlgorithm.*;
 
 public class EqualizationAlgorithmTest {
 
@@ -52,53 +53,46 @@ public class EqualizationAlgorithmTest {
                      algorithm.performEqualization(sample, 1, 1), 1.0e-6);
     }
 
-    @Test()
-    public void testParseReproVersion_Fails() throws Exception {
-        try {
-            EqualizationAlgorithm.detectReprocessingVersion("MERIS", "3.67");
-            fail("Version is not of reprocessing 2 or 3");
-        } catch (Exception ignored) {
-            // expected
-        }
-        try {
-            EqualizationAlgorithm.detectReprocessingVersion("MERIS", "5.1");
-            fail("Version is not of reprocessing 2 or 3");
-        } catch (Exception ignored) {
-            // expected
-        }
+//        // RR
+//        MER_RAC_AXVIEC20050606_071652_20021224_121445_20041213_220000    // before Repro2
+//        MER_RAC_AXVIEC20050607_071652_20021224_121445_20041213_220000    // first Repro2
+//        MER_RAC_AXVACR20091007_171024_20061009_220000_20161009_220000    // last Repro2
+//        MER_RAC_AXVACR20091008_171024_20061009_220000_20161009_220000    // first Repro3
+//
+//        // FR
+//        MER_RAC_AXVIEC20050707_135806_20041213_220000_20141213_220000    // before Repro2
+//        MER_RAC_AXVIEC20050708_135806_20041213_220000_20141213_220000    // first Repro2
+//        MER_RAC_AXVACR20091007_171024_20061009_220000_20161009_220000    // last Repro2
+//        MER_RAC_AXVACR20091008_171024_20061009_220000_20161009_220000    // first Repro3
 
-        try {
-            EqualizationAlgorithm.detectReprocessingVersion("MEGS-PC", "7.2");
-            fail("Version is not of reprocessing 2 or 3");
-        } catch (Exception ignored) {
-            // expected
-        }
+    @Test
+    public void testParseReprocessingVersion_RR() {
+        assertEquals(-1, detectReprocessingVersion("MER_RAC_AXVIEC20050606_071652_20021224_121445_20041213_220000",
+                                                   true));
+        assertEquals(2, detectReprocessingVersion("MER_RAC_AXVIEC20050607_071652_20021224_121445_20041213_220000",
+                                                  true));
+        assertEquals(2, detectReprocessingVersion("MER_RAC_AXVIEC20070302", true));
+        assertEquals(2, detectReprocessingVersion("MER_RAC_AXVACR20091007_171024_20061009_220000_20161009_220000",
+                                                  true));
+        assertEquals(3, detectReprocessingVersion("MER_RAC_AXVACR20091008_171024_20061009_220000_20161009_220000",
+                                                  true));
+        assertEquals(3, detectReprocessingVersion("MER_RAC_AXVACR20111008",
+                                                  true));
     }
 
     @Test
-    public void testParseReprocessingVersion() throws Exception {
-        assertEquals(2, EqualizationAlgorithm.detectReprocessingVersion("MERIS", "4.1"));
-        assertEquals(2, EqualizationAlgorithm.detectReprocessingVersion("MERIS", "5.02"));
-        assertEquals(2, EqualizationAlgorithm.detectReprocessingVersion("MERIS", "5.03"));
-        assertEquals(2, EqualizationAlgorithm.detectReprocessingVersion("MERIS", "5.04"));
-        assertEquals(2, EqualizationAlgorithm.detectReprocessingVersion("MERIS", "5.05"));
-        assertEquals(2, EqualizationAlgorithm.detectReprocessingVersion("MERIS", "5.06"));
-
-        assertEquals(2, EqualizationAlgorithm.detectReprocessingVersion("MEGS-PC", "7.4"));
-        assertEquals(2, EqualizationAlgorithm.detectReprocessingVersion("MEGS-PC", "7.4.1"));
-        assertEquals(2, EqualizationAlgorithm.detectReprocessingVersion("MEGS-PC", "7.5"));
-
-        assertEquals(3, EqualizationAlgorithm.detectReprocessingVersion("MEGS-PC", "8.0"));
-        assertEquals(3, EqualizationAlgorithm.detectReprocessingVersion("MEGS-PC", "8.1"));
-        assertEquals(3, EqualizationAlgorithm.detectReprocessingVersion("MEGS-PC", "8.9"));
-    }
-
-    @Test
-    public void testVersionToFloat() throws Exception {
-        assertEquals(4.1f, EqualizationAlgorithm.versionToFloat("4.1   "), 0.0f);
-        assertEquals(4.12f, EqualizationAlgorithm.versionToFloat("  4.1.2"), 0.0f);
-        assertEquals(8.6f, EqualizationAlgorithm.versionToFloat("8.6 "), 0.0f);
-        assertEquals(1234.0f, EqualizationAlgorithm.versionToFloat("1234"), 0.0f);
+    public void testParseReprocessingVersion_FR() {
+        assertEquals(-1, detectReprocessingVersion("MER_RAC_AXVIEC20050707_135806_20041213_220000_20141213_220000",
+                                                   false));
+        assertEquals(2, detectReprocessingVersion("MER_RAC_AXVIEC20050708_135806_20041213_220000_20141213_220000",
+                                                  false));
+        assertEquals(2, detectReprocessingVersion("MER_RAC_AXVIEC20070302", false));
+        assertEquals(2, detectReprocessingVersion("MER_RAC_AXVACR20091007_171024_20061009_220000_20161009_220000",
+                                                  false));
+        assertEquals(3, detectReprocessingVersion("MER_RAC_AXVACR20091008_171024_20061009_220000_20161009_220000",
+                                                  false));
+        assertEquals(3, detectReprocessingVersion("MER_RAC_AXVACR20111008",
+                                                  false));
     }
 
     @Test
