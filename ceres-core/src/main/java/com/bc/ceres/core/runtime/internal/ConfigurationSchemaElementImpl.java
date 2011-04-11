@@ -16,7 +16,6 @@
 
 package com.bc.ceres.core.runtime.internal;
 
-import com.bc.ceres.core.runtime.ConfigurationShemaElement;
 import com.bc.ceres.core.runtime.ConfigurationSchemaElement;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;

@@ -19,7 +19,6 @@ package com.bc.ceres.core.runtime.internal;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurableExtension;
 import com.bc.ceres.core.runtime.ConfigurationElement;
-import com.bc.ceres.core.runtime.ConfigurationShemaElement;
 import com.bc.ceres.core.runtime.Extension;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ConfigurationSchemaElement;
