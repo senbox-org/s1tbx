@@ -129,7 +129,7 @@ public class N1PatcherOp extends MerisBasisOp implements Output {
     public void initialize() throws OperatorException {
         targetProduct = createCompatibleProduct(n1Product, "n1Product", "MER_L1");
         for (String bandName : n1Product.getBandNames()) {
-            if (!"l1_flags".equals(bandName)) {
+            if (!"l1_flags".equals(bandName) && !targetProduct.containsBand(bandName)) {
                 ProductUtils.copyBand(bandName, n1Product, targetProduct);
             }
         }
