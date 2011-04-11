@@ -18,8 +18,14 @@ package org.esa.beam.pixex;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.junit.Before;
-import org.junit.Test;
+import org.esa.beam.measurement.Measurement;
+import org.esa.beam.measurement.writer.MeasurementWriter;
+import org.esa.beam.pixex.output.PixExFormatStrategy;
+import org.esa.beam.pixex.output.PixExMeasurementFactory;
+import org.esa.beam.pixex.output.PixExProductRegistry;
+import org.esa.beam.pixex.output.PixExRasterNamesFactory;
+import org.esa.beam.pixex.output.PixExTargetFactory;
+import org.junit.*;
 
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -29,9 +35,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.fail;
 
-public class MeasurementReaderTest {
+public class PixExMeasurementReaderTest {
 
     private File inputDir;
     private int windowSize;
@@ -46,32 +53,44 @@ public class MeasurementReaderTest {
             }
         }
         windowSize = 3;
+        final int upperLeftX = 20;
+        final int upperLeftY = 42;
+        final int centerX = upperLeftX + 1;
+        final int centerY = upperLeftY + 1;
         final int width = 360;
         final int height = 180;
-        final MeasurementWriter writer = new MeasurementWriter(inputDir, "MeasurementReaderTest", windowSize,
-                                                               "expression", true);
-        writer.setExportMasks(false);
+
+        final boolean exportMasks = false;
+        final String filenamePrefix = "MeasurementReaderTest";
+        final String expression = "expression";
+        final boolean exportExpressionResult = true;
+
+        final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(true, true, exportMasks);
+        final PixExProductRegistry productRegistry = new PixExProductRegistry(filenamePrefix, inputDir);
+        final PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize, productRegistry);
+        final PixExTargetFactory targetFactory = new PixExTargetFactory(filenamePrefix, inputDir);
+        final PixExFormatStrategy formatStrategy = new PixExFormatStrategy(rasterNamesFactory, windowSize, expression, exportExpressionResult);
+        final MeasurementWriter writer = new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);
+
         final String[] radianceNames = {"rad_1", "rad_2", "rad_3"};
         final Product p1 = MeasurementWriterTest.createTestProduct("N1", "T1", radianceNames, width, height);
         final Product p2 = MeasurementWriterTest.createTestProduct("N2", "T1", radianceNames, width, height);
-        final Product p3 = MeasurementWriterTest.createTestProduct("N3", "T2",
-                                                                   new String[]{"refl_1", "refl_2", "refl_3"},
-                                                                   width, height);
-        final int pixelX = 20;
-        final int pixelY = 42;
+        final String[] reflectNames = {"refl_1", "refl_2", "refl_3"};
+        final Product p3 = MeasurementWriterTest.createTestProduct("N3", "T2", reflectNames, width, height);
         final RenderedOp renderedOp = ConstantDescriptor.create((float) width, (float) height, new Byte[]{-1}, null);
-        final Raster validData = renderedOp.getData(new Rectangle(pixelX, pixelY, windowSize, windowSize));
-        writer.writeMeasurementRegion(0, "coord" + 0, pixelX, pixelY, p1, validData);
-        writer.writeMeasurementRegion(1, "coord" + 1, pixelX, pixelY, p1, validData);
-        writer.writeMeasurementRegion(2, "coord" + 2, pixelX, pixelY, p2, validData);
-        writer.writeMeasurementRegion(3, "coord" + 3, pixelX, pixelY, p2, validData);
-        writer.writeMeasurementRegion(4, "coord" + 4, pixelX, pixelY, p3, validData);
-        writer.writeMeasurementRegion(5, "coord" + 5, pixelX, pixelY, p3, validData);
+        final Raster validData = renderedOp.getData(new Rectangle(upperLeftX, upperLeftY, windowSize, windowSize));
+
+        writer.writeMeasurements(centerX, centerY, 0, "coord" + 0, p1, validData);
+        writer.writeMeasurements(centerX, centerY, 1, "coord" + 1, p1, validData);
+        writer.writeMeasurements(centerX, centerY, 2, "coord" + 2, p2, validData);
+        writer.writeMeasurements(centerX, centerY, 3, "coord" + 3, p2, validData);
+        writer.writeMeasurements(centerX, centerY, 4, "coord" + 4, p3, validData);
+        writer.writeMeasurements(centerX, centerY, 5, "coord" + 5, p3, validData);
     }
 
     @Test
     public void testReading() {
-        final MeasurementReader reader = new MeasurementReader(inputDir);
+        final PixExMeasurementReader reader = new PixExMeasurementReader(inputDir);
         final ArrayList<Measurement> measurementList = new ArrayList<Measurement>();
         while (reader.hasNext()) {
             measurementList.add(reader.next());
@@ -87,9 +106,9 @@ public class MeasurementReaderTest {
 
     @Test
     public void testReadingWithEmptyColumns() throws Exception {
-        final Measurement measurement = MeasurementReader.readMeasurement(
-                "12\t83744\t10083743\t57.936592\t10.130839\t520.5\t240.5\t2005-07-09\t10:12:03\t65.272634\t \t42.278252\t0\t500",
-                false);
+        final Measurement measurement = PixExMeasurementReader.readMeasurement(
+                    "12\t83744\t10083743\t57.936592\t10.130839\t520.5\t240.5\t2005-07-09\t10:12:03\t65.272634\t \t42.278252\t0\t500",
+                    false);
         assertEquals(12, measurement.getProductId());
         assertEquals(83744, measurement.getCoordinateID());
         assertEquals("10083743", measurement.getCoordinateName());
@@ -109,7 +128,7 @@ public class MeasurementReaderTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testRemoveThrowsException() {
-        final MeasurementReader reader = new MeasurementReader(inputDir);
+        final PixExMeasurementReader reader = new PixExMeasurementReader(inputDir);
         reader.remove();
     }
 

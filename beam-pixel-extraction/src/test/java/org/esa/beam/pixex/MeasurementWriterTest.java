@@ -21,6 +21,13 @@ import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.measurement.Measurement;
+import org.esa.beam.measurement.writer.MeasurementWriter;
+import org.esa.beam.pixex.output.PixExFormatStrategy;
+import org.esa.beam.pixex.output.PixExMeasurementFactory;
+import org.esa.beam.pixex.output.PixExProductRegistry;
+import org.esa.beam.pixex.output.PixExRasterNamesFactory;
+import org.esa.beam.pixex.output.PixExTargetFactory;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,8 +47,6 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.Scanner;
 
@@ -66,7 +71,11 @@ public class MeasurementWriterTest {
     @Test
     public void testFileCreation() throws Exception {
         final int windowSize = 1;
-        final MeasurementWriter writer = new MeasurementWriter(outputDir, "testFileCreation", windowSize, "", true);
+        final String filenamePrefix = "testFileCreation";
+        final String expression = "";
+        final boolean exportExpressionResult = true;
+
+        final MeasurementWriter writer = createMeasurementWriter(windowSize, filenamePrefix, expression, exportExpressionResult);
 
         File productMapFile = new File(outputDir, "testFileCreation_productIdMap.txt");
         File t1CoordFile = new File(outputDir, "testFileCreation_T1_measurements.txt");
@@ -95,21 +104,26 @@ public class MeasurementWriterTest {
     private void writeRegion(MeasurementWriter writer, Product p1, int coordId, int windowSize) throws IOException {
         final int pixelX = 20;
         final int pixelY = 42;
+        final int pixelBorder = windowSize / 2;
+        final int centerX = pixelX + pixelBorder;
+        final int centerY = pixelY + pixelBorder;
         final byte validValue = (byte) (coordId % 2 == 0 ? -1 : 0);
         final RenderedOp renderedOp = ConstantDescriptor.create((float) p1.getSceneRasterWidth(),
                                                                 (float) p1.getSceneRasterHeight(),
                                                                 new Byte[]{validValue}, null);
         final Raster validData = renderedOp.getData(new Rectangle(pixelX, pixelY, windowSize, windowSize));
 
-        writer.writeMeasurementRegion(coordId, "coord" + coordId, pixelX, pixelY, p1, validData);
+        writer.writeMeasurements(centerX, centerY, coordId, "coord" + coordId, p1, validData);
     }
 
     @Test
     public void testProductMapFileHeader() throws Exception {
-        final MeasurementWriter writer = new MeasurementWriter(outputDir, "testProductMapFileHeader", 1, "", true);
+        final String filenamePrefix = "testProductMapFileHeader";
         final StringWriter stringWriter = new StringWriter(200);
         final PrintWriter printWriter = new PrintWriter(stringWriter);
-        writer.writeProductMapHeader(printWriter);
+
+        final PixExProductRegistry productRegistry = new PixExProductRegistry(filenamePrefix, outputDir);
+        productRegistry.writeProductMapHeader(printWriter);
 
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
         String line = reader.readLine();
@@ -119,112 +133,12 @@ public class MeasurementWriterTest {
     }
 
     @Test
-    public void testMeasurementFileHeaderWithExpression() throws Exception {
-        final MeasurementWriter writer = new MeasurementWriter(outputDir, "testMeasurementFileHeader", 9,
-                                                               "expression", true);
-        final StringWriter stringWriter = new StringWriter(200);
-        final String[] variableNames = new String[]{"rad_1", "rad_2", "uncert"};
-        writer.writeMeasurementFileHeader(new PrintWriter(stringWriter), variableNames);
-
-        final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
-        String line = reader.readLine();
-        assertEquals("# BEAM pixel extraction export table", line);
-        line = reader.readLine();
-        assertEquals("#", line);
-        line = reader.readLine();
-        assertEquals("# Window size: 9", line);
-        line = reader.readLine();
-        assertEquals("# Expression: expression", line);
-        line = reader.readLine();
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        assertTrue(line.startsWith("# Created on:\t" + dateFormat.format(new Date())));
-        line = reader.readLine();
-        assertTrue(line.isEmpty());
-        line = reader.readLine();
-        assertEquals("Expression result\tProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\t" +
-                     "Date(yyyy-MM-dd)\tTime(HH:mm:ss)\trad_1\trad_2\tuncert",
-                     line);
-
-    }
-
-    @Test
-    public void testMeasurementFileHeaderWithExpression_NotExporting() throws Exception {
-        final MeasurementWriter writer = new MeasurementWriter(outputDir, "testMeasurementFileHeader", 9,
-                                                               "expression", false);
-        final StringWriter stringWriter = new StringWriter(200);
-        final String[] variableNames = new String[]{"rad_1", "rad_2", "uncert"};
-        writer.writeMeasurementFileHeader(new PrintWriter(stringWriter), variableNames);
-
-        final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
-        String line = reader.readLine();
-        assertEquals("# BEAM pixel extraction export table", line);
-        line = reader.readLine();
-        assertEquals("#", line);
-        line = reader.readLine();
-        assertEquals("# Window size: 9", line);
-        line = reader.readLine();
-        assertEquals("# Expression: expression", line);
-        line = reader.readLine();
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        assertTrue(line.startsWith("# Created on:\t" + dateFormat.format(new Date())));
-        line = reader.readLine();
-        assertTrue(line.isEmpty());
-        line = reader.readLine();
-        assertEquals("ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\t" +
-                     "Date(yyyy-MM-dd)\tTime(HH:mm:ss)\trad_1\trad_2\tuncert",
-                     line);
-
-    }
-
-    @Test
-    public void testMeasurementFileHeaderWithoutExpression() throws Exception {
-        final MeasurementWriter writer = new MeasurementWriter(outputDir, "testMeasurementFileHeader", 3, null,
-                                                               false);
-        final StringWriter stringWriter = new StringWriter(200);
-        final String[] variableNames = new String[]{"varA", "varB", "var C"};
-        writer.writeMeasurementFileHeader(new PrintWriter(stringWriter), variableNames);
-
-        final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
-        String line = reader.readLine();
-        assertEquals("# BEAM pixel extraction export table", line);
-        line = reader.readLine();
-        assertEquals("#", line);
-        line = reader.readLine();
-        assertEquals("# Window size: 3", line);
-        line = reader.readLine();
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        assertTrue(line.startsWith("# Created on:\t" + dateFormat.format(new Date())));
-        line = reader.readLine();
-        assertTrue(line.isEmpty());
-        line = reader.readLine();
-        assertEquals("ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\t" +
-                     "Date(yyyy-MM-dd)\tTime(HH:mm:ss)\tvarA\tvarB\tvar C",
-                     line);
-    }
-
-    @Test
-    public void testMeasurementWritingWithNaNValues() throws Exception {
-
-        final Number[] values = new Number[]{12.4, Double.NaN, 1.0345, 7};
-        final Measurement measurement = new Measurement(12, "Name", 27, 13.5f, 0.5f,
-                                                        ProductData.UTC.parse("2005-07-09T10:12:03",
-                                                                              "yyyy-MM-dd'T'hh:mm:ss"),
-                                                        new GeoPos(30, 60),
-                                                        values, true);
-        final StringWriter writer = new StringWriter();
-        MeasurementWriter.writeLine(new PrintWriter(writer), measurement, false);
-        final String line = writer.getBuffer().toString();
-        final String expected = String.format(
-                "27\t12\tName\t30.000000\t60.000000\t13.500\t0.500\t2005-07-09\t10:12:03\t12.4\t\t1.0345\t7%n");
-        assertEquals(expected, line);
-    }
-
-    @Test
     public void testWritingMeasurements() throws Exception {
         final int windowSize = 1;
-        final MeasurementWriter writer = new MeasurementWriter(outputDir, "testWritingMeasurements", windowSize, null,
-                                                               true);
-        writer.setExportMasks(false);
+        final String filenamePrefix = "testWritingMeasurements";
+
+        final MeasurementWriter writer = createMeasurementWriter(windowSize, false, filenamePrefix, null, true);
+
         final String[] varNames = {"abc", "def"};
         final Product testProduct1 = createTestProduct("N1", "T1", varNames, 360, 180);
         final Product testProduct2 = createTestProduct("N2", "T1", varNames, 360, 180);
@@ -251,9 +165,10 @@ public class MeasurementWriterTest {
     public void testWritingMeasurementsWithExpression() throws Exception {
         final boolean withExpression = true;
         final int windowSize = 1;
-        final MeasurementWriter writer = new MeasurementWriter(outputDir, "testWritingMeasurementsWithExpression",
-                                                               windowSize, "Is Valid", withExpression);
-        writer.setExportMasks(false);
+        final String filenamePrefix = "testWritingMeasurementsWithExpression";
+
+        final MeasurementWriter writer = createMeasurementWriter(windowSize, false, filenamePrefix, "Is Valid", withExpression);
+
         final String[] varNames = {"abc", "def"};
         final Product testProduct = createTestProduct("N1", "T1", varNames, 360, 180);
         writeRegion(writer, testProduct, 1, windowSize);
@@ -269,8 +184,12 @@ public class MeasurementWriterTest {
     @Test
     public void testWritingProductMap() throws Exception {
         final int windowSize = 3;
-        final MeasurementWriter writer = new MeasurementWriter(outputDir, "testWritingProductMap", windowSize, null,
-                                                               true);
+        final String filenamePrefix = "testWritingProductMap";
+        final String expression = null;
+        final boolean exportExpressionResult = true;
+
+        final MeasurementWriter writer = createMeasurementWriter(windowSize, filenamePrefix, expression, exportExpressionResult);
+
         final String[] varNames = {"abc", "def"};
         final Product testProduct = createTestProduct("N1", "T1", varNames, 360, 180);
         testProduct.setFileLocation(new File("somewhere/on/disk.txt"));
@@ -315,11 +234,13 @@ public class MeasurementWriterTest {
         assertFalse("Too much information on single line.", scanner.hasNext());
     }
 
-
     @Test
     public void testClosing() throws Exception {
         final int windowSize = 1;
-        final MeasurementWriter writer = new MeasurementWriter(outputDir, "testClosing", windowSize, null, true);
+        final String filenamePrefix = "testClosing";
+
+        final MeasurementWriter writer = createMeasurementWriter(windowSize, filenamePrefix, null, true);
+
         final Product testProduct = createTestProduct("N1", "T1", new String[0], 360, 180);
         writeRegion(writer, testProduct, 1, windowSize);
 
@@ -362,6 +283,7 @@ public class MeasurementWriterTest {
 
     }
 
+
     private void skipLines(BufferedReader reader, int numLines) throws IOException {
         for (int i = 0; i < numLines; i++) {
             reader.readLine();
@@ -396,5 +318,18 @@ public class MeasurementWriterTest {
                                ProductData.UTC.parse("12-MAR-2008 17:12:56"),
                                new GeoPos(47.5f, -159.5f),
                                new Float[]{12.34f, 1234.56f}, coordId % 2 == 0);
+    }
+
+    private MeasurementWriter createMeasurementWriter(int windowSize, String filenamePrefix, String expression, boolean exportExpressionResult) {
+        return createMeasurementWriter(windowSize, true, filenamePrefix, expression, exportExpressionResult);
+    }
+
+    private MeasurementWriter createMeasurementWriter(int windowSize, boolean exportMasks, String filenamePrefix, String expression, boolean exportExpressionResult) {
+        final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(true, true, exportMasks);
+        final PixExProductRegistry productRegistry = new PixExProductRegistry(filenamePrefix, outputDir);
+        final PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize, productRegistry);
+        final PixExTargetFactory targetFactory = new PixExTargetFactory(filenamePrefix, outputDir);
+        final PixExFormatStrategy formatStrategy = new PixExFormatStrategy(rasterNamesFactory, windowSize, expression, exportExpressionResult);
+        return new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);
     }
 }

@@ -11,6 +11,7 @@ import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
+import org.esa.beam.measurement.Measurement;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -97,7 +98,7 @@ public class PixExOpTest {
         GraphProcessor processor = new GraphProcessor();
         processor.executeGraph(graph, ProgressMonitor.NULL);
 
-        final MeasurementReader reader = new MeasurementReader(outputDir);
+        final PixExMeasurementReader reader = new PixExMeasurementReader(outputDir);
         List<Measurement> measurementList = convertToList(reader);
         assertEquals(windowSize * windowSize * 2 * 2, measurementList.size());
     }
@@ -160,7 +161,7 @@ public class PixExOpTest {
 
         assertTrue("Kmz file does not exists", new File(outputDir, "pixels_coordinates.kmz").exists());
 
-        final MeasurementReader reader = new MeasurementReader(outputDir);
+        final PixExMeasurementReader reader = new PixExMeasurementReader(outputDir);
         try {
             final List<Measurement> measurementList = convertToList(reader);
             assertEquals(windowSize * windowSize * sourceProducts.length * coordinates.length, measurementList.size());
@@ -197,7 +198,7 @@ public class PixExOpTest {
         };
 
         computeData(parameterMap, products);
-        final MeasurementReader reader = new MeasurementReader(outputDir);
+        final PixExMeasurementReader reader = new PixExMeasurementReader(outputDir);
         try {
             final List<Measurement> measurementList = convertToList(reader);
             assertEquals(windowSize * windowSize * products.length * coordinates.length, measurementList.size());
@@ -234,7 +235,7 @@ public class PixExOpTest {
 
         Product[] products = productList.toArray(new Product[productList.size()]);
         computeData(parameterMap, products);
-        final MeasurementReader reader = new MeasurementReader(outputDir);
+        final PixExMeasurementReader reader = new PixExMeasurementReader(outputDir);
         try {
             final List<Measurement> measurementList = convertToList(reader);
             assertEquals(windowSize * windowSize * products.length * coordinates.length, measurementList.size());
@@ -272,7 +273,7 @@ public class PixExOpTest {
         };
 
         computeData(parameterMap, products);
-        final MeasurementReader reader = new MeasurementReader(outputDir);
+        final PixExMeasurementReader reader = new PixExMeasurementReader(outputDir);
         final List<Measurement> measurementList = convertToList(reader);
         try {
             assertEquals(windowSize * windowSize * products.length * coordinates.length, measurementList.size());
@@ -318,7 +319,7 @@ public class PixExOpTest {
         pixEx.setParameter("timeDifference", "1D");
         pixEx.setSourceProducts(new Product[]{p1, p2});
 
-        final MeasurementReader reader = (MeasurementReader) pixEx.getTargetProperty(
+        final PixExMeasurementReader reader = (PixExMeasurementReader) pixEx.getTargetProperty(
                 "measurements");// trigger computation
         try {
             final List<Measurement> measurementList = convertToList(reader);
@@ -356,7 +357,7 @@ public class PixExOpTest {
         Product[] products = productList.toArray(new Product[productList.size()]);
 
         computeData(parameterMap, products);
-        final MeasurementReader measurementReader = new MeasurementReader(outputDir);
+        final PixExMeasurementReader measurementReader = new PixExMeasurementReader(outputDir);
         try {
             final List<Measurement> measurementList = convertToList(measurementReader);
             assertEquals(windowSize * windowSize * products.length * coordinates.length, measurementList.size());

@@ -14,10 +14,11 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.pixex;
+package org.esa.beam.measurement;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.ObjectUtils;
 
 import java.util.Arrays;
 
@@ -30,13 +31,13 @@ public class Measurement {
     private final GeoPos geoPos;
     private final Number[] values;
     private final int coordinateID;
-    private final int productId;
+    private final long productId;
     private final float pixelX;
     private final float pixelY;
     private final String coordinateName;
     private final boolean isValid;
 
-    Measurement(int coordinateID, String name, int productId, float pixelX, float pixelY, ProductData.UTC time,
+    public Measurement(int coordinateID, String name, long productId, float pixelX, float pixelY, ProductData.UTC time,
                 GeoPos geoPos, Number[] values, boolean isValid) {
         this.coordinateID = coordinateID;
         this.productId = productId;
@@ -50,43 +51,43 @@ public class Measurement {
         System.arraycopy(values, 0, this.values, 0, values.length);
     }
 
-    ProductData.UTC getTime() {
+    public ProductData.UTC getTime() {
         return time;
     }
 
-    Number[] getValues() {
+    public Number[] getValues() {
         return values;
     }
 
-    float getLat() {
+    public float getLat() {
         return geoPos.lat;
     }
 
-    float getLon() {
+    public float getLon() {
         return geoPos.lon;
     }
 
-    int getCoordinateID() {
+    public int getCoordinateID() {
         return coordinateID;
     }
 
-    String getCoordinateName() {
+    public String getCoordinateName() {
         return coordinateName;
     }
 
-    boolean isValid() {
+    public boolean isValid() {
         return isValid;
     }
 
-    float getPixelX() {
+    public float getPixelX() {
         return pixelX;
     }
 
-    float getPixelY() {
+    public float getPixelY() {
         return pixelY;
     }
 
-    int getProductId() {
+    public long getProductId() {
         return productId;
     }
 
@@ -122,7 +123,7 @@ public class Measurement {
         if (!geoPos.equals(that.geoPos)) {
             return false;
         }
-        if (!time.equalElems(that.time)) {
+        if (!ObjectUtils.equalObjects(time, that.time)) {
             return false;
         }
         if (!Arrays.equals(values, that.values)) {
@@ -134,11 +135,16 @@ public class Measurement {
 
     @Override
     public int hashCode() {
-        int result = time.hashCode();
+        int result;
+        if (time != null) {
+            result = time.hashCode();
+        } else {
+            result = 139651030;
+        }
         result = 31 * result + geoPos.hashCode();
         result = 31 * result + Arrays.hashCode(values);
         result = 31 * result + coordinateID;
-        result = 31 * result + productId;
+        result = 31 * result + (int) productId;
         result = 31 * result + (pixelX == +0.0f ? 0 : Float.floatToIntBits(pixelX));
         result = 31 * result + (pixelY == +0.0f ? 0 : Float.floatToIntBits(pixelY));
         result = 31 * result + coordinateName.hashCode();

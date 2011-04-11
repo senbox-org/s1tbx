@@ -14,14 +14,14 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.pixex;
+package org.esa.beam.pixex.output;
 
 import org.esa.beam.framework.datamodel.Product;
 
 import java.io.File;
 
 /**
- * Used to identify a product within the {@link MeasurementWriter}.
+ * Used to identify a product within the {@link org.esa.beam.measurement.writer.MeasurementWriter}.
  */
 class ProductIdentifier {
 

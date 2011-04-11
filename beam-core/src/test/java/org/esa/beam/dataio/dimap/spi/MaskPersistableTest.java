@@ -129,7 +129,7 @@ public class MaskPersistableTest {
         }
 
         @Override
-            public MultiLevelImage createImage(Mask mask) {
+        public MultiLevelImage createImage(Mask mask) {
             return null;
         }
     }

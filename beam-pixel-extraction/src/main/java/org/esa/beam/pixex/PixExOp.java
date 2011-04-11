@@ -41,6 +41,13 @@ import org.esa.beam.framework.gpf.annotations.TargetProperty;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
+import org.esa.beam.measurement.Measurement;
+import org.esa.beam.measurement.writer.MeasurementWriter;
+import org.esa.beam.pixex.output.PixExFormatStrategy;
+import org.esa.beam.pixex.output.PixExMeasurementFactory;
+import org.esa.beam.pixex.output.PixExProductRegistry;
+import org.esa.beam.pixex.output.PixExRasterNamesFactory;
+import org.esa.beam.pixex.output.PixExTargetFactory;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.kmz.KmlDocument;
 import org.esa.beam.util.kmz.KmlPlacemark;
@@ -74,11 +81,11 @@ import static java.lang.Math.*;
 
 @SuppressWarnings({"MismatchedReadAndWriteOfArray", "UnusedDeclaration"})
 @OperatorMetadata(
-        alias = "PixEx",
-        version = "1.0",
-        authors = "Marco Peters, Thomas Storm",
-        copyright = "(c) 2010 by Brockmann Consult",
-        description = "Generates a CSV file from a given pixel location and source products.")
+            alias = "PixEx",
+            version = "1.0",
+            authors = "Marco Peters, Thomas Storm",
+            copyright = "(c) 2010 by Brockmann Consult",
+            description = "Generates a CSV file from a given pixel location and source products.")
 public class PixExOp extends Operator implements Output {
 
     public static final String RECURSIVE_INDICATOR = "**";
@@ -88,11 +95,11 @@ public class PixExOp extends Operator implements Output {
     private Product[] sourceProducts;
 
     @TargetProperty()
-    private MeasurementReader measurements;
+    private PixExMeasurementReader measurements;
 
     @Parameter(
-            description = "The paths to be scanned for input products. May point to a single file or a directory.\n" +
-                          "If path ends with '**' the directory is scanned recursively.")
+                description = "The paths to be scanned for input products. May point to a single file or a directory.\n" +
+                              "If path ends with '**' the directory is scanned recursively.")
     private File[] inputPaths;
 
     @Parameter(description = "Specifies if bands are to be exported", defaultValue = "true")
@@ -191,11 +198,15 @@ public class PixExOp extends Operator implements Output {
         parseTimeDelta(timeDifference);
 
         validator = new ProductValidator();
-        measurementWriter = new MeasurementWriter(outputDir, outputFilePrefix, windowSize,
-                                                  expression, exportExpressionResult);
-        measurementWriter.setExportBands(exportBands);
-        measurementWriter.setExportTiePoints(exportTiePoints);
-        measurementWriter.setExportMasks(exportMasks);
+
+        final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints, exportMasks);
+        final PixExFormatStrategy formatStrategy = new PixExFormatStrategy(rasterNamesFactory, windowSize, expression, exportExpressionResult);
+        final PixExProductRegistry productRegistry = new PixExProductRegistry(outputFilePrefix, outputDir);
+        PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize, productRegistry);
+        PixExTargetFactory targetFactory = new PixExTargetFactory(outputFilePrefix, outputDir);
+
+        measurementWriter = new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);
+
         try {
             boolean measurementsFound = false;
             if (sourceProducts != null) {
@@ -219,7 +230,7 @@ public class PixExOp extends Operator implements Output {
                 ZipOutputStream zos = null;
                 try {
                     FileOutputStream fos = new FileOutputStream(
-                            new File(outputDir, outputFilePrefix + "_coordinates.kmz"));
+                                new File(outputDir, outputFilePrefix + "_coordinates.kmz"));
                     zos = new ZipOutputStream(fos);
                     kmzExporter.export(kmlDocument, zos, ProgressMonitor.NULL);
                 } catch (IOException e) {
@@ -237,7 +248,7 @@ public class PixExOp extends Operator implements Output {
             measurementWriter.close();
         }
 
-        measurements = new MeasurementReader(outputDir);
+        measurements = new PixExMeasurementReader(outputDir);
     }
 
     @Override
@@ -271,8 +282,7 @@ public class PixExOp extends Operator implements Output {
         final Raster validData = validMaskImage.getData(new Rectangle(upperLeftX, upperLeftY, windowSize, windowSize));
         boolean areAllPixelsValid = areAllPixelsInWindowValid(upperLeftX, upperLeftY, validData);
         if (areAllPixelsValid || exportExpressionResult) {
-            measurementWriter.writeMeasurementRegion(coordinateID, coordinate.getName(), upperLeftX, upperLeftY,
-                                                     product, validData);
+            measurementWriter.writeMeasurements(centerX, centerY, coordinateID, coordinate.getName(), product, validData);
             return true;
         }
         return false;

@@ -18,6 +18,7 @@ package org.esa.beam.pixex;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.measurement.Measurement;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
@@ -37,7 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Reads all measurements from a specified directory. All measurement files are combined.
  */
-public class MeasurementReader implements Iterator<Measurement>, Closeable {
+public class PixExMeasurementReader implements Iterator<Measurement>, Closeable {
 
     private int readerIndex;
     private boolean withExpression;
@@ -46,7 +47,7 @@ public class MeasurementReader implements Iterator<Measurement>, Closeable {
     private File inputDir;
     private AtomicBoolean isInitialzed;
 
-    public MeasurementReader(File inputDir) {
+    public PixExMeasurementReader(File inputDir) {
         this.inputDir = inputDir;
         readerIndex = 0;
         isInitialzed = new AtomicBoolean(false);
