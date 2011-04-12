@@ -34,19 +34,16 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     private static final double ABS_ERROR_LIMIT = 0.5; // pixels
     private static final int MAX_NUM_POINTS_PER_TILE = 1000;
 
-    private TiePointGrid latGrid;
-    private TiePointGrid lonGrid;
-    private Datum datum;
+    private final TiePointGrid latGrid;
+    private final TiePointGrid lonGrid;
+    private final Approximation[] approximations;
+    private final Datum datum;
 
     private boolean normalized;
     private float normalizedLonMin;
     private float normalizedLonMax;
-    private TiePointGrid normalizedLonGrid; // TODO - remove instance!
-
-    private Approximation[] approximations;
     private float latMin;
     private float latMax;
-
     private float overlapStart;
     private float overlapEnd;
 
@@ -82,9 +79,9 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         this.latGrid = latGrid;
         this.lonGrid = lonGrid;
         this.datum = datum;
-        initNormalizedLonGrid();
-        initLatLonMinMax();
-        initApproximations();
+        final TiePointGrid normalizedLonGrid = initNormalizedLonGrid();
+        initLatLonMinMax(normalizedLonGrid);
+        approximations = initApproximations(normalizedLonGrid);
     }
 
     /**
@@ -283,13 +280,21 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         TiePointGeoCoding that = (TiePointGeoCoding) o;
 
-        if (!latGrid.equals(that.latGrid)) return false;
-        if (!lonGrid.equals(that.lonGrid)) return false;
+        if (!latGrid.equals(that.latGrid)) {
+            return false;
+        }
+        if (!lonGrid.equals(that.lonGrid)) {
+            return false;
+        }
 
         return true;
     }
@@ -301,30 +306,14 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         return result;
     }
 
-    /**
-     * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
-     * allow the garbage collector to perform a vanilla job.
-     * <p/>
-     * <p>This method should be called only if it is for sure that this object instance will never be used again. The
-     * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-     * <p/>
-     * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
-     */
     @Override
     public void dispose() {
-        if (normalizedLonGrid != lonGrid) {
-            normalizedLonGrid.dispose();
-            normalizedLonGrid = null;
-        }
-        latGrid = null;
-        lonGrid = null;
-        approximations = null;
     }
 
     /////////////////////////////////////////////////////////////////////////
     // Private stuff
 
-    private void initNormalizedLonGrid() {
+    private TiePointGrid initNormalizedLonGrid() {
         final int w = lonGrid.getRasterWidth();
         final int h = lonGrid.getRasterHeight();
 
@@ -375,6 +364,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         }
 
         normalized = westNormalized || eastNormalized;
+
+        final TiePointGrid normalizedLonGrid;
         if (normalized) {
             normalizedLonGrid = new TiePointGrid(lonGrid.getName(),
                                                  lonGrid.getRasterWidth(),
@@ -393,11 +384,13 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Debug.trace("TiePointGeoCoding.eastNormalized = " + eastNormalized);
         Debug.trace("TiePointGeoCoding.normalized = " + normalized);
         Debug.trace("TiePointGeoCoding.lonDeltaMax = " + lonDeltaMax);
+
+        return normalizedLonGrid;
     }
 
-    private void initLatLonMinMax() {
+    private void initLatLonMinMax(TiePointGrid normalizedLonGrid) {
         final float[] latPoints = getLatGrid().getTiePoints();
-        final float[] lonPoints = getNormalizedLonGrid().getTiePoints();
+        final float[] lonPoints = normalizedLonGrid.getTiePoints();
         normalizedLonMin = +Float.MAX_VALUE;
         normalizedLonMax = -Float.MAX_VALUE;
         latMin = +Float.MAX_VALUE;
@@ -426,7 +419,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
 
     }
 
-    private void initApproximations() {
+    private Approximation[] initApproximations(TiePointGrid normalizedLonGrid) {
         final int numPoints = latGrid.getRasterData().getNumElems();
         final int w = latGrid.getRasterWidth();
         final int h = latGrid.getRasterHeight();
@@ -464,16 +457,16 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
 
         // Compute actual approximations for all tiles
         //
-        approximations = new Approximation[numTiles];
+        final Approximation[] approximations = new Approximation[numTiles];
         final Rectangle[] rectangles = MathUtils.subdivideRectangle(w, h, numTilesI, numTilesJ, 1);
         for (int i = 0; i < rectangles.length; i++) {
-            final Approximation approximation = createApproximation(rectangles[i]);
+            final Approximation approximation = createApproximation(normalizedLonGrid, rectangles[i]);
             if (approximation == null) {
-                approximations = null;
-                return;
+                return null;
             }
             approximations[i] = approximation;
         }
+        return approximations;
     }
 
     private static FXYSum getBestPolynomial(double[][] data, int[] indices) {
@@ -530,9 +523,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     }
 
 
-    private double[][] createWarpPoints(Rectangle subsetRect) {
+    private double[][] createWarpPoints(TiePointGrid lonGrid, Rectangle subsetRect) {
         final TiePointGrid latGrid = getLatGrid();
-        final TiePointGrid lonGrid = getNormalizedLonGrid();
         final int w = latGrid.getRasterWidth();
         final int sw = subsetRect.width;
         final int sh = subsetRect.height;
@@ -618,8 +610,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         return data;
     }
 
-    private Approximation createApproximation(Rectangle subsetRect) {
-        final double[][] data = createWarpPoints(subsetRect);
+    private Approximation createApproximation(TiePointGrid normalizedLonGrid, Rectangle subsetRect) {
+        final double[][] data = createWarpPoints(normalizedLonGrid, subsetRect);
 
         float sumLat = 0.0f;
         float sumLon = 0.0f;
@@ -660,7 +652,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Debug.trace(
                 "TiePointGeoCoding: Max.error Y = " + maxErrorY + ", " + (maxErrorY < ABS_ERROR_LIMIT ? "OK" : "too large"));
 
-        return new Approximation(subsetRect, fX, fY, centerLat, centerLon, maxSquareDistance * 1.1f);
+        return new Approximation(fX, fY, centerLat, centerLon, maxSquareDistance * 1.1f);
     }
 
     private static float getMaxSquareDistance(final double[][] data, float centerLat, float centerLon) {
@@ -708,10 +700,6 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
             }
         }
         return null;
-    }
-
-    private TiePointGrid getNormalizedLonGrid() {
-        return normalizedLonGrid;
     }
 
     float getNormalizedLonMin() {
@@ -768,14 +756,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
 
         private final FXYSum _fX;
         private final FXYSum _fY;
-        private final Rectangle _subsetRect;
         private final float _centerLat;
         private final float _centerLon;
         private final float _minSquareDistance;
 
-        public Approximation(Rectangle subsetRect, FXYSum fX, FXYSum fY, float centerLat, float centerLon,
-                             float minSquareDistance) {
-            _subsetRect = subsetRect;
+        public Approximation(FXYSum fX, FXYSum fY, float centerLat, float centerLon, float minSquareDistance) {
             _fX = fX;
             _fY = fY;
             _centerLat = centerLat;
@@ -808,8 +793,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
          *
          * @param lat the latitude value
          * @param lon the longitude value
-         *            <p/>
-         *            * @return the square distance
+         *
+         * @return the square distance
          */
         public final float getSquareDistance(float lat, float lon) {
             final float dx = lon - _centerLon;
