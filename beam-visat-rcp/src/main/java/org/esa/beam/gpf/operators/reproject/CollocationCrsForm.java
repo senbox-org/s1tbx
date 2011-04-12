@@ -133,7 +133,11 @@ public class CollocationCrsForm extends CrsForm {
             }
             final GeoCoding geoCoding = collocationProduct.getGeoCoding();
             if (geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos() && (geoCoding instanceof CrsGeoCoding)) {
-                final GeneralPath[] sourcePath = ProductUtils.createGeoBoundaryPaths(getReferenceProduct());
+                final Product referenceProduct = getReferenceProduct();
+                if (referenceProduct == null) {
+                    return true;
+                }
+                final GeneralPath[] sourcePath = ProductUtils.createGeoBoundaryPaths(referenceProduct);
                 final GeneralPath[] collocationPath = ProductUtils.createGeoBoundaryPaths(collocationProduct);
                 for (GeneralPath path : sourcePath) {
                     Rectangle bounds = path.getBounds();
