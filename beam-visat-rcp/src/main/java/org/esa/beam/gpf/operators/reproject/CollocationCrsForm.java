@@ -128,12 +128,12 @@ public class CollocationCrsForm extends CrsForm {
         @Override
         public boolean accept(Product collocationProduct) {
             final Product referenceProduct = getReferenceProduct();
-            if (referenceProduct == null) {
-                return true;
-            }
             if (referenceProduct == collocationProduct ||
                 collocationProduct.getGeoCoding() == null) {
                 return false;
+            }
+            if (referenceProduct == null) {
+                return true;
             }
             final GeoCoding geoCoding = collocationProduct.getGeoCoding();
             if (geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos() && (geoCoding instanceof CrsGeoCoding)) {
