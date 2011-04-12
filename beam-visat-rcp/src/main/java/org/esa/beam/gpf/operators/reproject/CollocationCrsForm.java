@@ -127,16 +127,16 @@ public class CollocationCrsForm extends CrsForm {
 
         @Override
         public boolean accept(Product collocationProduct) {
-            if (getReferenceProduct() == collocationProduct ||
+            final Product referenceProduct = getReferenceProduct();
+            if (referenceProduct == null) {
+                return true;
+            }
+            if (referenceProduct == collocationProduct ||
                 collocationProduct.getGeoCoding() == null) {
                 return false;
             }
             final GeoCoding geoCoding = collocationProduct.getGeoCoding();
             if (geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos() && (geoCoding instanceof CrsGeoCoding)) {
-                final Product referenceProduct = getReferenceProduct();
-                if (referenceProduct == null) {
-                    return true;
-                }
                 final GeneralPath[] sourcePath = ProductUtils.createGeoBoundaryPaths(referenceProduct);
                 final GeneralPath[] collocationPath = ProductUtils.createGeoBoundaryPaths(collocationProduct);
                 for (GeneralPath path : sourcePath) {
