@@ -136,7 +136,6 @@ public class ProductIO {
      * @see #readProduct(File)
      * @since 4.9
      */
-    @Deprecated
     public static Product readProduct(File file, String... formatNames) throws IOException {
         Guardian.assertNotNull("file", file);
 
