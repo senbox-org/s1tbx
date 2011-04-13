@@ -6,7 +6,7 @@ from org.esa.beam.framework.datamodel import TiePointGrid
 from org.esa.beam.framework.datamodel import GeoCoding
 from org.esa.beam.framework.datamodel import FlagCoding
 from org.esa.beam.framework.datamodel import IndexCoding
-from org.esa.beam.framework.datamodel import Pin
+from org.esa.beam.framework.datamodel import Placemark
 from org.esa.beam.framework.datamodel import PixelPos
 from org.esa.beam.framework.datamodel import GeoPos
 from org.esa.beam.framework.dataio import ProductIO
