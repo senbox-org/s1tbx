@@ -39,7 +39,7 @@ o Introduced a new operator for MERIS named 'Radiometry Correction'. It combines
   SMILE correction, an equalisation, a radiance-to-reflectance conversion and a new
   radiometric re-calibration.
 
-o A new tool for exporting match-ups from a bunch of data products has been introduced.
+o A new tool for exporting pixels from a bunch of data products has been introduced.
 
 
 2) Complete list of BEAM 4.9 bug fixes and improvements
