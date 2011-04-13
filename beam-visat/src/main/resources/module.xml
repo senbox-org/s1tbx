@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.9<br/>
+          [BEAM-1276] Add VISAT scripting support for the Python language<br/>
           [BEAM-1228] Rangefinder does not work<br/>
           [BEAM-1204] Reprojection changes product type<br/>        
           [BEAM-1203] Application returns with exit code zero in error case<br/>
