@@ -120,7 +120,7 @@ class CommandLineTool {
 
         if (lineArgs.getOperatorName() != null) {
             // Operator name given: parameters and sources are parsed from command-line args
-            runOperator(lineArgs, operatorSpiRegistry);
+            runOperator(lineArgs);
         } else if (lineArgs.getGraphFilepath() != null) {
             // Path to Graph XML given: parameters and sources are parsed from command-line args
             runGraph(lineArgs, operatorSpiRegistry);
@@ -128,14 +128,17 @@ class CommandLineTool {
     }
 
 
-    private void runOperator(CommandLineArgs lineArgs, OperatorSpiRegistry operatorSpiRegistry) throws IOException,
-                                                                                                       ValidationException {
+    private void runOperator(CommandLineArgs lineArgs) throws IOException,
+            ValidationException {
         Map<String, Product> sourceProducts = getSourceProductMap(lineArgs);
         Map<String, Object> parameters = getParameterMap(lineArgs);
         String opName = lineArgs.getOperatorName();
         Product targetProduct = createOpProduct(opName, parameters, sourceProducts);
         // write product only if Operator does not implement the Output interface
-        final OperatorProductReader opProductReader = (OperatorProductReader) targetProduct.getProductReader();
+        OperatorProductReader opProductReader = null;
+        if (targetProduct.getProductReader() instanceof OperatorProductReader) {
+            opProductReader = (OperatorProductReader) targetProduct.getProductReader();
+        }
         if (opProductReader != null && opProductReader.getOperatorContext().getOperator() instanceof Output) {
             final Operator operator = opProductReader.getOperatorContext().getOperator();
             final OperatorExecutor executor = OperatorExecutor.create(operator);
@@ -148,7 +151,7 @@ class CommandLineTool {
     }
 
     private void runGraph(CommandLineArgs lineArgs, OperatorSpiRegistry operatorSpiRegistry) throws IOException,
-                                                                                                    GraphException {
+            GraphException {
         Map<String, String> sourceNodeIdMap = getSourceNodeIdMap(lineArgs);
         Map<String, String> parameters = new TreeMap<String, String>(sourceNodeIdMap);
         if (lineArgs.getParameterFilepath() != null) {
@@ -236,7 +239,7 @@ class CommandLineTool {
     }
 
     private static Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap) throws
-                                                                                                                  ValidationException {
+            ValidationException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName,
                                                                                                           parameters);
@@ -311,7 +314,7 @@ class CommandLineTool {
     }
 
     void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws
-                                                                                                                  IOException {
+            IOException {
         commandLineContext.writeProduct(targetProduct, filePath, formatName, clearCacheAfterRowWrite);
     }
 
