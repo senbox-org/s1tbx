@@ -23,7 +23,7 @@ sf_cloud_albedo|Float|*|4|1|*|scaling factor - Cloud Albedo|20|
 sf_cloud_top_press|Float|*|4|1|*|scaling factor - Cloud Top Pressure|21|
 off_reflec|Float|*|4|13|*|offset - reflectances|22|
 off_algal|Float|log10(mg.m-3)|4|1|*|offset - Algal pigment index|23|
-off_yellow_subs|Float|m-1|4|1|*|offset - Yellow substance|24|
+off_yellow_subs|Float|log(m-1)|4|1|*|offset - Yellow substance|24|
 off_total_susp|Float|log10(g.m-3)|4|1|*|offset - Total suspended matter|25|
 off_aero_epsilon|Float|*|4|1|*|offset - Aerosol epsilon|26|
 off_aer_opt_thick|Float|*|4|1|*|offset - Aerosol optical thickness|27|

@@ -52,7 +52,7 @@ reflec_14      |Norm_rho_surf_13.3|*   |Float|14|Linear_Scale|Scaling_Factor_GAD
 water_vapour   |Vapour_Content.3  |*   |Float|* |Linear_Scale|Scaling_Factor_GADS.30.1 |Scaling_Factor_GADS.16.1|*                        |*                          |g/cm^2        |Water vapour content
 algal_1        |Chl_1_TOAVI_CTP.3 |*   |Float|* |Log_Scale   |Scaling_Factor_GADS.23.1 |Scaling_Factor_GADS.9.1 |l2_flags.WATER           |*                          |mg/m^3        |Chlorophyll 1 content
 algal_2        |Chl_2_BOAVI.3     |*   |Float|* |Log_Scale   |Scaling_Factor_GADS.23.1 |Scaling_Factor_GADS.9.1 |l2_flags.WATER           |*                          |mg/m^3        |Chlorophyll 2 content
-yellow_subs    |YS_SPM_Rect_rho.3 |1OF2|Float|* |Log_Scale   |Scaling_Factor_GADS.24.1 |Scaling_Factor_GADS.10.1|l2_flags.WATER           |*                          |1/m           |Yellow substance
+yellow_subs    |YS_SPM_Rect_rho.3 |1OF2|Float|* |Log_Scale   |Scaling_Factor_GADS.24.1 |Scaling_Factor_GADS.10.1|l2_flags.WATER           |*                          |log(1/m)           |Yellow substance
 total_susp     |YS_SPM_Rect_rho.3 |2OF2|Float|* |Log_Scale   |Scaling_Factor_GADS.25.1 |Scaling_Factor_GADS.11.1|l2_flags.WATER           |*                          |g/m^3         |Total suspended matter
 photosyn_rad   |Press_PAR_Alb.3   |*   |Float|* |Linear_Scale|Scaling_Factor_GADS.31.1 |Scaling_Factor_GADS.17.1|l2_flags.WATER           |*                          |myEinstein/(m^2*s)|Photosynthetically active radiation
 toa_veg        |Chl_1_TOAVI_CTP.3 |*   |Float|* |Linear_Scale|Scaling_Factor_GADS.32.1 |Scaling_Factor_GADS.18.1|l2_flags.LAND            |*                          |1             |MGVI - MERIS global vegetation index
