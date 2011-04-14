@@ -137,7 +137,11 @@ public class MaskCollectionLayer extends CollectionLayer {
                 final Mask mask = (Mask) sourceNode;
                 final ImageLayer maskLayer = getMaskLayer(mask);
                 if (maskLayer != null) {
-                    maskLayer.regenerate();
+                    if (event.getPropertyName().equals("name")) {
+                        maskLayer.setName(mask.getName());
+                    } else {
+                        maskLayer.regenerate();
+                    }
                 }
             }
         }
