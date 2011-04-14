@@ -7,17 +7,27 @@ import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.Xpp3DomElement;
+import com.jidesoft.action.CommandMenuBar;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.beam.framework.help.HelpSys;
+import org.esa.beam.framework.ui.AbstractDialog;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.Component;
@@ -39,13 +49,17 @@ public class OperatorParametersSupport {
     private Component parentComponent;
     private final Class<? extends Operator> opType;
     private final PropertySet parameters;
+    private final String helpId;
     private final ParameterDescriptorFactory descriptorFactory;
 
     public OperatorParametersSupport(Component parentComponent,
-                                     Class<? extends Operator> opType, PropertySet parameters) {
+                                     Class<? extends Operator> opType,
+                                     PropertySet parameters,
+                                     String helpId) {
         this.parentComponent = parentComponent;
         this.opType = opType;
         this.parameters = parameters;
+        this.helpId = helpId;
         this.descriptorFactory = new ParameterDescriptorFactory();
     }
 
@@ -59,6 +73,34 @@ public class OperatorParametersSupport {
 
     public Action createLoadParametersAction() {
         return new LoadParametersAction();
+    }
+
+    public Action createAboutOperatorAction() {
+        return new AboutOperatorAction();
+    }
+
+    public JMenuItem createHelpMenuitem() {
+        JMenuItem menuItem = new JMenuItem("Help");
+        if (helpId != null && !helpId.isEmpty()) {
+            HelpSys.enableHelpOnButton(menuItem, helpId);
+        } else {
+            menuItem.setEnabled(false);
+        }
+        return menuItem;
+    }
+
+    public JMenuBar createDefaultMenue() {
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.add(createLoadParametersAction());
+        fileMenu.add(createStoreParametersAction());
+        fileMenu.addSeparator();
+
+        fileMenu.add(createHelpMenuitem());
+        fileMenu.add(createAboutOperatorAction());
+
+        JMenuBar menuBar = new CommandMenuBar();
+        menuBar.add(fileMenu);
+        return menuBar;
     }
 
     void fromDomElement(DomElement parametersElement) throws ValidationException, ConversionException {
@@ -176,4 +218,54 @@ public class OperatorParametersSupport {
     private FileNameExtensionFilter createParameterFileFilter() {
         return new FileNameExtensionFilter("BEAM GPF Parameter Files (XML)", "xml");
     }
+
+
+    private class AboutOperatorAction extends AbstractAction {
+
+        AboutOperatorAction() {
+            super("About");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            final ModalDialog modalDialog = new ModalDialog(UIUtils.getRootWindow(parentComponent),
+                                                            "About " + getOperatorName(),
+                                                            AbstractDialog.ID_OK,
+                                                            null); /*I18N*/
+            modalDialog.setContent(new JLabel(getOperatorDescription()));
+            modalDialog.show();
+        }
+    }
+
+    String getOperatorName() {
+        OperatorMetadata operatorMetadata = opType.getAnnotation(OperatorMetadata.class);
+        if (operatorMetadata != null) {
+            return operatorMetadata.alias();
+        }
+        return opType.getName();
+    }
+
+    String getOperatorDescription() {
+        OperatorMetadata operatorMetadata = opType.getAnnotation(OperatorMetadata.class);
+        if (operatorMetadata != null) {
+            StringBuilder sb = new StringBuilder("<html>");
+            sb.append("<h2>").append(operatorMetadata.alias()).append("</h2>");
+            sb.append("<table>");
+            sb.append("  <tr><td><b>Name:</b></td><td><code>").append(operatorMetadata.alias()).append("</code></td></tr>");
+            sb.append("  <tr><td><b>Full name:</b></td><td><code>").append(opType.getName()).append("</code></td></tr>");
+            sb.append("  <tr><td><b>Purpose:</b></td><td>").append(operatorMetadata.description()).append("</td></tr>");
+            sb.append("  <tr><td><b>Authors:</b></td><td>").append(operatorMetadata.authors()).append("</td></tr>");
+            sb.append("  <tr><td><b>Version:</b></td><td>").append(operatorMetadata.version()).append("</td></tr>");
+            sb.append("  <tr><td><b>Copyright:</b></td><td>").append(operatorMetadata.copyright()).append("</td></tr>");
+            sb.append("</table>");
+            sb.append("</html>");
+            return makeHtmlConform(sb.toString());
+        }
+        return "No operator metadata available.";
+    }
+
+    private static String makeHtmlConform(String text) {
+        return text.replace("\n", "<br/>");
+    }
+
 }

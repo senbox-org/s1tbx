@@ -52,15 +52,16 @@ public class OperatorParametersSupportTest {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(testOpSpi);
     }
 
+
     @Test
     public void testStoreAndLoadParameter() throws IOException, ValidationException, ConversionException {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
-        final PropertySet container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer("TestOp",
+        final PropertySet container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer("Tester",
                                                                                                           parameterMap);
         container.setValue("paramDouble", 0.42);
         container.setValue("paramString", "A String!");
         container.setValue("paramComplex", new Complex(25));
-        final OperatorParametersSupport support = new OperatorParametersSupport(null, TestOp.class, container);
+        final OperatorParametersSupport support = new OperatorParametersSupport(null, TestOp.class, container, "");
         final DomElement domElement = support.toDomElement();
 
         assertEquals("parameters", domElement.getName());
@@ -84,7 +85,24 @@ public class OperatorParametersSupportTest {
         assertEquals(new Complex(25), support.getParameters().getValue("paramComplex"));
     }
 
-    @OperatorMetadata(alias = "TestOp")
+    @Test
+    public void testOperatorDescription() throws Exception {
+        final OperatorParametersSupport support = new OperatorParametersSupport(null, TestOp.class, null, "");
+
+        assertEquals("Tester", support.getOperatorName());
+
+        String operatorDescription = support.getOperatorDescription();
+        assertFalse(operatorDescription.isEmpty());
+        assertTrue(operatorDescription.contains("<tr><td><b>Full name:</b></td><td><code>org.esa.beam.framework.gpf.ui.OperatorParametersSupportTest$TestOp</code></td></tr>"));
+        assertTrue(operatorDescription.contains("<tr><td><b>Authors:</b></td><td>Nobody</td></tr>"));
+        assertTrue(operatorDescription.contains("<tr><td><b>Version:</b></td><td>42</td></tr>"));
+        assertTrue(operatorDescription.contains("<tr><td><b>Purpose:</b></td><td>This is very stupid operator.</td></tr>"));
+    }
+
+    @OperatorMetadata(alias = "Tester",
+                      authors = "Nobody",
+                      version = "42",
+                      description = "This is very stupid operator.")
     public class TestOp extends Operator {
 
         @Parameter

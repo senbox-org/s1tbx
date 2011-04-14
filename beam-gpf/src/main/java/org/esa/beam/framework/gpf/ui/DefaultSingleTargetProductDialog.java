@@ -24,7 +24,6 @@ import com.bc.ceres.swing.binding.PropertyPane;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
-import com.jidesoft.action.CommandMenuBar;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
@@ -35,7 +34,6 @@ import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.ui.AppContext;
 
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -88,7 +86,9 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                                                                                 new ParameterDescriptorFactory());
         OperatorParametersSupport parametersSupport = new OperatorParametersSupport(this.getJDialog(),
                                                                                     operatorSpi.getOperatorClass(),
-                                                                                    propertyContainer);
+                                                                                    propertyContainer,
+                                                                                    helpID);
+
         propertyContainer.setDefaultValues();
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
         if (propertyContainer.getProperties().length > 0) {
@@ -109,13 +109,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             this.form.add("Processing Parameters", new JScrollPane(parametersPanel));
 
-            // todo - use this actions in a tool- or menu-bar
-            JMenu fileMenu = new JMenu("File");
-            fileMenu.add(parametersSupport.createLoadParametersAction());
-            fileMenu.add(parametersSupport.createStoreParametersAction());
-            JMenuBar menuBar = new CommandMenuBar();
-            getJDialog().setJMenuBar(menuBar);
-            getJDialog().getJMenuBar().add(fileMenu);
+            getJDialog().setJMenuBar(parametersSupport.createDefaultMenue());
         }
         if (!sourceProductSelectorList.isEmpty()) {
             productChangedHandler = new ProductChangedHandler();
