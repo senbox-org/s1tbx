@@ -95,6 +95,7 @@ Bugs
 [BEAM-1156] - SubsetOp does not copy metadata
 [BEAM-1125] - Outer scene region is not invalid for certain reprojected products
 [BEAM-1067] - Histogram title doesn't update when changing band
+[BEAM-961] - GPT shall sort the list of available operators
 
 
  _____________________________________________________________________________

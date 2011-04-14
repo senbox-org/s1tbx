@@ -30,6 +30,7 @@
             [BEAM-1172] Boolean parameter values are overridden by default values<br/> 
             [BEAM-1151] Geometry subset operator<br/>
             [BEAM-1125] Outer scene region is not invalid for certain reprojected products<br/>
+            [BEAM-961] GPT shall sort the list of available operators<br/>
         <p>From 4.7 to 4.8:<br/>
             [BEAM-1147] Signed byte data type interpreted as unsigned byte<br/>
             [BEAM-1134] Mosaic with polar stereographic projection<br/>
