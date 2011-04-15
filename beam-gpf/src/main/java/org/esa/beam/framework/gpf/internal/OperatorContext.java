@@ -311,6 +311,9 @@ public class OperatorContext {
         this.computeTileStackMethodUsable = computeTileStackMethodUsable;
     }
 
+    /**
+     * @deprecated since BEAM 4.9, use {@link #getSourceTile(RasterDataNode, Rectangle)} instead
+     */
     @Deprecated
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, ProgressMonitor pm) {
         return getSourceTile(rasterDataNode, region);
@@ -320,6 +323,9 @@ public class OperatorContext {
         return getSourceTile(rasterDataNode, region, (BorderExtender) null);
     }
 
+    /**
+     * @deprecated since BEAM 4.9, use {@link #getSourceTile(RasterDataNode, Rectangle, BorderExtender)} instead
+     */
     @Deprecated
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender,
                               ProgressMonitor pm) {

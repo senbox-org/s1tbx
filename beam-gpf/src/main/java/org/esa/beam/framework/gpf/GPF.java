@@ -264,23 +264,6 @@ public class GPF {
     }
 
     /**
-     * This method is deprecated. Use {@link GPF#createProductNS(String name, Map parameters,
-     * Map sourceProducts, RenderingHints renderingHints)} instead.
-     *
-     * @param operatorName   the name of the operator to use.
-     * @param parameters     the named parameters needed by the operator.
-     * @param sourceProducts a map of named source products.
-     * @return the product created by the operator.
-     * @throws OperatorException if the product could not be created.
-     */
-    @Deprecated
-    public Product createProductNS(String operatorName,
-                                   Map<String, Object> parameters,
-                                   Map<String, Product> sourceProducts) throws OperatorException {
-        return createProductNS(operatorName, parameters, sourceProducts, null);
-    }
-
-    /**
      * Creates a product by using the operator specified by the given name.
      * The resulting product can be used as input product for a further call to {@code createProduct()}.
      * By concatenating multiple calls it is possible to set up a processing graph.

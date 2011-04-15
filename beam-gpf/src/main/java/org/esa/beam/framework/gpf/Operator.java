@@ -279,17 +279,6 @@ public abstract class Operator {
     }
 
     /**
-     * @param id      a source product identifier
-     * @param product the source product to be set
-     * @deprecated since BEAM 4.2, use {@link #setSourceProduct(String, org.esa.beam.framework.datamodel.Product)}
-     */
-    public final void addSourceProduct(String id, Product product) {
-        Assert.notNull(id, "id");
-        Assert.notNull(product, "product");
-        context.setSourceProduct(id, product);
-    }
-
-    /**
      * Gets the identifier for the given source product.
      *
      * @param product The source product.
@@ -455,7 +444,7 @@ public abstract class Operator {
      *           the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile} method or
      *           the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
      * @throws OperatorException if the current processing request has been canceled (e.g. by the user).
-     * @deprecated Weak "typo" in method name, use {@link #checkForCancellation(com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated since BEAM 4.8, weak "typo" in method name, use {@link #checkForCancellation(com.bc.ceres.core.ProgressMonitor)}
      */
     @Deprecated
     protected final void checkForCancelation(ProgressMonitor pm) throws OperatorException {
