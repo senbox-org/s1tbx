@@ -19,7 +19,9 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
+import org.esa.beam.framework.gpf.ui.OperatorMenuSupport;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.unmixing.Endmember;
@@ -32,19 +34,25 @@ import java.util.Map;
 
 
 public class SpectralUnmixingDialog extends SingleTargetProductDialog {
-    private SpectralUnmixingForm form;
+    public static final String HELP_ID = "spectralUnmixing";
     private static final String TITLE = "Spectral Unmixing";
+    private SpectralUnmixingForm form;
 
     public SpectralUnmixingDialog(AppContext appContext) {
-        super(appContext, TITLE, "spectralUnmixing");
+        super(appContext, TITLE, HELP_ID);
         form = new SpectralUnmixingForm(appContext, getTargetProductSelector());
+        OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
+                                                                  SpectralUnmixingOp.class,
+                                                                  null,
+                                                                  HELP_ID);
+        getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
     }
 
     @Override
     protected Product createTargetProduct() throws Exception {
         final SpectralUnmixingFormModel formModel = form.getFormModel();
         formModel.getOperatorParameters().put("endmembers", form.getEndmemberForm().getFormModel().getEndmembers());
-        return GPF.createProduct(SpectralUnmixingOp.Spi.class.getName(),
+        return GPF.createProduct(OperatorSpi.getOperatorAlias(SpectralUnmixingOp.class),
                                  formModel.getOperatorParameters(),
                                  formModel.getSourceProduct());
     }

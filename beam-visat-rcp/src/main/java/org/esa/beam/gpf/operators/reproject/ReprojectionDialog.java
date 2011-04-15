@@ -20,7 +20,9 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
+import org.esa.beam.framework.gpf.ui.OperatorMenuSupport;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -29,6 +31,7 @@ import java.util.Map;
 
 class ReprojectionDialog extends SingleTargetProductDialog {
 
+    private static final String OPERATOR_NAME = "Reproject";
     private final ReprojectionForm form;
 
     public static void main(String[] args) {
@@ -40,6 +43,13 @@ class ReprojectionDialog extends SingleTargetProductDialog {
     ReprojectionDialog(boolean orthorectify, final String title, final String helpID, AppContext appContext) {
         super(appContext, title, helpID);
         form = new ReprojectionForm(getTargetProductSelector(), orthorectify, appContext);
+
+        final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(OPERATOR_NAME);
+        OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
+                                                                  operatorSpi.getOperatorClass(),
+                                                                  null,
+                                                                  helpID);
+        getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
     }
 
     @Override
@@ -85,7 +95,7 @@ class ReprojectionDialog extends SingleTargetProductDialog {
     protected Product createTargetProduct() throws Exception {
         final Map<String, Product> productMap = form.getProductMap();
         final Map<String, Object> parameterMap = form.getParameterMap();
-        return GPF.createProduct("Reproject", parameterMap, productMap);
+        return GPF.createProduct(OPERATOR_NAME, parameterMap, productMap);
     }
 
     @Override

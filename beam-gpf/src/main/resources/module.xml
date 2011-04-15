@@ -15,6 +15,7 @@
     <changelog>
         <![CDATA[
         <p>From 4.8 to 4.9:<br/>
+            [BEAM-1263] All processors shall provide help and "about" information<br/>
             [BEAM-1234] The target product of some operators shall not be written<br/>
         	[BEAM-1231] gpt command-line tool should have a 'parallelism' option<br/>
             [BEAM-1223] gpt command-line usage generates incorrect XML templates<br/>

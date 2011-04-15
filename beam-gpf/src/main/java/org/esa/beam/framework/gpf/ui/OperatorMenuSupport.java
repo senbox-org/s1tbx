@@ -46,7 +46,7 @@ import java.io.StringReader;
 /**
  * Support for operator parameters input/output.
  */
-public class OperatorParametersSupport {
+public class OperatorMenuSupport {
 
     private Component parentComponent;
     private final Class<? extends Operator> opType;
@@ -54,10 +54,10 @@ public class OperatorParametersSupport {
     private final String helpId;
     private final ParameterDescriptorFactory descriptorFactory;
 
-    public OperatorParametersSupport(Component parentComponent,
-                                     Class<? extends Operator> opType,
-                                     PropertySet parameters,
-                                     String helpId) {
+    public OperatorMenuSupport(Component parentComponent,
+                               Class<? extends Operator> opType,
+                               PropertySet parameters,
+                               String helpId) {
         this.parentComponent = parentComponent;
         this.opType = opType;
         this.parameters = parameters;
@@ -100,13 +100,15 @@ public class OperatorParametersSupport {
         fileMenu.add(createLoadParametersAction());
         fileMenu.add(createStoreParametersAction());
         fileMenu.add(createDisplayParametersAction());
-        fileMenu.addSeparator();
 
-        fileMenu.add(createHelpMenuitem());
-        fileMenu.add(createAboutOperatorAction());
+        JMenu helpMenu = new JMenu("Help");
+        helpMenu.add(createHelpMenuitem());
+        helpMenu.add(createAboutOperatorAction());
 
         JMenuBar menuBar = new CommandMenuBar();
         menuBar.add(fileMenu);
+        menuBar.add(helpMenu);
+
         return menuBar;
     }
 
@@ -146,6 +148,11 @@ public class OperatorParametersSupport {
                                                   title, JOptionPane.ERROR_MESSAGE);
                 }
             }
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return parameters != null;
         }
 
         private void readFromFile(File selectedFile) throws ValidationException, ConversionException, IOException {
@@ -212,6 +219,11 @@ public class OperatorParametersSupport {
             }
         }
 
+        @Override
+        public boolean isEnabled() {
+            return parameters != null;
+        }
+
         private void writeToFile(String s, File outputFile) throws IOException {
             final BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
             try {
@@ -242,13 +254,18 @@ public class OperatorParametersSupport {
             }
         }
 
+        @Override
+        public boolean isEnabled() {
+            return parameters != null;
+        }
+
     }
 
 
     private class AboutOperatorAction extends AbstractAction {
 
         AboutOperatorAction() {
-            super("About");
+            super("About...");
         }
 
         @Override
@@ -279,7 +296,7 @@ public class OperatorParametersSupport {
         OperatorMetadata operatorMetadata = opType.getAnnotation(OperatorMetadata.class);
         if (operatorMetadata != null) {
             StringBuilder sb = new StringBuilder("<html>");
-            sb.append("<h2>").append(operatorMetadata.alias()).append("</h2>");
+            sb.append("<h2>").append(operatorMetadata.alias()).append(" Operator</h2>");
             sb.append("<table>");
             sb.append("  <tr><td><b>Name:</b></td><td><code>").append(operatorMetadata.alias()).append("</code></td></tr>");
             sb.append("  <tr><td><b>Full name:</b></td><td><code>").append(opType.getName()).append("</code></td></tr>");

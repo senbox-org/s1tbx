@@ -16,8 +16,11 @@
 
 package org.esa.beam.collocation.visat;
 
+import org.esa.beam.collocation.CollocateOp;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.ui.OperatorMenuSupport;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 
@@ -29,13 +32,21 @@ import java.util.Map;
  */
 class CollocationDialog extends SingleTargetProductDialog {
 
+    public static final String HELP_ID = "collocation";
+
     private CollocationFormModel formModel;
     private CollocationForm form;
 
     public CollocationDialog(AppContext appContext) {
-        super(appContext, "Collocation", "collocation");
+        super(appContext, "Collocation", HELP_ID);
         formModel = new CollocationFormModel(getTargetProductSelector().getModel());
         form = new CollocationForm(formModel, getTargetProductSelector(), appContext);
+
+        OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
+                                                                  CollocateOp.class,
+                                                                  null,
+                                                                  HELP_ID);
+        getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
     }
 
     @Override
@@ -53,7 +64,7 @@ class CollocationDialog extends SingleTargetProductDialog {
         parameterMap.put("slaveComponentPattern", formModel.getSlaveComponentPattern());
         parameterMap.put("resamplingType", formModel.getResamplingType());
 
-        return GPF.createProduct("Collocate", parameterMap, productMap);
+        return GPF.createProduct(OperatorSpi.getOperatorAlias(CollocateOp.class), parameterMap, productMap);
     }
 
     @Override

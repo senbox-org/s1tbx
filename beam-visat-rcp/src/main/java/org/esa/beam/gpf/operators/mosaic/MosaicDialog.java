@@ -23,7 +23,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.ui.OperatorParametersSupport;
+import org.esa.beam.framework.gpf.ui.OperatorMenuSupport;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
@@ -48,11 +48,11 @@ class MosaicDialog extends SingleTargetProductDialog {
 
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi("Mosaic");
         if (operatorSpi != null) {
-            OperatorParametersSupport parametersSupport = new OperatorParametersSupport(this.getJDialog(),
-                                                                                        operatorSpi.getOperatorClass(),
-                                                                                        form.getFormModel().getPropertyContainer(),
-                                                                                        helpID);
-            getJDialog().setJMenuBar(parametersSupport.createDefaultMenue());
+            OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
+                                                                      operatorSpi.getOperatorClass(),
+                                                                      form.getFormModel().getPropertyContainer(),
+                                                                      helpID);
+            getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
         }
     }
 

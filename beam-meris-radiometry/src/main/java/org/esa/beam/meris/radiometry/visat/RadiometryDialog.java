@@ -23,7 +23,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
-import org.esa.beam.framework.gpf.ui.OperatorParametersSupport;
+import org.esa.beam.framework.gpf.ui.OperatorMenuSupport;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
@@ -49,11 +49,11 @@ class RadiometryDialog extends SingleTargetProductDialog {
                                                                             new ParameterDescriptorFactory());
         propContainer.setDefaultValues();
         form = new RadiometryForm(appContext, operatorSpi, propContainer, getTargetProductSelector());
-        OperatorParametersSupport parametersSupport = new OperatorParametersSupport(this.getJDialog(),
-                                                                                    operatorSpi.getOperatorClass(),
-                                                                                    propContainer,
-                                                                                    helpId);
-        getJDialog().setJMenuBar(parametersSupport.createDefaultMenue());
+        OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
+                                                                  operatorSpi.getOperatorClass(),
+                                                                  propContainer,
+                                                                  helpId);
+        getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
 
     }
 

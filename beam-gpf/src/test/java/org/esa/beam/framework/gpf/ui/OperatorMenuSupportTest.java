@@ -37,7 +37,7 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-public class OperatorParametersSupportTest {
+public class OperatorMenuSupportTest {
 
     private static TestOpSpi testOpSpi;
 
@@ -61,7 +61,7 @@ public class OperatorParametersSupportTest {
         container.setValue("paramDouble", 0.42);
         container.setValue("paramString", "A String!");
         container.setValue("paramComplex", new Complex(25));
-        final OperatorParametersSupport support = new OperatorParametersSupport(null, TestOp.class, container, "");
+        final OperatorMenuSupport support = new OperatorMenuSupport(null, TestOp.class, container, "");
         final DomElement domElement = support.toDomElement();
 
         assertEquals("parameters", domElement.getName());
@@ -87,7 +87,7 @@ public class OperatorParametersSupportTest {
 
     @Test
     public void testOperatorDescription() throws Exception {
-        final OperatorParametersSupport support = new OperatorParametersSupport(null, TestOp.class, null, "");
+        final OperatorMenuSupport support = new OperatorMenuSupport(null, TestOp.class, null, "");
 
         assertEquals("Tester", support.getOperatorName());
 

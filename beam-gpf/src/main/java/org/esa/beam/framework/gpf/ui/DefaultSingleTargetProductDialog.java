@@ -34,7 +34,6 @@ import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.ui.AppContext;
 
-import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -84,10 +83,10 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         PropertyContainer propertyContainer = PropertyContainer.createMapBacked(parameterMap,
                                                                                 operatorSpi.getOperatorClass(),
                                                                                 new ParameterDescriptorFactory());
-        OperatorParametersSupport parametersSupport = new OperatorParametersSupport(this.getJDialog(),
-                                                                                    operatorSpi.getOperatorClass(),
-                                                                                    propertyContainer,
-                                                                                    helpID);
+        OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
+                                                                  operatorSpi.getOperatorClass(),
+                                                                  propertyContainer,
+                                                                  helpID);
 
         propertyContainer.setDefaultValues();
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
@@ -109,7 +108,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             this.form.add("Processing Parameters", new JScrollPane(parametersPanel));
 
-            getJDialog().setJMenuBar(parametersSupport.createDefaultMenue());
+            getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
         }
         if (!sourceProductSelectorList.isEmpty()) {
             productChangedHandler = new ProductChangedHandler();
