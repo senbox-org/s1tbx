@@ -19,6 +19,7 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.swing.AbstractAction;
@@ -29,6 +30,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -71,6 +73,10 @@ public class OperatorParametersSupport {
         return new StoreParametersAction();
     }
 
+    public Action createDisplayParametersAction() {
+        return new DisplayParametersAction();
+    }
+
     public Action createLoadParametersAction() {
         return new LoadParametersAction();
     }
@@ -93,6 +99,7 @@ public class OperatorParametersSupport {
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(createLoadParametersAction());
         fileMenu.add(createStoreParametersAction());
+        fileMenu.add(createDisplayParametersAction());
         fileMenu.addSeparator();
 
         fileMenu.add(createHelpMenuitem());
@@ -219,6 +226,24 @@ public class OperatorParametersSupport {
         return new FileNameExtensionFilter("BEAM GPF Parameter Files (XML)", "xml");
     }
 
+    private class DisplayParametersAction extends AbstractAction {
+
+        DisplayParametersAction() {
+            super("Display Parameters");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            try {
+                showMessageDialog("Parameters", new JTextArea(toDomElement().toXml()));
+            } catch (Exception e) {
+                Debug.trace(e);
+                showMessageDialog("Parameters", new JLabel("Failed to convert parameters to XML."));
+            }
+        }
+
+    }
+
 
     private class AboutOperatorAction extends AbstractAction {
 
@@ -228,13 +253,18 @@ public class OperatorParametersSupport {
 
         @Override
         public void actionPerformed(ActionEvent event) {
-            final ModalDialog modalDialog = new ModalDialog(UIUtils.getRootWindow(parentComponent),
-                                                            "About " + getOperatorName(),
-                                                            AbstractDialog.ID_OK,
-                                                            null); /*I18N*/
-            modalDialog.setContent(new JLabel(getOperatorDescription()));
-            modalDialog.show();
+            showMessageDialog("About " + getOperatorName(), new JLabel(getOperatorDescription()));
         }
+
+    }
+
+    private void showMessageDialog(String title, Component component) {
+        final ModalDialog modalDialog = new ModalDialog(UIUtils.getRootWindow(parentComponent),
+                                                        title,
+                                                        AbstractDialog.ID_OK,
+                                                        null); /*I18N*/
+        modalDialog.setContent(component);
+        modalDialog.show();
     }
 
     String getOperatorName() {
