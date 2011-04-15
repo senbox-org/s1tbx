@@ -226,6 +226,32 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals(createDom(expectedXml), dom);
     }
 
+    public void testDomToEnumPojo() throws ValidationException, ConversionException {
+
+        final String xml = ""
+                           + "<parameters>"
+                           + "  <character>KERMIT</character>"
+                           + "</parameters>";
+        final Xpp3Dom dom = createDom(xml);
+        final EnumPojo value = new EnumPojo();
+        assertNull(value.character);
+        convertDomToValue(dom, value);
+        assertEquals(EnumPojo.Muppet.KERMIT, value.character);
+    }
+
+    public void testEnumPojoToDom() throws ValidationException, ConversionException {
+
+        final String expectedXml = ""
+                                   + "<parameters>"
+                                   + "  <character>MISS_PIGGY</character>"
+                                   + "</parameters>";
+        final EnumPojo value = new EnumPojo();
+        value.character = DefaultDomConverterTest.EnumPojo.Muppet.MISS_PIGGY;
+        final Xpp3Dom dom = new Xpp3Dom("parameters");
+        convertValueToDom(value, dom);
+        assertEquals(createDom(expectedXml), dom);
+    }
+
     public void testDomToComplexPojo() throws ValidationException, ConversionException {
 
         final String xmlString = ""
@@ -664,6 +690,16 @@ public class DefaultDomConverterTest extends TestCase {
                 this.name = name;
             }
         }
+    }
+
+    public static class EnumPojo {
+        private enum Muppet {
+            KERMIT,
+            ANIMAL,
+            MISS_PIGGY
+        }
+
+        Muppet character;
     }
 
     public static class InlinedArrayPojo {

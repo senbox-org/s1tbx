@@ -54,7 +54,7 @@ public class EnumConverter<T extends Enum<T>> implements Converter<T> {
         if (value == null) {
             return "";
         }
-        return value.toString();
+        return value.name();
     }
 
 }

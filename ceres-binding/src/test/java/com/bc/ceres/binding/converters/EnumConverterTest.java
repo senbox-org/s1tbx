@@ -25,34 +25,15 @@ public class EnumConverterTest extends AbstractConverterTest {
 
     private enum Tests {
 
-        TEST1("Description 1") {
-            @Override
-            public String toString() {
-                return "Test 1";
-            }
-        },
-        TEST2("Description 2") {
+        TEST1,
+        TEST2 {
             @Override
             public String toString() {
                 return "Test 2";
+
             }
         },
-        TEST3("Description 3") {
-            @Override
-            public String toString() {
-                return "Test 3";
-            }
-        };
-
-        private String description;
-
-        private Tests(String description) {
-            this.description = description;
-        }
-
-        public String getDescription() {
-            return description;
-        }
+        TEST3
     }
 
     @Override
@@ -73,11 +54,21 @@ public class EnumConverterTest extends AbstractConverterTest {
         testParseSuccess(Tests.TEST3, "TEST3");
         testParseSuccess(null, "");
 
-        testFormatSuccess("Test 1", Tests.TEST1);
-        testFormatSuccess("Test 2", Tests.TEST2);
-        testFormatSuccess("Test 3", Tests.TEST3);
+        testParseFailed("test1");
+        testParseFailed("Test 2");
+
+        testFormatSuccess("TEST1", Tests.TEST1);
+        testFormatSuccess("TEST2", Tests.TEST2);
+        testFormatSuccess("TEST3", Tests.TEST3);
         testFormatSuccess("", null);
 
         assertNullCorrectlyHandled();
+    }
+
+    public void testConverterForwardAndBackward() throws ConversionException {
+        final Converter converter = getConverter();
+        assertEquals(Tests.TEST1, converter.parse(converter.format(Tests.TEST1)));
+        assertEquals(Tests.TEST2, converter.parse(converter.format(Tests.TEST2)));
+        assertEquals(Tests.TEST3, converter.parse(converter.format(Tests.TEST3)));
     }
 }

@@ -93,9 +93,10 @@ public abstract class AbstractDomConverter implements DomConverter {
                     final DomElement childElement = parentElement.createChild(getNameOrAlias(property));
                     final Class<?> type = property.getDescriptor().getType();
                     final Object childValue = property.getValue();
-                    if (type.isInstance(childValue) && type != childValue.getClass()) {
+                    if (type.isInstance(childValue) && type != childValue.getClass() && !type.isEnum()) {
                         // childValue is an implementation of type and it's not of same type
                         // we have to store the implementation class in order to re-construct the object
+                        // but only if type is not an enum.
                         childElement.setAttribute("class", childValue.getClass().getName());
                     }
                     Converter<?> converter = descriptor.getConverter();
