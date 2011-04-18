@@ -734,7 +734,12 @@ public class Product extends ProductNode {
      * @param startTime the sensing start time, can be null
      */
     public void setStartTime(final ProductData.UTC startTime) {
-        this.startTime = startTime;
+        ProductData.UTC old = this.startTime;
+        if (!ObjectUtils.equalObjects(old, startTime)) {
+            this.startTime = startTime;
+            setModified(true);
+            fireProductNodeChanged("startTime", old, this.startTime);
+        }
     }
 
     /**
@@ -762,7 +767,13 @@ public class Product extends ProductNode {
      * @param endTime the sensing stop time, can be null
      */
     public void setEndTime(final ProductData.UTC endTime) {
-        this.endTime = endTime;
+        ProductData.UTC old = this.endTime;
+        if (!ObjectUtils.equalObjects(old, endTime)) {
+            this.endTime = endTime;
+            setModified(true);
+            fireProductNodeChanged("endTime", old, this.endTime);
+        }
+
     }
 
     /**

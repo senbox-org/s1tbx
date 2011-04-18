@@ -28,6 +28,7 @@ import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
@@ -64,6 +65,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class PropertyEditor {
@@ -147,6 +149,8 @@ public class PropertyEditor {
         private Parameter paramSpectralWavelength;
 
         private Parameter paramProductType;
+        private Parameter paramStartTime;
+        private Parameter paramEndTime;
         private Parameter paramBandSubGroupPaths;
         private Parameter paramNoDataValueUsed;
         private Parameter paramNoDataValue;
@@ -192,6 +196,7 @@ public class PropertyEditor {
                 public void visit(final Product product) {
                     EditorContent.this.product = product;
                     initProductTypeParam();
+                    initProductStartStopParams();
                     initProductBandGroupingParam();
                 }
 
@@ -320,6 +325,12 @@ public class PropertyEditor {
                 node.setDescription(paramDescription.getValueAsText());
                 if (product != null) {
                     product.setProductType(paramProductType.getValueAsText());
+                    if (paramStartTime.getValue() != null) {
+                        product.setStartTime(ProductData.UTC.create((Date) paramStartTime.getValue(), 0));
+                    }
+                    if (paramEndTime.getValue() != null) {
+                        product.setEndTime(ProductData.UTC.create((Date) paramEndTime.getValue(), 0));
+                    }
                     product.setAutoGrouping(paramBandSubGroupPaths.getValueAsText());
                 }
                 if (rasterDataNode != null) {
@@ -449,6 +460,29 @@ public class PropertyEditor {
             properties.setEmptyValuesNotAllowed(true);
             properties.setLabel("Product type"); /*I18N*/
             paramProductType = new Parameter("productType", product.getProductType(), properties);
+        }
+
+        private void initProductStartStopParams() {
+            final ParamProperties startProperties = createStartStopProperty("Start time", "Product start time (UTC)");
+            final ProductData.UTC startTime = product.getStartTime();
+            Date startDate = startTime != null ? startTime.getAsDate() : null;
+            paramStartTime = new Parameter("startTime", startDate, startProperties);
+
+            final ParamProperties endProperties = createStartStopProperty("End time", "Product end time (UTC)");
+            final ProductData.UTC endTime = product.getEndTime();
+            Date endDate = endTime != null ? endTime.getAsDate() : null;
+            paramEndTime = new Parameter("endTime", endDate, endProperties);
+        }
+
+        private ParamProperties createStartStopProperty(String label, String description) {
+            final ParamProperties properties = new ParamProperties(Date.class);
+            properties.setEditorClass(DateEditor.class);
+            properties.setValidatorClass(DateValidator.class);
+            properties.setNullValueAllowed(true);
+            properties.setEmptyValuesNotAllowed(false);
+            properties.setLabel(label);
+            properties.setDescription(description);
+            return properties;
         }
 
         private void initProductBandGroupingParam() {
@@ -625,6 +659,22 @@ public class PropertyEditor {
             add(paramProductType.getEditor().getLabelComponent(), gbc);
             gbc.weightx = 1;
             add(paramProductType.getEditor().getComponent(), gbc);
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.weighty = 1;
+
+            gbc.gridy++;
+            gbc.weightx = 0;
+            add(paramStartTime.getEditor().getLabelComponent(), gbc);
+            gbc.weightx = 1;
+            add(paramStartTime.getEditor().getComponent(), gbc);
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.weighty = 1;
+
+            gbc.gridy++;
+            gbc.weightx = 0;
+            add(paramEndTime.getEditor().getLabelComponent(), gbc);
+            gbc.weightx = 1;
+            add(paramEndTime.getEditor().getComponent(), gbc);
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.weighty = 1;
 
