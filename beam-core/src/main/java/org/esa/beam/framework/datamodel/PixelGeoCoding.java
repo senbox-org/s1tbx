@@ -41,7 +41,9 @@ import javax.media.jai.operator.CropDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.image.ComponentSampleModel;
 import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferFloat;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
@@ -401,9 +403,17 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             if (useTiling) {
                 Rectangle rect = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
                 Raster latLonData = latLonImage.getData(rect);
+                ComponentSampleModel sampleModel = (ComponentSampleModel) latLonData.getSampleModel();
+                DataBufferFloat dataBuffer = (DataBufferFloat) latLonData.getDataBuffer();
+                float[][] bankData = dataBuffer.getBankData();
+                int sampleModelTranslateX = latLonData.getSampleModelTranslateX();
+                int sampleModelTranslateY = latLonData.getSampleModelTranslateY();
+                int scanlineStride = sampleModel.getScanlineStride();
+                int pixelStride = sampleModel.getPixelStride();
 
-                float lat = latLonData.getSampleFloat(x0, y0, 0);
-                float lon = latLonData.getSampleFloat(x0, y0, 1);
+                int bankDataIndex = (y0 - sampleModelTranslateY) * scanlineStride + (x0 - sampleModelTranslateX) * pixelStride;
+                float lat = bankData[0][bankDataIndex];
+                float lon = bankData[1][bankDataIndex];
 
                 float r = (float) Math.cos(lat * D2R);
                 float dlat = Math.abs(lat - lat0);
@@ -413,8 +423,9 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                 for (int y = y1; y <= y2; y++) {
                     for (int x = x1; x <= x2; x++) {
                         if (!(x == x0 && y == y0)) {
-                            lat = latLonData.getSampleFloat(x, y, 0);
-                            lon = latLonData.getSampleFloat(x, y, 1);
+                            bankDataIndex = (y - sampleModelTranslateY) * scanlineStride + (x - sampleModelTranslateX) * pixelStride;
+                            lat = bankData[0][bankDataIndex];
+                            lon = bankData[1][bankDataIndex];
 
                             dlat = Math.abs(lat - lat0);
                             dlon = r * lonDiff(lon, lon0);
