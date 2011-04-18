@@ -19,6 +19,10 @@ package org.esa.beam.framework.gpf.annotations;
 import org.esa.beam.framework.datamodel.Product;
 
 public class TestPojo {
+
+    enum TestEnum {
+        P1,P2,P3
+    }
     @TargetProduct
     Product vapour;
 
@@ -35,6 +39,10 @@ public class TestPojo {
     
     @Parameter(valueSet = {"0", "13", "42"})
     double[] thresholdArray;
+
+    @Parameter(defaultValue = "P2")
+    TestEnum aPValue;
+
     
     @TargetProperty(alias = "bert",
                     description = "a test property")

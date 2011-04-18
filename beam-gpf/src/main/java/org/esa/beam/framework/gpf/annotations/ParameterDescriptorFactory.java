@@ -146,6 +146,10 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
             }
             ValueSet valueSet = ValueSet.parseValueSet(parameter.valueSet(), converter);
             propertyDescriptor.setValueSet(valueSet);
+        } else if (propertyDescriptor.getType().isEnum()) {
+            Class<?> type = propertyDescriptor.getType();
+            ValueSet valueSet = new ValueSet(type.getEnumConstants());
+            propertyDescriptor.setValueSet(valueSet);
         }
         if (isSet(parameter.defaultValue())) {
             Converter converter = propertyDescriptor.getConverter();

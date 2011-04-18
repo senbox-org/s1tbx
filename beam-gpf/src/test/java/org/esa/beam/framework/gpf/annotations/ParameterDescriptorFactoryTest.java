@@ -22,9 +22,11 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.converters.ArrayConverter;
 import com.bc.ceres.binding.converters.DoubleConverter;
+import com.bc.ceres.binding.converters.EnumConverter;
 import junit.framework.TestCase;
 
 public class ParameterDescriptorFactoryTest extends TestCase {
@@ -141,5 +143,21 @@ public class ParameterDescriptorFactoryTest extends TestCase {
         } catch (ValidationException ignored) {
             // expected
         }
+    }
+
+    public void testEnums() {
+        PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor("aPValue");
+        assertEquals("aPValue", propertyDescriptor.getName());
+        assertSame(EnumConverter.class, propertyDescriptor.getConverter().getClass());
+
+        ValueSet valueSet = propertyDescriptor.getValueSet();
+        assertNotNull(valueSet);
+        Object[] valueSetItems = valueSet.getItems();
+        assertEquals(3, valueSetItems.length);
+        assertEquals(TestPojo.TestEnum.P1, valueSetItems[0]);
+        assertEquals(TestPojo.TestEnum.P2, valueSetItems[1]);
+        assertEquals(TestPojo.TestEnum.P3, valueSetItems[2]);
+
+        assertEquals(TestPojo.TestEnum.P2, propertyDescriptor.getDefaultValue());
     }
 }
