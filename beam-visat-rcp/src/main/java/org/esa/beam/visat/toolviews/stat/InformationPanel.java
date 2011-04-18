@@ -30,7 +30,6 @@ import org.esa.beam.util.StringUtils;
 
 /**
  * The information pane within the statistcs window.
- *
  */
 class InformationPanel extends TextPagePanel {
 
@@ -73,7 +72,7 @@ class InformationPanel extends TextPagePanel {
             appendEntry(sb, "Spectral band index:", String.valueOf(band.getSpectralBandIndex() + 1), "");
             appendEntry(sb, "Wavelength:", String.valueOf(band.getSpectralWavelength()), "nm");
             appendEntry(sb, "Bandwidth:", String.valueOf(band.getSpectralBandwidth()), "nm");
-            appendEntry(sb, "Solar flux:", String.valueOf(band.getSolarFlux()), "mW/(m^2*sr*nm)");
+            appendEntry(sb, "Solar flux:", String.valueOf(band.getSolarFlux()), "mW/(m^2*nm)");
 
         } else if (getRaster() instanceof TiePointGrid) {
             final TiePointGrid grid = (TiePointGrid) getRaster();
@@ -106,7 +105,7 @@ class InformationPanel extends TextPagePanel {
         final String productFormatName = getProductFormatName(product);
         final String productFormatNameString = productFormatName != null ? productFormatName : "unknown";
         appendEntry(sb, "Product format:", productFormatNameString, null);
-        
+
         final String productReaderName = getProductReaderName(product);
         final String productReaderNameString = productReaderName != null ? productReaderName : "unknown";
         appendEntry(sb, "Product reader:", productReaderNameString, null);
@@ -117,11 +116,11 @@ class InformationPanel extends TextPagePanel {
         appendEntry(sb, "Product scene height:", String.valueOf(product.getSceneRasterHeight()), "pixels");
 
         final String startTimeString = product.getStartTime() != null ?
-                product.getStartTime().getElemString() : "Not available";
+                                       product.getStartTime().getElemString() : "Not available";
         appendEntry(sb, "Product start time (UTC):", startTimeString, null);
 
         final String stopTimeString = product.getEndTime() != null ?
-                product.getEndTime().getElemString() : "Not available";
+                                      product.getEndTime().getElemString() : "Not available";
         appendEntry(sb, "Product end time (UTC):", stopTimeString, null);
 
         return sb.toString();
@@ -136,7 +135,7 @@ class InformationPanel extends TextPagePanel {
         }
         sb.append('\n');
     }
-    
+
     private static String getProductReaderName(final Product product) {
         final ProductReader productReader = product.getProductReader();
         if (productReader == null) {

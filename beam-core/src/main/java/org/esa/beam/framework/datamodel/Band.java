@@ -60,24 +60,20 @@ import java.util.Random;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  * @see ProductData
- * @see #getPixels
- * @see #setPixels
- * @see #readPixels
- * @see #writePixels
  */
 public class Band extends AbstractBand {
 
-    public final static String PROPERTY_NAME_SAMPLE_CODING = "sampleCoding";
-    public final static String PROPERTY_NAME_SOLAR_FLUX = "solarFlux";
-    public final static String PROPERTY_NAME_SPECTRAL_BAND_INDEX = "spectralBandIndex";
-    public final static String PROPERTY_NAME_SPECTRAL_BANDWIDTH = "spectralBandwidth";
-    public final static String PROPERTY_NAME_SPECTRAL_WAVELENGTH = "spectralWavelength";
+    public static final String PROPERTY_NAME_SAMPLE_CODING = "sampleCoding";
+    public static final String PROPERTY_NAME_SOLAR_FLUX = "solarFlux";
+    public static final String PROPERTY_NAME_SPECTRAL_BAND_INDEX = "spectralBandIndex";
+    public static final String PROPERTY_NAME_SPECTRAL_BANDWIDTH = "spectralBandwidth";
+    public static final String PROPERTY_NAME_SPECTRAL_WAVELENGTH = "spectralWavelength";
 
     /**
      * @deprecated since 4.2, use {@link #PROPERTY_NAME_SAMPLE_CODING}
      */
     @Deprecated
-    public final static String PROPERTY_NAME_FLAG_CODING = "flagCoding";
+    public static final String PROPERTY_NAME_FLAG_CODING = "flagCoding";
 
     /**
      * If this band contains flag data, this is the flag coding.
@@ -255,7 +251,7 @@ public class Band extends AbstractBand {
     }
 
     /**
-     * Gets the solar flux in <code>mW/(m^2 sr nm)</code> (milli-watts per square metre per ste-radian per nanometer)
+     * Gets the solar flux in <code>mW/(m^2 nm)</code> (milli-watts per square metre per nanometer)
      * units for the wavelength of this band.
      *
      * @return the solar flux for the wavelength of this band, or zero if this is not a spectral band or the solar flux
@@ -266,7 +262,7 @@ public class Band extends AbstractBand {
     }
 
     /**
-     * Sets the solar flux in <code>mW/(m^2 sr nm)</code> (milli-watts per square metre per ste-radian per nanometer)
+     * Sets the solar flux in <code>mW/(m^2 nm)</code> (milli-watts per square metre per nanometer)
      * units for the wavelength of this band.
      *
      * @param solarFlux the solar flux for the wavelength of this band, or zero if this is not a spectral band or the
@@ -290,7 +286,7 @@ public class Band extends AbstractBand {
                                                                        getRasterHeight(),
                                                                        getRasterData());
             return new DefaultMultiLevelImage(new DefaultMultiLevelSource(image, model));
-        }   else {
+        } else {
             return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
 
                 @Override
@@ -345,15 +341,15 @@ public class Band extends AbstractBand {
 
     private boolean isProductReaderDirectlyUsable() {
         final ProductReader productReader = getProductReader();
-        if(productReader != null) {
-            if(isSourceImageSet() && getSourceImage().getImage(0) instanceof BandOpImage) {
+        if (productReader != null) {
+            if (isSourceImageSet() && getSourceImage().getImage(0) instanceof BandOpImage) {
                 final BandOpImage bandOpImage = (BandOpImage) getSourceImage().getImage(0);
-                if(bandOpImage.getBand().getProductReader() == productReader) {
+                if (bandOpImage.getBand().getProductReader() == productReader) {
                     return true;
                 }
             }
         }
-        return  false;
+        return false;
     }
 
     /**
@@ -397,7 +393,8 @@ public class Band extends AbstractBand {
         } else {
             final PlanarImage sourceImage = getSourceImage();
             try {
-                final Point[] tileIndices = sourceImage.getTileIndices(new Rectangle(0, 0, sourceImage.getWidth(), sourceImage.getHeight()));
+                final Point[] tileIndices = sourceImage.getTileIndices(
+                        new Rectangle(0, 0, sourceImage.getWidth(), sourceImage.getHeight()));
                 pm.beginTask("Writing raster data...", tileIndices.length);
                 for (final Point tileIndex : tileIndices) {
                     if (pm.isCanceled()) {
@@ -487,14 +484,14 @@ public class Band extends AbstractBand {
     @Override
     public String toString() {
         return getClass().getName() + "["
-                + getName() + ","
-                + ProductData.getTypeString(getDataType()) + "," +
-                +getRasterWidth() + "," +
-                +getRasterHeight() + "," +
-                +getSpectralBandIndex() + "," +
-                +getSpectralWavelength() + "," +
-                +getSpectralBandwidth() + "," +
-                +getSolarFlux() + "]";
+               + getName() + ","
+               + ProductData.getTypeString(getDataType()) + "," +
+               +getRasterWidth() + "," +
+               +getRasterHeight() + "," +
+               +getSpectralBandIndex() + "," +
+               +getSpectralWavelength() + "," +
+               +getSpectralBandwidth() + "," +
+               +getSolarFlux() + "]";
     }
 
     @Override
@@ -541,13 +538,6 @@ public class Band extends AbstractBand {
         final double min = minSample;
         final double max = maxSample;
 
-/*
-            int[] sampleFrequencies = new int[sampleCount];
-            int[] bins = stx.getSampleFrequencies();
-            for (int i = 0; i < sampleCount; i++) {
-                sampleFrequencies[i] = bins[indexCoding.getSampleValue(i)];
-            }
-*/
         return Stx.create(this, level, binCount, min, max, pm);
     }
 
