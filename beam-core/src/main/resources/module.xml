@@ -28,6 +28,7 @@
         <p>Changes in 4.9:<br/>
         [BEAM-1246] Layer-Manager does not reflect changes of mask names in Mask-Manager
         [BEAM-1241] For certain AATSR-products, TiePointGeoCoding.getPixelPos(GeoPos, PixelPos) yields wrong results
+        [BEAM-1239] For MERIS bands the solar flux has the wrong unit<br/>
         [BEAM-1221] Need an option to configure multi-threading<br/>
         [BEAM-1212] RasterDataNode.isPixelValid(x,y) is not thread safe<br/>
         [BEAM-1208] ProductUtils.copyFlagBands doesn't copy masks<br/>

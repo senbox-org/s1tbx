@@ -45,8 +45,9 @@ o A new tool for exporting pixels from a bunch of data products has been introdu
 2) Complete list of BEAM 4.9 bug fixes and improvements
 
 New Features
-[BEAM-1180] - Allow dragging files into VISAT
+[BEAM-1251] - Allow setting start and stop time
 [BEAM-1216] - The NOAA AVHRR reader should support GAC products
+[BEAM-1180] - Allow dragging files into VISAT
 [BEAM-1151] - Geometry subset operator
 
 Improvements
@@ -62,6 +63,7 @@ Bugs
 [BEAM-1248] - Title of transect-plot dialog is not updated if band selection changes
 [BEAM-1246] - Layer-Manager does not reflect changes of mask names in Mask-Manager
 [BEAM-1241] - For certain AATSR-products, TiePointGeoCoding.getPixelPos(GeoPos, PixelPos) yields wrong results
+[BEAM-1239] - For MERIS bands the solar flux has the wrong unit
 [BEAM-1229] - OBPG SeaWiFS L2 files can not be opened
 [BEAM-1228] - Rangefinder does not work
 [BEAM-1227] - PConvert doesn't generate images if profile contains calculated RGB bands

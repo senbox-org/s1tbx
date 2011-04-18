@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.9<br/>
+          [BEAM-1251] Allow setting start and stop time<br/>
           [BEAM-1248] Title of transect-plot dialog is not updated if band selection changes<br/>
           [BEAM-1228] Rangefinder does not work<br/>
           [BEAM-1192] Title in histogram does not adjust to current band<br/>

@@ -13,6 +13,7 @@
         <![CDATA[
         <p>Changes in 4.9<br/>
           [BEAM-1276] Add VISAT scripting support for the Python language<br/>
+          [BEAM-1251] Allow setting start and stop time<br/>
           [BEAM-1248] Title of transect-plot dialog is not updated if band selection changes<br/>
           [BEAM-1228] Rangefinder does not work<br/>
           [BEAM-1204] Reprojection changes product type<br/>        
