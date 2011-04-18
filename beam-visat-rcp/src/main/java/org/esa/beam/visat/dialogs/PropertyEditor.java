@@ -128,7 +128,7 @@ public class PropertyEditor {
         return type;
     }
 
-    class EditorContent extends JPanel {
+    private class EditorContent extends JPanel {
 
         private static final int GROUP_GAP = 10;
 
@@ -140,25 +140,23 @@ public class PropertyEditor {
 
         private GridBagConstraints _gbc;
 
-        public Parameter _paramName;
-        public Parameter _paramDescription;
+        private Parameter paramName;
+        private Parameter paramDescription;
 
-        public Parameter _paramSpectralBandwidth;
-        public Parameter _paramSpectralWavelength;
-        public Parameter _paramSpectralIndex;
-        public Parameter _paramSunSpectralFlux;
+        private Parameter paramSpectralBandwidth;
+        private Parameter paramSpectralWavelength;
 
-        public Parameter _paramProductType;
-        public Parameter _paramBandSubGroupPaths;
-        public Parameter _paramNoDataValueUsed;
-        public Parameter _paramNoDataValue;
-        public Parameter _paramGeophysUnit;
-        public Parameter _paramValidPixelExpr;
-        private Parameter _paramVBExpression;
-        private boolean _virtualBandPropertyChanged;
-        private boolean _validMaskPropertyChanged;
+        private Parameter paramProductType;
+        private Parameter paramBandSubGroupPaths;
+        private Parameter paramNoDataValueUsed;
+        private Parameter paramNoDataValue;
+        private Parameter paramGeophysUnit;
+        private Parameter paramValidPixelExpr;
+        private Parameter paramVBExpression;
+        private boolean virtualBandPropertyChanged;
+        private boolean validMaskPropertyChanged;
 
-        public EditorContent(final ProductNode node) {
+        private EditorContent(final ProductNode node) {
             _node = node;
             initParameters(node);
             initUi(node);
@@ -248,14 +246,15 @@ public class PropertyEditor {
 
         public boolean validateProperties() {
             if (_rasterDataNode != null) {
-                final String expression = _paramValidPixelExpr.getValueAsText();
+                final String expression = paramValidPixelExpr.getValueAsText();
                 if (expression != null && expression.trim().length() != 0) {
                     final Product product = _rasterDataNode.getProduct();
                     try {
                         Product[] products = getCompatibleProducts(_rasterDataNode);
                         int defaultProductIndex = Arrays.asList(products).indexOf(product);
-                        final WritableNamespace namespace = BandArithmetic.createDefaultNamespace(products, defaultProductIndex);
-                        namespace.registerSymbol(SymbolFactory.createConstant(_paramName.getValueAsText(), 0));
+                        final WritableNamespace namespace = BandArithmetic.createDefaultNamespace(products,
+                                                                                                  defaultProductIndex);
+                        namespace.registerSymbol(SymbolFactory.createConstant(paramName.getValueAsText(), 0));
                         final Term term = new ParserImpl(namespace, false).parse(expression);
                         if (!term.isB()) {
                             JOptionPane.showMessageDialog(_dialog.getJDialog(),
@@ -271,7 +270,7 @@ public class PropertyEditor {
             }
 
             if (_virtualBand != null) {
-                final String expression = _paramVBExpression.getValueAsText();
+                final String expression = paramVBExpression.getValueAsText();
                 if (expression != null && expression.trim().length() != 0) {
                     final Product product = _virtualBand.getProduct();
                     try {
@@ -310,40 +309,40 @@ public class PropertyEditor {
         }
 
         public void changeProperties() {
-            _virtualBandPropertyChanged = false;
-            _validMaskPropertyChanged = false;
+            virtualBandPropertyChanged = false;
+            validMaskPropertyChanged = false;
 
             final ProductNodeHandler listener = new ProductNodeHandler();
 
             try {
                 _node.getProduct().addProductNodeListener(listener);
-                _node.setName(_paramName.getValueAsText());
-                _node.setDescription(_paramDescription.getValueAsText());
+                _node.setName(paramName.getValueAsText());
+                _node.setDescription(paramDescription.getValueAsText());
                 if (_product != null) {
-                    _product.setProductType(_paramProductType.getValueAsText());
-                    _product.setAutoGrouping(_paramBandSubGroupPaths.getValueAsText());
+                    _product.setProductType(paramProductType.getValueAsText());
+                    _product.setAutoGrouping(paramBandSubGroupPaths.getValueAsText());
                 }
                 if (_rasterDataNode != null) {
-                    final boolean noDataValueUsed = ((Boolean) _paramNoDataValueUsed.getValue()).booleanValue();
+                    final boolean noDataValueUsed = (Boolean) paramNoDataValueUsed.getValue();
                     _rasterDataNode.setNoDataValueUsed(noDataValueUsed);
                     if (noDataValueUsed) {
-                        _rasterDataNode.setGeophysicalNoDataValue(((Double) _paramNoDataValue.getValue()).doubleValue());
+                        _rasterDataNode.setGeophysicalNoDataValue((Double) paramNoDataValue.getValue());
                     }
-                    _rasterDataNode.setUnit(_paramGeophysUnit.getValueAsText());
-                    _rasterDataNode.setValidPixelExpression(_paramValidPixelExpr.getValueAsText());
+                    _rasterDataNode.setUnit(paramGeophysUnit.getValueAsText());
+                    _rasterDataNode.setValidPixelExpression(paramValidPixelExpr.getValueAsText());
                 }
                 if (_band != null) {
-                    _band.setSpectralWavelength(((Float) _paramSpectralWavelength.getValue()).floatValue());
-                    _band.setSpectralBandwidth(((Float) _paramSpectralBandwidth.getValue()).floatValue());
+                    _band.setSpectralWavelength((Float) paramSpectralWavelength.getValue());
+                    _band.setSpectralBandwidth((Float) paramSpectralBandwidth.getValue());
                 }
                 if (_virtualBand != null) {
-                    _virtualBand.setExpression(_paramVBExpression.getValueAsText());
+                    _virtualBand.setExpression(paramVBExpression.getValueAsText());
                 }
             } finally {
                 _node.getProduct().removeProductNodeListener(listener);
             }
 
-            if (_rasterDataNode != null && (_virtualBandPropertyChanged || _validMaskPropertyChanged)) {
+            if (_rasterDataNode != null && (virtualBandPropertyChanged || validMaskPropertyChanged)) {
                 updateImages();
             }
         }
@@ -367,13 +366,13 @@ public class PropertyEditor {
 
                     pm.beginTask("Recomputing image(s)...", 3);
                     try {
-                        if (_virtualBandPropertyChanged && _virtualBand != null) {
+                        if (virtualBandPropertyChanged && _virtualBand != null) {
                             if (_virtualBand.hasRasterData()) {
                                 _virtualBand.readRasterDataFully(ProgressMonitor.NULL);
                             }
                         }
                         pm.worked(1);
-                        if (_validMaskPropertyChanged) {
+                        if (validMaskPropertyChanged) {
                             final JInternalFrame internalFrame = _visatApp.findInternalFrame(_rasterDataNode);
                             if (internalFrame != null) {
                                 final ProductSceneView psv = getProductSceneView(internalFrame);
@@ -404,7 +403,7 @@ public class PropertyEditor {
                     if (exception != null) {
                         Debug.trace(exception);
                         _visatApp.showErrorDialog("Failed to compute band '" + _node.getDisplayName() + "':\n"
-                                + exception.getMessage()); /*I18N*/
+                                                  + exception.getMessage()); /*I18N*/
                     }
                 }
             };
@@ -422,17 +421,17 @@ public class PropertyEditor {
         private void initParamsForBand(Band band) {
             _band = band;
 
-            _paramSpectralWavelength = new Parameter("SpectralWavelength", new Float(_band.getSpectralWavelength()));
-            _paramSpectralWavelength.getProperties().setLabel("Spectral wavelength");
-            _paramSpectralWavelength.getProperties().setPhysicalUnit("nm");
-            _paramSpectralWavelength.getProperties().setDescription("Spectral wavelength in nanometers");
-            _paramSpectralWavelength.getProperties().setNumCols(13);
+            paramSpectralWavelength = new Parameter("SpectralWavelength", _band.getSpectralWavelength());
+            paramSpectralWavelength.getProperties().setLabel("Spectral wavelength");
+            paramSpectralWavelength.getProperties().setPhysicalUnit("nm");
+            paramSpectralWavelength.getProperties().setDescription("Spectral wavelength in nanometers");
+            paramSpectralWavelength.getProperties().setNumCols(13);
 
-            _paramSpectralBandwidth = new Parameter("SpectralBandwidth", new Float(_band.getSpectralBandwidth()));
-            _paramSpectralBandwidth.getProperties().setLabel("Spectral bandwidth");
-            _paramSpectralBandwidth.getProperties().setPhysicalUnit("nm");
-            _paramSpectralBandwidth.getProperties().setDescription("Spectral bandwidth in nanometers");
-            _paramSpectralBandwidth.getProperties().setNumCols(13);
+            paramSpectralBandwidth = new Parameter("SpectralBandwidth", _band.getSpectralBandwidth());
+            paramSpectralBandwidth.getProperties().setLabel("Spectral bandwidth");
+            paramSpectralBandwidth.getProperties().setPhysicalUnit("nm");
+            paramSpectralBandwidth.getProperties().setDescription("Spectral bandwidth in nanometers");
+            paramSpectralBandwidth.getProperties().setNumCols(13);
         }
 
         private void initParamsForVirtualBand(final VirtualBand virtualBand) {
@@ -449,7 +448,7 @@ public class PropertyEditor {
             properties.setNullValueAllowed(false);
             properties.setEmptyValuesNotAllowed(true);
             properties.setLabel("Product type"); /*I18N*/
-            _paramProductType = new Parameter("productType", _product.getProductType(), properties);
+            paramProductType = new Parameter("productType", _product.getProductType(), properties);
         }
 
         private void initProductBandGroupingParam() {
@@ -457,10 +456,11 @@ public class PropertyEditor {
             properties.setNullValueAllowed(true);
             properties.setEmptyValuesNotAllowed(false);
             properties.setLabel("Band grouping"); /*I18N*/
-            properties.setDescription("Colon-separated (':') list of band name parts which are used to auto-create band groups."); /*I18N*/
+            properties.setDescription(
+                    "Colon-separated (':') list of band name parts which are used to auto-create band groups."); /*I18N*/
             properties.setNumRows(2);
             properties.setPropertyValue(ParamProperties.WORD_WRAP_KEY, true);
-            _paramBandSubGroupPaths = new Parameter("bandGrouping", formatBandSubGroupPaths(), properties);
+            paramBandSubGroupPaths = new Parameter("bandGrouping", formatBandSubGroupPaths(), properties);
         }
 
         private void initVirtualBandExpressionParam() {
@@ -478,13 +478,14 @@ public class PropertyEditor {
                                         getCompatibleProducts(_virtualBand));
             properties.setPropertyValue(GeneralExpressionEditor.PROPERTY_KEY_PREFERENCES,
                                         VisatApp.getApp().getPreferences());
-            _paramVBExpression = new Parameter("virtualBandExpr", _virtualBand.getExpression(), properties);
-            _paramName.addParamChangeListener(new ParamChangeListener() {
+            paramVBExpression = new Parameter("virtualBandExpr", _virtualBand.getExpression(), properties);
+            paramName.addParamChangeListener(new ParamChangeListener() {
+                @Override
                 public void parameterValueChanged(final ParamChangeEvent event) {
-                    final String expresion = _paramVBExpression.getValueAsText();
+                    final String expresion = paramVBExpression.getValueAsText();
                     final String newExpression = StringUtils.replaceWord(expresion, (String) event.getOldValue(),
-                                                                         _paramName.getValueAsText());
-                    _paramVBExpression.setValueAsText(newExpression, null);
+                                                                         paramName.getValueAsText());
+                    paramVBExpression.setValueAsText(newExpression, null);
                 }
             });
         }
@@ -501,15 +502,16 @@ public class PropertyEditor {
                                         _rasterDataNode.getProduct());
             properties.setPropertyValue(BooleanExpressionEditor.PROPERTY_KEY_INPUT_PRODUCTS,
                                         getCompatibleProducts(_rasterDataNode));
-            _paramValidPixelExpr = new Parameter("validMaskExpr",
-                                                 _rasterDataNode.getValidPixelExpression(),
-                                                 properties);
-            _paramName.addParamChangeListener(new ParamChangeListener() {
+            paramValidPixelExpr = new Parameter("validMaskExpr",
+                                                _rasterDataNode.getValidPixelExpression(),
+                                                properties);
+            paramName.addParamChangeListener(new ParamChangeListener() {
+                @Override
                 public void parameterValueChanged(final ParamChangeEvent event) {
-                    final String expresion = _paramValidPixelExpr.getValueAsText();
+                    final String expresion = paramValidPixelExpr.getValueAsText();
                     final String newExpression = StringUtils.replaceWord(expresion, (String) event.getOldValue(),
-                                                                         _paramName.getValueAsText());
-                    _paramValidPixelExpr.setValueAsText(newExpression, null);
+                                                                         paramName.getValueAsText());
+                    paramValidPixelExpr.setValueAsText(newExpression, null);
                 }
             });
         }
@@ -518,22 +520,23 @@ public class PropertyEditor {
             final ParamProperties properties = new ParamProperties(String.class);
             properties.setLabel("Geophysical unit");       /*I18N*/
             properties.setDescription("The geophysical unit of pixel values"); /*I18N*/
-            _paramGeophysUnit = new Parameter("unit",
-                                              _rasterDataNode.getUnit() == null ? "" : _rasterDataNode.getUnit(),
-                                              properties); /*I18N*/
+            paramGeophysUnit = new Parameter("unit",
+                                             _rasterDataNode.getUnit() == null ? "" : _rasterDataNode.getUnit(),
+                                             properties); /*I18N*/
         }
 
         private void initNoDataValueUsedParam() {
             final ParamProperties properties = new ParamProperties(Boolean.class);
             properties.setLabel("Use no-data value:"); /*I18N*/
             properties.setDescription("Indicates that the no-data value is used"); /*I18N*/
-            _paramNoDataValueUsed = new Parameter("noDataValueUsed",
-                                                  Boolean.valueOf(_rasterDataNode.isNoDataValueUsed()),
-                                                  properties);
-            _paramNoDataValueUsed.addParamChangeListener(new ParamChangeListener() {
+            paramNoDataValueUsed = new Parameter("noDataValueUsed",
+                                                 _rasterDataNode.isNoDataValueUsed(),
+                                                 properties);
+            paramNoDataValueUsed.addParamChangeListener(new ParamChangeListener() {
+                @Override
                 public void parameterValueChanged(final ParamChangeEvent event) {
-                    _paramNoDataValue.getEditor().setEnabled(
-                            ((Boolean) _paramNoDataValueUsed.getValue()).booleanValue());
+                    paramNoDataValue.getEditor().setEnabled(
+                            (Boolean) paramNoDataValueUsed.getValue());
                 }
             });
         }
@@ -544,14 +547,14 @@ public class PropertyEditor {
             properties.setLabel("No-data value"); /*I18N*/
             properties.setDescription("The value used to indicate no-data"); /*I18N*/
             properties.setNumCols(13);
-            _paramNoDataValue = new Parameter("noDataValue", noDataValue, properties);
-            _paramNoDataValue.getEditor().setEnabled(_rasterDataNode.isNoDataValueUsed());
+            paramNoDataValue = new Parameter("noDataValue", noDataValue, properties);
+            paramNoDataValue.getEditor().setEnabled(_rasterDataNode.isNoDataValueUsed());
         }
 
         private void initProductNodeParameters() {
             final ParamProperties nameProp = new ParamProperties(String.class);
             nameProp.setLabel("Name"); /*I18N*/
-            _paramName = new Parameter("nameParam", _node.getName(), nameProp);
+            paramName = new Parameter("nameParam", _node.getName(), nameProp);
             if (_node instanceof RasterDataNode) {
                 addNameValidator();
             }
@@ -560,7 +563,7 @@ public class PropertyEditor {
             descProp.setLabel("Description"); /*I18N*/
             descProp.setNumRows(2);
             descProp.setPropertyValue(ParamProperties.WORD_WRAP_KEY, true);
-            _paramDescription = new Parameter("descParam", _node.getDescription(), descProp);
+            paramDescription = new Parameter("descParam", _node.getDescription(), descProp);
         }
 
 
@@ -575,16 +578,16 @@ public class PropertyEditor {
 
             _gbc.gridy++;
             _gbc.weightx = 0;
-            add(_paramName.getEditor().getLabelComponent(), _gbc);
+            add(paramName.getEditor().getLabelComponent(), _gbc);
             _gbc.weightx = 1;
-            add(_paramName.getEditor().getComponent(), _gbc);
+            add(paramName.getEditor().getComponent(), _gbc);
             _gbc.gridy++;
             _gbc.weightx = 0;
-            add(_paramDescription.getEditor().getLabelComponent(), _gbc);
+            add(paramDescription.getEditor().getLabelComponent(), _gbc);
             _gbc.fill = GridBagConstraints.BOTH;
             _gbc.weightx = 1;
             _gbc.weighty = 500;
-            add(_paramDescription.getEditor().getComponent(), _gbc);
+            add(paramDescription.getEditor().getComponent(), _gbc);
             _gbc.fill = GridBagConstraints.HORIZONTAL;
             _gbc.weighty = 1;
 
@@ -593,25 +596,25 @@ public class PropertyEditor {
         private void initRasterDataNodeUI() {
             _gbc.gridy++;
             _gbc.weightx = 0;
-            add(_paramGeophysUnit.getEditor().getLabelComponent(), _gbc);
+            add(paramGeophysUnit.getEditor().getLabelComponent(), _gbc);
             _gbc.weightx = 1;
-            add(_paramGeophysUnit.getEditor().getComponent(), _gbc);
+            add(paramGeophysUnit.getEditor().getComponent(), _gbc);
 
             _gbc.insets.top += GROUP_GAP;
             _gbc.gridy++;
             _gbc.weightx = 0;
-            add(_paramNoDataValueUsed.getEditor().getComponent(), _gbc);
+            add(paramNoDataValueUsed.getEditor().getComponent(), _gbc);
             _gbc.weightx = 1;
-            add(_paramNoDataValue.getEditor().getComponent(), _gbc);
+            add(paramNoDataValue.getEditor().getComponent(), _gbc);
             _gbc.insets.top -= GROUP_GAP;
 
             _gbc.gridy++;
             _gbc.weightx = 0;
-            add(_paramValidPixelExpr.getEditor().getLabelComponent(), _gbc);
+            add(paramValidPixelExpr.getEditor().getLabelComponent(), _gbc);
             _gbc.weightx = 1;
             _gbc.weighty = 2000;
             _gbc.fill = GridBagConstraints.BOTH;
-            add(_paramValidPixelExpr.getEditor().getComponent(), _gbc);
+            add(paramValidPixelExpr.getEditor().getComponent(), _gbc);
             _gbc.fill = GridBagConstraints.HORIZONTAL;
             _gbc.weighty = 1;
         }
@@ -619,17 +622,17 @@ public class PropertyEditor {
         private void initProductUI() {
             _gbc.gridy++;
             _gbc.weightx = 0;
-            add(_paramProductType.getEditor().getLabelComponent(), _gbc);
+            add(paramProductType.getEditor().getLabelComponent(), _gbc);
             _gbc.weightx = 1;
-            add(_paramProductType.getEditor().getComponent(), _gbc);
+            add(paramProductType.getEditor().getComponent(), _gbc);
             _gbc.fill = GridBagConstraints.HORIZONTAL;
             _gbc.weighty = 1;
 
             _gbc.gridy++;
             _gbc.weightx = 0;
-            add(_paramBandSubGroupPaths.getEditor().getLabelComponent(), _gbc);
+            add(paramBandSubGroupPaths.getEditor().getLabelComponent(), _gbc);
             _gbc.weightx = 1;
-            add(_paramBandSubGroupPaths.getEditor().getComponent(), _gbc);
+            add(paramBandSubGroupPaths.getEditor().getComponent(), _gbc);
             _gbc.fill = GridBagConstraints.HORIZONTAL;
             _gbc.weighty = 1;
         }
@@ -640,18 +643,18 @@ public class PropertyEditor {
 
             _gbc.gridy++;
             _gbc.weightx = 0;
-            add(_paramSpectralWavelength.getEditor().getLabelComponent(), _gbc);
+            add(paramSpectralWavelength.getEditor().getLabelComponent(), _gbc);
             _gbc.weightx = 1;
-            add(createValueUnitPair(_paramSpectralWavelength.getEditor().getComponent(),
-                                    _paramSpectralWavelength.getEditor().getPhysUnitLabelComponent()), _gbc);
+            add(createValueUnitPair(paramSpectralWavelength.getEditor().getComponent(),
+                                    paramSpectralWavelength.getEditor().getPhysUnitLabelComponent()), _gbc);
 
             _gbc.insets.top = 2;
             _gbc.gridy++;
             _gbc.weightx = 0;
-            add(_paramSpectralBandwidth.getEditor().getLabelComponent(), _gbc);
+            add(paramSpectralBandwidth.getEditor().getLabelComponent(), _gbc);
             _gbc.weightx = 1;
-            add(createValueUnitPair(_paramSpectralBandwidth.getEditor().getComponent(),
-                                    _paramSpectralBandwidth.getEditor().getPhysUnitLabelComponent()), _gbc);
+            add(createValueUnitPair(paramSpectralBandwidth.getEditor().getComponent(),
+                                    paramSpectralBandwidth.getEditor().getPhysUnitLabelComponent()), _gbc);
 
             _gbc.insets.top -= GROUP_GAP;
         }
@@ -667,20 +670,20 @@ public class PropertyEditor {
             _gbc.insets.top += GROUP_GAP;
             _gbc.gridy++;
             _gbc.weightx = 0;
-            add(_paramVBExpression.getEditor().getLabelComponent(), _gbc);
+            add(paramVBExpression.getEditor().getLabelComponent(), _gbc);
             _gbc.weightx = 1;
             _gbc.weighty = 2000;
             _gbc.fill = GridBagConstraints.BOTH;
-            add(_paramVBExpression.getEditor().getComponent(), _gbc);
+            add(paramVBExpression.getEditor().getComponent(), _gbc);
             _gbc.fill = GridBagConstraints.HORIZONTAL;
             _gbc.weighty = 1;
             _gbc.insets.top -= GROUP_GAP;
         }
 
         private void addNameValidator() {
-            _paramName.getProperties().setValidatorClass(ProductNodeNameValidator.class);
-            _paramName.getProperties().setPropertyValue(ProductNodeNameValidator.PRODUCT_PROPERTY_KEY,
-                                                        _node.getProduct());
+            paramName.getProperties().setValidatorClass(ProductNodeNameValidator.class);
+            paramName.getProperties().setPropertyValue(ProductNodeNameValidator.PRODUCT_PROPERTY_KEY,
+                                                       _node.getProduct());
         }
 
 
@@ -689,12 +692,12 @@ public class PropertyEditor {
             @Override
             public void nodeChanged(ProductNodeEvent event) {
                 if (isVirtualBandRelevantPropertyName(event.getPropertyName())) {
-                    _virtualBandPropertyChanged = true;
+                    virtualBandPropertyChanged = true;
                 }
                 ProductNode productNode = event.getSourceNode();
                 if (productNode instanceof RasterDataNode) {
                     if (RasterDataNode.isValidMaskProperty(event.getPropertyName())) {
-                        _validMaskPropertyChanged = true;
+                        validMaskPropertyChanged = true;
                     }
                 }
             }
@@ -714,11 +717,13 @@ public class PropertyEditor {
         return VirtualBand.PROPERTY_NAME_EXPRESSION.equals(propertyName);
     }
 
-    class PropertyEditorDialog extends ModalDialog {
+    private class PropertyEditorDialog extends ModalDialog {
+
         private final EditorContent editorContent;
 
-        public PropertyEditorDialog(EditorContent editorContent) {
-            super(PropertyEditor.this._visatApp.getMainFrame(), PropertyEditor.getTitleText(editorContent), editorContent, ModalDialog.ID_OK_CANCEL_HELP, "propertyEditor");
+        private PropertyEditorDialog(EditorContent editorContent) {
+            super(PropertyEditor.this._visatApp.getMainFrame(), PropertyEditor.getTitleText(editorContent),
+                  editorContent, ModalDialog.ID_OK_CANCEL_HELP, "propertyEditor");
             this.editorContent = editorContent;
         }
 
