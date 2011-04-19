@@ -74,6 +74,7 @@ class ReprojectionForm extends JTabbedPane {
     private static final String[] RESAMPLING_IDENTIFIER = {"Nearest", "Bilinear", "Bicubic"};
 
     private final boolean orthoMode;
+    private final String targetProductSuffix;
     private final AppContext appContext;
     private final SourceProductSelector sourceProductSelector;
     private final TargetProductSelector targetProductSelector;
@@ -82,7 +83,7 @@ class ReprojectionForm extends JTabbedPane {
 
     private DemSelector demSelector;
     private CrsSelectionPanel crsSelectionPanel;
-    
+
     private OutputGeometryFormModel outputGeometryModel;
 
     private JButton outputParamButton;
@@ -97,8 +98,10 @@ class ReprojectionForm extends JTabbedPane {
         this.appContext = appContext;
         this.sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
         if (orthoMode) {
+            targetProductSuffix = "orthorectified";
             this.sourceProductSelector.setProductFilter(new OrthorectifyProductFilter());
         } else {
+            targetProductSuffix = "reprojected";
             this.sourceProductSelector.setProductFilter(new GeoCodingProductFilter());
         }
         this.reprojectionModel = new Model();
@@ -270,9 +273,9 @@ class ReprojectionForm extends JTabbedPane {
             } else {
                 ImageGeometry iGeometry;
                 final Product collocationProduct = collocationCrsUI.getCollocationProduct();
-                if(collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
+                if (collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
                     iGeometry = ImageGeometry.createCollocationTargetGeometry(sourceProduct, collocationProduct);
-                }else {
+                } else {
                     iGeometry = ImageGeometry.createTargetGeometry(sourceProduct, crs,
                                                                    null, null, null, null,
                                                                    null, null, null, null,
@@ -317,8 +320,8 @@ class ReprojectionForm extends JTabbedPane {
         }
 
         void setCrsErrorText(String infoText) {
-            setCrsInfoText("<html><b>"+infoText+"</b>", null);
-        }                             
+            setCrsInfoText("<html><b>" + infoText + "</b>", null);
+        }
 
         void setCrsInfoText(String infoText, String wkt) {
             this.wkt = wkt;
@@ -411,7 +414,7 @@ class ReprojectionForm extends JTabbedPane {
             public void propertyChange(PropertyChangeEvent evt) {
                 final boolean collocate = (Boolean) evt.getNewValue();
                 reprojectionContainer.setValue(Model.PRESERVE_RESOLUTION,
-                                                collocate || reprojectionModel.preserveResolution);
+                                               collocate || reprojectionModel.preserveResolution);
                 preserveResolutionCheckBox.setEnabled(!collocate);
             }
         });
@@ -451,7 +454,7 @@ class ReprojectionForm extends JTabbedPane {
 
     private void updateOutputParameterState() {
         outputParamButton.setEnabled(!reprojectionModel.preserveResolution && (crs != null));
-        updateProductSize();        
+        updateProductSize();
     }
 
     private JPanel createSourceProductPanel() {
@@ -481,10 +484,10 @@ class ReprojectionForm extends JTabbedPane {
     private void updateTargetProductName(Product selectedProduct) {
         final TargetProductSelectorModel selectorModel = targetProductSelector.getModel();
         if (selectedProduct != null) {
-            final String productName = MessageFormat.format("{0}_reprojected", selectedProduct.getName());
+            final String productName = MessageFormat.format("{0}_" + targetProductSuffix, selectedProduct.getName());
             selectorModel.setProductName(productName);
         } else if (selectorModel.getProductName() == null) {
-            selectorModel.setProductName("reprojected");
+            selectorModel.setProductName(targetProductSuffix);
         }
     }
 
@@ -507,15 +510,15 @@ class ReprojectionForm extends JTabbedPane {
                     workCopy = new OutputGeometryFormModel(outputGeometryModel);
                 } else {
                     final Product collocationProduct = collocationCrsUI.getCollocationProduct();
-                    if(collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
+                    if (collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
                         workCopy = new OutputGeometryFormModel(sourceProduct, collocationProduct);
-                    }else {
+                    } else {
                         workCopy = new OutputGeometryFormModel(sourceProduct, crs);
                     }
                 }
                 final OutputGeometryForm form = new OutputGeometryForm(workCopy);
                 final ModalDialog outputParametersDialog = new OutputParametersDialog(appContext.getApplicationWindow(),
-                        sourceProduct, workCopy);
+                                                                                      sourceProduct, workCopy);
                 outputParametersDialog.setContent(form);
                 if (outputParametersDialog.show() == ModalDialog.ID_OK) {
                     outputGeometryModel = workCopy;
@@ -528,6 +531,7 @@ class ReprojectionForm extends JTabbedPane {
         }
 
     }
+
     private void showWarningMessage(String message) {
         JOptionPane.showMessageDialog(getParent(), message, "Reprojection", JOptionPane.WARNING_MESSAGE);
     }
@@ -539,7 +543,8 @@ class ReprojectionForm extends JTabbedPane {
         private final Product sourceProduct;
         private final OutputGeometryFormModel outputGeometryFormModel;
 
-        public OutputParametersDialog(Window parent, Product sourceProduct, OutputGeometryFormModel outputGeometryFormModel) {
+        public OutputParametersDialog(Window parent, Product sourceProduct,
+                                      OutputGeometryFormModel outputGeometryFormModel) {
             super(parent, TITLE, ModalDialog.ID_OK_CANCEL | ModalDialog.ID_RESET, null);
             this.sourceProduct = sourceProduct;
             this.outputGeometryFormModel = outputGeometryFormModel;
@@ -549,12 +554,12 @@ class ReprojectionForm extends JTabbedPane {
         protected void onReset() {
             final Product collocationProduct = collocationCrsUI.getCollocationProduct();
             ImageGeometry imageGeometry;
-            if(collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
+            if (collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
                 imageGeometry = ImageGeometry.createCollocationTargetGeometry(sourceProduct, collocationProduct);
-            }else {
+            } else {
                 imageGeometry = ImageGeometry.createTargetGeometry(sourceProduct, crs,
-                null, null, null, null,
-                null, null, null, null, null);
+                                                                   null, null, null, null,
+                                                                   null, null, null, null, null);
             }
             outputGeometryFormModel.resetToDefaults(imageGeometry);
         }
