@@ -19,33 +19,16 @@ package org.esa.beam.collocation.visat;
 import org.esa.beam.collocation.CollocateOpTest;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
-import org.junit.Test;
 
 import javax.swing.JDialog;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
-import static junit.framework.Assert.*;
+public class CollocationDialogTestMain {
 
-import java.awt.HeadlessException;
-
-public class CollocationDialogTest {
-    @Test
-    public void testCollocationDialogExtensively() {
-        try {
-            final CollocationDialog dialog = createDialog();
-            assertEquals("Collocation", dialog.getTitle());
-            assertEquals("collocation", dialog.getHelpID());
-        } catch (HeadlessException e) {
-            warnHeadless();
-        }
+    private CollocationDialogTestMain() {
     }
 
-    private void warnHeadless() {
-        System.out.println("A " + CollocationDialogTest.class + " test has not been performed: HeadlessException");
-    }
-
-    public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException, InstantiationException, ClassNotFoundException {
+    public static void main(String[] args) throws Exception {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         final CollocationDialog dialog = createDialog();
         dialog.getJDialog().setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
