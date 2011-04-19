@@ -64,6 +64,7 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.BandMergeDescriptor;
 import javax.media.jai.operator.ClampDescriptor;
+import javax.media.jai.operator.CompositeDescriptor;
 import javax.media.jai.operator.ConstantDescriptor;
 import javax.media.jai.operator.ExpDescriptor;
 import javax.media.jai.operator.FormatDescriptor;
@@ -104,7 +105,8 @@ import java.util.Set;
  */
 public class ImageManager {
 
-    private static final boolean CACHE_INTERMEDIATE_TILES = Boolean.getBoolean("beam.imageManager.enableIntermediateTileCaching");
+    private static final boolean CACHE_INTERMEDIATE_TILES = Boolean.getBoolean(
+            "beam.imageManager.enableIntermediateTileCaching");
 
     private final Map<MaskKey, MultiLevelImage> maskImageMap = new HashMap<MaskKey, MultiLevelImage>(101);
     private final ProductNodeListener rasterDataChangeListener;
@@ -321,11 +323,10 @@ public class ImageManager {
     public RenderedImage createColoredBandImage(RasterDataNode[] rasterDataNodes,
                                                 ImageInfo imageInfo,
                                                 int level) {
-        Assert.notNull(rasterDataNodes,
-                       "rasterDataNodes");
+        Assert.notNull(rasterDataNodes, "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
-                || rasterDataNodes.length == 3
-                || rasterDataNodes.length == 4,
+                     || rasterDataNodes.length == 3
+                     || rasterDataNodes.length == 4,
                      "invalid number of bands");
 
         prepareImageInfos(rasterDataNodes, ProgressMonitor.NULL);
@@ -420,28 +421,28 @@ public class ImageManager {
         return image;
     }
 
-    private static RenderingHints createDefaultRenderingHints(RenderedImage sourceImage, ImageLayout targetImageLayout) {
+    private static RenderingHints createDefaultRenderingHints(RenderedImage sourceImage, ImageLayout targetLayout) {
         Map<RenderingHints.Key, Object> map = new HashMap<RenderingHints.Key, Object>(7);
         if (!CACHE_INTERMEDIATE_TILES) {
             map.put(JAI.KEY_TILE_CACHE, null);
         }
         if (sourceImage != null) {
-            if (targetImageLayout == null) {
-                targetImageLayout = new ImageLayout();
+            if (targetLayout == null) {
+                targetLayout = new ImageLayout();
             }
-            if (!targetImageLayout.isValid(ImageLayout.TILE_GRID_X_OFFSET_MASK)) {
-                targetImageLayout.setTileGridXOffset(sourceImage.getTileGridXOffset());
+            if (!targetLayout.isValid(ImageLayout.TILE_GRID_X_OFFSET_MASK)) {
+                targetLayout.setTileGridXOffset(sourceImage.getTileGridXOffset());
             }
-            if (!targetImageLayout.isValid(ImageLayout.TILE_GRID_Y_OFFSET_MASK)) {
-                targetImageLayout.setTileGridYOffset(sourceImage.getTileGridYOffset());
+            if (!targetLayout.isValid(ImageLayout.TILE_GRID_Y_OFFSET_MASK)) {
+                targetLayout.setTileGridYOffset(sourceImage.getTileGridYOffset());
             }
-            if (!targetImageLayout.isValid(ImageLayout.TILE_WIDTH_MASK)) {
-                targetImageLayout.setTileWidth(sourceImage.getTileWidth());
+            if (!targetLayout.isValid(ImageLayout.TILE_WIDTH_MASK)) {
+                targetLayout.setTileWidth(sourceImage.getTileWidth());
             }
-            if (!targetImageLayout.isValid(ImageLayout.TILE_HEIGHT_MASK)) {
-                targetImageLayout.setTileHeight(sourceImage.getTileHeight());
+            if (!targetLayout.isValid(ImageLayout.TILE_HEIGHT_MASK)) {
+                targetLayout.setTileHeight(sourceImage.getTileHeight());
             }
-            map.put(JAI.KEY_IMAGE_LAYOUT, targetImageLayout);
+            map.put(JAI.KEY_IMAGE_LAYOUT, targetLayout);
         }
         return new RenderingHints(map);
     }
@@ -565,7 +566,7 @@ public class ImageManager {
         } else {
             palette = colorPaletteDef.createColorPalette(rasterDataNode);
         }
-        // todo - correctly handle no-data color (nf, 10.10.2008)
+
         final byte[][] lutData = new byte[3][palette.length];
         for (int i = 0; i < palette.length; i++) {
             lutData[0][i] = (byte) palette[i].getRed();
@@ -574,9 +575,26 @@ public class ImageManager {
         }
         PlanarImage image = createLookupOp(sourceImage, lutData);
         if (maskImage != null) {
-            // add mask image as alpha channel so that no-data becomes fully transparent
-            image = BandMergeDescriptor.create(image, maskImage, createDefaultRenderingHints(sourceImage, null));
+            final Color noDataColor = imageInfo.getNoDataColor();
+            final Byte[] noDataRGB = new Byte[]{
+                    (byte) noDataColor.getRed(),
+                    (byte) noDataColor.getGreen(),
+                    (byte) noDataColor.getBlue()
+            };
+            final RenderedOp noDataColorImage = ConstantDescriptor.create((float) image.getWidth(),
+                                                                          (float) image.getHeight(),
+                                                                          noDataRGB, null);
+            byte noDataAlpha = (byte) noDataColor.getAlpha();
+            final RenderedOp noDataAlphaImage = ConstantDescriptor.create((float) image.getWidth(),
+                                                                          (float) image.getHeight(),
+                                                                          new Byte[]{noDataAlpha}, null);
+
+            image = CompositeDescriptor.create(image, noDataColorImage,
+                                               maskImage, noDataAlphaImage, false,
+                                               CompositeDescriptor.DESTINATION_ALPHA_LAST,
+                                               null);
         }
+
         return image;
     }
 
@@ -661,7 +679,7 @@ public class ImageManager {
             for (int i = 1; i < binCount; i++) {
                 double deviation = i - mu;
                 normCDF[b][i] = normCDF[b][i - 1] +
-                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+                                (float) Math.exp(-deviation * deviation / twoSigmaSquared);
             }
         }
 
@@ -700,7 +718,7 @@ public class ImageManager {
 
     @Deprecated
     public MultiLevelImage createValidMaskMultiLevelImage(final RasterDataNode rasterDataNode) {
-        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(rasterDataNode);
+        final MultiLevelModel model = ImageManager.getMultiLevelModel(rasterDataNode);
         final MultiLevelSource mls = new AbstractMultiLevelSource(model) {
 
             @Override
@@ -764,7 +782,7 @@ public class ImageManager {
         }
     }
 
-    /**
+    /*
      * Non-API.
      */
     public void prepareImageInfos(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
@@ -787,7 +805,7 @@ public class ImageManager {
     }
 
 
-    /**
+    /*
      * Non-API.
      */
     public int getStatisticsLevel(RasterDataNode raster, int levelCount) {
@@ -815,7 +833,8 @@ public class ImageManager {
 
     public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage, boolean invertAlpha) {
         RenderingHints hints = createDefaultRenderingHints(alphaImage, null);
-        return createColoredMaskImage(color, invertAlpha ? InvertDescriptor.create(alphaImage, hints) : alphaImage, hints);
+        return createColoredMaskImage(color, invertAlpha ? InvertDescriptor.create(alphaImage, hints) : alphaImage,
+                                      hints);
     }
 
     public static PlanarImage createColoredMaskImage(RenderedImage maskImage, Color color, double opacity) {
@@ -848,7 +867,9 @@ public class ImageManager {
      * @param rasterDataNode the band
      * @param color          the color
      * @param level          the level
+     *
      * @return the image, or null if the band has no valid ROI definition
+     *
      * @deprecated since BEAM 4.7, no replacement.
      */
     @Deprecated
@@ -865,7 +886,9 @@ public class ImageManager {
      *
      * @param rasterDataNode the band
      * @param level          the level
+     *
      * @return the ROI, or null if the band has no valid ROI definition
+     *
      * @deprecated since BEAM 4.7, no replacement.
      */
     @Deprecated
@@ -887,7 +910,7 @@ public class ImageManager {
         if (roiDefinition.isValueRangeEnabled()) {
             final String escapedName = BandArithmetic.createExternalName(rasterDataNode.getName());
             String rangeExpr = escapedName + " >= " + roiDefinition.getValueRangeMin() + " && "
-                    + escapedName + " <= " + roiDefinition.getValueRangeMax();
+                               + escapedName + " <= " + roiDefinition.getValueRangeMax();
             final String validMaskExpression = rasterDataNode.getValidMaskExpression();
             if (validMaskExpression != null) {
                 rangeExpr += " && " + validMaskExpression;
@@ -997,8 +1020,8 @@ public class ImageManager {
 
     private static class MaskKey {
 
-        final WeakReference<Product> product;
-        final String expression;
+        private final WeakReference<Product> product;
+        private final String expression;
 
         private MaskKey(Product product, String expression) {
             Assert.notNull(product, "product");
@@ -1054,6 +1077,9 @@ public class ImageManager {
     private static class Holder {
 
         private static final ImageManager instance = new ImageManager();
+
+        private Holder() {
+        }
     }
 }
 
