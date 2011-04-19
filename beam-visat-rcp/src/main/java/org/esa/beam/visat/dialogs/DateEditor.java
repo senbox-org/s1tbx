@@ -50,7 +50,8 @@ public class DateEditor extends AbstractParamEditor {
 
         dateComboBox = new DateComboBox();
         dateComboBox.setTimeDisplayed(true);
-        dateComboBox.setFormat(ProductData.UTC.createDateFormat());
+        dateComboBox.setFormat(ProductData.UTC.createDateFormat(ProductData.UTC.DATE_FORMAT_PATTERN + ".SSS"));
+        dateComboBox.setTimeFormat("HH:mm:ss.SSS");
         dateComboBox.setShowNoneButton(true);
         dateComboBox.setShowTodayButton(false);
         dateComboBox.setShowOKButton(true);

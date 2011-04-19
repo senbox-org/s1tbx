@@ -65,6 +65,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -326,10 +327,14 @@ public class PropertyEditor {
                 if (product != null) {
                     product.setProductType(paramProductType.getValueAsText());
                     if (paramStartTime.getValue() != null) {
-                        product.setStartTime(ProductData.UTC.create((Date) paramStartTime.getValue(), 0));
+                        final Date startDate = (Date) paramStartTime.getValue();
+                        final int micros = getMicrosecondFraction(startDate);
+                        product.setStartTime(ProductData.UTC.create(startDate, micros));
                     }
                     if (paramEndTime.getValue() != null) {
-                        product.setEndTime(ProductData.UTC.create((Date) paramEndTime.getValue(), 0));
+                        final Date endDate = (Date) paramEndTime.getValue();
+                        final int micros = getMicrosecondFraction(endDate);
+                        product.setEndTime(ProductData.UTC.create(endDate, micros));
                     }
                     product.setAutoGrouping(paramBandSubGroupPaths.getValueAsText());
                 }
@@ -356,6 +361,12 @@ public class PropertyEditor {
             if (rasterDataNode != null && (virtualBandPropertyChanged || validMaskPropertyChanged)) {
                 updateImages();
             }
+        }
+
+        private int getMicrosecondFraction(Date startDate) {
+            final Calendar cal = Calendar.getInstance();
+            cal.setTime(startDate);
+            return (int) (cal.get(Calendar.MILLISECOND) * 10.0e3);
         }
 
         private String formatBandSubGroupPaths() {
