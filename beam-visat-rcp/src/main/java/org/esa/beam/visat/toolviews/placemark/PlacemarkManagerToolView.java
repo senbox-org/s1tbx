@@ -775,12 +775,12 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         for (int sortedRow = 0; sortedRow < placemarkTable.getRowCount(); ++sortedRow) {
             if (placemarkTable.getSelectionModel().isSelectedIndex(sortedRow)) {
                 final int modelRow = placemarkTable.getActualRowAt(sortedRow);
-                placemarkList.add(sortedRow, placemarkTableModel.getPlacemarkAt(modelRow));
+                placemarkList.add(placemarkTableModel.getPlacemarkAt(modelRow));
                 Object[] values = new Object[columnCount];
                 for (int col = 0; col < columnCount; col++) {
                     values[col] = placemarkTableModel.getValueAt(modelRow, col);
                 }
-                valueList.add(sortedRow, values);
+                valueList.add(values);
             }
         }
 
