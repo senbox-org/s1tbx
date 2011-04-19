@@ -19,7 +19,6 @@ import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyEditor;
 import com.bc.ceres.swing.binding.PropertyEditorRegistry;
-
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -42,7 +41,7 @@ import java.awt.GridBagConstraints;
  * @since BEAM 4.7
  */
 public class OutputGeometryForm extends JPanel {
-    
+
     private final BindingContext context;
 
     public OutputGeometryForm(OutputGeometryFormModel model) {
@@ -137,7 +136,7 @@ public class OutputGeometryForm extends JPanel {
 
         add(dialogPane);
     }
-    
+
     private JComponent[] createComponents(String propertyName) {
         PropertyDescriptor descriptor = context.getPropertySet().getDescriptor(propertyName);
         PropertyEditorRegistry propertyEditorRegistry = PropertyEditorRegistry.getInstance();
@@ -151,19 +150,21 @@ public class OutputGeometryForm extends JPanel {
         context.getBinding(propertyName).addComponent(unitLabel);
         return unitLabel;
     }
-    
-    
+
+
     // for testing the UI
     public static void main(String[] args) throws Exception {
         final JFrame jFrame = new JFrame("Output parameter Definition Form");
         Container contentPane = jFrame.getContentPane();
-        
-        Product sourceProduct = ProductIO.readProduct("C:\\Dokumente und Einstellungen\\Marco Peters\\Eigene Dateien\\EOData\\MER_RR__1PPBCM20090804__Kinneret_FUB.dim");
+        if (args.length == 0) {
+            throw new IllegalArgumentException("Missing argument to product file.");
+        }
+        Product sourceProduct = ProductIO.readProduct(args[0]);
         CoordinateReferenceSystem targetCrs = CRS.decode("EPSG:32632");
         OutputGeometryFormModel model = new OutputGeometryFormModel(sourceProduct, targetCrs);
         OutputGeometryForm form = new OutputGeometryForm(model);
         contentPane.add(form);
-        
+
         jFrame.setSize(400, 600);
         jFrame.setLocationRelativeTo(null);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
