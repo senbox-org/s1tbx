@@ -58,6 +58,8 @@ Improvements
 [BEAM-1219]	- GPF API should implicitly convert parameter values
 [BEAM-1183] - Improve reprojection UI usability
 [BEAM-1156] - SubsetOp does not copy metadata
+[BEAM-0009] - Define subsets with geographical co-ordinates
+
 
 Bugs
 [BEAM-1248] - Title of transect-plot dialog is not updated if band selection changes
