@@ -69,6 +69,7 @@ Bugs
 [BEAM-1229] - OBPG SeaWiFS L2 files can not be opened
 [BEAM-1228] - Rangefinder does not work
 [BEAM-1227] - PConvert doesn't generate images if profile contains calculated RGB bands
+[BEAM-1226] - Subset operator does not extract flags automatically
 [BEAM-1223] - gpt command-line usage generates incorrect XML templates
 [BEAM-1222] - gpt command-line tool ignores -p option
 [BEAM-1220] - GPF API does not use progress monitor

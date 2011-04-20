@@ -20,7 +20,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
@@ -45,9 +44,12 @@ import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class SubsetOpTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class SubsetOpTest {
 
 
+    @Test
     public void testConstructorUsage() throws Exception {
         final Product sp = createTestProduct(100, 100);
 
@@ -68,6 +70,26 @@ public class SubsetOpTest extends TestCase {
         assertNotNull(tp.getBand("radiance_3"));
     }
 
+    @Test
+    public void testReferencedRastersAreIncluded() throws Exception {
+        final Product sp = createTestProduct(100, 100);
+        sp.getBand("radiance_1").setValidPixelExpression("radiance_2 > 0");
+        final String[] bandNames = {"radiance_1", "radiance_3"};
+
+        SubsetOp op = new SubsetOp();
+        op.setSourceProduct(sp);
+        op.setBandNames(bandNames);
+
+        Product tp = op.getTargetProduct();
+
+        assertEquals(3, tp.getNumBands());
+        assertNotNull(tp.getBand("radiance_1"));
+        assertEquals("radiance_2 > 0", tp.getBand("radiance_1").getValidPixelExpression());
+        assertNotNull(tp.getBand("radiance_2"));
+        assertNotNull(tp.getBand("radiance_3"));
+    }
+
+    @Test
     public void testInstantiationWithGPF() throws GraphException {
         GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
         GeometryFactory gf = new GeometryFactory();
@@ -92,6 +114,7 @@ public class SubsetOpTest extends TestCase {
     }
 
 
+    @Test
     public void testGeometry() throws Exception {
         final GeometryFactory gf = new GeometryFactory();
         final Product sp = createTestProduct(100, 100);
@@ -131,7 +154,8 @@ public class SubsetOpTest extends TestCase {
         product.setGeoCoding(geoCoding);
         geometry = SubsetOp.computeProductGeometry(product);
         assertTrue(geometry instanceof Polygon);
-        assertEquals("POLYGON ((-179.5 -89.5, -179.5 89.5, 179.5 89.5, 179.5 -89.5, -179.5 -89.5))", geometry.toString());
+        assertEquals("POLYGON ((-179.5 -89.5, -179.5 89.5, 179.5 89.5, 179.5 -89.5, -179.5 -89.5))",
+                     geometry.toString());
 
         Rectangle rectangle;
 
@@ -167,19 +191,8 @@ public class SubsetOpTest extends TestCase {
         assertEquals(true, rectangle.isEmpty());
     }
 
-    private static Polygon createBBOX(double x, double y, double w, double h) {
-        GeometryFactory factory = new GeometryFactory();
-        final LinearRing ring = factory.createLinearRing(new Coordinate[]{
-                new Coordinate(x, y),
-                new Coordinate(x + w, y),
-                new Coordinate(x + w, y + h),
-                new Coordinate(x, y + h),
-                new Coordinate(x, y)
-        });
-        return factory.createPolygon(ring, null);
-    }
 
-
+    @Test
     public void testCopyMetadata() throws Exception {
         final Product sp = createTestProduct(100, 100);
         addMetadata(sp);
@@ -215,6 +228,18 @@ public class SubsetOpTest extends TestCase {
         assertNotNull(meta2_1);
         final MetadataAttribute attrib2_1 = meta2_1.getAttribute("attrib2_1");
         assertEquals("meta2_1_value", attrib2_1.getData().getElemString());
+    }
+
+    private static Polygon createBBOX(double x, double y, double w, double h) {
+        GeometryFactory factory = new GeometryFactory();
+        final LinearRing ring = factory.createLinearRing(new Coordinate[]{
+                new Coordinate(x, y),
+                new Coordinate(x + w, y),
+                new Coordinate(x + w, y + h),
+                new Coordinate(x, y + h),
+                new Coordinate(x, y)
+        });
+        return factory.createPolygon(ring, null);
     }
 
     private void addMetadata(Product sp) {
