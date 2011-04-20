@@ -166,7 +166,7 @@ public class ProductUtils {
      * @return the created image
      *
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
-     * @see RasterDataNode#setImageInfo
+     * @see RasterDataNode#setImageInfo(org.esa.beam.framework.datamodel.ImageInfo)
      */
     public static BufferedImage createRgbImage(final RasterDataNode[] rasters,
                                                final ImageInfo imageInfo,
@@ -433,7 +433,7 @@ public class ProductUtils {
      * @return the color indexed image
      *
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
-     * @see RasterDataNode#setImageInfo
+     * @see org.esa.beam.framework.datamodel.RasterDataNode#getImageInfo()
      */
     public static BufferedImage createColorIndexedImage(final RasterDataNode rasterDataNode,
                                                         ProgressMonitor pm) throws IOException {
@@ -675,7 +675,6 @@ public class ProductUtils {
      * @return an array of geographical coordinates
      *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createPixelBoundary
      */
     public static GeoPos[] createGeoBoundary(Product product, int step) {
         final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
@@ -695,7 +694,7 @@ public class ProductUtils {
      * @return an array of geographical coordinates
      *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createPixelBoundary
+     * @see #createPixelBoundary(org.esa.beam.framework.datamodel.RasterDataNode, java.awt.Rectangle, int)
      */
     public static GeoPos[] createGeoBoundary(Product product, Rectangle region, int step) {
         final boolean usePixelCenter = true;
@@ -714,7 +713,7 @@ public class ProductUtils {
      * @return an array of geographical coordinates
      *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createPixelBoundary
+     * @see #createPixelBoundary(org.esa.beam.framework.datamodel.Product, java.awt.Rectangle, int, boolean)
      */
     public static GeoPos[] createGeoBoundary(Product product, Rectangle region, int step,
                                              final boolean usePixelCenter) {
@@ -742,7 +741,7 @@ public class ProductUtils {
      * @return an array of geographical coordinates
      *
      * @throws IllegalArgumentException if raster is null or if the raster has no {@link GeoCoding} is null
-     * @see #createPixelBoundary
+     * @see #createPixelBoundary(org.esa.beam.framework.datamodel.RasterDataNode, java.awt.Rectangle, int)
      */
     public static GeoPos[] createGeoBoundary(RasterDataNode raster, Rectangle region, int step) {
         Guardian.assertNotNull("raster", raster);
@@ -770,7 +769,7 @@ public class ProductUtils {
      * @return an array of shape objects
      *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createGeoBoundary
+     * @see #createGeoBoundary(org.esa.beam.framework.datamodel.Product, int)
      */
     public static GeneralPath[] createGeoBoundaryPaths(Product product) {
         final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
@@ -795,7 +794,7 @@ public class ProductUtils {
      * @return an array of shape objects
      *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createGeoBoundary
+     * @see #createGeoBoundary(org.esa.beam.framework.datamodel.Product, java.awt.Rectangle, int)
      */
     public static GeneralPath[] createGeoBoundaryPaths(Product product, Rectangle region, int step) {
         final boolean usePixelCenter = true;
@@ -817,7 +816,7 @@ public class ProductUtils {
      * @return an array of shape objects
      *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createGeoBoundary
+     * @see #createGeoBoundary(org.esa.beam.framework.datamodel.Product, java.awt.Rectangle, int, boolean)
      */
     public static GeneralPath[] createGeoBoundaryPaths(Product product, Rectangle region, int step,
                                                        final boolean usePixelCenter) {
@@ -849,8 +848,6 @@ public class ProductUtils {
      * @param step    the mean distance from one pixel position to the other in the returned array
      *
      * @return the rectangular boundary
-     *
-     * @see #createPixelBoundary
      */
     public static PixelPos[] createPixelBoundary(Product product, Rectangle rect, int step) {
         final boolean usePixelCenter = true;
@@ -871,8 +868,6 @@ public class ProductUtils {
      * @param usePixelCenter <code>true</code> if the pixel center should be used to create the boundary
      *
      * @return the rectangular boundary
-     *
-     * @see #createPixelBoundary
      */
     public static PixelPos[] createPixelBoundary(Product product, Rectangle rect, int step,
                                                  final boolean usePixelCenter) {
@@ -898,8 +893,6 @@ public class ProductUtils {
      * @param step   the mean distance from one pixel position to the other in the returned array
      *
      * @return the rectangular boundary
-     *
-     * @see #createPixelBoundary
      */
     public static PixelPos[] createPixelBoundary(RasterDataNode raster, Rectangle rect, int step) {
         if (rect == null) {
@@ -924,8 +917,6 @@ public class ProductUtils {
      * @param step the mean distance from one pixel position to the other in the returned array
      *
      * @return the rectangular boundary
-     *
-     * @see #createPixelBoundary
      */
     public static PixelPos[] createRectBoundary(Rectangle rect, int step) {
         final boolean usePixelCenter = true;
@@ -946,8 +937,6 @@ public class ProductUtils {
      * @param usePixelCenter <code>true</code> if the pixel center should be used
      *
      * @return the rectangular boundary
-     *
-     * @see #createPixelBoundary
      */
     public static PixelPos[] createRectBoundary(final Rectangle rect, int step, final boolean usePixelCenter) {
         final float insetDistance;
@@ -1105,7 +1094,6 @@ public class ProductUtils {
      * @param sourceProduct the source product
      * @param targetProduct the target product
      *
-     * @see #copyBitmaskDefsAndOverlays
      * @deprecated since BEAM 4.7, use {@link #copyMasks(Product, Product)} instead.
      */
     @Deprecated
@@ -1327,7 +1315,7 @@ public class ProductUtils {
      * @param sourceRaster the source band
      * @param targetRaster the target band
      *
-     * @see #copySpectralBandProperties
+     * @see #copySpectralBandProperties(org.esa.beam.framework.datamodel.Band, org.esa.beam.framework.datamodel.Band)
      */
     public static void copyRasterDataNodeProperties(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
         targetRaster.setDescription(sourceRaster.getDescription());
@@ -1357,7 +1345,7 @@ public class ProductUtils {
      * @param sourceBand the source band
      * @param targetBand the target band
      *
-     * @see #copyRasterDataNodeProperties
+     * @see #copyRasterDataNodeProperties(org.esa.beam.framework.datamodel.RasterDataNode, org.esa.beam.framework.datamodel.RasterDataNode)
      */
     public static void copySpectralBandProperties(Band sourceBand, Band targetBand) {
         Guardian.assertNotNull("source", sourceBand);
@@ -1702,7 +1690,7 @@ public class ProductUtils {
      * @return the modified given overlaBImm which contains all the activated bitmasks.
      *
      * @throws IOException if any reading process fails.
-     * @deprecated since BEAM 4.7, use {@link ProductUtils#overlayMasks}
+     * @deprecated since BEAM 4.7, use {@link ProductUtils#overlayMasks(RasterDataNode, BufferedImage, ProgressMonitor)}
      */
     @Deprecated
     public static BufferedImage overlayBitmasks(final RasterDataNode raster, final BufferedImage overlayBIm,
@@ -1766,7 +1754,7 @@ public class ProductUtils {
      * @return 0 if normalizing has not been applied , -1 if negative normalizing has been applied, 1 if positive
      *         normalizing has been applied, 2 if positive and negative normalising has been applied
      *
-     * @see #denormalizeGeoPolygon
+     * @see #denormalizeGeoPolygon(GeoPos[])
      */
     public static int normalizeGeoPolygon(GeoPos[] polygon) {
         final float[] originalLon = new float[polygon.length];
@@ -1931,7 +1919,7 @@ public class ProductUtils {
      * pixel coordinates using the supplied geo coding.
      *
      * @param geoPath   a <code>GeneralPath</code> given in geographic lon/lat coordinates, as returned by the {@link
-     *                  #convertToGeoPath} method
+     *                  #convertToGeoPath(Shape, GeoCoding)} method
      * @param geoCoding the geocoding used to convert the geographic coordinates into pixel coordinates.
      *
      * @return a <code>GeneralPath</code> given in pixel coordinates.
@@ -1939,7 +1927,7 @@ public class ProductUtils {
      * @throws IllegalArgumentException if one of the given parameter is null.
      * @throws IllegalStateException    if the given geoPath is not a geo referenced <code>GeneralPath</code> wich
      *                                  contains only SEG_MOVETO, SEG_LINETO, and SEG_CLOSE point types.
-     * @see #convertToGeoPath
+     * @see #convertToGeoPath(Shape, GeoCoding)
      */
     public static GeneralPath convertToPixelPath(GeneralPath geoPath, GeoCoding geoCoding) {
         Guardian.assertNotNull("geoPath", geoPath);
@@ -2582,7 +2570,7 @@ public class ProductUtils {
 // Deprecated API
 
     /**
-     * @deprecated in 3.x, use {@link #createGeoBoundaryPaths}
+     * @deprecated in 3.x, use {@link #createGeoBoundaryPaths(Product)}
      */
     public static GeneralPath createGeoBoundaryPath(Product product) {
         final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
@@ -2591,7 +2579,7 @@ public class ProductUtils {
     }
 
     /**
-     * @deprecated in 3.x, use {@link #createGeoBoundaryPaths}
+     * @deprecated in 3.x, use {@link #createGeoBoundaryPaths(Product, Rectangle, int)}
      */
     public static GeneralPath createGeoBoundaryPath(Product product, Rectangle rect, int step) {
         GeoPos[] geoPoints = createGeoBoundary(product, rect, step);
