@@ -34,6 +34,7 @@ import java.util.Map;
 
 
 public class SpectralUnmixingDialog extends SingleTargetProductDialog {
+
     public static final String HELP_ID = "spectralUnmixing";
     private static final String TITLE = "Spectral Unmixing";
     private SpectralUnmixingForm form;
@@ -43,7 +44,7 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
         form = new SpectralUnmixingForm(appContext, getTargetProductSelector());
         OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
                                                                   SpectralUnmixingOp.class,
-                                                                  null,
+                                                                  form.getFormModel().getOperatorValueContainer(),
                                                                   HELP_ID);
         getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
     }
@@ -93,8 +94,8 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
         }
         if (!matchingWavelength(endmembers, sourceWavelengths, sourceBandwidths, minBandwidth)) {
             showErrorDialog("One or more source wavelengths do not fit\n" +
-                    "to one or more endmember spectra.\n\n" +
-                    "Consider increasing the maximum wavelength deviation.");
+                            "to one or more endmember spectra.\n\n" +
+                            "Consider increasing the maximum wavelength deviation.");
             return false;
         }
 
@@ -110,7 +111,8 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
             for (int i = 0; i < sourceWavelengths.length; i++) {
                 double sourceWavelength = sourceWavelengths[i];
                 double sourceBandwidth = sourceBandwidths[i];
-                final int k = SpectralUnmixingOp.findEndmemberSpectralIndex(endmemberWavelengths, sourceWavelength, Math.max(sourceBandwidth, minBandwidth));
+                final int k = SpectralUnmixingOp.findEndmemberSpectralIndex(endmemberWavelengths, sourceWavelength,
+                                                                            Math.max(sourceBandwidth, minBandwidth));
                 if (k == -1) {
                     return false;
                 }
@@ -119,7 +121,8 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
         return true;
     }
 
-    public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException, InstantiationException, ClassNotFoundException {
+    public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException,
+                                                  InstantiationException, ClassNotFoundException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         float[] wl = new float[]{
                 412.6395569f,
