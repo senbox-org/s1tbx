@@ -16,10 +16,12 @@
 
 package org.esa.beam.collocation.visat;
 
+import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.collocation.CollocateOp;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.ui.OperatorMenuSupport;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
@@ -34,35 +36,33 @@ class CollocationDialog extends SingleTargetProductDialog {
 
     public static final String HELP_ID = "collocation";
 
-    private CollocationFormModel formModel;
+    private Map<String, Object> parameterMap;
     private CollocationForm form;
 
     public CollocationDialog(AppContext appContext) {
         super(appContext, "Collocation", HELP_ID);
-        formModel = new CollocationFormModel(getTargetProductSelector().getModel());
-        form = new CollocationForm(formModel, getTargetProductSelector(), appContext);
+
+        parameterMap = new HashMap<String, Object>(17);
+        final PropertyContainer propertyContainer = PropertyContainer.createMapBacked(parameterMap,
+                                                                   CollocateOp.class,
+                                                                   new ParameterDescriptorFactory());
+        propertyContainer.setDefaultValues();
 
         OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
                                                                   CollocateOp.class,
-                                                                  null,
+                                                                  propertyContainer,
                                                                   HELP_ID);
         getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
+
+        form = new CollocationForm(propertyContainer, getTargetProductSelector(), appContext);
+
     }
 
     @Override
     protected Product createTargetProduct() throws Exception {
         final Map<String, Product> productMap = new HashMap<String, Product>(5);
-        productMap.put("master", formModel.getMasterProduct());
-        productMap.put("slave", formModel.getSlaveProduct());
-
-        final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
-        // collocation parameters
-        parameterMap.put("targetProductName", formModel.getTargetProductName());
-        parameterMap.put("renameMasterComponents", formModel.isRenameMasterComponentsSelected());
-        parameterMap.put("renameSlaveComponents", formModel.isRenameSlaveComponentsSelected());
-        parameterMap.put("masterComponentPattern", formModel.getMasterComponentPattern());
-        parameterMap.put("slaveComponentPattern", formModel.getSlaveComponentPattern());
-        parameterMap.put("resamplingType", formModel.getResamplingType());
+        productMap.put("master", form.getMasterProduct());
+        productMap.put("slave", form.getSlaveProduct());
 
         return GPF.createProduct(OperatorSpi.getOperatorAlias(CollocateOp.class), parameterMap, productMap);
     }

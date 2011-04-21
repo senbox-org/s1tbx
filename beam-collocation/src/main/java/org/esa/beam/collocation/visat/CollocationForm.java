@@ -16,18 +16,28 @@
 
 package org.esa.beam.collocation.visat;
 
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
+import org.esa.beam.collocation.ResamplingType;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import com.bc.ceres.swing.TableLayout;
-import com.bc.ceres.swing.binding.BindingContext;
 
 /**
  * Form for geographic collocation dialog.
@@ -35,9 +45,7 @@ import com.bc.ceres.swing.binding.BindingContext;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-public class CollocationForm extends JPanel {
-
-    private CollocationFormModel model;
+class CollocationForm extends JPanel {
 
     private SourceProductSelector masterProductSelector;
     private SourceProductSelector slaveProductSelector;
@@ -47,12 +55,10 @@ public class CollocationForm extends JPanel {
     private JTextField masterComponentPatternField;
     private JTextField slaveComponentPatternField;
     private JComboBox resamplingComboBox;
+    private DefaultComboBoxModel resamplingComboBoxModel;
     private TargetProductSelector targetProductSelector;
 
-    public CollocationForm(final CollocationFormModel model, TargetProductSelector targetProductSelector,
-                           AppContext appContext) {
-        this.model = model;
-
+    public CollocationForm(PropertySet propertySet, TargetProductSelector targetProductSelector, AppContext appContext) {
         this.targetProductSelector = targetProductSelector;
         masterProductSelector = new SourceProductSelector(appContext,
                                                           "Master (pixel values are conserved):");
@@ -62,24 +68,19 @@ public class CollocationForm extends JPanel {
         renameSlaveComponentsCheckBox = new JCheckBox("Rename slave components:");
         masterComponentPatternField = new JTextField();
         slaveComponentPatternField = new JTextField();
-        resamplingComboBox = new JComboBox(model.getResamplingComboBoxModel());
+        resamplingComboBoxModel = new DefaultComboBoxModel(ResamplingType.values());
+        resamplingComboBox = new JComboBox(resamplingComboBoxModel);
 
         slaveProductSelector.getProductNameComboBox().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                model.adaptResamplingComboBoxModel();
+                Product slaveProduct = slaveProductSelector.getSelectedProduct();
+                boolean validPixelExpressionUsed = isValidPixelExpressionUsed(slaveProduct);
+                adaptResamplingComboBoxModel(resamplingComboBoxModel, validPixelExpressionUsed);
             }
         });
 
-        final ActionListener listener = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                updateUIState();
-            }
-        };
-        renameMasterComponentsCheckBox.addActionListener(listener);
-        renameSlaveComponentsCheckBox.addActionListener(listener);
-
         createComponents();
-        bindComponents();
+        bindComponents(propertySet);
     }
 
     public void prepareShow() {
@@ -93,14 +94,17 @@ public class CollocationForm extends JPanel {
         }
     }
 
-    private void updateUIState() {
-        masterComponentPatternField.setEnabled(renameMasterComponentsCheckBox.isSelected());
-        slaveComponentPatternField.setEnabled(renameSlaveComponentsCheckBox.isSelected());
-    }
-
     public void prepareHide() {
         masterProductSelector.releaseProducts();
         slaveProductSelector.releaseProducts();
+    }
+
+    Product getMasterProduct() {
+        return masterProductSelector.getSelectedProduct();
+    }
+
+    Product getSlaveProduct() {
+        return slaveProductSelector.getSelectedProduct();
     }
 
     private void createComponents() {
@@ -112,14 +116,15 @@ public class CollocationForm extends JPanel {
         add(createResamplingPanel());
     }
 
-    private void bindComponents() {
-        final BindingContext sbc = new BindingContext(model.getValueContainer());
-        sbc.bind("masterProduct", masterProductSelector.getProductNameComboBox());
-        sbc.bind("slaveProduct", slaveProductSelector.getProductNameComboBox());
+    private void bindComponents(PropertySet propertySet) {
+        final BindingContext sbc = new BindingContext(propertySet);
         sbc.bind("renameMasterComponents", renameMasterComponentsCheckBox);
         sbc.bind("renameSlaveComponents", renameSlaveComponentsCheckBox);
         sbc.bind("masterComponentPattern", masterComponentPatternField);
         sbc.bind("slaveComponentPattern", slaveComponentPatternField);
+        sbc.bind("resamplingType", resamplingComboBox);
+        sbc.bindEnabledState("masterComponentPattern", true, "renameMasterComponents", true);
+        sbc.bindEnabledState("slaveComponentPattern", true, "renameSlaveComponents", true);
     }
 
     private JPanel createSourceProductPanel() {
@@ -190,5 +195,33 @@ public class CollocationForm extends JPanel {
 
         return panel;
     }
+
+    static void adaptResamplingComboBoxModel(DefaultComboBoxModel comboBoxModel, boolean isValidPixelExpressionUsed) {
+        if (isValidPixelExpressionUsed) {
+            if (comboBoxModel.getSize() == 3) {
+                comboBoxModel.removeElement(ResamplingType.CUBIC_CONVOLUTION);
+                comboBoxModel.removeElement(ResamplingType.BILINEAR_INTERPOLATION);
+                comboBoxModel.setSelectedItem(ResamplingType.NEAREST_NEIGHBOUR);
+            }
+        } else {
+            if (comboBoxModel.getSize() == 1) {
+                comboBoxModel.addElement(ResamplingType.BILINEAR_INTERPOLATION);
+                comboBoxModel.addElement(ResamplingType.CUBIC_CONVOLUTION);
+            }
+        }
+    }
+
+    static  boolean isValidPixelExpressionUsed(Product product) {
+        if (product != null) {
+            for (final Band band : product.getBands()) {
+                final String expression = band.getValidPixelExpression();
+                if (expression != null && !expression.trim().isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
 }

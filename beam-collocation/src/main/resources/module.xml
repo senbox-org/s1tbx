@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-collocation</symbolicName>
-    <version>1.2</version>
+    <version>1.3</version>
     <name>Collocation</name>
 
     <description>
@@ -10,10 +10,13 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.3:<br/>
+        [BEAM-1263] All processors shall provide help and "about" information<br/>
+        [BEAM-1052] All processors should be able to store/reload their configuration<br/>
         Changes in 1.2:<br/>
-        [BEAM-1209] Unable to collocate two data sets<br>
+        [BEAM-1209] Unable to collocate two data sets<br/>
         Changes in 1.1:<br/>
-        [BEAM-957] "Search" tab missing VISAT help<br>
+        [BEAM-957] "Search" tab missing VISAT help<br/>
         Changes in 1.0.100:<br/>
         [BEAM-769] Collocation does not merge and rename tie-point grids<br/>
         Changes in 1.0.1:<br/>
