@@ -56,7 +56,7 @@
                         <template>
                             <source>${basedir}/../src/main/bin/win/beam-cli-template.bat</source>
                             <lineEnding>dos</lineEnding>
-                            <outputDirectory>${basedir}/../target/beam-bin.dir/bin</outputDirectory>
+                            <outputDirectory>${basedir}/../target/beam-bin/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
                             <filterSet>
                                 <directory>${basedir}/../src/main/filters</directory>
@@ -68,7 +68,7 @@
                         <template>
                             <source>${basedir}/../src/main/bin/linux/beam-cli-template.sh</source>
                             <lineEnding>unix</lineEnding>
-                            <outputDirectory>${basedir}/../target/beam-bin.dir/bin</outputDirectory>
+                            <outputDirectory>${basedir}/../target/beam-bin/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
                             <filterSet>
                                 <directory>${basedir}/../src/main/filters</directory>
@@ -80,7 +80,7 @@
                         <template>
                             <source>${basedir}/../src/main/bin/macosx/beam-cli-template.command</source>
                             <lineEnding>unix</lineEnding>
-                            <outputDirectory>${basedir}/../target/beam-bin.dir/bin</outputDirectory>
+                            <outputDirectory>${basedir}/../target/beam-bin/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
                             <filterSet>
                                 <directory>${basedir}/../src/main/filters</directory>
