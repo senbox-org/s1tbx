@@ -807,6 +807,24 @@ public class ProductSubsetDialog extends ModalDialog {
             float maxLon = ((Double) bounds.getMaxX()).floatValue();
             float minLat = ((Double) bounds.getMinY()).floatValue();
             float maxLat = ((Double) bounds.getMaxY()).floatValue();
+            if (givenProductSubsetDef != null && canUseGeoCoordinates(product)) {
+                Rectangle region = givenProductSubsetDef.getRegion();
+                if (region != null) {
+                    final GeoCoding geoCoding = product.getGeoCoding();
+                    final GeoPos gp1 = geoCoding.getGeoPos(new PixelPos(region.x, region.y), null);
+                    final GeoPos gp2 = geoCoding.getGeoPos(new PixelPos(region.x + region.width - 1,
+                                                                        region.y + region.height - 1), null);
+                    minLon = Math.min(minLon, gp1.getLon());
+                    minLon = Math.min(minLon, gp2.getLon());
+                    maxLon = Math.max(maxLon, gp1.getLon());
+                    maxLon = Math.max(maxLon, gp2.getLon());
+                    minLat = Math.min(minLat, gp1.getLat());
+                    minLat = Math.min(minLat, gp2.getLat());
+                    maxLat = Math.max(maxLat, gp1.getLat());
+                    maxLat = Math.max(maxLat, gp2.getLat());
+
+                }
+            }
 
             paramNorthLat1 = new Parameter("geo_lat1", maxLat);
             paramNorthLat1.getProperties().setDescription("North bound latitude");
