@@ -50,7 +50,7 @@ import java.io.IOException;
  *
  * @author Marco Zuehlke
  */
-@OperatorMetadata(alias = "N1Patcher", internal = true)
+@OperatorMetadata(alias = "N1Patcher")
 public class N1PatcherOp extends MerisBasisOp implements Output {
 
     // MPH:
@@ -142,7 +142,12 @@ public class N1PatcherOp extends MerisBasisOp implements Output {
         ProductUtils.copyFlagBands(n1Product, targetProduct);
         try {
             File originalFileLocation = n1Product.getFileLocation();
-
+            if (originalFileLocation == null) {
+                throw new OperatorException("The 'n1Product' is not stored on disk.");
+            }
+            if (originalFileLocation.getName().endsWith(".N1")) {
+                throw new OperatorException("The file of the 'n1Product' must have '.N1' as extension.");
+            }
             synchronized (syncObject) {
                 inputStream = new FileImageInputStream(originalFileLocation);
                 outputStream = new FileImageOutputStream(patchedFile);

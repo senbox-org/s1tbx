@@ -60,10 +60,16 @@ class RadiometryDialog extends SingleTargetProductDialog {
     @Override
     protected Product createTargetProduct() throws Exception {
         final Product sourceProduct = form.getSourceProduct();
+        final Product radioCorrProduct = GPF.createProduct(alias, parameterMap, sourceProduct);
         if (isEnvisatFormatSelected() && getTargetProductSelector().getModel().isSaveToFileSelected()) {
-            parameterMap.put("n1File", getTargetProductSelector().getModel().getProductFile());
+            final HashMap<String, Object> n1Parameters = new HashMap<String, Object>();
+            n1Parameters.put("patchedFile", getTargetProductSelector().getModel().getProductFile());
+            final HashMap<String, Product> sourceProductMap = new HashMap<String, Product>();
+            sourceProductMap.put("n1", form.getSourceProduct());
+            sourceProductMap.put("input", radioCorrProduct);
+            return GPF.createProduct("N1Patcher", n1Parameters, sourceProductMap);
         }
-        return GPF.createProduct(alias, parameterMap, sourceProduct);
+        return radioCorrProduct;
     }
 
     @Override

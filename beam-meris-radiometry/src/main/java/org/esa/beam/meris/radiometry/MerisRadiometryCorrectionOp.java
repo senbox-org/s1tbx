@@ -16,20 +16,29 @@
 
 package org.esa.beam.meris.radiometry;
 
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.experimental.SampleOperator;
+import org.esa.beam.meris.radiometry.calibration.CalibrationAlgorithm;
+import org.esa.beam.meris.radiometry.calibration.Resolution;
+import org.esa.beam.meris.radiometry.equalization.EqualizationAlgorithm;
 import org.esa.beam.meris.radiometry.equalization.ReprocessingVersion;
-import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.meris.radiometry.smilecorr.SmileCorrectionAlgorithm;
+import org.esa.beam.meris.radiometry.smilecorr.SmileCorrectionAuxdata;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.math.RsMathUtils;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 
@@ -39,7 +48,14 @@ import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
                   authors = "Marc Bouvet (ESTEC); Marco Peters, Ralf Quast, Thomas Storm, Marco Zuehlke (Brockmann Consult)",
                   copyright = "(c) 2010 by Brockmann Consult",
                   version = "1.0")
-public class MerisRadiometryCorrectionOp extends Operator {
+public class MerisRadiometryCorrectionOp extends SampleOperator {
+
+    private static final String UNIT_DL = "dl";
+    private static final String INVALID_MASK_NAME = "invalid";
+    private static final String LAND_MASK_NAME = "land";
+    private static final double RAW_SATURATION_THRESHOLD = 65435.0;
+    private static final String DEFAULT_SOURCE_RAC_RESOURCE = "MER_RAC_AXVIEC20050708_135553_20021224_121445_20041213_220000";
+    private static final String DEFAULT_TARGET_RAC_RESOURCE = "MER_RAC_AXVACR20091016_154511_20021224_121445_20041213_220000";
 
     @Parameter(defaultValue = "true",
                label = "Perform calibration",
@@ -75,9 +91,6 @@ public class MerisRadiometryCorrectionOp extends Operator {
                description = "Whether to perform radiance-to-reflectance conversion.")
     private boolean doRadToRefl;
 
-    @Parameter(label = "Write Envisat N1 File", description = "Writes the result to an Envisat N1 file.")
-    private File n1File;
-
     @SourceProduct(alias = "source", label = "Name", description = "The source product.",
                    bands = {
                            MERIS_L1B_FLAGS_DS_NAME, MERIS_DETECTOR_INDEX_DS_NAME,
@@ -99,31 +112,254 @@ public class MerisRadiometryCorrectionOp extends Operator {
                    })
     private Product sourceProduct;
 
+    private transient CalibrationAlgorithm calibrationAlgorithm;
+    private transient EqualizationAlgorithm equalizationAlgorithm;
+    private transient SmileCorrectionAlgorithm smileCorrAlgorithm;
+
+    private transient int detectorIndexSampleIndex;
+    private transient int sunZenithAngleSampleIndex;
+    private transient int invalidMaskSampleIndex;
+    private transient int landMaskSampleIndex;
+
     @Override
-    public void initialize() throws OperatorException {
-        Map<String, Object> radioParams = new HashMap<String, Object>();
-        radioParams.put("doCalibration", doCalibration);
-        radioParams.put("sourceRacFile", sourceRacFile);
-        radioParams.put("targetRacFile", targetRacFile);
-        radioParams.put("doSmile", doSmile);
-        radioParams.put("doEqualization", doEqualization);
-        radioParams.put("reproVersion", reproVersion);
-        radioParams.put("doRadToRefl", doRadToRefl);
-        Product targetProduct = GPF.createProduct("Internal.CorrectRadiometry", radioParams, sourceProduct);
-        if (n1File != null) {
-            if (doRadToRefl) {
-                throw new OperatorException(
-                        "Radiance to reflectance conversion can not be performed if Envisat file shall be written.");
+    protected Product createTargetProduct() {
+        // TODO should make initialize not final in PointOperator?
+        validateSourceProduct();
+        initAlgorithms();
+        return super.createTargetProduct();
+    }
+
+    @Override
+    protected void configureSourceSamples(Configurator configurator) {
+        int i = -1;
+        // define samples corresponding to spectral bands, using the spectral band index as sample index
+        for (final Band band : sourceProduct.getBands()) {
+            final int spectralBandIndex = band.getSpectralBandIndex();
+            if (spectralBandIndex != -1) {
+                configurator.defineSample(spectralBandIndex, band.getName());
+                if (spectralBandIndex > i) {
+                    i = spectralBandIndex;
+                }
             }
-            final HashMap<String, Object> n1Parameters = new HashMap<String, Object>();
-            File targetN1File = FileUtils.exchangeExtension(n1File, ".N1");
-            n1Parameters.put("patchedFile", targetN1File);
-            final HashMap<String, Product> sourceProductMap = new HashMap<String, Product>();
-            sourceProductMap.put("n1Product", sourceProduct);
-            sourceProductMap.put("sourceProduct", targetProduct);
-            targetProduct = GPF.createProduct("N1Patcher", n1Parameters, sourceProductMap);
         }
-        setTargetProduct(targetProduct);
+        detectorIndexSampleIndex = i + 1;
+        if (doCalibration || doSmile || doEqualization) {
+            configurator.defineSample(detectorIndexSampleIndex, MERIS_DETECTOR_INDEX_DS_NAME);
+        }
+        sunZenithAngleSampleIndex = i + 2;
+        if (doRadToRefl) {
+            configurator.defineSample(sunZenithAngleSampleIndex, MERIS_SUN_ZENITH_DS_NAME);
+        }
+        invalidMaskSampleIndex = i + 3;
+        landMaskSampleIndex = i + 4;
+        if (doSmile) {
+            configurator.defineSample(invalidMaskSampleIndex, INVALID_MASK_NAME);
+            configurator.defineSample(landMaskSampleIndex, LAND_MASK_NAME);
+        }
+    }
+
+    @Override
+    protected void configureTargetSamples(Configurator configurator) {
+        // define samples corresponding to spectral bands, using the spectral band index as sample index
+        for (final Band band : getTargetProduct().getBands()) { // pitfall: using targetProduct field here throws NPE
+            final int spectralBandIndex = band.getSpectralBandIndex();
+            if (spectralBandIndex != -1) {
+                configurator.defineSample(spectralBandIndex, band.getName());
+            }
+        }
+    }
+
+    @Override
+    protected void configureTargetProduct(Product targetProduct) {
+        targetProduct.setName(sourceProduct.getName());
+        if (doRadToRefl) {
+            targetProduct.setProductType(String.format("%s_REFL", sourceProduct.getProductType()));
+            targetProduct.setAutoGrouping("reflec");
+        } else {
+            targetProduct.setProductType(sourceProduct.getProductType());
+            targetProduct.setAutoGrouping("radiance");
+        }
+        targetProduct.setDescription("MERIS L1b Radiometric Correction");
+        ProductUtils.copyMetadata(sourceProduct, targetProduct);
+
+        for (final Band sourceBand : sourceProduct.getBands()) {
+            if (sourceBand.getSpectralBandIndex() != -1) {
+                final String targetBandName;
+                final String targetBandDescription;
+                final int dataType;
+                final String unit;
+                final double scalingFactor;
+                final double scalingOffset;
+                if (doRadToRefl) {
+                    targetBandName = sourceBand.getName().replace("radiance", "reflec");
+                    targetBandDescription = "Radiometry-corrected TOA reflectance";
+                    dataType = ProductData.TYPE_FLOAT32;
+                    unit = UNIT_DL;
+                    scalingFactor = 1.0;
+                    scalingOffset = 0;
+                } else {
+                    targetBandName = sourceBand.getName();
+                    targetBandDescription = "Radiometry-corrected TOA radiance";
+                    dataType = sourceBand.getDataType();
+                    unit = sourceBand.getUnit();
+                    scalingFactor = sourceBand.getScalingFactor();
+                    scalingOffset = sourceBand.getScalingOffset();
+                }
+                final Band targetBand = targetProduct.addBand(targetBandName, dataType);
+                targetBand.setScalingFactor(scalingFactor);
+                targetBand.setScalingOffset(scalingOffset);
+                targetBand.setDescription(targetBandDescription);
+                targetBand.setUnit(unit);
+                targetBand.setValidPixelExpression(sourceBand.getValidPixelExpression());
+                ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
+            }
+        }
+        copySourceBand(MERIS_DETECTOR_INDEX_DS_NAME, targetProduct);
+        ProductUtils.copyFlagBands(sourceProduct, targetProduct);
+        final Band sourceFlagBand = sourceProduct.getBand(MERIS_L1B_FLAGS_DS_NAME);
+        final Band targetFlagBand = targetProduct.getBand(MERIS_L1B_FLAGS_DS_NAME);
+
+        targetFlagBand.setSourceImage(sourceFlagBand.getSourceImage());
+        targetProduct.setStartTime(sourceProduct.getStartTime());
+        targetProduct.setEndTime(sourceProduct.getEndTime());
+
+        // copy all source bands yet ignored
+        for (final Band sourceBand : sourceProduct.getBands()) {
+            if (sourceBand.getSpectralBandIndex() == -1 && !targetProduct.containsBand(sourceBand.getName())) {
+                copySourceBand(sourceBand.getName(), targetProduct);
+            }
+        }
+    }
+
+    @Override
+    protected void computeSample(int x, int y, Sample[] sourceSamples, WritableSample targetSample) {
+        final int bandIndex = targetSample.getIndex();
+        final Sample sourceRadiance = sourceSamples[bandIndex];
+        int detectorIndex = -1;
+        if (doCalibration || doSmile || doEqualization) {
+            detectorIndex = sourceSamples[detectorIndexSampleIndex].getInt();
+        }
+        double value = sourceRadiance.getDouble();
+        if (doCalibration && detectorIndex != -1 && value < sourceRadiance.getNode().scale(RAW_SATURATION_THRESHOLD)) {
+            value = calibrationAlgorithm.calibrate(bandIndex, detectorIndex, value);
+        }
+        if (doSmile) {
+            final boolean invalid = sourceSamples[invalidMaskSampleIndex].getBoolean();
+            if (!invalid && detectorIndex != -1) {
+                final boolean land = sourceSamples[landMaskSampleIndex].getBoolean();
+                double[] sourceValues = new double[15];
+                for (int i = 0; i < sourceValues.length; i++) {
+                    sourceValues[i] = sourceSamples[i].getDouble();
+                }
+                value = smileCorrAlgorithm.correct(bandIndex, detectorIndex, sourceValues, land);
+            }
+        }
+        if (doRadToRefl) {
+            final float solarFlux = ((Band) sourceRadiance.getNode()).getSolarFlux();
+            final float sunZenithSample = sourceSamples[sunZenithAngleSampleIndex].getFloat();
+            value = RsMathUtils.radianceToReflectance((float) value, sunZenithSample, solarFlux);
+        }
+        if (doEqualization && detectorIndex != -1) {
+            value = equalizationAlgorithm.performEqualization(value, bandIndex, detectorIndex);
+        }
+        targetSample.set(value);
+    }
+
+    private void initAlgorithms() {
+        final String productType = sourceProduct.getProductType();
+        if (doCalibration) {
+            InputStream sourceRacStream = null;
+            InputStream targetRacStream = null;
+            try {
+                sourceRacStream = openStream(sourceRacFile, DEFAULT_SOURCE_RAC_RESOURCE);
+                targetRacStream = openStream(targetRacFile, DEFAULT_TARGET_RAC_RESOURCE);
+                final double cntJD = 0.5 * (sourceProduct.getStartTime().getMJD() + sourceProduct.getEndTime().getMJD());
+                final Resolution resolution = productType.contains("RR") ? Resolution.RR : Resolution.FR;
+                calibrationAlgorithm = new CalibrationAlgorithm(resolution, cntJD, sourceRacStream, targetRacStream);
+            } catch (IOException e) {
+                throw new OperatorException(e);
+            } finally {
+                try {
+                    if (sourceRacStream != null) {
+                        sourceRacStream.close();
+                    }
+                    if (targetRacStream != null) {
+                        targetRacStream.close();
+                    }
+                } catch (IOException ignore) {
+                }
+            }
+            // If calibration is performed the equalization  has to use the LUTs of Reprocessing 3
+            reproVersion = ReprocessingVersion.REPROCESSING_3;
+        }
+        if (doSmile) {
+            try {
+                smileCorrAlgorithm = new SmileCorrectionAlgorithm(SmileCorrectionAuxdata.loadAuxdata(productType));
+            } catch (Exception e) {
+                throw new OperatorException(e);
+            }
+        }
+        if (doEqualization) {
+            try {
+                equalizationAlgorithm = new EqualizationAlgorithm(sourceProduct, reproVersion);
+            } catch (Exception e) {
+                throw new OperatorException(e);
+            }
+        }
+    }
+
+    private static InputStream openStream(File racFile, String defaultRacResource) throws FileNotFoundException {
+        if (racFile == null) {
+            return CalibrationAlgorithm.class.getResourceAsStream(defaultRacResource);
+        } else {
+            return new FileInputStream(racFile);
+        }
+    }
+
+    private void validateSourceProduct() {
+        if (!MERIS_L1_TYPE_PATTERN.matcher(sourceProduct.getProductType()).matches()) {
+            throw new OperatorException("Source product must be of type MERIS Level 1b.");
+        }
+        if (doCalibration || doEqualization) {
+            if (sourceProduct.getStartTime() == null) {
+                throw new OperatorException("Source product must have a start time");
+            }
+        }
+        if (doCalibration) {
+            if (sourceProduct.getEndTime() == null) {
+                throw new OperatorException("Source product must have an end time");
+            }
+        }
+
+        final String msgPatternMissingBand = "Source product must contain '%s'.";
+        if (doSmile) {
+            if (!sourceProduct.containsBand(MERIS_DETECTOR_INDEX_DS_NAME)) {
+                throw new OperatorException(String.format(msgPatternMissingBand, MERIS_DETECTOR_INDEX_DS_NAME));
+            }
+            if (!sourceProduct.containsBand(MERIS_L1B_FLAGS_DS_NAME)) {
+                throw new OperatorException(String.format(msgPatternMissingBand, MERIS_L1B_FLAGS_DS_NAME));
+            }
+            if (!sourceProduct.getBand(MERIS_L1B_FLAGS_DS_NAME).isFlagBand()) {
+                throw new OperatorException(
+                        String.format("Flag-coding is missing for band '%s' ", MERIS_L1B_FLAGS_DS_NAME));
+            }
+        }
+        if (doEqualization) {
+            if (!sourceProduct.containsBand(MERIS_DETECTOR_INDEX_DS_NAME)) {
+                throw new OperatorException(String.format(msgPatternMissingBand, MERIS_DETECTOR_INDEX_DS_NAME));
+            }
+        }
+        if (doRadToRefl) {
+            if (!sourceProduct.containsRasterDataNode(MERIS_SUN_ZENITH_DS_NAME)) {
+                throw new OperatorException(String.format(msgPatternMissingBand, MERIS_SUN_ZENITH_DS_NAME));
+            }
+        }
+    }
+
+    private void copySourceBand(String bandName, Product targetProduct) {
+        final Band sourceBand = sourceProduct.getBand(bandName);
+        final Band targetBand = ProductUtils.copyBand(bandName, sourceProduct, targetProduct);
+        targetBand.setSourceImage(sourceBand.getSourceImage());
     }
 
     public static class Spi extends OperatorSpi {
