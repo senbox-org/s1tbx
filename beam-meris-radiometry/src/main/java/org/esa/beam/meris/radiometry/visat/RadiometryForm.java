@@ -64,26 +64,7 @@ class RadiometryForm extends JTabbedPane {
         propertyContainer.addProperty(targetProductPC.getProperty("formatName"));
         processingParamBindingContext.bindEnabledState("doRadToRefl", false, "formatName",
                                                        EnvisatConstants.ENVISAT_FORMAT_NAME);
-        final PropertyChangeListener formatChangeListener = new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (EnvisatConstants.ENVISAT_FORMAT_NAME.equals(evt.getNewValue())) {
-                    if ((Boolean) propertyContainer.getValue("doRadToRefl")) {
-                        propertyContainer.setValue("doRadToRefl", false);
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                final String message = "When selecting ENVISAT as output format, the " +
-                                                       "radiance to reflectance conversion can not be performed.\n" +
-                                                       "The parameter is now deselected.";
-                                JOptionPane.showMessageDialog(RadiometryForm.this, message);
-                            }
-                        });
-                    }
-                }
-            }
-        };
-        propertyContainer.addPropertyChangeListener("formatName", formatChangeListener);
+        propertyContainer.addPropertyChangeListener("formatName", new FormatChangeListener());
     }
 
     public void prepareShow() {
@@ -136,4 +117,25 @@ class RadiometryForm extends JTabbedPane {
     }
 
 
+    private class FormatChangeListener implements PropertyChangeListener {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            final boolean isEnvisatFormatSelected = EnvisatConstants.ENVISAT_FORMAT_NAME.equals(evt.getNewValue());
+            if (isEnvisatFormatSelected) {
+                if ((Boolean) propertyContainer.getValue("doRadToRefl")) {
+                    propertyContainer.setValue("doRadToRefl", false);
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            final String message = "When selecting ENVISAT as output format, the " +
+                                                   "radiance to reflectance conversion can not be performed.\n" +
+                                                   "The parameter is now deselected.";
+                            JOptionPane.showMessageDialog(RadiometryForm.this, message);
+                        }
+                    });
+                }
+            }
+        }
+    }
 }
