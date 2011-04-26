@@ -86,9 +86,10 @@ public interface PropertySet extends PropertyChangeEmitter {
      * Gets the value of the named property.
      *
      * @param name The property name.
-     * @return The property value.
+     * @return The property value or {@code null} if a property with the given name does not exist.
+     * @throws ClassCastException if the value is not of the requested type.
      */
-    Object getValue(String name);
+    <T> T getValue(String name) throws ClassCastException;
 
     /**
      * Sets the value of the named property.

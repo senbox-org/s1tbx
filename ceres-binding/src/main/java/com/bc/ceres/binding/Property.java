@@ -148,12 +148,12 @@ public class Property {
         return getDescriptor().getType();
     }
 
-    public Object getValue() {
+    public <T> T getValue() {
         final Object value = accessor.getValue();
         if (value == null && descriptor.getType().isPrimitive()) {
-            return PRIMITIVE_ZERO_VALUES.get(descriptor.getType());
+            return (T) PRIMITIVE_ZERO_VALUES.get(descriptor.getType());
         }
-        return value;
+        return (T) value;
     }
 
     public void setValue(Object value) throws ValidationException {

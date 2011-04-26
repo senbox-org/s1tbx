@@ -236,12 +236,12 @@ public class PropertyContainer implements PropertySet {
     }
 
     @Override
-    public Object getValue(String name) {
+    public <T> T getValue(String name) {
         final Property property = getProperty(name);
         if (property == null) {
             return null;
         }
-        return property.getValue();
+        return (T) property.getValue();
     }
 
     @Override
