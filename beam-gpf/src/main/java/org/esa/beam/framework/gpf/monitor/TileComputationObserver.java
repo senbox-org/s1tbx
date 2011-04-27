@@ -33,7 +33,7 @@ public abstract class TileComputationObserver {
         return logger;
     }
 
-    final void setLogger(Logger logger) {
+    public final void setLogger(Logger logger) {
         this.logger = logger;
     }
 
