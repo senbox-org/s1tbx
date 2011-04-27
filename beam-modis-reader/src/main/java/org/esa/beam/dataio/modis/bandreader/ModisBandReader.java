@@ -175,21 +175,6 @@ abstract public class ModisBandReader {
     abstract public int getDataType();
 
     /**
-     * @deprecated in 4.0, use {@link #readBandData(int, int, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public void readBandData(int sourceOffsetX, int sourceOffsetY, int sourceWidth,
-                             int sourceHeight, int sourceStepX, int sourceStepY,
-                             int destOffsetX, int destOffsetY, int destWidth,
-                             int destHeight, ProductData destBuffer) throws HDFException,
-                                                                            ProductIOException {
-        readBandData(sourceOffsetX, sourceOffsetY,
-                     sourceWidth, sourceHeight,
-                     sourceStepX, sourceStepY,
-                     destBuffer,
-                     ProgressMonitor.NULL);
-    }
-
-    /**
      * <p>The destination band, buffer and region parameters are exactly the ones passed to the original  call. Since
      * the <code>destOffsetX</code> and <code>destOffsetY</code> parameters are already taken into acount in the
      * <code>sourceOffsetX</code> and <code>sourceOffsetY</code> parameters, an implementor of this method is free to

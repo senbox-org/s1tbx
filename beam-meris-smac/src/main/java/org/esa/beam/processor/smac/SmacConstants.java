@@ -90,19 +90,6 @@ public class SmacConstants implements ProcessorConstants {
     public static final String AER_TYPE_CONTINENTAL = "Continental";
 
     /**
-     * Describes all available input product types.
-     * @deprecated in 4.1, to check if a given product type is supported use
-     * {@link SmacUtils#isSupportedProductType(String)} or
-     * {@link SmacUtils#isSupportedMerisProductType(String)} or
-     * {@link SmacUtils#isSupportedAatsrProductType(String)}
-     */
-    public static final String[] PRODUCT_TYPES = new String[]{
-            EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
-            EnvisatConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME,
-            EnvisatConstants.AATSR_L1B_TOA_PRODUCT_TYPE_NAME
-    };
-
-    /**
      * Enumerates all valid MERIS bands.
      */
     public static final String[] MERIS_L1B_BANDS = EnvisatConstants.MERIS_L1B_SPECTRAL_BAND_NAMES;
@@ -151,11 +138,6 @@ public class SmacConstants implements ProcessorConstants {
      */
     public static final String DEFAULT_AER_TYPE_DEFAULTVALUE = "Continental";
 
-    /**
-     * Default value for product type parameter valueSet
-     * @deprecated in 4.1, no replacement
-     */
-    public static final String[] DEFAULT_PRODUCT_TYPE_VALUESET = PRODUCT_TYPES;
     /**
      * Default value for product type parameter label
      */

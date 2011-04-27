@@ -72,7 +72,9 @@ public class EnvisatProductReader extends AbstractProductReader {
      * @since BEAM 4.9
      */
     private static final String SYSPROP_ENVISAT_TILE_HEIGHT = "beam.envisat.tileHeight";
-
+    /**
+     * @deprecated since BEAM 4.9
+     */
     @Deprecated
     private static final String ENVISAT_AMORGOS_USE_PIXEL_GEO_CODING = "beam.envisat.amorgos.usePixelGeoCoding";
 
