@@ -91,8 +91,6 @@ class RadiometryForm extends JTabbedPane {
     }
 
     private JScrollPane createProcessingParamTab() {
-        propertyContainer.removeProperty(propertyContainer.getProperty("n1File"));
-
         PropertyPane parametersPane = new PropertyPane(propertyContainer);
         processingParamBindingContext = parametersPane.getBindingContext();
         final JPanel parametersPanel = parametersPane.createPanel();
