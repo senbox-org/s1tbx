@@ -73,7 +73,7 @@ import java.util.Map;
 public class BandMathsOp extends Operator {
 
     public static class BandDescriptor {
-        
+
         public String name;
         public String expression;
         public String description;
@@ -126,6 +126,9 @@ public class BandMathsOp extends Operator {
             throw new OperatorException("No target bands specified.");
         }
 
+        if (sourceProducts == null || sourceProducts.length == 0) {
+            throw new OperatorException("No source products given.");
+        }
         int width = sourceProducts[0].getSceneRasterWidth();
         int height = sourceProducts[0].getSceneRasterHeight();
         for (Product product : sourceProducts) {
@@ -193,11 +196,11 @@ public class BandMathsOp extends Operator {
     }
 
     private void createBand(BandDescriptor bandDescriptor, Parser verificationParser) {
-        if(StringUtils.isNullOrEmpty(bandDescriptor.name)) {
-             throw new OperatorException("Missing band name.");
+        if (StringUtils.isNullOrEmpty(bandDescriptor.name)) {
+            throw new OperatorException("Missing band name.");
         }
-        if(StringUtils.isNullOrEmpty(bandDescriptor.type)) {
-             throw new OperatorException(String.format("Missing data type for band %s.", bandDescriptor.name));
+        if (StringUtils.isNullOrEmpty(bandDescriptor.type)) {
+            throw new OperatorException(String.format("Missing data type for band %s.", bandDescriptor.name));
         }
 
         Band band = targetProduct.addBand(bandDescriptor.name, ProductData.getType(bandDescriptor.type.toLowerCase()));
