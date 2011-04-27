@@ -36,17 +36,17 @@ public class PixExRasterNamesFactory implements RasterNamesFactory {
 
     private String[] extractRasterNames(Product product) {
 
-        final List<String> allRasterList = new ArrayList<String>();
+        final List<String> allNamesList = new ArrayList<String>();
         if (exportBands) {
-            Collections.addAll(allRasterList, product.getBandNames());
+            Collections.addAll(allNamesList, product.getBandNames());
         }
         if (exportTiePoints) {
-            Collections.addAll(allRasterList, product.getTiePointGridNames());
+            Collections.addAll(allNamesList, product.getTiePointGridNames());
         }
         if (exportMasks) {
-            Collections.addAll(allRasterList, product.getMaskGroup().getNodeNames());
+            Collections.addAll(allNamesList, product.getMaskGroup().getNodeNames());
         }
-        return allRasterList.toArray(new String[allRasterList.size()]);
+        return allNamesList.toArray(new String[allNamesList.size()]);
     }
 
 }

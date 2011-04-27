@@ -26,6 +26,7 @@ public class PixExRasterNamesFactoryTest {
         product.addTiePointGrid(newTiePointGrid("tp1"));
         product.addTiePointGrid(newTiePointGrid("tp2"));
         product.addTiePointGrid(newTiePointGrid("tp3"));
+
         final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
         maskGroup.add(newMask("mask1"));
         maskGroup.add(newMask("mask2"));
@@ -50,13 +51,12 @@ public class PixExRasterNamesFactoryTest {
         final String[] expected = {"val1", "val2", "val3", "tp1", "tp2", "tp3", "mask1", "mask2", "mask3"};
         assertThat(rasterNames, equalTo(expected));
     }
+
     @Test
     public void testGetRasterNamesToBeExported_exportBandsOnly() {
         // preparation
         final boolean exportBands = true;
-        final boolean exportTiePoints = false;
-        final boolean exportMasks = false;
-        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints, exportMasks);
+        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(exportBands, false, false);
 
         // execution
         final String[] rasterNames = pixExRasterNamesFactory.getRasterNames(product);
@@ -66,13 +66,12 @@ public class PixExRasterNamesFactoryTest {
         final String[] expected = {"val1", "val2", "val3"};
         assertThat(rasterNames, equalTo(expected));
     }
+
     @Test
     public void testGetRasterNamesToBeExported_exportTiepointsOnyl() {
         // preparation
-        final boolean exportBands = false;
         final boolean exportTiePoints = true;
-        final boolean exportMasks = false;
-        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints, exportMasks);
+        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(false, exportTiePoints, false);
 
         // execution
         final String[] rasterNames = pixExRasterNamesFactory.getRasterNames(product);
@@ -82,13 +81,12 @@ public class PixExRasterNamesFactoryTest {
         final String[] expected = {"tp1", "tp2", "tp3"};
         assertThat(rasterNames, equalTo(expected));
     }
+
     @Test
     public void testGetRasterNamesToBeExported_exportMasksOnly() {
         // preparation
-        final boolean exportBands = false;
-        final boolean exportTiePoints = false;
         final boolean exportMasks = true;
-        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints, exportMasks);
+        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(false, false, exportMasks);
 
         // execution
         final String[] rasterNames = pixExRasterNamesFactory.getRasterNames(product);
@@ -108,7 +106,7 @@ public class PixExRasterNamesFactoryTest {
     }
 
     private Mask newMask(String name) {
-        return new Mask(name, 10,10, new TestImageType());
+        return new Mask(name, 10, 10, new TestImageType());
     }
 
     private static class TestImageType extends Mask.ImageType {

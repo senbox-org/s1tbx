@@ -19,8 +19,7 @@ public class PixExFormatStrategy implements FormatStrategy {
     private final int windowSize;
     private final boolean exportExpressionResult;
 
-    public PixExFormatStrategy(final RasterNamesFactory rasterNamesFactory,
-                               final int windowSize,
+    public PixExFormatStrategy(final RasterNamesFactory rasterNamesFactory, final int windowSize,
                                final String expression, final boolean exportExpressionResult) {
         this.rasterNamesFactory = rasterNamesFactory;
         this.expression = expression;
@@ -30,7 +29,6 @@ public class PixExFormatStrategy implements FormatStrategy {
 
     @Override
     public void writeHeader(PrintWriter writer, Product product) {
-        final String[] rasterNames = rasterNamesFactory.getRasterNames(product);
         writer.printf("# BEAM pixel extraction export table%n");
 
         writer.printf("#%n");
@@ -45,8 +43,9 @@ public class PixExFormatStrategy implements FormatStrategy {
         if (expression != null && exportExpressionResult) {
             writer.print("Expression result\t");
         }
-        writer.print(
-                    "ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)");
+        writer.print("ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)");
+
+        final String[] rasterNames = rasterNamesFactory.getRasterNames(product);
         for (String name : rasterNames) {
             writer.printf(Locale.ENGLISH, "\t%s", name);
         }

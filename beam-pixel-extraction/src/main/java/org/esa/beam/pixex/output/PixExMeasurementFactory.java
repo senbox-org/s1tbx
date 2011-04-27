@@ -1,12 +1,6 @@
 package org.esa.beam.pixex.output;
 
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.MeasurementFactory;
 import org.esa.beam.util.ProductUtils;
@@ -22,7 +16,8 @@ public class PixExMeasurementFactory implements MeasurementFactory {
     private final int windowSize;
     private final ProductRegistry productRegistry;
 
-    public PixExMeasurementFactory(final RasterNamesFactory rasterNamesFactory, final int windowSize, final ProductRegistry productRegistry) {
+    public PixExMeasurementFactory(final RasterNamesFactory rasterNamesFactory,
+                                   final int windowSize, final ProductRegistry productRegistry) {
         this.rasterNamesFactory = rasterNamesFactory;
         this.windowSize = windowSize;
         this.productRegistry = productRegistry;
