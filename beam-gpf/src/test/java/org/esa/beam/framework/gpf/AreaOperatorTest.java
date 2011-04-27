@@ -93,7 +93,7 @@ public class AreaOperatorTest extends TestCase {
                 int border = kernelSize / 2;
                 Rectangle sourceRegion = tile.getRectangle();
                 sourceRegion.grow(border, border);
-                Tile sourceTile = getSourceTile(sourceBand, sourceRegion, new BorderExtenderConstant(new double[]{Double.NaN}), ProgressMonitor.NULL);
+                Tile sourceTile = getSourceTile(sourceBand, sourceRegion, new BorderExtenderConstant(new double[]{Double.NaN}));
                 for (int y = tile.getMinY(); y <= tile.getMaxY(); y++) {
                     for (int x = tile.getMinX(); x <= tile.getMaxX(); x++) {
                         tile.setSample(x, y, computeMin(sourceTile, x, y, border));

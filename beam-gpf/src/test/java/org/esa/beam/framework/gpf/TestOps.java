@@ -99,7 +99,7 @@ public class TestOps {
         public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws
                                                                                                            OperatorException {
             //System.out.println("=====>>>>>> Op2.computeAllBands  start");
-            Tile tile1A = getSourceTile(input.getBand("Op1A"), rectangle, pm);
+            Tile tile1A = getSourceTile(input.getBand("Op1A"), rectangle);
 
             Tile tile2A = targetTiles.get(output.getBand("Op2A"));
             Tile tile2B = targetTiles.get(output.getBand("Op2B"));
@@ -157,9 +157,9 @@ public class TestOps {
                                                                                                            OperatorException {
             //System.out.println("=====>>>>>> Op3.computeAllBands  start");
 
-            Tile tile1A = getSourceTile(input1.getBand("Op1A"), rectangle, pm);
-            Tile tile2A = getSourceTile(input2.getBand("Op2A"), rectangle, pm);
-            Tile tile2B = getSourceTile(input2.getBand("Op2B"), rectangle, pm);
+            Tile tile1A = getSourceTile(input1.getBand("Op1A"), rectangle);
+            Tile tile2A = getSourceTile(input2.getBand("Op2A"), rectangle);
+            Tile tile2B = getSourceTile(input2.getBand("Op2B"), rectangle);
 
             Tile tile3A = targetTiles.get(output.getBand("Op3A"));
             Tile tile3B = targetTiles.get(output.getBand("Op3B"));

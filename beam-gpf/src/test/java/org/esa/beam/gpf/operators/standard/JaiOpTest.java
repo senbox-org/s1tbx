@@ -106,7 +106,7 @@ public class JaiOpTest extends TestCase {
         assertEquals(8, targetImage.getWidth());
         assertEquals(8, targetImage.getHeight());
 
-        final Tile tile = op.getSourceTile(targetBand, new Rectangle(0, 0, 8, 8), ProgressMonitor.NULL);
+        final Tile tile = op.getSourceTile(targetBand, new Rectangle(0, 0, 8, 8));
         assertEquals(123, tile.getSampleInt(0, 0));
         assertEquals(123, tile.getSampleInt(1, 1));
         assertEquals(234, tile.getSampleInt(2, 2));
@@ -151,7 +151,7 @@ public class JaiOpTest extends TestCase {
         assertEquals(4, targetImage.getWidth());
         assertEquals(4, targetImage.getHeight());
 
-        final Tile tile = op.getSourceTile(targetBand, new Rectangle(0, 0, 4, 4), ProgressMonitor.NULL);
+        final Tile tile = op.getSourceTile(targetBand, new Rectangle(0, 0, 4, 4));
         assertEquals(1 + 2 * 123, tile.getSampleInt(0, 0));
         assertEquals(1 + 2 * 234, tile.getSampleInt(1, 1));
         assertEquals(1 + 2 * 345, tile.getSampleInt(2, 2));

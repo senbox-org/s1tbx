@@ -98,7 +98,7 @@ public class WriteRGBOp extends Operator {
         Rectangle rectangle = targetTile.getRectangle();
 
         Band sourceBand = bandMap.get(band);
-        Tile sourceTile = getSourceTile(sourceBand, rectangle, pm);
+        Tile sourceTile = getSourceTile(sourceBand, rectangle);
 
         ProductData rgbData = dataMap.get(band);
         System.arraycopy(sourceTile.getRawSamples().getElems(), 0, rgbData.getElems(), rectangle.x + rectangle.y * rectangle.width, rectangle.width * rectangle.height);

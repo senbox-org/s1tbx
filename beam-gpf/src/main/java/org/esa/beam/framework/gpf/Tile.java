@@ -31,7 +31,7 @@ import java.util.Iterator;
  * {@link Operator#computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile}
  * and {@link Operator#computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  computeTileStack} methods.
  * Source tiles are obtained by using the
- * {@link Operator#getSourceTile(org.esa.beam.framework.datamodel.RasterDataNode,java.awt.Rectangle,com.bc.ceres.core.ProgressMonitor) getSourceTile} method.</p>
+ * {@link Operator#getSourceTile(org.esa.beam.framework.datamodel.RasterDataNode,java.awt.Rectangle) getSourceTile} method.</p>
  * <p>Three ways are provided to access and manipulate the sample data of a target tile:</p>
  * <p>(1) This is the simplest (but also slowest) way to modify sample data of a tile:</p>
  * <pre>

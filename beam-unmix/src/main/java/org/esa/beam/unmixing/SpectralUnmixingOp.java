@@ -265,19 +265,19 @@ public class SpectralUnmixingOp extends Operator {
         if (i == -1) {
             return;
         }
-        Tile[] sourceRaster = getSourceTiles(rectangle, pm);
+        Tile[] sourceRaster = getSourceTiles(rectangle);
         for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
             double[][] ia = getLineSpectra(sourceRaster, rectangle, y);
             double[][] oa = unmix(ia);
             setAbundances(rectangle, targetTile, y, oa[i]);
-            checkForCancellation(pm);
+            checkForCancellation();
         }
     }
 
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetTileRectangle, ProgressMonitor pm) throws OperatorException {
         Tile[] abundanceTiles = new Tile[abundanceBands.length];
-        Tile[] intensityTiles = getSourceTiles(targetTileRectangle, pm);
+        Tile[] intensityTiles = getSourceTiles(targetTileRectangle);
         for (int i = 0; i < abundanceBands.length; i++) {
             abundanceTiles[i] = targetTiles.get(abundanceBands[i]);
         }
@@ -295,7 +295,7 @@ public class SpectralUnmixingOp extends Operator {
             double[][] oa = unmix(ia);
             for (int i = 0; i < abundanceBands.length; i++) {
                 setAbundances(targetTileRectangle, abundanceTiles[i], y, oa[i]);
-                checkForCancellation(pm);
+                checkForCancellation();
             }
             if (computeErrorBands) {
                 final double[][] ia2 = mix(oa);
@@ -328,10 +328,10 @@ public class SpectralUnmixingOp extends Operator {
         }
     }
 
-    private Tile[] getSourceTiles(Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
+    private Tile[] getSourceTiles(Rectangle rectangle) throws OperatorException {
         Tile[] sourceRaster = new Tile[sourceBands.length];
         for (int i = 0; i < sourceBands.length; i++) {
-            sourceRaster[i] = getSourceTile(sourceBands[i], rectangle, pm);
+            sourceRaster[i] = getSourceTile(sourceBands[i], rectangle);
         }
         return sourceRaster;
     }

@@ -444,7 +444,7 @@ public abstract class Operator {
      *           the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile} method or
      *           the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
      * @throws OperatorException if the current processing request has been canceled (e.g. by the user).
-     * @deprecated since BEAM 4.8, weak "typo" in method name, use {@link #checkForCancellation(com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated since BEAM 4.8, weak "typo" in method name, use {@link #checkForCancellation()}
      */
     @Deprecated
     protected final void checkForCancelation(ProgressMonitor pm) throws OperatorException {

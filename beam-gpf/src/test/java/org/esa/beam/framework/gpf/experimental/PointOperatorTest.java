@@ -265,8 +265,8 @@ public class PointOperatorTest extends TestCase {
                                                          OperatorException {
 
             final Product product = getSourceProduct();
-            Tile sourceTile1 = getSourceTile(product.getBand("radiance_10"), targetRectangle, ProgressMonitor.NULL);
-            Tile sourceTile2 = getSourceTile(product.getBand("radiance_8"), targetRectangle, ProgressMonitor.NULL);
+            Tile sourceTile1 = getSourceTile(product.getBand("radiance_10"), targetRectangle);
+            Tile sourceTile2 = getSourceTile(product.getBand("radiance_8"), targetRectangle);
             final Tile ndviTile = targetTiles.get(getTargetProduct().getBand("ndvi"));
             final Tile ndviFlagsTile = targetTiles.get(getTargetProduct().getBand("ndvi_flags"));
 
@@ -290,8 +290,8 @@ public class PointOperatorTest extends TestCase {
         public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
             final Product product = getSourceProduct();
             final Rectangle targetRectangle = targetTile.getRectangle();
-            Tile sourceTile1 = getSourceTile(product.getBand("radiance_10"), targetRectangle, ProgressMonitor.NULL);
-            Tile sourceTile2 = getSourceTile(product.getBand("radiance_8"), targetRectangle, ProgressMonitor.NULL);
+            Tile sourceTile1 = getSourceTile(product.getBand("radiance_10"), targetRectangle);
+            Tile sourceTile2 = getSourceTile(product.getBand("radiance_8"), targetRectangle);
 
             for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; y++) {
                 for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; x++) {

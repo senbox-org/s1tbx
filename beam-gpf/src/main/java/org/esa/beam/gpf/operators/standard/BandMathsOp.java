@@ -157,7 +157,7 @@ public class BandMathsOp extends Operator {
         RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
 
         for (RasterDataSymbol symbol : refRasterDataSymbols) {
-            Tile tile = getSourceTile(symbol.getRaster(), rect, pm);
+            Tile tile = getSourceTile(symbol.getRaster(), rect);
             if (tile.getRasterDataNode().isScalingApplied()) {
                 ProductData dataBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32,
                                                                     tile.getWidth() * tile.getHeight());

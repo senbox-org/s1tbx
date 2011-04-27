@@ -273,7 +273,7 @@ public class GPFFacadeTest {
          */
         @Override
         public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-            Tile sourceTile = getSourceTile(sourceProduct.getBand(band.getName()), targetTile.getRectangle(), pm);
+            Tile sourceTile = getSourceTile(sourceProduct.getBand(band.getName()), targetTile.getRectangle());
             ProductData rawTarget = targetTile.getRawSamples();
             ProductData rawSource = sourceTile.getRawSamples();
             int n = rawTarget.getNumElems();

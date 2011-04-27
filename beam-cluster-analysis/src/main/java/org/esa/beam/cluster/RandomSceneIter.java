@@ -79,7 +79,7 @@ class RandomSceneIter {
         }
         final Rectangle rectangle = new Rectangle(x, y, 1, 1);
         for (int i = 0; i < rdn.length; i++) {
-            final Tile sourceTile = operator.getSourceTile(rdn[i], rectangle, ProgressMonitor.NULL);
+            final Tile sourceTile = operator.getSourceTile(rdn[i], rectangle);
             value[i] = sourceTile.getSampleDouble(x, y);
         }
         return value;

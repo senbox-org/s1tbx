@@ -68,8 +68,8 @@ public class DirectDriverTest extends TestCase {
 
         @Override
         public void computeTile(Band targetBand, Tile tileC, ProgressMonitor pm) throws OperatorException {
-            Tile tileA = getSourceTile(getSourceProduct().getBand("a"), tileC.getRectangle(), ProgressMonitor.NULL);
-            Tile tileB = getSourceTile(getSourceProduct().getBand("b"), tileC.getRectangle(), ProgressMonitor.NULL);
+            Tile tileA = getSourceTile(getSourceProduct().getBand("a"), tileC.getRectangle());
+            Tile tileB = getSourceTile(getSourceProduct().getBand("b"), tileC.getRectangle());
             for (Tile.Pos pos : tileC) {
                 float a = tileA.getSampleFloat(pos.x, pos.y);
                 float b = tileB.getSampleFloat(pos.x, pos.y);

@@ -92,12 +92,12 @@ public class L3ToL1Op extends MerisBasisOp {
         GeoPos geoPos = new GeoPos();
 
         Rectangle l3Rect = findL3Rectangle(rectangle, srcBand);
-        Tile srcTile = getSourceTile(srcBand, l3Rect, pm);
+        Tile srcTile = getSourceTile(srcBand, l3Rect);
 
         Tile maskTile = null;
         boolean useMask = false;
         if (maskProduct != null && StringUtils.isNotNullAndNotEmpty(maskBand)) {
-            maskTile = getSourceTile(maskProduct.getBand(maskBand), rectangle, pm);
+            maskTile = getSourceTile(maskProduct.getBand(maskBand), rectangle);
             useMask = true;
         }
         final Resampling resampling = Resampling.BILINEAR_INTERPOLATION;
@@ -122,7 +122,7 @@ public class L3ToL1Op extends MerisBasisOp {
                         targetTile.setSample(x, y, sample);
                     }
                 }
-                checkForCancellation(pm);
+                checkForCancellation();
                 pm.worked(1);
             }
         } catch (Exception e) {

@@ -89,7 +89,7 @@ public class OpDirectInstantiationTest extends TestCase {
         @Override
         public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
             Band sourceBand = sourceProduct.getBand(band.getName());
-            Tile sourceTile = getSourceTile(sourceBand, targetTile.getRectangle(), pm);
+            Tile sourceTile = getSourceTile(sourceBand, targetTile.getRectangle());
             for (int y = 0; y < targetTile.getHeight(); y++) {
                 for (int x = 0; x < targetTile.getWidth(); x++) {
                     targetTile.setSample(x, y, sourceTile.getSampleDouble(x, y) * factor);
@@ -124,8 +124,8 @@ public class OpDirectInstantiationTest extends TestCase {
         public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
             Band sourceBand1 = sourceProduct1.getBand(band.getName());
             Band sourceBand2 = sourceProduct2.getBand(band.getName());
-            Tile sourceTile1 = getSourceTile(sourceBand1, targetTile.getRectangle(), pm);
-            Tile sourceTile2 = getSourceTile(sourceBand2, targetTile.getRectangle(), pm);
+            Tile sourceTile1 = getSourceTile(sourceBand1, targetTile.getRectangle());
+            Tile sourceTile2 = getSourceTile(sourceBand2, targetTile.getRectangle());
             for (int y = 0; y < targetTile.getHeight(); y++) {
                 for (int x = 0; x < targetTile.getWidth(); x++) {
                     targetTile.setSample(x, y, sourceTile1.getSampleDouble(x, y) + sourceTile2.getSampleDouble(x, y));

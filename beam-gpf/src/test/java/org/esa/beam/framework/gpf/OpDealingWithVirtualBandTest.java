@@ -173,9 +173,9 @@ public class OpDealingWithVirtualBandTest extends TestCase {
 
         @Override
         public void computeTile(Band targetBand, Tile tileD, ProgressMonitor pm) throws OperatorException {
-            Tile tileA = getSourceTile(sourceProduct.getBand("A"), tileD.getRectangle(), pm);
-            Tile tileB = getSourceTile(sourceProduct.getBand("B"), tileD.getRectangle(), pm);
-            Tile tileC = getSourceTile(sourceProduct.getBand("C"), tileD.getRectangle(), pm);
+            Tile tileA = getSourceTile(sourceProduct.getBand("A"), tileD.getRectangle());
+            Tile tileB = getSourceTile(sourceProduct.getBand("B"), tileD.getRectangle());
+            Tile tileC = getSourceTile(sourceProduct.getBand("C"), tileD.getRectangle());
             for (Tile.Pos p : tileD) {
                 int a = tileA.getSampleInt(p.x, p.y);
                 int b = tileB.getSampleInt(p.x, p.y);

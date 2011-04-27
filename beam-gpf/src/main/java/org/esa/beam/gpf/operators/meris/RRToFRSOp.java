@@ -112,7 +112,7 @@ public class RRToFRSOp extends Operator {
         Rectangle sceneRectangle = new Rectangle(rrSrcBand.getSceneRasterWidth(), rrSrcBand.getSceneRasterHeight());
         rrRectangle = rrRectangle.intersection(sceneRectangle);
 
-        Tile srcTile = getSourceTile(rrSrcBand, rrRectangle, pm);
+        Tile srcTile = getSourceTile(rrSrcBand, rrRectangle);
 
         try {
             int rrY = yStart;
@@ -136,7 +136,7 @@ public class RRToFRSOp extends Operator {
                     iy = 0;
                     rrY++;
                 }
-                checkForCancellation(pm);
+                checkForCancellation();
                 pm.worked(1);
             }
         } finally {

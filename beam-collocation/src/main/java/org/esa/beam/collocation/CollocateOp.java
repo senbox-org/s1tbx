@@ -282,10 +282,10 @@ public class CollocateOp extends Operator {
                     sourcePixelPositions,
                     slaveProduct.getSceneRasterWidth(),
                     slaveProduct.getSceneRasterHeight());
-            pm.done();
+            pm.worked(1);
 
             for (final Band targetBand : targetProduct.getBands()) {
-                checkForCancellation(pm);
+                checkForCancellation();
                 final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
                 final Tile targetTile = targetTileMap.get(targetBand);
 
@@ -294,9 +294,9 @@ public class CollocateOp extends Operator {
                                         SubProgressMonitor.create(pm, 1));
                 } else {
                     targetTile.setRawSamples(
-                            getSourceTile(sourceRaster, targetTile.getRectangle(), pm).getRawSamples());
+                            getSourceTile(sourceRaster, targetTile.getRectangle()).getRawSamples());
+                    pm.worked(1);
                 }
-                pm.worked(1);
             }
         } finally {
             pm.done();
@@ -321,7 +321,7 @@ public class CollocateOp extends Operator {
 
             collocateSourceBand(sourceRaster, sourceRectangle, sourcePixelPositions, targetTile, pm);
         } else {
-            targetTile.setRawSamples(getSourceTile(sourceRaster, targetTile.getRectangle(), pm).getRawSamples());
+            targetTile.setRawSamples(getSourceTile(sourceRaster, targetTile.getRectangle()).getRawSamples());
         }
     }
 
@@ -352,12 +352,11 @@ public class CollocateOp extends Operator {
             final float noDataValue = (float) targetBand.getGeophysicalNoDataValue();
 
             if (sourceRectangle != null) {
-                final Tile sourceTile = getSourceTile(sourceBand, sourceRectangle, pm);
+                final Tile sourceTile = getSourceTile(sourceBand, sourceRectangle);
                 final ResamplingRaster resamplingRaster = new ResamplingRaster(sourceTile);
 
                 for (int y = targetRectangle.y, index = 0; y < targetRectangle.y + targetRectangle.height; ++y) {
                     for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x, ++index) {
-                        checkForCancellation(pm);
                         final PixelPos sourcePixelPos = sourcePixelPositions[index];
 
                         if (sourcePixelPos != null) {
@@ -376,14 +375,15 @@ public class CollocateOp extends Operator {
                             targetTile.setSample(x, y, noDataValue);
                         }
                     }
+                    checkForCancellation();
                     pm.worked(1);
                 }
             } else {
                 for (int y = targetRectangle.y, index = 0; y < targetRectangle.y + targetRectangle.height; ++y) {
                     for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x, ++index) {
-                        checkForCancellation(pm);
                         targetTile.setSample(x, y, noDataValue);
                     }
+                    checkForCancellation();
                     pm.worked(1);
                 }
             }

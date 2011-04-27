@@ -122,15 +122,15 @@ public class NdviOp extends Operator {
         pm.beginTask("Computing NDVI", rectangle.height + 1);
         try {
 
-            Tile l1flagsSourceTile = getSourceTile(sourceProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle, pm);
+            Tile l1flagsSourceTile = getSourceTile(sourceProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle);
             Tile l1flagsTargetTile = targetTiles.get(targetProduct.getBand(L1FLAGS_INPUT_BAND_NAME));
             // TODO replace copy by OpImage delegation
             final int length = rectangle.width * rectangle.height;
             System.arraycopy(l1flagsSourceTile.getRawSamples().getElems(), 0, l1flagsTargetTile.getRawSamples().getElems(), 0, length);
             pm.worked(1);
 
-            Tile lowerTile = getSourceTile(_lowerInputBand, rectangle, pm);
-            Tile upperTile = getSourceTile(_upperInputBand, rectangle, pm);
+            Tile lowerTile = getSourceTile(_lowerInputBand, rectangle);
+            Tile upperTile = getSourceTile(_upperInputBand, rectangle);
 
             Tile ndvi = targetTiles.get(targetProduct.getBand(NDVI_BAND_NAME));
             Tile ndviFlags = targetTiles.get(targetProduct.getBand(NDVI_FLAGS_BAND_NAME));
@@ -157,7 +157,7 @@ public class NdviOp extends Operator {
                     ndvi.setSample(x, y, ndviValue);
                     ndviFlags.setSample(x, y, ndviFlagsValue);
                 }
-                checkForCancellation(pm);
+                checkForCancellation();
                 pm.worked(1);
             }
         } finally {
