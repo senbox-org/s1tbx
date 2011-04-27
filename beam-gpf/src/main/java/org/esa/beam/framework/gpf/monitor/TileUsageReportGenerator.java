@@ -13,13 +13,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.framework.gpf.internal;
+package org.esa.beam.framework.gpf.monitor;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.internal.OperatorImage;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -36,13 +37,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A recorder for tile computation events.
- * May be used as a value for the 'beam.config' variable 'beam.gpf.tileComputationHandler'.
+ * A tile observer which produces tile usage reports from Velocity template files.
+ * May be used as a value for the 'beam.config' variable 'beam.gpf.tileComputationObserver'.
  *
  * @author Norman Fomferra
  * @since BEAM 4.9
  */
-public class SimpleTileComputationHandler extends TileComputationHandler {
+public class TileUsageReportGenerator extends TileComputationObserver {
     public static final int CHART_WIDTH = 1500;
     private final List<TileComputationEvent> recordedEventList = Collections.synchronizedList(new LinkedList<TileComputationEvent>());
     private File[] files;
@@ -101,7 +102,7 @@ public class SimpleTileComputationHandler extends TileComputationHandler {
         }
 
         VelocityContext context = new VelocityContext();
-        context.put("docTitle", SimpleTileComputationHandler.class.getName());
+        context.put("docTitle", TileUsageReportGenerator.class.getName());
         context.put("chartWidth", CHART_WIDTH);
         context.put("totalTime", nanosToRoundedSecs(endNanosMax - startNanosMin));
         context.put("events", events);

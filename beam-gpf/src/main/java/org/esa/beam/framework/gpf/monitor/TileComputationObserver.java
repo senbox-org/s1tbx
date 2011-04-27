@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.framework.gpf.internal;
+package org.esa.beam.framework.gpf.monitor;
 
 import java.util.logging.Logger;
 
@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  * @author Norman Fomferra
  * @since BEAM 4.9
  */
-public abstract class TileComputationHandler {
+public abstract class TileComputationObserver {
     private Logger logger;
 
     /**

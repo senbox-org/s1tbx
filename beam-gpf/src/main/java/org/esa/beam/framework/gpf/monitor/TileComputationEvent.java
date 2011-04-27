@@ -13,7 +13,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.framework.gpf.internal;
+package org.esa.beam.framework.gpf.monitor;
+
+import org.esa.beam.framework.gpf.internal.OperatorImage;
 
 /**
  * A event that is generated after a tile has been computed.

@@ -36,7 +36,6 @@ public class OperatorImage extends SourcelessOpImage {
     private Band targetBand;
     private final int numXTiles;
     private final int numYTiles;
-    private TileComputationStatistic[] tileComputationStatistics;
 
     public OperatorImage(Band targetBand, OperatorContext operatorContext) {
         this(targetBand, operatorContext, ImageManager.createSingleBandedImageLayout(targetBand));
@@ -60,14 +59,13 @@ public class OperatorImage extends SourcelessOpImage {
         }
         numXTiles = getNumXTiles();
         numYTiles = getNumYTiles();
-        tileComputationStatistics = new TileComputationStatistic[numYTiles * numXTiles];
     }
 
-    protected OperatorContext getOperatorContext() {
+    public OperatorContext getOperatorContext() {
         return operatorContext;
     }
 
-    protected Band getTargetBand() {
+    public Band getTargetBand() {
         return targetBand;
     }
 

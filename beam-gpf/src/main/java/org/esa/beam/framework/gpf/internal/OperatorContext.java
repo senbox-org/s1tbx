@@ -46,6 +46,8 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
 import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
+import org.esa.beam.framework.gpf.monitor.TileComputationEvent;
+import org.esa.beam.framework.gpf.monitor.TileComputationObserver;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
@@ -78,8 +80,8 @@ import java.util.regex.Pattern;
  */
 public class OperatorContext {
 
-    private static final String SYS_PROP_NAME_TILE_COMPUTATION_HANDLER = "beam.gpf.tileComputationHandler";
-    private static TileComputationHandler tileComputationHandler;
+    private static final String SYS_PROP_NAME_TILE_COMPUTATION_OBSERVER = "beam.gpf.tileComputationHandler";
+    private static TileComputationObserver tileComputationObserver;
 
     private final Operator operator;
     private final List<Product> sourceProductList;
@@ -1010,33 +1012,33 @@ public class OperatorContext {
     }
 
     private void startTileComputationObservation() {
-        if (tileComputationHandler == null) {
-            String tchClass = System.getProperty(SYS_PROP_NAME_TILE_COMPUTATION_HANDLER);
+        if (tileComputationObserver == null) {
+            String tchClass = System.getProperty(SYS_PROP_NAME_TILE_COMPUTATION_OBSERVER);
             if (tchClass != null) {
                 try {
-                    tileComputationHandler = (TileComputationHandler) Class.forName(tchClass).newInstance();
-                    tileComputationHandler.setLogger(logger);
-                    tileComputationHandler.start();
+                    tileComputationObserver = (TileComputationObserver) Class.forName(tchClass).newInstance();
+                    tileComputationObserver.setLogger(logger);
+                    tileComputationObserver.start();
                 } catch (Throwable t) {
-                    getLogger().warning("Failed to instantiate tile computation handler: " + t.getMessage());
+                    getLogger().warning("Failed to instantiate tile computation observer: " + t.getMessage());
                 }
             }
         }
     }
 
     public void stopTileComputationObservation() {
-        if (tileComputationHandler != null) {
-            tileComputationHandler.stop();
-            tileComputationHandler = null;
+        if (tileComputationObserver != null) {
+            tileComputationObserver.stop();
+            tileComputationObserver = null;
         }
     }
 
     public void fireTileComputed(OperatorImage operatorImage, Rectangle destRect, long startNanos) {
-         if (tileComputationHandler != null) {
+         if (tileComputationObserver != null) {
              long endNanos = System.nanoTime();
              int tileX = operatorImage.XToTileX(destRect.x);
              int tileY = operatorImage.YToTileY(destRect.y);
-             tileComputationHandler.tileComputed(new TileComputationEvent(operatorImage, tileX, tileY, startNanos, endNanos));
+             tileComputationObserver.tileComputed(new TileComputationEvent(operatorImage, tileX, tileY, startNanos, endNanos));
          }
      }
 
