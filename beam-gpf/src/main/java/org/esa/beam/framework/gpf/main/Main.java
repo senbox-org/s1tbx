@@ -16,12 +16,9 @@
 
 package org.esa.beam.framework.gpf.main;
 
-import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import java.util.Locale;
-import java.util.logging.Logger;
 
 /**
  * The entry point for the GPF command-line tool.
