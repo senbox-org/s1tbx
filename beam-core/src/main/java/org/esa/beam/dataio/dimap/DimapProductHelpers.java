@@ -1452,17 +1452,17 @@ public class DimapProductHelpers {
         }
 
         private void addSampleCoding(Product product,
-                                     String tagFlagCoding,
-                                     String tagFlag,
-                                     String tagFlagName,
-                                     String tagFlagIndex,
-                                     String tagFlagDescription) {
-            final List children = getRootElement().getChildren(tagFlagCoding);
+                                     String tagNameSampleCoding,
+                                     String tagNameSampleElements,
+                                     String tagNameSampleName,
+                                     String tagNameSampleValue,
+                                     String tagNameSampleDescription) {
+            final List children = getRootElement().getChildren(tagNameSampleCoding);
             for (Object aChildren : children) {
                 final Element flagCodingElem = (Element) aChildren;
                 final String codingName = flagCodingElem.getAttributeValue(DimapProductConstants.ATTRIB_NAME);
                 final SampleCoding sampleCoding;
-                if (tagFlag.equals(DimapProductConstants.TAG_INDEX)) {
+                if (tagNameSampleElements.equals(DimapProductConstants.TAG_INDEX)) {
                     final IndexCoding indexCoding = new IndexCoding(codingName);
                     product.getIndexCodingGroup().add(indexCoding);
                     sampleCoding = indexCoding;
@@ -1471,18 +1471,18 @@ public class DimapProductHelpers {
                     product.getFlagCodingGroup().add(flagCoding);
                     sampleCoding = flagCoding;
                 }
-                addSamples(tagFlag, tagFlagName, tagFlagIndex, tagFlagDescription, flagCodingElem, sampleCoding);
+                addSamples(tagNameSampleElements, tagNameSampleName, tagNameSampleValue, tagNameSampleDescription, flagCodingElem, sampleCoding);
             }
         }
 
-        private void addSamples(String tagList, String tagName, String tagValue, String tagDescription,
+        private void addSamples(String tagNameSampleElements, String tagNameSampleName, String tagNameSampleValue, String tagNameSampleDescription,
                                 Element sampleCodingElement, SampleCoding sampleCoding) {
-            final List list = sampleCodingElement.getChildren(tagList);
+            final List list = sampleCodingElement.getChildren(tagNameSampleElements);
             for (Object o : list) {
                 final Element element = (Element) o;
-                final String name = element.getChildTextTrim(tagName);
-                final int value = Integer.parseInt(element.getChildTextTrim(tagValue));
-                final String description = element.getChildTextTrim(tagDescription);
+                final String name = element.getChildTextTrim(tagNameSampleName);
+                final int value = Integer.parseInt(element.getChildTextTrim(tagNameSampleValue));
+                final String description = element.getChildTextTrim(tagNameSampleDescription);
                 sampleCoding.addSample(name, value, description);
             }
         }
