@@ -29,6 +29,10 @@ public interface ApplicationDescriptor {
 
     String getVersion();
 
+    String getBuildId();
+
+    String getBuildDate();
+
     String getFrameIconPath();
 
     String getImagePath();

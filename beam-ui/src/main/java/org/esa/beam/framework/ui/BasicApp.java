@@ -701,6 +701,23 @@ public class BasicApp {
     }
 
     /**
+     * @return The build information string.
+     */
+    public String getAppBuildInfo() {
+        String buildId = applicationDescriptor.getBuildId();
+        String buildDate = applicationDescriptor.getBuildDate();
+        if (buildId != null && buildDate != null) {
+            return String.format("build %s from %s", buildId, buildDate);
+        } else if (buildId != null ) {
+            return String.format("build %s", buildId);
+        } else if (buildDate != null ) {
+            return String.format("from %s", buildDate);
+        } else {
+            return "no build info";
+        }
+    }
+
+    /**
      * Returns the resource bundle used by this application.
      *
      * @return the resource bundle, or <code>null</code> if a bundle does not exist

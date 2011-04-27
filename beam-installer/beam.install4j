@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.0.8" transformSequenceNumber="3">
   <directoryPresets config="./src/main/resources/images" />
-  <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="4.9-${compiler:sys.date}" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+  <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="4.9-SNAPSHOT" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -53,7 +53,7 @@
       </java>
       <includedFiles />
       <unextractableFiles />
-      <vmOptionsFile mode="none" overwriteMode="0" fileMode="644">
+      <vmOptionsFile mode="template" overwriteMode="0" fileMode="644">
         <content />
       </vmOptionsFile>
       <customScript mode="1" file="">
@@ -287,7 +287,7 @@
                         <string>19</string>
                       </void>
                       <void property="vmOptions">
-                        <array class="java.lang.String" length="3">
+                        <array class="java.lang.String" length="4">
                           <void index="0">
                             <string>-Xmx${installer:maxHeapSize}</string>
                           </void>
@@ -296,6 +296,9 @@
                           </void>
                           <void index="2">
                             <string>-Dbeam.splash.image=${installer:sys.installationDir}/bin/splash.png</string>
+                          </void>
+                          <void index="3">
+                            <string>-Dbeam.build.date=${compiler:sys.date}</string>
                           </void>
                         </array>
                       </void>
@@ -353,7 +356,7 @@
                         <string>/K "${installer:sys.installationDir}\bin\beam-cli.bat"</string>
                       </void>
                       <void property="entryName">
-                        <string>${installer:sys.programGroupDir}\Command Line</string>
+                        <string>${installer:sys.programGroupDir}\BEAM Command Line</string>
                       </void>
                       <void property="file">
                         <object class="java.io.File">
@@ -1943,8 +1946,7 @@ if (wizardContext != null) {
       </installerScript>
     </unixInstaller>
   </mediaSets>
-  <buildIds buildAll="true">
-    <mediaSet refId="20" />
+  <buildIds buildAll="false">
     <mediaSet refId="4707" />
   </buildIds>
   <buildOptions verbose="false" faster="false" debug="false" />

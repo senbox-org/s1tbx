@@ -122,8 +122,8 @@ public class VisatAboutBox extends ModalDialog {
     private static String getVersionHtml() {
         // todo - load text from resource
         final String pattern = "<html>" +
-                               "<b>{0} Version {1}</b>" +
-                               "<br><b>{2}</b>" +
+                               "<b>{0} Version {1} ({2})</b>" +
+                               "<br><b>{3}</b>" +
                                "<br>" +
                                "<br>This software is based on the BEAM toolbox." +
                                "<br>(c) Copyright 2002-2010 by Brockmann Consult and contributors." +
@@ -141,6 +141,7 @@ public class VisatAboutBox extends ModalDialog {
         return MessageFormat.format(pattern,
                                     VisatApp.getApp().getAppName(),
                                     VisatApp.getApp().getAppVersion(),
+                                    VisatApp.getApp().getAppBuildInfo(),
                                     VisatApp.getApp().getAppCopyright());
     }
 

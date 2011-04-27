@@ -30,6 +30,7 @@
 
     <build>
         <resources>
+            <!-- make sure, a given "beam.build.id" property is replaced in module.xml -->
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>

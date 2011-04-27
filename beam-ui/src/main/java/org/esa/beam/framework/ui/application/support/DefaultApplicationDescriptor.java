@@ -22,17 +22,22 @@ import com.bc.ceres.core.runtime.ConfigurationElement;
 import com.bc.ceres.core.runtime.Module;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
-import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
 import com.thoughtworks.xstream.converters.SingleValueConverterWrapper;
-import com.thoughtworks.xstream.converters.SingleValueConverter;
+import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 
 import java.util.ArrayList;
 
 public class DefaultApplicationDescriptor implements ConfigurableExtension, ApplicationDescriptor {
 
-    private String displayName;
     private String applicationId;
+    private String version;
+    private String buildId;
+    private String buildDate;
+    private String copyright;
+    private String displayName;
+    private String symbolicName;
+    private String loggerName;
 
     @XStreamAlias("resourceBundle")
     private String resourceBundleName;
@@ -46,10 +51,6 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
     private ArrayList<ID> excludedActions;
     private ArrayList<ID> excludedToolViews;
 
-    private transient String copyright;
-    private transient String symbolicName;
-    private transient String loggerName;
-    private transient String version;
 
     public String getApplicationId() {
         return applicationId;
@@ -127,6 +128,22 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
         this.version = version;
     }
 
+    public String getBuildId() {
+        return buildId;
+    }
+
+    public void setBuildId(String buildId) {
+        this.buildId = buildId;
+    }
+
+    public String getBuildDate() {
+        return buildDate;
+    }
+
+    public void setBuildDate(String buildDate) {
+        this.buildDate = buildDate;
+    }
+
     /**
      * Configures this extension with the supplied configuration data.
      *
@@ -135,6 +152,7 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
      *          if an error occured during configuration.
      */
     public void configure(ConfigurationElement config) throws CoreException {
+
         if (applicationId == null) {
             throw new CoreException(String.format("Missing configuration element 'applicationId' in element '%s'.", config.getName()));
         }
@@ -146,11 +164,14 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
         if (symbolicName == null) {
             symbolicName = declaringModule.getSymbolicName();
         }
-        if (loggerName == null) {
-            loggerName = declaringModule.getSymbolicName();
-        }
-        if (version == null || "${beam.build.id}".equals(version)) {
+        if (version == null) {
             version = declaringModule.getVersion().toString();
+        }
+        if (buildId == null || "${beam.build.id}".equals(buildId)) {
+            buildId = System.getProperty("beam.build.id");
+        }
+        if (buildDate == null || "${beam.build.date}".equals(buildDate)) {
+            buildDate = System.getProperty("beam.build.date");
         }
         if (copyright == null) {
             copyright = declaringModule.getCopyright();
@@ -161,7 +182,11 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
         if (imagePath == null) {
             imagePath = "/org/esa/beam/resources/images/about.jpg";
         }
+        if (loggerName == null) {
+            loggerName = declaringModule.getSymbolicName();
+        }
     }
+
     private String[] toStringArray(ArrayList<ID> idList) {
         if (idList == null) {
             return new String[0];

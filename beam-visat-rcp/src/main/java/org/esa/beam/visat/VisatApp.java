@@ -154,42 +154,6 @@ import java.util.logging.Level;
 public class VisatApp extends BasicApp implements AppContext {
 
     /**
-     * Application Name
-     *
-     * @deprecated since BEAM 4.2, not used anymore
-     */
-    @Deprecated
-    public static String APP_NAME;
-    /**
-     * Application symbolic name
-     *
-     * @deprecated since BEAM 4.2, not used anymore
-     */
-    @Deprecated
-    public static String APP_SYMBOLIC_NAME;
-    /**
-     * Application Version
-     *
-     * @deprecated since BEAM 4.2, not used anymore
-     */
-    @Deprecated
-    public static String APP_VERSION;
-    /**
-     * Application Copyright Information
-     *
-     * @deprecated since BEAM 4.2, not used anymore
-     */
-    @Deprecated
-    public static String APP_COPYRIGHTINFO;
-    /**
-     * The name of the system logger for VISAT
-     *
-     * @deprecated since BEAM 4.2, not used anymore
-     */
-    @Deprecated
-    public static String APP_LOGGER_NAME;
-
-    /**
      * VISAT's plug-in directory
      */
     public static final String APP_DEFAULT_PLUGIN_DIR = SystemUtils.EXTENSION_DIR_NAME;
@@ -364,11 +328,6 @@ public class VisatApp extends BasicApp implements AppContext {
         if (instance != null) {
             throw new IllegalStateException("Only one instance of " + VisatApp.class + " allowed per VM.");
         }
-        APP_NAME = applicationDescriptor.getDisplayName();
-        APP_SYMBOLIC_NAME = applicationDescriptor.getSymbolicName();
-        APP_VERSION = applicationDescriptor.getVersion();
-        APP_COPYRIGHTINFO = applicationDescriptor.getCopyright();
-        APP_LOGGER_NAME = applicationDescriptor.getSymbolicName();
         instance = this;
     }
 
