@@ -145,8 +145,8 @@ public class N1PatcherOp extends MerisBasisOp implements Output {
             if (originalFileLocation == null) {
                 throw new OperatorException("The 'n1Product' is not stored on disk.");
             }
-            if (originalFileLocation.getName().endsWith(".N1")) {
-                throw new OperatorException("The file of the 'n1Product' must have '.N1' as extension.");
+            if (!originalFileLocation.getName().endsWith(".N1")) {
+                throw new OperatorException("The file of 'n1Product' must have '.N1' as extension.");
             }
             synchronized (syncObject) {
                 inputStream = new FileImageInputStream(originalFileLocation);
