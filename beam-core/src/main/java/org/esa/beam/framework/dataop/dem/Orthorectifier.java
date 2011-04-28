@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -30,8 +30,6 @@ import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
-
-import java.awt.geom.AffineTransform;
 
 /**
  * An <code>Orthorectifier</code> is a {@link org.esa.beam.framework.datamodel.GeoCoding} which performs an orthorectification algorithm on a base {@link
@@ -232,13 +230,21 @@ public class Orthorectifier implements GeoCoding {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Orthorectifier that = (Orthorectifier) o;
 
-        if (!elevationModel.getDescriptor().getName().equals(that.elevationModel.getDescriptor().getName())) return false;
-        if (!geoCoding.equals(that.geoCoding)) return false;
+        if (elevationModel != null ? !elevationModel.equals(that.elevationModel) : that.elevationModel != null) {
+            return false;
+        }
+        if (!geoCoding.equals(that.geoCoding)) {
+            return false;
+        }
 
         return true;
     }
@@ -246,7 +252,7 @@ public class Orthorectifier implements GeoCoding {
     @Override
     public int hashCode() {
         int result = geoCoding.hashCode();
-        result = 31 * result + elevationModel.hashCode();
+        result = 31 * result + (elevationModel != null ? elevationModel.hashCode() : 0);
         return result;
     }
 
@@ -355,5 +361,5 @@ public class Orthorectifier implements GeoCoding {
 //        final double distance = Math.abs(elevation) * Math.tan(MathUtils.DTOR * _vg.zenith);
 //        return distance < 25.0;   // todo (nf) - get from Pointing or so
     }
-    
+
 }

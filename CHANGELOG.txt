@@ -63,6 +63,7 @@ Improvements
 
 
 Bugs
+[BEAM-1281] - Orthorectification can not be used if tie-points are selected as elevation model
 [BEAM-1248] - Title of transect-plot dialog is not updated if band selection changes
 [BEAM-1246] - Layer-Manager does not reflect changes of mask names in Mask-Manager
 [BEAM-1241] - For certain AATSR-products, TiePointGeoCoding.getPixelPos(GeoPos, PixelPos) yields wrong results

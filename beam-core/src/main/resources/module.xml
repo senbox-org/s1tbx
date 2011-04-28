@@ -1,3 +1,19 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-core</symbolicName>
@@ -26,6 +42,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.9:<br/>
+        [BEAM-1281] Orthorectification can not be used if tie-points are selected as elevation model<br/>
         [BEAM-1246] Layer-Manager does not reflect changes of mask names in Mask-Manager
         [BEAM-1241] For certain AATSR-products, TiePointGeoCoding.getPixelPos(GeoPos, PixelPos) yields wrong results
         [BEAM-1239] For MERIS bands the solar flux has the wrong unit<br/>
