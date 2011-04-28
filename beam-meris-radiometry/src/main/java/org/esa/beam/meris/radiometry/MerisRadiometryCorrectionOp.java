@@ -71,8 +71,8 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private File targetRacFile;
 
     @Parameter(defaultValue = "true",
-               label = "Perform SMILE correction",
-               description = "Whether to perform SMILE correction.")
+               label = "Perform Smile-effect correction",
+               description = "Whether to perform Smile-effect correction.")
     private boolean doSmile;
 
     @Parameter(defaultValue = "true",
