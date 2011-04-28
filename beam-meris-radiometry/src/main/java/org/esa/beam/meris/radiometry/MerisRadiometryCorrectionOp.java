@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -51,11 +51,11 @@ import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     private static final String UNIT_DL = "dl";
-    private static final String INVALID_MASK_NAME = "invalid";
-    private static final String LAND_MASK_NAME = "land";
     private static final double RAW_SATURATION_THRESHOLD = 65435.0;
     private static final String DEFAULT_SOURCE_RAC_RESOURCE = "MER_RAC_AXVIEC20050708_135553_20021224_121445_20041213_220000";
     private static final String DEFAULT_TARGET_RAC_RESOURCE = "MER_RAC_AXVACR20091016_154511_20021224_121445_20041213_220000";
+    private static final int INVALID_BIT_INDEX = 4;
+    private static final int LAND_BIT_INDEX = 7;
 
     @Parameter(defaultValue = "true",
                label = "Perform calibration",
@@ -118,8 +118,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     private transient int detectorIndexSampleIndex;
     private transient int sunZenithAngleSampleIndex;
-    private transient int invalidMaskSampleIndex;
-    private transient int landMaskSampleIndex;
+    private transient int flagBandIndex;
 
     @Override
     protected Product createTargetProduct() {
@@ -150,11 +149,9 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
         if (doRadToRefl) {
             configurator.defineSample(sunZenithAngleSampleIndex, MERIS_SUN_ZENITH_DS_NAME);
         }
-        invalidMaskSampleIndex = i + 3;
-        landMaskSampleIndex = i + 4;
+        flagBandIndex = i + 3;
         if (doSmile) {
-            configurator.defineSample(invalidMaskSampleIndex, INVALID_MASK_NAME);
-            configurator.defineSample(landMaskSampleIndex, LAND_MASK_NAME);
+            configurator.defineSample(flagBandIndex, MERIS_L1B_FLAGS_DS_NAME);
         }
     }
 
@@ -244,9 +241,10 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             value = calibrationAlgorithm.calibrate(bandIndex, detectorIndex, value);
         }
         if (doSmile) {
-            final boolean invalid = sourceSamples[invalidMaskSampleIndex].getBoolean();
+            final Sample flagSample = sourceSamples[flagBandIndex];
+            final boolean invalid = flagSample.getBit(INVALID_BIT_INDEX);
             if (!invalid && detectorIndex != -1) {
-                final boolean land = sourceSamples[landMaskSampleIndex].getBoolean();
+                final boolean land = flagSample.getBit(LAND_BIT_INDEX);
                 double[] sourceValues = new double[15];
                 for (int i = 0; i < sourceValues.length; i++) {
                     sourceValues[i] = sourceSamples[i].getDouble();
