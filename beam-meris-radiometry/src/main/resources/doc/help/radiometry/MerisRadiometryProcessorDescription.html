@@ -73,9 +73,44 @@
 
 <p class="i1">
     <b>Perform calibration: </b><br>
-    Performs a recalibration of the MERIS data. The calibration coefficients given by the 'Source radiometric
-    correction file'
+    Performs a recalibration of the MERIS data. The coefficients given by the 'Source radiometric
+    correction file' are applied to withdraw the calibration. Afterwards the coefficients of the 'Target radiometric
+    correction file' are applied.
 </p>
+
+<p class="i1">
+    <b>Source radiometric correction file: </b><br>
+    Specifies the coefficients to revert the calibration.
+</p>
+
+<p class="i1">
+    <b>Target radiometric correction file: </b><br>
+    Specifies the coefficients to be applied to the target product.
+</p>
+
+<p class="i1">
+    <b>Perform Smile-effect correction: </b><br>
+    Enables or disables the correction of the Smile-effect.
+</p>
+
+<p class="i1">
+    <b>Perform equalisation: </b><br>
+    Enables or disables the removal of detector-to-detector systematic radiometric differences.
+</p>
+
+<p class="i1">
+    <b>Reprocessing version: </b><br>
+    Specifies from which reprocessing the source product comes from. Possible values are AUTO_DETECT,
+    REPROCESSING_2 and REPROCESSING_3.
+</p>
+
+<p class="i1">
+    <b>Perform radiance-to-reflectance conversion: </b><br>
+    Perform a conversion from radiance to reflectance values. This can not be selected if ENVISAT is chosen as
+    output format.
+</p>
+
+
 <hr>
 </body>
 </html>
