@@ -36,7 +36,6 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.ArrayUtils;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -44,10 +43,8 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 /**
  * The <code>EnvisatProductReader</code> class is an implementation of the <code>ProductReader</code> interface
@@ -64,19 +61,6 @@ public class EnvisatProductReader extends AbstractProductReader {
      * @since BEAM 4.9
      */
     private static final String SYSPROP_ENVISAT_USE_PIXEL_GEO_CODING = "beam.envisat.usePixelGeoCoding";
-    /**
-     * @since BEAM 4.9
-     */
-    private static final String SYSPROP_ENVISAT_TILE_WIDTH = "beam.envisat.tileWidth";
-    /**
-     * @since BEAM 4.9
-     */
-    private static final String SYSPROP_ENVISAT_TILE_HEIGHT = "beam.envisat.tileHeight";
-    /**
-     * @deprecated since BEAM 4.9
-     */
-    @Deprecated
-    private static final String ENVISAT_AMORGOS_USE_PIXEL_GEO_CODING = "beam.envisat.amorgos.usePixelGeoCoding";
 
     /**
      * Represents the product's file.
@@ -260,7 +244,6 @@ public class EnvisatProductReader extends AbstractProductReader {
         }
         addDefaultBitmaskDefsToProduct(product);
         addDefaultBitmaskDefsToBands(product);
-        setPreferredTileSize(product);
         productFile.addCustomMetadata(product);
 
         return product;
@@ -505,31 +488,6 @@ public class EnvisatProductReader extends AbstractProductReader {
                     product.getMetadataRoot().addElement(group);
                 }
             }
-        }
-    }
-
-    private void setPreferredTileSize(Product product) {
-        Integer tileWidth = null;
-        String tileWidthStr = System.getProperty(SYSPROP_ENVISAT_TILE_WIDTH);
-        if (tileWidthStr != null) {
-            tileWidth = "*".equals(tileWidthStr) ? sceneRasterWidth : Integer.getInteger(SYSPROP_ENVISAT_TILE_WIDTH);
-        }
-        Integer tileHeight = null;
-        String tileHeightStr = System.getProperty(SYSPROP_ENVISAT_TILE_HEIGHT);
-        if (tileHeightStr != null) {
-            tileHeight = "*".equals(tileHeightStr) ? sceneRasterHeight : Integer.getInteger(SYSPROP_ENVISAT_TILE_HEIGHT);
-        }
-        if (tileWidth != null || tileHeight != null) {
-            Dimension tileSize = product.getPreferredTileSize();
-            Logger logger = BeamLogManager.getSystemLogger();
-            logger.info(MessageFormat.format("Adjusting tile size for Envisat product {0}", product.getName()));
-            if (tileSize != null) {
-                logger.warning(MessageFormat.format("Overwriting tile size {0} x {1}", tileSize.width, tileSize.height));
-            }
-            tileWidth = tileWidth != null ? tileWidth : (tileSize != null ? tileSize.width : tileHeight);
-            tileHeight = tileHeight != null ? tileHeight : (tileSize != null ? tileSize.height : tileWidth);
-            product.setPreferredTileSize(tileWidth, tileHeight);
-            logger.info(MessageFormat.format("Tile size set to {0} x {1}", tileWidth, tileHeight));
         }
     }
 

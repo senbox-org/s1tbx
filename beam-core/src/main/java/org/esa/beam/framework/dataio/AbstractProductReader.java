@@ -24,9 +24,13 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.TreeNode;
+import org.esa.beam.util.logging.BeamLogManager;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.logging.Logger;
 
 /**
  * The <code>AbstractProductReader</code>  class can be used as a base class for new product reader implementations. The
@@ -39,6 +43,14 @@ import java.io.IOException;
  * @see #readBandRasterData
  */
 public abstract class AbstractProductReader implements ProductReader {
+    /**
+     * @since BEAM 4.9
+     */
+    private static final String SYSPROP_READER_TILE_WIDTH = "beam.reader.tileWidth";
+    /**
+     * @since BEAM 4.9
+     */
+    private static final String SYSPROP_READER_TILE_HEIGHT = "beam.reader.tileHeight";
 
     /**
      * The reader plug-in responsible for creating this reader.
@@ -156,8 +168,8 @@ public abstract class AbstractProductReader implements ProductReader {
         setInput(input);
         setSubsetDef(subsetDef);
         final Product product = readProductNodesImpl();
+        configurePreferredTileSize(product);
         product.setModified(false);
-        // (nf, 26.09.2007) added following snippet
         if (product.getProductReader() == null) {
             product.setProductReader(this);
         }
@@ -179,7 +191,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * Reads raster data from the data source specified by the given destination band into the given in-memory buffer
      * and region.
      * <p/>
-     * <p>For a complete description, please refer to the {@link ProductReader#readBandRasterData(org.esa.beam.framework.datamodel.Band,int,int,int,int,org.esa.beam.framework.datamodel.ProductData,com.bc.ceres.core.ProgressMonitor)}  interface definition}
+     * <p>For a complete description, please refer to the {@link ProductReader#readBandRasterData(org.esa.beam.framework.datamodel.Band, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)}  interface definition}
      * of this method.
      * <p/>
      * <p>The <code>AbstractProductReader</code> implements this method using the <i>Template Method</i> pattern. The
@@ -196,9 +208,9 @@ public abstract class AbstractProductReader implements ProductReader {
      * @throws IOException              if an I/O error occurs
      * @throws IllegalArgumentException if the number of elements destination buffer not equals <code>destWidth *
      *                                  destHeight</code> or the destination region is out of the band's raster
-     * @see #readBandRasterDataImpl(int,int,int,int,int,int,org.esa.beam.framework.datamodel.Band,int,int,int,int,org.esa.beam.framework.datamodel.ProductData,com.bc.ceres.core.ProgressMonitor)
+     * @see #readBandRasterDataImpl(int, int, int, int, int, int, org.esa.beam.framework.datamodel.Band, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)
      * @see #getSubsetDef()
-     * @see ProductReader#readBandRasterData(org.esa.beam.framework.datamodel.Band,int,int,int,int,org.esa.beam.framework.datamodel.ProductData,com.bc.ceres.core.ProgressMonitor)
+     * @see ProductReader#readBandRasterData(org.esa.beam.framework.datamodel.Band, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)
      * @see org.esa.beam.framework.datamodel.Band#getRasterWidth()
      * @see org.esa.beam.framework.datamodel.Band#getRasterHeight()
      */
@@ -237,17 +249,17 @@ public abstract class AbstractProductReader implements ProductReader {
         int sourceHeight = sourceStepY * (destHeight - 1) + 1;
 
         readBandRasterDataImpl(sourceOffsetX,
-                sourceOffsetY,
-                sourceWidth,
-                sourceHeight,
-                sourceStepX,
-                sourceStepY,
-                destBand,
-                destOffsetX,
-                destOffsetY,
-                destWidth,
-                destHeight,
-                destBuffer, pm);
+                               sourceOffsetY,
+                               sourceWidth,
+                               sourceHeight,
+                               sourceStepX,
+                               sourceStepY,
+                               destBand,
+                               destOffsetX,
+                               destOffsetY,
+                               destWidth,
+                               destHeight,
+                               destBuffer, pm);
     }
 
     /**
@@ -346,7 +358,7 @@ public abstract class AbstractProductReader implements ProductReader {
     /**
      * Checks if the given object is an instance of one of the valid input types for this product reader.
      *
-     * @param input the input object passed to {@link #readProductNodes(Object,ProductSubsetDef)}
+     * @param input the input object passed to {@link #readProductNodes(Object, ProductSubsetDef)}
      * @return <code>true</code> if so
      * @see org.esa.beam.framework.dataio.ProductReaderPlugIn#getInputTypes()
      */
@@ -364,7 +376,7 @@ public abstract class AbstractProductReader implements ProductReader {
     }
 
     /**
-     * Used by the {@link #createTiePointGrid(String,int,int,float,float,float,float,float[]) createTiePointGrid} method in order to determine
+     * Used by the {@link #createTiePointGrid(String, int, int, float, float, float, float, float[]) createTiePointGrid} method in order to determine
      * the discontinuity mode for angle tie-point grids.
      * <p>The default implementation returns {@link TiePointGrid#DISCONT_AT_180} for
      * the names "lon", "long" or "longitude" ignoring letter case,
@@ -406,19 +418,71 @@ public abstract class AbstractProductReader implements ProductReader {
         final int gridDiscontinutity = getGridDiscontinutity(gridName);
         if (gridDiscontinutity != 0) {
             Debug.trace("creating tie-point grid '" + gridName +
-                    "' with discontinuity at " + gridDiscontinutity +
-                    " degree");
+                                "' with discontinuity at " + gridDiscontinutity +
+                                " degree");
         }
         return new TiePointGrid(gridName,
-                gridWidth,
-                gridHeight,
-                offsetX,
-                offsetY,
-                subSamplingX,
-                subSamplingY,
-                tiePoints,
-                gridDiscontinutity);
+                                gridWidth,
+                                gridHeight,
+                                offsetX,
+                                offsetY,
+                                subSamplingX,
+                                subSamplingY,
+                                tiePoints,
+                                gridDiscontinutity);
     }
+
+    protected static void configurePreferredTileSize(Product product) {
+        Dimension newSize = getConfiguredTileSize(product,
+                                                  System.getProperty(SYSPROP_READER_TILE_WIDTH),
+                                                  System.getProperty(SYSPROP_READER_TILE_HEIGHT));
+        if (newSize != null) {
+            Logger logger = BeamLogManager.getSystemLogger();
+            logger.info(MessageFormat.format("Adjusting tile size for product {0}", product.getName()));
+            if (product.getPreferredTileSize() != null) {
+                Dimension oldSize = product.getPreferredTileSize();
+                logger.info(MessageFormat.format("Overwriting current tile size {0} x {1} pixels", oldSize.width, oldSize.height));
+            }
+            product.setPreferredTileSize(newSize);
+            logger.info(MessageFormat.format("Tile size now set to {0} x {1} pixels", newSize.width, newSize.height));
+        }
+    }
+
+    static Dimension getConfiguredTileSize(Product product, String tileWidthStr, String tileHeightStr) {
+        Integer tileWidth = parseTileSize(tileWidthStr, product.getSceneRasterWidth());
+        Integer tileHeight = parseTileSize(tileHeightStr, product.getSceneRasterHeight());
+        Dimension newSize = null;
+        if (tileWidth != null || tileHeight != null) {
+            Dimension oldSize = product.getPreferredTileSize();
+            if (tileWidth == null) {
+                // Note: tileHeight will not be null
+                tileWidth = (oldSize != null ? oldSize.width : Math.min(product.getSceneRasterWidth(), tileHeight));
+            }
+            if (tileHeight == null) {
+                // Note: tileWidth will not be null
+                tileHeight = (oldSize != null ? oldSize.height : Math.min(product.getSceneRasterHeight(), tileWidth));
+            }
+            newSize = new Dimension(tileWidth, tileHeight);
+        }
+        return newSize;
+    }
+
+    static Integer parseTileSize(String sizeStr, int maxSize) {
+        Integer size = null;
+        if (sizeStr != null) {
+            if (sizeStr.equals("*")) {
+                size = maxSize;
+            } else {
+                try {
+                    size = Integer.parseInt(sizeStr);
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
+        }
+        return size;
+    }
+
 
     /**
      * Returns a string representation of the reader.

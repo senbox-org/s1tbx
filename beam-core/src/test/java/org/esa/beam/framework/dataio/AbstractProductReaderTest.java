@@ -24,6 +24,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.TreeNode;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -31,6 +32,40 @@ import java.net.URL;
 public class AbstractProductReaderTest extends TestCase {
 
     private AbstractProductReader reader;
+
+    public void testParseTileSize() {
+        assertEquals(null, AbstractProductReader.parseTileSize(null, 1024));
+        assertEquals(new Integer(1024), AbstractProductReader.parseTileSize("*", 1024));
+        assertEquals(new Integer(256), AbstractProductReader.parseTileSize("256", 1024));
+        assertEquals(null, AbstractProductReader.parseTileSize("ten", 1024));
+    }
+
+    public void testGetConfiguredTileSize_PrefSizeSet() {
+        Product product = new Product("a", "b", 1121, 9281);
+        product.setPreferredTileSize(256, 512);
+        assertEquals(null, AbstractProductReader.getConfiguredTileSize(product, null, null));
+        assertEquals(new Dimension(1121, 512), AbstractProductReader.getConfiguredTileSize(product, "*", null));
+        assertEquals(new Dimension(32, 512), AbstractProductReader.getConfiguredTileSize(product, "32", null));
+        assertEquals(new Dimension(256, 9281), AbstractProductReader.getConfiguredTileSize(product, null, "*"));
+        assertEquals(new Dimension(1121, 9281), AbstractProductReader.getConfiguredTileSize(product, "*", "*"));
+        assertEquals(new Dimension(32, 9281), AbstractProductReader.getConfiguredTileSize(product, "32", "*"));
+        assertEquals(new Dimension(256, 64), AbstractProductReader.getConfiguredTileSize(product, null, "64"));
+        assertEquals(new Dimension(1121, 64), AbstractProductReader.getConfiguredTileSize(product, "*", "64"));
+        assertEquals(new Dimension(32, 64), AbstractProductReader.getConfiguredTileSize(product, "32", "64"));
+    }
+
+    public void testGetConfiguredTileSize_PrefSizeNotSet() {
+        Product product = new Product("a", "b", 1121, 9281);
+        assertEquals(null, AbstractProductReader.getConfiguredTileSize(product, null, null));
+        assertEquals(new Dimension(1121, 1121), AbstractProductReader.getConfiguredTileSize(product, "*", null));
+        assertEquals(new Dimension(32, 32), AbstractProductReader.getConfiguredTileSize(product, "32", null));
+        assertEquals(new Dimension(1121, 9281), AbstractProductReader.getConfiguredTileSize(product, null, "*"));
+        assertEquals(new Dimension(1121, 9281), AbstractProductReader.getConfiguredTileSize(product, "*", "*"));
+        assertEquals(new Dimension(32, 9281), AbstractProductReader.getConfiguredTileSize(product, "32", "*"));
+        assertEquals(new Dimension(64, 64), AbstractProductReader.getConfiguredTileSize(product, null, "64"));
+        assertEquals(new Dimension(1121, 64), AbstractProductReader.getConfiguredTileSize(product, "*", "64"));
+        assertEquals(new Dimension(32, 64), AbstractProductReader.getConfiguredTileSize(product, "32", "64"));
+    }
 
     public void testGetProductComponents_inputFile() throws IOException {
         URL location = AbstractProductReaderTest.class.getProtectionDomain().getCodeSource().getLocation();
@@ -94,7 +129,7 @@ public class AbstractProductReaderTest extends TestCase {
         }
 
         @Override
-        protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight, int sourceStepX, int sourceStepY, Band destBand, int destOffsetX, int destOffsetY, int destWidth, int destHeight, ProductData destBuffer, ProgressMonitor pm) throws IOException {            
+        protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight, int sourceStepX, int sourceStepY, Band destBand, int destOffsetX, int destOffsetY, int destWidth, int destHeight, ProductData destBuffer, ProgressMonitor pm) throws IOException {
         }
     }
 }
