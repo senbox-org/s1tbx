@@ -30,17 +30,19 @@ import java.util.logging.Level;
  *
  * @author marco Zuehlke
  */
-public class TileComputationPrinter extends TileComputationObserver {
+public class TileComputationEventLogger extends TileComputationObserver {
 
     private static class TileEvent {
         private final OperatorImage image;
         private final int tileX;
         private final int tileY;
+        private final double duration;
 
         TileEvent(TileComputationEvent event) {
             this.image = event.getImage();
             this.tileX = event.getTileX();
             this.tileY = event.getTileY();
+            this.duration = nanosToRoundedSecs((event.getEndNanos() - event.getStartNanos()));
         }
 
         @Override
@@ -52,7 +54,7 @@ public class TileComputationPrinter extends TileComputationObserver {
 
             if (tileX != that.tileX) return false;
             if (tileY != that.tileY) return false;
-            if (!image.equals(that.image)) return false;
+            if (image != that.image) return false;
 
             return true;
         }
@@ -67,8 +69,13 @@ public class TileComputationPrinter extends TileComputationObserver {
 
         @Override
         public String toString() {
-            return String.format("%70s, tileX=%d, tileY=%d, tw=%d, th=%d",
-                                 image, tileX, tileY, image.getTileWidth(), image.getTileHeight());
+            return String.format("%s, tileX=%d, tileY=%d, tileWidth=%d, tileHeight=%d, time=%f",
+                                 image, tileX, tileY, image.getTileWidth(), image.getTileHeight(), duration);
+        }
+
+        private static double nanosToRoundedSecs(long nanos) {
+            double secs = nanos * 1.0E-9;
+            return Math.round(1000.0 * secs) / 1000.0;
         }
     }
 
@@ -91,9 +98,9 @@ public class TileComputationPrinter extends TileComputationObserver {
             }
         }
         if (newEvent) {
-            getLogger().log(Level.WARNING, "computed: " + message);
+            getLogger().log(Level.INFO, "Tile computed: " + message);
         } else {
-            getLogger().log(Level.INFO, "RE-computed: " + message);
+            getLogger().log(Level.WARNING, "Tile re-computed: " + message);
         }
     }
 
