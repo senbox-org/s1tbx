@@ -17,7 +17,7 @@
 package com.bc.ceres.binding;
 
 /**
- * An {@code ValueAccessor} provides a strategy to get and set a value.
+ * An {@code PropertyAccessor} provides a strategy to get and set a value.
  *
  * @author Norman Fomferra
  * @since 0.6
