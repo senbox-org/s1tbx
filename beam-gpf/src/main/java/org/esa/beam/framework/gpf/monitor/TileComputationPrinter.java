@@ -19,6 +19,7 @@ import org.esa.beam.framework.gpf.internal.OperatorImage;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * A printer for tile computation events.
@@ -66,15 +67,16 @@ public class TileComputationPrinter extends TileComputationObserver {
 
         @Override
         public String toString() {
-            return String.format("%70s, tileX=%d, tileY=%d, tw=%d, th=%d", image, tileX, tileY, image.getTileWidth(), image.getTileHeight());
+            return String.format("%70s, tileX=%d, tileY=%d, tw=%d, th=%d",
+                                 image, tileX, tileY, image.getTileWidth(), image.getTileHeight());
         }
     }
 
-    private final Set<TileEvent> recordedEventList = new HashSet<TileEvent>();
+    private final Set<TileEvent> recordedEventSet = new HashSet<TileEvent>();
 
     @Override
     public void start() {
-        System.out.println("Starting TileComputationPrinter");
+        getLogger().log(Level.INFO, "Starting TileComputationPrinter");
     }
 
     @Override
@@ -82,22 +84,22 @@ public class TileComputationPrinter extends TileComputationObserver {
         TileEvent tileEvent = new TileEvent(event);
         String message = tileEvent.toString();
         boolean newEvent = false;
-        synchronized (recordedEventList) {
-            if (!recordedEventList.contains(tileEvent)) {
-                recordedEventList.add(tileEvent);
+        synchronized (recordedEventSet) {
+            if (!recordedEventSet.contains(tileEvent)) {
+                recordedEventSet.add(tileEvent);
                 newEvent = true;
             }
         }
         if (newEvent) {
-            System.out.println("computed: " + message);
+            getLogger().log(Level.WARNING, "computed: " + message);
         } else {
-            System.out.println("RE-computed: " + message);
+            getLogger().log(Level.INFO, "RE-computed: " + message);
         }
     }
 
     @Override
     public void stop() {
-        recordedEventList.clear();
-        System.out.println("Stoping TileComputationPrinter");
+        recordedEventSet.clear();
+        getLogger().log(Level.INFO, "Stoping TileComputationPrinter");
     }
 }
