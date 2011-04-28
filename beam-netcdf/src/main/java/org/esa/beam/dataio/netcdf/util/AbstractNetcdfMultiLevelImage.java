@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,7 +23,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 
-import javax.media.jai.ImageLayout;
 import javax.media.jai.PlanarImage;
 import java.awt.Shape;
 import java.awt.image.RenderedImage;
@@ -46,9 +45,8 @@ public abstract class AbstractNetcdfMultiLevelImage extends MultiLevelImage {
     private final RenderedImage[] levelImages;
     private MultiLevelModel multiLevelModel;
 
-    public AbstractNetcdfMultiLevelImage(RasterDataNode rasterDataNode) {
-        super(new ImageLayout(0, 0, rasterDataNode.getSceneRasterWidth(), rasterDataNode.getSceneRasterHeight()), null,
-              null);
+    protected AbstractNetcdfMultiLevelImage(RasterDataNode rasterDataNode) {
+        super(ImageManager.createSingleBandedImageLayout(rasterDataNode), null, null);
         this.rasterDataNode = rasterDataNode;
         int width = rasterDataNode.getSceneRasterWidth();
         int height = rasterDataNode.getSceneRasterHeight();
