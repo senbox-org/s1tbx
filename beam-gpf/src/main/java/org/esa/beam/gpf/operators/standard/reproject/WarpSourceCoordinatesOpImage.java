@@ -15,8 +15,9 @@
  */
 package org.esa.beam.gpf.operators.standard.reproject;
 
+import org.esa.beam.framework.gpf.internal.OperatorContext;
+
 import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterAccessor;
 import javax.media.jai.RasterFactory;
@@ -87,7 +88,7 @@ class WarpSourceCoordinatesOpImage extends SourcelessOpImage {
         this.warp = warp;
         int compatibleTag = RasterAccessor.findCompatibleTag(null, layout.getSampleModel(null));
         rasterFormatTag = new RasterFormatTag(layout.getSampleModel(null), compatibleTag);
-        setTileCache(JAI.getDefaultInstance().getTileCache());
+        OperatorContext.setTileCache(this);
     }
 
     @Override

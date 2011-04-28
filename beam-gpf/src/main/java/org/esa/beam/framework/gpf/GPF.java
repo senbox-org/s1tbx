@@ -85,6 +85,9 @@ public class GPF {
     public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<String, Product>());
 
     private static GPF defaultInstance = new GPF();
+    public static final String DISABLE_TILE_CACHE_PROPERTY = "beam.gpf.disableTileCache";
+    public static final String USE_FILE_TILE_CACHE_PROPERTY = "beam.gpf.useFileTileCache";
+    public static final String TILE_COMPUTATION_OBSERVER_PROPERTY = "beam.gpf.tileComputationObserver";
 
     private OperatorSpiRegistry spiRegistry;
 

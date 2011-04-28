@@ -15,15 +15,15 @@
  */
 package org.esa.beam.gpf.operators.standard.reproject;
 
+import org.esa.beam.framework.gpf.internal.OperatorContext;
+
+import javax.media.jai.PointOpImage;
+import javax.media.jai.RasterAccessor;
+import javax.media.jai.RasterFormatTag;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
-
-import javax.media.jai.JAI;
-import javax.media.jai.PointOpImage;
-import javax.media.jai.RasterAccessor;
-import javax.media.jai.RasterFormatTag;
 
 final class InsertNoDataValueOpImage extends PointOpImage {
     private final double noDataValue;
@@ -34,7 +34,7 @@ final class InsertNoDataValueOpImage extends PointOpImage {
         this.noDataValue = noDataValue;
         int compatibleTagId = RasterAccessor.findCompatibleTag(null, maskImage.getSampleModel());
         maskRasterFormatTag = new RasterFormatTag(maskImage.getSampleModel(), compatibleTagId);
-        setTileCache(JAI.getDefaultInstance().getTileCache());
+        OperatorContext.setTileCache(this);
     }
 
     @Override
@@ -45,16 +45,16 @@ final class InsertNoDataValueOpImage extends PointOpImage {
         RasterAccessor d = new RasterAccessor(dest, destRect, formatTags[2], getColorModel());
         switch (d.getDataType()) {
             case 0: // '\0'
-                computeRectByte(s,  m, d, (byte) noDataValue);
+                computeRectByte(s, m, d, (byte) noDataValue);
                 break;
 
             case 1: // '\001'
             case 2: // '\002'
-                computeRectShort(s,  m, d, (short) noDataValue);
+                computeRectShort(s, m, d, (short) noDataValue);
                 break;
 
             case 3: // '\003'
-                computeRectInt(s,  m, d, (int) noDataValue);
+                computeRectInt(s, m, d, (int) noDataValue);
                 break;
             case 4: // '\004'
                 computeRectFloat(s, m, d, (float) noDataValue);
@@ -66,27 +66,27 @@ final class InsertNoDataValueOpImage extends PointOpImage {
         }
         d.copyDataToRaster();
     }
-    
+
     private void computeRectByte(RasterAccessor src, RasterAccessor mask, RasterAccessor dst, byte rValue) {
         int sLineStride = src.getScanlineStride();
         int sPixelStride = src.getPixelStride();
         int[] sBandOffsets = src.getBandOffsets();
         byte[][] sData = src.getByteDataArrays();
-        
+
         int mLineStride = mask.getScanlineStride();
         int mPixelStride = mask.getPixelStride();
         int[] mBandOffsets = mask.getBandOffsets();
         byte[][] mData = mask.getByteDataArrays();
-        
+
         int dwidth = dst.getWidth();
         int dheight = dst.getHeight();
         int dLineStride = dst.getScanlineStride();
         int dPixelStride = dst.getPixelStride();
         int[] dBandOffsets = dst.getBandOffsets();
         byte[][] dData = dst.getByteDataArrays();
-        
+
         byte[] s = sData[0];
-        byte[] m  = mData[0];
+        byte[] m = mData[0];
         byte[] d = dData[0];
         int sLineOffset = sBandOffsets[0];
         int mLineOffset = mBandOffsets[0];
@@ -99,7 +99,7 @@ final class InsertNoDataValueOpImage extends PointOpImage {
             mLineOffset += mLineStride;
             dLineOffset += dLineStride;
             for (int w = 0; w < dwidth; w++) {
-                if (m[mPixelOffset]!=0) {
+                if (m[mPixelOffset] != 0) {
                     d[dPixelOffset] = s[sPixelOffset];
                 } else {
                     d[dPixelOffset] = rValue;
@@ -110,27 +110,27 @@ final class InsertNoDataValueOpImage extends PointOpImage {
             }
         }
     }
-    
+
     private void computeRectShort(RasterAccessor src, RasterAccessor mask, RasterAccessor dst, short rValue) {
         int sLineStride = src.getScanlineStride();
         int sPixelStride = src.getPixelStride();
         int[] sBandOffsets = src.getBandOffsets();
         short[][] sData = src.getShortDataArrays();
-        
+
         int mLineStride = mask.getScanlineStride();
         int mPixelStride = mask.getPixelStride();
         int[] mBandOffsets = mask.getBandOffsets();
         byte[][] mData = mask.getByteDataArrays();
-        
+
         int dwidth = dst.getWidth();
         int dheight = dst.getHeight();
         int dLineStride = dst.getScanlineStride();
         int dPixelStride = dst.getPixelStride();
         int[] dBandOffsets = dst.getBandOffsets();
         short[][] dData = dst.getShortDataArrays();
-        
+
         short[] s = sData[0];
-        byte[] m  = mData[0];
+        byte[] m = mData[0];
         short[] d = dData[0];
         int sLineOffset = sBandOffsets[0];
         int mLineOffset = mBandOffsets[0];
@@ -143,7 +143,7 @@ final class InsertNoDataValueOpImage extends PointOpImage {
             mLineOffset += mLineStride;
             dLineOffset += dLineStride;
             for (int w = 0; w < dwidth; w++) {
-                if (m[mPixelOffset]!=0) {
+                if (m[mPixelOffset] != 0) {
                     d[dPixelOffset] = s[sPixelOffset];
                 } else {
                     d[dPixelOffset] = rValue;
@@ -154,27 +154,27 @@ final class InsertNoDataValueOpImage extends PointOpImage {
             }
         }
     }
-    
+
     private void computeRectInt(RasterAccessor src, RasterAccessor mask, RasterAccessor dst, int rValue) {
         int sLineStride = src.getScanlineStride();
         int sPixelStride = src.getPixelStride();
         int[] sBandOffsets = src.getBandOffsets();
         int[][] sData = src.getIntDataArrays();
-        
+
         int mLineStride = mask.getScanlineStride();
         int mPixelStride = mask.getPixelStride();
         int[] mBandOffsets = mask.getBandOffsets();
         byte[][] mData = mask.getByteDataArrays();
-        
+
         int dwidth = dst.getWidth();
         int dheight = dst.getHeight();
         int dLineStride = dst.getScanlineStride();
         int dPixelStride = dst.getPixelStride();
         int[] dBandOffsets = dst.getBandOffsets();
         int[][] dData = dst.getIntDataArrays();
-        
+
         int[] s = sData[0];
-        byte[] m  = mData[0];
+        byte[] m = mData[0];
         int[] d = dData[0];
         int sLineOffset = sBandOffsets[0];
         int mLineOffset = mBandOffsets[0];
@@ -187,7 +187,7 @@ final class InsertNoDataValueOpImage extends PointOpImage {
             mLineOffset += mLineStride;
             dLineOffset += dLineStride;
             for (int w = 0; w < dwidth; w++) {
-                if (m[mPixelOffset]!=0) {
+                if (m[mPixelOffset] != 0) {
                     d[dPixelOffset] = s[sPixelOffset];
                 } else {
                     d[dPixelOffset] = rValue;
@@ -198,27 +198,27 @@ final class InsertNoDataValueOpImage extends PointOpImage {
             }
         }
     }
-    
+
     private void computeRectFloat(RasterAccessor src, RasterAccessor mask, RasterAccessor dst, float rValue) {
         int sLineStride = src.getScanlineStride();
         int sPixelStride = src.getPixelStride();
         int[] sBandOffsets = src.getBandOffsets();
         float[][] sData = src.getFloatDataArrays();
-        
+
         int mLineStride = mask.getScanlineStride();
         int mPixelStride = mask.getPixelStride();
         int[] mBandOffsets = mask.getBandOffsets();
         byte[][] mData = mask.getByteDataArrays();
-        
+
         int dwidth = dst.getWidth();
         int dheight = dst.getHeight();
         int dLineStride = dst.getScanlineStride();
         int dPixelStride = dst.getPixelStride();
         int[] dBandOffsets = dst.getBandOffsets();
         float[][] dData = dst.getFloatDataArrays();
-        
+
         float[] s = sData[0];
-        byte[] m  = mData[0];
+        byte[] m = mData[0];
         float[] d = dData[0];
         int sLineOffset = sBandOffsets[0];
         int mLineOffset = mBandOffsets[0];
@@ -231,7 +231,7 @@ final class InsertNoDataValueOpImage extends PointOpImage {
             mLineOffset += mLineStride;
             dLineOffset += dLineStride;
             for (int w = 0; w < dwidth; w++) {
-                if (m[mPixelOffset]!=0) {
+                if (m[mPixelOffset] != 0) {
                     d[dPixelOffset] = s[sPixelOffset];
                 } else {
                     d[dPixelOffset] = rValue;
@@ -248,21 +248,21 @@ final class InsertNoDataValueOpImage extends PointOpImage {
         int sPixelStride = src.getPixelStride();
         int[] sBandOffsets = src.getBandOffsets();
         double[][] sData = src.getDoubleDataArrays();
-        
+
         int mLineStride = mask.getScanlineStride();
         int mPixelStride = mask.getPixelStride();
         int[] mBandOffsets = mask.getBandOffsets();
         byte[][] mData = mask.getByteDataArrays();
-        
+
         int dwidth = dst.getWidth();
         int dheight = dst.getHeight();
         int dLineStride = dst.getScanlineStride();
         int dPixelStride = dst.getPixelStride();
         int[] dBandOffsets = dst.getBandOffsets();
         double[][] dData = dst.getDoubleDataArrays();
-        
+
         double[] s = sData[0];
-        byte[] m  = mData[0];
+        byte[] m = mData[0];
         double[] d = dData[0];
         int sLineOffset = sBandOffsets[0];
         int mLineOffset = mBandOffsets[0];
@@ -275,7 +275,7 @@ final class InsertNoDataValueOpImage extends PointOpImage {
             mLineOffset += mLineStride;
             dLineOffset += dLineStride;
             for (int w = 0; w < dwidth; w++) {
-                if (m[mPixelOffset]!=0) {
+                if (m[mPixelOffset] != 0) {
                     d[dPixelOffset] = s[sPixelOffset];
                 } else {
                     d[dPixelOffset] = rValue;

@@ -28,6 +28,7 @@ import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.jai.tilecache.SwappingTileCache;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -53,6 +54,8 @@ import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;
+import javax.media.jai.OpImage;
+import javax.media.jai.TileCache;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -80,7 +83,7 @@ import java.util.regex.Pattern;
  */
 public class OperatorContext {
 
-    private static final String SYS_PROP_NAME_TILE_COMPUTATION_OBSERVER = "beam.gpf.tileComputationHandler";
+    private static TileCache tileCache;
     private static TileComputationObserver tileComputationObserver;
 
     private final Operator operator;
@@ -119,6 +122,25 @@ public class OperatorContext {
         this.renderingHints = new RenderingHints(JAI.KEY_TILE_CACHE_METRIC, this);
 
         startTileComputationObservation();
+    }
+
+    public static void setTileCache(OpImage image) {
+        boolean disableTileCache = Boolean.parseBoolean(System.getProperty(GPF.DISABLE_TILE_CACHE_PROPERTY, "false"));
+        if (disableTileCache) {
+            image.setTileCache(null);
+        } else if (image.getTileCache() == null) {
+            if (tileCache == null) {
+                boolean useFileTileCache = Boolean.parseBoolean(System.getProperty(GPF.USE_FILE_TILE_CACHE_PROPERTY, "false"));
+                if (useFileTileCache) {
+                    tileCache = new SwappingTileCache();
+                }else {
+                    tileCache = JAI.getDefaultInstance().getTileCache();
+                }
+            }
+            // Make sure that we use a tile cache,
+            // because in GPF we usually don't use the javax.media.jai.JAI class for OpImage instantiation.
+            image.setTileCache(tileCache);
+        }
     }
 
     public String getId() {
@@ -1013,7 +1035,7 @@ public class OperatorContext {
 
     private void startTileComputationObservation() {
         if (tileComputationObserver == null) {
-            String tchClass = System.getProperty(SYS_PROP_NAME_TILE_COMPUTATION_OBSERVER);
+            String tchClass = System.getProperty(GPF.TILE_COMPUTATION_OBSERVER_PROPERTY);
             if (tchClass != null) {
                 try {
                     tileComputationObserver = (TileComputationObserver) Class.forName(tchClass).newInstance();

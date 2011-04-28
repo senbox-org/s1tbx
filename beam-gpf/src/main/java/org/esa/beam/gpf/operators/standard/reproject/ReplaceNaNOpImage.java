@@ -15,6 +15,8 @@
  */
 package org.esa.beam.gpf.operators.standard.reproject;
 
+import org.esa.beam.framework.gpf.internal.OperatorContext;
+
 import javax.media.jai.PointOpImage;
 import javax.media.jai.RasterAccessor;
 import javax.media.jai.RasterFormatTag;
@@ -30,7 +32,8 @@ final class ReplaceNaNOpImage extends PointOpImage {
      ReplaceNaNOpImage(RenderedImage source, double value) {
         super(source, null, null, true);
         this.replacementValue = value;
-    }
+        OperatorContext.setTileCache(this);
+     }
 
     @Override
     protected void computeRect(Raster[] sources, WritableRaster dest, Rectangle destRect) {
