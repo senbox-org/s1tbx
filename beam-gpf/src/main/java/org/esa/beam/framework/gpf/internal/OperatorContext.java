@@ -125,9 +125,6 @@ public class OperatorContext {
         startTileComputationObservation();
     }
 
-            // Make sure that we use a tile cache,
-            // because in GPF we usually don't use the javax.media.jai.JAI class for OpImage instantiation.
-
     /**
      * Makes sure that the given JAI OpImage has a valid tile cache (see System property {@link GPF#USE_FILE_TILE_CACHE_PROPERTY}),
      * or makes sure that it has none (see System property {@link GPF#DISABLE_TILE_CACHE_PROPERTY}).
