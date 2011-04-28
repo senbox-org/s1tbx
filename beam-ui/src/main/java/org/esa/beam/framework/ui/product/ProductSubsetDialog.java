@@ -81,8 +81,6 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -648,11 +646,11 @@ public class ProductSubsetDialog extends ModalDialog {
         }
 
         private JPanel createGeoCoordinatesPane() {
-            GridBagConstraints gbc = GridBagUtils.createConstraints(
-                    "insets.left=3,anchor=WEST,fill=HORIZONTAL, weightx=1.0");
             JPanel geoCoordinatesPane = GridBagUtils.createPanel();
             setComponentName(geoCoordinatesPane, "geoCoordinatesPane");
 
+            GridBagConstraints gbc = GridBagUtils.createConstraints(
+                    "insets.left=3,anchor=WEST,fill=HORIZONTAL, weightx=1.0");
             GridBagUtils.setAttributes(gbc, "insets.top=4");
             GridBagUtils.addToPanel(geoCoordinatesPane, new JLabel("North latitude bound:"), gbc, "gridx=0,gridy=0");
             GridBagUtils.addToPanel(geoCoordinatesPane, UIUtils.createSpinner(paramNorthLat1, (double) 1, "#0.00#"),
@@ -802,71 +800,37 @@ public class ProductSubsetDialog extends ModalDialog {
         }
 
         private void addGeoParameter(ParamGroup pg) {
-            final Rectangle2D bounds = createGeoBounds();
-            float minLon = ((Double) bounds.getMinX()).floatValue();
-            float maxLon = ((Double) bounds.getMaxX()).floatValue();
-            float minLat = ((Double) bounds.getMinY()).floatValue();
-            float maxLat = ((Double) bounds.getMaxY()).floatValue();
-            if (givenProductSubsetDef != null && canUseGeoCoordinates(product)) {
-                Rectangle region = givenProductSubsetDef.getRegion();
-                if (region != null) {
-                    final GeoCoding geoCoding = product.getGeoCoding();
-                    final GeoPos gp1 = geoCoding.getGeoPos(new PixelPos(region.x, region.y), null);
-                    final GeoPos gp2 = geoCoding.getGeoPos(new PixelPos(region.x + region.width - 1,
-                                                                        region.y + region.height - 1), null);
-                    minLon = Math.min(minLon, gp1.getLon());
-                    minLon = Math.min(minLon, gp2.getLon());
-                    maxLon = Math.max(maxLon, gp1.getLon());
-                    maxLon = Math.max(maxLon, gp2.getLon());
-                    minLat = Math.min(minLat, gp1.getLat());
-                    minLat = Math.min(minLat, gp2.getLat());
-                    maxLat = Math.max(maxLat, gp1.getLat());
-                    maxLat = Math.max(maxLat, gp2.getLat());
 
-                }
-            }
-
-            paramNorthLat1 = new Parameter("geo_lat1", maxLat);
+            paramNorthLat1 = new Parameter("geo_lat1", 90.0f);
             paramNorthLat1.getProperties().setDescription("North bound latitude");
             paramNorthLat1.getProperties().setPhysicalUnit("°");
             paramNorthLat1.getProperties().setMinValue(-90.0f);
             paramNorthLat1.getProperties().setMaxValue(90.0f);
             pg.addParameter(paramNorthLat1);
 
-            paramWestLon1 = new Parameter("geo_lon1", minLon);
+            paramWestLon1 = new Parameter("geo_lon1", -180.0f);
             paramWestLon1.getProperties().setDescription("West bound longitude");
             paramWestLon1.getProperties().setPhysicalUnit("°");
             paramWestLon1.getProperties().setMinValue(-180.0f);
             paramWestLon1.getProperties().setMaxValue(180.0f);
             pg.addParameter(paramWestLon1);
 
-            paramSouthLat2 = new Parameter("geo_lat2", minLat);
+            paramSouthLat2 = new Parameter("geo_lat2", -90.0f);
             paramSouthLat2.getProperties().setDescription("South bound latitude");
             paramSouthLat2.getProperties().setPhysicalUnit("°");
             paramSouthLat2.getProperties().setMinValue(-90.0f);
             paramSouthLat2.getProperties().setMaxValue(90.0f);
             pg.addParameter(paramSouthLat2);
 
-            paramEastLon2 = new Parameter("geo_lon2", maxLon);
+            paramEastLon2 = new Parameter("geo_lon2", 180.0f);
             paramEastLon2.getProperties().setDescription("East bound longitude");
             paramEastLon2.getProperties().setPhysicalUnit("°");
             paramEastLon2.getProperties().setMinValue(-180.0f);
             paramEastLon2.getProperties().setMaxValue(180.0f);
             pg.addParameter(paramEastLon2);
-        }
 
-        private Rectangle2D createGeoBounds() {
             if (canUseGeoCoordinates(product)) {
-                final GeneralPath[] boundaryPaths = ProductUtils.createGeoBoundaryPaths(product);
-                final Area area = new Area();
-                for (GeneralPath boundaryPath : boundaryPaths) {
-                    area.add(new Area(boundaryPath));
-                }
-                return area.getBounds2D();
-            } else {
-                final Rectangle2D.Float bounds = new Rectangle2D.Float();
-                bounds.setFrameFromDiagonal(-180.0f, 90.0f, 180.0f, -90.0f);
-                return bounds;
+                syncLatLonWithXYParams();
             }
         }
 
@@ -953,11 +917,7 @@ public class ProductSubsetDialog extends ModalDialog {
                                                               (Float) paramEastLon2.getValue());
                             updateXYParams(geoPos1, geoPos2);
                         } else if (parmName.startsWith("source_x") || parmName.startsWith("source_y")) {
-                            final PixelPos pixelPos1 = new PixelPos(((Number) paramX1.getValue()).intValue(),
-                                                                    ((Number) paramY1.getValue()).intValue());
-                            final PixelPos pixelPos2 = new PixelPos(((Number) paramX2.getValue()).intValue(),
-                                                                    ((Number) paramY2.getValue()).intValue());
-                            updateLatLonParams(pixelPos1, pixelPos2);
+                            syncLatLonWithXYParams();
                         }
 
                     }
@@ -990,7 +950,12 @@ public class ProductSubsetDialog extends ModalDialog {
             }
         }
 
-        private void updateLatLonParams(PixelPos pixelPos1, PixelPos pixelPos2) {
+        private void syncLatLonWithXYParams() {
+            final PixelPos pixelPos1 = new PixelPos(((Number) paramX1.getValue()).intValue(),
+                                                    ((Number) paramY1.getValue()).intValue());
+            final PixelPos pixelPos2 = new PixelPos(((Number) paramX2.getValue()).intValue(),
+                                                    ((Number) paramY2.getValue()).intValue());
+
             final GeoCoding geoCoding = product.getGeoCoding();
             final GeoPos geoPos1 = geoCoding.getGeoPos(pixelPos1, null);
             final GeoPos geoPos2 = geoCoding.getGeoPos(pixelPos2, null);
