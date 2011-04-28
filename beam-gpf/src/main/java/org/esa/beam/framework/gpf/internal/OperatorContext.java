@@ -125,26 +125,36 @@ public class OperatorContext {
         startTileComputationObservation();
     }
 
+            // Make sure that we use a tile cache,
+            // because in GPF we usually don't use the javax.media.jai.JAI class for OpImage instantiation.
+
+    /**
+     * Makes sure that the given JAI OpImage has a valid tile cache (see System property {@link GPF#USE_FILE_TILE_CACHE_PROPERTY}),
+     * or makes sure that it has none (see System property {@link GPF#DISABLE_TILE_CACHE_PROPERTY}).
+     * @param image Any JAI OpImage.
+     */
     public static void setTileCache(OpImage image) {
         boolean disableTileCache = Boolean.parseBoolean(System.getProperty(GPF.DISABLE_TILE_CACHE_PROPERTY, "false"));
         if (disableTileCache) {
             image.setTileCache(null);
         } else if (image.getTileCache() == null) {
-            if (tileCache == null) {
-                boolean useFileTileCache = Boolean.parseBoolean(System.getProperty(GPF.USE_FILE_TILE_CACHE_PROPERTY, "false"));
-                if (useFileTileCache) {
-                    tileCache = new SwappingTileCache(JAI.getDefaultInstance().getTileCache().getMemoryCapacity(),
-                                                      new DefaultSwapSpace(SwappingTileCache.DEFAULT_SWAP_DIR,
-                                                                           BeamLogManager.getSystemLogger()));
-                }else {
-                    tileCache = JAI.getDefaultInstance().getTileCache();
-                }
-                BeamLogManager.getSystemLogger().info(String.format("All GPF operators will share an instance of a %s with a capacity of %dM", tileCache.getClass(), tileCache.getMemoryCapacity() / (1024 * 1024)));
-            }
-            // Make sure that we use a tile cache,
-            // because in GPF we usually don't use the javax.media.jai.JAI class for OpImage instantiation.
-            image.setTileCache(tileCache);
+            image.setTileCache(getTileCache());
         }
+    }
+
+    private static synchronized TileCache getTileCache() {
+        if (tileCache == null) {
+            boolean useFileTileCache = Boolean.parseBoolean(System.getProperty(GPF.USE_FILE_TILE_CACHE_PROPERTY, "false"));
+            if (useFileTileCache) {
+                tileCache = new SwappingTileCache(JAI.getDefaultInstance().getTileCache().getMemoryCapacity(),
+                                                  new DefaultSwapSpace(SwappingTileCache.DEFAULT_SWAP_DIR,
+                                                                       BeamLogManager.getSystemLogger()));
+            }else {
+                tileCache = JAI.getDefaultInstance().getTileCache();
+            }
+            BeamLogManager.getSystemLogger().info(String.format("All GPF operators will share an instance of a %s with a capacity of %dM", tileCache.getClass(), tileCache.getMemoryCapacity() / (1024 * 1024)));
+        }
+        return tileCache;
     }
 
     public String getId() {
