@@ -28,6 +28,7 @@ import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.jai.tilecache.DefaultSwapSpace;
 import com.bc.ceres.jai.tilecache.SwappingTileCache;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
@@ -132,10 +133,14 @@ public class OperatorContext {
             if (tileCache == null) {
                 boolean useFileTileCache = Boolean.parseBoolean(System.getProperty(GPF.USE_FILE_TILE_CACHE_PROPERTY, "false"));
                 if (useFileTileCache) {
-                    tileCache = new SwappingTileCache();
+                    tileCache = new SwappingTileCache(JAI.getDefaultInstance().getTileCache().getMemoryCapacity(),
+                                                      new DefaultSwapSpace(SwappingTileCache.DEFAULT_SWAP_DIR,
+                                                                           BeamLogManager.getSystemLogger()));
                 }else {
                     tileCache = JAI.getDefaultInstance().getTileCache();
                 }
+                BeamLogManager.getSystemLogger().info(String.format("All GPF operators will share an instance of a %s with a capacity of %dM", tileCache.getClass(), tileCache.getMemoryCapacity() / (1024 * 1024)));
+                BeamLogManager.getSystemLogger().info(String.format("The tile cache's memory capacity is %d bytes.", tileCache.getMemoryCapacity()));
             }
             // Make sure that we use a tile cache,
             // because in GPF we usually don't use the javax.media.jai.JAI class for OpImage instantiation.
