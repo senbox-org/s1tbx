@@ -76,7 +76,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private boolean doSmile;
 
     @Parameter(defaultValue = "true",
-               label = "Perform equalization",
+               label = "Perform equalisation",
                description = "Perform removal of detector-to-detector systematic radiometric differences in MERIS L1b data products.")
     private boolean doEqualization;
 
