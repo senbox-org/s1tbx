@@ -25,6 +25,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The default implementation of the {@link SwapSpace} interface.
+ * It creates a file for each swapped tile in the given swap directory.
+ *
+ * @author Norman Fomferra
+ */
 public class DefaultSwapSpace implements SwapSpace {
     private final File swapDir;
     private final Logger logger;

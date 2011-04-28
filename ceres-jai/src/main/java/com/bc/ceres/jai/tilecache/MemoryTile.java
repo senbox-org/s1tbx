@@ -28,13 +28,15 @@ import java.math.BigInteger;
 /**
  * Information associated with a cached tile.
  * <p/>
- * <p> This class is used by SunTileCache to create an object that
+ * <p> This class is used by {@link SwappingTileCache} to create an object that
  * includes all the information associated with a tile, and is put
  * into the tile cache.
  * <p/>
- * <p> It also serves as a double linked list.
+ * The implementation is based on the Sun Microsystems' implementation of
+ * the <code>javax.media.jai.CachedTile</code> interface.
  *
- * @see com.sun.media.jai.util.SunTileCache
+ * @author Sun Microsystems
+ * @author Norman Fomferra
  */
 public final class MemoryTile implements CachedTile {
 

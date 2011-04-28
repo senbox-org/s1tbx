@@ -18,6 +18,12 @@ package com.bc.ceres.jai.tilecache;
 
 import java.awt.image.RenderedImage;
 
+/**
+ * A swap space is used to store, restore and delete tiles swapped by the
+ * {@link SwappingTileCache}.
+ *
+ * @author Norman Fomferra
+ */
 public interface SwapSpace {
 
     boolean storeTile(MemoryTile memoryTile);
