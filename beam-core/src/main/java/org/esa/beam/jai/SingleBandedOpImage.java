@@ -76,10 +76,12 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
               layout.getMinY(null),
               layout.getWidth(null),
               layout.getHeight(null));
-        setTileCache(JAI.getDefaultInstance().getTileCache());
         levelImageSupport = new LevelImageSupport(sourceWidth,
                                                   sourceHeight,
                                                   level);
+        if (getTileCache() == null) {
+            setTileCache(JAI.getDefaultInstance().getTileCache());
+        }
     }
 
     public final int getLevel() {
