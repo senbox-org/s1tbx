@@ -42,42 +42,30 @@ import java.util.logging.Logger;
 
 
 /**
- * This is Sun Microsystems' reference implementation of the
- * <code>javax.media.jai.TileCache</code> interface.  It provides a
- * central location for images to cache computed tiles, and is used as
- * the default tile cache mechanism when no other tile cache objects
- * are specified.
- * <p/>
- * <p> In this implementation, the cache size is limited by the memory
- * capacity, which may be set at construction time or using the
- * <code>setMemoryCapacity(long)</code> method.  The tile capacity
- * is not used.  Different images may have very different tile sizes.
- * Therefore, the memory usage for a specific tile capacity may vary
- * greatly depends on the type of images involved.  In fact, the tile
- * capacity is rather meaningless.
+ * A tile cache based on Sun Microsystems' reference implementation of the
+ * <code>javax.media.jai.TileCache</code> interface. In opposite to the
+ * Sun implementation, we'll never throw away any tiles but instead swap them to a
+ * {@link SwapSpace}.
  *
- * @see javax.media.jai.TileCache
+ * @author Sun Microsystems
+ * @author Norman Fomferra
  */
-
-//
-// NOTE: code is inlined for performance reasons
-//
 public final class SwappingTileCache extends Observable implements TileCache, CacheDiagnostics {
 
     /**
      * The default memory capacity of the cache (16 MB).
      */
-    private static final long DEFAULT_MEMORY_CAPACITY = 16L * 1024L * 1024L;
+    public static final long DEFAULT_MEMORY_CAPACITY = 16L * 1024L * 1024L;
 
     /**
      * The default hashtable capacity (heuristic)
      */
-    private static final int DEFAULT_HASHTABLE_CAPACITY = 1009; // prime number
+    public static final int DEFAULT_HASHTABLE_CAPACITY = 1009; // prime number
 
     /**
      * The default directory where tiles are stored if they don't fit into memory anymore.
      */
-    private static final File DEFAULT_SWAP_DIR = new File(System.getProperty("java.io.tmpdir"));
+    public static final File DEFAULT_SWAP_DIR = new File(System.getProperty("java.io.tmpdir"));
 
     /**
      * The hashtable load factor
