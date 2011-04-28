@@ -140,7 +140,6 @@ public class OperatorContext {
                     tileCache = JAI.getDefaultInstance().getTileCache();
                 }
                 BeamLogManager.getSystemLogger().info(String.format("All GPF operators will share an instance of a %s with a capacity of %dM", tileCache.getClass(), tileCache.getMemoryCapacity() / (1024 * 1024)));
-                BeamLogManager.getSystemLogger().info(String.format("The tile cache's memory capacity is %d bytes.", tileCache.getMemoryCapacity()));
             }
             // Make sure that we use a tile cache,
             // because in GPF we usually don't use the javax.media.jai.JAI class for OpImage instantiation.
