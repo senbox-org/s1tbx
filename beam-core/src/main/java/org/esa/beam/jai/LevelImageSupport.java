@@ -60,19 +60,15 @@ public final class LevelImageSupport {
     }
 
     public final int getSourceWidth(int destWidth) {
-        return getSourceCoord(destWidth, 1, getSourceWidth() - 1);
+        return double2int(getScale() * destWidth, 1, getSourceWidth());
     }
 
     public final int getSourceHeight(int destHeight) {
-        return getSourceCoord(destHeight, 1, getSourceHeight() - 1);
+        return double2int(getScale() * destHeight, 1, getSourceHeight());
     }
 
     public final int getSourceCoord(double destCoord, int min, int max) {
         return double2int(getScale() * destCoord, min, max);
-    }
-
-    public int getDestCoord(double sourceCoord, int min, int max) {
-        return double2int(sourceCoord / getScale(), min, max);
     }
 
     private static int double2int(double v, int min, int max) {
