@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,26 +16,22 @@
 package org.esa.beam.framework.dataop.dem;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.AngularDirection;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Pointing;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
+import org.junit.Test;
 
-import java.awt.geom.AffineTransform;
+import static org.junit.Assert.*;
 
-public class OrthorectifierTest extends TestCase {
+public class OrthorectifierTest {
 
     static final int SCENE_WIDTH = 100;
     static final int SCENE_HEIGHT = 100;
     static final int MAX_ITERATION_COUNT = 50;
 
 
+    @Test
     public void testThatOrthorectifierIsWellFormed() {
 
         final Orthorectifier gcDEM = createOrthorectifier();
@@ -48,10 +44,10 @@ public class OrthorectifierTest extends TestCase {
         assertTrue(gcDEM.canGetGeoPos());
         assertTrue(gcDEM.canGetPixelPos());
 
-        assertEquals(0.0f, pointing.getElevation(new PixelPos(0, 0)), 1e-5f);
-        assertEquals(3000.0, pointing.getElevation(new PixelPos(0, 50)), 1e-5f);
-        assertEquals(6000.0, pointing.getElevation(new PixelPos(0, 100)), 1e-5f);
-        assertEquals(3000.0, pointing.getElevation(new PixelPos(100, 50)), 1e-5f);
+        assertEquals(0.0f, pointing.getElevation(new PixelPos(0, 0)), 1.0e-5f);
+        assertEquals(3000.0, pointing.getElevation(new PixelPos(0, 50)), 1.0e-5f);
+        assertEquals(6000.0, pointing.getElevation(new PixelPos(0, 100)), 1.0e-5f);
+        assertEquals(3000.0, pointing.getElevation(new PixelPos(100, 50)), 1.0e-5f);
 
         Assert.assertEquals(new GeoPos(10, 0), gcWGS.getGeoPos(new PixelPos(0, 0), null));
         assertEquals(new GeoPos(0, 0), gcWGS.getGeoPos(new PixelPos(0, 100), null));
@@ -63,6 +59,7 @@ public class OrthorectifierTest extends TestCase {
         assertEquals(new GeoPos(10, 5), gcWGS.getGeoPos(new PixelPos(50, 0), null));
     }
 
+    @Test
     public void testThatPredictionCorrectionScopeIsAchieved() {
         final Orthorectifier o = createOrthorectifier();
         final PixelPos pixelPos = o.getPixelPos(new GeoPos(5.0f, 5.0f), null);
@@ -84,111 +81,4 @@ public class OrthorectifierTest extends TestCase {
                                   MAX_ITERATION_COUNT);
     }
 
-    static class PointingMock implements Pointing {
-
-        private GeoCodingMock _geoCoding;
-
-        public PointingMock(GeoCodingMock geoCoding) {
-            _geoCoding = geoCoding;
-        }
-
-        public GeoCoding getGeoCoding() {
-            return _geoCoding;
-        }
-
-        public AngularDirection getSunDir(PixelPos pixelPos, AngularDirection angularDirection) {
-            return null;
-        }
-
-        public AngularDirection getViewDir(PixelPos pixelPos, AngularDirection angularDirection) {
-            if (angularDirection == null) {
-                angularDirection = new AngularDirection();
-            }
-            angularDirection.azimuth = 0;
-            angularDirection.zenith = 45;
-            return angularDirection;
-        }
-
-        public float getElevation(PixelPos pixelPos) {
-            return 6000 * pixelPos.y / SCENE_HEIGHT;
-        }
-
-        public boolean canGetGeoPos() {
-            return true;
-        }
-
-        public boolean canGetElevation() {
-            return true;
-        }
-
-        public boolean canGetSunDir() {
-            return true;
-        }
-
-        public boolean canGetViewDir() {
-            return true;
-        }
-    }
-
-    static class GeoCodingMock implements GeoCoding {
-
-        public boolean canGetGeoPos() {
-            return true;
-        }
-
-        public boolean canGetPixelPos() {
-            return true;
-        }
-
-        public void dispose() {
-        }
-
-        @Override
-        public CoordinateReferenceSystem getMapCRS() {
-            return null;
-        }
-
-        @Override
-        public CoordinateReferenceSystem getImageCRS() {
-            return null;
-        }
-
-        @Override
-        public CoordinateReferenceSystem getGeoCRS() {
-            return DefaultGeographicCRS.WGS84;
-        }
-
-        @Override
-        public MathTransform getImageToMapTransform() {
-            return null;
-        }
-
-        public Datum getDatum() {
-            return Datum.WGS_84;
-        }
-
-        public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
-            if (geoPos == null) {
-                geoPos = new GeoPos();
-            }
-            final float lat = 10.0f * (1 - pixelPos.y / SCENE_HEIGHT);
-            final float lon = 10.0f * (pixelPos.x / SCENE_WIDTH);
-            geoPos.setLocation(lat, lon);
-            return geoPos;
-        }
-
-        public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
-            if (pixelPos == null) {
-                pixelPos = new PixelPos();
-            }
-            final float x = SCENE_WIDTH * (geoPos.lon / 10.0f);
-            final float y = SCENE_HEIGHT * (1.0f - geoPos.lat / 10.0f);
-            pixelPos.setLocation(x, y);
-            return pixelPos;
-        }
-
-        public boolean isCrossingMeridianAt180() {
-            return false;
-        }
-    }
 }
