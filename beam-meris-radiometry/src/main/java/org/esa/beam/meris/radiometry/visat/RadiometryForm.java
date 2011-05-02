@@ -109,7 +109,6 @@ class RadiometryForm extends JTabbedPane {
                 productName = FileUtils.getFilenameWithoutExtension(selectedProduct.getName());
                 String extension = FileUtils.getExtension(selectedProduct.getFileLocation());
                 if (".N1".equals(extension)) {
-//                    targetProductSelector.getModel().getValueContainer().setValue("formatName", RadiometryDialog.N1_FORMAT);
                     targetProductSelector.getFormatNameComboBox().setSelectedItem(RadiometryDialog.N1_FORMAT);
                 }
             }
