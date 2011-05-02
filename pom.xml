@@ -25,8 +25,25 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam</artifactId>
     <version>4.9-SNAPSHOT</version>
-
     <packaging>pom</packaging>
+
+    <properties>
+        <!--
+           In version 3.0 of Maven the sourceEncoding property will be embedded in the
+           build tag. For now the convention is to that it as property.
+           TODO: Move the sourceEncoding property to the build tag if version 3.0 is released
+           -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <beam.version>4.9-SNAPSHOT</beam.version>
+        <ceres.version>0.12-SNAPSHOT</ceres.version>
+        <geotools.version>2.6.5</geotools.version>
+        <jide.version>2.9.5</jide.version>
+        <hdf.version>2.7</hdf.version>
+        <netcdf.version>4.2</netcdf.version>
+    </properties>
+
+
 
     <organization>
         <name>Brockmann Consult GmbH</name>
@@ -180,22 +197,6 @@
         <module>beam-examples</module>
 
     </modules>
-
-    <properties>
-        <!--
-           In version 3.0 of Maven the sourceEncoding property will be embedded in the
-           build tag. For now the convention is to that it as property.
-           TODO: Move the sourceEncoding property to the build tag if version 3.0 is released
-           -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <beam.version>4.9-SNAPSHOT</beam.version>
-        <ceres.version>0.12-SNAPSHOT</ceres.version>
-        <geotools.version>2.6.5</geotools.version>
-        <jide.version>2.9.5</jide.version>
-        <hdf.version>2.7</hdf.version>
-        <netcdf.version>4.2</netcdf.version>
-    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -611,14 +612,6 @@
                 <plugin>
                     <artifactId>maven-surefire-report-plugin</artifactId>
                     <version>2.8</version>
-                </plugin>
-
-                <plugin>
-                    <artifactId>maven-eclipse-plugin</artifactId>
-                    <version>2.3-bc</version>
-                    <configuration>
-                        <downloadSources>true</downloadSources>
-                    </configuration>
                 </plugin>
 
                 <plugin>
