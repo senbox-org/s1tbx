@@ -145,15 +145,10 @@ public class IOHelper {
         }
 
         Logger logger = Logger.getLogger(System.getProperty("ceres.context", "ceres"));
-        SysHelper.PlatformId platformId = SysHelper.getPlatformId();
-        String libPrefix1 = null;
-        String libPrefix2 = null;
-        if (isNative && platformId != null) {
-            int platformBits = SysHelper.getPlatformBits();
-            logger.info(MessageFormat.format("Source [{0}]: Detected platform {1}{2}",
-                                             sourceZipFile, platformId, platformBits));
-            libPrefix1 = "lib/" + platformId + "" + platformBits + "/";
-            libPrefix2 = "lib/" + platformId + "/";
+        final Platform platform = isNative ? Platform.getCurrentPlatform() : null;
+        if (platform != null) {
+            logger.info(MessageFormat.format("Archive [{0}]: Detected platform {1}{2}",
+                                             sourceZipFile, platform.getId(), platform.getBitCount()));
         }
 
         ZipFile zipFile = new ZipFile(sourceZipFile);
@@ -165,23 +160,27 @@ public class IOHelper {
 
             while (enumeration.hasMoreElements()) {
                 checkIOTaskCanceled(pm);
-                ZipEntry zipEntry = enumeration.nextElement();
-                String entryName = zipEntry.getName();
-                boolean include = true;
-                if (isNative && platformId != null && SysHelper.isNativeFileName(entryName)) {
-                    include = entryName.startsWith(libPrefix1) || entryName.startsWith(libPrefix2);
-                    if (include) {
-                        logger.info(MessageFormat.format("Source [{0}]: Unpacking platform dependent entry [{1}]",
+                final ZipEntry zipEntry = enumeration.nextElement();
+                final String entryName = zipEntry.getName();
+                final File targetFile;
+
+                if (platform != null && Platform.isAnyPlatformDir(entryName)) {
+                    if (platform.isPlatformDir(entryName)) {
+                        targetFile = new File(targetDir, platform.truncatePlatformDir(entryName));
+                        logger.info(MessageFormat.format("Archive [{0}]: Unpacking platform dependent entry [{1}]",
                                                          sourceZipFile, entryName));
                     } else {
-                        logger.fine(MessageFormat.format("Source [{0}]: Ignoring platform dependent entry [{1}]",
+                        targetFile = null;
+                        logger.fine(MessageFormat.format("Archive [{0}]: Ignoring platform dependent entry [{1}]",
                                                          sourceZipFile, entryName));
                     }
+                } else {
+                    targetFile = new File(targetDir, entryName);
                 }
 
-                if (include) {
+                if (targetFile != null) {
+                    System.out.println("targetFile = " + targetFile);
                     pm.setSubTaskName(entryName);
-                    File targetFile = new File(targetDir, entryName);
                     File parentDir = targetFile.getParentFile();
                     if (parentDir != null) {
                         parentDir.mkdirs();
