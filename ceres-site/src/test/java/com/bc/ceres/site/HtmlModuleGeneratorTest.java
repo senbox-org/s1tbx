@@ -22,6 +22,7 @@ import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ProxyConfig;
 import com.bc.ceres.core.runtime.internal.RepositoryScanner;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -46,6 +47,7 @@ public class HtmlModuleGeneratorTest {
         htmlModuleGenerator = new HtmlModuleGenerator();
     }
 
+    @Ignore
     @Test
     public void testParsing() throws IOException, CoreException, URISyntaxException, SAXException,
                                      ParserConfigurationException {
