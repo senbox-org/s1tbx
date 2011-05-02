@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -56,14 +56,12 @@ public class BeamBandPart extends ProfilePartIO {
             final int yDimIndex = 0;
             final int xDimIndex = 1;
             if (dimensions.get(yDimIndex).getLength() == p.getSceneRasterHeight()
-                    && dimensions.get(xDimIndex).getLength() == p.getSceneRasterWidth()) {
+                && dimensions.get(xDimIndex).getLength() == p.getSceneRasterWidth()) {
                 final int rasterDataType = DataTypeUtils.getRasterDataType(variable);
-                final Band band = new Band(variable.getName(), rasterDataType, p.getSceneRasterWidth(),
-                                           p.getSceneRasterHeight());
+                final Band band = p.addBand(variable.getName(), rasterDataType);
                 CfBandPart.readCfBandAttributes(variable, band);
                 readBeamBandAttributes(variable, band);
                 band.setSourceImage(new NetcdfMultiLevelImage(band, variable, ctx));
-                p.addBand(band);
             }
         }
         Attribute autoGroupingAttribute = netcdfFile.findGlobalAttribute(AUTO_GROUPING);
