@@ -55,7 +55,7 @@ public class ModuleInstaller {
         logger.info(MessageFormat.format("Installing [{0}] in [{1}]...", url, modulesDir));
 
         try {
-            String fileName = FileHelper.getFileName(url);
+            String fileName = IOHelper.getFileName(url);
             File tempFile = new File(modulesDir, fileName + ".incomplete");
             File targetFile = new File(modulesDir, fileName);
 
@@ -63,11 +63,11 @@ public class ModuleInstaller {
                 logger.info(MessageFormat.format("Downloading [{0}] to [{1}]...", url, tempFile.getName()));
                 pm.setSubTaskName(MessageFormat.format("Downloading [{0}]", fileName));
                 URLConnection urlConnection = UrlHelper.openConnection(url, proxyConfig, "GET");
-                FileHelper.copy(urlConnection, tempFile, SubProgressMonitor.create(pm, 90));
+                IOHelper.copy(urlConnection, tempFile, SubProgressMonitor.create(pm, 90));
 
                 logger.info(MessageFormat.format("Copying [{0}] to [{1}]...", tempFile, fileName));
                 pm.setSubTaskName(MessageFormat.format("Copying [{0}]", fileName));
-                FileHelper.copy(tempFile, targetFile, SubProgressMonitor.create(pm, 10));
+                IOHelper.copy(tempFile, targetFile, SubProgressMonitor.create(pm, 10));
             } finally {
                 if (!tempFile.delete()) {
                     logger.warning(MessageFormat.format("Failed to delete file [{0}], reason unknown.", tempFile));

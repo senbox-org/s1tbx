@@ -54,7 +54,7 @@ class ModuleClassLoader extends URLClassLoader {
     protected String findLibrary(String libname) {
         for (URL url : nativeUrls) {
             if (url.toExternalForm().endsWith(System.mapLibraryName(libname))) {
-                return FileHelper.urlToFile(url).getAbsolutePath();
+                return UrlHelper.urlToFile(url).getAbsolutePath();
             }
         }
         for (ClassLoader classLoader : delegates) {

@@ -61,17 +61,17 @@ public class ModuleReader {
                         String.format("Failed to read manifest [%s] from [%s]", MODULE_MANIFEST_NAME, locationFile.getName()), e);
             }
         }
-        initModule(module, FileHelper.fileToUrl(locationFile), locationFile);
+        initModule(module, UrlHelper.fileToUrl(locationFile), locationFile);
         return module;
     }
 
     public ModuleImpl readFromLocation(URL locationUrl) throws CoreException {
-        final URL manifestUrl = FileHelper.locationToManifestUrl(locationUrl);
+        final URL manifestUrl = UrlHelper.locationToManifestUrl(locationUrl);
         if (manifestUrl == null) {
             throw new CoreException("Not a module URL: [" + locationUrl + "]");
         }
         final ModuleImpl module = readFromManifest(manifestUrl, ProxyConfig.NULL);
-        initModule(module, locationUrl, FileHelper.urlToFile(locationUrl));
+        initModule(module, locationUrl, UrlHelper.urlToFile(locationUrl));
         return module;
     }
 

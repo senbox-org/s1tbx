@@ -19,110 +19,29 @@ package com.bc.ceres.core.runtime.internal;
 import com.bc.ceres.core.CanceledException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import static com.bc.ceres.core.runtime.Constants.MODULE_MANIFEST_NAME;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-public class FileHelper {
-    // Important, place only all lower case strings here
-    private static final String[][] NATIVE_MAPPINGS = new String[][]{
-            {"lib/win/", "windows"},
-            {"lib/macosx/", "mac os x"},
-            {"lib/linux/", "linux"},
-            {"lib/solaris/", "solaris"},
-            {"lib/aix/", "aix"},
-            {"lib/hpux/", "hp ux"},
-    };
-
-    public static URI urlToUri(URL url) throws URISyntaxException {
-        return new URI(url.toExternalForm().replace(" ", "%20"));
-    }
-
-    public static File urlToFile(URL url) {
-        try {
-            if ("jar".equalsIgnoreCase(url.getProtocol())) {
-                String path = url.getPath();
-                int jarEntrySepPos = path.lastIndexOf("!/");
-                if (jarEntrySepPos > 0) {
-                    path = path.substring(0, jarEntrySepPos);
-                }
-                url = new URL(path);
-            }
-            URI uri = urlToUri(url);
-            // Exhaustive checking on uri required to prevent
-            // File.File(URI) constructor from throwing an IllegalArgumentException
-            if ("file".equalsIgnoreCase(uri.getScheme())
-                    && uri.isAbsolute()
-                    && !uri.isOpaque()
-                    && uri.getAuthority() == null
-                    && uri.getFragment() == null
-                    && uri.getQuery() == null) {
-                return new File(uri);
-            }
-        } catch (MalformedURLException e) {
-            // ignored
-        } catch (URISyntaxException e) {
-            // ignored
-        }
-        return null;
-    }
-
-    public static URL fileToUrl(File file) {
-        try {
-            return file.toURI().toURL();
-        } catch (MalformedURLException e) {
-            return null;
-        }
-    }
-
-    public static URL locationToManifestUrl(URL locationUrl) {
-        String location = locationUrl.toExternalForm();
-
-        String xmlUrlString;
-        if (JarFilenameFilter.isJarName(location)) {
-            xmlUrlString = "jar:" + location + "!/" + MODULE_MANIFEST_NAME;
-        } else if (location.endsWith("/")) {
-            xmlUrlString = location + MODULE_MANIFEST_NAME;
-        } else {
-            return null;
-        }
-
-        try {
-            return new URL(xmlUrlString);
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    public static URL manifestToLocationUrl(URL manifestUrl) {
-        String location = manifestUrl.toExternalForm();
-        if (!location.endsWith(MODULE_MANIFEST_NAME)) {
-            return null;
-        }
-        location = location.substring(0, location.length() - MODULE_MANIFEST_NAME.length());
-        location = location.replace(" ", "%20");  // fixes bug in maven surefire plugin
-
-        // A JAR URL?
-        String prefix = "jar:";
-        String suffix = "!/";
-        if (location.startsWith(prefix) && location.endsWith(suffix)) {
-            location = location.substring(prefix.length(), location.length() - suffix.length());
-        }
-
-        try {
-            return new URL(location);
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
-        }
-    }
+public class IOHelper {
 
     public static String getBaseName(File archiveFile) {
         String dirName = archiveFile.getName();
@@ -225,28 +144,40 @@ public class FileHelper {
             targetDir.mkdirs();
         }
 
+        Logger logger = Logger.getLogger(System.getProperty("ceres.context", "ceres"));
+        SysHelper.PlatformId platformId = SysHelper.getPlatformId();
+        String libPrefix1 = null;
+        String libPrefix2 = null;
+        if (isNative && platformId != null) {
+            int platformBits = SysHelper.getPlatformBits();
+            logger.info(MessageFormat.format("Source [{0}]: Detected platform {1}{2}",
+                                             sourceZipFile, platformId, platformBits));
+            libPrefix1 = "lib/" + platformId + "" + platformBits + "/";
+            libPrefix2 = "lib/" + platformId + "/";
+        }
+
         ZipFile zipFile = new ZipFile(sourceZipFile);
         pm.beginTask(MessageFormat.format("Unpacking {0} to {1}", sourceZipFile.getName(), targetDir.getName()),
                      zipFile.size());
         try {
             ArrayList<String> entries = new ArrayList<String>(zipFile.size());
             Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
-            String osName = System.getProperty("os.name");
-            String osNameLC = osName != null ? osName.toLowerCase() : "";
+
             while (enumeration.hasMoreElements()) {
                 checkIOTaskCanceled(pm);
                 ZipEntry zipEntry = enumeration.nextElement();
                 String entryName = zipEntry.getName();
                 boolean include = true;
-                if (isNative) {
-                    String osIndicator = getOsIndicator(entryName);
-                    if (osIndicator != null) {
-                        include = osNameLC.indexOf(osIndicator) >= 0;
+                if (isNative && platformId != null && SysHelper.isNativeFileName(entryName)) {
+                    include = entryName.startsWith(libPrefix1) || entryName.startsWith(libPrefix2);
+                    if (include) {
+                        logger.info(MessageFormat.format("Source [{0}]: Unpacking platform dependent entry [{1}]",
+                                                         sourceZipFile, entryName));
+                    } else {
+                        logger.fine(MessageFormat.format("Source [{0}]: Ignoring platform dependent entry [{1}]",
+                                                         sourceZipFile, entryName));
                     }
                 }
-
-                // Leave here for debugging
-                // System.out.println("entryName = " + entryName + " (" + (include ? "include" : "exclude") + ")");
 
                 if (include) {
                     pm.setSubTaskName(entryName);
@@ -269,16 +200,6 @@ public class FileHelper {
             pm.done();
             zipFile.close();
         }
-    }
-
-    private static String getOsIndicator(String entryName) {
-        String entryNameLC = entryName.toLowerCase();
-        for (String[] nativeMapping : NATIVE_MAPPINGS) {
-            if (entryNameLC.startsWith(nativeMapping[0])) {
-                return nativeMapping[1];
-            }
-        }
-        return null;
     }
 
     public static List<String> pack(File sourceDir, File targetZipFile, ProgressMonitor pm) throws IOException, CanceledException {
@@ -319,4 +240,5 @@ public class FileHelper {
             zipOutputStream.close();
         }
     }
+
 }

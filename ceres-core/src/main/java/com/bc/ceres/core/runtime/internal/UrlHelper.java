@@ -18,8 +18,11 @@ package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.runtime.ProxyConfig;
 
+import java.io.File;
 import java.net.*;
 import java.io.IOException;
+
+import static com.bc.ceres.core.runtime.Constants.*;
 
 public class UrlHelper {
 
@@ -73,5 +76,87 @@ public class UrlHelper {
         InetSocketAddress socketAddress = new InetSocketAddress(proxyConfig.getHost(),
                                                                 proxyConfig.getPort());
         return new Proxy(Proxy.Type.HTTP, socketAddress);
+    }
+
+    public static URI urlToUri(URL url) throws URISyntaxException {
+        return new URI(url.toExternalForm().replace(" ", "%20"));
+    }
+
+    public static File urlToFile(URL url) {
+        try {
+            if ("jar".equalsIgnoreCase(url.getProtocol())) {
+                String path = url.getPath();
+                int jarEntrySepPos = path.lastIndexOf("!/");
+                if (jarEntrySepPos > 0) {
+                    path = path.substring(0, jarEntrySepPos);
+                }
+                url = new URL(path);
+            }
+            URI uri = urlToUri(url);
+            // Exhaustive checking on uri required to prevent
+            // File.File(URI) constructor from throwing an IllegalArgumentException
+            if ("file".equalsIgnoreCase(uri.getScheme())
+                    && uri.isAbsolute()
+                    && !uri.isOpaque()
+                    && uri.getAuthority() == null
+                    && uri.getFragment() == null
+                    && uri.getQuery() == null) {
+                return new File(uri);
+            }
+        } catch (MalformedURLException e) {
+            // ignored
+        } catch (URISyntaxException e) {
+            // ignored
+        }
+        return null;
+    }
+
+    public static URL fileToUrl(File file) {
+        try {
+            return file.toURI().toURL();
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
+
+    public static URL locationToManifestUrl(URL locationUrl) {
+        String location = locationUrl.toExternalForm();
+
+        String xmlUrlString;
+        if (JarFilenameFilter.isJarName(location)) {
+            xmlUrlString = "jar:" + location + "!/" + MODULE_MANIFEST_NAME;
+        } else if (location.endsWith("/")) {
+            xmlUrlString = location + MODULE_MANIFEST_NAME;
+        } else {
+            return null;
+        }
+
+        try {
+            return new URL(xmlUrlString);
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public static URL manifestToLocationUrl(URL manifestUrl) {
+        String location = manifestUrl.toExternalForm();
+        if (!location.endsWith(MODULE_MANIFEST_NAME)) {
+            return null;
+        }
+        location = location.substring(0, location.length() - MODULE_MANIFEST_NAME.length());
+        location = location.replace(" ", "%20");  // fixes bug in maven surefire plugin
+
+        // A JAR URL?
+        String prefix = "jar:";
+        String suffix = "!/";
+        if (location.startsWith(prefix) && location.endsWith(suffix)) {
+            location = location.substring(prefix.length(), location.length() - suffix.length());
+        }
+
+        try {
+            return new URL(location);
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

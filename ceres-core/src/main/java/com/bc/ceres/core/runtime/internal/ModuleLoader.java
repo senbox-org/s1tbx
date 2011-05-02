@@ -68,7 +68,7 @@ public class ModuleLoader {
         try {
             ArrayList<ModuleImpl> moduleList = new ArrayList<ModuleImpl>(32);
             for (URL manifestUrl : resourceList) {
-                URL locationUrl = FileHelper.manifestToLocationUrl(manifestUrl);
+                URL locationUrl = UrlHelper.manifestToLocationUrl(manifestUrl);
                 if (locationUrl != null) {
                     if (!visitedLocations.contains(locationUrl)) {
                         try {
@@ -116,7 +116,7 @@ public class ModuleLoader {
                 if (uninstallMarker.exists()) {
                     logger.warning(MessageFormat.format("Skipping uninstalled (but not yet deleted) module file [{0}].", moduleFile));
                 } else {
-                    URL locationUrl = FileHelper.fileToUrl(moduleFile);
+                    URL locationUrl = UrlHelper.fileToUrl(moduleFile);
                     if (!visitedLocations.contains(locationUrl)) {
                         try {
                             ModuleImpl module = loadModule(moduleFile, SubProgressMonitor.create(pm, 1));
@@ -167,10 +167,10 @@ public class ModuleLoader {
     }
 
     private File unpack(File archiveFile, boolean isNative, ProgressMonitor pm) throws IOException, CanceledException {
-        String dirName = FileHelper.getBaseName(archiveFile);
+        String dirName = IOHelper.getBaseName(archiveFile);
         File moduleDir = new File(archiveFile.getParent(), dirName);
 
-        List<String> installedFiles = FileHelper.unpack(archiveFile, moduleDir, isNative, pm);
+        List<String> installedFiles = IOHelper.unpack(archiveFile, moduleDir, isNative, pm);
 
         try {
             writeInstallInfo(moduleDir, installedFiles);

@@ -189,13 +189,13 @@ public class ModuleResolver {
     private static URL[] getNativeLibs(ModuleImpl module) {
         List<URL> libPaths = new ArrayList<URL>();
         if (module.isNative()) {
-            File moduleDir = FileHelper.urlToFile(module.getLocation());
+            File moduleDir = UrlHelper.urlToFile(module.getLocation());
             if (moduleDir.isDirectory()) {
                 String[] impliciteNativeLibs = module.getImpliciteNativeLibs();
                 for (String libPath : impliciteNativeLibs) {
                     File libFile = new File(moduleDir, libPath);
                     if (libFile.isFile() && libFile.canRead()) {
-                        libPaths.add(FileHelper.fileToUrl(libFile));
+                        libPaths.add(UrlHelper.fileToUrl(libFile));
                     } else {
                         String msg = String.format("Native library [%s] found in module [%s] is not accessible.",
                                                    libFile, module.getSymbolicName());
@@ -233,7 +233,7 @@ public class ModuleResolver {
             throw new IllegalStateException("module.getImpliciteLibs() == null");
         }
 
-        File moduleFile = FileHelper.urlToFile(module.getLocation());
+        File moduleFile = UrlHelper.urlToFile(module.getLocation());
         if (moduleFile == null) {
             return new URL[0];
         }
@@ -269,7 +269,7 @@ public class ModuleResolver {
                 } else {
                     for (ModuleImpl moduleDependency : module.getModuleDependencies()) {
                         // look in the modules dependencies' location
-                        File moduleDependencyFile = FileHelper.urlToFile(moduleDependency.getLocation());
+                        File moduleDependencyFile = UrlHelper.urlToFile(moduleDependency.getLocation());
                         if (moduleDependencyFile != null) {
                             File file2 = resolveFile(moduleDependencyFile, dependency.getLibName(), resolvingLibs);
                             if (file2 != null) {

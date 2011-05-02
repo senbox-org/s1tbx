@@ -79,7 +79,7 @@ public class ModuleUninstaller {
         URL location = module.getLocation();
         logger.info(MessageFormat.format("Marking module file [{0}] for deinstallation.", location));
 
-        File locationFile = FileHelper.urlToFile(location);
+        File locationFile = UrlHelper.urlToFile(location);
         if (locationFile == null) {
             throw new IOException("Location is not a file.");
         }

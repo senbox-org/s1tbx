@@ -25,10 +25,10 @@ import java.net.URL;
 import com.bc.ceres.core.runtime.Constants;
 
 
-public class FileHelperTest extends TestCase {
+public class IOHelperTest extends TestCase {
     public void testUrlToFileWithNull() throws MalformedURLException {
         try {
-            FileHelper.urlToFile(null);
+            UrlHelper.urlToFile(null);
             fail();
         } catch (NullPointerException e) {
             // ok
@@ -38,12 +38,12 @@ public class FileHelperTest extends TestCase {
     public void testUrlToFileWithValidFileUrl() throws MalformedURLException {
         File file = new File("").getAbsoluteFile();
         URL fileUrl = file.toURI().toURL();
-        assertEquals(file, FileHelper.urlToFile(fileUrl));
+        assertEquals(file, UrlHelper.urlToFile(fileUrl));
     }
 
     public void testUrlToFileWithInvalidFileUrl() throws MalformedURLException {
         URL someUrl = new URL("http://www.google.com");
-        assertEquals(null, FileHelper.urlToFile(someUrl));
+        assertEquals(null, UrlHelper.urlToFile(someUrl));
     }
 
     public void testUrlToFileWithAJarEntry() throws MalformedURLException {
@@ -51,7 +51,7 @@ public class FileHelperTest extends TestCase {
         File file = new File(dir, "test.jar");
         URL fileUrl = file.toURI().toURL();
         URL jarUrl = new URL("jar:" + fileUrl + "!/module.xml");
-        assertEquals(file, FileHelper.urlToFile(jarUrl));
+        assertEquals(file, UrlHelper.urlToFile(jarUrl));
     }
 
     public void testUrlToFileWithAJarFile() throws MalformedURLException {
@@ -59,12 +59,12 @@ public class FileHelperTest extends TestCase {
         File file = new File(dir, "test.jar");
         URL fileUrl = file.toURI().toURL();
         URL jarUrl = new URL("jar:" + fileUrl + "!/");
-        assertEquals(file, FileHelper.urlToFile(jarUrl));
+        assertEquals(file, UrlHelper.urlToFile(jarUrl));
     }
 
     public void testFileToUrlWithNull() throws MalformedURLException {
         try {
-            FileHelper.fileToUrl(null);
+            UrlHelper.fileToUrl(null);
             fail();
         } catch (NullPointerException e) {
             // ok
@@ -74,7 +74,7 @@ public class FileHelperTest extends TestCase {
     public void testFileToUrlWithValidFile() throws MalformedURLException {
         File file = new File("").getAbsoluteFile();
         URL fileUrl = file.toURI().toURL();
-        assertEquals(fileUrl, FileHelper.fileToUrl(file));
+        assertEquals(fileUrl, UrlHelper.fileToUrl(file));
     }
 
 
@@ -82,7 +82,7 @@ public class FileHelperTest extends TestCase {
     public void testThatDirectoryUrlsAlwaysEndWithASlash() {
         File dir = new File("").getAbsoluteFile();
         while (dir != null) {
-            URL url = FileHelper.fileToUrl(dir);
+            URL url = UrlHelper.fileToUrl(dir);
             assertTrue(dir.getPath(), url.getPath().endsWith("/"));
             dir = dir.getParentFile();
         }
@@ -91,7 +91,7 @@ public class FileHelperTest extends TestCase {
 
     public void testManifestToLocationUrl() throws MalformedURLException {
         try {
-            FileHelper.manifestToLocationUrl(null);
+            UrlHelper.manifestToLocationUrl(null);
             fail();
         } catch (NullPointerException e) {
             // ok
@@ -99,29 +99,29 @@ public class FileHelperTest extends TestCase {
 
         URL locationUrl = new URL("file:/usr/local/app-a/module-b/");
         URL manifestUrl = new URL(locationUrl.toExternalForm() + Constants.MODULE_MANIFEST_NAME);
-        assertEquals(locationUrl, FileHelper.manifestToLocationUrl(manifestUrl));
+        assertEquals(locationUrl, UrlHelper.manifestToLocationUrl(manifestUrl));
 
         locationUrl = new URL("file:/usr/local/app-a/module-b.jar");
         manifestUrl = new URL("jar:" + locationUrl.toExternalForm() + "!/" + Constants.MODULE_MANIFEST_NAME);
-        assertEquals(locationUrl, FileHelper.manifestToLocationUrl(manifestUrl));
+        assertEquals(locationUrl, UrlHelper.manifestToLocationUrl(manifestUrl));
 
         locationUrl = new URL("file:/usr/local/app-a/module-b.JAR");
         manifestUrl = new URL("jar:" + locationUrl.toExternalForm() + "!/" + Constants.MODULE_MANIFEST_NAME);
-        assertEquals(locationUrl, FileHelper.manifestToLocationUrl(manifestUrl));
+        assertEquals(locationUrl, UrlHelper.manifestToLocationUrl(manifestUrl));
 
         locationUrl = new URL("file:/usr/local/app-a/module-b.zip");
         manifestUrl = new URL("jar:" + locationUrl.toExternalForm() + "!/" + Constants.MODULE_MANIFEST_NAME);
-        assertEquals(locationUrl, FileHelper.manifestToLocationUrl(manifestUrl));
+        assertEquals(locationUrl, UrlHelper.manifestToLocationUrl(manifestUrl));
 
         locationUrl = null;
         manifestUrl = new URL("file:/usr/local/app-a/module-b.txt");
-        assertEquals(locationUrl, FileHelper.manifestToLocationUrl(manifestUrl));
+        assertEquals(locationUrl, UrlHelper.manifestToLocationUrl(manifestUrl));
     }
 
 
     public void testLoctionToManifestUrl() throws MalformedURLException {
         try {
-            FileHelper.locationToManifestUrl(null);
+            UrlHelper.locationToManifestUrl(null);
             fail();
         } catch (NullPointerException e) {
             // ok
@@ -129,26 +129,26 @@ public class FileHelperTest extends TestCase {
 
         URL locationUrl = new URL("file:/usr/local/app-a/module-b/");
         URL manifestUrl = new URL(locationUrl.toExternalForm() + Constants.MODULE_MANIFEST_NAME);
-        assertEquals(manifestUrl, FileHelper.locationToManifestUrl(locationUrl));
+        assertEquals(manifestUrl, UrlHelper.locationToManifestUrl(locationUrl));
 
         locationUrl = new URL("file:/usr/local/app-a/module-b.jar");
         manifestUrl = new URL("jar:" + locationUrl.toExternalForm() + "!/" + Constants.MODULE_MANIFEST_NAME);
-        assertEquals(manifestUrl, FileHelper.locationToManifestUrl(locationUrl));
+        assertEquals(manifestUrl, UrlHelper.locationToManifestUrl(locationUrl));
 
         locationUrl = new URL("file:/usr/local/app-a/module-b.JAR");
         manifestUrl = new URL("jar:" + locationUrl.toExternalForm() + "!/" + Constants.MODULE_MANIFEST_NAME);
-        assertEquals(manifestUrl, FileHelper.locationToManifestUrl(locationUrl));
+        assertEquals(manifestUrl, UrlHelper.locationToManifestUrl(locationUrl));
 
         locationUrl = new URL("file:/usr/local/app-a/module-b.zip");
         manifestUrl = new URL("jar:" + locationUrl.toExternalForm() + "!/" + Constants.MODULE_MANIFEST_NAME);
-        assertEquals(manifestUrl, FileHelper.locationToManifestUrl(locationUrl));
+        assertEquals(manifestUrl, UrlHelper.locationToManifestUrl(locationUrl));
 
         locationUrl = new URL("file:/usr/local/app-a/module-b.txt");
         manifestUrl = null;
-        assertEquals(manifestUrl, FileHelper.locationToManifestUrl(locationUrl));
+        assertEquals(manifestUrl, UrlHelper.locationToManifestUrl(locationUrl));
 
         locationUrl = new URL("file:/usr/local/app-a/" + Constants.MODULE_MANIFEST_NAME);
         manifestUrl = null;
-        assertEquals(manifestUrl, FileHelper.locationToManifestUrl(locationUrl));
+        assertEquals(manifestUrl, UrlHelper.locationToManifestUrl(locationUrl));
     }
 }
