@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -63,6 +63,7 @@ public class TargetProductSelectorModel {
     public TargetProductSelectorModel(String[] formatNames) {
         propertyContainer = PropertyContainer.createObjectBacked(this);
         propertyContainer.addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (!(Boolean) evt.getNewValue()) {
                     setOpenInAppSelected(true);
@@ -70,6 +71,7 @@ public class TargetProductSelectorModel {
             }
         });
         propertyContainer.addPropertyChangeListener("openInAppSelected", new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (!(Boolean) evt.getNewValue()) {
                     setSaveToFileSelected(true);
@@ -94,8 +96,8 @@ public class TargetProductSelectorModel {
         }
     }
 
-    public static TargetProductSelectorModel createEnvisatTargetProductSelectorModel() {
-        return new EnvisatTargetProductSelectorModel();
+    public static TargetProductSelectorModel createEnvisatTargetProductSelectorModel(String n1FormatName) {
+        return new EnvisatTargetProductSelectorModel(n1FormatName);
     }
 
     public String getProductName() {
@@ -191,13 +193,16 @@ public class TargetProductSelectorModel {
 
     public static class EnvisatTargetProductSelectorModel extends TargetProductSelectorModel {
 
-        private EnvisatTargetProductSelectorModel() {
-            super(createFormats());
+        private String n1FormatName;
+
+        private EnvisatTargetProductSelectorModel(String n1FormatName) {
+            super(createFormats(n1FormatName));
+            this.n1FormatName = n1FormatName;
         }
 
         @Override
         public File getProductFile() {
-            if (!ENVISAT_FORMAT_NAME.equals(getFormatName())) {
+            if (!n1FormatName.equals(getFormatName())) {
                 return super.getProductFile();
             }
             final String productName = getProductName();
@@ -205,11 +210,11 @@ public class TargetProductSelectorModel {
 
         }
 
-        private static String[] createFormats() {
+        private static String[] createFormats(String n1FormatName) {
             final String[] productWriterFormatStrings = ProductIOPlugInManager.getInstance().getAllProductWriterFormatStrings();
             final String[] formatNames = Arrays.copyOf(productWriterFormatStrings,
                                                        productWriterFormatStrings.length + 1);
-            formatNames[formatNames.length - 1] = ENVISAT_FORMAT_NAME;
+            formatNames[formatNames.length - 1] = n1FormatName;
             return formatNames;
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,7 +21,6 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
-import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.ui.DefaultIOParametersPanel;
@@ -63,7 +62,7 @@ class RadiometryForm extends JTabbedPane {
         final PropertyContainer targetProductPC = targetProductSelector.getModel().getValueContainer();
         propertyContainer.addProperty(targetProductPC.getProperty("formatName"));
         processingParamBindingContext.bindEnabledState("doRadToRefl", false, "formatName",
-                                                       EnvisatConstants.ENVISAT_FORMAT_NAME);
+                                                       RadiometryDialog.N1_FORMAT);
         propertyContainer.addPropertyChangeListener("formatName", new FormatChangeListener());
     }
 
@@ -108,6 +107,11 @@ class RadiometryForm extends JTabbedPane {
             final Product selectedProduct = (Product) event.getSelection().getSelectedValue();
             if (selectedProduct != null) {
                 productName = FileUtils.getFilenameWithoutExtension(selectedProduct.getName());
+                String extension = FileUtils.getExtension(selectedProduct.getFileLocation());
+                if (".N1".equals(extension)) {
+//                    targetProductSelector.getModel().getValueContainer().setValue("formatName", RadiometryDialog.N1_FORMAT);
+                    targetProductSelector.getFormatNameComboBox().setSelectedItem(RadiometryDialog.N1_FORMAT);
+                }
             }
             final TargetProductSelectorModel targetProductSelectorModel = targetProductSelector.getModel();
             targetProductSelectorModel.setProductName(productName + TARGET_PRODUCT_NAME_SUFFIX);
@@ -119,7 +123,7 @@ class RadiometryForm extends JTabbedPane {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            final boolean isEnvisatFormatSelected = EnvisatConstants.ENVISAT_FORMAT_NAME.equals(evt.getNewValue());
+            final boolean isEnvisatFormatSelected = RadiometryDialog.N1_FORMAT.equals(evt.getNewValue());
             if (isEnvisatFormatSelected) {
                 if ((Boolean) propertyContainer.getValue("doRadToRefl")) {
                     propertyContainer.setValue("doRadToRefl", false);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -34,13 +34,15 @@ import java.util.HashMap;
 
 class RadiometryDialog extends SingleTargetProductDialog {
 
+    static final String N1_FORMAT = EnvisatConstants.ENVISAT_FORMAT_NAME + " N1";
+
     private String alias;
     private RadiometryForm form;
     private HashMap<String, Object> parameterMap;
 
     RadiometryDialog(String alias, AppContext appContext, String title, String helpId) {
         super(appContext, title, ID_APPLY_CLOSE_HELP, helpId,
-              TargetProductSelectorModel.createEnvisatTargetProductSelectorModel());
+              TargetProductSelectorModel.createEnvisatTargetProductSelectorModel(N1_FORMAT));
         this.alias = alias;
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(alias);
         parameterMap = new HashMap<String, Object>(17);
