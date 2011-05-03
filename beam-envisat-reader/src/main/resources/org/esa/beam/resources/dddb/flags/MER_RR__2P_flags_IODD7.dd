@@ -16,7 +16,6 @@ SUSPECT          | 11      | Suspect pixel (from level-1b)
 OOADB            | 10      | Aerosol model is out of aerosol model database
 ABSOA_DUST       |  9      | Dust-like absorbing aerosol selected for atmosphere correction
 CASE2_S          |  8 & 21 | Turbid (sediment dominated Case 2) water
-SNOW_ICE         |  8 & 23 | Snow/Ice covered land
 CASE2_ANOM       |  7 & 21 | Anomalous scattering water
 TOAVI_BRIGHT     |  7 & 23 | Bright pixel flagged by MGVI processing
 CASE2_Y          |  6 & 21 | Yellow substance loaded water
@@ -25,9 +24,10 @@ ICE_HAZE         |  5 & 21 | Ice or high aerosol load pixel
 TOAVI_CSI        |  5 & 23 | Cloud, snow or ice over land pixel acc. to MGVI processing
 MEDIUM_GLINT     |  4 & 21 | Corrected for glint (water)
 TOAVI_WS         |  4 & 23 | Water/shadow pixel acc. to MGVI processing (land)
-DDV              |  3 & 23 | Dense Dark Vegetation (land)
+LARS_ON          |  3 & 23 | Land aerosol remote sensing turned on
 BPAC_ON          |  3 & 21 | Bright pixels atmospheric correction activated (water)
 HIGH_GLINT       |  2 & 21 | High (uncorrected) glint (water)
 TOAVI_INVAL_REC  |  2 & 23 | Invalid rectification (land)
 LOW_SUN          |  1      | Sun low above horizon (or conversely high sun zenith angle)
+LOW_PRESSURE     |  0      | Computed pressure is lower than ECMWF one (land, cloud)
 WHITE_SCATTERER  |  0 & 21 | Presence of white scatterer in water
