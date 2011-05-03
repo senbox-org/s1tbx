@@ -179,7 +179,6 @@ public class IOHelper {
                 }
 
                 if (targetFile != null) {
-                    System.out.println("targetFile = " + targetFile);
                     pm.setSubTaskName(entryName);
                     File parentDir = targetFile.getParentFile();
                     if (parentDir != null) {
