@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -24,7 +24,16 @@ import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -76,11 +85,11 @@ import static java.lang.Math.*;
 
 @SuppressWarnings({"MismatchedReadAndWriteOfArray", "UnusedDeclaration"})
 @OperatorMetadata(
-            alias = "PixEx",
-            version = "1.0",
-            authors = "Marco Peters, Thomas Storm",
-            copyright = "(c) 2010 by Brockmann Consult",
-            description = "Generates a CSV file from a given pixel location and source products.")
+        alias = "PixEx",
+        version = "1.0",
+        authors = "Marco Peters, Thomas Storm",
+        copyright = "(c) 2010 by Brockmann Consult",
+        description = "Extracts pixels from a given location and source products.")
 public class PixExOp extends Operator implements Output {
 
     public static final String RECURSIVE_INDICATOR = "**";
@@ -93,8 +102,8 @@ public class PixExOp extends Operator implements Output {
     private PixExMeasurementReader measurements;
 
     @Parameter(
-                description = "The paths to be scanned for input products. May point to a single file or a directory.\n" +
-                              "If path ends with '**' the directory is scanned recursively.")
+            description = "The paths to be scanned for input products. May point to a single file or a directory.\n" +
+                          "If path ends with '**' the directory is scanned recursively.")
     private File[] inputPaths;
 
     @Parameter(description = "Specifies if bands are to be exported", defaultValue = "true")
@@ -197,10 +206,13 @@ public class PixExOp extends Operator implements Output {
 
         validator = new ProductValidator();
 
-        final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints, exportMasks || exportFlags);
-        final PixExFormatStrategy formatStrategy = new PixExFormatStrategy(rasterNamesFactory, windowSize, expression, exportExpressionResult);
+        final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints,
+                                                                                       exportMasks || exportFlags);
+        final PixExFormatStrategy formatStrategy = new PixExFormatStrategy(rasterNamesFactory, windowSize, expression,
+                                                                           exportExpressionResult);
         final PixExProductRegistry productRegistry = new PixExProductRegistry(outputFilePrefix, outputDir);
-        PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize, productRegistry);
+        PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
+                                                                                 productRegistry);
         PixExTargetFactory targetFactory = new PixExTargetFactory(outputFilePrefix, outputDir);
 
         measurementWriter = new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);
@@ -228,7 +240,7 @@ public class PixExOp extends Operator implements Output {
                 ZipOutputStream zos = null;
                 try {
                     FileOutputStream fos = new FileOutputStream(
-                                new File(outputDir, outputFilePrefix + "_coordinates.kmz"));
+                            new File(outputDir, outputFilePrefix + "_coordinates.kmz"));
                     zos = new ZipOutputStream(fos);
                     kmzExporter.export(kmlDocument, zos, ProgressMonitor.NULL);
                 } catch (IOException e) {
@@ -280,7 +292,8 @@ public class PixExOp extends Operator implements Output {
         final Raster validData = validMaskImage.getData(new Rectangle(upperLeftX, upperLeftY, windowSize, windowSize));
         boolean areAllPixelsValid = areAllPixelsInWindowValid(upperLeftX, upperLeftY, validData);
         if (areAllPixelsValid || exportExpressionResult) {
-            measurementWriter.writeMeasurements(centerX, centerY, coordinateID, coordinate.getName(), product, validData);
+            measurementWriter.writeMeasurements(centerX, centerY, coordinateID, coordinate.getName(), product,
+                                                validData);
             return true;
         }
         return false;
@@ -499,7 +512,8 @@ public class PixExOp extends Operator implements Output {
                     final String desc = flag.getDescription();
                     if (!product.getMaskGroup().contains(name)) {
                         final String expression = band.getName() + "." + name;
-                        final Mask mask = Mask.BandMathsType.create(name, desc, width, height, expression, Color.red, 0.7);
+                        final Mask mask = Mask.BandMathsType.create(name, desc, width, height, expression, Color.red,
+                                                                    0.7);
                         product.getMaskGroup().add(mask);
                     }
                 }
