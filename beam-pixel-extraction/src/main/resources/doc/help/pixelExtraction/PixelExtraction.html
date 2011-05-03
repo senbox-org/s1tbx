@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
   ~
   ~ This program is free software; you can redistribute it and/or modify it
   ~ under the terms of the GNU General Public License as published by the Free
@@ -59,7 +59,7 @@
         # Expression: l1_flags.LAND_OCEAN<br/>
         # Created on: 2010-09-17 14:53:21<br/>
     </code><br/>
-    The header is followed by the table with the actual data; it might exemplarily look like this:<br/><br/>
+    The header is followed by the table with the actual data; it might look like the following:<br/><br/>
 <table>
     <tbody>
     <tr>
@@ -186,11 +186,6 @@
     </tbody>
 </table>
 
-<p>
-    Note that the two output formats slightly differ: when saving to disk, a file for each product type is
-    created, plus an additional file storing a mapping from product ids used in the output tables to data products.
-    When, however, using the clipboard, all values are copied at once.
-</p>
 
 <h3>The User Interface</h3>
 
@@ -207,28 +202,30 @@
 </p>
 
 <p align="center">
-    <img src="images/ioform.png" alt="ioform"/><br/>
-    <font size="2">Screenshot 1 - The Input/Output Pane</font>
+    <img src="images/ioform.png"/><br/>
+    <span style="font-size: x-small; ">The Input/Output Pane</span>
 </p>
 
-<p>
-    The list of <b>input paths</b> contains data products already chosen for extraction as well as paths to be searched
-    for
-    data products. By default, the product selected in VISAT (if there is any) appears in the list. Using the
-    <img src="images/plus.png" alt="plusbutton">-Button, data products can be added to the list in multiple ways: by
-    choosing a product already opened in VISAT, by choosing a product from the file system, or by specifying a
-    directory on the file system which is to be searched for data products (optionally recursively).
+<p class="i1">
+    <b>Input paths:</b>
+    The list contains the data products already chosen for extraction as well as paths to be searched
+    for data products. Using the <img src="images/plus.png" alt="plusbutton">-Button, data products can be added to
+    the list in multiple ways:
+<ul>
+    <li>by choosing a product already opened in VISAT</li>
+    <li>by choosing a product from the file system</li>
+    <li>by specifying a directory</li>
+    <li>or by specifying a directory recursively (indicated by '**' in the list)</li>
+</ul>
+
+<p class="i1">
+    <b>Output directory:</b>
+    All output is written to the selected directory.
 </p>
 
-<p>
-    The radio button below the list containing the input paths allows to specify the <b>output mode</b>: the extracted
-    pixel
-    values may either be saved in a directory (which may be specified using the box below) or be copied to the
-    clipboard, allowing the user to paste them into another tool, typically a spreadsheet program.
-</p>
-
-<p>
-    Lastly, a <b>filename prefix</b> may be specified if the values are to be written into files on disk.
+<p class="i1">
+    <b>File prefix:</b>
+    The specified file prefix is used to prefix the files which are written.
 </p>
 
 <h4>The Parameters Pane</h4>
@@ -238,40 +235,60 @@
 </p>
 
 <p align="center">
-    <img src="images/parametersform.png" alt="parametersform"/><br/>
-    <font size="2">Screenshot 2 - The Parameters Pane</font>
+    <img src="images/parametersform.png"/><br/>
+    <span style="font-size: x-small; ">The Parameters Pane</span>
 </p>
 
-<p>
-    The <b>coordinates table</b> shows the user-specified geographic coordinates which are used to extract the values.
-    They
-    consist of a name and their latitude/longitude-values. Initially, the table is filled with the pins of the product
-    currently selected in VISAT; additional coordinates may be added either by newly creating them or by reading them
-    from an exported pin file.
+<p class="i1">
+    <b>Coordinates:</b>
+    The coordinates table shows the user-specified geographic coordinates which are used to extract the values.
+    They consist of a name and their latitude/longitude-values. Initially, the table is filled with the pins of the
+    product
+    currently selected in VISAT. Additional coordinates may be added either by creating new coordinates or by reading
+    them
+    from a pin file.<br/>
+    Additionally to the standard format of a pin file, the coordinates file file can have a 'DateTime' column.
+    The format of the time value follows the ISO8601 pattern: yyyy-MM-dd'T'HH:mm:ss
 </p>
 
-<p>
-    The considered <b>export sources</b> may be delimited using three checkboxes, one each for bands, tie-point grids,
-    and
-    masks.
+<p class="i1">
+    <b>Allowed time difference:</b>
+    Specifies how big the difference might be between the time at the pixel and the time of the coordinate.
 </p>
 
-<p>
-    The <b>window size</b> specifies the number of pixels surrounding the pixels derived from the given geographic
-    coordinates
-    to be exported. That is, when setting the window size to 3, the values for 9 pixels will be extracted. The window
-    size always is odd.
+<p class="i1">
+    <b>Export:</b>
+    Specifies if bands, tie-point grids and/or masks should be included in the output.
 </p>
 
-<p>
-    A <b>band maths expression</b> can be specified to filter the values to output. The "Edit Expression..."-button
-    opens
-    the expression editor, which can be used for easily editing an expression. It is only available if the
+<p class="i1">
+    <b>Window size:</b>
+    The window size specifies the number of pixels surrounding the pixels derived from the given geographic
+    coordinates to be exported. That is, when setting the window size to 3, the values for 9 pixels will be extracted.
+    The window size must be odd.
+</p>
+
+<p class="i1">
+    <b>Expression:</b>
+    A band maths expression can be specified to filter the values to output. The "Edit Expression..."-button
+    opens the expression editor, which can be used for easily editing an expression. It is only available if the
     input product list of the "Input/Output"-pane contains at least one data product; however, in any case an expression
     may manually be declared.<br>
     There are two options of how to use the expression: either the expression is used to filter the values to output,
     that is, values which do not satisfy the expression are ignored. In the other case, the information if the value met
     the expression is added to the output.
+</p>
+
+<p class="i1">
+    <b>Sub-scenes:</b>
+    Enables the export of sub-scenes. The scenes contain at least all coordinates (including the specified window)
+    found in one product. Additionally the size of a border can be specified by which the exported scene size extended.
+</p>
+
+<p class="i1">
+    <b>KMZ coordinates:</b>
+    All coordinates considered for the output are collected in one KMZ file. Which can be used to display the
+    coordinates in Google Earth.
 </p>
 
 <p>&nbsp;</p>
