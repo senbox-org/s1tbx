@@ -112,7 +112,8 @@ class ReprojectionForm extends JTabbedPane {
     Map<String, Object> getParameterMap() {
         Map<String, Object> parameterMap = new HashMap<String, Object>(5);
         parameterMap.put("resamplingName", reprojectionModel.resamplingMethod);
-        parameterMap.put("includeTiePointGrids", reprojectionModel.reprojTiePoints);
+        parameterMap.put("includeTiePointGrids", reprojectionModel.includeTiePointGrids);
+        parameterMap.put("addDeltaBands", reprojectionModel.addDeltaBands);
         parameterMap.put("noDataValue", reprojectionModel.noDataValue);
         if (!collocationCrsUI.getRadioButton().isSelected()) {
             parameterMap.put("crs", getSelectedCrs().toWKT());
@@ -353,16 +354,16 @@ class ReprojectionForm extends JTabbedPane {
 
             final JPanel panel = new JPanel(tableLayout);
             panel.setBorder(BorderFactory.createTitledBorder("Output Information"));
-            panel.add(new JLabel("Scene Width:"));
+            panel.add(new JLabel("Scene width:"));
             panel.add(widthLabel);
             panel.add(new JLabel("pixel"));
-            panel.add(new JLabel("Center Longitude:"));
+            panel.add(new JLabel("Center longitude:"));
             panel.add(centerLonLabel);
 
-            panel.add(new JLabel("Scene Height:"));
+            panel.add(new JLabel("Scene height:"));
             panel.add(heightLabel);
             panel.add(new JLabel("pixel"));
-            panel.add(new JLabel("Center Latitude:"));
+            panel.add(new JLabel("Center latitude:"));
             panel.add(centerLatLabel);
 
             panel.add(new JLabel("CRS:"));
@@ -434,7 +435,10 @@ class ReprojectionForm extends JTabbedPane {
 
         outputSettingsPanel.add(noDataField);
         context.bind(Model.NO_DATA_VALUE, noDataField);
-        outputSettingsPanel.add(new JPanel());
+
+        JCheckBox addDeltaBandsChecker = new JCheckBox("Add delta bands");
+        outputSettingsPanel.add(addDeltaBandsChecker);
+        context.bind(Model.ADD_DELTA_BANDS, addDeltaBandsChecker);
 
         outputSettingsPanel.add(new JLabel("Resampling method:"));
         JComboBox resampleComboBox = new JComboBox(RESAMPLING_IDENTIFIER);
@@ -568,12 +572,14 @@ class ReprojectionForm extends JTabbedPane {
     private static class Model {
 
         private static final String PRESERVE_RESOLUTION = "preserveResolution";
-        private static final String REPROJ_TIEPOINTS = "reprojTiePoints";
+        private static final String REPROJ_TIEPOINTS = "includeTiePointGrids";
+        private static final String ADD_DELTA_BANDS = "addDeltaBands";
         private static final String NO_DATA_VALUE = "noDataValue";
         private static final String RESAMPLING_METHOD = "resamplingMethod";
 
         private boolean preserveResolution = true;
-        private boolean reprojTiePoints = true;
+        private boolean includeTiePointGrids = true;
+        private boolean addDeltaBands = false;
         private double noDataValue = Double.NaN;
         private String resamplingMethod = RESAMPLING_IDENTIFIER[0];
     }

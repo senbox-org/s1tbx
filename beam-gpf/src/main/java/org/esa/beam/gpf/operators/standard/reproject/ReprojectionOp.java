@@ -20,12 +20,14 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ImageGeometry;
+import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -64,6 +66,7 @@ import org.opengis.referencing.operation.TransformException;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -105,9 +108,9 @@ public class ReprojectionOp extends Operator {
     private File wktFile;
 
     @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
-                             "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
-                             "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
-                             "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
+            "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
+            "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
+            "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
     private String crs;
 
     @Parameter(alias = "resampling",
@@ -117,11 +120,6 @@ public class ReprojectionOp extends Operator {
                defaultValue = "Nearest")
     private String resamplingName;
 
-    @Parameter(description = "Whether tie-point grids should be included in the output product.",
-               defaultValue = "true")
-    private boolean includeTiePointGrids;
-
-    // Referencing  todo - parameter object?
     @Parameter(description = "The X-position of the reference pixel.")
     private Double referencePixelX;
     @Parameter(description = "The Y-position of the reference pixel.")
@@ -133,9 +131,6 @@ public class ReprojectionOp extends Operator {
     @Parameter(description = "The orientation of the output product (in degree).",
                defaultValue = "0", interval = "[-360,360]")
     private Double orientation;
-
-
-    // target grid  todo - parameter object?
     @Parameter(description = "The pixel size in X direction given in CRS units.")
     private Double pixelSizeX;
     @Parameter(description = "The pixel size in Y direction given in CRS units.")
@@ -148,18 +143,26 @@ public class ReprojectionOp extends Operator {
     @Parameter(description = "Whether the source product should be orthorectified. (Not applicable to all products)",
                defaultValue = "false")
     private boolean orthorectify;
+
     @Parameter(description = "The name of the elevation model for the orthorectification. " +
-                             "If not given tie-point data is used.")
+            "If not given tie-point data is used.")
     private String elevationModelName;
 
     @Parameter(description = "The value used to indicate no-data.")
     private Double noDataValue;
 
+    @Parameter(description = "Whether tie-point grids should be included in the output product.",
+               defaultValue = "true")
+    private boolean includeTiePointGrids;
+
+    @Parameter(description = "Whether to add delta longitude and latitude bands.",
+               defaultValue = "false")
+    private boolean addDeltaBands;
+
     private ElevationModel elevationModel;
     private MultiLevelModel srcModel;
     private MultiLevelModel targetModel;
     private Reproject reprojection;
-
 
     @Override
     public void initialize() throws OperatorException {
@@ -224,6 +227,10 @@ public class ReprojectionOp extends Operator {
         ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
         ProductUtils.copyRoiMasks(sourceProduct, targetProduct);
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
+
+        if (addDeltaBands) {
+            addDeltaBands();
+        }
     }
 
     @Override
@@ -526,7 +533,7 @@ public class ReprojectionOp extends Operator {
 
     protected void validateCrsParameters() {
         final String msgPattern = "Invalid target CRS specification.\nSpecify {0} one of the " +
-                                  "''wktFile'', ''crs'' or ''collocationProduct'' parameters.";
+                "''wktFile'', ''crs'' or ''collocationProduct'' parameters.";
 
         if (wktFile == null && crs == null && collocationProduct == null) {
             throw new OperatorException(MessageFormat.format(msgPattern, "at least"));
@@ -580,16 +587,16 @@ public class ReprojectionOp extends Operator {
 
     void validateReferencingParameters() {
         if (!((referencePixelX == null && referencePixelY == null && easting == null && northing == null)
-              || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
+                || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
             throw new OperatorException("Invalid referencing parameters: \n" +
-                                        "'referencePixelX, referencePixelY, easting and northing' have to be specified either all or non.");
+                                                "'referencePixelX', 'referencePixelY', 'easting' and 'northing' have to be specified either all or not at all.");
         }
     }
 
     void validateTargetGridParameters() {
         if ((pixelSizeX != null && pixelSizeY == null) ||
-            (pixelSizeX == null && pixelSizeY != null)) {
-            throw new OperatorException("'pixelSizeX' and 'pixelSizeY' must be specifies both or not at all.");
+                (pixelSizeX == null && pixelSizeY != null)) {
+            throw new OperatorException("'pixelSizeX' and 'pixelSizeY' must be specified both or not at all.");
         }
     }
 
@@ -610,5 +617,44 @@ public class ReprojectionOp extends Operator {
             }
         }
         return imageGeometry;
+    }
+
+    private void addDeltaBands() {
+
+        final Band deltaLonBand = targetProduct.addBand("delta_lon_angular", "longitude - LON");
+        deltaLonBand.setUnit("deg");
+        deltaLonBand.setDescription("Delta between old longitude and new longitude in degree");
+        deltaLonBand.setNoDataValueUsed(true);
+        deltaLonBand.setNoDataValue(noDataValue);
+        deltaLonBand.setImageInfo(createDeltaBandImageInfo(-0.015, +0.015));
+
+        final Band deltaLatBand = targetProduct.addBand("delta_lat_angular", "latitude - LAT");
+        deltaLatBand.setUnit("deg");
+        deltaLatBand.setDescription("Delta between old latitude and new latitude in degree");
+        deltaLatBand.setNoDataValueUsed(true);
+        deltaLatBand.setNoDataValue(noDataValue);
+        deltaLatBand.setImageInfo(createDeltaBandImageInfo(-0.01, +0.01));
+
+        final Band deltaLonMetBand = targetProduct.addBand("delta_lon_metric", "cos(rad(LAT)) * 6378137 * rad(longitude - LON)");
+        deltaLonMetBand.setUnit("m");
+        deltaLonMetBand.setDescription("Delta between old longitude and new longitude in meters");
+        deltaLonMetBand.setNoDataValueUsed(true);
+        deltaLonMetBand.setNoDataValue(noDataValue);
+        deltaLonMetBand.setImageInfo(createDeltaBandImageInfo(-1500.0, +1500.0));
+
+        final Band deltaLatMetBand = targetProduct.addBand("delta_lat_metric", "6378137 * rad(latitude - LAT)");
+        deltaLatMetBand.setUnit("m");
+        deltaLatMetBand.setDescription("Delta between old latitude and new latitude in meters");
+        deltaLatMetBand.setNoDataValueUsed(true);
+        deltaLatMetBand.setNoDataValue(noDataValue);
+        deltaLatMetBand.setImageInfo(createDeltaBandImageInfo(-1000.0, +1000.0));
+    }
+
+    private ImageInfo createDeltaBandImageInfo(double p1, double p2) {
+        return new ImageInfo(new ColorPaletteDef(new ColorPaletteDef.Point[]{
+                new ColorPaletteDef.Point(p1, new Color(255, 0, 0)),
+                new ColorPaletteDef.Point((p1 + p2) / 2, new Color(255, 255, 255)),
+                new ColorPaletteDef.Point(p2, new Color(0, 0, 127)),
+        }));
     }
 }

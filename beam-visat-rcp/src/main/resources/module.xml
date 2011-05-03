@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.9<br/>
+          [BEAM-1288] Add plausibility check for reprojection and orthorectification<br/>
           [BEAM-1251] Allow setting start and stop time<br/>
           [BEAM-1248] Title of transect-plot dialog is not updated if band selection changes<br/>
           [BEAM-1228] Rangefinder does not work<br/>
