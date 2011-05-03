@@ -442,6 +442,10 @@ public class MerisProductFile extends ProductFile {
                 if (productType.startsWith(FRS_2_PREFIX)) {
                     return FR__2_PREFIX + productType.substring(FR__2_PREFIX.length()) + IODD7_SUFFIX;
                 }
+            } else {
+                if (productType.startsWith(FRS_2_PREFIX)) {
+                    return FR__2_PREFIX + productType.substring(FR__2_PREFIX.length());
+                }
             }
 
         }

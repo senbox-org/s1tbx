@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -46,17 +46,33 @@ public class MerisProductFileTest extends TestCase {
         final int v7 = MerisProductFile.IODD_VERSION_7;
         testDddbProductTypeReplacement(null, "MER_RR__1P", v7); // only full swath affected
         testDddbProductTypeReplacement(null, "MER_FR__1P", v7); // only full swath affected
-        testDddbProductTypeReplacement(null, "MER_RR__2P", v7); // only full swath affected
-        testDddbProductTypeReplacement(null, "MER_FR__2P", v7); // only full swath affected
+        testDddbProductTypeReplacement("MER_RR__2P_IODD7", "MER_RR__2P", v7); // only full swath affected
+        testDddbProductTypeReplacement("MER_FR__2P_IODD7", "MER_FR__2P", v7); // only full swath affected
         testDddbProductTypeReplacement(null, "MER_RR__1C", v7); // only full swath affected
-        testDddbProductTypeReplacement(null, "MER_RR__2C", v7); // only full swath affected
+        testDddbProductTypeReplacement("MER_RR__2C_IODD7", "MER_RR__2C", v7); // only full swath affected
         testDddbProductTypeReplacement("MER_FR__1P", "MER_FRS_1P", v7); // full swath affected
         testDddbProductTypeReplacement("MER_FR__1C", "MER_FRS_1C",
                                        v7); // similar child product, todo: (nf) there is no '2C' descriptor!
-        testDddbProductTypeReplacement("MER_FR__2P", "MER_FRS_2P", v7); // full swath affected
-        testDddbProductTypeReplacement("MER_FR__2C", "MER_FRS_2C",
+        testDddbProductTypeReplacement("MER_FR__2P_IODD7", "MER_FRS_2P", v7); // full swath affected
+        testDddbProductTypeReplacement("MER_FR__2C_IODD7", "MER_FRS_2C",
                                        v7); // similar child product, todo: (nf) there is no '2C' descriptor!
         testDddbProductTypeReplacement(null, "MERIS", v7);  // unknown product type
+
+        // IODD 8
+        final int v8 = MerisProductFile.IODD_VERSION_8;
+        testDddbProductTypeReplacement(null, "MER_RR__1P", v8); // only full swath affected
+        testDddbProductTypeReplacement(null, "MER_FR__1P", v8); // only full swath affected
+        testDddbProductTypeReplacement(null, "MER_RR__2P", v8); // only full swath affected
+        testDddbProductTypeReplacement(null, "MER_FR__2P", v8); // only full swath affected
+        testDddbProductTypeReplacement(null, "MER_RR__1C", v8); // only full swath affected
+        testDddbProductTypeReplacement(null, "MER_RR__2C", v8); // only full swath affected
+        testDddbProductTypeReplacement("MER_FR__1P", "MER_FRS_1P", v8); // full swath affected
+        testDddbProductTypeReplacement("MER_FR__1C", "MER_FRS_1C",
+                                       v8); // similar child product, todo: (nf) there is no '2C' descriptor!
+        testDddbProductTypeReplacement("MER_FR__2P", "MER_FRS_2P", v8); // full swath affected
+        testDddbProductTypeReplacement("MER_FR__2C", "MER_FRS_2C",
+                                       v8); // similar child product, todo: (nf) there is no '2C' descriptor!
+        testDddbProductTypeReplacement(null, "MERIS", v8);  // unknown product type
 
         // invalid IODD version
         testDddbProductTypeReplacement(null, "MER_RR__1", -548);
@@ -64,9 +80,7 @@ public class MerisProductFileTest extends TestCase {
 
     private void testDddbProductTypeReplacement(final String replacement, final String productType,
                                                 final int ioddVersion5) {
-        String s;
-        s = MerisProductFile.getDddbProductTypeReplacement(productType,
-                                                           ioddVersion5);
+        String s = MerisProductFile.getDddbProductTypeReplacement(productType, ioddVersion5);
         assertEquals(replacement, s);
     }
 }

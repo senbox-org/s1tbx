@@ -1,3 +1,19 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-envisat-reader</symbolicName>
@@ -14,6 +30,8 @@
 
     <changelog><![CDATA[
        <p>Changes from version 1.3.200 to 1.4:<br/>
+       [BEAM-1242] Support MERIS FSG L2 products<br/>
+       [BEAM-1237] Update MERIS L2 flags for IODD version 8<br/>
        [BEAM-1213] Unit of yellow_subs in MERIS product not correct<br/>
        </p>
        <p>Changes from version 1.3.101 to 1.3.200:<br/>
