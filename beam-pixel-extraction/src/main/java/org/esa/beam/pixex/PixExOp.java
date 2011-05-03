@@ -24,11 +24,8 @@ import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Placemark;
@@ -59,7 +56,6 @@ import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
@@ -114,9 +110,6 @@ public class PixExOp extends Operator implements Output {
 
     @Parameter(description = "Specifies if masks are to be exported", defaultValue = "true")
     private Boolean exportMasks;
-
-    @Parameter(description = "Specifies if flags are to be exported", defaultValue = "false")
-    private Boolean exportFlags;
 
     @Parameter(description = "The geo-coordinates", itemAlias = "coordinate")
     private Coordinate[] coordinates;
@@ -207,7 +200,7 @@ public class PixExOp extends Operator implements Output {
         validator = new ProductValidator();
 
         final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints,
-                                                                                       exportMasks || exportFlags);
+                                                                                       exportMasks);
         final PixExFormatStrategy formatStrategy = new PixExFormatStrategy(rasterNamesFactory, windowSize, expression,
                                                                            exportExpressionResult);
         final PixExProductRegistry productRegistry = new PixExProductRegistry(outputFilePrefix, outputDir);
@@ -439,10 +432,6 @@ public class PixExOp extends Operator implements Output {
 
     private boolean extractMeasurements(Product product) {
 
-        if (exportFlags) {
-            ensureFlagMasks(product);
-        }
-
         boolean coordinatesFound = false;
         if (!validator.validate(product)) {
             return coordinatesFound;
@@ -493,34 +482,6 @@ public class PixExOp extends Operator implements Output {
     }
 
     private ArrayList<Product> products;
-
-    private void ensureFlagMasks(Product product) {
-        if (products == null) {
-            products = new ArrayList<Product>();
-        }
-        if (products.contains(product)) {
-            return;
-        }
-        final Band[] bands = product.getBands();
-        for (Band band : bands) {
-            if (band.isFlagBand()) {
-                final int width = band.getRasterWidth();
-                final int height = band.getRasterHeight();
-                final MetadataAttribute[] flags = band.getFlagCoding().getAttributes();
-                for (MetadataAttribute flag : flags) {
-                    final String name = flag.getName();
-                    final String desc = flag.getDescription();
-                    if (!product.getMaskGroup().contains(name)) {
-                        final String expression = band.getName() + "." + name;
-                        final Mask mask = Mask.BandMathsType.create(name, desc, width, height, expression, Color.red,
-                                                                    0.7);
-                        product.getMaskGroup().add(mask);
-                    }
-                }
-            }
-        }
-    }
-
 
     private void exportSubScene(Product product, List<Coordinate> coordinates) throws IOException {
         final ProductSubsetDef subsetDef = new ProductSubsetDef(product.getName() + "_subScene");
