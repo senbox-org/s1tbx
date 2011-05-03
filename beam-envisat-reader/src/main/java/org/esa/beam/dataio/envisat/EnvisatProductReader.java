@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -260,7 +260,7 @@ public class EnvisatProductReader extends AbstractProductReader {
             }
             if (!(bandLineReader instanceof BandLineReader.Virtual)) {
                 if (bandLineReader.getPixelDataReader().getDSD().getDatasetSize() == 0 ||
-                        bandLineReader.getPixelDataReader().getDSD().getNumRecords() == 0) {
+                    bandLineReader.getPixelDataReader().getDSD().getNumRecords() == 0) {
                     continue;
                 }
             }
@@ -399,7 +399,13 @@ public class EnvisatProductReader extends AbstractProductReader {
                 lonBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME);
             }
             if (latBand != null && lonBand != null) {
-                final PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(latBand, lonBand, "NOT l1_flags.INVALID", 6);
+                String validMask = "";
+                if (EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(product.getProductType()).matches()) {
+                    validMask = "NOT l1_flags.INVALID";
+                } else {
+                    validMask = "l2_flags.LAND or l2_flags.CLOUD or l2_flags.WATER";
+                }
+                final PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(latBand, lonBand, validMask, 6);
                 product.setGeoCoding(pixelGeoCoding);
             }
         }
@@ -478,7 +484,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         for (String datasetName : datasetNames) {
             DSD dsd = productFile.getDSD(datasetName);
             if (dsd.getDatasetType() == EnvisatConstants.DS_TYPE_ANNOTATION
-                    || dsd.getDatasetType() == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
+                || dsd.getDatasetType() == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
                 RecordReader recordReader = productFile.getRecordReader(datasetName);
                 if (recordReader.getNumRecords() == 1) {
                     MetadataElement table = createDatasetTable(datasetName, recordReader);
@@ -658,18 +664,19 @@ public class EnvisatProductReader extends AbstractProductReader {
      * {@link org.esa.beam.framework.datamodel.TiePointGrid#DISCONT_NONE} otherwise.
      *
      * @param name the grid name
+     *
      * @return the discontinuity mode, always one of {@link org.esa.beam.framework.datamodel.TiePointGrid#DISCONT_NONE}, {@link org.esa.beam.framework.datamodel.TiePointGrid#DISCONT_AT_180} and {@link org.esa.beam.framework.datamodel.TiePointGrid#DISCONT_AT_360}.
      */
     @Override
     protected int getGridDiscontinutity(String name) {
         if (name.equalsIgnoreCase(EnvisatConstants.MERIS_SUN_AZIMUTH_DS_NAME) ||
-                name.equalsIgnoreCase(EnvisatConstants.MERIS_VIEW_AZIMUTH_DS_NAME)) {
+            name.equalsIgnoreCase(EnvisatConstants.MERIS_VIEW_AZIMUTH_DS_NAME)) {
             return TiePointGrid.DISCONT_AT_360;
         } else if (name.equalsIgnoreCase(EnvisatConstants.LON_DS_NAME) ||
-                name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_NADIR_DS_NAME) ||
-                name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_NADIR_DS_NAME) ||
-                name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_FWARD_DS_NAME) ||
-                name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_FWARD_DS_NAME)) {
+                   name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_NADIR_DS_NAME) ||
+                   name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_NADIR_DS_NAME) ||
+                   name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_FWARD_DS_NAME) ||
+                   name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_FWARD_DS_NAME)) {
             return TiePointGrid.DISCONT_AT_180;
         } else {
             return TiePointGrid.DISCONT_NONE;
