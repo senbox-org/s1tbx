@@ -78,6 +78,7 @@ Bugs
 [BEAM-1222] - gpt command-line tool ignores -p option
 [BEAM-1220] - GPF API does not use progress monitor
 [BEAM-1215] - NetCDF product appears inverted
+[BEAM-1214] - MERIS L2 products low_pressure flag is raised over water
 [BEAM-1213] - Unit of yellow_subs in MERIS product not correct
 [BEAM-1212] - RasterDataNode.isPixelValid(x,y) is not thread safe
 [BEAM-1211] - SPOT VGT reader parses product time using a locale timezone
