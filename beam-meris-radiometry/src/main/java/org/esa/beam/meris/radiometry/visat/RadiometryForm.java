@@ -21,6 +21,7 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
+import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.ui.DefaultIOParametersPanel;
@@ -62,7 +63,7 @@ class RadiometryForm extends JTabbedPane {
         final PropertyContainer targetProductPC = targetProductSelector.getModel().getValueContainer();
         propertyContainer.addProperty(targetProductPC.getProperty("formatName"));
         processingParamBindingContext.bindEnabledState("doRadToRefl", false, "formatName",
-                                                       RadiometryDialog.N1_FORMAT);
+                                                       EnvisatConstants.ENVISAT_FORMAT_NAME);
         propertyContainer.addPropertyChangeListener("formatName", new FormatChangeListener());
     }
 
@@ -109,7 +110,7 @@ class RadiometryForm extends JTabbedPane {
                 productName = FileUtils.getFilenameWithoutExtension(selectedProduct.getName());
                 String extension = FileUtils.getExtension(selectedProduct.getFileLocation());
                 if (".N1".equals(extension)) {
-                    targetProductSelector.getFormatNameComboBox().setSelectedItem(RadiometryDialog.N1_FORMAT);
+                    targetProductSelector.getFormatNameComboBox().setSelectedItem(EnvisatConstants.ENVISAT_FORMAT_NAME);
                 }
             }
             final TargetProductSelectorModel targetProductSelectorModel = targetProductSelector.getModel();
@@ -122,7 +123,7 @@ class RadiometryForm extends JTabbedPane {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            final boolean isEnvisatFormatSelected = RadiometryDialog.N1_FORMAT.equals(evt.getNewValue());
+            final boolean isEnvisatFormatSelected = EnvisatConstants.ENVISAT_FORMAT_NAME.equals(evt.getNewValue());
             if (isEnvisatFormatSelected) {
                 if ((Boolean) propertyContainer.getValue("doRadToRefl")) {
                     propertyContainer.setValue("doRadToRefl", false);

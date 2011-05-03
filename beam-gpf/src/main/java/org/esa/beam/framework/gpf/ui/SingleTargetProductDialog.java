@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -296,11 +296,14 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
             Product product = null;
             try {
                 long t0 = System.currentTimeMillis();
-                final OperatorProductReader opReader = (OperatorProductReader) targetProduct.getProductReader();
-                final Operator operator;
-                if (opReader.getOperatorContext().getOperator() instanceof Output) {
-                    operator = opReader.getOperatorContext().getOperator();
-                } else {
+                Operator operator = null;
+                if (targetProduct.getProductReader() instanceof OperatorProductReader) {
+                    final OperatorProductReader opReader = (OperatorProductReader) targetProduct.getProductReader();
+                    if (opReader.getOperatorContext().getOperator() instanceof Output) {
+                        operator = opReader.getOperatorContext().getOperator();
+                    }
+                }
+                if (operator == null) {
                     WriteOp writeOp = new WriteOp(targetProduct, model.getProductFile(), model.getFormatName());
                     writeOp.setDeleteOutputOnFailure(true);
                     writeOp.setWriteEntireTileRows(true);

@@ -34,15 +34,13 @@ import java.util.HashMap;
 
 class RadiometryDialog extends SingleTargetProductDialog {
 
-    static final String N1_FORMAT = EnvisatConstants.ENVISAT_FORMAT_NAME + " N1";
-
     private String alias;
     private RadiometryForm form;
     private HashMap<String, Object> parameterMap;
 
     RadiometryDialog(String alias, AppContext appContext, String title, String helpId) {
         super(appContext, title, ID_APPLY_CLOSE_HELP, helpId,
-              TargetProductSelectorModel.createEnvisatTargetProductSelectorModel(N1_FORMAT));
+              TargetProductSelectorModel.createEnvisatTargetProductSelectorModel());
         this.alias = alias;
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(alias);
         parameterMap = new HashMap<String, Object>(17);
