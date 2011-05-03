@@ -17,9 +17,8 @@ package org.esa.beam.dataio.hdf5;
 
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
-import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.File;
 import java.util.Locale;
@@ -32,13 +31,8 @@ import java.util.Locale;
  */
 public class Hdf5ProductWriterPlugIn implements ProductWriterPlugIn {
 
-    // This is here just to keep the property name
-//    private static final String HDF5_PROPERTY_KEY = "ncsa.hdf.hdf5lib.H5.hdf5lib";
-
     public static final String HDF5_FORMAT_NAME = "HDF5";
     public static final String HDF5_FILE_EXTENSION = ".h5";
-
-    private static final String H5_CLASS_NAME = "ncsa.hdf.hdf5lib.H5";
 
     private static boolean hdf5LibAvailable = false;
 
