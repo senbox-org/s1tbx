@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -210,8 +210,8 @@ public class DDDBTest extends TestCase {
         assertSame(_dddb, DDDB.getInstance());
     }
 
-    public void testMERIS_L2_Flags() {
-        FlagCoding flagCoding = _dddb.readFlagsCoding("l2_flags", "flags/MER_RR__2P_flags.dd");
+    public void testMERIS_L2_Flags_IODD7() {
+        FlagCoding flagCoding = _dddb.readFlagsCoding("l2_flags", "flags/MER_RR__2P_flags_IODD7.dd");
 
         assertNotNull(flagCoding);
         assertEquals(0, flagCoding.getNumElements());
@@ -269,7 +269,7 @@ public class DDDBTest extends TestCase {
                 0x000800, // 12
                 0x000400, // 13
                 0x000200, // 14
-                0x000100, // 15
+                0x200100, // 15
                 0x200080, // 16
                 0x800080, // 17
                 0x200040, // 18
@@ -286,6 +286,93 @@ public class DDDBTest extends TestCase {
                 0x000001, // 29
                 0x200001, // 30
         };
+        for (int i = 0; i < attributes.length; i++) {
+            MetadataAttribute attribute = attributes[i];
+            String s = "at index [" + i + "]";
+            assertNotNull(s, attribute);
+            assertEquals(s, expectedNames[i], attribute.getName());
+            assertEquals(s, 1, attribute.getNumDataElems());
+            assertEquals(s, expectedValues[i], attribute.getData().getElemInt());
+        }
+    }
+
+    public void testMERIS_L2_Flags() {
+        FlagCoding flagCoding = _dddb.readFlagsCoding("l2_flags", "flags/MER_RR__2P_flags.dd");
+
+        assertNotNull(flagCoding);
+        assertEquals(0, flagCoding.getNumElements());
+        assertEquals(31, flagCoding.getNumAttributes());
+
+        MetadataAttribute[] attributes = flagCoding.getAttributes();
+
+        String[] expectedNames = new String[]{
+                "LAND",
+                "CLOUD",
+                "WATER",
+                "PCD_1_13",
+                "PCD_14",
+                "PCD_15",
+                "PCD_16",
+                "PCD_17",
+                "PCD_18",
+                "PCD_19",
+                "COASTLINE",
+                "COSMETIC",
+                "SUSPECT",
+                "OOADB",
+                "ABSOA_DUST",
+                "CASE2_S",
+                "SNOW_ICE",
+                "CASE2_ANOM",
+                "TOAVI_BRIGHT",
+                "CASE2_Y",
+                "TOAVI_BAD",
+                "ICE_HAZE",
+                "TOAVI_CSI",
+                "MEDIUM_GLINT",
+                "TOAVI_WS",
+                "DDV",
+                "BPAC_ON",
+                "HIGH_GLINT",
+                "TOAVI_INVAL_REC",
+                "LOW_SUN",
+                "WHITE_SCATTERER",
+        };
+
+        int[] expectedValues = new int[]{
+                0x800000, // 0
+                0x400000, // 1
+                0x200000, // 2
+                0x100000, // 3
+                0x080000, // 4
+                0x040000, // 5
+                0x020000, // 6
+                0x010000, // 7
+                0x008000, // 8
+                0x004000, // 9
+                0x002000, // 10
+                0x001000, // 11
+                0x000800, // 12
+                0x000400, // 13
+                0x000200, // 14
+                0x200100, // 15
+                0x800100, // 16
+                0x200080, // 17
+                0x800080, // 18
+                0x200040, // 19
+                0x800040, // 20
+                0x200020, // 21
+                0x800020, // 22
+                0x200010, // 23
+                0x800010, // 24
+                0x800008, // 25
+                0x200008, // 26
+                0x200004, // 27
+                0x800004, // 28
+                0x000002, // 29
+                0x200001, // 30
+        };
+
         for (int i = 0; i < attributes.length; i++) {
             MetadataAttribute attribute = attributes[i];
             String s = "at index [" + i + "]";
