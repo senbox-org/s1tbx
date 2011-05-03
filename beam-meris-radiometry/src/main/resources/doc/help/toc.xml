@@ -1,14 +1,37 @@
 <?xml version='1.0' encoding='ISO-8859-1'  ?>
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
 <!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN"
         "http://java.sun.com/products/javahelp/toc_2_0.dtd">
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="Data Processors">
-        <tocitem text="MERIS L1b Equalization" target="merisEqualization">
-            <tocitem text="Overview" target="merisEqualization"/>
-            <tocitem text="Algorithm Specification" target="merisEqualizationAlgorithmSpecification"/>
-            <tocitem text="Processor Description" target="merisEqualizationProcessorDescription"/>
+        <tocitem text="MERIS L1b Radiometry Correction" target="merisRadiometryCorrection">
+            <tocitem text="Overview" target="merisRadiometryCorrection"/>
+            <tocitem text="Processor Description" target="merisRadiometryCorrectionProcessorDescription"/>
+            <tocitem text="Command Line Description" target="merisRadiometryCommandLine"/>
+            <tocitem text="Equalisation Algorithm Specification" target="merisEqualizationAlgorithmSpecification"/>
+            <tocitem text="Radiometry Recalibration Algorithm Specification"
+                     target="merisRecalibrationAlgorithmSpecification"/>
+            <tocitem text="Smile Correction Algorithm Specification"
+                     target="merisSmileCorrectionAlgorithmSpecification"/>
+            <tocitem text="Radiance-to-Reflectance Algorithm Specification"
+                     target="merisRadToReflAlgorithmSpecification"/>
         </tocitem>
     </tocitem>
 

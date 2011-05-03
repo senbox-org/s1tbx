@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ISO-8859-1' ?>
 <!--
-  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
   ~
   ~ This program is free software; you can redistribute it and/or modify it
   ~ under the terms of the GNU General Public License as published by the Free
@@ -21,10 +21,18 @@
 
 <map version="2.0">
 
-    <mapID target="merisEqualization" url="equalization/MerisEqualization.html"/>
+    <mapID target="merisRadiometryCorrection" url="radiometry/MerisRadiometryProcessor.html"/>
+    <mapID target="merisRadiometryCorrectionProcessorDescription"
+           url="radiometry/MerisRadiometryProcessorDescription.html"/>
+    <mapID target="merisRadiometryCommandLine"
+           url="radiometry/MerisRadiometryCommandLine.html"/>
     <mapID target="merisEqualizationAlgorithmSpecification"
-           url="equalization/MerisEqualizationAlgorithmSpecification.html"/>
-    <mapID target="merisEqualizationProcessorDescription"
-           url="equalization/MerisEqualizationProcessorDescription.html"/>
+           url="radiometry/MerisEqualizationAlgorithmSpecification.html"/>
+    <mapID target="merisRecalibrationAlgorithmSpecification"
+           url="radiometry/RadioRecalibrationAlgorithmSpecification.html"/>
+    <mapID target="merisSmileCorrectionAlgorithmSpecification"
+           url="radiometry/SmileCorrectionAlgorithmSpecification.html"/>
+    <mapID target="merisRadToReflAlgorithmSpecification"
+           url="radiometry/RadToReflAlgorithmSpecification.html"/>
 
 </map>

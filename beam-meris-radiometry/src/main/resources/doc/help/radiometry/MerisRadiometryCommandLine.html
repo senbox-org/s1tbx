@@ -1,0 +1,99 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>MERIS Level 1 Radiometry Processor - Command Line Description</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            MERIS Level 1 Radiometry Processor - Command Line Description
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a>
+        </td>
+    </tr>
+</table>
+
+<h3>Processor Description</h3>
+
+Since the MERIS Radiometry Correction processor makes use of the BEAM graph processing framework, it can be
+used also as a command line tool outside BEAM-VISAT. The graph processing is invoked
+by the command
+<ul>
+    <li>
+        ${BEAM-INSTALL-DIR}/bin/gpt
+    </li>
+</ul>
+
+To obtain general help on the graph processing, use the command
+<ul>
+    <li>
+        ${BEAM-INSTALL-DIR}/bin/gpt -h
+    </li>
+</ul>
+
+Specific help on the MERIS Radiometry Correction processor, can be obtained with
+<ul>
+    <li>
+        ${BEAM-INSTALL-DIR}/bin/gpt -h Meris.CorrectRadiometry
+    </li>
+</ul>
+In this case, information on the usage and a list of all available parameters are given.
+<p align="center"><img src="images/CommandLine.png"></p>
+
+If MERIS N1 products shall be written as output result a graph xml file has to be created.
+This xml file should concatenate the Meris.CorrectRadiometry operator and the N1Patcher operator.
+A possible graph xml file would look like the following. For demonstration purpose only
+the necessary parameter have been set.
+<pre>
+
+    &lt;graph id="RadiometryCorrectionN1"&gt;
+        &lt;version&gt;1.0&lt;/version&gt;
+        &lt;node id="radiometry"&gt;
+            &lt;operator&gt;Meris.CorrectRadiometry&lt;/operator&gt;
+            &lt;sources&gt;
+                &lt;source&gt;${n1Product}&lt;/source&gt;
+            &lt;/sources&gt;
+
+        &lt;/node&gt;
+        &lt;node id="n1Writer"&gt;
+            &lt;operator&gt;N1Patcher&lt;/operator&gt;
+            &lt;sources&gt;
+                &lt;n1&gt;${n1Product}&lt;/n1&gt;
+                &lt;input&gt;radiometry&lt;/input&gt;
+            &lt;/sources&gt;
+            &lt;parameters&gt;
+                &lt;patchedFile&gt;${n1TargetFile}&lt;/patchedFile&gt;
+            &lt;/parameters&gt;
+        &lt;/node&gt;
+    &lt;/graph&gt;
+
+</pre>
+
+This graph can be invoked by the following call on the command line:
+<pre>
+  gpt &lt;graph-file.xml&gt; -Pn1TargetFile=&lt;path-to-target-file&gt; -Sn1Product=&lt;path-to-source-file&gt;
+</pre>
+
+<hr>
+</body>
+</html>
