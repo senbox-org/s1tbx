@@ -225,9 +225,9 @@ public class PixExOp extends Operator implements Output {
                 }
                 measurementsFound |= extractMeasurements(inputPaths);
             }
-            if (!isTargetProductInitialized) {
-                setDummyProduct();
-            }
+
+            setDummyTargetProduct();
+
             if (exportKmz && measurementsFound) {
                 KmzExporter kmzExporter = new KmzExporter();
                 ZipOutputStream zos = null;
@@ -419,12 +419,7 @@ public class PixExOp extends Operator implements Output {
         } catch (Exception ignore) {
         } finally {
             if (product != null) {
-                if (isTargetProductInitialized) {
-                    product.dispose();
-                } else {
-                    setTargetProduct(product);
-                    isTargetProductInitialized = true;
-                }
+                product.dispose();
             }
         }
         return false;
@@ -510,7 +505,7 @@ public class PixExOp extends Operator implements Output {
         ProductIO.writeProduct(subset, productFile.getAbsolutePath(), ProductIO.DEFAULT_FORMAT_NAME);
     }
 
-    private void setDummyProduct() {
+    private void setDummyTargetProduct() {
         final Product product = new Product("dummy", "dummy", 2, 2);
         product.addBand("dummy", ProductData.TYPE_INT8);
         setTargetProduct(product);
