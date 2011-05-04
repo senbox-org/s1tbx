@@ -40,7 +40,7 @@
         <geotools.version>2.6.5</geotools.version>
         <jide.version>2.9.5</jide.version>
         <hdf.version>2.7</hdf.version>
-        <netcdf.version>4.2</netcdf.version>
+        <netcdf.version>4.2.20</netcdf.version>
     </properties>
 
 
