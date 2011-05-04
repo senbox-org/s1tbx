@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A class loader used for modules. It adds the following features to the {@link URLClassLoader}.
@@ -54,7 +56,11 @@ class ModuleClassLoader extends URLClassLoader {
     protected String findLibrary(String libname) {
         for (URL url : nativeUrls) {
             if (url.toExternalForm().endsWith(System.mapLibraryName(libname))) {
-                return UrlHelper.urlToFile(url).getAbsolutePath();
+                String absolutePath = UrlHelper.urlToFile(url).getAbsolutePath();
+                Logger logger = Logger.getLogger(System.getProperty("ceres.context", "ceres"));
+                Throwable throwable = new Throwable("This is not an exception.");
+                logger.log(Level.FINEST, "Native library found: " + absolutePath, throwable);
+                return absolutePath;
             }
         }
         for (ClassLoader classLoader : delegates) {
