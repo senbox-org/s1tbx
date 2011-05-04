@@ -176,7 +176,7 @@ public class CreateElevationBandAction extends ExecCommand {
         demList.setVisibleRowCount(4);
 
         JPanel p1 = new JPanel(new BorderLayout(4, 4));
-        p1.add(new JLabel("Elevation Model:"), BorderLayout.NORTH);     /*I18N*/
+        p1.add(new JLabel("Elevation model:"), BorderLayout.NORTH);     /*I18N*/
         p1.add(new JScrollPane(demList), BorderLayout.CENTER);
 
         JPanel p2 = new JPanel(new BorderLayout(4, 4));

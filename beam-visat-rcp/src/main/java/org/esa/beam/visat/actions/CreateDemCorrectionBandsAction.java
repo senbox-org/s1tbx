@@ -1,0 +1,492 @@
+/*
+ * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
+package org.esa.beam.visat.actions;
+
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.ComponentAdapter;
+import com.bc.ceres.swing.progress.DialogProgressMonitor;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.dataop.dem.ElevationModel;
+import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
+import org.esa.beam.framework.dataop.dem.Orthorectifier;
+import org.esa.beam.framework.dataop.dem.Orthorectifier2;
+import org.esa.beam.framework.dataop.resamp.Resampling;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.command.CommandEvent;
+import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.util.Debug;
+import org.esa.beam.visat.VisatApp;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.Dialog;
+import java.awt.Insets;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+
+public class CreateDemCorrectionBandsAction extends ExecCommand {
+
+    public static final String DIALOG_TITLE = "Create DEM-Correction Bands";
+    public static final String DEFAULT_LATITUDE_BAND_NAME = "corr_latitude";
+    public static final String DEFAULT_LONGITUDE_BAND_NAME = "corr_longitude";
+    public static final String DEFAULT_ELEVATION_BAND_NAME = "elevation";
+
+    private static class BandNameValidator implements Validator {
+        private final Product product;
+
+        public BandNameValidator(Product product) {
+            this.product = product;
+        }
+
+        @Override
+        public void validateValue(Property property, Object value) throws ValidationException {
+            final String bandName = value.toString().trim();
+            if (!ProductNode.isValidNodeName(bandName)) {
+                throw new ValidationException(MessageFormat.format("The band name ''{0}'' appears not to be valid.\n" +
+                                                                           "Please choose another one.",
+                                                                   bandName));
+            } else if (product.containsBand(bandName)) {
+                throw new ValidationException(MessageFormat.format("The selected product already contains a band named ''{0}''.\n" +
+                                                                           "Please choose another one.",
+                                                                   bandName));
+            }
+
+        }
+    }
+
+
+    class DialogData {
+        String demName;
+        boolean outputElevationBand;
+        boolean outputGeoCodingBands;
+        String elevationBandName = DEFAULT_ELEVATION_BAND_NAME;
+        String latitudeBandName = DEFAULT_LATITUDE_BAND_NAME;
+        String longitudeBandName = DEFAULT_LONGITUDE_BAND_NAME;
+
+        public DialogData(String demName, boolean ortorectifiable) {
+            this.demName = demName;
+            outputElevationBand = true;
+            outputGeoCodingBands = ortorectifiable;
+        }
+    }
+
+    @Override
+    public void actionPerformed(CommandEvent event) {
+        final Product product = VisatApp.getApp().getSelectedProduct();
+        final DialogData dialogData = requestDialogData(product);
+        if (dialogData == null) {
+            return;
+        }
+
+        final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
+        final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(dialogData.demName);
+        if (demDescriptor == null) {
+            VisatApp.getApp().showErrorDialog(DIALOG_TITLE, "The DEM '" + dialogData.demName + "' is not supported.");
+            return;
+        }
+        if (demDescriptor.isInstallingDem()) {
+            VisatApp.getApp().showErrorDialog(DIALOG_TITLE,
+                                              "The DEM '" + dialogData.demName + "' is currently being installed.");
+            return;
+        }
+        if (!demDescriptor.isDemInstalled()) {
+            demDescriptor.installDemFiles(VisatApp.getApp().getMainFrame());
+            return;
+        }
+
+        computeBands(product,
+                     demDescriptor,
+                     dialogData.outputElevationBand ? dialogData.elevationBandName : null,
+                     dialogData.outputGeoCodingBands ? dialogData.latitudeBandName : null,
+                     dialogData.outputGeoCodingBands ? dialogData.longitudeBandName : null
+        );
+    }
+
+    @Override
+    public void updateState(CommandEvent event) {
+        final Product product = VisatApp.getApp().getSelectedProduct();
+        setEnabled(product != null && product.getGeoCoding() != null);
+    }
+
+    private void computeBands(final Product product,
+                              final ElevationModelDescriptor demDescriptor,
+                              final String elevationBandName,
+                              final String latitudeBandName,
+                              final String longitudeBandName) {
+
+
+        final SwingWorker swingWorker = new SwingWorker<Band[], Object>() {
+            @Override
+            protected Band[] doInBackground() throws Exception {
+                ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(), DIALOG_TITLE,
+                                                               Dialog.ModalityType.APPLICATION_MODAL);
+                return computeBands(product,
+                                    demDescriptor,
+                                    elevationBandName,
+                                    latitudeBandName,
+                                    longitudeBandName,
+                                    pm);
+            }
+
+            @Override
+            public void done() {
+                if (VisatApp.getApp().getPreferences().getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, true)) {
+                    final Band[] bands;
+                    try {
+                        bands = get();
+                        for (Band band : bands) {
+                            VisatApp.getApp().openProductSceneView(band);
+                        }
+                    } catch (Exception e) {
+                        VisatApp.getApp().showErrorDialog(DIALOG_TITLE,
+                                                          "An internal error occurred:\n" + e.getMessage());
+                        Debug.trace(e);
+                    }
+                }
+            }
+        };
+
+        swingWorker.execute();
+    }
+
+    private static Band[] computeBands(final Product product,
+                                       final ElevationModelDescriptor demDescriptor,
+                                       final String elevationBandName,
+                                       final String latitudeBandName,
+                                       final String longitudeBandName,
+                                       ProgressMonitor pm) {
+
+        final ElevationModel dem = demDescriptor.createDem(Resampling.BILINEAR_INTERPOLATION);
+        ArrayList<Band> bands = new ArrayList<Band>();
+        if (elevationBandName != null) {
+            computeElevationBand(product, dem, elevationBandName, SubProgressMonitor.create(pm,20), bands);
+        }
+        if (latitudeBandName != null && longitudeBandName != null) {
+            computeGeoPosBands(product, dem, latitudeBandName, longitudeBandName, SubProgressMonitor.create(pm,80), bands);
+        }
+        return bands.toArray(new Band[bands.size()]);
+    }
+
+    private static void computeGeoPosBands(Product product, ElevationModel dem, String latitudeBandName, String longitudeBandName, ProgressMonitor pm, ArrayList<Band> bands) {
+        final int width = product.getSceneRasterWidth();
+        final int height = product.getSceneRasterHeight();
+        final float[] latitudeData = new float[width * height];
+        final float[] longitudeData = new float[width * height];
+        Orthorectifier orthorectifier = new Orthorectifier2(width, height, product.getBandAt(0).getPointing(), dem, 25);
+
+        final Band latitudeBand = product.addBand(latitudeBandName, ProductData.TYPE_FLOAT32);
+        latitudeBand.setSynthetic(true);
+        latitudeBand.setNoDataValue(Double.NaN);
+        latitudeBand.setUnit("deg");
+        latitudeBand.setDescription("DEM-corrected latitude");
+        latitudeBand.setRasterData(ProductData.createInstance(latitudeData));
+
+        final Band longitudeBand = product.addBand(longitudeBandName, ProductData.TYPE_FLOAT32);
+        longitudeBand.setSynthetic(true);
+        longitudeBand.setNoDataValue(Double.NaN);
+        longitudeBand.setUnit("deg");
+        longitudeBand.setDescription("DEM-corrected longitude");
+        longitudeBand.setRasterData(ProductData.createInstance(longitudeData));
+
+        /*
+        longitudeBand.setSourceImage(new DefaultMultiLevelImage(new AbstractMultiLevelSource(ImageManager.getMultiLevelModel(longitudeBand)) {
+            @Override
+            protected RenderedImage createImage(int level) {
+                return new RasterDataNodeOpImage(longitudeBand, ResolutionLevel.create(getModel(), level)) {
+                    @Override
+                    protected void computeProductData(ProductData productData, Rectangle destRect) throws IOException {
+                        if (getLevel() == 0) {
+                            getRasterDataNode().readPixels(destRect.x, destRect.y,
+                                                         destRect.width, destRect.height,
+                                                         (float[]) productData.getElems(),
+                                                         ProgressMonitor.NULL);
+                        } else {
+                            final int sourceWidth = getSourceWidth(destRect.width);
+                            ProductData lineData = ProductData.createInstance(getRasterDataNode().getDataType(), sourceWidth);
+                            int[] sourceCoords = getSourceCoords(sourceWidth, destRect.width);
+                            for (int y = 0; y < destRect.height; y++) {
+                                getRasterDataNode().readPixels(getSourceX(destRect.x),
+                                                             getSourceY(destRect.y + y),
+                                                             sourceWidth, 1,
+                                                             (float[]) lineData.getElems(),
+                                                             ProgressMonitor.NULL);
+                                copyLine(y, destRect.width, lineData, productData, sourceCoords);
+                            }
+                        }
+
+                    }
+                };
+            }
+        }));
+        */
+
+        pm.beginTask("Computing bands '" + latitudeBandName + "' and '" + longitudeBandName + "'...", height);
+        try {
+            final GeoPos geoPos = new GeoPos();
+            final PixelPos pixelPos = new PixelPos();
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    pixelPos.setLocation(x + 0.5f, y + 0.5f);
+                    orthorectifier.getGeoPos(pixelPos, geoPos);
+                    latitudeData[y * width + x] = geoPos.lat;
+                    longitudeData[y * width + x] = geoPos.lon;
+                }
+                pm.worked(1);
+            }
+        } finally {
+            pm.done();
+        }
+
+        bands.add(latitudeBand);
+        bands.add(longitudeBand);
+    }
+
+    private static void computeElevationBand(Product product, ElevationModel dem, String elevationBandName, ProgressMonitor pm, ArrayList<Band> bands) {
+        ElevationModelDescriptor demDescriptor = dem.getDescriptor();
+        final int width = product.getSceneRasterWidth();
+        final int height = product.getSceneRasterHeight();
+        final float noDataValue = dem.getDescriptor().getNoDataValue();
+        final Band elevationBand = product.addBand(elevationBandName, ProductData.TYPE_INT16);
+        elevationBand.setSynthetic(true);
+        elevationBand.setNoDataValue(noDataValue);
+        elevationBand.setUnit("m");
+        elevationBand.setDescription(demDescriptor.getName());
+        final short[] data = new short[width * height];
+        elevationBand.setRasterData(ProductData.createInstance(data));
+        pm.beginTask("Computing band '" + elevationBandName + "'...", height);
+        try {
+            final GeoPos geoPos = new GeoPos();
+            final PixelPos pixelPos = new PixelPos();
+            float elevation;
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    pixelPos.setLocation(x + 0.5f, y + 0.5f);
+                    product.getGeoCoding().getGeoPos(pixelPos, geoPos);
+                    try {
+                        elevation = dem.getElevation(geoPos);
+                    } catch (Exception e) {
+                        elevation = noDataValue;
+                    }
+                    data[y * width + x] = (short) Math.round(elevation);
+                }
+                pm.worked(1);
+            }
+        } finally {
+            pm.done();
+        }
+        bands.add(elevationBand);
+    }
+
+    private static boolean isOrtorectifiable(Product product) {
+        return product.getNumBands() > 0 && product.getBandAt(0).canBeOrthorectified();
+    }
+
+    private DialogData requestDialogData(final Product product) {
+
+        boolean ortorectifiable = isOrtorectifiable(product);
+
+        final ElevationModelDescriptor[] descriptors = ElevationModelRegistry.getInstance().getAllDescriptors();
+        final String[] demNames = new String[descriptors.length];
+        for (int i = 0; i < descriptors.length; i++) {
+            demNames[i] = descriptors[i].getName();
+        }
+
+        final DialogData dialogData = new DialogData(demNames[0], ortorectifiable);
+        PropertySet propertySet = PropertyContainer.createObjectBacked(dialogData);
+        configureDemNameProperty(propertySet, "demName", demNames);
+        configureBandNameProperty(propertySet, "elevationBandName", product);
+        configureBandNameProperty(propertySet, "latitudeBandName", product);
+        configureBandNameProperty(propertySet, "longitudeBandName", product);
+        BindingContext ctx = new BindingContext(propertySet);
+
+        final JList demList = new JList();
+        demList.setVisibleRowCount(3);
+        ctx.bind("demName", new SingleSelectionListComponentAdapter(demList));
+
+        JTextField elevationBandNameField = new JTextField();
+        ctx.bind("elevationBandName", elevationBandNameField);
+
+        JCheckBox outputGeoCodingBandsChecker = new JCheckBox("Output DEM-corrected geo-coding bands");
+        ctx.bind("outputGeoCodingBands", outputGeoCodingBandsChecker);
+
+        JLabel latitudeBandNameLabel = new JLabel("Latitude band name:");
+        JTextField latitudeBandNameField = new JTextField();
+        latitudeBandNameField.setEnabled(ortorectifiable);
+        ctx.bind("latitudeBandName", latitudeBandNameField).addComponent(latitudeBandNameLabel);
+        ctx.bindEnabledState("latitudeBandName", true, "outputGeoCodingBands", true);
+
+        JLabel longitudeBandNameLabel = new JLabel("Longitude band name:");
+        JTextField longitudeBandNameField = new JTextField();
+        longitudeBandNameField.setEnabled(ortorectifiable);
+        ctx.bind("longitudeBandName", longitudeBandNameField).addComponent(longitudeBandNameLabel);
+        ctx.bindEnabledState("longitudeBandName", true, "outputGeoCodingBands", true);
+
+        TableLayout tableLayout = new TableLayout(2);
+        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
+        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setColumnFill(0, TableLayout.Fill.NONE);
+        tableLayout.setTablePadding(4, 4);
+        tableLayout.setColumnWeightX(0, 0.0);
+        tableLayout.setColumnWeightX(1, 1.0);
+        tableLayout.setCellColspan(2, 0, 2);
+        tableLayout.setCellPadding(3, 0, new Insets(0, 20, 0, 4));
+        tableLayout.setCellPadding(4, 0, new Insets(0, 20, 0, 4));
+
+        JPanel parameterPanel = new JPanel(tableLayout);
+        /*row 0*/
+        parameterPanel.add(new JLabel("Elevation model:"));
+        parameterPanel.add(new JScrollPane(demList));
+        /*row 1*/
+        parameterPanel.add(new JLabel("Elevation band name:"));
+        parameterPanel.add(elevationBandNameField);
+        /*row 2*/
+        parameterPanel.add(outputGeoCodingBandsChecker);
+        /*row 3*/
+        parameterPanel.add(latitudeBandNameLabel);
+        parameterPanel.add(latitudeBandNameField);
+        /*row 4*/
+        parameterPanel.add(longitudeBandNameLabel);
+        parameterPanel.add(longitudeBandNameField);
+
+        final ModalDialog dialog = new ModalDialog(VisatApp.getApp().getMainFrame(), DIALOG_TITLE, ModalDialog.ID_OK_CANCEL, getHelpId());
+        dialog.setContent(parameterPanel);
+        if (dialog.show() == ModalDialog.ID_OK) {
+            return dialogData;
+        }
+
+        return null;
+    }
+
+    private static void configureDemNameProperty(PropertySet propertySet, String name, String[] demNames) {
+        PropertyDescriptor descriptor = propertySet.getProperty(name).getDescriptor();
+        descriptor.setValueSet(new ValueSet(demNames));
+        descriptor.setDefaultValue(demNames[0]);
+        descriptor.setNotNull(true);
+        descriptor.setNotEmpty(true);
+    }
+
+    private static void configureBandNameProperty(PropertySet propertySet, String name, Product product) {
+        PropertyDescriptor descriptor = propertySet.getProperty(name).getDescriptor();
+        descriptor.setNotNull(true);
+        descriptor.setNotEmpty(true);
+        descriptor.setValidator(new BandNameValidator(product));
+    }
+
+    private static class SingleSelectionListComponentAdapter extends ComponentAdapter implements ListSelectionListener, PropertyChangeListener {
+
+        private final JList list;
+
+        public SingleSelectionListComponentAdapter(JList list) {
+            this.list = list;
+            list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        }
+
+        @Override
+        public JComponent[] getComponents() {
+            return new JComponent[]{list};
+        }
+
+        @Override
+        public void bindComponents() {
+            updateListModel();
+            getPropertyDescriptor().addAttributeChangeListener(this);
+            list.addListSelectionListener(this);
+        }
+
+        @Override
+        public void unbindComponents() {
+            getPropertyDescriptor().removeAttributeChangeListener(this);
+            list.removeListSelectionListener(this);
+        }
+
+        @Override
+        public void adjustComponents() {
+            Object value = getBinding().getPropertyValue();
+            if (value != null) {
+                list.setSelectedValue(value, true);
+            } else {
+                list.clearSelection();
+            }
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (evt.getSource() == getPropertyDescriptor() && evt.getPropertyName().equals("valueSet")) {
+                updateListModel();
+            }
+        }
+
+        private PropertyDescriptor getPropertyDescriptor() {
+            return getBinding().getContext().getPropertySet().getDescriptor(getBinding().getPropertyName());
+        }
+
+        private void updateListModel() {
+            ValueSet valueSet = getPropertyDescriptor().getValueSet();
+            if (valueSet != null) {
+                list.setListData(valueSet.getItems());
+                adjustComponents();
+            }
+        }
+
+        @Override
+        public void valueChanged(ListSelectionEvent event) {
+            if (event.getValueIsAdjusting()) {
+                return;
+            }
+            if (getBinding().isAdjustingComponents()) {
+                return;
+            }
+            final Property property = getBinding().getContext().getPropertySet().getProperty(getBinding().getPropertyName());
+            Object selectedValue = list.getSelectedValue();
+            try {
+                property.setValue(selectedValue);
+                // Now model is in sync with UI
+                getBinding().clearProblem();
+            } catch (ValidationException e) {
+                getBinding().reportProblem(e);
+            }
+        }
+    }
+
+}

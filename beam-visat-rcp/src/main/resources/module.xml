@@ -1256,8 +1256,19 @@
             <context>product</context>
             <helpId>createElevationBand</helpId>
             <parent>tools</parent>
-            <placeBefore>createAsarNrcsBands</placeBefore>
             <placeAfter>bandArithmetic</placeAfter>
+            <placeBefore>createDemCorrectionBands</placeBefore>
+        </action>
+        <action>
+            <id>createDemCorrectionBands</id>
+            <class>org.esa.beam.visat.actions.CreateDemCorrectionBandsAction</class>
+            <text>Create DEM-correction Bands...</text>
+            <description>Creates elevation and DEM-corrected latitude/longitude bands from a selected DEM</description>
+            <context>product</context>
+            <helpId>createDemCorrectionBands</helpId>
+            <parent>tools</parent>
+            <placeAfter>createElevationBand</placeAfter>
+            <placeBefore>createAsarNrcsBands</placeBefore>
         </action>
         <action>
             <id>createAsarNrcsBands</id>
@@ -1267,7 +1278,7 @@
             <shortDescr>Create ASAR Normalised Radar Cross Section Bands</shortDescr>
             <helpId>createAsarNrcsBands</helpId>
             <parent>tools</parent>
-            <placeAfter>createElevationBand</placeAfter>
+            <placeAfter>createDemCorrectionBands</placeAfter>
             <placeBefore>createFilteredBand</placeBefore>
         </action>
 
