@@ -128,38 +128,65 @@ public class PixelGeoCodingTest extends TestCase {
             System.setProperty("beam.pixelGeoCoding.useTiling", "true");
             doTestGetGeoPos();
         } finally {
-            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
+            System.clearProperty("beam.pixelGeoCoding.useTiling");
         }
     }
 
     private void doTestGetGeoPos() throws IOException {
         Product product = createProduct();
-        TiePointGeoCoding oldGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
-        PixelGeoCoding newGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
+        TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
+        PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
                                                          product.getBand("lonBand"), null, 5, ProgressMonitor.NULL);
-        product.setGeoCoding(newGeoCoding);
+        product.setGeoCoding(pixelGeoCoding);
 
         String gp;
 
-        gp = new GeoPos(oldGeoCoding.getLatGrid().getTiePoints()[0],
-                        oldGeoCoding.getLonGrid().getTiePoints()[0]).toString();
-        assertEquals(gp, oldGeoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null).toString());
-        assertEquals(gp, newGeoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null).toString());
+        gp = new GeoPos(tiePointGeoCoding.getLatGrid().getTiePoints()[0],
+                        tiePointGeoCoding.getLonGrid().getTiePoints()[0]).toString();
+        assertEquals(gp, tiePointGeoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null).toString());
+        assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null).toString());
 
-        gp = new GeoPos(oldGeoCoding.getLatGrid().getTiePoints()[GW - 1],
-                        oldGeoCoding.getLonGrid().getTiePoints()[GW - 1]).toString();
-        assertEquals(gp, oldGeoCoding.getGeoPos(new PixelPos(PW - 0.5f, 0.5f), null).toString());
-        assertEquals(gp, newGeoCoding.getGeoPos(new PixelPos(PW - 0.5f, 0.5f), null).toString());
+        gp = new GeoPos(tiePointGeoCoding.getLatGrid().getTiePoints()[GW - 1],
+                        tiePointGeoCoding.getLonGrid().getTiePoints()[GW - 1]).toString();
+        assertEquals(gp, tiePointGeoCoding.getGeoPos(new PixelPos(PW - 0.5f, 0.5f), null).toString());
+        assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(PW - 0.5f, 0.5f), null).toString());
 
-        gp = new GeoPos(oldGeoCoding.getLatGrid().getTiePoints()[GW * (GH - 1)],
-                        oldGeoCoding.getLonGrid().getTiePoints()[GW * (GH - 1)]).toString();
-        assertEquals(gp, oldGeoCoding.getGeoPos(new PixelPos(0.5f, PH - 0.5f), null).toString());
-        assertEquals(gp, newGeoCoding.getGeoPos(new PixelPos(0.5f, PH - 0.5f), null).toString());
+        gp = new GeoPos(tiePointGeoCoding.getLatGrid().getTiePoints()[GW * (GH - 1)],
+                        tiePointGeoCoding.getLonGrid().getTiePoints()[GW * (GH - 1)]).toString();
+        assertEquals(gp, tiePointGeoCoding.getGeoPos(new PixelPos(0.5f, PH - 0.5f), null).toString());
+        assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(0.5f, PH - 0.5f), null).toString());
 
-        gp = new GeoPos(oldGeoCoding.getLatGrid().getTiePoints()[GW * GH - 1],
-                        oldGeoCoding.getLonGrid().getTiePoints()[GW * GH - 1]).toString();
-        assertEquals(gp, oldGeoCoding.getGeoPos(new PixelPos(PW - 0.5f, PH - 0.5f), null).toString());
-        assertEquals(gp, newGeoCoding.getGeoPos(new PixelPos(PW - 0.5f, PH - 0.5f), null).toString());
+        gp = new GeoPos(tiePointGeoCoding.getLatGrid().getTiePoints()[GW * GH - 1],
+                        tiePointGeoCoding.getLonGrid().getTiePoints()[GW * GH - 1]).toString();
+        assertEquals(gp, tiePointGeoCoding.getGeoPos(new PixelPos(PW - 0.5f, PH - 0.5f), null).toString());
+        assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(PW - 0.5f, PH - 0.5f), null).toString());
+    }
+
+    public void testGetGeoPos_withFractionAccuracy() throws IOException {
+        Product product = createProduct();
+        TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
+        PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
+                                                         product.getBand("lonBand"), null, 5, ProgressMonitor.NULL);
+        product.setGeoCoding(pixelGeoCoding);
+
+        String gp = tiePointGeoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null).toString();
+        assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(0.25f, 0.25f), null).toString());
+
+        try {
+            System.setProperty("beam.pixelGeoCoding.fractionAccuracy", "true");
+            System.setProperty("beam.pixelGeoCoding.useTiling", "true");
+            product = createProduct();
+            tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
+            pixelGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
+                                                               product.getBand("lonBand"), null, 5, ProgressMonitor.NULL);
+            product.setGeoCoding(pixelGeoCoding);
+// TODO mz
+//            gp = tiePointGeoCoding.getGeoPos(new PixelPos(0.25f, 0.25f), null).toString();
+//            assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(0.25f, 0.25f), null).toString());
+        } finally {
+            System.clearProperty("beam.pixelGeoCoding.fractionAccuracy");
+            System.clearProperty("beam.pixelGeoCoding.useTiling");
+        }
     }
 
     public void testTransferGeoCoding() throws IOException {
@@ -171,7 +198,7 @@ public class PixelGeoCodingTest extends TestCase {
             System.setProperty("beam.pixelGeoCoding.useTiling", "true");
             doTestTransferGeoCoding();
         } finally {
-            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
+            System.clearProperty("beam.pixelGeoCoding.useTiling");
         }
     }
 
@@ -200,7 +227,7 @@ public class PixelGeoCodingTest extends TestCase {
             System.setProperty("beam.pixelGeoCoding.useTiling", "true");
             doTestTransferGeoCoding_WithSpatialSubset();
         } finally {
-            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
+            System.clearProperty("beam.pixelGeoCoding.useTiling");
         }
     }
 
