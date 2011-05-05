@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,6 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.esa.beam.GlobalTestConfig;
@@ -27,6 +28,8 @@ import org.esa.beam.dataio.dimap.DimapProductWriterPlugIn;
 import org.esa.beam.framework.dataio.ProductIO;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -210,9 +213,34 @@ public class BandTest extends AbstractRasterDataNodeTest {
         testSetUnit(_rsBandBlepDouble100100);
     }
 
-    /**
-     * Tests base class functionality setUnit()
-     */
+    public void testDataFromLevelZeroImage() {
+        int[] testData = new int[1024 * 1024];
+        for (int i = 0; i < testData.length; i++) {
+            testData[i] = i;
+        }
+        ProductData rasterData = ProductData.createInstance(testData);
+        final Band band = new Band("band1", ProductData.TYPE_INT32, 1024, 1024);
+        band.setRasterData(rasterData);
+        final MultiLevelImage sourceImage = band.getSourceImage();
+        assertEquals(4, sourceImage.getModel().getLevelCount());
+
+        final RenderedImage image = sourceImage.getImage(2);
+        assertEquals(256, image.getWidth());
+        assertEquals(256, image.getHeight());
+
+        final Raster dataL2 = image.getData();
+        final Raster dataL0 = sourceImage.getImage(0).getData();
+
+        assertEquals(2050, dataL0.getSample(2, 2, 0)); // (0,0) is (2,2) at level zero
+        assertEquals(2050, dataL2.getSample(0, 0, 0)); // (0,0) is (2,2) at level zero
+
+        assertEquals(3070, dataL0.getSample(1022, 2, 0));
+        assertEquals(3070, dataL2.getSample(255, 0, 0));
+
+        assertEquals(1047550, dataL0.getSample(1022, 1022, 0));
+        assertEquals(1047550, dataL2.getSample(255, 255, 0));
+    }
+
     public void testGetPixel() {
 
         final float feps = 1e-6F;
@@ -814,6 +842,7 @@ public class BandTest extends AbstractRasterDataNodeTest {
     }
 
     private static class PNL extends ProductNodeListenerAdapter {
+
         String trace = "";
 
         @Override

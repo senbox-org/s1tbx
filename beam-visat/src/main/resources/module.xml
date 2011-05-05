@@ -1,3 +1,19 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-visat</symbolicName>
@@ -26,6 +42,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.9<br/>
+          [BEAM-1291] Virtual bands may compute wrong results for non-zero levels of image pyramids<br/>
           [BEAM-1276] Add VISAT scripting support for the Python language<br/>
           [BEAM-1251] Allow setting start and stop time<br/>
           [BEAM-1248] Title of transect-plot dialog is not updated if band selection changes<br/>

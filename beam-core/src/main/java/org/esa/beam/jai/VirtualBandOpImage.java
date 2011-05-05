@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -247,7 +247,9 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         final int colCount = destRect.width;
         final int rowCount = destRect.height;
         final int pixelCount = colCount * rowCount;
-        final RasterDataEvalEnv env = new RasterDataEvalEnv(destRect.x, destRect.y, colCount, rowCount);
+        final RasterDataEvalEnv env = new RasterDataEvalEnv(destRect.x, destRect.y,
+                                                            colCount, rowCount,
+                                                            getLevelImageSupport());
 
         if (mask) {
             for (int i = 0, k = w * y; i < pixelCount; i += colCount, k += w) {

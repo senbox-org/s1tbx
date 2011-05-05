@@ -65,6 +65,7 @@ Improvements
 
 
 Bugs
+[BEAM-1291] - Virtual bands may compute wrong results for non-zero levels of image pyramids
 [BEAM-1281] - Orthorectification can not be used if tie-points are selected as elevation model
 [BEAM-1248] - Title of transect-plot dialog is not updated if band selection changes
 [BEAM-1246] - Layer-Manager does not reflect changes of mask names in Mask-Manager

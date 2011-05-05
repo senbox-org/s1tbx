@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -110,6 +110,10 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
 
     protected final int getSourceCoord(double destCoord, int min, int max) {
         return levelImageSupport.getSourceCoord(destCoord, min, max);
+    }
+
+    protected LevelImageSupport getLevelImageSupport() {
+        return levelImageSupport;
     }
 
     /**
