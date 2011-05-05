@@ -51,7 +51,10 @@ import java.util.Random;
  */
 class MoreFuncs {
 
-    private final static Random RANDOM = new Random();
+    private static final Random RANDOM = new Random();
+
+    private MoreFuncs() {
+    }
 
     public static void registerExtraFunctions() {
         BandArithmetic.registerFunction(new AbstractFunction.D("random_gaussian", 0) {
@@ -157,8 +160,7 @@ class MoreFuncs {
     private static GeoPos getGeoPos(final GeoCoding geoCoding, EvalEnv env) {
         RasterDataEvalEnv rasterEnv = (RasterDataEvalEnv) env;
         PixelPos pixelPos = new PixelPos(rasterEnv.getPixelX(), rasterEnv.getPixelY());
-        GeoPos geoPos = geoCoding.getGeoPos(pixelPos, null);
-        return geoPos;
+        return geoCoding.getGeoPos(pixelPos, null);
     }
 
     private static void registerBandProperties(WritableNamespace namespace, final Band band) {
@@ -173,7 +175,7 @@ class MoreFuncs {
                 Object propertyValue = null;
                 try {
                     propertyValue = method.invoke(band, (Object[]) null);
-                } catch (Throwable e) {
+                } catch (Throwable ignored) {
                     // todo - handle exception!
                 }
                 if (propertyValue != null) {
@@ -208,7 +210,7 @@ class MoreFuncs {
         } else if (s.startsWith("get")) {
             skipCount = 3;
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         final int n = s.length();
         for (int i = 0; i < n; i++) {
             if (i >= skipCount) {
