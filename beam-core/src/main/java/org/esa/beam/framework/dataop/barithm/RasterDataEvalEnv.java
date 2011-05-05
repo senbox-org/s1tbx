@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,6 +16,8 @@
 package org.esa.beam.framework.dataop.barithm;
 
 import com.bc.jexp.EvalEnv;
+import org.esa.beam.jai.LevelImageSupport;
+import org.esa.beam.jai.ResolutionLevel;
 
 /**
  * Represents an evaluation environment for {@link com.bc.jexp.Term Terms} which are operating on raster data.
@@ -34,9 +36,11 @@ public class RasterDataEvalEnv implements EvalEnv {
     private final int regionWidth;
     private final int regionHeight;
     private int elemIndex;
+    private LevelImageSupport levelImageSupport;
 
     /**
      * Constructs a new environment for the given raster data region.
+     * Should only be used if evaluation takes place at image level zero.
      *
      * @param offsetX      the x-offset of the raster region
      * @param offsetY      the y-offset of the raster region
@@ -44,10 +48,29 @@ public class RasterDataEvalEnv implements EvalEnv {
      * @param regionHeight the height of the raster region
      */
     public RasterDataEvalEnv(int offsetX, int offsetY, int regionWidth, int regionHeight) {
+        this(offsetX, offsetY, regionWidth, regionHeight,
+             new LevelImageSupport(regionWidth, regionHeight, ResolutionLevel.MAXRES));
+    }
+
+    /**
+     * Constructs a new environment for the given raster data region.
+     * Instances created with this constructor consider that the current data evaluation takes place
+     * at a higher image level. The methods <code>getSourceX()</code> and <code>getSourceY()</code>
+     * will return the correct pixel coordinate at level zero.
+     *
+     * @param offsetX           the x-offset of the raster region
+     * @param offsetY           the y-offset of the raster region
+     * @param regionWidth       the width of the raster region
+     * @param regionHeight      the height of the raster region
+     * @param levelImageSupport helps to compute the source pixels at level zero
+     */
+    public RasterDataEvalEnv(int offsetX, int offsetY, int regionWidth, int regionHeight,
+                             LevelImageSupport levelImageSupport) {
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         this.regionWidth = regionWidth;
         this.regionHeight = regionHeight;
+        this.levelImageSupport = levelImageSupport;
     }
 
     /**
@@ -92,17 +115,7 @@ public class RasterDataEvalEnv implements EvalEnv {
      * @return the current pixel's x-coordinate
      */
     public final int getPixelX() {
-        return offsetX + elemIndex % regionWidth;
-    }
-
-    /**
-     * Sets the absolute pixel's x-coordinate within the data raster.
-     *
-     * @param pixelX the current pixel's x-coordinate
-     * @deprecated not used anymore
-     */
-    @Deprecated
-    public void setPixelX(int pixelX) {
+        return levelImageSupport.getSourceX(offsetX + elemIndex % regionWidth);
     }
 
     /**
@@ -111,17 +124,7 @@ public class RasterDataEvalEnv implements EvalEnv {
      * @return the current pixel's y-coordinate
      */
     public final int getPixelY() {
-        return offsetY + elemIndex / regionWidth;
-    }
-
-    /**
-     * Sets the absolute pixel's y-coordinate within the data raster.
-     *
-     * @param pixelY the current pixel's y-coordinate
-     * @deprecated not used anymore
-     */
-    @Deprecated
-    public void setPixelY(int pixelY) {
+        return levelImageSupport.getSourceY(offsetY + elemIndex / regionWidth);
     }
 
     /**
