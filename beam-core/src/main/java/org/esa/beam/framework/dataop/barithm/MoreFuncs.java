@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,24 +16,23 @@
 
 package org.esa.beam.framework.dataop.barithm;
 
+import com.bc.jexp.EvalEnv;
+import com.bc.jexp.EvalException;
+import com.bc.jexp.Symbol;
+import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.AbstractFunction;
 import com.bc.jexp.impl.AbstractSymbol;
 import com.bc.jexp.impl.SymbolFactory;
-import com.bc.jexp.EvalEnv;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.Term;
-import com.bc.jexp.EvalException;
-import com.bc.jexp.WritableNamespace;
-
-import java.util.Random;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
-
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.Band;
+
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.util.Random;
 
 /**
  * This class adds the following functions to VISAT's expression editor:
@@ -46,7 +45,8 @@ import org.esa.beam.framework.datamodel.Band;
  *     sech
  *     cosech
  *     log10
- *<pre>
+ * <pre>
+ *
  * @author Norman Fomferra
  */
 class MoreFuncs {
@@ -55,42 +55,49 @@ class MoreFuncs {
 
     public static void registerExtraFunctions() {
         BandArithmetic.registerFunction(new AbstractFunction.D("random_gaussian", 0) {
+            @Override
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
                 return MoreFuncs.RANDOM.nextGaussian();
             }
         });
 
         BandArithmetic.registerFunction(new AbstractFunction.D("random_uniform", 0) {
+            @Override
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
                 return MoreFuncs.RANDOM.nextDouble();
             }
         });
 
         BandArithmetic.registerFunction(new AbstractFunction.D("sinh", 1) {
+            @Override
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
                 return MoreFuncs.sinh(args[0].evalD(env));
             }
         });
 
         BandArithmetic.registerFunction(new AbstractFunction.D("cosh", 1) {
+            @Override
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
                 return MoreFuncs.cosh(args[0].evalD(env));
             }
         });
 
         BandArithmetic.registerFunction(new AbstractFunction.D("tanh", 1) {
+            @Override
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
                 return MoreFuncs.tanh(args[0].evalD(env));
             }
         });
 
         BandArithmetic.registerFunction(new AbstractFunction.D("sech", 1) {
+            @Override
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
                 return MoreFuncs.sech(args[0].evalD(env));
             }
         });
 
         BandArithmetic.registerFunction(new AbstractFunction.D("cosech", 1) {
+            @Override
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
                 return MoreFuncs.cosech(args[0].evalD(env));
             }
@@ -99,6 +106,7 @@ class MoreFuncs {
 
     public static void registerExtraSymbols() {
         BandArithmetic.addNamespaceExtender(new BandArithmetic.NamespaceExtender() {
+            @Override
             public void extendNamespace(WritableNamespace namespace, Product product, String namePrefix) {
                 final int numBands = product.getNumBands();
                 for (int i = 0; i < numBands; i++) {
@@ -107,34 +115,37 @@ class MoreFuncs {
                 }
             }
         });
-        
+
         BandArithmetic.addNamespaceExtender(new BandArithmetic.NamespaceExtender() {
+            @Override
             public void extendNamespace(WritableNamespace namespace, Product product, String namePrefix) {
                 final WeakReference<GeoCoding> geocodingRef = new WeakReference<GeoCoding>(product.getGeoCoding());
                 final Symbol lat = new AbstractSymbol.D("LAT") {
+                    @Override
                     public double evalD(EvalEnv env) throws EvalException {
-                    	double latitude = Double.NaN;
-                    	GeoCoding geoCoding = geocodingRef.get();
+                        double latitude = Double.NaN;
+                        GeoCoding geoCoding = geocodingRef.get();
                         if (geoCoding != null && geoCoding.canGetGeoPos()) {
-                    		GeoPos geoPos = getGeoPos(geoCoding, env);
-                    		if (geoPos.isValid()) {
-                    			latitude =  geoPos.getLat();
-                    		}
-                    	}
-                    	return latitude;
+                            GeoPos geoPos = getGeoPos(geoCoding, env);
+                            if (geoPos.isValid()) {
+                                latitude = geoPos.getLat();
+                            }
+                        }
+                        return latitude;
                     }
                 };
                 final Symbol lon = new AbstractSymbol.D("LON") {
+                    @Override
                     public double evalD(EvalEnv env) throws EvalException {
-                    	double longitude = Double.NaN;
-                    	GeoCoding geoCoding = geocodingRef.get();
+                        double longitude = Double.NaN;
+                        GeoCoding geoCoding = geocodingRef.get();
                         if (geoCoding != null && geoCoding.canGetGeoPos()) {
-                    		GeoPos geoPos = getGeoPos(geoCoding, env);
-                    		if (geoPos.isValid()) {
-                    			longitude =  geoPos.getLon();
-                    		}
-                    	}
-                    	return longitude;
+                            GeoPos geoPos = getGeoPos(geoCoding, env);
+                            if (geoPos.isValid()) {
+                                longitude = geoPos.getLon();
+                            }
+                        }
+                        return longitude;
                     }
                 };
                 BandArithmetic.registerSymbol(lat);
@@ -142,13 +153,13 @@ class MoreFuncs {
             }
         });
     }
-    
+
     private static GeoPos getGeoPos(final GeoCoding geoCoding, EvalEnv env) {
-    	RasterDataEvalEnv rasterEnv = (RasterDataEvalEnv) env;
-    	PixelPos pixelPos = new PixelPos(rasterEnv.getPixelX(), rasterEnv.getPixelY());
-    	GeoPos geoPos = geoCoding.getGeoPos(pixelPos, null);
-		return geoPos;
-	}
+        RasterDataEvalEnv rasterEnv = (RasterDataEvalEnv) env;
+        PixelPos pixelPos = new PixelPos(rasterEnv.getPixelX(), rasterEnv.getPixelY());
+        GeoPos geoPos = geoCoding.getGeoPos(pixelPos, null);
+        return geoPos;
+    }
 
     private static void registerBandProperties(WritableNamespace namespace, final Band band) {
         final Class bandClass = band.getClass();
