@@ -191,6 +191,24 @@ public class SummaryStxOpTest {
         assertEquals(0.33166247, op.getStdDev(), 1.0e-8);
     }
 
+    @Test
+    public void testAccumulateDataDoubleWithNegativeValues() throws Exception {
+        SummaryStxOp op = new SummaryStxOp();
+        double[] data = new double[]{-1.6, -1.7, -1.8, -1.9, -2.0, -2.1, -2.2, -2.3, -2.4, -2.5, -2.6};
+        DataBuffer dataBuffer = new DataBufferDouble(data, data.length);
+        RenderedImage image = new DummyOpImage(dataBuffer);
+        PixelAccessor dataAccessor = new PixelAccessor(image);
+        Rectangle rectangle = image.getData().getBounds();
+
+        op.accumulateDataDouble(dataAccessor, image.getData(), null, null, rectangle);
+
+        assertEquals(-2.6, op.getMinimum(), 1.0e-8);
+        assertEquals(-1.6, op.getMaximum(), 1.0e-8);
+        assertEquals(-2.1, op.getMean(), 1.0e-8);
+        assertEquals(0.11, op.getVariance(), 1.0e-8);
+        assertEquals(0.33166247, op.getStdDev(), 1.0e-8);
+    }
+
     private static class DummyOpImage extends SourcelessOpImage {
 
         private DataBuffer dataBuffer;

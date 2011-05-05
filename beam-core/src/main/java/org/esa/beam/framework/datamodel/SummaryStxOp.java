@@ -41,8 +41,8 @@ class SummaryStxOp implements StxOp {
     private long sampleCount;
 
     SummaryStxOp() {
-        this.minimum = Double.MAX_VALUE;
-        this.maximum = Double.MIN_VALUE;
+        this.minimum = Double.POSITIVE_INFINITY;
+        this.maximum = Double.NEGATIVE_INFINITY;
     }
 
     @Override
