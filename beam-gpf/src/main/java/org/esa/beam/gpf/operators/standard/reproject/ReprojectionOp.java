@@ -287,6 +287,7 @@ public class ReprojectionOp extends Operator {
         }
         final double targetNoDataValue = getTargetNoDataValue(sourceRaster);
         final Band targetBand = targetProduct.addBand(sourceRaster.getName(), targetDataType);
+        targetBand.setLog10Scaled(sourceRaster.isLog10Scaled());
         targetBand.setNoDataValue(targetNoDataValue);
         targetBand.setNoDataValueUsed(true);
         targetBand.setDescription(sourceRaster.getDescription());
@@ -306,6 +307,9 @@ public class ReprojectionOp extends Operator {
         MultiLevelImage projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, targetBand, resampling);
         if (mustReplaceNaN(sourceRaster, targetDataType, targetNoDataValue)) {
             projectedImage = createNaNReplacedImage(projectedImage, targetNoDataValue);
+        }
+        if (targetBand.isLog10Scaled()) {
+            projectedImage = createLog10ScaledImage(projectedImage);
         }
         targetBand.setSourceImage(projectedImage);
 
@@ -327,6 +331,15 @@ public class ReprojectionOp extends Operator {
                 targetBand.setSampleCoding(destIndexCoding);
             }
         }
+    }
+
+    private MultiLevelImage createLog10ScaledImage(final MultiLevelImage projectedImage) {
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(projectedImage.getModel()) {
+            @Override
+            public RenderedImage createImage(int level) {
+                return new Log10OpImage(projectedImage.getImage(level));
+            }
+        });
     }
 
     private boolean mustReplaceNaN(RasterDataNode sourceRaster, int targetDataType, double targetNoDataValue) {
