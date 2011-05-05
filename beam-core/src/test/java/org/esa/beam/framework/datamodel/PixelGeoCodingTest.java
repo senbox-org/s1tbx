@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -180,9 +180,15 @@ public class PixelGeoCodingTest extends TestCase {
             pixelGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
                                                                product.getBand("lonBand"), null, 5, ProgressMonitor.NULL);
             product.setGeoCoding(pixelGeoCoding);
-// TODO mz
-//            gp = tiePointGeoCoding.getGeoPos(new PixelPos(0.25f, 0.25f), null).toString();
-//            assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(0.25f, 0.25f), null).toString());
+
+            gp = tiePointGeoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null).toString();
+            assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null).toString());
+
+            gp = tiePointGeoCoding.getGeoPos(new PixelPos(0.25f, 0.25f), null).toString();
+            assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(0.25f, 0.25f), null).toString());
+
+            gp = tiePointGeoCoding.getGeoPos(new PixelPos(1.25f, 1.25f), null).toString();
+            assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(1.25f, 1.25f), null).toString());
         } finally {
             System.clearProperty("beam.pixelGeoCoding.fractionAccuracy");
             System.clearProperty("beam.pixelGeoCoding.useTiling");

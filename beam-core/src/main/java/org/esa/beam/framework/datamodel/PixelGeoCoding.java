@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -29,6 +29,7 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.IndexValidator;
+import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
@@ -77,6 +78,10 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @since BEAM 4.9
      */
     private static final String SYSPROP_PIXEL_GEO_CODING_USE_TILING = "beam.pixelGeoCoding.useTiling";
+    /**
+     * @since BEAM 4.9
+     */
+    private static final String SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY = "beam.pixelGeoCoding.fractionAccuracy";
 
     // TODO - (nf) make EPS for quad-tree search dependent on current scene
     private static final float EPS = 0.04F; // used by quad-tree search
@@ -91,6 +96,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     private final int rasterWidth;
     private final int rasterHeight;
     private final boolean useTiling;
+    private final boolean fractionAccuracy;
     private GeoCoding _pixelPosEstimator;
     private PixelGrid _latGrid;
     private PixelGrid _lonGrid;
@@ -143,6 +149,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         }
         initialized = false;
         useTiling = Boolean.getBoolean(SYSPROP_PIXEL_GEO_CODING_USE_TILING);
+        // fraction accuracy is only implemented in tiling mode (because tiling mode will be the default soon)
+        fractionAccuracy = useTiling && Boolean.getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY);
     }
 
     /**
@@ -535,9 +543,21 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         if (pixelPos.isValid()) {
             final int x0 = (int) Math.floor(pixelPos.x);
             final int y0 = (int) Math.floor(pixelPos.y);
-            if (x0 >= 0 && x0 < rasterWidth && y0 >= 0 && y0 < rasterHeight) {
-                getGeoPosInternal(x0, y0, geoPos);
-                return geoPos;
+            if (fractionAccuracy && pixelPos.x - x0 != 0.5f && pixelPos.y - y0 != 0.5f) { // implies tiling mode
+                final int x1 = (int) Math.floor(pixelPos.x - 1);
+                final int y1 = (int) Math.floor(pixelPos.y - 1);
+                Rectangle rect = new Rectangle(x1, y1, 2, 2).intersection(new Rectangle(0, 0, rasterWidth, rasterHeight));
+                Raster latLonData = latLonImage.getData(rect);
+                float wx = (pixelPos.x - x1) / rect.width;
+                float wy = (pixelPos.y - y1) / rect.height;
+                float lat = interpolate(wx, wy, latLonData, 0);
+                float lon = interpolate(wx, wy, latLonData, 1);
+                geoPos.setLocation(lat, lon);
+            } else {
+                if (x0 >= 0 && x0 < rasterWidth && y0 >= 0 && y0 < rasterHeight) {
+                    getGeoPosInternal(x0, y0, geoPos);
+                    return geoPos;
+                }
             }
         }
 
@@ -547,6 +567,18 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
         geoPos.setInvalid();
         return geoPos;
+    }
+
+    private float interpolate(float wx, float wy, Raster latLonData, int band) {
+        int minX = latLonData.getMinX();
+        int maxX = minX + latLonData.getWidth() - 1;
+        int minY = latLonData.getMinY();
+        int maxY = minY + latLonData.getHeight() - 1;
+        float d00 = latLonData.getSampleFloat(minX, minY, band);
+        float d10 = latLonData.getSampleFloat(maxX, minY, band);
+        float d01 = latLonData.getSampleFloat(minX, maxY, band);
+        float d11 = latLonData.getSampleFloat(maxX, maxY, band);
+        return MathUtils.interpolate2D(wx, wy, d00, d10, d01, d11);
     }
 
     @Override
@@ -1086,7 +1118,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             } else if (latAcc.getDataType() == DataBuffer.TYPE_FLOAT) {
                 processFloatLoop(latAcc, lonAcc, maskAcc, destAcc, destRect);
             } else {
-                throw new IllegalStateException("unsupported data type: "+ latAcc.getDataType());
+                throw new IllegalStateException("unsupported data type: " + latAcc.getDataType());
             }
             destAcc.copyDataToRaster();
         }
@@ -1151,7 +1183,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
                 for (int x = 0; x < dwidth; x++) {
 
-                    if (m!= null && m[mPixelOffset] == 0) {
+                    if (m != null && m[mPixelOffset] == 0) {
                         int x0 = x + destRect.x;
                         int y0 = y + destRect.y;
                         pixelPos.setLocation(x0, y0);
@@ -1232,7 +1264,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
                 for (int x = 0; x < dwidth; x++) {
 
-                    if (m!= null && m[mPixelOffset] == 0) {
+                    if (m != null && m[mPixelOffset] == 0) {
                         int x0 = x + destRect.x;
                         int y0 = y + destRect.y;
                         pixelPos.setLocation(x0, y0);
