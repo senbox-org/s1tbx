@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -56,12 +56,14 @@ public class BandArithmetic {
     public static final String PIXEL_Y_NAME = "Y";
 
     private static final Symbol PIXEL_X_SYMBOL = new AbstractSymbol.I(PIXEL_X_NAME) {
+        @Override
         public int evalI(EvalEnv env) throws EvalException {
             return ((RasterDataEvalEnv) env).getPixelX();
         }
     };
 
     private static final Symbol PIXEL_Y_SYMBOL = new AbstractSymbol.I(PIXEL_Y_NAME) {
+        @Override
         public int evalI(EvalEnv env) throws EvalException {
             return ((RasterDataEvalEnv) env).getPixelY();
         }
@@ -137,7 +139,8 @@ public class BandArithmetic {
      *
      * @throws ParseException if a parse error occurs
      */
-    public static Term parseExpression(String expression, Product[] products, int defaultProductIndex) throws ParseException {
+    public static Term parseExpression(String expression, Product[] products, int defaultProductIndex) throws
+                                                                                                       ParseException {
         Assert.notNull(expression, null);
         final Namespace namespace = createDefaultNamespace(products, defaultProductIndex);
         final Parser parser = new ParserImpl(namespace, false);
@@ -159,6 +162,7 @@ public class BandArithmetic {
         return createDefaultNamespace(products,
                                       defaultProductIndex,
                                       new ProductPrefixProvider() {
+                                          @Override
                                           public String getPrefix(Product product) {
                                               return getProductNodeNamePrefix(product);
                                           }
@@ -177,7 +181,8 @@ public class BandArithmetic {
      *
      * @return a default namespace, never <code>null</code>
      */
-    public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex, ProductPrefixProvider prefixProvider) {
+    public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex,
+                                                           ProductPrefixProvider prefixProvider) {
         Guardian.assertNotNullOrEmpty("products", products);
         Guardian.assertWithinRange("defaultProductIndex", defaultProductIndex, 0, products.length);
 
@@ -244,9 +249,12 @@ public class BandArithmetic {
 
         final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
                                                        width, height,
-                                                       validMaskTerm != null ? new Term[]{term, validMaskTerm} : new Term[]{term},
+                                                       validMaskTerm != null ? new Term[]{
+                                                               term, validMaskTerm
+                                                       } : new Term[]{term},
                                                        pm);
         loop.forEachPixel(new RasterDataLoop.Body() {
+            @Override
             public void eval(RasterDataEvalEnv env, int pixelIndex) {
                 double pixelValue = term.evalD(env);
                 if (performInvalidCheck) {
@@ -317,7 +325,8 @@ public class BandArithmetic {
         return sb.toString();
     }
 
-    private static String createUnambiguousExpression(String vme, Product[] products, int productIndex) throws ParseException {
+    private static String createUnambiguousExpression(String vme, Product[] products, int productIndex) throws
+                                                                                                        ParseException {
         RasterDataNode[] rasters = getRefRasters(vme, products, productIndex);
         for (RasterDataNode raster : rasters) {
             String name = raster.getName();
@@ -368,8 +377,10 @@ public class BandArithmetic {
         return getRefRasters(expression, products, 0);
     }
 
-    public static RasterDataNode[] getRefRasters(String expression, Product[] products, int defaultProductNamePrefix) throws ParseException {
-        RasterDataSymbol[] symbols = getRefRasterDataSymbols(new Term[]{parseExpression(expression, products, defaultProductNamePrefix)});
+    public static RasterDataNode[] getRefRasters(String expression, Product[] products,
+                                                 int defaultProductNamePrefix) throws ParseException {
+        RasterDataSymbol[] symbols = getRefRasterDataSymbols(
+                new Term[]{parseExpression(expression, products, defaultProductNamePrefix)});
         RasterDataNode[] rasters = new RasterDataNode[symbols.length];
         for (int i = 0; i < symbols.length; i++) {
             rasters[i] = symbols[i].getRaster();
@@ -561,6 +572,7 @@ public class BandArithmetic {
     }
 
     public static interface ProductPrefixProvider {
+
         String getPrefix(Product product);
     }
 
@@ -638,7 +650,7 @@ public class BandArithmetic {
                                   final ProductData targetRasterData,
                                   final Scaling scaling,
                                   ProgressMonitor pm) throws ParseException,
-            IOException {
+                                                             IOException {
         return computeBand(expression, null,
                            sourceProducts, 0,
                            checkInvalids, noDataValueUsed, noDataValue,
