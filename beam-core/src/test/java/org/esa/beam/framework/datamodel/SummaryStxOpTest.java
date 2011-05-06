@@ -22,7 +22,9 @@ import org.junit.Test;
 
 import javax.media.jai.PixelAccessor;
 import javax.media.jai.PlanarImage;
+import javax.media.jai.RenderedOp;
 import javax.media.jai.SourcelessOpImage;
+import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
@@ -171,6 +173,25 @@ public class SummaryStxOpTest {
         assertEquals(18.1, op.getMean(), 1.0e-6);
         assertEquals(0.11, op.getVariance(), 1.0e-6);
         assertEquals(0.331662, op.getStdDev(), 1.0e-6);
+    }
+
+    @Test
+    public void testAccumulateWithOnlyNoData() throws Exception {
+        SummaryStxOp op = new SummaryStxOp();
+        float[] data = new float[11];
+        DataBuffer dataBuffer = new DataBufferFloat(data, data.length);
+        RenderedImage image = new DummyOpImage(dataBuffer);
+        PixelAccessor dataAccessor = new PixelAccessor(image);
+        Rectangle rectangle = image.getData().getBounds();
+        final RenderedOp maskImage = ConstantDescriptor.create((float) data.length, 1.0f, new Byte[]{0}, null);
+        PixelAccessor maskAccessor = new PixelAccessor(maskImage);
+        op.accumulateDataFloat(dataAccessor, image.getData(), maskAccessor, maskImage.getData(), rectangle);
+
+        assertEquals(Double.NaN, op.getMinimum(), 1.0e-6);
+        assertEquals(Double.NaN, op.getMaximum(), 1.0e-6);
+        assertEquals(Double.NaN, op.getMean(), 1.0e-6);
+        assertEquals(Double.NaN, op.getVariance(), 1.0e-6);
+        assertEquals(Double.NaN, op.getStdDev(), 1.0e-6);
     }
 
     @Test

@@ -39,6 +39,7 @@ class SummaryStxOp implements StxOp {
     private double mean;
     private double m2;
     private long sampleCount;
+    private boolean hasValidValues;
 
     SummaryStxOp() {
         this.minimum = Double.POSITIVE_INFINITY;
@@ -51,23 +52,23 @@ class SummaryStxOp implements StxOp {
     }
 
     final double getMinimum() {
-        return minimum;
+        return hasValidValues ? minimum : Double.NaN;
     }
 
     final double getMaximum() {
-        return maximum;
+        return hasValidValues ? maximum : Double.NaN;
     }
 
     final double getMean() {
-        return mean;
+        return hasValidValues ? mean : Double.NaN;
     }
 
     final double getStdDev() {
-        return Math.sqrt(getVariance());
+        return hasValidValues ? Math.sqrt(getVariance()) : Double.NaN;
     }
 
     final double getVariance() {
-        return m2 / (sampleCount - 1);
+        return hasValidValues ? m2 / (sampleCount - 1) : Double.NaN;
     }
 
     @Override
@@ -171,6 +172,7 @@ class SummaryStxOp implements StxOp {
             int maskPixelOffset = maskLineOffset;
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
+                    hasValidValues = true;
                     final double d = valueConverter.getValue(dataPixelOffset);
                     if (d < tileMinimum) {
                         tileMinimum = d;

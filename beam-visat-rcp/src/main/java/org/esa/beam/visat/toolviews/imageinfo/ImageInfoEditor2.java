@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -46,10 +46,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 class ImageInfoEditor2 extends ImageInfoEditor {
-    final ColorManipulationForm parentForm;
-    boolean showExtraInfo;
 
-    public ImageInfoEditor2(final ColorManipulationForm parentForm) {
+    private final ColorManipulationForm parentForm;
+    private boolean showExtraInfo;
+
+    ImageInfoEditor2(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         setLayout(new BorderLayout());
         setShowExtraInfo(true);
@@ -107,12 +108,13 @@ class ImageInfoEditor2 extends ImageInfoEditor {
             return stxOverlayComponent;
         }
 
-        labels.add(new JLabel("Min: " + MathUtils.round(model.getMinSample(), 1000.0)));
-        labels.add(new JLabel("Max: " + MathUtils.round(model.getMaxSample(), 1000.0)));
+        labels.add(new JLabel("Min: " + getValueForDisplay(model.getMinSample())));
+        labels.add(new JLabel("Max: " + getValueForDisplay(model.getMaxSample())));
         if (stx.getResolutionLevel() > 0) {
             final ActionLabel label = new ActionLabel("Rough statistics!");
             label.setToolTipText("Click to compute accurate statistics.");
             label.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     askUser();
                 }
@@ -123,10 +125,17 @@ class ImageInfoEditor2 extends ImageInfoEditor {
         return stxOverlayComponent;
     }
 
+    private double getValueForDisplay(double minSample) {
+        if (!Double.isNaN(minSample)) { // prevents NaN to be converted to zero
+            minSample = MathUtils.round(minSample, 1000.0);
+        }
+        return minSample;
+    }
+
     void askUser() {
         final int i = JOptionPane.showConfirmDialog(this,
                                                     "Compute accurate statistics?\n" +
-                                                            "Note that this action may take some time.",
+                                                    "Note that this action may take some time.",
                                                     "Question",
                                                     JOptionPane.YES_NO_OPTION);
         if (i == JOptionPane.YES_OPTION) {
@@ -139,10 +148,12 @@ class ImageInfoEditor2 extends ImageInfoEditor {
     private class ModelChangeHandler implements PropertyChangeListener, ChangeListener {
 
 
+        @Override
         public void stateChanged(ChangeEvent e) {
             updateStxOverlayComponent();
         }
 
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (!"model".equals(evt.getPropertyName())) {
                 return;
@@ -162,7 +173,8 @@ class ImageInfoEditor2 extends ImageInfoEditor {
     }
 
     private class StxComputer extends ProgressMonitorSwingWorker {
-        public StxComputer() {
+
+        private StxComputer() {
             super(ImageInfoEditor2.this, "Computing statistics");
         }
 
