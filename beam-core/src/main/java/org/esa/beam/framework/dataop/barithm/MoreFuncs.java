@@ -159,7 +159,7 @@ class MoreFuncs {
 
     private static GeoPos getGeoPos(final GeoCoding geoCoding, EvalEnv env) {
         RasterDataEvalEnv rasterEnv = (RasterDataEvalEnv) env;
-        PixelPos pixelPos = new PixelPos(rasterEnv.getPixelX(), rasterEnv.getPixelY());
+        PixelPos pixelPos = new PixelPos(rasterEnv.getPixelX() + 0.5f, rasterEnv.getPixelY() + 0.5f);
         return geoCoding.getGeoPos(pixelPos, null);
     }
 
