@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,6 +20,7 @@ import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
+import org.esa.beam.framework.param.ParamParseException;
 import org.esa.beam.framework.param.ParamValidateException;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.param.editors.RadioButtonEditor;
@@ -65,6 +66,10 @@ public class DemSelector extends JPanel {
 
     public String getDemName() {
         return _paramDem.getValueAsText();
+    }
+
+    public void setDemName(String demName) throws ParamValidateException, ParamParseException {
+        _paramDem.setValueAsText(demName);
     }
 
     private void createUI() {

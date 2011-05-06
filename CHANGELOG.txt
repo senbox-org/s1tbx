@@ -61,6 +61,7 @@ Improvements
 [BEAM-1219]	- GPF API should implicitly convert parameter values
 [BEAM-1183] - Improve reprojection UI usability
 [BEAM-1156] - SubsetOp does not copy metadata
+[BEAM-1052] - All processors should be able to store/reload their configuration
 [BEAM-0009] - Define subsets with geographical co-ordinates
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,18 +26,16 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-public class OperatorMenuSupportTest {
+public class OperatorParameterSupportTest {
 
     private static TestOpSpi testOpSpi;
 
@@ -55,13 +53,12 @@ public class OperatorMenuSupportTest {
 
     @Test
     public void testStoreAndLoadParameter() throws IOException, ValidationException, ConversionException {
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-        final PropertySet container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer("Tester",
-                                                                                                          parameterMap);
+        final OperatorParameterSupport support = new OperatorParameterSupport(TestOp.class);
+        PropertySet container = support.getPopertySet();
+
         container.setValue("paramDouble", 0.42);
         container.setValue("paramString", "A String!");
         container.setValue("paramComplex", new Complex(25));
-        final OperatorMenuSupport support = new OperatorMenuSupport(null, TestOp.class, container, "");
         final DomElement domElement = support.toDomElement();
 
         assertEquals("parameters", domElement.getName());
@@ -80,23 +77,9 @@ public class OperatorMenuSupportTest {
         container.setValue("paramComplex", new Complex(17));
 
         support.fromDomElement(domElement);
-        assertEquals(0.42, support.getParameters().getValue("paramDouble"));
-        assertEquals("A String!", support.getParameters().getValue("paramString"));
-        assertEquals(new Complex(25), support.getParameters().getValue("paramComplex"));
-    }
-
-    @Test
-    public void testOperatorDescription() throws Exception {
-        final OperatorMenuSupport support = new OperatorMenuSupport(null, TestOp.class, null, "");
-
-        assertEquals("Tester", support.getOperatorName());
-
-        String operatorDescription = support.getOperatorDescription();
-        assertFalse(operatorDescription.isEmpty());
-        assertTrue(operatorDescription.contains("<tr><td><b>Full name:</b></td><td><code>org.esa.beam.framework.gpf.ui.OperatorMenuSupportTest$TestOp</code></td></tr>"));
-        assertTrue(operatorDescription.contains("<tr><td><b>Authors:</b></td><td>Nobody</td></tr>"));
-        assertTrue(operatorDescription.contains("<tr><td><b>Version:</b></td><td>42</td></tr>"));
-        assertTrue(operatorDescription.contains("<tr><td><b>Purpose:</b></td><td>This is very stupid operator.</td></tr>"));
+        assertEquals(0.42, support.getPopertySet().getValue("paramDouble"));
+        assertEquals("A String!", support.getPopertySet().getValue("paramString"));
+        assertEquals(new Complex(25), support.getPopertySet().getValue("paramComplex"));
     }
 
     @OperatorMetadata(alias = "Tester",

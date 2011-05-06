@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -79,7 +79,7 @@ class MosaicExpressionsPanel extends JPanel {
     MosaicExpressionsPanel(AppContext appContext, MosaicFormModel model) {
         this.appContext = appContext;
         mosaicModel = model;
-        this.bindingCtx = new BindingContext(model.getPropertyContainer());
+        this.bindingCtx = new BindingContext(model.getPropertySet());
         init();
     }
 

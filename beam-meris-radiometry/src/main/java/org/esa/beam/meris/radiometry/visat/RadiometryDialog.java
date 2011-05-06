@@ -16,14 +16,13 @@
 
 package org.esa.beam.meris.radiometry.visat;
 
-import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
-import org.esa.beam.framework.gpf.ui.OperatorMenuSupport;
+import org.esa.beam.framework.gpf.ui.OperatorMenu;
+import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
@@ -34,33 +33,30 @@ import java.util.HashMap;
 
 class RadiometryDialog extends SingleTargetProductDialog {
 
-    private String alias;
-    private RadiometryForm form;
-    private HashMap<String, Object> parameterMap;
+    private final String alias;
+    private final OperatorParameterSupport parameterSupport;
+    private final RadiometryForm form;
 
     RadiometryDialog(String alias, AppContext appContext, String title, String helpId) {
         super(appContext, title, ID_APPLY_CLOSE_HELP, helpId,
               TargetProductSelectorModel.createEnvisatTargetProductSelectorModel());
         this.alias = alias;
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(alias);
-        parameterMap = new HashMap<String, Object>(17);
-        PropertyContainer propContainer = PropertyContainer.createMapBacked(parameterMap,
-                                                                            operatorSpi.getOperatorClass(),
-                                                                            new ParameterDescriptorFactory());
-        propContainer.setDefaultValues();
-        form = new RadiometryForm(appContext, operatorSpi, propContainer, getTargetProductSelector());
-        OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
-                                                                  operatorSpi.getOperatorClass(),
-                                                                  propContainer,
-                                                                  helpId);
-        getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
+
+        parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass());
+        form = new RadiometryForm(appContext, operatorSpi, parameterSupport.getPopertySet(), getTargetProductSelector());
+        OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
+                                                     operatorSpi.getOperatorClass(),
+                                                     parameterSupport,
+                                                     helpId);
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenue());
 
     }
 
     @Override
     protected Product createTargetProduct() throws Exception {
         final Product sourceProduct = form.getSourceProduct();
-        final Product radioCorrProduct = GPF.createProduct(alias, parameterMap, sourceProduct);
+        final Product radioCorrProduct = GPF.createProduct(alias, parameterSupport.getParameterMap(), sourceProduct);
         if (isEnvisatFormatSelected() && getTargetProductSelector().getModel().isSaveToFileSelected()) {
             final HashMap<String, Object> n1Parameters = new HashMap<String, Object>();
             n1Parameters.put("patchedFile", getTargetProductSelector().getModel().getProductFile());

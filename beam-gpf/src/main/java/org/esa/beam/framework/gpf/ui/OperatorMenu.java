@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,11 +16,6 @@
 
 package org.esa.beam.framework.gpf.ui;
 
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.PropertySet;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.dom.DefaultDomConverter;
-import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.jidesoft.action.CommandMenuBar;
@@ -30,7 +25,6 @@ import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -60,29 +54,29 @@ import java.io.Reader;
 import java.io.StringReader;
 
 /**
- * Support for operator parameters input/output.
+ * WARNING: This class belongs to a preliminary API and may change in future releases.
+ *
+ * An operator menu with action loading, saving and displaying the parameters of an operator.
+ * As well as help and about actions.
+ *
+ * @author Norman Fomferra
+ * @author Marco Zühlke
  */
-public class OperatorMenuSupport {
+public class OperatorMenu {
 
-    private Component parentComponent;
+    private final Component parentComponent;
+    private final OperatorParameterSupport parameterSupport;
     private final Class<? extends Operator> opType;
-    private final PropertySet parameters;
     private final String helpId;
-    private final ParameterDescriptorFactory descriptorFactory;
 
-    public OperatorMenuSupport(Component parentComponent,
-                               Class<? extends Operator> opType,
-                               PropertySet parameters,
-                               String helpId) {
+    public OperatorMenu(Component parentComponent,
+                        Class<? extends Operator> opType,
+                        OperatorParameterSupport parameterSupport,
+                        String helpId) {
         this.parentComponent = parentComponent;
+        this.parameterSupport = parameterSupport;
         this.opType = opType;
-        this.parameters = parameters;
         this.helpId = helpId;
-        this.descriptorFactory = new ParameterDescriptorFactory();
-    }
-
-    public PropertySet getParameters() {
-        return parameters;
     }
 
     public Action createStoreParametersAction() {
@@ -128,18 +122,6 @@ public class OperatorMenuSupport {
         return menuBar;
     }
 
-    void fromDomElement(DomElement parametersElement) throws ValidationException, ConversionException {
-        DefaultDomConverter domConverter = new DefaultDomConverter(opType, descriptorFactory);
-        domConverter.convertDomToValue(parametersElement, parameters);
-    }
-
-    DomElement toDomElement() throws ValidationException, ConversionException {
-        DefaultDomConverter domConverter = new DefaultDomConverter(opType, descriptorFactory);
-        DefaultDomElement parametersElement = new DefaultDomElement("parameters");
-        domConverter.convertValueToDom(parameters, parametersElement);
-        return parametersElement;
-    }
-
     private class LoadParametersAction extends AbstractAction {
 
         LoadParametersAction() {
@@ -168,13 +150,14 @@ public class OperatorMenuSupport {
 
         @Override
         public boolean isEnabled() {
-            return parameters != null;
+            return parameterSupport != null;
         }
 
-        private void readFromFile(File selectedFile) throws ValidationException, ConversionException, IOException {
+        private void readFromFile(File selectedFile) throws Exception {
             FileReader reader = new FileReader(selectedFile);
             try {
-                fromDomElement(readXml(reader));
+                DomElement domElement = readXml(reader);
+                parameterSupport.fromDomElement(domElement);
             } finally {
                 reader.close();
             }
@@ -225,7 +208,7 @@ public class OperatorMenuSupport {
                     File selectedFile = fileChooser.getSelectedFile();
                     selectedFile = FileUtils.ensureExtension(selectedFile,
                                                              "." + parameterFileFilter.getExtensions()[0]);
-                    String xmlString = toDomElement().toXml();
+                    String xmlString = parameterSupport.toDomElement().toXml();
                     writeToFile(xmlString, selectedFile);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -237,7 +220,7 @@ public class OperatorMenuSupport {
 
         @Override
         public boolean isEnabled() {
-            return parameters != null;
+            return parameterSupport != null;
         }
 
         private void writeToFile(String s, File outputFile) throws IOException {
@@ -263,7 +246,8 @@ public class OperatorMenuSupport {
         @Override
         public void actionPerformed(ActionEvent event) {
             try {
-                showMessageDialog("Parameters", new JTextArea(toDomElement().toXml()));
+                DomElement domElement = parameterSupport.toDomElement();
+                showMessageDialog("Parameters", new JTextArea(domElement.toXml()));
             } catch (Exception e) {
                 Debug.trace(e);
                 showMessageDialog("Parameters", new JLabel("Failed to convert parameters to XML."));
@@ -272,7 +256,7 @@ public class OperatorMenuSupport {
 
         @Override
         public boolean isEnabled() {
-            return parameters != null;
+            return parameterSupport != null;
         }
 
     }

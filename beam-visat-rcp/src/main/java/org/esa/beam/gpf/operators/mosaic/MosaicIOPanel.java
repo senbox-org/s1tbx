@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 
 package org.esa.beam.gpf.operators.mosaic;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
@@ -71,7 +71,7 @@ class MosaicIOPanel extends JPanel {
 
     private final AppContext appContext;
     private final MosaicFormModel mosaicModel;
-    private final PropertyContainer propertyContainer;
+    private final PropertySet propertySet;
     private final TargetProductSelector targetProductSelector;
     private final SourceProductSelector updateProductSelector;
     private FileArrayEditor sourceFileEditor;
@@ -79,7 +79,7 @@ class MosaicIOPanel extends JPanel {
     MosaicIOPanel(AppContext appContext, MosaicFormModel mosaicModel, TargetProductSelector selector) {
         this.appContext = appContext;
         this.mosaicModel = mosaicModel;
-        propertyContainer = mosaicModel.getPropertyContainer();
+        propertySet = mosaicModel.getPropertySet();
         final FileArrayEditor.EditorParent context = new FileArrayEditorContext(appContext);
         sourceFileEditor = new FileArrayEditor(context, "Source products") {
             @Override
@@ -94,18 +94,18 @@ class MosaicIOPanel extends JPanel {
         updateProductSelector = new SourceProductSelector(appContext);
         updateProductSelector.setProductFilter(new UpdateProductFilter());
         init();
-        propertyContainer.addPropertyChangeListener(MosaicFormModel.PROPERTY_UPDATE_MODE, new PropertyChangeListener() {
+        propertySet.addPropertyChangeListener(MosaicFormModel.PROPERTY_UPDATE_MODE, new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (Boolean.TRUE.equals(evt.getNewValue())) {
-                    propertyContainer.setValue(MosaicFormModel.PROPERTY_UPDATE_PRODUCT,
+                    propertySet.setValue(MosaicFormModel.PROPERTY_UPDATE_PRODUCT,
                                                updateProductSelector.getSelectedProduct());
                 } else {
                     updateProductSelector.setSelectedProduct(null);
                 }
             }
         });
-        propertyContainer.addPropertyChangeListener(MosaicFormModel.PROPERTY_UPDATE_PRODUCT,
+        propertySet.addPropertyChangeListener(MosaicFormModel.PROPERTY_UPDATE_PRODUCT,
                                                     new TargetProductSelectorUpdater());
 
     }
@@ -129,12 +129,12 @@ class MosaicIOPanel extends JPanel {
                     if (product != null) {
                         final Map<String, Object> map = MosaicOp.getOperatorParameters(product);
                         for (Map.Entry<String, Object> entry : map.entrySet()) {
-                            if (propertyContainer.getProperty(entry.getKey()) != null) {
-                                propertyContainer.setValue(entry.getKey(), entry.getValue());
+                            if (propertySet.getProperty(entry.getKey()) != null) {
+                                propertySet.setValue(entry.getKey(), entry.getValue());
                             }
                         }
                     }
-                    propertyContainer.setValue(MosaicFormModel.PROPERTY_UPDATE_PRODUCT, product);
+                    propertySet.setValue(MosaicFormModel.PROPERTY_UPDATE_PRODUCT, product);
                 } catch (OperatorException e) {
                     appContext.handleError("Selected product cannot be used for update mode.", e);
                 }
@@ -205,7 +205,7 @@ class MosaicIOPanel extends JPanel {
         final JPanel targetProductPanel = new JPanel(tableLayout);
         targetProductPanel.setBorder(BorderFactory.createTitledBorder("Target Product"));
         final JCheckBox updateTargetCheckBox = new JCheckBox("Update target product", false);
-        final BindingContext context = new BindingContext(propertyContainer);
+        final BindingContext context = new BindingContext(propertySet);
         context.bind(MosaicFormModel.PROPERTY_UPDATE_MODE, updateTargetCheckBox);
         targetProductPanel.add(updateTargetCheckBox);
 

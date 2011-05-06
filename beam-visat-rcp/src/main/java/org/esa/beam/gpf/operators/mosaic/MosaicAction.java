@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,6 +16,7 @@
 
 package org.esa.beam.gpf.operators.mosaic;
 
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.actions.AbstractVisatAction;
@@ -36,5 +37,10 @@ public class MosaicAction extends AbstractVisatAction {
             dialog = new MosaicDialog("Mosaic", event.getCommand().getHelpId(), getAppContext());
         }
         dialog.show();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi("Mosaic") != null;
     }
 }

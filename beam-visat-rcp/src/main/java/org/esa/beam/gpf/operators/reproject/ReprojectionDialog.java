@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,11 +22,14 @@ import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
-import org.esa.beam.framework.gpf.ui.OperatorMenuSupport;
+import org.esa.beam.framework.gpf.ui.OperatorMenu;
+import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
+import org.esa.beam.framework.gpf.ui.ParameterUpdater;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.util.HashMap;
 import java.util.Map;
 
 class ReprojectionDialog extends SingleTargetProductDialog {
@@ -45,11 +48,19 @@ class ReprojectionDialog extends SingleTargetProductDialog {
         form = new ReprojectionForm(getTargetProductSelector(), orthorectify, appContext);
 
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(OPERATOR_NAME);
-        OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
-                                                                  operatorSpi.getOperatorClass(),
-                                                                  null,
-                                                                  helpID);
-        getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
+
+        ParameterUpdater parameterUpdater = new ReprojectionParameterUpdater();
+
+        OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass(),
+                                                                                 null,
+                                                                                 null,
+                                                                                 parameterUpdater);
+        OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
+                                                     operatorSpi.getOperatorClass(),
+                                                     parameterSupport,
+                                                     helpID);
+
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenue());
     }
 
     @Override
@@ -94,7 +105,8 @@ class ReprojectionDialog extends SingleTargetProductDialog {
     @Override
     protected Product createTargetProduct() throws Exception {
         final Map<String, Product> productMap = form.getProductMap();
-        final Map<String, Object> parameterMap = form.getParameterMap();
+        final Map<String, Object> parameterMap = new HashMap<String, Object>();
+        form.updateParameterMap(parameterMap);
         return GPF.createProduct(OPERATOR_NAME, parameterMap, productMap);
     }
 
@@ -111,4 +123,21 @@ class ReprojectionDialog extends SingleTargetProductDialog {
         super.hide();
     }
 
+    private class ReprojectionParameterUpdater implements ParameterUpdater {
+
+        @Override
+        public void handleParameterSaveRequest(Map<String,Object> parameterMap) {
+            form.updateParameterMap(parameterMap);
+        }
+
+        @Override
+        public void handleParameterLoadRequest(Map<String,Object> parameterMap) {
+            try {
+                form.updateFormModel(parameterMap);
+            } catch (Exception e) {
+                //TODO handle
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+    }
 }

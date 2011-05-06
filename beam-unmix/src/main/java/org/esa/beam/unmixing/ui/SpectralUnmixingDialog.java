@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,7 +21,9 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
-import org.esa.beam.framework.gpf.ui.OperatorMenuSupport;
+import org.esa.beam.framework.gpf.ui.OperatorMenu;
+import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
+import org.esa.beam.framework.gpf.ui.ParameterUpdater;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.unmixing.Endmember;
@@ -37,24 +39,55 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
 
     public static final String HELP_ID = "spectralUnmixing";
     private static final String TITLE = "Spectral Unmixing";
-    private SpectralUnmixingForm form;
+
+    private final SpectralUnmixingForm form;
+    private final OperatorParameterSupport parameterSupport;
 
     public SpectralUnmixingDialog(AppContext appContext) {
         super(appContext, TITLE, HELP_ID);
-        form = new SpectralUnmixingForm(appContext, getTargetProductSelector());
-        OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
-                                                                  SpectralUnmixingOp.class,
-                                                                  form.getFormModel().getOperatorValueContainer(),
-                                                                  HELP_ID);
-        getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
+
+        ParameterUpdater parameterUpdater = new ParameterUpdater() {
+
+            @Override
+            public void handleParameterSaveRequest(Map<String,Object> parameterMap) {
+                updateParameterMap(parameterMap);
+            }
+
+            @Override
+            public void handleParameterLoadRequest(Map<String,Object> parameterMap) {
+                updateEndmemberFormModel(parameterMap);
+            }
+        };
+
+        parameterSupport = new OperatorParameterSupport(SpectralUnmixingOp.class, null, null, parameterUpdater);
+        form = new SpectralUnmixingForm(appContext, parameterSupport.getPopertySet(), getTargetProductSelector());
+        OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
+                                                     SpectralUnmixingOp.class,
+                                                     parameterSupport,
+                                                     HELP_ID);
+
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenue());
+    }
+
+    private void updateEndmemberFormModel(Map<String, Object> parameterMap) {
+        Object endmembers = parameterMap.get("endmembers");
+        if (endmembers instanceof Endmember[]) {
+            EndmemberFormModel endmemberFormModel = form.getEndmemberForm().getFormModel();
+            endmemberFormModel.setEndmembers((Endmember[]) endmembers);
+        }
+    }
+
+    private void updateParameterMap(Map<String, Object> parameterMap) {
+        parameterMap.put("endmembers", form.getEndmemberForm().getFormModel().getEndmembers());
     }
 
     @Override
     protected Product createTargetProduct() throws Exception {
         final SpectralUnmixingFormModel formModel = form.getFormModel();
-        formModel.getOperatorParameters().put("endmembers", form.getEndmemberForm().getFormModel().getEndmembers());
+        Map<String, Object> parameterMap = parameterSupport.getParameterMap();
+        updateParameterMap(parameterMap);
         return GPF.createProduct(OperatorSpi.getOperatorAlias(SpectralUnmixingOp.class),
-                                 formModel.getOperatorParameters(),
+                                 parameterMap,
                                  formModel.getSourceProduct());
     }
 
@@ -78,12 +111,12 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
             showErrorDialog("No source product selected.");
             return false;
         }
-        final Map<String, Object> parameters = formModel.getOperatorParameters();
-        parameters.put("endmembers", form.getEndmemberForm().getFormModel().getEndmembers());
+        final Map<String, Object> parameterMap = parameterSupport.getParameterMap();
+        updateParameterMap(parameterMap);
 
-        final Endmember[] endmembers = (Endmember[]) parameters.get("endmembers");
-        final String[] sourceBandNames = (String[]) parameters.get("sourceBandNames");
-        final double minBandwidth = (Double) parameters.get("minBandwidth");
+        final Endmember[] endmembers = (Endmember[]) parameterMap.get("endmembers");
+        final String[] sourceBandNames = (String[]) parameterMap.get("sourceBandNames");
+        final double minBandwidth = (Double) parameterMap.get("minBandwidth");
 
         double[] sourceWavelengths = new double[sourceBandNames.length];
         double[] sourceBandwidths = new double[sourceBandNames.length];

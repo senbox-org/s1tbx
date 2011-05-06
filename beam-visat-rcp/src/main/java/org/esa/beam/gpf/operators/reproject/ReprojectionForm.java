@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -109,14 +109,17 @@ class ReprojectionForm extends JTabbedPane {
         createUI();
     }
 
-    Map<String, Object> getParameterMap() {
-        Map<String, Object> parameterMap = new HashMap<String, Object>(5);
+    void updateParameterMap(Map<String, Object> parameterMap) {
+        parameterMap.clear();
         parameterMap.put("resamplingName", reprojectionModel.resamplingMethod);
         parameterMap.put("includeTiePointGrids", reprojectionModel.includeTiePointGrids);
         parameterMap.put("addDeltaBands", reprojectionModel.addDeltaBands);
         parameterMap.put("noDataValue", reprojectionModel.noDataValue);
         if (!collocationCrsUI.getRadioButton().isSelected()) {
-            parameterMap.put("crs", getSelectedCrs().toWKT());
+            CoordinateReferenceSystem selectedCrs = getSelectedCrs();
+            if (selectedCrs != null) {
+                parameterMap.put("crs", selectedCrs.toWKT());
+            }
         }
         if (orthoMode) {
             parameterMap.put("orthorectify", orthoMode);
@@ -139,7 +142,37 @@ class ReprojectionForm extends JTabbedPane {
             parameterMap.put("width", container.getValue("width"));
             parameterMap.put("height", container.getValue("height"));
         }
-        return parameterMap;
+    }
+
+    public void updateFormModel(Map<String, Object> parameterMap) throws Exception {
+        //TODO
+//        Object resamplingName = parameterMap.get("resamplingName");
+//        if (resamplingName instanceof String) {
+//            reprojectionModel.resamplingMethod = (String) resamplingName;
+//        }
+//        Object includeTiePointGrids = parameterMap.get("includeTiePointGrids");
+//        if (includeTiePointGrids instanceof Boolean) {
+//            reprojectionModel.includeTiePointGrids = (Boolean) includeTiePointGrids;
+//        }
+//        Object addDeltaBands = parameterMap.get("addDeltaBands");
+//        if (addDeltaBands instanceof Boolean) {
+//            reprojectionModel.addDeltaBands = (Boolean) addDeltaBands;
+//        }
+//        Object noDataValue = parameterMap.get("noDataValue");
+//        if (noDataValue instanceof Double) {
+//            reprojectionModel.noDataValue = (Double) noDataValue;
+//        }
+//        Object orthorectify = parameterMap.get("orthorectify");
+//        if (orthorectify instanceof Boolean) {
+//            if (orthoMode != (Boolean) orthorectify) {
+//                //TODO raise excpetion
+//            }
+//        }
+//        Object elevationModelName = parameterMap.get("elevationModelName");
+//        if (elevationModelName instanceof String) {
+//            demSelector.setDemName((String) elevationModelName);
+//        }
+
     }
 
     Map<String, Product> getProductMap() {

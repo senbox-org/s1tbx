@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,8 +17,8 @@
 package org.esa.beam.gpf.operators.mosaic;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
@@ -67,7 +67,7 @@ class MosaicFormModel {
     public static final String PROPERTY_EAST_BOUND = "eastBound";
     public static final String PROPERTY_SOUTH_BOUND = "southBound";
 
-    private final PropertyContainer container;
+    private final PropertySet container;
     private final Map<String, Object> parameterMap = new HashMap<String, Object>();
     private final Map<File, Product> sourceProductMap = Collections.synchronizedMap(new HashMap<File, Product>());
     private final WorldMapPaneDataModel worldMapModel = new WorldMapPaneDataModel();
@@ -177,7 +177,7 @@ class MosaicFormModel {
         return (MosaicOp.Condition[]) getPropertyValue("conditions");
     }
 
-    PropertyContainer getPropertyContainer() {
+    PropertySet getPropertySet() {
         return container;
     }
 

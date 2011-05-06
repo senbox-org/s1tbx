@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,8 +22,10 @@ import com.bc.jexp.impl.ParserImpl;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.ui.OperatorMenuSupport;
+import org.esa.beam.framework.gpf.ui.OperatorMenu;
+import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
@@ -47,13 +49,18 @@ class MosaicDialog extends SingleTargetProductDialog {
         form = new MosaicForm(selector, appContext);
 
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi("Mosaic");
-        if (operatorSpi != null) {
-            OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
-                                                                      operatorSpi.getOperatorClass(),
-                                                                      form.getFormModel().getPropertyContainer(),
-                                                                      helpID);
-            getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
-        }
+        Class<? extends Operator> operatorClass = operatorSpi.getOperatorClass();
+
+        MosaicFormModel formModel = form.getFormModel();
+        OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorClass,
+                                                                                 formModel.getPropertySet(),
+                                                                                 formModel.getParameterMap(),
+                                                                                 null);
+        OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
+                                                     operatorClass,
+                                                     parameterSupport,
+                                                     helpID);
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenue());
     }
 
     @Override

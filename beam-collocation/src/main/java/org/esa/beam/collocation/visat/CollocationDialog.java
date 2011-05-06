@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,13 +16,12 @@
 
 package org.esa.beam.collocation.visat;
 
-import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.collocation.CollocateOp;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
-import org.esa.beam.framework.gpf.ui.OperatorMenuSupport;
+import org.esa.beam.framework.gpf.ui.OperatorMenu;
+import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 
@@ -36,25 +35,20 @@ class CollocationDialog extends SingleTargetProductDialog {
 
     public static final String HELP_ID = "collocation";
 
-    private Map<String, Object> parameterMap;
-    private CollocationForm form;
+    private final OperatorParameterSupport parameterSupport;
+    private final CollocationForm form;
 
     public CollocationDialog(AppContext appContext) {
         super(appContext, "Collocation", HELP_ID);
 
-        parameterMap = new HashMap<String, Object>(17);
-        final PropertyContainer propertyContainer = PropertyContainer.createMapBacked(parameterMap,
-                                                                   CollocateOp.class,
-                                                                   new ParameterDescriptorFactory());
-        propertyContainer.setDefaultValues();
+        parameterSupport = new OperatorParameterSupport(CollocateOp.class);
+        OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
+                                                     CollocateOp.class,
+                                                     parameterSupport,
+                                                     HELP_ID);
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenue());
 
-        OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
-                                                                  CollocateOp.class,
-                                                                  propertyContainer,
-                                                                  HELP_ID);
-        getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
-
-        form = new CollocationForm(propertyContainer, getTargetProductSelector(), appContext);
+        form = new CollocationForm(parameterSupport.getPopertySet(), getTargetProductSelector(), appContext);
 
     }
 
@@ -64,7 +58,7 @@ class CollocationDialog extends SingleTargetProductDialog {
         productMap.put("master", form.getMasterProduct());
         productMap.put("slave", form.getSlaveProduct());
 
-        return GPF.createProduct(OperatorSpi.getOperatorAlias(CollocateOp.class), parameterMap, productMap);
+        return GPF.createProduct(OperatorSpi.getOperatorAlias(CollocateOp.class), parameterSupport.getParameterMap(), productMap);
     }
 
     @Override

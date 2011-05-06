@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,8 +17,8 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.swing.binding.PropertyPane;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
@@ -30,7 +30,6 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.ui.AppContext;
 
@@ -41,7 +40,6 @@ import javax.swing.border.EmptyBorder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 // todo (mp, 2008/04/22) add abillity to set the ProductFilter to SourceProductSelectors
 
@@ -54,12 +52,12 @@ import java.util.Map;
 public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog {
 
     private final String operatorName;
-    private final Map<String, Object> parameterMap;
     private final JTabbedPane form;
     private PropertyDescriptor[] rasterDataNodeTypeProperties;
     private String targetProductNameSuffix;
     private ProductChangedHandler productChangedHandler;
     private DefaultIOParametersPanel ioParametersPanel;
+    private final OperatorParameterSupport parameterSupport;
 
     public static SingleTargetProductDialog createDefaultDialog(String operatorName, AppContext appContext) {
         return new DefaultSingleTargetProductDialog(operatorName, appContext, operatorName, null);
@@ -79,17 +77,14 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
         this.form = new JTabbedPane();
         this.form.add("I/O Parameters", ioParametersPanel);
-        parameterMap = new HashMap<String, Object>(17);
-        PropertyContainer propertyContainer = PropertyContainer.createMapBacked(parameterMap,
-                                                                                operatorSpi.getOperatorClass(),
-                                                                                new ParameterDescriptorFactory());
-        OperatorMenuSupport menuSupport = new OperatorMenuSupport(this.getJDialog(),
-                                                                  operatorSpi.getOperatorClass(),
-                                                                  propertyContainer,
-                                                                  helpID);
 
-        propertyContainer.setDefaultValues();
+        parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass());
+        OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
+                                                                  operatorSpi.getOperatorClass(),
+                                                                  parameterSupport,
+                                                                  helpID);
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
+        PropertySet propertyContainer = parameterSupport.getPopertySet();
         if (propertyContainer.getProperties().length > 0) {
             if (!sourceProductSelectorList.isEmpty()) {
                 Property[] properties = propertyContainer.getProperties();
@@ -108,7 +103,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             this.form.add("Processing Parameters", new JScrollPane(parametersPanel));
 
-            getJDialog().setJMenuBar(menuSupport.createDefaultMenue());
+            getJDialog().setJMenuBar(operatorMenu.createDefaultMenue());
         }
         if (!sourceProductSelectorList.isEmpty()) {
             productChangedHandler = new ProductChangedHandler();
@@ -133,7 +128,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
     @Override
     protected Product createTargetProduct() throws Exception {
         final HashMap<String, Product> sourceProducts = ioParametersPanel.createSourceProductsMap();
-        return GPF.createProduct(operatorName, parameterMap, sourceProducts);
+        return GPF.createProduct(operatorName, parameterSupport.getParameterMap(), sourceProducts);
     }
 
     public String getTargetProductNameSuffix() {

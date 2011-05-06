@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,6 +17,7 @@
 package org.esa.beam.unmixing.ui;
 
 import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
@@ -56,10 +57,10 @@ class SpectralUnmixingForm extends JPanel {
     JComboBox unmixingModelName;
     JCheckBox computeErrorBands;
 
-    SpectralUnmixingForm(AppContext appContext, TargetProductSelector targetProductSelector) {
+    SpectralUnmixingForm(AppContext appContext, PropertySet propertySet, TargetProductSelector targetProductSelector) {
         this.appContext = appContext;
         this.targetProductSelector = targetProductSelector;
-        this.formModel = new SpectralUnmixingFormModel(appContext.getSelectedProduct());
+        this.formModel = new SpectralUnmixingFormModel(appContext.getSelectedProduct(), propertySet);
         this.endmemberForm = new EndmemberForm(appContext);
         this.sourceProductSelector = new SourceProductSelector(appContext);
         createComponents();

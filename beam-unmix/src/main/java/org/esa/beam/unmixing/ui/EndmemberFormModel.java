@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,12 +16,12 @@
 
 package org.esa.beam.unmixing.ui;
 
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.diagram.DefaultDiagramGraphStyle;
 import org.esa.beam.framework.ui.diagram.Diagram;
 import org.esa.beam.framework.ui.diagram.DiagramAxis;
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
 import org.esa.beam.framework.ui.diagram.DiagramGraphIO;
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.unmixing.Endmember;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
 import org.esa.beam.util.PropertyMap;
@@ -87,6 +87,14 @@ class EndmemberFormModel {
             endmembers[i] = (Endmember) endmemberListModel.getElementAt(i);
         }
         return endmembers;
+    }
+
+    public void setEndmembers(Endmember[] endmembers) {
+        endmemberListModel.removeAllElements();
+        for (int i = 0; i < endmembers.length; i++) {
+            Endmember endmember = endmembers[i];
+            endmemberListModel.addElement(endmember);
+        }
     }
 
     public ListModel getEndmemberListModel() {

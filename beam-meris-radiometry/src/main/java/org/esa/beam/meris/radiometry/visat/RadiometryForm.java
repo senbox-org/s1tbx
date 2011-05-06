@@ -17,6 +17,7 @@
 package org.esa.beam.meris.radiometry.visat;
 
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
@@ -45,26 +46,26 @@ class RadiometryForm extends JTabbedPane {
 
     private final AppContext appContext;
     private final OperatorSpi operatorSpi;
-    private final PropertyContainer propertyContainer;
+    private final PropertySet propertySet;
     private final TargetProductSelector targetProductSelector;
     private final DefaultIOParametersPanel ioParamPanel;
     private BindingContext processingParamBindingContext;
 
-    RadiometryForm(AppContext appContext, OperatorSpi operatorSpi, PropertyContainer propContainer,
+    RadiometryForm(AppContext appContext, OperatorSpi operatorSpi, PropertySet propertySet,
                    TargetProductSelector targetProductSelector) {
         this.appContext = appContext;
         this.operatorSpi = operatorSpi;
-        this.propertyContainer = propContainer;
+        this.propertySet = propertySet;
         this.targetProductSelector = targetProductSelector;
 
         ioParamPanel = createIOParamTab();
         addTab("I/O Parameters", ioParamPanel);
         addTab("Processing Parameters", createProcessingParamTab());
         final PropertyContainer targetProductPC = targetProductSelector.getModel().getValueContainer();
-        propertyContainer.addProperty(targetProductPC.getProperty("formatName"));
+        this.propertySet.addProperty(targetProductPC.getProperty("formatName"));
         processingParamBindingContext.bindEnabledState("doRadToRefl", false, "formatName",
                                                        EnvisatConstants.ENVISAT_FORMAT_NAME);
-        propertyContainer.addPropertyChangeListener("formatName", new FormatChangeListener());
+        this.propertySet.addPropertyChangeListener("formatName", new FormatChangeListener());
     }
 
     public void prepareShow() {
@@ -91,7 +92,7 @@ class RadiometryForm extends JTabbedPane {
     }
 
     private JScrollPane createProcessingParamTab() {
-        PropertyPane parametersPane = new PropertyPane(propertyContainer);
+        PropertyPane parametersPane = new PropertyPane(propertySet);
         processingParamBindingContext = parametersPane.getBindingContext();
         final JPanel parametersPanel = parametersPane.createPanel();
         parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
@@ -125,8 +126,8 @@ class RadiometryForm extends JTabbedPane {
         public void propertyChange(PropertyChangeEvent evt) {
             final boolean isEnvisatFormatSelected = EnvisatConstants.ENVISAT_FORMAT_NAME.equals(evt.getNewValue());
             if (isEnvisatFormatSelected) {
-                if ((Boolean) propertyContainer.getValue("doRadToRefl")) {
-                    propertyContainer.setValue("doRadToRefl", false);
+                if ((Boolean) propertySet.getValue("doRadToRefl")) {
+                    propertySet.setValue("doRadToRefl", false);
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {

@@ -40,6 +40,7 @@
           [BEAM-1180] Allow dragging files into VISAT<br/>
           [BEAM-1177] Index out of bounds for RGB View<br/>
           [BEAM-1067] Histogram title doesn't update when changing band<br/>
+          [BEAM-1052] All processors should be able to store/reload their configuration<br/>
         </p>
         <p>Changes in 4.8:<br/>
           [BEAM-1169] On KDE (linux) the Java Desktop-API is not supported.<br/>

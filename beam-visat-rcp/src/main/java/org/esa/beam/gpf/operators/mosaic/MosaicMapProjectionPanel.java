@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -78,7 +78,7 @@ class MosaicMapProjectionPanel extends JPanel {
     MosaicMapProjectionPanel(AppContext appContext, MosaicFormModel mosaicModel) {
         this.appContext = appContext;
         this.mosaicModel = mosaicModel;
-        bindingCtx = new BindingContext(mosaicModel.getPropertyContainer());
+        bindingCtx = new BindingContext(mosaicModel.getPropertySet());
         unitMap = new HashMap<String, Double>();
         unitMap.put("°", 0.05);
         unitMap.put("m", 1000.0);
@@ -96,7 +96,7 @@ class MosaicMapProjectionPanel extends JPanel {
             demValueSet[i] = descriptors[i].getName();
         }
         if (demValueSet.length > 0) {
-            mosaicModel.getPropertyContainer().setValue("elevationModelName", demValueSet[0]);
+            mosaicModel.getPropertySet().setValue("elevationModelName", demValueSet[0]);
         }
         bindingCtx.addPropertyChangeListener("updateMode", new PropertyChangeListener() {
             @Override
