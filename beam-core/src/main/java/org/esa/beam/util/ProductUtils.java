@@ -24,7 +24,6 @@ import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -81,7 +80,6 @@ import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
@@ -1003,77 +1001,6 @@ public class ProductUtils {
     }
 
     /**
-     * Copies bit-mask definitions from the target product into the source product. The method will
-     * only copy those bit-mask definitions which are valid in the context of the target product.
-     * Bit-mask overlay informations are also copied if valid in the context of the target bands.
-     *
-     * @param sourceProduct the source product
-     * @param targetProduct the target product
-     * @see org.esa.beam.framework.datamodel.Product#getBitmaskDefs()
-     * @see RasterDataNode#getBitmaskOverlayInfo()
-     * @deprecated since BEAM 4.7, use {@link #copyMasks(Product, Product)} and
-     *             {@link #copyOverlayMasks(Product, Product)}instead.
-     */
-    @Deprecated
-    public static void copyBitmaskDefsAndOverlays(final Product sourceProduct, final Product targetProduct) {
-        Guardian.assertNotNull("sourceProduct", sourceProduct);
-        Guardian.assertNotNull("targetProduct", targetProduct);
-
-        final BitmaskDef[] bitmaskDefs = sourceProduct.getBitmaskDefs();
-        for (final BitmaskDef bitmaskDef : bitmaskDefs) {
-            if (targetProduct.isCompatibleBandArithmeticExpression(bitmaskDef.getExpr())) {
-                targetProduct.addBitmaskDef(bitmaskDef.createCopy());
-            }
-        }
-
-        for (int i = 0; i < sourceProduct.getNumBands(); i++) {
-            final Band sourceBand = sourceProduct.getBandAt(i);
-            final Band targetBand = targetProduct.getBand(sourceBand.getName());
-            if (targetBand != null && sourceBand.getBitmaskOverlayInfo() != null) {
-                final BitmaskDef[] sourceBandBitmaskDefs = sourceBand.getBitmaskOverlayInfo().getBitmaskDefs();
-                final BitmaskOverlayInfo targetBitmaskOverlayInfo = new BitmaskOverlayInfo();
-                if (targetBand.getBitmaskOverlayInfo() != null) {
-                    for (final BitmaskDef def : targetBitmaskOverlayInfo.getBitmaskDefs()) {
-                        targetBitmaskOverlayInfo.addBitmaskDef(def);
-                    }
-                }
-                for (final BitmaskDef sourceBandBitmaskDef : sourceBandBitmaskDefs) {
-                    final BitmaskDef targetBandBitmaskDef = targetProduct.getBitmaskDef(sourceBandBitmaskDef.getName());
-                    if (targetBandBitmaskDef != null) {
-                        targetBitmaskOverlayInfo.addBitmaskDef(targetBandBitmaskDef);
-                    }
-                }
-                targetBand.setBitmaskOverlayInfo(targetBitmaskOverlayInfo);
-            }
-        }
-    }
-
-    /**
-     * Copies the bitmask definitions from the source product to the target product.
-     * <p/>
-     * IMPORTANT NOTE: This method should only be used, if it is known that all bitmask
-     * definitions in the source product will also be valid in the target product. This
-     * method does NOT copy the bitmask overlay information from the source bands to
-     * the target bands.
-     *
-     * @param sourceProduct the source product
-     * @param targetProduct the target product
-     * @deprecated since BEAM 4.7, use {@link #copyMasks(Product, Product)} instead.
-     */
-    @Deprecated
-    public static void copyBitmaskDefs(Product sourceProduct, Product targetProduct) {
-        Guardian.assertNotNull("sourceProduct", sourceProduct);
-        Guardian.assertNotNull("target", targetProduct);
-
-        int numBitmaskDefs = sourceProduct.getNumBitmaskDefs();
-
-        for (int i = 0; i < numBitmaskDefs; i++) {
-            BitmaskDef bitmaskDef = sourceProduct.getBitmaskDefAt(i);
-            targetProduct.addBitmaskDef(bitmaskDef.createCopy());
-        }
-    }
-
-    /**
      * Copies the {@link Mask}s from the source product to the target product.
      * <p/>
      * IMPORTANT NOTE: This method should only be used, if it is known that all masks
@@ -1462,52 +1389,6 @@ public class ProductUtils {
         image = getCompatibleBufferedImageForScatterPlot(image, width, height, background);
         final byte[] pixelValues = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         ScatterPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roiMask, width,
-                               height, pixelValues, pm);
-        return image;
-    }
-
-    /**
-     * Creates a scatter plot image from two raster data nodes.
-     *
-     * @param raster1    the first raster data node
-     * @param sampleMin1 the minimum sample value to be considered in the first raster
-     * @param sampleMax1 the maximum sample value to be considered in the first raster
-     * @param raster2    the second raster data node
-     * @param sampleMin2 the minimum sample value to be considered in the second raster
-     * @param sampleMax2 the maximum sample value to be considered in the second raster
-     * @param roiImage   an optional image to be used as a ROI for the computation
-     * @param width      the width of the output image
-     * @param height     the height of the output image
-     * @param background the background color of the output image
-     * @param image      an image to be used as output image, if <code>null</code> a new image is created
-     * @param pm         the progress monitor
-     * @return the scatter plot image
-     * @throws java.io.IOException when an error occurred.
-     * @deprecated since BEAM 4.7, use {@link #createScatterPlotImage(RasterDataNode, float, float, RasterDataNode, float, float, Mask, int, int, Color, BufferedImage, ProgressMonitor)} instead.
-     */
-    public static BufferedImage createScatterPlotImage(final RasterDataNode raster1,
-                                                       final float sampleMin1,
-                                                       final float sampleMax1,
-                                                       final RasterDataNode raster2,
-                                                       final float sampleMin2,
-                                                       final float sampleMax2,
-                                                       final RenderedImage roiImage,
-                                                       final int width,
-                                                       final int height,
-                                                       final Color background,
-                                                       BufferedImage image,
-                                                       final ProgressMonitor pm) throws IOException {
-        Guardian.assertNotNull("raster1", raster1);
-        Guardian.assertNotNull("raster2", raster2);
-        Guardian.assertNotNull("background", background);
-        if (raster1.getSceneRasterWidth() != raster2.getSceneRasterWidth()
-                || raster1.getSceneRasterHeight() != raster2.getSceneRasterHeight()) {
-            throw new IllegalArgumentException("'raster1' has not the same size as 'raster2'");
-        }
-
-        image = getCompatibleBufferedImageForScatterPlot(image, width, height, background);
-        final byte[] pixelValues = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-        ScatterPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roiImage, width,
                                height, pixelValues, pm);
         return image;
     }
@@ -2400,34 +2281,6 @@ public class ProductUtils {
         final double timePerLine = (stop - start) / (product.getSceneRasterHeight() - 1);
         final double currentLine = timePerLine * y + start;
         return new ProductData.UTC(currentLine);
-    }
-
-/////////////////////////////////////////////////////////////////////////
-// Deprecated API
-
-    /**
-     * @deprecated in 3.x, use {@link #createGeoBoundaryPaths(Product)}
-     */
-    public static GeneralPath createGeoBoundaryPath(Product product) {
-        final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        final int step = Math.min(rect.width, rect.height) / 8;
-        return createGeoBoundaryPath(product, rect, step > 0 ? step : 1);
-    }
-
-    /**
-     * @deprecated in 3.x, use {@link #createGeoBoundaryPaths(Product, Rectangle, int)}
-     */
-    public static GeneralPath createGeoBoundaryPath(Product product, Rectangle rect, int step) {
-        GeoPos[] geoPoints = createGeoBoundary(product, rect, step);
-        GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
-        if (geoPoints.length > 1) {
-            path.moveTo(geoPoints[0].getLon(), geoPoints[0].getLat());
-            for (int i = 1; i < geoPoints.length; i++) {
-                path.lineTo(geoPoints[i].getLon(), geoPoints[i].getLat());
-            }
-            path.closePath();
-        }
-        return path;
     }
 
     public static double getGeophysicalSampleDouble(Band band, int pixelX, int pixelY, int level) {

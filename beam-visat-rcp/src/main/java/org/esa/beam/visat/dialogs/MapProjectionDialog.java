@@ -198,8 +198,8 @@ public class MapProjectionDialog extends ModalDialog {
         final int sceneHeight = _outputMapInfo.getSceneHeight();
         if (sceneWidth <= 1 || sceneHeight <= 1) {
             showErrorDialog("Invalid product scene size.\n" +
-                            "Please check 'Output Parameters' and adjust\n" +
-                            "resulting product scene width and height.");               /*I18N*/
+                                    "Please check 'Output Parameters' and adjust\n" +
+                                    "resulting product scene width and height.");               /*I18N*/
             return false;
         }
         if (_outputMapInfo.isOrthorectified() && _demSelector != null && _demSelector.isUsingExternalDem()) {
@@ -243,7 +243,7 @@ public class MapProjectionDialog extends ModalDialog {
 
         _paramNewProductName = new Parameter("newProductName",
                                              "proj_" + _numNewProjections + "_"
-                                             + getSourceProduct().getName());
+                                                     + getSourceProduct().getName());
         _paramNewProductName.getProperties().setLabel("Name");                  /* I18N */
         _paramNewProductName.getProperties().setNullValueAllowed(false);
         _paramNewProductName.getProperties().setValidatorClass(ProductNodeNameValidator.class);
@@ -506,7 +506,7 @@ public class MapProjectionDialog extends ModalDialog {
             projection.setMapTransform(transformUI.createTransform());
             final int dialogAnswer = JOptionPane.showConfirmDialog(getParent(),
                                                                    "Projection parameters have been changed.\n\n" +
-                                                                   "Adjust the output parameters?", /*I18N*/
+                                                                           "Adjust the output parameters?", /*I18N*/
                                                                    getTitel(
                                                                            _orthorectificationMode),
                                                                    JOptionPane.YES_NO_OPTION);
@@ -626,7 +626,7 @@ public class MapProjectionDialog extends ModalDialog {
     }
 
     private String[] getCompatibleProductNames() {
-        final GeneralPath sourcePath = ProductUtils.createGeoBoundaryPath(getSourceProduct());
+        final GeneralPath sourcePath = ProductUtils.createGeoBoundaryPaths(getSourceProduct())[0];
         final Rectangle2D sourceBounds = sourcePath.getBounds2D();
         final ArrayList<String> compatibleProducts = new ArrayList<String>(5);
         final ProductManager productManager = getSourceProduct().getProductManager();
@@ -635,7 +635,7 @@ public class MapProjectionDialog extends ModalDialog {
             if (product != getSourceProduct()) {
                 final GeoCoding otherGeoCoding = product.getGeoCoding();
                 if (otherGeoCoding instanceof MapGeoCoding) {
-                    final GeneralPath otherPath = ProductUtils.createGeoBoundaryPath(product);
+                    final GeneralPath otherPath = ProductUtils.createGeoBoundaryPaths(product)[0];
                     final Rectangle2D otherBounds = otherPath.getBounds2D();
                     if (sourcePath.intersects(otherBounds) || otherPath.intersects(sourceBounds)) {
                         compatibleProducts.add(product.getName());
