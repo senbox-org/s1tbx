@@ -328,37 +328,4 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         return true;
     }
 
-    /////////////////////////////////////////////////////////////////////////
-    // Deprecated API
-
-    @Deprecated
-    public VirtualBandOpImage(Product[] products,
-                              String expression,
-                              int dataType,
-                              ResolutionLevel level) {
-        this(expression, dataType, null, false, products, 0, level);
-    }
-
-    @Deprecated
-    public VirtualBandOpImage(String expression,
-                              int dataType,
-                              Product[] products,
-                              int defaultProductIndex,
-                              ResolutionLevel level) {
-        this(expression, dataType, null, false, products, defaultProductIndex, level);
-    }
-
-    @Deprecated
-    public static VirtualBandOpImage createMaskOpImage(Product product,
-                                                       String expression,
-                                                       ResolutionLevel level) {
-        return createMask(expression, product, level);
-    }
-
-    @Deprecated
-    public static VirtualBandOpImage createMaskOpImage(Product[] products,
-                                                       String expression,
-                                                       ResolutionLevel level) {
-        return createMask(expression, products, 0, level);
-    }
 }
