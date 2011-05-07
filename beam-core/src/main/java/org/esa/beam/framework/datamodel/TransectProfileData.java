@@ -51,7 +51,6 @@ public class TransectProfileData {
         if (raster.getProduct() == null) {
             throw new IllegalArgumentException("raster without product");
         }
-        raster.ensureValidMaskComputed(ProgressMonitor.NULL);
 
         ShapeRasterizer rasterizer = new ShapeRasterizer();
         shapeVertices = rasterizer.getVertices(shape);
@@ -76,7 +75,7 @@ public class TransectProfileData {
             final int x = MathUtils.floorInt(pixelPos.x);
             final int y = MathUtils.floorInt(pixelPos.y);
             if (x >= 0 && x < raster.getSceneRasterWidth()
-                && y >= 0 && y < raster.getSceneRasterHeight()) {
+                    && y >= 0 && y < raster.getSceneRasterHeight()) {
 
                 float sampleValue;
                 if (raster.hasRasterData()) {
@@ -93,7 +92,7 @@ public class TransectProfileData {
                         sampleMax = sampleValue;
                     }
                     sampleValues[i] = sampleValue;
-                }else {
+                } else {
                     sampleValues[i] = Float.NaN;
                 }
             }

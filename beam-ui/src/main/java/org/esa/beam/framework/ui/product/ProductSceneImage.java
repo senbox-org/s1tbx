@@ -26,7 +26,6 @@ import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerUtils;
 import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Mask;
@@ -239,7 +238,7 @@ public class ProductSceneImage implements ProductLayerContext {
             return LayerUtils.getChildLayer(getRootLayer(),
                                             LayerUtils.SEARCH_DEEP,
                                             VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode));
-        }else {
+        } else {
             return null;
         }
     }
@@ -253,16 +252,6 @@ public class ProductSceneImage implements ProductLayerContext {
         addLayer(0, createBaseImageLayer());
     }
 
-    /**
-     * @deprecated since BEAM 4.7
-     */
-    @Deprecated
-    public void initBitmaskLayer() {
-        if (mustEnableBitmaskLayer()) {
-            getBitmaskLayer(true);
-        }
-    }
-
     public void initVectorDataCollectionLayer() {
         if (mustEnableVectorDataCollectionLayer()) {
             getVectorDataCollectionLayer(true);
@@ -273,20 +262,6 @@ public class ProductSceneImage implements ProductLayerContext {
         if (mustEnableMaskCollectionLayer()) {
             getMaskCollectionLayer(true);
         }
-    }
-
-    @Deprecated
-    private boolean mustEnableBitmaskLayer() {
-        final BitmaskOverlayInfo overlayInfo = getRaster().getBitmaskOverlayInfo();
-        if (overlayInfo != null) {
-            BitmaskDef[] defs = getRaster().getBitmaskDefs();
-            for (BitmaskDef def : defs) {
-                if (overlayInfo.containsBitmaskDef(def)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     private boolean mustEnableVectorDataCollectionLayer() {

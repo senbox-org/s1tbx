@@ -276,7 +276,6 @@ public class MosaicProcessor extends Processor {
      * Creates the graphical user interface of the processor and returns the base component to the framework.
      *
      * @return the graphical user interface of the processor.
-     *
      * @throws org.esa.beam.framework.processor.ProcessorException
      *
      */
@@ -333,14 +332,14 @@ public class MosaicProcessor extends Processor {
 
 
     private boolean createOutputProductPhysically(ProgressMonitor pm) throws IOException,
-                                                                             ProcessorException {
+            ProcessorException {
 
         final String outputFile = _outputProductRef.getFilePath();
         final String productName = FileUtils.getFilenameWithoutExtension(_outputProductRef.getFile());
         final Rectangle2D outputRect = createOutputProductBoundaries();
         if (outputRect.getWidth() * outputRect.getHeight() < 0) {
             throw new ProcessorException("Size of output product exceeds the maximum size.\n" +
-                                         "Possibly caused by a small pixel size parameter.");
+                                                 "Possibly caused by a small pixel size parameter.");
         }
         final float pixelSizeX = _projectionParams.getPixelSizeX();
         final float pixelSizeY = _projectionParams.getPixelSizeY();
@@ -403,7 +402,7 @@ public class MosaicProcessor extends Processor {
                 }
                 ProductUtils.copyMasks(inpProduct, outputProduct);
                 ProductUtils.copyOverlayMasks(inpProduct, outputProduct);
-                
+
                 ProductUtils.copyBandsForGeomTransform(inpProduct, outputProduct, PROJECTION_DEFAULT_NO_DATA_VALUE,
                                                        null);
                 // todo - (nf) add call to ProductUtils.copyBitmaskDefinitions
@@ -476,15 +475,15 @@ public class MosaicProcessor extends Processor {
     }
 
     private Product getInputProductOrSubset() throws ProcessorException,
-                                                     IOException {
+            IOException {
         final Product inputProduct = _currentInputProduct;
         final ProductSubsetBuilder productSubsetBuilder = new ProductSubsetBuilder();
         final Product subset = productSubsetBuilder.readProductNodes(inputProduct, _productSubsetDef);
         if (subset.getNumBands() == 0) {
             throw new ProcessorException("Unable to map-project the product '" +
-                                         getRequest().getInputProductAt(0).getFilePath() +
-                                         "' because the 'bands' parameter in the processing " +
-                                         "request results in a product without bands.");
+                                                 getRequest().getInputProductAt(0).getFilePath() +
+                                                 "' because the 'bands' parameter in the processing " +
+                                                 "request results in a product without bands.");
         }
         return subset;
     }
@@ -533,7 +532,7 @@ public class MosaicProcessor extends Processor {
         final float pixelSizeY;
         final MapProjection projection;
         String projectionParamsExceptionText = "Failed to create output product, projection parameters not " +
-                                               "given or invalid";
+                "given or invalid";
         if (_projectionParams != null && _projectionParams.isValid()) {
             initProjection();
             projection = _outputProductMapProjection;
@@ -819,9 +818,9 @@ public class MosaicProcessor extends Processor {
         Band[] bands = projectedInputProduct.getBands();
         for (Band band : bands) {
             if (band.getDataType() == ProductData.TYPE_FLOAT32
-                && band.isLog10Scaled()
-                && band.getScalingFactor() == 1.0
-                && band.getScalingOffset() == 0.0) {
+                    && band.isLog10Scaled()
+                    && band.getScalingFactor() == 1.0
+                    && band.getScalingOffset() == 0.0) {
                 band.setLog10Scaled(false);
                 MapGeoCoding mapGeoCoding = ((MapGeoCoding) projectedInputProduct.getGeoCoding());
                 MapInfo mapInfo = mapGeoCoding.getMapInfo();
@@ -837,7 +836,7 @@ public class MosaicProcessor extends Processor {
     }
 
     private boolean updateData(final Rectangle[] boundingRectangles, ProgressMonitor pm) throws ProcessorException,
-                                                                                                IOException {
+            IOException {
         final int numIters = boundingRectangles.length;
         final int[] destX = new int[numIters];
         final int[] destY = new int[numIters];
@@ -1055,20 +1054,12 @@ public class MosaicProcessor extends Processor {
                 final Term term = parser.parse(expression);
                 if (variable.isCondition() && !term.isB()) {
                     _logger.severe("Boolean expression expected for '" + variable.getName() + "' but was '" +
-                                   expression + "'"); /*I18N*/
+                                           expression + "'"); /*I18N*/
                     return false;
                 }
                 channel.setTerm(term);
                 final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
                 final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(refRasterDataSymbols);
-                for (RasterDataNode refRaster : refRasters) {
-                    try {
-                        refRaster.ensureValidMaskComputed(ProgressMonitor.NULL);
-                    } catch (IOException e) {
-                        _logger.warning(MessageFormat.format("failed to load valid-data-mask for band ''{0}''",
-                                                             refRaster.getName()));
-                    }
-                }
                 channel.setRefRasters(refRasters);
                 allBandSymbols.addAll(Arrays.asList(refRasterDataSymbols));
                 for (final RasterDataNode refRaster : refRasters) {
@@ -1170,7 +1161,7 @@ public class MosaicProcessor extends Processor {
     }
 
     private void initPixelGeoCoding(ProgressMonitor pm) throws ProcessorException,
-                                                               IOException {
+            IOException {
         String latName = _pixelGeoCodingParams.getSourceLatitudes();
         Band latBand = getExistingBand(latName);
         String lonName = _pixelGeoCodingParams.getSourceLongitudes();
@@ -1224,7 +1215,7 @@ public class MosaicProcessor extends Processor {
         final ProductWriter productWriter = ProcessorUtils.createProductWriter(_outputProductRef);
         if (productWriter == null) {
             final String message = msgPrefix +
-                                   "Unable to create a product writer for output format '" + _outputProductRef.getFileFormat() + "'"; /*I18N*/
+                    "Unable to create a product writer for output format '" + _outputProductRef.getFileFormat() + "'"; /*I18N*/
             _logger.severe(message);
             throw new ProcessorException(message);
         }
@@ -1286,7 +1277,7 @@ public class MosaicProcessor extends Processor {
             setOutputProduct(product);
         } catch (IOException e) {
             throw new ProcessorException("An I/O error occured while opening output product\n" + /*I18N*/
-                                         "'" + outputProductPath + "'\n" + e.getMessage());
+                                                 "'" + outputProductPath + "'\n" + e.getMessage());
         }
     }
 
@@ -1299,7 +1290,7 @@ public class MosaicProcessor extends Processor {
             throw new ProcessorException("Output product is not given."); /*I18N*/
         }
         if (!(DimapProductConstants.DIMAP_FORMAT_NAME.equalsIgnoreCase(outputProductRef.getFileFormat()) ||
-              "GeoTIFF".equalsIgnoreCase(outputProductRef.getFileFormat()))) {
+                "GeoTIFF".equalsIgnoreCase(outputProductRef.getFileFormat()))) {
             final String message = String.format("The output format '%s' is not supported.",
                                                  outputProductRef.getFileFormat());
             throw new ProcessorException(message);
@@ -1533,9 +1524,9 @@ public class MosaicProcessor extends Processor {
 
         public boolean isValid() {
             return eastLon != null
-                   && northLat != null
-                   && southLat != null
-                   && westLon != null;
+                    && northLat != null
+                    && southLat != null
+                    && westLon != null;
         }
 
         public float getNorthLat() {
@@ -1572,9 +1563,9 @@ public class MosaicProcessor extends Processor {
 
         public boolean isValid() {
             return northing != null
-                   && easting != null
-                   && outputWidth != null
-                   && outputHeight != null;
+                    && easting != null
+                    && outputWidth != null
+                    && outputHeight != null;
         }
 
         public float getNorthing() {
@@ -1611,9 +1602,9 @@ public class MosaicProcessor extends Processor {
 
         public boolean isValid() {
             return centerLat != null
-                   && centerLon != null
-                   && outputWidth != null
-                   && outputHeight != null;
+                    && centerLon != null
+                    && outputWidth != null
+                    && outputHeight != null;
         }
 
         public float getCenterLat() {
