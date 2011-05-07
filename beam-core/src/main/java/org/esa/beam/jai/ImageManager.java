@@ -66,7 +66,6 @@ import javax.media.jai.operator.BandMergeDescriptor;
 import javax.media.jai.operator.ClampDescriptor;
 import javax.media.jai.operator.CompositeDescriptor;
 import javax.media.jai.operator.ConstantDescriptor;
-import javax.media.jai.operator.ExpDescriptor;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.InvertDescriptor;
 import javax.media.jai.operator.LookupDescriptor;
@@ -325,8 +324,8 @@ public class ImageManager {
                                                 int level) {
         Assert.notNull(rasterDataNodes, "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
-                     || rasterDataNodes.length == 3
-                     || rasterDataNodes.length == 4,
+                             || rasterDataNodes.length == 3
+                             || rasterDataNodes.length == 4,
                      "invalid number of bands");
 
         prepareImageInfos(rasterDataNodes, ProgressMonitor.NULL);
@@ -679,7 +678,7 @@ public class ImageManager {
             for (int i = 1; i < binCount; i++) {
                 double deviation = i - mu;
                 normCDF[b][i] = normCDF[b][i - 1] +
-                                (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
             }
         }
 
@@ -697,23 +696,6 @@ public class ImageManager {
     private static PlanarImage getLevelImage(MultiLevelImage levelZeroImage, int level) {
         RenderedImage image = levelZeroImage.getImage(level);
         return PlanarImage.wrapRenderedImage(image);
-    }
-
-
-    @Deprecated
-    public MultiLevelImage getValidMaskMultiLevelImage(final RasterDataNode rasterDataNode) {
-        final MaskKey key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getValidMaskExpression());
-        synchronized (maskImageMap) {
-            MultiLevelImage mli = maskImageMap.get(key);
-            if (mli == null) {
-                mli = createValidMaskMultiLevelImage(rasterDataNode);
-                if (rasterDataNode.getProduct() != null) {
-                    rasterDataNode.getProduct().addProductNodeListener(rasterDataChangeListener);
-                }
-                maskImageMap.put(key, mli);
-            }
-            return mli;
-        }
     }
 
     @Deprecated
@@ -755,11 +737,6 @@ public class ImageManager {
             }
             return mli;
         }
-    }
-
-    @Deprecated
-    public RenderedImage getMaskImage(final String expression, final Product product, int level) {
-        return getMaskImage(product, expression, level);
     }
 
     public ImageInfo getImageInfo(RasterDataNode[] rasters) {
@@ -825,12 +802,6 @@ public class ImageManager {
         return createColoredMaskImage(color, image, invertMask);
     }
 
-    @Deprecated
-    public PlanarImage createColoredMaskImage(String expression, Product product, Color color, boolean invertMask,
-                                              int level) {
-        return createColoredMaskImage(product, expression, color, invertMask, level);
-    }
-
     public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage, boolean invertAlpha) {
         RenderingHints hints = createDefaultRenderingHints(alphaImage, null);
         return createColoredMaskImage(color, invertAlpha ? InvertDescriptor.create(alphaImage, hints) : alphaImage,
@@ -841,11 +812,6 @@ public class ImageManager {
         RenderingHints hints = createDefaultRenderingHints(maskImage, null);
         RenderedImage alphaImage = MultiplyConstDescriptor.create(maskImage, new double[]{opacity}, hints);
         return createColoredMaskImage(color, alphaImage, hints);
-    }
-
-    @Deprecated
-    public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage) {
-        return createColoredMaskImage(color, alphaImage, createDefaultRenderingHints(alphaImage, null));
     }
 
     public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage, RenderingHints hints) {
@@ -862,33 +828,11 @@ public class ImageManager {
     }
 
     /**
-     * Creates a colored ROI image for the given band.
-     *
-     * @param rasterDataNode the band
-     * @param color          the color
-     * @param level          the level
-     *
-     * @return the image, or null if the band has no valid ROI definition
-     *
-     * @deprecated since BEAM 4.7, no replacement.
-     */
-    @Deprecated
-    public RenderedImage createColoredRoiImage(RasterDataNode rasterDataNode, Color color, int level) {
-        final RenderedImage roiImage = createRoiMaskImage(rasterDataNode, level);
-        if (roiImage == null) {
-            return null;
-        }
-        return createColoredMaskImage(color, roiImage, false);
-    }
-
-    /**
      * Creates a ROI for the given band.
      *
      * @param rasterDataNode the band
      * @param level          the level
-     *
      * @return the ROI, or null if the band has no valid ROI definition
-     *
      * @deprecated since BEAM 4.7, no replacement.
      */
     @Deprecated
@@ -903,19 +847,19 @@ public class ImageManager {
         // Step 1:  insert ROI pixels determined by bitmask expression
         String bitmaskExpr = roiDefinition.getBitmaskExpr();
         if (!StringUtils.isNullOrEmpty(bitmaskExpr) && roiDefinition.isBitmaskEnabled()) {
-            roiImages.add(getMaskImage(bitmaskExpr, rasterDataNode.getProduct(), level));
+            roiImages.add(getMaskImage(rasterDataNode.getProduct(), bitmaskExpr, level));
         }
 
         // Step 2:  insert ROI pixels within value range
         if (roiDefinition.isValueRangeEnabled()) {
             final String escapedName = BandArithmetic.createExternalName(rasterDataNode.getName());
             String rangeExpr = escapedName + " >= " + roiDefinition.getValueRangeMin() + " && "
-                               + escapedName + " <= " + roiDefinition.getValueRangeMax();
+                    + escapedName + " <= " + roiDefinition.getValueRangeMax();
             final String validMaskExpression = rasterDataNode.getValidMaskExpression();
             if (validMaskExpression != null) {
                 rangeExpr += " && " + validMaskExpression;
             }
-            roiImages.add(getMaskImage(rangeExpr, rasterDataNode.getProduct(), level));
+            roiImages.add(getMaskImage(rasterDataNode.getProduct(), rangeExpr, level));
         }
 
         final MultiLevelModel multiLevelModel = getMultiLevelModel(rasterDataNode);
@@ -983,25 +927,6 @@ public class ImageManager {
                                         new double[]{factor},
                                         new double[]{offset},
                                         createDefaultRenderingHints(src, null));
-    }
-
-    // todo - signed byte type (-128...127) not correctly handled, see also [BEAM-1147] (nf - 20100527)
-
-    @Deprecated
-    public static RenderedImage createRescaleOp(RenderedImage src, int dataType, double factor, double offset,
-                                                boolean log10Scaled) {
-        RenderedImage image = createFormatOp(src, dataType);
-        if (log10Scaled) {
-            image = createRescaleOp(image, Math.log(10) * factor, Math.log(10) * offset);
-            image = createExpOp(image);
-        } else {
-            image = createRescaleOp(image, factor, offset);
-        }
-        return image;
-    }
-
-    private static PlanarImage createExpOp(RenderedImage image) {
-        return ExpDescriptor.create(image, createDefaultRenderingHints(image, null));
     }
 
     private static PlanarImage createLookupOp(RenderedImage src, byte[][] lookupTable) {
