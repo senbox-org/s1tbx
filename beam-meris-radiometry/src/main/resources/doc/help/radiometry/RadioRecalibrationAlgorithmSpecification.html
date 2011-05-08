@@ -35,7 +35,70 @@
 
 <h3>Algorithm Specification</h3>
 
-<h1>TBD</h1>
+<p>The impact of the radiometric calibration changes was assessed by comparing RR products processed with 2nd
+    reprocessing
+    and 3rd reprocessing configuration. FR products in 3rd reprocessing configuration were not available at time of the
+    analysis. A method was developed to correct 2nd reprocessing Level 1 products to 3rd reprocessing quality.</p>
+
+<p>MERIS standard processing algorithms are revised, and as part of this, the degradation model of the calibration
+    diffuser has been improved, which results in updated gain values per detector. This is applied in L0 to L1
+    processing.
+    The Reduced Resolution products are currently undergoing a reprocessing (3rd reprocessing) at ESA;
+    however, this applies only to archived RR products, and the Level 1b FRS in use at the MERIS user community
+    are at 2nd reprocessing quality. A method has been developed reverting the second reprocessing gains and applying
+    the 3rd reprocessing gains, so that TOA radiances are comparable with the 3rd data.</p>
+
+<p>The radiometric calibration as described below is a non-linear process including several steps. The radiometric
+    gains are the second last step before the L1b are written. However, the last step is the stray light correction
+    which
+    is a non-linear process and not revertible from L1b product. The recalibration is therefore only an
+    approximation.</p>
+
+<p>The valid MERIS samples are digital counts resulting from the detection and acquisition by MERIS of a bi-dimensional
+    field of spectral radiance in front of the instrument. The objective of the radiometric processing, together with
+    the
+    stray light correction, is to estimate that spectral radiance. An inverse model of the MERIS processing is used for
+    that purpose, using parameters stored in the Characterisation and Radiometric Calibration data bases and the MERIS
+    samples themselves. The MERIS acquisition model may be described as:</p>
+
+<p align="center"><img src="images/AcquisitionModelEquation.png"></p>
+
+<p>Where</p>
+<ul>
+    <li><b>m</b> is the camera (or module); <b>b</b> is the spectral band; <b>k</b> is the pixel column; <b>f</b> is a
+        frame (processing unit of number of image lines)
+    </li>
+    <li><b>X<sub>b,k,m,f</sub></b> is the MERIS raw sample</li>
+    <li><b>NonLim<sub>b,m</sub></b> is a non-linear function, representing the non-linear transformations which take
+        place in the CCD, amplifier and A/D converter; NonLin depends on band and gain settings
+    </li>
+    <li><b>T<sub>f</sub><sup>VEU</sup></b> is the temperature of the MERIS amplifiers (VEUs) at the time of frame f</li>
+    <li><b>T<sub>f</sub><sup>CCD</sup></b> is the temperature of the MERIS detectors (CCDs) at the time of frame f
+    <li><b>g</b> and <b>g<sub>c</sub></b> are (dimensionless) temperature correction functions</li>
+    <li><b>AL<sub>b,k,m</sub></b> the "absolute radiometric gain" in counts/radiance unit; AL depends on band &amp; gain
+        settings
+    </li>
+    <li><b>L<sub>b,k,m,f</sub></b> the spectral radiance distribution in front of MERIS</li>
+    <li><b>Sm<sub>b,k,m,f</sub></b> the smear signal, due to continuous sensing of light by MERIS</li>
+    <li><b>C<sup>0</sup><sub>b,k,m</sub></b> the calibrated dark signal (possibly including an on-board compensation),
+        dependent on band and gain settings
+    </li>
+    <li><b>G<b>b,k,m</b></b> a linear operator (weighted sum) representing the stray light contribution to the signal.
+        For a given sample, some stray light is expected from all the other samples in the module, spread into the
+        sample by specular (ghost image) or scattering processes
+    </li>
+    <li><b>&epsilon;</b> is a random process representative of the noise and measurement errors</li>
+</ul>
+
+<p>This model is inverted during processing: The inverse of the absolute instrument gain ALb,k,m is applied to the valid
+    samples of all bands after dark and smear signal subtraction, with a compensation for the estimated temperature
+    which is expressed as a function of time:</p>
+
+<p><img src="images/RecalibrationEquation.png"/></p>
+
+<p>Where <b>R<sub>b,k,m,f</sub></b> are the spectral radiances before the straylight correction. The 2nd reprocessing
+    radiometric gains (AL) are multiplied to R, and then the inverse of the 3rd reprocessing gains are multiplied to
+    give an estimate of the 3rd reprocessing radiances.</p>
 
 <hr>
 </body>
