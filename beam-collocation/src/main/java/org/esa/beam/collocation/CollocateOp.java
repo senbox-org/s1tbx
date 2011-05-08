@@ -420,7 +420,7 @@ public class CollocateOp extends Operator {
             if (!product.getFlagCodingGroup().contains(flagCodingName)) {
                 addFlagCoding(product, flagCoding, flagCodingName);
             }
-            band.setFlagCoding(product.getFlagCodingGroup().get(flagCodingName));
+            band.setSampleCoding(product.getFlagCodingGroup().get(flagCodingName));
         }
     }
 

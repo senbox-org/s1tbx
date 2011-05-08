@@ -540,14 +540,6 @@ public class VisatApp extends BasicApp implements AppContext {
         return applicationPage;
     }
 
-    /**
-     * @deprecated since BEAM 4.7 use {@link #getApplicationPage()} instead.
-     */
-    @Deprecated
-    public final ApplicationPage getPage() {
-        return applicationPage;
-    }
-
     private void loadToolViews() {
         ToolViewDescriptor[] toolViewDescriptors = VisatActivator.getInstance().getToolViewDescriptors();
         for (ToolViewDescriptor toolViewDescriptor : toolViewDescriptors) {
@@ -1350,17 +1342,6 @@ public class VisatApp extends BasicApp implements AppContext {
 
     protected ModalDialog createAboutBox() {
         return new VisatAboutBox();
-    }
-
-
-    /**
-     * Updates the main frame's document title.
-     *
-     * @deprecated in BEAM 4.6, use {@link #updateMainFrameTitle()}
-     */
-    @Deprecated
-    public void updateCurrentDocTitle() {
-        updateMainFrameTitle();
     }
 
     /**

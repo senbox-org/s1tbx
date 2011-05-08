@@ -18,7 +18,6 @@ package org.esa.beam.framework.ui;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.swing.LayerCanvas;
-import com.bc.ceres.glayer.swing.NavControl;
 import com.bc.ceres.glayer.swing.WakefulComponent;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
@@ -149,15 +148,6 @@ public final class WorldMapPane extends JPanel {
     /**
      * None API. Don't use this method!
      *
-     * @return true, if this canvas uses a {@link NavControl}.
-     */
-    public boolean isNavControlShown() {
-        return navControlShown;
-    }
-
-    /**
-     * None API. Don't use this method!
-     *
      * @param navControlShown true, if this canvas uses a navigation control.
      */
     public void setNavControlVisible(boolean navControlShown) {
@@ -186,7 +176,7 @@ public final class WorldMapPane extends JPanel {
             repaint();
         }
         if (WorldMapPaneDataModel.PROPERTY_SELECTED_PRODUCT.equals(evt.getPropertyName()) ||
-            WorldMapPaneDataModel.PROPERTY_AUTO_ZOOM_ENABLED.equals(evt.getPropertyName())) {
+                WorldMapPaneDataModel.PROPERTY_AUTO_ZOOM_ENABLED.equals(evt.getPropertyName())) {
             final Product selectedProduct = dataModel.getSelectedProduct();
             if (selectedProduct != null && dataModel.isAutoZommEnabled()) {
                 zoomToProduct(selectedProduct);
@@ -214,7 +204,7 @@ public final class WorldMapPane extends JPanel {
     private Rectangle2D cropToMaxModelBounds(Rectangle2D modelBounds) {
         final Rectangle2D maxModelBounds = worldMapLayer.getModelBounds();
         if (modelBounds.getWidth() >= maxModelBounds.getWidth() - 1 ||
-            modelBounds.getHeight() >= maxModelBounds.getHeight() - 1) {
+                modelBounds.getHeight() >= maxModelBounds.getHeight() - 1) {
             modelBounds = maxModelBounds;
         }
         return modelBounds;
@@ -248,93 +238,12 @@ public final class WorldMapPane extends JPanel {
     }
 
     /**
-     * @param image is ignored
-     *
-     * @deprecated since BEAM 4.7, no replacement
-     */
-    @Deprecated
-    @SuppressWarnings({"UnusedDeclaration"})
-    public WorldMapPane(final java.awt.image.BufferedImage image) {
-        this(new WorldMapPaneDataModel());
-    }
-
-    /**
      * @param bufferedImage is ignored
-     *
      * @deprecated since BEAM 4.7, no replacement
      */
     @Deprecated
     @SuppressWarnings({"UnusedDeclaration"})
     public void setWorldMapImage(java.awt.image.BufferedImage bufferedImage) {
-    }
-
-    /**
-     * @return the dimension of this {@link WorldMapPane}
-     *
-     * @deprecated since BEAM 4.7, no replacement
-     */
-    @Deprecated
-    public Dimension getCurrentimageSize() {
-        return getSize();
-    }
-
-    /**
-     * @param product the selected product
-     *
-     * @deprecated since BEAM 4.7, use the {@link WorldMapPaneDataModel} model provided
-     *             to this {@link WorldMapPane} via the constructor.
-     */
-    @Deprecated
-    public void setSelectedProduct(final Product product) {
-        final Product oldSelectedProduct = dataModel.getSelectedProduct();
-        if (oldSelectedProduct != product) {
-            dataModel.setSelectedProduct(product);
-            firePropertyChange("product", oldSelectedProduct, product);
-        }
-    }
-
-    /**
-     * @param products the products
-     *
-     * @deprecated since BEAM 4.7, use the {@link WorldMapPaneDataModel#setProducts(Product[])} model provided
-     *             to this {@link WorldMapPane} via the constructor.
-     */
-    @Deprecated
-    public void setProducts(final Product[] products) {
-        final Product[] oldProducts = dataModel.getProducts();
-        if (oldProducts != products) {
-            dataModel.setProducts(products);
-            firePropertyChange("products", oldProducts, products);
-        }
-    }
-
-    /**
-     * @param geoBoundaries additional geo-boundaries
-     *
-     * @deprecated since BEAM 4.7, use the {@link WorldMapPaneDataModel#setAdditionalGeoBoundaries(GeoPos[][])} model
-     *             provided to this {@link WorldMapPane} via the constructor.
-     */
-    @Deprecated
-    public void setPathesToDisplay(final GeoPos[][] geoBoundaries) {
-        final GeoPos[][] oldAdditionalGeoBoundaries = dataModel.getAdditionalGeoBoundaries();
-        if (oldAdditionalGeoBoundaries != geoBoundaries) {
-            dataModel.setAdditionalGeoBoundaries(geoBoundaries);
-            firePropertyChange("extraGeoBoundaries", oldAdditionalGeoBoundaries, oldAdditionalGeoBoundaries);
-        }
-    }
-
-    /**
-     * @return the center {@link PixelPos pixel position} of the
-     *         currently selected product
-     *
-     * @deprecated since BEAM 4.7, no replacement
-     */
-    @Deprecated
-    public PixelPos getCurrentProductCenter() {
-        if (dataModel.getSelectedProduct() == null) {
-            return null;
-        }
-        return getProductCenter(dataModel.getSelectedProduct());
     }
 
     private class ModelChangeListener implements PropertyChangeListener {

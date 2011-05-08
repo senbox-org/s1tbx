@@ -66,65 +66,6 @@ public class ShapefileUtils {
 
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
 
-    /**
-     * Loads a shapefile into a feature collection. The shapefile is clipped to the geometry of the given raster.
-     *
-     * @param file         The shapefile.
-     * @param targetRaster A geocoded raster.
-     *
-     * @return The shapefile as a feature collection clipped to the geometry of the raster.
-     *
-     * @throws IOException if the shapefile could not be read.
-     * @deprecated since BEAM 4.7, no replacement
-     */
-    @Deprecated
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> loadShapefile(File file,
-                                                                                    RasterDataNode targetRaster) throws
-                                                                                                                 IOException {
-        return loadShapefile(file.toURI().toURL(), targetRaster);
-    }
-
-    /**
-     * Loads a shapefile into a feature collection. The shapefile is clipped to the geometry of the given product.
-     *
-     * @param file    The shapefile.
-     * @param product A geocoded product.
-     *
-     * @return The shapefile as a feature collection clipped to the geometry of the product.
-     *
-     * @throws IOException if the shapefile could not be read.
-     * @deprecated since BEAM 4.7, no replacement
-     */
-    @Deprecated
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> loadShapefile(File file,
-                                                                                    Product product) throws
-                                                                                                     IOException {
-        final URL url = file.toURI().toURL();
-        final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(product.getGeoCoding());
-        final Geometry clipGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(product);
-        return createFeatureCollection(url, targetCrs, clipGeometry);
-    }
-
-    /**
-     * Loads a shapefile into a feature collection. The shapefile is clipped to the geometry of the given raster.
-     *
-     * @param url          The URL of the shapefile.
-     * @param targetRaster A geocoded raster.
-     *
-     * @return The shapefile as a feature collection clipped to the geometry of the raster.
-     *
-     * @throws IOException if the shapefile could not be read.
-     * @deprecated since BEAM 4.7, no replacement
-     */
-    @Deprecated
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> loadShapefile(URL url,
-                                                                                    RasterDataNode targetRaster) throws
-                                                                                                                 IOException {
-        final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(targetRaster.getGeoCoding());
-        final Geometry clipGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(targetRaster.getProduct());
-        return createFeatureCollection(url, targetCrs, clipGeometry);
-    }
-
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> createFeatureCollection(URL url,
                                                                                               CoordinateReferenceSystem targetCrs,
                                                                                               Geometry clipGeometry) throws

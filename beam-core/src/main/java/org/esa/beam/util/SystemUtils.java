@@ -327,29 +327,6 @@ public class SystemUtils {
     }
 
     /**
-     * Gets the BEAM auxdata directory.
-     * This is the directory where auxiliary data is searched.
-     * <p>Its value is <code><i>$BEAM_HOME</i>/auxdata</code>.</p>
-     *
-     * @return the auxdata directory
-     * @deprecated in 4.0, use {@link ResourceScanner} instead
-     */
-    @Deprecated
-    public static File getBeamAuxdataDir() {
-        CodeSource cs = SystemUtils.class.getProtectionDomain().getCodeSource();
-        if (cs != null) {
-            URL location = cs.getLocation();
-            try {
-                URI uri = location.toURI();
-                return new File(new File(uri), AUXDATA_DIR_NAME);
-            } catch (URISyntaxException e) {
-                // ok
-            }
-        }
-        return new File(getBeamHomeDir(), AUXDATA_DIR_NAME);
-    }
-
-    /**
      * Replace the separator character '/' with the system-dependent path-separator character.
      *
      * @param urlPath an URL path or any other string containing the forward slash '/' as directory separator.

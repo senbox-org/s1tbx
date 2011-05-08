@@ -52,20 +52,6 @@ public class WorldMapWindow extends JDialog {
         }
     }
 
-    /**
-     * @param owner     the owner of this window
-     * @param title     the window title
-     * @param helpId    the helpId
-     * @param accessory is ignored
-     *
-     * @deprecated since BEAM 4.7, no replacement
-     */
-    @Deprecated
-    @SuppressWarnings({"UnusedDeclaration"})
-    public WorldMapWindow(Frame owner, String title, String helpId, JComponent accessory) {
-        this(owner, title, helpId);
-    }
-
     public void setSelectedProduct(Product product) {
         worldMapDataModel.setSelectedProduct(product);
     }
@@ -91,13 +77,5 @@ public class WorldMapWindow extends JDialog {
         if (helpId != null) {
             HelpSys.enableHelpKey(this, helpId);
         }
-    }
-
-    /**
-     * @deprecated since BEAM 4.7, call {@link #pack()} instead directly
-     */
-    @Deprecated
-    public void packIfNeeded() {
-        pack();
     }
 }

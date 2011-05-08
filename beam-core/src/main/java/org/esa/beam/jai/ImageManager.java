@@ -25,13 +25,11 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -39,17 +37,12 @@ import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.RGBChannelDef;
-import org.esa.beam.framework.datamodel.ROIDefinition;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Scene;
 import org.esa.beam.framework.datamodel.SceneFactory;
 import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic;
-import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
-import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -57,7 +50,6 @@ import org.opengis.referencing.operation.MathTransform;
 
 import javax.media.jai.Histogram;
 import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.LookupTableJAI;
 import javax.media.jai.PlanarImage;
@@ -66,19 +58,16 @@ import javax.media.jai.operator.BandMergeDescriptor;
 import javax.media.jai.operator.ClampDescriptor;
 import javax.media.jai.operator.CompositeDescriptor;
 import javax.media.jai.operator.ConstantDescriptor;
-import javax.media.jai.operator.ExpDescriptor;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.InvertDescriptor;
 import javax.media.jai.operator.LookupDescriptor;
 import javax.media.jai.operator.MatchCDFDescriptor;
 import javax.media.jai.operator.MaxDescriptor;
-import javax.media.jai.operator.MinDescriptor;
 import javax.media.jai.operator.MultiplyConstDescriptor;
 import javax.media.jai.operator.RescaleDescriptor;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.RenderingHints;
-import java.awt.Shape;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
@@ -89,11 +78,8 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.lang.ref.WeakReference;
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -169,31 +155,6 @@ public class ImageManager {
 
     public PlanarImage getGeophysicalImage(RasterDataNode rasterDataNode, int level) {
         return getLevelImage(rasterDataNode.getGeophysicalImage(), level);
-    }
-
-    public static MultiLevelSource getMultiLevelSource(RenderedImage levelZeroImage) {
-        Assert.notNull(levelZeroImage, "levelZeroImage");
-        MultiLevelSource multiLevelSource;
-        if (levelZeroImage instanceof MultiLevelSource) {
-            multiLevelSource = (MultiLevelSource) levelZeroImage;
-        } else {
-            // todo - IMAGING 4.5: A new DefaultMultiLevelSource created here, which is an inefficient factory for level images!  (nf, 19.09.2008)
-            //        This will happen e.g. for all bands created by GPF operators which use a
-            //        org.esa.beam.framework.gpf.internal.OperatorImage as source image (as of status from 10.2008).
-            // todo - IMAGING 4.5: The new DefaultMultiLevelSource references will not be stored, (nf, 19.09.2008)
-            //        Possible solution: Call Band.setSourceImage(new DefaultMultiLevelImage(multiLevelSource))
-            //        --> Problem: GPF may expect a org.esa.beam.framework.gpf.internal.OperatorImage in a band
-            //            created by a GPF Operator (check!)
-            final int levelCount = DefaultMultiLevelModel.getLevelCount(levelZeroImage.getWidth(),
-                                                                        levelZeroImage.getHeight());
-            multiLevelSource = new DefaultMultiLevelSource(levelZeroImage,
-                                                           levelCount,
-                                                           Interpolation.getInstance(Interpolation.INTERP_NEAREST));
-            Debug.trace(
-                    MessageFormat.format("WARNING: Inefficient usage of {0}.", multiLevelSource.getClass().getName()));
-            Debug.trace(MessageFormat.format("         Source image is a {0}.", levelZeroImage.getClass().getName()));
-        }
-        return multiLevelSource;
     }
 
     public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode) {
@@ -325,8 +286,8 @@ public class ImageManager {
                                                 int level) {
         Assert.notNull(rasterDataNodes, "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
-                     || rasterDataNodes.length == 3
-                     || rasterDataNodes.length == 4,
+                             || rasterDataNodes.length == 3
+                             || rasterDataNodes.length == 4,
                      "invalid number of bands");
 
         prepareImageInfos(rasterDataNodes, ProgressMonitor.NULL);
@@ -679,7 +640,7 @@ public class ImageManager {
             for (int i = 1; i < binCount; i++) {
                 double deviation = i - mu;
                 normCDF[b][i] = normCDF[b][i - 1] +
-                                (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
             }
         }
 
@@ -697,23 +658,6 @@ public class ImageManager {
     private static PlanarImage getLevelImage(MultiLevelImage levelZeroImage, int level) {
         RenderedImage image = levelZeroImage.getImage(level);
         return PlanarImage.wrapRenderedImage(image);
-    }
-
-
-    @Deprecated
-    public MultiLevelImage getValidMaskMultiLevelImage(final RasterDataNode rasterDataNode) {
-        final MaskKey key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getValidMaskExpression());
-        synchronized (maskImageMap) {
-            MultiLevelImage mli = maskImageMap.get(key);
-            if (mli == null) {
-                mli = createValidMaskMultiLevelImage(rasterDataNode);
-                if (rasterDataNode.getProduct() != null) {
-                    rasterDataNode.getProduct().addProductNodeListener(rasterDataChangeListener);
-                }
-                maskImageMap.put(key, mli);
-            }
-            return mli;
-        }
     }
 
     @Deprecated
@@ -755,11 +699,6 @@ public class ImageManager {
             }
             return mli;
         }
-    }
-
-    @Deprecated
-    public RenderedImage getMaskImage(final String expression, final Product product, int level) {
-        return getMaskImage(product, expression, level);
     }
 
     public ImageInfo getImageInfo(RasterDataNode[] rasters) {
@@ -825,12 +764,6 @@ public class ImageManager {
         return createColoredMaskImage(color, image, invertMask);
     }
 
-    @Deprecated
-    public PlanarImage createColoredMaskImage(String expression, Product product, Color color, boolean invertMask,
-                                              int level) {
-        return createColoredMaskImage(product, expression, color, invertMask, level);
-    }
-
     public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage, boolean invertAlpha) {
         RenderingHints hints = createDefaultRenderingHints(alphaImage, null);
         return createColoredMaskImage(color, invertAlpha ? InvertDescriptor.create(alphaImage, hints) : alphaImage,
@@ -841,11 +774,6 @@ public class ImageManager {
         RenderingHints hints = createDefaultRenderingHints(maskImage, null);
         RenderedImage alphaImage = MultiplyConstDescriptor.create(maskImage, new double[]{opacity}, hints);
         return createColoredMaskImage(color, alphaImage, hints);
-    }
-
-    @Deprecated
-    public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage) {
-        return createColoredMaskImage(color, alphaImage, createDefaultRenderingHints(alphaImage, null));
     }
 
     public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage, RenderingHints hints) {
@@ -859,111 +787,6 @@ public class ImageManager {
                                 (byte) color.getBlue(),
                         }, hints);
         return BandMergeDescriptor.create(colorImage, alphaImage, hints);
-    }
-
-    /**
-     * Creates a colored ROI image for the given band.
-     *
-     * @param rasterDataNode the band
-     * @param color          the color
-     * @param level          the level
-     *
-     * @return the image, or null if the band has no valid ROI definition
-     *
-     * @deprecated since BEAM 4.7, no replacement.
-     */
-    @Deprecated
-    public RenderedImage createColoredRoiImage(RasterDataNode rasterDataNode, Color color, int level) {
-        final RenderedImage roiImage = createRoiMaskImage(rasterDataNode, level);
-        if (roiImage == null) {
-            return null;
-        }
-        return createColoredMaskImage(color, roiImage, false);
-    }
-
-    /**
-     * Creates a ROI for the given band.
-     *
-     * @param rasterDataNode the band
-     * @param level          the level
-     *
-     * @return the ROI, or null if the band has no valid ROI definition
-     *
-     * @deprecated since BEAM 4.7, no replacement.
-     */
-    @Deprecated
-    public RenderedImage createRoiMaskImage(final RasterDataNode rasterDataNode, int level) {
-        final ROIDefinition roiDefinition = rasterDataNode.getROIDefinition();
-        if (roiDefinition == null) {
-            return null;
-        }
-
-        List<RenderedImage> roiImages = new ArrayList<RenderedImage>(4);
-
-        // Step 1:  insert ROI pixels determined by bitmask expression
-        String bitmaskExpr = roiDefinition.getBitmaskExpr();
-        if (!StringUtils.isNullOrEmpty(bitmaskExpr) && roiDefinition.isBitmaskEnabled()) {
-            roiImages.add(getMaskImage(bitmaskExpr, rasterDataNode.getProduct(), level));
-        }
-
-        // Step 2:  insert ROI pixels within value range
-        if (roiDefinition.isValueRangeEnabled()) {
-            final String escapedName = BandArithmetic.createExternalName(rasterDataNode.getName());
-            String rangeExpr = escapedName + " >= " + roiDefinition.getValueRangeMin() + " && "
-                               + escapedName + " <= " + roiDefinition.getValueRangeMax();
-            final String validMaskExpression = rasterDataNode.getValidMaskExpression();
-            if (validMaskExpression != null) {
-                rangeExpr += " && " + validMaskExpression;
-            }
-            roiImages.add(getMaskImage(rangeExpr, rasterDataNode.getProduct(), level));
-        }
-
-        final MultiLevelModel multiLevelModel = getMultiLevelModel(rasterDataNode);
-
-        // Step 3:  insert ROI pixels for pins
-        if (roiDefinition.isPinUseEnabled() && rasterDataNode.getProduct().getPinGroup().getNodeCount() > 0) {
-            roiImages.add(new PlacemarkMaskOpImage(rasterDataNode.getProduct(),
-                                                   PinDescriptor.INSTANCE, 1,
-                                                   rasterDataNode.getSceneRasterWidth(),
-                                                   rasterDataNode.getSceneRasterHeight(),
-                                                   ResolutionLevel.create(multiLevelModel, level)));
-        }
-
-        // Step 4:  insert ROI pixels within shape
-        Figure roiShapeFigure = roiDefinition.getShapeFigure();
-        if (roiDefinition.isShapeEnabled() && roiShapeFigure != null) {
-            final Shape roiShape = roiShapeFigure.getAsArea();
-            roiImages.add(new ShapeMaskOpImage(roiShape,
-                                               rasterDataNode.getSceneRasterWidth(),
-                                               rasterDataNode.getSceneRasterHeight(),
-                                               rasterDataNode.getProduct().getPreferredTileSize(),
-                                               ResolutionLevel.create(multiLevelModel, level)));
-        }
-
-        if (roiImages.isEmpty()) {
-            // todo - null is returned whenever a shape is converted into a ROI for any but the first time
-            // todo - may be this problem is due to concurrency issues (nf, 08.2008)
-            return null;
-        }
-
-        RenderedImage roiImage = roiImages.get(0);
-
-        // Step 5: combine ROIs
-        for (int i = 1; i < roiImages.size(); i++) {
-            RenderedImage roiImage2 = roiImages.get(i);
-            if (roiDefinition.isOrCombined()) {
-                roiImage = MaxDescriptor.create(roiImage, roiImage2, null);
-            } else {
-                roiImage = MinDescriptor.create(roiImage, roiImage2, null);
-            }
-        }
-
-        // Step 6:  invert ROI pixels
-        if (roiDefinition.isInverted()) {
-            roiImage = InvertDescriptor.create(roiImage, null);
-        }
-
-        return roiImage;
     }
 
     public static RenderedImage createFormatOp(RenderedImage image, int dataType) {
@@ -983,25 +806,6 @@ public class ImageManager {
                                         new double[]{factor},
                                         new double[]{offset},
                                         createDefaultRenderingHints(src, null));
-    }
-
-    // todo - signed byte type (-128...127) not correctly handled, see also [BEAM-1147] (nf - 20100527)
-
-    @Deprecated
-    public static RenderedImage createRescaleOp(RenderedImage src, int dataType, double factor, double offset,
-                                                boolean log10Scaled) {
-        RenderedImage image = createFormatOp(src, dataType);
-        if (log10Scaled) {
-            image = createRescaleOp(image, Math.log(10) * factor, Math.log(10) * offset);
-            image = createExpOp(image);
-        } else {
-            image = createRescaleOp(image, factor, offset);
-        }
-        return image;
-    }
-
-    private static PlanarImage createExpOp(RenderedImage image) {
-        return ExpDescriptor.create(image, createDefaultRenderingHints(image, null));
     }
 
     private static PlanarImage createLookupOp(RenderedImage src, byte[][] lookupTable) {

@@ -88,7 +88,6 @@ public class VirtualBand extends Band {
             this.expression = expression;
             if (isSourceImageSet()) {
                 setSourceImage(null);
-                setGeophysicalImage(null);
             }
             resetValidMask();
             setStx(null);

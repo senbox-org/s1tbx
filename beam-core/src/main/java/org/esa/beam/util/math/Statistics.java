@@ -23,7 +23,9 @@ import org.esa.beam.util.Guardian;
  * Instances of the <code>Statistics</code> class provide a set of standard statistical variables.
  *
  * @author Norman Fomferra
+ * @deprecated since BEAM 4.9, replaced by {@link org.esa.beam.framework.datamodel.Stx}.
  */
+@Deprecated
 public class Statistics {
 
     private long _numTotal;
@@ -253,15 +255,6 @@ public class Statistics {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #computeStatisticsGeneric(Object, boolean, IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Statistics computeStatisticsGeneric(final Object values, boolean unsigned,
-                                                      final IndexValidator validator,
-                                                      Statistics statistics) {
-        return computeStatisticsGeneric(values, unsigned, validator, statistics, ProgressMonitor.NULL);
-    }
-
-    /**
      * Computes the statistics for the given values.
      *
      * @param values     an array of a primitive type (such as <code>float[]</code>) or an instance of {@link
@@ -318,14 +311,6 @@ public class Statistics {
         return statistics;
     }
 
-    /**
-     * @see #computeStatisticsGeneric
-     * @deprecated in 4.0, use {@link #computeStatisticsByte(byte[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Statistics computeStatisticsByte(final byte[] values, final IndexValidator validator,
-                                                   Statistics statistics) {
-        return computeStatisticsByte(values, validator, statistics, ProgressMonitor.NULL);
-    }
 
     /**
      * @see #computeStatisticsGeneric
@@ -336,14 +321,6 @@ public class Statistics {
         return computeStatisticsDouble(new DoubleList.Byte(values), validator, statistics, pm);
     }
 
-    /**
-     * @see #computeStatisticsGeneric
-     * @deprecated in 4.0, use {@link #computeStatisticsUByte(byte[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Statistics computeStatisticsUByte(final byte[] values, final IndexValidator validator,
-                                                    Statistics statistics) {
-        return computeStatisticsUByte(values, validator, statistics, ProgressMonitor.NULL);
-    }
 
     /**
      * @see #computeStatisticsGeneric
@@ -354,14 +331,6 @@ public class Statistics {
         return computeStatisticsDouble(new DoubleList.UByte(values), validator, statistics, pm);
     }
 
-    /**
-     * @see #computeStatisticsGeneric
-     * @deprecated in 4.0, use {@link #computeStatisticsShort(short[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Statistics computeStatisticsShort(final short[] values, final IndexValidator validator,
-                                                    Statistics statistics) {
-        return computeStatisticsShort(values, validator, statistics, ProgressMonitor.NULL);
-    }
 
     /**
      * @see #computeStatisticsGeneric
@@ -370,15 +339,6 @@ public class Statistics {
                                                     Statistics statistics, ProgressMonitor pm) {
         Guardian.assertNotNull("validator", validator);
         return computeStatisticsDouble(new DoubleList.Short(values), validator, statistics, pm);
-    }
-
-    /**
-     * @see #computeStatisticsGeneric
-     * @deprecated in 4.0, use {@link #computeStatisticsUShort(short[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Statistics computeStatisticsUShort(final short[] values, final IndexValidator validator,
-                                                     Statistics statistics) {
-        return computeStatisticsUShort(values, validator, statistics, ProgressMonitor.NULL);
     }
 
     /**
@@ -392,29 +352,11 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated in 4.0, use {@link #computeStatisticsInt(int[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Statistics computeStatisticsInt(final int[] values, final IndexValidator validator,
-                                                  Statistics statistics) {
-        return computeStatisticsInt(values, validator, statistics, ProgressMonitor.NULL);
-    }
-
-    /**
-     * @see #computeStatisticsGeneric
      */
     public static Statistics computeStatisticsInt(final int[] values, final IndexValidator validator,
                                                   Statistics statistics, ProgressMonitor pm) {
         Guardian.assertNotNull("validator", validator);
         return computeStatisticsDouble(new DoubleList.Int(values), validator, statistics, pm);
-    }
-
-    /**
-     * @see #computeStatisticsGeneric
-     * @deprecated in 4.0, {@link #computeStatisticsUInt(int[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Statistics computeStatisticsUInt(final int[] values, final IndexValidator validator,
-                                                   Statistics statistics) {
-        return computeStatisticsUInt(values, validator, statistics, ProgressMonitor.NULL);
     }
 
     /**
@@ -428,29 +370,11 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated in 4.0, use {@link #computeStatisticsLong(long[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Statistics computeStatisticsLong(final long[] values, final IndexValidator validator,
-                                                   Statistics statistics) {
-        return computeStatisticsLong(values, validator, statistics, ProgressMonitor.NULL);
-    }
-
-    /**
-     * @see #computeStatisticsGeneric
      */
     public static Statistics computeStatisticsLong(final long[] values, final IndexValidator validator,
                                                    Statistics statistics, ProgressMonitor pm) {
         Guardian.assertNotNull("validator", validator);
         return computeStatisticsDouble(new DoubleList.Long(values), validator, statistics, pm);
-    }
-
-    /**
-     * @see #computeStatisticsGeneric
-     * @deprecated in 4.0, use {@link #computeStatisticsULong(long[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Statistics computeStatisticsULong(final long[] values, final IndexValidator validator,
-                                                    Statistics statistics) {
-        return computeStatisticsULong(values, validator, statistics, ProgressMonitor.NULL);
     }
 
     /**
@@ -464,15 +388,6 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated in 4.0, use {@link #computeStatisticsFloat(float[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Statistics computeStatisticsFloat(final float[] values, final IndexValidator validator,
-                                                    Statistics statistics) {
-        return computeStatisticsFloat(values, validator, statistics, ProgressMonitor.NULL);
-    }
-
-    /**
-     * @see #computeStatisticsGeneric
      */
     public static Statistics computeStatisticsFloat(final float[] values, final IndexValidator validator,
                                                     Statistics statistics, ProgressMonitor pm) {
@@ -482,30 +397,11 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated in 4.0, use {@link #computeStatisticsDouble(double[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Statistics computeStatisticsDouble(final double[] values, final IndexValidator validator,
-                                                     Statistics statistics) {
-        return computeStatisticsDouble(new DoubleList.Double(values), validator, statistics, ProgressMonitor.NULL);
-    }
-
-    /**
-     * @see #computeStatisticsGeneric
      */
     public static Statistics computeStatisticsDouble(final double[] values, final IndexValidator validator,
                                                      Statistics statistics, ProgressMonitor pm) {
         Guardian.assertNotNull("validator", validator);
         return computeStatisticsDouble(new DoubleList.Double(values), validator, statistics, pm);
-    }
-
-    /**
-     * @see #computeStatisticsGeneric
-     * @deprecated in 4.0, use {@link #computeStatisticsDouble(DoubleList, IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Statistics computeStatisticsDouble(final DoubleList values, final IndexValidator validator,
-                                                     Statistics statistics) {
-
-        return computeStatisticsDouble(values, validator, statistics, ProgressMonitor.NULL);
     }
 
     /**

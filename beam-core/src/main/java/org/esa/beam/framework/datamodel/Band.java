@@ -70,12 +70,6 @@ public class Band extends AbstractBand {
     public static final String PROPERTY_NAME_SPECTRAL_WAVELENGTH = "spectralWavelength";
 
     /**
-     * @deprecated since 4.2, use {@link #PROPERTY_NAME_SAMPLE_CODING}
-     */
-    @Deprecated
-    public static final String PROPERTY_NAME_FLAG_CODING = "flagCoding";
-
-    /**
      * If this band contains flag data, this is the flag coding.
      */
     private SampleCoding sampleCoding;
@@ -109,19 +103,6 @@ public class Band extends AbstractBand {
      */
     public FlagCoding getFlagCoding() {
         return getSampleCoding() instanceof FlagCoding ? (FlagCoding) getSampleCoding() : null;
-    }
-
-    /**
-     * Sets the flag coding for this band.
-     *
-     * @param flagCoding a non-null value representing the flag coding
-     *
-     * @throws IllegalStateException if this band does not contain integer pixels
-     * @deprecated since 4.2, use {@link #setSampleCoding(SampleCoding)} instead
-     */
-    @Deprecated
-    public void setFlagCoding(FlagCoding flagCoding) {
-        setSampleCoding(flagCoding);
     }
 
     /**

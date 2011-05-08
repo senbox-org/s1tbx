@@ -159,9 +159,8 @@ public class CsvReader extends LineNumberReader {
      *         passed to the constructor
      *
      * @throws IOException if an I/O error occurs
-     * @deprecated in 4.0, use #readStringRecords
      */
-    public Vector<String[]> readAllRecords() throws IOException {
+    public List<String[]> readStringRecords() throws IOException {
         Vector<String[]> vector = new Vector<String[]>(256);
         String[] record;
         while ((record = readRecord()) != null) {
@@ -169,10 +168,6 @@ public class CsvReader extends LineNumberReader {
         }
         vector.trimToSize();
         return vector;
-    }
-
-    public List<String[]> readStringRecords() throws IOException {
-        return readAllRecords();
     }
 
     public List<double[]> readDoubleRecords() throws IOException {

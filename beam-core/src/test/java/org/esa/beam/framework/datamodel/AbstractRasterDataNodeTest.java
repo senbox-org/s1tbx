@@ -45,7 +45,7 @@ public abstract class AbstractRasterDataNodeTest extends AbstractDataNodeTest {
         flagCoding.addFlag("f2", 0x02, "descr");
 
         final Band flagsBand = product.addBand("flagsBand", ProductData.TYPE_INT8);
-        flagsBand.setFlagCoding(flagCoding);
+        flagsBand.setSampleCoding(flagCoding);
         product.getFlagCodingGroup().add(flagCoding);
 
         flagsBand.setName("flags");
@@ -80,7 +80,6 @@ public abstract class AbstractRasterDataNodeTest extends AbstractDataNodeTest {
                 }
             }
 
-            @Override
             protected void fireNodeChanged(ProductNode sourceNode, String propertyName, Object oldValue) {
                 if (isActive[0]
                         && !RasterDataNode.PROPERTY_NAME_ROI_DEFINITION.equalsIgnoreCase(propertyName)) {

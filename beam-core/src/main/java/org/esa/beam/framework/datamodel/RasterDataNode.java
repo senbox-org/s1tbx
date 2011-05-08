@@ -672,10 +672,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * method.
      *
      * @return true, if so
-     *
-     * @see #getValidMask()
-     * @see #setValidMask(BitRaster)
-     * @see #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)
      */
     public boolean isValidMaskUsed() {
         return isValidPixelExpressionSet() || isNoDataValueUsed();
@@ -912,13 +908,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Checks whether or not the pixel located at (x,y) is valid.
-     * A pixel is assumed to be valid either if  {@link #getValidMask()} returns null or
-     * or if the bit corresponding to (x,y) is set within the returned mask.
-     * <p>In order to set the valid pixel mask, the method {@link #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)} shall
-     * be called before this method returns reasonable results.
-     * {@link #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)} will ensure that a data-mask will be computed
-     * either {@link #isNoDataValueUsed()} returns true or if {@link #getValidPixelExpression()} returns a non-empty
-     * expression.
+     * A pixel is assumed to be valid either if  {@link #getValidMaskImage() validMaskImage} is null or
+     * or if the bit corresponding to (x,y) is set within the returned mask image.
      *
      * @param x the X co-ordinate of the pixel location
      * @param y the Y co-ordinate of the pixel location
@@ -947,13 +938,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Checks whether or not the pixel located at (x,y) is valid.
-     * A pixel is assumed to be valid either if  {@link #getValidMask()} returns null or
-     * or if the bit corresponding to (x,y) is set within the returned mask.
-     * <p>In order to set the valid pixel mask, the method {@link #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)} shall
-     * be called before this method returns reasonable results.
-     * {@link #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)} will ensure that a data-mask will be computed
-     * either {@link #isNoDataValueUsed()} returns true or if {@link #getValidPixelExpression()} returns a non-empty
-     * expression.
+     * A pixel is assumed to be valid either if  {@link #getValidMaskImage() validMaskImage} is null or
+     * or if the bit corresponding to (x,y) is set within the returned mask image.
      *
      * @param pixelIndex the linear pixel index in the range 0 to width * height - 1
      *
@@ -1727,11 +1713,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return colorIndexes;
     }
 
-    public void quantizeRasterData(double newMin, double newMax, final double gamma, byte[] rgbSamples, int offset,
-                                   ProgressMonitor pm) throws IOException {
-        quantizeRasterData(newMin, newMax, gamma, rgbSamples, offset, 3, pm);
-    }
-
     public void quantizeRasterData(double newMin, double newMax, double gamma, byte[] samples, int offset, int stride,
                                    ProgressMonitor pm) throws IOException {
         final ProductData sceneRasterData = getSceneRasterData();
@@ -1748,25 +1729,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
     }
 
-    private Statistics computeStatisticsFromFile(final ROI roi, ProgressMonitor pm) throws IOException {
-        final LinkedList<Statistics> list = new LinkedList<Statistics>();
-        processRasterData("Computing statistics for raster '" + getDisplayName() + "'",
-                          new RasterDataProcessor() {
-                              @Override
-                              public void processRasterDataBuffer(final ProductData buffer, final int y0,
-                                                                  final int numLines, ProgressMonitor pm) throws
-                                                                                                          IOException {
-                                  final RasterDataDoubleList values = new RasterDataDoubleList(buffer);
-                                  final IndexValidator pixelValidator = createPixelValidator(y0, roi);
-                                  final Statistics statistics = Statistics.computeStatisticsDouble(values,
-                                                                                                   pixelValidator,
-                                                                                                   null, pm);
-                                  list.add(statistics);
-                              }
-                          }, pm);
-        final Statistics[] statisticsArray = list.toArray(new Statistics[list.size()]);
-        return Statistics.computeStatistics(statisticsArray, null);
-    }
 
     private void quantizeRasterDataFromFile(final double rawMin,
                                             final double rawMax,
@@ -1873,11 +1835,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             return INVALID_POS_TEXT;
         }
         if (hasRasterData()) {
-            try {
-                ensureValidMaskComputed(ProgressMonitor.NULL);
-            } catch (IOException e) {
-                return IO_ERROR_TEXT;
-            }
             if (isPixelValid(x, y)) {
                 if (isFloatingPointType()) {
                     return String.valueOf(getPixelFloat(x, y));
@@ -2323,16 +2280,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     // Deprecated API
 
     /**
-     * @return {@code true} if a ROI is usable for this raster data node.
-     *
-     * @deprecated since BEAM 4.7, use {@link #getRoiMaskGroup()}
-     */
-    @Deprecated
-    public boolean isROIUsable() {
-        return getROIDefinition() != null && getROIDefinition().isUsable();
-    }
-
-    /**
      * @return the ROI definition
      *
      * @deprecated since BEAM 4.7, use {@link #getRoiMaskGroup()}
@@ -2368,79 +2315,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
     }
 
-    /**
-     * Gets the valid pixel mask which indicates if a pixel is valid or not. The method returns null if either
-     * no data-mask is used ({@link #isValidMaskUsed()} returns false) or if the data-mask hasn't been created so far.
-     * <p>The data-mask is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
-     * method.
-     *
-     * @return the valid pixel mask, <code>null</code> if not set.
-     *
-     * @see #setValidMask(org.esa.beam.util.BitRaster)
-     * @see #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)
-     * @deprecated in BEAM 4.5, use {@link #getValidMaskImage()}
-     */
-    @Deprecated
-    public BitRaster getValidMask() {
-        return computeValidBitRaster();
-    }
-
-    /**
-     * Sets the valid pixel mask which indicates if a pixel is valid or not.
-     * <p>The data-mask is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
-     * method.
-     *
-     * @param validMask the valid pixel mask, can be null.
-     *
-     * @see #getValidMask()
-     * @see #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)
-     * @deprecated in BEAM 4.5
-     */
-    @Deprecated
-    protected void setValidMask(final BitRaster validMask) {
-    }
-
-    /**
-     * Ensures that a data-mask, if any, is available, thus {@link #getValidMask()} returns a non-null value.
-     * The method shall be called once before the {@link #isPixelValid(int, int, javax.media.jai.ROI)} method is called.
-     * <p>The data-mask is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
-     * method.
-     *
-     * @param pm The progress monitor.
-     *
-     * @throws IOException if an I/O error occurs
-     * @deprecated in BEAM 4.5, no replacement
-     */
-    @Deprecated
-    public void ensureValidMaskComputed(ProgressMonitor pm) throws IOException {
-    }
-
-    @Deprecated
-    protected synchronized void computeValidMask(ProgressMonitor pm) throws IOException {
-    }
-
-    /**
-     * Reads raster values from this dataset into the user-supplied data buffer.
-     * Raster coordinates refer to the product's scene raster.
-     * <p>If necessary this method will read spatially interpolated pixel data.</p>
-     *
-     * @param rectangle  the rectangle in scene raster co-ordinates of the data buffer
-     * @param rasterData a raster data buffer receiving the pixels to be read
-     * @param pm         a monitor to inform the user about progress
-     *
-     * @throws java.io.IOException      if an I/O error occurs
-     * @throws IllegalArgumentException if the raster is null
-     * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
-     *                                  which this product raster belongs to, has no associated product reader
-     * @deprecated since BEAM 4.6, use {@link #readRasterData(int, int, int, int, ProductData)} instead
-     */
-    @Deprecated
-    public void readRaster(Rectangle rectangle, ProductData rasterData, ProgressMonitor pm) throws IOException {
-        readRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, rasterData, pm);
-    }
 
     /**
      * @return the bitmask overlay info for image display
@@ -2504,166 +2378,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
 
     /**
-     * Creates a new ROI from the current ROI definition.
-     *
-     * @param pm a monitor to inform the user about progress
-     *
-     * @return a new ROI instance or null if no ROI definition is available
-     *
-     * @throws java.io.IOException if an I/O error occurs
-     * @deprecated since BEAM 4.5, use {@link ImageManager} for imaging.
+     * @deprecated since BEAM 4.5. No direct replacement, implement a GPF operator or a {@link org.esa.beam.jai.SingleBandedOpImage} instead.
      */
-    @Deprecated
-    public synchronized ROI createROI(ProgressMonitor pm) throws IOException {
-        final RenderedImage roiMaskImage = ImageManager.getInstance().createRoiMaskImage(this, 0);
-        return roiMaskImage != null ? new ROI(roiMaskImage) : null;
-    }
-
-    /**
-     * Creates a new ROI image for the current ROI definition.
-     *
-     * @param color the ROI color
-     * @param pm    a progress monitor
-     *
-     * @return a new ROI instance or null if no ROI definition is available
-     *
-     * @throws java.io.IOException if an I/O error occurs
-     * @deprecated since BEAM 4.5, use {@link ImageManager} for imaging.
-     */
-    @Deprecated
-    public synchronized BufferedImage createROIImage(final Color color, ProgressMonitor pm) throws IOException {
-        final RenderedImage roiMaskImage = ImageManager.getInstance().createColoredRoiImage(this, color, 0);
-        return roiMaskImage != null ? PlanarImage.wrapRenderedImage(roiMaskImage).getAsBufferedImage() : null;
-    }
-
-    /**
-     * Computes a histogram for the raw raster data contained in this data node within the given value range.
-     * <p/>
-     * <p/>
-     *
-     * @param roi     an optional ROI, can be null
-     * @param numBins the number of bins in the resulting histogram
-     * @param range   the value range in which the histogram will be computed
-     * @param pm      a monitor to inform the user about progress
-     *
-     * @return the resulting raw data histogram
-     *
-     * @throws java.io.IOException if an I/O error occurs
-     * @deprecated since BEAM 4.5, use {@link Stx#create(RasterDataNode, Mask, int, com.bc.ceres.core.ProgressMonitor)}
-     */
-    @Deprecated
-    public Histogram computeRasterDataHistogram(final ROI roi,
-                                                final int numBins,
-                                                Range range, ProgressMonitor pm) throws IOException {
-        Histogram histogram;
-        pm.beginTask("Computing histogram for '" + getName() + "'...", range == null ? 2 : 1);
-        try {
-            if (range == null) {
-                range = computeRasterDataRange(roi, SubProgressMonitor.create(pm, 1));
-            }
-            histogram = Histogram.computeHistogram(getSourceImage(), roi, numBins, range);
-            pm.worked(1);
-        } finally {
-            pm.done();
-        }
-        return histogram;
-    }
-
-    /**
-     * Computes a range for the raw raster data contained in this data node within the given value range.
-     *
-     * @param roi an optional ROI, can be null
-     * @param pm  a monitor to inform the user about progress
-     *
-     * @return the resulting histogram
-     *
-     * @throws java.io.IOException if an I/O error occurs
-     * @see #isScalingApplied()
-     * @see #isLog10Scaled()
-     * @deprecated since BEAM 4.5, use {@link Stx#create(RasterDataNode, Mask, com.bc.ceres.core.ProgressMonitor)}
-     */
-    @Deprecated
-    public Range computeRasterDataRange(final ROI roi, ProgressMonitor pm) throws IOException {
-        pm.beginTask("computing range", 1);
-        try {
-            return Range.computeRange(getSourceImage(), roi);
-        } finally {
-            pm.done();
-        }
-    }
-
-    /**
-     * Computes statistics for this raster data instance.
-     *
-     * @param roi on optional ROI, can be <code>null</code>
-     * @param pm  a monitor to inform the user about progress
-     *
-     * @return the statistics
-     *
-     * @throws java.io.IOException if an I/O error occurs
-     * @deprecated since BEAM 4.5, use {@link Stx#create(RasterDataNode, Mask, com.bc.ceres.core.ProgressMonitor)}
-     */
-    @Deprecated
-    public Statistics computeStatistics(final ROI roi, ProgressMonitor pm) throws IOException {
-        final ProductData rasterData = getRasterData();
-        if (rasterData != null) {
-            return Statistics.computeStatisticsDouble(new RasterDataDoubleList(rasterData),
-                                                      createPixelValidator(0, roi),
-                                                      null, pm);
-        } else {
-            return computeStatisticsFromFile(roi, pm);
-        }
-    }
-
-    /**
-     * @param geophysicalImage The geophysical source image.
-     *
-     * @since BEAM 4.5
-     * @deprecated since BEAM 4.6, the geophysicalcal source image is created internally based on the {@link org.esa.beam.framework.datamodel.Scaling} of this band.
-     */
-    @Deprecated
-    public synchronized void setGeophysicalImage(RenderedImage geophysicalImage) {
-        setGeophysicalImage(toMultiLevelImage(geophysicalImage));
-    }
-
-    /**
-     * @param geophysicalImage The geophysical source image.
-     *
-     * @since BEAM 4.5
-     * @deprecated since BEAM 4.6, the geophysicalcal source image is created internally based on the {@link org.esa.beam.framework.datamodel.Scaling} of this band.
-     */
-    @Deprecated
-    public synchronized void setGeophysicalImage(MultiLevelImage geophysicalImage) {
-        final MultiLevelImage oldValue = this.geophysicalImage;
-        if (oldValue != geophysicalImage) {
-            if (this.geophysicalImage != null) {
-                this.geophysicalImage.dispose();
-            }
-            this.geophysicalImage = geophysicalImage;
-            fireProductNodeChanged("geophysicalImage", oldValue, geophysicalImage);
-        }
-    }
-
-    /**
-     * Sets the valid-mask image associated with this {@code RasterDataNode}.
-     *
-     * @param validMaskImage The valid-mask image.
-     *
-     * @since BEAM 4.6
-     * @deprecated since BEAM 4.7, use {@link #getValidMask()} instead
-     */
-    @Deprecated
-    private synchronized void setValidMaskImage(MultiLevelImage validMaskImage) {
-        final RenderedImage oldValue = this.validMaskImage;
-        if (oldValue != validMaskImage) {
-            this.validMaskImage.dispose();
-            this.validMaskImage = validMaskImage;
-            validMaskROI = null;
-            fireProductNodeChanged("validMaskImage", oldValue, validMaskImage);
-        }
-    }
-
-
     @Deprecated
     protected void processRasterData(String message, RasterDataProcessor processor, ProgressMonitor pm) throws
                                                                                                         IOException {
@@ -2697,22 +2413,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         Debug.trace("RasterDataNode.processRasterData: done");
     }
 
+    /**
+     * @deprecated since BEAM 4.5. No direct replacement, implement a GPF operator or a {@link org.esa.beam.jai.SingleBandedOpImage} instead.
+     */
     @Deprecated
     public static interface RasterDataProcessor {
 
         void processRasterDataBuffer(ProductData buffer, int y0, int numLines, ProgressMonitor pm) throws IOException;
     }
 
-    /**
-     * Returns the size of the raster for this band in bytes.
-     *
-     * @return the raster size in bytes
-     *
-     * @deprecated since BEAM 4.7, no usage
-     */
-    @Deprecated
-    public long getRasterDataSizeInBytes() {
-        return getRasterWidth() * getRasterHeight() * ProductData.getElemSize(getDataType());
-    }
 
 }

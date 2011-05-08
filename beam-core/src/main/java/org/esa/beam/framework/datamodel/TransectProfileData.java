@@ -51,7 +51,6 @@ public class TransectProfileData {
         if (raster.getProduct() == null) {
             throw new IllegalArgumentException("raster without product");
         }
-        raster.ensureValidMaskComputed(ProgressMonitor.NULL);
 
         ShapeRasterizer rasterizer = new ShapeRasterizer();
         shapeVertices = rasterizer.getVertices(shape);

@@ -1061,14 +1061,6 @@ public class MosaicProcessor extends Processor {
                 channel.setTerm(term);
                 final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
                 final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(refRasterDataSymbols);
-                for (RasterDataNode refRaster : refRasters) {
-                    try {
-                        refRaster.ensureValidMaskComputed(ProgressMonitor.NULL);
-                    } catch (IOException e) {
-                        _logger.warning(MessageFormat.format("failed to load valid-data-mask for band ''{0}''",
-                                                             refRaster.getName()));
-                    }
-                }
                 channel.setRefRasters(refRasters);
                 allBandSymbols.addAll(Arrays.asList(refRasterDataSymbols));
                 for (final RasterDataNode refRaster : refRasters) {

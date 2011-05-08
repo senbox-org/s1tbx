@@ -24,6 +24,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
@@ -31,6 +32,8 @@ import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.jai.RasterDataNodeOpImage;
+import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
@@ -40,6 +43,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
+import java.awt.Rectangle;
+import java.io.IOException;
 import java.text.MessageFormat;
 
 public class CreateElevationBandAction extends ExecCommand {
@@ -230,6 +235,19 @@ public class CreateElevationBandAction extends ExecCommand {
                 return false;
             }
             return true;
+        }
+    }
+
+    public static class BandPixelOpImage extends RasterDataNodeOpImage {
+        public BandPixelOpImage(Band band, ResolutionLevel level) {
+            super(band, level);
+        }
+
+        @Override
+        protected void computeProductData(ProductData productData, Rectangle destRect) throws IOException {
+            if (getLevel() == 0) {
+
+            }
         }
     }
 }
