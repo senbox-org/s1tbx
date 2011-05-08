@@ -238,16 +238,4 @@ public class CreateElevationBandAction extends ExecCommand {
         }
     }
 
-    public static class BandPixelOpImage extends RasterDataNodeOpImage {
-        public BandPixelOpImage(Band band, ResolutionLevel level) {
-            super(band, level);
-        }
-
-        @Override
-        protected void computeProductData(ProductData productData, Rectangle destRect) throws IOException {
-            if (getLevel() == 0) {
-
-            }
-        }
-    }
 }
