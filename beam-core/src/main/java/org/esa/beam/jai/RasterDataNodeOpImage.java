@@ -93,12 +93,12 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
         return className + productName + bandName;
     }
     
-    protected int[] getSourceCoords(final int sourceWidth, final int destWidth) {
-        final int[] srcCoords = new int[destWidth];
-        for (int x = 0; x < destWidth; x++) {
-            srcCoords[x] = getSourceCoord(x, 0, sourceWidth - 1);
+    protected int[] getSourceCoords(final int sourceLength, final int targetLength) {
+        final int[] sourceCoords = new int[targetLength];
+        for (int i = 0; i < targetLength; i++) {
+            sourceCoords[i] = getSourceCoord(i, 0, sourceLength - 1);
         }
-        return srcCoords;
+        return sourceCoords;
     }
     
     protected void copyLine(final  int y, final int destWidth, ProductData src, ProductData dest, int[] sourceCoords) {

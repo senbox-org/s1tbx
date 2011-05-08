@@ -318,18 +318,6 @@ public class Histogram extends Range {
 
 
     /**
-     * @see #computeHistogramUByte
-     * @deprecated in 4.0, use {@link #computeHistogramByte(byte[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Histogram computeHistogramByte(final byte[] values,
-                                                 final IndexValidator validator,
-                                                 final int numBins,
-                                                 Range range,
-                                                 Histogram histo) {
-        return computeHistogramByte(values, validator, numBins, range, histo, ProgressMonitor.NULL);
-    }
-
-    /**
      * Computes the histogram for the values in the given <code>byte</code> array in the given value range. The array
      * elements are interpreted as <i>signed</i> byte values. Values at a given index <code>i</code> for which
      * <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.
@@ -391,18 +379,6 @@ public class Histogram extends Range {
             pm.done();
         }
         return histo;
-    }
-
-    /**
-     * @see #computeHistogramByte
-     * @deprecated in 4.0, use {@link #computeHistogramUByte(byte[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Histogram computeHistogramUByte(final byte[] values,
-                                                  final IndexValidator validator,
-                                                  final int numBins,
-                                                  Range range,
-                                                  Histogram histo) {
-        return computeHistogramUByte(values, validator, numBins, range, histo, ProgressMonitor.NULL);
     }
 
     /**
@@ -469,18 +445,6 @@ public class Histogram extends Range {
     }
 
     /**
-     * @see #computeHistogramUShort
-     * @deprecated in 4.0, use {@link #computeHistogramShort(short[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)}
-     */
-    public static Histogram computeHistogramShort(final short[] values,
-                                                  final IndexValidator validator,
-                                                  final int numBins,
-                                                  Range range,
-                                                  Histogram histo) {
-        return computeHistogramShort(values, validator, numBins, range, histo, ProgressMonitor.NULL);
-    }
-
-    /**
      * Computes the histogram for the values in the given <code>short</code> array in the given value range. The array
      * elements are interpreted as <i>signed</i> short values. Values at a given index <code>i</code> for which
      * <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.
@@ -540,18 +504,6 @@ public class Histogram extends Range {
             pm.done();
         }
         return histo;
-    }
-
-    /**
-     * @see #computeHistogramShort
-     * @deprecated in 4.0, use {@link #computeHistogramUShort(short[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Histogram computeHistogramUShort(final short[] values,
-                                                   final IndexValidator validator,
-                                                   final int numBins,
-                                                   Range range,
-                                                   Histogram histo) {
-        return computeHistogramUShort(values, validator, numBins, range, histo, ProgressMonitor.NULL);
     }
 
     /**
@@ -615,18 +567,6 @@ public class Histogram extends Range {
             pm.done();
         }
         return histo;
-    }
-
-    /**
-     * @see #computeHistogramUInt
-     * @deprecated in 4.0, use {@link #computeHistogramInt(int[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Histogram computeHistogramInt(final int[] values,
-                                                final IndexValidator validator,
-                                                final int numBins,
-                                                Range range,
-                                                Histogram histogram) {
-        return computeHistogramInt(values, validator, numBins, range, histogram, ProgressMonitor.NULL);
     }
 
     /**
@@ -697,18 +637,6 @@ public class Histogram extends Range {
     }
 
     /**
-     * @see #computeHistogramInt
-     * @deprecated in 4.0, use {@link #computeHistogramUInt(int[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Histogram computeHistogramUInt(final int[] values,
-                                                 final IndexValidator validator,
-                                                 final int numBins,
-                                                 Range range,
-                                                 Histogram histogram) {
-        return computeHistogramUInt(values, validator, numBins, range, histogram, ProgressMonitor.NULL);
-    }
-
-    /**
      * Computes the histogram for the values in the given <code>int</code> array in the given value range. The array
      * elements are interpreted as <i>unsigned</i> byte values. Values at a given index <code>i</code> for which
      * <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.
@@ -769,18 +697,6 @@ public class Histogram extends Range {
             pm.done();
         }
         return histogram;
-    }
-
-    /**
-     * @see #computeHistogramDouble
-     * @deprecated in 4.0, use {@link #computeHistogramFloat(float[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Histogram computeHistogramFloat(final float[] values,
-                                                  final IndexValidator validator,
-                                                  final int numBins,
-                                                  Range range,
-                                                  Histogram histogram) {
-        return computeHistogramFloat(values, validator, numBins, range, histogram, ProgressMonitor.NULL);
     }
 
     /**
@@ -852,18 +768,6 @@ public class Histogram extends Range {
     }
 
     /**
-     * @see #computeHistogramFloat
-     * @deprecated in 4.0, use {@link #computeHistogramDouble(double[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Histogram computeHistogramDouble(final double[] values,
-                                                   final IndexValidator validator,
-                                                   final int numBins,
-                                                   Range range,
-                                                   Histogram histogram) {
-        return computeHistogramDouble(values, validator, numBins, range, histogram, ProgressMonitor.NULL);
-    }
-
-    /**
      * Computes the histogram for the values in the given <code>double</code> array in the given value range. Values at
      * a given index <code>i</code> for which <code>validator.validate(i)</code> returns <code>false</code> are excluded
      * from the computation.
@@ -932,18 +836,6 @@ public class Histogram extends Range {
     }
 
     /**
-     * @see #computeHistogramByte
-     * @deprecated in 4.0, use {@link #computeHistogramDouble(DoubleList, IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)}
-     */
-    public static Histogram computeHistogramDouble(final DoubleList values,
-                                                   final IndexValidator validator,
-                                                   final int numBins,
-                                                   Range range,
-                                                   Histogram histo) {
-        return computeHistogramDouble(values, validator, numBins, range, histo, ProgressMonitor.NULL);
-    }
-
-    /**
      * Computes the histogram for the values in the given <code>Histogram.DoubleList</code> in the given value range.
      * Values at a given index <code>i</code> for which <code>validator.validate(i)</code> returns <code>false</code>
      * are excluded from the computation.
@@ -1006,18 +898,6 @@ public class Histogram extends Range {
             pm.done();
         }
         return histo;
-    }
-
-
-    /**
-     * @see #computeHistogramByte
-     * @deprecated in 4.0, use {@link #computeHistogramGeneric(Object, boolean, IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Histogram computeHistogramGeneric(final Object values,
-                                                    final boolean unsigned,
-                                                    final IndexValidator validator,
-                                                    int numBins, Range range, Histogram histogram) {
-        return computeHistogramGeneric(values, unsigned, validator, numBins, range, histogram, ProgressMonitor.NULL);
     }
 
     /**
@@ -1121,22 +1001,5 @@ public class Histogram extends Range {
         return new Histogram(croppedBins, lowValue + minIndex * binWidth, lowValue
                 + (maxIndex + 1.0) * binWidth);
     }
-    
-    /**
-     * @deprecated since BEAM 4.2, use {@link #findRangeFor95Percent()} instead.
-     */
-    @Deprecated
-    public Range findRangeFor95Percent(final boolean skipInvalidZero) {
-        return findRange(LEFT_AREA_SKIPPED_95, RIGHT_AREA_SKIPPED_95, skipInvalidZero, false);
-    }
 
-//    /**
-//     * @deprecated since BEAM 4.2, use {@link #findRange(double, double)} instead.
-//     */
-//    @Deprecated
-//    public Range findRange(final double leftHistoAreaSkipped,
-//                           final double rightHistoAreaSkipped,
-//                           final boolean skipInvalidZero) {
-//         return findRange(leftHistoAreaSkipped, rightHistoAreaSkipped);
-//    }
 }

@@ -180,7 +180,7 @@ public class CloudPN extends ProcessingNode {
         // create and add the SDR flags dataset
         cloudFlagBand = new Band(CLOUD_FLAG_BAND, ProductData.TYPE_UINT8, sceneWidth, sceneHeight);
         cloudFlagBand.setDescription("Cloud specific flags");
-        cloudFlagBand.setFlagCoding(cloudFlagCoding);
+        cloudFlagBand.setSampleCoding(cloudFlagCoding);
         outputProduct.addBand(cloudFlagBand);
 
         logger.info("Output product successfully created");

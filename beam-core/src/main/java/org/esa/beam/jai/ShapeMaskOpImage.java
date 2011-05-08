@@ -47,7 +47,10 @@ public class ShapeMaskOpImage extends SingleBandedOpImage {
 
     @Override
     protected void computeRect(PlanarImage[] sourceImages, WritableRaster tile, Rectangle destRect) {
-        final BufferedImage image = new BufferedImage(colorModel, RasterFactory.createWritableRaster(tile.getSampleModel(), tile.getDataBuffer(), new Point(0, 0)), false, null);
+        WritableRaster wrappedTile = RasterFactory.createWritableRaster(tile.getSampleModel(),
+                                                                        tile.getDataBuffer(),
+                                                                        new Point(0, 0));
+        final BufferedImage image = new BufferedImage(colorModel, wrappedTile, false, null);
         final Graphics2D graphics2D = image.createGraphics();
         graphics2D.translate(-tile.getMinX(), -tile.getMinY());
         graphics2D.setColor(Color.WHITE);

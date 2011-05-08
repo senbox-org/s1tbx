@@ -147,21 +147,21 @@ public class AtsrGSSTFile extends AtsrFile {
         band = new Band(AtsrGSSTConstants.SST_CONFIDENCE_NAME, ProductData.TYPE_INT16,
                         AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
         band.setDescription(AtsrGSSTConstants.SST_CONFIDENCE_DESCRIPTION);
-        band.setFlagCoding(_flagCodingConfidence);
+        band.setSampleCoding(_flagCodingConfidence);
         addBand(band);
 
         if (getHeader().areFlagsPresent()) {
             band = new Band(AtsrConstants.NADIR_FLAGS_NAME, ProductData.TYPE_INT16,
                             AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
             band.setDescription(AtsrConstants.NADIR_FLAGS_DESCRIPTION);
-            band.setFlagCoding(_flagCodingNadir);
+            band.setSampleCoding(_flagCodingNadir);
             addBand(band);
 
             if (!getHeader().isNadirOnly()) {
                 band = new Band(AtsrConstants.FORWARD_FLAGS_NAME, ProductData.TYPE_INT16,
                                 AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
                 band.setDescription(AtsrConstants.FORWARD_FLAGS_DESCRIPTION);
-                band.setFlagCoding(_flagCodingForward);
+                band.setSampleCoding(_flagCodingForward);
                 addBand(band);
             }
         }

@@ -319,44 +319,4 @@ public class ImageInfo implements Cloneable {
         return histogramMatchingEnum;
     }
 
-    /////////////////////////////////////////////////////////////////////////
-    // Deprecated API
-    /////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Transfers the colour palette from the given image info into this image info.
-     *
-     * @param imageInfo        another image info object
-     * @param changeColorsOnly true, if only colours shall be changed
-     *
-     * @deprecated since BEAM 4.5.1, use {@link #setColors(java.awt.Color[])} or {@link #setColorPaletteDef(ColorPaletteDef,double,double,boolean)}
-     */
-    @Deprecated
-    public void transferColorPaletteDef(final ImageInfo imageInfo, boolean changeColorsOnly) {
-        final ColorPaletteDef colorPaletteDef = imageInfo.getColorPaletteDef();
-        if (changeColorsOnly) {
-            setColors(colorPaletteDef.getColors());
-        } else {
-            setColorPaletteDef(colorPaletteDef, 0, 1, false);
-        }
-    }
-
-    /**
-     * Transfers the colour palette from the given image info into this image info.
-     *
-     * @param colorPaletteDef  another colour palette
-     * @param changeColorsOnly true, if only colours shall be changed
-     *
-     * @deprecated since BEAM 4.5.1, use {@link #setColors(java.awt.Color[])} or {@link #setColorPaletteDef(ColorPaletteDef,double,double,boolean)}
-     */
-    @Deprecated
-    public void transferColorPaletteDef(final ColorPaletteDef colorPaletteDef, boolean changeColorsOnly) {
-        if (changeColorsOnly) {
-            setColors(colorPaletteDef.getColors());
-        } else {
-            setColorPaletteDef(colorPaletteDef, 0, 1, false);
-        }
-    }
-
-
 }

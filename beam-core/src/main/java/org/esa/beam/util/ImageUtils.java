@@ -18,11 +18,9 @@ package org.esa.beam.util;
 // Important: make sure that we get no dependencies to
 // other org.esa.beam packages here above org.esa.beam.util
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
-import org.esa.beam.util.math.Quantizer;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Graphics2D;
@@ -62,7 +60,6 @@ public class ImageUtils {
      *
      * @param image     the source image
      * @param imageType the  {#link java.awt.image.BufferedImage} type
-     *
      * @return the buffered image of the given type
      */
     public static BufferedImage convertImage(RenderedImage image, int imageType) {
@@ -90,7 +87,6 @@ public class ImageUtils {
      * the given image.
      *
      * @param dataType a data type as defined in <code>DataBuffer</code>
-     *
      * @see java.awt.image.DataBuffer
      */
     public static double[] getDataTypeMinMax(int dataType, double[] minmax) {
@@ -118,9 +114,7 @@ public class ImageUtils {
      * Gets a textual representation of the supplied raster data type
      *
      * @param dataType a data type as defined in <code>DataBuffer</code>
-     *
      * @return a textual representation of the supplied raster data type
-     *
      * @see java.awt.image.DataBuffer
      */
     public static String getDataTypeName(int dataType) {
@@ -148,9 +142,7 @@ public class ImageUtils {
      * Gets a textual representation of the supplied color space type
      *
      * @param spaceType a dcolor space type as defined in <code>ColorSpace</code>
-     *
      * @return a textual representation of the color space
-     *
      * @see java.awt.color.ColorSpace
      */
     public static String getColorSpaceName(int spaceType) {
@@ -229,111 +221,12 @@ public class ImageUtils {
 
     public static ColorModel create8BitGreyscaleColorModel() {
         final ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-        return (ColorModel) new ComponentColorModel(cs, // colorSpace
-                                                    new int[]{8}, // bits
-                                                    false, // hasAlpha
-                                                    false, // isAlphaPremultiplied
-                                                    Transparency.OPAQUE, // transparency
-                                                    DataBuffer.TYPE_BYTE);
-    }
-
-    /////////////////////////////////////////////////////////////////////////
-    //  quantizeRasterData<Type>
-
-    /**
-     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeByte} instead
-     */
-    public static void quantizeSamplesByte(final byte[] samples,
-                                           final int min,
-                                           final int max,
-                                           final byte[] output,
-                                           final int offset,
-                                           final int stride) {
-        Quantizer.quantizeByte(samples, min, max, output, offset, stride, ProgressMonitor.NULL);
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeUByte} instead
-     */
-    public static void quantizeSamplesUByte(final byte[] samples,
-                                            final int min,
-                                            final int max,
-                                            final byte[] output,
-                                            final int offset,
-                                            final int stride) {
-        Quantizer.quantizeUByte(samples, min, max, output, offset, stride, ProgressMonitor.NULL);
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeShort} instead
-     */
-    public static void quantizeSamplesShort(final short[] samples,
-                                            final int min,
-                                            final int max,
-                                            final byte[] output,
-                                            final int offset,
-                                            final int stride) {
-        Quantizer.quantizeShort(samples, min, max, output, offset, stride, ProgressMonitor.NULL);
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeUShort} instead
-     */
-    public static void quantizeSamplesUShort(final short[] samples,
-                                             final int min,
-                                             final int max,
-                                             final byte[] output,
-                                             final int offset,
-                                             final int stride) {
-        Quantizer.quantizeUShort(samples, min, max, output, offset, stride, ProgressMonitor.NULL);
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeInt} instead
-     */
-    public static void quantizeSamplesInt(final int[] samples,
-                                          final int min,
-                                          final int max,
-                                          final byte[] output,
-                                          final int offset,
-                                          final int stride) {
-        Quantizer.quantizeInt(samples, min, max, output, offset, stride, ProgressMonitor.NULL);
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeUInt} instead
-     */
-    public static void quantizeSamplesUInt(final int[] samples,
-                                           final long min,
-                                           final long max,
-                                           final byte[] output,
-                                           final int offset,
-                                           final int stride) {
-        Quantizer.quantizeUInt(samples, min, max, output, offset, stride, ProgressMonitor.NULL);
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeFloat} instead
-     */
-    public static void quantizeSamplesFloat(final float[] samples,
-                                            final float min,
-                                            final float max,
-                                            final byte[] output,
-                                            final int offset,
-                                            final int stride) {
-        Quantizer.quantizeFloat(samples, min, max, output, offset, stride, ProgressMonitor.NULL);
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeDouble} instead
-     */
-    public static void quantizeSamplesDouble(final double[] samples,
-                                             final double min,
-                                             final double max,
-                                             final byte[] output,
-                                             final int offset,
-                                             final int stride) {
-        Quantizer.quantizeDouble(samples, min, max, output, offset, stride, ProgressMonitor.NULL);
+        return new ComponentColorModel(cs, // colorSpace
+                                       new int[]{8}, // bits
+                                       false, // hasAlpha
+                                       false, // isAlphaPremultiplied
+                                       Transparency.OPAQUE, // transparency
+                                       DataBuffer.TYPE_BYTE);
     }
 
     public static Object getPrimitiveArray(DataBuffer dataBuffer) {

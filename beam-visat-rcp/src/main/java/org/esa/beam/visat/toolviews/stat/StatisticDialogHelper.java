@@ -25,7 +25,7 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 
 public class StatisticDialogHelper {
     public static void openStatisticsDialog(final int tabIndex) {
-        StatisticsToolView statisticsToolView = (StatisticsToolView) VisatApp.getApp().getPage().getToolView(StatisticsToolView.ID);
+        StatisticsToolView statisticsToolView = (StatisticsToolView) VisatApp.getApp().getApplicationPage().getToolView(StatisticsToolView.ID);
         statisticsToolView.show(tabIndex);
     }
 

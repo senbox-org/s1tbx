@@ -70,7 +70,7 @@ public class RRToFRSOp extends Operator {
             if (sourceBand.getFlagCoding() != null) {
                 FlagCoding srcFlagCoding = sourceBand.getFlagCoding();
                 ProductUtils.copyFlagCoding(srcFlagCoding, targetProduct);
-                targetBand.setFlagCoding(targetProduct.getFlagCodingGroup().get(srcFlagCoding.getName()));
+                targetBand.setSampleCoding(targetProduct.getFlagCodingGroup().get(srcFlagCoding.getName()));
             }
         }
     }

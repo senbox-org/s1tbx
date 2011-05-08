@@ -17,13 +17,14 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.DialogProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
@@ -31,6 +32,8 @@ import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.jai.RasterDataNodeOpImage;
+import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
@@ -39,9 +42,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.SwingWorker;
 import java.awt.BorderLayout;
-import java.awt.Dialog;
+import java.awt.Rectangle;
+import java.io.IOException;
 import java.text.MessageFormat;
 
 public class CreateElevationBandAction extends ExecCommand {
@@ -83,7 +86,6 @@ public class CreateElevationBandAction extends ExecCommand {
             return;
         }
 
-
         createAndOpenElevationBand(product, demDescriptor, dialogData.bandName);
     }
 
@@ -91,36 +93,29 @@ public class CreateElevationBandAction extends ExecCommand {
                                             final ElevationModelDescriptor demDescriptor,
                                             final String bandName) {
 
-
-        final SwingWorker swingWorker = new SwingWorker<Band, Object>() {
+        final ProgressMonitorSwingWorker progressMonitorSwingWorker = new ProgressMonitorSwingWorker<Band, Object>(VisatApp.getApp().getMainFrame(), DIALOG_TITLE) {
             @Override
-            protected Band doInBackground() throws Exception {
-                ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(), DIALOG_TITLE,
-                                                               Dialog.ModalityType.APPLICATION_MODAL);
-                try {
-                    return createElevationBand(product, demDescriptor, bandName, pm);
-                } finally {
-                }
+            protected Band doInBackground(ProgressMonitor pm) throws Exception {
+                return createElevationBand(product, demDescriptor, bandName, pm);
             }
 
             @Override
             public void done() {
-                if (VisatApp.getApp().getPreferences().getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, true))
-                {
+                if (VisatApp.getApp().getPreferences().getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, true)) {
                     final Band band;
                     try {
                         band = get();
                         VisatApp.getApp().openProductSceneView(band);
                     } catch (Exception e) {
                         VisatApp.getApp().showErrorDialog(DIALOG_TITLE,
-                                                          "An internal Error occured:\n" + e.getMessage());
+                                                          "An internal error occured:\n" + e.getMessage());
                         Debug.trace(e);
                     }
                 }
             }
         };
 
-        swingWorker.execute();
+        progressMonitorSwingWorker.execute();
     }
 
     private static Band createElevationBand(final Product product,
@@ -201,9 +196,7 @@ public class CreateElevationBandAction extends ExecCommand {
         return null;
     }
 
-
     private static class DialogData {
-
         String bandName;
         String demName;
     }
@@ -221,18 +214,18 @@ public class CreateElevationBandAction extends ExecCommand {
         }
 
         @Override
-            protected boolean verifyUserInput() {
+        protected boolean verifyUserInput() {
             String message = null;
             final String bandName = nameField.getText().trim();
             if (bandName.equals("")) {
                 message = "Please enter a name for the new elevation band.";
             } else if (!ProductNode.isValidNodeName(bandName)) {
                 message = MessageFormat.format("The band name ''{0}'' appears not to be valid.\n" +
-                                               "Please choose another one.",
+                                                       "Please choose another one.",
                                                bandName);
             } else if (product.containsBand(bandName)) {
                 message = MessageFormat.format("The selected product already contains a band named ''{0}''.\n" +
-                                               "Please choose another one.",
+                                                       "Please choose another one.",
                                                bandName);
             } else if (demList.getSelectedValue() == null) {
                 message = "Please select a DEM.";
@@ -244,4 +237,5 @@ public class CreateElevationBandAction extends ExecCommand {
             return true;
         }
     }
+
 }

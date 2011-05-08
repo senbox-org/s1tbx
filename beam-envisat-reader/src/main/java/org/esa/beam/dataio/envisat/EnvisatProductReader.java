@@ -302,7 +302,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                 }
                 if (bandInfo.getFlagCoding() != null) {
                     product.getFlagCodingGroup().add(bandInfo.getFlagCoding());
-                    band.setFlagCoding(bandInfo.getFlagCoding());
+                    band.setSampleCoding(bandInfo.getFlagCoding());
                 }
                 final String expression = bandInfo.getValidExpression();
                 if (expression != null && expression.trim().length() > 0) {

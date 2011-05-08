@@ -20,7 +20,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
-import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
@@ -82,9 +81,7 @@ public class Product extends ProductNode {
     public static final String PIN_MASK_NAME = "pins";
     public static final String GCP_MASK_NAME = "ground_control_points";
 
-    public static final String PROPERTY_NAME_FILE_LOCATION = "fileLocation";
     public static final String PROPERTY_NAME_GEOCODING = "geoCoding";
-    public static final String PROPERTY_NAME_POINTING = "pointing";
     public static final String PROPERTY_NAME_PRODUCT_TYPE = "productType";
 
     public static final String GEOMETRY_FEATURE_TYPE_NAME = PlainFeatureFactory.DEFAULT_TYPE_NAME;
@@ -189,7 +186,6 @@ public class Product extends ProductNode {
      * @param sceneRasterWidth  the scene width in pixels for this data product
      * @param sceneRasterHeight the scene height in pixels for this data product
      * @param reader            the reader used to create this product and read data from it.
-     *
      * @see ProductReader
      */
     public Product(final String name, final String type, final int sceneRasterWidth, final int sceneRasterHeight,
@@ -243,7 +239,7 @@ public class Product extends ProductNode {
                     final Mask[] masks = getMaskGroup().toArray(new Mask[getMaskGroup().getNodeCount()]);
                     for (final Mask mask : masks) {
                         if (mask.getImageType() == Mask.VectorDataType.INSTANCE &&
-                            Mask.VectorDataType.getVectorData(mask) == vectorDataNode) {
+                                Mask.VectorDataType.getVectorData(mask) == vectorDataNode) {
                             getMaskGroup().remove(mask);
                             for (Band band : getBands()) {
                                 deleteMaskFromGroup(band.getRoiMaskGroup(), mask);
@@ -425,7 +421,6 @@ public class Product extends ProductNode {
      * and which will be used to (re-)load band rasters.
      *
      * @param reader the product reader.
-     *
      * @throws IllegalArgumentException if the given reader is null.
      */
     public void setProductReader(final ProductReader reader) {
@@ -470,7 +465,6 @@ public class Product extends ProductNode {
      *
      * @param output an object representing a valid output for this writer, might be a <code>ImageOutputStream</code>
      *               or a <code>File</code> or other <code>Object</code> to use for future decoding.
-     *
      * @throws IllegalArgumentException if <code>output</code> is <code>null</code> or it's type is none of the
      *                                  supported output types.
      * @throws IOException              if an I/O error occurs
@@ -615,7 +609,6 @@ public class Product extends ProductNode {
      * Geo-codes this data product.
      *
      * @param geoCoding the geo-coding, if <code>null</code> geo-coding is removed
-     *
      * @throws IllegalArgumentException <br>- if the given <code>GeoCoding</code> is a <code>TiePointGeoCoding</code>
      *                                  and <code>latGrid</code> or <code>lonGrid</code> are not instances of tie point
      *                                  grids in this product. <br>- if the given <code>GeoCoding</code> is a
@@ -676,7 +669,6 @@ public class Product extends ProductNode {
      *
      * @param destProduct the destination product
      * @param subsetDef   the definition of the subset, may be <code>null</code>
-     *
      * @return true, if the geo-coding could be transferred.
      */
     public boolean transferGeoCodingTo(final Product destProduct, final ProductSubsetDef subsetDef) {
@@ -792,7 +784,6 @@ public class Product extends ProductNode {
      * Gets the band group of this product.
      *
      * @return The group of all bands.
-     *
      * @since BEAM 4.7
      */
     public ProductNodeGroup<Band> getBandGroup() {
@@ -803,7 +794,6 @@ public class Product extends ProductNode {
      * Gets the tie-point grid group of this product.
      *
      * @return The group of all tie-point grids.
-     *
      * @since BEAM 4.7
      */
     public ProductNodeGroup<TiePointGrid> getTiePointGridGroup() {
@@ -818,7 +808,7 @@ public class Product extends ProductNode {
     public void addTiePointGrid(final TiePointGrid tiePointGrid) {
         if (containsRasterDataNode(tiePointGrid.getName())) {
             throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
-                                               "a tie-point grid with the name '" + tiePointGrid.getName() + "'.");
+                                                       "a tie-point grid with the name '" + tiePointGrid.getName() + "'.");
         }
         tiePointGridGroup.add(tiePointGrid);
     }
@@ -827,7 +817,6 @@ public class Product extends ProductNode {
      * Removes the tie-point grid from this product.
      *
      * @param tiePointGrid the tie-point grid to be removed, ignored if <code>null</code>
-     *
      * @return <code>true</code> if node could be removed
      */
     public boolean removeTiePointGrid(final TiePointGrid tiePointGrid) {
@@ -847,9 +836,7 @@ public class Product extends ProductNode {
      * Returns the tie-point grid at the given index.
      *
      * @param index the tie-point grid index
-     *
      * @return the tie-point grid at the given index
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public TiePointGrid getTiePointGridAt(final int index) {
@@ -884,7 +871,6 @@ public class Product extends ProductNode {
      * Returns the tie-point grid with the given name.
      *
      * @param name the tie-point grid name
-     *
      * @return the tie-point grid with the given name or <code>null</code> if a tie-point grid with the given name is
      *         not contained in this product.
      */
@@ -893,26 +879,11 @@ public class Product extends ProductNode {
         return tiePointGridGroup.get(name);
     }
 
-    /**
-     * Returns the index for the tie-point grid with the given name.
-     *
-     * @param name the tie-point grid name
-     *
-     * @return the tie-point grid index or <code>-1</code> if a tie-point grid with the given name is not contained in
-     *         this product.
-     *
-     * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
-     */
-    public int getTiePointGridIndex(final String name) {
-        Guardian.assertNotNullOrEmpty("name", name);
-        return tiePointGridGroup.indexOf(name);
-    }
 
     /**
      * Tests if a tie-point grid with the given name is contained in this product.
      *
      * @param name the name, must not be <code>null</code>
-     *
      * @return <code>true</code> if a tie-point grid with the given name is contained in this product,
      *         <code>false</code> otherwise
      */
@@ -932,12 +903,12 @@ public class Product extends ProductNode {
     public void addBand(final Band band) {
         Guardian.assertNotNull("band", band);
         if (band.getSceneRasterWidth() != getSceneRasterWidth()
-            || band.getSceneRasterHeight() != getSceneRasterHeight()) {
+                || band.getSceneRasterHeight() != getSceneRasterHeight()) {
             throw new IllegalArgumentException("illegal raster dimensions");
         }
         if (containsRasterDataNode(band.getName())) {
             throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
-                                               "a band with the name '" + band.getName() + "'.");
+                                                       "a band with the name '" + band.getName() + "'.");
         }
         bandGroup.add(band);
     }
@@ -948,7 +919,6 @@ public class Product extends ProductNode {
      * @param bandName the new band's name
      * @param dataType the raster data type, must be one of the multiple <code>ProductData.TYPE_<i>X</i></code>
      *                 constants
-     *
      * @return the new band which has just been added
      */
     public Band addBand(final String bandName, final int dataType) {
@@ -963,9 +933,7 @@ public class Product extends ProductNode {
      *
      * @param bandName   the new band's name
      * @param expression the band maths expression
-     *
      * @return the new band which has just been added
-     *
      * @since BEAM 4.9
      */
     public Band addBand(final String bandName, final String expression) {
@@ -980,9 +948,7 @@ public class Product extends ProductNode {
      * @param expression the band maths expression
      * @param dataType   the raster data type, must be one of the multiple <code>ProductData.TYPE_<i>X</i></code>
      *                   constants
-     *
      * @return the new band which has just been added
-     *
      * @since BEAM 4.9
      */
     public Band addBand(final String bandName, final String expression, final int dataType) {
@@ -997,7 +963,6 @@ public class Product extends ProductNode {
      * Removes the given band from this product.
      *
      * @param band the band to be removed, ignored if <code>null</code>
-     *
      * @return {@code true} if removed succesfully, otherwise {@code false}
      */
     public boolean removeBand(final Band band) {
@@ -1015,9 +980,7 @@ public class Product extends ProductNode {
      * Returns the band at the given index.
      *
      * @param index the band index
-     *
      * @return the band at the given index
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public Band getBandAt(final int index) {
@@ -1049,10 +1012,8 @@ public class Product extends ProductNode {
      * Returns the band with the given name.
      *
      * @param name the band name
-     *
      * @return the band with the given name or <code>null</code> if a band with the given name is not contained in this
      *         product.
-     *
      * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
      */
     public Band getBand(final String name) {
@@ -1064,9 +1025,7 @@ public class Product extends ProductNode {
      * Returns the index for the band with the given name.
      *
      * @param name the band name
-     *
      * @return the band index or <code>-1</code> if a band with the given name is not contained in this product.
-     *
      * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
      */
     public int getBandIndex(final String name) {
@@ -1078,10 +1037,8 @@ public class Product extends ProductNode {
      * Tests if a band with the given name is contained in this product.
      *
      * @param name the name, must not be <code>null</code>
-     *
      * @return <code>true</code> if a band with the given name is contained in this product, <code>false</code>
      *         otherwise
-     *
      * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
      */
     public boolean containsBand(final String name) {
@@ -1097,7 +1054,6 @@ public class Product extends ProductNode {
      * tie-point grids.
      *
      * @param name the name, must not be <code>null</code>
-     *
      * @return <code>true</code> if a raster data node with the given name is contained in this product,
      *         <code>false</code> otherwise
      */
@@ -1110,7 +1066,6 @@ public class Product extends ProductNode {
      * tie-point grids. If neither bands nor tie-point grids exist with the given name, <code>null</code> is returned.
      *
      * @param name the name, must not be <code>null</code>
-     *
      * @return the raster data node with the given name or <code>null</code> if a raster data node with the given name
      *         is not contained in this product.
      */
@@ -1159,23 +1114,19 @@ public class Product extends ProductNode {
      *
      * @param x the x coordinate of the pixel position
      * @param y the y coordinate of the pixel position
-     *
      * @return true, if so
-     *
      * @see #containsPixel(PixelPos)
      */
     public boolean containsPixel(final float x, final float y) {
         return x >= 0.0f && x <= getSceneRasterWidth() &&
-               y >= 0.0f && y <= getSceneRasterHeight();
+                y >= 0.0f && y <= getSceneRasterHeight();
     }
 
     /**
      * Tests if the given pixel position is within the product pixel bounds.
      *
      * @param pixelPos the pixel position, must not be null
-     *
      * @return true, if so
-     *
      * @see #containsPixel(float, float)
      */
     public boolean containsPixel(final PixelPos pixelPos) {
@@ -1206,47 +1157,12 @@ public class Product extends ProductNode {
         return pinGroup;
     }
 
-    /**
-     * Checks whether or not the given term is compatible with this product.
-     *
-     * @param term The term to examine.
-     *
-     * @return <code>false</code> if the term has an expression referencing nodes which are not contained in
-     *         this product, <code>true</code> otherwise.
-     */
-    public boolean isCompatibleTerm(final Term term) {
-        final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-        final Set<String> flags = new TreeSet<String>();
-        final Set<String> rasters = new TreeSet<String>();
-        for (final RasterDataSymbol refRasterDataSymbol : refRasterDataSymbols) {
-            rasters.add(refRasterDataSymbol.getRaster().getName());
-            final String name = refRasterDataSymbol.getName();
-            if (isFlagSymbol(name)) {
-                final int index = name.indexOf('.');
-                flags.add(name.substring(index + 1));
-            }
-        }
-        final String[] flagNames = getAllFlagNames();
-        for (String flag : flags) {
-            if (!StringUtils.containsIgnoreCase(flagNames, flag)) {
-                return false;
-            }
-        }
-        final String[] rasterNames = StringUtils.addArrays(getBandNames(), getTiePointGridNames());
-        for (String raster : rasters) {
-            if (!StringUtils.containsIgnoreCase(rasterNames, raster)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     /**
      * Checks whether or not the given product is compatible with this product.
      *
      * @param product the product to compare with
      * @param eps     the maximum lat/lon error in degree
-     *
      * @return <code>false</code> if the scene dimensions or geocoding are different, <code>true</code> otherwise.
      */
     public boolean isCompatibleProduct(final Product product, final float eps) {
@@ -1312,69 +1228,10 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Replaces the given old bitmask definition in this container with the given new bitmask definition. If the given
-     * old bitmask definition not contained in this container, the new bitmask definition was added. Ignored if the new
-     * bitmask definition is <code>null</code>.
-     *
-     * @param oldBitmaskDef the bitmask definition to be replaced.
-     * @param newBitmaskDef the new bitmask definition.
-     *
-     * @deprecated since BEAM 4.7, no replacement.
-     */
-    @Deprecated
-    public void replaceBitmaskDef(final BitmaskDef oldBitmaskDef, final BitmaskDef newBitmaskDef) {
-        if (newBitmaskDef != null) {
-            final Mask oldMask;
-            final int insertIndex = bitmaskDefGroup.indexOf(oldBitmaskDef);
-            if (insertIndex == -1) {
-                oldMask = null;
-                addBitmaskDef(newBitmaskDef);
-            } else {
-                if (bitmaskDefGroup.remove(oldBitmaskDef)) {
-                    fireNodeRemoved(oldBitmaskDef, bitmaskDefGroup);
-                }
-                bitmaskDefGroup.add(insertIndex, newBitmaskDef);
-                fireNodeAdded(newBitmaskDef, bitmaskDefGroup);
-
-                // also adjust mask group
-                oldMask = maskGroup.get(oldBitmaskDef.getName());
-                if (oldMask != null) {
-                    maskGroup.remove(oldMask);
-                }
-                maskGroup.add(newBitmaskDef.createMask(sceneRasterWidth, insertIndex));
-            }
-            for (final Band band : getBands()) {
-                final BitmaskOverlayInfo overlayInfo = band.getBitmaskOverlayInfo();
-                if (overlayInfo != null && overlayInfo.containsBitmaskDef(oldBitmaskDef)) {
-                    overlayInfo.removeBitmaskDef(oldBitmaskDef);
-                    overlayInfo.addBitmaskDef(newBitmaskDef);
-
-                    // also adjust overlay mask group
-                    band.getOverlayMaskGroup().remove(oldMask);
-                    band.getOverlayMaskGroup().add(maskGroup.get(newBitmaskDef.getName()));
-                }
-            }
-            for (final TiePointGrid grid : getTiePointGrids()) {
-                final BitmaskOverlayInfo overlayInfo = grid.getBitmaskOverlayInfo();
-                if (overlayInfo != null && overlayInfo.containsBitmaskDef(oldBitmaskDef)) {
-                    overlayInfo.removeBitmaskDef(oldBitmaskDef);
-                    overlayInfo.addBitmaskDef(newBitmaskDef);
-
-                    // also adjust overlay mask group
-                    grid.getOverlayMaskGroup().remove(oldMask);
-                    grid.getOverlayMaskGroup().add(maskGroup.get(newBitmaskDef.getName()));
-                }
-            }
-        }
-    }
-
-    /**
      * Parses a mathematical expression given as a text string.
      *
      * @param expression a expression given as a text string, e.g. "radiance_4 / (1.0 + radiance_11)".
-     *
      * @return a term parsed from the given expression string
-     *
      * @throws ParseException if the expression could not successfully be parsed
      */
     public Term parseExpression(final String expression) throws ParseException {
@@ -1419,7 +1276,6 @@ public class Product extends ProductNode {
      * time a node in this product changes.
      *
      * @param listener the listener to be added
-     *
      * @return boolean if listener was added or not
      */
     public boolean addProductNodeListener(final ProductNodeListener listener) {
@@ -1455,16 +1311,6 @@ public class Product extends ProductNode {
 
     protected boolean hasProductNodeListeners() {
         return listeners != null && listeners.size() > 0;
-    }
-
-    protected void fireNodeChanged(ProductNode sourceNode, String propertyName) {
-        fireEvent(sourceNode, propertyName, null, null);
-    }
-
-    @Deprecated
-    // since BEAM 4.7
-    protected void fireNodeChanged(ProductNode sourceNode, String propertyName, Object oldValue) {
-        fireEvent(sourceNode, propertyName, oldValue, null);
     }
 
     protected void fireNodeChanged(ProductNode sourceNode, String propertyName, Object oldValue, Object newValue) {
@@ -1535,7 +1381,6 @@ public class Product extends ProductNode {
      * Sets the reference number.
      *
      * @param refNo the reference number to set must be in the range 1 .. Integer.MAX_VALUE
-     *
      * @throws IllegalArgumentException if the refNo is out of range
      * @throws IllegalStateException
      */
@@ -1588,9 +1433,7 @@ public class Product extends ProductNode {
      * Tests if the given band arithmetic expression can be computed using this product.
      *
      * @param expression the mathematical expression
-     *
      * @return true, if the band arithmetic is compatible with this product
-     *
      * @see #isCompatibleBandArithmeticExpression(String, com.bc.jexp.Parser)
      */
     public boolean isCompatibleBandArithmeticExpression(final String expression) {
@@ -1602,9 +1445,7 @@ public class Product extends ProductNode {
      *
      * @param expression the band arithmetic expression
      * @param parser     the expression parser to be used
-     *
      * @return true, if the band arithmetic is compatible with this product
-     *
      * @see #createBandArithmeticParser()
      */
     public boolean isCompatibleBandArithmeticExpression(final String expression, Parser parser) {
@@ -1672,13 +1513,11 @@ public class Product extends ProductNode {
      * @param subsetDef the product subset definition
      * @param name      the name for the new product
      * @param desc      the description for the new product
-     *
      * @return the product subset, or <code>null</code> if the product/subset combination is not valid
-     *
      * @throws IOException if an I/O error occurs
      */
     public Product createSubset(final ProductSubsetDef subsetDef, final String name, final String desc) throws
-                                                                                                        IOException {
+            IOException {
         return ProductSubsetBuilder.createProductSubset(this, subsetDef, name, desc);
     }
 
@@ -1689,13 +1528,11 @@ public class Product extends ProductNode {
      * @param mapInfo the map information
      * @param name    the name for the new product
      * @param desc    the description for the new product
-     *
      * @return the product subset, or <code>null</code> if the product/subset combination is not valid
-     *
      * @throws IOException if an I/O error occurs
      */
     public Product createProjectedProduct(final MapInfo mapInfo, final String name, final String desc) throws
-                                                                                                       IOException {
+            IOException {
         return ProductProjectionBuilder.createProductProjection(this, false, mapInfo, name, desc);
     }
 
@@ -1705,9 +1542,7 @@ public class Product extends ProductNode {
      * @param flipType the flip type, see <code>{@link org.esa.beam.framework.dataio.ProductFlipper}</code>
      * @param name     the name for the new product
      * @param desc     the description for the new product
-     *
      * @return the product subset, or <code>null</code> if the product/subset combination is not valid
-     *
      * @throws IOException if an I/O error occurs
      */
     public Product createFlippedProduct(final int flipType, final String name, final String desc) throws IOException {
@@ -1738,7 +1573,6 @@ public class Product extends ProductNode {
      * Gets an estimated, raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
-     *
      * @return the size in bytes.
      */
     @Override
@@ -1795,7 +1629,6 @@ public class Product extends ProductNode {
      *
      * @param pixelX the pixel X co-ordinate
      * @param pixelY the pixel Y co-ordinate
-     *
      * @return the info string at the given position
      */
     public String createPixelInfoString(final int pixelX, final int pixelY) {
@@ -1842,7 +1675,7 @@ public class Product extends ProductNode {
         }
 
         if (pixelX >= 0 && pixelX < getSceneRasterWidth()
-            && pixelY >= 0 && pixelY < getSceneRasterHeight()) {
+                && pixelY >= 0 && pixelY < getSceneRasterHeight()) {
 
             sb.append("\n");
 
@@ -2063,7 +1896,6 @@ public class Product extends ProductNode {
      * created for a {@link RasterDataNode} of this product.
      *
      * @return the preferred tile size, may be <code>null</null> if not specified
-     *
      * @see RasterDataNode#getSourceImage()
      * @see RasterDataNode# setSourceImage (java.awt.image.RenderedImage)
      */
@@ -2077,7 +1909,6 @@ public class Product extends ProductNode {
      *
      * @param tileWidth  the preferred tile width
      * @param tileHeight the preferred tile height
-     *
      * @see #setPreferredTileSize(java.awt.Dimension)
      */
     public void setPreferredTileSize(int tileWidth, int tileHeight) {
@@ -2089,7 +1920,6 @@ public class Product extends ProductNode {
      * created for a {@link RasterDataNode} of this product.
      *
      * @param preferredTileSize the preferred tile size, may be <code>null</null> if not specified
-     *
      * @see RasterDataNode#getSourceImage()
      * @see RasterDataNode# setSourceImage (java.awt.image.RenderedImage)
      */
@@ -2108,7 +1938,6 @@ public class Product extends ProductNode {
      *
      * @return the array of all flag names. If this product does not support flags, an empty array is returned, but
      *         never <code>null</code>.
-     *
      * @see #parseExpression(String)
      */
     public String[] getAllFlagNames() {
@@ -2130,807 +1959,10 @@ public class Product extends ProductNode {
         return flagNames;
     }
 
-    /////////////////////////////////////////////////////////////////////////
-    // Deprecated API
-
-    @Deprecated
-    private final ProductNodeGroup<BitmaskDef> bitmaskDefGroup;
-
-    @Deprecated
-    private Map<String, BitRaster> validMasks;
-
-
-    /**
-     * Parses a mathematical expression given as a text string.
-     *
-     * @param expression a expression given as a text string, e.g. "radiance_4 / (1.0 + radiance_11)".
-     *
-     * @return a term parsed from the given expression string
-     *
-     * @throws ParseException if the expression could not successfully be parsed
-     * @deprecated Since BEAM 4.5.1. Use {@link #parseExpression(String)} instead.
-     */
-    @Deprecated
-    public Term createTerm(final String expression) throws ParseException {
-        final Parser parser = createBandArithmeticParser();
-        return parser.parse(expression);
-    }
-
-    /**
-     * Parses a mathematical expression given as a text string.
-     *
-     * @param expression   a expression given as a text string, e.g. "radiance_4 / (1.0 + radiance_11)".
-     * @param extraRasters extra rasters referenced in the given expression
-     *
-     * @return a term parsed from the given expression string
-     *
-     * @throws ParseException if the expression could not successfully be parsed
-     * @deprecated Since BEAM 4.5.1. Use {@link #parseExpression(String)} instead.
-     */
-    @Deprecated
-    public Term createTerm(final String expression, RasterDataNode... extraRasters) throws ParseException {
-
-        final Product thisProduct = getProductSafe();
-        final Product[] products;
-        final int thisProductIndex;
-        if (thisProduct.getProductManager() != null) {
-            products = thisProduct.getProductManager().getProducts();
-            thisProductIndex = thisProduct.getProductManager().getProductIndex(thisProduct);
-        } else {
-            products = new Product[]{thisProduct};
-            thisProductIndex = 0;
-        }
-        Assert.state(thisProductIndex >= products.length && thisProductIndex < products.length);
-        Assert.state(products[thisProductIndex] == thisProduct);
-
-        final WritableNamespace namespace = BandArithmetic.createDefaultNamespace(products, thisProductIndex);
-        final Symbol[] symbols = namespace.getAllSymbols();
-        for (RasterDataNode extraRaster : extraRasters) {
-            boolean registered = false;
-            for (Symbol symbol : symbols) {
-                if (symbol.getName().equals(extraRaster.getName())) {
-                    registered = true;
-                    break;
-                }
-            }
-            if (!registered) {
-                namespace.registerSymbol(new RasterDataSymbol(extraRaster.getName(),
-                                                              extraRaster, RasterDataSymbol.GEOPHYSICAL));
-            }
-        }
-        final Parser parser = new ParserImpl(namespace, false);
-        return parser.parse(expression);
-    }
-
-
-    /**
-     * Adds the given flag coding to this product.
-     *
-     * @param flagCoding the flag coding to added, ignored if <code>null</code>
-     *
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public void addFlagCoding(final FlagCoding flagCoding) {
-        getFlagCodingGroup().add(flagCoding);
-    }
-
-    /**
-     * Removes the given flag coding from this product.
-     *
-     * @param flagCoding the flag coding to be removed, ignored if <code>null</code>
-     *
-     * @return <code>true</code> on success
-     *
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public boolean removeFlagCoding(final FlagCoding flagCoding) {
-        return getFlagCodingGroup().remove(flagCoding);
-    }
-
-    /**
-     * Returns the number of flag codings contained in this product.
-     *
-     * @return the number of flag codings
-     *
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public int getNumFlagCodings() {
-        return getFlagCodingGroup().getNodeCount();
-    }
-
-    /**
-     * Returns the flag coding at the given index.
-     *
-     * @param index the flag coding index
-     *
-     * @return the flag coding at the given index
-     *
-     * @throws IndexOutOfBoundsException if the index is out of bounds
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public FlagCoding getFlagCodingAt(final int index) {
-        return getFlagCodingGroup().get(index);
-    }
-
-
-    /**
-     * Returns a string array containing the names of the flag codings contained in this product
-     *
-     * @return a string array containing the names of the flag codings contained in this product. If this product has no
-     *         flag coding a zero-length-array is returned.
-     *
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public String[] getFlagCodingNames() {
-        return getFlagCodingGroup().getNodeNames();
-    }
-
-    /**
-     * Returns the flag coding with the given name.
-     *
-     * @param name the flag coding name
-     *
-     * @return the flag coding with the given name or <code>null</code> if a flag coding with the given name is not
-     *         contained in this product.
-     *
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public FlagCoding getFlagCoding(final String name) {
-        return getFlagCodingGroup().get(name);
-    }
-
-    /**
-     * Tests if a flag coding with the given name is contained in this product.
-     *
-     * @param name the name, must not be <code>null</code>
-     *
-     * @return <code>true</code> if a flag coding with the given name is contained in this product, <code>false</code>
-     *         otherwise
-     *
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public boolean containsFlagCoding(final String name) {
-        return getFlagCodingGroup().contains(name);
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    // Bitmask definitions support
-
-    /**
-     * Adds the given bitmask definition to this product.
-     *
-     * @param bitmaskDef the bitmask definition to added, ignored if <code>null</code>
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void addBitmaskDef(final BitmaskDef bitmaskDef) {
-        if (StringUtils.isNullOrEmpty(bitmaskDef.getDescription())) {
-            final String defaultDescription = getSuitableBitmaskDefDescription(bitmaskDef);
-            bitmaskDef.setDescription(defaultDescription);
-        }
-        bitmaskDefGroup.add(bitmaskDef);
-        maskGroup.add(bitmaskDef.createMask(sceneRasterWidth, sceneRasterHeight));
-    }
-
-    /**
-     * Moves the given bitmask definition to the given index.
-     *
-     * @param bitmaskDef the bitmask definition which is to move
-     * @param index      the destination index for the given bitmask definition
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void moveBitmaskDef(final BitmaskDef bitmaskDef, final int index) {
-        Mask mask = getMaskGroup().get(bitmaskDef.getName());
-        if (bitmaskDefGroup.remove(bitmaskDef)) {
-            fireNodeRemoved(bitmaskDef, bitmaskDefGroup);
-            getMaskGroup().remove(mask);
-        }
-        bitmaskDefGroup.add(index, bitmaskDef);
-        fireNodeAdded(bitmaskDef, bitmaskDefGroup);
-        getMaskGroup().add(index, mask);
-    }
-
-    /**
-     * Removes the given bitmask definition from this product.
-     *
-     * @param bitmaskDef the bitmask definition to be removed, ignored if <code>null</code>
-     *
-     * @return <code>true</code> on success
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public boolean removeBitmaskDef(final BitmaskDef bitmaskDef) {
-        final boolean result = bitmaskDefGroup.remove(bitmaskDef);
-        removeBitmaskDef(getBands(), bitmaskDef);
-        removeBitmaskDef(getTiePointGrids(), bitmaskDef);
-
-        Mask mask = getMaskGroup().get(bitmaskDef.getName());
-        getMaskGroup().remove(mask);
-
-        return result;
-    }
-
-    @Deprecated
-    private static void removeBitmaskDef(RasterDataNode[] bands, BitmaskDef bitmaskDef) {
-        for (RasterDataNode band : bands) {
-            final BitmaskOverlayInfo bitmaskOverlayInfo = band.getBitmaskOverlayInfo();
-            if (bitmaskOverlayInfo != null) {
-                bitmaskOverlayInfo.removeBitmaskDef(bitmaskDef);
-            }
-        }
-    }
-
-    /**
-     * Gets the number of bitmask definitions contained in this product.
-     *
-     * @return the number of bitmask definitions
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public int getNumBitmaskDefs() {
-        return bitmaskDefGroup.getNodeCount();
-    }
-
-    /**
-     * Returns the bitmask definition at the given index.
-     *
-     * @param index the bitmask definition index
-     *
-     * @return the bitmask definition at the given index
-     *
-     * @throws IndexOutOfBoundsException if the index is out of bounds
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitmaskDef getBitmaskDefAt(final int index) {
-        return bitmaskDefGroup.get(index);
-    }
-
-    /**
-     * Returns a string array containing the names of the bitmask definitions contained in this product.
-     *
-     * @return a string array containing the names of the bitmask definitions contained in this product. If this product
-     *         has no bitmask definitions a zero-length-array is returned.
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public String[] getBitmaskDefNames() {
-        return bitmaskDefGroup.getNodeNames();
-    }
-
-    /**
-     * Returns the bitmask definition with the given name.
-     *
-     * @param name the bitmask definition name
-     *
-     * @return the bitmask definition with the given name or <code>null</code> if a bitmask definition with the given
-     *         name is not contained in this product.
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitmaskDef getBitmaskDef(final String name) {
-        Guardian.assertNotNullOrEmpty("name", name);
-        return bitmaskDefGroup.get(name);
-    }
-
-    /**
-     * Returns an array of bitmask definitions contained in this product
-     *
-     * @return an array of bitmask definition contained in this product. If this product has no bitmask definitions a
-     *         zero-length-array is returned.
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitmaskDef[] getBitmaskDefs() {
-        final BitmaskDef[] bitmaskDefs = new BitmaskDef[getNumBitmaskDefs()];
-        for (int i = 0; i < bitmaskDefs.length; i++) {
-            bitmaskDefs[i] = getBitmaskDefAt(i);
-        }
-        return bitmaskDefs;
-    }
-
-    /**
-     * Tests if a bitmask definition with the given name is contained in this product.
-     *
-     * @param name the name, must not be <code>null</code>
-     *
-     * @return <code>true</code> if a bitmask definition with the given name is contained in this product,
-     *         <code>false</code> otherwise
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public boolean containsBitmaskDef(final String name) {
-        Guardian.assertNotNullOrEmpty("name", name);
-        return bitmaskDefGroup.contains(name);
-    }
-
-    /**
-     * Tests if the given bitmask definition is contained in this container.
-     *
-     * @param def the bitmask definition, must not be <code>null</code>
-     *
-     * @return <code>true</code> if the bitmask definition is contained in this cotainer, <code>false</code> otherwise
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public boolean containsBitmaskDef(final BitmaskDef def) {
-        if (def != null) {
-            final BitmaskDef containedDef = getBitmaskDef(def.getName());
-            return def == containedDef;
-        }
-        return false;
-    }
-
-    /**
-     * Checks whether or not the given bitmask definition is compatible with this product.
-     *
-     * @param bitmaskDef The bitmask definition.
-     *
-     * @return <code>false</code> if the bitmask has a valid expression and(!) the flag name is not contained in this
-     *         data product, <code>true</code> otherwise.
-     *
-     * @deprecated since BEAM 4.7
-     */
-    @Deprecated
-    public boolean isCompatibleBitmaskDef(final BitmaskDef bitmaskDef) {
-        try {
-            parseExpression(bitmaskDef.getExpr());
-        } catch (ParseException e) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Gets a valid-mask for the given ID.
-     *
-     * @param id the ID
-     *
-     * @return a cached valid mask for the given ID or null
-     *
-     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitRaster getValidMask(final String id) {
-        if (validMasks != null) {
-            return validMasks.get(id);
-        }
-        return null;
-    }
-
-    /**
-     * Sets a valid-mask for the given ID.
-     *
-     * @param id        the ID
-     * @param validMask the pixel mask
-     *
-     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void setValidMask(final String id, final BitRaster validMask) {
-        if (validMask != null) {
-            Guardian.assertEquals("validMask", validMask.getWidth(), getSceneRasterWidth());
-            Guardian.assertEquals("validMask", validMask.getHeight(), getSceneRasterHeight());
-            if (validMasks == null) {
-                validMasks = new HashMap<String, BitRaster>();
-            }
-            validMasks.put(id, validMask);
-        } else {
-            if (validMasks != null) {
-                validMasks.remove(id);
-            }
-        }
-    }
-
-    /**
-     * Creates a bit-packed valid-mask for all pixels of the scene covered by this product.
-     * The given expression is considered to be boolean, if it evaluates to <code>true</code>
-     * the related bit in the mask is set.
-     *
-     * @param expression the boolean expression, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
-     * @param pm         a progress monitor
-     *
-     * @return a bit-packed mask for all pixels of the scene, never null
-     *
-     * @throws IOException if an I/O error occurs
-     * @see #parseExpression(String)
-     * @see #createValidMask(com.bc.jexp.Term, com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitRaster createValidMask(final String expression, final ProgressMonitor pm) throws IOException {
-        try {
-            final Term term = getProduct().parseExpression(expression);
-            return createValidMask(term, pm);
-        } catch (ParseException e) {
-            final IOException ioException = new IOException(
-                    "Unable to load the valid pixel mask, parse error: " + e.getMessage());
-            ioException.initCause(e);
-            throw ioException;
-        }
-    }
-
-    /**
-     * Creates a bit-packed mask for all pixels of the scene covered by this product.
-     * The given term is considered to be boolean, if it evaluates to <code>true</code>
-     * the related bit in the mask is set.
-     * <p>Since the masks created by this method are cached, the method {@link #releaseValidMask(org.esa.beam.util.BitRaster)}
-     * should be called in order to release it.
-     *
-     * @param term the boolean term, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
-     * @param pm   a progress monitor
-     *
-     * @return a bit-packed mask for all pixels of the scene, never null
-     *
-     * @throws IOException if an I/O error occurs
-     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitRaster createValidMask(final Term term, final ProgressMonitor pm) throws IOException {
-        final String id = term.toString();
-        BitRaster cachedValidMask = getValidMask(id);
-        if (cachedValidMask != null) {
-            return cachedValidMask;
-        }
-        Debug.trace("createValidMask: " + id);
-        final int productWidth = getSceneRasterWidth();
-        final int productHeight = getSceneRasterHeight();
-        final BitRaster validMask = new BitRaster(productWidth, productHeight);
-
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        final RasterDataLoop loop = new RasterDataLoop(0, 0,
-                                                       productWidth, productHeight,
-                                                       new Term[]{term}, pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            @Override
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                if (term.evalB(env)) {
-                    validMask.set(pixelIndex);
-                }
-            }
-        }, "Computing valid-mask..."); /*I18N*/
-
-        setValidMask(id, validMask);
-
-        stopWatch.stopAndTrace("createValidMask");
-
-        return validMask;
-    }
-
-    /**
-     * Releases a valid-mask previously allocated with the {@link #createValidMask(String, com.bc.ceres.core.ProgressMonitor) createValidMask()} method.
-     *
-     * @param validMask the pixel mask to be released
-     *
-     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void releaseValidMask(final BitRaster validMask) {
-        if (validMasks != null) {
-            final Collection<BitRaster> bitRasters = validMasks.values();
-            for (Iterator<BitRaster> iterator = bitRasters.iterator(); iterator.hasNext();) {
-                final BitRaster bitRaster = iterator.next();
-                if (validMask == bitRaster) {
-                    iterator.remove();
-                    break;
-                }
-            }
-        }
-    }
-
-    /**
-     * @see #readBitmask(int, int, int, int, com.bc.jexp.Term, boolean[], com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final Term bitmaskTerm,
-                            final boolean[] bitmask) throws IOException {
-        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, ProgressMonitor.NULL);
-    }
-
-    /**
-     * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
-     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
-     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
-     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
-     * elements.
-     * </p>
-     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
-     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
-     * </p>
-     * <p> The {@link #parseExpression(String)} method can be used to create a bit-mask
-     * term from a textual bit-mask expression.
-     * </p>
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String)} method
-     * @param bitmask     a buffer used to hold the results of the bit-mask evaluations for each pixel in the given
-     *                    spatial subset
-     * @param pm          a monitor to inform the user about progress
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #parseExpression(String)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final Term bitmaskTerm,
-                            final boolean[] bitmask, ProgressMonitor pm) throws IOException {
-        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
-                                                       width, height,
-                                                       new Term[]{bitmaskTerm}, pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            @Override
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                bitmask[pixelIndex] = bitmaskTerm.evalB(env);
-            }
-        });
-    }
-
-    /**
-     * @see #readBitmask(int, int, int, int, com.bc.jexp.Term, byte[], byte, byte, com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    public synchronized void readBitmask(final int offsetX,
-                                         final int offsetY,
-                                         final int width,
-                                         final int height,
-                                         final Term bitmaskTerm,
-                                         final byte[] bitmask,
-                                         final byte trueValue,
-                                         final byte falseValue) throws IOException {
-        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, trueValue, falseValue, ProgressMonitor.NULL);
-    }
-
-
-    /**
-     * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p/>
-     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
-     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
-     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
-     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
-     * elements.
-     * </p>
-     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
-     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
-     * </p>
-     * <p> The {@link #parseExpression(String)} method can be used to create a bit-mask
-     * term from a textual bit-mask expression.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String)}
-     *                    method
-     * @param bitmask     a byte buffer used to hold the results of the bit-mask evaluations for each pixel in the given
-     *                    spatial subset
-     * @param trueValue   the byte value to be set if the bitmask-term evauates to <code>true</code>
-     * @param falseValue  the byte value to be set if the bitmask-term evauates to <code>false</code>
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #parseExpression(String)
-     * @see #readBitmask(int, int, int, int, Term, int[], int, int)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public synchronized void readBitmask(final int offsetX,
-                                         final int offsetY,
-                                         final int width,
-                                         final int height,
-                                         final Term bitmaskTerm,
-                                         final byte[] bitmask,
-                                         final byte trueValue,
-                                         final byte falseValue,
-                                         ProgressMonitor pm) throws IOException {
-        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
-                                                       width, height,
-                                                       new Term[]{bitmaskTerm}, pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            @Override
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                if (bitmaskTerm.evalB(env)) {
-                    bitmask[pixelIndex] = trueValue;
-                } else {
-                    bitmask[pixelIndex] = falseValue;
-                }
-            }
-        }, "Reading bitmask...");  /*I18N*/
-    }
-
-
-    /**
-     * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p/>
-     * <p> The method works exactly like {@link #readBitmask(int, int, int, int, Term, byte[], byte, byte)},
-     * but in this method the bitmnask is represented by an array of integers to be filled.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String)}
-     *                    method
-     * @param bitmask     an integer buffer used to hold the results of the bit-mask evaluations for each pixel in the
-     *                    given spatial subset
-     * @param trueValue   the integer value to be set if the bitmask-term evauates to <code>true</code>
-     * @param falseValue  the integer value to be set if the bitmask-term evauates to <code>false</code>
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #parseExpression(String)
-     * @see #readBitmask(int, int, int, int, Term, byte[], byte, byte)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final Term bitmaskTerm,
-                            final int[] bitmask,
-                            final int trueValue,
-                            final int falseValue) throws IOException {
-        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, trueValue, falseValue, ProgressMonitor.NULL);
-    }
-
-    /**
-     * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p/>
-     * <p> The method works exactly like {@link #readBitmask(int, int, int, int, Term, byte[], byte, byte)},
-     * but in this method the bitmnask is represented by an array of integers to be filled.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String)}
-     *                    method
-     * @param bitmask     an integer buffer used to hold the results of the bit-mask evaluations for each pixel in the
-     *                    given spatial subset
-     * @param trueValue   the integer value to be set if the bitmask-term evauates to <code>true</code>
-     * @param falseValue  the integer value to be set if the bitmask-term evauates to <code>false</code>
-     * @param pm          a monitor to inform the user about progress
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #parseExpression(String)
-     * @see #readBitmask(int, int, int, int, Term, byte[], byte, byte)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final Term bitmaskTerm,
-                            final int[] bitmask,
-                            final int trueValue,
-                            final int falseValue,
-                            ProgressMonitor pm) throws IOException {
-        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY, width, height, new Term[]{bitmaskTerm}, pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            @Override
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                if (bitmaskTerm.evalB(env)) {
-                    bitmask[pixelIndex] = trueValue;
-                } else {
-                    bitmask[pixelIndex] = falseValue;
-                }
-            }
-        });
-    }
-
-    /**
-     * @see #maskProductData(int, int, int, int, com.bc.jexp.Term, ProductData, boolean, double, com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void maskProductData(final int offsetX,
-                                final int offsetY,
-                                final int width,
-                                final int height,
-                                final Term bitmaskTerm,
-                                final ProductData rasterData,
-                                final boolean termValue,
-                                final double maskValue) throws IOException {
-        maskProductData(offsetX, offsetY,
-                        width, height,
-                        bitmaskTerm,
-                        rasterData,
-                        termValue, maskValue,
-                        ProgressMonitor.NULL);
-    }
-
-    /**
-     * Masks the given raster data for the specified region using the a given bit-mask term.
-     * <p> The method evaluates the term for each pixel in the subset (line-by-line, X varies fastest).
-     * If the bit-mask term evaluates to <code>termValue</code> at the current pixel position, then <code>maskValue</code> is set at the corrresponding
-     * position in <code>rasterData</code> instead of the original pixel value. If the bit-mask term does not forEachPixel
-     * to <code>termValue</code> then the original pixel value in <code>rasterData</code> remains unchanged. The
-     * buffer must at least have a length equal to <code>width * height</code> elements.
-     * </p>
-     * <p> The {@link #parseExpression(String) createTerm} method can be used to create a bit-mask
-     * term from a textual bit-mask expression.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String) createTerm}
-     *                    method
-     * @param rasterData  the raster data which is masked with  <code>maskPixelValue</code> if the term evaluates to
-     *                    <code>termValue</code> at a given pixel position
-     * @param termValue   the term evaluation value which controls the masking
-     * @param maskValue   the pixel value which is set if the term evaluates to <code>termValue</code>
-     * @param pm          a monitor to inform the user about progress
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #parseExpression(String)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void maskProductData(final int offsetX,
-                                final int offsetY,
-                                final int width,
-                                final int height,
-                                final Term bitmaskTerm,
-                                final ProductData rasterData,
-                                final boolean termValue,
-                                final double maskValue,
-                                final ProgressMonitor pm) throws IOException {
-        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
-                                                       width, height,
-                                                       new Term[]{bitmaskTerm},
-                                                       pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            @Override
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                if (bitmaskTerm.evalB(env) == termValue) {
-                    rasterData.setElemDoubleAt(pixelIndex, maskValue);
-                }
-            }
-        });
-    }
-
     /**
      * Gets the auto-grouping applicable to product nodes contained in this product.
      *
      * @return The auto-grouping or {@code null}.
-     *
      * @since BEAM 4.8
      */
     public AutoGrouping getAutoGrouping() {
@@ -2941,7 +1973,6 @@ public class Product extends ProductNode {
      * Sets the auto-grouping applicable to product nodes contained in this product.
      *
      * @param autoGrouping The auto-grouping or {@code null}.
-     *
      * @since BEAM 4.8
      */
     public void setAutoGrouping(AutoGrouping autoGrouping) {
@@ -2967,7 +1998,6 @@ public class Product extends ProductNode {
      * </pre>
      *
      * @param pattern The auto-grouping pattern.
-     *
      * @since BEAM 4.8
      */
     public void setAutoGrouping(String pattern) {
@@ -2978,6 +2008,7 @@ public class Product extends ProductNode {
     /**
      * AutoGrouping can be used by an application to auto-group a long list of product nodes (e.g. bands)
      * as a tree of product nodes.
+     * @since BEAM 4.8
      */
     public static interface AutoGrouping extends List<String[]> {
 
@@ -2985,7 +2016,6 @@ public class Product extends ProductNode {
          * Gets the index of the first group path that matches the given name.
          *
          * @param name A product node name.
-         *
          * @return The index of the group path or {@code -1} if no group path matches the given name.
          */
         int indexOf(String name);
@@ -3103,5 +2133,470 @@ public class Product extends ProductNode {
         }
     }
 
+    /////////////////////////////////////////////////////////////////////////
+    // Deprecated API
 
+    @Deprecated
+    private final ProductNodeGroup<BitmaskDef> bitmaskDefGroup;
+
+    @Deprecated
+    private Map<String, BitRaster> validMasks;
+
+    /**
+     * Adds the given bitmask definition to this product.
+     *
+     * @param bitmaskDef the bitmask definition to added, ignored if <code>null</code>
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public void addBitmaskDef(final BitmaskDef bitmaskDef) {
+        if (StringUtils.isNullOrEmpty(bitmaskDef.getDescription())) {
+            final String defaultDescription = getSuitableBitmaskDefDescription(bitmaskDef);
+            bitmaskDef.setDescription(defaultDescription);
+        }
+        bitmaskDefGroup.add(bitmaskDef);
+        maskGroup.add(bitmaskDef.createMask(sceneRasterWidth, sceneRasterHeight));
+    }
+
+    /**
+     * Moves the given bitmask definition to the given index.
+     *
+     * @param bitmaskDef the bitmask definition which is to move
+     * @param index      the destination index for the given bitmask definition
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public void moveBitmaskDef(final BitmaskDef bitmaskDef, final int index) {
+        Mask mask = getMaskGroup().get(bitmaskDef.getName());
+        if (bitmaskDefGroup.remove(bitmaskDef)) {
+            fireNodeRemoved(bitmaskDef, bitmaskDefGroup);
+            getMaskGroup().remove(mask);
+        }
+        bitmaskDefGroup.add(index, bitmaskDef);
+        fireNodeAdded(bitmaskDef, bitmaskDefGroup);
+        getMaskGroup().add(index, mask);
+    }
+
+    /**
+     * Removes the given bitmask definition from this product.
+     *
+     * @param bitmaskDef the bitmask definition to be removed, ignored if <code>null</code>
+     * @return <code>true</code> on success
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public boolean removeBitmaskDef(final BitmaskDef bitmaskDef) {
+        final boolean result = bitmaskDefGroup.remove(bitmaskDef);
+        removeBitmaskDef(getBands(), bitmaskDef);
+        removeBitmaskDef(getTiePointGrids(), bitmaskDef);
+
+        Mask mask = getMaskGroup().get(bitmaskDef.getName());
+        getMaskGroup().remove(mask);
+
+        return result;
+    }
+
+    @Deprecated
+    private static void removeBitmaskDef(RasterDataNode[] bands, BitmaskDef bitmaskDef) {
+        for (RasterDataNode band : bands) {
+            final BitmaskOverlayInfo bitmaskOverlayInfo = band.getBitmaskOverlayInfo();
+            if (bitmaskOverlayInfo != null) {
+                bitmaskOverlayInfo.removeBitmaskDef(bitmaskDef);
+            }
+        }
+    }
+
+    /**
+     * Gets the number of bitmask definitions contained in this product.
+     *
+     * @return the number of bitmask definitions
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public int getNumBitmaskDefs() {
+        return bitmaskDefGroup.getNodeCount();
+    }
+
+    /**
+     * Returns the bitmask definition at the given index.
+     *
+     * @param index the bitmask definition index
+     * @return the bitmask definition at the given index
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public BitmaskDef getBitmaskDefAt(final int index) {
+        return bitmaskDefGroup.get(index);
+    }
+
+    /**
+     * Returns a string array containing the names of the bitmask definitions contained in this product.
+     *
+     * @return a string array containing the names of the bitmask definitions contained in this product. If this product
+     *         has no bitmask definitions a zero-length-array is returned.
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public String[] getBitmaskDefNames() {
+        return bitmaskDefGroup.getNodeNames();
+    }
+
+    /**
+     * Returns the bitmask definition with the given name.
+     *
+     * @param name the bitmask definition name
+     * @return the bitmask definition with the given name or <code>null</code> if a bitmask definition with the given
+     *         name is not contained in this product.
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public BitmaskDef getBitmaskDef(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return bitmaskDefGroup.get(name);
+    }
+
+    /**
+     * Returns an array of bitmask definitions contained in this product
+     *
+     * @return an array of bitmask definition contained in this product. If this product has no bitmask definitions a
+     *         zero-length-array is returned.
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public BitmaskDef[] getBitmaskDefs() {
+        final BitmaskDef[] bitmaskDefs = new BitmaskDef[getNumBitmaskDefs()];
+        for (int i = 0; i < bitmaskDefs.length; i++) {
+            bitmaskDefs[i] = getBitmaskDefAt(i);
+        }
+        return bitmaskDefs;
+    }
+
+    /**
+     * Tests if the given bitmask definition is contained in this container.
+     *
+     * @param def the bitmask definition, must not be <code>null</code>
+     * @return <code>true</code> if the bitmask definition is contained in this cotainer, <code>false</code> otherwise
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public boolean containsBitmaskDef(final BitmaskDef def) {
+        if (def != null) {
+            final BitmaskDef containedDef = getBitmaskDef(def.getName());
+            return def == containedDef;
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether or not the given bitmask definition is compatible with this product.
+     *
+     * @param bitmaskDef The bitmask definition.
+     * @return <code>false</code> if the bitmask has a valid expression and(!) the flag name is not contained in this
+     *         data product, <code>true</code> otherwise.
+     * @deprecated since BEAM 4.7
+     */
+    @Deprecated
+    public boolean isCompatibleBitmaskDef(final BitmaskDef bitmaskDef) {
+        try {
+            parseExpression(bitmaskDef.getExpr());
+        } catch (ParseException e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Gets a valid-mask for the given ID.
+     *
+     * @param id the ID
+     * @return a cached valid mask for the given ID or null
+     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public BitRaster getValidMask(final String id) {
+        if (validMasks != null) {
+            return validMasks.get(id);
+        }
+        return null;
+    }
+
+    /**
+     * Sets a valid-mask for the given ID.
+     *
+     * @param id        the ID
+     * @param validMask the pixel mask
+     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public void setValidMask(final String id, final BitRaster validMask) {
+        if (validMask != null) {
+            Guardian.assertEquals("validMask", validMask.getWidth(), getSceneRasterWidth());
+            Guardian.assertEquals("validMask", validMask.getHeight(), getSceneRasterHeight());
+            if (validMasks == null) {
+                validMasks = new HashMap<String, BitRaster>();
+            }
+            validMasks.put(id, validMask);
+        } else {
+            if (validMasks != null) {
+                validMasks.remove(id);
+            }
+        }
+    }
+
+    /**
+     * Creates a bit-packed valid-mask for all pixels of the scene covered by this product.
+     * The given expression is considered to be boolean, if it evaluates to <code>true</code>
+     * the related bit in the mask is set.
+     *
+     * @param expression the boolean expression, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
+     * @param pm         a progress monitor
+     * @return a bit-packed mask for all pixels of the scene, never null
+     * @throws IOException if an I/O error occurs
+     * @see #parseExpression(String)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public BitRaster createValidMask(final String expression, final ProgressMonitor pm) throws IOException {
+        try {
+            final Term term = getProduct().parseExpression(expression);
+            return createValidMask(term, pm);
+        } catch (ParseException e) {
+            final IOException ioException = new IOException(
+                    "Unable to load the valid pixel mask, parse error: " + e.getMessage());
+            ioException.initCause(e);
+            throw ioException;
+        }
+    }
+
+    /**
+     * Creates a bit-packed mask for all pixels of the scene covered by this product.
+     * The given term is considered to be boolean, if it evaluates to <code>true</code>
+     * the related bit in the mask is set.
+     * <p>Since the masks created by this method are cached, the method {@link #releaseValidMask(org.esa.beam.util.BitRaster)}
+     * should be called in order to release it.
+     *
+     * @param term the boolean term, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
+     * @param pm   a progress monitor
+     * @return a bit-packed mask for all pixels of the scene, never null
+     * @throws IOException if an I/O error occurs
+     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public BitRaster createValidMask(final Term term, final ProgressMonitor pm) throws IOException {
+        final String id = term.toString();
+        BitRaster cachedValidMask = getValidMask(id);
+        if (cachedValidMask != null) {
+            return cachedValidMask;
+        }
+        Debug.trace("createValidMask: " + id);
+        final int productWidth = getSceneRasterWidth();
+        final int productHeight = getSceneRasterHeight();
+        final BitRaster validMask = new BitRaster(productWidth, productHeight);
+
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        final RasterDataLoop loop = new RasterDataLoop(0, 0,
+                                                       productWidth, productHeight,
+                                                       new Term[]{term}, pm);
+        loop.forEachPixel(new RasterDataLoop.Body() {
+            @Override
+            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
+                if (term.evalB(env)) {
+                    validMask.set(pixelIndex);
+                }
+            }
+        }, "Computing valid-mask..."); /*I18N*/
+
+        setValidMask(id, validMask);
+
+        stopWatch.stopAndTrace("createValidMask");
+
+        return validMask;
+    }
+
+    /**
+     * @see #readBitmask(int, int, int, int, com.bc.jexp.Term, boolean[], com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public void readBitmask(final int offsetX,
+                            final int offsetY,
+                            final int width,
+                            final int height,
+                            final Term bitmaskTerm,
+                            final boolean[] bitmask) throws IOException {
+        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
+     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
+     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
+     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
+     * elements.
+     * </p>
+     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
+     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
+     * </p>
+     * <p> The {@link #parseExpression(String)} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     * </p>
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String)} method
+     * @param bitmask     a buffer used to hold the results of the bit-mask evaluations for each pixel in the given
+     *                    spatial subset
+     * @param pm          a monitor to inform the user about progress
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #parseExpression(String)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public void readBitmask(final int offsetX,
+                            final int offsetY,
+                            final int width,
+                            final int height,
+                            final Term bitmaskTerm,
+                            final boolean[] bitmask, ProgressMonitor pm) throws IOException {
+        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
+                                                       width, height,
+                                                       new Term[]{bitmaskTerm}, pm);
+        loop.forEachPixel(new RasterDataLoop.Body() {
+            @Override
+            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
+                bitmask[pixelIndex] = bitmaskTerm.evalB(env);
+            }
+        });
+    }
+
+    /**
+     * @see #readBitmask(int, int, int, int, com.bc.jexp.Term, byte[], byte, byte, com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public synchronized void readBitmask(final int offsetX,
+                                         final int offsetY,
+                                         final int width,
+                                         final int height,
+                                         final Term bitmaskTerm,
+                                         final byte[] bitmask,
+                                         final byte trueValue,
+                                         final byte falseValue) throws IOException {
+        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, trueValue, falseValue, ProgressMonitor.NULL);
+    }
+
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p/>
+     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
+     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
+     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
+     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
+     * elements.
+     * </p>
+     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
+     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
+     * </p>
+     * <p> The {@link #parseExpression(String)} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String)}
+     *                    method
+     * @param bitmask     a byte buffer used to hold the results of the bit-mask evaluations for each pixel in the given
+     *                    spatial subset
+     * @param trueValue   the byte value to be set if the bitmask-term evauates to <code>true</code>
+     * @param falseValue  the byte value to be set if the bitmask-term evauates to <code>false</code>
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #parseExpression(String)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public synchronized void readBitmask(final int offsetX,
+                                         final int offsetY,
+                                         final int width,
+                                         final int height,
+                                         final Term bitmaskTerm,
+                                         final byte[] bitmask,
+                                         final byte trueValue,
+                                         final byte falseValue,
+                                         ProgressMonitor pm) throws IOException {
+        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
+                                                       width, height,
+                                                       new Term[]{bitmaskTerm}, pm);
+        loop.forEachPixel(new RasterDataLoop.Body() {
+            @Override
+            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
+                if (bitmaskTerm.evalB(env)) {
+                    bitmask[pixelIndex] = trueValue;
+                } else {
+                    bitmask[pixelIndex] = falseValue;
+                }
+            }
+        }, "Reading bitmask...");  /*I18N*/
+    }
+
+    /**
+     * Checks whether or not the given term is compatible with this product.
+     *
+     * @param term The term to examine.
+     * @return <code>false</code> if the term has an expression referencing nodes which are not contained in
+     *         this product, <code>true</code> otherwise.
+     * @deprecated since BEAM 4.9. No usage, considered useless.
+     */
+    @Deprecated
+    public boolean isCompatibleTerm(final Term term) {
+        final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
+        final Set<String> flags = new TreeSet<String>();
+        final Set<String> rasters = new TreeSet<String>();
+        for (final RasterDataSymbol refRasterDataSymbol : refRasterDataSymbols) {
+            rasters.add(refRasterDataSymbol.getRaster().getName());
+            final String name = refRasterDataSymbol.getName();
+            if (isFlagSymbol(name)) {
+                final int index = name.indexOf('.');
+                flags.add(name.substring(index + 1));
+            }
+        }
+        final String[] flagNames = getAllFlagNames();
+        for (String flag : flags) {
+            if (!StringUtils.containsIgnoreCase(flagNames, flag)) {
+                return false;
+            }
+        }
+        final String[] rasterNames = StringUtils.addArrays(getBandNames(), getTiePointGridNames());
+        for (String raster : rasters) {
+            if (!StringUtils.containsIgnoreCase(rasterNames, raster)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Returns the index for the tie-point grid with the given name.
+     *
+     * @param name the tie-point grid name
+     * @return the tie-point grid index or <code>-1</code> if a tie-point grid with the given name is not contained in
+     *         this product.
+     * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
+     * @deprecated since BEAM 4.9. No usage, considered useless.
+     */
+    @Deprecated
+    public int getTiePointGridIndex(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return tiePointGridGroup.indexOf(name);
+    }
 }

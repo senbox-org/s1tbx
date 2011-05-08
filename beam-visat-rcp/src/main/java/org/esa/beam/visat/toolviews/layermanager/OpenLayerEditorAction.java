@@ -34,7 +34,7 @@ class OpenLayerEditorAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        ApplicationPage page = VisatApp.getApp().getPage();
+        ApplicationPage page = VisatApp.getApp().getApplicationPage();
         ToolView toolView = page.getToolView(LayerEditorToolView.ID);
         if (toolView != null) {
             page.showToolView(LayerEditorToolView.ID);
