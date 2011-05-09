@@ -55,17 +55,17 @@ public class BandArithmetic {
     public static final String PIXEL_X_NAME = "X";
     public static final String PIXEL_Y_NAME = "Y";
 
-    private static final Symbol PIXEL_X_SYMBOL = new AbstractSymbol.I(PIXEL_X_NAME) {
+    private static final Symbol PIXEL_X_SYMBOL = new AbstractSymbol.D(PIXEL_X_NAME) {
         @Override
-        public int evalI(EvalEnv env) throws EvalException {
-            return ((RasterDataEvalEnv) env).getPixelX();
+        public double evalD(EvalEnv env) throws EvalException {
+            return ((RasterDataEvalEnv) env).getPixelX() + 0.5;
         }
     };
 
-    private static final Symbol PIXEL_Y_SYMBOL = new AbstractSymbol.I(PIXEL_Y_NAME) {
+    private static final Symbol PIXEL_Y_SYMBOL = new AbstractSymbol.D(PIXEL_Y_NAME) {
         @Override
-        public int evalI(EvalEnv env) throws EvalException {
-            return ((RasterDataEvalEnv) env).getPixelY();
+        public double evalD(EvalEnv env) throws EvalException {
+            return ((RasterDataEvalEnv) env).getPixelY() + 0.5;
         }
     };
 
