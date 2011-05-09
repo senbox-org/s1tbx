@@ -41,7 +41,7 @@ class MosaicDialog extends SingleTargetProductDialog {
     private final MosaicForm form;
 
     MosaicDialog(final String title, final String helpID, AppContext appContext) {
-        super(appContext, title, helpID);
+        super(appContext, title, ID_APPLY_CLOSE, helpID);
         final TargetProductSelector selector = getTargetProductSelector();
         selector.getModel().setSaveToFileSelected(true);
         selector.getModel().setProductName("mosaic");

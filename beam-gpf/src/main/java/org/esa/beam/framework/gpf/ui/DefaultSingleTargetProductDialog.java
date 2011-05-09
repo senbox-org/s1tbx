@@ -64,7 +64,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
     }
 
     public DefaultSingleTargetProductDialog(String operatorName, AppContext appContext, String title, String helpID) {
-        super(appContext, title, helpID);
+        super(appContext, title, ID_APPLY_CLOSE, helpID);
         this.operatorName = operatorName;
         targetProductNameSuffix = "";
 

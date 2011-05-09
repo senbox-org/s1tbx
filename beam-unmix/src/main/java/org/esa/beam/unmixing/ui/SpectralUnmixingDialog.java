@@ -44,7 +44,7 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
     private final OperatorParameterSupport parameterSupport;
 
     public SpectralUnmixingDialog(AppContext appContext) {
-        super(appContext, TITLE, HELP_ID);
+        super(appContext, TITLE, ID_APPLY_CLOSE, HELP_ID);
 
         ParameterUpdater parameterUpdater = new ParameterUpdater() {
 

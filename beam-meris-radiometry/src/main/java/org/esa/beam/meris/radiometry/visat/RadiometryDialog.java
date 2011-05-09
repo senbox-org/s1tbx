@@ -38,7 +38,7 @@ class RadiometryDialog extends SingleTargetProductDialog {
     private final RadiometryForm form;
 
     RadiometryDialog(String alias, AppContext appContext, String title, String helpId) {
-        super(appContext, title, ID_APPLY_CLOSE_HELP, helpId,
+        super(appContext, title, ID_APPLY_CLOSE, helpId,
               TargetProductSelectorModel.createEnvisatTargetProductSelectorModel());
         this.alias = alias;
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(alias);

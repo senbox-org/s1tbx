@@ -45,7 +45,7 @@ class ReprojectionDialog extends SingleTargetProductDialog {
     }
 
     ReprojectionDialog(boolean orthorectify, final String title, final String helpID, AppContext appContext) {
-        super(appContext, title, helpID);
+        super(appContext, title, ID_APPLY_CLOSE, helpID);
         form = new ReprojectionForm(getTargetProductSelector(), orthorectify, appContext);
 
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(OPERATOR_NAME);

@@ -39,7 +39,7 @@ class CollocationDialog extends SingleTargetProductDialog {
     private final CollocationForm form;
 
     public CollocationDialog(AppContext appContext) {
-        super(appContext, "Collocation", HELP_ID);
+        super(appContext, "Collocation", ID_APPLY_CLOSE, HELP_ID);
 
         parameterSupport = new OperatorParameterSupport(CollocateOp.class);
         OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
