@@ -204,7 +204,7 @@ public class CreateDemCorrectionBandsAction extends ExecCommand {
         configureBandNameProperty(propertySet, "elevationBandName", product);
         configureBandNameProperty(propertySet, "latitudeBandName", product);
         configureBandNameProperty(propertySet, "longitudeBandName", product);
-        BindingContext ctx = new BindingContext(propertySet);
+        final BindingContext ctx = new BindingContext(propertySet);
 
         final JList demList = new JList();
         demList.setVisibleRowCount(3);
@@ -264,19 +264,34 @@ public class CreateDemCorrectionBandsAction extends ExecCommand {
         return null;
     }
 
-    private static void configureDemNameProperty(PropertySet propertySet, String name, String[] demNames) {
-        PropertyDescriptor descriptor = propertySet.getProperty(name).getDescriptor();
+    private static void configureDemNameProperty(PropertySet propertySet, String propertyName, String[] demNames) {
+        PropertyDescriptor descriptor = propertySet.getProperty(propertyName).getDescriptor();
         descriptor.setValueSet(new ValueSet(demNames));
         descriptor.setDefaultValue(demNames[0]);
         descriptor.setNotNull(true);
         descriptor.setNotEmpty(true);
     }
 
-    private static void configureBandNameProperty(PropertySet propertySet, String name, Product product) {
-        PropertyDescriptor descriptor = propertySet.getProperty(name).getDescriptor();
+    private static void configureBandNameProperty(PropertySet propertySet, String propertyName, Product product) {
+        Property property = propertySet.getProperty(propertyName);
+        PropertyDescriptor descriptor = property.getDescriptor();
         descriptor.setNotNull(true);
         descriptor.setNotEmpty(true);
         descriptor.setValidator(new BandNameValidator(product));
+        setValidBandName(property, product);
+    }
+
+    private static void setValidBandName(Property property, Product product) {
+        String bandName = (String) property.getValue();
+        String bandNameStub = bandName;
+        for (int i = 2; product.containsBand(bandName); i++) {
+            bandName = String.format("%s_%d", bandNameStub, i);
+        }
+        try {
+            property.setValue(bandName);
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private static class SingleSelectionListComponentAdapter extends ComponentAdapter implements ListSelectionListener, PropertyChangeListener {
