@@ -49,12 +49,12 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
         ParameterUpdater parameterUpdater = new ParameterUpdater() {
 
             @Override
-            public void handleParameterSaveRequest(Map<String,Object> parameterMap) {
+            public void handleParameterSaveRequest(Map<String, Object> parameterMap) {
                 updateParameterMap(parameterMap);
             }
 
             @Override
-            public void handleParameterLoadRequest(Map<String,Object> parameterMap) {
+            public void handleParameterLoadRequest(Map<String, Object> parameterMap) {
                 updateEndmemberFormModel(parameterMap);
             }
         };
@@ -66,7 +66,7 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
                                                      parameterSupport,
                                                      HELP_ID);
 
-        getJDialog().setJMenuBar(operatorMenu.createDefaultMenue());
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
     }
 
     private void updateEndmemberFormModel(Map<String, Object> parameterMap) {

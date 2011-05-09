@@ -46,7 +46,7 @@ class CollocationDialog extends SingleTargetProductDialog {
                                                      CollocateOp.class,
                                                      parameterSupport,
                                                      HELP_ID);
-        getJDialog().setJMenuBar(operatorMenu.createDefaultMenue());
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
 
         form = new CollocationForm(parameterSupport.getPopertySet(), getTargetProductSelector(), appContext);
 
@@ -58,7 +58,8 @@ class CollocationDialog extends SingleTargetProductDialog {
         productMap.put("master", form.getMasterProduct());
         productMap.put("slave", form.getSlaveProduct());
 
-        return GPF.createProduct(OperatorSpi.getOperatorAlias(CollocateOp.class), parameterSupport.getParameterMap(), productMap);
+        return GPF.createProduct(OperatorSpi.getOperatorAlias(CollocateOp.class), parameterSupport.getParameterMap(),
+                                 productMap);
     }
 
     @Override

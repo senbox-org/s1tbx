@@ -55,7 +55,7 @@ import java.io.StringReader;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
- *
+ * <p/>
  * An operator menu with action loading, saving and displaying the parameters of an operator.
  * As well as help and about actions.
  *
@@ -95,7 +95,7 @@ public class OperatorMenu {
         return new AboutOperatorAction();
     }
 
-    public JMenuItem createHelpMenuitem() {
+    public JMenuItem createHelpMenuItem() {
         JMenuItem menuItem = new JMenuItem("Help");
         if (helpId != null && !helpId.isEmpty()) {
             HelpSys.enableHelpOnButton(menuItem, helpId);
@@ -105,14 +105,14 @@ public class OperatorMenu {
         return menuItem;
     }
 
-    public JMenuBar createDefaultMenue() {
+    public JMenuBar createDefaultMenu() {
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(createLoadParametersAction());
         fileMenu.add(createStoreParametersAction());
         fileMenu.add(createDisplayParametersAction());
 
         JMenu helpMenu = new JMenu("Help");
-        helpMenu.add(createHelpMenuitem());
+        helpMenu.add(createHelpMenuItem());
         helpMenu.add(createAboutOperatorAction());
 
         JMenuBar menuBar = new CommandMenuBar();

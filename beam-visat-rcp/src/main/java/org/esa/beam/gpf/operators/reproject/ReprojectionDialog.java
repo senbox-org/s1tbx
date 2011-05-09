@@ -43,6 +43,7 @@ class ReprojectionDialog extends SingleTargetProductDialog {
         dialog.show();
 
     }
+
     ReprojectionDialog(boolean orthorectify, final String title, final String helpID, AppContext appContext) {
         super(appContext, title, helpID);
         form = new ReprojectionForm(getTargetProductSelector(), orthorectify, appContext);
@@ -60,18 +61,18 @@ class ReprojectionDialog extends SingleTargetProductDialog {
                                                      parameterSupport,
                                                      helpID);
 
-        getJDialog().setJMenuBar(operatorMenu.createDefaultMenue());
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
     }
 
     @Override
     protected boolean verifyUserInput() {
-        if(form.getSourceProduct() == null) {
+        if (form.getSourceProduct() == null) {
             showErrorDialog("No product to reproject selected.");
             return false;
         }
 
         final CoordinateReferenceSystem crs = form.getSelectedCrs();
-        if(crs == null) {
+        if (crs == null) {
             showErrorDialog("No 'Coordinate Reference System' selected.");
             return false;
         }
@@ -126,12 +127,12 @@ class ReprojectionDialog extends SingleTargetProductDialog {
     private class ReprojectionParameterUpdater implements ParameterUpdater {
 
         @Override
-        public void handleParameterSaveRequest(Map<String,Object> parameterMap) {
+        public void handleParameterSaveRequest(Map<String, Object> parameterMap) {
             form.updateParameterMap(parameterMap);
         }
 
         @Override
-        public void handleParameterLoadRequest(Map<String,Object> parameterMap) {
+        public void handleParameterLoadRequest(Map<String, Object> parameterMap) {
             try {
                 form.updateFormModel(parameterMap);
             } catch (Exception e) {

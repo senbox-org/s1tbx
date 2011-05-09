@@ -80,9 +80,9 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
         parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass());
         OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
-                                                                  operatorSpi.getOperatorClass(),
-                                                                  parameterSupport,
-                                                                  helpID);
+                                                     operatorSpi.getOperatorClass(),
+                                                     parameterSupport,
+                                                     helpID);
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
         PropertySet propertyContainer = parameterSupport.getPopertySet();
         if (propertyContainer.getProperties().length > 0) {
@@ -103,7 +103,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             this.form.add("Processing Parameters", new JScrollPane(parametersPanel));
 
-            getJDialog().setJMenuBar(operatorMenu.createDefaultMenue());
+            getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
         }
         if (!sourceProductSelectorList.isEmpty()) {
             productChangedHandler = new ProductChangedHandler();
