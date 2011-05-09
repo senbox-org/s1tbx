@@ -150,7 +150,7 @@ public class OperatorMenu {
 
         @Override
         public boolean isEnabled() {
-            return parameterSupport != null;
+            return super.isEnabled() && parameterSupport != null;
         }
 
         private void readFromFile(File selectedFile) throws Exception {
@@ -220,7 +220,7 @@ public class OperatorMenu {
 
         @Override
         public boolean isEnabled() {
-            return parameterSupport != null;
+            return super.isEnabled() && parameterSupport != null;
         }
 
         private void writeToFile(String s, File outputFile) throws IOException {
@@ -256,7 +256,7 @@ public class OperatorMenu {
 
         @Override
         public boolean isEnabled() {
-            return parameterSupport != null;
+            return super.isEnabled() && parameterSupport != null;
         }
 
     }
