@@ -79,16 +79,16 @@ public class OperatorMenu {
         this.helpId = helpId;
     }
 
-    public Action createStoreParametersAction() {
-        return new StoreParametersAction();
+    public Action createSaveParametersAction() {
+        return new SaveParametersAction();
     }
 
     public Action createDisplayParametersAction() {
         return new DisplayParametersAction();
     }
 
-    public Action createLoadParametersAction() {
-        return new LoadParametersAction();
+    public Action createOpenParametersAction() {
+        return new OpenParametersAction();
     }
 
     public Action createAboutOperatorAction() {
@@ -107,8 +107,9 @@ public class OperatorMenu {
 
     public JMenuBar createDefaultMenu() {
         JMenu fileMenu = new JMenu("File");
-        fileMenu.add(createLoadParametersAction());
-        fileMenu.add(createStoreParametersAction());
+        fileMenu.add(createOpenParametersAction());
+        fileMenu.add(createSaveParametersAction());
+        fileMenu.addSeparator();
         fileMenu.add(createDisplayParametersAction());
 
         JMenu helpMenu = new JMenu("Help");
@@ -122,27 +123,27 @@ public class OperatorMenu {
         return menuBar;
     }
 
-    private class LoadParametersAction extends AbstractAction {
+    private class OpenParametersAction extends AbstractAction {
 
-        LoadParametersAction() {
-            super("Load Parameters...");
+        OpenParametersAction() {
+            super("Open Parameters...");
         }
 
         @Override
         public void actionPerformed(ActionEvent event) {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.addChoosableFileFilter(createParameterFileFilter());
-            String title = "Load Parameters";
+            String title = "Open Parameters";
             fileChooser.setDialogTitle(title);
             fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
-            int response = fileChooser.showDialog(parentComponent, "Load");
+            int response = fileChooser.showDialog(parentComponent, "Open");
             if (JFileChooser.APPROVE_OPTION == response) {
                 try {
                     File selectedFile = fileChooser.getSelectedFile();
                     readFromFile(selectedFile);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    JOptionPane.showMessageDialog(parentComponent, "Could not load parameters.\n" + e.getMessage(),
+                    JOptionPane.showMessageDialog(parentComponent, "Could not open parameters.\n" + e.getMessage(),
                                                   title, JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -187,10 +188,10 @@ public class OperatorMenu {
 
     }
 
-    private class StoreParametersAction extends AbstractAction {
+    private class SaveParametersAction extends AbstractAction {
 
-        StoreParametersAction() {
-            super("Store Parameters...");
+        SaveParametersAction() {
+            super("Save Parameters...");
         }
 
         @Override
@@ -199,10 +200,10 @@ public class OperatorMenu {
             final FileNameExtensionFilter parameterFileFilter = createParameterFileFilter();
             fileChooser.addChoosableFileFilter(parameterFileFilter);
             fileChooser.setAcceptAllFileFilterUsed(false);
-            String title = "Store Parameters";
+            String title = "Save Parameters";
             fileChooser.setDialogTitle(title);
             fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
-            int response = fileChooser.showDialog(parentComponent, "Store");
+            int response = fileChooser.showDialog(parentComponent, "Save");
             if (JFileChooser.APPROVE_OPTION == response) {
                 try {
                     File selectedFile = fileChooser.getSelectedFile();
@@ -212,7 +213,7 @@ public class OperatorMenu {
                     writeToFile(xmlString, selectedFile);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    JOptionPane.showMessageDialog(parentComponent, "Could not store parameters.\n" + e.getMessage(),
+                    JOptionPane.showMessageDialog(parentComponent, "Could not save parameters.\n" + e.getMessage(),
                                                   title, JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -240,7 +241,7 @@ public class OperatorMenu {
     private class DisplayParametersAction extends AbstractAction {
 
         DisplayParametersAction() {
-            super("Display Parameters");
+            super("Display Parameters...");
         }
 
         @Override
