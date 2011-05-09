@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -198,6 +198,7 @@ public class VirtualBand extends Band {
      * Gets an estimated raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
+     *
      * @return the size in bytes.
      */
     @Override
@@ -211,10 +212,10 @@ public class VirtualBand extends Band {
     @Override
     public String toString() {
         return getClass().getName() + "["
-                + getName() + ","
-                + ProductData.getTypeString(getDataType()) + ","
-                + getRasterWidth() + ","
-                + getRasterHeight() + "]";
+               + getName() + ","
+               + ProductData.getTypeString(getDataType()) + ","
+               + getRasterWidth() + ","
+               + getRasterHeight() + "]";
     }
 
     /**
@@ -241,10 +242,11 @@ public class VirtualBand extends Band {
      *
      * @param raster     The raster data node.
      * @param expression The band-arithmetic expression.
+     *
      * @return A multi-level image.
      */
     public static MultiLevelImage createVirtualSourceImage(final RasterDataNode raster, final String expression) {
-        return BandMathsMultiLevelImage.create(expression, raster);
+        return VirtualBandMultiLevelImage.create(expression, raster);
     }
 }
 

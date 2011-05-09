@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -35,14 +35,14 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 /**
- * A {@link MultiLevelImage} computed from band maths. The {@link BandMathsMultiLevelImage}
+ * A {@link MultiLevelImage} computed from band maths. The {@link VirtualBandMultiLevelImage}
  * resets itself whenever any referred raster data have changed.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
  * @since BEAM 4.7
  */
-class BandMathsMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeListener {
+class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeListener {
 
     private final Map<Product, Set<ProductNode>> nodeMap = new WeakHashMap<Product, Set<ProductNode>>();
 
@@ -70,7 +70,7 @@ class BandMathsMultiLevelImage extends DefaultMultiLevelImage implements Product
                                                  ResolutionLevel.create(getModel(), level));
             }
         };
-        return new BandMathsMultiLevelImage(multiLevelSource, expression, associatedNode.getProduct()) {
+        return new VirtualBandMultiLevelImage(multiLevelSource, expression, associatedNode.getProduct()) {
             @Override
             public void reset() {
                 super.reset();
@@ -87,7 +87,7 @@ class BandMathsMultiLevelImage extends DefaultMultiLevelImage implements Product
      * @param expression       the raster data arithmetic expression.
      * @param product          the parent of the raster data node(s) referred in {@code expression}.
      */
-    BandMathsMultiLevelImage(MultiLevelSource multiLevelSource, String expression, Product product) {
+    VirtualBandMultiLevelImage(MultiLevelSource multiLevelSource, String expression, Product product) {
         super(multiLevelSource);
         try {
             final RasterDataNode[] nodes;

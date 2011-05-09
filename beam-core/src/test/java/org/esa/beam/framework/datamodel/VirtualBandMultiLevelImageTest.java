@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,21 +21,21 @@ import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.awt.image.RenderedImage;
 import java.util.Arrays;
 
-public class BandMathsMultiLevelImageTest {
+import static org.junit.Assert.*;
+
+public class VirtualBandMultiLevelImageTest {
 
     private Product p;
     private Product q;
     private VirtualBand v;
     private VirtualBand w;
-    private BandMathsMultiLevelImage image;
+    private VirtualBandMultiLevelImage image;
 
     @Before
     public void setup() {
@@ -53,7 +53,7 @@ public class BandMathsMultiLevelImageTest {
 
         final String expression = "$1.V == $2.W";
         final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(v);
-        image = new BandMathsMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
+        image = new VirtualBandMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {
                 return VirtualBandOpImage.createMask(expression, p, ResolutionLevel.create(getModel(), level));

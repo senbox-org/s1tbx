@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -35,7 +35,8 @@ import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.StringUtils;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Shape;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
@@ -161,7 +162,7 @@ public class Mask extends Band {
         getImageType().handleRename(this, oldExternalName, newExternalName);
         super.updateExpression(oldExternalName, newExternalName);
     }
-    
+
     @Override
     public Shape getValidShape() {
         return getSourceImage().getImageShape(0);
@@ -237,8 +238,8 @@ public class Mask extends Band {
 
         public static final String TYPE_NAME = "Maths";
         public static final String PROPERTY_NAME_EXPRESSION = "expression";
-        
-        public static final BandMathsType INSTANCE =  new BandMathsType();
+
+        public static final BandMathsType INSTANCE = new BandMathsType();
 
         private BandMathsType() {
             super(TYPE_NAME);
@@ -262,7 +263,7 @@ public class Mask extends Band {
                                                          ResolutionLevel.create(getModel(), level));
                 }
             };
-            return new BandMathsMultiLevelImage(multiLevelSource, getExpression(mask), mask.getProduct()) {
+            return new VirtualBandMultiLevelImage(multiLevelSource, getExpression(mask), mask.getProduct()) {
                 @Override
                 public void reset() {
                     super.reset();
@@ -312,7 +313,7 @@ public class Mask extends Band {
                 final String maskName = getAvailableMaskName(originalMaskName, product.getMaskGroup());
                 final int w = product.getSceneRasterWidth();
                 final int h = product.getSceneRasterHeight();
-                Mask newMask = create(maskName, mask.getDescription(), w, h, 
+                Mask newMask = create(maskName, mask.getDescription(), w, h,
                                       expression, mask.getImageColor(), mask.getImageTransparency());
                 product.getMaskGroup().add(newMask);
 
@@ -384,7 +385,7 @@ public class Mask extends Band {
         public static String getExpression(Mask mask) {
             return (String) mask.getImageConfig().getValue(PROPERTY_NAME_EXPRESSION);
         }
-        
+
         public static Mask create(String name, String description, int width, int height,
                                   String expression, Color color, double transparency) {
             final Mask mask = new Mask(name, width, height, BandMathsType.INSTANCE);
@@ -406,7 +407,7 @@ public class Mask extends Band {
         public static final String TYPE_NAME = "Geometry";
         public static final String PROPERTY_NAME_VECTOR_DATA = "vectorData";
 
-        public static final VectorDataType INSTANCE =  new VectorDataType();
+        public static final VectorDataType INSTANCE = new VectorDataType();
 
         private VectorDataType() {
             super(TYPE_NAME);
@@ -458,8 +459,8 @@ public class Mask extends Band {
         public static final String PROPERTY_NAME_MINIMUM = "minimum";
         public static final String PROPERTY_NAME_MAXIMUM = "maximum";
         public static final String PROPERTY_NAME_RASTER = "rasterName";
-        
-        public static final RangeType INSTANCE =  new RangeType();
+
+        public static final RangeType INSTANCE = new RangeType();
 
         private RangeType() {
             super(TYPE_NAME);
@@ -476,7 +477,7 @@ public class Mask extends Band {
                                                          ResolutionLevel.create(getModel(), level));
                 }
             };
-            return new BandMathsMultiLevelImage(multiLevelSource, getExpression(mask), mask.getProduct()) {
+            return new VirtualBandMultiLevelImage(multiLevelSource, getExpression(mask), mask.getProduct()) {
                 @Override
                 public void reset() {
                     super.reset();
