@@ -152,6 +152,7 @@ public class OutputGeometryFormModel {
 
             if (fitProductSize && propertyName.startsWith("pixelSize")) {
                 updateProductSize();
+                updateReferencePixel();
             }
             if (propertyName.startsWith("referencePixelLocation")) {
                 updateReferencePixel();

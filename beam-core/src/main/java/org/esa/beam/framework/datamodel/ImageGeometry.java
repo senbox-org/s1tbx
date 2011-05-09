@@ -59,12 +59,7 @@ public class ImageGeometry {
         if (i2m != null) {
             return i2m;
         } else {
-            AffineTransform i2m = new AffineTransform();
-            i2m.translate(easting, northing);
-            i2m.scale(pixelSizeX, pixelSizeY);
-            i2m.rotate(Math.toRadians(-orientation));
-            i2m.translate(-referencePixelX, -referencePixelY);
-            return i2m;
+            return createImageToMapTransform(referencePixelX, referencePixelY, easting, northing, pixelSizeX, pixelSizeY, orientation);
         }
     }
 
@@ -189,7 +184,7 @@ public class ImageGeometry {
             final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
             double minX = targetEnvelope.getMinX();
             double width = targetEnvelope.getWidth();
-            if(product.getGeoCoding().isCrossingMeridianAt180()) {
+            if (product.getGeoCoding().isCrossingMeridianAt180()) {
                 minX = -180.0;
                 width = 360;
             }
@@ -197,5 +192,20 @@ public class ImageGeometry {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    static AffineTransform createImageToMapTransform(double referencePixelX,
+                                                     double referencePixelY,
+                                                     double easting,
+                                                     double northing,
+                                                     double pixelSizeX,
+                                                     double pixelSizeY,
+                                                     double orientation) {
+        AffineTransform i2m = new AffineTransform();
+        i2m.translate(easting, northing);
+        i2m.scale(pixelSizeX, pixelSizeY);
+        i2m.rotate(Math.toRadians(-orientation));
+        i2m.translate(-referencePixelX, -referencePixelY);
+        return i2m;
     }
 }

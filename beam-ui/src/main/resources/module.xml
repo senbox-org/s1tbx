@@ -10,6 +10,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.9<br/>
+        [BEAM-1292] Reprojection dialog shifts image if pixel size is changed<br/>
         [BEAM-1184] Reprojection dialog does not remember values<br/>
         [BEAM-1183] Improve reprojection UI usability<br/>
         [BEAM-1180] Allow dragging files into VISAT<br/>
