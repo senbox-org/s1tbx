@@ -85,7 +85,7 @@ public class CustomCrsPanel extends JPanel {
     private final CustomCrsPanel.Model model;
     private final PropertyContainer vc;
     private final Window parent;
-    private JComboBox operationComboBox;
+    private JComboBox projectionComboBox;
     private JComboBox datumComboBox;
     private JButton paramButton;
     private static final String SEMI_MAJOR_PARAM_NAME = "semi_major";
@@ -144,14 +144,14 @@ public class CustomCrsPanel extends JPanel {
         tableLayout.setCellAnchor(2, 0, TableLayout.Anchor.EAST);
         tableLayout.setCellFill(2, 0, TableLayout.Fill.NONE);
 
-        final JLabel transformLabel = new JLabel("Transformation:");
         final JLabel datumLabel = new JLabel("Geodetic datum:");
+        final JLabel projectionLabel = new JLabel("Projection:");
 
-        operationComboBox = new JComboBox(crsProviderList.toArray());
-        operationComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
-        final ComboBoxSearchable methodSearchable = new CrsProviderSearchable(operationComboBox);
+        projectionComboBox = new JComboBox(crsProviderList.toArray());
+        projectionComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
+        final ComboBoxSearchable methodSearchable = new CrsProviderSearchable(projectionComboBox);
         methodSearchable.installListeners();
-        operationComboBox.setRenderer(new CrsProviderCellRenderer());
+        projectionComboBox.setRenderer(new CrsProviderCellRenderer());
 
         datumComboBox = new JComboBox(datumList.toArray());
         datumComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
@@ -160,12 +160,12 @@ public class CustomCrsPanel extends JPanel {
         final ComboBoxSearchable datumSearchable = new IdentifiedObjectSearchable(datumComboBox);
         datumSearchable.installListeners();
 
-        paramButton = new JButton("Transformation Parameters...");
+        paramButton = new JButton("Projection Parameters...");
         paramButton.addActionListener(new ParameterButtonListener());
-        add(transformLabel);
-        add(operationComboBox);
         add(datumLabel);
         add(datumComboBox);
+        add(projectionLabel);
+        add(projectionComboBox);
         add(paramButton);
         addPropertyChangeListener("enabled", new PropertyChangeListener() {
             @Override
@@ -174,12 +174,12 @@ public class CustomCrsPanel extends JPanel {
             }
         });
         final BindingContext context = new BindingContext(vc);
-        context.bind(OPERATION_WRAPPER, operationComboBox);
+        context.bind(OPERATION_WRAPPER, projectionComboBox);
         context.bind(DATUM, datumComboBox);
     }
 
     private void updateEnableState(boolean componentEnabled) {
-        operationComboBox.setEnabled(componentEnabled);
+        projectionComboBox.setEnabled(componentEnabled);
         datumComboBox.setEnabled(model.operationWrapper.isDatumChangable() && componentEnabled);
         paramButton.setEnabled(model.operationWrapper.hasParameters() && componentEnabled);
     }
