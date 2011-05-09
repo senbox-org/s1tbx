@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-geotiff</symbolicName>
-    <version>1.1</version>
+    <version>1.1.1</version>
     <name>GeoTIFF Product Module</name>
     <description>A module for reading and writing GeoTIFF Data Products</description>
 
@@ -12,8 +12,11 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.1.1:<br/>
+        [BEAM-1290] GeoTIFF writer can't write very large files<br/>
+        Changes in 1.0:<br/>
         Changes in 1.0.2:<br/>
-        [BEAM-957] "Search" tab missing VISAT help<br>
+        [BEAM-957] "Search" tab missing VISAT help<br/>
         Changes in 1.0.1:<br/>
         [BEAM-898] Display TIFF and GeoTIFF tags in metadata<br/>
         [BEAM-891] Model transformation is not applied if GeoTiff is projected<br/>
