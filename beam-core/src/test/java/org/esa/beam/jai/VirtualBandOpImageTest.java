@@ -33,7 +33,7 @@ public class VirtualBandOpImageTest {
     @Before
     public void before() {
         final Product product = new Product("P", "T", 1024, 1024);
-        band = product.addBand("pixX", "(Y * 1024) + X");
+        band = product.addBand("pixX", "((Y-0.5) * 1024) + (X-0.5)");
         product.setPreferredTileSize(512, 512);
     }
 

@@ -19,7 +19,7 @@ package org.esa.beam.framework.datamodel;
 import com.bc.ceres.core.ProgressMonitor;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class StxTest {
 
@@ -71,7 +71,7 @@ public class StxTest {
     private Band createTestBand(int type, int w, int h) {
         final Product product = new Product("F", "F", w, h);
         final double mean = (w * h - 1.0) / 2.0;
-        final Band band = new VirtualBand("V", type, w, h, "Y * " + w + " + X - " + mean);
+        final Band band = new VirtualBand("V", type, w, h, "(Y-0.5) * " + w + " + (X-0.5) - " + mean);
         product.addBand(band);
 
         return band;

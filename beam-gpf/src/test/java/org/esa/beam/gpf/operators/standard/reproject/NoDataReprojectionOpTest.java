@@ -19,10 +19,11 @@ package org.esa.beam.gpf.operators.standard.reproject;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Marco Peters
@@ -136,7 +137,7 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
     public void testNoDataIfExpressionIsGiven_Int() throws IOException {
         parameterMap.put("crs", WGS84_CODE);
         final Band srcBand = sourceProduct.getBand(INT_BAND_NAME);
-        srcBand.setValidPixelExpression("X != 4");
+        srcBand.setValidPixelExpression("(X-0.5) != 4");
 
         final Product targetPoduct = createReprojectedProduct();
         final Band targetBand = targetPoduct.getBand(INT_BAND_NAME);
