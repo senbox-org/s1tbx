@@ -57,7 +57,7 @@ public class PointOperatorInitialiseTest {
         String trace = "";
 
         @Override
-        protected void validateInputs() throws OperatorException {
+        protected void prepareInputs() throws OperatorException {
             trace += "1";
         }
 
@@ -93,7 +93,7 @@ public class PointOperatorInitialiseTest {
         String trace = "";
 
         @Override
-        protected void validateInputs() throws OperatorException {
+        protected void prepareInputs() throws OperatorException {
             trace += "1";
         }
 

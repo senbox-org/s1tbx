@@ -34,7 +34,7 @@ public abstract class PointOperator extends Operator {
     /**
      * Configures this {@code PointOperator} by performing a number of initialisation steps in the given order:
      * <ol>
-     * <li>{@link #validateInputs()}</li>
+     * <li>{@link #prepareInputs()}</li>
      * <li>{@link #createTargetProduct()}</li>
      * <li>{@link #configureTargetProduct(ProductConfigurer)}</li>
      * <li>{@link #configureSourceSamples(SampleConfigurer)}</li>
@@ -47,7 +47,7 @@ public abstract class PointOperator extends Operator {
      */
     @Override
     public final void initialize() throws OperatorException {
-        validateInputs();
+        prepareInputs();
         Product targetProduct = createTargetProduct();
         setTargetProduct(targetProduct);
         configureTargetProduct(new ProductConfigurerImpl(getSourceProduct(), targetProduct));
@@ -60,18 +60,22 @@ public abstract class PointOperator extends Operator {
     }
 
     /**
-     * Validates the inputs for this operator.
+     * Prepares the inputs for this operator. Called by {@link #initialize()}.
+     * <p/>
+     * Clients may override to perform some extra validation of
+     * parameters and source products and/or to load external, auxiliary resources. External resources that may be opened
+     * by this method and that must remain open during the {@code Operator}'s lifetime shall be closed
+     * by a dedicated override of the {@link #dispose()} method.
+     * <p/>
+     * Failures of input preparation shall be indicated by throwing an {@link OperatorException}.
      * <p/>
      * The default implementation checks whether all source products have the same raster size.
-     * Clients may override to perform some extra validation of parameters and source products.
-     * Validation failures shall be indicated by throwing an {@link OperatorException}.
-     * <p/>
      * Clients that require a similar behaviour in their operator shall first call the {@code super} method
      * in their implementation.
      *
      * @throws OperatorException If the validation of input fails.
      */
-    protected void validateInputs() throws OperatorException {
+    protected void prepareInputs() throws OperatorException {
         checkRasterSize();
     }
 
