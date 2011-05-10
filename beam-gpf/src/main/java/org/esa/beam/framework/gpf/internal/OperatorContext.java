@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -41,6 +41,7 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
@@ -525,6 +526,16 @@ public class OperatorContext {
         targetGraphME.addElement(targetNodeME);
         targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(opId), false));
         targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
+
+        OperatorMetadata operatorMetadata = context.operator.getClass().getAnnotation(OperatorMetadata.class);
+        if (operatorMetadata != null) {
+            targetNodeME.addAttribute(new MetadataAttribute("purpose", ProductData.createInstance(operatorMetadata.description()), false));
+            targetNodeME.addAttribute(new MetadataAttribute("authors", ProductData.createInstance(operatorMetadata.authors()), false));
+            targetNodeME.addAttribute(new MetadataAttribute("version", ProductData.createInstance(operatorMetadata.version()), false));
+            targetNodeME.addAttribute(new MetadataAttribute("copyright", ProductData.createInstance(operatorMetadata.copyright()), false));
+        }
+
+
         final MetadataElement targetSourcesME = new MetadataElement("sources");
 
         for (Product sourceProduct : context.sourceProductList) {
