@@ -5,3 +5,5 @@
 /config/
 /modules/
 target/
+beam.ids
+src/main/sql/*.jar
