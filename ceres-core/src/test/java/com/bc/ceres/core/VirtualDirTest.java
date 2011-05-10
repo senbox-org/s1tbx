@@ -77,6 +77,15 @@ public class VirtualDirTest extends TestCase {
             assertTrue(dirNames.contains("File2"));
             assertTrue(dirNames.contains("File5.gz"));
 
+            dirNames = Arrays.asList(virtualDir.list(""));
+            assertNotNull(dirNames);
+            assertEquals(5, dirNames.size());
+            assertTrue(dirNames.contains("dir1"));
+            assertTrue(dirNames.contains("dir2"));
+            assertTrue(dirNames.contains("File1"));
+            assertTrue(dirNames.contains("File2"));
+            assertTrue(dirNames.contains("File5.gz"));
+
             // todo - test other cases with same result, e.g. "dir1/.."
 
             List<String> dir1Names = Arrays.asList(virtualDir.list("dir1"));

@@ -206,7 +206,7 @@ public abstract class VirtualDir {
 
         @Override
         public String[] list(String path) throws IOException {
-            if (path.equals(".")) {
+            if (path.equals(".") || path.isEmpty()) {
                 path = "";
             } else if (!path.endsWith("/")) {
                 path += "/";
