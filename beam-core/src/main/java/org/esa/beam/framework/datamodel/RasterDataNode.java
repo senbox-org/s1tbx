@@ -39,14 +39,10 @@ import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Quantizer;
 import org.esa.beam.util.math.Range;
-import org.esa.beam.util.math.Statistics;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
-import java.awt.Color;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
@@ -54,7 +50,6 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.LinkedList;
 
 /**
  * The <code>RasterDataNode</code> class ist the abstract base class for all objects in the product package that contain
@@ -1943,7 +1938,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @since BEAM 4.2
      */
     public synchronized void setSourceImage(RenderedImage sourceImage) {
-        setSourceImage(toMultiLevelImage(sourceImage));
+        if (sourceImage != null) {
+            setSourceImage(toMultiLevelImage(sourceImage));
+        } else {
+            //noinspection RedundantCast
+            setSourceImage((MultiLevelImage) null);
+        }
     }
 
     /**
@@ -1955,6 +1955,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public synchronized void setSourceImage(MultiLevelImage sourceImage) {
         final RenderedImage oldValue = this.sourceImage;
+        //noinspection ObjectEquality
         if (oldValue != sourceImage) {
             this.sourceImage = sourceImage;
             resetGeophysicalImage();

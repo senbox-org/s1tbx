@@ -816,6 +816,30 @@ public class BandTest extends AbstractRasterDataNodeTest {
         }
     }
 
+    public void testThatNullSourceImageCanBeSet() {
+        Product p = new Product("p", "pt", 10, 10);
+
+        Band b = p.addBand("b", ProductData.TYPE_UINT16);
+
+        assertFalse(b.isSourceImageSet());
+        assertNotNull(b.getSourceImage());// Don't wonder at that, the image created uses the (pretended) product reader
+
+        b.setSourceImage(null);
+        assertFalse(b.isSourceImageSet());
+        assertNotNull(b.getSourceImage());// Don't wonder at that, the image created uses the (pretended) product reader
+
+        BufferedImage sourceImage = new BufferedImage(10, 10, BufferedImage.TYPE_USHORT_GRAY);
+        b.setSourceImage(sourceImage);
+        assertTrue(b.isSourceImageSet());
+        assertNotNull(b.getSourceImage());
+        assertSame(sourceImage, b.getSourceImage().getImage(0));
+
+        b.setSourceImage(null);
+        assertFalse(b.isSourceImageSet());
+        assertNotNull(b.getSourceImage());// Don't wonder at that, the image created uses the (pretended) product reader
+    }
+
+
     public void testBandImageChangeNotifications() {
         PNL pnl = new PNL();
         Product p = new Product("p", "pt", 10, 10);
@@ -824,6 +848,7 @@ public class BandTest extends AbstractRasterDataNodeTest {
 
         p.addProductNodeListener(pnl);
 
+        assertFalse(b.isSourceImageSet());
         assertNotNull(b.getSourceImage());
 
         pnl.trace = "";
