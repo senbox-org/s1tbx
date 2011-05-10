@@ -34,17 +34,20 @@ public abstract class PointOperator extends Operator {
     /**
      * Configures this {@code PointOperator} by performing a number of initialisation steps in the given order:
      * <ol>
+     * <li>{@link #validateInputs()}</li>
      * <li>{@link #createTargetProduct() product = createTargetProduct()}</li>
      * <li>{@link #configureTargetProduct(org.esa.beam.framework.datamodel.Product) configureTargetProduct(product)}</li>
      * <li>{@link #configureSourceSamples(SampleConfigurer)}</li>
      * <li>{@link #configureTargetSamples(SampleConfigurer)}</li>
      * </ol>
-     * This method cannot be overridden by intention (<i>template method</i>). Instead override the methods that are called during the initialisation sequence.
+     * This method cannot be overridden by intention (<i>template method</i>). Instead clients may wish to
+     * override the methods that are called during the initialisation sequence.
      *
      * @throws OperatorException If the configuration cannot be performed.
      */
     @Override
     public final void initialize() throws OperatorException {
+        validateInputs();
         Product product = createTargetProduct();
         configureTargetProduct(product);
         setTargetProduct(product);
@@ -57,7 +60,19 @@ public abstract class PointOperator extends Operator {
     }
 
     /**
-     * Creates the target product instance.
+     * Validates the inputs for this operator.
+     * The default implementation checks whether or source products have the same raster size.
+     * Clients may override to perform some extra validation of parameters and source products.
+     * Validation failures shall be indicated by throwing an {@link OperatorException}.
+     *
+     * @throws OperatorException If the validation of input fails.
+     */
+    protected void validateInputs() throws OperatorException {
+    }
+
+    /**
+     * Creates the target product instance. Called by {@link #initialize()}.
+     * <p/>
      * The default implementation creates a target product instance given the raster size of the (first) source product.
      * Then it sets the target product' start and stop time and copies the tie-point grids and geo-coding.
      *
@@ -66,27 +81,33 @@ public abstract class PointOperator extends Operator {
      */
     protected Product createTargetProduct() throws OperatorException {
         Product sourceProduct = getSourceProduct();
-        Product targetProduct = new Product(getId(),
-                                            getClass().getName(),
-                                            sourceProduct.getSceneRasterWidth(),
-                                            sourceProduct.getSceneRasterHeight());
-        targetProduct.setStartTime(sourceProduct.getStartTime());
-        targetProduct.setEndTime(sourceProduct.getEndTime());
-        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
-        return targetProduct;
+        return new Product(getId(),
+                           getClass().getName(),
+                           sourceProduct.getSceneRasterWidth(),
+                           sourceProduct.getSceneRasterHeight());
     }
 
     /**
      * Configures the given target product instance. Called by {@link #initialize()}.
-     * Client implementations of this method usually add product components to the gibven target product, such as
+     * <p/>
+     * Client implementations of this method usually add product components to the given target product, such as
      * {@link Band bands} to be computed by this operator, {@link org.esa.beam.framework.datamodel.VirtualBand virtual bands},
      * {@link org.esa.beam.framework.datamodel.Mask masks} or {@link org.esa.beam.framework.datamodel.SampleCoding sample codings}.
      *
      * @param targetProduct The target product to be configured.
      * @throws OperatorException If the target product cannot be configured.
+     * @see Product#addBand(org.esa.beam.framework.datamodel.Band)
+     * @see Product#addBand(String, String)
+     * @see Product#addTiePointGrid(org.esa.beam.framework.datamodel.TiePointGrid)
+     * @see org.esa.beam.framework.datamodel.Product#getMaskGroup()
      */
-    protected abstract void configureTargetProduct(Product targetProduct) throws OperatorException;
+    protected void configureTargetProduct(Product targetProduct) throws OperatorException {
+        Product sourceProduct = getSourceProduct();
+        targetProduct.setStartTime(sourceProduct.getStartTime());
+        targetProduct.setEndTime(sourceProduct.getEndTime());
+        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+    }
 
     /**
      * Configures all source samples that this operator requires for the computation of target samples.
