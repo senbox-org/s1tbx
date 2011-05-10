@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,16 +16,16 @@
 package org.esa.beam.visat.toolviews.placemark;
 
 import org.esa.beam.framework.help.HelpSys;
-import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
 import javax.swing.AbstractButton;
-import javax.swing.JPanel;
 import javax.swing.JLabel;
-import java.awt.GridBagLayout;
+import javax.swing.JPanel;
 import java.awt.GridBagConstraints;
-import java.awt.event.ActionListener;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class PlacemarkManagerButtons extends JPanel {
 
@@ -48,6 +48,7 @@ public class PlacemarkManagerButtons extends JPanel {
         newButton.setToolTipText("Create and add new " + placemarkLabel + "."); /*I18N*/
         newButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 view.newPin();
             }
@@ -58,6 +59,7 @@ public class PlacemarkManagerButtons extends JPanel {
         copyButton.setToolTipText("Copy an existing " + placemarkLabel + "."); /*I18N*/
         copyButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 view.copyActivePlacemark();
             }
@@ -68,6 +70,7 @@ public class PlacemarkManagerButtons extends JPanel {
         editButton.setToolTipText("Edit selected " + placemarkLabel + "."); /*I18N*/
         editButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 view.editActivePin();
             }
@@ -78,6 +81,7 @@ public class PlacemarkManagerButtons extends JPanel {
         removeButton.setToolTipText("Remove selected " + placemarkLabel + "."); /*I18N*/
         removeButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 view.removeSelectedPins();
             }
@@ -88,6 +92,7 @@ public class PlacemarkManagerButtons extends JPanel {
         importButton.setToolTipText("Import all " + placemarkLabel + "s from XML or text file."); /*I18N*/
         importButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 view.importPlacemarks(true);
                 view.updateUIState();
@@ -99,6 +104,7 @@ public class PlacemarkManagerButtons extends JPanel {
         exportButton.setToolTipText("Export selected " + placemarkLabel + "s to XML file."); /*I18N*/
         exportButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 view.exportSelectedPlacemarks();
                 view.updateUIState();
@@ -110,6 +116,7 @@ public class PlacemarkManagerButtons extends JPanel {
         filterButton.setToolTipText("Filter pixel data to be displayed in table."); /*I18N*/
         filterButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 view.applyFilteredGrids();
                 view.updateUIState();
@@ -121,6 +128,7 @@ public class PlacemarkManagerButtons extends JPanel {
         exportTableButton.setToolTipText("Export selected data to flat text file."); /*I18N*/
         exportTableButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 view.exportPlacemarkDataTable();
                 view.updateUIState();
@@ -132,6 +140,7 @@ public class PlacemarkManagerButtons extends JPanel {
         zoomToPlacemarkButton.setToolTipText("Zoom to selected " + placemarkLabel + "."); /*I18N*/
         zoomToPlacemarkButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 view.zoomToActivePin();
             }
