@@ -173,7 +173,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     @Override
     protected void configureTargetProduct(ProductConfigurer productConfigurer) {
 
-        productConfigurer.copyStartStopTime();
+        productConfigurer.copyTimeCoding();
         productConfigurer.copyMetadata();
 
         Product targetProduct = productConfigurer.getTargetProduct();
@@ -220,12 +220,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             }
         }
 
-        productConfigurer.copyBands(MERIS_DETECTOR_INDEX_DS_NAME);
-
-        ProductUtils.copyFlagBands(sourceProduct, targetProduct);
-        final Band sourceFlagBand = sourceProduct.getBand(MERIS_L1B_FLAGS_DS_NAME);
-        final Band targetFlagBand = targetProduct.getBand(MERIS_L1B_FLAGS_DS_NAME);
-        targetFlagBand.setSourceImage(sourceFlagBand.getSourceImage());
+        productConfigurer.copyBands(MERIS_DETECTOR_INDEX_DS_NAME, MERIS_L1B_FLAGS_DS_NAME);
 
         // copy all source bands yet ignored
         for (final Band sourceBand : sourceProduct.getBands()) {

@@ -27,7 +27,7 @@ public interface ProductConfigurer {
 
     void copyMetadata();
 
-    void copyStartStopTime();
+    void copyTimeCoding();
 
     void copyGeoCoding();
 
@@ -39,5 +39,9 @@ public interface ProductConfigurer {
 
     Band addBand(String name, int dataType);
 
+    Band addBand(String name, int dataType, double noDataValue);
+
     Band addBand(String name, String expression);
+
+    Band addBand(String name, String expression, double noDataValue);
 }

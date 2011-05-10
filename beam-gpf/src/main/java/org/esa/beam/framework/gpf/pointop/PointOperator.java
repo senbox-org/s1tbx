@@ -1,6 +1,8 @@
 package org.esa.beam.framework.gpf.pointop;
 
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.Operator;
@@ -106,7 +108,7 @@ public abstract class PointOperator extends Operator {
      * <p/>
      * The default implementation retrieves the (first) source product and copies to the target product
      * <ul>
-     * <li>the start and stop time by calling {@link ProductConfigurer#copyStartStopTime()},</li>
+     * <li>the start and stop time by calling {@link ProductConfigurer#copyTimeCoding()},</li>
      * <li>all tie-point grids by calling {@link ProductConfigurer#copyTiePointGrids(String...)},</li>
      * <li>the geo-coding by calling {@link ProductConfigurer#copyGeoCoding()}.</li>
      * </ul>
@@ -122,7 +124,7 @@ public abstract class PointOperator extends Operator {
      * @see org.esa.beam.framework.datamodel.Product#getMaskGroup()
      */
     protected void configureTargetProduct(ProductConfigurer productConfigurer) {
-        productConfigurer.copyStartStopTime();
+        productConfigurer.copyTimeCoding();
         productConfigurer.copyTiePointGrids();
         productConfigurer.copyGeoCoding();
     }
@@ -398,7 +400,7 @@ public abstract class PointOperator extends Operator {
         }
 
         @Override
-        public void copyStartStopTime() {
+        public void copyTimeCoding() {
             getTargetProduct().setStartTime(getSourceProduct().getStartTime());
             getTargetProduct().setEndTime(getSourceProduct().getEndTime());
         }
@@ -414,8 +416,11 @@ public abstract class PointOperator extends Operator {
                 names = getSourceProduct().getBandNames();
             }
             for (String name : names) {
-                Band band = ProductUtils.copyBand(name, getSourceProduct(), getTargetProduct());
-                band.setSourceImage(getSourceProduct().getBand(name).getSourceImage());
+                Band targetBand = ProductUtils.copyBand(name, getSourceProduct(), getTargetProduct());
+                Band sourceBand = getSourceProduct().getBand(name);
+                targetBand.setSourceImage(sourceBand.getSourceImage());
+                maybeCopyFlagCoding(sourceBand, targetBand);
+                maybeCopyIndexCoding(sourceBand, targetBand);
             }
         }
 
@@ -440,8 +445,46 @@ public abstract class PointOperator extends Operator {
         }
 
         @Override
+        public Band addBand(String name, int dataType, double noDataValue) {
+            Band band = addBand(name, dataType);
+            band.setNoDataValue(noDataValue);
+            band.setNoDataValueUsed(true);
+            return band;
+        }
+
+        @Override
         public Band addBand(String name, String expression) {
             return getTargetProduct().addBand(name, expression);
+        }
+
+        @Override
+        public Band addBand(String name, String expression, double noDataValue) {
+            Band band = addBand(name, expression);
+            band.setNoDataValue(noDataValue);
+            band.setNoDataValueUsed(true);
+            return band;
+        }
+
+        private void maybeCopyFlagCoding(Band sourceBand, Band targetBand) {
+            FlagCoding sourceCoding = sourceBand.getFlagCoding();
+            if (sourceCoding != null) {
+                FlagCoding targetCoding = getTargetProduct().getFlagCodingGroup().get(sourceCoding.getName());
+                if (targetCoding == null) {
+                    targetCoding = ProductUtils.copyFlagCoding(sourceCoding, getTargetProduct());
+                }
+                targetBand.setSampleCoding(targetCoding);
+            }
+        }
+
+        private void maybeCopyIndexCoding(Band sourceBand, Band targetBand) {
+            IndexCoding sourceCoding = sourceBand.getIndexCoding();
+            if (sourceCoding != null) {
+                IndexCoding targetCoding = getTargetProduct().getIndexCodingGroup().get(sourceCoding.getName());
+                if (targetCoding == null) {
+                    targetCoding = ProductUtils.copyIndexCoding(sourceCoding, getTargetProduct());
+                }
+                targetBand.setSampleCoding(targetCoding);
+            }
         }
     }
 }

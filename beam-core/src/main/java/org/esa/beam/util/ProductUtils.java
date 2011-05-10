@@ -967,37 +967,41 @@ public class ProductUtils {
     }
 
     /**
-     * Copies the given source flag coding to the target product
+     * Copies the given source flag coding to the target product.
+     * If it exists already, the method simply returns the existing instance.
      *
      * @param sourceFlagCoding the source flag coding
      * @param target           the target product
+     * @return The flag coding.
      */
-    public static void copyFlagCoding(FlagCoding sourceFlagCoding, Product target) {
-        if (target.getFlagCodingGroup().contains(sourceFlagCoding.getName())) {
-            // target already has a flag coding of that name
-            return;
+    public static FlagCoding copyFlagCoding(FlagCoding sourceFlagCoding, Product target) {
+        FlagCoding flagCoding = target.getFlagCodingGroup().get(sourceFlagCoding.getName());
+        if (flagCoding == null) {
+            flagCoding = new FlagCoding(sourceFlagCoding.getName());
+            flagCoding.setDescription(sourceFlagCoding.getDescription());
+            target.getFlagCodingGroup().add(flagCoding);
+            copyMetadata(sourceFlagCoding, flagCoding);
         }
-        FlagCoding flagCoding = new FlagCoding(sourceFlagCoding.getName());
-        flagCoding.setDescription(sourceFlagCoding.getDescription());
-        target.getFlagCodingGroup().add(flagCoding);
-        copyMetadata(sourceFlagCoding, flagCoding);
+        return flagCoding;
     }
 
     /**
      * Copies the given source index coding to the target product
+     * If it exists already, the method simply returns the existing instance.
      *
      * @param sourceIndexCoding the source index coding
      * @param target            the target product
+     * @return The index coding.
      */
-    public static void copyIndexCoding(IndexCoding sourceIndexCoding, Product target) {
-        if (target.getIndexCodingGroup().contains(sourceIndexCoding.getName())) {
-            // target already has a index coding of that name
-            return;
+    public static IndexCoding copyIndexCoding(IndexCoding sourceIndexCoding, Product target) {
+        IndexCoding indexCoding = target.getIndexCodingGroup().get(sourceIndexCoding.getName());
+        if (indexCoding == null) {
+            indexCoding = new IndexCoding(sourceIndexCoding.getName());
+            indexCoding.setDescription(sourceIndexCoding.getDescription());
+            target.getIndexCodingGroup().add(indexCoding);
+            copyMetadata(sourceIndexCoding, indexCoding);
         }
-        IndexCoding indexCoding = new IndexCoding(sourceIndexCoding.getName());
-        indexCoding.setDescription(sourceIndexCoding.getDescription());
-        target.getIndexCodingGroup().add(indexCoding);
-        copyMetadata(sourceIndexCoding, indexCoding);
+        return indexCoding;
     }
 
     /**
