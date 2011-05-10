@@ -12,10 +12,13 @@ import org.esa.beam.framework.datamodel.Product;
  * @since BEAM 4.9
  */
 public interface SampleConfigurer {
+
     /**
      * Defines a sample for a {@link org.esa.beam.framework.datamodel.RasterDataNode RasterDataNode}.
      *
-     * @param index The index within the pixel.
+     * @param index The index of the sample within the sample arrays passed to
+     *              {@link SampleOperator#computeSample(int, int, Sample[], WritableSample) computeSample()} or
+     *              {@link PixelOperator#computePixel(int, int, Sample[], WritableSample[]) computePixel()} methods.
      * @param name  The name of a {@link org.esa.beam.framework.datamodel.RasterDataNode RasterDataNode} to
      *              which the sample belongs.
      */
@@ -24,7 +27,9 @@ public interface SampleConfigurer {
     /**
      * Defines a sample for a {@link org.esa.beam.framework.datamodel.RasterDataNode RasterDataNode} in the given product.
      *
-     * @param index   The index within the pixel.
+     * @param index   The index of the sample within the sample arrays passed to
+     *                {@link SampleOperator#computeSample(int, int, Sample[], WritableSample) computeSample()} or
+     *                {@link PixelOperator#computePixel(int, int, Sample[], WritableSample[]) computePixel()} methods.
      * @param name    The name of a {@code RasterDataNode} to
      *                which the sample belongs.
      * @param product The product in which to find the raster data node's name.

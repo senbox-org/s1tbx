@@ -16,7 +16,11 @@ public interface Sample {
     RasterDataNode getNode();
 
     /**
-     * @return The index of this sample within a pixel.
+     * @return The index of the sample defined by the
+     *         {@link SampleConfigurer#defineSample(int, String) defineSample()}
+     *         method and used within the sample arrays passed to
+     *         {@link SampleOperator#computeSample(int, int, Sample[], WritableSample) computeSample()} or
+     *         {@link PixelOperator#computePixel(int, int, Sample[], WritableSample[]) computePixel()} methods.
      */
     int getIndex();
 
