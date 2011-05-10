@@ -64,6 +64,37 @@
         <file path="./src/main/resources/images/visat-icon-32.png" />
       </iconImageFiles>
     </launcher>
+    <launcher name="gpt" id="4715" customizedId="" external="false" excludeFromMenu="true" unixMode="755" menuName="" icnsFile="./src/main/resources/images/beam-icon.icns" swtApp="false" fileset="">
+      <executable name="gpt" type="1" iconSet="true" iconFile="" executableDir="bin" redirectStderr="false" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="2" changeWorkingDirectory="false" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false">
+        <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" />
+      </executable>
+      <splashScreen show="false" autoOff="true" alwaysOnTop="true" width="653" height="195" bitmapFile="../target/beam-installer-files/bin/splash.png" java6SplashScreen="false">
+        <text>
+          <statusLine x="20" y="20" text="" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
+          <versionLine x="20" y="40" text="version ${compiler:sys.version}" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
+        </text>
+      </splashScreen>
+      <java mainClass="com.bc.ceres.launcher.Launcher" vmParameters="-Dceres.context=beam -Dbeam.mainClass=org.esa.beam.framework.gpf.main.Main" arguments="" allowVMPassthroughParameters="true" preferredVM="" bundleRuntime="true">
+        <classPath>
+          <archive location="bin/ceres-launcher.jar" failOnError="false" />
+        </classPath>
+        <nativeLibraryDirectories>
+          <directory name="modules/lib-hdf-2.7/lib" />
+        </nativeLibraryDirectories>
+      </java>
+      <includedFiles />
+      <unextractableFiles />
+      <vmOptionsFile mode="template" overwriteMode="0" fileMode="644">
+        <content />
+      </vmOptionsFile>
+      <customScript mode="1" file="">
+        <content />
+      </customScript>
+      <iconImageFiles>
+        <file path="./src/main/resources/images/beam-icon-16.png" />
+        <file path="./src/main/resources/images/beam-icon-32.png" />
+      </iconImageFiles>
+    </launcher>
   </launchers>
   <installerGui installerType="1" addOnAppId="" suggestPreviousLocations="false" autoUpdateDescriptorUrl="" useAutoUpdateBaseUrl="false" autoUpdateBaseUrl="">
     <customCode>
@@ -1686,7 +1717,7 @@ if (wizardContext != null) {
     </applications>
   </installerGui>
   <mediaSets>
-    <windows name="Win32 JRE" id="20" customizedId="" mediaFileName="beam_${compiler:sys.version}_win32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.6.0_23" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
+    <windows name="Win32 JRE" id="20" customizedId="" mediaFileName="beam_${compiler:sys.version}_win32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.6.0_25" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
@@ -1767,7 +1798,7 @@ if (wizardContext != null) {
       <excludedComponents />
       <includedDownloadableComponents />
     </macosFolder>
-    <unixInstaller name="Linux64 JRE" id="128" customizedId="" mediaFileName="beam_${compiler:sys.version}_linux64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="linux-amd64-1.6.0_23" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="">
+    <unixInstaller name="Linux64 JRE" id="128" customizedId="" mediaFileName="beam_${compiler:sys.version}_linux64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="linux-amd64-1.6.0_25" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="">
       <excludedLaunchers>
         <launcher id="1086" />
       </excludedLaunchers>
@@ -1859,7 +1890,7 @@ if (wizardContext != null) {
         <content />
       </installerScript>
     </unixInstaller>
-    <windows name="Win64 JRE" id="4707" customizedId="" mediaFileName="beam_${compiler:sys.version}_win64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="64" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-amd64-1.6.0_23" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
+    <windows name="Win64 JRE" id="4707" customizedId="" mediaFileName="beam_${compiler:sys.version}_win64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="64" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-amd64-1.6.0_25" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
@@ -1899,7 +1930,7 @@ if (wizardContext != null) {
       <excludedComponents />
       <includedDownloadableComponents />
     </windows>
-    <unixInstaller name="Linux32 JRE" id="4713" customizedId="" mediaFileName="beam_${compiler:sys.version}_linux32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="linux-x86-1.6.0_23" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="">
+    <unixInstaller name="Linux32 JRE" id="4713" customizedId="" mediaFileName="beam_${compiler:sys.version}_linux32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="linux-x86-1.6.0_25" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="">
       <excludedLaunchers>
         <launcher id="1086" />
       </excludedLaunchers>
@@ -1946,8 +1977,7 @@ if (wizardContext != null) {
       </installerScript>
     </unixInstaller>
   </mediaSets>
-  <buildIds buildAll="true">
-    <mediaSet refId="20" />
+  <buildIds buildAll="false">
     <mediaSet refId="4707" />
   </buildIds>
   <buildOptions verbose="false" faster="false" debug="false" />
