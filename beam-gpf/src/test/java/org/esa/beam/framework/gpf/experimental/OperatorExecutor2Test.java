@@ -13,12 +13,15 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.framework.gpf;
+package org.esa.beam.framework.gpf.experimental;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.gpf.experimental.PixelOperator;
+import org.esa.beam.framework.gpf.pointop.PixelOperator;
+import org.esa.beam.framework.gpf.pointop.Sample;
+import org.esa.beam.framework.gpf.pointop.SampleConfigurer;
+import org.esa.beam.framework.gpf.pointop.WritableSample;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -63,11 +66,11 @@ public class OperatorExecutor2Test {
         Object metrics = ex.execute(handler);
 
         assertEquals("" +
-                     "#bands=9, x=0, y=0, w=10, h=2\n" +
-                     "#bands=9, x=0, y=2, w=10, h=2\n" +
-                     "#bands=9, x=0, y=4, w=10, h=2\n" +
-                     "#bands=9, x=0, y=6, w=10, h=2\n" +
-                     "#bands=9, x=0, y=8, w=10, h=2\n",
+                             "#bands=9, x=0, y=0, w=10, h=2\n" +
+                             "#bands=9, x=0, y=2, w=10, h=2\n" +
+                             "#bands=9, x=0, y=4, w=10, h=2\n" +
+                             "#bands=9, x=0, y=6, w=10, h=2\n" +
+                             "#bands=9, x=0, y=8, w=10, h=2\n",
                      handler.trace.toString());
 
         assertNotNull(metrics);
@@ -93,11 +96,11 @@ public class OperatorExecutor2Test {
         Object metrics = ex.execute(handler);
 
         assertEquals("" +
-                     "#bands=9, x=0, y=0, w=2, h=10\n" +
-                     "#bands=9, x=2, y=0, w=2, h=10\n" +
-                     "#bands=9, x=4, y=0, w=2, h=10\n" +
-                     "#bands=9, x=6, y=0, w=2, h=10\n" +
-                     "#bands=9, x=8, y=0, w=2, h=10\n",
+                             "#bands=9, x=0, y=0, w=2, h=10\n" +
+                             "#bands=9, x=2, y=0, w=2, h=10\n" +
+                             "#bands=9, x=4, y=0, w=2, h=10\n" +
+                             "#bands=9, x=6, y=0, w=2, h=10\n" +
+                             "#bands=9, x=8, y=0, w=2, h=10\n",
                      handler.trace.toString());
 
         assertNotNull(metrics);
@@ -123,14 +126,14 @@ public class OperatorExecutor2Test {
         Object metrics = ex.execute(handler);
 
         assertEquals("" +
-                     "#bands=9, x=0, y=0, w=7, h=3\n" +
-                     "#bands=9, x=7, y=0, w=3, h=3\n" +
-                     "#bands=9, x=0, y=3, w=7, h=3\n" +
-                     "#bands=9, x=7, y=3, w=3, h=3\n" +
-                     "#bands=9, x=0, y=6, w=7, h=3\n" +
-                     "#bands=9, x=7, y=6, w=3, h=3\n" +
-                     "#bands=9, x=0, y=9, w=7, h=1\n" +
-                     "#bands=9, x=7, y=9, w=3, h=1\n",
+                             "#bands=9, x=0, y=0, w=7, h=3\n" +
+                             "#bands=9, x=7, y=0, w=3, h=3\n" +
+                             "#bands=9, x=0, y=3, w=7, h=3\n" +
+                             "#bands=9, x=7, y=3, w=3, h=3\n" +
+                             "#bands=9, x=0, y=6, w=7, h=3\n" +
+                             "#bands=9, x=7, y=6, w=3, h=3\n" +
+                             "#bands=9, x=0, y=9, w=7, h=1\n" +
+                             "#bands=9, x=7, y=9, w=3, h=1\n",
                      handler.trace.toString());
 
         assertNotNull(metrics);
@@ -226,14 +229,14 @@ public class OperatorExecutor2Test {
         }
 
         @Override
-        protected void configureSourceSamples(Configurator configurator) {
+        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) {
         }
 
         @Override
-        protected void configureTargetSamples(Configurator configurator) {
-            configurator.defineSample(0, "a");
-            configurator.defineSample(1, "b");
-            configurator.defineSample(2, "c");
+        protected void configureTargetSamples(SampleConfigurer sampleConfigurer) {
+            sampleConfigurer.defineSample(0, "a");
+            sampleConfigurer.defineSample(1, "b");
+            sampleConfigurer.defineSample(2, "c");
         }
 
         @Override
