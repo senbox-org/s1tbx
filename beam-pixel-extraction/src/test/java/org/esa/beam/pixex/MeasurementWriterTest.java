@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -75,7 +75,8 @@ public class MeasurementWriterTest {
         final String expression = "";
         final boolean exportExpressionResult = true;
 
-        final MeasurementWriter writer = createMeasurementWriter(windowSize, filenamePrefix, expression, exportExpressionResult);
+        final MeasurementWriter writer = createMeasurementWriter(windowSize, filenamePrefix, expression,
+                                                                 exportExpressionResult);
 
         File productMapFile = new File(outputDir, "testFileCreation_productIdMap.txt");
         File t1CoordFile = new File(outputDir, "testFileCreation_T1_measurements.txt");
@@ -150,14 +151,14 @@ public class MeasurementWriterTest {
 
         File t1CoordFile = new File(outputDir, "testWritingMeasurements_T1_measurements.txt");
         BufferedReader reader = new BufferedReader(new FileReader(t1CoordFile));
-        skipLines(reader, 6);    //skip file header and table header lines
+        skipLines(reader, 7);    //skip file header and table header lines
         assertMeasurementEquals(getMeasurement(1, 0), reader.readLine(), false);
         assertMeasurementEquals(getMeasurement(2, 0), reader.readLine(), false);
         assertMeasurementEquals(getMeasurement(3, 1), reader.readLine(), false);
 
         File t2CoordFile = new File(outputDir, "testWritingMeasurements_T2_measurements.txt");
         reader = new BufferedReader(new FileReader(t2CoordFile));
-        skipLines(reader, 6);    //skip file header and table header lines
+        skipLines(reader, 7);    //skip file header and table header lines
         assertMeasurementEquals(getMeasurement(4, 2), reader.readLine(), false);
     }
 
@@ -167,7 +168,8 @@ public class MeasurementWriterTest {
         final int windowSize = 1;
         final String filenamePrefix = "testWritingMeasurementsWithExpression";
 
-        final MeasurementWriter writer = createMeasurementWriter(windowSize, false, filenamePrefix, "Is Valid", withExpression);
+        final MeasurementWriter writer = createMeasurementWriter(windowSize, false, filenamePrefix, "Is Valid",
+                                                                 withExpression);
 
         final String[] varNames = {"abc", "def"};
         final Product testProduct = createTestProduct("N1", "T1", varNames, 360, 180);
@@ -176,7 +178,7 @@ public class MeasurementWriterTest {
 
         File t1CoordFile = new File(outputDir, "testWritingMeasurementsWithExpression_T1_measurements.txt");
         BufferedReader reader = new BufferedReader(new FileReader(t1CoordFile));
-        skipLines(reader, 7);    //skip file header and table header lines
+        skipLines(reader, 8);    //skip file header and table header lines
         assertMeasurementEquals(getMeasurement(1, 0), reader.readLine(), withExpression);
         assertMeasurementEquals(getMeasurement(2, 0), reader.readLine(), withExpression);
     }
@@ -188,7 +190,8 @@ public class MeasurementWriterTest {
         final String expression = null;
         final boolean exportExpressionResult = true;
 
-        final MeasurementWriter writer = createMeasurementWriter(windowSize, filenamePrefix, expression, exportExpressionResult);
+        final MeasurementWriter writer = createMeasurementWriter(windowSize, filenamePrefix, expression,
+                                                                 exportExpressionResult);
 
         final String[] varNames = {"abc", "def"};
         final Product testProduct = createTestProduct("N1", "T1", varNames, 360, 180);
@@ -320,16 +323,20 @@ public class MeasurementWriterTest {
                                new Float[]{12.34f, 1234.56f}, coordId % 2 == 0);
     }
 
-    private MeasurementWriter createMeasurementWriter(int windowSize, String filenamePrefix, String expression, boolean exportExpressionResult) {
+    private MeasurementWriter createMeasurementWriter(int windowSize, String filenamePrefix, String expression,
+                                                      boolean exportExpressionResult) {
         return createMeasurementWriter(windowSize, true, filenamePrefix, expression, exportExpressionResult);
     }
 
-    private MeasurementWriter createMeasurementWriter(int windowSize, boolean exportMasks, String filenamePrefix, String expression, boolean exportExpressionResult) {
+    private MeasurementWriter createMeasurementWriter(int windowSize, boolean exportMasks, String filenamePrefix,
+                                                      String expression, boolean exportExpressionResult) {
         final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(true, true, exportMasks);
         final PixExProductRegistry productRegistry = new PixExProductRegistry(filenamePrefix, outputDir);
-        final PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize, productRegistry);
+        final PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
+                                                                                       productRegistry);
         final PixExTargetFactory targetFactory = new PixExTargetFactory(filenamePrefix, outputDir);
-        final PixExFormatStrategy formatStrategy = new PixExFormatStrategy(rasterNamesFactory, windowSize, expression, exportExpressionResult);
+        final PixExFormatStrategy formatStrategy = new PixExFormatStrategy(rasterNamesFactory, windowSize, expression,
+                                                                           exportExpressionResult);
         return new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);
     }
 }

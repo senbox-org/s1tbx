@@ -321,13 +321,13 @@ public class ExportTransectPixelsAction extends ExecCommand {
             for (int i = 0; i < bands.length; i++) {
                 wavelengthArray[i] = bands[i].getSpectralWavelength();
             }
-            out.printf("Wavelength:\t \t \t \t%s\n", StringUtils.arrayToString(wavelengthArray, "\t"));
+            out.printf("# Wavelength:\t \t \t \t%s\n", StringUtils.arrayToString(wavelengthArray, "\t"));
 
             float[] solarFluxArray = new float[bands.length];
             for (int i = 0; i < bands.length; i++) {
                 solarFluxArray[i] = bands[i].getSolarFlux();
             }
-            out.printf("Solar flux:\t \t \t \t%s%n", StringUtils.arrayToString(solarFluxArray, "\t"));
+            out.printf("# Solar flux:\t \t \t \t%s%n", StringUtils.arrayToString(solarFluxArray, "\t"));
 
             out.print("Pixel-X");
             out.print("\t");
