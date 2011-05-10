@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -713,9 +713,11 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                             writer.close();
                         }
                     }
-                } catch (IOException ignored) {
+                } catch (IOException ioe) {
                     showErrorDialog(
-                            "I/O Error.\n   Failed to export " + placemarkDescriptor.getRoleLabel() + "s.");    /*I18N*/
+                            String.format("I/O Error.\n   Failed to export %ss.\n%s",
+                                          placemarkDescriptor.getRoleLabel(), ioe.getMessage()));
+                    ioe.printStackTrace();
                 }
             }
         }

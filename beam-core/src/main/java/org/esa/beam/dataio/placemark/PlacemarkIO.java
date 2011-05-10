@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,10 +17,12 @@
 package org.esa.beam.dataio.placemark;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.XmlWriter;
@@ -239,6 +241,30 @@ public class PlacemarkIO {
             pw.println("# Product:\t" + productName);
             pw.println("# Created on:\t" + new Date());
             pw.println();
+
+            Product product = null;
+            if (!placemarkList.isEmpty()) {
+                Placemark placemark = placemarkList.get(0);
+                product = placemark.getProduct();
+            }
+            if (product != null && additionalColumnNames.length != 0) {
+                pw.print("# Wavelength:");
+                //noinspection UnusedDeclaration
+                for (int i = 0; i < standardColumnNames.length + 2; i++) {
+                    // 2 additional for name and description of the placemark
+                    pw.print("\t");
+                }
+                for (String additionalColumnName : additionalColumnNames) {
+                    Band band = product.getBand(additionalColumnName);
+                    float spectralWavelength = 0.0f;
+                    if (band != null) {
+                        spectralWavelength = band.getSpectralWavelength();
+                    }
+                    pw.print(spectralWavelength + "\t");
+                }
+                pw.println();
+            }
+
 
             // Write header columns
             pw.print(NAME_COL_NAME + "\t");
