@@ -1,4 +1,4 @@
-package org.esa.beam.framework.gpf.experimental;
+package org.esa.beam.framework.gpf.pointop;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
@@ -140,15 +140,15 @@ public class PointOperatorTest extends TestCase {
         }
 
         @Override
-        protected void configureSourceSamples(Configurator configurator) {
-            configurator.defineSample(0, "radiance_10");
-            configurator.defineSample(1, "radiance_8");
+        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) {
+            sampleConfigurer.defineSample(0, "radiance_10");
+            sampleConfigurer.defineSample(1, "radiance_8");
         }
 
         @Override
-        public void configureTargetSamples(Configurator configurator) {
-            configurator.defineSample(0, "ndvi");
-            configurator.defineSample(1, "ndvi_flags");
+        public void configureTargetSamples(SampleConfigurer sampleConfigurer) {
+            sampleConfigurer.defineSample(0, "ndvi");
+            sampleConfigurer.defineSample(1, "ndvi_flags");
         }
 
         @Override
@@ -174,15 +174,15 @@ public class PointOperatorTest extends TestCase {
         }
 
         @Override
-        protected void configureSourceSamples(Configurator configurator) {
-            configurator.defineSample(0, "radiance_10");
-            configurator.defineSample(1, "radiance_8");
+        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) {
+            sampleConfigurer.defineSample(0, "radiance_10");
+            sampleConfigurer.defineSample(1, "radiance_8");
         }
 
         @Override
-        public void configureTargetSamples(Configurator configurator) {
-            configurator.defineSample(0, "ndvi");
-            configurator.defineSample(1, "ndvi_flags");
+        public void configureTargetSamples(SampleConfigurer sampleConfigurer) {
+            sampleConfigurer.defineSample(0, "ndvi");
+            sampleConfigurer.defineSample(1, "ndvi_flags");
         }
 
         @Override
@@ -206,15 +206,15 @@ public class PointOperatorTest extends TestCase {
         }
 
         @Override
-        protected void configureSourceSamples(Configurator configurator) {
-            configurator.defineSample(86, "radiance_10");
-            configurator.defineSample(423, "radiance_8");
+        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) {
+            sampleConfigurer.defineSample(86, "radiance_10");
+            sampleConfigurer.defineSample(423, "radiance_8");
         }
 
         @Override
-        public void configureTargetSamples(Configurator configurator) {
-            configurator.defineSample(34, "ndvi");
-            configurator.defineSample(687, "ndvi_flags");
+        public void configureTargetSamples(SampleConfigurer sampleConfigurer) {
+            sampleConfigurer.defineSample(34, "ndvi");
+            sampleConfigurer.defineSample(687, "ndvi_flags");
         }
 
         @Override

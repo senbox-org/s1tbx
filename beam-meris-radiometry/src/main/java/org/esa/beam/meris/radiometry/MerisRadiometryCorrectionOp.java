@@ -24,7 +24,10 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.experimental.SampleOperator;
+import org.esa.beam.framework.gpf.pointop.Sample;
+import org.esa.beam.framework.gpf.pointop.SampleConfigurer;
+import org.esa.beam.framework.gpf.pointop.SampleOperator;
+import org.esa.beam.framework.gpf.pointop.WritableSample;
 import org.esa.beam.meris.radiometry.calibration.CalibrationAlgorithm;
 import org.esa.beam.meris.radiometry.calibration.Resolution;
 import org.esa.beam.meris.radiometry.equalization.EqualizationAlgorithm;
@@ -83,7 +86,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT", "REPROCESSING_2", "REPROCESSING_3"},
                defaultValue = "AUTO_DETECT",
                description = "The version of the reprocessing the product comes from. Is only used if " +
-                             "equalisation is enabled.")
+                       "equalisation is enabled.")
     private ReprocessingVersion reproVersion;
 
     @Parameter(defaultValue = "false",
@@ -121,7 +124,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private transient int flagBandIndex;
 
     @Override
-    protected Product createTargetProduct() {
+    protected Product createTargetProduct() throws OperatorException {
         // TODO should make initialize not final in PointOperator?
         validateSourceProduct();
         initAlgorithms();
@@ -129,13 +132,13 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     }
 
     @Override
-    protected void configureSourceSamples(Configurator configurator) {
+    protected void configureSourceSamples(SampleConfigurer sampleConfigurer) {
         int i = -1;
         // define samples corresponding to spectral bands, using the spectral band index as sample index
         for (final Band band : sourceProduct.getBands()) {
             final int spectralBandIndex = band.getSpectralBandIndex();
             if (spectralBandIndex != -1) {
-                configurator.defineSample(spectralBandIndex, band.getName());
+                sampleConfigurer.defineSample(spectralBandIndex, band.getName());
                 if (spectralBandIndex > i) {
                     i = spectralBandIndex;
                 }
@@ -143,25 +146,25 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
         }
         detectorIndexSampleIndex = i + 1;
         if (doCalibration || doSmile || doEqualization) {
-            configurator.defineSample(detectorIndexSampleIndex, MERIS_DETECTOR_INDEX_DS_NAME);
+            sampleConfigurer.defineSample(detectorIndexSampleIndex, MERIS_DETECTOR_INDEX_DS_NAME);
         }
         sunZenithAngleSampleIndex = i + 2;
         if (doRadToRefl) {
-            configurator.defineSample(sunZenithAngleSampleIndex, MERIS_SUN_ZENITH_DS_NAME);
+            sampleConfigurer.defineSample(sunZenithAngleSampleIndex, MERIS_SUN_ZENITH_DS_NAME);
         }
         flagBandIndex = i + 3;
         if (doSmile) {
-            configurator.defineSample(flagBandIndex, MERIS_L1B_FLAGS_DS_NAME);
+            sampleConfigurer.defineSample(flagBandIndex, MERIS_L1B_FLAGS_DS_NAME);
         }
     }
 
     @Override
-    protected void configureTargetSamples(Configurator configurator) {
+    protected void configureTargetSamples(SampleConfigurer sampleConfigurer) {
         // define samples corresponding to spectral bands, using the spectral band index as sample index
         for (final Band band : getTargetProduct().getBands()) { // pitfall: using targetProduct field here throws NPE
             final int spectralBandIndex = band.getSpectralBandIndex();
             if (spectralBandIndex != -1) {
-                configurator.defineSample(spectralBandIndex, band.getName());
+                sampleConfigurer.defineSample(spectralBandIndex, band.getName());
             }
         }
     }
@@ -314,7 +317,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
         }
     }
 
-    private void validateSourceProduct() {
+    private void validateSourceProduct() throws OperatorException {
         if (!MERIS_L1_TYPE_PATTERN.matcher(sourceProduct.getProductType()).matches()) {
             throw new OperatorException("Source product must be of type MERIS Level 1b.");
         }

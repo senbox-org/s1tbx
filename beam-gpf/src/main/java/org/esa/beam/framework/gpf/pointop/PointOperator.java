@@ -1,4 +1,4 @@
-package org.esa.beam.framework.gpf.experimental;
+package org.esa.beam.framework.gpf.pointop;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -14,25 +14,57 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The {@code PointOperator} class serves as a base class for operators
+ * <ol>
+ * <li>that compute single pixels independently of their neighbours and</li>
+ * <li>whose target product and all source products share the same grid and coordinate reference system.</li>
+ * </ol>
+ * More specifically, the target product and all source products must share the same raster size and
+ * {@link org.esa.beam.framework.datamodel.GeoCoding GeoCoding}.
+ *
+ * @author Norman Fomferra
+ * @since BEAM 4.9
+ */
 public abstract class PointOperator extends Operator {
 
     private transient RasterDataNode[] sourceNodes;
     private transient Band[] targetNodes;
 
+    /**
+     * Configures this {@code PointOperator} by performing a number of initialisation steps in the given order:
+     * <ol>
+     * <li>{@link #createTargetProduct() product = createTargetProduct()}</li>
+     * <li>{@link #configureTargetProduct(org.esa.beam.framework.datamodel.Product) configureTargetProduct(product)}</li>
+     * <li>{@link #configureSourceSamples(SampleConfigurer)}</li>
+     * <li>{@link #configureTargetSamples(SampleConfigurer)}</li>
+     * </ol>
+     * This method cannot be overridden by intention (<i>template method</i>). Instead override the methods that are called during the initialisation sequence.
+     *
+     * @throws OperatorException If the configuration cannot be performed.
+     */
     @Override
     public final void initialize() throws OperatorException {
-
-        setTargetProduct(createTargetProduct());
-
-        SourceConfigurator sc = new SourceConfigurator();
-        TargetConfigurator tc = new TargetConfigurator();
+        Product product = createTargetProduct();
+        configureTargetProduct(product);
+        setTargetProduct(product);
+        SourceSampleConfigurer sc = new SourceSampleConfigurer();
+        TargetSampleConfigurer tc = new TargetSampleConfigurer();
         configureSourceSamples(sc);
         configureTargetSamples(tc);
-        sourceNodes = sc.nodes.toArray(new RasterDataNode[sc.nodes.size()]);
-        targetNodes = tc.nodes.toArray(new Band[tc.nodes.size()]);
+        sourceNodes = sc.getNodes();
+        targetNodes = tc.getNodes();
     }
 
-    protected Product createTargetProduct() {
+    /**
+     * Creates the target product instance.
+     * The default implementation creates a target product instance given the raster size of the (first) source product.
+     * Then it sets the target product' start and stop time and copies the tie-point grids and geo-coding.
+     *
+     * @return A new target product instance.
+     * @throws OperatorException If the target product cannot be created.
+     */
+    protected Product createTargetProduct() throws OperatorException {
         Product sourceProduct = getSourceProduct();
         Product targetProduct = new Product(getId(),
                                             getClass().getName(),
@@ -42,29 +74,52 @@ public abstract class PointOperator extends Operator {
         targetProduct.setEndTime(sourceProduct.getEndTime());
         ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
         ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
-        configureTargetProduct(targetProduct);
         return targetProduct;
     }
 
-    protected abstract void configureTargetProduct(Product targetProduct);
+    /**
+     * Configures the given target product instance. Called by {@link #initialize()}.
+     * Client implementations of this method usually add product components to the gibven target product, such as
+     * {@link Band bands} to be computed by this operator, {@link org.esa.beam.framework.datamodel.VirtualBand virtual bands},
+     * {@link org.esa.beam.framework.datamodel.Mask masks} or {@link org.esa.beam.framework.datamodel.SampleCoding sample codings}.
+     *
+     * @param targetProduct The target product to be configured.
+     * @throws OperatorException If the target product cannot be configured.
+     */
+    protected abstract void configureTargetProduct(Product targetProduct) throws OperatorException;
 
-    protected abstract void configureSourceSamples(Configurator configurator);
+    /**
+     * Configures all source samples that this operator requires for the computation of target samples.
+     * Source sample are defined by using the provided {@link SampleConfigurer}.
+     *
+     * @param sampleConfigurer The configurer that defines the layout of a pixel.
+     * @throws OperatorException If the source samples cannot be configured.
+     */
+    protected abstract void configureSourceSamples(SampleConfigurer sampleConfigurer) throws OperatorException;
 
-    protected abstract void configureTargetSamples(Configurator configurator);
+    /**
+     * Configures all target samples computed by this operator.
+     * Target samples are defined by using the provided {@link SampleConfigurer}.
+     *
+     * @param sampleConfigurer The configurer that defines the layout of a pixel.
+     * @throws OperatorException If the target samples cannot be configured.
+     */
+    protected abstract void configureTargetSamples(SampleConfigurer sampleConfigurer) throws OperatorException;
 
-    DefaultSample[] createSourceSamples(Rectangle targetRectangle, Point location) {
+    Sample[] createSourceSamples(Rectangle targetRectangle, Point location) {
         final Tile[] sourceTiles = getSourceTiles(targetRectangle);
         return createDefaultSamples(sourceNodes, sourceTiles, location);
     }
 
-    DefaultSample[] createTargetSamples(Map<Band, Tile> targetTileStack, Point location) {
+    WritableSample[] createTargetSamples(Map<Band, Tile> targetTileStack, Point location) {
         final Tile[] targetTiles = getTargetTiles(targetTileStack);
         return createDefaultSamples(targetNodes, targetTiles, location);
     }
 
-    DefaultSample createTargetSample(Tile targetTile, Point location) {
+    WritableSample createTargetSample(Tile targetTile, Point location) {
         final RasterDataNode targetNode = targetTile.getRasterDataNode();
         for (int i = 0; i < targetNodes.length; i++) {
+            //noinspection ObjectEquality
             if (targetNode == targetNodes[i]) {
                 return new DefaultSample(i, targetTile, location);
             }
@@ -110,46 +165,7 @@ public abstract class PointOperator extends Operator {
         return samples;
     }
 
-    public interface Configurator {
-
-        void defineSample(int index, String name);
-
-        void defineSample(int index, String name, Product sourceProduct);
-    }
-
-    public interface Sample {
-
-        RasterDataNode getNode();
-
-        int getIndex();
-
-        int getDataType();
-
-        boolean getBit(int bitIndex);
-
-        boolean getBoolean();
-
-        int getInt();
-
-        float getFloat();
-
-        double getDouble();
-    }
-
-    public interface WritableSample extends Sample {
-
-        void set(int bitIndex, boolean v);
-
-        void set(boolean v);
-
-        void set(int v);
-
-        void set(float v);
-
-        void set(double v);
-    }
-
-    static final class DefaultSample implements WritableSample {
+    private static final class DefaultSample implements WritableSample {
         static final DefaultSample NULL = new DefaultSample();
 
         private final int index;
@@ -158,7 +174,7 @@ public abstract class PointOperator extends Operator {
         private final Tile tile;
         private final Point location;
 
-        protected DefaultSample(int index, Tile tile, Point location) {
+        private DefaultSample(int index, Tile tile, Point location) {
             this.index = index;
             this.node = tile.getRasterDataNode();
             this.dataType = this.node.getGeophysicalDataType();
@@ -240,16 +256,13 @@ public abstract class PointOperator extends Operator {
         }
     }
 
-    private abstract static class AbstractConfigurator<T extends RasterDataNode> implements Configurator {
+    private abstract static class AbstractSampleConfigurer<T extends RasterDataNode> implements SampleConfigurer {
 
         final List<T> nodes = new ArrayList<T>();
 
         @Override
         public void defineSample(int index, String name, Product product) {
-            addNode(index, (T) product.getRasterDataNode(name));
-        }
-
-        private void addNode(int index, T node) {
+            T node = (T) product.getRasterDataNode(name);
             if (index < nodes.size()) {
                 nodes.set(index, node);
             } else if (index == nodes.size()) {
@@ -262,21 +275,30 @@ public abstract class PointOperator extends Operator {
             }
         }
 
+        RasterDataNode[] getNodes() {
+            return nodes.toArray(new RasterDataNode[nodes.size()]);
+        }
     }
 
-    private class SourceConfigurator extends AbstractConfigurator<RasterDataNode> {
+    private final class SourceSampleConfigurer extends AbstractSampleConfigurer<RasterDataNode> {
 
         @Override
         public void defineSample(int index, String name) {
             defineSample(index, name, getSourceProduct());
         }
+
     }
 
-    private class TargetConfigurator extends AbstractConfigurator<Band> {
+    private final class TargetSampleConfigurer extends AbstractSampleConfigurer<Band> {
 
         @Override
         public void defineSample(int index, String name) {
             defineSample(index, name, getTargetProduct());
+        }
+
+        @Override
+        Band[] getNodes() {
+            return nodes.toArray(new Band[nodes.size()]);
         }
     }
 }
