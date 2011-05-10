@@ -68,6 +68,10 @@ public class OperatorMenu {
     private final OperatorParameterSupport parameterSupport;
     private final Class<? extends Operator> opType;
     private final String helpId;
+    private final Action openParametersAction;
+    private final Action saveParametersAction;
+    private final Action displayParametersAction;
+    private final Action aboutAction;
 
     public OperatorMenu(Component parentComponent,
                         Class<? extends Operator> opType,
@@ -77,25 +81,47 @@ public class OperatorMenu {
         this.parameterSupport = parameterSupport;
         this.opType = opType;
         this.helpId = helpId;
+        openParametersAction = new OpenParametersAction();
+        saveParametersAction = new SaveParametersAction();
+        displayParametersAction = new DisplayParametersAction();
+        aboutAction = new AboutOperatorAction();
     }
 
-    public Action createSaveParametersAction() {
-        return new SaveParametersAction();
+    public Action getSaveParametersAction() {
+        return saveParametersAction;
     }
 
-    public Action createDisplayParametersAction() {
-        return new DisplayParametersAction();
+    public Action getDisplayParametersAction() {
+        return displayParametersAction;
     }
 
-    public Action createOpenParametersAction() {
-        return new OpenParametersAction();
+    public Action getOpenParametersAction() {
+        return openParametersAction;
     }
 
-    public Action createAboutOperatorAction() {
-        return new AboutOperatorAction();
+    public Action getAboutOperatorAction() {
+        return aboutAction;
     }
 
-    public JMenuItem createHelpMenuItem() {
+    public JMenuBar createDefaultMenu() {
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.add(openParametersAction);
+        fileMenu.add(saveParametersAction);
+        fileMenu.addSeparator();
+        fileMenu.add(displayParametersAction);
+
+        JMenu helpMenu = new JMenu("Help");
+        helpMenu.add(createHelpMenuItem());
+        helpMenu.add(aboutAction);
+
+        JMenuBar menuBar = new CommandMenuBar();
+        menuBar.add(fileMenu);
+        menuBar.add(helpMenu);
+
+        return menuBar;
+    }
+
+    private JMenuItem createHelpMenuItem() {
         JMenuItem menuItem = new JMenuItem("Help");
         if (helpId != null && !helpId.isEmpty()) {
             HelpSys.enableHelpOnButton(menuItem, helpId);
@@ -103,24 +129,6 @@ public class OperatorMenu {
             menuItem.setEnabled(false);
         }
         return menuItem;
-    }
-
-    public JMenuBar createDefaultMenu() {
-        JMenu fileMenu = new JMenu("File");
-        fileMenu.add(createOpenParametersAction());
-        fileMenu.add(createSaveParametersAction());
-        fileMenu.addSeparator();
-        fileMenu.add(createDisplayParametersAction());
-
-        JMenu helpMenu = new JMenu("Help");
-        helpMenu.add(createHelpMenuItem());
-        helpMenu.add(createAboutOperatorAction());
-
-        JMenuBar menuBar = new CommandMenuBar();
-        menuBar.add(fileMenu);
-        menuBar.add(helpMenu);
-
-        return menuBar;
     }
 
     private class OpenParametersAction extends AbstractAction {
