@@ -24,6 +24,7 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.pointop.ProductConfigurer;
 import org.esa.beam.framework.gpf.pointop.Sample;
 import org.esa.beam.framework.gpf.pointop.SampleConfigurer;
 import org.esa.beam.framework.gpf.pointop.SampleOperator;
@@ -170,9 +171,12 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     }
 
     @Override
-    protected void configureTargetProduct(Product targetProduct) {
-        super.configureTargetProduct(targetProduct);
+    protected void configureTargetProduct(ProductConfigurer productConfigurer) {
 
+        productConfigurer.copyStartStopTime();
+        productConfigurer.copyMetadata();
+
+        Product targetProduct = productConfigurer.getTargetProduct();
         targetProduct.setName(sourceProduct.getName());
         if (doRadToRefl) {
             targetProduct.setProductType(String.format("%s_REFL", sourceProduct.getProductType()));
@@ -182,7 +186,6 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             targetProduct.setAutoGrouping("radiance");
         }
         targetProduct.setDescription("MERIS L1b Radiometric Correction");
-        ProductUtils.copyMetadata(sourceProduct, targetProduct);
 
         for (final Band sourceBand : sourceProduct.getBands()) {
             if (sourceBand.getSpectralBandIndex() != -1) {
@@ -216,19 +219,18 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
                 ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
             }
         }
-        copySourceBand(MERIS_DETECTOR_INDEX_DS_NAME, targetProduct);
+
+        productConfigurer.copyBands(MERIS_DETECTOR_INDEX_DS_NAME);
+
         ProductUtils.copyFlagBands(sourceProduct, targetProduct);
         final Band sourceFlagBand = sourceProduct.getBand(MERIS_L1B_FLAGS_DS_NAME);
         final Band targetFlagBand = targetProduct.getBand(MERIS_L1B_FLAGS_DS_NAME);
-
         targetFlagBand.setSourceImage(sourceFlagBand.getSourceImage());
-        targetProduct.setStartTime(sourceProduct.getStartTime());
-        targetProduct.setEndTime(sourceProduct.getEndTime());
 
         // copy all source bands yet ignored
         for (final Band sourceBand : sourceProduct.getBands()) {
             if (sourceBand.getSpectralBandIndex() == -1 && !targetProduct.containsBand(sourceBand.getName())) {
-                copySourceBand(sourceBand.getName(), targetProduct);
+                productConfigurer.copyBands(sourceBand.getName());
             }
         }
     }

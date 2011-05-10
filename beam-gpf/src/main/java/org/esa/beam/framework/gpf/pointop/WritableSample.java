@@ -1,7 +1,9 @@
 package org.esa.beam.framework.gpf.pointop;
 
 /**
- * A writable sample can change its value.
+ * A writable sample is a {@link Sample} that can change its value.
+ * <p/>
+ * This interface is not intended to be implemented by clients.
  *
  * @author Norman Fomferra
  * @since BEAM 4.9

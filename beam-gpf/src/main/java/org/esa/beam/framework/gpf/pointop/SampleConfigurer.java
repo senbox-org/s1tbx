@@ -7,6 +7,8 @@ import org.esa.beam.framework.datamodel.Product;
  * source or target samples.
  * The definition of a sample is given by its index within the pixel (a pixel comprises one or more samples) and
  * the name of a {@link org.esa.beam.framework.datamodel.RasterDataNode RasterDataNode}.
+ * <p/>
+ * This interface is not intended to be implemented by clients.
  *
  * @author Norman Fomferra
  * @since BEAM 4.9

@@ -35,8 +35,8 @@ public abstract class PointOperator extends Operator {
      * Configures this {@code PointOperator} by performing a number of initialisation steps in the given order:
      * <ol>
      * <li>{@link #validateInputs()}</li>
-     * <li>{@link #createTargetProduct() product = createTargetProduct()}</li>
-     * <li>{@link #configureTargetProduct(org.esa.beam.framework.datamodel.Product) configureTargetProduct(product)}</li>
+     * <li>{@link #createTargetProduct()}</li>
+     * <li>{@link #configureTargetProduct(ProductConfigurer)}</li>
      * <li>{@link #configureSourceSamples(SampleConfigurer)}</li>
      * <li>{@link #configureTargetSamples(SampleConfigurer)}</li>
      * </ol>
@@ -48,9 +48,9 @@ public abstract class PointOperator extends Operator {
     @Override
     public final void initialize() throws OperatorException {
         validateInputs();
-        Product product = createTargetProduct();
-        configureTargetProduct(product);
-        setTargetProduct(product);
+        Product targetProduct = createTargetProduct();
+        setTargetProduct(targetProduct);
+        configureTargetProduct(new ProductConfigurerImpl(getSourceProduct(), targetProduct));
         SourceSampleConfigurer sc = new SourceSampleConfigurer();
         TargetSampleConfigurer tc = new TargetSampleConfigurer();
         configureSourceSamples(sc);
@@ -62,7 +62,7 @@ public abstract class PointOperator extends Operator {
     /**
      * Validates the inputs for this operator.
      * <p/>
-     * The default implementation checks whether or source products have the same raster size.
+     * The default implementation checks whether all source products have the same raster size.
      * Clients may override to perform some extra validation of parameters and source products.
      * Validation failures shall be indicated by throwing an {@link OperatorException}.
      * <p/>
@@ -92,7 +92,7 @@ public abstract class PointOperator extends Operator {
     }
 
     /**
-     * Configures the given target product instance. Called by {@link #initialize()}.
+     * Configures the target product via the given {@link ProductConfigurer}. Called by {@link #initialize()}.
      * <p/>
      * Client implementations of this method usually add product components to the given target product, such as
      * {@link Band bands} to be computed by this operator,
@@ -102,33 +102,31 @@ public abstract class PointOperator extends Operator {
      * <p/>
      * The default implementation retrieves the (first) source product and copies to the target product
      * <ul>
-     * <li>the start and stop time,</li>
-     * <li>all tie-point grids,</li>
-     * <li>the geo-coding.</li>
+     * <li>the start and stop time by calling {@link ProductConfigurer#copyStartStopTime()},</li>
+     * <li>all tie-point grids by calling {@link ProductConfigurer#copyTiePointGrids(String...)},</li>
+     * <li>the geo-coding by calling {@link ProductConfigurer#copyGeoCoding()}.</li>
      * </ul>
      * <p/>
      * Clients that require a similar behaviour in their operator shall first call the {@code super} method
      * in their implementation.
      *
-     * @param targetProduct The target product to be configured.
+     * @param productConfigurer The target product configurer.
      * @throws OperatorException If the target product cannot be configured.
      * @see Product#addBand(org.esa.beam.framework.datamodel.Band)
      * @see Product#addBand(String, String)
      * @see Product#addTiePointGrid(org.esa.beam.framework.datamodel.TiePointGrid)
      * @see org.esa.beam.framework.datamodel.Product#getMaskGroup()
      */
-    protected void configureTargetProduct(Product targetProduct) throws OperatorException {
-        Product sourceProduct = getSourceProduct();
-        targetProduct.setStartTime(sourceProduct.getStartTime());
-        targetProduct.setEndTime(sourceProduct.getEndTime());
-        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+    protected void configureTargetProduct(ProductConfigurer productConfigurer) {
+        productConfigurer.copyStartStopTime();
+        productConfigurer.copyTiePointGrids();
+        productConfigurer.copyGeoCoding();
     }
 
     /**
      * Configures all source samples that this operator requires for the computation of target samples.
      * Source sample are defined by using the provided {@link SampleConfigurer}.
-     *
+     * <p/>
      * <p/> The method is called by {@link #initialize()}.
      *
      * @param sampleConfigurer The configurer that defines the layout of a pixel.
@@ -139,7 +137,7 @@ public abstract class PointOperator extends Operator {
     /**
      * Configures all target samples computed by this operator.
      * Target samples are defined by using the provided {@link SampleConfigurer}.
-     *
+     * <p/>
      * <p/> The method is called by {@link #initialize()}.
      *
      * @param sampleConfigurer The configurer that defines the layout of a pixel.
@@ -149,6 +147,8 @@ public abstract class PointOperator extends Operator {
 
     /**
      * Checks if all source products share the same raster size, otherwise throws an exception.
+     * Called by {@link #initialize()}.
+     *
      * @throws OperatorException If the source product's raster sizes are not equal.
      */
     protected void checkRasterSize() throws OperatorException {
@@ -183,7 +183,7 @@ public abstract class PointOperator extends Operator {
         for (int i = 0; i < targetNodes.length; i++) {
             //noinspection ObjectEquality
             if (targetNode == targetNodes[i]) {
-                return new DefaultSample(i, targetTile, location);
+                return new WritableSampleImpl(i, targetTile, location);
             }
         }
         final String msgPattern = "Could not create target sample for band '%s'.";
@@ -215,20 +215,20 @@ public abstract class PointOperator extends Operator {
         return targetTiles;
     }
 
-    private static DefaultSample[] createDefaultSamples(RasterDataNode[] nodes, Tile[] tiles, Point location) {
-        DefaultSample[] samples = new DefaultSample[nodes.length];
+    private static WritableSampleImpl[] createDefaultSamples(RasterDataNode[] nodes, Tile[] tiles, Point location) {
+        WritableSampleImpl[] samples = new WritableSampleImpl[nodes.length];
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
-                samples[i] = new DefaultSample(i, tiles[i], location);
+                samples[i] = new WritableSampleImpl(i, tiles[i], location);
             } else {
-                samples[i] = DefaultSample.NULL;
+                samples[i] = WritableSampleImpl.NULL;
             }
         }
         return samples;
     }
 
-    private static final class DefaultSample implements WritableSample {
-        static final DefaultSample NULL = new DefaultSample();
+    private static final class WritableSampleImpl implements WritableSample {
+        static final WritableSampleImpl NULL = new WritableSampleImpl();
 
         private final int index;
         private final RasterDataNode node;
@@ -236,7 +236,7 @@ public abstract class PointOperator extends Operator {
         private final Tile tile;
         private final Point location;
 
-        private DefaultSample(int index, Tile tile, Point location) {
+        private WritableSampleImpl(int index, Tile tile, Point location) {
             this.index = index;
             this.node = tile.getRasterDataNode();
             this.dataType = this.node.getGeophysicalDataType();
@@ -244,7 +244,7 @@ public abstract class PointOperator extends Operator {
             this.location = location;
         }
 
-        private DefaultSample() {
+        private WritableSampleImpl() {
             this.index = -1;
             this.node = null;
             this.dataType = -1;
@@ -361,6 +361,83 @@ public abstract class PointOperator extends Operator {
         @Override
         Band[] getNodes() {
             return nodes.toArray(new Band[nodes.size()]);
+        }
+    }
+
+    private final class ProductConfigurerImpl implements ProductConfigurer {
+        private Product sourceProduct;
+        private final Product targetProduct;
+
+        private ProductConfigurerImpl(Product sourceProduct, Product targetProduct) {
+            this.sourceProduct = sourceProduct;
+            this.targetProduct = targetProduct;
+        }
+
+        @Override
+        public Product getSourceProduct() {
+            return sourceProduct;
+        }
+
+        @Override
+        public void setSourceProduct(Product sourceProduct) {
+            this.sourceProduct = sourceProduct;
+        }
+
+        @Override
+        public Product getTargetProduct() {
+            return targetProduct;
+        }
+
+        @Override
+        public void copyMetadata() {
+            ProductUtils.copyMetadata(getSourceProduct(), getTargetProduct());
+        }
+
+        @Override
+        public void copyStartStopTime() {
+            getTargetProduct().setStartTime(getSourceProduct().getStartTime());
+            getTargetProduct().setEndTime(getSourceProduct().getEndTime());
+        }
+
+        @Override
+        public void copyGeoCoding() {
+            ProductUtils.copyGeoCoding(getSourceProduct(), getTargetProduct());
+        }
+
+        @Override
+        public void copyBands(String... names) {
+            if (names.length == 0) {
+                names = getSourceProduct().getBandNames();
+            }
+            for (String name : names) {
+                Band band = ProductUtils.copyBand(name, getSourceProduct(), getTargetProduct());
+                band.setSourceImage(getSourceProduct().getBand(name).getSourceImage());
+            }
+        }
+
+        @Override
+        public void copyTiePointGrids(String... names) {
+            if (names.length == 0) {
+                names = getSourceProduct().getTiePointGridNames();
+            }
+            for (String name : names) {
+                ProductUtils.copyTiePointGrid(name, getSourceProduct(), getTargetProduct());
+            }
+        }
+
+        @Override
+        public void copyVectorData() {
+            ProductUtils.copyVectorData(getSourceProduct(), getTargetProduct());
+        }
+
+        @Override
+        public Band addBand(String name, int dataType) {
+            return getTargetProduct().addBand(name, dataType);
+        }
+
+        @Override
+        public Band addBand(String name, String expression) {
+            return getTargetProduct().addBand(name, expression);
         }
     }
 }

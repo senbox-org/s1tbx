@@ -68,8 +68,8 @@ public class PointOperatorInitialiseTest {
         }
 
         @Override
-        protected void configureTargetProduct(Product targetProduct) throws OperatorException {
-            super.configureTargetProduct(targetProduct);
+        protected void configureTargetProduct(ProductConfigurer productConfigurer) {
+            super.configureTargetProduct(productConfigurer);
             trace += "3";
         }
 
@@ -104,8 +104,8 @@ public class PointOperatorInitialiseTest {
         }
 
         @Override
-        protected void configureTargetProduct(Product targetProduct) throws OperatorException {
-            super.configureTargetProduct(targetProduct);
+        protected void configureTargetProduct(ProductConfigurer productConfigurer) {
+            super.configureTargetProduct(productConfigurer);
             trace += "3";
         }
 

@@ -17,8 +17,8 @@ package org.esa.beam.framework.gpf.experimental;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.pointop.PixelOperator;
+import org.esa.beam.framework.gpf.pointop.ProductConfigurer;
 import org.esa.beam.framework.gpf.pointop.Sample;
 import org.esa.beam.framework.gpf.pointop.SampleConfigurer;
 import org.esa.beam.framework.gpf.pointop.WritableSample;
@@ -209,25 +209,24 @@ public class OperatorExecutor2Test {
     }
 
     public static class SimpleOp extends PixelOperator {
-
         @Override
-        protected void configureTargetProduct(Product targetProduct) {
-            super.configureTargetProduct(targetProduct);
+        protected void configureTargetProduct(ProductConfigurer productConfigurer) {
+            super.configureTargetProduct(productConfigurer);
 
-            int w = targetProduct.getSceneRasterWidth();
-            int h = targetProduct.getSceneRasterHeight();
-            targetProduct.addBand("a", ProductData.TYPE_FLOAT32);
-            targetProduct.addBand("b", ProductData.TYPE_FLOAT32);
-            targetProduct.addBand("c", ProductData.TYPE_FLOAT32);
-            targetProduct.addBand("x", ProductData.TYPE_FLOAT32).setSourceImage(
+            int w = productConfigurer.getTargetProduct().getSceneRasterWidth();
+            int h = productConfigurer.getTargetProduct().getSceneRasterHeight();
+            productConfigurer.addBand("a", ProductData.TYPE_FLOAT32);
+            productConfigurer.addBand("b", ProductData.TYPE_FLOAT32);
+            productConfigurer.addBand("c", ProductData.TYPE_FLOAT32);
+            productConfigurer.addBand("x", ProductData.TYPE_FLOAT32).setSourceImage(
                     ConstantDescriptor.create(1f * w, 1f * h, new Float[]{0.3f}, null));
-            targetProduct.addBand("y", ProductData.TYPE_FLOAT32).setSourceImage(
+            productConfigurer.addBand("y", ProductData.TYPE_FLOAT32).setSourceImage(
                     ConstantDescriptor.create(1f * w, 1f * h, new Float[]{0.6f}, null));
-            targetProduct.addBand("z", ProductData.TYPE_FLOAT32).setSourceImage(
+            productConfigurer.addBand("z", ProductData.TYPE_FLOAT32).setSourceImage(
                     ConstantDescriptor.create(1f * w, 1f * h, new Float[]{0.9f}, null));
-            targetProduct.addBand(new VirtualBand("u", ProductData.TYPE_FLOAT32, w, h, "a-x"));
-            targetProduct.addBand(new VirtualBand("v", ProductData.TYPE_FLOAT32, w, h, "b-y"));
-            targetProduct.addBand(new VirtualBand("w", ProductData.TYPE_FLOAT32, w, h, "c-z"));
+            productConfigurer.addBand("u", "a-x");
+            productConfigurer.addBand("v", "b-y");
+            productConfigurer.addBand("w", "c-z");
         }
 
         @Override

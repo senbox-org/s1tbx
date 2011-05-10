@@ -4,6 +4,8 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 
 /**
  * A sample represents the (geophysical) value of a {@link RasterDataNode} at a certain a certain pixel position.
+ * <p/>
+ * This interface is not intended to be implemented by clients.
  *
  * @author Norman Fomferra
  * @since BEAM 4.9

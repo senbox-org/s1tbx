@@ -137,12 +137,11 @@ public class PointOperatorTest {
     }
 
     public static class NdviSampleOp extends SampleOperator {
-
         @Override
-        public void configureTargetProduct(Product targetProduct) {
-            super.configureTargetProduct(targetProduct);
-            targetProduct.addBand("ndvi", ProductData.TYPE_FLOAT32);
-            targetProduct.addBand("ndvi_flags", ProductData.TYPE_INT16);
+        protected void configureTargetProduct(ProductConfigurer productConfigurer) {
+            super.configureTargetProduct(productConfigurer);
+            productConfigurer.addBand("ndvi", ProductData.TYPE_FLOAT32);
+            productConfigurer.addBand("ndvi_flags", ProductData.TYPE_INT16);
         }
 
         @Override
@@ -172,12 +171,11 @@ public class PointOperatorTest {
     }
 
     public static class NdviPixelOp extends PixelOperator {
-
         @Override
-        public void configureTargetProduct(Product targetProduct) {
-            super.configureTargetProduct(targetProduct);
-            targetProduct.addBand("ndvi", ProductData.TYPE_FLOAT32);
-            targetProduct.addBand("ndvi_flags", ProductData.TYPE_INT16);
+        protected void configureTargetProduct(ProductConfigurer productConfigurer) {
+            super.configureTargetProduct(productConfigurer);
+            productConfigurer.addBand("ndvi", ProductData.TYPE_FLOAT32);
+            productConfigurer.addBand("ndvi_flags", ProductData.TYPE_INT16);
         }
 
         @Override
@@ -204,13 +202,12 @@ public class PointOperatorTest {
 
     }
 
-    public static class  NdviPixelOpWithGaps extends PixelOperator {
-
+    public static class NdviPixelOpWithGaps extends PixelOperator {
         @Override
-        public void configureTargetProduct(Product targetProduct) {
-            super.configureTargetProduct(targetProduct);
-            targetProduct.addBand("ndvi", ProductData.TYPE_FLOAT32);
-            targetProduct.addBand("ndvi_flags", ProductData.TYPE_INT16);
+        protected void configureTargetProduct(ProductConfigurer productConfigurer) {
+            super.configureTargetProduct(productConfigurer);
+            productConfigurer.addBand("ndvi", ProductData.TYPE_FLOAT32);
+            productConfigurer.addBand("ndvi_flags", ProductData.TYPE_INT16);
         }
 
         @Override
@@ -270,7 +267,7 @@ public class PointOperatorTest {
         @Override
         public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle,
                                      ProgressMonitor pm) throws
-                                                         OperatorException {
+                OperatorException {
 
             final Product product = getSourceProduct();
             Tile sourceTile1 = getSourceTile(product.getBand("radiance_10"), targetRectangle);
