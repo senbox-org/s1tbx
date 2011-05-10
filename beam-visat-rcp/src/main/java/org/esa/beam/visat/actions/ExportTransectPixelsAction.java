@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -24,6 +24,7 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TransectProfileData;
 import org.esa.beam.framework.ui.SelectExportMethodDialog;
@@ -32,6 +33,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
@@ -48,6 +50,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 
 public class ExportTransectPixelsAction extends ExecCommand {
 
@@ -156,9 +159,11 @@ public class ExportTransectPixelsAction extends ExecCommand {
                 ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(), DLG_TITLE,
                                                                Dialog.ModalityType.APPLICATION_MODAL);
                 try {
-                    boolean success = exportTransectPixels(out, raster.getProduct(), transectProfileData,
-                                                           numTransectPixels,
-                                                           pm);
+                    TransectExporter exporter = new TransectExporter();
+                    boolean success = exporter.exportTransectPixels(out, raster.getProduct(),
+                                                                    transectProfileData,
+                                                                    numTransectPixels,
+                                                                    pm);
                     if (success && clipboardText != null) {
                         SystemUtils.copyToClipboard(clipboardText.toString());
                         clipboardText.setLength(0);
@@ -222,6 +227,7 @@ public class ExportTransectPixelsAction extends ExecCommand {
      * Opens a modal file chooser dialog that prompts the user to select the output file name.
      *
      * @param visatApp the VISAT application
+     *
      * @return the selected file, <code>null</code> means "Cancel"
      */
     private static File promptForFile(final VisatApp visatApp, String defaultFileName) {
@@ -233,46 +239,6 @@ public class ExportTransectPixelsAction extends ExecCommand {
                                            "exportTransectPixels.lastDir");
     }
 
-    /**
-     * Writes all pixel values of the given product within the given ROI to the specified out.
-     *
-     * @param out     the data output writer
-     * @param product the product providing the pixel values
-     * @return <code>true</code> for success, <code>false</code> if export has been terminated (by user)
-     */
-    private static boolean exportTransectPixels(final PrintWriter out,
-                                                final Product product,
-                                                final TransectProfileData transectProfileData,
-                                                final int numTransectPixels,
-                                                ProgressMonitor pm) throws IOException {
-
-        final Band[] bands = product.getBands();
-        final GeoCoding geoCoding = product.getGeoCoding();
-
-        writeHeaderLine(out, geoCoding, bands);
-        final Point2D[] pixelPositions = transectProfileData.getPixelPositions();
-
-        pm.beginTask("Writing pixel data...", numTransectPixels);
-        try {
-            for (Point2D pixelPosition : pixelPositions) {
-                int x = (int) Math.floor(pixelPosition.getX());
-                int y = (int) Math.floor(pixelPosition.getY());
-                if (x >= 0 && x < product.getSceneRasterWidth()
-                        && y >= 0 && y < product.getSceneRasterHeight()) {
-                    writeDataLine(out, geoCoding, bands, x, y);
-                    pm.worked(1);
-                    if (pm.isCanceled()) {
-                        return false;
-                    }
-                }
-            }
-        } finally {
-            pm.done();
-        }
-
-        return true;
-    }
-
     private static int getNumTransectPixels(final Product product,
                                             final TransectProfileData transectProfileData) {
 
@@ -282,72 +248,143 @@ public class ExportTransectPixelsAction extends ExecCommand {
             int x = (int) Math.floor(pixelPosition.getX());
             int y = (int) Math.floor(pixelPosition.getY());
             if (x >= 0 && x < product.getSceneRasterWidth()
-                    && y >= 0 && y < product.getSceneRasterHeight()) {
+                && y >= 0 && y < product.getSceneRasterHeight()) {
                 numTransectPixels++;
             }
         }
         return numTransectPixels;
     }
 
-    private static void writeHeaderLine(final PrintWriter out,
-                                        final GeoCoding geoCoding,
-                                        final Band[] bands) {
-        out.print("Pixel-X");
-        out.print("\t");
-        out.print("Pixel-Y");
-        out.print("\t");
-        if (geoCoding != null) {
-            out.print("Longitude");
-            out.print("\t");
-            out.print("Latitude");
-            out.print("\t");
-        }
-        for (int i = 0; i < bands.length; i++) {
-            final Band band = bands[i];
-            out.print(band.getName());
-            if (i < bands.length - 1) {
-                out.print("\t");
-            }
-        }
-        out.print("\n");
-    }
 
-    /**
-     * Writes a data line of the dataset to be exported for the given pixel position.
-     *
-     * @param out       the data output writer
-     * @param geoCoding the product's geo-coding
-     * @param bands     the array of bands that provide pixel values
-     * @param x         the current pixel's X coordinate
-     * @param y         the current pixel's Y coordinate
-     */
-    private static void writeDataLine(final PrintWriter out,
+    static class TransectExporter {
+
+        /**
+         * Writes all pixel values of the given product within the given ROI to the specified out.
+         *
+         * @param out     the data output writer
+         * @param product the product providing the pixel values
+         *
+         * @return <code>true</code> for success, <code>false</code> if export has been terminated (by user)
+         */
+        private boolean exportTransectPixels(final PrintWriter out,
+                                             final Product product,
+                                             final TransectProfileData transectProfileData,
+                                             final int numTransectPixels,
+                                             ProgressMonitor pm) {
+
+            final Band[] bands = product.getBands();
+            final GeoCoding geoCoding = product.getGeoCoding();
+            writeFileHeader(out, bands);
+            writeTableHeader(out, geoCoding, bands);
+            final Point2D[] pixelPositions = transectProfileData.getPixelPositions();
+
+            pm.beginTask("Writing pixel data...", numTransectPixels);
+            try {
+                for (Point2D pixelPosition : pixelPositions) {
+                    int x = (int) Math.floor(pixelPosition.getX());
+                    int y = (int) Math.floor(pixelPosition.getY());
+                    if (x >= 0 && x < product.getSceneRasterWidth()
+                        && y >= 0 && y < product.getSceneRasterHeight()) {
+                        writeDataLine(out, geoCoding, bands, x, y);
+                        pm.worked(1);
+                        if (pm.isCanceled()) {
+                            return false;
+                        }
+                    }
+                }
+            } finally {
+                pm.done();
+            }
+
+            return true;
+        }
+
+        private void writeFileHeader(PrintWriter out, Band[] bands) {
+
+            ProductData.UTC utc = ProductData.UTC.create(new Date(), 0);
+            out.printf("# Exported transect on %s%n", utc.format());
+            if (bands.length >= 0) {
+                Product product = bands[0].getProduct();
+                out.printf("# Product name: %s%n", product.getName());
+                if (product.getFileLocation() != null) {
+                    out.printf("# Product file location: %s%n", product.getFileLocation().getAbsolutePath());
+                }
+                float[] wavelengthArray = new float[bands.length];
+                for (int i = 0; i < bands.length; i++) {
+                    wavelengthArray[i] = bands[i].getSpectralWavelength();
+                }
+                out.printf("# Wavelength of bands: %s%n", StringUtils.arrayToString(wavelengthArray, ","));
+
+                float[] solarFluxArray = new float[bands.length];
+                for (int i = 0; i < bands.length; i++) {
+                    solarFluxArray[i] = bands[i].getSolarFlux();
+                }
+                out.printf("# Solar flux of bands: %s%n", StringUtils.arrayToString(solarFluxArray, ","));
+            }
+            out.println();
+
+        }
+
+        private void writeTableHeader(final PrintWriter out,
                                       final GeoCoding geoCoding,
-                                      final Band[] bands,
-                                      int x,
-                                      int y) {
-        final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
-
-        out.print(String.valueOf(pixelPos.x));
-        out.print("\t");
-        out.print(String.valueOf(pixelPos.y));
-        out.print("\t");
-        if (geoCoding != null) {
-            final GeoPos geoPos = geoCoding.getGeoPos(pixelPos, null);
-            out.print(String.valueOf(geoPos.lon));
+                                      final Band[] bands) {
+            out.print("Pixel-X");
             out.print("\t");
-            out.print(String.valueOf(geoPos.lat));
+            out.print("Pixel-Y");
             out.print("\t");
-        }
-        for (int i = 0; i < bands.length; i++) {
-            final Band band = bands[i];
-            final String pixelString = band.getPixelString(x, y);
-            out.print(pixelString);
-            if (i < bands.length - 1) {
+            if (geoCoding != null) {
+                out.print("Longitude");
+                out.print("\t");
+                out.print("Latitude");
                 out.print("\t");
             }
+            for (int i = 0; i < bands.length; i++) {
+                final Band band = bands[i];
+                out.print(band.getName());
+                if (i < bands.length - 1) {
+                    out.print("\t");
+                }
+            }
+            out.print("\n");
         }
-        out.print("\n");
+
+        /**
+         * Writes a data line of the dataset to be exported for the given pixel position.
+         *
+         * @param out       the data output writer
+         * @param geoCoding the product's geo-coding
+         * @param bands     the array of bands that provide pixel values
+         * @param x         the current pixel's X coordinate
+         * @param y         the current pixel's Y coordinate
+         */
+        private void writeDataLine(final PrintWriter out,
+                                   final GeoCoding geoCoding,
+                                   final Band[] bands,
+                                   int x,
+                                   int y) {
+            final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
+
+            out.print(String.valueOf(pixelPos.x));
+            out.print("\t");
+            out.print(String.valueOf(pixelPos.y));
+            out.print("\t");
+            if (geoCoding != null) {
+                final GeoPos geoPos = geoCoding.getGeoPos(pixelPos, null);
+                out.print(String.valueOf(geoPos.lon));
+                out.print("\t");
+                out.print(String.valueOf(geoPos.lat));
+                out.print("\t");
+            }
+            for (int i = 0; i < bands.length; i++) {
+                final Band band = bands[i];
+                final String pixelString = band.getPixelString(x, y);
+                out.print(pixelString);
+                if (i < bands.length - 1) {
+                    out.print("\t");
+                }
+            }
+            out.print("\n");
+        }
     }
 
 }
