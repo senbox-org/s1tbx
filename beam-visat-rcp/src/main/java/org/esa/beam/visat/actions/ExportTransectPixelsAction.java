@@ -309,17 +309,6 @@ public class ExportTransectPixelsAction extends ExecCommand {
                 if (product.getFileLocation() != null) {
                     out.printf("# Product file location: %s%n", product.getFileLocation().getAbsolutePath());
                 }
-                float[] wavelengthArray = new float[bands.length];
-                for (int i = 0; i < bands.length; i++) {
-                    wavelengthArray[i] = bands[i].getSpectralWavelength();
-                }
-                out.printf("# Wavelength of bands: %s%n", StringUtils.arrayToString(wavelengthArray, ","));
-
-                float[] solarFluxArray = new float[bands.length];
-                for (int i = 0; i < bands.length; i++) {
-                    solarFluxArray[i] = bands[i].getSolarFlux();
-                }
-                out.printf("# Solar flux of bands: %s%n", StringUtils.arrayToString(solarFluxArray, ","));
             }
             out.println();
 
@@ -328,6 +317,18 @@ public class ExportTransectPixelsAction extends ExecCommand {
         private void writeTableHeader(final PrintWriter out,
                                       final GeoCoding geoCoding,
                                       final Band[] bands) {
+            float[] wavelengthArray = new float[bands.length];
+            for (int i = 0; i < bands.length; i++) {
+                wavelengthArray[i] = bands[i].getSpectralWavelength();
+            }
+            out.printf("Wavelength:\t \t \t \t%s\n", StringUtils.arrayToString(wavelengthArray, "\t"));
+
+            float[] solarFluxArray = new float[bands.length];
+            for (int i = 0; i < bands.length; i++) {
+                solarFluxArray[i] = bands[i].getSolarFlux();
+            }
+            out.printf("Solar flux:\t \t \t \t%s%n", StringUtils.arrayToString(solarFluxArray, "\t"));
+
             out.print("Pixel-X");
             out.print("\t");
             out.print("Pixel-Y");
