@@ -74,14 +74,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public static final String PROPERTY_NAME_ROI_DEFINITION = "roiDefinition";
     public static final String PROPERTY_NAME_SCALING_FACTOR = "scalingFactor";
     public static final String PROPERTY_NAME_SCALING_OFFSET = "scalingOffset";
-    public static final String PROPERTY_NAME_SAMPLE_RANGE = "sampleRange";
-    public static final String PROPERTY_NAME_SAMPLE_FREQUENCIES = "sampleFrequencies";
     public static final String PROPERTY_NAME_NO_DATA_VALUE = "noDataValue";
     public static final String PROPERTY_NAME_NO_DATA_VALUE_USED = "noDataValueUsed";
     public static final String PROPERTY_NAME_VALID_PIXEL_EXPRESSION = "validPixelExpression";
     public static final String PROPERTY_NAME_GEOCODING = Product.PROPERTY_NAME_GEOCODING;
     public static final String PROPERTY_NAME_STX = "stx";
-    public static final String PROPERTY_NAME_AREA_OF_DATA = "areaOfData";
 
     /**
      * Text returned by the <code>{@link #getPixelString(int, int)}</code> method if no data is available at the given pixel
