@@ -171,6 +171,8 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     @Override
     protected void configureTargetProduct(Product targetProduct) {
+        super.configureTargetProduct(targetProduct);
+
         targetProduct.setName(sourceProduct.getName());
         if (doRadToRefl) {
             targetProduct.setProductType(String.format("%s_REFL", sourceProduct.getProductType()));

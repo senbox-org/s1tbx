@@ -1,7 +1,6 @@
 package org.esa.beam.framework.gpf.pointop;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -11,6 +10,7 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.ProductUtils;
+import org.junit.Test;
 
 import javax.media.jai.JAI;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -19,7 +19,9 @@ import java.awt.image.Raster;
 import java.text.ParseException;
 import java.util.Map;
 
-public class PointOperatorTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class PointOperatorTest {
 
     private static final int M = 1024 * 1024;
 
@@ -58,14 +60,17 @@ public class PointOperatorTest extends TestCase {
         }
     }
 
+    @Test
     public void testNdviSampleOp() throws ParseException {
         testPointOp(new NdviSampleOp(), 128L * M);
     }
 
+    @Test
     public void testNdviPixelOp() throws ParseException {
         testPointOp(new NdviPixelOp(), 128L * M);
     }
 
+    @Test
     public void testNdviPixelOpWithGaps() throws ParseException {
         testPointOp(new NdviPixelOpWithGaps(), 128L * M);
     }
@@ -103,10 +108,10 @@ public class PointOperatorTest extends TestCase {
         System.out.println("  Total time: " + time + " s");
         System.out.println("  Throughput: " + mpixels + " mega-pixels/s");
 
-        assertEquals((30.0f - 20.0f) / (30.0f + 20.0f), ndviData.getSampleFloat(0, 0, 0));
-        assertEquals((30.0f - 20.0f) / (30.0f + 20.0f), ndviData.getSampleFloat(0, 1, 0));
-        assertEquals((30.0f - 20.0f) / (30.0f + 20.0f), ndviData.getSampleFloat(1, 0, 0));
-        assertEquals((30.0f - 20.0f) / (30.0f + 20.0f), ndviData.getSampleFloat(1, 1, 0));
+        assertEquals((30.0f - 20.0f) / (30.0f + 20.0f), ndviData.getSampleFloat(0, 0, 0), 1e-5F);
+        assertEquals((30.0f - 20.0f) / (30.0f + 20.0f), ndviData.getSampleFloat(0, 1, 0), 1e-5F);
+        assertEquals((30.0f - 20.0f) / (30.0f + 20.0f), ndviData.getSampleFloat(1, 0, 0), 1e-5F);
+        assertEquals((30.0f - 20.0f) / (30.0f + 20.0f), ndviData.getSampleFloat(1, 1, 0), 1e-5F);
         assertEquals(0, ndviFlagsData.getSample(0, 0, 0));
         assertEquals(0, ndviFlagsData.getSample(0, 1, 0));
         assertEquals(0, ndviFlagsData.getSample(1, 0, 0));
@@ -135,6 +140,7 @@ public class PointOperatorTest extends TestCase {
 
         @Override
         public void configureTargetProduct(Product targetProduct) {
+            super.configureTargetProduct(targetProduct);
             targetProduct.addBand("ndvi", ProductData.TYPE_FLOAT32);
             targetProduct.addBand("ndvi_flags", ProductData.TYPE_INT16);
         }
@@ -169,6 +175,7 @@ public class PointOperatorTest extends TestCase {
 
         @Override
         public void configureTargetProduct(Product targetProduct) {
+            super.configureTargetProduct(targetProduct);
             targetProduct.addBand("ndvi", ProductData.TYPE_FLOAT32);
             targetProduct.addBand("ndvi_flags", ProductData.TYPE_INT16);
         }
@@ -201,6 +208,7 @@ public class PointOperatorTest extends TestCase {
 
         @Override
         public void configureTargetProduct(Product targetProduct) {
+            super.configureTargetProduct(targetProduct);
             targetProduct.addBand("ndvi", ProductData.TYPE_FLOAT32);
             targetProduct.addBand("ndvi_flags", ProductData.TYPE_INT16);
         }

@@ -61,20 +61,24 @@ public abstract class PointOperator extends Operator {
 
     /**
      * Validates the inputs for this operator.
+     * <p/>
      * The default implementation checks whether or source products have the same raster size.
      * Clients may override to perform some extra validation of parameters and source products.
      * Validation failures shall be indicated by throwing an {@link OperatorException}.
+     * <p/>
+     * Clients that require a similar behaviour in their operator shall first call the {@code super} method
+     * in their implementation.
      *
      * @throws OperatorException If the validation of input fails.
      */
     protected void validateInputs() throws OperatorException {
+        checkRasterSize();
     }
 
     /**
      * Creates the target product instance. Called by {@link #initialize()}.
      * <p/>
      * The default implementation creates a target product instance given the raster size of the (first) source product.
-     * Then it sets the target product' start and stop time and copies the tie-point grids and geo-coding.
      *
      * @return A new target product instance.
      * @throws OperatorException If the target product cannot be created.
@@ -91,8 +95,20 @@ public abstract class PointOperator extends Operator {
      * Configures the given target product instance. Called by {@link #initialize()}.
      * <p/>
      * Client implementations of this method usually add product components to the given target product, such as
-     * {@link Band bands} to be computed by this operator, {@link org.esa.beam.framework.datamodel.VirtualBand virtual bands},
-     * {@link org.esa.beam.framework.datamodel.Mask masks} or {@link org.esa.beam.framework.datamodel.SampleCoding sample codings}.
+     * {@link Band bands} to be computed by this operator,
+     * {@link org.esa.beam.framework.datamodel.VirtualBand virtual bands},
+     * {@link org.esa.beam.framework.datamodel.Mask masks}
+     * or {@link org.esa.beam.framework.datamodel.SampleCoding sample codings}.
+     * <p/>
+     * The default implementation retrieves the (first) source product and copies to the target product
+     * <ul>
+     * <li>the start and stop time,</li>
+     * <li>all tie-point grids,</li>
+     * <li>the geo-coding.</li>
+     * </ul>
+     * <p/>
+     * Clients that require a similar behaviour in their operator shall first call the {@code super} method
+     * in their implementation.
      *
      * @param targetProduct The target product to be configured.
      * @throws OperatorException If the target product cannot be configured.
@@ -113,6 +129,8 @@ public abstract class PointOperator extends Operator {
      * Configures all source samples that this operator requires for the computation of target samples.
      * Source sample are defined by using the provided {@link SampleConfigurer}.
      *
+     * <p/> The method is called by {@link #initialize()}.
+     *
      * @param sampleConfigurer The configurer that defines the layout of a pixel.
      * @throws OperatorException If the source samples cannot be configured.
      */
@@ -122,10 +140,33 @@ public abstract class PointOperator extends Operator {
      * Configures all target samples computed by this operator.
      * Target samples are defined by using the provided {@link SampleConfigurer}.
      *
+     * <p/> The method is called by {@link #initialize()}.
+     *
      * @param sampleConfigurer The configurer that defines the layout of a pixel.
      * @throws OperatorException If the target samples cannot be configured.
      */
     protected abstract void configureTargetSamples(SampleConfigurer sampleConfigurer) throws OperatorException;
+
+    /**
+     * Checks if all source products share the same raster size, otherwise throws an exception.
+     * @throws OperatorException If the source product's raster sizes are not equal.
+     */
+    protected void checkRasterSize() throws OperatorException {
+        Product[] sourceProducts = getSourceProducts();
+        int w = 0;
+        int h = 0;
+        for (int i = 0; i < sourceProducts.length; i++) {
+            Product sourceProduct = sourceProducts[i];
+            if (i == 0) {
+                w = sourceProduct.getSceneRasterWidth();
+                h = sourceProduct.getSceneRasterHeight();
+            } else {
+                if (sourceProduct.getSceneRasterWidth() != w || sourceProduct.getSceneRasterHeight() != h) {
+                    throw new OperatorException("Source products must all have the same raster size.");
+                }
+            }
+        }
+    }
 
     Sample[] createSourceSamples(Rectangle targetRectangle, Point location) {
         final Tile[] sourceTiles = getSourceTiles(targetRectangle);

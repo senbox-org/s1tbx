@@ -212,6 +212,8 @@ public class OperatorExecutor2Test {
 
         @Override
         protected void configureTargetProduct(Product targetProduct) {
+            super.configureTargetProduct(targetProduct);
+
             int w = targetProduct.getSceneRasterWidth();
             int h = targetProduct.getSceneRasterHeight();
             targetProduct.addBand("a", ProductData.TYPE_FLOAT32);

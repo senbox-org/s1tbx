@@ -30,9 +30,7 @@ public abstract class SampleOperator extends PointOperator {
      * @param sourceSamples The source samples (= source pixel).
      * @param targetSample  The single target sample.
      */
-    protected abstract void computeSample(int x, int y,
-                                          Sample[] sourceSamples,
-                                          WritableSample targetSample);
+    protected abstract void computeSample(int x, int y, Sample[] sourceSamples, WritableSample targetSample);
 
     /**
      * Overridden to call the {@link #computeSample(int, int, Sample[], WritableSample) computeSample} method for every
