@@ -16,6 +16,8 @@
 
 package org.esa.beam.gpf.operators.reproject;
 
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
@@ -132,13 +134,8 @@ class ReprojectionDialog extends SingleTargetProductDialog {
         }
 
         @Override
-        public void handleParameterLoadRequest(Map<String, Object> parameterMap) {
-            try {
-                form.updateFormModel(parameterMap);
-            } catch (Exception e) {
-                //TODO handle
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
+        public void handleParameterLoadRequest(Map<String, Object> parameterMap) throws ValidationException, ConversionException {
+            form.updateFormModel(parameterMap);
         }
     }
 }

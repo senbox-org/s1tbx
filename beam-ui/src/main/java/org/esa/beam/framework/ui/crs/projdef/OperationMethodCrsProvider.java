@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -38,7 +38,7 @@ import java.util.HashMap;
 
 class OperationMethodCrsProvider extends AbstractCrsProvider {
 
-    private final OperationMethod delegate;
+    final OperationMethod delegate;
 
     OperationMethodCrsProvider(OperationMethod method) {
         super(method.getName().getCode().replace("_", " "), true, true, null);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -53,7 +53,7 @@ public class FailureCasesReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test(expected = OperatorException.class)
     public void testUnknownResamplingMethode() {
-        parameterMap.put("resampling", "Super_Duper_Resampling");
+        parameterMap.put("resamplingName", "Super_Duper_Resampling");
         createReprojectedProduct();
     }
 

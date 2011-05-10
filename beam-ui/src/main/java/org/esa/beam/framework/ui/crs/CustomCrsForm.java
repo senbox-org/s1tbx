@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,8 +19,11 @@ package org.esa.beam.framework.ui.crs;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.crs.projdef.CustomCrsPanel;
+import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.GeodeticDatum;
+import org.opengis.referencing.operation.OperationMethod;
 
 import javax.swing.JComponent;
 import java.beans.PropertyChangeEvent;
@@ -70,5 +73,10 @@ public class CustomCrsForm extends CrsForm {
 
     @Override
     public void prepareHide() {
+    }
+
+    public void setCustom(GeodeticDatum geodeticDatum, OperationMethod mapProjection, ParameterValueGroup parameterValues) {
+        CustomCrsPanel customCrsPanel = (CustomCrsPanel) getCrsUI();
+        customCrsPanel.setCustom(geodeticDatum, mapProjection, parameterValues);
     }
 }

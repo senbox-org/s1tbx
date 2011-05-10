@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -242,6 +242,27 @@ public class CustomCrsPanel extends JPanel {
              }
         }
         return false;
+    }
+
+    public void setCustom(GeodeticDatum geodeticDatum, OperationMethod operationMethod, ParameterValueGroup parameterValues) {
+        String geodeticDatumName = geodeticDatum.getName().getCode();
+        for (GeodeticDatum datum : datumList) {
+            if (datum.getName().getCode().equals(geodeticDatumName)) {
+                vc.setValue(DATUM, datum);
+                break;
+            }
+        }
+        for (AbstractCrsProvider abstractCrsProvider : crsProviderList) {
+            String operationMethodName = operationMethod.getName().getCode();
+            if (abstractCrsProvider instanceof OperationMethodCrsProvider) {
+                OperationMethodCrsProvider operationMethodCrsProvider = (OperationMethodCrsProvider) abstractCrsProvider;
+                if (operationMethodCrsProvider.delegate.getName().getCode().equals(operationMethodName)) {
+                    vc.setValue(OPERATION_WRAPPER, abstractCrsProvider);
+                    break;
+                }
+            }
+        }
+        vc.setValue(PARAMETERS, parameterValues);
     }
 
     private class UpdateListener implements PropertyChangeListener {

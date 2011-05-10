@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -45,7 +45,7 @@ public class OutputGeometryForm extends JPanel {
     private final BindingContext context;
 
     public OutputGeometryForm(OutputGeometryFormModel model) {
-        context = new BindingContext(model.getPropertyContainer());
+        context = new BindingContext(model.getPropertySet());
         createUI();
     }
 

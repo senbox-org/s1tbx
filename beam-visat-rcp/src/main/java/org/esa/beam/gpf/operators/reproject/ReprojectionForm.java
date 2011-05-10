@@ -16,7 +16,11 @@
 
 package org.esa.beam.gpf.operators.reproject;
 
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
@@ -29,6 +33,8 @@ import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
+import org.esa.beam.framework.param.ParamParseException;
+import org.esa.beam.framework.param.ParamValidateException;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.DemSelector;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -39,8 +45,14 @@ import org.esa.beam.framework.ui.crs.OutputGeometryForm;
 import org.esa.beam.framework.ui.crs.OutputGeometryFormModel;
 import org.esa.beam.framework.ui.crs.PredefinedCrsForm;
 import org.esa.beam.util.ProductUtils;
+import org.geotools.referencing.CRS;
+import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.ProjectedCRS;
+import org.opengis.referencing.datum.GeodeticDatum;
+import org.opengis.referencing.operation.OperationMethod;
+import org.opengis.referencing.operation.Projection;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -90,6 +102,7 @@ class ReprojectionForm extends JTabbedPane {
     private InfoForm infoForm;
     private CoordinateReferenceSystem crs;
     private CollocationCrsForm collocationCrsUI;
+    private CustomCrsForm customCrsUI;
 
 
     ReprojectionForm(TargetProductSelector targetProductSelector, boolean orthorectify, AppContext appContext) {
@@ -111,7 +124,7 @@ class ReprojectionForm extends JTabbedPane {
 
     void updateParameterMap(Map<String, Object> parameterMap) {
         parameterMap.clear();
-        parameterMap.put("resamplingName", reprojectionModel.resamplingMethod);
+        parameterMap.put("resamplingName", reprojectionModel.resamplingName);
         parameterMap.put("includeTiePointGrids", reprojectionModel.includeTiePointGrids);
         parameterMap.put("addDeltaBands", reprojectionModel.addDeltaBands);
         parameterMap.put("noDataValue", reprojectionModel.noDataValue);
@@ -131,7 +144,7 @@ class ReprojectionForm extends JTabbedPane {
         }
 
         if (!reprojectionModel.preserveResolution && outputGeometryModel != null) {
-            PropertyContainer container = outputGeometryModel.getPropertyContainer();
+            PropertySet container = outputGeometryModel.getPropertySet();
             parameterMap.put("referencePixelX", container.getValue("referencePixelX"));
             parameterMap.put("referencePixelY", container.getValue("referencePixelY"));
             parameterMap.put("easting", container.getValue("easting"));
@@ -144,35 +157,56 @@ class ReprojectionForm extends JTabbedPane {
         }
     }
 
-    public void updateFormModel(Map<String, Object> parameterMap) throws Exception {
-        //TODO
-//        Object resamplingName = parameterMap.get("resamplingName");
-//        if (resamplingName instanceof String) {
-//            reprojectionModel.resamplingMethod = (String) resamplingName;
-//        }
-//        Object includeTiePointGrids = parameterMap.get("includeTiePointGrids");
-//        if (includeTiePointGrids instanceof Boolean) {
-//            reprojectionModel.includeTiePointGrids = (Boolean) includeTiePointGrids;
-//        }
-//        Object addDeltaBands = parameterMap.get("addDeltaBands");
-//        if (addDeltaBands instanceof Boolean) {
-//            reprojectionModel.addDeltaBands = (Boolean) addDeltaBands;
-//        }
-//        Object noDataValue = parameterMap.get("noDataValue");
-//        if (noDataValue instanceof Double) {
-//            reprojectionModel.noDataValue = (Double) noDataValue;
-//        }
-//        Object orthorectify = parameterMap.get("orthorectify");
-//        if (orthorectify instanceof Boolean) {
-//            if (orthoMode != (Boolean) orthorectify) {
-//                //TODO raise excpetion
-//            }
-//        }
-//        Object elevationModelName = parameterMap.get("elevationModelName");
-//        if (elevationModelName instanceof String) {
-//            demSelector.setDemName((String) elevationModelName);
-//        }
+    public void updateFormModel(Map<String, Object> parameterMap) throws ValidationException, ConversionException {
+        Property[] properties = reprojectionContainer.getProperties();
+        for (Property property : properties) {
+            String propertyName = property.getName();
+            Object newValue = parameterMap.get(propertyName);
+            if (newValue != null) {
+                property.setValue(newValue);
+            }
+        }
+        if (orthoMode) {
+            Object elevationModelName = parameterMap.get("elevationModelName");
+            if (elevationModelName instanceof String) {
+                try {
+                    demSelector.setDemName((String) elevationModelName);
+                } catch (ParamValidateException e) {
+                    throw new ValidationException(e.getMessage(), e);
+                } catch (ParamParseException e) {
+                    throw new ConversionException(e.getMessage(), e);
+                }
+            }
+        }
+        Object crsAsWKT = parameterMap.get("crs");
+        if (crsAsWKT instanceof String) {
+            try {
+                CoordinateReferenceSystem crs = null;
+                crs = CRS.parseWKT((String) crsAsWKT);
+                if (crs instanceof ProjectedCRS) {
+                    ProjectedCRS projectedCRS = (ProjectedCRS) crs;
+                    Projection conversionFromBase = projectedCRS.getConversionFromBase();
+                    OperationMethod operationMethod = conversionFromBase.getMethod();
+                    ParameterValueGroup parameterValues = conversionFromBase.getParameterValues();
+                    GeodeticDatum geodeticDatum = projectedCRS.getDatum();
+                    customCrsUI.setCustom(geodeticDatum, operationMethod, parameterValues);
+                } else {
+                    throw new ConversionException("Failed to convert CRS from WKT.");
+                }
+            } catch (FactoryException e) {
+                throw new ConversionException("Failed to convert CRS from WKT.", e);
+            }
 
+        }
+        if (parameterMap.containsKey("referencePixelX")) {
+            PropertyContainer propertySet = PropertyContainer.createMapBacked(parameterMap);
+            outputGeometryModel = new OutputGeometryFormModel(propertySet);
+            reprojectionContainer.setValue(Model.PRESERVE_RESOLUTION, false);
+        } else {
+            outputGeometryModel = null;
+            reprojectionContainer.setValue(Model.PRESERVE_RESOLUTION, true);
+        }
+        updateCRS();
     }
 
     Map<String, Product> getProductMap() {
@@ -239,7 +273,7 @@ class ReprojectionForm extends JTabbedPane {
         layout.setTableAnchor(TableLayout.Anchor.WEST);
         layout.setTableWeightX(1.0);
         parameterPanel.setLayout(layout);
-        CrsForm customCrsUI = new CustomCrsForm(appContext);
+        customCrsUI = new CustomCrsForm(appContext);
         CrsForm predefinedCrsUI = new PredefinedCrsForm(appContext);
         collocationCrsUI = new CollocationCrsForm(appContext);
         CrsForm[] crsForms = new CrsForm[]{customCrsUI, predefinedCrsUI, collocationCrsUI};
@@ -301,7 +335,7 @@ class ReprojectionForm extends JTabbedPane {
         final Product sourceProduct = getSourceProduct();
         if (sourceProduct != null && crs != null) {
             if (!reprojectionModel.preserveResolution && outputGeometryModel != null) {
-                PropertyContainer container = outputGeometryModel.getPropertyContainer();
+                PropertySet container = outputGeometryModel.getPropertySet();
                 width = (Integer) container.getValue("width");
                 height = (Integer) container.getValue("height");
             } else {
@@ -476,7 +510,7 @@ class ReprojectionForm extends JTabbedPane {
         outputSettingsPanel.add(new JLabel("Resampling method:"));
         JComboBox resampleComboBox = new JComboBox(RESAMPLING_IDENTIFIER);
         resampleComboBox.setPrototypeDisplayValue(RESAMPLING_IDENTIFIER[0]);
-        context.bind(Model.RESAMPLING_METHOD, resampleComboBox);
+        context.bind(Model.RESAMPLING_NAME, resampleComboBox);
         outputSettingsPanel.add(resampleComboBox);
 
         reprojectionContainer.addPropertyChangeListener(Model.PRESERVE_RESOLUTION, new PropertyChangeListener() {
@@ -608,13 +642,13 @@ class ReprojectionForm extends JTabbedPane {
         private static final String REPROJ_TIEPOINTS = "includeTiePointGrids";
         private static final String ADD_DELTA_BANDS = "addDeltaBands";
         private static final String NO_DATA_VALUE = "noDataValue";
-        private static final String RESAMPLING_METHOD = "resamplingMethod";
+        private static final String RESAMPLING_NAME = "resamplingName";
 
         private boolean preserveResolution = true;
         private boolean includeTiePointGrids = true;
         private boolean addDeltaBands = false;
         private double noDataValue = Double.NaN;
-        private String resamplingMethod = RESAMPLING_IDENTIFIER[0];
+        private String resamplingName = RESAMPLING_IDENTIFIER[0];
     }
 
     private static class OrthorectifyProductFilter implements ProductFilter {

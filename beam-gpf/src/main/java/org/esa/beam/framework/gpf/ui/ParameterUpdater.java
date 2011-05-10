@@ -16,6 +16,9 @@
 
 package org.esa.beam.framework.gpf.ui;
 
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.ValidationException;
+
 import java.util.Map;
 
 /**
@@ -32,7 +35,7 @@ public interface ParameterUpdater {
      *
      * @param parameterMap The parameter map
      */
-    void handleParameterSaveRequest(Map<String,Object> parameterMap);
+    void handleParameterSaveRequest(Map<String,Object> parameterMap) throws ValidationException, ConversionException;
 
     /**
      * Called after the parameter ap has been loaded. The implementer
@@ -40,5 +43,5 @@ public interface ParameterUpdater {
      *
      * @param parameterMap The parameter map
      */
-    void handleParameterLoadRequest(Map<String,Object> parameterMap);
+    void handleParameterLoadRequest(Map<String,Object> parameterMap) throws ValidationException, ConversionException;
 }

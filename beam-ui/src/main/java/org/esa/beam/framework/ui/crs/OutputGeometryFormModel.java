@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,6 +17,7 @@ package org.esa.beam.framework.ui.crs;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValueSet;
 import org.esa.beam.framework.datamodel.ImageGeometry;
 import org.esa.beam.framework.datamodel.Product;
@@ -25,7 +26,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashMap;
 
 /**
  * @author Marco Zuehlke
@@ -41,7 +41,15 @@ public class OutputGeometryFormModel {
 
     private transient Product sourceProduct;
     private transient CoordinateReferenceSystem targetCrs;
-    private transient PropertyContainer propertyContainer;
+    private transient PropertySet propertyContainer;
+
+    public OutputGeometryFormModel(PropertySet sourcePropertySet) {
+        init(null,
+             null,
+             FIT_PRODUCT_SIZE_DEFAULT,
+             REFERENCE_PIXEL_DEFAULT,
+             sourcePropertySet);
+    }
 
     public OutputGeometryFormModel(Product sourceProduct, Product collocationProduct) {
         this(sourceProduct, ImageGeometry.createCollocationTargetGeometry(sourceProduct, collocationProduct));
@@ -54,28 +62,40 @@ public class OutputGeometryFormModel {
     }
 
     public OutputGeometryFormModel(OutputGeometryFormModel formModel) {
-        this.sourceProduct = formModel.sourceProduct;
-        this.targetCrs = formModel.targetCrs;
-        this.fitProductSize = formModel.fitProductSize;
-        this.referencePixelLocation = formModel.referencePixelLocation;
-        this.propertyContainer = PropertyContainer.createMapBacked(new HashMap<String, Object>(), ImageGeometry.class);
-        configurePropertyContainer(propertyContainer);
-        Property[] properties = formModel.getPropertyContainer().getProperties();
-        for (Property property : properties) {
-            propertyContainer.setValue(property.getName(), property.getValue());
-        }
+        init(formModel.sourceProduct,
+             formModel.targetCrs,
+             formModel.fitProductSize,
+             formModel.referencePixelLocation,
+             formModel.getPropertySet());
     }
 
     private OutputGeometryFormModel(Product sourceProduct, ImageGeometry imageGeometry) {
-        this.sourceProduct = sourceProduct;
-        this.targetCrs = imageGeometry.getMapCrs();
-        this.referencePixelLocation = REFERENCE_PIXEL_DEFAULT;
-        this.fitProductSize = FIT_PRODUCT_SIZE_DEFAULT;
-        this.propertyContainer =  PropertyContainer.createObjectBacked(imageGeometry);
-        configurePropertyContainer(propertyContainer);
+        init(sourceProduct,
+             imageGeometry.getMapCrs(),
+             FIT_PRODUCT_SIZE_DEFAULT,
+             REFERENCE_PIXEL_DEFAULT,
+             PropertyContainer.createObjectBacked(imageGeometry));
     }
 
-    public PropertyContainer getPropertyContainer() {
+    private void init(Product sourceProduct, CoordinateReferenceSystem targetCrs, boolean fitProductSize, int referencePixelLocation, PropertySet sourcePropertySet) {
+        this.sourceProduct = sourceProduct;
+        this.targetCrs = targetCrs;
+        this.fitProductSize = fitProductSize;
+        this.referencePixelLocation = referencePixelLocation;
+
+        this.propertyContainer = PropertyContainer.createValueBacked(ImageGeometry.class);
+        configurePropertyContainer(propertyContainer);
+
+        Property[] properties = sourcePropertySet.getProperties();
+        for (Property property : properties) {
+            if (propertyContainer.isPropertyDefined(property.getName())) {
+                propertyContainer.setValue(property.getName(), property.getValue());
+            }
+        }
+
+    }
+
+    public PropertySet getPropertySet() {
         return propertyContainer;
     }
 
@@ -100,18 +120,18 @@ public class OutputGeometryFormModel {
         propertyContainer.setValue("fitProductSize", FIT_PRODUCT_SIZE_DEFAULT);
     }
 
-    private void configurePropertyContainer(PropertyContainer pc) {
-        PropertyContainer thisVC = PropertyContainer.createObjectBacked(this);
-        pc.addProperties(thisVC.getProperties());
+    private void configurePropertyContainer(PropertySet ps) {
+        PropertySet thisPS = PropertyContainer.createObjectBacked(this);
+        ps.addProperties(thisPS.getProperties());
 
-        pc.getDescriptor("referencePixelLocation").setValueSet(new ValueSet(new Integer[]{0, 1, 2}));
-        setAxisUnits(pc);
-        pc.getDescriptor("orientation").setUnit("°");
+        ps.getDescriptor("referencePixelLocation").setValueSet(new ValueSet(new Integer[]{0, 1, 2}));
+        setAxisUnits(ps);
+        ps.getDescriptor("orientation").setUnit("°");
 
-        pc.addPropertyChangeListener(new ChangeListener());
+        ps.addPropertyChangeListener(new ChangeListener());
     }
 
-    private void setAxisUnits(PropertyContainer pc) {
+    private void setAxisUnits(PropertySet pc) {
         if (targetCrs != null) {
             String crsAxisUnit = targetCrs.getCoordinateSystem().getAxis(0).getUnit().toString();
             pc.getDescriptor("easting").setUnit(crsAxisUnit);
