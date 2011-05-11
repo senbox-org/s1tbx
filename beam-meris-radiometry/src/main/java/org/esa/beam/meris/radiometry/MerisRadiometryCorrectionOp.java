@@ -175,8 +175,8 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
         productConfigurer.copyMetadata();
         productConfigurer.copyTimeCoding();
+        productConfigurer.copyTiePointGrids(); // fixme: always need to copy tie-points before copying geo-coding (nf)
         productConfigurer.copyGeoCoding();
-        productConfigurer.copyTiePointGrids();
 
         Product targetProduct = productConfigurer.getTargetProduct();
         targetProduct.setName(sourceProduct.getName());
