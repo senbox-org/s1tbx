@@ -503,7 +503,7 @@ class ReprojectionForm extends JTabbedPane {
         outputSettingsPanel.add(noDataField);
         context.bind(Model.NO_DATA_VALUE, noDataField);
 
-        JCheckBox addDeltaBandsChecker = new JCheckBox("Add delta bands");
+        JCheckBox addDeltaBandsChecker = new JCheckBox("Add delta lat/lon bands");
         outputSettingsPanel.add(addDeltaBandsChecker);
         context.bind(Model.ADD_DELTA_BANDS, addDeltaBandsChecker);
 
