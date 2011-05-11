@@ -61,7 +61,7 @@ In this case, information on the usage and a list of all available parameters ar
 <p align="center"><img src="images/CommandLine.png"></p>
 
 If MERIS N1 products shall be written as output result a graph xml file has to be created.
-This xml file should concatenate the Meris.CorrectRadiometry operator and the N1Patcher operator.
+This xml file should concatenate the Meris.CorrectRadiometry operator and the Meris.N1Patcher operator.
 A possible graph xml file would look like the following. For demonstration purpose only
 the necessary parameter have been set.
 <pre>
@@ -76,7 +76,7 @@ the necessary parameter have been set.
 
         &lt;/node&gt;
         &lt;node id="n1Writer"&gt;
-            &lt;operator&gt;N1Patcher&lt;/operator&gt;
+            &lt;operator&gt;Meris.N1Patcher&lt;/operator&gt;
             &lt;sources&gt;
                 &lt;n1&gt;${n1Product}&lt;/n1&gt;
                 &lt;input&gt;radiometry&lt;/input&gt;

@@ -47,10 +47,30 @@ import java.io.InputStream;
 import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 
 
+/**
+ * This operator is used to perform radiometric corrections on MERIS L1b data products.
+ * The corrections include the following optional steps:
+ * <ul>
+ * <li><b>Radiometric re-calibration</b><br/>
+ * Multiplies the inverse gains of the 2nd reprocessing and multiplies the gains of 3rd reprocessing
+ * to the radiance values.</li>
+ * <li><b>Smile-effect correction</b><br/>
+ * Corrects the radiance values for the small variations of the spectral wavelength
+ * of each pixel along the image (smile-effect).
+ * </li>
+ * <li><b>Meris equalisation</b><br/>
+ * Removes systematic detector-to-detector radiometric differences in MERIS L1b data products. </li>
+ * <li><b>Radiance-to-reflectance conversion</b><br/>
+ * Converts the TOA radiance values into TOA reflectance values. </li>
+ * </ul>
+ *
+ * @author Marco Peters
+ * @since BEAM 4.9
+ */
 @OperatorMetadata(alias = "Meris.CorrectRadiometry",
                   description = "Performs radiometric corrections on MERIS L1b data products.",
                   authors = "Marc Bouvet (ESTEC); Marco Peters, Ralf Quast, Thomas Storm, Marco Zuehlke (Brockmann Consult)",
-                  copyright = "(c) 2010 by Brockmann Consult",
+                  copyright = "(c) 2011 by Brockmann Consult",
                   version = "1.0")
 public class MerisRadiometryCorrectionOp extends SampleOperator {
 
@@ -87,7 +107,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT", "REPROCESSING_2", "REPROCESSING_3"},
                defaultValue = "AUTO_DETECT",
                description = "The version of the reprocessing the product comes from. Is only used if " +
-                       "equalisation is enabled.")
+                             "equalisation is enabled.")
     private ReprocessingVersion reproVersion;
 
     @Parameter(defaultValue = "false",
@@ -125,11 +145,10 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private transient int flagBandIndex;
 
     @Override
-    protected Product createTargetProduct() throws OperatorException {
-        // TODO should make initialize not final in PointOperator?
+    protected void prepareInputs() throws OperatorException {
+        super.prepareInputs();
         validateSourceProduct();
         initAlgorithms();
-        return super.createTargetProduct();
     }
 
     @Override
@@ -172,11 +191,8 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     @Override
     protected void configureTargetProduct(ProductConfigurer productConfigurer) {
-
         productConfigurer.copyMetadata();
         productConfigurer.copyTimeCoding();
-        productConfigurer.copyTiePointGrids(); // fixme: always need to copy tie-points before copying geo-coding (nf)
-        productConfigurer.copyGeoCoding();
 
         Product targetProduct = productConfigurer.getTargetProduct();
         targetProduct.setName(sourceProduct.getName());
@@ -222,7 +238,8 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             }
         }
 
-        productConfigurer.copyBands(MERIS_DETECTOR_INDEX_DS_NAME, MERIS_L1B_FLAGS_DS_NAME);
+        productConfigurer.copyTiePointGrids(); // fixme: always need to copy tie-points before copying geo-coding (nf)
+        productConfigurer.copyGeoCoding();
 
         // copy all source bands yet ignored
         for (final Band sourceBand : sourceProduct.getBands()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -50,7 +50,10 @@ import java.io.IOException;
  *
  * @author Marco Zuehlke
  */
-@OperatorMetadata(alias = "N1Patcher")
+@OperatorMetadata(alias = "Meris.N1Patcher",
+                  description = "Copies an existing N1 file and replaces the data for the radiance bands",
+                  version = "1.1",
+                  authors = "Marco Zuehlke, Olaf Danne, Marco Peters")
 public class N1PatcherOp extends MerisBasisOp implements Output {
 
     // MPH:
@@ -116,9 +119,11 @@ public class N1PatcherOp extends MerisBasisOp implements Output {
     @Parameter(description = "The file to which the patched L1b product is written.")
     private File patchedFile = null;
 
-    @SourceProduct(alias = "n1")
+    @SourceProduct(alias = "n1", description = "The N1 file which is used as a template.")
     private Product n1Product;
-    @SourceProduct(alias = "input")
+
+    @SourceProduct(alias = "input",
+                   description = "The source product provides the data to be written into the patched file.")
     private Product sourceProduct;
 
     @TargetProduct

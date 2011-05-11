@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
   ~
   ~ This program is free software; you can redistribute it and/or modify it
   ~ under the terms of the GNU General Public License as published by the Free
@@ -36,9 +36,9 @@
 <h3>Algorithm Specification</h3>
 
 <p>The impact of the radiometric calibration changes was assessed by comparing RR products processed with 2nd
-    reprocessing
-    and 3rd reprocessing configuration. FR products in 3rd reprocessing configuration were not available at time of the
-    analysis. A method was developed to correct 2nd reprocessing Level 1 products to 3rd reprocessing quality.</p>
+    reprocessing and 3rd reprocessing configuration. FR products in 3rd reprocessing configuration were not
+    available at time of the analysis. A method was developed to correct 2nd reprocessing Level 1 products
+    to 3rd reprocessing quality.</p>
 
 <p>MERIS standard processing algorithms are revised, and as part of this, the degradation model of the calibration
     diffuser has been improved, which results in updated gain values per detector. This is applied in L0 to L1
@@ -50,15 +50,14 @@
 
 <p>The radiometric calibration as described below is a non-linear process including several steps. The radiometric
     gains are the second last step before the L1b are written. However, the last step is the stray light correction
-    which
-    is a non-linear process and not revertible from L1b product. The recalibration is therefore only an
+    which is a non-linear process and not revertible from L1b product. The recalibration is therefore only an
     approximation.</p>
 
 <p>The valid MERIS samples are digital counts resulting from the detection and acquisition by MERIS of a bi-dimensional
     field of spectral radiance in front of the instrument. The objective of the radiometric processing, together with
-    the
-    stray light correction, is to estimate that spectral radiance. An inverse model of the MERIS processing is used for
-    that purpose, using parameters stored in the Characterisation and Radiometric Calibration data bases and the MERIS
+    the stray light correction, is to estimate that spectral radiance. An inverse model of the MERIS processing is used
+    for that purpose, using parameters stored in the Characterisation and Radiometric Calibration data bases and the
+    MERIS
     samples themselves. The MERIS acquisition model may be described as:</p>
 
 <p align="center"><img src="images/AcquisitionModelEquation.png"></p>
@@ -96,8 +95,9 @@
 
 <p><img src="images/RecalibrationEquation.png"/></p>
 
-<p>Where <b>R<sub>b,k,m,f</sub></b> are the spectral radiances before the straylight correction. The 2nd reprocessing
-    radiometric gains (AL) are multiplied to R, and then the inverse of the 3rd reprocessing gains are multiplied to
+<p>Where <b>R<sub>b,k,m,f</sub></b> are the spectral radiances before the straylight correction. The inverse of the
+    2nd reprocessing radiometric gains (AL) are multiplied to R, and then the gains of the 3rd reprocessing are
+    multiplied to
     give an estimate of the 3rd reprocessing radiances.</p>
 
 <hr>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -81,53 +81,53 @@ import java.text.MessageFormat;
  * Beside plain reprojection it is able to use a Digital Elevation Model (DEM) to orthorectify a data product and
  * to collocate one product with another.
  * <p/>
- * The following XML sample shaows how to integrate the <code>Reproject</code> operator in a processing graph (an
+ * The following XML sample shows how to integrate the <code>Reproject</code> operator in a processing graph (an
  * Lambert_Azimuthal_Equal_Area projection using the WGS-84 datum):
  * <pre>
-*    &lt;node id="reprojectNode"&gt;
-*        &lt;operator&gt;Reproject&lt;/operator&gt;
-*        &lt;sources&gt;
-*            &lt;sourceProducts&gt;readNode&lt;/sourceProducts&gt;
-*        &lt;/sources&gt;
-*        &lt;parameters&gt;
-*            &lt;wktFile/&gt;
-*            &lt;crs&gt;
-*              PROJCS["Lambert_Azimuthal_Equal_Area / World Geodetic System 1984",
-*                GEOGCS["World Geodetic System 1984",
-*                   DATUM["World Geodetic System 1984",
-*                      SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
-*                   AUTHORITY["EPSG","6326"]],
-*                   PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
-*                   UNIT["degree", 0.017453292519943295],
-*                   AXIS["Geodetic longitude", EAST],
-*                   AXIS["Geodetic latitude", NORTH]],
-*                PROJECTION["Lambert_Azimuthal_Equal_Area"],
-*                PARAMETER["latitude_of_center", 0.0],
-*                PARAMETER["longitude_of_center", 0.0],
-*                PARAMETER["false_easting", 0.0],
-*                PARAMETER["false_northing", 0.0],
-*                UNIT["m", 1.0],
-*                AXIS["Easting", EAST],
-*                AXIS["Northing", NORTH]]
-*            &lt;/crs&gt;
-*            &lt;resampling&gt;Nearest&lt;/resampling&gt;
-*            &lt;referencePixelX&gt;0.5&lt;/referencePixelX&gt;
-*            &lt;referencePixelY&gt;0.5&lt;/referencePixelY&gt;
-*            &lt;easting&gt;9.5&lt;/easting&gt;
-*            &lt;northing&gt;56.84&lt;/northing&gt;
-*            &lt;orientation&gt;0.0&lt;/orientation&gt;
-*            &lt;pixelSizeX&gt;0.012&lt;/pixelSizeX&gt;
-*            &lt;pixelSizeY&gt;0.012&lt;/pixelSizeY&gt;
-*            &lt;width&gt;135010246&lt;/width&gt;
-*            &lt;height&gt;116629771&lt;/height&gt;
-*            &lt;orthorectify&gt;false&lt;/orthorectify&gt;
-*            &lt;elevationModelName/&gt;
-*            &lt;noDataValue&gt;NaN&lt;/noDataValue&gt;
-*            &lt;includeTiePointGrids&gt;true&lt;/includeTiePointGrids&gt;
-*            &lt;addDeltaBands&gt;false&lt;/addDeltaBands&gt;
-*        &lt;/parameters&gt;
-*    &lt;/node&gt;     
- * </pre>    
+ *    &lt;node id="reprojectNode"&gt;
+ *        &lt;operator&gt;Reproject&lt;/operator&gt;
+ *        &lt;sources&gt;
+ *            &lt;sourceProducts&gt;readNode&lt;/sourceProducts&gt;
+ *        &lt;/sources&gt;
+ *        &lt;parameters&gt;
+ *            &lt;wktFile/&gt;
+ *            &lt;crs&gt;
+ *              PROJCS["Lambert_Azimuthal_Equal_Area / World Geodetic System 1984",
+ *                GEOGCS["World Geodetic System 1984",
+ *                   DATUM["World Geodetic System 1984",
+ *                      SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+ *                   AUTHORITY["EPSG","6326"]],
+ *                   PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+ *                   UNIT["degree", 0.017453292519943295],
+ *                   AXIS["Geodetic longitude", EAST],
+ *                   AXIS["Geodetic latitude", NORTH]],
+ *                PROJECTION["Lambert_Azimuthal_Equal_Area"],
+ *                PARAMETER["latitude_of_center", 0.0],
+ *                PARAMETER["longitude_of_center", 0.0],
+ *                PARAMETER["false_easting", 0.0],
+ *                PARAMETER["false_northing", 0.0],
+ *                UNIT["m", 1.0],
+ *                AXIS["Easting", EAST],
+ *                AXIS["Northing", NORTH]]
+ *            &lt;/crs&gt;
+ *            &lt;resampling&gt;Nearest&lt;/resampling&gt;
+ *            &lt;referencePixelX&gt;0.5&lt;/referencePixelX&gt;
+ *            &lt;referencePixelY&gt;0.5&lt;/referencePixelY&gt;
+ *            &lt;easting&gt;9.5&lt;/easting&gt;
+ *            &lt;northing&gt;56.84&lt;/northing&gt;
+ *            &lt;orientation&gt;0.0&lt;/orientation&gt;
+ *            &lt;pixelSizeX&gt;0.012&lt;/pixelSizeX&gt;
+ *            &lt;pixelSizeY&gt;0.012&lt;/pixelSizeY&gt;
+ *            &lt;width&gt;135010246&lt;/width&gt;
+ *            &lt;height&gt;116629771&lt;/height&gt;
+ *            &lt;orthorectify&gt;false&lt;/orthorectify&gt;
+ *            &lt;elevationModelName/&gt;
+ *            &lt;noDataValue&gt;NaN&lt;/noDataValue&gt;
+ *            &lt;includeTiePointGrids&gt;true&lt;/includeTiePointGrids&gt;
+ *            &lt;addDeltaBands&gt;false&lt;/addDeltaBands&gt;
+ *        &lt;/parameters&gt;
+ *    &lt;/node&gt;
+ * </pre>
  *
  * @author Marco Zuehlke
  * @author Marco Peters
@@ -156,9 +156,9 @@ public class ReprojectionOp extends Operator {
     private File wktFile;
 
     @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
-            "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
-            "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
-            "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
+                             "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
+                             "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
+                             "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
     private String crs;
 
     @Parameter(alias = "resampling",
@@ -193,7 +193,7 @@ public class ReprojectionOp extends Operator {
     private boolean orthorectify;
 
     @Parameter(description = "The name of the elevation model for the orthorectification. " +
-            "If not given tie-point data is used.")
+                             "If not given tie-point data is used.")
     private String elevationModelName;
 
     @Parameter(description = "The value used to indicate no-data.")
@@ -594,7 +594,7 @@ public class ReprojectionOp extends Operator {
 
     protected void validateCrsParameters() {
         final String msgPattern = "Invalid target CRS specification.\nSpecify {0} one of the " +
-                "''wktFile'', ''crs'' or ''collocationProduct'' parameters.";
+                                  "''wktFile'', ''crs'' or ''collocationProduct'' parameters.";
 
         if (wktFile == null && crs == null && collocationProduct == null) {
             throw new OperatorException(MessageFormat.format(msgPattern, "at least"));
@@ -648,15 +648,15 @@ public class ReprojectionOp extends Operator {
 
     void validateReferencingParameters() {
         if (!((referencePixelX == null && referencePixelY == null && easting == null && northing == null)
-                || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
+              || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
             throw new OperatorException("Invalid referencing parameters: \n" +
-                                                "'referencePixelX', 'referencePixelY', 'easting' and 'northing' have to be specified either all or not at all.");
+                                        "'referencePixelX', 'referencePixelY', 'easting' and 'northing' have to be specified either all or not at all.");
         }
     }
 
     void validateTargetGridParameters() {
         if ((pixelSizeX != null && pixelSizeY == null) ||
-                (pixelSizeX == null && pixelSizeY != null)) {
+            (pixelSizeX == null && pixelSizeY != null)) {
             throw new OperatorException("'pixelSizeX' and 'pixelSizeY' must be specified both or not at all.");
         }
     }
@@ -696,7 +696,8 @@ public class ReprojectionOp extends Operator {
         deltaLatBand.setNoDataValue(noDataValue);
         deltaLatBand.setImageInfo(createDeltaBandImageInfo(-0.01, +0.01));
 
-        final Band deltaLonMetBand = targetProduct.addBand("delta_lon_metric", "cos(rad(LAT)) * 6378137 * rad(longitude - LON)");
+        final Band deltaLonMetBand = targetProduct.addBand("delta_lon_metric",
+                                                           "cos(rad(LAT)) * 6378137 * rad(longitude - LON)");
         deltaLonMetBand.setUnit("m");
         deltaLonMetBand.setDescription("Delta between old longitude and new longitude in meters");
         deltaLonMetBand.setNoDataValueUsed(true);

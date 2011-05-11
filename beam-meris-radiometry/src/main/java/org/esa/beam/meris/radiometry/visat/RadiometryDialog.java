@@ -64,7 +64,7 @@ class RadiometryDialog extends SingleTargetProductDialog {
             final HashMap<String, Product> sourceProductMap = new HashMap<String, Product>();
             sourceProductMap.put("n1", form.getSourceProduct());
             sourceProductMap.put("input", radioCorrProduct);
-            return GPF.createProduct("N1Patcher", n1Parameters, sourceProductMap);
+            return GPF.createProduct("Meris.N1Patcher", n1Parameters, sourceProductMap);
         }
         return radioCorrProduct;
     }
