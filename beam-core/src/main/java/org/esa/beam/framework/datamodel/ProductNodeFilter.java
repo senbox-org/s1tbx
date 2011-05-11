@@ -21,7 +21,7 @@ package org.esa.beam.framework.datamodel;
  * <p/>
  * <p> Instances of this interface may be passed to the {@link ProductNodeList#createSubset(ProductNodeFilter)} method.
  */
-public interface ProductNodeFilter {
+public interface ProductNodeFilter<T extends ProductNode> {
 
     /**
      * Tests whether or not the specified abstract product node should be included in a product node list.
@@ -30,5 +30,5 @@ public interface ProductNodeFilter {
      *
      * @return true if and only if product node should be included
      */
-    boolean accept(ProductNode productNode);
+    boolean accept(T productNode);
 }

@@ -253,7 +253,7 @@ public final class ProductNodeList<T extends ProductNode> {
      * @param filter the product node filter to be used, if <code>null</code> a clone of this list is created
      * @return the subset
      */
-    public ProductNodeList<T> createSubset(ProductNodeFilter filter) {
+    public ProductNodeList<T> createSubset(ProductNodeFilter<T> filter) {
         ProductNodeList<T> list = new ProductNodeList<T>();
         for (int i = 0; i < size(); i++) {
             T node = getAt(i);
