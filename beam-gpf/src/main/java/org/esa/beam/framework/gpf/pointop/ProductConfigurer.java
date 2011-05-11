@@ -1,7 +1,24 @@
+/*
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.framework.gpf.pointop;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeFilter;
 
 /**
  * A {@code ProductConfigurer} is used to configure a target product with respect to a current source product
@@ -15,6 +32,7 @@ import org.esa.beam.framework.datamodel.Product;
  * @author Marco Peters
  * @author Ralf Quast
  * @author Marco Zuehlke
+ * @author Thomas Storm
  * @since BEAM 4.9
  */
 public interface ProductConfigurer {
@@ -34,6 +52,8 @@ public interface ProductConfigurer {
     void copyTiePointGrids(String... gridName);
 
     void copyBands(String... bandName);
+
+    void copyBands(ProductNodeFilter<Band> filter);
 
     void copyVectorData();
 

@@ -1,9 +1,26 @@
+/*
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.framework.gpf.pointop;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeFilter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -87,6 +104,7 @@ public abstract class PointOperator extends Operator {
      * The default implementation creates a target product instance given the raster size of the (first) source product.
      *
      * @return A new target product instance.
+     *
      * @throws OperatorException If the target product cannot be created.
      */
     protected Product createTargetProduct() throws OperatorException {
@@ -117,6 +135,7 @@ public abstract class PointOperator extends Operator {
      * in their implementation.
      *
      * @param productConfigurer The target product configurer.
+     *
      * @throws OperatorException If the target product cannot be configured.
      * @see Product#addBand(org.esa.beam.framework.datamodel.Band)
      * @see Product#addBand(String, String)
@@ -136,6 +155,7 @@ public abstract class PointOperator extends Operator {
      * <p/> The method is called by {@link #initialize()}.
      *
      * @param sampleConfigurer The configurer that defines the layout of a pixel.
+     *
      * @throws OperatorException If the source samples cannot be configured.
      */
     protected abstract void configureSourceSamples(SampleConfigurer sampleConfigurer) throws OperatorException;
@@ -147,6 +167,7 @@ public abstract class PointOperator extends Operator {
      * <p/> The method is called by {@link #initialize()}.
      *
      * @param sampleConfigurer The configurer that defines the layout of a pixel.
+     *
      * @throws OperatorException If the target samples cannot be configured.
      */
     protected abstract void configureTargetSamples(SampleConfigurer sampleConfigurer) throws OperatorException;
@@ -234,6 +255,7 @@ public abstract class PointOperator extends Operator {
     }
 
     private static final class WritableSampleImpl implements WritableSample {
+
         static final WritableSampleImpl NULL = new WritableSampleImpl();
 
         private final int index;
@@ -370,7 +392,8 @@ public abstract class PointOperator extends Operator {
         }
     }
 
-    private final class ProductConfigurerImpl implements ProductConfigurer {
+    private static final class ProductConfigurerImpl implements ProductConfigurer {
+
         private Product sourceProduct;
         private final Product targetProduct;
 
@@ -416,11 +439,17 @@ public abstract class PointOperator extends Operator {
                 names = getSourceProduct().getBandNames();
             }
             for (String name : names) {
-                Band targetBand = ProductUtils.copyBand(name, getSourceProduct(), getTargetProduct());
-                Band sourceBand = getSourceProduct().getBand(name);
-                targetBand.setSourceImage(sourceBand.getSourceImage());
-                maybeCopyFlagCoding(sourceBand, targetBand);
-                maybeCopyIndexCoding(sourceBand, targetBand);
+                copyBand(name);
+            }
+        }
+
+        @Override
+        public void copyBands(ProductNodeFilter<Band> filter) {
+            Band[] sourceBands = getSourceProduct().getBands();
+            for (Band sourceBand : sourceBands) {
+                if (filter.accept(sourceBand)) {
+                    copyBand(sourceBand.getName());
+                }
             }
         }
 
@@ -463,6 +492,14 @@ public abstract class PointOperator extends Operator {
             band.setNoDataValue(noDataValue);
             band.setNoDataValueUsed(true);
             return band;
+        }
+
+        private void copyBand(String name) {
+            Band sourceBand = getSourceProduct().getBand(name);
+            Band targetBand = ProductUtils.copyBand(name, getSourceProduct(), getTargetProduct());
+            targetBand.setSourceImage(sourceBand.getSourceImage());
+            maybeCopyFlagCoding(sourceBand, targetBand);
+            maybeCopyIndexCoding(sourceBand, targetBand);
         }
 
         private void maybeCopyFlagCoding(Band sourceBand, Band targetBand) {
