@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
   ~
   ~ This program is free software; you can redistribute it and/or modify it
   ~ under the terms of the GNU General Public License as published by the Free
@@ -77,29 +77,29 @@
 <p>The irradiance correction corrects the variation of the solar irradiance, which
     is different between the wavelength of the pixel and the reference wavelength:</p>
 
-<p><img src="images/SmileEquation001.png"> (eq. 1)</p>
+<p>Equation 1:</p>
+<img src="images/SmileEquation001.png">
 
 <p>The reflectance correction is interpolating along the slope of the reflectances
     between adjacent wavelengths from the pixel-wavelengths to the reference wavelength:</p>
 
-<p><img src="images/SmileEquation002.png"> (eq. 2)</p>
+<p>Equation 2:</p>
+<img src="images/SmileEquation002.png">
 
 <p>The smile corrected radiance is the sum of the two terms:</p>
 
-<p><img src="images/SmileEquation003.png"> (eq. 3)</p>
+<p>Equation 3:</p>
+<img src="images/SmileEquation003.png">
 
 <p>While the irradiance correction can be applied to all 15 bands, it is not possible
     to define for each band two adjacent bands, which are suitable universally to
     give a good estimation of the spectral slope within the band. In order to overcome
     this problem at least partially, different adjacent bands have been selected
     for land and water pixels. However, for the bands in absorption lines, i.e.
-    bands 11 and 15, it is totally impossible to find suitable adjacent bands. Also,
-    over land the shape of the spectrum varies very much for bands greater band
-    3, i.e. it is not possible to select adjacent bands for those bands. In these
-    cases, the reflectance correction is not applied. Table 1 specifies the bands,
-    which are reflectance corrected, and which bands are being used as adjacent
-    bands. These settings are specified in an <a href="SmileCorrAuxDataFiles.html">auxiliary
-        table</a> and can be changed there.</p>
+    bands 11 and 15, it is totally impossible to find suitable adjacent bands.
+    Table 1 specifies the bands, which are reflectance corrected, and which bands are
+    being used as adjacent bands. These settings are specified in an
+    <a href="SmileCorrAuxDataFiles.html">auxiliary table</a> and can be changed there.</p>
 <table border="1">
     <tr>
         <td width="80">&nbsp;</td>
@@ -142,7 +142,7 @@
         <td width="132">1</td>
         <td width="127">2</td>
         <td width="253">412.5</td>
-        <td width="116">1713.641724</td>
+        <td width="116">1713.69</td>
     </tr>
     <tr>
         <td width="80">2</td>
@@ -153,7 +153,7 @@
         <td width="132">1</td>
         <td width="127">3</td>
         <td width="253">442.5</td>
-        <td width="116">1877.435669</td>
+        <td width="116">1877.57</td>
     </tr>
     <tr>
         <td width="80">3</td>
@@ -164,84 +164,84 @@
         <td width="132">2</td>
         <td width="127">4</td>
         <td width="253">490</td>
-        <td width="116">1929.325562</td>
+        <td width="116">1929.26</td>
     </tr>
     <tr>
         <td width="80">4</td>
-        <td width="100">0</td>
+        <td width="100">1</td>
         <td width="139">3</td>
         <td width="130">5</td>
         <td width="102">1</td>
         <td width="132">3</td>
         <td width="127">5</td>
         <td width="253">510</td>
-        <td width="116">1926.839233</td>
+        <td width="116">1926.89</td>
     </tr>
     <tr>
         <td width="80">5</td>
-        <td width="100">0</td>
+        <td width="100">1</td>
         <td width="139">4</td>
         <td width="130">6</td>
         <td width="102">1</td>
         <td width="132">4</td>
         <td width="127">6</td>
         <td width="253">560</td>
-        <td width="116">1800.486328</td>
+        <td width="116">1800.46</td>
     </tr>
     <tr>
         <td width="80">6</td>
-        <td width="100">0</td>
+        <td width="100">1</td>
         <td width="139">5</td>
         <td width="130">7</td>
         <td width="102">1</td>
         <td width="132">5</td>
         <td width="127">7</td>
         <td width="253">620</td>
-        <td width="116">1649.709839</td>
+        <td width="116">1649.70</td>
     </tr>
     <tr>
         <td width="80">7</td>
-        <td width="100">0</td>
+        <td width="100">1</td>
         <td width="139">6</td>
         <td width="130">9</td>
         <td width="102">1</td>
         <td width="132">6</td>
         <td width="127">9</td>
         <td width="253">665</td>
-        <td width="116">1530.904175</td>
+        <td width="116">1530.93</td>
     </tr>
     <tr>
         <td width="80">8</td>
-        <td width="100">0</td>
+        <td width="100">1</td>
         <td width="139">7</td>
-        <td width="130">9</td>
+        <td width="130">8</td>
         <td width="102">0</td>
         <td width="132">7</td>
         <td width="127">9</td>
         <td width="253">681.25</td>
-        <td width="116">1470.22644</td>
+        <td width="116">1470.23</td>
     </tr>
     <tr>
         <td width="80">9</td>
-        <td width="100">0</td>
-        <td width="139">8</td>
-        <td width="130">9</td>
+        <td width="100">1</td>
+        <td width="139">9</td>
+        <td width="130">10</td>
         <td width="102">1</td>
         <td width="132">8</td>
         <td width="127">9</td>
         <td width="253">708.75</td>
-        <td width="116">1405.468872</td>
+        <td width="116">1405.47</td>
     </tr>
     <tr>
         <td width="80">10</td>
-        <td width="100">0</td>
+        <td width="100">1</td>
         <td width="139">10</td>
         <td width="130">12</td>
         <td width="102">1</td>
         <td width="132">10</td>
         <td width="127">12</td>
         <td width="253">753.75</td>
-        <td width="116">1266.198853</td>
+        <td width="116">1266.20</td>
     </tr>
     <tr>
         <td width="80">11</td>
@@ -252,40 +252,40 @@
         <td width="132">10</td>
         <td width="127">12</td>
         <td width="253">761.875</td>
-        <td width="116">1249.881592</td>
+        <td width="116">1249.80</td>
     </tr>
     <tr>
         <td width="80">12</td>
-        <td width="100">0</td>
+        <td width="100">1</td>
         <td width="139">10</td>
         <td width="130">12</td>
         <td width="102">1</td>
         <td width="132">10</td>
         <td width="127">12</td>
         <td width="253">778.75</td>
-        <td width="116">1175.723267</td>
+        <td width="116">1175.74</td>
     </tr>
     <tr>
         <td width="80">13</td>
-        <td width="100">0</td>
+        <td width="100">1</td>
         <td width="139">13</td>
         <td width="130">14</td>
         <td width="102">1</td>
         <td width="132">13</td>
         <td width="127">14</td>
         <td width="253">865</td>
-        <td width="116">958.885498</td>
+        <td width="116">958.763</td>
     </tr>
     <tr>
         <td width="80">14</td>
-        <td width="100">0</td>
+        <td width="100">1</td>
         <td width="139">13</td>
         <td width="130">14</td>
         <td width="102">0</td>
         <td width="132">13</td>
         <td width="127">14</td>
         <td width="253">885</td>
-        <td width="116">929.7631836</td>
+        <td width="116">929.786</td>
     </tr>
     <tr>
         <td width="80">15</td>
@@ -296,7 +296,7 @@
         <td width="132">13</td>
         <td width="127">14</td>
         <td width="253">900</td>
-        <td width="116">895.4086304</td>
+        <td width="116">895.460</td>
     </tr>
 </table>
 <p>Table 1: Standard configuration of the smile correction (equal to the current
