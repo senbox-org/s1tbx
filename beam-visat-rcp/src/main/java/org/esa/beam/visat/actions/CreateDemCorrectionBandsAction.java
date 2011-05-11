@@ -100,8 +100,7 @@ public class CreateDemCorrectionBandsAction extends ExecCommand {
                      demDescriptor,
                      dialogData.outputElevationBand ? dialogData.elevationBandName : null,
                      dialogData.outputGeoCodingBands ? dialogData.latitudeBandName : null,
-                     dialogData.outputGeoCodingBands ? dialogData.longitudeBandName : null
-        );
+                     dialogData.outputGeoCodingBands ? dialogData.longitudeBandName : null);
     }
 
     @Override
@@ -254,6 +253,10 @@ public class CreateDemCorrectionBandsAction extends ExecCommand {
         /*row 4*/
         parameterPanel.add(longitudeBandNameLabel);
         parameterPanel.add(longitudeBandNameField);
+
+        boolean outputGeoCodingBandsEnabled = product.getNumBands() > 0 && product.getBandAt(0).getPointing() != null;
+        outputGeoCodingBandsChecker.setSelected(outputGeoCodingBandsEnabled);
+        outputGeoCodingBandsChecker.setEnabled(outputGeoCodingBandsEnabled);
 
         final ModalDialog dialog = new ModalDialog(VisatApp.getApp().getMainFrame(), DIALOG_TITLE, ModalDialog.ID_OK_CANCEL, getHelpId());
         dialog.setContent(parameterPanel);
