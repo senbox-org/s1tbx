@@ -82,6 +82,10 @@ import java.util.Map;
  *   writeOp.setWriteEntireTileRows(true);
  *   writeOp.writeProduct(progressMonitor);
  * </pre>
+ *
+ * @author Norman Fomferra
+ * @author Marco Zuehlke
+ * @since BEAM 4.2
  */
 @OperatorMetadata(alias = "Write",
                   version = "1.3",

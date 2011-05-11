@@ -6,9 +6,9 @@
         "http://java.sun.com/products/javahelp/toc_2_0.dtd">
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
-    <tocitem text="Graph Processing Framework">
-		<tocitem text="Overview" target="gpf.overview"/>
-		<tocitem text="Graph Processing Tool" target="gpf.graphProcessingTool"/>
-		<tocitem text="Common Operators" target="gpf.commonOperators"/>
+    <tocitem text="Graph Processing Framework (GPF)">
+		<tocitem text="GPF Overview" target="gpf.overview"/>
+		<tocitem text="GPF Graph Processing Tool (gpt)" target="gpf.graphProcessingTool"/>
+		<tocitem text="GPF Operator Index" target="gpf.operatorIndex"/>
     </tocitem>
 </toc>

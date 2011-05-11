@@ -35,10 +35,25 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Reads the specified file as product.
+ * Reads the specified file as product. This operator may serve as a source node in processing graphs,
+ * especially if multiple data products need to be read in.
+ * <p/>
+ * Here is a sample of how the <code>Read</code> operator can be integrated as a node within a processing graph:
+ * <pre>
+ *    &lt;node id="readNode"&gt;
+ *        &lt;operator&gt;Read&lt;/operator&gt;
+ *        &lt;parameters&gt;
+ *            &lt;file&gt;/eodata/SST.nc&lt;/file&gt;
+ *        &lt;/parameters&gt;
+ *    &lt;/node&gt;
+ * </pre>
+ *
+ * @author Norman Fomferra
+ * @author Marco Zuehlke
+ * @since BEAM 4.2
  */
 @OperatorMetadata(alias = "Read",
-                  version="1.1",
+                  version = "1.1",
                   authors = "Marco Zuehlke, Norman Fomferra",
                   copyright = "(c) 2010 by Brockmann Consult",
                   description = "Reads a product from disk.")

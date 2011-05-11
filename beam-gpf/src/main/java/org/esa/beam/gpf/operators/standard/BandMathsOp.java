@@ -63,12 +63,66 @@ import java.util.Map;
  * </p>
  * <p>
  * When using this operator from the command-line Graph XML file must be provided in order to
- * specify all parameters.
+ * specify all parameters. Here is some sample XML of how to use a <code>BandMaths</code> node within
+ * a graph:
  * </p>
+ * <pre>
+ *      &lt;node id="bandMathsNode"&gt;
+ *        &lt;operator&gt;BandMaths&lt;/operator&gt;
+ *        &lt;sources&gt;
+ *            &lt;sourceProducts&gt;readNode&lt;/sourceProducts&gt;
+ *        &lt;/sources&gt;
+ *        &lt;parameters&gt;
+ *            &lt;targetBands&gt;
+ *                &lt;targetBand&gt;
+ *                    &lt;name&gt;reflec_13&lt;/name&gt;
+ *                    &lt;expression&gt;radiance_13 / (PI * SOLAR_FLUX_13)&lt;/expression&gt;
+ *                    &lt;description&gt;TOA reflectance in channel 13&lt;/description&gt;
+ *                    &lt;type&gt;float&lt;/type&gt;
+ *                    &lt;validExpression&gt;reflec_13 &gt;= 0&lt;/validExpression&gt;
+ *                    &lt;noDataValue&gt;-999&lt;/noDataValue&gt;
+ *                    &lt;spectralBandIndex&gt;13&lt;/spectralBandIndex&gt;
+ *                &lt;/targetBand&gt;
+ *                &lt;targetBand&gt;
+ *                    &lt;name&gt;reflec_14&lt;/name&gt;
+ *                    &lt;expression&gt;radiance_14 / (PI * SOLAR_FLUX_14)&lt;/expression&gt;
+ *                    &lt;description&gt;TOA reflectance in channel 14&lt;/description&gt;
+ *                    &lt;type&gt;float&lt;/type&gt;
+ *                    &lt;validExpression&gt;reflec_14 &gt;= 0&lt;/validExpression&gt;
+ *                    &lt;noDataValue&gt;-999&lt;/noDataValue&gt;
+ *                    &lt;spectralBandIndex&gt;14&lt;/spectralBandIndex&gt;
+ *                &lt;/targetBand&gt;
+ *            &lt;/targetBands&gt;
+ *            &lt;variables&gt;
+ *                &lt;variable&gt;
+ *                    &lt;name&gt;SOLAR_FLUX_13&lt;/name&gt;
+ *                    &lt;type&gt;float&lt;/type&gt;
+ *                    &lt;value&gt;914.18945&lt;/value&gt;
+ *                &lt;/variable&gt;
+ *                &lt;variable&gt;
+ *                    &lt;name&gt;SOLAR_FLUX_14&lt;/name&gt;
+ *                    &lt;type&gt;float&lt;/type&gt;
+ *                    &lt;value&gt;882.8275&lt;/value&gt;
+ *                &lt;/variable&gt;
+ *                 &lt;variable&gt;
+ *                    &lt;name&gt;PI&lt;/name&gt;
+ *                    &lt;type&gt;double&lt;/type&gt;
+ *                    &lt;value&gt;3.1415&lt;/value&gt;
+ *                &lt;/variable&gt;
+ *            &lt;/variables&gt;
+ *        &lt;/parameters&gt;
+ *    &lt;/node&gt;
+ * </pre>
+ *
+ * @author Marco Zuehlke
+ * @author Norman Fomferra
+ * @author Marco Peters
+ * @since BEAM 4.7
  */
 @OperatorMetadata(alias = "BandMaths",
                   version = "1.0",
                   copyright = "(c) 2010 by Brockmann Consult",
+                  authors = "Marco Zuehlke, Norman Fomferra, Marco Peters",
                   description = "Create a product with one or more bands using mathematical expressions.")
 public class BandMathsOp extends Operator {
 

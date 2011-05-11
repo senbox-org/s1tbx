@@ -45,7 +45,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The "Collocate" operator.
+ * This operator is used to spatially collocate two data products. It requires two source products,
+ * a <code>master</code> product which provides the Coordinate reference system and grid into which
+ * the raster data sets of the <code>slave</code> product are resampled to.
  *
  * @author Ralf Quast
  * @author Norman Fomferra
@@ -54,7 +56,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Collocate",
                   version = "1.1",
                   authors = "Ralf Quast, Norman Fomferra",
-                  copyright = "(c) 2007-2008 by Brockmann Consult",
+                  copyright = "(c) 2007-2011 by Brockmann Consult",
                   description = "Collocates two products based on their geo-codings.")
 public class CollocateOp extends Operator {
 
@@ -80,7 +82,7 @@ public class CollocateOp extends Operator {
     private String targetProductName;
 
     @Parameter(defaultValue = "COLLOCATED",
-               description = "The type of the target product")
+               description = "The product type string for the target product (informal)")
     private String targetProductType;
 
     @Parameter(defaultValue = "true",

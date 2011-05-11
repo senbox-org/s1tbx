@@ -22,9 +22,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.net.URL;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
 
 // todo - use template engine, e.g. apache velocity (nf)
 public class OperatorHandlerHtml implements OperatorHandler {
@@ -50,7 +50,7 @@ public class OperatorHandlerHtml implements OperatorHandler {
 
     @Override
     public void stop(RootDoc root) throws IOException {
-        File indexFile = new File(baseDir, "CommonOperators.html");
+        File indexFile = new File(baseDir, "OperatorIndex.html");
         PrintWriter writer = new PrintWriter(new FileWriter(indexFile));
         try {
             writeIndex(writer);
@@ -62,6 +62,9 @@ public class OperatorHandlerHtml implements OperatorHandler {
     @Override
     public void processOperator(OperatorDesc operatorDesc) throws IOException {
         File file = getOperatorPageFile(operatorDesc);
+        if (file.exists()) {
+            System.out.println("Warning: File exists: " + file);
+        }
         PrintWriter writer = new PrintWriter(new FileWriter(file));
         try {
             writeOperatorPage(operatorDesc, writer);
@@ -72,8 +75,8 @@ public class OperatorHandlerHtml implements OperatorHandler {
     }
 
     private void writeIndex(PrintWriter writer) throws IOException {
-        writeHeader("Operator Index", writer);
-        writer.println("<h1>Operator Index</h1>");
+        writeHeader("GPF Operator Index", writer);
+        writer.println("<h1>GPF Operator Index</h1>");
         writer.println("<table>");
         for (OperatorDesc operatorDesc : operatorDescs) {
             writer.println("  <tr>");
@@ -86,9 +89,9 @@ public class OperatorHandlerHtml implements OperatorHandler {
     }
 
     private static void writeOperatorPage(OperatorDesc operatorDesc, PrintWriter writer) {
-        writeHeader(operatorDesc.getName(), writer);
+        writeHeader(operatorDesc.getName() + " Operator", writer);
 
-        writer.println("<h1>" + operatorDesc.getName() + " Operator</h1>");
+        writer.println("<h1>" + operatorDesc.getName() + " Operator Description</h1>");
 
         writer.println("<h2>Overview</h2>");
         writer.println("<table>");
@@ -155,8 +158,9 @@ public class OperatorHandlerHtml implements OperatorHandler {
             writer.println("<p><i>This operator does not have any parameters.</i></p>");
         }
 
-        writer.println("<h2>Usage</h2>");
-        writer.println("<p><i>TODO</i></p>");
+        // todo - fix this (nf)
+//        writer.println("<h2>Usage</h2>");
+//        writer.println("<p><i>TODO</i></p>");
 
         writeFooter(writer);
     }

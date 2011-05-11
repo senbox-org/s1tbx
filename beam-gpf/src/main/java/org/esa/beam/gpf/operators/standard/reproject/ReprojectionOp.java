@@ -80,6 +80,54 @@ import java.text.MessageFormat;
  * The reprojection operator is used to geo-reference data products.
  * Beside plain reprojection it is able to use a Digital Elevation Model (DEM) to orthorectify a data product and
  * to collocate one product with another.
+ * <p/>
+ * The following XML sample shaows how to integrate the <code>Reproject</code> operator in a processing graph (an
+ * Lambert_Azimuthal_Equal_Area projection using the WGS-84 datum):
+ * <pre>
+*    &lt;node id="reprojectNode"&gt;
+*        &lt;operator&gt;Reproject&lt;/operator&gt;
+*        &lt;sources&gt;
+*            &lt;sourceProducts&gt;readNode&lt;/sourceProducts&gt;
+*        &lt;/sources&gt;
+*        &lt;parameters&gt;
+*            &lt;wktFile/&gt;
+*            &lt;crs&gt;
+*              PROJCS["Lambert_Azimuthal_Equal_Area / World Geodetic System 1984",
+*                GEOGCS["World Geodetic System 1984",
+*                   DATUM["World Geodetic System 1984",
+*                      SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+*                   AUTHORITY["EPSG","6326"]],
+*                   PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+*                   UNIT["degree", 0.017453292519943295],
+*                   AXIS["Geodetic longitude", EAST],
+*                   AXIS["Geodetic latitude", NORTH]],
+*                PROJECTION["Lambert_Azimuthal_Equal_Area"],
+*                PARAMETER["latitude_of_center", 0.0],
+*                PARAMETER["longitude_of_center", 0.0],
+*                PARAMETER["false_easting", 0.0],
+*                PARAMETER["false_northing", 0.0],
+*                UNIT["m", 1.0],
+*                AXIS["Easting", EAST],
+*                AXIS["Northing", NORTH]]
+*            &lt;/crs&gt;
+*            &lt;resampling&gt;Nearest&lt;/resampling&gt;
+*            &lt;referencePixelX&gt;0.5&lt;/referencePixelX&gt;
+*            &lt;referencePixelY&gt;0.5&lt;/referencePixelY&gt;
+*            &lt;easting&gt;9.5&lt;/easting&gt;
+*            &lt;northing&gt;56.84&lt;/northing&gt;
+*            &lt;orientation&gt;0.0&lt;/orientation&gt;
+*            &lt;pixelSizeX&gt;0.012&lt;/pixelSizeX&gt;
+*            &lt;pixelSizeY&gt;0.012&lt;/pixelSizeY&gt;
+*            &lt;width&gt;135010246&lt;/width&gt;
+*            &lt;height&gt;116629771&lt;/height&gt;
+*            &lt;orthorectify&gt;false&lt;/orthorectify&gt;
+*            &lt;elevationModelName/&gt;
+*            &lt;noDataValue&gt;NaN&lt;/noDataValue&gt;
+*            &lt;includeTiePointGrids&gt;true&lt;/includeTiePointGrids&gt;
+*            &lt;addDeltaBands&gt;false&lt;/addDeltaBands&gt;
+*        &lt;/parameters&gt;
+*    &lt;/node&gt;     
+ * </pre>    
  *
  * @author Marco Zuehlke
  * @author Marco Peters
@@ -88,7 +136,7 @@ import java.text.MessageFormat;
  */
 @OperatorMetadata(alias = "Reproject",
                   version = "1.0",
-                  authors = "Marco Zühlke, Marco Peters, Ralf Quast",
+                  authors = "Marco Zühlke, Marco Peters, Ralf Quast, Norman Fomferra",
                   copyright = "(c) 2009 by Brockmann Consult",
                   description = "Reprojection of a source product to a target Coordinate Reference System.",
                   internal = false)
