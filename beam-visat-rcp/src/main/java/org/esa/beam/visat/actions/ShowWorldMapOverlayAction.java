@@ -39,7 +39,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 public class ShowWorldMapOverlayAction extends AbstractShowOverlayAction {
 
     private static final String WORLDMAP_TYPE_PROPERTY_NAME = "worldmap.type";
-    private static final String GLOB_COVER_LAYER_TYPE = "GlobCoverLayerType";
+    private static final String DEFAULT_LAYER_TYPE = "BlueMarbleLayerType";
 
     @Override
     public void actionPerformed(CommandEvent event) {
@@ -98,7 +98,7 @@ public class ShowWorldMapOverlayAction extends AbstractShowOverlayAction {
     private LayerType getWorldMapLayerType() {
         final VisatApp visatApp = VisatApp.getApp();
         String layerTypeClassName = visatApp.getPreferences().getPropertyString(WORLDMAP_TYPE_PROPERTY_NAME,
-                                                                                GLOB_COVER_LAYER_TYPE);
+                                                                                DEFAULT_LAYER_TYPE);
         return LayerTypeRegistry.getLayerType(layerTypeClassName);
     }
 

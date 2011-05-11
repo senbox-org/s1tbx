@@ -1161,7 +1161,6 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
         @Override
         protected void initConfigParams(ParamGroup configParams) {
-            Parameter param = new Parameter(PARAMETER_NAME_WORLDMAP_TYPE, "GlobCoverLayerType");
             worldMapLayerTypes = new ArrayList<WorldMapLayerType>();
             Set<LayerType> allLayerTypes = LayerTypeRegistry.getLayerTypes();
             for (LayerType layerType : allLayerTypes) {
@@ -1170,6 +1169,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
                     worldMapLayerTypes.add(worldMapLayerType);
                 }
             }
+            Parameter param = new Parameter(PARAMETER_NAME_WORLDMAP_TYPE, "BlueMarbleLayerType");
             configParams.addParameter(param);
         }
 
