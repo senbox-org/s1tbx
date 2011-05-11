@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,21 +18,6 @@ package org.esa.beam.util.math;
 import com.bc.ceres.core.ProgressMonitor;
 
 public class Quantizer {
-
-    /**
-     * @deprecated in 4.0, use {@link #quantizeGeneric(Object, boolean, double, double, byte[], int, int, ProgressMonitor)} instead
-     */
-    public static void quantizeGeneric(final Object srcValues,
-                                       final boolean srcUnsigned,
-                                       final double srcMin,
-                                       final double srcMax,
-                                       final byte[] dstValues,
-                                       final int dstPos,
-                                       final int dstStride) {
-        quantizeGeneric(srcValues, srcUnsigned, srcMin, srcMax,
-                        dstValues, dstPos, dstStride,
-                        ProgressMonitor.NULL);
-    }
 
     public static void quantizeGeneric(final Object srcValues,
                                        final boolean srcUnsigned,
@@ -73,20 +58,6 @@ public class Quantizer {
         }
     }
 
-    /**
-     * @deprecated in 4.0, use {@link #quantizeByte(byte[], int, int, byte[], int, int, ProgressMonitor)} instead
-     */
-    public static void quantizeByte(final byte[] srcValues,
-                                    final int srcMin,
-                                    final int srcMax,
-                                    final byte[] dstValues,
-                                    final int dstPos,
-                                    final int dstStride) {
-        quantizeByte(srcValues, srcMin, srcMax,
-                     dstValues, dstPos, dstStride,
-                     ProgressMonitor.NULL);
-    }
-
     public static void quantizeByte(final byte[] srcValues,
                                     final int srcMin,
                                     final int srcMax,
@@ -121,20 +92,6 @@ public class Quantizer {
         } finally {
             pm.done();
         }
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link #quantizeUByte(byte[], int, int, byte[], int, int, ProgressMonitor)} instead
-     */
-    public static void quantizeUByte(final byte[] srcValues,
-                                     final int srcMin,
-                                     final int srcMax,
-                                     final byte[] dstValues,
-                                     final int dstPos,
-                                     final int dstStride) {
-        quantizeUByte(srcValues, srcMin, srcMax,
-                      dstValues, dstPos, dstStride,
-                      ProgressMonitor.NULL);
     }
 
     public static void quantizeUByte(final byte[] srcValues,
@@ -173,20 +130,6 @@ public class Quantizer {
         }
     }
 
-    /**
-     * @deprecated in 4.0, use {@link #quantizeShort(short[], int, int, byte[], int, int, ProgressMonitor)} instead
-     */
-    public static void quantizeShort(final short[] srcValues,
-                                     final int srcMin,
-                                     final int srcMax,
-                                     final byte[] dstValues,
-                                     final int dstPos,
-                                     final int dstStride) {
-        quantizeShort(srcValues, srcMin, srcMax,
-                      dstValues, dstPos, dstStride,
-                      ProgressMonitor.NULL);
-    }
-
     public static void quantizeShort(final short[] srcValues,
                                      final int srcMin,
                                      final int srcMax,
@@ -221,20 +164,6 @@ public class Quantizer {
         } finally {
             pm.done();
         }
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link #quantizeUShort(short[], int, int, byte[], int, int, ProgressMonitor)} instead
-     */
-    public static void quantizeUShort(final short[] srcValues,
-                                      final int srcMin,
-                                      final int srcMax,
-                                      final byte[] dstValues,
-                                      final int dstPos,
-                                      final int dstStride) {
-        quantizeUShort(srcValues, srcMin, srcMax,
-                       dstValues, dstPos, dstStride,
-                       ProgressMonitor.NULL);
     }
 
     public static void quantizeUShort(final short[] srcValues,
@@ -273,20 +202,6 @@ public class Quantizer {
         }
     }
 
-    /**
-     * @deprecated in 4.0, use {@link #quantizeInt(int[], int, int, byte[], int, int, ProgressMonitor)} instead
-     */
-    public static void quantizeInt(final int[] srcValues,
-                                   final int srcMin,
-                                   final int srcMax,
-                                   final byte[] dstValues,
-                                   final int dstPos,
-                                   final int dstStride) {
-        quantizeInt(srcValues, srcMin, srcMax,
-                    dstValues, dstPos, dstStride,
-                    ProgressMonitor.NULL);
-    }
-
     public static void quantizeInt(final int[] srcValues,
                                    final int srcMin,
                                    final int srcMax,
@@ -321,20 +236,6 @@ public class Quantizer {
         } finally {
             pm.done();
         }
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link #quantizeUInt(int[], long, long, byte[], int, int, ProgressMonitor)} instead
-     */
-    public static void quantizeUInt(final int[] srcValues,
-                                    final long srcMin,
-                                    final long srcMax,
-                                    final byte[] dstValues,
-                                    final int dstPos,
-                                    final int dstStride) {
-        quantizeUInt(srcValues, srcMin, srcMax,
-                     dstValues, dstPos, dstStride,
-                     ProgressMonitor.NULL);
     }
 
     public static void quantizeUInt(final int[] srcValues,
@@ -373,20 +274,6 @@ public class Quantizer {
         }
     }
 
-    /**
-     * @deprecated in 4.0, use {@link #quantizeFloat(float[], float, float, byte[], int, int, ProgressMonitor)} instead
-     */
-    public static void quantizeFloat(final float[] srcValues,
-                                     final float srcMin,
-                                     final float srcMax,
-                                     final byte[] dstValues,
-                                     final int dstPos,
-                                     final int dstStride) {
-        quantizeFloat(srcValues, srcMin, srcMax,
-                      dstValues, dstPos, dstStride,
-                      ProgressMonitor.NULL);
-    }
-
     public static void quantizeFloat(final float[] srcValues,
                                      final float srcMin,
                                      final float srcMax,
@@ -421,20 +308,6 @@ public class Quantizer {
         } finally {
             pm.done();
         }
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link #quantizeDouble(double[], double, double, byte[], int, int, ProgressMonitor)} instead
-     */
-    public static void quantizeDouble(final double[] srcValues,
-                                      final double srcMin,
-                                      final double srcMax,
-                                      final byte[] dstValues,
-                                      final int dstPos,
-                                      final int dstStride) {
-        quantizeDouble(srcValues, srcMin, srcMax,
-                       dstValues, dstPos, dstStride,
-                       ProgressMonitor.NULL);
     }
 
     public static void quantizeDouble(final double[] srcValues,
@@ -472,20 +345,6 @@ public class Quantizer {
         } finally {
             pm.done();
         }
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link #quantizeDouble(DoubleList, double, double, byte[], int, int, ProgressMonitor)} instead
-     */
-    public static void quantizeDouble(final DoubleList srcValues,
-                                      final double srcMin,
-                                      final double srcMax,
-                                      final byte[] dstValues,
-                                      final int dstPos,
-                                      final int dstStride) {
-        quantizeDouble(srcValues, srcMin, srcMax,
-                       dstValues, dstPos, dstStride,
-                       ProgressMonitor.NULL);
     }
 
     public static void quantizeDouble(final DoubleList srcValues,

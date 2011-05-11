@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,12 +18,6 @@ package org.esa.beam.util.math;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.util.Guardian;
-
-import java.awt.image.RenderedImage;
-
-import javax.media.jai.ROI;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.ExtremaDescriptor;
 
 /**
  * Instances of the <code>Range</code> class provide a minimum and a maximum value of type <code>double</code>.
@@ -107,14 +101,6 @@ public class Range {
         return Math.abs(max - min) < MathUtils.EPS;
     }
 
-    /**
-     * @deprecated in 4.0, use {@link #aggregate(Object, boolean, IndexValidator, com.bc.ceres.core.ProgressMonitor)}
-     */
-    public void aggregate(final Object values, boolean unsigned,
-                          final IndexValidator validator) {
-        aggregate(values, unsigned, validator, ProgressMonitor.NULL);
-    }
-
     // @todo se/nf - add documentation
     public void aggregate(final Object values, boolean unsigned,
                           final IndexValidator validator, ProgressMonitor pm) {
@@ -122,16 +108,6 @@ public class Range {
         final Range range = computeRangeGeneric(values, unsigned, validator, null, pm);
         setMax(Math.max(getMax(), range.getMax()));
         setMin(Math.min(getMin(), range.getMin()));
-    }
-
-    /**
-     * @see #computeRangeUByte
-     * @deprecated in 4.0, use {@link #computeRangeByte(byte[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
-     */
-    public static Range computeRangeByte(final byte[] values,
-                                         final IndexValidator validator,
-                                         Range range) {
-        return computeRangeByte(values, validator, range, ProgressMonitor.NULL);
     }
 
     /**
@@ -146,8 +122,6 @@ public class Range {
      * @param pm        a monitor to inform the user about progress
      *
      * @return the value range for the given array
-     *
-     * @see #computeRangeUByte
      */
     public static Range computeRangeByte(final byte[] values,
                                          final IndexValidator validator,
@@ -155,16 +129,6 @@ public class Range {
                                          ProgressMonitor pm) {
         Guardian.assertNotNull("validator", validator);
         return computeRangeDouble(new DoubleList.Byte(values), validator, range, pm);
-    }
-
-    /**
-     * @see #computeRangeUByte
-     * @deprecated in 4.0, use {@link #computeRangeUByte(byte[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
-     */
-    public static Range computeRangeUByte(final byte[] values,
-                                          final IndexValidator validator,
-                                          Range range) {
-        return computeRangeUByte(values, validator, range, ProgressMonitor.NULL);
     }
 
     /**
@@ -179,8 +143,6 @@ public class Range {
      * @param pm        a monitor to inform the user about progress
      *
      * @return the value range for the given array
-     *
-     * @see #computeRangeUByte
      */
     public static Range computeRangeUByte(final byte[] values,
                                           final IndexValidator validator,
@@ -189,16 +151,6 @@ public class Range {
         Guardian.assertNotNull("validator", validator);
         return computeRangeDouble(new DoubleList.UByte(values), validator, range, pm);
 
-    }
-
-    /**
-     * @see #computeRangeUShort
-     * @deprecated in 4.0, use {@link #computeRangeShort(short[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Range computeRangeShort(final short[] values,
-                                          final IndexValidator validator,
-                                          Range range) {
-        return computeRangeShort(values, validator, range, ProgressMonitor.NULL);
     }
 
     /**
@@ -213,8 +165,6 @@ public class Range {
      * @param pm        a monitor to inform the user about progress
      *
      * @return the value range for the given array
-     *
-     * @see #computeRangeUShort
      */
     public static Range computeRangeShort(final short[] values,
                                           final IndexValidator validator,
@@ -222,16 +172,6 @@ public class Range {
                                           ProgressMonitor pm) {
         Guardian.assertNotNull("validator", validator);
         return computeRangeDouble(new DoubleList.Short(values), validator, range, pm);
-    }
-
-    /**
-     * @see #computeRangeShort
-     * @deprecated in 4.0, use {@link #computeRangeUShort(short[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
-     */
-    public static Range computeRangeUShort(final short[] values,
-                                           final IndexValidator validator,
-                                           Range range) {
-        return computeRangeUShort(values, validator, range, ProgressMonitor.NULL);
     }
 
     /**
@@ -245,24 +185,12 @@ public class Range {
      * @param range     if not <code>null</code>, used as return value, otherwise a new instance is created
      *
      * @return the value range for the given array
-     *
-     * @see #computeRangeShort
      */
     public static Range computeRangeUShort(final short[] values,
                                            final IndexValidator validator,
                                            Range range, ProgressMonitor pm) {
         Guardian.assertNotNull("validator", validator);
         return computeRangeDouble(new DoubleList.UShort(values), validator, range, pm);
-    }
-
-    /**
-     * @see #computeRangeUInt
-     * @deprecated in 4.0, use {@link #computeRangeInt(int[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Range computeRangeInt(final int[] values,
-                                        final IndexValidator validator,
-                                        Range range) {
-        return computeRangeInt(values, validator, range, ProgressMonitor.NULL);
     }
 
     /**
@@ -277,8 +205,6 @@ public class Range {
      * @param pm        a monitor to inform the user about progress
      *
      * @return the value range for the given array
-     *
-     * @see #computeRangeUInt
      */
     public static Range computeRangeInt(final int[] values,
                                         final IndexValidator validator,
@@ -286,16 +212,6 @@ public class Range {
                                         ProgressMonitor pm) {
         Guardian.assertNotNull("validator", validator);
         return computeRangeDouble(new DoubleList.Int(values), validator, range, pm);
-    }
-
-    /**
-     * @see #computeRangeInt
-     * @deprecated in 4.0, use {@link #computeRangeUInt(int[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
-     */
-    public static Range computeRangeUInt(final int[] values,
-                                         final IndexValidator validator,
-                                         Range range) {
-        return computeRangeUInt(values, validator, range, ProgressMonitor.NULL);
     }
 
     /**
@@ -310,8 +226,6 @@ public class Range {
      * @param pm        a monitor to inform the user about progress
      *
      * @return the value range for the given array
-     *
-     * @see #computeRangeInt
      */
     public static Range computeRangeUInt(final int[] values,
                                          final IndexValidator validator,
@@ -319,16 +233,6 @@ public class Range {
                                          ProgressMonitor pm) {
         Guardian.assertNotNull("validator", validator);
         return computeRangeDouble(new DoubleList.UInt(values), validator, range, pm);
-    }
-
-    /**
-     * @see #computeRangeDouble
-     * @deprecated in 4.0, use {@link #computeRangeFloat(float[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
-     */
-    public static Range computeRangeFloat(final float[] values,
-                                          final IndexValidator validator,
-                                          Range range) {
-        return computeRangeFloat(values, validator, range, ProgressMonitor.NULL);
     }
 
     /**
@@ -343,8 +247,6 @@ public class Range {
      * @param pm        a monitor to inform the user about progress
      *
      * @return the value range for the given array
-     *
-     * @see #computeRangeDouble
      */
     public static Range computeRangeFloat(final float[] values,
                                           final IndexValidator validator,
@@ -352,16 +254,6 @@ public class Range {
                                           ProgressMonitor pm) {
         Guardian.assertNotNull("validator", validator);
         return computeRangeDouble(new DoubleList.Float(values), validator, range, pm);
-    }
-
-    /**
-     * @see #computeRangeFloat
-     * @deprecated in 4.0, use {@link #computeRangeDouble(double[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Range computeRangeDouble(final double[] values,
-                                           final IndexValidator validator,
-                                           Range range) {
-        return computeRangeDouble(values, validator, range, ProgressMonitor.NULL);
     }
 
     /**
@@ -376,8 +268,6 @@ public class Range {
      * @param pm        a monitor to inform the user about progress
      *
      * @return the value range for the given array
-     *
-     * @see #computeRangeFloat
      */
     public static Range computeRangeDouble(final double[] values,
                                            final IndexValidator validator,
@@ -385,16 +275,6 @@ public class Range {
                                            ProgressMonitor pm) {
         Guardian.assertNotNull("validator", validator);
         return computeRangeDouble(new DoubleList.Double(values), validator, range, pm);
-    }
-
-    /**
-     * @see #computeRangeDouble
-     * @deprecated in 4.0, use {@link #computeRangeDouble(DoubleList, IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static Range computeRangeDouble(final DoubleList values,
-                                           final IndexValidator validator,
-                                           Range range) {
-        return computeRangeDouble(values, validator, range, ProgressMonitor.NULL);
     }
 
     /**
@@ -409,8 +289,6 @@ public class Range {
      * @param pm        a monitor to inform the user about progress
      *
      * @return the value range for the given values
-     *
-     * @see #computeRangeDouble
      */
     public static Range computeRangeDouble(final DoubleList values,
                                            final IndexValidator validator,
@@ -450,17 +328,6 @@ public class Range {
 
 
     /**
-     * @see #computeRangeDouble
-     * @deprecated in 4.0, use {@link #computeRangeGeneric(Object, boolean, IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
-     */
-    public static Range computeRangeGeneric(final Object values,
-                                            boolean unsigned,
-                                            final IndexValidator validator,
-                                            Range range) {
-        return computeRangeGeneric(values, unsigned, validator, range, ProgressMonitor.NULL);
-    }
-
-    /**
      * Computes the value range for the values in the given <code>Object</code>. Values at a given index <code>i</code>
      * for which <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.<br>
      * <br> Supportet types for the values object: <blockquote> <code>byte[], short[], int[], float[], double[], {@link
@@ -476,7 +343,6 @@ public class Range {
      * @return the value range for the given values
      *
      * @throws IllegalArgumentException if the given object is not an istance of the supported types.
-     * @see #computeRangeDouble
      */
     public static Range computeRangeGeneric(final Object values,
                                             boolean unsigned,
@@ -517,14 +383,6 @@ public class Range {
         return result;
     }
 
-    public static Range computeRange(RenderedImage bandImage, ROI roi) {
-        final RenderedOp extremaOp = ExtremaDescriptor.create(bandImage, roi, 1, 1, false, 1, null);
-        final double[][] extrema = (double[][]) extremaOp.getProperty("extrema");
-        final double min = extrema[0][0];
-        final double max = extrema[1][0];
-        return new Range(min, max);
-    }
-    
     @Override
     public String toString() {
         return getMin() + "," + getMax();
