@@ -75,8 +75,8 @@ public class OperatorDoclet extends Doclet {
                         "./beam-gpf/src/main/java;" +
                         "./beam-cluster-analysis/src/main/java;" +
                         "./beam-collocation/src/main/java;" +
-                        "./beam-meris-radiometry/src/main/java;" +
                         "./beam-pixel-extraction/src/main/java;" +
+                        "./beam-meris-radiometry/src/main/java;" +
                         "./beam-unmix/src/main/java",
                 "org.esa.beam.gpf.operators.standard",
                 "org.esa.beam.gpf.operators.standard.reproject",
