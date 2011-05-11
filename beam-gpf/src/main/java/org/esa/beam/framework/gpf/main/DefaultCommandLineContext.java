@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,10 +26,13 @@ import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
 import org.esa.beam.gpf.operators.standard.WriteOp;
+import org.esa.beam.util.io.FileUtils;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -74,18 +77,30 @@ class DefaultCommandLineContext implements CommandLineContext {
 
     @Override
     public Map<String, String> readParameterFile(String filepath) throws IOException {
+        File file = new File(filepath);
+        String fileContent = FileUtils.readText(file);
+        if (fileContent.contains("<parameters>") && fileContent.contains("</parameters>")) {
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("gpt.xml.parameters", fileContent);
+            return map;
+        } else {
+            return readProperies(fileContent);
+        }
+    }
+
+    private Map<String, String> readProperies(String fileContent) throws IOException {
         Properties properties = new Properties();
-        FileReader fileReader = new FileReader(filepath);
+        Reader reader = new StringReader(fileContent);
         HashMap<String, String> hashMap;
         try {
-            properties.load(fileReader);
+            properties.load(reader);
             hashMap = new HashMap<String, String>();
             for (Object object : properties.keySet()) {
                 String key = object.toString();
                 hashMap.put(key, properties.getProperty(key));
             }
         } finally {
-            fileReader.close();
+            reader.close();
         }
         return hashMap;
     }

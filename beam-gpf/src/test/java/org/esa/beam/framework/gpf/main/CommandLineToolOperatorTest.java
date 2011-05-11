@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -160,6 +160,21 @@ public class CommandLineToolOperatorTest extends TestCase {
         assertEquals("NN", parameters.get("interpolMethod"));
     }
 
+    public void testOperatorWithParametersFromXMLFile() throws Exception {
+        clTool.run(new String[]{"Op3", "-p", "testOperatorWithParametersFromXMLFile"});
+        assertEquals("o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";", context.logString);
+        assertEquals("Op3", context.opName);
+
+        Map<String, Object> parameters = context.parameters;
+        assertNotNull(parameters);
+        assertEquals(4, parameters.size());
+        assertEquals("log(2+radiance_13)", parameters.get("expression"));
+        assertEquals(true, parameters.get("ignoreSign"));
+        assertEquals(-0.035, parameters.get("factor"));
+        assertEquals("NN", parameters.get("interpolMethod"));
+    }
+
+
     public void testThatOperatorLineArgsOverwriteParametersFromFile() throws Exception {
         clTool.run(new String[]{"Op3", "-p", "testOperatorWithParametersFromFile", "-Pfactor=0.99"});
         assertEquals("o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";", context.logString);
@@ -243,6 +258,13 @@ public class CommandLineToolOperatorTest extends TestCase {
                 hashMap.put("expression", "log(2+radiance_13)");
                 hashMap.put("ignoreSign", "true");
                 hashMap.put("factor", "-0.035");
+            } else if ("testOperatorWithParametersFromXMLFile".equals(propertiesFilepath)) {
+                hashMap.put("gpt.xml.parameters",
+                            "<parameters>" +
+                                    "<expression>log(2+radiance_13)</expression>" +
+                                    "<ignoreSign>true</ignoreSign>" +
+                                    "<factor>-0.035</factor>" +
+                            "</parameters>");
             } else {
                 hashMap.put("expression", "sqrt(x*x + y*y)");
                 hashMap.put("threshold", "-0.5125");

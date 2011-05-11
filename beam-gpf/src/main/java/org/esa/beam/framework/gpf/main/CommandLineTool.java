@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,12 +16,19 @@
 
 package org.esa.beam.framework.gpf.main;
 
+import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.bc.ceres.core.ProgressMonitor;
+import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
+import com.thoughtworks.xstream.io.xml.XppDomWriter;
+import com.thoughtworks.xstream.io.xml.XppReader;
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
@@ -44,6 +51,7 @@ import org.esa.beam.util.logging.BeamLogManager;
 import javax.media.jai.JAI;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -245,12 +253,31 @@ class CommandLineTool {
                                                                                                           parameters);
         // explicitly set default values for putting them into the backing map
         container.setDefaultValues();
+
+        // handle xml parameters
+        String xmlParameters = parameterMap.get("gpt.xml.parameters");
+        if (xmlParameters != null) {
+            OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
+            Class<? extends Operator> operatorClass = operatorSpi.getOperatorClass();
+            DefaultDomConverter domConverter = new DefaultDomConverter(operatorClass, new ParameterDescriptorFactory());
+
+            DomElement parametersElement = createDomElement(xmlParameters);
+            try {
+                domConverter.convertDomToValue(parametersElement, container);
+            } catch (ConversionException e) {
+                throw new RuntimeException(String.format(
+                        "Can not convert XML parameters for operator '%s'", operatorName));
+            }
+
+            parameterMap.remove("gpt.xml.parameters");
+        }
+
         for (Entry<String, String> entry : parameterMap.entrySet()) {
             String paramName = entry.getKey();
             String paramValue = entry.getValue();
-            final Property model = container.getProperty(paramName);
-            if (model != null) {
-                model.setValueFromText(paramValue);
+            final Property property = container.getProperty(paramName);
+            if (property != null) {
+                property.setValueFromText(paramValue);
             } else {
                 throw new RuntimeException(String.format(
                         "Parameter '%s' is not known by operator '%s'", paramName, operatorName));
@@ -258,6 +285,14 @@ class CommandLineTool {
         }
         return parameters;
     }
+
+    private static DomElement createDomElement(String xml) {
+        XppDomWriter domWriter = new XppDomWriter();
+        new HierarchicalStreamCopier().copy(new XppReader(new StringReader(xml)), domWriter);
+        Xpp3Dom xpp3Dom = domWriter.getConfiguration();
+        return new Xpp3DomElement(xpp3Dom);
+    }
+
 
     private Map<String, Product> getSourceProductMap(CommandLineArgs lineArgs) throws IOException {
         SortedMap<File, Product> fileToProductMap = new TreeMap<File, Product>();
