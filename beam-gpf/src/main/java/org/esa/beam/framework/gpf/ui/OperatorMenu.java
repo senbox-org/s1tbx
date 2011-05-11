@@ -56,8 +56,8 @@ import java.io.StringReader;
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
  * <p/>
- * An operator menu with action loading, saving and displaying the parameters of an operator.
- * As well as help and about actions.
+ * Provides an operator menu with action for loading, saving and displaying the parameters of an operator
+ * in the file menu section and actions for help and about in the help menu section.
  *
  * @author Norman Fomferra
  * @author Marco Zühlke
@@ -103,6 +103,11 @@ public class OperatorMenu {
         return aboutAction;
     }
 
+    /**
+     * Creates the default menu.
+     *
+     * @return The menu
+     */
     public JMenuBar createDefaultMenu() {
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(openParametersAction);
