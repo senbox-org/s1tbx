@@ -100,7 +100,7 @@
 
 
     <mapID target="demGETASSE30" url="visat/GETASSE30ElevationModel.html"/>
-    <mapID target="createElevationBand" url="visat/CreateElevationBand.html"/>
+    <mapID target="createDemRelatedBands" url="visat/CreateDemRelatedBands.html"/>
     <mapID target="createAsarNrcsBands" url="visat/CreateAsarNrcsBands.html"/>
     <mapID target="dataFlip" url="visat/DataFlip.html"/>
     <mapID target="flipDialog" url="visat/DataFlip.html"/>

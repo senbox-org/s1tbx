@@ -65,12 +65,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
 
-public class CreateDemCorrectionBandsAction extends ExecCommand {
+public class CreateDemRelatedBandsAction extends ExecCommand {
 
-    public static final String DIALOG_TITLE = "Create DEM-Correction Bands";
+    public static final String DIALOG_TITLE = "Create DEM-related Bands";
+    public static final String DEFAULT_ELEVATION_BAND_NAME = "elevation";
     public static final String DEFAULT_LATITUDE_BAND_NAME = "corr_latitude";
     public static final String DEFAULT_LONGITUDE_BAND_NAME = "corr_longitude";
-    public static final String DEFAULT_ELEVATION_BAND_NAME = "elevation";
 
     @Override
     public void actionPerformed(CommandEvent event) {
@@ -99,8 +99,8 @@ public class CreateDemCorrectionBandsAction extends ExecCommand {
         computeBands(product,
                      demDescriptor,
                      dialogData.outputElevationBand ? dialogData.elevationBandName : null,
-                     dialogData.outputGeoCodingBands ? dialogData.latitudeBandName : null,
-                     dialogData.outputGeoCodingBands ? dialogData.longitudeBandName : null);
+                     dialogData.outputDemCorrectedBands ? dialogData.latitudeBandName : null,
+                     dialogData.outputDemCorrectedBands ? dialogData.longitudeBandName : null);
     }
 
     @Override
@@ -205,15 +205,15 @@ public class CreateDemCorrectionBandsAction extends ExecCommand {
         configureBandNameProperty(propertySet, "longitudeBandName", product);
         final BindingContext ctx = new BindingContext(propertySet);
 
-        final JList demList = new JList();
+        JList demList = new JList();
         demList.setVisibleRowCount(3);
         ctx.bind("demName", new SingleSelectionListComponentAdapter(demList));
 
         JTextField elevationBandNameField = new JTextField();
         ctx.bind("elevationBandName", elevationBandNameField);
 
-        JCheckBox outputGeoCodingBandsChecker = new JCheckBox("Output DEM-corrected geo-coding bands");
-        ctx.bind("outputGeoCodingBands", outputGeoCodingBandsChecker);
+        JCheckBox outputDemCorrectedBandsChecker = new JCheckBox("Output DEM-corrected bands");
+        ctx.bind("outputDemCorrectedBands", outputDemCorrectedBandsChecker);
 
         JLabel latitudeBandNameLabel = new JLabel("Latitude band name:");
         JTextField latitudeBandNameField = new JTextField();
@@ -230,23 +230,27 @@ public class CreateDemCorrectionBandsAction extends ExecCommand {
         TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        tableLayout.setColumnFill(0, TableLayout.Fill.NONE);
         tableLayout.setTablePadding(4, 4);
-        tableLayout.setColumnWeightX(0, 0.0);
-        tableLayout.setColumnWeightX(1, 1.0);
-        tableLayout.setCellColspan(2, 0, 2);
-        tableLayout.setCellPadding(3, 0, new Insets(0, 20, 0, 4));
-        tableLayout.setCellPadding(4, 0, new Insets(0, 20, 0, 4));
+        tableLayout.setCellColspan(0, 0, 2);
+        tableLayout.setCellColspan(1, 0, 2);
+        tableLayout.setCellColspan(3, 0, 2);
+        tableLayout.setCellWeightX(0, 0, 1.0);
+        tableLayout.setRowWeightX(1, 1.0);
+        tableLayout.setCellWeightX(2, 1, 1.0);
+        tableLayout.setCellWeightX(4, 1, 1.0);
+        tableLayout.setCellWeightX(5, 1, 1.0);
+        tableLayout.setCellPadding(4, 0, new Insets(0, 24, 0, 4));
+        tableLayout.setCellPadding(5, 0, new Insets(0, 24, 0, 4));
 
         JPanel parameterPanel = new JPanel(tableLayout);
         /*row 0*/
-        parameterPanel.add(new JLabel("Elevation model:"));
+        parameterPanel.add(new JLabel("Digital elevation model (DEM):"));
         parameterPanel.add(new JScrollPane(demList));
         /*row 1*/
         parameterPanel.add(new JLabel("Elevation band name:"));
         parameterPanel.add(elevationBandNameField);
         /*row 2*/
-        parameterPanel.add(outputGeoCodingBandsChecker);
+        parameterPanel.add(outputDemCorrectedBandsChecker);
         /*row 3*/
         parameterPanel.add(latitudeBandNameLabel);
         parameterPanel.add(latitudeBandNameField);
@@ -254,9 +258,8 @@ public class CreateDemCorrectionBandsAction extends ExecCommand {
         parameterPanel.add(longitudeBandNameLabel);
         parameterPanel.add(longitudeBandNameField);
 
-        boolean outputGeoCodingBandsEnabled = product.getNumBands() > 0 && product.getBandAt(0).getPointing() != null;
-        outputGeoCodingBandsChecker.setSelected(outputGeoCodingBandsEnabled);
-        outputGeoCodingBandsChecker.setEnabled(outputGeoCodingBandsEnabled);
+        outputDemCorrectedBandsChecker.setSelected(ortorectifiable);
+        outputDemCorrectedBandsChecker.setEnabled(ortorectifiable);
 
         final ModalDialog dialog = new ModalDialog(VisatApp.getApp().getMainFrame(), DIALOG_TITLE, ModalDialog.ID_OK_CANCEL, getHelpId());
         dialog.setContent(parameterPanel);
@@ -453,7 +456,7 @@ public class CreateDemCorrectionBandsAction extends ExecCommand {
     class DialogData {
         String demName;
         boolean outputElevationBand;
-        boolean outputGeoCodingBands;
+        boolean outputDemCorrectedBands;
         String elevationBandName = DEFAULT_ELEVATION_BAND_NAME;
         String latitudeBandName = DEFAULT_LATITUDE_BAND_NAME;
         String longitudeBandName = DEFAULT_LONGITUDE_BAND_NAME;
@@ -461,7 +464,7 @@ public class CreateDemCorrectionBandsAction extends ExecCommand {
         public DialogData(String demName, boolean ortorectifiable) {
             this.demName = demName;
             outputElevationBand = true;
-            outputGeoCodingBands = ortorectifiable;
+            outputDemCorrectedBands = ortorectifiable;
         }
     }
 

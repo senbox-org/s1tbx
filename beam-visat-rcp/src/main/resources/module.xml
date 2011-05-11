@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.9<br/>
+          [BEAM-1297] Add DEM-corrected latitude/longitude bands in satellite coordinates<br/>
           [BEAM-1292] Reprojection dialog shifts image if pixel size is changed<br/>
           [BEAM-1291] Virtual bands may compute wrong results for non-zero levels of image pyramids<br/>
           [BEAM-1288] Add plausibility check for reprojection and orthorectification<br/>
@@ -1245,32 +1246,20 @@
             <context>image,band,tiePointGrid</context>
             <smallIcon>icons/BAritmethic16.gif</smallIcon>
             <largeIcon>icons/BAritmethic24.gif</largeIcon>
-            <placeBefore>createElevationBand</placeBefore>
+            <placeBefore>createDemRelatedBands</placeBefore>
             <helpId>bandArithmetic</helpId>
         </action>
 
 
         <action>
-            <id>createElevationBand</id>
-            <class>org.esa.beam.visat.actions.CreateElevationBandAction</class>
-            <text>Create Elevation Band...</text>
-            <shortDescr>Creates an elevation band from a selected DEM</shortDescr>
-            <description>Creates an elevation band from a selected Digital Elevation Model (DEM)</description>
+            <id>createDemRelatedBands</id>
+            <class>org.esa.beam.visat.actions.CreateDemRelatedBandsAction</class>
+            <text>Create DEM-related Bands...</text>
+            <description>Creates DEM elevation and optionally DEM-corrected lat/lon bands from a selected DEM</description>
             <context>product</context>
-            <helpId>createElevationBand</helpId>
+            <helpId>createDemRelatedBands</helpId>
             <parent>tools</parent>
             <placeAfter>bandArithmetic</placeAfter>
-            <placeBefore>createDemCorrectionBands</placeBefore>
-        </action>
-        <action>
-            <id>createDemCorrectionBands</id>
-            <class>org.esa.beam.visat.actions.CreateDemCorrectionBandsAction</class>
-            <text>Create DEM-correction Bands...</text>
-            <description>Creates elevation and DEM-corrected latitude/longitude bands from a selected DEM</description>
-            <context>product</context>
-            <helpId>createDemCorrectionBands</helpId>
-            <parent>tools</parent>
-            <placeAfter>createElevationBand</placeAfter>
             <placeBefore>createAsarNrcsBands</placeBefore>
         </action>
         <action>
@@ -1281,7 +1270,7 @@
             <shortDescr>Create ASAR Normalised Radar Cross Section Bands</shortDescr>
             <helpId>createAsarNrcsBands</helpId>
             <parent>tools</parent>
-            <placeAfter>createDemCorrectionBands</placeAfter>
+            <placeAfter>createDemRelatedBands</placeAfter>
             <placeBefore>createFilteredBand</placeBefore>
         </action>
 

@@ -1,0 +1,60 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>VISAT Help - Create DEM-related Bands</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Create DEM-related Bands</td>
+        
+    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a></td>
+    </tr>
+</table>
+
+<h3>Create DEM-related Bands</h3>
+
+<p>
+    This command adds a new DEM-elevation band and optionally DEM-corrected latitude and longitude bands to the current product. <br>
+    The bands are computed by looking up each pixel in a selected high-resolution DEM (which is by default GETASSE30).
+    In opposite to the <a href="Orthorectification.html">orthorectification</a> tool, which always reprojects the data product,
+    the DEM-corrected latitudes and longitudes are computed in the selected product's current coordinate system.
+</p>
+
+<img src="images/CreateDemRelatedBandsDialog.jpg" border=0 >
+<ul>
+    <li><b>Digital elevation model (DEM)</b>
+        <br/>Lets you select a DEM from the list of currently installed DEMs.</li>
+    <li><b>Elevation band name</b>
+        <br/>The name of the new elevation band.</li>
+    <li><b>Output DEM-corrected bands</b>
+        <br/>Check if DEM-corrected bands shall be created. Depending on the data product type, this option may not be available.</li>
+    <li><b>Latitude band name</b>
+        <br/>The name of the new DEM-corrected latitude band.</li>
+    <li><b>Longitude band name</b>
+        <br/>The name of the new DEM-corrected longitude band.</li>
+</ul>
+<hr/>
+</body>
+</html>
+

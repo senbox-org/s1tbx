@@ -96,7 +96,7 @@
                     <tocitem text="Orthorectification Dialog" target="orthorectificationAction"/>
                     <tocitem text="Orthorectification Algorithm" target="orthorectificationAlgo"/>
                     <tocitem text="GETASSE30 Elevation Model" target="demGETASSE30"/>
-                    <tocitem text="Create Elevation Band" target="createElevationBand"/>
+                    <tocitem text="Create DEM-related Bands" target="createDemRelatedBands"/>
                 </tocitem>
                 <tocitem text="Mosaic" target="mosaicAction">
                     <tocitem text="Mosaic Dialog" target="mosaicAction"/>
@@ -104,7 +104,7 @@
                 </tocitem>
 
                 <tocitem text="Attach Pixel-based Geo-Coding" target="pixelGeoCodingSetup"/>
-                <tocitem text="Create Elevation Band" target="createElevationBand"/>
+                <tocitem text="Create DEM-related Bands" target="createDemRelatedBands"/>
                 <tocitem text="Create ASAR NRCS Bands" target="createAsarNrcsBands"/>
                 <tocitem text="Create Filtered Band" target="createFilteredBand"/>
                 <tocitem text="Data Processors" target="dataProcessors"/>

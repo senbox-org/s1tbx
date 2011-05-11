@@ -42,6 +42,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.9<br/>
+          [BEAM-1297] Add DEM-corrected latitude/longitude bands in satellite coordinates<br/>
           [BEAM-1292] Reprojection dialog shifts image if pixel size is changed<br/>
           [BEAM-1291] Virtual bands may compute wrong results for non-zero levels of image pyramids<br/>
           [BEAM-1284] Reprojection should preserve log-scaling of bands<br/>
