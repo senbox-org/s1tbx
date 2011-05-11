@@ -173,8 +173,10 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     @Override
     protected void configureTargetProduct(ProductConfigurer productConfigurer) {
 
-        productConfigurer.copyTimeCoding();
         productConfigurer.copyMetadata();
+        productConfigurer.copyTimeCoding();
+        productConfigurer.copyGeoCoding();
+        productConfigurer.copyTiePointGrids();
 
         Product targetProduct = productConfigurer.getTargetProduct();
         targetProduct.setName(sourceProduct.getName());
