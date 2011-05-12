@@ -41,7 +41,7 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
     private HashMap<String, Variable> variableMap;
     private NetcdfFileWriteable writeable;
     private boolean isYFlipped;
-    private Boolean writeGeophysical;
+    private boolean writeGeophysical;
 
     DefaultNetCdfWriter(AbstractNetCdfWriterPlugIn writerPlugIn) {
         super(writerPlugIn);
@@ -62,12 +62,11 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
         configureProfile(profile, plugIn);
         ProfileWriteContext context = new ProfileWriteContextImpl(writeable);
         profile.writeProduct(context, getSourceProduct());
-        final Object yFlippedProperty = context.getProperty(Constants.Y_FLIPPED_PROPERTY_NAME);
+        Object yFlippedProperty = context.getProperty(Constants.Y_FLIPPED_PROPERTY_NAME);
         if (yFlippedProperty instanceof Boolean) {
             isYFlipped = (Boolean) yFlippedProperty;
         }
-        final Object writeGeophysicalProperty = context.getProperty(
-                Constants.WRITE_LOGSCALED_BANDS_GEOPHYSICAL_PROPERTY);
+        Object writeGeophysicalProperty = context.getProperty(Constants.WRITE_LOGSCALED_BANDS_GEOPHYSICAL_PROPERTY);
         if (writeGeophysicalProperty instanceof Boolean) {
             writeGeophysical = (Boolean) writeGeophysicalProperty;
         }
