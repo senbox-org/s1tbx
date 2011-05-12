@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -39,8 +39,8 @@ import java.util.List;
 public class MetadataUtils {
 
     public static void readNetcdfMetadata(NetcdfFile netcdfFile, MetadataElement root) {
-        root.addElement(readAttributeList(netcdfFile.getGlobalAttributes(), "MPH"));
-        root.addElement(readVariableDescriptions(netcdfFile.getVariables(), "DSD"));
+        root.addElement(readAttributeList(netcdfFile.getGlobalAttributes(), "Global_Attributes"));
+        root.addElement(readVariableDescriptions(netcdfFile.getVariables(), "Variable_Attributes"));
     }
 
     public static MetadataElement readAttributeList(final List<Attribute> attributeList,
@@ -49,7 +49,7 @@ public class MetadataUtils {
         MetadataElement metadataElement = new MetadataElement(elementName);
         for (Attribute attribute : attributeList) {
             final int productDataType = DataTypeUtils.getEquivalentProductDataType(attribute.getDataType(), false,
-                    false);
+                                                                                   false);
             if (productDataType != -1) {
                 ProductData productData;
                 if (attribute.isString()) {
@@ -62,8 +62,8 @@ public class MetadataUtils {
                     productData.setElems(attribute.getValues().getStorage());
                 }
                 MetadataAttribute metadataAttribute = new MetadataAttribute(attribute.getName(),
-                        productData,
-                        true);
+                                                                            productData,
+                                                                            true);
                 metadataElement.addAttribute(metadataAttribute);
             }
         }
@@ -109,7 +109,7 @@ public class MetadataUtils {
         try {
             long variableSize = variable.getSize();
             if (variable.getRank() == 1 && variableSize >= 100) {
-                values = variable.read(new int[]{0},new int[]{100});
+                values = variable.read(new int[]{0}, new int[]{100});
                 valuesElem.setDescription("Showing 100 of " + variableSize + " values.");
             } else {
                 values = variable.read();

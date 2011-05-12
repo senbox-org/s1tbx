@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -73,7 +73,6 @@ import org.esa.beam.framework.ui.NewProductDialog;
 import org.esa.beam.framework.ui.SuppressibleOptionPane;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
-import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.command.CommandManager;
@@ -1507,7 +1506,7 @@ public class VisatApp extends BasicApp implements AppContext {
             String[] headerNames = new String[]{
                     "MPH", "SPH",
                     "Earth_Explorer_Header", "Fixed_Header", "Variable_Header", "Specific_Product_Header",
-                    "Global_Attributes", "GlobalAttributes",
+                    "Global_Attributes", "GlobalAttributes", "Variable_Attributes"
             };
             for (String headerName : headerNames) {
                 MetadataElement element = metadataRoot.getElement(headerName);
@@ -1581,8 +1580,7 @@ public class VisatApp extends BasicApp implements AppContext {
             status = !pm.isCanceled();
         } catch (Exception e) {
             handleUnknownException(e);
-        }
-        finally {
+        } finally {
             UIUtils.setRootFrameDefaultCursor(getMainFrame());
             clearStatusBarMessage();
         }

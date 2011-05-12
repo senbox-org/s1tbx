@@ -32,6 +32,7 @@
     <changelog>
         <![CDATA[
         Changes in 1.101:<br/>
+        [BEAM-1302] - Products read from NetCDF files should have a 'Global_Attributes' element in metadata<br/>
         [BEAM-1233] - NetCDF-CF does not consider log-scaled attribute<br/>
         [BEAM-1215] - NetCDF product appears inverted<br/>
         [BEAM-1206] - CF Profile does not write latitude longitude data when writing pixel geo-coding<br/>

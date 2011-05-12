@@ -52,6 +52,7 @@ New Features
 [BEAM-1151] - Geometry subset operator
 
 Improvements
+[BEAM-1302] - Products read from NetCDF files should have a 'Global_Attributes' element in metadata
 [BEAM-1301] - gpt should be able to load the configuration saved from the UI
 [BEAM-1296] - Update auxiliary data for MERIS smile-effect correction
 [BEAM-1288] - Add plausibility check for reprojection and orthorectification

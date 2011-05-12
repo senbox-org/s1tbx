@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,10 +16,11 @@
 
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
+import org.esa.beam.dataio.netcdf.util.MetadataUtils;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -44,8 +45,9 @@ public class BeamMetadataPart extends ProfilePartIO {
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
         final NetcdfFile netcdfFile = ctx.getNetcdfFile();
         Variable metadata = netcdfFile.getRootGroup().findVariable(METADATA_VARIABLE);
+        final MetadataElement metadataRoot = p.getMetadataRoot();
+        MetadataUtils.readNetcdfMetadata(netcdfFile, p.getMetadataRoot());
         if (metadata != null) {
-            final MetadataElement metadataRoot = p.getMetadataRoot();
             for (Attribute attribute : metadata.getAttributes()) {
                 String attrName = attribute.getName();
                 if (attrName.startsWith(SPLITTER)) {
@@ -132,7 +134,7 @@ public class BeamMetadataPart extends ProfilePartIO {
     }
 
     private void writeMetadataElement(MetadataElement element, Variable var, String prefix) throws
-            IOException {
+                                                                                            IOException {
         for (int i = 0; i < element.getNumAttributes(); i++) {
             MetadataAttribute attribute = element.getAttributeAt(i);
             writeMetadataAttribute(attribute, var, prefix);
@@ -144,7 +146,7 @@ public class BeamMetadataPart extends ProfilePartIO {
     }
 
     private void writeMetadataAttribute(MetadataAttribute metadataAttr, Variable var, String prefix) throws
-            IOException {
+                                                                                                     IOException {
         final ProductData productData = metadataAttr.getData();
         if (productData instanceof ProductData.ASCII || productData instanceof ProductData.UTC) {
             var.addAttribute(new Attribute(prefix + SPLITTER + metadataAttr.getName(), productData.getElemString()));
