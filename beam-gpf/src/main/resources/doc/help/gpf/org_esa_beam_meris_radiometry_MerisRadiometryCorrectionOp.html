@@ -22,7 +22,21 @@
   <tr><td><b>Version:</b></td><td>1.0</td></tr>
 </table>
 <h2>Description</h2>
-<i>No description available.</i>
+This operator is used to perform radiometric corrections on MERIS L1b data products.
+ The corrections include the following optional steps:
+ <ul>
+ <li><b>Radiometric re-calibration</b><br/>
+ Multiplies the inverse gains of the 2nd reprocessing and multiplies the gains of 3rd reprocessing
+ to the radiance values.</li>
+ <li><b>Smile-effect correction</b><br/>
+ Corrects the radiance values for the small variations of the spectral wavelength
+ of each pixel along the image (smile-effect).
+ </li>
+ <li><b>Meris equalisation</b><br/>
+ Removes systematic detector-to-detector radiometric differences in MERIS L1b data products. </li>
+ <li><b>Radiance-to-reflectance conversion</b><br/>
+ Converts the TOA radiance values into TOA reflectance values. </li>
+ </ul>
 <h2>Sources</h2>
 <table>
 <tr>
