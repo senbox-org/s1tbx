@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,6 @@
 
 package org.esa.beam.dataio.netcdf.util;
 
-import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.ProductData;
 import ucar.ma2.DataType;
 import ucar.nc2.Variable;
@@ -32,7 +31,7 @@ public class DataTypeUtils {
     }
 
     public static int getRasterDataType(Variable variable) {
-        return getRasterDataType(variable.getDataType(), variable.isUnsigned());    
+        return getRasterDataType(variable.getDataType(), variable.isUnsigned());
     }
 
     public static int getRasterDataType(final DataType dataType, boolean unsigned) {
@@ -61,21 +60,30 @@ public class DataTypeUtils {
         return -1;
     }
 
-    public static DataType getNetcdfDataType(DataNode dataNode) {
-        final int nodeType = dataNode.getDataType();
-        if (nodeType == ProductData.TYPE_INT8 || nodeType == ProductData.TYPE_UINT8) {
+    /**
+     * Return the NetCDF equivalent to the given dataType.
+     *
+     * @param dataType must be one of {@code ProductData.TYPE_*}
+     *
+     * @return the NetCDF equivalent to the given dataType or {@code null} if not {@code dataType} is
+     *         not one of {@code ProductData.TYPE_*}
+     *
+     * @see ProductData
+     */
+    public static DataType getNetcdfDataType(int dataType) {
+        if (dataType == ProductData.TYPE_INT8 || dataType == ProductData.TYPE_UINT8) {
             return DataType.BYTE;
-        } else if (nodeType == ProductData.TYPE_INT16 || nodeType == ProductData.TYPE_UINT16) {
+        } else if (dataType == ProductData.TYPE_INT16 || dataType == ProductData.TYPE_UINT16) {
             return DataType.SHORT;
-        } else if (nodeType == ProductData.TYPE_INT32 || nodeType == ProductData.TYPE_UINT32) {
+        } else if (dataType == ProductData.TYPE_INT32 || dataType == ProductData.TYPE_UINT32) {
             return DataType.INT;
-        } else if (nodeType == ProductData.TYPE_FLOAT32) {
+        } else if (dataType == ProductData.TYPE_FLOAT32) {
             return DataType.FLOAT;
-        } else if (nodeType == ProductData.TYPE_FLOAT64) {
+        } else if (dataType == ProductData.TYPE_FLOAT64) {
             return DataType.DOUBLE;
-        } else if (nodeType == ProductData.TYPE_ASCII) {
+        } else if (dataType == ProductData.TYPE_ASCII) {
             return DataType.STRING;
-        } else if (nodeType == ProductData.TYPE_UTC) {
+        } else if (dataType == ProductData.TYPE_UTC) {
             return DataType.STRING;
         } else {
             return null;

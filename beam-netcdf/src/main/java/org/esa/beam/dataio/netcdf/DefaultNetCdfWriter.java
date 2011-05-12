@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -41,6 +41,7 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
     private HashMap<String, Variable> variableMap;
     private NetcdfFileWriteable writeable;
     private boolean isYFlipped;
+    private Boolean writeGeophysical;
 
     DefaultNetCdfWriter(AbstractNetCdfWriterPlugIn writerPlugIn) {
         super(writerPlugIn);
@@ -61,9 +62,14 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
         configureProfile(profile, plugIn);
         ProfileWriteContext context = new ProfileWriteContextImpl(writeable);
         profile.writeProduct(context, getSourceProduct());
-        final Object object = context.getProperty(Constants.Y_FLIPPED_PROPERTY_NAME);
-        if (object instanceof Boolean) {
-            isYFlipped = (Boolean) object;
+        final Object yFlippedProperty = context.getProperty(Constants.Y_FLIPPED_PROPERTY_NAME);
+        if (yFlippedProperty instanceof Boolean) {
+            isYFlipped = (Boolean) yFlippedProperty;
+        }
+        final Object writeGeophysicalProperty = context.getProperty(
+                Constants.WRITE_LOGSCALED_BANDS_GEOPHYSICAL_PROPERTY);
+        if (writeGeophysicalProperty instanceof Boolean) {
+            writeGeophysical = (Boolean) writeGeophysicalProperty;
         }
 
     }
@@ -94,8 +100,19 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
         final int[] writeOrigin = new int[2];
         writeOrigin[xIndex] = sourceOffsetX;
 
+        ProductData scaledBuffer;
+        if (writeGeophysical && sourceBand.isLog10Scaled()) {
+            scaledBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32, sourceBuffer.getNumElems());
+            for (int i = 0; i < sourceBuffer.getNumElems(); i++) {
+                double elemDoubleAt = sourceBuffer.getElemDoubleAt(i);
+                scaledBuffer.setElemDoubleAt(i, sourceBand.scale(elemDoubleAt));
+            }
+        } else {
+            scaledBuffer = sourceBuffer;
+        }
+
         final int[] sourceShape = new int[]{sourceHeight, sourceWidth};
-        final Array sourceArray = Array.factory(dataType, sourceShape, sourceBuffer.getElems());
+        final Array sourceArray = Array.factory(dataType, sourceShape, scaledBuffer.getElems());
 
         final int[] sourceOrigin = new int[2];
         sourceOrigin[xIndex] = 0;
@@ -103,9 +120,8 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
         for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
             writeOrigin[yIndex] = isYFlipped ? (sceneHeight - 1) - y : y;
             sourceOrigin[yIndex] = y - sourceOffsetY;
-            Array dataArrayLine;
             try {
-                dataArrayLine = sourceArray.sectionNoReduce(sourceOrigin, writeShape, null);
+                Array dataArrayLine = sourceArray.sectionNoReduce(sourceOrigin, writeShape, null);
                 writeable.write(variableName, writeOrigin, dataArrayLine);
             } catch (InvalidRangeException e) {
                 e.printStackTrace();

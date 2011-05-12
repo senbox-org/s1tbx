@@ -84,6 +84,7 @@ Bugs
 [BEAM-1246] - Layer-Manager does not reflect changes of mask names in Mask-Manager
 [BEAM-1241] - For certain AATSR-products, TiePointGeoCoding.getPixelPos(GeoPos, PixelPos) yields wrong results
 [BEAM-1239] - For MERIS bands the solar flux has the wrong unit
+[BEAM-1233] - NetCDF-CF does not consider log-scaled attribute
 [BEAM-1229] - OBPG SeaWiFS L2 files can not be opened
 [BEAM-1228] - Rangefinder does not work
 [BEAM-1227] - PConvert doesn't generate images if profile contains calculated RGB bands

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -27,6 +27,7 @@ import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFileWriteable;
@@ -51,6 +52,9 @@ public class CfBandPart extends ProfilePartIO {
 
     @Override
     public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
+        // In order to inform the writer that it shall write the geophysical values of log-scaled bands
+        // we set this property here.
+        ctx.setProperty(Constants.WRITE_LOGSCALED_BANDS_GEOPHYSICAL_PROPERTY, true);
         defineRasterDataNodes(ctx, p.getBands());
     }
 
@@ -81,16 +85,26 @@ public class CfBandPart extends ProfilePartIO {
         if (unsigned) {
             variable.addAttribute(new Attribute("_Unsigned", String.valueOf(unsigned)));
         }
-        final double scalingFactor = rasterDataNode.getScalingFactor();
-        if (scalingFactor != 1.0) {
-            variable.addAttribute(new Attribute(Constants.SCALE_FACTOR_ATT_NAME, scalingFactor));
-        }
-        final double scalingOffset = rasterDataNode.getScalingOffset();
-        if (scalingOffset != 0.0) {
-            variable.addAttribute(new Attribute(Constants.ADD_OFFSET_ATT_NAME, scalingOffset));
+
+        double noDataValue;
+        if (!rasterDataNode.isLog10Scaled()) {
+            final double scalingFactor = rasterDataNode.getScalingFactor();
+            if (scalingFactor != 1.0) {
+                variable.addAttribute(new Attribute(Constants.SCALE_FACTOR_ATT_NAME, scalingFactor));
+            }
+            final double scalingOffset = rasterDataNode.getScalingOffset();
+            if (scalingOffset != 0.0) {
+                variable.addAttribute(new Attribute(Constants.ADD_OFFSET_ATT_NAME, scalingOffset));
+            }
+            noDataValue = rasterDataNode.getNoDataValue();
+        } else {
+            // scaling information is not written anymore for log10 scaled bands
+            // instead we always write geophysical values
+            // we do this because log scaling is not supported by NetCDF-CF conventions
+            noDataValue = rasterDataNode.getGeophysicalNoDataValue();
         }
         if (rasterDataNode.isNoDataValueUsed()) {
-            variable.addAttribute(new Attribute(Constants.FILL_VALUE_ATT_NAME, rasterDataNode.getNoDataValue()));
+            variable.addAttribute(new Attribute(Constants.FILL_VALUE_ATT_NAME, noDataValue));
         }
     }
 
@@ -99,8 +113,15 @@ public class CfBandPart extends ProfilePartIO {
         final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (RasterDataNode rasterDataNode : rasterDataNodes) {
             String variableName = ReaderUtils.getVariableName(rasterDataNode);
-            final Variable variable = ncFile.addVariable(variableName, DataTypeUtils.getNetcdfDataType(rasterDataNode),
-                                                         dimensions);
+
+            int dataType;
+            if (rasterDataNode.isLog10Scaled()) {
+                dataType = rasterDataNode.getGeophysicalDataType();
+            } else {
+                dataType = rasterDataNode.getDataType();
+            }
+            DataType netcdfDataType = DataTypeUtils.getNetcdfDataType(dataType);
+            final Variable variable = ncFile.addVariable(variableName, netcdfDataType, dimensions);
             writeCfBandAttributes(rasterDataNode, variable);
         }
     }

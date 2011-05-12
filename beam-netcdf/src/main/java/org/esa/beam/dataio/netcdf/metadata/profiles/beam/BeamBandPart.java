@@ -85,7 +85,7 @@ public class BeamBandPart extends ProfilePartIO {
         final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : p.getBands()) {
-            final DataType ncDataType = DataTypeUtils.getNetcdfDataType(band);
+            final DataType ncDataType = DataTypeUtils.getNetcdfDataType(band.getDataType());
             String variableName = ReaderUtils.getVariableName(band);
             final Variable variable = ncFile.addVariable(variableName, ncDataType, dimensions);
             CfBandPart.writeCfBandAttributes(band, variable);
