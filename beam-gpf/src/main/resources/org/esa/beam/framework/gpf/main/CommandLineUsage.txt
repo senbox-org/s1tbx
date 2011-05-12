@@ -27,7 +27,8 @@ Options:
                      default format is ''{2}''. Ony used, if the graph
                      in <graph-file> does not specify its own ''Write'' operator.
   -p <file>          A (Java Properties) file containing processing
-                     parameters in the form <name>=<value>. Entries in this
+                     parameters in the form <name>=<value> or a XML file
+                     containing a a parameter DOM for the operator. Entries in this
                      file are overwritten by the -P<name>=<value> command-line
                      option (see below).
   -c <cache-size>    Sets the tile cache size in bytes. Value can be suffixed
