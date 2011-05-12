@@ -18,6 +18,7 @@ package org.esa.beam.meris.radiometry.visat;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
@@ -32,6 +33,7 @@ import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.io.FileUtils;
 
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -62,10 +64,10 @@ class RadiometryForm extends JTabbedPane {
         addTab("I/O Parameters", ioParamPanel);
         addTab("Processing Parameters", createProcessingParamTab());
         final PropertyContainer targetProductPC = targetProductSelector.getModel().getValueContainer();
-        this.propertySet.addProperty(targetProductPC.getProperty("formatName"));
-        processingParamBindingContext.bindEnabledState("doRadToRefl", false, "formatName",
-                                                       EnvisatConstants.ENVISAT_FORMAT_NAME);
-        this.propertySet.addPropertyChangeListener("formatName", new FormatChangeListener());
+        targetProductPC.addPropertyChangeListener("formatName", new FormatChangeListener());
+        String formatName = targetProductPC.getProperty("formatName").getValue();
+        final boolean isEnvisatFormatSelected = EnvisatConstants.ENVISAT_FORMAT_NAME.equals(formatName);
+        updateEnabledState(isEnvisatFormatSelected);
     }
 
     public void prepareShow() {
@@ -99,6 +101,13 @@ class RadiometryForm extends JTabbedPane {
         return new JScrollPane(parametersPanel);
     }
 
+    private void updateEnabledState(boolean isEnvisatFormatSelected) {
+        Binding binding = processingParamBindingContext.getBinding("doRadToRefl");
+        for (JComponent component : binding.getComponents()) {
+            component.setEnabled(!isEnvisatFormatSelected);
+        }
+    }
+
     private class SourceProductChangeListener extends AbstractSelectionChangeListener {
 
         private static final String TARGET_PRODUCT_NAME_SUFFIX = "_radiometry";
@@ -125,6 +134,8 @@ class RadiometryForm extends JTabbedPane {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             final boolean isEnvisatFormatSelected = EnvisatConstants.ENVISAT_FORMAT_NAME.equals(evt.getNewValue());
+            updateEnabledState(isEnvisatFormatSelected);
+
             if (isEnvisatFormatSelected) {
                 if ((Boolean) propertySet.getValue("doRadToRefl")) {
                     propertySet.setValue("doRadToRefl", false);
