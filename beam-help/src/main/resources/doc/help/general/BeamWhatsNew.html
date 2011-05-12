@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
   ~
   ~ This program is free software; you can redistribute it and/or modify it
   ~ under the terms of the GNU General Public License as published by the Free
@@ -33,27 +33,42 @@
     </tr>
 </table>
 
-<h3>BEAM Version 4.8</h3>
-<p>The most important features and enhancements introduced in BEAM 4.8 are summarized here:</p>
+<h3>BEAM Version 4.9</h3>
+
+<p>The most important features and enhancements introduced in BEAM 4.9 are summarized here:</p>
+<ul>
+    <li>Product files can now be dragged from the file explorer into the products view.</li>
+    <li>Introduced a new operator for MERIS named 'Radiometry Correction'. It combines a
+        SMILE correction, an equalisation, a radiance-to-reflectance conversion and a new
+        radiometric re-calibration.
+    </li>
+    <li>A new tool for exporting pixels from a bunch of data products has been introduced.</li>
+    <li>Subsets can now be created by specifying geo-coordinates.</li>
+</ul>
+
+<hr>
+<h5>BEAM 4.8</h5>
 <ul>
     <li><b>Readers</b> for <a href="../visat/ImportSpotVgt.html">SPOT VEGETATION</a> products,
         <a href="../visat/ImportLandsatTM.html">Landsat TM</a> products in GeoTIFF format,
-        <a href="../visat/ImportNetCDF.html">gridded HDF-EOS</a> products, and generic <a href="../visat/ImportNetCDF.html">NetCDF/CF</a>-products have been added..
+        <a href="../visat/ImportNetCDF.html">gridded HDF-EOS</a> products, and generic <a
+                href="../visat/ImportNetCDF.html">NetCDF/CF</a>-products have been added..
     </li>
     <li>
         A <b>writer</b> for generic <a href="../visat/ExportNetCdfProduct.html">NetCDF/CF</a>-products has been added.
     </li>
     <li>
         The possibility to apply <b>auto-grouping</b> in the product tree has benn added; that is, product
-  nodes whose names begin equally are automatically put into a common group.
+        nodes whose names begin equally are automatically put into a common group.
     </li>
     <li>
         A <a href="../visat/Toolbars.html">toolbar button</a> has been added to <b>show a world map overlay</b>
         on geographic lat/lon projected products.
     </li>
     <li>
-        The ESA GlobCover Land Cover Map is used as default world map layer now; however, it is still possible to choose the
- NASA Blue Marble as world map layer instead.
+        The ESA GlobCover Land Cover Map is used as default world map layer now; however, it is still possible to choose
+        the
+        NASA Blue Marble as world map layer instead.
     </li>
 </ul>
 <hr>
@@ -67,8 +82,10 @@
         Any number of raster data masks can be defined by <b>band maths expressions</b>, <b>value ranges</b> and
         <b>existing geometries</b>. Each mask can serve as a <b>region of interest (ROI)</b> for raster data analysis.
     </li>
-    <li>The <a href="../visat/StatisticsDialog.html">Statistics</a>, <a href="../visat/HistogramDialog.html">Histogram</a>,
-        and <a href="../visat/ScatterplotDialog.html">Scatter Plot</a> tool windows have been enhanced in order to <b>support the
+    <li>The <a href="../visat/StatisticsDialog.html">Statistics</a>, <a
+            href="../visat/HistogramDialog.html">Histogram</a>,
+        and <a href="../visat/ScatterplotDialog.html">Scatter Plot</a> tool windows have been enhanced in order to <b>support
+            the
             new, named ROIs</b>.
         The <a href="../visat/StatisticsDialog.html">Statistics</a> tool window can now operate on <b>multiple ROIs</b>.
     </li>
@@ -80,7 +97,7 @@
         <b>100 predefined, map projections</b> based on their <a href="http://www.epsg.org/">EPSG</a>
         codes. For user-defined map projections you can now select from 25 map projection
         transformations and more than 100 geodetic datums. Since the new Reprojection, Mosaicing and
-        Orthorectification processors are developed using the  <b>BEAM Graph Processing Framework</b> (GPF), they now
+        Orthorectification processors are developed using the <b>BEAM Graph Processing Framework</b> (GPF), they now
         offer a <b>powerful command-line</b> and can be used in any GPF XML <b>processing graph</b> for, e.g., pre-
         and post-processing.
         Finally, the <b>runtime performance</b> of this tools has been drastically improved.
