@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,7 +17,13 @@ package org.esa.beam.dataio.modis;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.AbstractGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Scene;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.IndexValidator;
@@ -72,11 +78,11 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         Guardian.assertNotNull("lonGrid", lonGrid);
         Guardian.assertNotNull("datum", datum);
         if (latGrid.getRasterWidth() != lonGrid.getRasterWidth() ||
-                latGrid.getRasterHeight() != lonGrid.getRasterHeight() ||
-                latGrid.getOffsetX() != lonGrid.getOffsetX() ||
-                latGrid.getOffsetY() != lonGrid.getOffsetY() ||
-                latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
-                latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
+            latGrid.getRasterHeight() != lonGrid.getRasterHeight() ||
+            latGrid.getOffsetX() != lonGrid.getOffsetX() ||
+            latGrid.getOffsetY() != lonGrid.getOffsetY() ||
+            latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
+            latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
             throw new IllegalArgumentException("latGrid is not compatible with lonGrid");
         }
         _latGrid = latGrid;
@@ -110,6 +116,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @param geoPos   the geographical position as lat/lon in the coodinate system determined by {@link #getDatum()}
      * @param pixelPos an instance of <code>Point</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
+     *
      * @return the pixel co-ordinates as x/y
      */
     public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
@@ -153,6 +160,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
+     *
      * @return the geographical position as lat/lon in the coodinate system determined by {@link #getDatum()}
      */
     public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
@@ -180,21 +188,34 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ModisTiePointGeoCoding that = (ModisTiePointGeoCoding) o;
-
-        if (!_latGrid.equals(that._latGrid)) return false;
-        if (!_lonGrid.equals(that._lonGrid)) return false;
+        if (_latGrid == null || that._latGrid == null) {
+            return false;
+        }
+        if (!_latGrid.equals(that._latGrid)) {
+            return false;
+        }
+        if (_lonGrid == null || that._lonGrid == null) {
+            return false;
+        }
+        if (!_lonGrid.equals(that._lonGrid)) {
+            return false;
+        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = _latGrid.hashCode();
-        result = 31 * result + _lonGrid.hashCode();
+        int result = _latGrid != null ? _latGrid.hashCode() : 0;
+        result = 31 * result + (_lonGrid != null ? _lonGrid.hashCode() : 0);
         return result;
     }
 
@@ -205,6 +226,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
      */
+    @Override
     public void dispose() {
         for (GeoCoding gc : _gcList) {
             if (gc != null) {
@@ -264,7 +286,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
             } else {
                 final TiePointGrid latTPG = new TiePointGrid("lat" + y, stripeW, stripeH, osX, osY, ssX, ssY, lats);
                 final TiePointGrid lonTPG = new TiePointGrid("lon" + y, stripeW, stripeH, osX, osY, ssX, ssY, lons,
-                        true);
+                                                             true);
                 final TiePointGeoCoding geoCoding = new TiePointGeoCoding(latTPG, lonTPG, _datum);
                 _cross180 = _cross180 || geoCoding.isCrossingMeridianAt180();
                 _gcList.add(geoCoding);
@@ -388,6 +410,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @param srcScene  the source scene
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code>
+     *
      * @return true, if the geo-coding could be transferred.
      */
     @Override
