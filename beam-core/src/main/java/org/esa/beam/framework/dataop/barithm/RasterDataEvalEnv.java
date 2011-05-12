@@ -110,39 +110,21 @@ public class RasterDataEvalEnv implements EvalEnv {
     }
 
     /**
-     * Gets the absolute pixel's x-coordinate within the region.
+     * Gets the absolute pixel's x-coordinate within the data raster (from image at level zero in an image pyramid).
      *
-     * @return the current pixel's x-coordinate
-     */
-    public final int getRegionX() {
-        return offsetX + elemIndex % regionWidth;
-    }
-
-    /**
-     * Gets the absolute pixel's y-coordinate within the region.
-     *
-     * @return the current pixel's y-coordinate
-     */
-    public final int getRegionY() {
-        return offsetY + elemIndex / regionWidth;
-    }
-
-    /**
-     * Gets the absolute pixel's x-coordinate within the data raster (level zero).
-     *
-     * @return the current pixel's x-coordinate
+     * @return the current source pixel's x-coordinate
      */
     public final int getPixelX() {
-        return levelImageSupport.getSourceX(getRegionX());
+        return levelImageSupport.getSourceX(offsetX + elemIndex % regionWidth);
     }
 
     /**
-     * Gets the absolute pixel's y-coordinate within the data raster (level zero).
+     * Gets the absolute pixel's y-coordinate within the data raster (from image at level zero in an image pyramid).
      *
-     * @return the current pixel's y-coordinate
+     * @return the current source pixel's y-coordinate
      */
     public final int getPixelY() {
-        return levelImageSupport.getSourceY(getRegionY());
+        return levelImageSupport.getSourceY(offsetY + elemIndex / regionWidth);
     }
 
     /**
