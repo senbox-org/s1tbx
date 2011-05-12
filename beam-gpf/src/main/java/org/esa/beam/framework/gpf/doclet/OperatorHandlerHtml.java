@@ -150,16 +150,18 @@ public class OperatorHandlerHtml implements OperatorHandler {
             writer.println("<table>");
             writer.println("<tr>");
             writer.println("  <th>Name</th>");
-            writer.println("  <th>Type</th>");
-            writer.println("  <th>Description</th>");
+            writer.println("  <th>Data Type</th>");
             writer.println("  <th>Default</th>");
+            writer.println("  <th>Description</th>");
+            writer.println("  <th>Constraints</th>");
             writer.println("</tr>");
             for (ParameterDesc parameterDesc : parameterDescs) {
                 writer.println("<tr>");
                 writer.println("  <td><code>" + parameterDesc.getName() + "</code></td>");
                 writer.println("  <td><code>" + parameterDesc.getType().getSimpleName() + "</code></td>");
+                writer.println("  <td><code>" + parameterDesc.getDefaultValue() + "</code></td>");
                 writer.println("  <td>" + getFullDescription(parameterDesc) + "</td>");
-                writer.println("  <td>" + parameterDesc.getDefaultValue() + "</td>");
+                writer.println("  <td>" + parameterDesc.getConstraints() + "</td>");
                 writer.println("</tr>");
             }
             writer.println("</table>");

@@ -38,57 +38,66 @@ Implements a spectral unmixing algorithm.
 <table>
 <tr>
   <th>Name</th>
-  <th>Type</th>
-  <th>Description</th>
+  <th>Data Type</th>
   <th>Default</th>
+  <th>Description</th>
+  <th>Constraints</th>
 </tr>
 <tr>
   <td><code>sourceBands</code></td>
   <td><code>String[]</code></td>
+  <td><code></code></td>
   <td>The list of spectral bands providing the source spectrum.</td>
   <td></td>
 </tr>
 <tr>
   <td><code>endmembers</code></td>
   <td><code>Endmember[]</code></td>
+  <td><code></code></td>
   <td>The list of endmember spectra. Wavelengths must be given in nanometers.</td>
   <td></td>
 </tr>
 <tr>
   <td><code>endmemberFile</code></td>
   <td><code>File</code></td>
+  <td><code></code></td>
   <td>A text file containing (additional) endmembers in a table. Wavelengths must be given in nanometers.</td>
   <td></td>
 </tr>
 <tr>
   <td><code>unmixingModelName</code></td>
   <td><code>String</code></td>
+  <td><code>Constrained LSU</code></td>
   <td>The unmixing model.</td>
-  <td>Constrained LSU</td>
+  <td>value set: [Unconstrained LSU, Constrained LSU, Fully Constrained LSU]</td>
 </tr>
 <tr>
   <td><code>abundanceBandNameSuffix</code></td>
   <td><code>String</code></td>
+  <td><code>_abundance</code></td>
   <td>The suffix for the generated abundance band names (name = endmember + suffix).</td>
-  <td>_abundance</td>
+  <td>not null; pattern: [a-zA-Z_0-9]*</td>
 </tr>
 <tr>
   <td><code>errorBandNameSuffix</code></td>
   <td><code>String</code></td>
+  <td><code>_error</code></td>
   <td>The suffix for the generated error band names (name = source + suffix).</td>
-  <td>_error</td>
+  <td>not null; pattern: [a-zA-Z_0-9]*</td>
 </tr>
 <tr>
   <td><code>computeErrorBands</code></td>
   <td><code>boolean</code></td>
+  <td><code>false</code></td>
   <td>If 'true', error bands for all source bands will be generated.</td>
-  <td>false</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>minBandwidth</code></td>
   <td><code>double</code></td>
+  <td><code>10.0</code></td>
   <td>Minimum spectral bandwidth used for endmember wavelength matching.</td>
-  <td>10.0</td>
+  <td>interval: (0,*)</td>
 </tr>
 </table>
 <hr/>

@@ -116,9 +116,6 @@ public class N1PatcherOp extends MerisBasisOp implements Output {
     private ImageOutputStream outputStream;
     private final Object syncObject = new Object();
 
-    @Parameter(description = "The file to which the patched L1b product is written.")
-    private File patchedFile = null;
-
     @SourceProduct(alias = "n1", description = "The N1 file which is used as a template.")
     private Product n1Product;
 
@@ -129,6 +126,8 @@ public class N1PatcherOp extends MerisBasisOp implements Output {
     @TargetProduct
     private Product targetProduct;
 
+    @Parameter(description = "The file to which the patched L1b product is written.", notNull = true, notEmpty = true)
+    private File patchedFile;
 
     @Override
     public void initialize() throws OperatorException {

@@ -21,8 +21,9 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.util.StringUtils;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
-public class ParameterDesc extends FieldDesc{
+public class ParameterDesc extends FieldDesc {
     private final Parameter annotation;
 
     ParameterDesc(Field field, FieldDoc fieldDoc, Parameter annotation) {
@@ -32,7 +33,7 @@ public class ParameterDesc extends FieldDesc{
 
     @Override
     public String getName() {
-        if(StringUtils.isNotNullAndNotEmpty(annotation.alias())) {
+        if (StringUtils.isNotNullAndNotEmpty(annotation.alias())) {
             return annotation.alias();
         }
         return super.getName();
@@ -45,5 +46,40 @@ public class ParameterDesc extends FieldDesc{
 
     public String getDefaultValue() {
         return annotation.defaultValue();
+    }
+
+    public String getConstraints() {
+        String format = annotation.format();
+        boolean notNull = annotation.notNull();
+        boolean notEmpty = annotation.notEmpty();
+        String[] valueSet = annotation.valueSet();
+        String interval = annotation.interval();
+        String pattern = annotation.pattern();
+
+        StringBuilder sb = new StringBuilder(64);
+        if (notNull) {
+            appendItem(sb, "not null");
+        }
+        if (notEmpty) {
+            appendItem(sb, "non empty");
+        }
+        if (StringUtils.isNotNullAndNotEmpty(format)) {
+            appendItem(sb, "format: " + format);
+        }
+        if (StringUtils.isNotNullAndNotEmpty(pattern)) {
+            appendItem(sb, "pattern: " + pattern);
+        }
+        if (valueSet != null && valueSet.length > 0) {
+            appendItem(sb, "value set: " + Arrays.toString(valueSet));
+        }
+        if (StringUtils.isNotNullAndNotEmpty(interval)) {
+            appendItem(sb, "interval: " + interval);
+        }
+        return sb.toString();
+    }
+
+    private static void appendItem(StringBuilder sb, String str) {
+        sb.append(sb.length() > 0 ? "; " : "");
+        sb.append(str);
     }
 }

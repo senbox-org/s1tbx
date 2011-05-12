@@ -52,51 +52,59 @@ This operator is used to perform radiometric corrections on MERIS L1b data produ
 <table>
 <tr>
   <th>Name</th>
-  <th>Type</th>
-  <th>Description</th>
+  <th>Data Type</th>
   <th>Default</th>
+  <th>Description</th>
+  <th>Constraints</th>
 </tr>
 <tr>
   <td><code>doCalibration</code></td>
   <td><code>boolean</code></td>
+  <td><code>true</code></td>
   <td>Whether to perform the calibration.</td>
-  <td>true</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>sourceRacFile</code></td>
   <td><code>File</code></td>
+  <td><code></code></td>
   <td>The radiometric correction auxiliary file for the source product.</td>
   <td></td>
 </tr>
 <tr>
   <td><code>targetRacFile</code></td>
   <td><code>File</code></td>
+  <td><code></code></td>
   <td>The radiometric correction auxiliary file for the target product.</td>
   <td></td>
 </tr>
 <tr>
   <td><code>doSmile</code></td>
   <td><code>boolean</code></td>
+  <td><code>true</code></td>
   <td>Whether to perform Smile-effect correction.</td>
-  <td>true</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>doEqualization</code></td>
   <td><code>boolean</code></td>
+  <td><code>true</code></td>
   <td>Perform removal of detector-to-detector systematic radiometric differences in MERIS L1b data products.</td>
-  <td>true</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>reproVersion</code></td>
   <td><code>ReprocessingVersion</code></td>
+  <td><code>AUTO_DETECT</code></td>
   <td>The version of the reprocessing the product comes from. Is only used if equalisation is enabled.</td>
-  <td>AUTO_DETECT</td>
+  <td>value set: [AUTO_DETECT, REPROCESSING_2, REPROCESSING_3]</td>
 </tr>
 <tr>
   <td><code>doRadToRefl</code></td>
   <td><code>boolean</code></td>
+  <td><code>false</code></td>
   <td>Whether to perform radiance-to-reflectance conversion.</td>
-  <td>false</td>
+  <td></td>
 </tr>
 </table>
 <hr/>

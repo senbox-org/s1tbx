@@ -40,13 +40,15 @@ This operator is used to extracts pixels from given locations and source product
 <table>
 <tr>
   <th>Name</th>
-  <th>Type</th>
-  <th>Description</th>
+  <th>Data Type</th>
   <th>Default</th>
+  <th>Description</th>
+  <th>Constraints</th>
 </tr>
 <tr>
   <td><code>inputPaths</code></td>
   <td><code>File[]</code></td>
+  <td><code></code></td>
   <td>The paths to be scanned for input products. May point to a single file or a directory.
 If path ends with '**' the directory is scanned recursively.</td>
   <td></td>
@@ -54,88 +56,102 @@ If path ends with '**' the directory is scanned recursively.</td>
 <tr>
   <td><code>exportBands</code></td>
   <td><code>Boolean</code></td>
+  <td><code>true</code></td>
   <td>Specifies if bands are to be exported</td>
-  <td>true</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>exportTiePoints</code></td>
   <td><code>Boolean</code></td>
+  <td><code>true</code></td>
   <td>Specifies if tie-points are to be exported</td>
-  <td>true</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>exportMasks</code></td>
   <td><code>Boolean</code></td>
+  <td><code>true</code></td>
   <td>Specifies if masks are to be exported</td>
-  <td>true</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>coordinates</code></td>
   <td><code>Coordinate[]</code></td>
+  <td><code></code></td>
   <td>The geo-coordinates</td>
   <td></td>
 </tr>
 <tr>
   <td><code>timeDifference</code></td>
   <td><code>String</code></td>
+  <td><code>1D</code></td>
   <td>The acceptable time difference compared to the time given for a coordinate.
 The format is a number followed by (D)ay, (H)our or (M)inute.</td>
-  <td>1D</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>coordinatesFile</code></td>
   <td><code>File</code></td>
+  <td><code></code></td>
   <td>Path to a file containing geo-coordinates. BEAM's placemark files can be used.</td>
   <td></td>
 </tr>
 <tr>
   <td><code>windowSize</code></td>
   <td><code>Integer</code></td>
+  <td><code>1</code></td>
   <td>Side length of surrounding window (uneven)</td>
-  <td>1</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>outputDir</code></td>
   <td><code>File</code></td>
+  <td><code></code></td>
   <td>The output directory.</td>
-  <td></td>
+  <td>not null</td>
 </tr>
 <tr>
   <td><code>outputFilePrefix</code></td>
   <td><code>String</code></td>
+  <td><code>pixEx</code></td>
   <td>The prefix is used to name the output files.</td>
-  <td>pixEx</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>expression</code></td>
   <td><code>String</code></td>
+  <td><code></code></td>
   <td>Band maths expression (optional). Defines valid pixels.</td>
   <td></td>
 </tr>
 <tr>
   <td><code>exportExpressionResult</code></td>
   <td><code>Boolean</code></td>
+  <td><code>true</code></td>
   <td>If true, the expression result is exported per pixel, otherwise the expression 
 is used as filter (all pixels in given window must be valid).</td>
-  <td>true</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>exportSubScenes</code></td>
   <td><code>boolean</code></td>
+  <td><code>false</code></td>
   <td>If set to true, sub-scenes of the regions, where pixels are found, are exported.</td>
-  <td>false</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>subSceneBorderSize</code></td>
   <td><code>int</code></td>
+  <td><code>0</code></td>
   <td>An additional border around the region where pixels are found.</td>
-  <td>0</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>exportKmz</code></td>
   <td><code>boolean</code></td>
+  <td><code>false</code></td>
   <td>If set to true, a Google KMZ file will be created, which contains the coordinates where pixels are found.</td>
-  <td>false</td>
+  <td></td>
 </tr>
 </table>
 <hr/>

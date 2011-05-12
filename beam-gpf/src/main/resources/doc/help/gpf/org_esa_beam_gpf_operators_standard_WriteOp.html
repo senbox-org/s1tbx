@@ -67,39 +67,45 @@ This standard operator is used to store a data product to a specified file locat
 <table>
 <tr>
   <th>Name</th>
-  <th>Type</th>
-  <th>Description</th>
+  <th>Data Type</th>
   <th>Default</th>
+  <th>Description</th>
+  <th>Constraints</th>
 </tr>
 <tr>
   <td><code>file</code></td>
   <td><code>File</code></td>
+  <td><code></code></td>
   <td>The output file to which the data product is written.</td>
   <td></td>
 </tr>
 <tr>
   <td><code>formatName</code></td>
   <td><code>String</code></td>
+  <td><code>BEAM-DIMAP</code></td>
   <td>The name of the output file format.</td>
-  <td>BEAM-DIMAP</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>deleteOutputOnFailure</code></td>
   <td><code>boolean</code></td>
+  <td><code>true</code></td>
   <td>If true, all output files are deleted after a failed write operation.</td>
-  <td>true</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>writeEntireTileRows</code></td>
   <td><code>boolean</code></td>
+  <td><code>true</code></td>
   <td>If true, the write operation waits until an entire tile row is computed.</td>
-  <td>true</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>clearCacheAfterRowWrite</code></td>
   <td><code>boolean</code></td>
+  <td><code>false</code></td>
   <td>If true, the internal tile cache is cleared after a tile row has been written. Ignored if writeEntireTileRows=false.</td>
-  <td>false</td>
+  <td></td>
 </tr>
 </table>
 <hr/>

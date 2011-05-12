@@ -44,51 +44,59 @@ This operator is used to spatially collocate two data products. It requires two 
 <table>
 <tr>
   <th>Name</th>
-  <th>Type</th>
-  <th>Description</th>
+  <th>Data Type</th>
   <th>Default</th>
+  <th>Description</th>
+  <th>Constraints</th>
 </tr>
 <tr>
   <td><code>targetProductName</code></td>
   <td><code>String</code></td>
+  <td><code>_collocated</code></td>
   <td>The name of the target product</td>
-  <td>_collocated</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>targetProductType</code></td>
   <td><code>String</code></td>
+  <td><code>COLLOCATED</code></td>
   <td>The product type string for the target product (informal)</td>
-  <td>COLLOCATED</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>renameMasterComponents</code></td>
   <td><code>boolean</code></td>
+  <td><code>true</code></td>
   <td>Whether or nor components of the master product shall be renamed in the target product.</td>
-  <td>true</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>renameSlaveComponents</code></td>
   <td><code>boolean</code></td>
+  <td><code>true</code></td>
   <td>Whether or nor components of the slave product shall be renamed in the target product.</td>
-  <td>true</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>masterComponentPattern</code></td>
   <td><code>String</code></td>
+  <td><code>${ORIGINAL_NAME}_M</code></td>
   <td>The text pattern to be used when renaming master components.</td>
-  <td>${ORIGINAL_NAME}_M</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>slaveComponentPattern</code></td>
   <td><code>String</code></td>
+  <td><code>${ORIGINAL_NAME}_S</code></td>
   <td>The text pattern to be used when renaming slave components.</td>
-  <td>${ORIGINAL_NAME}_S</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>resamplingType</code></td>
   <td><code>ResamplingType</code></td>
+  <td><code>NEAREST_NEIGHBOUR</code></td>
   <td>The method to be used when resampling the slave grid onto the master grid.</td>
-  <td>NEAREST_NEIGHBOUR</td>
+  <td>value set: [NEAREST_NEIGHBOUR, BILINEAR_INTERPOLATION, CUBIC_CONVOLUTION]</td>
 </tr>
 </table>
 <hr/>

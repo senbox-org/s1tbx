@@ -61,7 +61,7 @@ public class ReadOp extends Operator {
 
     private ProductReader beamReader;
 
-    @Parameter(description = "The file from which the data product is read.")
+    @Parameter(description = "The file from which the data product is read.", notNull = true, notEmpty = true)
     private File file;
     @TargetProduct
     private Product targetProduct;

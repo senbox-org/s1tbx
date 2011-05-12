@@ -71,6 +71,7 @@ import static java.lang.Math.*;
  */
 @OperatorMetadata(alias = "Subset",
                   authors = "Marco Zuehlke, Norman Fomferra, Marco Peters",
+                  version = "1.0",
                   copyright = "(c) 2011 by Brockmann Consult",
                   description = "Create a spatial and/or spectral subset of a data product.")
 public class SubsetOp extends Operator {
@@ -80,13 +81,14 @@ public class SubsetOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "The subset region in pixel coordinates. If not given, the entire scene is used. (see also 'geoRegion')")
+    @Parameter(description = "The subset region in pixel coordinates.\n" +
+            "If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.")
     private Rectangle region;
     @Parameter(converter = JtsGeometryConverter.class,
                description = "The subset region in geographical coordinates using WKT-format,\n" +
                              "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
-                             "(make sure to quote the option due to spaces in <geometry>)." +
-                       "If not given, the entire scene is used. (see also 'region').")
+                             "(make sure to quote the option due to spaces in <geometry>).\n" +
+                       "If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.")
     private Geometry geoRegion;
     @Parameter(defaultValue = "1",
                 description = "The pixel sub-sampling step in X (horizontal image direction)")
@@ -98,9 +100,11 @@ public class SubsetOp extends Operator {
                description = "Forces the operator to extend the subset region to the full swath.")
     private boolean fullSwath;
 
-    @Parameter(description = "The comma-separated list of names of tie-point grids to be copied. If not given, all bands are copied.")
+    @Parameter(description = "The comma-separated list of names of tie-point grids to be copied. \n" +
+            "If not given, all bands are copied.")
     private String[] tiePointGridNames;
-    @Parameter(description = "The comma-separated list of names of bands to be copied. If not given, all bands are copied.")
+    @Parameter(description = "The comma-separated list of names of bands to be copied.\n" +
+            "If not given, all bands are copied.")
     private String[] bandNames;
     @Parameter(defaultValue = "false",
                description = "Whether to copy the metadata of the source product.")

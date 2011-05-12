@@ -19,7 +19,7 @@
   <tr><td><b>Name:</b></td><td><code>Subset</code></td></tr>
   <tr><td><b>Full name:</b></td><td><code>org.esa.beam.gpf.operators.standard.SubsetOp</code></td></tr>
   <tr><td><b>Purpose:</b></td><td>Create a spatial and/or spectral subset of a data product.</td></tr>
-  <tr><td><b>Version:</b></td><td></td></tr>
+  <tr><td><b>Version:</b></td><td>1.0</td></tr>
 </table>
 <h2>Description</h2>
 This operator is used to create either spatial and/or spectral subsets of a data product.
@@ -41,59 +41,72 @@ This operator is used to create either spatial and/or spectral subsets of a data
 <table>
 <tr>
   <th>Name</th>
-  <th>Type</th>
-  <th>Description</th>
+  <th>Data Type</th>
   <th>Default</th>
+  <th>Description</th>
+  <th>Constraints</th>
 </tr>
 <tr>
   <td><code>region</code></td>
   <td><code>Rectangle</code></td>
-  <td>The subset region in pixel coordinates. If not given, the entire scene is used. (see also 'geoRegion')</td>
+  <td><code></code></td>
+  <td>The subset region in pixel coordinates.
+If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.</td>
   <td></td>
 </tr>
 <tr>
   <td><code>geoRegion</code></td>
   <td><code>Geometry</code></td>
+  <td><code></code></td>
   <td>The subset region in geographical coordinates using WKT-format,
 e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))
-(make sure to quote the option due to spaces in <geometry>).If not given, the entire scene is used. (see also 'region').</td>
+(make sure to quote the option due to spaces in <geometry>).
+If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.</td>
   <td></td>
 </tr>
 <tr>
   <td><code>subSamplingX</code></td>
   <td><code>int</code></td>
+  <td><code>1</code></td>
   <td>The pixel sub-sampling step in X (horizontal image direction)</td>
-  <td>1</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>subSamplingY</code></td>
   <td><code>int</code></td>
+  <td><code>1</code></td>
   <td>The pixel sub-sampling step in Y (vertical image direction)</td>
-  <td>1</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>fullSwath</code></td>
   <td><code>boolean</code></td>
+  <td><code>false</code></td>
   <td>Forces the operator to extend the subset region to the full swath.</td>
-  <td>false</td>
+  <td></td>
 </tr>
 <tr>
   <td><code>tiePointGridNames</code></td>
   <td><code>String[]</code></td>
-  <td>The comma-separated list of names of tie-point grids to be copied. If not given, all bands are copied.</td>
+  <td><code></code></td>
+  <td>The comma-separated list of names of tie-point grids to be copied. 
+If not given, all bands are copied.</td>
   <td></td>
 </tr>
 <tr>
   <td><code>bandNames</code></td>
   <td><code>String[]</code></td>
-  <td>The comma-separated list of names of bands to be copied. If not given, all bands are copied.</td>
+  <td><code></code></td>
+  <td>The comma-separated list of names of bands to be copied.
+If not given, all bands are copied.</td>
   <td></td>
 </tr>
 <tr>
   <td><code>copyMetadata</code></td>
   <td><code>boolean</code></td>
+  <td><code>false</code></td>
   <td>Whether to copy the metadata of the source product.</td>
-  <td>false</td>
+  <td></td>
 </tr>
 </table>
 <hr/>
