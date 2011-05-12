@@ -25,6 +25,8 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 // todo - use template engine, e.g. apache velocity (nf)
 public class OperatorHandlerHtml implements OperatorHandler {
@@ -50,6 +52,13 @@ public class OperatorHandlerHtml implements OperatorHandler {
 
     @Override
     public void stop(RootDoc root) throws IOException {
+        Collections.sort(operatorDescs, new Comparator<OperatorDesc>() {
+            @Override
+            public int compare(OperatorDesc od1, OperatorDesc od2) {
+                return od1.getName().compareTo(od2.getName());
+            }
+        });
+
         File indexFile = new File(baseDir, "OperatorIndex.html");
         PrintWriter writer = new PrintWriter(new FileWriter(indexFile));
         try {
