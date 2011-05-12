@@ -52,6 +52,7 @@ import java.util.Random;
 class MoreFuncs {
 
     private static final Random RANDOM = new Random();
+    public static final GeoPos INVALID_GEO_POS = new GeoPos(Float.NaN, Float.NaN);
 
     private MoreFuncs() {
     }
@@ -121,7 +122,9 @@ class MoreFuncs {
 
         BandArithmetic.addNamespaceExtender(new BandArithmetic.NamespaceExtender() {
             @Override
-            public void extendNamespace(WritableNamespace namespace, Product product, String namePrefix) {
+            public void extendNamespace(final WritableNamespace namespace, final Product product, final String namePrefix) {
+                final int width = product.getSceneRasterWidth();
+                final int height = product.getSceneRasterHeight();
                 final WeakReference<GeoCoding> geocodingRef = new WeakReference<GeoCoding>(product.getGeoCoding());
                 final Symbol lat = new AbstractSymbol.D("LAT") {
                     @Override
@@ -129,7 +132,7 @@ class MoreFuncs {
                         double latitude = Double.NaN;
                         GeoCoding geoCoding = geocodingRef.get();
                         if (geoCoding != null && geoCoding.canGetGeoPos()) {
-                            GeoPos geoPos = getGeoPos(geoCoding, env);
+                            GeoPos geoPos = getGeoPos(geoCoding, env, width, height);
                             if (geoPos.isValid()) {
                                 latitude = geoPos.getLat();
                             }
@@ -143,7 +146,7 @@ class MoreFuncs {
                         double longitude = Double.NaN;
                         GeoCoding geoCoding = geocodingRef.get();
                         if (geoCoding != null && geoCoding.canGetGeoPos()) {
-                            GeoPos geoPos = getGeoPos(geoCoding, env);
+                            GeoPos geoPos = getGeoPos(geoCoding, env, width, height);
                             if (geoPos.isValid()) {
                                 longitude = geoPos.getLon();
                             }
@@ -157,10 +160,14 @@ class MoreFuncs {
         });
     }
 
-    private static GeoPos getGeoPos(final GeoCoding geoCoding, EvalEnv env) {
+    private static GeoPos getGeoPos(final GeoCoding geoCoding, EvalEnv env, int width, int height) {
         RasterDataEvalEnv rasterEnv = (RasterDataEvalEnv) env;
-        PixelPos pixelPos = new PixelPos(rasterEnv.getPixelX() + 0.5f, rasterEnv.getPixelY() + 0.5f);
-        return geoCoding.getGeoPos(pixelPos, null);
+        int pixelX = rasterEnv.getPixelX();
+        int pixelY = rasterEnv.getPixelY();
+        if (pixelX >= 0 && pixelX < width && pixelY >= 0 && pixelY < height)  {
+            return geoCoding.getGeoPos(new PixelPos(pixelX + 0.5f, pixelY + 0.5f), null);
+        }
+        return INVALID_GEO_POS;
     }
 
     private static void registerBandProperties(WritableNamespace namespace, final Band band) {
