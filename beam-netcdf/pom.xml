@@ -27,7 +27,7 @@
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-netcdf</artifactId>
-    <name>NetCDF Product Reader and Writer</name>
+    <name>BEAM NetCDF Product Reader and Writer</name>
     <version>1.0.101</version>
     <url>http://envisat.esa.int/beam/</url>
 
