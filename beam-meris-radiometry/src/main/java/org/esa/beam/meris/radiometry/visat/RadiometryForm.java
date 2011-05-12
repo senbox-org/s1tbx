@@ -42,6 +42,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 
 class RadiometryForm extends JTabbedPane {
@@ -118,9 +119,14 @@ class RadiometryForm extends JTabbedPane {
             final Product selectedProduct = (Product) event.getSelection().getSelectedValue();
             if (selectedProduct != null) {
                 productName = FileUtils.getFilenameWithoutExtension(selectedProduct.getName());
-                String extension = FileUtils.getExtension(selectedProduct.getFileLocation());
-                if (".N1".equals(extension)) {
-                    targetProductSelector.getFormatNameComboBox().setSelectedItem(EnvisatConstants.ENVISAT_FORMAT_NAME);
+                File fileLocation = selectedProduct.getFileLocation();
+                // if product not saved the file location is null
+                if (fileLocation != null) {
+                    String extension = FileUtils.getExtension(fileLocation);
+                    if (".N1".equals(extension)) {
+                        targetProductSelector.getFormatNameComboBox().setSelectedItem(
+                                EnvisatConstants.ENVISAT_FORMAT_NAME);
+                    }
                 }
             }
             final TargetProductSelectorModel targetProductSelectorModel = targetProductSelector.getModel();
