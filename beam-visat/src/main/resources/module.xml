@@ -47,6 +47,8 @@
           [BEAM-1291] Virtual bands may compute wrong results for non-zero levels of image pyramids<br/>
           [BEAM-1284] Reprojection should preserve log-scaling of bands<br/>
           [BEAM-1276] Add VISAT scripting support for the Python language<br/>
+          [BEAM-1275] Add meta information as header to export of transects<br/>
+          [BEAM-1274] Add wavelength in all exports<br/>
           [BEAM-1251] Allow setting start and stop time<br/>
           [BEAM-1248] Title of transect-plot dialog is not updated if band selection changes<br/>
           [BEAM-1228] Rangefinder does not work<br/>

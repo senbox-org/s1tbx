@@ -45,13 +45,21 @@ o A new tool for exporting pixels from a bunch of data products has been introdu
 2) Complete list of BEAM 4.9 bug fixes and improvements
 
 New Features
+[BEAM-1297] - Add DEM-corrected latitude/longitude bands in satellite coordinates
 [BEAM-1251] - Allow setting start and stop time
 [BEAM-1216] - The NOAA AVHRR reader should support GAC products
 [BEAM-1180] - Allow dragging files into VISAT
 [BEAM-1151] - Geometry subset operator
 
 Improvements
+[BEAM-1301] - gpt should be able to load the configuration saved from the UI
+[BEAM-1296] - Update auxiliary data for MERIS smile-effect correction
+[BEAM-1288] - Add plausibility check for reprojection and orthorectification
+[BEAM-1280] - Configure image tile size for all readers
+[BEAM-1278] - GPF shall generate reports about tile computations
 [BEAM-1276] - Add VISAT scripting support for the Python language
+[BEAM-1275] - Add meta information as header to export of transects
+[BEAM-1274] - Add wavelength in all exports
 [BEAM-1263] - All processors shall provide help and "about" information
 [BEAM-1242] - Support MERIS FSG L2 products
 [BEAM-1237] - Update MERIS L2 flags for IODD version 8
@@ -61,11 +69,14 @@ Improvements
 [BEAM-1219]	- GPF API should implicitly convert parameter values
 [BEAM-1183] - Improve reprojection UI usability
 [BEAM-1156] - SubsetOp does not copy metadata
+[BEAM-1133] - Add missing help files for GPF and Operators
 [BEAM-1052] - All processors should be able to store/reload their configuration
 [BEAM-0009] - Define subsets with geographical co-ordinates
 
 
 Bugs
+[BEAM-1292] - Reprojection dialog shifts image if pixel size is changed
+[BEAM-1290] - GeoTIFF writer can't write very large files
 [BEAM-1291] - Virtual bands may compute wrong results for non-zero levels of image pyramids
 [BEAM-1284] - Reprojection should preserve log-scaling of bands
 [BEAM-1281] - Orthorectification can not be used if tie-points are selected as elevation model

@@ -1,3 +1,19 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-gpf</symbolicName>
@@ -15,6 +31,7 @@
     <changelog>
         <![CDATA[
         <p>From 4.8 to 4.9:<br/>
+            [BEAM-1301] gpt should be able to load the configuration saved from the UI<br/>
             [BEAM-1288] Add plausibility check for reprojection and orthorectification<br/>
             [BEAM-1284] Reprojection should preserve log-scaling of bands<br/>
             [BEAM-1278] GPF shall generate reports about tile computations<br/>
@@ -34,6 +51,7 @@
             [BEAM-1197] GPF N1 patcher is not thread safe<br/>
             [BEAM-1172] Boolean parameter values are overridden by default values<br/> 
             [BEAM-1151] Geometry subset operator<br/>
+            [BEAM-1133] Add missing help files for GPF and Operators<br/>
             [BEAM-1125] Outer scene region is not invalid for certain reprojected products<br/>
             [BEAM-1052] All processors should be able to store/reload their configuration<br/>
             [BEAM-961] GPT shall sort the list of available operators<br/>
