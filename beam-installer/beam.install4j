@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="5.0.8" transformSequenceNumber="3">
+<install4j version="5.0.6" transformSequenceNumber="3">
   <directoryPresets config="./src/main/resources/images" />
-  <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="4.9-SNAPSHOT" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+  <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="4.9" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -1757,6 +1757,46 @@ if (wizardContext != null) {
       <excludedComponents />
       <includedDownloadableComponents />
     </windows>
+    <windows name="Win64 JRE" id="4707" customizedId="" mediaFileName="beam_${compiler:sys.version}_win64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="64" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-amd64-1.6.0_25" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
+      <excludedLaunchers />
+      <excludedBeans />
+      <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
+      <exclude>
+        <entry location="bin/aatsr-sst.command" fileType="regular" />
+        <entry location="bin/aatsr-sst.sh" fileType="regular" />
+        <entry location="bin/beam-cli.command" fileType="regular" />
+        <entry location="bin/beam-cli.sh" fileType="regular" />
+        <entry location="bin/binning.command" fileType="regular" />
+        <entry location="bin/binning.sh" fileType="regular" />
+        <entry location="bin/flhmci.command" fileType="regular" />
+        <entry location="bin/flhmci.sh" fileType="regular" />
+        <entry location="bin/gpt.command" fileType="regular" />
+        <entry location="bin/gpt.sh" fileType="regular" />
+        <entry location="bin/mapproj.command" fileType="regular" />
+        <entry location="bin/mapproj.sh" fileType="regular" />
+        <entry location="bin/meris-cloud.command" fileType="regular" />
+        <entry location="bin/meris-cloud.sh" fileType="regular" />
+        <entry location="bin/meris-rad2refl.command" fileType="regular" />
+        <entry location="bin/meris-rad2refl.sh" fileType="regular" />
+        <entry location="bin/meris-smac.command" fileType="regular" />
+        <entry location="bin/meris-smac.sh" fileType="regular" />
+        <entry location="bin/meris-smile.command" fileType="regular" />
+        <entry location="bin/meris-smile.sh" fileType="regular" />
+        <entry location="bin/mosaic.command" fileType="regular" />
+        <entry location="bin/mosaic.sh" fileType="regular" />
+        <entry location="bin/pconvert.command" fileType="regular" />
+        <entry location="bin/pconvert.sh" fileType="regular" />
+        <entry location="bin/visat-d.command" fileType="regular" />
+        <entry location="bin/visat-d.sh" fileType="regular" />
+      </exclude>
+      <variables />
+      <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
+        <commentFiles />
+        <customAttributes />
+      </autoUpdate>
+      <excludedComponents />
+      <includedDownloadableComponents />
+    </windows>
     <macosFolder name="Mac OS X Folder" id="126" customizedId="" mediaFileName="beam_${compiler:sys.version}_macosx_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" customInstallBaseDir="" contentFilesType="1" downloadURL="">
       <excludedLaunchers />
       <excludedBeans />
@@ -1798,6 +1838,52 @@ if (wizardContext != null) {
       <excludedComponents />
       <includedDownloadableComponents />
     </macosFolder>
+    <unixInstaller name="Linux32 JRE" id="4713" customizedId="" mediaFileName="beam_${compiler:sys.version}_linux32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="linux-x86-1.6.0_25" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="">
+      <excludedLaunchers>
+        <launcher id="1086" />
+      </excludedLaunchers>
+      <excludedBeans />
+      <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
+      <exclude>
+        <entry location="beam-website.url" fileType="regular" />
+        <entry location="bin/aatsr-sst.bat" fileType="regular" />
+        <entry location="bin/aatsr-sst.command" fileType="regular" />
+        <entry location="bin/beam-cli.bat" fileType="regular" />
+        <entry location="bin/beam-cli.command" fileType="regular" />
+        <entry location="bin/binning.bat" fileType="regular" />
+        <entry location="bin/binning.command" fileType="regular" />
+        <entry location="bin/flhmci.bat" fileType="regular" />
+        <entry location="bin/flhmci.command" fileType="regular" />
+        <entry location="bin/gpt.bat" fileType="regular" />
+        <entry location="bin/gpt.command" fileType="regular" />
+        <entry location="bin/mapproj.bat" fileType="regular" />
+        <entry location="bin/mapproj.command" fileType="regular" />
+        <entry location="bin/meris-cloud.bat" fileType="regular" />
+        <entry location="bin/meris-cloud.command" fileType="regular" />
+        <entry location="bin/meris-rad2refl.bat" fileType="regular" />
+        <entry location="bin/meris-rad2refl.command" fileType="regular" />
+        <entry location="bin/meris-smac.bat" fileType="regular" />
+        <entry location="bin/meris-smac.command" fileType="regular" />
+        <entry location="bin/meris-smile.bat" fileType="regular" />
+        <entry location="bin/meris-smile.command" fileType="regular" />
+        <entry location="bin/mosaic.bat" fileType="regular" />
+        <entry location="bin/mosaic.command" fileType="regular" />
+        <entry location="bin/pconvert.bat" fileType="regular" />
+        <entry location="bin/pconvert.command" fileType="regular" />
+        <entry location="bin/visat-d.bat" fileType="regular" />
+        <entry location="bin/visat-d.command" fileType="regular" />
+      </exclude>
+      <variables />
+      <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
+        <commentFiles />
+        <customAttributes />
+      </autoUpdate>
+      <excludedComponents />
+      <includedDownloadableComponents />
+      <installerScript mode="1" file="">
+        <content />
+      </installerScript>
+    </unixInstaller>
     <unixInstaller name="Linux64 JRE" id="128" customizedId="" mediaFileName="beam_${compiler:sys.version}_linux64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="linux-amd64-1.6.0_25" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="">
       <excludedLaunchers>
         <launcher id="1086" />
@@ -1890,94 +1976,8 @@ if (wizardContext != null) {
         <content />
       </installerScript>
     </unixInstaller>
-    <windows name="Win64 JRE" id="4707" customizedId="" mediaFileName="beam_${compiler:sys.version}_win64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="64" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-amd64-1.6.0_25" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
-      <excludedLaunchers />
-      <excludedBeans />
-      <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
-      <exclude>
-        <entry location="bin/aatsr-sst.command" fileType="regular" />
-        <entry location="bin/aatsr-sst.sh" fileType="regular" />
-        <entry location="bin/beam-cli.command" fileType="regular" />
-        <entry location="bin/beam-cli.sh" fileType="regular" />
-        <entry location="bin/binning.command" fileType="regular" />
-        <entry location="bin/binning.sh" fileType="regular" />
-        <entry location="bin/flhmci.command" fileType="regular" />
-        <entry location="bin/flhmci.sh" fileType="regular" />
-        <entry location="bin/gpt.command" fileType="regular" />
-        <entry location="bin/gpt.sh" fileType="regular" />
-        <entry location="bin/mapproj.command" fileType="regular" />
-        <entry location="bin/mapproj.sh" fileType="regular" />
-        <entry location="bin/meris-cloud.command" fileType="regular" />
-        <entry location="bin/meris-cloud.sh" fileType="regular" />
-        <entry location="bin/meris-rad2refl.command" fileType="regular" />
-        <entry location="bin/meris-rad2refl.sh" fileType="regular" />
-        <entry location="bin/meris-smac.command" fileType="regular" />
-        <entry location="bin/meris-smac.sh" fileType="regular" />
-        <entry location="bin/meris-smile.command" fileType="regular" />
-        <entry location="bin/meris-smile.sh" fileType="regular" />
-        <entry location="bin/mosaic.command" fileType="regular" />
-        <entry location="bin/mosaic.sh" fileType="regular" />
-        <entry location="bin/pconvert.command" fileType="regular" />
-        <entry location="bin/pconvert.sh" fileType="regular" />
-        <entry location="bin/visat-d.command" fileType="regular" />
-        <entry location="bin/visat-d.sh" fileType="regular" />
-      </exclude>
-      <variables />
-      <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
-        <commentFiles />
-        <customAttributes />
-      </autoUpdate>
-      <excludedComponents />
-      <includedDownloadableComponents />
-    </windows>
-    <unixInstaller name="Linux32 JRE" id="4713" customizedId="" mediaFileName="beam_${compiler:sys.version}_linux32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="linux-x86-1.6.0_25" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="">
-      <excludedLaunchers>
-        <launcher id="1086" />
-      </excludedLaunchers>
-      <excludedBeans />
-      <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
-      <exclude>
-        <entry location="beam-website.url" fileType="regular" />
-        <entry location="bin/aatsr-sst.bat" fileType="regular" />
-        <entry location="bin/aatsr-sst.command" fileType="regular" />
-        <entry location="bin/beam-cli.bat" fileType="regular" />
-        <entry location="bin/beam-cli.command" fileType="regular" />
-        <entry location="bin/binning.bat" fileType="regular" />
-        <entry location="bin/binning.command" fileType="regular" />
-        <entry location="bin/flhmci.bat" fileType="regular" />
-        <entry location="bin/flhmci.command" fileType="regular" />
-        <entry location="bin/gpt.bat" fileType="regular" />
-        <entry location="bin/gpt.command" fileType="regular" />
-        <entry location="bin/mapproj.bat" fileType="regular" />
-        <entry location="bin/mapproj.command" fileType="regular" />
-        <entry location="bin/meris-cloud.bat" fileType="regular" />
-        <entry location="bin/meris-cloud.command" fileType="regular" />
-        <entry location="bin/meris-rad2refl.bat" fileType="regular" />
-        <entry location="bin/meris-rad2refl.command" fileType="regular" />
-        <entry location="bin/meris-smac.bat" fileType="regular" />
-        <entry location="bin/meris-smac.command" fileType="regular" />
-        <entry location="bin/meris-smile.bat" fileType="regular" />
-        <entry location="bin/meris-smile.command" fileType="regular" />
-        <entry location="bin/mosaic.bat" fileType="regular" />
-        <entry location="bin/mosaic.command" fileType="regular" />
-        <entry location="bin/pconvert.bat" fileType="regular" />
-        <entry location="bin/pconvert.command" fileType="regular" />
-        <entry location="bin/visat-d.bat" fileType="regular" />
-        <entry location="bin/visat-d.command" fileType="regular" />
-      </exclude>
-      <variables />
-      <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
-        <commentFiles />
-        <customAttributes />
-      </autoUpdate>
-      <excludedComponents />
-      <includedDownloadableComponents />
-      <installerScript mode="1" file="">
-        <content />
-      </installerScript>
-    </unixInstaller>
   </mediaSets>
-  <buildIds buildAll="false">
+  <buildIds buildAll="true">
     <mediaSet refId="4707" />
   </buildIds>
   <buildOptions verbose="false" faster="false" debug="false" />
