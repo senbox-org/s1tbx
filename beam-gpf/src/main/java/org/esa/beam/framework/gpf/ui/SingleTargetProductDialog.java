@@ -149,11 +149,11 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
 
     protected void handleInitialisationError(Throwable t) {
         String msg;
-        if (t instanceof RuntimeException || t instanceof Error) {
+        if (isInternalException(t)) {
             msg = MessageFormat.format("An internal error occurred during the target product initialisation.\n{0}",
                                        formatThrowable(t));
         } else {
-            msg = MessageFormat.format("An error occurred during the target product initialisation.\n{0}",
+            msg = MessageFormat.format("A problem occurred during the target product initialisation.\n{0}",
                                        formatThrowable(t));
         }
         appContext.handleError(msg, t);
@@ -161,14 +161,18 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
 
     protected void handleProcessingError(Throwable t) {
         String msg;
-        if (t instanceof RuntimeException || t instanceof Error) {
+        if (isInternalException(t)) {
             msg = MessageFormat.format("An internal error occurred during the target product processing.\n{0}",
                                        formatThrowable(t));
         } else {
-            msg = MessageFormat.format("An error occurred during processing the target product processing.\n{0}",
+            msg = MessageFormat.format("A problem occurred during processing the target product processing.\n{0}",
                                        formatThrowable(t));
         }
         appContext.handleError(msg, t);
+    }
+
+    private boolean isInternalException(Throwable t) {
+        return (t instanceof RuntimeException && !(t instanceof OperatorException)) || t instanceof Error;
     }
 
     private String formatThrowable(Throwable t) {
