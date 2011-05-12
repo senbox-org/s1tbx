@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -82,16 +82,16 @@ public class SubsetOp extends Operator {
     private Product targetProduct;
 
     @Parameter(description = "The subset region in pixel coordinates.\n" +
-            "If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.")
+                             "If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.")
     private Rectangle region;
     @Parameter(converter = JtsGeometryConverter.class,
                description = "The subset region in geographical coordinates using WKT-format,\n" +
                              "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
                              "(make sure to quote the option due to spaces in <geometry>).\n" +
-                       "If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.")
+                             "If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.")
     private Geometry geoRegion;
     @Parameter(defaultValue = "1",
-                description = "The pixel sub-sampling step in X (horizontal image direction)")
+               description = "The pixel sub-sampling step in X (horizontal image direction)")
     private int subSamplingX;
     @Parameter(defaultValue = "1",
                description = "The pixel sub-sampling step in Y (vertical image direction)")
@@ -101,10 +101,10 @@ public class SubsetOp extends Operator {
     private boolean fullSwath;
 
     @Parameter(description = "The comma-separated list of names of tie-point grids to be copied. \n" +
-            "If not given, all bands are copied.")
+                             "If not given, all bands are copied.")
     private String[] tiePointGridNames;
     @Parameter(description = "The comma-separated list of names of bands to be copied.\n" +
-            "If not given, all bands are copied.")
+                             "If not given, all bands are copied.")
     private String[] bandNames;
     @Parameter(defaultValue = "false",
                description = "Whether to copy the metadata of the source product.")
@@ -223,8 +223,10 @@ public class SubsetOp extends Operator {
             if (refRasters.length > 0) {
                 for (RasterDataNode refRaster : refRasters) {
                     final String refNodeName = refRaster.getName();
-                    referencedNodeNames.add(refNodeName);
-                    collectReferencedRasters(refNodeName, referencedNodeNames);
+                    if (!referencedNodeNames.contains(refNodeName)) {
+                        referencedNodeNames.add(refNodeName);
+                        collectReferencedRasters(refNodeName, referencedNodeNames);
+                    }
                 }
             }
         } catch (ParseException e) {
