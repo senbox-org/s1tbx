@@ -35,6 +35,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.framework.gpf.Operator;
@@ -212,12 +213,21 @@ public class SubsetOp extends Operator {
     }
 
     private void collectReferencedRasters(String nodeName, ArrayList<String> referencedNodeNames) {
-        final String validPixelExpression = sourceProduct.getRasterDataNode(nodeName).getValidPixelExpression();
-        if (validPixelExpression == null || validPixelExpression.trim().isEmpty()) {
+        RasterDataNode rasterDataNode = sourceProduct.getRasterDataNode(nodeName);
+        final String validPixelExpression = rasterDataNode.getValidPixelExpression();
+        collectReferencedRastersInExpression(validPixelExpression, referencedNodeNames);
+        if (rasterDataNode instanceof VirtualBand) {
+            VirtualBand vBand = (VirtualBand) rasterDataNode;
+            collectReferencedRastersInExpression(vBand.getExpression(), referencedNodeNames);
+        }
+    }
+
+    private void collectReferencedRastersInExpression(String expression, ArrayList<String> referencedNodeNames) {
+        if (expression == null || expression.trim().isEmpty()) {
             return;
         }
         try {
-            final Term term = sourceProduct.parseExpression(validPixelExpression);
+            final Term term = sourceProduct.parseExpression(expression);
             final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
             final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(refRasterDataSymbols);
             if (refRasters.length > 0) {
@@ -225,7 +235,7 @@ public class SubsetOp extends Operator {
                     final String refNodeName = refRaster.getName();
                     if (!referencedNodeNames.contains(refNodeName)) {
                         referencedNodeNames.add(refNodeName);
-                        collectReferencedRasters(refNodeName, referencedNodeNames);
+                        collectReferencedRastersInExpression(refNodeName, referencedNodeNames);
                     }
                 }
             }
