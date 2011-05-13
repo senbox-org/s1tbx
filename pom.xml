@@ -24,7 +24,7 @@
     <url>http://www.brockmann-consult.de/beam-wiki</url>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam</artifactId>
-    <version>4.9</version>
+    <version>4.10-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -35,8 +35,8 @@
            -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <beam.version>4.9</beam.version>
-        <ceres.version>0.12</ceres.version>
+        <beam.version>4.10-SNAPSHOT</beam.version>
+        <ceres.version>0.13-SNAPSHOT</ceres.version>
         <geotools.version>2.6.5</geotools.version>
         <jide.version>2.9.5</jide.version>
         <hdf.version>2.7</hdf.version>

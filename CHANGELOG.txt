@@ -2,6 +2,7 @@
 
 This file contains all significant changes for each BEAM release.
 
+    o ??.??.2010: Version 4.10
     o 12.05.2010: Version 4.9
     o 29.07.2010: Version 4.8
     o 29.04.2010: Version 4.7.1
@@ -25,6 +26,23 @@ This file contains all significant changes for each BEAM release.
     o 27.06.2003: Version 2.0
     o 07.03.2003: Version 1.1
     o 06.12.2002: Version 1.0
+
+ _____________________________________________________________________________
+
+ Changes from 4.9 to 4.10
+_____________________________________________________________________________
+
+1) New BEAM Features
+
+
+2) Complete list of BEAM 4.10 bug fixes and improvements
+
+New Features
+
+Improvements
+
+Bugs
+
 
  _____________________________________________________________________________
 

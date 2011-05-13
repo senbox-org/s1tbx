@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-visat-rcp</symbolicName>
-    <version>4.9</version>
+    <version>4.10</version>
     <name>VISAT Rich Client Platform</name>
 
     <description>
@@ -1255,7 +1255,8 @@
             <id>createDemRelatedBands</id>
             <class>org.esa.beam.visat.actions.CreateDemRelatedBandsAction</class>
             <text>Create DEM-related Bands...</text>
-            <description>Creates DEM elevation and optionally DEM-corrected lat/lon bands from a selected DEM</description>
+            <description>Creates DEM elevation and optionally DEM-corrected lat/lon bands from a selected DEM
+            </description>
             <context>product</context>
             <helpId>createDemRelatedBands</helpId>
             <parent>tools</parent>
