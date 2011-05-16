@@ -124,8 +124,8 @@
 
                                 <artifactItem>
                                     <groupId>org.esa.beam</groupId>
-                                    <artifactId>beam-meris-case2-water</artifactId>
-                                    <version>1.5</version>
+                                    <artifactId>beam-meris-case2-regional</artifactId>
+                                    <version>1.5.1</version>
                                     <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
@@ -149,7 +149,7 @@
                                 <artifactItem>
                                     <groupId>org.esa.beam</groupId>
                                     <artifactId>beam-meris-glint</artifactId>
-                                    <version>1.2</version>
+                                    <version>1.2.1</version>
                                     <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>

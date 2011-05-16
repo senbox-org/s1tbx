@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -55,5 +55,9 @@ public class VersionCheckerTest extends TestCase {
         assertTrue(VersionChecker.compareVersions("VERSION 4.7-RC1", "VERSION 4.7-RC2") < 0);
         assertTrue(VersionChecker.compareVersions("VERSION 4.7.1", "VERSION 4.7-RC2") > 0);
         assertTrue(VersionChecker.compareVersions("VERSION 4.7.2", "VERSION 4.7-RC1") > 0);
+        assertTrue(VersionChecker.compareVersions("VERSION 4.9.1", "VERSION 4.9.0") > 0);
+        assertTrue(VersionChecker.compareVersions("VERSION 4.9.0.1", "VERSION 4.9.0") > 0);
+        assertTrue(VersionChecker.compareVersions("VERSION 4.9.0.1", "VERSION 4.9") > 0);
+        assertTrue(VersionChecker.compareVersions("VERSION 4.9.0.1", "VERSION 4.9.1") < 0);
     }
 }
