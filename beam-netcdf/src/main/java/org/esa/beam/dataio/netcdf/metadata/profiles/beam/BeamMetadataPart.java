@@ -57,7 +57,7 @@ public class BeamMetadataPart extends ProfilePartIO {
                     String prefix = attrName.split(SPLITTER)[0];
                     readMetaData(attribute, metadataRoot, prefix);
                 } else {
-                    ProductData attributeValue = extractValue(attribute);
+                    ProductData attributeValue = DataTypeUtils.createProductData(attribute);
                     metadataRoot.addAttribute(new MetadataAttribute(attrName, attributeValue, true));
                 }
             }
@@ -105,22 +105,11 @@ public class BeamMetadataPart extends ProfilePartIO {
                     anAttribute.setDescription(value);
                 }
             } else {
-                ProductData attributeValue = extractValue(attribute);
+                ProductData attributeValue = DataTypeUtils.createProductData(attribute);
                 MetadataAttribute newAttribute = new MetadataAttribute(newAttributeName, attributeValue, true);
                 metadataElement.addAttribute(newAttribute);
             }
         }
-    }
-
-    private ProductData extractValue(Attribute attribute) {
-        ProductData attributeValue;
-        int productDataType = DataTypeUtils.getEquivalentProductDataType(attribute.getDataType(), false, false);
-        if (productDataType == ProductData.TYPE_ASCII) {
-            attributeValue = ProductData.createInstance(attribute.getStringValue());
-        } else {
-            attributeValue = ProductData.createInstance(productDataType, attribute.getValues().copyTo1DJavaArray());
-        }
-        return attributeValue;
     }
 
     @Override

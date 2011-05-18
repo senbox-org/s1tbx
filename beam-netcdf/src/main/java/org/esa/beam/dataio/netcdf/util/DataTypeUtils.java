@@ -18,6 +18,7 @@ package org.esa.beam.dataio.netcdf.util;
 
 import org.esa.beam.framework.datamodel.ProductData;
 import ucar.ma2.DataType;
+import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
 /**
@@ -89,4 +90,23 @@ public class DataTypeUtils {
             return null;
         }
     }
+
+    /**
+     * Creates a ProductData instance for the given netcdf attribute.
+     *
+     * @param attribute A netcdf attribute.
+     *
+     * @return A new ProductData instance with the attribute's data type and value.
+     */
+    public static ProductData createProductData(Attribute attribute) {
+        ProductData attributeValue;
+        int productDataType = DataTypeUtils.getEquivalentProductDataType(attribute.getDataType(), false, false);
+        if (productDataType == ProductData.TYPE_ASCII) {
+            attributeValue = ProductData.createInstance(attribute.getStringValue());
+        } else {
+            attributeValue = ProductData.createInstance(productDataType, attribute.getValues().copyTo1DJavaArray());
+        }
+        return attributeValue;
+    }
+
 }
