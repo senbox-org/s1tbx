@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -62,15 +62,15 @@ public class SmileCorrectionAuxdataTest {
     @Test
     public void testCurrentRrData() {
         //       	band    switch_land	lower_land	upper_land	switch_water	lower_water	upper_water	lam_theo	E0_theo
-        //         	12  0	13	14	1	13	14	865	958.885498
-        assertEquals(false, _rrData.getRadCorrFlagsLand()[12]);
+        //         	13	1	13	14	1	13	14	865	958.763
+        assertEquals(true, _rrData.getRadCorrFlagsLand()[12]);
         assertEquals(13 - 1, _rrData.getLowerBandIndexesLand()[12]);
         assertEquals(14 - 1, _rrData.getUpperBandIndexesLand()[12]);
         assertEquals(true, _rrData.getRadCorrFlagsWater()[12]);
         assertEquals(13 - 1, _rrData.getLowerBandIndexesWater()[12]);
         assertEquals(14 - 1, _rrData.getUpperBandIndexesWater()[12]);
-        assertEquals(865.0, _rrData.getTheoreticalWavelengths()[12], 1.0e-6);
-        assertEquals(958.885498, _rrData.getTheoreticalSunSpectralFluxes()[12], 1.0e-6);
+        assertEquals(865, _rrData.getTheoreticalWavelengths()[12], 1.0e-6);
+        assertEquals(958.763, _rrData.getTheoreticalSunSpectralFluxes()[12], 1.0e-6);
 
         assertEquals(490.0209579, _rrData.getDetectorWavelengths()[20][2], 1.0e-6);
         assertEquals(1929.29938966317, _rrData.getDetectorSunSpectralFluxes()[20][2], 1.0e-10);
@@ -79,7 +79,7 @@ public class SmileCorrectionAuxdataTest {
     @Test
     public void testCurrentFrData() {
         //        band	switch_land	lower_land	upper_land	switch_water	lower_water	upper_water	lam_theo	E0_theo
-        //        2	1	2	4	1	2	4	490	1929.325562
+        //          3	1	2	4	1	2	4	490	1929.26
         assertEquals(true, _frData.getRadCorrFlagsLand()[2]);
         assertEquals(2 - 1, _frData.getLowerBandIndexesLand()[2]);
         assertEquals(4 - 1, _frData.getUpperBandIndexesLand()[2]);
@@ -87,7 +87,7 @@ public class SmileCorrectionAuxdataTest {
         assertEquals(2 - 1, _frData.getLowerBandIndexesWater()[2]);
         assertEquals(4 - 1, _frData.getUpperBandIndexesWater()[2]);
         assertEquals(490.0, _frData.getTheoreticalWavelengths()[2], 1.0e-6);
-        assertEquals(1929.325562, _frData.getTheoreticalSunSpectralFluxes()[2], 1.0e-6);
+        assertEquals(1929.26, _frData.getTheoreticalSunSpectralFluxes()[2], 1.0e-6);
 
         assertEquals(490.1104498, _frData.getDetectorWavelengths()[20][2], 1.0e-6);
         assertEquals(1930.1682671039, _frData.getDetectorSunSpectralFluxes()[20][2], 1.0e-10);
