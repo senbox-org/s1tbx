@@ -152,6 +152,15 @@ class GeoCodingPanel extends TextPagePanel {
             gp = geoCoding.getGeoPos(sceneLowerRight, gp);
             sb.append(String.format("%1$-18s \t%2$s\n", "Lower right latitude:", gp.getLatString()));
             sb.append(String.format("%1$-18s \t%2$s\n", "Lower right longitude:", gp.getLonString()));
+
+            sb.append("\n");
+            sb.append("Well-known text format (WKT) of the image CRS:\n\n");
+            sb.append(geoCoding.getImageCRS().toString());
+            sb.append("\n");
+            sb.append("Well-known text format (WKT) of the geographical CRS:\n\n");
+            sb.append(geoCoding.getGeoCRS().toString());
+            sb.append("\n");
+            sb.append("\n");
         }
 
         if (geoCoding instanceof TiePointGeoCoding) {
@@ -214,12 +223,12 @@ class GeoCodingPanel extends TextPagePanel {
 
     private void writeCrsGeoCoding(CrsGeoCoding geoCoding, String nodeType, StringBuffer sb) {
         sb.append("\n");
-        sb.append("\nThe ").append(nodeType).append(" uses a referenced geo-coding.\n");
+        sb.append("\nThe ").append(nodeType).append(" uses a geo-coding based on a cartographic map CRS.\n");
         sb.append("\n");
-        sb.append("WKT of Map CRS:\n\n");
+        sb.append("Well-known text format (WKT) of the map CRS:\n\n");
         sb.append(geoCoding.getMapCRS().toString());
-        sb.append("\n\n\n");
-        sb.append("Image To Map:\n\n");
+        sb.append("\n");
+        sb.append("Image-to-map transformation:\n\n");
         sb.append(geoCoding.getImageToMapTransform().toString());
     }
 
@@ -252,7 +261,7 @@ class GeoCodingPanel extends TextPagePanel {
             final CombinedFXYGeoCoding.CodingWrapper codingWrapper = codingWrappers[i];
             final Rectangle region = codingWrapper.getRegion();
             sb.append("\n==== Geo-coding[").append(i + 1).append("] ====\n");
-            sb.append("\nThe region in the scene which is coverd by this geo-coding is defined by:\n");
+            sb.append("\nThe region in the scene which is covered by this geo-coding is defined by:\n");
             sb.append("Location  : X = ").append(region.x).append(" , Y = ").append(region.y).append("\n");
             sb.append("Dimension : W = ").append(region.width).append(" , H = ").append(region.height).append("\n");
             sb.append("\n");
