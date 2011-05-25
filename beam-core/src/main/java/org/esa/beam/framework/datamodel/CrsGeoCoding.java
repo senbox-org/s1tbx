@@ -34,6 +34,7 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.DerivedCRS;
+import org.opengis.referencing.crs.GeneralDerivedCRS;
 import org.opengis.referencing.datum.GeodeticDatum;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
 import org.opengis.referencing.operation.MathTransform;
@@ -134,7 +135,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
 
         MathTransform i2m = new AffineTransform2D(imageToMap);
 
-        if (mapCRS instanceof DerivedCRS) { // TODO - ts, rq - check why not GeneralDerivedCRS
+        if (mapCRS instanceof DerivedCRS) {
             DerivedCRS derivedCRS = (DerivedCRS) mapCRS;
             CoordinateReferenceSystem baseCRS = derivedCRS.getBaseCRS();
             setGeoCRS(baseCRS);
