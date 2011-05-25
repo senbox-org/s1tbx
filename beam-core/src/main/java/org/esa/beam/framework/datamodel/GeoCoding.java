@@ -84,7 +84,9 @@ public interface GeoCoding {
      * Gets the datum, the reference point or surface against which {@link GeoPos} measurements are made.
      *
      * @return the datum
+     * @deprecated use the datum of the associated {@link #getMapCRS() map CRS}.
      */
+    @Deprecated
     Datum getDatum();
 
     /**
