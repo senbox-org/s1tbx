@@ -72,6 +72,27 @@ import java.util.Vector;
  * <p/>
  * <p><i>Use instances of this class with care: The constructor fully loads the data given by the latitudes and longitudes bands and
  * the valid mask (if any) into memory.</i></p>
+ * <p/>
+ * <em>Note (rq-20110526):</em>
+ * A better implementation of the find pixel method could be something like:
+ * <ol>
+ * <li>Create a coverage of the source region by means of largely overlapping
+ * image tiles (e.g. tile size of 100 pixels squared with an overlap of 25 pixels)</li>
+ * <li>For each tile create a rational function model of the (lon, lat) to (x, y)
+ * transformation, rotating to the (lon, lat) of the tile center</li>
+ * <li>Refine the accuracy of the selected rational function model until the
+ * accuracy goal (i.e. a certain RMSE) is reached</li>
+ * <li>Find all tiles {T1, T2, ...} that may include the (x, y) pixel coordinate
+ * of interest</li>
+ * <li>Select the tile T in {T1, T2, ...} where the the (x, y) result is nearest
+ * to (0, 0)</li>
+ * <li>Use the three closest pixels to compute the final (x, y)</li>
+ * <li>Keep all rational function approximations in a map and reuse them for
+ * subsequent calls.</li>
+ * </ol>
+ * <p/>
+ * The advantage of this algorithm is that it obviously avoids problems related
+ * to the antimeridian and poles included in the source region.
  */
 public class PixelGeoCoding extends AbstractGeoCoding {
 
