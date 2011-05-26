@@ -35,7 +35,7 @@ import java.awt.geom.GeneralPath;
  *
  * @author Sabine Embacher
  * @version $Revision$ $Date$
- * @deprecated since BEAM 4.9. This concept is no longer supported. (Drawing code shall go into PlacemarkLayer.)
+ * @deprecated since BEAM 4.9. This concept is no longer supported.
  */
 @Deprecated
 public class PlacemarkSymbol extends ShapeFigure {
