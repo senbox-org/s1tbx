@@ -34,10 +34,6 @@ import java.awt.geom.Rectangle2D;
  */
 public interface Figure extends Restorable, Cloneable {
 
-    ///////////////////////////////////////////
-    // {{
-    // todo - interface FigureGeometry?
-
     /**
      * The rang of a figure.
      */
@@ -156,9 +152,6 @@ public interface Figure extends Restorable, Cloneable {
      * @param index The vertex index.
      */
     void removeSegment(int index);
-
-    // }}
-    ///////////////////////////////////////////
 
     /**
      * Tests if the figure is selectable.
@@ -323,5 +316,5 @@ public interface Figure extends Restorable, Cloneable {
      * @return A clone of this figure.
      */
     @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException"})
-    Figure clone();
+    Object clone();
 }
