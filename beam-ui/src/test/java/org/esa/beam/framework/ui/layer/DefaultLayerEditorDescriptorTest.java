@@ -30,7 +30,7 @@ public class DefaultLayerEditorDescriptorTest extends TestCase {
 
     public void testTypesAndFactory() {
         Class<GraticuleLayerType> layerTypeClass = GraticuleLayerType.class;
-        Class<GraticuleLayerEditor> layerEditorClass = GraticuleLayerEditor.class;
+        Class<TestLayerEditor> layerEditorClass = TestLayerEditor.class;
 
         DefaultLayerEditorDescriptor descriptor = new DefaultLayerEditorDescriptor(layerTypeClass, layerEditorClass);
         assertSame(layerTypeClass, descriptor.getLayerTypeClass());
@@ -45,10 +45,10 @@ public class DefaultLayerEditorDescriptorTest extends TestCase {
         Object extension = factory.getExtension(layerType, LayerEditor.class);
         assertNotNull(extension);
         assertTrue(extension instanceof LayerEditor);
-        assertTrue(extension instanceof GraticuleLayerEditor);
+        assertTrue(extension instanceof TestLayerEditor);
     }
 
-    public static class GraticuleLayerEditor implements LayerEditor {
+    public static class TestLayerEditor implements LayerEditor {
 
         @Override
         public JComponent createControl(AppContext appContext, Layer layer) {
