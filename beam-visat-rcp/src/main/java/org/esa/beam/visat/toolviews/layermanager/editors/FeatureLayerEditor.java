@@ -18,18 +18,14 @@ package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.swing.TableLayout;
-
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.layer.LayerEditor;
+import org.esa.beam.framework.ui.layer.AbstractLayerEditor;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayer;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.Font;
+import java.awt.*;
 import java.util.Hashtable;
 
 /**
@@ -41,17 +37,20 @@ import java.util.Hashtable;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class FeatureLayerEditor implements LayerEditor {
+public class FeatureLayerEditor extends AbstractLayerEditor {
 
-    private FeatureLayer currentLayer;
     private JSlider polyFillTransparency;
     private JSlider polyStrokeTransparency;
     private JSlider textTransparency;
 
+    @Override
+    protected FeatureLayer getCurrentLayer() {
+        return (FeatureLayer) super.getCurrentLayer();
+    }
 
     @Override
-    public JComponent createControl(AppContext appContext, Layer layer) {
-        currentLayer = (FeatureLayer) layer;
+    public JComponent createControl() {
+
         Hashtable<Integer, JLabel> sliderLabelTable = new Hashtable<Integer, JLabel>();
         sliderLabelTable.put(0, createSliderLabel("0%"));
         sliderLabelTable.put(127, createSliderLabel("50%"));
@@ -75,8 +74,7 @@ public class FeatureLayerEditor implements LayerEditor {
         polyFillTransparency.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                currentLayer.setPolyFillOpacity(1.0 - polyFillTransparency.getValue() / 255.0);
-
+                getCurrentLayer().setPolyFillOpacity(1.0 - polyFillTransparency.getValue() / 255.0);
             }
         });
         control.add(polyFillTransparency);
@@ -90,8 +88,7 @@ public class FeatureLayerEditor implements LayerEditor {
         polyStrokeTransparency.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                currentLayer.setPolyStrokeOpacity(1.0 - polyStrokeTransparency.getValue() / 255.0);
-
+                getCurrentLayer().setPolyStrokeOpacity(1.0 - polyStrokeTransparency.getValue() / 255.0);
             }
         });
         control.add(polyStrokeTransparency);
@@ -105,8 +102,7 @@ public class FeatureLayerEditor implements LayerEditor {
         textTransparency.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                currentLayer.setTextOpacity(1.0 - textTransparency.getValue() / 255.0);
-
+                getCurrentLayer().setTextOpacity(1.0 - textTransparency.getValue() / 255.0);
             }
         });
         control.add(textTransparency);
@@ -123,9 +119,9 @@ public class FeatureLayerEditor implements LayerEditor {
     }
 
     @Override
-    public void updateControl() {
-        polyFillTransparency.setValue((int) Math.round((1.0 - currentLayer.getPolyFillOpacity()) * 255));
-        polyStrokeTransparency.setValue((int) Math.round((1.0 - currentLayer.getPolyStrokeOpacity()) * 255));
-        textTransparency.setValue((int) Math.round((1.0 - currentLayer.getTextOpacity()) * 255));
+    public void handleLayerContentChanged() {
+        polyFillTransparency.setValue((int) Math.round((1.0 - getCurrentLayer().getPolyFillOpacity()) * 255));
+        polyStrokeTransparency.setValue((int) Math.round((1.0 - getCurrentLayer().getPolyStrokeOpacity()) * 255));
+        textTransparency.setValue((int) Math.round((1.0 - getCurrentLayer().getTextOpacity()) * 255));
     }
 }

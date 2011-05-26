@@ -48,15 +48,10 @@ public class DefaultLayerEditorDescriptorTest extends TestCase {
         assertTrue(extension instanceof TestLayerEditor);
     }
 
-    public static class TestLayerEditor implements LayerEditor {
-
+    public static class TestLayerEditor extends AbstractLayerEditor {
         @Override
-        public JComponent createControl(AppContext appContext, Layer layer) {
+        protected JComponent createControl() {
             return null;
-        }
-
-        @Override
-        public void updateControl() {
         }
     }
 }

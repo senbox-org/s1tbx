@@ -18,9 +18,10 @@ package org.esa.beam.framework.ui.layer;
 
 import com.bc.ceres.glayer.Layer;
 
+import org.esa.beam.framework.param.editors.LabelEditor;
 import org.esa.beam.framework.ui.AppContext;
 
-import javax.swing.JComponent;
+import javax.swing.*;
 
 /**
  * An editor for a specific layer type.
@@ -33,6 +34,13 @@ import javax.swing.JComponent;
  */
 public interface LayerEditor {
 
+    LayerEditor EMPTY = new AbstractLayerEditor() {
+        @Override
+        public JComponent createControl() {
+            return new JLabel("No editor available.");
+        }
+    };
+
     /**
      * Creates the control for the user interface which is displayed
      * in the Layer Editor Toolview.
@@ -44,7 +52,18 @@ public interface LayerEditor {
     JComponent createControl(AppContext appContext, Layer layer);
 
     /**
-     * It is called whenever the control must be updated.
+     * Called y the framework in order to inform this editor that it has been attached to the Layer Editor Toolview.
      */
-    void updateControl();
+    void handleEditorAttached();
+
+    /**
+     * Called y the framework in order to inform this editor that it has been detached from the Layer Editor Toolview.
+     */
+    void handleEditorDetached();
+
+    /**
+     * Called y the framework in order to inform this editor that the current layer has changed.
+     * Usually the the editor control must be updated in this case.
+     */
+    void handleLayerContentChanged();
 }

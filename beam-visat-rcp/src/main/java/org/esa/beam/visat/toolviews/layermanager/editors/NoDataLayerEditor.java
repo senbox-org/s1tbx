@@ -18,13 +18,10 @@ package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.swing.binding.BindingContext;
-
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.layer.AbstractLayerConfigurationEditor;
 import org.esa.beam.glayer.NoDataLayerType;
 
-import java.awt.Color;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -36,7 +33,7 @@ import java.beans.PropertyChangeListener;
 public class NoDataLayerEditor extends AbstractLayerConfigurationEditor {
 
     @Override
-    protected void initializeBinding(AppContext appContext, final BindingContext bindingContext) {
+    protected void addEditablePropertyDescriptors() {
 
         PropertyDescriptor vd = new PropertyDescriptor(NoDataLayerType.PROPERTY_NAME_COLOR, Color.class);
         vd.setDefaultValue(Color.ORANGE);
@@ -44,17 +41,17 @@ public class NoDataLayerEditor extends AbstractLayerConfigurationEditor {
         vd.setDefaultConverter();
 
         addPropertyDescriptor(vd);
-        bindingContext.getPropertySet().addPropertyChangeListener(NoDataLayerType.PROPERTY_NAME_COLOR,
-                                                                     new UpdateImagePropertyChangeListener());
+        getBindingContext().getPropertySet().addPropertyChangeListener(NoDataLayerType.PROPERTY_NAME_COLOR,
+                                                                       new UpdateImagePropertyChangeListener());
     }
 
     private class UpdateImagePropertyChangeListener implements PropertyChangeListener {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if (getLayer() != null) {
+            if (getCurrentLayer() != null) {
                 final Color newColor = (Color) evt.getNewValue();
-                final ImageLayer layer = (ImageLayer) getLayer();
+                final ImageLayer layer = (ImageLayer) getCurrentLayer();
                 NoDataLayerType.renewMultiLevelSource(layer, newColor);
             }
         }

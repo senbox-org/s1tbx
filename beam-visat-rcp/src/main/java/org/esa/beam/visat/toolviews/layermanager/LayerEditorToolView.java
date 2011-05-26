@@ -17,11 +17,8 @@ package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.layer.LayerEditor;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.geom.Rectangle2D;
@@ -39,13 +36,13 @@ import java.beans.PropertyChangeEvent;
 public class LayerEditorToolView extends AbstractLayerToolView {
 
     static final String ID = LayerEditorToolView.class.getName();
-    private final NullLayerEditor nullLayerEditor;
+    private final LayerEditor emptyLayerEditor;
     private LayerEditor activeEditor;
     private final LayerHandler layerHandler;
 
     public LayerEditorToolView() {
         layerHandler = new LayerHandler();
-        nullLayerEditor = new NullLayerEditor();
+        emptyLayerEditor = LayerEditor.EMPTY;
     }
 
     @Override
@@ -54,21 +51,29 @@ public class LayerEditorToolView extends AbstractLayerToolView {
         if (oldLayer != null) {
             oldLayer.removeListener(layerHandler);
         }
+
         final JPanel controlPanel = getControlPanel();
 
         if (controlPanel.getComponentCount() > 0) {
             controlPanel.remove(0);
         }
 
+        LayerEditor oldEditor = activeEditor;
+
         if (newLayer != null) {
             activeEditor = getLayerEditor(newLayer);
             getDescriptor().setTitle("Layer Editor - " + newLayer.getName());
         } else {
-            activeEditor = nullLayerEditor;
+            activeEditor = emptyLayerEditor;
             getDescriptor().setTitle("Layer Editor");
         }
+
+        if (oldEditor != null) {
+            oldEditor.handleEditorDetached();
+        }
         controlPanel.add(activeEditor.createControl(getAppContext(), newLayer), BorderLayout.CENTER);
-        updateEditorControl();
+        activeEditor.handleEditorAttached();
+        activeEditor.handleLayerContentChanged();
 
         controlPanel.validate();
         controlPanel.repaint();
@@ -85,13 +90,7 @@ public class LayerEditorToolView extends AbstractLayerToolView {
         if (layerEditor != null) {
             return layerEditor;
         } else {
-            return nullLayerEditor;
-        }
-    }
-
-    private void updateEditorControl() {
-        if (activeEditor != null) {
-            activeEditor.updateControl();
+            return emptyLayerEditor;
         }
     }
 
@@ -99,34 +98,22 @@ public class LayerEditorToolView extends AbstractLayerToolView {
 
         @Override
         public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
-            updateEditorControl();
+            activeEditor.handleLayerContentChanged();
         }
 
         @Override
         public void handleLayerDataChanged(Layer layer, Rectangle2D modelRegion) {
-            updateEditorControl();
+            activeEditor.handleLayerContentChanged();
         }
 
         @Override
         public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
-            updateEditorControl();
+            activeEditor.handleLayerContentChanged();
         }
 
         @Override
         public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
-            updateEditorControl();
-        }
-    }
-
-    private static class NullLayerEditor implements LayerEditor {
-
-        @Override
-        public JComponent createControl(AppContext appContext, Layer layer) {
-            return new JLabel("No editor available.");
-        }
-
-        @Override
-        public void updateControl() {
+            activeEditor.handleLayerContentChanged();
         }
     }
 }

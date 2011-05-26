@@ -20,7 +20,6 @@ import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyEditorRegistry;
 import com.bc.ceres.swing.binding.internal.RangeEditor;
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.layer.AbstractLayerConfigurationEditor;
 import org.esa.beam.glayer.GraticuleLayerType;
 
@@ -36,7 +35,7 @@ import java.awt.Color;
 public class GraticuleLayerEditor extends AbstractLayerConfigurationEditor {
 
     @Override
-    protected void initializeBinding(AppContext appContext, BindingContext bindingContext) {
+    protected void addEditablePropertyDescriptors() {
 
         PropertyDescriptor vd0 = new PropertyDescriptor(GraticuleLayerType.PROPERTY_NAME_RES_AUTO, Boolean.class);
         vd0.setDefaultValue(GraticuleLayerType.DEFAULT_RES_AUTO);
@@ -113,6 +112,7 @@ public class GraticuleLayerEditor extends AbstractLayerConfigurationEditor {
         vd10.setAttribute("propertyEditor", propertyEditorRegistry.getPropertyEditor(RangeEditor.class.getName()));
         addPropertyDescriptor(vd10);
 
+        BindingContext bindingContext = getBindingContext();
         boolean resAuto = (Boolean) bindingContext.getPropertySet().getValue(
                 GraticuleLayerType.PROPERTY_NAME_RES_AUTO);
         bindingContext.bindEnabledState(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS, resAuto,

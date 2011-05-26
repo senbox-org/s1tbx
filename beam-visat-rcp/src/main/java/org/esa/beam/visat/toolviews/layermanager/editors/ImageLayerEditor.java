@@ -18,9 +18,7 @@ package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.swing.binding.BindingContext;
 
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.layer.AbstractLayerConfigurationEditor;
 
 import java.awt.Color;
@@ -35,7 +33,7 @@ import java.awt.Color;
 public class ImageLayerEditor extends AbstractLayerConfigurationEditor {
 
     @Override
-    protected void initializeBinding(AppContext appContext, final BindingContext bindingContext) {
+    protected void addEditablePropertyDescriptors() {
         PropertyDescriptor vd0 = new PropertyDescriptor(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, Boolean.class);
         vd0.setDefaultValue(ImageLayer.DEFAULT_BORDER_SHOWN);
         vd0.setDisplayName("Show image border");

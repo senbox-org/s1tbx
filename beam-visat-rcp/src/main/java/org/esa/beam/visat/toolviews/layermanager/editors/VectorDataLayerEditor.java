@@ -18,33 +18,20 @@ package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
-import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.bc.ceres.swing.figure.AbstractShapeFigure;
-import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.swing.figure.FigureCollection;
-import com.bc.ceres.swing.figure.FigureEditor;
-import com.bc.ceres.swing.figure.FigureStyle;
+import com.bc.ceres.swing.figure.*;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
-import com.bc.ceres.swing.selection.SelectionChangeListener;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.layer.AbstractLayerConfigurationEditor;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.SimpleFeatureFigure;
 import org.esa.beam.framework.ui.product.VectorDataLayer;
 import org.esa.beam.util.ObjectUtils;
 
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import java.awt.event.HierarchyEvent;
-import java.awt.event.HierarchyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -58,43 +45,19 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
     private static final String STROKE_OPACITY_NAME = DefaultFigureStyle.STROKE_OPACITY.getName();
 
     private final SelectionChangeHandler selectionChangeHandler;
-
-    private AppContext appContext;
-    private AtomicBoolean isAdjusting;
-    private static UpdateStylePropertyChangeListener updateStyleListener;
+    private final StyleUpdater styleListener;
+    private final AtomicBoolean isAdjusting;
 
     public VectorDataLayerEditor() {
         selectionChangeHandler = new SelectionChangeHandler();
-        updateStyleListener = new UpdateStylePropertyChangeListener();
+        styleListener = new StyleUpdater();
         isAdjusting = new AtomicBoolean(false);
     }
 
     @Override
-    public JComponent createControl(final AppContext appContext, Layer layer) {
-        JComponent control = super.createControl(appContext, layer);
-        this.appContext = appContext;
-        if (layer instanceof VectorDataLayer) {
-            VectorDataLayer dataLayer = (VectorDataLayer) layer;
-            if (!isGeometryType(dataLayer)) {
-                control = new JPanel();
-            }
-        }
-        control.addHierarchyListener(new RemoveListenerListener(appContext));
-        return control;
-    }
-
-    private boolean isGeometryType(VectorDataLayer dataLayer) {
-        return Product.GEOMETRY_FEATURE_TYPE_NAME.equals(dataLayer.getVectorDataNode().getFeatureType().getTypeName());
-    }
-
-    private boolean containsListener(FigureEditor figureEditor, SelectionChangeListener listener) {
-        final List<SelectionChangeListener> listeners = Arrays.asList(figureEditor.getSelectionChangeListeners());
-        return listeners.contains(listener);
-    }
-
-    @Override
-    protected void initializeBinding(AppContext appContext, BindingContext bindingContext) {
+    protected void addEditablePropertyDescriptors() {
         final AbstractShapeFigure[] shapeFigures = getFigures();
+
         final PropertyDescriptor fillColor = new PropertyDescriptor(DefaultFigureStyle.FILL_COLOR);
         fillColor.setDefaultValue(getStyleProperty(FILL_COLOR_NAME, shapeFigures));
         final PropertyDescriptor fillOpacity = new PropertyDescriptor(DefaultFigureStyle.FILL_OPACITY);
@@ -115,7 +78,7 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
     }
 
     @Override
-    public void updateControl() {
+    public void handleLayerContentChanged() {
         final BindingContext bindingContext = getBindingContext();
 
         if (isAdjusting.compareAndSet(false, true)) {
@@ -127,12 +90,25 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
             }
         }
 
-        final FigureEditor figureEditor = appContext.getSelectedProductSceneView().getFigureEditor();
-        if (!containsListener(figureEditor, selectionChangeHandler)) {
+        super.handleLayerContentChanged();
+    }
+
+    @Override
+    public void handleEditorAttached() {
+        FigureEditor figureEditor = getAppContext().getSelectedProductSceneView().getFigureEditor();
+        if (figureEditor != null) {
             figureEditor.addSelectionChangeListener(selectionChangeHandler);
-            getBindingContext().addPropertyChangeListener(updateStyleListener);
         }
-        super.updateControl();
+        getBindingContext().addPropertyChangeListener(styleListener);
+    }
+
+    @Override
+    public void handleEditorDetached() {
+        FigureEditor figureEditor = getAppContext().getSelectedProductSceneView().getFigureEditor();
+        if (figureEditor != null) {
+            figureEditor.removeSelectionChangeListener(selectionChangeHandler);
+        }
+        getBindingContext().removePropertyChangeListener(styleListener);
     }
 
     private void updateBinding(AbstractShapeFigure[] selectedFigures, BindingContext bindingContext) {
@@ -168,11 +144,11 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
 
     private AbstractShapeFigure[] getFigures() {
         AbstractShapeFigure[] figures = new AbstractShapeFigure[0];
-        if (appContext != null) {
-            final ProductSceneView sceneView = appContext.getSelectedProductSceneView();
+        if (getAppContext() != null) {
+            final ProductSceneView sceneView = getAppContext().getSelectedProductSceneView();
             SimpleFeatureFigure[] featureFigures = sceneView.getSelectedFeatureFigures();
             if (featureFigures.length == 0) {
-                featureFigures = getAllFigures((VectorDataLayer) getLayer());
+                featureFigures = getAllFigures((VectorDataLayer) getCurrentLayer());
             }
             List<AbstractShapeFigure> selFigureList = new ArrayList<AbstractShapeFigure>(7);
             for (SimpleFeatureFigure featureFigure : featureFigures) {
@@ -198,7 +174,7 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
     }
 
 
-    private void transferPropertyValue(String propertyName, PropertySet propertySet, FigureStyle style) {
+    private void transferPropertyValueToStyle(PropertySet propertySet, String propertyName, FigureStyle style) {
         final Object value = propertySet.getValue(propertyName);
         if (value != null) {
             style.setValue(propertyName, value);
@@ -209,11 +185,11 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
 
         @Override
         public void selectionChanged(SelectionChangeEvent event) {
-            updateControl();
+            handleLayerContentChanged();
         }
     }
 
-    private class UpdateStylePropertyChangeListener implements PropertyChangeListener {
+    private class StyleUpdater implements PropertyChangeListener {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
@@ -231,37 +207,12 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
                             final FigureStyle origStyle = selectedFigure.getNormalStyle();
                             final DefaultFigureStyle style = new DefaultFigureStyle();
                             style.fromCssString(origStyle.toCssString());
-                            transferPropertyValue(evt.getPropertyName(), bindContext.getPropertySet(), style);
+                            transferPropertyValueToStyle(bindContext.getPropertySet(), evt.getPropertyName(), style);
                             selectedFigure.setNormalStyle(style);
                         }
                     }
                 } finally {
                     isAdjusting.set(false);
-                }
-            }
-        }
-    }
-
-    private class RemoveListenerListener implements HierarchyListener {
-
-        private final AppContext applicationContext;
-
-        private RemoveListenerListener(AppContext applicationContext) {
-            this.applicationContext = applicationContext;
-        }
-
-        @Override
-        public void hierarchyChanged(HierarchyEvent e) {
-            if ((e.getChangeFlags() & HierarchyEvent.PARENT_CHANGED) == HierarchyEvent.PARENT_CHANGED) {
-                if (e.getChanged().getParent() == null) {
-                    ProductSceneView sceneView = applicationContext.getSelectedProductSceneView();
-                    if (sceneView != null) {
-                        final FigureEditor figureEditor = sceneView.getFigureEditor();
-                        if (!containsListener(figureEditor, selectionChangeHandler)) {
-                            figureEditor.removeSelectionChangeListener(selectionChangeHandler);
-                            getBindingContext().removePropertyChangeListener(updateStyleListener);
-                        }
-                    }
                 }
             }
         }

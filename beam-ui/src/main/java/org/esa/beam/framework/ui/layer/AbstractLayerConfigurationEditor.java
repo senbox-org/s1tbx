@@ -16,20 +16,13 @@
 
 package org.esa.beam.framework.ui.layer;
 
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyAccessor;
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.PropertySet;
-import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
-import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
 
-import org.esa.beam.framework.ui.AppContext;
-
-import javax.swing.JComponent;
+import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -42,22 +35,25 @@ import java.util.Map;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public abstract class AbstractLayerConfigurationEditor implements LayerEditor {
+public abstract class AbstractLayerConfigurationEditor extends AbstractLayerEditor {
 
     private BindingContext bindingContext;
 
-    private Layer layer;
+    /**
+     * @return The binding context.
+     */
+    protected final BindingContext getBindingContext() {
+        return bindingContext;
+    }
 
     @Override
-    public JComponent createControl(AppContext appContext, Layer layer) {
-        this.layer = layer;
-
+    public JComponent createControl() {
         // TODO - replace this code block with the following line (rq-20090528)
         // bindingContext = new BindingContext(layer.getConfiguration());
         bindingContext = new BindingContext();
         PropertySet propertySet = bindingContext.getPropertySet();
         propertySet.addPropertyChangeListener(new PropertyChangeHandler());
-        initializeBinding(appContext, bindingContext);
+        addEditablePropertyDescriptors();
         // ODOT
 
         PropertyPane propertyPane = new PropertyPane(bindingContext);
@@ -65,14 +61,13 @@ public abstract class AbstractLayerConfigurationEditor implements LayerEditor {
     }
 
     @Override
-    public void updateControl() {
+    public void handleLayerContentChanged() {
         final Property[] properties = bindingContext.getPropertySet().getProperties();
         for (Property property : properties) {
             final PropertyDescriptor propertyDescriptor = property.getDescriptor();
             String propertyName = propertyDescriptor.getName();
             Binding binding = bindingContext.getBinding(propertyName);
-            PropertySet configuration = layer.getConfiguration();
-
+            PropertySet configuration = getCurrentLayer().getConfiguration();
             if (configuration.getProperty(propertyName) != null) {
                 final Object value = configuration.getProperty(propertyName).getValue();
                 final Object oldValue = binding.getPropertyValue();
@@ -83,31 +78,35 @@ public abstract class AbstractLayerConfigurationEditor implements LayerEditor {
         }
     }
 
-    protected final Layer getLayer() {
-        return layer;
-    }
-
-    protected final BindingContext getBindingContext() {
-        return bindingContext;
+    /**
+     * Does nothing.
+     */
+    @Override
+    public void handleEditorAttached() {
     }
 
     /**
-     * Overidden in order to subsequently call {@link #addPropertyDescriptor(com.bc.ceres.binding.PropertyDescriptor)}
-     * for each property that shall be editable by this editor.
-     *
-     * @param appContext The application context.
-     * @param bindingContext The binding context.
+     * Does nothing.
      */
-    protected abstract void initializeBinding(AppContext appContext, final BindingContext bindingContext);
+    @Override
+    public void handleEditorDetached() {
+    }
+
+    /**
+     * Clients overide in order to subsequently call {@link #addPropertyDescriptor(com.bc.ceres.binding.PropertyDescriptor)}
+     * for each property that shall be editable by this editor.
+     */
+    protected abstract void addEditablePropertyDescriptors();
 
     /**
      * Defines an editable property.
+     *
      * @param propertyDescriptor The property's descriptor.
      */
     protected final void addPropertyDescriptor(PropertyDescriptor propertyDescriptor) {
         Map<String, Object> valueData = new HashMap<String, Object>();
         String propertyName = propertyDescriptor.getName();
-        Object value = getLayer().getConfiguration().getValue(propertyName);
+        Object value = getCurrentLayer().getConfiguration().getValue(propertyName);
         if (value == null) {
             value = propertyDescriptor.getDefaultValue();
         }
@@ -122,9 +121,9 @@ public abstract class AbstractLayerConfigurationEditor implements LayerEditor {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             String propertyName = evt.getPropertyName();
-            if (layer != null) {
+            if (getCurrentLayer() != null) {
                 try {
-                    final Property property = layer.getConfiguration().getProperty(propertyName);
+                    final Property property = getCurrentLayer().getConfiguration().getProperty(propertyName);
                     if (property != null) {
                         property.setValue(evt.getNewValue());
                     }
