@@ -25,6 +25,12 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Base class for all {@link Figure} implementations.
+ *
+ * @author Norman Fomferra
+ * @since Ceres 0.10
+ */
 public abstract class AbstractFigure implements Figure {
 
     private List<FigureChangeListener> listenerList;

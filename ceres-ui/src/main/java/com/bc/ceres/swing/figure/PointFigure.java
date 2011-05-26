@@ -20,8 +20,10 @@ import java.awt.geom.Point2D;
 
 
 /**
- * A figure represents a graphical object.
- * Figures are graphically modified by their {@link Handle}s.
+ * A point figure.
+ * <p/>
+ * Clients should not implement this interface directly, because it may change in the future.
+ * Instead they should derive their {@code Figure} implementation from {@link AbstractPointFigure}.
  *
  * @author Norman Fomferra
  * @author Marco Peters

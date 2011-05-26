@@ -28,6 +28,9 @@ import java.awt.geom.Rectangle2D;
 /**
  * A figure represents a graphical object.
  * Figures are graphically modified by their {@link Handle}s.
+ * <p/>
+ * Clients should not implement this interface directly, because it may change in the future.
+ * Instead they should derive their {@code Figure} implementation from {@link AbstractFigure}.
  *
  * @author Norman Fomferra
  * @since Ceres 0.10

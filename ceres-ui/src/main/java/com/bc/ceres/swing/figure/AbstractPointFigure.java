@@ -23,6 +23,12 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
+/**
+ * Base class for all {@link PointFigure} implementations.
+ *
+ * @author Norman Fomferra
+ * @since Ceres 0.10
+ */
 public abstract class AbstractPointFigure extends AbstractFigure implements PointFigure {
 
     protected AbstractPointFigure() {
