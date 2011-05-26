@@ -1725,6 +1725,15 @@
                 </action>
         -->
 
+        <action>
+            <id>importTrack</id>
+            <class>org.esa.beam.visat.actions.ImportTrackAction</class>
+            <text>Import Track File (Experimental)...</text>
+            <parent>import</parent>
+            <placeBefore>importGeometry</placeBefore>
+        </action>
+
+
     </extension>
 
 </module>
