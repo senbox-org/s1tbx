@@ -16,19 +16,27 @@
 
 package com.bc.ceres.swing.figure;
 
-import java.awt.Shape;
+import java.awt.*;
 
 
 /**
- * A figure represents a graphical object.
- * Figures are graphically modified by their {@link com.bc.ceres.swing.figure.Handle}s.
+ * A figure which uses an arbitrary geometry represented by a Java AWT shape.
  *
  * @author Norman Fomferra
  * @since Ceres 0.10
  */
 public interface ShapeFigure extends Figure {
-
+    /**
+     * Gets the shape (geometry) for this figure.
+     *
+     * @return The shape in model coordinates.
+     */
     Shape getShape();
 
+    /**
+     * Sets the shape (geometry) for this figure.
+     *
+     * @param shape The shape in model coordinates.
+     */
     void setShape(Shape shape);
 }

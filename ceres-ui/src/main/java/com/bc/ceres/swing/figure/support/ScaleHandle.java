@@ -25,6 +25,12 @@ import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+/**
+ * A {@link com.bc.ceres.swing.figure.Handle Handle} that can be used to scale figures.
+ *
+ * @author Norman Fomferra
+ * @since Ceres 0.10
+ */
 public class ScaleHandle extends AbstractHandle {
     public final static int E = 0;
     public final static int NE = 1;

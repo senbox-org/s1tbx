@@ -22,6 +22,12 @@ import java.awt.Color;
 import java.awt.Paint;
 import java.awt.Stroke;
 
+/**
+ * A {@link PropertySet} that provides style information for figures.
+ *
+ * @author Norman Fomferra
+ * @since Ceres 0.10
+ */
 public interface FigureStyle extends PropertySet {
 
     String getName();

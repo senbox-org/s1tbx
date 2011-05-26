@@ -29,6 +29,12 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
 
+/**
+ * A {@link com.bc.ceres.swing.figure.Handle Handle} that can be used to rotate figures.
+ *
+ * @author Norman Fomferra
+ * @since Ceres 0.10
+ */
 public class RotateHandle extends AbstractHandle {
     private final double radius;
     private double theta;

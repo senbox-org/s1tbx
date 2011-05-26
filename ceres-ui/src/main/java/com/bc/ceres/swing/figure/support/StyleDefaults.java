@@ -51,6 +51,7 @@ public class StyleDefaults {
                                                                                                   SELECTED_HANDLE_STROKE_PAINT,
                                                                                                   new BasicStroke(1.0f));
 
+    public static final double POINT_HANDLE_SIZE = 12;
     public static final double VERTEX_HANDLE_SIZE = 8;
     public static final double SCALE_HANDLE_SIZE = 8;
     public static final double ROTATE_HANDLE_SIZE = 8;

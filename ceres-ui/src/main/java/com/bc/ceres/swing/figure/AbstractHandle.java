@@ -19,13 +19,17 @@ package com.bc.ceres.swing.figure;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 
-import java.awt.Cursor;
-import java.awt.Graphics2D;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+/**
+ * The base class for all {@link Handle} implementations.
+ *
+ * @author Norman Fomferra
+ * @since Ceres 0.10
+ */
 public abstract class AbstractHandle extends AbstractFigure implements Handle {
 
     private final Figure figure;
@@ -36,6 +40,13 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     private Shape shape;
     private boolean selected;
 
+    /**
+     * Constructor.
+     *
+     * @param figure        The figure to which this handle belongs.
+     * @param normalStyle   The handle's normal style.
+     * @param selectedStyle The handle's selected style.
+     */
     protected AbstractHandle(Figure figure,
                              FigureStyle normalStyle,
                              FigureStyle selectedStyle) {
@@ -71,22 +82,40 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
         return (Point2D) location.clone();
     }
 
+    public void setLocation(Point2D location) {
+        setLocation(location.getX(), location.getY());
+    }
+
     public void setLocation(double x, double y) {
         location.setLocation(x, y);
     }
 
     public abstract void updateLocation();
 
+    /**
+     * @return The figure to which this handle belongs.
+     */
     public Figure getFigure() {
         return figure;
     }
 
+    /**
+     * @return The handle's normal style.
+     */
     public FigureStyle getNormalStyle() {
         return normalStyle;
     }
 
+    /**
+     * @return The handle's selected style.
+     */
     public FigureStyle getSelectedStyle() {
         return selectedStyle;
+    }
+
+    @Override
+    public Rank getRank() {
+        return Rank.AREA;
     }
 
     @Override
@@ -97,11 +126,6 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     @Override
     public void setShape(Shape shape) {
         this.shape = shape;
-    }
-
-    @Override
-    public Rank getRank() {
-        return Rank.AREA;
     }
 
     @Override

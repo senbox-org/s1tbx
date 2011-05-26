@@ -408,10 +408,8 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
 
     @Override
     public Handle[] createHandles(int selectionStage) {
-        if (selectionStage == 1) {
-            // No handles at level 1, only high-lighting, see draw() & isSelected()
-            return new Handle[0];
-        } else if (selectionStage == 2) {
+        // No handles at level 1, only high-lighting, see draw() & isSelected()
+        if (selectionStage == 2) {
             return createVertexHandles();
         } else if (selectionStage == 3) {
             return createScaleHandles(0.0);
@@ -423,7 +421,7 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
             handles.addAll(Arrays.asList(scaleHandles));
             return handles.toArray(new Handle[handles.size()]);
         }
-        return new Handle[0];
+        return NO_HANDLES;
     }
 
     private Handle[] createVertexHandles() {

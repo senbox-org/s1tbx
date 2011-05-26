@@ -26,14 +26,20 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Ellipse2D;
 
 
+/**
+ * A {@link com.bc.ceres.swing.figure.Handle Handle} that can be used to change vertex positions.
+ *
+ * @author Norman Fomferra
+ * @since Ceres 0.10
+ */
 public class VertexHandle extends AbstractHandle {
     private int segmentIndex;
 
     public VertexHandle(Figure figure,
                         int vertexIndex,
-                        FigureStyle style,
+                        FigureStyle normalStyle,
                         FigureStyle selectedStyle) {
-        super(figure, style, selectedStyle);
+        super(figure, normalStyle, selectedStyle);
         this.segmentIndex = vertexIndex;
         updateLocation();
         setShape(createHandleShape());
@@ -68,15 +74,6 @@ public class VertexHandle extends AbstractHandle {
     }
 
     private static Shape createHandleShape() {
-        /*
-        Path2D path = new Path2D.Double();
-        path.moveTo(0.0, -0.5 * VERTEX_HANDLE_SIZE);
-        path.lineTo(0.5 * VERTEX_HANDLE_SIZE, 0.0);
-        path.lineTo(0.0, 0.5 * VERTEX_HANDLE_SIZE);
-        path.lineTo(-0.5 * VERTEX_HANDLE_SIZE, 0.0);
-        path.closePath();
-        return path;
-        */
         return new Ellipse2D.Double(-0.5 * VERTEX_HANDLE_SIZE, -0.5 * VERTEX_HANDLE_SIZE, VERTEX_HANDLE_SIZE, VERTEX_HANDLE_SIZE);
     }
 }
