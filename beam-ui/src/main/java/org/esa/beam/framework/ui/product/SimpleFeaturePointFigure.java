@@ -19,6 +19,9 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.swing.figure.AbstractPointFigure;
 import com.bc.ceres.swing.figure.FigureStyle;
+import com.bc.ceres.swing.figure.Handle;
+import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
+import com.bc.ceres.swing.figure.support.PointHandle;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -26,13 +29,7 @@ import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.opengis.feature.simple.SimpleFeature;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Paint;
-import java.awt.Shape;
-import java.awt.Stroke;
+import java.awt.*;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
@@ -44,7 +41,7 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
 
     private final SimpleFeature simpleFeature;
     private Point geometry;
-    private double radius; // in model coordinates
+    private double radius; // number of pixels in view coordinates
 
     public SimpleFeaturePointFigure(SimpleFeature simpleFeature, FigureStyle style) {
         this.simpleFeature = simpleFeature;
@@ -53,7 +50,7 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
             throw new IllegalArgumentException("simpleFeature");
         }
         geometry = (Point) o;
-        radius = 5.0;
+        radius = 6.0;
         setSelectable(true);
     }
 
@@ -97,7 +94,8 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
 
     @Override
     public Rectangle2D getBounds() {
-        return new Rectangle2D.Double(getX() - radius, getY() - radius, 2 * radius, 2 * radius);
+        final double eps = 1e-10;
+        return new Rectangle2D.Double(getX() - eps, getY() - eps, 2 * eps, 2 * eps);
     }
 
     @Override
@@ -106,35 +104,33 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
         final double dx = point.getX() - getX();
         final double dy = point.getY() - getY();
         final Object symbolAttribute = simpleFeature.getAttribute("symbol");
+        AffineTransform scaleInstance = AffineTransform.getScaleInstance(m2v.getScaleX(), m2v.getScaleY());
+        Point2D delta = scaleInstance.transform(new Point2D.Double(dx, -dy), null);
         if (symbolAttribute instanceof ShapeFigure) {
             final Rectangle2D bounds = ((ShapeFigure) symbolAttribute).getBounds();
-            AffineTransform scaleInstance = AffineTransform.getScaleInstance(m2v.getScaleX(), m2v.getScaleY());
-            Point2D point2D = scaleInstance.transform(new Point2D.Double(dx, -dy), null);
-            return bounds.contains(point2D);
+            return bounds.contains(delta);
         } else {
-            return dx * dx + dy * dy < radius * radius;
+            return delta.getX() * delta.getX() + delta.getY() * delta.getY() < radius * radius;
         }
     }
 
     @Override
     protected void drawPointSymbol(Rendering rendering) {
-        double determinant = rendering.getViewport().getModelToViewTransform().getDeterminant();
-        double scale = Math.sqrt(Math.abs(determinant));
         rendering.getGraphics().setPaint(Color.BLUE);
         rendering.getGraphics().setStroke(new BasicStroke(1.0f));
         final Object symbolAttribute = simpleFeature.getAttribute("symbol");
         if (symbolAttribute instanceof ShapeFigure) {
             ((ShapeFigure) symbolAttribute).draw(rendering.getGraphics());
         } else {
-            drawCross(rendering, scale);
+            drawCross(rendering);
         }
         if (isSelected()) {
             rendering.getGraphics().setPaint(new Color(255, 255, 0, 200));
-            rendering.getGraphics().setStroke(new BasicStroke(3.0f));
+            rendering.getGraphics().setStroke(new BasicStroke(0.5f));
             if (symbolAttribute instanceof PlacemarkSymbol) {
                 ((PlacemarkSymbol) symbolAttribute).drawSelected(rendering.getGraphics());
             } else {
-                drawCross(rendering, scale);
+                drawCross(rendering);
             }
         }
         final Object labelAttribute = simpleFeature.getAttribute("label");
@@ -179,14 +175,33 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
         }
     }
 
-    private void drawCross(Rendering rendering, double scale) {
-        rendering.getGraphics().draw(
-                new Line2D.Double(-scale * radius, -scale * radius,
-                                  +scale * radius, +scale * radius));
-        rendering.getGraphics().draw(
-                new Line2D.Double(+scale * radius, -scale * radius,
-                                  -scale * radius, +scale * radius));
+    private void drawCross(Rendering rendering) {
+        rendering.getGraphics().draw(new Line2D.Double(-radius, -radius, +radius, +radius));
+        rendering.getGraphics().draw(new Line2D.Double(+radius, -radius, -radius, +radius));
     }
 
+    private double getModelToViewScale(Rendering rendering) {
+        double determinant = rendering.getViewport().getModelToViewTransform().getDeterminant();
+        return Math.sqrt(Math.abs(determinant));
+    }
 
+    @Override
+    public int getMaxSelectionStage() {
+        return 2;
+    }
+
+    @Override
+    public Handle[] createHandles(int selectionStage) {
+        if (selectionStage == 2) {
+            DefaultFigureStyle handleStyle = new DefaultFigureStyle();
+            handleStyle.setStrokeColor(Color.ORANGE);
+            handleStyle.setStrokeOpacity(0.8);
+            handleStyle.setStrokeWidth(1.0);
+            handleStyle.setFillColor(Color.WHITE);
+            handleStyle.setFillOpacity(0.5);
+            return new Handle[] {new PointHandle(this, handleStyle)};
+            // return new Handle[] {new PointHandle(this, handleStyle, new Rectangle(-20, -20, 40, 40))};
+        }
+        return super.createHandles(selectionStage);
+    }
 }
