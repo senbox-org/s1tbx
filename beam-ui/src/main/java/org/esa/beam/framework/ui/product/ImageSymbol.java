@@ -50,6 +50,10 @@ public class ImageSymbol implements PointSymbol {
         this.refY = refY;
     }
 
+    public BufferedImage getImage() {
+        return image;
+    }
+
     @Override
     public double getRefX() {
         return refX;
@@ -62,6 +66,7 @@ public class ImageSymbol implements PointSymbol {
 
     @Override
     public void draw(Rendering rendering, FigureStyle style) {
+        // improvement: we could check if we have to filter the image, e.g. to display in different colours
         rendering.getGraphics().drawRenderedImage(image, null);
     }
 

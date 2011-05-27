@@ -9,9 +9,9 @@ package org.esa.beam.framework.ui.product;
  */
 public enum PredefinedPointSymbol {
 
-    PLUS(1, new CrossSymbol(8.0, 0x01)),
-    CROSS(2, new CrossSymbol(8.0, 0x02)),
-    STAR(3, new CrossSymbol(8.0, 0x01 | 0x02)),
+    PLUS(1, CrossSymbol.createPlus(8.0)),
+    CROSS(2, CrossSymbol.createCross(8.0)),
+    STAR(3, CrossSymbol.createStar(8.0)),
     SQUARE(4, ShapeSymbol.createSquare(8.0)),
     CIRCLE(5, ShapeSymbol.createCircle(8.0));
 
