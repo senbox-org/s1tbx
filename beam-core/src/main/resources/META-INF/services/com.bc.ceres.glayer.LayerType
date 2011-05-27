@@ -1,5 +1,4 @@
 org.esa.beam.glayer.BitmaskCollectionLayer$Type
-org.esa.beam.glayer.FigureLayerType
 org.esa.beam.glayer.GraticuleLayerType
 org.esa.beam.glayer.NoDataLayerType
 org.esa.beam.glayer.RasterImageLayerType
