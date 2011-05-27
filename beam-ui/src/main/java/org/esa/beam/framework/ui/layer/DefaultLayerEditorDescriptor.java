@@ -16,7 +16,6 @@
 
 package org.esa.beam.framework.ui.layer;
 
-import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ExtensionFactory;
 import com.bc.ceres.core.ExtensionManager;
@@ -27,7 +26,22 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 
 /**
- * The default descriptor for a layer editor.
+ * The default descriptor for a layer editor. Layer editors are configured in your Module Manifest {@code module.xml}
+ * by extending the extension point {@code layerEditors} with {@code layerEditor} elements:
+ * <p/>
+ * <pre>
+ * &lt;extension point="beam-ui:layerEditors"&gt;
+ *       &lt;layerEditor&gt;
+ *           &lt;editorFactory&gt;org.esa.beam.visat.toolviews.layermanager.editors.VectorDataLayerEditorFactory&lt;/editorFactory&gt;
+ *           &lt;layer&gt;org.esa.beam.framework.ui.product.VectorDataLayer&lt;/layer&gt;
+ *       &lt;/layerEditor&gt;
+ *       &lt;layerEditor&gt;
+ *           &lt;editor&gt;org.esa.beam.visat.toolviews.layermanager.editors.ImageLayerEditor&lt;/editor&gt;
+ *           &lt;layerType&gt;com.bc.ceres.glayer.support.ImageLayer$Type&lt;/layerType&gt;
+ *       &lt;/layerEditor&gt;
+ * &lt;extension&gt;
+ * </pre>
+ * <p/>
  * <p/>
  * <i>Note: This API is not public yet and may significantly change in the future. Use it at your own risk.</i>
  *
@@ -43,8 +57,8 @@ public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, Conf
     private Class<? extends ExtensionFactory> layerEditorFactoryClass;
 
     /**
-     * Constructor used by Ceres runtime for creating a dedicated {@link ConfigurationElement}s for this
-     * {@code LayerEditorDescriptor}.
+     * Constructor used by Ceres runtime for creating a dedicated {@link ConfigurationElement} for this
+     * {@link LayerEditorDescriptor}.
      */
     public DefaultLayerEditorDescriptor() {
     }
@@ -79,8 +93,16 @@ public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, Conf
         }
     }
 
-    ExtensionFactory createExtensionFactory() {
-        if (layerEditorClass  != null) {
+    /**
+     * Creates an extension factory that maps an instances of a {@link Layer} or
+     * a {@link LayerType} to an instance of a {@link LayerEditor}.
+     * <p/>
+     * Clients may override in order to provide their own {@code ExtensionFactory}.
+     *
+     * @return An appropriate extension factory.
+     */
+    protected ExtensionFactory createExtensionFactory() {
+        if (layerEditorClass != null) {
             return new SingleTypeExtensionFactory<LayerType, LayerEditor>(LayerEditor.class, layerEditorClass);
         } else if (layerEditorFactoryClass != null) {
             try {
@@ -93,7 +115,7 @@ public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, Conf
         }
     }
 
-    public void setLayerClass(Class<? extends Layer> layerClass) {
+    void setLayerClass(Class<? extends Layer> layerClass) {
         this.layerClass = layerClass;
     }
 
