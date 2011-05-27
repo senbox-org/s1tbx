@@ -625,25 +625,6 @@ public class ProductSceneView extends BasicView
         }
     }
 
-    /**
-     * @deprecated since BEAM 4.7
-     */
-    @Deprecated
-    public boolean isBitmaskOverlayEnabled() {
-        final Layer bitmaskLayer = getBitmaskLayer(false);
-        return bitmaskLayer != null && bitmaskLayer.isVisible();
-    }
-
-    /**
-     * @deprecated since BEAM 4.7
-     */
-    @Deprecated
-    public void setBitmaskOverlayEnabled(boolean enabled) {
-        if (isBitmaskOverlayEnabled() != enabled) {
-            getBitmaskLayer(true).setVisible(enabled);
-        }
-    }
-
     public boolean isMaskOverlayEnabled() {
         final Layer layer = getMaskCollectionLayer(false);
         return layer != null && layer.isVisible();
@@ -654,19 +635,6 @@ public class ProductSceneView extends BasicView
             getMaskCollectionLayer(true).setVisible(enabled);
         }
     }
-
-    public boolean isShapeOverlayEnabled() {
-        final Layer layer = getVectorDataCollectionLayer(false);
-        return layer != null && layer.isVisible();
-    }
-
-    public void setShapeOverlayEnabled(boolean enabled) {
-        if (isShapeOverlayEnabled() != enabled) {
-            getVectorDataCollectionLayer(true).setVisible(enabled);
-        }
-    }
-
-    // todo - replace by getCurrentGeometry() (nf)
 
     public ShapeFigure getCurrentShapeFigure() {
         FigureSelection figureSelection = getFigureEditor().getFigureSelection();
@@ -1185,11 +1153,6 @@ public class ProductSceneView extends BasicView
 
     private Layer getNoDataLayer(boolean create) {
         return getSceneImage().getNoDataLayer(create);
-    }
-
-    @Deprecated
-    private Layer getBitmaskLayer(boolean create) {
-        return getSceneImage().getBitmaskLayer(create);
     }
 
     public Layer getVectorDataCollectionLayer(boolean create) {

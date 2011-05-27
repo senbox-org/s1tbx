@@ -20,28 +20,22 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.core.CanceledException;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.glayer.BitmaskCollectionLayer;
 import org.esa.beam.glayer.GraticuleLayer;
+import org.esa.beam.glayer.MaskCollectionLayer;
+import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.util.PropertyMap;
 
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.Window;
-import java.awt.geom.AffineTransform;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -254,17 +248,12 @@ public class SessionTest extends TestCase {
         final VirtualBand bandD = new VirtualBand("D", ProductData.TYPE_INT32, 16, 16, "0.23");
         productY.addBand(bandC);
         productY.addBand(bandD);
+        productY.addBitmaskDef(new BitmaskDef("M1", "descr", "D > 0.23", Color.RED, 0.3f));
+        productY.addBitmaskDef(new BitmaskDef("M2", "descr", "C < 0.23", Color.BLUE, 0.3f));
         writeProduct(productX);
         writeProduct(productY);
 
-        productY.addBitmaskDef(new BitmaskDef("D_eq_23", "descr", "D > 0.23", Color.RED, 0.3f));
-        productY.addBitmaskDef(new BitmaskDef("C_lt_23", "descr", "C < 0.23", Color.BLUE, 0.3f));
-        final BitmaskOverlayInfo overlayInfo = new BitmaskOverlayInfo();
-        final BitmaskDef[] defs = productY.getBitmaskDefs();
-        for (BitmaskDef def : defs) {
-            overlayInfo.addBitmaskDef(def);
-        }
-        bandD.setBitmaskOverlayInfo(overlayInfo);
+        assertEquals(4, productY.getMaskGroup().getNodeCount()); // pin + GCPs + 2 extra masks = 4
 
         final ProductSceneView sceneViewA = new ProductSceneView(
                 new ProductSceneImage(bandA, new PropertyMap(), ProgressMonitor.NULL));
@@ -279,19 +268,19 @@ public class SessionTest extends TestCase {
                 new ProductSceneImage(bandD, new PropertyMap(), ProgressMonitor.NULL));
         sceneViewD.setBounds(new Rectangle(200, 100, 200, 100));
 
-        // todo - add more layers (nf)
-        GraticuleLayer graticuleLayer = new GraticuleLayer(bandD);
-        graticuleLayer.setName("Graticule"); // todo - place in GraticuleLayer constructor (nf)
+        final GraticuleLayer graticuleLayer = new GraticuleLayer(bandD);
+        graticuleLayer.setName("Graticule");
         graticuleLayer.setVisible(true);
         sceneViewD.getRootLayer().getChildren().add(graticuleLayer);
 
-        final BitmaskCollectionLayer.Type type = LayerTypeRegistry.getLayerType(BitmaskCollectionLayer.Type.class);
-        final PropertySet template = type.createLayerConfig(sceneViewD);
-        template.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_RASTER, bandD);
-        BitmaskCollectionLayer bitmaskCollectionLayer = new BitmaskCollectionLayer(type, template);
-        bitmaskCollectionLayer.setName("Bitmask Collection");
-        bitmaskCollectionLayer.setVisible(true);
-        sceneViewD.getRootLayer().getChildren().add(bitmaskCollectionLayer);
+        final MaskCollectionLayer.Type mclType = LayerTypeRegistry.getLayerType(MaskCollectionLayer.Type.class);
+        final MaskLayerType mlType = LayerTypeRegistry.getLayerType(MaskLayerType.class);
+        final Layer maskCollectionLayer = mclType.createLayer(null, mclType.createLayerConfig(null));
+        maskCollectionLayer.setName("Mask Collection");
+        maskCollectionLayer.setVisible(true);
+        maskCollectionLayer.getChildren().add(createMaskLayer(mlType, productY, "M1"));
+        maskCollectionLayer.getChildren().add(createMaskLayer(mlType, productY, "M2"));
+        sceneViewD.getRootLayer().getChildren().add(maskCollectionLayer);
 
         return new SessionData(
                 new Product[]{
@@ -304,6 +293,12 @@ public class SessionTest extends TestCase {
                         sceneViewB,
                         sceneViewD
                 });
+    }
+
+    private static Layer createMaskLayer(MaskLayerType mlType, Product product, String name) {
+        PropertySet layerConfig = mlType.createLayerConfig(null);
+        layerConfig.setValue(MaskLayerType.PROPERTY_NAME_MASK, product.getMaskGroup().get(name));
+        return mlType.createLayer(null, layerConfig);
     }
 
     static class SessionData {

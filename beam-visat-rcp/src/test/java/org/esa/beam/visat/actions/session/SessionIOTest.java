@@ -59,6 +59,7 @@ public class SessionIOTest extends TestCase {
         final StringWriter writer = new StringWriter();
         SessionIO.getInstance().writeSession(session1, writer);
         final String xml = writer.toString();
+        System.out.println("Session XML:\n" + xml);
         final StringReader reader = new StringReader(xml);
         final Session session2 = SessionIO.getInstance().readSession(reader);
         testSession(session2);
@@ -86,10 +87,13 @@ public class SessionIOTest extends TestCase {
         assertEquals("Graticule", graticuleLayerRef.name);
         assertNotNull(graticuleLayerRef.configuration);
         assertEquals(13, graticuleLayerRef.configuration.getChildCount());
-        final Session.LayerRef bitmaskCollectionLayerRef = session.getViewRef(3).getLayerRef(2);
-        assertEquals("Bitmask Collection", bitmaskCollectionLayerRef.name);
-        assertNotNull(bitmaskCollectionLayerRef.configuration);
-        assertEquals(1, bitmaskCollectionLayerRef.configuration.getChildCount());
+        final Session.LayerRef maskCollectionLayerRef = session.getViewRef(3).getLayerRef(2);
+        assertEquals("Mask Collection", maskCollectionLayerRef.name);
+        assertNotNull(maskCollectionLayerRef.configuration);
+        assertEquals(0, maskCollectionLayerRef.configuration.getChildCount());
+        assertEquals(2, maskCollectionLayerRef.children.length);
+        assertEquals("M1", maskCollectionLayerRef.children[0].name);
+        assertEquals("M2", maskCollectionLayerRef.children[1].name);
     }
 
     private void testProductRef(Session.ProductRef productRef, int expectedId, String expectedRelFile) {

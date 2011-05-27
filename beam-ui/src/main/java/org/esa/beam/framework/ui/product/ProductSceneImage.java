@@ -18,36 +18,16 @@ package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glayer.CollectionLayer;
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerFilter;
-import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.LayerTypeRegistry;
+import com.bc.ceres.glayer.*;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerUtils;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.glayer.BitmaskCollectionLayer;
-import org.esa.beam.glayer.BitmaskLayerType;
-import org.esa.beam.glayer.GraticuleLayer;
-import org.esa.beam.glayer.GraticuleLayerType;
-import org.esa.beam.glayer.MaskCollectionLayerType;
-import org.esa.beam.glayer.MaskLayerType;
-import org.esa.beam.glayer.NoDataLayerType;
-import org.esa.beam.glayer.ProductLayerContext;
-import org.esa.beam.glayer.RasterImageLayerType;
-import org.esa.beam.glayer.RgbImageLayerType;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.glayer.*;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.PropertyMap;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 
 // todo - Layer API: make it implement ProductSceneViewContext
@@ -178,20 +158,6 @@ public class ProductSceneImage implements ProductLayerContext {
         return layer;
     }
 
-    /**
-     * @deprecated since BEAM 4.7
-     */
-    @Deprecated
-    Layer getBitmaskLayer(boolean create) {
-        Layer layer = getLayer(ProductSceneView.BITMASK_LAYER_ID);
-        if (layer == null && create) {
-            layer = createBitmaskCollectionLayer(getImageToModelTransform());
-            addLayer(getFirstImageLayerIndex(), layer);
-        }
-        return layer;
-    }
-
-
     Layer getVectorDataCollectionLayer(boolean create) {
         Layer layer = getLayer(ProductSceneView.VECTOR_DATA_LAYER_ID);
         if (layer == null && create) {
@@ -320,20 +286,6 @@ public class ProductSceneImage implements ProductLayerContext {
         return layer;
     }
 
-    @Deprecated
-    private Layer createBitmaskCollectionLayer(AffineTransform i2mTransform) {
-        final LayerType bitmaskCollectionType = LayerTypeRegistry.getLayerType(BitmaskCollectionLayer.Type.class);
-        final PropertySet layerConfig = bitmaskCollectionType.createLayerConfig(null);
-        layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_RASTER, getRaster());
-        final Layer bitmaskCollectionLayer = bitmaskCollectionType.createLayer(this, layerConfig);
-        final BitmaskDef[] bitmaskDefs = getRaster().getProduct().getBitmaskDefs();
-        for (final BitmaskDef bitmaskDef : bitmaskDefs) {
-            Layer layer = BitmaskLayerType.createBitmaskLayer(getRaster(), bitmaskDef, i2mTransform);
-            bitmaskCollectionLayer.getChildren().add(layer);
-        }
-        return bitmaskCollectionLayer;
-    }
-
     private synchronized Layer createVectorDataCollectionLayer() {
         final LayerType layerType = LayerTypeRegistry.getLayerType(VectorDataCollectionLayerType.class);
         final Layer collectionLayer = layerType.createLayer(this, layerType.createLayerConfig(this));
@@ -358,38 +310,6 @@ public class ProductSceneImage implements ProductLayerContext {
             maskCollectionLayer.getChildren().add(layer);
         }
         return maskCollectionLayer;
-    }
-
-    private VectorDataLayer createFigureLayer(AffineTransform i2mTransform) {
-        final LayerType figureType = LayerTypeRegistry.getLayerType(VectorDataLayerType.class);
-        final PropertySet template = figureType.createLayerConfig(null);
-        /*
-        template.setValue(VectorDataLayer.PROPERTY_NAME_FIGURE_LIST, new ArrayList<Figure>());
-        template.setValue(VectorDataLayer.PROPERTY_NAME_TRANSFORM, i2mTransform);
-        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTLINED,
-                          configuration.getPropertyBool(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTLINED,
-                                                        VectorDataLayer.DEFAULT_SHAPE_OUTLINED));
-        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
-                          configuration.getPropertyColor(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
-                                                         VectorDataLayer.DEFAULT_SHAPE_OUTL_COLOR));
-        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
-                          configuration.getPropertyDouble(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
-                                                          VectorDataLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
-        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
-                          configuration.getPropertyDouble(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
-                                                          VectorDataLayer.DEFAULT_SHAPE_OUTL_WIDTH));
-        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_FILLED,
-                          configuration.getPropertyBool(VectorDataLayer.PROPERTY_NAME_SHAPE_FILLED,
-                                                        VectorDataLayer.DEFAULT_SHAPE_FILLED));
-        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
-                          configuration.getPropertyColor(VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
-                                                         VectorDataLayer.DEFAULT_SHAPE_FILL_COLOR));
-        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
-                          configuration.getPropertyDouble(VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
-                                                          VectorDataLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
-
-        */
-        return (VectorDataLayer) figureType.createLayer(this, template);
     }
 
     static void setNoDataLayerStyle(PropertyMap configuration, Layer layer) {
