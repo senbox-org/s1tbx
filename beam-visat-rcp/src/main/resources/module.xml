@@ -223,8 +223,8 @@
 
     <extension point="beam-ui:layerEditors">
         <layerEditor>
-            <editor>org.esa.beam.visat.toolviews.layermanager.editors.VectorDataLayerEditor</editor>
-            <layerType>org.esa.beam.framework.ui.product.VectorDataLayerType</layerType>
+            <editorFactory>org.esa.beam.visat.toolviews.layermanager.editors.VectorDataLayerEditorFactory</editorFactory>
+            <layer>org.esa.beam.framework.ui.product.VectorDataLayer</layer>
         </layerEditor>
         <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.ImageLayerEditor</editor>

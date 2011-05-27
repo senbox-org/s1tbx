@@ -151,7 +151,8 @@
     </extensionPoint>
 
     <!--
-       todo - Describe configuration elements
+       The extension point 'layerEditors' comprises any number of 'layerEditor' elements.
+       These are mappings from a specific layer or layer type to an appropriate layer editor or editor factory.
     -->
     <extensionPoint id="layerEditors">
         <layerEditor type="org.esa.beam.framework.ui.layer.LayerEditorDescriptor"
@@ -159,8 +160,24 @@
                      autoConfig="true">
             <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.layer.DefaultLayerEditorDescriptor
             </descriptorClass>
+
+            <!--
+                 Either 'editor' or 'editorFactory' must be given:
+                 - 'editor' must be a 'org.esa.beam.framework.ui.layer.LayerEditor'
+                 - 'editorFactory' must be a 'com.bc.ceres.core.ExtensionFactory' that produces
+                    instances of 'org.esa.beam.framework.ui.layer.LayerEditor'.
+             -->
             <editor field="layerEditorClass" type="java.lang.Class"/>
+            <editorFactory field="layerEditorFactoryClass" type="java.lang.Class"/>
+
+            <!--
+                 At least 'layer' or 'layerType' must be given:
+                 - 'layer' must be a 'com.bc.ceres.glayer.Layer'
+                 - 'layerType' must be a 'com.bc.ceres.glayer.LayerType'.
+             -->
+            <layer field="layerClass" type="java.lang.Class"/>
             <layerType field="layerTypeClass" type="java.lang.Class"/>
+
         </layerEditor>
     </extensionPoint>
 

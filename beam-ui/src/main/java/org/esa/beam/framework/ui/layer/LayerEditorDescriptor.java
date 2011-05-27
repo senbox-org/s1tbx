@@ -16,6 +16,8 @@
 
 package org.esa.beam.framework.ui.layer;
 
+import com.bc.ceres.core.ExtensionFactory;
+import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 
 /**
@@ -28,21 +30,37 @@ import com.bc.ceres.glayer.LayerType;
  * @since BEAM 4.6
  */
 public interface LayerEditorDescriptor {
+    /**
+     * Gets the {@link Layer} class which is associated directly with a {@link LayerEditor} class or indirectly
+     * via a {@link ExtensionFactory} class.
+     *
+     * @return The {@link LayerType} class. May be {@code null}, if the {@link LayerType} class is given.
+     */
+    Class<? extends Layer> getLayerClass();
 
     /**
-     * Gets the {@link LayerType} class for which the {@link LayerEditor} is intended.
-     * The corresponding {@code LayerEditor} class can be retrieved by a call to
-     * {@link #getLayerEditorClass()}.
+     * Gets the {@link LayerType} class which is associated directly with a {@link LayerEditor} class or indirectly
+     * via a {@link ExtensionFactory} class.
      *
-     * @return The {@link LayerType} class.
+     * @return The {@link LayerType} class. May be {@code null}, if the {@link Layer} class is given.
      */
     Class<? extends LayerType> getLayerTypeClass();
 
     /**
-     * Gets the {@link LayerEditor} class, which is intended for the
-     * {@link LayerType} class returned by {@link #getLayerTypeClass()}
+     * Gets the {@link LayerEditor} class, whose instances serve as suitable editor either
+     * for instances of the {@link Layer} class returned by {@link #getLayerClass()} or
+     * for instances of the {@link LayerType} class returned by {@link #getLayerTypeClass()}.
      *
-     * @return The {@link LayerEditor} class
+     * @return The {@link LayerEditor} class. May be {@code null}, if the {@code ExtensionFactory} class is given.
      */
     Class<? extends LayerEditor> getLayerEditorClass();
+
+    /**
+     * Gets the {@link ExtensionFactory} class, whose instances serve as suitable editor factory either
+     * for instances of the {@link Layer} class returned by {@link #getLayerClass()} or
+     * for instances of the {@link LayerType} class returned by {@link #getLayerTypeClass()}.
+     *
+     * @return The {@link LayerEditor} class. May be {@code null}, if the {@code LayerEditor} class is given.
+     */
+    Class<? extends ExtensionFactory> getLayerEditorFactoryClass();
 }

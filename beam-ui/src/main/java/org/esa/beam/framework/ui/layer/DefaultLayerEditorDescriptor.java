@@ -23,6 +23,7 @@ import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.core.SingleTypeExtensionFactory;
 import com.bc.ceres.core.runtime.ConfigurableExtension;
 import com.bc.ceres.core.runtime.ConfigurationElement;
+import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 
 /**
@@ -36,8 +37,10 @@ import com.bc.ceres.glayer.LayerType;
  */
 @SuppressWarnings({"UnusedDeclaration"})
 public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, ConfigurableExtension {
+    private Class<? extends Layer> layerClass;
     private Class<? extends LayerType> layerTypeClass;
     private Class<? extends LayerEditor> layerEditorClass;
+    private Class<? extends ExtensionFactory> layerEditorFactoryClass;
 
     /**
      * Constructor used by Ceres runtime for creating a dedicated {@link ConfigurationElement}s for this
@@ -46,17 +49,9 @@ public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, Conf
     public DefaultLayerEditorDescriptor() {
     }
 
-    /**
-     * Used for unit testing only.
-     *
-     * @param layerTypeClass   The layer type.
-     * @param layerEditorClass The layer editor.
-     */
-    DefaultLayerEditorDescriptor(Class<? extends LayerType> layerTypeClass, Class<? extends LayerEditor> layerEditorClass) {
-        Assert.notNull(layerTypeClass, "layerTypeClass");
-        Assert.notNull(layerEditorClass, "layerEditorClass");
-        this.layerTypeClass = layerTypeClass;
-        this.layerEditorClass = layerEditorClass;
+    @Override
+    public Class<? extends Layer> getLayerClass() {
+        return layerClass;
     }
 
     @Override
@@ -70,12 +65,47 @@ public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, Conf
     }
 
     @Override
+    public Class<? extends ExtensionFactory> getLayerEditorFactoryClass() {
+        return layerEditorFactoryClass;
+    }
+
+    @Override
     public void configure(ConfigurationElement config) throws CoreException {
-        ExtensionManager.getInstance().register(layerTypeClass, createExtensionFactory());
+        if (layerClass != null) {
+            ExtensionManager.getInstance().register(layerClass, createExtensionFactory());
+        }
+        if (layerTypeClass != null) {
+            ExtensionManager.getInstance().register(layerTypeClass, createExtensionFactory());
+        }
     }
 
     ExtensionFactory createExtensionFactory() {
-        return new SingleTypeExtensionFactory<LayerType, LayerEditor>(LayerEditor.class, layerEditorClass);
+        if (layerEditorClass  != null) {
+            return new SingleTypeExtensionFactory<LayerType, LayerEditor>(LayerEditor.class, layerEditorClass);
+        } else if (layerEditorFactoryClass != null) {
+            try {
+                return layerEditorFactoryClass.newInstance();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        } else {
+            throw new IllegalStateException("Either 'layerEditorClass' or 'layerEditorFactoryClass' must be non-null");
+        }
     }
 
+    public void setLayerClass(Class<? extends Layer> layerClass) {
+        this.layerClass = layerClass;
+    }
+
+    void setLayerEditorClass(Class<? extends LayerEditor> layerEditorClass) {
+        this.layerEditorClass = layerEditorClass;
+    }
+
+    void setLayerEditorFactoryClass(Class<? extends ExtensionFactory> layerEditorFactoryClass) {
+        this.layerEditorFactoryClass = layerEditorFactoryClass;
+    }
+
+    void setLayerTypeClass(Class<? extends LayerType> layerTypeClass) {
+        this.layerTypeClass = layerTypeClass;
+    }
 }

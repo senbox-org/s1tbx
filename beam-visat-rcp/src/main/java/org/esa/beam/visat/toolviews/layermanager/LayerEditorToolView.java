@@ -85,13 +85,17 @@ public class LayerEditorToolView extends AbstractLayerToolView {
     }
 
     private LayerEditor getLayerEditor(Layer layer) {
-        final LayerEditor layerEditor = layer.getLayerType().getExtension(LayerEditor.class);
-
+        LayerEditor layerEditor = layer.getExtension(LayerEditor.class);
         if (layerEditor != null) {
             return layerEditor;
-        } else {
-            return emptyLayerEditor;
         }
+
+        layerEditor = layer.getLayerType().getExtension(LayerEditor.class);
+        if (layerEditor != null) {
+            return layerEditor;
+        }
+
+        return emptyLayerEditor;
     }
 
     private class LayerHandler extends AbstractLayerListener {
