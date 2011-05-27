@@ -124,6 +124,9 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                              boolean mask,
                                              Product product,
                                              ResolutionLevel level) {
+        Assert.notNull(product, "product");
+        Assert.notNull(level, "level");
+
         final Product[] products;
         final int defaultProductIndex;
         if (product.getProductManager() != null) {
