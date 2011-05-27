@@ -82,17 +82,21 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
         final Graphics2D g = rendering.getGraphics();
         final Viewport vp = rendering.getViewport();
         final AffineTransform oldTransform = g.getTransform();
-
         try {
             AffineTransform m2v = vp.getModelToViewTransform();
             Point2D viewLocation = m2v.transform(getLocation(), null);
             g.translate(viewLocation.getX(), viewLocation.getY());
-
             drawPointSymbol(rendering);
         } finally {
             g.setTransform(oldTransform);
         }
     }
 
+    /**
+     * Draws the symbol used to represent the point figure.
+     * Drawing of symbols is done in <i>view</i> coordinates.
+     *
+     * @param rendering The rendering.
+     */
     protected abstract void drawPointSymbol(Rendering rendering);
 }
