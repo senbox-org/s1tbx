@@ -38,20 +38,27 @@ public class ImageSymbolTest {
 
     @Test
     public void testContainsPoint() throws Exception {
+        // Note that the image we load comprises 4 regions: Red, Green, Blue and Transparent.
         ImageSymbol imageSymbol = ImageSymbol.createIcon(getClass(), "image-symbol.png");
         assertNotNull(imageSymbol);
-        assertEquals(false, imageSymbol.containsPoint(-9.0, 0.0));
-        assertEquals(true, imageSymbol.containsPoint(-8.0, 0.0));
-        assertEquals(true, imageSymbol.containsPoint(-4.0, 0.0));
-        assertEquals(true, imageSymbol.containsPoint(0.0, 0.0));
-        assertEquals(true, imageSymbol.containsPoint(1.0, 0.0));
-        assertEquals(true, imageSymbol.containsPoint(2.0, 0.0));
-        assertEquals(true, imageSymbol.containsPoint(3.0, 0.0));
-        assertEquals(false, imageSymbol.containsPoint(4.0, 0.0));
-        assertEquals(false, imageSymbol.containsPoint(5.0, 0.0));
-        assertEquals(false, imageSymbol.containsPoint(6.0, 0.0));
-        assertEquals(false, imageSymbol.containsPoint(7.0, 0.0));
-        assertEquals(false, imageSymbol.containsPoint(8.0, 0.0));
-        assertEquals(false, imageSymbol.containsPoint(9.0, 0.0));
+        assertEquals(false, imageSymbol.containsPoint(-9.0, 0.0)); // Out of bounds
+        assertEquals(true, imageSymbol.containsPoint(-8.0, 0.0)); // Red
+        assertEquals(true, imageSymbol.containsPoint(-7.0, 0.0)); // Red
+        assertEquals(true, imageSymbol.containsPoint(-6.0, 0.0)); // Red
+        assertEquals(true, imageSymbol.containsPoint(-5.0, 0.0)); // Red
+        assertEquals(true, imageSymbol.containsPoint(-4.0, 0.0)); // Green
+        assertEquals(true, imageSymbol.containsPoint(-3.0, 0.0)); // Green
+        assertEquals(true, imageSymbol.containsPoint(-2.0, 0.0)); // Green
+        assertEquals(true, imageSymbol.containsPoint(-1.0, 0.0)); // Green
+        assertEquals(true, imageSymbol.containsPoint(0.0, 0.0));  // Blue
+        assertEquals(true, imageSymbol.containsPoint(1.0, 0.0));  // Blue
+        assertEquals(true, imageSymbol.containsPoint(2.0, 0.0));  // Blue
+        assertEquals(true, imageSymbol.containsPoint(3.0, 0.0));  // Blue
+        assertEquals(false, imageSymbol.containsPoint(4.0, 0.0)); // Transparent
+        assertEquals(false, imageSymbol.containsPoint(5.0, 0.0)); // Transparent
+        assertEquals(false, imageSymbol.containsPoint(6.0, 0.0)); // Transparent
+        assertEquals(false, imageSymbol.containsPoint(7.0, 0.0)); // Transparent
+        assertEquals(false, imageSymbol.containsPoint(8.0, 0.0)); // Transparent
+        assertEquals(false, imageSymbol.containsPoint(9.0, 0.0)); // Out of bounds
     }
 }
