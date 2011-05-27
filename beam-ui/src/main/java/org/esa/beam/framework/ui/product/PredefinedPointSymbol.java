@@ -1,5 +1,7 @@
 package org.esa.beam.framework.ui.product;
 
+import org.esa.beam.framework.datamodel.Placemark;
+
 /**
  * Created by IntelliJ IDEA.
  * User: nfomferra
@@ -13,7 +15,9 @@ public enum PredefinedPointSymbol {
     CROSS(2, CrossSymbol.createCross(8.0)),
     STAR(3, CrossSymbol.createStar(8.0)),
     SQUARE(4, ShapeSymbol.createSquare(8.0)),
-    CIRCLE(5, ShapeSymbol.createCircle(8.0));
+    CIRCLE(5, ShapeSymbol.createCircle(8.0)),
+    PIN(6, ShapeSymbol.createPin(24.0, 14.0)),
+    GCP(7, ImageSymbol.createIcon(Placemark.class, "GcpShape.png"));
 
     public int getIndex() {
         return index;
