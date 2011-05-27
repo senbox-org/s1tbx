@@ -39,12 +39,37 @@ import java.awt.geom.Rectangle2D;
 
 public class SimpleFeaturePointFigure extends AbstractPointFigure implements SimpleFeatureFigure {
 
+    private static final Font labelFont = new Font("Helvetica", Font.BOLD, 14);
+    private static final int[] labelOutlineAlphas = new int[]{64, 128, 192, 255};
+    private static final Stroke[] labelOutlineStrokes = new Stroke[labelOutlineAlphas.length];
+    private static final Color[] labelOutlineColors = new Color[labelOutlineAlphas.length];
+    private static final Color labelFontColor = Color.WHITE;
+    private static final Color labelOutlineColor = Color.BLACK;
+
     private final SimpleFeature simpleFeature;
+    private final FigureStyle normalStyle;
+    private final FigureStyle selectedStyle;
     private Point geometry;
     private double radius; // number of pixels in view coordinates
 
+    static {
+        for (int i = 0; i < labelOutlineAlphas.length; i++) {
+            labelOutlineStrokes[i] = new BasicStroke((labelOutlineAlphas.length - i));
+            labelOutlineColors[i] = new Color(labelOutlineColor.getRed(),
+                                              labelOutlineColor.getGreen(),
+                                              labelOutlineColor.getBlue(),
+                                              labelOutlineAlphas[i]);
+        }
+    }
+
     public SimpleFeaturePointFigure(SimpleFeature simpleFeature, FigureStyle style) {
+        this(simpleFeature, style, style);
+    }
+
+    public SimpleFeaturePointFigure(SimpleFeature simpleFeature, FigureStyle normalStyle, FigureStyle selectedStyle) {
         this.simpleFeature = simpleFeature;
+        this.normalStyle = normalStyle;
+        this.selectedStyle = selectedStyle;
         Object o = simpleFeature.getDefaultGeometry();
         if (!(o instanceof Point)) {
             throw new IllegalArgumentException("simpleFeature");
@@ -100,6 +125,13 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
 
     @Override
     public boolean isCloseTo(Point2D point, AffineTransform m2v) {
+        FigureStyle style;
+        if (isSelected()) {
+            style = selectedStyle;
+        } else {
+            style = normalStyle;
+        }
+        // todo next: get the PointSymbol from the style, then call its containsPoint() method (nf)
 
         final double dx = point.getX() - getX();
         final double dy = point.getY() - getY();
@@ -116,6 +148,15 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
 
     @Override
     protected void drawPointSymbol(Rendering rendering) {
+        FigureStyle style;
+        if (isSelected()) {
+            style = selectedStyle;
+        } else {
+            style = normalStyle;
+        }
+        // todo next: get the PointSymbol from the style, then call its draw() method (nf)
+
+
         rendering.getGraphics().setPaint(Color.BLUE);
         rendering.getGraphics().setStroke(new BasicStroke(1.0f));
         final Object symbolAttribute = simpleFeature.getAttribute("symbol");
@@ -146,28 +187,21 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
         final Paint oldPaint = graphics.getPaint();
 
         try {
-            Font font = new Font("Helvetica", Font.BOLD, 14);
-            graphics.setFont(font);
-            GlyphVector glyphVector = font.createGlyphVector(graphics.getFontRenderContext(), label);
+            graphics.setFont(labelFont);
+            GlyphVector glyphVector = labelFont.createGlyphVector(graphics.getFontRenderContext(), label);
             Rectangle2D logicalBounds = glyphVector.getLogicalBounds();
             float tx = (float) (logicalBounds.getX() - 0.5 * logicalBounds.getWidth());
             float ty = (float) (1.0 + logicalBounds.getHeight());
-            Shape outline = glyphVector.getOutline(tx, ty);
+            Shape labelOutline = glyphVector.getOutline(tx, ty);
 
-            int[] alphas = new int[]{64, 128, 192, 255};
-            for (int i = 0; i < alphas.length; i++) {
-                BasicStroke selectionStroke = new BasicStroke((alphas.length - i));
-                Color selectionColor = new Color(Color.BLACK.getRed(),
-                                                 Color.BLACK.getGreen(),
-                                                 Color.BLACK.getBlue(),
-                                                 alphas[i]);
-                graphics.setStroke(selectionStroke);
-                graphics.setPaint(selectionColor);
-                graphics.draw(outline);
+            for (int i = 0; i < labelOutlineAlphas.length; i++) {
+                graphics.setStroke(labelOutlineStrokes[i]);
+                graphics.setPaint(labelOutlineColors[i]);
+                graphics.draw(labelOutline);
             }
 
-            graphics.setPaint(Color.WHITE);
-            graphics.fill(outline);
+            graphics.setPaint(labelFontColor);
+            graphics.fill(labelOutline);
         } finally {
             graphics.setPaint(oldPaint);
             graphics.setStroke(oldStroke);
@@ -199,7 +233,7 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
             handleStyle.setStrokeWidth(1.0);
             handleStyle.setFillColor(Color.WHITE);
             handleStyle.setFillOpacity(0.5);
-            return new Handle[] {new PointHandle(this, handleStyle)};
+            return new Handle[]{new PointHandle(this, handleStyle)};
             // return new Handle[] {new PointHandle(this, handleStyle, new Rectangle(-20, -20, 40, 40))};
         }
         return super.createHandles(selectionStage);
