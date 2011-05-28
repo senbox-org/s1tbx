@@ -52,8 +52,8 @@ public class CrossSymbol implements Symbol {
         rendering.getGraphics().setStroke(style.getStroke());
         rendering.getGraphics().setPaint(style.getStrokePaint());
         if ((type & 0x01) != 0) {
-            rendering.getGraphics().draw(new Line2D.Double(-r, 0, +r, 0));
-            rendering.getGraphics().draw(new Line2D.Double(0, -r, -r, 0));
+            rendering.getGraphics().draw(new Line2D.Double(-r, 0.0, +r, 0.0));
+            rendering.getGraphics().draw(new Line2D.Double(0.0, -r, 0.0, +r));
         }
         if ((type & 0x02) != 0) {
             rendering.getGraphics().draw(new Line2D.Double(-a, -a, +a, +a));
