@@ -36,6 +36,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 
 
 /**
@@ -68,7 +69,7 @@ public class ImportTrackAction extends ExecCommand {
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
         try {
-            featureCollection = readTrack(file, product);
+            featureCollection = readTrack(file, product.getGeoCoding());
         } catch (IOException e) {
             visatApp.showErrorDialog(TITLE, "Failed to load track file:\n" + e.getMessage());
             return;
@@ -90,18 +91,19 @@ public class ImportTrackAction extends ExecCommand {
                            && VisatApp.getApp().getSelectedProduct().getGeoCoding() != null);
     }
 
-    private static FeatureCollection<SimpleFeatureType, SimpleFeature> readTrack(File file, Product product) throws IOException {
-        CsvReader csvReader = new CsvReader(new FileReader(file), new char[]{'\t', ' '});
+    private static FeatureCollection<SimpleFeatureType, SimpleFeature> readTrack(File file, GeoCoding geoCoding) throws IOException {
+        Reader reader = new FileReader(file);
         try {
-            return readTrack(csvReader, product);
+            return readTrack(reader, geoCoding);
         } finally {
-            csvReader.close();
+            reader.close();
         }
     }
 
-    private static FeatureCollection<SimpleFeatureType, SimpleFeature> readTrack(CsvReader csvReader, Product product) throws IOException {
+    static FeatureCollection<SimpleFeatureType, SimpleFeature> readTrack(Reader reader, GeoCoding geoCoding) throws IOException {
+        CsvReader csvReader = new CsvReader(reader, new char[]{'\t', ' '}, true, "#");
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = FeatureCollections.newCollection();
-        SimpleFeatureType trackFeatureType = createTrackFeatureType(product.getGeoCoding());
+        SimpleFeatureType trackFeatureType = createTrackFeatureType(geoCoding);
         double[] record;
         int i = 0;
         while ((record = csvReader.readDoubleRecord()) != null) {
@@ -113,7 +115,7 @@ public class ImportTrackAction extends ExecCommand {
             float lon = (float) record[1];
             double data = record[2];
 
-            featureCollection.add(createFeature(trackFeatureType, product.getGeoCoding(), i, lat, lon, data));
+            featureCollection.add(createFeature(trackFeatureType, geoCoding, i, lat, lon, data));
             i++;
         }
 
