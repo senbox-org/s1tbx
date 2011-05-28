@@ -75,6 +75,21 @@ public interface FigureStyle extends PropertySet {
 
     double getFillOpacity();
 
+    /**
+     * Gets the effective point symbol used for drawing of points figures.
+     *
+     * @return The effective point symbol used for drawing.
+     */
+    Symbol getSymbol();
+
+    String getSymbolName();
+
+    String getSymbolImagePath();
+
+    double getSymbolRefX();
+
+    double getSymbolRefY();
+
     String toCssString();
 
     void fromCssString(String css);

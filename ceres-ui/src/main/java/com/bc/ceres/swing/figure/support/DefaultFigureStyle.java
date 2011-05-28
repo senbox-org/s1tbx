@@ -23,6 +23,7 @@ import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.swing.figure.FigureStyle;
+import com.bc.ceres.swing.figure.Symbol;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -48,6 +49,13 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     public static final PropertyDescriptor STROKE_COLOR = createStrokeColorDescriptor();
     public static final PropertyDescriptor STROKE_OPACITY = createStrokeOpacityDescriptor();
     public static final PropertyDescriptor STROKE_WIDTH = createStrokeWidthDescriptor();
+    //
+    //  The following property descriptors are not really SVG/CSS standards
+    //
+    public static final PropertyDescriptor SYMBOL_NAME = createSymbolNameDescriptor();
+    public static final PropertyDescriptor SYMBOL_IMAGE = createSymbolImageDescriptor();
+    public static final PropertyDescriptor SYMBOL_REF_X = createSymbolRefXDescriptor();
+    public static final PropertyDescriptor SYMBOL_REF_Y = createSymbolRefYDescriptor();
 
     private static final DefaultFigureStyle PROTOTYPE;
 
@@ -56,6 +64,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     private Stroke stroke;
     private Paint strokePaint;
     private Paint fillPaint;
+    private Symbol symbol;
 
     public DefaultFigureStyle() {
         this("");
@@ -70,6 +79,21 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         this.name = name;
         this.values = new HashMap<String, Object>();
         addPropertyChangeListener(new EffectivePropertyNuller());
+    }
+
+    public static FigureStyle createPointStyle(Symbol symbol) {
+        return createPointStyle(symbol, null, null, null);
+    }
+
+    public static FigureStyle createPointStyle(Symbol symbol, Paint strokePaint, Stroke stroke) {
+        return createPointStyle(symbol, null, strokePaint, stroke);
+    }
+
+    public static FigureStyle createPointStyle(Symbol symbol, Paint fillPaint, Paint strokePaint, Stroke stroke) {
+        DefaultFigureStyle figureStyle = setSymbol(symbol);
+        setStroke(figureStyle, strokePaint, stroke);
+        setFill(figureStyle, fillPaint);
+        return figureStyle;
     }
 
     public static FigureStyle createLineStyle(Paint strokePaint) {
@@ -103,18 +127,14 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
-    public Object getValue(String name) {
+    public <T> T getValue(String name) {
         if (isPropertyDefined(name)) {
             return super.getValue(name);
         }
-        Property protoTypeProperty = PROTOTYPE.getProperty(name);
-        if (protoTypeProperty != null) {
-            return protoTypeProperty.getValue();
+        Property prototypeProperty = PROTOTYPE.getProperty(name);
+        if (prototypeProperty != null) {
+            return prototypeProperty.getValue();
         }
         return null;
     }
@@ -130,14 +150,57 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
             defineProperty(property.getDescriptor(), value);
         } else {
             // be tolerant, do nothing!
-            // todo - really do nothing or log warning, exception?  (nf)
         }
+    }
+
+    @Override
+    public Symbol getSymbol() {
+        if (symbol == null) {
+            symbol = getEffectiveSymbol(getSymbolName(), getSymbolImagePath(), getSymbolRefX(), getSymbolRefY());
+        }
+        return symbol;
+    }
+
+    @Override
+    public String getSymbolName() {
+        return getValue(SYMBOL_NAME.getName(), null);
+    }
+
+    public void setSymbolName(String symbolName) {
+        setValue(SYMBOL_NAME.getName(), symbolName);
+    }
+
+    @Override
+    public String getSymbolImagePath() {
+        return getValue(SYMBOL_IMAGE.getName(), null);
+    }
+
+    public void setSymbolImagePath(String symbolName) {
+        setValue(SYMBOL_IMAGE.getName(), symbolName);
+    }
+
+    @Override
+    public double getSymbolRefX() {
+        return getValue(SYMBOL_REF_X.getName(), 0.0);
+    }
+
+    public void setSymbolRefX(double refX) {
+        setValue(SYMBOL_REF_X.getName(), refX);
+    }
+
+    @Override
+    public double getSymbolRefY() {
+        return getValue(SYMBOL_REF_Y.getName(), 0.0);
+    }
+
+    public void setSymbolRefY(double refY) {
+        setValue(SYMBOL_REF_Y.getName(), refY);
     }
 
     @Override
     public Stroke getStroke() {
         if (stroke == null) {
-            stroke = createEffectiveStroke(getStrokeWidth());
+            stroke = getEffectiveStroke(getStrokeWidth());
         }
         return stroke;
     }
@@ -155,11 +218,6 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
                                    basicStroke.getDashPhase());
         }
         return stroke;
-    }
-
-
-    public void setStroke(Stroke stroke) {
-        this.stroke = stroke;
     }
 
     /**
@@ -195,12 +253,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
 
     @Override
     public double getStrokeOpacity() {
-        Object value = getValue(STROKE_OPACITY.getName());
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
-        } else {
-            return 1.0;
-        }
+        return getValue(STROKE_OPACITY.getName(), 1.0);
     }
 
     public void setStrokeOpacity(double opacity) {
@@ -209,12 +262,9 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
 
     @Override
     public double getStrokeWidth() {
-        Object value = getValue(STROKE_WIDTH.getName());
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
-        } else {
-            return 0.0;
-        }
+        String name1 = STROKE_WIDTH.getName();
+        double defaultValue = 0.0;
+        return getValue(name1, defaultValue);
     }
 
     public void setStrokeWidth(double width) {
@@ -254,12 +304,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
 
     @Override
     public double getFillOpacity() {
-        Object value = getValue(FILL_OPACITY.getName());
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
-        } else {
-            return 1.0;
-        }
+        return getValue(FILL_OPACITY.getName(), 1.0);
     }
 
     public void setFillOpacity(double opacity) {
@@ -288,7 +333,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
 
     @Override
     public void fromCssString(String css) {
-        resetEffectiveProperties();
+        resetAllEffectiveProperties();
         StringTokenizer st = new StringTokenizer(css, ";", false);
         while (st.hasMoreElements()) {
             String token = st.nextToken();
@@ -326,6 +371,21 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
             propertyMap.put(property1.getName(), property1);
         }
         return propertyMap;
+    }
+
+    private static DefaultFigureStyle setSymbol(Symbol symbol) {
+        DefaultFigureStyle figureStyle = new DefaultFigureStyle("point-style");
+        if (symbol instanceof NamedSymbol) {
+            NamedSymbol namedSymbol = (NamedSymbol) symbol;
+            figureStyle.setSymbolName(namedSymbol.getName());
+        } else if (symbol instanceof ImageSymbol) {
+            ImageSymbol imageSymbol = (ImageSymbol) symbol;
+            figureStyle.setSymbolImagePath(imageSymbol.getResourcePath());
+            figureStyle.setSymbolRefX(imageSymbol.getRefX());
+            figureStyle.setSymbolRefY(imageSymbol.getRefY());
+        }
+        figureStyle.symbol = symbol;
+        return figureStyle;
     }
 
     private static void setFill(DefaultFigureStyle figureStyle, Paint fillPaint) {
@@ -397,6 +457,16 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         setValue(property.getName(), value);
     }
 
+    private Symbol getEffectiveSymbol(String symbolName, String symbolImagePath, double symbolRefX, double symbolRefY) {
+        if (symbolName != null) {
+            return NamedSymbol.getSymbol(symbolName);
+        }
+        if (symbolImagePath != null) {
+            return ImageSymbol.createIcon(symbolImagePath, symbolRefX, symbolRefY, getClass());
+        }
+        return null;
+    }
+
     private static Paint getEffectivePaint(Color color, double opacity) {
         int alpha = min(max((int) (opacity * 255), 0), 255);
         if (color.getAlpha() == alpha) {
@@ -408,13 +478,18 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
                          alpha);
     }
 
-    private static Stroke createEffectiveStroke(double width) {
+    private static Stroke getEffectiveStroke(double width) {
         return new BasicStroke((float) width);
     }
 
-    private void resetEffectiveProperties() {
+    private void resetAllEffectiveProperties() {
         resetEffectiveStrokeProperties();
         resetEffectiveFillProperties();
+        resetEffectiveSymbolProperties();
+    }
+
+    private void resetEffectiveSymbolProperties() {
+        symbol = null;
     }
 
     private void resetEffectiveStrokeProperties() {
@@ -433,45 +508,74 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
                 resetEffectiveStrokeProperties();
             } else if (evt.getPropertyName().startsWith("fill")) {
                 resetEffectiveFillProperties();
+            } else if (evt.getPropertyName().startsWith("symbol")) {
+                resetEffectiveSymbolProperties();
             }
         }
     }
 
     private static PropertyDescriptor createFillColorDescriptor() {
-        PropertyDescriptor descriptor = new PropertyDescriptor("fill", Color.class);
-        descriptor.setDefaultValue(Color.BLACK);
-        descriptor.setNotNull(false);
-        return descriptor;
+        return createPropertyDescriptor("fill", Color.class, Color.BLACK, false);
     }
 
     private static PropertyDescriptor createFillOpacityDescriptor() {
-        PropertyDescriptor descriptor = new PropertyDescriptor("fill-opacity", Double.class);
-        descriptor.setDefaultValue(1.0);
+        PropertyDescriptor descriptor = createPropertyDescriptor("fill-opacity", Double.class, 1.0, false);
         descriptor.setValueRange(new ValueRange(0.0, 1.0));
-        descriptor.setNotNull(false);
         return descriptor;
     }
 
     private static PropertyDescriptor createStrokeColorDescriptor() {
-        PropertyDescriptor descriptor = new PropertyDescriptor("stroke", Color.class);
-        descriptor.setDefaultValue(null);
-        descriptor.setNotNull(false);
-        return descriptor;
+        return createPropertyDescriptor("stroke", Color.class, null, false);
     }
 
     private static PropertyDescriptor createStrokeOpacityDescriptor() {
-        PropertyDescriptor descriptor = new PropertyDescriptor("stroke-opacity", Double.class);
-        descriptor.setDefaultValue(1.0);
+        PropertyDescriptor descriptor = createPropertyDescriptor("stroke-opacity", Double.class, 1.0, false);
         descriptor.setValueRange(new ValueRange(0.0, 1.0));
-        descriptor.setNotNull(false);
         return descriptor;
     }
 
     private static PropertyDescriptor createStrokeWidthDescriptor() {
-        PropertyDescriptor descriptor = new PropertyDescriptor("stroke-width", Double.class);
-        descriptor.setDefaultValue(0.0);
-        descriptor.setNotNull(false);
+        return createPropertyDescriptor("stroke-width", Double.class, 0.0, false);
+    }
+
+    private static PropertyDescriptor createSymbolNameDescriptor() {
+        return createPropertyDescriptor("symbol", String.class, NamedSymbol.CROSS.getName(), false);
+    }
+
+    private static PropertyDescriptor createSymbolImageDescriptor() {
+        return createPropertyDescriptor("symbol-image", String.class, null, false);
+    }
+
+    private static PropertyDescriptor createSymbolRefXDescriptor() {
+        return createPropertyDescriptor("symbol-ref-x", Double.class, 0.0, false);
+    }
+
+    private static PropertyDescriptor createSymbolRefYDescriptor() {
+        return createPropertyDescriptor("symbol-ref-y", Double.class, 0.0, false);
+    }
+
+    private static PropertyDescriptor createPropertyDescriptor(String propertyName, Class type, Object defaultValue, boolean notNull) {
+        PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, type);
+        descriptor.setDefaultValue(defaultValue);
+        descriptor.setNotNull(notNull);
         return descriptor;
     }
 
+    private double getValue(String name1, double defaultValue) {
+        Object value = getValue(name1);
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        } else {
+            return defaultValue;
+        }
+    }
+
+    private String getValue(String name, String defaultValue) {
+        Object value = getValue(name);
+        if (value instanceof String) {
+            return (String) value;
+        } else {
+            return defaultValue;
+        }
+    }
 }

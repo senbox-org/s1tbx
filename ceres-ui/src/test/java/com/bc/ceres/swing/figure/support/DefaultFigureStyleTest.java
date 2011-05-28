@@ -17,33 +17,41 @@
 package com.bc.ceres.swing.figure.support;
 
 import com.bc.ceres.swing.figure.FigureStyle;
-import junit.framework.TestCase;
+import org.junit.Test;
 
-import java.awt.Color;
 import java.awt.BasicStroke;
-import java.awt.Paint;
+import java.awt.Color;
 
-public class DefaultFigureStyleTest extends TestCase {
-    public void testConstructors() {
+import static org.junit.Assert.*;
+
+public class DefaultFigureStyleTest {
+    @Test
+    public void testDefaultConstructor() {
         // This is the SVG/CSS default
-        FigureStyle style1 = new DefaultFigureStyle();
-        assertEquals("", style1.getName());
-        assertEquals(Color.BLACK, style1.getFillColor());
-        assertEquals(null, style1.getStrokeColor());
-        assertNotNull(style1.getStroke());
-
-        FigureStyle style2 = new DefaultFigureStyle("X");
-        assertEquals("X", style2.getName());
-        assertEquals(Color.BLACK, style2.getFillColor());
-        assertEquals(null, style2.getStrokeColor());
-        assertNotNull(style1.getStroke());
+        FigureStyle style = new DefaultFigureStyle();
+        assertEquals("", style.getName());
+        assertEquals(Color.BLACK, style.getFillColor());
+        assertEquals(null, style.getStrokeColor());
+        assertNotNull(style.getStroke());
+        assertNotNull(style.getSymbol());
     }
 
-    public void testShapeStyle() {
+    @Test
+    public void testConstructorWithName() {
+        FigureStyle style = new DefaultFigureStyle("X");
+        assertEquals("X", style.getName());
+        assertEquals(Color.BLACK, style.getFillColor());
+        assertEquals(null, style.getStrokeColor());
+        assertNotNull(style.getStroke());
+        assertNotNull(style.getSymbol());
+    }
+
+    @Test
+    public void testPolygonStyle() {
         FigureStyle style = DefaultFigureStyle.createPolygonStyle(Color.RED);
         assertEquals(Color.RED, style.getFillColor());
         assertEquals(null, style.getStrokeColor());
-        assertEquals(0.0, style.getStrokeWidth());
+        assertEquals(0.0, style.getStrokeWidth(), 1E-10);
         assertNotNull(style.getStroke());
 
         style = DefaultFigureStyle.createPolygonStyle(Color.RED, Color.BLUE);
@@ -52,7 +60,16 @@ public class DefaultFigureStyleTest extends TestCase {
         assertNotNull(style.getStroke());
     }
 
+    @Test
     public void testCss() {
+        testToPointCss("symbol-image:TestSymbolIcon.png; symbol-ref-x:2.0; symbol-ref-y:6.0",
+                       DefaultFigureStyle.createPointStyle(ImageSymbol.createIcon("TestSymbolIcon.png", 2.0, 6.0)));
+
+        testToPointCss("stroke:#ffc800; stroke-width:2.5; symbol:star",
+                      DefaultFigureStyle.createPointStyle(NamedSymbol.STAR, Color.ORANGE, new BasicStroke(2.5f)));
+
+        testToPointCss("fill:#00ff00; stroke:#ffc800; stroke-width:2.5; symbol:pin",
+                      DefaultFigureStyle.createPointStyle(NamedSymbol.PIN, Color.GREEN, Color.ORANGE, new BasicStroke(2.5f)));
 
         testToLineCss("stroke:#0000ff; stroke-width:5.0",
                       DefaultFigureStyle.createLineStyle(Color.BLUE, new BasicStroke(5.0f)));
@@ -74,6 +91,21 @@ public class DefaultFigureStyleTest extends TestCase {
                          DefaultFigureStyle.createPolygonStyle(new Color(12, 23, 34, 127), new Color(100, 100, 100, 98)));
     }
 
+    private void testToPointCss(String expectedCss, FigureStyle style) {
+        String css = style.toCssString();
+        assertEquals(expectedCss, css);
+        testFromPointCss(style, css);
+    }
+
+    private void testFromPointCss(FigureStyle expectedStyle, String css) {
+        FigureStyle style = new DefaultFigureStyle();
+        style.fromCssString(css);
+        assertEquals(expectedStyle.getSymbolName(), style.getSymbolName());
+        assertEquals(expectedStyle.getSymbolImagePath(), style.getSymbolImagePath());
+        assertEquals(expectedStyle.getSymbolRefX(), style.getSymbolRefX(), 1E-10);
+        assertEquals(expectedStyle.getSymbolRefY(), style.getSymbolRefY(), 1E-10);
+    }
+
     private void testToLineCss(String expectedCss, FigureStyle style) {
         String css = style.toCssString();
         assertEquals(expectedCss, css);
@@ -83,8 +115,8 @@ public class DefaultFigureStyleTest extends TestCase {
     private void testFromLineCss(FigureStyle expectedStyle, String css) {
         FigureStyle style = new DefaultFigureStyle();
         style.fromCssString(css);
-        assertEquals(expectedStyle.getStrokeOpacity(), style.getStrokeOpacity());
-        assertEquals(expectedStyle.getStrokeWidth(), style.getStrokeWidth());
+        assertEquals(expectedStyle.getStrokeOpacity(), style.getStrokeOpacity(), 1E-10);
+        assertEquals(expectedStyle.getStrokeWidth(), style.getStrokeWidth(), 1E-10);
         assertEquals(expectedStyle.getStrokeColor(), style.getStrokeColor());
 
         // FIXME - these sometimes fail due to lossy alpha conversion  (nf)
@@ -101,10 +133,10 @@ public class DefaultFigureStyleTest extends TestCase {
         FigureStyle style = new DefaultFigureStyle();
         style.fromCssString(css);
         assertEquals(expectedStyle.getFillColor(), style.getFillColor());
-        assertEquals(expectedStyle.getFillOpacity(), style.getFillOpacity());
+        assertEquals(expectedStyle.getFillOpacity(), style.getFillOpacity(), 1E-10);
         assertEquals(expectedStyle.getStrokeColor(), style.getStrokeColor());
-        assertEquals(expectedStyle.getStrokeOpacity(), style.getStrokeOpacity());
-        assertEquals(expectedStyle.getStrokeWidth(), style.getStrokeWidth());
+        assertEquals(expectedStyle.getStrokeOpacity(), style.getStrokeOpacity(), 1E-10);
+        assertEquals(expectedStyle.getStrokeWidth(), style.getStrokeWidth(), 1E-10);
 
         // FIXME - these sometimes fail due to lossy alpha conversion  (nf)
         //assertEquals(expectedStyle.getFillPaint(), style.getFillPaint());
