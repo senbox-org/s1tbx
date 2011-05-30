@@ -216,11 +216,26 @@ public abstract class FigureEditorApp {
 
         for (int i = 0; i < 50; i++) {
             DefaultFigureStyle pointStyle = new DefaultFigureStyle();
-            pointStyle.setFillColor(Color.ORANGE);
-            pointStyle.setFillOpacity(0.5);
-            pointStyle.setStrokeColor(Color.DARK_GRAY);
-            pointStyle.setStrokeOpacity(0.8);
-            pointStyle.setSymbolName(i % 3 == 0 ? "pin" : (i % 3 == 1 ? "circle" : "star"));
+            pointStyle.setStrokeColor(new Color(0, 0, 64));
+            pointStyle.setStrokeOpacity(0.9);
+            pointStyle.setStrokeWidth(1.0);
+
+            int type = i % 4;
+            if (type == 0) {
+                pointStyle.setSymbolName("pin");
+                pointStyle.setFillColor(new Color(128, 128, 255));
+                pointStyle.setFillOpacity(0.7);
+            } else if (type == 1) {
+                pointStyle.setSymbolName("circle");
+                pointStyle.setFillColor(new Color(128, 128, 0));
+                pointStyle.setFillOpacity(0.7);
+            } else if (type == 2) {
+                pointStyle.setSymbolName("star");
+            } else {
+                pointStyle.setSymbolImagePath("/com/bc/ceres/swing/update/icons/list-add.png");
+                pointStyle.setSymbolRefX(8.0);
+                pointStyle.setSymbolRefY(8.0);
+            }
             drawing.addFigure(figureFactory.createPointFigure(new Point2D.Double(i * 10, i * 10), pointStyle));
         }
 
