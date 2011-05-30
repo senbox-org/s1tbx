@@ -80,7 +80,7 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
         Object styleAttribute = simpleFeature.getAttribute(PlainFeatureFactory.ATTRIB_NAME_STYLE_CSS);
         //System.out.println("styleAttribute = [" + styleAttribute + "]");
         String css = defaultCSS;
-        if (styleAttribute instanceof String && !((String) styleAttribute).isEmpty()) {
+        if (styleAttribute instanceof String && !((String) styleAttribute).trim().isEmpty()) {
             css = (String) styleAttribute;
         }
         FigureStyle figureStyle = new DefaultFigureStyle();

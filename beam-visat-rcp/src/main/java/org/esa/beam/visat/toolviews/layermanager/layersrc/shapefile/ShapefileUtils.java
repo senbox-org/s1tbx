@@ -244,7 +244,7 @@ public class ShapefileUtils {
     private static SimpleFeature createStyledFeature(SimpleFeatureType type, SimpleFeature feature, String styleCSS) {
         SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(type);
         sfb.init(feature);
-        sfb.set(PlainFeatureFactory.ATTRIB_NAME_STYLE_CSS, styleCSS != null ? styleCSS : " ");
+        sfb.set(PlainFeatureFactory.ATTRIB_NAME_STYLE_CSS, styleCSS);
         return sfb.buildFeature(feature.getID());
     }
 }

@@ -17,6 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import com.vividsolutions.jts.geom.Geometry;
+import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -30,7 +31,6 @@ public class PlainFeatureFactory {
     public static final String ATTRIB_NAME_GEOMETRY = "geometry";
     public static final String ATTRIB_NAME_STYLE_CSS = "style_css";
 
-
     public static SimpleFeatureType createDefaultFeatureType() {
         return createDefaultFeatureType(DefaultGeographicCRS.WGS84);
     }
@@ -43,20 +43,28 @@ public class PlainFeatureFactory {
                                                            Class<? extends Geometry> geometryType,
                                                            CoordinateReferenceSystem crs) {
         SimpleFeatureTypeBuilder sftb = new SimpleFeatureTypeBuilder();
+        AttributeTypeBuilder atb = new AttributeTypeBuilder();
+
         if (crs != null) {
-            sftb.setCRS(crs);
+            atb.setCRS(crs);
         }
-        sftb.setName(typeName);
-        sftb.add(ATTRIB_NAME_GEOMETRY, geometryType);
-        sftb.add(ATTRIB_NAME_STYLE_CSS, String.class);
+        atb.setBinding(Geometry.class);
+        atb.nillable(false);
+        sftb.add(atb.buildDescriptor(ATTRIB_NAME_GEOMETRY));
         sftb.setDefaultGeometry(ATTRIB_NAME_GEOMETRY);
+
+        atb.setBinding(String.class);
+        atb.nillable(true);
+        sftb.add(atb.buildDescriptor(ATTRIB_NAME_STYLE_CSS));
+
+        sftb.setName(typeName);
         return sftb.buildFeatureType();
     }
 
     public static SimpleFeature createPlainFeature(SimpleFeatureType type, String id, Geometry geometry, String styleCSS) {
         SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(type);
         sfb.set(ATTRIB_NAME_GEOMETRY, geometry);
-        sfb.set(ATTRIB_NAME_STYLE_CSS, styleCSS != null ? styleCSS : " ");
+        sfb.set(ATTRIB_NAME_STYLE_CSS, styleCSS);
         return sfb.buildFeature(id);
     }
 
