@@ -276,8 +276,10 @@ public class Product extends ProductNode {
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
         this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
         final VectorDataNode pinVectorDataNode = new VectorDataNode(PIN_MASK_NAME, Placemark.getFeatureType());
+        pinVectorDataNode.setDefaultCSS("symbol:pin; fill:#0000ff; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0");
         this.vectorDataGroup.add(pinVectorDataNode);
         final VectorDataNode gcpVectorDataNode = new VectorDataNode(GCP_MASK_NAME, Placemark.getFeatureType());
+        gcpVectorDataNode.setDefaultCSS("symbol:plus; stroke:#ff8800; stroke-opacity:0.9; stroke-width:2.0");
         this.vectorDataGroup.add(gcpVectorDataNode);
         this.pinGroup = new PlacemarkGroup(this, "pinGroup", pinVectorDataNode);
         this.gcpGroup = new PlacemarkGroup(this, "gcpGroup", gcpVectorDataNode);
