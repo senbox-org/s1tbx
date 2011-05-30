@@ -28,7 +28,6 @@ import org.esa.beam.util.AwtGeomToJtsGeomConverter;
 import org.esa.beam.util.Debug;
 import org.geotools.geometry.jts.LiteShape2;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.type.GeometryDescriptor;
 
 import java.awt.Shape;
 
