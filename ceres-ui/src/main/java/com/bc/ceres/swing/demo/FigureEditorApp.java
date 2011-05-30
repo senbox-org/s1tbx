@@ -37,7 +37,6 @@ import com.bc.ceres.swing.figure.interactions.PanInteractor;
 import com.bc.ceres.swing.figure.interactions.SelectionInteractor;
 import com.bc.ceres.swing.figure.interactions.ZoomInteractor;
 import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
-import com.bc.ceres.swing.figure.support.DefaultFigureFactory;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.FigureEditorPanel;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
@@ -61,11 +60,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.BasicStroke;
 import java.awt.datatransfer.FlavorEvent;
 import java.awt.datatransfer.FlavorListener;
 import java.awt.event.ActionEvent;
@@ -113,6 +112,12 @@ public abstract class FigureEditorApp {
     protected FigureEditorApp() {
     }
 
+    protected abstract FigureFactory getFigureFactory();
+
+    protected abstract void loadFigureCollection(File file, FigureCollection figureCollection) throws IOException;
+
+    protected abstract void storeFigureCollection(FigureCollection figureCollection, File file) throws IOException;
+
     private void init() {
 
         DefaultSelectionManager selectionManager = new DefaultSelectionManager();
@@ -140,8 +145,6 @@ public abstract class FigureEditorApp {
         pasteAction = new PasteAction(selectionManager);
         selectAllAction = new SelectAllAction(selectionManager);
         deleteAction = new DeleteAction(selectionManager);
-
-
 
         AbstractButton selectButton = createInteractorButton(figureEditorPanel, "S", SELECTION_INTERACTOR);
         AbstractButton zoomButton = createInteractorButton(figureEditorPanel, "Z", ZOOM_INTERACTOR);
@@ -181,7 +184,7 @@ public abstract class FigureEditorApp {
         drawing.addFigure(figureFactory.createPolygonFigure(new Rectangle(20, 30, 200, 100), DefaultFigureStyle.createPolygonStyle(Color.BLUE, Color.GREEN)));
         drawing.addFigure(figureFactory.createPolygonFigure(new Rectangle(90, 10, 100, 200), DefaultFigureStyle.createPolygonStyle(Color.MAGENTA, Color.ORANGE)));
         Path2D linePath = rectPath(true, 110, 60, 70, 140);
-           drawing.addFigure(figureFactory.createLineFigure(linePath, DefaultFigureStyle.createLineStyle(Color.GRAY)));
+        drawing.addFigure(figureFactory.createLineFigure(linePath, DefaultFigureStyle.createLineStyle(Color.GRAY)));
 
         linePath = new Path2D.Double();
         linePath.moveTo(110, 60);
@@ -211,9 +214,14 @@ public abstract class FigureEditorApp {
         DefaultFigureStyle shapeStyle = DefaultFigureStyle.createPolygonStyle(new Color(0, 0, 255, 127), Color.ORANGE);
         drawing.addFigure(figureFactory.createPolygonFigure(path, shapeStyle));
 
-        for (int i = 0; i < 10; i++) {
-            drawing.addFigure(figureFactory.createPointFigure(new Point2D.Double(200 + 100 * Math.random(),
-                                                                                 200 + 100 * Math.random()), null));
+        for (int i = 0; i < 50; i++) {
+            DefaultFigureStyle pointStyle = new DefaultFigureStyle();
+            pointStyle.setFillColor(Color.ORANGE);
+            pointStyle.setFillOpacity(0.5);
+            pointStyle.setStrokeColor(Color.DARK_GRAY);
+            pointStyle.setStrokeOpacity(0.8);
+            pointStyle.setSymbolName(i % 3 == 0 ? "pin" : (i % 3 == 1 ? "circle" : "star"));
+            drawing.addFigure(figureFactory.createPointFigure(new Point2D.Double(i * 10, i * 10), pointStyle));
         }
 
         /*
@@ -245,9 +253,9 @@ public abstract class FigureEditorApp {
             public void uncaughtException(Thread t, Throwable e) {
                 e.printStackTrace();
                 String message = MessageFormat.format("" +
-                        "An internal error occured!\n" +
-                        "Type: {0}\n" +
-                        "Message: {1}", e.getClass(), e.getMessage());
+                                                              "An internal error occured!\n" +
+                                                              "Type: {0}\n" +
+                                                              "Message: {1}", e.getClass(), e.getMessage());
                 JOptionPane.showMessageDialog(frame, message,
                                               "Internal Error",
                                               JOptionPane.ERROR_MESSAGE);
@@ -300,35 +308,10 @@ public abstract class FigureEditorApp {
         return linePath;
     }
 
-    public static void main(String[] args) {
-        run(new FigureEditorApp() {
-            @Override
-            protected FigureFactory getFigureFactory() {
-                return new DefaultFigureFactory();
-            }
-
-            @Override
-            protected void loadFigureCollection(File file, FigureCollection figureCollection) {
-                JOptionPane.showMessageDialog(getFrame(), "Not implemented.");
-            }
-
-            @Override
-            protected void storeFigureCollection(FigureCollection figureCollection, File file) {
-                JOptionPane.showMessageDialog(getFrame(), "Not implemented.");
-            }
-        });
-    }
-
     public static void run(FigureEditorApp drawingApp) {
         drawingApp.init();
         drawingApp.run();
     }
-
-    protected abstract FigureFactory getFigureFactory();
-
-    protected abstract void loadFigureCollection(File file, FigureCollection figureCollection) throws IOException;
-
-    protected abstract void storeFigureCollection(FigureCollection figureCollection, File file) throws IOException;
 
     public JFrame getFrame() {
         return frame;

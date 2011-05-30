@@ -68,7 +68,7 @@ public class DefaultFigureSelectionTest extends TestCase {
     }
 
     public void testPropagateSelectionState() {
-        Figure figure = new DefaultShapeFigure(new Rectangle(0, 0, 10, 10), true, new DefaultFigureStyle());
+        Figure figure = new DefaultShapeFigure(new Rectangle(0, 0, 10, 10), Figure.Rank.AREA, new DefaultFigureStyle());
 
         FigureSelection figureSelection = new DefaultFigureSelection();
 

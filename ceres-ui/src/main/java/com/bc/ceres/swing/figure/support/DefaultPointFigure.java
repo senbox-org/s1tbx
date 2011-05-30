@@ -28,6 +28,14 @@ public class DefaultPointFigure extends AbstractPointFigure {
     // Point radius in model coordinates.
     private final double radius;
 
+    public DefaultPointFigure(Point2D location, double radius) {
+        this(location, radius, DefaultFigureStyle.createFromCSS("symbol:star; fill-color:#0000FF; stroke-color:#FFFFFF"));
+    }
+
+    public DefaultPointFigure(Point2D location, double radius, FigureStyle style) {
+        this(location, radius, style, style);
+    }
+
     public DefaultPointFigure(Point2D location, double radius, FigureStyle normalStyle, FigureStyle selectedStyle) {
         super(normalStyle, selectedStyle);
         this.location = new Point2D.Double(location.getX(), location.getY());

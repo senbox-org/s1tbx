@@ -81,6 +81,12 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         addPropertyChangeListener(new EffectivePropertyNuller());
     }
 
+    public static FigureStyle createFromCSS(String css) {
+        DefaultFigureStyle figureStyle = new DefaultFigureStyle();
+        figureStyle.fromCssString(css);
+        return figureStyle;
+    }
+
     public static FigureStyle createPointStyle(Symbol symbol) {
         return createPointStyle(symbol, null, null, null);
     }

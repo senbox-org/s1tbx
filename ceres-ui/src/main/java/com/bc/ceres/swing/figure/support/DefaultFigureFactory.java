@@ -16,27 +16,41 @@
 
 package com.bc.ceres.swing.figure.support;
 
+import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.PointFigure;
 import com.bc.ceres.swing.figure.ShapeFigure;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 
 public class DefaultFigureFactory implements FigureFactory {
     @Override
     public PointFigure createPointFigure(Point2D geometry, FigureStyle style) {
-        return new DefaultPointFigure(geometry, 4.0, style, style);
+        return new DefaultPointFigure(geometry, 1E-10, style, createSelectedStyle(style));
     }
 
     @Override
     public ShapeFigure createLineFigure(Shape geometry, FigureStyle style) {
-        return new DefaultShapeFigure(geometry, false, style);
+        return new DefaultShapeFigure(geometry, Figure.Rank.LINE, style, createSelectedStyle(style));
     }
 
     @Override
     public ShapeFigure createPolygonFigure(Shape geometry, FigureStyle style) {
-        return new DefaultShapeFigure(geometry, true, style);
+        return new DefaultShapeFigure(geometry, Figure.Rank.AREA, style, createSelectedStyle(style));
+    }
+
+    public FigureStyle createSelectedStyle(FigureStyle style) {
+        DefaultFigureStyle figureStyle = new DefaultFigureStyle();
+        figureStyle.setFillColor(style.getFillColor());
+        figureStyle.setFillOpacity(style.getFillOpacity());
+        figureStyle.setStrokeColor(new Color(255, 255, 0, 180));
+        figureStyle.setStrokeOpacity(0.9);
+        figureStyle.setStrokeWidth(4.0);
+        figureStyle.setSymbolName(style.getSymbolName());
+        return   figureStyle;
     }
 }

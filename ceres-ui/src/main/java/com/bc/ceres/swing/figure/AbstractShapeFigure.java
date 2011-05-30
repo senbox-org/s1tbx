@@ -16,6 +16,7 @@
 
 package com.bc.ceres.swing.figure;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
@@ -36,21 +37,34 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * A figure that is based on a Java AWT shape geometry.
+ * <p/>
+ * Sub-classes have to provide the actual shape (lines or areas) in model coordinates.
+ *
+ * @author Norman Fomferra
+ * @since Ceres 0.10
+ */
 public abstract class AbstractShapeFigure extends AbstractFigure implements ShapeFigure {
 
     private Rank rank;
     private FigureStyle normalStyle;
     private FigureStyle selectedStyle;
 
-    protected AbstractShapeFigure() {
-        this(true, new DefaultFigureStyle());
-    }
-
-    protected AbstractShapeFigure(boolean area, FigureStyle normalStyle) {
-        this.rank = area ? Rank.AREA : Rank.LINE;
+    /**
+     * Constructor.
+     *
+     * @param rank          The rank, must be either {@link Rank#AREA} or {@link Rank#LINE}.
+     * @param normalStyle   The style used for the "normal" state of the figure.
+     * @param selectedStyle The style used for the "selected" state of the figure.
+     */
+    protected AbstractShapeFigure(Rank rank, FigureStyle normalStyle, FigureStyle selectedStyle) {
+        Assert.notNull(rank, "rank");
+        Assert.notNull(normalStyle, "normalStyle");
+        Assert.notNull(selectedStyle, "selectedStyle");
+        this.rank = rank;
         this.normalStyle = normalStyle;
-        this.selectedStyle = DefaultFigureStyle.createLineStyle(new Color(255, 255, 0, 180),
-                                                                new BasicStroke(4.0f));
+        this.selectedStyle = selectedStyle;
         setSelectable(true);
     }
 
@@ -64,15 +78,12 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
         return rank;
     }
 
-    protected void setRank(Rank rank) {
-        this.rank = rank;
-    }
-
     public FigureStyle getNormalStyle() {
         return normalStyle;
     }
 
     public void setNormalStyle(FigureStyle normalStyle) {
+        Assert.notNull(normalStyle, "normalStyle");
         this.normalStyle = normalStyle;
         fireFigureChanged();
     }
@@ -82,6 +93,7 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
     }
 
     public void setSelectedStyle(FigureStyle selectedStyle) {
+        Assert.notNull(selectedStyle, "selectedStyle");
         this.selectedStyle = selectedStyle;
         fireFigureChanged();
     }

@@ -16,6 +16,7 @@
 
 package com.bc.ceres.swing.figure;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.figure.support.NamedSymbol;
@@ -38,12 +39,14 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
     private FigureStyle selectedStyle;
 
     /**
-     * Constructor.
+     * Constructor. The rank will always be {@link Rank#POINT}.
      *
      * @param normalStyle   The style used for the "normal" state of the figure.
      * @param selectedStyle The style used for the "selected" state of the figure.
      */
     protected AbstractPointFigure(FigureStyle normalStyle, FigureStyle selectedStyle) {
+        Assert.notNull(normalStyle, "normalStyle");
+        Assert.notNull(selectedStyle, "selectedStyle");
         this.normalStyle = normalStyle;
         this.selectedStyle = selectedStyle;
     }
@@ -146,27 +149,28 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
             return true;
         }
 
-        final AffineTransform scaleInstance = AffineTransform.getScaleInstance(m2v.getScaleX(), m2v.getScaleY());
-        final Point2D delta = scaleInstance.transform(new Point2D.Double(dx, -dy), null);
+        final Point2D locationInView = m2v.transform(getLocation(), null);
+        final Point2D pointInView = m2v.transform(point, null);
         final Symbol symbol = getSymbol();
-        return symbol.containsPoint(delta.getX() + symbol.getRefX(),
-                                    delta.getY() + symbol.getRefY());
+        double x = symbol.getRefX() + pointInView.getX() - locationInView.getX();
+        double y = symbol.getRefY() + pointInView.getY() - locationInView.getY();
+        return symbol.containsPoint(x, y);
     }
 
     @Override
     public final void draw(Rendering rendering) {
-        Symbol symbol = getSymbol();
         final Graphics2D g = rendering.getGraphics();
         final Viewport vp = rendering.getViewport();
-        final AffineTransform oldTransform = g.getTransform();
+        final AffineTransform m2v = vp.getModelToViewTransform();
+        final Point2D locationInView = m2v.transform(getLocation(), null);
+        final Symbol symbol = getSymbol();
+        final double dx = symbol.getRefX() - locationInView.getX();
+        final double dy = symbol.getRefY() - locationInView.getY();
         try {
-            AffineTransform m2v = vp.getModelToViewTransform();
-            Point2D locationInView = m2v.transform(getLocation(), null);
-            g.translate(locationInView.getX() + symbol.getRefX(),
-                        locationInView.getY() + symbol.getRefY());
+            g.translate(-dx, -dy);
             drawPointSymbol(rendering, symbol);
         } finally {
-            g.setTransform(oldTransform);
+            g.translate(dx, dy);
         }
     }
 

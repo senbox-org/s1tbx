@@ -29,7 +29,7 @@ public class TestFigure extends DefaultShapeFigure {
     }
 
     public TestFigure(boolean selectable) {
-        super(new Ellipse2D.Double(0, 0, 10, 10), true, new DefaultFigureStyle());
+        super(new Ellipse2D.Double(0, 0, 10, 10), Figure.Rank.AREA, new DefaultFigureStyle());
         setSelectable(selectable);
     }
 }

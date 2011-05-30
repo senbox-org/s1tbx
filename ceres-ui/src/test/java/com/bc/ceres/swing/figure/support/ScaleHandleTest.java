@@ -39,7 +39,7 @@ public class ScaleHandleTest extends TestCase {
     }
 
     private static void testCursor(int cursorType, int handleType) {
-        Figure f = new DefaultShapeFigure(new Rectangle(0, 0, 1, 1), true, new DefaultFigureStyle());
+        Figure f = new DefaultShapeFigure(new Rectangle(0, 0, 1, 1), Figure.Rank.AREA, new DefaultFigureStyle());
         final ScaleHandle scaleHandle = new ScaleHandle(f, handleType, 0, 0, new DefaultFigureStyle());
         assertEquals(Cursor.getPredefinedCursor(cursorType), scaleHandle.getCursor());
     }

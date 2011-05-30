@@ -16,6 +16,7 @@
 
 package com.bc.ceres.swing.figure.interactions;
 
+import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
@@ -32,8 +33,8 @@ import java.awt.geom.Rectangle2D;
 public class SelectionInteractionTest extends TestCase {
 
     public void testModeChange() {
-        DefaultShapeFigure f1 = new DefaultShapeFigure(new Rectangle(10, 10, 10, 10), true, new DefaultFigureStyle());
-        DefaultShapeFigure f2 = new DefaultShapeFigure(new Rectangle(30, 10, 10, 10), true, new DefaultFigureStyle());
+        DefaultShapeFigure f1 = new DefaultShapeFigure(new Rectangle(10, 10, 10, 10), Figure.Rank.AREA, new DefaultFigureStyle());
+        DefaultShapeFigure f2 = new DefaultShapeFigure(new Rectangle(30, 10, 10, 10), Figure.Rank.AREA, new DefaultFigureStyle());
         FigureEditorPanel panel = new FigureEditorPanel(null,
                                                         new DefaultFigureCollection(),
                                                         new DefaultFigureFactory());

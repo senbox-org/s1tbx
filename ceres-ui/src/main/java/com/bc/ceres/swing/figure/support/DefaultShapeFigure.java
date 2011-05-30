@@ -26,11 +26,15 @@ public class DefaultShapeFigure extends AbstractShapeFigure {
     private Shape shape;
 
     public DefaultShapeFigure() {
-        this(null, true, new DefaultFigureStyle());
+        this(null, Rank.AREA, new DefaultFigureStyle());
     }
 
-    public DefaultShapeFigure(Shape shape, boolean polygonal, FigureStyle normalStyle) {
-        super(polygonal, normalStyle);
+    public DefaultShapeFigure(Shape shape, Rank rank, FigureStyle normalStyle) {
+        this(shape, rank, normalStyle, normalStyle);
+    }
+
+    public DefaultShapeFigure(Shape shape, Rank rank, FigureStyle normalStyle, FigureStyle selectedStyle) {
+        super(rank, normalStyle, selectedStyle);
         this.shape = shape;
     }
 
