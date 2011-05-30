@@ -31,7 +31,7 @@ public class PointHandleTest {
 
     @Before
     public void setUp() throws Exception {
-        figure = new DefaultPointFigure(new Point2D.Double());
+        figure = new DefaultPointFigure(new Point2D.Double(), 1e-10, new DefaultFigureStyle(), new DefaultFigureStyle());
         handle = new PointHandle(figure, new DefaultFigureStyle());
         assertEquals(new Point2D.Double(0.0, 0.0), figure.getLocation());
         assertEquals(new Point2D.Double(0.0, 0.0), handle.getLocation());

@@ -27,7 +27,7 @@ import java.awt.geom.Point2D;
 public class DefaultFigureFactory implements FigureFactory {
     @Override
     public PointFigure createPointFigure(Point2D geometry, FigureStyle style) {
-        return new DefaultPointFigure(geometry, 4.0);
+        return new DefaultPointFigure(geometry, 4.0, style, style);
     }
 
     @Override
