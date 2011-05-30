@@ -63,6 +63,7 @@ public class Placemark extends ProductNode {
     public static final String PROPERTY_NAME_DATETIME = "dateTime";
 
     public static final String PROPERTY_NAME_PINSYMBOL = "pinSymbol";
+    private static final String PROPERTY_NAME_SYMBOL = "symbol";
 
     private SimpleFeature feature;
     private PlacemarkDescriptor placemarkDescriptor;
@@ -162,13 +163,13 @@ public class Placemark extends ProductNode {
     }
 
     public PlacemarkSymbol getSymbol() {
-        return (PlacemarkSymbol) feature.getAttribute("symbol");
+        return (PlacemarkSymbol) feature.getAttribute(PROPERTY_NAME_SYMBOL);
     }
 
     public void setSymbol(final PlacemarkSymbol symbol) {
         Guardian.assertNotNull("symbol", symbol);
         if (getSymbol() != symbol) {
-            feature.setAttribute("symbol", symbol);
+            feature.setAttribute(PROPERTY_NAME_SYMBOL, symbol);
             fireProductNodeChanged(PROPERTY_NAME_PINSYMBOL);
         }
     }
@@ -461,7 +462,7 @@ public class Placemark extends ProductNode {
         } else {
             feature.setAttribute(Placemark.PROPERTY_NAME_LABEL, label);
         }
-        feature.setAttribute("symbol", descriptor.createDefaultSymbol());
+        feature.setAttribute(PROPERTY_NAME_SYMBOL, descriptor.createDefaultSymbol());
 
         return feature;
     }
@@ -533,7 +534,7 @@ public class Placemark extends ProductNode {
         builder.add(PROPERTY_NAME_LABEL, String.class);
         builder.add(PROPERTY_NAME_PIXELPOS, Point.class);
         builder.add(PROPERTY_NAME_GEOPOS, Point.class);
-        builder.add("symbol", PlacemarkSymbol.class);
+        builder.add(PROPERTY_NAME_SYMBOL, PlacemarkSymbol.class);
         builder.add(PROPERTY_NAME_DATETIME, Date.class);
 
         return builder.buildFeatureType();
