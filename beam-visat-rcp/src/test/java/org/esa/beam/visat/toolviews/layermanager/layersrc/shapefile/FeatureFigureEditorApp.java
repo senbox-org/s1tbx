@@ -146,7 +146,7 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
         DefaultFigureStyle figureStyle = new DefaultFigureStyle();
         figureStyle.setStrokeColor(Color.BLACK);
         figureStyle.setFillColor(Color.WHITE);
-        figureStyle.setStroke(new BasicStroke(1.0f));
+        figureStyle.setStrokeWidth(1.0f);
         return figureStyle;
     }
 
