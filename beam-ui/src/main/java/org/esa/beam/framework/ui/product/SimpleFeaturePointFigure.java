@@ -20,19 +20,23 @@ import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.swing.figure.AbstractPointFigure;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.Handle;
+import com.bc.ceres.swing.figure.Symbol;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.PointHandle;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
-import org.esa.beam.framework.draw.ShapeFigure;
 import org.opengis.feature.simple.SimpleFeature;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -47,10 +51,8 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
     private static final Color labelOutlineColor = Color.BLACK;
 
     private final SimpleFeature simpleFeature;
-    private final FigureStyle normalStyle;
-    private final FigureStyle selectedStyle;
     private Point geometry;
-    private double radius; // number of pixels in view coordinates
+    private double radius;
 
     static {
         for (int i = 0; i < labelOutlineAlphas.length; i++) {
@@ -67,9 +69,8 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
     }
 
     public SimpleFeaturePointFigure(SimpleFeature simpleFeature, FigureStyle normalStyle, FigureStyle selectedStyle) {
+        super(normalStyle, selectedStyle);
         this.simpleFeature = simpleFeature;
-        this.normalStyle = normalStyle;
-        this.selectedStyle = selectedStyle;
         Object o = simpleFeature.getDefaultGeometry();
         if (!(o instanceof Point)) {
             throw new IllegalArgumentException("simpleFeature");
@@ -118,6 +119,11 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
     }
 
     @Override
+    public double getRadius() {
+        return radius;
+    }
+
+    @Override
     public Rectangle2D getBounds() {
         final double eps = 1e-10;
         return new Rectangle2D.Double(getX() - eps, getY() - eps, 2 * eps, 2 * eps);
@@ -125,14 +131,14 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
 
     @Override
     public boolean isCloseTo(Point2D point, AffineTransform m2v) {
-        FigureStyle style;
-        if (isSelected()) {
-            style = selectedStyle;
-        } else {
-            style = normalStyle;
-        }
-        // todo next: get the PointSymbol from the style, then call its containsPoint() method (nf)
-
+        final double dx = point.getX() - getX();
+        final double dy = point.getY() - getY();
+        final AffineTransform scaleInstance = AffineTransform.getScaleInstance(m2v.getScaleX(), m2v.getScaleY());
+        final Point2D delta = scaleInstance.transform(new Point2D.Double(dx, -dy), null);
+        final Symbol symbol = getSymbol();
+        return symbol.containsPoint(delta.getX() + symbol.getRefX(),
+                                    delta.getY() + symbol.getRefY());
+/*
         final double dx = point.getX() - getX();
         final double dy = point.getY() - getY();
         final Object symbolAttribute = simpleFeature.getAttribute("symbol");
@@ -144,19 +150,13 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
         } else {
             return delta.getX() * delta.getX() + delta.getY() * delta.getY() < radius * radius;
         }
+*/
     }
 
     @Override
-    protected void drawPointSymbol(Rendering rendering) {
-        FigureStyle style;
-        if (isSelected()) {
-            style = selectedStyle;
-        } else {
-            style = normalStyle;
-        }
-        // todo next: get the PointSymbol from the style, then call its draw() method (nf)
-
-
+    protected void drawPointSymbol(Rendering rendering, Symbol symbol) {
+        super.drawPointSymbol(rendering, symbol);
+/*
         rendering.getGraphics().setPaint(Color.BLUE);
         rendering.getGraphics().setStroke(new BasicStroke(1.0f));
         final Object symbolAttribute = simpleFeature.getAttribute("symbol");
@@ -174,6 +174,7 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
                 drawCross(rendering);
             }
         }
+*/
         final Object labelAttribute = simpleFeature.getAttribute("label");
         if (labelAttribute instanceof String) {
             drawLabel(rendering, (String) labelAttribute);
@@ -207,16 +208,6 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
             graphics.setStroke(oldStroke);
             graphics.setFont(oldFont);
         }
-    }
-
-    private void drawCross(Rendering rendering) {
-        rendering.getGraphics().draw(new Line2D.Double(-radius, -radius, +radius, +radius));
-        rendering.getGraphics().draw(new Line2D.Double(+radius, -radius, -radius, +radius));
-    }
-
-    private double getModelToViewScale(Rendering rendering) {
-        double determinant = rendering.getViewport().getModelToViewTransform().getDeterminant();
-        return Math.sqrt(Math.abs(determinant));
     }
 
     @Override
