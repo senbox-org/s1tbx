@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 
 /**
- * A point symbol that is represented by an image.
+ * A point symbol that is represented by an icon image.
  *
  * @author Norman Fomferra
  * @since Ceres 0.13
@@ -58,26 +58,35 @@ public class ImageSymbol implements Symbol {
         return image;
     }
 
-    @Override
+    /**
+     * @return The X-coordinate of the reference point.
+     */
     public double getRefX() {
         return refX;
     }
 
-    @Override
+    /**
+     * @return The Y-coordinate of the reference point.
+     */
     public double getRefY() {
         return refY;
     }
 
     @Override
     public void draw(Rendering rendering, FigureStyle style) {
-        // improvement: we could check if we have to filter the image, e.g. to display in different colours
-        rendering.getGraphics().drawRenderedImage(image, null);
+        try {
+            rendering.getGraphics().translate(-refX, -refY);
+            // improvement: we could check if we have to filter the image, e.g. to display in different colours
+            rendering.getGraphics().drawRenderedImage(image, null);
+        } finally {
+            rendering.getGraphics().translate(+refX, +refY);
+        }
     }
 
     @Override
     public boolean containsPoint(double x, double y) {
-        int ix = (int) Math.round(refX + x);
-        int iy = (int) Math.round(refY + y);
+        int ix = (int) Math.round(x + refX);
+        int iy = (int) Math.round(y + refY);
         return ix >= 0
                 && ix < image.getWidth()
                 && iy >= 0

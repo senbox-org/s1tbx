@@ -14,17 +14,8 @@ import java.awt.geom.Point2D;
 public interface Symbol {
 
     /**
-     * @return The reference X coordinate.
-     */
-    double getRefX();
-
-    /**
-     * @return The reference Y coordinate.
-     */
-    double getRefY();
-
-    /**
      * Draws the symbol on the given rendering using the given style.
+     * The rendering's graphics is already in view coordinates.
      *
      * @param rendering The rendering.
      * @param style     The style.

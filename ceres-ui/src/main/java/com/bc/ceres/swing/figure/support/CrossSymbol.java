@@ -38,16 +38,6 @@ public class CrossSymbol implements Symbol {
     }
 
     @Override
-    public double getRefX() {
-        return 0;
-    }
-
-    @Override
-    public double getRefY() {
-        return 0;
-    }
-
-    @Override
     public void draw(Rendering rendering, FigureStyle style) {
         rendering.getGraphics().setStroke(style.getStroke());
         rendering.getGraphics().setPaint(style.getStrokePaint());

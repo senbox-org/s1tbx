@@ -152,32 +152,27 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
         final Point2D locationInView = m2v.transform(getLocation(), null);
         final Point2D pointInView = m2v.transform(point, null);
         final Symbol symbol = getSymbol();
-        double x = symbol.getRefX() + pointInView.getX() - locationInView.getX();
-        double y = symbol.getRefY() + pointInView.getY() - locationInView.getY();
-        return symbol.containsPoint(x, y);
+        return symbol.containsPoint(pointInView.getX() - locationInView.getX(),
+                                    pointInView.getY() - locationInView.getY());
     }
 
     @Override
     public final void draw(Rendering rendering) {
-        final Graphics2D g = rendering.getGraphics();
         final Viewport vp = rendering.getViewport();
         final AffineTransform m2v = vp.getModelToViewTransform();
         final Point2D locationInView = m2v.transform(getLocation(), null);
-        final Symbol symbol = getSymbol();
-        final double dx = symbol.getRefX() - locationInView.getX();
-        final double dy = symbol.getRefY() - locationInView.getY();
+        final Graphics2D g = rendering.getGraphics();
         try {
-            g.translate(-dx, -dy);
-            drawPointSymbol(rendering, symbol);
+            g.translate(locationInView.getX(), locationInView.getY());
+            drawPointSymbol(rendering, getSymbol());
         } finally {
-            g.translate(dx, dy);
+            g.translate(-locationInView.getX(), -locationInView.getY());
         }
     }
 
     /**
      * Draws the symbol used to represent the point figure.
-     * Drawing of symbols is always done in <i>view</i> coordinates
-     * that are translated by the symbol's reference point.
+     * Drawing of symbols is always done in <i>view</i> coordinates.
      *
      * @param rendering The rendering.
      * @param symbol    The symbol used to represent the point figure.

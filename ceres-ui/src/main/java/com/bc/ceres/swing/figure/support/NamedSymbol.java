@@ -18,12 +18,12 @@ import java.util.Map;
  */
 public class NamedSymbol implements Symbol {
 
-    public final static NamedSymbol PLUS = new NamedSymbol("plus", CrossSymbol.createPlus(12.0));
-    public final static NamedSymbol CROSS = new NamedSymbol("cross", CrossSymbol.createCross(12.0));
-    public final static NamedSymbol STAR = new NamedSymbol("star", CrossSymbol.createStar(12.0));
-    public final static NamedSymbol SQUARE = new NamedSymbol("square", ShapeSymbol.createSquare(12.0));
-    public final static NamedSymbol CIRCLE = new NamedSymbol("circle", ShapeSymbol.createCircle(12.0));
-    public final static NamedSymbol PIN = new NamedSymbol("pin", ShapeSymbol.createPin(24.0, 14.0));
+    public final static NamedSymbol PLUS = new NamedSymbol("plus", CrossSymbol.createPlus(14.0));
+    public final static NamedSymbol CROSS = new NamedSymbol("cross", CrossSymbol.createCross(14.0));
+    public final static NamedSymbol STAR = new NamedSymbol("star", CrossSymbol.createStar(14.0));
+    public final static NamedSymbol SQUARE = new NamedSymbol("square", ShapeSymbol.createSquare(14.0));
+    public final static NamedSymbol CIRCLE = new NamedSymbol("circle", ShapeSymbol.createCircle(14.0));
+    public final static NamedSymbol PIN = new NamedSymbol("pin", ShapeSymbol.createPin(24.0));
 
     private final static Map<String, NamedSymbol> symbols = getDeclaredSymbols();
 
@@ -48,16 +48,6 @@ public class NamedSymbol implements Symbol {
     @Override
     public boolean containsPoint(double x, double y) {
         return symbol.containsPoint(x, y);
-    }
-
-    @Override
-    public double getRefX() {
-        return symbol.getRefX();
-    }
-
-    @Override
-    public double getRefY() {
-        return symbol.getRefY();
     }
 
     @Override
