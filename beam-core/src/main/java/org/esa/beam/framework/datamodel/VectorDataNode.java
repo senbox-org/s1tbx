@@ -43,7 +43,7 @@ public class VectorDataNode extends ProductNode {
 
     public static final String PROPERTY_NAME_FEATURE_COLLECTION = "featureCollection";
 
-    private static final String DEFAULT_STYLE_FORMAT = "fill:%s; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0";
+    private static final String DEFAULT_STYLE_FORMAT = "fill:%s; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0; symbol:cross";
     private static final String[] FILL_COLORS = {
             "#ff0000", // red
             "#00ff00", // green
@@ -69,7 +69,6 @@ public class VectorDataNode extends ProductNode {
      *
      * @param name        The node name.
      * @param featureType The feature type.
-     *
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     public VectorDataNode(String name, SimpleFeatureType featureType) {
@@ -81,7 +80,6 @@ public class VectorDataNode extends ProductNode {
      *
      * @param name              The node name.
      * @param featureCollection A feature collection.
-     *
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
@@ -176,9 +174,9 @@ public class VectorDataNode extends ProductNode {
         if (bounds == null) {
             bounds = new ReferencedEnvelope(featureType.getCoordinateReferenceSystem());
 
-            for (Iterator<SimpleFeature> i = featureCollection.iterator(); i.hasNext();) {
+            for (Iterator<SimpleFeature> i = featureCollection.iterator(); i.hasNext(); ) {
                 BoundingBox geomBounds = i.next().getBounds();
-                if ( ! geomBounds.isEmpty() ) {
+                if (!geomBounds.isEmpty()) {
                     bounds.include(geomBounds);
                 }
             }
