@@ -136,11 +136,11 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     @Override
     public <T> T getValue(String name) {
         if (isPropertyDefined(name)) {
-            return super.getValue(name);
+            return (T) super.getValue(name);
         }
         Property prototypeProperty = PROTOTYPE.getProperty(name);
         if (prototypeProperty != null) {
-            return prototypeProperty.getValue();
+            return (T) prototypeProperty.getValue();
         }
         return null;
     }
