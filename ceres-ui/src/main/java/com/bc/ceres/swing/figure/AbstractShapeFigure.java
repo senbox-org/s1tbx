@@ -125,35 +125,47 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
         AffineTransform oldTransform = g.getTransform();
         try {
             g.transform(vp.getModelToViewTransform());
-
-            if (rank == Rank.AREA) {
-                Paint fillPaint = getNormalStyle().getFillPaint();
-                if (fillPaint != null) {
-                    g.setPaint(fillPaint);
-                    g.fill(shape);
-                }
-            }
-
-            Paint strokePaint = getNormalStyle().getStrokePaint();
-            if (strokePaint != null) {
-                Stroke normalStroke = getNormalStyle().getStroke(1.0 / vp.getZoomFactor());
-                g.setPaint(strokePaint);
-                g.setStroke(normalStroke);
-                g.draw(shape);
-            }
-
-            if (isSelected()) {
-                Paint selectedStrokePaint = getSelectedStyle().getStrokePaint();
-                if (selectedStrokePaint != null) {
-                    Stroke selectedStroke = getSelectedStyle().getStroke(1.0 / vp.getZoomFactor());
-                    g.setStroke(selectedStroke);
-                    g.setPaint(selectedStrokePaint);
-                    g.draw(shape);
-                }
-            }
-
+            drawShape(rendering, shape);
         } finally {
             g.setTransform(oldTransform);
+        }
+    }
+
+    /**
+     * Draws the shape of this figure.
+     * For convenience, the rendering's drawing context is pre-transformed,
+     * so that drawing of the shape can be performed in model coordinates.
+     *
+     * @param rendering The rendering.
+     * @param shape    The shape.
+     */
+    protected void drawShape(Rendering rendering,  Shape shape) {
+        final Viewport vp = rendering.getViewport();
+        final Graphics2D g = rendering.getGraphics();
+        if (rank == Rank.AREA) {
+            Paint fillPaint = getNormalStyle().getFillPaint();
+            if (fillPaint != null) {
+                g.setPaint(fillPaint);
+                g.fill(shape);
+            }
+        }
+
+        Paint strokePaint = getNormalStyle().getStrokePaint();
+        if (strokePaint != null) {
+            Stroke normalStroke = getNormalStyle().getStroke(1.0 / vp.getZoomFactor());
+            g.setPaint(strokePaint);
+            g.setStroke(normalStroke);
+            g.draw(shape);
+        }
+
+        if (isSelected()) {
+            Paint selectedStrokePaint = getSelectedStyle().getStrokePaint();
+            if (selectedStrokePaint != null) {
+                Stroke selectedStroke = getSelectedStyle().getStroke(1.0 / vp.getZoomFactor());
+                g.setStroke(selectedStroke);
+                g.setPaint(selectedStrokePaint);
+                g.draw(shape);
+            }
         }
     }
 

@@ -149,35 +149,46 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
             return true;
         }
 
+        final Symbol symbol = getSymbol();
+        if (symbol == null) {
+            return false;
+        }
+
         final Point2D locationInView = m2v.transform(getLocation(), null);
         final Point2D pointInView = m2v.transform(point, null);
-        final Symbol symbol = getSymbol();
         return symbol.containsPoint(pointInView.getX() - locationInView.getX(),
                                     pointInView.getY() - locationInView.getY());
     }
 
     @Override
     public final void draw(Rendering rendering) {
+        Symbol symbol = getSymbol();
+        if (symbol == null) {
+            return;
+        }
         final Viewport vp = rendering.getViewport();
         final AffineTransform m2v = vp.getModelToViewTransform();
         final Point2D locationInView = m2v.transform(getLocation(), null);
         final Graphics2D g = rendering.getGraphics();
         try {
             g.translate(locationInView.getX(), locationInView.getY());
-            drawPointSymbol(rendering, getSymbol());
+            drawPoint(rendering, symbol);
         } finally {
             g.translate(-locationInView.getX(), -locationInView.getY());
         }
     }
 
     /**
-     * Draws the symbol used to represent the point figure.
-     * Drawing of symbols is always done in <i>view</i> coordinates.
+     * Draws the symbol and optionally other items that are used to represent
+     * the point figure.
+     * For convenience, the rendering's drawing context is translated
+     * by the point's location, so that drawing of items can be performed in symbol
+     * coordinates.
      *
      * @param rendering The rendering.
      * @param symbol    The symbol used to represent the point figure.
      */
-    protected void drawPointSymbol(Rendering rendering, Symbol symbol) {
+    protected void drawPoint(Rendering rendering, Symbol symbol) {
         symbol.draw(rendering, getEffectiveStyle());
     }
 }
