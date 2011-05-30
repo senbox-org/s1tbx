@@ -39,17 +39,10 @@ public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements Sim
     private Class<?> geometryType;
 
     public SimpleFeatureShapeFigure(SimpleFeature simpleFeature, FigureStyle style) {
-                                  
-        final Object geometry = simpleFeature.getDefaultGeometry();
-        if (!(geometry instanceof Geometry)) {
-            throw new IllegalArgumentException("simpleFeature: geometry type must be a " + Geometry.class);
-        }
-
+        super(getRank(simpleFeature), style, style);
         this.simpleFeature = simpleFeature;
-        this.geometryType = geometry.getClass();
+        this.geometryType = simpleFeature.getDefaultGeometry().getClass();
         this.geometryShape = null;
-        setRank(getRank((Geometry) simpleFeature.getDefaultGeometry()));
-        setNormalStyle(style);
     }
 
     @Override
@@ -102,6 +95,14 @@ public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements Sim
             geometry = converter.createMultiLineString(shape);
         }
         setGeometry(geometry);
+    }
+
+    static Rank getRank(SimpleFeature simpleFeature) {
+        final Object geometry = simpleFeature.getDefaultGeometry();
+        if (!(geometry instanceof Geometry)) {
+            throw new IllegalArgumentException("simpleFeature: geometry type must be a " + Geometry.class);
+        }
+        return getRank((Geometry) geometry);
     }
 
     static Rank getRank(Geometry geometry) {
