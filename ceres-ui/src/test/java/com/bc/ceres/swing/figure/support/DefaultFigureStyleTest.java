@@ -33,7 +33,7 @@ public class DefaultFigureStyleTest {
         assertEquals(Color.BLACK, style.getFillColor());
         assertEquals(null, style.getStrokeColor());
         assertNotNull(style.getStroke());
-        assertNotNull(style.getSymbol());
+        assertNull(style.getSymbol());
     }
 
     @Test
@@ -43,6 +43,22 @@ public class DefaultFigureStyleTest {
         assertEquals(Color.BLACK, style.getFillColor());
         assertEquals(null, style.getStrokeColor());
         assertNotNull(style.getStroke());
+        assertNull(style.getSymbol());
+    }
+
+    @Test
+    public void testImageSymbolFromName() {
+        DefaultFigureStyle style = new DefaultFigureStyle();
+        assertNull(style.getSymbol());
+        style.setSymbolName("pin");
+        assertNotNull(style.getSymbol());
+    }
+
+    @Test
+    public void testImageSymbolFromResource() {
+        DefaultFigureStyle style = new DefaultFigureStyle();
+        assertNull(style.getSymbol());
+        style.setSymbolImagePath("/com/bc/ceres/swing/figure/support/TestSymbolIcon.png");
         assertNotNull(style.getSymbol());
     }
 

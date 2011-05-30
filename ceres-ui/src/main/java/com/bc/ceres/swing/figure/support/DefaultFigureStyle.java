@@ -66,18 +66,21 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     private Paint fillPaint;
     private Symbol symbol;
 
-    public DefaultFigureStyle() {
-        this("");
-    }
+    private Class resourceLoader;
 
     static {
         PROTOTYPE = new DefaultFigureStyle();
         PROTOTYPE.initPrototypeProperties();
     }
 
+    public DefaultFigureStyle() {
+        this("");
+    }
+
     public DefaultFigureStyle(String name) {
         this.name = name;
         this.values = new HashMap<String, Object>();
+        this.resourceLoader = this.getClass();
         addPropertyChangeListener(new EffectivePropertyNuller());
     }
 
@@ -369,6 +372,10 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         }
     }
 
+    public Class getResourceLoader() {
+        return resourceLoader;
+    }
+
     private synchronized Map<String, Property> getOrderedMap() {
         // Using a TreeMap makes sure that entries are ordered by key
         Property[] properties = getProperties();
@@ -468,7 +475,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
             return NamedSymbol.getSymbol(symbolName);
         }
         if (symbolImagePath != null) {
-            return ImageSymbol.createIcon(symbolImagePath, symbolRefX, symbolRefY, getClass());
+            return ImageSymbol.createIcon(symbolImagePath, symbolRefX, symbolRefY, resourceLoader);
         }
         return null;
     }
@@ -545,7 +552,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     }
 
     private static PropertyDescriptor createSymbolNameDescriptor() {
-        return createPropertyDescriptor("symbol", String.class, NamedSymbol.CROSS.getName(), false);
+        return createPropertyDescriptor("symbol", String.class, null, false);
     }
 
     private static PropertyDescriptor createSymbolImageDescriptor() {
