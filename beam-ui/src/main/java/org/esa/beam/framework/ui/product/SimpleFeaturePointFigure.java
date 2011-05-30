@@ -52,7 +52,6 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
 
     private final SimpleFeature simpleFeature;
     private Point geometry;
-    private double radius;
 
     static {
         for (int i = 0; i < labelOutlineAlphas.length; i++) {
@@ -76,7 +75,6 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
             throw new IllegalArgumentException("simpleFeature");
         }
         geometry = (Point) o;
-        radius = 6.0;
         setSelectable(true);
     }
 
@@ -120,61 +118,13 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
 
     @Override
     public double getRadius() {
-        return radius;
+        return 1E-10; // = any small value
     }
 
     @Override
-    public Rectangle2D getBounds() {
-        final double eps = 1e-10;
-        return new Rectangle2D.Double(getX() - eps, getY() - eps, 2 * eps, 2 * eps);
-    }
+    protected void drawPoint(Rendering rendering, Symbol symbol) {
+        super.drawPoint(rendering, symbol);
 
-    @Override
-    public boolean isCloseTo(Point2D point, AffineTransform m2v) {
-        final double dx = point.getX() - getX();
-        final double dy = point.getY() - getY();
-        final AffineTransform scaleInstance = AffineTransform.getScaleInstance(m2v.getScaleX(), m2v.getScaleY());
-        final Point2D delta = scaleInstance.transform(new Point2D.Double(dx, -dy), null);
-        final Symbol symbol = getSymbol();
-        return symbol.containsPoint(delta.getX() + symbol.getRefX(),
-                                    delta.getY() + symbol.getRefY());
-/*
-        final double dx = point.getX() - getX();
-        final double dy = point.getY() - getY();
-        final Object symbolAttribute = simpleFeature.getAttribute("symbol");
-        AffineTransform scaleInstance = AffineTransform.getScaleInstance(m2v.getScaleX(), m2v.getScaleY());
-        Point2D delta = scaleInstance.transform(new Point2D.Double(dx, -dy), null);
-        if (symbolAttribute instanceof ShapeFigure) {
-            final Rectangle2D bounds = ((ShapeFigure) symbolAttribute).getBounds();
-            return bounds.contains(delta);
-        } else {
-            return delta.getX() * delta.getX() + delta.getY() * delta.getY() < radius * radius;
-        }
-*/
-    }
-
-    @Override
-    protected void drawPointSymbol(Rendering rendering, Symbol symbol) {
-        super.drawPointSymbol(rendering, symbol);
-/*
-        rendering.getGraphics().setPaint(Color.BLUE);
-        rendering.getGraphics().setStroke(new BasicStroke(1.0f));
-        final Object symbolAttribute = simpleFeature.getAttribute("symbol");
-        if (symbolAttribute instanceof ShapeFigure) {
-            ((ShapeFigure) symbolAttribute).draw(rendering.getGraphics());
-        } else {
-            drawCross(rendering);
-        }
-        if (isSelected()) {
-            rendering.getGraphics().setPaint(new Color(255, 255, 0, 200));
-            rendering.getGraphics().setStroke(new BasicStroke(0.5f));
-            if (symbolAttribute instanceof PlacemarkSymbol) {
-                ((PlacemarkSymbol) symbolAttribute).drawSelected(rendering.getGraphics());
-            } else {
-                drawCross(rendering);
-            }
-        }
-*/
         final Object labelAttribute = simpleFeature.getAttribute("label");
         if (labelAttribute instanceof String) {
             drawLabel(rendering, (String) labelAttribute);
