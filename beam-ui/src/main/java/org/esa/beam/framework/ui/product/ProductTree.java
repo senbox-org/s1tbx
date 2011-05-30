@@ -190,30 +190,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     }
 
     /**
-     * Notifies this product tree, that a product scene view has opened.
-     *
-     * @param view The view.
-     *
-     * @deprecated since BEAM 4.7, use {@link #registerOpenedProductNodes(org.esa.beam.framework.datamodel.ProductNode...)} instead
-     */
-    @Deprecated
-    public void sceneViewOpened(ProductSceneView view) {
-        registerOpenedProductNodes(view.getRasters());
-    }
-
-    /**
-     * Notifies this product tree, that a product scene view has closed.
-     *
-     * @param view The view.
-     *
-     * @deprecated since BEAM 4.7, use {@link #deregisterOpenedProductNodes(org.esa.beam.framework.datamodel.ProductNode...)} instead
-     */
-    @Deprecated
-    public void sceneViewClosed(ProductSceneView view) {
-        deregisterOpenedProductNodes(view.getRasters());
-    }
-
-    /**
      * Registers "opened" product nodes, e.g. visible nodes, nodes currently edited, etc.
      * Opened product nodes may be differently displayed.
      *
@@ -294,17 +270,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     }
 
     /**
-     * Sets the products for this product tree component.
-     *
-     * @param products a <code>Product[]</code> with the products to be displayed, must not be null.
-     *
-     * @deprecated since BEAM 4.7, no replacement. The <code>ProductTree</code> now detects the products automatically.
-     */
-    @Deprecated
-    public void setProducts(Product[] products) {
-    }
-
-    /**
      * Adds a new product tree listener to this product tree component.
      *
      * @param listener the listener to be added.
@@ -339,17 +304,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
     public void setCommandUIFactory(CommandUIFactory commandUIFactory) {
         this.commandUIFactory = commandUIFactory;
-    }
-
-    /**
-     * This method does not have any effect.
-     *
-     * @param exceptionHandler is ignored
-     *
-     * @deprecated since BEAM 4.7, no replacement
-     */
-    @Deprecated
-    public void setExceptionHandler(ExceptionHandler exceptionHandler) {
     }
 
     private class PTMouseListener extends MouseAdapter {
