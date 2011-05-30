@@ -19,11 +19,8 @@ package com.bc.ceres.swing.figure;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.VertexHandle;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Shape;
@@ -51,6 +48,9 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
     private FigureStyle normalStyle;
     private FigureStyle selectedStyle;
 
+    protected AbstractShapeFigure() {
+    }
+
     /**
      * Constructor.
      *
@@ -77,6 +77,10 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
     public Rank getRank() {
         return rank;
     }
+
+   protected void setRank(Rank rank) {
+       this.rank = rank;
+   }
 
     public FigureStyle getNormalStyle() {
         return normalStyle;
