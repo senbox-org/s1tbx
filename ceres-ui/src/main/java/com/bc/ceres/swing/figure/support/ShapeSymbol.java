@@ -37,7 +37,7 @@ public class ShapeSymbol implements Symbol {
         final double h34 = 3.0 * needleSize / 4.0;
         final double h14 = 1.0 * needleSize / 4.0;
         final GeneralPath path = new GeneralPath();
-        path.moveTo(0, needleSize);
+        path.moveTo(0.0, needleSize);
         path.lineTo(h34 - 1.0, h14 - 1.0);
         path.lineTo(h34 + 1.0, h14 + 1.0);
         path.closePath();
@@ -47,7 +47,7 @@ public class ShapeSymbol implements Symbol {
         final GeneralPath shape = new GeneralPath();
         shape.append(needle, false);
         shape.append(knob, false);
-        return new ShapeSymbol(shape, 0, needleSize);
+        return new ShapeSymbol(shape, 0.0, needleSize);
     }
 
 
