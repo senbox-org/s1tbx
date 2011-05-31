@@ -125,23 +125,25 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
         AffineTransform oldTransform = g.getTransform();
         try {
             g.transform(vp.getModelToViewTransform());
-            drawShape(rendering, shape);
+            drawShape(rendering);
         } finally {
             g.setTransform(oldTransform);
         }
     }
 
     /**
-     * Draws the shape of this figure.
+     * Draws the {@link #getShape() shape} and other items that are used to graphically
+     * represent the figure, for example labels.
      * For convenience, the rendering's drawing context is pre-transformed,
      * so that drawing of the shape can be performed in model coordinates.
      *
      * @param rendering The rendering.
-     * @param shape    The shape.
+     *
      */
-    protected void drawShape(Rendering rendering,  Shape shape) {
+    protected void drawShape(Rendering rendering) {
         final Viewport vp = rendering.getViewport();
         final Graphics2D g = rendering.getGraphics();
+        final Shape shape = getShape();
         if (rank == Rank.AREA) {
             Paint fillPaint = getNormalStyle().getFillPaint();
             if (fillPaint != null) {

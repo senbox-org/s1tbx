@@ -2,6 +2,8 @@ package com.bc.ceres.swing.figure.support;
 
 import org.junit.Test;
 
+import java.awt.geom.Rectangle2D;
+
 import static org.junit.Assert.*;
 
 /**
@@ -21,6 +23,7 @@ public class ImageSymbolTest {
         assertEquals(8, imageSymbol.getImage().getHeight());
         assertEquals(8.0, imageSymbol.getRefX(), 1E-10);
         assertEquals(4.0, imageSymbol.getRefY(), 1E-10);
+        assertEquals(new Rectangle2D.Double(-8, -4, 16, 8), imageSymbol.getBounds());
     }
 
     @Test
@@ -32,6 +35,7 @@ public class ImageSymbolTest {
         assertEquals(8, imageSymbol.getImage().getHeight());
         assertEquals(5.0, imageSymbol.getRefX(), 1E-10);
         assertEquals(3.0, imageSymbol.getRefY(), 1E-10);
+        assertEquals(new Rectangle2D.Double(-5, -3, 16, 8), imageSymbol.getBounds());
     }
 
     @Test

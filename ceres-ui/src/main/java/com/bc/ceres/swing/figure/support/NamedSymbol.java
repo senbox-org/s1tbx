@@ -5,6 +5,7 @@ import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.Symbol;
 
+import java.awt.geom.Rectangle2D;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -18,9 +19,9 @@ import java.util.Map;
  */
 public class NamedSymbol implements Symbol {
 
-    public final static NamedSymbol PLUS = new NamedSymbol("plus", CrossSymbol.createPlus(14.0));
-    public final static NamedSymbol CROSS = new NamedSymbol("cross", CrossSymbol.createCross(14.0));
-    public final static NamedSymbol STAR = new NamedSymbol("star", CrossSymbol.createStar(14.0));
+    public final static NamedSymbol PLUS = new NamedSymbol("plus", PointSymbol.createPlus(14.0));
+    public final static NamedSymbol CROSS = new NamedSymbol("cross", PointSymbol.createCross(14.0));
+    public final static NamedSymbol STAR = new NamedSymbol("star", PointSymbol.createStar(14.0));
     public final static NamedSymbol SQUARE = new NamedSymbol("square", ShapeSymbol.createSquare(14.0));
     public final static NamedSymbol CIRCLE = new NamedSymbol("circle", ShapeSymbol.createCircle(14.0));
     public final static NamedSymbol PIN = new NamedSymbol("pin", ShapeSymbol.createPin(24.0));
@@ -45,9 +46,18 @@ public class NamedSymbol implements Symbol {
         return name;
     }
 
+    public Symbol getSymbol() {
+        return symbol;
+    }
+
     @Override
     public boolean isHitBy(double x, double y) {
         return symbol.isHitBy(x, y);
+    }
+
+    @Override
+    public Rectangle2D getBounds() {
+        return symbol.getBounds();
     }
 
     @Override

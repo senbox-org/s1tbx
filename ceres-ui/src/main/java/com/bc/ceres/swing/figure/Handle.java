@@ -67,7 +67,7 @@ public interface Handle extends ShapeFigure {
     /**
      * The bounds of the handle.
      *
-     * @return The bounds of the handle in <i>view</i> coordinates.
+     * @return The bounds of the handle in <i>view</i> units.
      */
     @Override
     Rectangle2D getBounds();

@@ -2,7 +2,9 @@ package com.bc.ceres.swing.figure.support;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.awt.geom.Rectangle2D;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,5 +32,11 @@ public class ShapeSymbolTest {
         assertEquals(false, shapeSymbol.isHitBy(5.0, 0.0));
         assertEquals(false, shapeSymbol.isHitBy(6.0, 0.0));
         assertEquals(false, shapeSymbol.isHitBy(7.0, 0.0));
+    }
+
+    @Test
+    public void testGetBounds() throws Exception {
+        ShapeSymbol shapeSymbol = ShapeSymbol.createCircle(10.0);
+        assertEquals(new Rectangle2D.Double(-5, -5, 10, 10), shapeSymbol.getBounds());
     }
 }

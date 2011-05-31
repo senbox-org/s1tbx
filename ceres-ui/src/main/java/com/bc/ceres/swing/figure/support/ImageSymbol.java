@@ -8,11 +8,12 @@ import com.bc.ceres.swing.figure.Symbol;
 import javax.swing.ImageIcon;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 
 /**
- * A point symbol that is represented by an icon image.
+ * A symbol that uses an icon image.
  *
  * @author Norman Fomferra
  * @since Ceres 0.13
@@ -92,6 +93,11 @@ public class ImageSymbol implements Symbol {
                 && iy >= 0
                 && iy < image.getHeight()
                 && (image.getRGB(ix, iy) & 0xff000000) != 0;
+    }
+
+    @Override
+    public Rectangle2D getBounds() {
+        return new Rectangle2D.Double(-refX, -refY, image.getWidth(), image.getHeight());
     }
 
     private static BufferedImage loadBufferedImage(String imageResourcePath, Class callerClass) {

@@ -30,12 +30,28 @@ import java.awt.geom.Point2D;
  * @since Ceres 0.10
  */
 public interface PointFigure extends Figure {
-
+    /**
+     * @return The X-coordinate of the current location in model coordinates.
+     */
     double getX();
 
+    /**
+     * @return The Y-coordinate of the current location in model coordinates.
+     */
     double getY();
 
+    /**
+     * @return The current location in model coordinates.
+     */
     Point2D getLocation();
 
+    /**
+     * @param location The current location in model coordinates.
+     */
     void setLocation(Point2D location);
+
+    /**
+     * @return The symbol that is used to represent the figure.
+     */
+    Symbol getSymbol();
 }

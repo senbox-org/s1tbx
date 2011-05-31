@@ -77,6 +77,7 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
      *
      * @return The symbol used to display the point.
      */
+    @Override
     public Symbol getSymbol() {
         final Symbol symbol = getEffectiveStyle().getSymbol();
         if (symbol != null) {
@@ -162,33 +163,28 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
 
     @Override
     public final void draw(Rendering rendering) {
-        Symbol symbol = getSymbol();
-        if (symbol == null) {
-            return;
-        }
         final Viewport vp = rendering.getViewport();
         final AffineTransform m2v = vp.getModelToViewTransform();
         final Point2D locationInView = m2v.transform(getLocation(), null);
         final Graphics2D g = rendering.getGraphics();
         try {
             g.translate(locationInView.getX(), locationInView.getY());
-            drawPoint(rendering, symbol);
+            drawPoint(rendering);
         } finally {
             g.translate(-locationInView.getX(), -locationInView.getY());
         }
     }
 
     /**
-     * Draws the symbol and optionally other items that are used to represent
-     * the point figure.
+     * Draws the {@link #getSymbol() symbol} and other items that are used to graphically represent
+     * the figure, for example labels.
      * For convenience, the rendering's drawing context is translated
      * by the point's location, so that drawing of items can be performed in symbol
-     * coordinates.
+     * coordinates using view units.
      *
      * @param rendering The rendering.
-     * @param symbol    The symbol used to represent the point figure.
      */
-    protected void drawPoint(Rendering rendering, Symbol symbol) {
-        symbol.draw(rendering, getEffectiveStyle());
+    protected void drawPoint(Rendering rendering) {
+        getSymbol().draw(rendering, getEffectiveStyle());
     }
 }
