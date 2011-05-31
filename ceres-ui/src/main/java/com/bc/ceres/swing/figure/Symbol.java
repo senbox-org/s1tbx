@@ -15,7 +15,9 @@ public interface Symbol {
 
     /**
      * Draws the symbol on the given rendering using the given style.
-     * The rendering's graphics is already in view coordinates.
+     * The rendering's graphics is transformed so that
+     * drawing can be done in view coordinates relative to the point
+     * this symbol represents..
      *
      * @param rendering The rendering.
      * @param style     The style.
@@ -23,7 +25,8 @@ public interface Symbol {
     void draw(Rendering rendering, FigureStyle style);
 
     /**
-     * Tests weather the given point is contained in this symbol.
+     * Tests weather this symbol is hit by the given point. The point is provided
+     * in view coordinates relative to the point this symbol represents.
      *
      * @param x in <i>symbol</i> coordinates.
      * @param y in <i>symbol</i> coordinates.
