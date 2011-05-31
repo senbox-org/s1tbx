@@ -31,6 +31,7 @@ import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.awt.Color;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 
@@ -73,35 +74,55 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
     }
 
     public PointFigure createPointFigure(Point geometry, FigureStyle style) {
-        return new SimpleFeaturePointFigure(createSimpleFeature(geometry, style), style);
+        return new SimpleFeaturePointFigure(createSimpleFeature(geometry), style);
     }
 
     public SimpleFeatureFigure createSimpleFeatureFigure(SimpleFeature simpleFeature, String defaultCSS) {
-        Object styleAttribute = simpleFeature.getAttribute(PlainFeatureFactory.ATTRIB_NAME_STYLE_CSS);
-        //System.out.println("styleAttribute = [" + styleAttribute + "]");
-        String css = defaultCSS;
-        if (styleAttribute instanceof String && !((String) styleAttribute).trim().isEmpty()) {
-            css = (String) styleAttribute;
-        }
-        FigureStyle figureStyle = new DefaultFigureStyle();
-        figureStyle.fromCssString(css);
-
-        Object geometry = simpleFeature.getDefaultGeometry();
+        final String css = getStyleCSS(simpleFeature, defaultCSS);
+        final FigureStyle normalStyle = DefaultFigureStyle.createFromCSS(css);
+        final FigureStyle selectedStyle = deriveSelectedStyle(normalStyle);
+        final Object geometry = simpleFeature.getDefaultGeometry();
         if (geometry instanceof Point) {
-            return new SimpleFeaturePointFigure(simpleFeature, figureStyle);
+            return new SimpleFeaturePointFigure(simpleFeature, normalStyle, selectedStyle);
         } else {
-            return new SimpleFeatureShapeFigure(simpleFeature, figureStyle);
+            return new SimpleFeatureShapeFigure(simpleFeature, normalStyle, selectedStyle);
         }
+    }
+
+    private String getStyleCSS(SimpleFeature simpleFeature, String defaultCSS) {
+        Object styleAttribute = simpleFeature.getAttribute(PlainFeatureFactory.ATTRIB_NAME_STYLE_CSS);
+        if (styleAttribute instanceof String) {
+            String css = (String) styleAttribute;
+            if (!css.trim().isEmpty()) {
+                return css;
+            }
+        }
+        return defaultCSS;
     }
 
     public ShapeFigure createShapeFigure(Geometry geometry, FigureStyle style) {
-        return new SimpleFeatureShapeFigure(createSimpleFeature(geometry, style), style);
+        return new SimpleFeatureShapeFigure(createSimpleFeature(geometry), style, deriveSelectedStyle(style));
     }
 
-    public SimpleFeature createSimpleFeature(Geometry geometry, FigureStyle style) {
+    public SimpleFeature createSimpleFeature(Geometry geometry) {
         return PlainFeatureFactory.createPlainFeature((SimpleFeatureType) featureCollection.getSchema(),
                                                       "ID" + Long.toHexString(currentFeatureId++),
                                                       geometry,
-                                                      style != null ? style.toCssString() : "");
+                                                      null);
     }
+
+    public FigureStyle deriveSelectedStyle(FigureStyle style) {
+        DefaultFigureStyle figureStyle = new DefaultFigureStyle();
+        figureStyle.setFillColor(style.getFillColor());
+        figureStyle.setFillOpacity(style.getFillOpacity());
+        figureStyle.setStrokeColor(Color.YELLOW);
+        figureStyle.setStrokeOpacity(0.75);
+        figureStyle.setStrokeWidth(style.getStrokeWidth() + 1.0);
+        figureStyle.setSymbolName(style.getSymbolName());
+        figureStyle.setSymbolImagePath(style.getSymbolImagePath());
+        figureStyle.setSymbolRefX(style.getSymbolRefX());
+        figureStyle.setSymbolRefY(style.getSymbolRefY());
+        return figureStyle;
+    }
+
 }

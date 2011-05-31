@@ -22,10 +22,13 @@ import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.Symbol;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
+import com.bc.ceres.swing.figure.support.NamedSymbol;
 import com.bc.ceres.swing.figure.support.PointHandle;
+import com.bc.ceres.swing.figure.support.ShapeSymbol;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.opengis.feature.simple.SimpleFeature;
 
 import java.awt.BasicStroke;
@@ -36,8 +39,6 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.font.GlyphVector;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 
@@ -118,20 +119,24 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
 
     @Override
     public double getRadius() {
-        return 1E-10; // = any small value
+        return 1E-10; // = any small, non-zero value will be ok
     }
 
     @Override
-    protected void drawPoint(Rendering rendering, Symbol symbol) {
-        super.drawPoint(rendering, symbol);
+    protected void drawPoint(Rendering rendering) {
+        super.drawPoint(rendering);
 
-        final Object labelAttribute = simpleFeature.getAttribute("label");
+        final Object labelAttribute = simpleFeature.getAttribute(Placemark.PROPERTY_NAME_LABEL);
         if (labelAttribute instanceof String) {
             drawLabel(rendering, (String) labelAttribute);
         }
     }
 
     private void drawLabel(Rendering rendering, String label) {
+        if (label.trim().isEmpty()) {
+            return;
+        }
+
         final Graphics2D graphics = rendering.getGraphics();
         final Font oldFont = graphics.getFont();
         final Stroke oldStroke = graphics.getStroke();
@@ -142,7 +147,7 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
             GlyphVector glyphVector = labelFont.createGlyphVector(graphics.getFontRenderContext(), label);
             Rectangle2D logicalBounds = glyphVector.getLogicalBounds();
             float tx = (float) (logicalBounds.getX() - 0.5 * logicalBounds.getWidth());
-            float ty = (float) (1.0 + logicalBounds.getHeight());
+            float ty = (float) (2.0 + logicalBounds.getHeight());
             Shape labelOutline = glyphVector.getOutline(tx, ty);
 
             for (int i = 0; i < labelOutlineAlphas.length; i++) {
@@ -162,20 +167,28 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
 
     @Override
     public int getMaxSelectionStage() {
-        return 2;
+        return 1;
     }
 
     @Override
     public Handle[] createHandles(int selectionStage) {
-        if (selectionStage == 2) {
+        if (selectionStage == 1) {
             DefaultFigureStyle handleStyle = new DefaultFigureStyle();
-            handleStyle.setStrokeColor(Color.ORANGE);
+            handleStyle.setStrokeColor(Color.YELLOW);
             handleStyle.setStrokeOpacity(0.8);
             handleStyle.setStrokeWidth(1.0);
-            handleStyle.setFillColor(Color.WHITE);
-            handleStyle.setFillOpacity(0.5);
+            handleStyle.setFillColor(Color.YELLOW);
+            handleStyle.setFillOpacity(0.4);
+            Symbol symbol = getSymbol();
+            if (symbol instanceof NamedSymbol) {
+                NamedSymbol namedSymbol = (NamedSymbol) symbol;
+                symbol = namedSymbol.getSymbol();
+            }
+            if (symbol instanceof ShapeSymbol) {
+                ShapeSymbol shapeSymbol = (ShapeSymbol) symbol;
+                return new Handle[]{new PointHandle(this, handleStyle, shapeSymbol.getShape())};
+            }
             return new Handle[]{new PointHandle(this, handleStyle)};
-            // return new Handle[] {new PointHandle(this, handleStyle, new Rectangle(-20, -20, 40, 40))};
         }
         return super.createHandles(selectionStage);
     }

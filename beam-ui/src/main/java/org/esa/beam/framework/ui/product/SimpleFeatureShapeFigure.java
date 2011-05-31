@@ -39,7 +39,11 @@ public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements Sim
     private Class<?> geometryType;
 
     public SimpleFeatureShapeFigure(SimpleFeature simpleFeature, FigureStyle style) {
-        super(getRank(simpleFeature), style, style);
+        this(simpleFeature, style, style);
+    }
+
+    public SimpleFeatureShapeFigure(SimpleFeature simpleFeature, FigureStyle normalStyle, FigureStyle selectedStyle) {
+        super(getRank(simpleFeature), normalStyle, selectedStyle);
         this.simpleFeature = simpleFeature;
         this.geometryType = simpleFeature.getDefaultGeometry().getClass();
         this.geometryShape = null;
