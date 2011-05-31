@@ -25,6 +25,8 @@ import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
@@ -34,8 +36,12 @@ import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.HashMap;
@@ -130,7 +136,44 @@ public class VectorDataLayer extends Layer {
 
     @Override
     protected void renderLayer(Rendering rendering) {
+        // todo - this is only testing code: must have special layer for this,
+        //        BUT, we need to dynamically find the correct layer class for a given FeatureType! (nf)
+        if (getVectorDataNode().getFeatureType().getTypeName().equals("TrackPoint")) {
+            drawTrackPointConnections(rendering);
+        }
         figureCollection.draw(rendering);
+    }
+
+    private void drawTrackPointConnections(Rendering rendering) {
+
+        Graphics2D g = rendering.getGraphics();
+        AffineTransform oldTransform = g.getTransform();
+        try {
+            g.transform(rendering.getViewport().getModelToViewTransform());
+            drawTrackPointConnections0(rendering);
+        } finally {
+            g.setTransform(oldTransform);
+        }
+    }
+
+    private void drawTrackPointConnections0(Rendering rendering) {
+        rendering.getGraphics().setPaint(new Color(255, 128, 128, 128));
+        rendering.getGraphics().setStroke(new BasicStroke(0.5f));
+        // FeatureCollection.toArray() returns the feature in original order
+        // todo - must actually sort using 'timestamp' attribute (nf)
+        SimpleFeature[] features = getVectorDataNode().getFeatureCollection().toArray(new SimpleFeature[0]);
+        double lastX = 0;
+        double lastY = 0;
+        for (int i = 0; i < features.length; i++) {
+            SimpleFeature feature = features[i];
+            Geometry geometry = (Geometry) feature.getDefaultGeometry();
+            Point centroid = geometry.getCentroid();
+            if (i > 0) {
+                rendering.getGraphics().draw(new Line2D.Double(lastX, lastY, centroid.getX(), centroid.getY()));
+            }
+            lastX = centroid.getX();
+            lastY = centroid.getY();
+        }
     }
 
     private class VectorDataChangeHandler extends ProductNodeListenerAdapter {
