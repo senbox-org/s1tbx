@@ -50,7 +50,7 @@ import java.io.Reader;
  * </pre>
  *
  * @author Norman Fomferra
- * @version $Revision: 8410 $ $Date: 2010-02-14 14:31:41 +0100 (So, 14 Feb 2010) $
+ * @since BEAM 4.10
  */
 public class ImportTrackAction extends ExecCommand {
 
@@ -82,6 +82,7 @@ public class ImportTrackAction extends ExecCommand {
 
         String name = FileUtils.getFilenameWithoutExtension(file);
         VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);
+        vectorDataNode.setDefaultCSS("symbol: cross; stroke:#ffaaaa; stroke-opacity:1.0; stroke-width:1.0");
         product.getVectorDataGroup().add(vectorDataNode);
     }
 
@@ -124,8 +125,8 @@ public class ImportTrackAction extends ExecCommand {
 
     private static SimpleFeatureType createTrackFeatureType(GeoCoding geoCoding) {
         SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
-        ftb.setName("Track");
-        ftb.add("timeStamp", Long.class);
+        ftb.setName("TrackPoint");
+        ftb.add("timestamp", Long.class);
         ftb.add("pixelPos", Point.class, geoCoding.getImageCRS());
         ftb.add("geoPos", Point.class, DefaultGeographicCRS.WGS84);
         ftb.add("data", Double.class);
