@@ -16,15 +16,16 @@
 
 package com.bc.ceres.core;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-import javax.swing.JComponent;
-import javax.swing.JButton;
-import java.io.File;
+import javax.swing.*;
 
-public class ExtensionManagerTest extends TestCase {
+import static org.junit.Assert.*;
 
-    public void testExtensionManagement() {
+public class ExtensionManagerTest {
+
+    @Test
+    public void testThatFactoriesAreStoredInOrderTheyAreDefined() {
         ExtensionManager em = ExtensionManager.getInstance();
         assertNotNull(em);
 
@@ -78,6 +79,7 @@ public class ExtensionManagerTest extends TestCase {
         assertEquals(0, em.getExtensionFactories(RichModel.class).length);
     }
 
+    @Test
     public void testModelWithIndependentGui() {
         ExtensionManager em = ExtensionManager.getInstance();
         assertNotNull(em);
@@ -223,13 +225,14 @@ public class ExtensionManagerTest extends TestCase {
     }
 
     // Note: this is a dummy test, it is a show case for usage of the ExtensionManager API.
+    @Test
     public void testCompiles() {
         ExtensionManager em = ExtensionManager.getInstance();
 
         JComponent component = new JButton();
         JComponent extension1 = em.getExtension("", component.getClass());
         JComponent extension2 = em.getExtension("", JComponent.class);
-        
+
         JButton button = new JButton();
         JComponent extension3 = em.getExtension("", button.getClass());
         JComponent extension4 = em.getExtension("", JButton.class);
@@ -290,7 +293,7 @@ public class ExtensionManagerTest extends TestCase {
             super(model);
         }
     }
-  
+
     class DefaultModelGuiFactory extends SingleTypeExtensionFactory<Model, ModelGui> {
         DefaultModelGuiFactory() {
             super(ModelGui.class, DefaultModelGui.class);

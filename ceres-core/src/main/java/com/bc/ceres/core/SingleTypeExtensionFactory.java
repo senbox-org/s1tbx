@@ -16,6 +16,8 @@
 
 package com.bc.ceres.core;
 
+import java.util.logging.Logger;
+
 /**
  * An implementation of a {@link com.bc.ceres.core.ExtensionFactory} for a single extension type.
  *
@@ -79,7 +81,7 @@ public class SingleTypeExtensionFactory<T, E> implements ExtensionFactory {
             try {
                 return getExtensionImpl((T) object, (Class<E>) extensionType);
             } catch (Throwable throwable) {
-                // Ignore
+                throw new RuntimeException(throwable);
             }
         }
         return null;

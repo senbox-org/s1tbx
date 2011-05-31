@@ -19,6 +19,8 @@ package com.bc.ceres.core;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The {@code ExtensionManager} is a service used to register and unregister {@link ExtensionFactory}s with a given
@@ -37,10 +39,10 @@ public abstract class ExtensionManager {
         }
     };
 
-    private static final TypeCondition IS_A = new TypeCondition() {
+    private static final TypeCondition IS_SUBTYPE_OF = new TypeCondition() {
         @Override
         public boolean fulfilled(Class<?> a, Class<?> b) {
-            return b.isAssignableFrom(a);
+            return !a.equals(b) && b.isAssignableFrom(a);
         }
     };
 
@@ -88,18 +90,14 @@ public abstract class ExtensionManager {
      *
      * @param extensibleObject The (extensible) object.
      * @param extensionType    The type of the requested extension.
-     * @return The extension instance, or {@code null} if the given object is not extensible by this factory.
+     * @return The extension instance, or {@code null} if the given object is not extensible by this factory
+     *         or if the factory fails to provide that extension.
      * @see ExtensionFactory#getExtension(Object, Class)
      */
     public <E> E getExtension(Object extensibleObject, Class<E> extensionType) {
         Assert.notNull(extensibleObject, "extensibleObject");
         Assert.notNull(extensionType, "extensionType");
-        final Class<?> extensibleType = extensibleObject.getClass();
-        final ExtensionFactory factory = findFactory(extensibleType, extensionType);
-        if (factory != null) {
-            return (E) factory.getExtension(extensibleObject, extensionType);
-        }
-        return null;
+        return findExtensionDeep(extensibleObject, extensibleObject.getClass(), extensionType);
     }
 
     /**
@@ -108,7 +106,10 @@ public abstract class ExtensionManager {
      * @param extensibleType The type of the extensible object.
      * @param extensionType  The type of the extension.
      * @return The factory, or {@code null} if no such can be found.
+     * @deprecated since Ceres 0.13, because the ExtensionManager shall not only try a single factory
+     *             that might fail (e.g. return {@code null}).
      */
+    @Deprecated
     public <E> ExtensionFactory findFactory(Class<?> extensibleType, Class<E> extensionType) {
         Assert.notNull(extensibleType, "extensibleType");
         Assert.notNull(extensionType, "extensionType");
@@ -116,7 +117,7 @@ public abstract class ExtensionManager {
         ExtensionFactory factory = findFactoryFlat(extensibleType, extensionType, IS_EQUAL_TO);
 
         if (factory == null) {
-            factory = findFactoryFlat(extensibleType, extensionType, IS_A);
+            factory = findFactoryFlat(extensibleType, extensionType, IS_SUBTYPE_OF);
         }
 
         if (factory == null) {
@@ -139,11 +140,9 @@ public abstract class ExtensionManager {
         return factory;
     }
 
-    private interface TypeCondition {
-        boolean fulfilled(Class<?> a, Class<?> b);
-    }
-
-    private <E> ExtensionFactory findFactoryFlat(Class<?> extensibleType, Class<E> extensionType, TypeCondition condition) {
+    private <E> ExtensionFactory findFactoryFlat(Class<?> extensibleType,
+                                                 Class<E> extensionType,
+                                                 TypeCondition condition) {
         for (ExtensionFactory factory : getExtensionFactories(extensibleType)) {
             for (Class<?> cls : factory.getExtensionTypes()) {
                 if (condition.fulfilled(cls, extensionType)) {
@@ -152,6 +151,89 @@ public abstract class ExtensionManager {
             }
         }
         return null;
+    }
+
+    private <E> E findExtensionDeep(Object extensibleObject,
+                                    Class<?> extensibleType,
+                                    Class<E> extensionType) {
+        Assert.notNull(extensibleObject, "extensibleObject");
+        Assert.notNull(extensibleType, "extensibleType");
+        Assert.notNull(extensionType, "extensionType");
+
+        E extension;
+
+        extension = findExtensionFlat(extensibleObject, extensibleType, extensionType, IS_EQUAL_TO);
+        if (extension != null) {
+            return extension;
+        }
+
+        extension = findExtensionFlat(extensibleObject, extensibleType, extensionType, IS_SUBTYPE_OF);
+        if (extension != null) {
+            return extension;
+        }
+
+        final Class<?> cls = extensibleType.getSuperclass();
+        if (cls != null) {
+            extension = findExtensionDeep(extensibleObject, cls, extensionType);
+            if (extension != null) {
+                return extension;
+            }
+        }
+
+        final Class<?>[] interfaces = extensibleType.getInterfaces();
+        for (Class<?> ifc : interfaces) {
+            extension = findExtensionDeep(extensibleObject, ifc, extensionType);
+            if (extension != null) {
+                return extension;
+            }
+        }
+
+        return null;
+    }
+
+    private <E> E findExtensionFlat(Object extensibleObject,
+                                    Class<?> extensibleType,
+                                    Class<E> extensionType,
+                                    TypeCondition condition) {
+        for (ExtensionFactory factory : getExtensionFactories(extensibleType)) {
+            for (Class<?> cls : factory.getExtensionTypes()) {
+                if (condition.fulfilled(cls, extensionType)) {
+                    E extension = getExtensionSafe(factory, extensibleObject, extensionType);
+                    if (extension != null) {
+                        return extension;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private <E> E getExtensionSafe(ExtensionFactory factory,
+                                   Object extensibleObject,
+                                   Class<E> extensionType) {
+        try {
+            return (E) factory.getExtension(extensibleObject, extensionType);
+        } catch (Throwable thrown) {
+            handleExtensionFactoryFailure(extensibleObject, extensionType, thrown);
+            return null;
+        }
+    }
+
+    private <E> void handleExtensionFactoryFailure(Object extensibleObject,
+                                                   Class<E> extensionType,
+                                                   Throwable thrown) {
+        Logger logger = Logger.getLogger(System.getProperty("ceres.context", "ceres"));
+        logger.log(Level.FINEST, // it is FINEST, because this problem might occur often
+                   String.format("Extension factory %s failed providing an extension for a %s of type %s: %s",
+                                 this.getClass(),
+                                 extensibleObject.getClass(),
+                                 extensionType,
+                                 thrown.getMessage()),
+                   thrown);
+    }
+
+    private interface TypeCondition {
+        boolean fulfilled(Class<?> a, Class<?> b);
     }
 
     private static class Impl extends ExtensionManager {
