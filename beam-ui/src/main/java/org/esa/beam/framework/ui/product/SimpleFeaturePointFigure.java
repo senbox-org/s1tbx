@@ -147,7 +147,7 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
             GlyphVector glyphVector = labelFont.createGlyphVector(graphics.getFontRenderContext(), label);
             Rectangle2D logicalBounds = glyphVector.getLogicalBounds();
             float tx = (float) (logicalBounds.getX() - 0.5 * logicalBounds.getWidth());
-            float ty = (float) (2.0 + logicalBounds.getHeight());
+            float ty = (float) (getSymbol().getBounds().getMaxY() + logicalBounds.getHeight() + 1.0);
             Shape labelOutline = glyphVector.getOutline(tx, ty);
 
             for (int i = 0; i < labelOutlineAlphas.length; i++) {
