@@ -22,7 +22,6 @@ import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.PointFigure;
 import com.bc.ceres.swing.figure.ShapeFigure;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
@@ -30,27 +29,30 @@ import java.awt.geom.Point2D;
 public class DefaultFigureFactory implements FigureFactory {
     @Override
     public PointFigure createPointFigure(Point2D geometry, FigureStyle style) {
-        return new DefaultPointFigure(geometry, 1E-10, style, createSelectedStyle(style));
+        return new DefaultPointFigure(geometry, 1E-10, style, deriveSelectedStyle(style));
     }
 
     @Override
     public ShapeFigure createLineFigure(Shape geometry, FigureStyle style) {
-        return new DefaultShapeFigure(geometry, Figure.Rank.LINE, style, createSelectedStyle(style));
+        return new DefaultShapeFigure(geometry, Figure.Rank.LINE, style, deriveSelectedStyle(style));
     }
 
     @Override
     public ShapeFigure createPolygonFigure(Shape geometry, FigureStyle style) {
-        return new DefaultShapeFigure(geometry, Figure.Rank.AREA, style, createSelectedStyle(style));
+        return new DefaultShapeFigure(geometry, Figure.Rank.AREA, style, deriveSelectedStyle(style));
     }
 
-    public FigureStyle createSelectedStyle(FigureStyle style) {
+    public FigureStyle deriveSelectedStyle(FigureStyle style) {
         DefaultFigureStyle figureStyle = new DefaultFigureStyle();
         figureStyle.setFillColor(style.getFillColor());
         figureStyle.setFillOpacity(style.getFillOpacity());
-        figureStyle.setStrokeColor(new Color(255, 255, 0, 180));
+        figureStyle.setStrokeColor(Color.YELLOW);
         figureStyle.setStrokeOpacity(0.9);
-        figureStyle.setStrokeWidth(4.0);
+        figureStyle.setStrokeWidth(style.getStrokeWidth() + 1.0);
         figureStyle.setSymbolName(style.getSymbolName());
-        return   figureStyle;
+        figureStyle.setSymbolName(style.getSymbolImagePath());
+        figureStyle.setSymbolRefX(style.getSymbolRefX());
+        figureStyle.setSymbolRefY(style.getSymbolRefY());
+        return figureStyle;
     }
 }
