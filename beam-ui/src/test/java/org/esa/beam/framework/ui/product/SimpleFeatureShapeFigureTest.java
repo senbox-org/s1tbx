@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,6 +17,7 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -29,13 +30,14 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import junit.framework.TestCase;
-import static org.esa.beam.framework.datamodel.PlainFeatureFactory.createPlainFeature;
-import static org.esa.beam.framework.datamodel.PlainFeatureFactory.createPlainFeatureType;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import static org.esa.beam.framework.datamodel.PlainFeatureFactory.*;
+
 public class SimpleFeatureShapeFigureTest extends TestCase {
+
     private final GeometryFactory gf = new GeometryFactory();
 
     public void testSpecificGeometryType() {
@@ -44,7 +46,7 @@ public class SimpleFeatureShapeFigureTest extends TestCase {
         Polygon polygon = createPolygon();
         SimpleFeature simpleFeature = createPlainFeature(sft, "_1", polygon, "");
 
-        SimpleFeatureShapeFigure shapeFigure = new SimpleFeatureShapeFigure(simpleFeature, null);
+        SimpleFeatureShapeFigure shapeFigure = new SimpleFeatureShapeFigure(simpleFeature, new DefaultFigureStyle());
         assertSame(polygon, shapeFigure.getGeometry());
         assertNotNull(shapeFigure.getShape());
         assertEquals(Figure.Rank.AREA, shapeFigure.getRank());
@@ -59,35 +61,35 @@ public class SimpleFeatureShapeFigureTest extends TestCase {
 
         geometry = createPolygon();
         feature = createPlainFeature(sft, "_1", geometry, "");
-        figure = new SimpleFeatureShapeFigure(feature, null);
+        figure = new SimpleFeatureShapeFigure(feature, new DefaultFigureStyle());
         assertSame(geometry, figure.getGeometry());
         assertNotNull(figure.getShape());
         assertEquals(Figure.Rank.AREA, figure.getRank());
 
         geometry = createLinearRing();
         feature = createPlainFeature(sft, "_2", geometry, "");
-        figure = new SimpleFeatureShapeFigure(feature, null);
+        figure = new SimpleFeatureShapeFigure(feature, new DefaultFigureStyle());
         assertSame(geometry, figure.getGeometry());
         assertNotNull(figure.getShape());
         assertEquals(Figure.Rank.LINE, figure.getRank());
 
         geometry = createLineString();
         feature = createPlainFeature(sft, "_3", geometry, "");
-        figure = new SimpleFeatureShapeFigure(feature, null);
+        figure = new SimpleFeatureShapeFigure(feature, new DefaultFigureStyle());
         assertSame(geometry, figure.getGeometry());
         assertNotNull(figure.getShape());
         assertEquals(Figure.Rank.LINE, figure.getRank());
 
         geometry = createPoint();
         feature = createPlainFeature(sft, "_4", geometry, "");
-        figure = new SimpleFeatureShapeFigure(feature, null);
+        figure = new SimpleFeatureShapeFigure(feature, new DefaultFigureStyle());
         assertSame(geometry, figure.getGeometry());
         assertNotNull(figure.getShape());
         assertEquals(Figure.Rank.POINT, figure.getRank());
 
         geometry = createGeometryCollection();
         feature = createPlainFeature(sft, "_5", geometry, "");
-        figure = new SimpleFeatureShapeFigure(feature, null);
+        figure = new SimpleFeatureShapeFigure(feature, new DefaultFigureStyle());
         assertSame(geometry, figure.getGeometry());
         assertNotNull(figure.getShape());
         assertEquals(Figure.Rank.NOT_SPECIFIED, figure.getRank());
