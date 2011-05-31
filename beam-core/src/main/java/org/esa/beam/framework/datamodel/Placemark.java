@@ -61,9 +61,9 @@ public class Placemark extends ProductNode {
     public static final String PROPERTY_NAME_PIXELPOS = "pixelPos";
     public static final String PROPERTY_NAME_GEOPOS = "geoPos";
     public static final String PROPERTY_NAME_DATETIME = "dateTime";
+    private static final String PROPERTY_NAME_SYMBOL = "symbol";
 
     public static final String PROPERTY_NAME_PINSYMBOL = "pinSymbol";
-    private static final String PROPERTY_NAME_SYMBOL = "symbol";
 
     private SimpleFeature feature;
     private PlacemarkDescriptor placemarkDescriptor;
@@ -522,7 +522,7 @@ public class Placemark extends ProductNode {
     }
 
 
-    private static SimpleFeatureType createFeatureType(String name) {
+    public static SimpleFeatureType createFeatureType(String name) {
         final SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
 
         final SimpleFeatureType superType = PlainFeatureFactory.createPlainFeatureType(name, Point.class, null);
