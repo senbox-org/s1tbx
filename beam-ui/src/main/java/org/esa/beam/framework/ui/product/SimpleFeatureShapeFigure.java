@@ -31,7 +31,6 @@ import org.opengis.feature.simple.SimpleFeature;
 
 import java.awt.Shape;
 
-
 public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements SimpleFeatureFigure {
 
     private final SimpleFeature simpleFeature;
