@@ -62,4 +62,42 @@
         <serviceProvider></serviceProvider>
     </extensionPoint>
 
+    <!--
+       Proposal for dynamic object extension ("Adaptable Pattern").
+       Ceres allows for further extensions to existing interfaces at runtime.
+       New functionality can be added to existing interfaces without having to modify every derivative
+       type in and outside of your software.
+    -->
+    <extensionPoint id="adapters">
+
+        <adapter>
+
+            <!--
+                This is the name of an interface or class which will be extended at runtime.
+                Either 'extensionFactory' or 'extensionType' must be given in addition.
+             -->
+            <extensibleType type="java.lang.Class"/>
+
+            <!--
+                The factory that will be used to create the extension instances for a given instance
+                of type 'extensibleType'. See Ceres API documentation for more information.
+                If not given, then 'extensionType' must be given.
+             -->
+            <extensionFactory type="com.bc.ceres.core.ExtensionFactory"/>
+
+            <!--
+                Can be provided instead of 'extensionFactory'.
+                If 'extensionSubType' is not given, 'extensionType' must have a public no-arg constructor.
+             -->
+            <extensionType type="java.lang.Class"/>
+            <!--
+                If given in addition to 'extensionType', it will be used to create the actual extension instances.
+                Must therefore be a sub-type of 'extensionType' and must have a public no-arg constructor
+             -->
+            <extensionSubType type="java.lang.Class"/>
+
+        </adapter>
+
+    </extensionPoint>
+
 </module>
