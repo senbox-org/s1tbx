@@ -84,7 +84,7 @@ public class ImageSymbol implements Symbol {
     }
 
     @Override
-    public boolean containsPoint(double x, double y) {
+    public boolean isHitBy(double x, double y) {
         int ix = (int) Math.round(x + refX);
         int iy = (int) Math.round(y + refY);
         return ix >= 0

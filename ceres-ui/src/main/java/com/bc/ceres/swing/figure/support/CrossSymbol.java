@@ -52,7 +52,7 @@ public class CrossSymbol implements Symbol {
     }
 
     @Override
-    public boolean containsPoint(double x, double y) {
+    public boolean isHitBy(double x, double y) {
         return x * x + y * y < r * r;
     }
 }

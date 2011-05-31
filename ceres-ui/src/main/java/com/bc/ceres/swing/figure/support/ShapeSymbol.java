@@ -53,6 +53,10 @@ public class ShapeSymbol implements Symbol {
         this.refY = refY;
     }
 
+    public Shape getShape() {
+        return shape;
+    }
+
     /**
      * @return The X-coordinate of the reference point.
      */
@@ -87,7 +91,7 @@ public class ShapeSymbol implements Symbol {
     }
 
     @Override
-    public boolean containsPoint(double x, double y) {
+    public boolean isHitBy(double x, double y) {
         return shape.contains(x + refX, y + refY);
     }
 

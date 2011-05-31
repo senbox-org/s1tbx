@@ -29,5 +29,5 @@ public interface Symbol {
      * @param y in <i>symbol</i> coordinates.
      * @return {@code true}, if so.
      */
-    boolean containsPoint(double x, double y);
+    boolean isHitBy(double x, double y);
 }

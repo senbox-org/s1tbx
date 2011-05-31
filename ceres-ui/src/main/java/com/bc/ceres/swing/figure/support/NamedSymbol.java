@@ -46,8 +46,8 @@ public class NamedSymbol implements Symbol {
     }
 
     @Override
-    public boolean containsPoint(double x, double y) {
-        return symbol.containsPoint(x, y);
+    public boolean isHitBy(double x, double y) {
+        return symbol.isHitBy(x, y);
     }
 
     @Override

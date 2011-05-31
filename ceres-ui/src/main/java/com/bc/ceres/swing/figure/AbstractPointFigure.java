@@ -156,8 +156,8 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
 
         final Point2D locationInView = m2v.transform(getLocation(), null);
         final Point2D pointInView = m2v.transform(point, null);
-        return symbol.containsPoint(pointInView.getX() - locationInView.getX(),
-                                    pointInView.getY() - locationInView.getY());
+        return symbol.isHitBy(pointInView.getX() - locationInView.getX(),
+                              pointInView.getY() - locationInView.getY());
     }
 
     @Override

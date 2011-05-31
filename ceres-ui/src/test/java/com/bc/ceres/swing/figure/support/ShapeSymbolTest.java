@@ -15,20 +15,20 @@ public class ShapeSymbolTest {
     @Test
     public void testContainsPoint() throws Exception {
         ShapeSymbol shapeSymbol = ShapeSymbol.createCircle(10.0);
-        assertEquals(false, shapeSymbol.containsPoint(-7.0, 0.0));
-        assertEquals(false, shapeSymbol.containsPoint(-6.0, 0.0));
-        assertEquals(false, shapeSymbol.containsPoint(-5.0, 0.0));
-        assertEquals(true, shapeSymbol.containsPoint(-4.0, 0.0));
-        assertEquals(true, shapeSymbol.containsPoint(-3.0, 0.0));
-        assertEquals(true, shapeSymbol.containsPoint(-2, 0.0));
-        assertEquals(true, shapeSymbol.containsPoint(-1.0, 0.0));
-        assertEquals(true, shapeSymbol.containsPoint(0.0, 0.0));
-        assertEquals(true, shapeSymbol.containsPoint(1.0, 0.0));
-        assertEquals(true, shapeSymbol.containsPoint(2.0, 0.0));
-        assertEquals(true, shapeSymbol.containsPoint(3.0, 0.0));
-        assertEquals(true, shapeSymbol.containsPoint(4.0, 0.0));
-        assertEquals(false, shapeSymbol.containsPoint(5.0, 0.0));
-        assertEquals(false, shapeSymbol.containsPoint(6.0, 0.0));
-        assertEquals(false, shapeSymbol.containsPoint(7.0, 0.0));
+        assertEquals(false, shapeSymbol.isHitBy(-7.0, 0.0));
+        assertEquals(false, shapeSymbol.isHitBy(-6.0, 0.0));
+        assertEquals(false, shapeSymbol.isHitBy(-5.0, 0.0));
+        assertEquals(true, shapeSymbol.isHitBy(-4.0, 0.0));
+        assertEquals(true, shapeSymbol.isHitBy(-3.0, 0.0));
+        assertEquals(true, shapeSymbol.isHitBy(-2, 0.0));
+        assertEquals(true, shapeSymbol.isHitBy(-1.0, 0.0));
+        assertEquals(true, shapeSymbol.isHitBy(0.0, 0.0));
+        assertEquals(true, shapeSymbol.isHitBy(1.0, 0.0));
+        assertEquals(true, shapeSymbol.isHitBy(2.0, 0.0));
+        assertEquals(true, shapeSymbol.isHitBy(3.0, 0.0));
+        assertEquals(true, shapeSymbol.isHitBy(4.0, 0.0));
+        assertEquals(false, shapeSymbol.isHitBy(5.0, 0.0));
+        assertEquals(false, shapeSymbol.isHitBy(6.0, 0.0));
+        assertEquals(false, shapeSymbol.isHitBy(7.0, 0.0));
     }
 }
