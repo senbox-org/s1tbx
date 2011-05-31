@@ -20,6 +20,8 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ExtensionFactory;
+import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -41,14 +43,16 @@ public class VectorDataLayerType extends LayerType {
     private static final String TYPE_NAME = "VectorDataLayerType";
     private static final String[] ALIASES = {"org.esa.beam.framework.ui.product.VectorDataLayerType"};
     
-    private static int id;
 
     public static Layer createLayer(VectorDataNode vectorDataNode) {
         final VectorDataLayerType layerType = LayerTypeRegistry.getLayerType(VectorDataLayerType.class);
-        final PropertySet configuration = layerType.createLayerConfig(null);
-        configuration.setValue(PROPERTY_NAME_VECTOR_DATA, vectorDataNode.getName());
+        return layerType.createLayer(null, vectorDataNode);
+    }
 
-        return layerType.createLayer(vectorDataNode, configuration);
+    public Layer createLayer(LayerContext ctx, VectorDataNode vectorDataNode) {
+        final PropertySet configuration = createLayerConfig(ctx);
+        configuration.setValue(PROPERTY_NAME_VECTOR_DATA, vectorDataNode.getName());
+        return createLayer(vectorDataNode, configuration);
     }
 
     @Override
@@ -72,7 +76,6 @@ public class VectorDataLayerType extends LayerType {
         final ProductLayerContext plc = (ProductLayerContext) ctx;
         final String vectorDataName = (String) configuration.getValue(PROPERTY_NAME_VECTOR_DATA);
         final VectorDataNode vectorDataNode = plc.getProduct().getVectorDataGroup().get(vectorDataName);
-
         return createLayer(vectorDataNode, configuration);
     }
 
@@ -83,10 +86,29 @@ public class VectorDataLayerType extends LayerType {
         return configuration;
     }
 
-    private Layer createLayer(VectorDataNode vectorDataNode, PropertySet configuration) {
-        final VectorDataLayer layer = new VectorDataLayer(this, vectorDataNode, configuration);
-        layer.setId(VECTOR_DATA_LAYER_ID_PREFIX + (++id));
-
-        return layer;
+    protected VectorDataLayer createLayer(VectorDataNode vectorDataNode, PropertySet configuration) {
+        return new VectorDataLayer(this, vectorDataNode, configuration);
     }
+
+    static {
+
+        ExtensionManager.getInstance().register(VectorDataNode.class, new ExtensionFactory() {
+            @Override
+            public Object getExtension(Object object, Class<?> extensionType) {
+                VectorDataNode node = (VectorDataNode) object;
+                if (node.getFeatureType().getTypeName().equals("TrackPoint")) {
+                    return LayerTypeRegistry.getLayerType(TrackLayerType.class);
+
+                }
+                return null;
+                // return LayerTypeRegistry.getLayerType(VectorDataLayerType.class);
+            }
+
+            @Override
+            public Class<?>[] getExtensionTypes() {
+                return new Class<?>[] {VectorDataLayerType.class};
+            }
+        });
+    }
+
 }

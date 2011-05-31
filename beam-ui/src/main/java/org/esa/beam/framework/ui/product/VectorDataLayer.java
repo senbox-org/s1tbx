@@ -39,7 +39,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
@@ -56,6 +55,7 @@ public class VectorDataLayer extends Layer {
     private VectorDataChangeHandler vectorDataChangeHandler;
     private boolean reactingAgainstFigureChange;
 
+    private static int id;
 
     public VectorDataLayer(LayerContext ctx, VectorDataNode vectorDataNode) {
         this(TYPE, vectorDataNode, TYPE.createLayerConfig(ctx));
@@ -64,6 +64,8 @@ public class VectorDataLayer extends Layer {
 
     VectorDataLayer(VectorDataLayerType vectorDataLayerType, VectorDataNode vectorDataNode, PropertySet configuration) {
         super(vectorDataLayerType, configuration);
+
+        setUniqueId();
 
         this.vectorDataNode = vectorDataNode;
         setName(vectorDataNode.getName());
@@ -74,6 +76,10 @@ public class VectorDataLayer extends Layer {
         vectorDataChangeHandler = new VectorDataChangeHandler();
         vectorDataNode.getProduct().addProductNodeListener(vectorDataChangeHandler);
         figureCollection.addChangeListener(new FigureChangeHandler());
+    }
+
+    private void setUniqueId() {
+        setId(VectorDataLayerType.VECTOR_DATA_LAYER_ID_PREFIX + (++id));
     }
 
     public VectorDataNode getVectorDataNode() {
@@ -136,44 +142,7 @@ public class VectorDataLayer extends Layer {
 
     @Override
     protected void renderLayer(Rendering rendering) {
-        // todo - this is only testing code: must have special layer for this,
-        //        BUT, we need to dynamically find the correct layer class for a given FeatureType! (nf)
-        if (getVectorDataNode().getFeatureType().getTypeName().equals("TrackPoint")) {
-            drawTrackPointConnections(rendering);
-        }
         figureCollection.draw(rendering);
-    }
-
-    private void drawTrackPointConnections(Rendering rendering) {
-
-        Graphics2D g = rendering.getGraphics();
-        AffineTransform oldTransform = g.getTransform();
-        try {
-            g.transform(rendering.getViewport().getModelToViewTransform());
-            drawTrackPointConnections0(rendering);
-        } finally {
-            g.setTransform(oldTransform);
-        }
-    }
-
-    private void drawTrackPointConnections0(Rendering rendering) {
-        rendering.getGraphics().setPaint(new Color(255, 128, 128, 128));
-        rendering.getGraphics().setStroke(new BasicStroke(0.5f));
-        // FeatureCollection.toArray() returns the feature in original order
-        // todo - must actually sort using 'timestamp' attribute (nf)
-        SimpleFeature[] features = getVectorDataNode().getFeatureCollection().toArray(new SimpleFeature[0]);
-        double lastX = 0;
-        double lastY = 0;
-        for (int i = 0; i < features.length; i++) {
-            SimpleFeature feature = features[i];
-            Geometry geometry = (Geometry) feature.getDefaultGeometry();
-            Point centroid = geometry.getCentroid();
-            if (i > 0) {
-                rendering.getGraphics().draw(new Line2D.Double(lastX, lastY, centroid.getX(), centroid.getY()));
-            }
-            lastX = centroid.getX();
-            lastY = centroid.getY();
-        }
     }
 
     private class VectorDataChangeHandler extends ProductNodeListenerAdapter {

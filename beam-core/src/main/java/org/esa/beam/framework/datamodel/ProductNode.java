@@ -15,6 +15,7 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.core.ExtensibleObject;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
@@ -28,7 +29,7 @@ import org.esa.beam.util.ObjectUtils;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  */
-public abstract class ProductNode {
+public abstract class ProductNode extends ExtensibleObject {
 
     public final static String PROPERTY_NAME_NAME = "name";
     public final static String PROPERTY_NAME_DESCRIPTION = "description";

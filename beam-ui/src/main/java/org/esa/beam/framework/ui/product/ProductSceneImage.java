@@ -30,7 +30,6 @@ import org.esa.beam.util.PropertyMap;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 
-// todo - Layer API: make it implement ProductSceneViewContext
 public class ProductSceneImage implements ProductLayerContext {
 
     private static final ImageLayerFilter IMAGE_LAYER_FILTER = new ImageLayerFilter();
@@ -287,16 +286,29 @@ public class ProductSceneImage implements ProductLayerContext {
     }
 
     private synchronized Layer createVectorDataCollectionLayer() {
-        final LayerType layerType = LayerTypeRegistry.getLayerType(VectorDataCollectionLayerType.class);
-        final Layer collectionLayer = layerType.createLayer(this, layerType.createLayerConfig(this));
+        final LayerType collectionLayerType = LayerTypeRegistry.getLayerType(VectorDataCollectionLayerType.class);
+        final VectorDataLayerType fallbackLayerType = LayerTypeRegistry.getLayerType(VectorDataLayerType.class);
+        final Layer collectionLayer = collectionLayerType.createLayer(this, collectionLayerType.createLayerConfig(this));
         final ProductNodeGroup<VectorDataNode> vectorDataGroup = getRaster().getProduct().getVectorDataGroup();
 
-        for (final VectorDataNode vectorDataNode : vectorDataGroup.toArray(new VectorDataNode[vectorDataGroup.getNodeCount()])) {
-            final Layer layer = VectorDataLayerType.createLayer(vectorDataNode);
+        final VectorDataNode[] vectorDataNodes = vectorDataGroup.toArray(new VectorDataNode[vectorDataGroup.getNodeCount()]);
+        for (final VectorDataNode vectorDataNode : vectorDataNodes) {
+            final Layer layer = createVectorDataLayer(vectorDataNode, fallbackLayerType);
             collectionLayer.getChildren().add(layer);
         }
 
         return collectionLayer;
+    }
+
+    private Layer createVectorDataLayer(VectorDataNode vectorDataNode, VectorDataLayerType fallbackLayerType) {
+        final VectorDataLayerType specialLayerType = vectorDataNode.getExtension(VectorDataLayerType.class);
+        final Layer layer;
+        if (specialLayerType != null) {
+            layer = specialLayerType.createLayer(this, vectorDataNode);
+        } else {
+            layer = fallbackLayerType.createLayer(this, vectorDataNode);
+        }
+        return layer;
     }
 
     private synchronized Layer createMaskCollectionLayer() {
