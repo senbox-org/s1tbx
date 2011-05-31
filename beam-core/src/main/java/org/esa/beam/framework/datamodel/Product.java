@@ -51,9 +51,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -275,13 +273,15 @@ public class Product extends ProductNode {
         this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "indexCodingGroup", true);
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
         this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
+
         final VectorDataNode pinVectorDataNode = new VectorDataNode(PIN_MASK_NAME, Placemark.getFeatureType());
-        pinVectorDataNode.setDefaultCSS("symbol:pin; fill:#0000ff; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0");
+        pinVectorDataNode.setDefaultCSS("symbol:pin; fill:#0000ff; fill-opacity:0.7; stroke:#ffffff; stroke-opacity:1.0; stroke-width:0.5");
         this.vectorDataGroup.add(pinVectorDataNode);
-        final VectorDataNode gcpVectorDataNode = new VectorDataNode(GCP_MASK_NAME, Placemark.getFeatureType());
-        gcpVectorDataNode.setDefaultCSS("symbol:plus; stroke:#ff8800; stroke-opacity:0.9; stroke-width:2.0");
-        this.vectorDataGroup.add(gcpVectorDataNode);
         this.pinGroup = new PlacemarkGroup(this, "pinGroup", pinVectorDataNode);
+
+        final VectorDataNode gcpVectorDataNode = new VectorDataNode(GCP_MASK_NAME, Placemark.getFeatureType());
+        gcpVectorDataNode.setDefaultCSS("symbol:plus; stroke:#ff8800; stroke-opacity:0.8; stroke-width:1.0");
+        this.vectorDataGroup.add(gcpVectorDataNode);
         this.gcpGroup = new PlacemarkGroup(this, "gcpGroup", gcpVectorDataNode);
 
         setModified(false);
@@ -2010,6 +2010,7 @@ public class Product extends ProductNode {
     /**
      * AutoGrouping can be used by an application to auto-group a long list of product nodes (e.g. bands)
      * as a tree of product nodes.
+     *
      * @since BEAM 4.8
      */
     public static interface AutoGrouping extends List<String[]> {
@@ -2406,13 +2407,13 @@ public class Product extends ProductNode {
                                                        productWidth, productHeight,
                                                        new Term[]{term}, pm);
         loop.forEachPixel(new RasterDataLoop.Body() {
-            @Override
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                if (term.evalB(env)) {
-                    validMask.set(pixelIndex);
-                }
-            }
-        }, "Computing valid-mask..."); /*I18N*/
+                              @Override
+                              public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
+                                  if (term.evalB(env)) {
+                                      validMask.set(pixelIndex);
+                                  }
+                              }
+                          }, "Computing valid-mask..."); /*I18N*/
 
         setValidMask(id, validMask);
 
@@ -2540,15 +2541,15 @@ public class Product extends ProductNode {
                                                        width, height,
                                                        new Term[]{bitmaskTerm}, pm);
         loop.forEachPixel(new RasterDataLoop.Body() {
-            @Override
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                if (bitmaskTerm.evalB(env)) {
-                    bitmask[pixelIndex] = trueValue;
-                } else {
-                    bitmask[pixelIndex] = falseValue;
-                }
-            }
-        }, "Reading bitmask...");  /*I18N*/
+                              @Override
+                              public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
+                                  if (bitmaskTerm.evalB(env)) {
+                                      bitmask[pixelIndex] = trueValue;
+                                  } else {
+                                      bitmask[pixelIndex] = falseValue;
+                                  }
+                              }
+                          }, "Reading bitmask...");  /*I18N*/
     }
 
     /**
