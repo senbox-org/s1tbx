@@ -62,7 +62,7 @@ public class VectorDataLayer extends Layer {
         getConfiguration().setValue(VectorDataLayerType.PROPERTY_NAME_VECTOR_DATA, vectorDataNode.getName());
     }
 
-    VectorDataLayer(VectorDataLayerType vectorDataLayerType, VectorDataNode vectorDataNode, PropertySet configuration) {
+    protected VectorDataLayer(VectorDataLayerType vectorDataLayerType, VectorDataNode vectorDataNode, PropertySet configuration) {
         super(vectorDataLayerType, configuration);
 
         setUniqueId();
