@@ -16,7 +16,7 @@
 
 package com.bc.ceres.core;
 
-import java.util.logging.Logger;
+import java.lang.reflect.Constructor;
 
 /**
  * An implementation of a {@link com.bc.ceres.core.ExtensionFactory} for a single extension type.
@@ -89,9 +89,10 @@ public class SingleTypeExtensionFactory<T, E> implements ExtensionFactory {
 
     /**
      * Creates an extension object for the given {@code object}.
-     * The new extension object must be an instance of the {@code extensionSubType} passed to the constructor.
-     * Called if, and only if this factory's {@code extensionType} is assignable from the given {@code extensionType}.
-     * <p>The default implementation returns {@code getExtensionSubType().newInstance()}. Clients may subclass and
+     * The new extension object must be an instance of the {@link #getExtensionSubType() extensionSubType} passed to the constructor.
+     * Called if, and only if this factory's {@link #getExtensionType() extensionType} is assignable from the given {@code extensionType}.
+     * <p>The default implementation returns a new instance of {@code extensionSubType}, either
+     * created from its public no-arg constructor or its public 1-arg constructor which can take the given {@code object}. Clients may subclass and
      * override this method in order to implement a more sophisticated instance creation.</p>
      *
      * @param object        The object to be extended.
@@ -100,11 +101,18 @@ public class SingleTypeExtensionFactory<T, E> implements ExtensionFactory {
      * @throws Throwable If an error occurs.
      */
     protected E getExtensionImpl(T object, Class<E> extensionType) throws Throwable {
-        return getExtensionSubType().newInstance();
+        Class<? extends E> subType = getExtensionSubType();
+        try {
+            Constructor<? extends E> constructor = subType.getConstructor(object.getClass());
+            return constructor.newInstance(object);
+        } catch (Exception e) {
+            return subType.newInstance();
+        }
     }
 
     /**
-     * @return The one-element array containing the extension sub-type this factory supports.
+     * @return The array containing the {@link #getExtensionType() extensionType} and optionally
+     *         the {@link #getExtensionSubType() extensionSubType} supported by this factory.
      */
     @Override
     public final Class<?>[] getExtensionTypes() {

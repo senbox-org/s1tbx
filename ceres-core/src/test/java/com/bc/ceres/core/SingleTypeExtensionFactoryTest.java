@@ -16,22 +16,35 @@
 
 package com.bc.ceres.core;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import java.awt.Component;
 
-public class SingleTypeExtensionFactoryTest extends TestCase {
-    public void testConstruction() {
+import static org.junit.Assert.*;
 
+public class SingleTypeExtensionFactoryTest {
+
+    private static final Object OBJECT_INSTANCE = new Object();
+
+    @Test
+    public void test1ArgConstructor() {
         try {
             new SingleTypeExtensionFactory<Object, Object>(null);
             fail("NPE expected");
         } catch (NullPointerException e) {
             // ok
         }
+
+        SingleTypeExtensionFactory<Object, JButton> f1 = new SingleTypeExtensionFactory<Object, JButton>(JButton.class);
+        assertSame(JButton.class, f1.getExtensionType());
+        assertSame(JButton.class, f1.getExtensionSubType());
+    }
+
+    @Test
+    public void test2ArgConstructor() {
 
         try {
             new SingleTypeExtensionFactory<Object, Object>(null, null);
@@ -62,34 +75,70 @@ public class SingleTypeExtensionFactoryTest extends TestCase {
             // ok
         }
 
-        SingleTypeExtensionFactory<Object, JButton> f1 = new SingleTypeExtensionFactory<Object, JButton>(JButton.class);
-        assertSame(JButton.class, f1.getExtensionType());
-        assertSame(JButton.class, f1.getExtensionSubType());
-
         SingleTypeExtensionFactory<Object, JComponent> f2 = new SingleTypeExtensionFactory<Object, JComponent>(JComponent.class, JButton.class);
         assertSame(JComponent.class, f2.getExtensionType());
         assertSame(JButton.class, f2.getExtensionSubType());
     }
 
+    @Test
     public void testFactory() {
         Object extension;
 
         SingleTypeExtensionFactory<Object, JButton> f1 = new SingleTypeExtensionFactory<Object, JButton>(JButton.class);
-        extension = f1.getExtension(Object.class, JButton.class);
+        extension = f1.getExtension(OBJECT_INSTANCE, JButton.class);
         assertTrue(extension instanceof AbstractButton);
-        extension = f1.getExtension(Object.class, AbstractButton.class);
+        extension = f1.getExtension(OBJECT_INSTANCE, AbstractButton.class);
         assertNull(extension);
+    }
+
+    @Test
+    public void testFactoryWithSubClass() {
+        Object extension;
 
         SingleTypeExtensionFactory<Object, JComponent> f2 = new SingleTypeExtensionFactory<Object, JComponent>(JComponent.class, JButton.class);
-        extension = f2.getExtension(Object.class, AbstractButton.class);
+        extension = f2.getExtension(OBJECT_INSTANCE, AbstractButton.class);
         assertTrue(extension instanceof AbstractButton);
-        extension = f2.getExtension(Object.class, JButton.class);
+        extension = f2.getExtension(OBJECT_INSTANCE, JButton.class);
         assertTrue(extension instanceof AbstractButton);
-        extension = f2.getExtension(Object.class, AbstractButton.class);
+        extension = f2.getExtension(OBJECT_INSTANCE, AbstractButton.class);
         assertTrue(extension instanceof AbstractButton);
-        extension = f2.getExtension(Object.class, JComponent.class);
+        extension = f2.getExtension(OBJECT_INSTANCE, JComponent.class);
         assertTrue(extension instanceof JComponent);
-        extension = f2.getExtension(Object.class, Component.class);
+        extension = f2.getExtension(OBJECT_INSTANCE, Component.class);
         assertNull(extension);
+    }
+
+    @Test
+    public void testFactoryWith1ArgConstructor() {
+        Object extension;
+
+        SingleTypeExtensionFactory<Object, ExtensionClass> f2 = new SingleTypeExtensionFactory<Object, ExtensionClass>(ExtensionClass.class);
+        extension = f2.getExtension(OBJECT_INSTANCE, ExtensionClass.class);
+        assertTrue(extension instanceof ExtensionClass);
+        assertSame(OBJECT_INSTANCE, ((ExtensionClass) extension).arg);
+    }
+
+    @Test
+    public void testFactoryWithSubClassWith1ArgConstructor() {
+        Object extension;
+
+        SingleTypeExtensionFactory<Object, ExtensionClass> f2 = new SingleTypeExtensionFactory<Object, ExtensionClass>(ExtensionClass.class, ExtensionClassSubClass.class);
+        extension = f2.getExtension(OBJECT_INSTANCE, ExtensionClass.class);
+        assertTrue(extension instanceof ExtensionClassSubClass);
+        assertSame(OBJECT_INSTANCE, ((ExtensionClassSubClass) extension).arg);
+    }
+
+    public static class ExtensionClass {
+        Object arg;
+
+        public ExtensionClass(Object arg) {
+            this.arg = arg;
+        }
+    }
+    public static class ExtensionClassSubClass extends ExtensionClass {
+
+        public ExtensionClassSubClass(Object arg) {
+            super(arg);
+        }
     }
 }
