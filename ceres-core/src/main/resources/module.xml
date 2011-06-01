@@ -75,24 +75,34 @@
             <!--
                 This is the name of an interface or class which will be extended at runtime.
                 Either 'extensionFactory' or 'extensionType' must be given in addition.
+                Usually, but not necessarily, 'extensionType' implements 'com.bc.ceres.core.Extensible'
+                or extends 'com.bc.ceres.core.ExtensibleObject'.
              -->
             <extensibleType type="java.lang.Class"/>
 
             <!--
                 The factory that will be used to create the extension instances for a given instance
-                of type 'extensibleType'. See Ceres API documentation for more information.
-                If not given, then 'extensionType' must be given.
+                of type 'extensibleType'.
+                If 'extensionFactory' is not given, then 'extensionType' must be given.
+                See Ceres API documentation on 'com.bc.ceres.core.ExtensionFactory'
+                for more information.
              -->
             <extensionFactory type="com.bc.ceres.core.ExtensionFactory"/>
 
             <!--
                 Can be provided instead of 'extensionFactory'.
-                If 'extensionSubType' is not given, 'extensionType' must have a public no-arg constructor.
+                If 'extensionSubType' is not given, 'extensionType' must have a public no-arg constructor
+                or a public 1-arg constructor that takes an instance of 'extensibleType'.
+                See Ceres API documentation on 'com.bc.ceres.core.SingleTypeExtensionFactory'
+                for more information.
              -->
             <extensionType type="java.lang.Class"/>
             <!--
                 If given in addition to 'extensionType', it will be used to create the actual extension instances.
                 Must therefore be a sub-type of 'extensionType' and must have a public no-arg constructor
+                or a public 1-arg constructor that takes an instance of 'extensibleType'.
+                See Ceres API documentation on 'com.bc.ceres.core.SingleTypeExtensionFactory'
+                for more information.
              -->
             <extensionSubType type="java.lang.Class"/>
 
