@@ -52,19 +52,44 @@
     <categories>System,Library</categories>
 
     <!--
-       todo - describe
+       applications: Extension point that provides the executable code for applications.
+       Applications will be invoked using the Ceres launcher. The configuration parameter is
+           ${ceres.context}.app = ${application.id}
+       where ${ceres.context} is given by the configuration parameter 'ceres.context'.
     -->
-    <extensionPoint id="applications"/>
+    <extensionPoint id="applications">
 
-    <!--
-       todo - describe
-    -->
-    <extensionPoint id="serviceProviders">
-        <serviceProvider></serviceProvider>
+        <!--
+            The application id is given by the 'id' attribute,
+            the application class by the 'class' attribute, e.g.
+
+            <application id="MyApp" class="com.acme.MyApp" />
+        -->
+        <application type="com.bc.ceres.core.runtime.RuntimeRunnable" />
+
     </extensionPoint>
 
     <!--
-       Proposal for dynamic object extension ("Adaptable Pattern").
+       serviceProviders: Extension point that provides dynamic service registration ("Service Plugin Pattern").
+       Since Ceres creates private class loaders for modules, they will not be able to dynamically load
+       services registered via the standard JAR method using META-INF/services.
+       Using this extension point, your module can declare itself as a host module for that service, which means
+       it will provide (or knows) a registry for the specified service type.
+    -->
+    <extensionPoint id="serviceProviders">
+
+        <!--
+            The class name of the service provider interface (SPI).
+            Dependent modules will expose the services they provide in the "usual" JAR way, namely by providing
+            a resource file META-INF/services/${serviceProvider} containing a list of names of classes that
+            implement ${serviceProvider}.
+         -->
+        <serviceProvider type="java.lang.Class"/>
+
+    </extensionPoint>
+
+    <!--
+       adapters: Extension point that provides dynamic object extension ("Adaptable Pattern").
        Ceres allows for further extensions to existing interfaces at runtime.
        New functionality can be added to existing interfaces without having to modify every derivative
        type in and outside of your software.
@@ -98,6 +123,7 @@
                 for more information.
              -->
             <extensionType type="java.lang.Class"/>
+
             <!--
                 If given in addition to 'extensionType', it will be used to create the actual extension instances.
                 Must therefore be a sub-type of 'extensionType' and must have a public no-arg constructor
