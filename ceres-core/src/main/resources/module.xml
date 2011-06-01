@@ -9,6 +9,7 @@
     <changelog>
         <![CDATA[
         Changes in 0.13<br/>
+        [CERES-055] Core API: Add extension point "adapters" in order to have declarative extension types<br/>
         [CERES-054] Core API: ExtensionManager should query all possible extension factories<br/>
         Changes in 0.12<br/>
         [CERES-053] Native modules cannot discriminate between 32 and 64-bit VMs<br/>

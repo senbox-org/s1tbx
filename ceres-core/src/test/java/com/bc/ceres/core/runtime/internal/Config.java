@@ -50,6 +50,10 @@ public class Config {
         return new File(TEST_DIR, "app-b");
     }
 
+    public static File getDirForAppC() {
+        return new File(TEST_DIR, "app-c");
+    }
+
     public static File getRepositoryDir() {
         return new File(TEST_DIR, "repository");
     }
