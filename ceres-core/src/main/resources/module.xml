@@ -63,7 +63,10 @@
             The application id is given by the 'id' attribute,
             the application class by the 'class' attribute, e.g.
 
-            <application id="MyApp" class="com.acme.MyApp" />
+            <extension point="ceres-core:applications">
+                <application id="MyApp" class="com.acme.MyApp" />
+            </extension>
+
         -->
         <application type="com.bc.ceres.core.runtime.RuntimeRunnable" />
 
