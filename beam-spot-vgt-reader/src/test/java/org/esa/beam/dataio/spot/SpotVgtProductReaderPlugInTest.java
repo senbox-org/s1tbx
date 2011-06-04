@@ -18,18 +18,23 @@ package org.esa.beam.dataio.spot;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertySet;
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import ucar.nc2.NetcdfFile;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
 
-public class SpotVgtProductReaderPlugInTest extends TestCase {
+import static org.junit.Assert.*;
 
+
+@RunWith(TestDirRunner.class)
+public class SpotVgtProductReaderPlugInTest {
+
+    @Test
     public void testGetBandName() {
         assertEquals("VZA", SpotVgtProductReaderPlugIn.getBandName("VZA.HDF"));
         assertEquals("VZA", SpotVgtProductReaderPlugIn.getBandName("_VZA.HDF"));
@@ -37,6 +42,7 @@ public class SpotVgtProductReaderPlugInTest extends TestCase {
         assertEquals("MIR", SpotVgtProductReaderPlugIn.getBandName("0001_MIR.HDF"));
     }
 
+    @Test
     public void testPhysVolumeDescriptor() throws IOException {
         File dir = TestDataDir.get();
         File file = new File(dir, "decode_qual_intended/PHYS_VOL.TXT");
@@ -50,6 +56,7 @@ public class SpotVgtProductReaderPlugInTest extends TestCase {
         assertEquals("_MIR.HDF", physVolDescriptor.getValue("PRODUCT_#0001_PLAN_09"));
     }
 
+    @Test
     public void testDecodeQualification() {
         SpotVgtProductReaderPlugIn plugIn = new SpotVgtProductReaderPlugIn();
 
@@ -108,7 +115,7 @@ public class SpotVgtProductReaderPlugInTest extends TestCase {
         Band[] bands = product.getBands();
         for (int i = 0; i < bands.length; i++) {
             Band band = bands[i];
-            System.out.println("band["+i+"] = " + band);
+            System.out.println("band[" + i + "] = " + band);
         }
         product.closeIO();
     }

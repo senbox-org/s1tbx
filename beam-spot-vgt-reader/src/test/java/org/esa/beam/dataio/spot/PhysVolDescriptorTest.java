@@ -16,14 +16,18 @@
 
 package org.esa.beam.dataio.spot;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class PhysVolDescriptorTest extends TestCase {
+import static org.junit.Assert.*;
 
+@RunWith(TestDirRunner.class)
+public class PhysVolDescriptorTest {
+    @Test
     public void testIt() throws IOException {
         File dir = TestDataDir.get();
         File file = new File(dir, "decode_qual_intended/PHYS_VOL.TXT");

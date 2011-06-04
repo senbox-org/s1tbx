@@ -16,8 +16,10 @@
 
 package org.esa.beam.dataio.spot;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runner.Runner;
 
 import java.awt.Rectangle;
 import java.io.File;
@@ -25,9 +27,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 
-public class LogVolDescriptorTest extends TestCase {
+import static org.junit.Assert.*;
 
-    public void testIt() throws IOException,ParseException {
+@RunWith(TestDirRunner.class)
+public class LogVolDescriptorTest {
+    @Test
+    public void testIt() throws IOException, ParseException {
         File dir = TestDataDir.get();
         File file = new File(dir, "decode_qual_intended/0001/0001_LOG.TXT");
         FileReader reader = new FileReader(file);
@@ -38,7 +43,7 @@ public class LogVolDescriptorTest extends TestCase {
             assertEquals("20-JUL-2006 22:31:32.000000", ProductData.UTC.create(descriptor.getStartDate(), 0).toString());
             assertEquals("30-JUL-2006 23:56:28.000000", ProductData.UTC.create(descriptor.getEndDate(), 0).toString());
             Rectangle bounds = descriptor.getImageBounds();
-            assertNotNull( bounds);
+            assertNotNull(bounds);
             assertEquals(0, bounds.x);
             assertEquals(0, bounds.y);
             assertEquals(8177, bounds.width);
