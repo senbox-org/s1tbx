@@ -167,15 +167,17 @@ public class FileUtilsTest extends TestCase {
             fail("unable to create file");
         }
 
-        FileUtils.deleteTree(treeRoot);
-
-        assertTrue(!treeRoot.exists());
-        assertTrue(!firstDir.exists());
-        assertTrue(!firstFile.exists());
-        assertTrue(!secondDir.exists());
-        assertTrue(!secondFile.exists());
-        assertTrue(!thirdFile.exists());
-        assertTrue(!writeProtectedFile.exists());
+        if (FileUtils.deleteTree(treeRoot)) {
+            assertTrue(!treeRoot.exists());
+            assertTrue(!firstDir.exists());
+            assertTrue(!firstFile.exists());
+            assertTrue(!secondDir.exists());
+            assertTrue(!secondFile.exists());
+            assertTrue(!thirdFile.exists());
+            assertTrue(!writeProtectedFile.exists());
+        }  else {
+            fail("FileUtils.deleteTree() failed to delete dir " + treeRoot);
+        }
     }
 
     public void testDeleteFileTreeExceptions() {
