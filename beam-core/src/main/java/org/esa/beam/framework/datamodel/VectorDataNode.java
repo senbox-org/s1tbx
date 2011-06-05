@@ -60,6 +60,8 @@ public class VectorDataNode extends ProductNode {
 
     private final SimpleFeatureType featureType;
     private final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+    private final PlacemarkDescriptor placemarkDescriptor;
+    private PlacemarkGroup placemarkGroup;
     private final CollectionListener featureCollectionListener;
     private String defaultCSS;
     private ReferencedEnvelope bounds = null;
@@ -83,6 +85,22 @@ public class VectorDataNode extends ProductNode {
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
+        this(name, featureCollection, new DefaultPlacemarkDescriptor());
+    }
+
+    public VectorDataNode(String name, SimpleFeatureType featureType, PlacemarkDescriptor placemarkDescriptor) {
+        this(name, new DefaultFeatureCollection(name, featureType), placemarkDescriptor);
+    }
+
+    /**
+     * Constructs a new vector data node for the given feature collection.
+     *
+     * @param name                The node name.
+     * @param featureCollection   A feature collection.
+     * @param placemarkDescriptor The placemark descriptor
+     * @throws IllegalArgumentException if the given name is not a valid node identifier
+     */
+    public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, PlacemarkDescriptor placemarkDescriptor) {
         super(name, "");
         this.featureType = featureCollection.getSchema();
         this.featureCollection = featureCollection;
@@ -100,6 +118,26 @@ public class VectorDataNode extends ProductNode {
         };
         this.featureCollection.addListener(featureCollectionListener);
         this.defaultCSS = String.format(DEFAULT_STYLE_FORMAT, FILL_COLORS[(fillColorIndex++) % FILL_COLORS.length]);
+        this.placemarkDescriptor = placemarkDescriptor;
+    }
+
+    public PlacemarkDescriptor getPlacemarkDescriptor() {
+        return placemarkDescriptor;
+    }
+
+    public PlacemarkGroup getPlacemarkGroup() {
+        if (placemarkGroup == null) {
+            placemarkGroup = new PlacemarkGroup(getProduct(), getName(), this);
+        }
+        return placemarkGroup;
+    }
+
+    @Override
+    public void setModified(boolean modified) {
+        super.setModified(modified);
+        if (placemarkGroup != null) {
+            placemarkGroup.setModified(modified);
+        }
     }
 
     /**
@@ -202,6 +240,9 @@ public class VectorDataNode extends ProductNode {
 
     @Override
     public void acceptVisitor(ProductVisitor visitor) {
+        if (placemarkGroup != null) {
+            placemarkGroup.acceptVisitor(visitor);
+        }
         visitor.visit(this);
     }
 
@@ -223,5 +264,6 @@ public class VectorDataNode extends ProductNode {
     public boolean isInternalNode() {
         return getFeatureType() == Placemark.getFeatureType();
     }
+
 }
 

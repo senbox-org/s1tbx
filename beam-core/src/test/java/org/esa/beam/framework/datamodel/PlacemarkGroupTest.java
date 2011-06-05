@@ -41,7 +41,7 @@ public class PlacemarkGroupTest {
         VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Placemark.getFeatureType());
         product.getVectorDataGroup().add(pinVectorDataNode);
         pinBuilder = new SimpleFeatureBuilder(Placemark.getFeatureType());
-        placemarkGroup = new PlacemarkGroup(product, "pinGroup", pinVectorDataNode);
+        placemarkGroup = new PlacemarkGroup(product, "pins", pinVectorDataNode);
         pinFeatureCollection = pinVectorDataNode.getFeatureCollection();
     }
 

@@ -370,7 +370,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                                                activePlacemark.getDescription(),
                                                activePlacemark.getPixelPos(),
                                                activePlacemark.getGeoPos(),
-                                               PinDescriptor.INSTANCE,
+                                               activePlacemark.getPlacemarkDescriptor(),
                                                activePlacemark.getProduct().getGeoCoding());
         newPlacemark.setSymbol(createPinSymbolCopy(activePlacemark.getSymbol()));
         if (PlacemarkDialog.showEditPlacemarkDialog(getPaneWindow(), product, newPlacemark, placemarkDescriptor)) {

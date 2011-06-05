@@ -19,15 +19,12 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -349,12 +346,12 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
     }
 
     private void addPlacemarks(Product product) {
-        copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(), PinDescriptor.INSTANCE, false);
-        copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(), GcpDescriptor.INSTANCE, true);
+        copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(), false);
+        copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(), true);
     }
 
     private void copyPlacemarks(ProductNodeGroup<Placemark> sourcePlacemarkGroup,
-                                ProductNodeGroup<Placemark> targetPlacemarkGroup, PlacemarkDescriptor descriptor,
+                                ProductNodeGroup<Placemark> targetPlacemarkGroup,
                                 boolean copyAll) {
         final Placemark[] placemarks = new Placemark[sourcePlacemarkGroup.getNodeCount()];
         sourcePlacemarkGroup.toArray(placemarks);
@@ -389,7 +386,7 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                                                        placemark.getDescription(),
                                                        new PixelPos(x, y),
                                                        placemark.getGeoPos(),
-                                                       descriptor,
+                                                       placemark.getPlacemarkDescriptor(),
                                                        targetPlacemarkGroup.getProduct().getGeoCoding()));
             }
         }

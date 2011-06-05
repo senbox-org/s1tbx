@@ -141,8 +141,6 @@ public class Product extends ProductNode {
     private final ProductNodeGroup<FlagCoding> flagCodingGroup;
     private final ProductNodeGroup<IndexCoding> indexCodingGroup;
     private final ProductNodeGroup<Mask> maskGroup;
-    private final PlacemarkGroup pinGroup;
-    private final PlacemarkGroup gcpGroup;
 
     /**
      * The internal reference number of this product
@@ -274,15 +272,13 @@ public class Product extends ProductNode {
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
         this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
 
-        final VectorDataNode pinVectorDataNode = new VectorDataNode(PIN_MASK_NAME, Placemark.getFeatureType());
+        final VectorDataNode pinVectorDataNode = new VectorDataNode(PIN_MASK_NAME, Placemark.getFeatureType(), PinDescriptor.INSTANCE);
         pinVectorDataNode.setDefaultCSS("symbol:pin; fill:#0000ff; fill-opacity:0.7; stroke:#ffffff; stroke-opacity:1.0; stroke-width:0.5");
         this.vectorDataGroup.add(pinVectorDataNode);
-        this.pinGroup = new PlacemarkGroup(this, "pinGroup", pinVectorDataNode);
 
-        final VectorDataNode gcpVectorDataNode = new VectorDataNode(GCP_MASK_NAME, Placemark.getFeatureType());
+        final VectorDataNode gcpVectorDataNode = new VectorDataNode(GCP_MASK_NAME, Placemark.getFeatureType(), GcpDescriptor.INSTANCE);
         gcpVectorDataNode.setDefaultCSS("symbol:plus; stroke:#ff8800; stroke-opacity:0.8; stroke-width:1.0");
         this.vectorDataGroup.add(gcpVectorDataNode);
-        this.gcpGroup = new PlacemarkGroup(this, "gcpGroup", gcpVectorDataNode);
 
         setModified(false);
 
@@ -565,8 +561,6 @@ public class Product extends ProductNode {
         indexCodingGroup.dispose();
         maskGroup.dispose();
         vectorDataGroup.dispose();
-        pinGroup.dispose();
-        gcpGroup.dispose();
 
         pointingFactory = null;
         productManager = null;
@@ -1144,7 +1138,7 @@ public class Product extends ProductNode {
      * @return the GCP group.
      */
     public PlacemarkGroup getGcpGroup() {
-        return gcpGroup;
+        return getVectorDataGroup().get(GCP_MASK_NAME).getPlacemarkGroup();
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1156,7 +1150,7 @@ public class Product extends ProductNode {
      * @return the pin group.
      */
     public PlacemarkGroup getPinGroup() {
-        return pinGroup;
+        return getVectorDataGroup().get(PIN_MASK_NAME).getPlacemarkGroup();
     }
 
 
@@ -1264,8 +1258,6 @@ public class Product extends ProductNode {
         vectorDataGroup.acceptVisitor(visitor);
         bitmaskDefGroup.acceptVisitor(visitor);
         maskGroup.acceptVisitor(visitor);
-        pinGroup.acceptVisitor(visitor);
-        gcpGroup.acceptVisitor(visitor);
         metadataRoot.acceptVisitor(visitor);
         visitor.visit(this);
     }
@@ -1564,8 +1556,6 @@ public class Product extends ProductNode {
                 vectorDataGroup.setModified(false);
                 flagCodingGroup.setModified(false);
                 indexCodingGroup.setModified(false);
-                pinGroup.setModified(false);
-                gcpGroup.setModified(false);
                 getMetadataRoot().setModified(false);
             }
         }
@@ -1796,8 +1786,6 @@ public class Product extends ProductNode {
         removedNodes.addAll(tiePointGridGroup.getRemovedNodes());
         removedNodes.addAll(maskGroup.getRemovedNodes());
         removedNodes.addAll(vectorDataGroup.getRemovedNodes());
-        removedNodes.addAll(pinGroup.getRemovedNodes());
-        removedNodes.addAll(gcpGroup.getRemovedNodes());
         return removedNodes.toArray(new ProductNode[removedNodes.size()]);
     }
 

@@ -826,17 +826,17 @@ public class DimapProductHelpers {
     }
 
     static void addPins(Document dom, Product product) {
-        Element pinGroup = dom.getRootElement().getChild(DimapProductConstants.TAG_PIN_GROUP);
-        List pinElements;
-        if (pinGroup != null) {
-            pinElements = pinGroup.getChildren(DimapProductConstants.TAG_PLACEMARK);
+        Element groupElement = dom.getRootElement().getChild(DimapProductConstants.TAG_PIN_GROUP);
+        List elements;
+        if (groupElement != null) {
+            elements = groupElement.getChildren(DimapProductConstants.TAG_PLACEMARK);
         } else {
             // get pins of old DIMAP files prior version 2.3
-            pinElements = dom.getRootElement().getChildren(DimapProductConstants.TAG_PIN);
+            elements = dom.getRootElement().getChildren(DimapProductConstants.TAG_PIN);
         }
-        for (Object pinElement : pinElements) {
-            final Element pinElem = (Element) pinElement;
-            final Placemark placemark = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE,
+        for (Object elementObj : elements) {
+            final Element element = (Element) elementObj;
+            final Placemark placemark = Placemark.createPlacemark(element, PinDescriptor.INSTANCE,
                                                                   product.getGeoCoding());
             if (placemark != null) {
                 product.getPinGroup().add(placemark);
@@ -845,18 +845,18 @@ public class DimapProductHelpers {
     }
 
     static void addGcps(Document dom, Product product) {
-        Element gcpGroupElement = dom.getRootElement().getChild(DimapProductConstants.TAG_GCP_GROUP);
-        List gcpElements;
-        if (gcpGroupElement != null) {
-            gcpElements = gcpGroupElement.getChildren(DimapProductConstants.TAG_PLACEMARK);
+        Element groupElement = dom.getRootElement().getChild(DimapProductConstants.TAG_GCP_GROUP);
+        List elements;
+        if (groupElement != null) {
+            elements = groupElement.getChildren(DimapProductConstants.TAG_PLACEMARK);
         } else {
-            gcpElements = Collections.EMPTY_LIST;
+            elements = Collections.EMPTY_LIST;
         }
-        for (Object gcpElement : gcpElements) {
-            final Element gcpElem = (Element) gcpElement;
-            final Placemark gcp = Placemark.createPlacemark(gcpElem, GcpDescriptor.INSTANCE, product.getGeoCoding());
-            if (gcp != null) {
-                product.getGcpGroup().add(gcp);
+        for (Object elementObj : elements) {
+            final Element element = (Element) elementObj;
+            final Placemark placemark = Placemark.createPlacemark(element, GcpDescriptor.INSTANCE, product.getGeoCoding());
+            if (placemark != null) {
+                product.getGcpGroup().add(placemark);
             }
         }
     }
