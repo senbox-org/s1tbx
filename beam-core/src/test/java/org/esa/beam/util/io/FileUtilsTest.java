@@ -199,9 +199,11 @@ public class FileUtilsTest extends TestCase {
         emptyDir.mkdirs();
         assertTrue("emptyDir exists expected", emptyDir.exists());
 
-        FileUtils.deleteTree(treeRoot);
-
-        assertTrue("treeRoot not exists expected", !treeRoot.exists());
+        if (FileUtils.deleteTree(treeRoot)) {
+            assertTrue("treeRoot not exists expected", !treeRoot.exists());
+        } else {
+            System.err.println("Error in FileUtilsTest: FileUtils.deleteTree() failed to delete dir " + treeRoot);
+        }
     }
 
     public void testGetFileAsURL() throws MalformedURLException {
