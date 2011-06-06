@@ -10,6 +10,8 @@
             <excludes>
                 <exclude>**/.cvsignore</exclude>
                 <exclude>**/.svnignore</exclude>
+                <exclude>**/.gitignore</exclude>
+                <exclude>**/*.idea</exclude>
                 <exclude>**/*.ipr</exclude>
                 <exclude>**/*.iml</exclude>
                 <exclude>**/*.iws</exclude>
@@ -18,6 +20,7 @@
                 <exclude>**/.settings</exclude>
                 <exclude>**/target/**</exclude>
                 <exclude>**/CVS/**</exclude>
+                <exclude>.git/**</exclude>
                 <exclude>modules/**</exclude>
                 <exclude>testdata/**</exclude>
                 <exclude>log/**</exclude>
