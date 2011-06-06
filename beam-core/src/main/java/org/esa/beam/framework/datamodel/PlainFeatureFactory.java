@@ -48,7 +48,7 @@ public class PlainFeatureFactory {
         if (crs != null) {
             atb.setCRS(crs);
         }
-        atb.setBinding(Geometry.class);
+        atb.setBinding(geometryType);
         atb.nillable(false);
         sftb.add(atb.buildDescriptor(ATTRIB_NAME_GEOMETRY));
         sftb.setDefaultGeometry(ATTRIB_NAME_GEOMETRY);

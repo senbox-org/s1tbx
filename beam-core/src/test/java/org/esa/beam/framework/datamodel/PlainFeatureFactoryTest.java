@@ -39,6 +39,7 @@ public class PlainFeatureFactoryTest {
         assertNotNull(sft.getDescriptor(PlainFeatureFactory.ATTRIB_NAME_GEOMETRY));
         assertFalse(sft.getDescriptor(PlainFeatureFactory.ATTRIB_NAME_GEOMETRY).isNillable());
         assertNull(sft.getDescriptor(PlainFeatureFactory.ATTRIB_NAME_GEOMETRY).getDefaultValue());
+        assertEquals(Point.class, sft.getDescriptor(PlainFeatureFactory.ATTRIB_NAME_GEOMETRY).getType().getBinding());
 
         assertNotNull(sft.getDescriptor(PlainFeatureFactory.ATTRIB_NAME_STYLE_CSS));
         assertTrue(sft.getDescriptor(PlainFeatureFactory.ATTRIB_NAME_STYLE_CSS).isNillable());
@@ -68,12 +69,9 @@ public class PlainFeatureFactoryTest {
         assertEquals(point, feature1.getAttribute(PlainFeatureFactory.ATTRIB_NAME_GEOMETRY));
         assertEquals("fill:#0033AA", feature1.getAttribute(PlainFeatureFactory.ATTRIB_NAME_STYLE_CSS));
 
-        try {
-            PlainFeatureFactory.createPlainFeature(sft, "_2", null, "fill:#0033AA");
-            fail("Geometry must not be null");
-        } catch (Exception e) {
-            // Expected
-        }
+        SimpleFeature feature2 = PlainFeatureFactory.createPlainFeature(sft, "_2", null, "fill:#0033AA");
+        assertNotNull(feature2.getDefaultGeometry());
+        assertTrue(gf.createPoint(new Coordinate()).compareTo(feature2.getDefaultGeometry()) == 0);
 
         final SimpleFeature feature3 = PlainFeatureFactory.createPlainFeature(sft, "_3", point, null);
         assertEquals(null, feature3.getAttribute(PlainFeatureFactory.ATTRIB_NAME_STYLE_CSS));
