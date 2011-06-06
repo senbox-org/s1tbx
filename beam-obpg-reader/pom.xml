@@ -36,7 +36,7 @@
     <dependencies>
         <dependency>
             <groupId>org.esa.beam</groupId>
-            <artifactId>beam-visat</artifactId>
+            <artifactId>beam-core</artifactId>
         </dependency>
         <dependency>
             <groupId>edu.ucar</groupId>
