@@ -21,7 +21,7 @@ import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Placemark;
 
-import javax.swing.AbstractAction;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 class AddCoordinateAction extends AbstractAction {
@@ -37,7 +37,7 @@ class AddCoordinateAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         final Placemark placemark = new Placemark("Coord_" + tableModel.getRowCount(), "", "",
                                                   new PixelPos(), new GeoPos(0, 0),
-                                                  PinDescriptor.INSTANCE, null);
+                                                  PinDescriptor.getInstance(), null);
         tableModel.addPlacemark(placemark);
     }
 }

@@ -33,10 +33,11 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests for class {@link ProductSubsetBuilder}.
@@ -70,11 +71,11 @@ public class ProductSubsetBuilderTest {
     @Test
     public void testStxHandling() throws IOException {
         final Product product2 = ProductSubsetBuilder.createProductSubset(product, null, "subset", "");
-        assertEquals(false, product2.getBand(DUMMY_BAND1).isStxSet() );
+        assertEquals(false, product2.getBand(DUMMY_BAND1).isStxSet());
 
-        product.getBand(DUMMY_BAND1).getStx( true, ProgressMonitor.NULL );
+        product.getBand(DUMMY_BAND1).getStx(true, ProgressMonitor.NULL);
         final Product product3 = ProductSubsetBuilder.createProductSubset(product, null, "subset", "");
-        assertEquals(true, product3.getBand( DUMMY_BAND1 ).isStxSet() );
+        assertEquals(true, product3.getBand(DUMMY_BAND1).isStxSet());
     }
 
     @Test
@@ -114,15 +115,15 @@ public class ProductSubsetBuilderTest {
     }
 
     private void testPalette(ColorPaletteDef palette, Color[] colors) {
-        assertEquals( colors.length, palette.getPoints().length );
-        for( int i = 0; i < colors.length; i++ ) {
-            assertEquals( colors[i], palette.getPointAt( i ).getColor() );
+        assertEquals(colors.length, palette.getPoints().length);
+        for (int i = 0; i < colors.length; i++) {
+            assertEquals(colors[i], palette.getPointAt(i).getColor());
         }
     }
 
     @Test
     public void testCopyPlacemarkGroupsOnlyForRegionSubset() throws IOException {
-        final PlacemarkDescriptor pinDescriptor = PinDescriptor.INSTANCE;
+        final PlacemarkDescriptor pinDescriptor = PinDescriptor.getInstance();
         final Placemark pin1 = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null, pinDescriptor,
                                              product.getGeoCoding());
         final Placemark pin2 = new Placemark("P2", "", "", new PixelPos(3.5f, 3.5f), null, pinDescriptor,
@@ -158,7 +159,7 @@ public class ProductSubsetBuilderTest {
 
     @Test
     public void testCopyPlacemarkGroupsOnlyForNullSubset() throws IOException {
-        final PlacemarkDescriptor pinDescriptor = PinDescriptor.INSTANCE;
+        final PlacemarkDescriptor pinDescriptor = PinDescriptor.getInstance();
         final Placemark pin1 = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null, pinDescriptor,
                                              product.getGeoCoding());
         final Placemark pin2 = new Placemark("P2", "", "", new PixelPos(3.5f, 3.5f), null, pinDescriptor,
@@ -194,7 +195,7 @@ public class ProductSubsetBuilderTest {
     }
 
     private void attachIndexCodedBand() {
-        final Band band = createDataBand(0,1, DUMMY_BAND1);
+        final Band band = createDataBand(0, 1, DUMMY_BAND1);
         final IndexCoding indexCoding = new IndexCoding("ic1");
         indexCoding.addIndex("i0", 0, "i0");
         indexCoding.addIndex("i1", 1, "i1");

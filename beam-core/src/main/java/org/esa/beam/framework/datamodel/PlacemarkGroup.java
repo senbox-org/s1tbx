@@ -127,12 +127,8 @@ public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
                         for (SimpleFeature feature : newFeatures) {
                             final Placemark placemark = placemarkMap.get(feature);
                             if (placemark == null) {
-                                PlacemarkDescriptor pd = PinDescriptor.INSTANCE;
-                                if(isGcp(feature)) {
-                                    pd = GcpDescriptor.INSTANCE;
-                                }
                                 // Only call add() if we don't have the pin already
-                                _add(new Placemark(feature, "", pd));
+                                _add(vectorDataNode.getPlacemarkDescriptor().createPlacemark(feature));
                             }
                         }
                     } else if (newFeatures == null) { // features removed?
@@ -153,10 +149,6 @@ public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
                     }
                 }
             }
-        }
-
-        private boolean isGcp(SimpleFeature feature) {
-            return vectorDataNode.getProduct().getGcpGroup().getVectorDataNode().getFeatureCollection().contains(feature);
         }
     }
 }

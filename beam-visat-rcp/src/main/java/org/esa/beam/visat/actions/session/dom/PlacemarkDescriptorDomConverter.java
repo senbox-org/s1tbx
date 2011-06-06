@@ -33,13 +33,13 @@ class PlacemarkDescriptorDomConverter implements DomConverter {
 
     @Override
     public PlacemarkDescriptor convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                                                                                                ValidationException {
+            ValidationException {
         final String type = parentElement.getAttribute("class");
         if (PinDescriptor.class.getName().equals(type)) {
-            return PinDescriptor.INSTANCE;
+            return PinDescriptor.getInstance();
         }
         if (GcpDescriptor.class.getName().equals(type)) {
-            return GcpDescriptor.INSTANCE;
+            return GcpDescriptor.getInstance();
         }
         throw new ConversionException(String.format("illegal placemark descriptor '%s", type));
     }

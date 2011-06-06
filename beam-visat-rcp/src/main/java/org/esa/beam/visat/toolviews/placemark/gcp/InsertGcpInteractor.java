@@ -26,6 +26,6 @@ import org.esa.beam.visat.toolviews.placemark.InsertPlacemarkInteractor;
 public class InsertGcpInteractor extends InsertPlacemarkInteractor {
 
     public InsertGcpInteractor() {
-        super(GcpDescriptor.INSTANCE);
+        super(GcpDescriptor.getInstance());
     }
 }

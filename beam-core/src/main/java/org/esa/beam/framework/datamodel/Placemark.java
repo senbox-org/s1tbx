@@ -32,7 +32,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -85,7 +85,7 @@ public class Placemark extends ProductNode {
         this(createFeature(name, label, pixelPos, geoPos, descriptor, geoCoding), description, descriptor);
     }
 
-    Placemark(SimpleFeature feature, String description, PlacemarkDescriptor descriptor) {
+    public Placemark(SimpleFeature feature, String description, PlacemarkDescriptor descriptor) {
         super(feature.getID(), description);
         this.feature = feature;
         placemarkDescriptor = descriptor;

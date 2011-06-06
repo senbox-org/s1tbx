@@ -47,16 +47,16 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
 
         assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
     }
-    
+
     @Test
     public void testUTMWithWktText() throws IOException {
         parameterMap.put("crs", UTM33N_WKT);
         final Product targetPoduct = createReprojectedProduct();
-        
+
         assertNotNull(targetPoduct);
         assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
     }
-    
+
     @Test
     public void testWithWktFile() throws IOException {
         parameterMap.put("wktFile", wktFile);
@@ -65,7 +65,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         assertNotNull(targetPoduct);
         assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
     }
-    
+
     @Test
     public void testWithCollocationProduct() {
         Map<String, Product> productMap = new HashMap<String, Product>(5);
@@ -81,22 +81,22 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         assertNotNull(targetProduct);
         assertTrue(targetProduct.isCompatibleProduct(collocationProduct, 1.0e-6f));
     }
-    
+
     @Test
     public void testUTM() throws IOException {
         parameterMap.put("crs", UTM33N_CODE);
         final Product targetPoduct = createReprojectedProduct();
-        
+
         assertNotNull(targetPoduct);
         assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
     }
-    
+
     @Test
     public void testUTM_Bilinear() throws IOException {
         parameterMap.put("crs", UTM33N_CODE);
         parameterMap.put("resampling", "Bilinear");
         final Product targetPoduct = createReprojectedProduct();
-        
+
         assertNotNull(targetPoduct);
         assertNotNull(targetPoduct.getGeoCoding());
         // 299, 312
@@ -129,12 +129,12 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         parameterMap.put("pixelSizeX", sizeX);
         parameterMap.put("pixelSizeY", sizeY);
         final Product targetPoduct = createReprojectedProduct();
-        
+
         assertNotNull(targetPoduct);
         assertEquals(5, targetPoduct.getSceneRasterWidth());
         assertEquals(3, targetPoduct.getSceneRasterHeight());
     }
-    
+
     @Test
     public void testSpecifyingReferencing() throws IOException {
         parameterMap.put("crs", WGS84_CODE);
@@ -144,7 +144,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         parameterMap.put("northing", 52.0); // just move it 2° degrees up
         parameterMap.put("orientation", 0.0);
         final Product targetPoduct = createReprojectedProduct();
-        
+
         assertNotNull(targetPoduct);
         final GeoPos geoPos = targetPoduct.getGeoCoding().getGeoPos(new PixelPos(0.5f, 0.5f), null);
         assertEquals(new GeoPos(52.0f, 9.0f), geoPos);
@@ -155,13 +155,13 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
     public void testIncludeTiePointGrids() throws Exception {
         parameterMap.put("crs", WGS84_CODE);
         Product targetPoduct = createReprojectedProduct();
-        
+
         TiePointGrid[] tiePointGrids = targetPoduct.getTiePointGrids();
         assertNotNull(tiePointGrids);
         assertEquals(0, tiePointGrids.length);
         Band latGrid = targetPoduct.getBand("latGrid");
         assertNotNull(latGrid);
-        
+
         parameterMap.put("includeTiePointGrids", false);
         targetPoduct = createReprojectedProduct();
         tiePointGrids = targetPoduct.getTiePointGrids();
@@ -173,7 +173,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testCopyPlacemarkGroups() throws IOException {
-        final PlacemarkDescriptor pinDescriptor = PinDescriptor.INSTANCE;
+        final PlacemarkDescriptor pinDescriptor = PinDescriptor.getInstance();
         final Placemark pin = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null, pinDescriptor, sourceProduct.getGeoCoding());
         final Placemark gcp = new Placemark("G1", "", "", new PixelPos(2.5f, 2.5f), null, pinDescriptor, sourceProduct.getGeoCoding());
 

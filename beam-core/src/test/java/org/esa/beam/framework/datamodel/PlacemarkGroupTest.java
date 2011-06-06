@@ -27,7 +27,8 @@ import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class PlacemarkGroupTest {
 
@@ -38,7 +39,7 @@ public class PlacemarkGroupTest {
     @Before()
     public void setup() {
         Product product = new Product("PinGroup Test", "TestType", 10, 10);
-        VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Placemark.getFeatureType());
+        VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Placemark.getFeatureType(), PinDescriptor.getInstance());
         product.getVectorDataGroup().add(pinVectorDataNode);
         pinBuilder = new SimpleFeatureBuilder(Placemark.getFeatureType());
         placemarkGroup = new PlacemarkGroup(product, "pins", pinVectorDataNode);
@@ -115,6 +116,6 @@ public class PlacemarkGroupTest {
     }
 
     private Placemark createPlacemark(String name, PixelPos pixelPos, GeoPos geoPos) {
-        return new Placemark(name, "", "", pixelPos, geoPos, PinDescriptor.INSTANCE, null);
+        return new Placemark(name, "", "", pixelPos, geoPos, PinDescriptor.getInstance(), null);
     }
 }

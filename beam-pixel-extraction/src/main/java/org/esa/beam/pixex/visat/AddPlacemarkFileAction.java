@@ -23,10 +23,7 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 
-import javax.swing.AbstractAction;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileReader;
@@ -65,7 +62,7 @@ class AddPlacemarkFileAction extends AbstractAction {
             FileReader reader = null;
             try {
                 reader = new FileReader(selectedFile);
-                final List<Placemark> placemarks = PlacemarkIO.readPlacemarks(reader, null, PinDescriptor.INSTANCE);
+                final List<Placemark> placemarks = PlacemarkIO.readPlacemarks(reader, null, PinDescriptor.getInstance());
                 for (Placemark placemark : placemarks) {
                     tableModel.addPlacemark(placemark);
                 }

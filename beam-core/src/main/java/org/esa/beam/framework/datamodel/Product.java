@@ -45,7 +45,7 @@ import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
@@ -272,11 +272,11 @@ public class Product extends ProductNode {
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
         this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
 
-        final VectorDataNode pinVectorDataNode = new VectorDataNode(PIN_MASK_NAME, Placemark.getFeatureType(), PinDescriptor.INSTANCE);
+        final VectorDataNode pinVectorDataNode = new VectorDataNode(PIN_MASK_NAME, Placemark.getFeatureType(), PinDescriptor.getInstance());
         pinVectorDataNode.setDefaultCSS("symbol:pin; fill:#0000ff; fill-opacity:0.7; stroke:#ffffff; stroke-opacity:1.0; stroke-width:0.5");
         this.vectorDataGroup.add(pinVectorDataNode);
 
-        final VectorDataNode gcpVectorDataNode = new VectorDataNode(GCP_MASK_NAME, Placemark.getFeatureType(), GcpDescriptor.INSTANCE);
+        final VectorDataNode gcpVectorDataNode = new VectorDataNode(GCP_MASK_NAME, Placemark.getFeatureType(), GcpDescriptor.getInstance());
         gcpVectorDataNode.setDefaultCSS("symbol:plus; stroke:#ff8800; stroke-opacity:0.8; stroke-width:1.0");
         this.vectorDataGroup.add(gcpVectorDataNode);
 

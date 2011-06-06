@@ -31,10 +31,10 @@ import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class PinPositionTest {
 
@@ -49,7 +49,7 @@ public class PinPositionTest {
         final Product product = new Product("P", "T", 10, 10);
         product.setGeoCoding(geoCoding);
 
-        placemark = new Placemark("P1", "L", "", new PixelPos(1.0f, 1.0f), null, PinDescriptor.INSTANCE, product.getGeoCoding());
+        placemark = new Placemark("P1", "L", "", new PixelPos(1.0f, 1.0f), null, PinDescriptor.getInstance(), product.getGeoCoding());
         product.getPinGroup().add(placemark);
     }
 

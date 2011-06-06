@@ -46,8 +46,7 @@ import org.esa.beam.util.math.FXYSum;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -57,132 +56,132 @@ public class DimapHeaderWriterTest extends TestCase {
     private static final String LS = SystemUtils.LS;
     private static final String header =
             "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" + LS +
-            "<Dimap_Document name=\"test.dim\">" + LS +
-            "    <Metadata_Id>" + LS +
-            "        <METADATA_FORMAT version=\"" + DimapProductConstants.DIMAP_CURRENT_VERSION + "\">DIMAP</METADATA_FORMAT>" + LS +
-            "        <METADATA_PROFILE>" + DimapProductConstants.DIMAP_METADATA_PROFILE + "</METADATA_PROFILE>" + LS +
-            "    </Metadata_Id>" + LS +
-            "    <Dataset_Id>" + LS +
-            "        <DATASET_SERIES>" + DimapProductConstants.DIMAP_DATASET_SERIES + "</DATASET_SERIES>" + LS +
-            "        <DATASET_NAME>test</DATASET_NAME>" + LS +
-            "    </Dataset_Id>" + LS +
-            "    <Production>" + LS +
-            "        <DATASET_PRODUCER_NAME />" + LS +
+                    "<Dimap_Document name=\"test.dim\">" + LS +
+                    "    <Metadata_Id>" + LS +
+                    "        <METADATA_FORMAT version=\"" + DimapProductConstants.DIMAP_CURRENT_VERSION + "\">DIMAP</METADATA_FORMAT>" + LS +
+                    "        <METADATA_PROFILE>" + DimapProductConstants.DIMAP_METADATA_PROFILE + "</METADATA_PROFILE>" + LS +
+                    "    </Metadata_Id>" + LS +
+                    "    <Dataset_Id>" + LS +
+                    "        <DATASET_SERIES>" + DimapProductConstants.DIMAP_DATASET_SERIES + "</DATASET_SERIES>" + LS +
+                    "        <DATASET_NAME>test</DATASET_NAME>" + LS +
+                    "    </Dataset_Id>" + LS +
+                    "    <Production>" + LS +
+                    "        <DATASET_PRODUCER_NAME />" + LS +
 //            "        <DATASET_PRODUCER_NAME>" + DimapProductConstants.DATASET_PRODUCER_NAME + "</DATASET_PRODUCER_NAME>" + LS +
-"        <PRODUCT_TYPE>MER_RR__2P</PRODUCT_TYPE>" + LS +
-"        <PRODUCT_SCENE_RASTER_START_TIME>19-MAY-2003 00:34:05.000034</PRODUCT_SCENE_RASTER_START_TIME>" + LS + // product scene sensing start
-"        <PRODUCT_SCENE_RASTER_STOP_TIME>19-MAY-2003 00:50:45.000034</PRODUCT_SCENE_RASTER_STOP_TIME>" + LS + // product scene sensing stopt
-"    </Production>" + LS;
+                    "        <PRODUCT_TYPE>MER_RR__2P</PRODUCT_TYPE>" + LS +
+                    "        <PRODUCT_SCENE_RASTER_START_TIME>19-MAY-2003 00:34:05.000034</PRODUCT_SCENE_RASTER_START_TIME>" + LS + // product scene sensing start
+                    "        <PRODUCT_SCENE_RASTER_STOP_TIME>19-MAY-2003 00:50:45.000034</PRODUCT_SCENE_RASTER_STOP_TIME>" + LS + // product scene sensing stopt
+                    "    </Production>" + LS;
     private static final String rasterDimensions =
             "    <Raster_Dimensions>" + LS +
-            "        <NCOLS>200</NCOLS>" + LS +
-            "        <NROWS>300</NROWS>" + LS +
-            "        <NBANDS>0</NBANDS>" + LS +
-            "    </Raster_Dimensions>" + LS;
+                    "        <NCOLS>200</NCOLS>" + LS +
+                    "        <NROWS>300</NROWS>" + LS +
+                    "        <NBANDS>0</NBANDS>" + LS +
+                    "    </Raster_Dimensions>" + LS;
     private static final String dataAccess =
             "    <Data_Access>" + LS +
-            "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
-            "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
-            "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
-            "        <Data_File>" + LS +
-            "            <DATA_FILE_PATH href=\"test.data/b1.hdr\" />" + LS +
-            "            <BAND_INDEX>0</BAND_INDEX>" + LS +
-            "        </Data_File>" + LS +
-            "        <Data_File>" + LS +
-            "            <DATA_FILE_PATH href=\"test.data/b2.hdr\" />" + LS +
-            "            <BAND_INDEX>1</BAND_INDEX>" + LS +
-            "        </Data_File>" + LS +
-            "    </Data_Access>" + LS +
-            "    <Image_Interpretation>" + LS +
-            "        <Spectral_Band_Info>" + LS +
-            "            <BAND_INDEX>0</BAND_INDEX>" + LS +
-            "            <BAND_DESCRIPTION />" + LS +
-            "            <BAND_NAME>b1</BAND_NAME>" + LS +
-            "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
-            "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-            "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-            "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-            "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-            "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-            "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-            "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-            "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-            "        </Spectral_Band_Info>" + LS +
-            "        <Spectral_Band_Info>" + LS +
-            "            <BAND_INDEX>1</BAND_INDEX>" + LS +
-            "            <BAND_DESCRIPTION />" + LS +
-            "            <BAND_NAME>b2</BAND_NAME>" + LS +
-            "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
-            "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-            "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-            "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-            "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-            "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-            "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-            "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-            "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-            "        </Spectral_Band_Info>" + LS +
-            "        <Spectral_Band_Info>" + LS +
-            "            <BAND_INDEX>2</BAND_INDEX>" + LS +
-            "            <BAND_DESCRIPTION />" + LS +
-            "            <BAND_NAME>vb1</BAND_NAME>" + LS +
-            "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
-            "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-            "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-            "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-            "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-            "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-            "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-            "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-            "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-            "            <VIRTUAL_BAND>true</VIRTUAL_BAND>" + LS +
-            "            <EXPRESSION>b1 * 0.4 + 1</EXPRESSION>" + LS +
-            "        </Spectral_Band_Info>" + LS +
-            "        <Spectral_Band_Info>" + LS +
-            "            <BAND_INDEX>3</BAND_INDEX>" + LS +
-            "            <BAND_NAME>cfb1</BAND_NAME>" + LS +
-            "            <BAND_DESCRIPTION />" + LS +
-            "            <DATA_TYPE>float32</DATA_TYPE>" + LS +
-            "            <PHYSICAL_UNIT />" + LS +
-            "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-            "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-            "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-            "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-            "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-            "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-            "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-            "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-            "            <Filter_Band_Info bandType=\"ConvolutionFilterBand\">" + LS +
-            "                <FILTER_SOURCE>b2</FILTER_SOURCE>" + LS +
-            "                <Filter_Kernel>" + LS +
-            "                    <KERNEL_WIDTH>3</KERNEL_WIDTH>" + LS +
-            "                    <KERNEL_HEIGHT>3</KERNEL_HEIGHT>" + LS +
-            "                    <KERNEL_FACTOR>1.0</KERNEL_FACTOR>" + LS +
-            "                    <KERNEL_DATA>1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0</KERNEL_DATA>" + LS +
-            "                </Filter_Kernel>" + LS +
-            "            </Filter_Band_Info>" + LS +
-            "        </Spectral_Band_Info>" + LS +
-            "        <Spectral_Band_Info>" + LS +
-            "            <BAND_INDEX>4</BAND_INDEX>" + LS +
-            "            <BAND_NAME>gfb1</BAND_NAME>" + LS +
-            "            <BAND_DESCRIPTION />" + LS +
-            "            <DATA_TYPE>int16</DATA_TYPE>" + LS +
-            "            <PHYSICAL_UNIT />" + LS +
-            "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-            "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-            "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-            "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-            "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-            "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-            "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-            "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-            "            <Filter_Band_Info bandType=\"GeneralFilterBand\" version=\"1.1\">" + LS +
-            "                <FILTER_SOURCE>b2</FILTER_SOURCE>" + LS +
-            "                <FILTER_SUB_WINDOW_SIZE>150</FILTER_SUB_WINDOW_SIZE>" + LS +
-            "                <FILTER_OPERATOR_CLASS_NAME>org.esa.beam.framework.datamodel.GeneralFilterBand$Mean</FILTER_OPERATOR_CLASS_NAME>" + LS +
-            "            </Filter_Band_Info>" + LS +
-            "        </Spectral_Band_Info>" + LS +
-            "    </Image_Interpretation>" + LS;
+                    "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
+                    "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
+                    "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
+                    "        <Data_File>" + LS +
+                    "            <DATA_FILE_PATH href=\"test.data/b1.hdr\" />" + LS +
+                    "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+                    "        </Data_File>" + LS +
+                    "        <Data_File>" + LS +
+                    "            <DATA_FILE_PATH href=\"test.data/b2.hdr\" />" + LS +
+                    "            <BAND_INDEX>1</BAND_INDEX>" + LS +
+                    "        </Data_File>" + LS +
+                    "    </Data_Access>" + LS +
+                    "    <Image_Interpretation>" + LS +
+                    "        <Spectral_Band_Info>" + LS +
+                    "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+                    "            <BAND_DESCRIPTION />" + LS +
+                    "            <BAND_NAME>b1</BAND_NAME>" + LS +
+                    "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+                    "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+                    "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+                    "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+                    "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+                    "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+                    "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+                    "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+                    "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+                    "        </Spectral_Band_Info>" + LS +
+                    "        <Spectral_Band_Info>" + LS +
+                    "            <BAND_INDEX>1</BAND_INDEX>" + LS +
+                    "            <BAND_DESCRIPTION />" + LS +
+                    "            <BAND_NAME>b2</BAND_NAME>" + LS +
+                    "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+                    "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+                    "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+                    "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+                    "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+                    "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+                    "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+                    "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+                    "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+                    "        </Spectral_Band_Info>" + LS +
+                    "        <Spectral_Band_Info>" + LS +
+                    "            <BAND_INDEX>2</BAND_INDEX>" + LS +
+                    "            <BAND_DESCRIPTION />" + LS +
+                    "            <BAND_NAME>vb1</BAND_NAME>" + LS +
+                    "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+                    "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+                    "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+                    "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+                    "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+                    "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+                    "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+                    "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+                    "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+                    "            <VIRTUAL_BAND>true</VIRTUAL_BAND>" + LS +
+                    "            <EXPRESSION>b1 * 0.4 + 1</EXPRESSION>" + LS +
+                    "        </Spectral_Band_Info>" + LS +
+                    "        <Spectral_Band_Info>" + LS +
+                    "            <BAND_INDEX>3</BAND_INDEX>" + LS +
+                    "            <BAND_NAME>cfb1</BAND_NAME>" + LS +
+                    "            <BAND_DESCRIPTION />" + LS +
+                    "            <DATA_TYPE>float32</DATA_TYPE>" + LS +
+                    "            <PHYSICAL_UNIT />" + LS +
+                    "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+                    "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+                    "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+                    "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+                    "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+                    "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+                    "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+                    "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+                    "            <Filter_Band_Info bandType=\"ConvolutionFilterBand\">" + LS +
+                    "                <FILTER_SOURCE>b2</FILTER_SOURCE>" + LS +
+                    "                <Filter_Kernel>" + LS +
+                    "                    <KERNEL_WIDTH>3</KERNEL_WIDTH>" + LS +
+                    "                    <KERNEL_HEIGHT>3</KERNEL_HEIGHT>" + LS +
+                    "                    <KERNEL_FACTOR>1.0</KERNEL_FACTOR>" + LS +
+                    "                    <KERNEL_DATA>1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0</KERNEL_DATA>" + LS +
+                    "                </Filter_Kernel>" + LS +
+                    "            </Filter_Band_Info>" + LS +
+                    "        </Spectral_Band_Info>" + LS +
+                    "        <Spectral_Band_Info>" + LS +
+                    "            <BAND_INDEX>4</BAND_INDEX>" + LS +
+                    "            <BAND_NAME>gfb1</BAND_NAME>" + LS +
+                    "            <BAND_DESCRIPTION />" + LS +
+                    "            <DATA_TYPE>int16</DATA_TYPE>" + LS +
+                    "            <PHYSICAL_UNIT />" + LS +
+                    "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+                    "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+                    "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+                    "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+                    "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+                    "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+                    "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+                    "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+                    "            <Filter_Band_Info bandType=\"GeneralFilterBand\" version=\"1.1\">" + LS +
+                    "                <FILTER_SOURCE>b2</FILTER_SOURCE>" + LS +
+                    "                <FILTER_SUB_WINDOW_SIZE>150</FILTER_SUB_WINDOW_SIZE>" + LS +
+                    "                <FILTER_OPERATOR_CLASS_NAME>org.esa.beam.framework.datamodel.GeneralFilterBand$Mean</FILTER_OPERATOR_CLASS_NAME>" + LS +
+                    "            </Filter_Band_Info>" + LS +
+                    "        </Spectral_Band_Info>" + LS +
+                    "    </Image_Interpretation>" + LS;
 
     private static final String footer = "</Dimap_Document>";
     private Product product;
@@ -310,7 +309,7 @@ public class DimapHeaderWriterTest extends TestCase {
     }
 
     private void addPinsToProduct() {
-        final PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
+        final PinDescriptor pinDescriptor = PinDescriptor.getInstance();
         final Placemark placemark1 = new Placemark("pin1", "pin1", "", null, new GeoPos(), pinDescriptor, product.getGeoCoding());
         ProductNodeGroup<Placemark> pinGroup = product.getPinGroup();
         pinGroup.add(placemark1);
@@ -320,57 +319,57 @@ public class DimapHeaderWriterTest extends TestCase {
         pinGroup.add(placemark2);
 
         final Placemark placemark3 = new Placemark("pin3", "pin3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                 pinDescriptor, product.getGeoCoding());
+                                                   pinDescriptor, product.getGeoCoding());
         pinGroup.add(placemark3);
     }
 
     private String getExpectedForWritePins() {
         return
                 header +
-                rasterDimensions +
-                "    <Pin_Group>" + LS +
-                "        <Placemark name=\"pin1\">" + LS +
-                "            <LABEL>pin1</LABEL>" + LS +
-                "            <DESCRIPTION />" + LS +
-                "            <LATITUDE>0.0</LATITUDE>" + LS +
-                "            <LONGITUDE>0.0</LONGITUDE>" + LS +
-                "            <FillColor>" + LS +
-                "                <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + LS +
-                "            </FillColor>" + LS +
-                "            <OutlineColor>" + LS +
-                "                <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + LS +
-                "            </OutlineColor>" + LS +
-                "        </Placemark>" + LS +
-                "        <Placemark name=\"pin2\">" + LS +
-                "            <LABEL>pin2</LABEL>" + LS +
-                "            <DESCRIPTION>desc2</DESCRIPTION>" + LS +
-                "            <LATITUDE>4.0</LATITUDE>" + LS +
-                "            <LONGITUDE>8.0</LONGITUDE>" + LS +
-                "            <FillColor>" + LS +
-                "                <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + LS +
-                "            </FillColor>" + LS +
-                "            <OutlineColor>" + LS +
-                "                <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + LS +
-                "            </OutlineColor>" + LS +
-                "        </Placemark>" + LS +
-                "        <Placemark name=\"pin3\">" + LS +
-                "            <LABEL>pin3</LABEL>" + LS +
-                "            <DESCRIPTION />" + LS +
-                "            <LATITUDE>-23.1234</LATITUDE>" + LS +
-                "            <LONGITUDE>-80.543</LONGITUDE>" + LS +
-                "            <FillColor>" + LS +
-                "                <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + LS +
-                "            </FillColor>" + LS +
-                "            <OutlineColor>" + LS +
-                "                <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + LS +
-                "            </OutlineColor>" + LS +
-                "        </Placemark>" + LS +
-                "    </Pin_Group>" + LS +
-                footer;
+                        rasterDimensions +
+                        "    <Pin_Group>" + LS +
+                        "        <Placemark name=\"pin1\">" + LS +
+                        "            <LABEL>pin1</LABEL>" + LS +
+                        "            <DESCRIPTION />" + LS +
+                        "            <LATITUDE>0.0</LATITUDE>" + LS +
+                        "            <LONGITUDE>0.0</LONGITUDE>" + LS +
+                        "            <FillColor>" + LS +
+                        "                <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + LS +
+                        "            </FillColor>" + LS +
+                        "            <OutlineColor>" + LS +
+                        "                <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + LS +
+                        "            </OutlineColor>" + LS +
+                        "        </Placemark>" + LS +
+                        "        <Placemark name=\"pin2\">" + LS +
+                        "            <LABEL>pin2</LABEL>" + LS +
+                        "            <DESCRIPTION>desc2</DESCRIPTION>" + LS +
+                        "            <LATITUDE>4.0</LATITUDE>" + LS +
+                        "            <LONGITUDE>8.0</LONGITUDE>" + LS +
+                        "            <FillColor>" + LS +
+                        "                <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + LS +
+                        "            </FillColor>" + LS +
+                        "            <OutlineColor>" + LS +
+                        "                <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + LS +
+                        "            </OutlineColor>" + LS +
+                        "        </Placemark>" + LS +
+                        "        <Placemark name=\"pin3\">" + LS +
+                        "            <LABEL>pin3</LABEL>" + LS +
+                        "            <DESCRIPTION />" + LS +
+                        "            <LATITUDE>-23.1234</LATITUDE>" + LS +
+                        "            <LONGITUDE>-80.543</LONGITUDE>" + LS +
+                        "            <FillColor>" + LS +
+                        "                <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + LS +
+                        "            </FillColor>" + LS +
+                        "            <OutlineColor>" + LS +
+                        "                <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + LS +
+                        "            </OutlineColor>" + LS +
+                        "        </Placemark>" + LS +
+                        "    </Pin_Group>" + LS +
+                        footer;
     }
 
     private void addGcpsToProduct() {
-        final GcpDescriptor gcpDescriptor = GcpDescriptor.INSTANCE;
+        final GcpDescriptor gcpDescriptor = GcpDescriptor.getInstance();
         final Placemark placemark1 = new Placemark("gcp1", "gcp1", "", null, new GeoPos(),
                                                    gcpDescriptor, product.getGeoCoding());
         ProductNodeGroup<Placemark> pinGroup = product.getGcpGroup();
@@ -382,35 +381,35 @@ public class DimapHeaderWriterTest extends TestCase {
         pinGroup.add(placemark2);
 
         final Placemark placemark3 = new Placemark("gcp3", "gcp3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                 gcpDescriptor, product.getGeoCoding());
+                                                   gcpDescriptor, product.getGeoCoding());
         pinGroup.add(placemark3);
     }
 
     private String getExpectedForWriteGcps() {
         return
                 header +
-                rasterDimensions +
-                "    <Gcp_Group>" + LS +
-                "        <Placemark name=\"gcp1\">" + LS +
-                "            <LABEL>gcp1</LABEL>" + LS +
-                "            <DESCRIPTION />" + LS +
-                "            <LATITUDE>0.0</LATITUDE>" + LS +
-                "            <LONGITUDE>0.0</LONGITUDE>" + LS +
-                "        </Placemark>" + LS +
-                "        <Placemark name=\"gcp2\">" + LS +
-                "            <LABEL>gcp2</LABEL>" + LS +
-                "            <DESCRIPTION>desc2</DESCRIPTION>" + LS +
-                "            <LATITUDE>4.0</LATITUDE>" + LS +
-                "            <LONGITUDE>8.0</LONGITUDE>" + LS +
-                "        </Placemark>" + LS +
-                "        <Placemark name=\"gcp3\">" + LS +
-                "            <LABEL>gcp3</LABEL>" + LS +
-                "            <DESCRIPTION />" + LS +
-                "            <LATITUDE>-23.1234</LATITUDE>" + LS +
-                "            <LONGITUDE>-80.543</LONGITUDE>" + LS +
-                "        </Placemark>" + LS +
-                "    </Gcp_Group>" + LS +
-                footer;
+                        rasterDimensions +
+                        "    <Gcp_Group>" + LS +
+                        "        <Placemark name=\"gcp1\">" + LS +
+                        "            <LABEL>gcp1</LABEL>" + LS +
+                        "            <DESCRIPTION />" + LS +
+                        "            <LATITUDE>0.0</LATITUDE>" + LS +
+                        "            <LONGITUDE>0.0</LONGITUDE>" + LS +
+                        "        </Placemark>" + LS +
+                        "        <Placemark name=\"gcp2\">" + LS +
+                        "            <LABEL>gcp2</LABEL>" + LS +
+                        "            <DESCRIPTION>desc2</DESCRIPTION>" + LS +
+                        "            <LATITUDE>4.0</LATITUDE>" + LS +
+                        "            <LONGITUDE>8.0</LONGITUDE>" + LS +
+                        "        </Placemark>" + LS +
+                        "        <Placemark name=\"gcp3\">" + LS +
+                        "            <LABEL>gcp3</LABEL>" + LS +
+                        "            <DESCRIPTION />" + LS +
+                        "            <LATITUDE>-23.1234</LATITUDE>" + LS +
+                        "            <LONGITUDE>-80.543</LONGITUDE>" + LS +
+                        "        </Placemark>" + LS +
+                        "    </Gcp_Group>" + LS +
+                        footer;
     }
 
     private void addBitmaskDefsToProduct() {
@@ -424,24 +423,24 @@ public class DimapHeaderWriterTest extends TestCase {
     private String getExpectedForWriteMasks() {
         return
                 header +
-                rasterDimensions +
-                "    <Masks>" + LS +
-                "        <Mask type=\"Maths\">" + LS +
-                "            <NAME value=\"bitmaskDef1\" />" + LS +
-                "            <DESCRIPTION value=\"description1\" />" + LS +
-                "            <COLOR red=\"0\" green=\"0\" blue=\"255\" alpha=\"255\" />" + LS +
-                "            <TRANSPARENCY value=\"0.75\" />" + LS +
-                "            <EXPRESSION value=\"!l1_flags.INVALID\" />" + LS +
-                "        </Mask>" + LS +
-                "        <Mask type=\"Maths\">" + LS +
-                "            <NAME value=\"bitmaskDef2\" />" + LS +
-                "            <DESCRIPTION value=\"description2\" />" + LS +
-                "            <COLOR red=\"0\" green=\"255\" blue=\"0\" alpha=\"255\" />" + LS +
-                "            <TRANSPARENCY value=\"0.5\" />" + LS +
-                "            <EXPRESSION value=\"l1_flags.LAND\" />" + LS +
-                "        </Mask>" + LS +
-                "    </Masks>" + LS +
-                footer;
+                        rasterDimensions +
+                        "    <Masks>" + LS +
+                        "        <Mask type=\"Maths\">" + LS +
+                        "            <NAME value=\"bitmaskDef1\" />" + LS +
+                        "            <DESCRIPTION value=\"description1\" />" + LS +
+                        "            <COLOR red=\"0\" green=\"0\" blue=\"255\" alpha=\"255\" />" + LS +
+                        "            <TRANSPARENCY value=\"0.75\" />" + LS +
+                        "            <EXPRESSION value=\"!l1_flags.INVALID\" />" + LS +
+                        "        </Mask>" + LS +
+                        "        <Mask type=\"Maths\">" + LS +
+                        "            <NAME value=\"bitmaskDef2\" />" + LS +
+                        "            <DESCRIPTION value=\"description2\" />" + LS +
+                        "            <COLOR red=\"0\" green=\"255\" blue=\"0\" alpha=\"255\" />" + LS +
+                        "            <TRANSPARENCY value=\"0.5\" />" + LS +
+                        "            <EXPRESSION value=\"l1_flags.LAND\" />" + LS +
+                        "        </Mask>" + LS +
+                        "    </Masks>" + LS +
+                        footer;
     }
 
     private String addMapGeocodingToProductAndGetExpected() {
@@ -486,89 +485,89 @@ public class DimapHeaderWriterTest extends TestCase {
         product.setGeoCoding(new MapGeoCoding(mapInfo));
 
         return header +
-               "    <Coordinate_Reference_System>" + LS +
-               "        <GEO_TABLES version=\"1.0\">CUSTOM</GEO_TABLES>" + LS +
-               "        <Horizontal_CS>" + LS +
-               "            <HORIZONTAL_CS_TYPE>PROJECTED</HORIZONTAL_CS_TYPE>" + LS +
-               "            <HORIZONTAL_CS_NAME>" + projectionName + "</HORIZONTAL_CS_NAME>" + LS +
-               "            <Geographic_CS>" + LS +
-               "                <GEOGRAPHIC_CS_NAME>" + projectionName + "</GEOGRAPHIC_CS_NAME>" + LS +
-               "                <Horizontal_Datum>" + LS +
-               "                    <HORIZONTAL_DATUM_NAME>" + datumName + "</HORIZONTAL_DATUM_NAME>" + LS +
-               "                    <Ellipsoid>" + LS +
-               "                        <ELLIPSOID_NAME>" + ellipsoidName + "</ELLIPSOID_NAME>" + LS +
-               "                        <Ellipsoid_Parameters>" + LS +
-               "                            <ELLIPSOID_MAJ_AXIS unit=\"meter\">" + semiMajor + "</ELLIPSOID_MAJ_AXIS>" + LS +
-               "                            <ELLIPSOID_MIN_AXIS unit=\"meter\">" + semiMinor + "</ELLIPSOID_MIN_AXIS>" + LS +
-               "                        </Ellipsoid_Parameters>" + LS +
-               "                    </Ellipsoid>" + LS +
-               "                </Horizontal_Datum>" + LS +
-               "            </Geographic_CS>" + LS +
-               "            <Projection>" + LS +
-               "                <NAME>" + projectionName + "</NAME>" + LS +
-               "                <Projection_CT_Method>" + LS +
-               "                    <PROJECTION_CT_NAME>" + typeId + "</PROJECTION_CT_NAME>" + LS +
-               "                    <Projection_Parameters>" + LS +
-               "                        <Projection_Parameter>" + LS +
-               "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[0] + "</PROJECTION_PARAMETER_NAME>" + LS +
-               "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[0] + "\">" + values[0] + "</PROJECTION_PARAMETER_VALUE>" + LS +
-               "                        </Projection_Parameter>" + LS +
-               "                        <Projection_Parameter>" + LS +
-               "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[1] + "</PROJECTION_PARAMETER_NAME>" + LS +
-               "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[1] + "\">" + values[1] + "</PROJECTION_PARAMETER_VALUE>" + LS +
-               "                        </Projection_Parameter>" + LS +
-               "                        <Projection_Parameter>" + LS +
-               "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[2] + "</PROJECTION_PARAMETER_NAME>" + LS +
-               "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[2] + "\">" + values[2] + "</PROJECTION_PARAMETER_VALUE>" + LS +
-               "                        </Projection_Parameter>" + LS +
-               "                        <Projection_Parameter>" + LS +
-               "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[3] + "</PROJECTION_PARAMETER_NAME>" + LS +
-               "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[3] + "\">" + values[3] + "</PROJECTION_PARAMETER_VALUE>" + LS +
-               "                        </Projection_Parameter>" + LS +
-               "                        <Projection_Parameter>" + LS +
-               "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[4] + "</PROJECTION_PARAMETER_NAME>" + LS +
-               "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[4] + "\">" + values[4] + "</PROJECTION_PARAMETER_VALUE>" + LS +
-               "                        </Projection_Parameter>" + LS +
-               "                        <Projection_Parameter>" + LS +
-               "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[5] + "</PROJECTION_PARAMETER_NAME>" + LS +
-               "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[5] + "\">" + values[5] + "</PROJECTION_PARAMETER_VALUE>" + LS +
-               "                        </Projection_Parameter>" + LS +
-               "                        <Projection_Parameter>" + LS +
-               "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[6] + "</PROJECTION_PARAMETER_NAME>" + LS +
-               "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[6] + "\">" + values[6] + "</PROJECTION_PARAMETER_VALUE>" + LS +
-               "                        </Projection_Parameter>" + LS +
-               "                    </Projection_Parameters>" + LS +
-               "                </Projection_CT_Method>" + LS +
-               "            </Projection>" + LS +
-               "            <MAP_INFO>" + LS +
-               "                <PIXEL_X value=\"" + pixelX + "\" />" + LS +
-               "                <PIXEL_Y value=\"" + pixelY + "\" />" + LS +
-               "                <EASTING value=\"" + easting + "\" />" + LS +
-               "                <NORTHING value=\"" + northing + "\" />" + LS +
-               "                <ORIENTATION value=\"" + orientation + "\" />" + LS +
-               "                <PIXELSIZE_X value=\"" + pixelSizeX + "\" />" + LS +
-               "                <PIXELSIZE_Y value=\"" + pixelSizeY + "\" />" + LS +
-               "                <NODATA_VALUE value=\"" + noDataValue + "\" />" + LS +
-               "                <MAPUNIT value=\"" + mapUnit + "\" />" + LS +
-               "                <ORTHORECTIFIED value=\"" + orthorectified + "\" />" + LS +
-               "                <ELEVATION_MODEL value=\"" + elevModelName + "\" />" + LS +
-               "                <SCENE_FITTED value=\"" + sceneFitted + "\" />" + LS +
-               "                <SCENE_WIDTH value=\"" + sceneWidth + "\" />" + LS +
-               "                <SCENE_HEIGHT value=\"" + sceneHeight + "\" />" + LS +
-               "                <RESAMPLING value=\"" + resampling.getName() + "\" />" + LS +
-               "            </MAP_INFO>" + LS +
-               "        </Horizontal_CS>" + LS +
-               "    </Coordinate_Reference_System>" + LS +
-               rasterDimensions +
-               footer;
+                "    <Coordinate_Reference_System>" + LS +
+                "        <GEO_TABLES version=\"1.0\">CUSTOM</GEO_TABLES>" + LS +
+                "        <Horizontal_CS>" + LS +
+                "            <HORIZONTAL_CS_TYPE>PROJECTED</HORIZONTAL_CS_TYPE>" + LS +
+                "            <HORIZONTAL_CS_NAME>" + projectionName + "</HORIZONTAL_CS_NAME>" + LS +
+                "            <Geographic_CS>" + LS +
+                "                <GEOGRAPHIC_CS_NAME>" + projectionName + "</GEOGRAPHIC_CS_NAME>" + LS +
+                "                <Horizontal_Datum>" + LS +
+                "                    <HORIZONTAL_DATUM_NAME>" + datumName + "</HORIZONTAL_DATUM_NAME>" + LS +
+                "                    <Ellipsoid>" + LS +
+                "                        <ELLIPSOID_NAME>" + ellipsoidName + "</ELLIPSOID_NAME>" + LS +
+                "                        <Ellipsoid_Parameters>" + LS +
+                "                            <ELLIPSOID_MAJ_AXIS unit=\"meter\">" + semiMajor + "</ELLIPSOID_MAJ_AXIS>" + LS +
+                "                            <ELLIPSOID_MIN_AXIS unit=\"meter\">" + semiMinor + "</ELLIPSOID_MIN_AXIS>" + LS +
+                "                        </Ellipsoid_Parameters>" + LS +
+                "                    </Ellipsoid>" + LS +
+                "                </Horizontal_Datum>" + LS +
+                "            </Geographic_CS>" + LS +
+                "            <Projection>" + LS +
+                "                <NAME>" + projectionName + "</NAME>" + LS +
+                "                <Projection_CT_Method>" + LS +
+                "                    <PROJECTION_CT_NAME>" + typeId + "</PROJECTION_CT_NAME>" + LS +
+                "                    <Projection_Parameters>" + LS +
+                "                        <Projection_Parameter>" + LS +
+                "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[0] + "</PROJECTION_PARAMETER_NAME>" + LS +
+                "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[0] + "\">" + values[0] + "</PROJECTION_PARAMETER_VALUE>" + LS +
+                "                        </Projection_Parameter>" + LS +
+                "                        <Projection_Parameter>" + LS +
+                "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[1] + "</PROJECTION_PARAMETER_NAME>" + LS +
+                "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[1] + "\">" + values[1] + "</PROJECTION_PARAMETER_VALUE>" + LS +
+                "                        </Projection_Parameter>" + LS +
+                "                        <Projection_Parameter>" + LS +
+                "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[2] + "</PROJECTION_PARAMETER_NAME>" + LS +
+                "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[2] + "\">" + values[2] + "</PROJECTION_PARAMETER_VALUE>" + LS +
+                "                        </Projection_Parameter>" + LS +
+                "                        <Projection_Parameter>" + LS +
+                "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[3] + "</PROJECTION_PARAMETER_NAME>" + LS +
+                "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[3] + "\">" + values[3] + "</PROJECTION_PARAMETER_VALUE>" + LS +
+                "                        </Projection_Parameter>" + LS +
+                "                        <Projection_Parameter>" + LS +
+                "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[4] + "</PROJECTION_PARAMETER_NAME>" + LS +
+                "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[4] + "\">" + values[4] + "</PROJECTION_PARAMETER_VALUE>" + LS +
+                "                        </Projection_Parameter>" + LS +
+                "                        <Projection_Parameter>" + LS +
+                "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[5] + "</PROJECTION_PARAMETER_NAME>" + LS +
+                "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[5] + "\">" + values[5] + "</PROJECTION_PARAMETER_VALUE>" + LS +
+                "                        </Projection_Parameter>" + LS +
+                "                        <Projection_Parameter>" + LS +
+                "                            <PROJECTION_PARAMETER_NAME>" + LambertConformalConicDescriptor.PARAMETER_NAMES[6] + "</PROJECTION_PARAMETER_NAME>" + LS +
+                "                            <PROJECTION_PARAMETER_VALUE unit=\"" + LambertConformalConicDescriptor.PARAMETER_UNITS[6] + "\">" + values[6] + "</PROJECTION_PARAMETER_VALUE>" + LS +
+                "                        </Projection_Parameter>" + LS +
+                "                    </Projection_Parameters>" + LS +
+                "                </Projection_CT_Method>" + LS +
+                "            </Projection>" + LS +
+                "            <MAP_INFO>" + LS +
+                "                <PIXEL_X value=\"" + pixelX + "\" />" + LS +
+                "                <PIXEL_Y value=\"" + pixelY + "\" />" + LS +
+                "                <EASTING value=\"" + easting + "\" />" + LS +
+                "                <NORTHING value=\"" + northing + "\" />" + LS +
+                "                <ORIENTATION value=\"" + orientation + "\" />" + LS +
+                "                <PIXELSIZE_X value=\"" + pixelSizeX + "\" />" + LS +
+                "                <PIXELSIZE_Y value=\"" + pixelSizeY + "\" />" + LS +
+                "                <NODATA_VALUE value=\"" + noDataValue + "\" />" + LS +
+                "                <MAPUNIT value=\"" + mapUnit + "\" />" + LS +
+                "                <ORTHORECTIFIED value=\"" + orthorectified + "\" />" + LS +
+                "                <ELEVATION_MODEL value=\"" + elevModelName + "\" />" + LS +
+                "                <SCENE_FITTED value=\"" + sceneFitted + "\" />" + LS +
+                "                <SCENE_WIDTH value=\"" + sceneWidth + "\" />" + LS +
+                "                <SCENE_HEIGHT value=\"" + sceneHeight + "\" />" + LS +
+                "                <RESAMPLING value=\"" + resampling.getName() + "\" />" + LS +
+                "            </MAP_INFO>" + LS +
+                "        </Horizontal_CS>" + LS +
+                "    </Coordinate_Reference_System>" + LS +
+                rasterDimensions +
+                footer;
     }
 
     private String setFXYGeoCodingAndGetExpected() {
         final String fxyGeoCoding = setFXYGeoCodingAndGetCore();
         return header +
-               fxyGeoCoding + LS +
-               rasterDimensions +
-               footer;
+                fxyGeoCoding + LS +
+                rasterDimensions +
+                footer;
     }
 
     private String setFXYGeoCodingAndGetCore() {
@@ -592,55 +591,55 @@ public class DimapHeaderWriterTest extends TestCase {
         product.setGeoCoding(geoCoding);
         final Ellipsoid ellipsoid = datum.getEllipsoid();
         return "    <Coordinate_Reference_System>" + LS +
-               "        <Horizontal_CS>" + LS +
-               "            <HORIZONTAL_CS_TYPE>GEOGRAPHIC</HORIZONTAL_CS_TYPE>" + LS +
-               "            <Geographic_CS>" + LS +
-               "                <Horizontal_Datum>" + LS +
-               "                    <HORIZONTAL_DATUM_NAME>" + datum.getName() + "</HORIZONTAL_DATUM_NAME>" + LS +
-               "                    <Ellipsoid>" + LS +
-               "                        <ELLIPSOID_NAME>" + ellipsoid.getName() + "</ELLIPSOID_NAME>" + LS +
-               "                        <Ellipsoid_Parameters>" + LS +
-               "                            <ELLIPSOID_MAJ_AXIS unit=\"M\">" + ellipsoid.getSemiMajor() + "</ELLIPSOID_MAJ_AXIS>" + LS +
-               "                            <ELLIPSOID_MIN_AXIS unit=\"M\">" + ellipsoid.getSemiMinor() + "</ELLIPSOID_MIN_AXIS>" + LS +
-               "                        </Ellipsoid_Parameters>" + LS +
-               "                    </Ellipsoid>" + LS +
-               "                </Horizontal_Datum>" + LS +
-               "            </Geographic_CS>" + LS +
-               "        </Horizontal_CS>" + LS +
-               "    </Coordinate_Reference_System>" + LS +
-               "    <Geoposition>" + LS +
-               "        <Geoposition_Insert>" + LS +
-               "            <ULXMAP>" + pixelOffsetX + "</ULXMAP>" + LS +
-               "            <ULYMAP>" + pixelOffsetY + "</ULYMAP>" + LS +
-               "            <XDIM>" + pixelSizeX + "</XDIM>" + LS +
-               "            <YDIM>" + pixelSizeY + "</YDIM>" + LS +
-               "        </Geoposition_Insert>" + LS +
-               "        <Simplified_Location_Model>" + LS +
-               "            <Direct_Location_Model order=\"" + lambdaFunction.getOrder() + "\">" + LS +
-               "                <lc_List>" + LS +
-               "                    <lc index=\"0\">" + lambdaCoefficients[0] + "</lc>" + LS +
-               "                    <lc index=\"1\">" + lambdaCoefficients[1] + "</lc>" + LS +
-               "                    <lc index=\"2\">" + lambdaCoefficients[2] + "</lc>" + LS +
-               "                </lc_List>" + LS +
-               "                <pc_List>" + LS +
-               "                    <pc index=\"0\">" + phiCoefficients[0] + "</pc>" + LS +
-               "                    <pc index=\"1\">" + phiCoefficients[1] + "</pc>" + LS +
-               "                    <pc index=\"2\">" + phiCoefficients[2] + "</pc>" + LS +
-               "                </pc_List>" + LS +
-               "            </Direct_Location_Model>" + LS +
-               "            <Reverse_Location_Model order=\"" + xFunction.getOrder() + "\">" + LS + "                <ic_List>" + LS +
-               "                    <ic index=\"0\">" + xCoefficients[0] + "</ic>" + LS +
-               "                    <ic index=\"1\">" + xCoefficients[1] + "</ic>" + LS +
-               "                    <ic index=\"2\">" + xCoefficients[2] + "</ic>" + LS +
-               "                </ic_List>" + LS +
-               "                <jc_List>" + LS +
-               "                    <jc index=\"0\">" + yCoefficients[0] + "</jc>" + LS +
-               "                    <jc index=\"1\">" + yCoefficients[1] + "</jc>" + LS +
-               "                    <jc index=\"2\">" + yCoefficients[2] + "</jc>" + LS +
-               "                </jc_List>" + LS +
-               "            </Reverse_Location_Model>" + LS +
-               "        </Simplified_Location_Model>" + LS +
-               "    </Geoposition>";
+                "        <Horizontal_CS>" + LS +
+                "            <HORIZONTAL_CS_TYPE>GEOGRAPHIC</HORIZONTAL_CS_TYPE>" + LS +
+                "            <Geographic_CS>" + LS +
+                "                <Horizontal_Datum>" + LS +
+                "                    <HORIZONTAL_DATUM_NAME>" + datum.getName() + "</HORIZONTAL_DATUM_NAME>" + LS +
+                "                    <Ellipsoid>" + LS +
+                "                        <ELLIPSOID_NAME>" + ellipsoid.getName() + "</ELLIPSOID_NAME>" + LS +
+                "                        <Ellipsoid_Parameters>" + LS +
+                "                            <ELLIPSOID_MAJ_AXIS unit=\"M\">" + ellipsoid.getSemiMajor() + "</ELLIPSOID_MAJ_AXIS>" + LS +
+                "                            <ELLIPSOID_MIN_AXIS unit=\"M\">" + ellipsoid.getSemiMinor() + "</ELLIPSOID_MIN_AXIS>" + LS +
+                "                        </Ellipsoid_Parameters>" + LS +
+                "                    </Ellipsoid>" + LS +
+                "                </Horizontal_Datum>" + LS +
+                "            </Geographic_CS>" + LS +
+                "        </Horizontal_CS>" + LS +
+                "    </Coordinate_Reference_System>" + LS +
+                "    <Geoposition>" + LS +
+                "        <Geoposition_Insert>" + LS +
+                "            <ULXMAP>" + pixelOffsetX + "</ULXMAP>" + LS +
+                "            <ULYMAP>" + pixelOffsetY + "</ULYMAP>" + LS +
+                "            <XDIM>" + pixelSizeX + "</XDIM>" + LS +
+                "            <YDIM>" + pixelSizeY + "</YDIM>" + LS +
+                "        </Geoposition_Insert>" + LS +
+                "        <Simplified_Location_Model>" + LS +
+                "            <Direct_Location_Model order=\"" + lambdaFunction.getOrder() + "\">" + LS +
+                "                <lc_List>" + LS +
+                "                    <lc index=\"0\">" + lambdaCoefficients[0] + "</lc>" + LS +
+                "                    <lc index=\"1\">" + lambdaCoefficients[1] + "</lc>" + LS +
+                "                    <lc index=\"2\">" + lambdaCoefficients[2] + "</lc>" + LS +
+                "                </lc_List>" + LS +
+                "                <pc_List>" + LS +
+                "                    <pc index=\"0\">" + phiCoefficients[0] + "</pc>" + LS +
+                "                    <pc index=\"1\">" + phiCoefficients[1] + "</pc>" + LS +
+                "                    <pc index=\"2\">" + phiCoefficients[2] + "</pc>" + LS +
+                "                </pc_List>" + LS +
+                "            </Direct_Location_Model>" + LS +
+                "            <Reverse_Location_Model order=\"" + xFunction.getOrder() + "\">" + LS + "                <ic_List>" + LS +
+                "                    <ic index=\"0\">" + xCoefficients[0] + "</ic>" + LS +
+                "                    <ic index=\"1\">" + xCoefficients[1] + "</ic>" + LS +
+                "                    <ic index=\"2\">" + xCoefficients[2] + "</ic>" + LS +
+                "                </ic_List>" + LS +
+                "                <jc_List>" + LS +
+                "                    <jc index=\"0\">" + yCoefficients[0] + "</jc>" + LS +
+                "                    <jc index=\"1\">" + yCoefficients[1] + "</jc>" + LS +
+                "                    <jc index=\"2\">" + yCoefficients[2] + "</jc>" + LS +
+                "                </jc_List>" + LS +
+                "            </Reverse_Location_Model>" + LS +
+                "        </Simplified_Location_Model>" + LS +
+                "    </Geoposition>";
     }
 
     private String setBandedFXYGeoCodingAndGetExpected() {
@@ -684,205 +683,205 @@ public class DimapHeaderWriterTest extends TestCase {
         band1.setGeoCoding(geoCoding1);
         band2.setGeoCoding(geoCoding2);
         return header +
-               "    <Coordinate_Reference_System>" + LS +
-               "        <Horizontal_CS>" + LS +
-               "            <HORIZONTAL_CS_TYPE>GEOGRAPHIC</HORIZONTAL_CS_TYPE>" + LS +
-               "            <Geographic_CS>" + LS +
-               "                <Horizontal_Datum>" + LS +
-               "                    <HORIZONTAL_DATUM_NAME>" + datum.getName() + "</HORIZONTAL_DATUM_NAME>" + LS +
-               "                    <Ellipsoid>" + LS +
-               "                        <ELLIPSOID_NAME>" + datum.getEllipsoid().getName() + "</ELLIPSOID_NAME>" + LS +
-               "                        <Ellipsoid_Parameters>" + LS +
-               "                            <ELLIPSOID_MAJ_AXIS unit=\"M\">" + datum.getEllipsoid().getSemiMajor() + "</ELLIPSOID_MAJ_AXIS>" + LS +
-               "                            <ELLIPSOID_MIN_AXIS unit=\"M\">" + datum.getEllipsoid().getSemiMinor() + "</ELLIPSOID_MIN_AXIS>" + LS +
-               "                        </Ellipsoid_Parameters>" + LS +
-               "                    </Ellipsoid>" + LS +
-               "                </Horizontal_Datum>" + LS +
-               "            </Geographic_CS>" + LS +
-               "        </Horizontal_CS>" + LS +
-               "    </Coordinate_Reference_System>" + LS +
-               "    <Geoposition>" + LS +
-               "        <BAND_INDEX>0</BAND_INDEX>" + LS +
-               "        <Geoposition_Insert>" + LS +
-               "            <ULXMAP>" + pixelOffsetX + "</ULXMAP>" + LS +
-               "            <ULYMAP>" + pixelOffsetY + "</ULYMAP>" + LS +
-               "            <XDIM>" + pixelSizeX + "</XDIM>" + LS +
-               "            <YDIM>" + pixelSizeY + "</YDIM>" + LS +
-               "        </Geoposition_Insert>" + LS +
-               "        <Simplified_Location_Model>" + LS +
-               "            <Direct_Location_Model order=\"" + geoCoding1.getPixelXFunction().getOrder() + "\">" + LS +
-               "                <lc_List>" + LS +
-               "                    <lc index=\"0\">" + lonCoefficients1[0] + "</lc>" + LS +
-               "                    <lc index=\"1\">" + lonCoefficients1[1] + "</lc>" + LS +
-               "                    <lc index=\"2\">" + lonCoefficients1[2] + "</lc>" + LS +
-               "                </lc_List>" + LS +
-               "                <pc_List>" + LS +
-               "                    <pc index=\"0\">" + latCoefficients1[0] + "</pc>" + LS +
-               "                    <pc index=\"1\">" + latCoefficients1[1] + "</pc>" + LS +
-               "                    <pc index=\"2\">" + latCoefficients1[2] + "</pc>" + LS +
-               "                </pc_List>" + LS +
-               "            </Direct_Location_Model>" + LS +
-               "            <Reverse_Location_Model order=\"" + geoCoding1.getLatFunction().getOrder() + "\">" + LS +
-               "                <ic_List>" + LS +
-               "                    <ic index=\"0\">" + xCoefficients1[0] + "</ic>" + LS +
-               "                    <ic index=\"1\">" + xCoefficients1[1] + "</ic>" + LS +
-               "                    <ic index=\"2\">" + xCoefficients1[2] + "</ic>" + LS +
-               "                </ic_List>" + LS +
-               "                <jc_List>" + LS +
-               "                    <jc index=\"0\">" + yCoefficients1[0] + "</jc>" + LS +
-               "                    <jc index=\"1\">" + yCoefficients1[1] + "</jc>" + LS +
-               "                    <jc index=\"2\">" + yCoefficients1[2] + "</jc>" + LS +
-               "                </jc_List>" + LS +
-               "            </Reverse_Location_Model>" + LS +
-               "        </Simplified_Location_Model>" + LS +
-               "    </Geoposition>" + LS +
-               "    <Geoposition>" + LS +
-               "        <BAND_INDEX>1</BAND_INDEX>" + LS +
-               "        <Geoposition_Insert>" + LS +
-               "            <ULXMAP>" + pixelOffsetX + "</ULXMAP>" + LS +
-               "            <ULYMAP>" + pixelOffsetY + "</ULYMAP>" + LS +
-               "            <XDIM>" + pixelSizeX + "</XDIM>" + LS +
-               "            <YDIM>" + pixelSizeY + "</YDIM>" + LS +
-               "        </Geoposition_Insert>" + LS +
-               "        <Simplified_Location_Model>" + LS +
-               "            <Direct_Location_Model order=\"" + geoCoding2.getPixelXFunction().getOrder() + "\">" + LS +
-               "                <lc_List>" + LS +
-               "                    <lc index=\"0\">" + lonCoefficients2[0] + "</lc>" + LS +
-               "                    <lc index=\"1\">" + lonCoefficients2[1] + "</lc>" + LS +
-               "                    <lc index=\"2\">" + lonCoefficients2[2] + "</lc>" + LS +
-               "                </lc_List>" + LS +
-               "                <pc_List>" + LS +
-               "                    <pc index=\"0\">" + latCoefficients2[0] + "</pc>" + LS +
-               "                    <pc index=\"1\">" + latCoefficients2[1] + "</pc>" + LS +
-               "                    <pc index=\"2\">" + latCoefficients2[2] + "</pc>" + LS +
-               "                </pc_List>" + LS +
-               "            </Direct_Location_Model>" + LS +
-               "            <Reverse_Location_Model order=\"" + geoCoding2.getLatFunction().getOrder() + "\">" + LS +
-               "                <ic_List>" + LS +
-               "                    <ic index=\"0\">" + xCoefficients2[0] + "</ic>" + LS +
-               "                    <ic index=\"1\">" + xCoefficients2[1] + "</ic>" + LS +
-               "                    <ic index=\"2\">" + xCoefficients2[2] + "</ic>" + LS +
-               "                </ic_List>" + LS +
-               "                <jc_List>" + LS +
-               "                    <jc index=\"0\">" + yCoefficients2[0] + "</jc>" + LS +
-               "                    <jc index=\"1\">" + yCoefficients2[1] + "</jc>" + LS +
-               "                    <jc index=\"2\">" + yCoefficients2[2] + "</jc>" + LS +
-               "                </jc_List>" + LS +
-               "            </Reverse_Location_Model>" + LS +
-               "        </Simplified_Location_Model>" + LS +
-               "    </Geoposition>" + LS +
-               "    <Geoposition>" + LS +
-               "        <BAND_INDEX>2</BAND_INDEX>" + LS +
-               "        <Geoposition_Insert>" + LS +
-               "            <ULXMAP>" + pixelOffsetX + "</ULXMAP>" + LS +
-               "            <ULYMAP>" + pixelOffsetY + "</ULYMAP>" + LS +
-               "            <XDIM>" + pixelSizeX + "</XDIM>" + LS +
-               "            <YDIM>" + pixelSizeY + "</YDIM>" + LS +
-               "        </Geoposition_Insert>" + LS +
-               "        <Simplified_Location_Model>" + LS +
-               "            <Direct_Location_Model order=\"" + geoCoding2.getPixelXFunction().getOrder() + "\">" + LS +
-               "                <lc_List>" + LS +
-               "                    <lc index=\"0\">" + lonCoefficients1[0] + "</lc>" + LS +
-               "                    <lc index=\"1\">" + lonCoefficients1[1] + "</lc>" + LS +
-               "                    <lc index=\"2\">" + lonCoefficients1[2] + "</lc>" + LS +
-               "                </lc_List>" + LS +
-               "                <pc_List>" + LS +
-               "                    <pc index=\"0\">" + latCoefficients1[0] + "</pc>" + LS +
-               "                    <pc index=\"1\">" + latCoefficients1[1] + "</pc>" + LS +
-               "                    <pc index=\"2\">" + latCoefficients1[2] + "</pc>" + LS +
-               "                </pc_List>" + LS +
-               "            </Direct_Location_Model>" + LS +
-               "            <Reverse_Location_Model order=\"" + geoCoding1.getLatFunction().getOrder() + "\">" + LS +
-               "                <ic_List>" + LS +
-               "                    <ic index=\"0\">" + xCoefficients1[0] + "</ic>" + LS +
-               "                    <ic index=\"1\">" + xCoefficients1[1] + "</ic>" + LS +
-               "                    <ic index=\"2\">" + xCoefficients1[2] + "</ic>" + LS +
-               "                </ic_List>" + LS +
-               "                <jc_List>" + LS +
-               "                    <jc index=\"0\">" + yCoefficients1[0] + "</jc>" + LS +
-               "                    <jc index=\"1\">" + yCoefficients1[1] + "</jc>" + LS +
-               "                    <jc index=\"2\">" + yCoefficients1[2] + "</jc>" + LS +
-               "                </jc_List>" + LS +
-               "            </Reverse_Location_Model>" + LS +
-               "        </Simplified_Location_Model>" + LS +
-               "    </Geoposition>" + LS +
-               "    <Geoposition>" + LS +
-               "        <BAND_INDEX>3</BAND_INDEX>" + LS +
-               "        <Geoposition_Insert>" + LS +
-               "            <ULXMAP>" + pixelOffsetX + "</ULXMAP>" + LS +
-               "            <ULYMAP>" + pixelOffsetY + "</ULYMAP>" + LS +
-               "            <XDIM>" + pixelSizeX + "</XDIM>" + LS +
-               "            <YDIM>" + pixelSizeY + "</YDIM>" + LS +
-               "        </Geoposition_Insert>" + LS +
-               "        <Simplified_Location_Model>" + LS +
-               "            <Direct_Location_Model order=\"" + geoCoding1.getPixelXFunction().getOrder() + "\">" + LS +
-               "                <lc_List>" + LS +
-               "                    <lc index=\"0\">" + lonCoefficients1[0] + "</lc>" + LS +
-               "                    <lc index=\"1\">" + lonCoefficients1[1] + "</lc>" + LS +
-               "                    <lc index=\"2\">" + lonCoefficients1[2] + "</lc>" + LS +
-               "                </lc_List>" + LS +
-               "                <pc_List>" + LS +
-               "                    <pc index=\"0\">" + latCoefficients1[0] + "</pc>" + LS +
-               "                    <pc index=\"1\">" + latCoefficients1[1] + "</pc>" + LS +
-               "                    <pc index=\"2\">" + latCoefficients1[2] + "</pc>" + LS +
-               "                </pc_List>" + LS +
-               "            </Direct_Location_Model>" + LS +
-               "            <Reverse_Location_Model order=\"" + geoCoding2.getLatFunction().getOrder() + "\">" + LS +
-               "                <ic_List>" + LS +
-               "                    <ic index=\"0\">" + xCoefficients1[0] + "</ic>" + LS +
-               "                    <ic index=\"1\">" + xCoefficients1[1] + "</ic>" + LS +
-               "                    <ic index=\"2\">" + xCoefficients1[2] + "</ic>" + LS +
-               "                </ic_List>" + LS +
-               "                <jc_List>" + LS +
-               "                    <jc index=\"0\">" + yCoefficients1[0] + "</jc>" + LS +
-               "                    <jc index=\"1\">" + yCoefficients1[1] + "</jc>" + LS +
-               "                    <jc index=\"2\">" + yCoefficients1[2] + "</jc>" + LS +
-               "                </jc_List>" + LS +
-               "            </Reverse_Location_Model>" + LS +
-               "        </Simplified_Location_Model>" + LS +
-               "    </Geoposition>" + LS +
-               "    <Geoposition>" + LS +
-               "        <BAND_INDEX>4</BAND_INDEX>" + LS +
-               "        <Geoposition_Insert>" + LS +
-               "            <ULXMAP>" + pixelOffsetX + "</ULXMAP>" + LS +
-               "            <ULYMAP>" + pixelOffsetY + "</ULYMAP>" + LS +
-               "            <XDIM>" + pixelSizeX + "</XDIM>" + LS +
-               "            <YDIM>" + pixelSizeY + "</YDIM>" + LS +
-               "        </Geoposition_Insert>" + LS +
-               "        <Simplified_Location_Model>" + LS +
-               "            <Direct_Location_Model order=\"" + geoCoding1.getPixelXFunction().getOrder() + "\">" + LS +
-               "                <lc_List>" + LS +
-               "                    <lc index=\"0\">" + lonCoefficients1[0] + "</lc>" + LS +
-               "                    <lc index=\"1\">" + lonCoefficients1[1] + "</lc>" + LS +
-               "                    <lc index=\"2\">" + lonCoefficients1[2] + "</lc>" + LS +
-               "                </lc_List>" + LS +
-               "                <pc_List>" + LS +
-               "                    <pc index=\"0\">" + latCoefficients1[0] + "</pc>" + LS +
-               "                    <pc index=\"1\">" + latCoefficients1[1] + "</pc>" + LS +
-               "                    <pc index=\"2\">" + latCoefficients1[2] + "</pc>" + LS +
-               "                </pc_List>" + LS +
-               "            </Direct_Location_Model>" + LS +
-               "            <Reverse_Location_Model order=\"" + geoCoding1.getLatFunction().getOrder() + "\">" + LS +
-               "                <ic_List>" + LS +
-               "                    <ic index=\"0\">" + xCoefficients1[0] + "</ic>" + LS +
-               "                    <ic index=\"1\">" + xCoefficients1[1] + "</ic>" + LS +
-               "                    <ic index=\"2\">" + xCoefficients1[2] + "</ic>" + LS +
-               "                </ic_List>" + LS +
-               "                <jc_List>" + LS +
-               "                    <jc index=\"0\">" + yCoefficients1[0] + "</jc>" + LS +
-               "                    <jc index=\"1\">" + yCoefficients1[1] + "</jc>" + LS +
-               "                    <jc index=\"2\">" + yCoefficients1[2] + "</jc>" + LS +
-               "                </jc_List>" + LS +
-               "            </Reverse_Location_Model>" + LS +
-               "        </Simplified_Location_Model>" + LS +
-               "    </Geoposition>" + LS +
-               "    <Raster_Dimensions>" + LS +
-               "        <NCOLS>200</NCOLS>" + LS +
-               "        <NROWS>300</NROWS>" + LS +
-               "        <NBANDS>5</NBANDS>" + LS +
-               "    </Raster_Dimensions>" + LS +
-               dataAccess +
-               footer;
+                "    <Coordinate_Reference_System>" + LS +
+                "        <Horizontal_CS>" + LS +
+                "            <HORIZONTAL_CS_TYPE>GEOGRAPHIC</HORIZONTAL_CS_TYPE>" + LS +
+                "            <Geographic_CS>" + LS +
+                "                <Horizontal_Datum>" + LS +
+                "                    <HORIZONTAL_DATUM_NAME>" + datum.getName() + "</HORIZONTAL_DATUM_NAME>" + LS +
+                "                    <Ellipsoid>" + LS +
+                "                        <ELLIPSOID_NAME>" + datum.getEllipsoid().getName() + "</ELLIPSOID_NAME>" + LS +
+                "                        <Ellipsoid_Parameters>" + LS +
+                "                            <ELLIPSOID_MAJ_AXIS unit=\"M\">" + datum.getEllipsoid().getSemiMajor() + "</ELLIPSOID_MAJ_AXIS>" + LS +
+                "                            <ELLIPSOID_MIN_AXIS unit=\"M\">" + datum.getEllipsoid().getSemiMinor() + "</ELLIPSOID_MIN_AXIS>" + LS +
+                "                        </Ellipsoid_Parameters>" + LS +
+                "                    </Ellipsoid>" + LS +
+                "                </Horizontal_Datum>" + LS +
+                "            </Geographic_CS>" + LS +
+                "        </Horizontal_CS>" + LS +
+                "    </Coordinate_Reference_System>" + LS +
+                "    <Geoposition>" + LS +
+                "        <BAND_INDEX>0</BAND_INDEX>" + LS +
+                "        <Geoposition_Insert>" + LS +
+                "            <ULXMAP>" + pixelOffsetX + "</ULXMAP>" + LS +
+                "            <ULYMAP>" + pixelOffsetY + "</ULYMAP>" + LS +
+                "            <XDIM>" + pixelSizeX + "</XDIM>" + LS +
+                "            <YDIM>" + pixelSizeY + "</YDIM>" + LS +
+                "        </Geoposition_Insert>" + LS +
+                "        <Simplified_Location_Model>" + LS +
+                "            <Direct_Location_Model order=\"" + geoCoding1.getPixelXFunction().getOrder() + "\">" + LS +
+                "                <lc_List>" + LS +
+                "                    <lc index=\"0\">" + lonCoefficients1[0] + "</lc>" + LS +
+                "                    <lc index=\"1\">" + lonCoefficients1[1] + "</lc>" + LS +
+                "                    <lc index=\"2\">" + lonCoefficients1[2] + "</lc>" + LS +
+                "                </lc_List>" + LS +
+                "                <pc_List>" + LS +
+                "                    <pc index=\"0\">" + latCoefficients1[0] + "</pc>" + LS +
+                "                    <pc index=\"1\">" + latCoefficients1[1] + "</pc>" + LS +
+                "                    <pc index=\"2\">" + latCoefficients1[2] + "</pc>" + LS +
+                "                </pc_List>" + LS +
+                "            </Direct_Location_Model>" + LS +
+                "            <Reverse_Location_Model order=\"" + geoCoding1.getLatFunction().getOrder() + "\">" + LS +
+                "                <ic_List>" + LS +
+                "                    <ic index=\"0\">" + xCoefficients1[0] + "</ic>" + LS +
+                "                    <ic index=\"1\">" + xCoefficients1[1] + "</ic>" + LS +
+                "                    <ic index=\"2\">" + xCoefficients1[2] + "</ic>" + LS +
+                "                </ic_List>" + LS +
+                "                <jc_List>" + LS +
+                "                    <jc index=\"0\">" + yCoefficients1[0] + "</jc>" + LS +
+                "                    <jc index=\"1\">" + yCoefficients1[1] + "</jc>" + LS +
+                "                    <jc index=\"2\">" + yCoefficients1[2] + "</jc>" + LS +
+                "                </jc_List>" + LS +
+                "            </Reverse_Location_Model>" + LS +
+                "        </Simplified_Location_Model>" + LS +
+                "    </Geoposition>" + LS +
+                "    <Geoposition>" + LS +
+                "        <BAND_INDEX>1</BAND_INDEX>" + LS +
+                "        <Geoposition_Insert>" + LS +
+                "            <ULXMAP>" + pixelOffsetX + "</ULXMAP>" + LS +
+                "            <ULYMAP>" + pixelOffsetY + "</ULYMAP>" + LS +
+                "            <XDIM>" + pixelSizeX + "</XDIM>" + LS +
+                "            <YDIM>" + pixelSizeY + "</YDIM>" + LS +
+                "        </Geoposition_Insert>" + LS +
+                "        <Simplified_Location_Model>" + LS +
+                "            <Direct_Location_Model order=\"" + geoCoding2.getPixelXFunction().getOrder() + "\">" + LS +
+                "                <lc_List>" + LS +
+                "                    <lc index=\"0\">" + lonCoefficients2[0] + "</lc>" + LS +
+                "                    <lc index=\"1\">" + lonCoefficients2[1] + "</lc>" + LS +
+                "                    <lc index=\"2\">" + lonCoefficients2[2] + "</lc>" + LS +
+                "                </lc_List>" + LS +
+                "                <pc_List>" + LS +
+                "                    <pc index=\"0\">" + latCoefficients2[0] + "</pc>" + LS +
+                "                    <pc index=\"1\">" + latCoefficients2[1] + "</pc>" + LS +
+                "                    <pc index=\"2\">" + latCoefficients2[2] + "</pc>" + LS +
+                "                </pc_List>" + LS +
+                "            </Direct_Location_Model>" + LS +
+                "            <Reverse_Location_Model order=\"" + geoCoding2.getLatFunction().getOrder() + "\">" + LS +
+                "                <ic_List>" + LS +
+                "                    <ic index=\"0\">" + xCoefficients2[0] + "</ic>" + LS +
+                "                    <ic index=\"1\">" + xCoefficients2[1] + "</ic>" + LS +
+                "                    <ic index=\"2\">" + xCoefficients2[2] + "</ic>" + LS +
+                "                </ic_List>" + LS +
+                "                <jc_List>" + LS +
+                "                    <jc index=\"0\">" + yCoefficients2[0] + "</jc>" + LS +
+                "                    <jc index=\"1\">" + yCoefficients2[1] + "</jc>" + LS +
+                "                    <jc index=\"2\">" + yCoefficients2[2] + "</jc>" + LS +
+                "                </jc_List>" + LS +
+                "            </Reverse_Location_Model>" + LS +
+                "        </Simplified_Location_Model>" + LS +
+                "    </Geoposition>" + LS +
+                "    <Geoposition>" + LS +
+                "        <BAND_INDEX>2</BAND_INDEX>" + LS +
+                "        <Geoposition_Insert>" + LS +
+                "            <ULXMAP>" + pixelOffsetX + "</ULXMAP>" + LS +
+                "            <ULYMAP>" + pixelOffsetY + "</ULYMAP>" + LS +
+                "            <XDIM>" + pixelSizeX + "</XDIM>" + LS +
+                "            <YDIM>" + pixelSizeY + "</YDIM>" + LS +
+                "        </Geoposition_Insert>" + LS +
+                "        <Simplified_Location_Model>" + LS +
+                "            <Direct_Location_Model order=\"" + geoCoding2.getPixelXFunction().getOrder() + "\">" + LS +
+                "                <lc_List>" + LS +
+                "                    <lc index=\"0\">" + lonCoefficients1[0] + "</lc>" + LS +
+                "                    <lc index=\"1\">" + lonCoefficients1[1] + "</lc>" + LS +
+                "                    <lc index=\"2\">" + lonCoefficients1[2] + "</lc>" + LS +
+                "                </lc_List>" + LS +
+                "                <pc_List>" + LS +
+                "                    <pc index=\"0\">" + latCoefficients1[0] + "</pc>" + LS +
+                "                    <pc index=\"1\">" + latCoefficients1[1] + "</pc>" + LS +
+                "                    <pc index=\"2\">" + latCoefficients1[2] + "</pc>" + LS +
+                "                </pc_List>" + LS +
+                "            </Direct_Location_Model>" + LS +
+                "            <Reverse_Location_Model order=\"" + geoCoding1.getLatFunction().getOrder() + "\">" + LS +
+                "                <ic_List>" + LS +
+                "                    <ic index=\"0\">" + xCoefficients1[0] + "</ic>" + LS +
+                "                    <ic index=\"1\">" + xCoefficients1[1] + "</ic>" + LS +
+                "                    <ic index=\"2\">" + xCoefficients1[2] + "</ic>" + LS +
+                "                </ic_List>" + LS +
+                "                <jc_List>" + LS +
+                "                    <jc index=\"0\">" + yCoefficients1[0] + "</jc>" + LS +
+                "                    <jc index=\"1\">" + yCoefficients1[1] + "</jc>" + LS +
+                "                    <jc index=\"2\">" + yCoefficients1[2] + "</jc>" + LS +
+                "                </jc_List>" + LS +
+                "            </Reverse_Location_Model>" + LS +
+                "        </Simplified_Location_Model>" + LS +
+                "    </Geoposition>" + LS +
+                "    <Geoposition>" + LS +
+                "        <BAND_INDEX>3</BAND_INDEX>" + LS +
+                "        <Geoposition_Insert>" + LS +
+                "            <ULXMAP>" + pixelOffsetX + "</ULXMAP>" + LS +
+                "            <ULYMAP>" + pixelOffsetY + "</ULYMAP>" + LS +
+                "            <XDIM>" + pixelSizeX + "</XDIM>" + LS +
+                "            <YDIM>" + pixelSizeY + "</YDIM>" + LS +
+                "        </Geoposition_Insert>" + LS +
+                "        <Simplified_Location_Model>" + LS +
+                "            <Direct_Location_Model order=\"" + geoCoding1.getPixelXFunction().getOrder() + "\">" + LS +
+                "                <lc_List>" + LS +
+                "                    <lc index=\"0\">" + lonCoefficients1[0] + "</lc>" + LS +
+                "                    <lc index=\"1\">" + lonCoefficients1[1] + "</lc>" + LS +
+                "                    <lc index=\"2\">" + lonCoefficients1[2] + "</lc>" + LS +
+                "                </lc_List>" + LS +
+                "                <pc_List>" + LS +
+                "                    <pc index=\"0\">" + latCoefficients1[0] + "</pc>" + LS +
+                "                    <pc index=\"1\">" + latCoefficients1[1] + "</pc>" + LS +
+                "                    <pc index=\"2\">" + latCoefficients1[2] + "</pc>" + LS +
+                "                </pc_List>" + LS +
+                "            </Direct_Location_Model>" + LS +
+                "            <Reverse_Location_Model order=\"" + geoCoding2.getLatFunction().getOrder() + "\">" + LS +
+                "                <ic_List>" + LS +
+                "                    <ic index=\"0\">" + xCoefficients1[0] + "</ic>" + LS +
+                "                    <ic index=\"1\">" + xCoefficients1[1] + "</ic>" + LS +
+                "                    <ic index=\"2\">" + xCoefficients1[2] + "</ic>" + LS +
+                "                </ic_List>" + LS +
+                "                <jc_List>" + LS +
+                "                    <jc index=\"0\">" + yCoefficients1[0] + "</jc>" + LS +
+                "                    <jc index=\"1\">" + yCoefficients1[1] + "</jc>" + LS +
+                "                    <jc index=\"2\">" + yCoefficients1[2] + "</jc>" + LS +
+                "                </jc_List>" + LS +
+                "            </Reverse_Location_Model>" + LS +
+                "        </Simplified_Location_Model>" + LS +
+                "    </Geoposition>" + LS +
+                "    <Geoposition>" + LS +
+                "        <BAND_INDEX>4</BAND_INDEX>" + LS +
+                "        <Geoposition_Insert>" + LS +
+                "            <ULXMAP>" + pixelOffsetX + "</ULXMAP>" + LS +
+                "            <ULYMAP>" + pixelOffsetY + "</ULYMAP>" + LS +
+                "            <XDIM>" + pixelSizeX + "</XDIM>" + LS +
+                "            <YDIM>" + pixelSizeY + "</YDIM>" + LS +
+                "        </Geoposition_Insert>" + LS +
+                "        <Simplified_Location_Model>" + LS +
+                "            <Direct_Location_Model order=\"" + geoCoding1.getPixelXFunction().getOrder() + "\">" + LS +
+                "                <lc_List>" + LS +
+                "                    <lc index=\"0\">" + lonCoefficients1[0] + "</lc>" + LS +
+                "                    <lc index=\"1\">" + lonCoefficients1[1] + "</lc>" + LS +
+                "                    <lc index=\"2\">" + lonCoefficients1[2] + "</lc>" + LS +
+                "                </lc_List>" + LS +
+                "                <pc_List>" + LS +
+                "                    <pc index=\"0\">" + latCoefficients1[0] + "</pc>" + LS +
+                "                    <pc index=\"1\">" + latCoefficients1[1] + "</pc>" + LS +
+                "                    <pc index=\"2\">" + latCoefficients1[2] + "</pc>" + LS +
+                "                </pc_List>" + LS +
+                "            </Direct_Location_Model>" + LS +
+                "            <Reverse_Location_Model order=\"" + geoCoding1.getLatFunction().getOrder() + "\">" + LS +
+                "                <ic_List>" + LS +
+                "                    <ic index=\"0\">" + xCoefficients1[0] + "</ic>" + LS +
+                "                    <ic index=\"1\">" + xCoefficients1[1] + "</ic>" + LS +
+                "                    <ic index=\"2\">" + xCoefficients1[2] + "</ic>" + LS +
+                "                </ic_List>" + LS +
+                "                <jc_List>" + LS +
+                "                    <jc index=\"0\">" + yCoefficients1[0] + "</jc>" + LS +
+                "                    <jc index=\"1\">" + yCoefficients1[1] + "</jc>" + LS +
+                "                    <jc index=\"2\">" + yCoefficients1[2] + "</jc>" + LS +
+                "                </jc_List>" + LS +
+                "            </Reverse_Location_Model>" + LS +
+                "        </Simplified_Location_Model>" + LS +
+                "    </Geoposition>" + LS +
+                "    <Raster_Dimensions>" + LS +
+                "        <NCOLS>200</NCOLS>" + LS +
+                "        <NROWS>300</NROWS>" + LS +
+                "        <NBANDS>5</NBANDS>" + LS +
+                "    </Raster_Dimensions>" + LS +
+                dataAccess +
+                footer;
     }
 
     private String setPixelGeoCodingAndGetExpected() throws IOException {
@@ -896,64 +895,64 @@ public class DimapHeaderWriterTest extends TestCase {
         final PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(b1, b2, "NOT NaN", 4);
         product.setGeoCoding(pixelGeoCoding);
         return header +
-               "    <Geoposition>" + LS +
-               "        <LATITUDE_BAND>" + pixelGeoCoding.getLatBand().getName() + "</LATITUDE_BAND>" + LS +
-               "        <LONGITUDE_BAND>" + pixelGeoCoding.getLonBand().getName() + "</LONGITUDE_BAND>" + LS +
-               "        <VALID_MASK_EXPRESSION>" + pixelGeoCoding.getValidMask() + "</VALID_MASK_EXPRESSION>" + LS +
-               "        <SEARCH_RADIUS>" + pixelGeoCoding.getSearchRadius() + "</SEARCH_RADIUS>" + LS +
-               "        <Pixel_Position_Estimator>" + LS +
-               "        " + pixelPosEstimator + LS +
-               "        </Pixel_Position_Estimator>" + LS +
-               "    </Geoposition>" + LS +
-               "    <Raster_Dimensions>" + LS +
-               "        <NCOLS>200</NCOLS>" + LS +
-               "        <NROWS>300</NROWS>" + LS +
-               "        <NBANDS>2</NBANDS>" + LS +
-               "    </Raster_Dimensions>" + LS +
-               "    <Data_Access>" + LS +
-               "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
-               "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
-               "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
-               "        <Data_File>" + LS +
-               "            <DATA_FILE_PATH href=\"test.data/b1.hdr\" />" + LS +
-               "            <BAND_INDEX>0</BAND_INDEX>" + LS +
-               "        </Data_File>" + LS +
-               "        <Data_File>" + LS +
-               "            <DATA_FILE_PATH href=\"test.data/b2.hdr\" />" + LS +
-               "            <BAND_INDEX>1</BAND_INDEX>" + LS +
-               "        </Data_File>" + LS +
-               "    </Data_Access>" + LS +
-               "    <Image_Interpretation>" + LS +
-               "        <Spectral_Band_Info>" + LS +
-               "            <BAND_INDEX>0</BAND_INDEX>" + LS +
-               "            <BAND_DESCRIPTION />" + LS +
-               "            <BAND_NAME>b1</BAND_NAME>" + LS +
-               "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
-               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-               "        </Spectral_Band_Info>" + LS +
-               "        <Spectral_Band_Info>" + LS +
-               "            <BAND_INDEX>1</BAND_INDEX>" + LS +
-               "            <BAND_DESCRIPTION />" + LS +
-               "            <BAND_NAME>b2</BAND_NAME>" + LS +
-               "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
-               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-               "        </Spectral_Band_Info>" + LS +
-               "    </Image_Interpretation>" + LS +
-               footer;
+                "    <Geoposition>" + LS +
+                "        <LATITUDE_BAND>" + pixelGeoCoding.getLatBand().getName() + "</LATITUDE_BAND>" + LS +
+                "        <LONGITUDE_BAND>" + pixelGeoCoding.getLonBand().getName() + "</LONGITUDE_BAND>" + LS +
+                "        <VALID_MASK_EXPRESSION>" + pixelGeoCoding.getValidMask() + "</VALID_MASK_EXPRESSION>" + LS +
+                "        <SEARCH_RADIUS>" + pixelGeoCoding.getSearchRadius() + "</SEARCH_RADIUS>" + LS +
+                "        <Pixel_Position_Estimator>" + LS +
+                "        " + pixelPosEstimator + LS +
+                "        </Pixel_Position_Estimator>" + LS +
+                "    </Geoposition>" + LS +
+                "    <Raster_Dimensions>" + LS +
+                "        <NCOLS>200</NCOLS>" + LS +
+                "        <NROWS>300</NROWS>" + LS +
+                "        <NBANDS>2</NBANDS>" + LS +
+                "    </Raster_Dimensions>" + LS +
+                "    <Data_Access>" + LS +
+                "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
+                "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
+                "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
+                "        <Data_File>" + LS +
+                "            <DATA_FILE_PATH href=\"test.data/b1.hdr\" />" + LS +
+                "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+                "        </Data_File>" + LS +
+                "        <Data_File>" + LS +
+                "            <DATA_FILE_PATH href=\"test.data/b2.hdr\" />" + LS +
+                "            <BAND_INDEX>1</BAND_INDEX>" + LS +
+                "        </Data_File>" + LS +
+                "    </Data_Access>" + LS +
+                "    <Image_Interpretation>" + LS +
+                "        <Spectral_Band_Info>" + LS +
+                "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+                "            <BAND_DESCRIPTION />" + LS +
+                "            <BAND_NAME>b1</BAND_NAME>" + LS +
+                "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+                "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+                "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+                "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+                "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+                "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+                "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+                "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+                "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+                "        </Spectral_Band_Info>" + LS +
+                "        <Spectral_Band_Info>" + LS +
+                "            <BAND_INDEX>1</BAND_INDEX>" + LS +
+                "            <BAND_DESCRIPTION />" + LS +
+                "            <BAND_NAME>b2</BAND_NAME>" + LS +
+                "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+                "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+                "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+                "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+                "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+                "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+                "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+                "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+                "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+                "        </Spectral_Band_Info>" + LS +
+                "    </Image_Interpretation>" + LS +
+                footer;
     }
 
     private String setPixelGeoCodingWithoutEstimatorAndGetExpected() throws IOException {
@@ -966,93 +965,93 @@ public class DimapHeaderWriterTest extends TestCase {
         final PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(b1, b2, null, 4, ProgressMonitor.NULL);
         product.setGeoCoding(pixelGeoCoding);
         return header +
-               "    <Geoposition>" + LS +
-               "        <LATITUDE_BAND>" + pixelGeoCoding.getLatBand().getName() + "</LATITUDE_BAND>" + LS +
-               "        <LONGITUDE_BAND>" + pixelGeoCoding.getLonBand().getName() + "</LONGITUDE_BAND>" + LS +
-               "        <SEARCH_RADIUS>" + pixelGeoCoding.getSearchRadius() + "</SEARCH_RADIUS>" + LS +
-               "    </Geoposition>" + LS +
-               "    <Raster_Dimensions>" + LS +
-               "        <NCOLS>200</NCOLS>" + LS +
-               "        <NROWS>300</NROWS>" + LS +
-               "        <NBANDS>2</NBANDS>" + LS +
-               "    </Raster_Dimensions>" + LS +
-               "    <Data_Access>" + LS +
-               "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
-               "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
-               "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
-               "        <Data_File>" + LS +
-               "            <DATA_FILE_PATH href=\"test.data/b1.hdr\" />" + LS +
-               "            <BAND_INDEX>0</BAND_INDEX>" + LS +
-               "        </Data_File>" + LS +
-               "        <Data_File>" + LS +
-               "            <DATA_FILE_PATH href=\"test.data/b2.hdr\" />" + LS +
-               "            <BAND_INDEX>1</BAND_INDEX>" + LS +
-               "        </Data_File>" + LS +
-               "    </Data_Access>" + LS +
-               "    <Image_Interpretation>" + LS +
-               "        <Spectral_Band_Info>" + LS +
-               "            <BAND_INDEX>0</BAND_INDEX>" + LS +
-               "            <BAND_DESCRIPTION />" + LS +
-               "            <BAND_NAME>b1</BAND_NAME>" + LS +
-               "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
-               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-               "        </Spectral_Band_Info>" + LS +
-               "        <Spectral_Band_Info>" + LS +
-               "            <BAND_INDEX>1</BAND_INDEX>" + LS +
-               "            <BAND_DESCRIPTION />" + LS +
-               "            <BAND_NAME>b2</BAND_NAME>" + LS +
-               "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
-               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-               "        </Spectral_Band_Info>" + LS +
-               "    </Image_Interpretation>" + LS +
-               footer;
+                "    <Geoposition>" + LS +
+                "        <LATITUDE_BAND>" + pixelGeoCoding.getLatBand().getName() + "</LATITUDE_BAND>" + LS +
+                "        <LONGITUDE_BAND>" + pixelGeoCoding.getLonBand().getName() + "</LONGITUDE_BAND>" + LS +
+                "        <SEARCH_RADIUS>" + pixelGeoCoding.getSearchRadius() + "</SEARCH_RADIUS>" + LS +
+                "    </Geoposition>" + LS +
+                "    <Raster_Dimensions>" + LS +
+                "        <NCOLS>200</NCOLS>" + LS +
+                "        <NROWS>300</NROWS>" + LS +
+                "        <NBANDS>2</NBANDS>" + LS +
+                "    </Raster_Dimensions>" + LS +
+                "    <Data_Access>" + LS +
+                "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
+                "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
+                "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
+                "        <Data_File>" + LS +
+                "            <DATA_FILE_PATH href=\"test.data/b1.hdr\" />" + LS +
+                "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+                "        </Data_File>" + LS +
+                "        <Data_File>" + LS +
+                "            <DATA_FILE_PATH href=\"test.data/b2.hdr\" />" + LS +
+                "            <BAND_INDEX>1</BAND_INDEX>" + LS +
+                "        </Data_File>" + LS +
+                "    </Data_Access>" + LS +
+                "    <Image_Interpretation>" + LS +
+                "        <Spectral_Band_Info>" + LS +
+                "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+                "            <BAND_DESCRIPTION />" + LS +
+                "            <BAND_NAME>b1</BAND_NAME>" + LS +
+                "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+                "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+                "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+                "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+                "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+                "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+                "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+                "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+                "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+                "        </Spectral_Band_Info>" + LS +
+                "        <Spectral_Band_Info>" + LS +
+                "            <BAND_INDEX>1</BAND_INDEX>" + LS +
+                "            <BAND_DESCRIPTION />" + LS +
+                "            <BAND_NAME>b2</BAND_NAME>" + LS +
+                "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+                "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+                "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+                "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+                "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+                "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+                "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+                "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+                "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+                "        </Spectral_Band_Info>" + LS +
+                "    </Image_Interpretation>" + LS +
+                footer;
     }
 
     private String setCrsGeoCodingAndGetExpected() throws Exception {
 
         final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(),
-                                                                      product.getSceneRasterHeight());
+                                                    product.getSceneRasterHeight());
         final AffineTransform i2m = new AffineTransform(0.12, 1.23, 2.34, 3.45, 4.56, 5.67);
         final CoordinateReferenceSystem crs = CRS.decode("EPSG:4326");
         final CrsGeoCoding crsGeoCoding = new CrsGeoCoding(crs, imageBounds, i2m);
         product.setGeoCoding(crsGeoCoding);
         return header +
-               "    <Coordinate_Reference_System>" + LS +
-               "        <WKT>" + LS +
-               "             GEOGCS[\"WGS 84\", "  + LS +
-               "               DATUM[\"World Geodetic System 1984\", "  + LS +
-               "                 SPHEROID[\"WGS 84\", 6378137.0, 298.257223563, AUTHORITY[\"EPSG\",\"7030\"]], "  + LS +
-               "                 AUTHORITY[\"EPSG\",\"6326\"]], "  + LS +
-               "               PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]], "  + LS +
-               "               UNIT[\"degree\", 0.017453292519943295], "  + LS +
-               "               AXIS[\"Geodetic latitude\", NORTH], "  + LS +
-               "               AXIS[\"Geodetic longitude\", EAST], "  + LS +
-               "               AUTHORITY[\"EPSG\",\"4326\"]]"+ LS +
-               "        </WKT>" + LS +
-               "    </Coordinate_Reference_System>" + LS +
-               "    <Geoposition>" + LS +
-               "        <IMAGE_TO_MODEL_TRANSFORM>0.12,1.23,2.34,3.45,4.56,5.67</IMAGE_TO_MODEL_TRANSFORM>" + LS +
-               "    </Geoposition>" + LS +
-               "    <Raster_Dimensions>" + LS +
-               "        <NCOLS>200</NCOLS>" + LS +
-               "        <NROWS>300</NROWS>" + LS +
-               "        <NBANDS>0</NBANDS>" + LS +
-               "    </Raster_Dimensions>" + LS +
-               footer;
+                "    <Coordinate_Reference_System>" + LS +
+                "        <WKT>" + LS +
+                "             GEOGCS[\"WGS 84\", " + LS +
+                "               DATUM[\"World Geodetic System 1984\", " + LS +
+                "                 SPHEROID[\"WGS 84\", 6378137.0, 298.257223563, AUTHORITY[\"EPSG\",\"7030\"]], " + LS +
+                "                 AUTHORITY[\"EPSG\",\"6326\"]], " + LS +
+                "               PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]], " + LS +
+                "               UNIT[\"degree\", 0.017453292519943295], " + LS +
+                "               AXIS[\"Geodetic latitude\", NORTH], " + LS +
+                "               AXIS[\"Geodetic longitude\", EAST], " + LS +
+                "               AUTHORITY[\"EPSG\",\"4326\"]]" + LS +
+                "        </WKT>" + LS +
+                "    </Coordinate_Reference_System>" + LS +
+                "    <Geoposition>" + LS +
+                "        <IMAGE_TO_MODEL_TRANSFORM>0.12,1.23,2.34,3.45,4.56,5.67</IMAGE_TO_MODEL_TRANSFORM>" + LS +
+                "    </Geoposition>" + LS +
+                "    <Raster_Dimensions>" + LS +
+                "        <NCOLS>200</NCOLS>" + LS +
+                "        <NROWS>300</NROWS>" + LS +
+                "        <NBANDS>0</NBANDS>" + LS +
+                "    </Raster_Dimensions>" + LS +
+                footer;
     }
 
 }

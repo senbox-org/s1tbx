@@ -43,7 +43,7 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -225,7 +225,6 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
      * @param destHeight  the height of region to be readBandRasterDataImpl given in the band's raster co-ordinates
      * @param destBuffer  the destination buffer which receives the sample values to be readBandRasterDataImpl
      * @param pm          a monitor to inform the user about progress
-     *
      * @throws IOException              if an I/O error occurs
      * @throws IllegalArgumentException if the number of elements destination buffer not equals <code>destWidth *
      *                                  destHeight</code> or the destination region is out of the band's raster
@@ -440,9 +439,9 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         ProductUtils.copyMasks(getSourceProduct(), product);
         ProductUtils.copyOverlayMasks(getSourceProduct(), product);
         copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(),
-                       PinDescriptor.INSTANCE);
+                       PinDescriptor.getInstance());
         copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(),
-                       GcpDescriptor.INSTANCE);
+                       GcpDescriptor.getInstance());
         // TODO - TESTTESTTEST (nf)
         product.setPreferredTileSize(64, 64);
         return product;
@@ -453,8 +452,8 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         final Placemark[] placemarks = sourcePlacemarkGroup.toArray(new Placemark[0]);
         for (Placemark placemark : placemarks) {
             final Placemark placemark1 = new Placemark(placemark.getName(), placemark.getLabel(),
-                                     placemark.getDescription(), null, placemark.getGeoPos(),
-                                     descriptor, targetPlacemarkGroup.getProduct().getGeoCoding());
+                                                       placemark.getDescription(), null, placemark.getGeoPos(),
+                                                       descriptor, targetPlacemarkGroup.getProduct().getGeoCoding());
             targetPlacemarkGroup.add(placemark1);
         }
     }
@@ -602,9 +601,9 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                         int destWidth,
                                         int destHeight) {
             return getDestOffsetX() == destOffsetX &&
-                   getDestOffsetY() == destOffsetY &&
-                   getDestWidth() == destWidth &&
-                   getDestHeight() == destHeight;
+                    getDestOffsetY() == destOffsetY &&
+                    getDestWidth() == destWidth &&
+                    getDestHeight() == destHeight;
         }
 
         public void initSourcePixelCoords(int blockIndex,

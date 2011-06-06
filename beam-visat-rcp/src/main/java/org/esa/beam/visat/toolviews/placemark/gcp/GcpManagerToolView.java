@@ -29,7 +29,7 @@ import org.esa.beam.visat.toolviews.placemark.PlacemarkManagerToolView;
 import org.esa.beam.visat.toolviews.placemark.TableModelFactory;
 
 import javax.swing.table.TableColumnModel;
-import java.awt.Component;
+import java.awt.*;
 import java.text.DecimalFormat;
 
 /**
@@ -42,7 +42,7 @@ public class GcpManagerToolView extends PlacemarkManagerToolView {
     private final ProductNodeListenerAdapter geoCodinglistener;
 
     public GcpManagerToolView() {
-        super(GcpDescriptor.INSTANCE, new TableModelFactory() {
+        super(GcpDescriptor.getInstance(), new TableModelFactory() {
             @Override
             public AbstractPlacemarkTableModel createTableModel(PlacemarkDescriptor placemarkDescriptor,
                                                                 Product product,

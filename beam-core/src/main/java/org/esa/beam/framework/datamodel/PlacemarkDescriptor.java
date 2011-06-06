@@ -16,26 +16,45 @@
 
 package org.esa.beam.framework.datamodel;
 
-import java.awt.Image;
-import java.awt.Point;
+import org.opengis.feature.simple.SimpleFeature;
 
+import java.awt.*;
+
+/**
+ * Placemark descriptors are used to describe and create {@link Placemark}s.
+ * <p/>
+ * New placemark descriptors can be added by using the Service Provider Interface
+ * {@code META-INF/services/org.esa.beam.framework.datamodel.PlacemarkDescriptor}.
+ * <p/>
+ * Since this interface is likely to change, clients should not directly implement it.
+ * Instead they should derive their implementation from {@link AbstractPlacemarkDescriptor}.
+ *
+ * @author Norman Fomferra
+ * @version 2.0
+ * @since BEAM 2.0 (full revision since BEAM 4.10)
+ */
 public interface PlacemarkDescriptor {
 
-    String getShowLayerCommandId();
+    Placemark createPlacemark(SimpleFeature feature);
 
     String getRoleName();
 
     String getRoleLabel();
 
-    Image getCursorImage();
-
     PlacemarkGroup getPlacemarkGroup(Product product);
-
-    PlacemarkSymbol createDefaultSymbol();
 
     PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos);
 
     GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos);
 
+    // GUI-related stuff
+
+    String getShowLayerCommandId();
+
+    PlacemarkSymbol createDefaultSymbol();
+
+    Image getCursorImage();
+
     Point getCursorHotSpot();
+
 }

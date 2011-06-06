@@ -16,14 +16,18 @@
 
 package org.esa.beam.framework.datamodel;
 
-import java.awt.Image;
-import java.awt.Point;
+import java.awt.*;
 
-public class PinDescriptor implements PlacemarkDescriptor {
+public class PinDescriptor extends AbstractPlacemarkDescriptor {
 
-    public static final PinDescriptor INSTANCE = new PinDescriptor();
+    /**
+     * @deprecated since BEAM 4.10, use {@link #getInstance()} instead
+     */
+    @Deprecated
+    public static final PinDescriptor INSTANCE = getInstance();
 
-    private PinDescriptor() {
+    public static PinDescriptor getInstance() {
+        return (PinDescriptor) PlacemarkDescriptorRegistry.getServiceRegistry().getService(PinDescriptor.class.getName());
     }
 
     @Override

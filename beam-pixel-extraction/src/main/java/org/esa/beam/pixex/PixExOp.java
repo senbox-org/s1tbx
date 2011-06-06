@@ -56,7 +56,7 @@ import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
@@ -107,7 +107,7 @@ public class PixExOp extends Operator implements Output {
 
     @Parameter(
             description = "The paths to be scanned for input products. May point to a single file or a directory.\n" +
-                          "If path ends with '**' the directory is scanned recursively.")
+                    "If path ends with '**' the directory is scanned recursively.")
     private File[] inputPaths;
 
     @Parameter(description = "Specifies if bands are to be exported", defaultValue = "true")
@@ -123,7 +123,7 @@ public class PixExOp extends Operator implements Output {
     private Coordinate[] coordinates;
 
     @Parameter(description = "The acceptable time difference compared to the time given for a coordinate.\n" +
-                             "The format is a number followed by (D)ay, (H)our or (M)inute.",
+            "The format is a number followed by (D)ay, (H)our or (M)inute.",
                defaultValue = "1D")
     private String timeDifference;
 
@@ -145,7 +145,7 @@ public class PixExOp extends Operator implements Output {
     private String expression;
 
     @Parameter(description = "If true, the expression result is exported per pixel, otherwise the expression \n" +
-                             "is used as filter (all pixels in given window must be valid).",
+            "is used as filter (all pixels in given window must be valid).",
                defaultValue = "true")
     private Boolean exportExpressionResult;
 
@@ -157,7 +157,7 @@ public class PixExOp extends Operator implements Output {
     private int subSceneBorderSize;
 
     @Parameter(description = "If set to true, a Google KMZ file will be created, which contains the coordinates " +
-                             "where pixels are found.",
+            "where pixels are found.",
                defaultValue = "false")
     private boolean exportKmz;
 
@@ -377,7 +377,7 @@ public class PixExOp extends Operator implements Output {
             fileReader = new FileReader(coordinatesFile);
             final List<Placemark> pins = PlacemarkIO.readPlacemarks(fileReader,
                                                                     null, // no GeoCoding needed
-                                                                    PinDescriptor.INSTANCE);
+                                                                    PinDescriptor.getInstance());
             for (Placemark pin : pins) {
                 final GeoPos geoPos = pin.getGeoPos();
                 if (geoPos != null) {

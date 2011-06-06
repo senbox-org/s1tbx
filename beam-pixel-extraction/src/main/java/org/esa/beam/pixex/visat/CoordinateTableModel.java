@@ -25,7 +25,7 @@ import java.util.Date;
 class CoordinateTableModel extends AbstractPlacemarkTableModel {
 
     CoordinateTableModel() {
-        super(PinDescriptor.INSTANCE, null, null, null);
+        super(PinDescriptor.getInstance(), null, null, null);
     }
 
     @Override

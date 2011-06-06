@@ -66,9 +66,7 @@ import javax.imageio.stream.ImageInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
@@ -233,7 +231,6 @@ public class GeoTiffProductReader extends AbstractProductReader {
      *
      * @param product   the Product
      * @param inputFile the source tiff file
-     *
      * @throws IOException in case of an IO error
      */
     @SuppressWarnings({"UnusedDeclaration"})
@@ -261,7 +258,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
     }
 
     private void addBandsToProduct(TiffFileInfo tiffInfo, Product product) throws
-                                                                           IOException {
+            IOException {
         final ImageReadParam readParam = imageReader.getDefaultReadParam();
         TIFFRenderedImage baseImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(FIRST_IMAGE, readParam);
         SampleModel sampleModel = baseImage.getSampleModel();
@@ -321,7 +318,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
             if (canCreateTiePointGeoCoding(tiePoints)) {
                 applyTiePointGeoCoding(info, tiePoints, product);
-            } else if(canCreateGcpGeoCoding(tiePoints)){
+            } else if (canCreateGcpGeoCoding(tiePoints)) {
                 applyGcpGeoCoding(info, tiePoints, product);
             }
         }
@@ -472,7 +469,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         final int width = product.getSceneRasterWidth();
         final int height = product.getSceneRasterHeight();
 
-        final GcpDescriptor gcpDescriptor = GcpDescriptor.INSTANCE;
+        final GcpDescriptor gcpDescriptor = GcpDescriptor.getInstance();
         final ProductNodeGroup<Placemark> gcpGroup = product.getGcpGroup();
         for (int i = 0; i < numTiePoints; i++) {
             final int offset = i * 6;

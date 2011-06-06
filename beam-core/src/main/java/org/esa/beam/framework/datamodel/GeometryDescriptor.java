@@ -1,14 +1,15 @@
 package org.esa.beam.framework.datamodel;
 
-import java.awt.Image;
-import java.awt.Point;
+import java.awt.*;
 
 /**
-* todo - add api doc
-*
-* @author Norman Fomferra
-*/
-class DefaultPlacemarkDescriptor implements PlacemarkDescriptor {
+ * A {@link PlacemarkDescriptor} that is used to describe placemarks comprising plain geometries.
+ *
+ * @author Norman Fomferra
+ * @since BEAM 4.10
+ */
+public class GeometryDescriptor extends AbstractPlacemarkDescriptor {
+
     @Override
     public String getShowLayerCommandId() {
         return null;

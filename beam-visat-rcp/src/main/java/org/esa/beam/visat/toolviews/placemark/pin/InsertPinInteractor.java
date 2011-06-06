@@ -25,6 +25,6 @@ import org.esa.beam.visat.toolviews.placemark.InsertPlacemarkInteractor;
 public class InsertPinInteractor extends InsertPlacemarkInteractor {
 
     public InsertPinInteractor() {
-        super(PinDescriptor.INSTANCE);
+        super(PinDescriptor.getInstance());
     }
 }

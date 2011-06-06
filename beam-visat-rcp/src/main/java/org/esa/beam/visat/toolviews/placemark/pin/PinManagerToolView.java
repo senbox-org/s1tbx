@@ -31,7 +31,7 @@ public class PinManagerToolView extends PlacemarkManagerToolView {
     public static final String ID = PinManagerToolView.class.getName();
 
     public PinManagerToolView() {
-        super(PinDescriptor.INSTANCE, new TableModelFactory() {
+        super(PinDescriptor.getInstance(), new TableModelFactory() {
             @Override
             public PinTableModel createTableModel(PlacemarkDescriptor placemarkDescriptor, Product product,
                                                   Band[] selectedBands, TiePointGrid[] selectedGrids) {

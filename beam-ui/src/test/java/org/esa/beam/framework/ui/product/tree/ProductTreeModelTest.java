@@ -44,7 +44,7 @@ public class ProductTreeModelTest {
 
     @Test
     public void testAutoGrouping() {
-        
+
         final Product product = new Product("A", "B", 10, 10);
         product.addBand("chl_20100412T152322", ProductData.TYPE_FLOAT32);
         product.addBand("chl_20100412T152443", ProductData.TYPE_FLOAT32);
@@ -153,7 +153,7 @@ public class ProductTreeModelTest {
         final Object bandGroup = treeModel.getChild(productTN, 0);
         assertNotNull(bandGroup);
         assertEquals(1, treeModel.getChildCount(bandGroup));
-        assertSame(band1, ((ProductNodeTN)treeModel.getChild(bandGroup, 0)).getProductNode());
+        assertSame(band1, ((ProductNodeTN) treeModel.getChild(bandGroup, 0)).getProductNode());
 
         product.addBand("b2", ProductData.TYPE_INT8);
         assertEquals(2, treeModel.getChildCount(bandGroup));
@@ -161,12 +161,12 @@ public class ProductTreeModelTest {
         product.removeBand(product.getBand("b1"));
         assertEquals(0, treeModel.getChildCount(productTN));
     }
-    
+
 
     private Placemark createDummyPin(String name) {
         return new Placemark(name, "", "",
                              new PixelPos(0.5f, 0.5f), null,
-                             PinDescriptor.INSTANCE, null);
+                             PinDescriptor.getInstance(), null);
     }
 
     private Product createDummyProduct(String name) {

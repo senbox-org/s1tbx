@@ -30,7 +30,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 
 import javax.swing.table.TableModel;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class MaskFormTest extends TestCase {
@@ -68,7 +68,7 @@ public class MaskFormTest extends TestCase {
         final PlacemarkGroup gcpGroup = product.getGcpGroup();
         final PlacemarkGroup pinGroup = product.getPinGroup();
 
-        gcpGroup.add(new Placemark("G", "L", "D", new PixelPos(10, 10), null, GcpDescriptor.INSTANCE, null));
+        gcpGroup.add(new Placemark("G", "L", "D", new PixelPos(10, 10), null, GcpDescriptor.getInstance(), null));
         assertEquals(13, maskManagerForm.getRowCount());
 
         assertEquals(Product.GCP_MASK_NAME, tableModel.getValueAt(0, 0));
@@ -79,7 +79,7 @@ public class MaskFormTest extends TestCase {
         tableModel.setValueAt("M_3", 1, 0);
         assertEquals("M_3", tableModel.getValueAt(1, 0));
 
-        pinGroup.add(new Placemark("P", "L", "D", new PixelPos(10, 10), null, PinDescriptor.INSTANCE, null));
+        pinGroup.add(new Placemark("P", "L", "D", new PixelPos(10, 10), null, PinDescriptor.getInstance(), null));
         assertEquals(14, maskManagerForm.getRowCount());
 
         assertEquals(Product.PIN_MASK_NAME, tableModel.getValueAt(0, 0));
@@ -135,7 +135,7 @@ public class MaskFormTest extends TestCase {
             String expression = "B > " + (i / (colors.length - 1.0));
             String name = "M_" + (product.getMaskGroup().getNodeCount() + 1);
             Mask mask = Mask.BandMathsType.create(name, expression, product.getSceneRasterWidth(), product.getSceneRasterHeight(),
-                                                 expression, colors[i], 1.0 - 1.0 / (1 + (i % 4)));
+                                                  expression, colors[i], 1.0 - 1.0 / (1 + (i % 4)));
             product.getMaskGroup().add(mask);
         }
 

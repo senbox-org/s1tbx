@@ -21,7 +21,7 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.geom.Line2D;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -83,7 +83,7 @@ public class PlacemarkTest extends TestCase {
 
     public void testPinEvents() {
         final Placemark placemark1 = new Placemark("pinName", "pinLabel", "", null, new GeoPos(),
-                                 PinDescriptor.INSTANCE, product.getGeoCoding());
+                                                   PinDescriptor.getInstance(), product.getGeoCoding());
 
         assertEquals(0, product.getPinGroup().getNodeCount());
         assertEquals(0, events.size());
@@ -146,7 +146,7 @@ public class PlacemarkTest extends TestCase {
 
     public void testWriteXML_XmlWriterIsNull() {
         Placemark placemark = new Placemark("pinName", "pinLabel", "", null, new GeoPos(),
-                                PinDescriptor.INSTANCE, product.getGeoCoding());
+                                            PinDescriptor.getInstance(), product.getGeoCoding());
 
         try {
             placemark.writeXML(null, 1);
@@ -159,7 +159,7 @@ public class PlacemarkTest extends TestCase {
     }
 
     public void testWriteXML_IndentIsSmallerThanZero() {
-        Placemark placemark = new Placemark("pinName", "pinLabel", "", null, new GeoPos(), PinDescriptor.INSTANCE, product.getGeoCoding());
+        Placemark placemark = new Placemark("pinName", "pinLabel", "", null, new GeoPos(), PinDescriptor.getInstance(), product.getGeoCoding());
 
         try {
             placemark.writeXML(new XmlWriter(new StringWriter(), false), -1);
@@ -173,42 +173,42 @@ public class PlacemarkTest extends TestCase {
 
     public void testWriteXML_DifferentValidIndent() {
         Placemark placemark = new Placemark("pinName", "pinLabel", "", null, new GeoPos(4f, 87f),
-                          PinDescriptor.INSTANCE, product.getGeoCoding());
+                                            PinDescriptor.getInstance(), product.getGeoCoding());
         placemark.setDescription("pinDescription");
         placemark.setSymbol(PlacemarkSymbol.createDefaultPinSymbol());
 
         StringWriter stringWriter = new StringWriter();
         placemark.writeXML(new XmlWriter(stringWriter, false), 0);
         String expected = "" +
-                          "<Placemark name=\"pinName\">" + _ls +
-                          "    <LABEL>pinLabel</LABEL>" + _ls +
-                          "    <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
-                          "    <LATITUDE>4.0</LATITUDE>" + _ls +
-                          "    <LONGITUDE>87.0</LONGITUDE>" + _ls +
-                          "    <FillColor>" + _ls +
-                          "        <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
-                          "    </FillColor>" + _ls +
-                          "    <OutlineColor>" + _ls +
-                          "        <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
-                          "    </OutlineColor>" + _ls +
-                          "</Placemark>" + _ls;
+                "<Placemark name=\"pinName\">" + _ls +
+                "    <LABEL>pinLabel</LABEL>" + _ls +
+                "    <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
+                "    <LATITUDE>4.0</LATITUDE>" + _ls +
+                "    <LONGITUDE>87.0</LONGITUDE>" + _ls +
+                "    <FillColor>" + _ls +
+                "        <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
+                "    </FillColor>" + _ls +
+                "    <OutlineColor>" + _ls +
+                "        <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
+                "    </OutlineColor>" + _ls +
+                "</Placemark>" + _ls;
         assertEquals(expected, stringWriter.toString());
 
         stringWriter = new StringWriter();
         placemark.writeXML(new XmlWriter(stringWriter, false), 3);
         expected = "" +
-                   "            <Placemark name=\"pinName\">" + _ls +
-                   "                <LABEL>pinLabel</LABEL>" + _ls +
-                   "                <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
-                   "                <LATITUDE>4.0</LATITUDE>" + _ls +
-                   "                <LONGITUDE>87.0</LONGITUDE>" + _ls +
-                   "                <FillColor>" + _ls +
-                   "                    <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
-                   "                </FillColor>" + _ls +
-                   "                <OutlineColor>" + _ls +
-                   "                    <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
-                   "                </OutlineColor>" + _ls +
-                   "            </Placemark>" + _ls;
+                "            <Placemark name=\"pinName\">" + _ls +
+                "                <LABEL>pinLabel</LABEL>" + _ls +
+                "                <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
+                "                <LATITUDE>4.0</LATITUDE>" + _ls +
+                "                <LONGITUDE>87.0</LONGITUDE>" + _ls +
+                "                <FillColor>" + _ls +
+                "                    <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
+                "                </FillColor>" + _ls +
+                "                <OutlineColor>" + _ls +
+                "                    <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
+                "                </OutlineColor>" + _ls +
+                "            </Placemark>" + _ls;
         assertEquals(expected, stringWriter.toString());
     }
 
@@ -228,7 +228,7 @@ public class PlacemarkTest extends TestCase {
         Element pinElem = new Element(DimapProductConstants.TAG_PLACEMARK);
 
         try {
-            Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE, null);
+            Placemark.createPlacemark(pinElem, PinDescriptor.getInstance(), null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // OK
@@ -248,7 +248,7 @@ public class PlacemarkTest extends TestCase {
         pinElem.addContent(latElem);
 
         try {
-            Placemark.createPlacemark(pinElem, (PlacemarkDescriptor)null, null);
+            Placemark.createPlacemark(pinElem, (PlacemarkDescriptor) null, null);
             fail("IllegalArgumentException expected");
         } catch (Exception e) {
             // OK
@@ -258,7 +258,7 @@ public class PlacemarkTest extends TestCase {
         lonElem.setText(String.valueOf(pinLon));
         pinElem.addContent(lonElem);
 
-        Placemark placemark = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE, null);
+        Placemark placemark = Placemark.createPlacemark(pinElem, PinDescriptor.getInstance(), null);
         assertNotNull("pin must be not null", placemark);
         assertEquals(pinName, placemark.getName());
         assertNull(placemark.getDescription());
@@ -269,7 +269,7 @@ public class PlacemarkTest extends TestCase {
         descElem.setText(pinDesc);
         pinElem.addContent(descElem);
 
-        placemark = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE, null);
+        placemark = Placemark.createPlacemark(pinElem, PinDescriptor.getInstance(), null);
         assertNotNull("pin must be not null", placemark);
         assertEquals(pinName, placemark.getName());
         assertEquals(pinDesc, placemark.getDescription());
@@ -294,7 +294,7 @@ public class PlacemarkTest extends TestCase {
         outlineElem.addContent(colorElem);
         pinElem.addContent(outlineElem);
 
-        placemark = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE, null);
+        placemark = Placemark.createPlacemark(pinElem, PinDescriptor.getInstance(), null);
         assertNotNull("pin must be not null", placemark);
         assertEquals(pinName, placemark.getName());
         assertEquals(pinDesc, placemark.getDescription());
@@ -307,7 +307,7 @@ public class PlacemarkTest extends TestCase {
     }
 
     public void testLabelSettings() {
-        Placemark p = new Placemark("rallamann", "rallamann", "", null, new GeoPos(), PinDescriptor.INSTANCE, product.getGeoCoding());
+        Placemark p = new Placemark("rallamann", "rallamann", "", null, new GeoPos(), PinDescriptor.getInstance(), product.getGeoCoding());
         assertEquals("rallamann", p.getName());
         assertEquals("rallamann", p.getLabel());
 

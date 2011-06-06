@@ -85,7 +85,7 @@ public class VectorDataNode extends ProductNode {
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
-        this(name, featureCollection, new DefaultPlacemarkDescriptor());
+        this(name, featureCollection, new GeometryDescriptor());
     }
 
     public VectorDataNode(String name, SimpleFeatureType featureType, PlacemarkDescriptor placemarkDescriptor) {

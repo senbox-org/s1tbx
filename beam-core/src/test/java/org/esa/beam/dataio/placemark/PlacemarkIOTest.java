@@ -15,8 +15,7 @@ import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -56,24 +55,24 @@ public class PlacemarkIOTest {
 
     @Test
     public void testReadWritePinXmlFile() throws Exception {
-        testReadWritePlacemarkXmlFile(PinDescriptor.INSTANCE);
+        testReadWritePlacemarkXmlFile(PinDescriptor.getInstance());
     }
 
     @Test
     public void testReadWriteGcpXmlFile() throws Exception {
-        testReadWritePlacemarkXmlFile(GcpDescriptor.INSTANCE);
+        testReadWritePlacemarkXmlFile(GcpDescriptor.getInstance());
     }
 
     @Test
     public void testReadMinimalPlacemarkTextFile() throws Exception {
-        testReadMinimalPlacemarkTextFile(GcpDescriptor.INSTANCE);
-        testReadMinimalPlacemarkTextFile(PinDescriptor.INSTANCE);
+        testReadMinimalPlacemarkTextFile(GcpDescriptor.getInstance());
+        testReadMinimalPlacemarkTextFile(PinDescriptor.getInstance());
     }
 
     @Test
     public void testReadWritePlacemarksTextFileWithAdditionalData() throws Exception {
         StringWriter writer = new StringWriter(WRITER_INITIAL_SIZE);
-        PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
+        PinDescriptor pinDescriptor = PinDescriptor.getInstance();
         List<Placemark> expectedPlacemarks = createPlacemarks(pinDescriptor, GEO_CODING, DATA_BOUNDS);
         String[] stdColumnName = {"X", "Y", "Lon", "Lat", "Label"};
         String[] addColumnName = {"A", "B", "C", "D"};
@@ -120,7 +119,7 @@ public class PlacemarkIOTest {
     @Test
     public void testReadPlacemarkTextFileWithDateTime() throws Exception {
         StringWriter writer = new StringWriter(WRITER_INITIAL_SIZE);
-        PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
+        PinDescriptor pinDescriptor = PinDescriptor.getInstance();
         List<Placemark> expectedPlacemarks = createPlacemarks(pinDescriptor, GEO_CODING, DATA_BOUNDS);
         String[] stdColumnName = {"X", "Y", "Lon", "Lat", "Label"};
         String[] addColumnName = {"DateTime"};
@@ -164,7 +163,7 @@ public class PlacemarkIOTest {
 
         List<Placemark> actualPlacemarks = PlacemarkIO.readPlacemarks(new StringReader(stringWriter.toString()),
                                                                       GEO_CODING,
-                                                                      PinDescriptor.INSTANCE);
+                                                                      PinDescriptor.getInstance());
         assertEquals(3, actualPlacemarks.size());
         final Placemark mark1 = actualPlacemarks.get(0);
         assertEquals("One", mark1.getLabel());

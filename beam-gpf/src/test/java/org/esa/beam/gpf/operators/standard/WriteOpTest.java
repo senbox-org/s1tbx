@@ -157,9 +157,9 @@ public class WriteOpTest extends TestCase {
             final int minX = targetTile.getMinX();
             final int minY = targetTile.getMinY();
             Placemark placemark = new Placemark(band.getName() + minX + "," + minY,
-                                                        "label", "descr",
-                                                        new PixelPos(minX, minY), null,
-                                                        PinDescriptor.INSTANCE, targetProduct.getGeoCoding());
+                                                "label", "descr",
+                                                new PixelPos(minX, minY), null,
+                                                PinDescriptor.getInstance(), targetProduct.getGeoCoding());
 
             targetProduct.getPinGroup().add(placemark);
         }

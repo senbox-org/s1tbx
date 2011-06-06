@@ -16,14 +16,18 @@
 
 package org.esa.beam.framework.datamodel;
 
-import java.awt.Image;
-import java.awt.Point;
+import java.awt.*;
 
-public class GcpDescriptor implements PlacemarkDescriptor {
+public class GcpDescriptor extends AbstractPlacemarkDescriptor {
 
-    public final static GcpDescriptor INSTANCE = new GcpDescriptor();
+    /**
+     * @deprecated since BEAM 4.10, use {@link #getInstance()} instead
+     */
+    @Deprecated
+    public static final GcpDescriptor INSTANCE = getInstance();
 
-    private GcpDescriptor() {
+    public static GcpDescriptor getInstance() {
+        return (GcpDescriptor) PlacemarkDescriptorRegistry.getServiceRegistry().getService(GcpDescriptor.class.getName());
     }
 
     @Override

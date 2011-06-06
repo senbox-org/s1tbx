@@ -64,10 +64,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.media.jai.PlanarImage;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
@@ -1286,14 +1283,14 @@ public class ProductUtils {
         }
         if (sourceProduct.isCompatibleProduct(targetProduct, 1.0e-3f)) {
             for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
-                VectorDataNode vectorDataNode = vectorDataGroup.get(i);
-                String name = vectorDataNode.getName();
-                if (!vectorDataNode.isInternalNode()) {
-                    FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
+                VectorDataNode sourceVDN = vectorDataGroup.get(i);
+                String name = sourceVDN.getName();
+                if (!sourceVDN.isInternalNode()) {
+                    FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
                     featureCollection = new DefaultFeatureCollection(featureCollection);
-                    VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
-                    targetVDN.setDefaultCSS(vectorDataNode.getDefaultCSS());
-                    targetVDN.setDescription(vectorDataNode.getDescription());
+                    VectorDataNode targetVDN = new VectorDataNode(name, featureCollection, sourceVDN.getPlacemarkDescriptor());
+                    targetVDN.setDefaultCSS(sourceVDN.getDefaultCSS());
+                    targetVDN.setDescription(sourceVDN.getDescription());
                     targetProduct.getVectorDataGroup().add(targetVDN);
                 }
             }
@@ -1311,16 +1308,16 @@ public class ProductUtils {
             CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetProduct.getGeoCoding());
 
             for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
-                VectorDataNode vectorDataNode = vectorDataGroup.get(i);
-                String name = vectorDataNode.getName();
-                if (!vectorDataNode.isInternalNode()) {
-                    FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
+                VectorDataNode sourceVDN = vectorDataGroup.get(i);
+                String name = sourceVDN.getName();
+                if (!sourceVDN.isInternalNode()) {
+                    FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
                     featureCollection = FeatureCollectionClipper.doOperation(featureCollection, srcModelCrs,
                                                                              clipGeometry, DefaultGeographicCRS.WGS84,
                                                                              null, targetModelCrs);
-                    VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
-                    targetVDN.setDefaultCSS(vectorDataNode.getDefaultCSS());
-                    targetVDN.setDescription(vectorDataNode.getDescription());
+                    VectorDataNode targetVDN = new VectorDataNode(name, featureCollection, sourceVDN.getPlacemarkDescriptor());
+                    targetVDN.setDefaultCSS(sourceVDN.getDefaultCSS());
+                    targetVDN.setDescription(sourceVDN.getDescription());
                     targetProduct.getVectorDataGroup().add(targetVDN);
                 }
             }

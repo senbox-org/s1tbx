@@ -16,21 +16,19 @@
 package org.esa.beam.visat.toolviews.placemark;
 
 import junit.framework.TestCase;
-
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.visat.toolviews.placemark.PlacemarkDialog;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Product;
 
-import java.awt.HeadlessException;
+import java.awt.*;
 
 public class PlacemarkDialogTest extends TestCase {
 
     public void test() {
         try {
-            PlacemarkDialog pinDialog = new PlacemarkDialog(null, new Product("x", "y", 10, 10), PinDescriptor.INSTANCE, false);
+            PlacemarkDialog pinDialog = new PlacemarkDialog(null, new Product("x", "y", 10, 10), PinDescriptor.getInstance(), false);
 
             pinDialog.setDescription("descrip");
             assertEquals("descrip", pinDialog.getDescription());
