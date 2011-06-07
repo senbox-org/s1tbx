@@ -12,9 +12,16 @@ import java.awt.*;
  */
 public class GeometryDescriptor extends AbstractPlacemarkDescriptor {
 
+    private static final SimpleFeatureType DEFAULT_FEATURE_TYPE = PlainFeatureFactory.createDefaultFeatureType();
+
     @Override
     public boolean isCompatibleWith(SimpleFeatureType featureType) {
         return featureType.getTypeName().equals("org.esa.beam.Geometry");
+    }
+
+    @Override
+    public SimpleFeatureType getDefaultFeatureType() {
+        return DEFAULT_FEATURE_TYPE;
     }
 
     @Override

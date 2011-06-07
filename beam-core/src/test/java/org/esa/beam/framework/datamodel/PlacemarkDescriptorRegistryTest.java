@@ -34,7 +34,7 @@ public class PlacemarkDescriptorRegistryTest {
     public void testThatPlacemarkDescriptorsAreFoundForPinFeatureType() throws Exception {
         PlacemarkDescriptorRegistry registry = new PlacemarkDescriptorRegistry();
 
-        SimpleFeatureType ft = Placemark.createFeatureType("org.esa.beam.Pin");
+        SimpleFeatureType ft = Placemark.createPointFeatureType("org.esa.beam.Pin");
 
         Set<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(ft);
         assertNotNull(descriptors);
@@ -49,7 +49,7 @@ public class PlacemarkDescriptorRegistryTest {
     public void testThatPlacemarkDescriptorsAreFoundForGcpFeatureType() throws Exception {
         PlacemarkDescriptorRegistry registry = new PlacemarkDescriptorRegistry();
 
-        SimpleFeatureType ft = Placemark.createFeatureType("org.esa.beam.GroundControlPoint");
+        SimpleFeatureType ft = Placemark.createPointFeatureType("org.esa.beam.GroundControlPoint");
 
         Set<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(ft);
         assertNotNull(descriptors);

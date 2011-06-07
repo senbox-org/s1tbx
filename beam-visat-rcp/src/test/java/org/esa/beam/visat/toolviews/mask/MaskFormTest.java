@@ -68,7 +68,7 @@ public class MaskFormTest extends TestCase {
         final PlacemarkGroup gcpGroup = product.getGcpGroup();
         final PlacemarkGroup pinGroup = product.getPinGroup();
 
-        gcpGroup.add(new Placemark("G", "L", "D", new PixelPos(10, 10), null, GcpDescriptor.getInstance(), null));
+        gcpGroup.add(Placemark.createPointPlacemark(GcpDescriptor.getInstance(), "G", "L", "D", new PixelPos(10, 10), null, null));
         assertEquals(13, maskManagerForm.getRowCount());
 
         assertEquals(Product.GCP_MASK_NAME, tableModel.getValueAt(0, 0));
@@ -79,7 +79,7 @@ public class MaskFormTest extends TestCase {
         tableModel.setValueAt("M_3", 1, 0);
         assertEquals("M_3", tableModel.getValueAt(1, 0));
 
-        pinGroup.add(new Placemark("P", "L", "D", new PixelPos(10, 10), null, PinDescriptor.getInstance(), null));
+        pinGroup.add(Placemark.createPointPlacemark(PinDescriptor.getInstance(), "P", "L", "D", new PixelPos(10, 10), null, null));
         assertEquals(14, maskManagerForm.getRowCount());
 
         assertEquals(Product.PIN_MASK_NAME, tableModel.getValueAt(0, 0));

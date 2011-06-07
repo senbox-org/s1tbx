@@ -174,8 +174,8 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
     @Test
     public void testCopyPlacemarkGroups() throws IOException {
         final PlacemarkDescriptor pinDescriptor = PinDescriptor.getInstance();
-        final Placemark pin = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null, pinDescriptor, sourceProduct.getGeoCoding());
-        final Placemark gcp = new Placemark("G1", "", "", new PixelPos(2.5f, 2.5f), null, pinDescriptor, sourceProduct.getGeoCoding());
+        final Placemark pin = Placemark.createPointPlacemark(pinDescriptor, "P1", "", "", new PixelPos(1.5f, 1.5f), null, sourceProduct.getGeoCoding());
+        final Placemark gcp = Placemark.createPointPlacemark(pinDescriptor, "G1", "", "", new PixelPos(2.5f, 2.5f), null, sourceProduct.getGeoCoding());
 
         sourceProduct.getPinGroup().add(pin);
         sourceProduct.getGcpGroup().add(gcp);

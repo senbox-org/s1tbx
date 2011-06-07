@@ -541,10 +541,10 @@ public class ReprojectionOp extends Operator {
                 targetPlacemarkGroup.getProduct().getGeoCoding().getPixelPos(srcGeoPos, targetPixelPos);
             }
 
-            final Placemark placemark1 = new Placemark(placemark.getName(), placemark.getLabel(),
-                                                       placemark.getDescription(), targetPixelPos,
-                                                       placemark.getGeoPos(),
-                                                       descriptor, targetPlacemarkGroup.getProduct().getGeoCoding());
+            final Placemark placemark1 = Placemark.createPointPlacemark(descriptor, placemark.getName(), placemark.getLabel(),
+                                                                        placemark.getDescription(), targetPixelPos,
+                                                                        placemark.getGeoPos(),
+                                                                        targetPlacemarkGroup.getProduct().getGeoCoding());
             targetPlacemarkGroup.add(placemark1);
         }
     }

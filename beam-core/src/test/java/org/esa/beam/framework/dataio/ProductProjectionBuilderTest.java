@@ -65,10 +65,10 @@ public class ProductProjectionBuilderTest extends TestCase {
     }
 
     public void testCopyPlacemarkGroups() throws IOException {
-        final Placemark pin = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null,
-                                            PinDescriptor.getInstance(), product.getGeoCoding());
-        final Placemark gcp = new Placemark("G1", "", "", new PixelPos(2.5f, 2.5f), null,
-                                            PinDescriptor.getInstance(), product.getGeoCoding());
+        final Placemark pin = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "P1", "", "", new PixelPos(1.5f, 1.5f), null,
+                                                             product.getGeoCoding());
+        final Placemark gcp = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "G1", "", "", new PixelPos(2.5f, 2.5f), null,
+                                                             product.getGeoCoding());
 
         product.getPinGroup().add(pin);
         product.getGcpGroup().add(gcp);

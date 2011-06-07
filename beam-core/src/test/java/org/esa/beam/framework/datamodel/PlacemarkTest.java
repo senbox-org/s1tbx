@@ -17,6 +17,7 @@ package org.esa.beam.framework.datamodel;
 
 import junit.framework.TestCase;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
+import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
@@ -38,7 +39,6 @@ public class PlacemarkTest extends TestCase {
     private Product product;
     private List<String> eventTypes;
     private List<ProductNodeEvent> events;
-
 
     @Override
     public void setUp() {
@@ -82,8 +82,8 @@ public class PlacemarkTest extends TestCase {
 
 
     public void testPinEvents() {
-        final Placemark placemark1 = new Placemark("pinName", "pinLabel", "", null, new GeoPos(),
-                                                   PinDescriptor.getInstance(), product.getGeoCoding());
+        final Placemark placemark1 = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "pinName", "pinLabel", "", null, new GeoPos(),
+                                                                    product.getGeoCoding());
 
         assertEquals(0, product.getPinGroup().getNodeCount());
         assertEquals(0, events.size());
@@ -113,7 +113,6 @@ public class PlacemarkTest extends TestCase {
         assertEquals(0, product.getPinGroup().getNodeCount());
         assertEquals(6, events.size());
         assertEquals(6, eventTypes.size());
-
 
         final String[] expectedEventTypes = new String[]{
                 _NODE_ADDED,
@@ -145,11 +144,11 @@ public class PlacemarkTest extends TestCase {
     }
 
     public void testWriteXML_XmlWriterIsNull() {
-        Placemark placemark = new Placemark("pinName", "pinLabel", "", null, new GeoPos(),
-                                            PinDescriptor.getInstance(), product.getGeoCoding());
+        Placemark placemark = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "pinName", "pinLabel", "", null, new GeoPos(),
+                                                             product.getGeoCoding());
 
         try {
-            placemark.writeXML(null, 1);
+            PlacemarkIO.writeXML(placemark, null, 1);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // expected IllegalArgumentException
@@ -159,10 +158,11 @@ public class PlacemarkTest extends TestCase {
     }
 
     public void testWriteXML_IndentIsSmallerThanZero() {
-        Placemark placemark = new Placemark("pinName", "pinLabel", "", null, new GeoPos(), PinDescriptor.getInstance(), product.getGeoCoding());
+        Placemark placemark = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "pinName", "pinLabel", "", null, new GeoPos(), product.getGeoCoding());
 
         try {
-            placemark.writeXML(new XmlWriter(new StringWriter(), false), -1);
+            int indent = -1;
+            PlacemarkIO.writeXML(placemark, new XmlWriter(new StringWriter(), false), indent);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // expected IllegalArgumentException
@@ -172,13 +172,13 @@ public class PlacemarkTest extends TestCase {
     }
 
     public void testWriteXML_DifferentValidIndent() {
-        Placemark placemark = new Placemark("pinName", "pinLabel", "", null, new GeoPos(4f, 87f),
-                                            PinDescriptor.getInstance(), product.getGeoCoding());
+        Placemark placemark = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "pinName", "pinLabel", "", null, new GeoPos(4f, 87f),
+                                                             product.getGeoCoding());
         placemark.setDescription("pinDescription");
         placemark.setSymbol(PlacemarkSymbol.createDefaultPinSymbol());
 
         StringWriter stringWriter = new StringWriter();
-        placemark.writeXML(new XmlWriter(stringWriter, false), 0);
+        PlacemarkIO.writeXML(placemark, new XmlWriter(stringWriter, false), 0);
         String expected = "" +
                 "<Placemark name=\"pinName\">" + _ls +
                 "    <LABEL>pinLabel</LABEL>" + _ls +
@@ -195,7 +195,7 @@ public class PlacemarkTest extends TestCase {
         assertEquals(expected, stringWriter.toString());
 
         stringWriter = new StringWriter();
-        placemark.writeXML(new XmlWriter(stringWriter, false), 3);
+        PlacemarkIO.writeXML(placemark, new XmlWriter(stringWriter, false), 3);
         expected = "" +
                 "            <Placemark name=\"pinName\">" + _ls +
                 "                <LABEL>pinLabel</LABEL>" + _ls +
@@ -219,7 +219,7 @@ public class PlacemarkTest extends TestCase {
         final float pinLon = 23.4f;
 
         try {
-            Placemark.createPlacemark(null, (PlacemarkDescriptor) null, null);
+            PlacemarkIO.createPlacemark(null, (PlacemarkDescriptor) null, null);
             fail("NullPointerException expected");
         } catch (NullPointerException e) {
             // OK
@@ -228,7 +228,7 @@ public class PlacemarkTest extends TestCase {
         Element pinElem = new Element(DimapProductConstants.TAG_PLACEMARK);
 
         try {
-            Placemark.createPlacemark(pinElem, PinDescriptor.getInstance(), null);
+            PlacemarkIO.createPlacemark(pinElem, PinDescriptor.getInstance(), null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // OK
@@ -237,7 +237,7 @@ public class PlacemarkTest extends TestCase {
         pinElem.setAttribute(DimapProductConstants.ATTRIB_NAME, pinName);
 
         try {
-            Placemark.createPlacemark(pinElem, (PlacemarkDescriptor) null, null);
+            PlacemarkIO.createPlacemark(pinElem, (PlacemarkDescriptor) null, null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // OK
@@ -248,7 +248,7 @@ public class PlacemarkTest extends TestCase {
         pinElem.addContent(latElem);
 
         try {
-            Placemark.createPlacemark(pinElem, (PlacemarkDescriptor) null, null);
+            PlacemarkIO.createPlacemark(pinElem, (PlacemarkDescriptor) null, null);
             fail("IllegalArgumentException expected");
         } catch (Exception e) {
             // OK
@@ -258,10 +258,10 @@ public class PlacemarkTest extends TestCase {
         lonElem.setText(String.valueOf(pinLon));
         pinElem.addContent(lonElem);
 
-        Placemark placemark = Placemark.createPlacemark(pinElem, PinDescriptor.getInstance(), null);
+        Placemark placemark = PlacemarkIO.createPlacemark(pinElem, PinDescriptor.getInstance(), null);
         assertNotNull("pin must be not null", placemark);
         assertEquals(pinName, placemark.getName());
-        assertNull(placemark.getDescription());
+        assertEquals("", placemark.getDescription());
         assertEquals(pinLat, placemark.getGeoPos().lat, 1e-15f);
         assertEquals(pinLon, placemark.getGeoPos().lon, 1e-15f);
 
@@ -269,7 +269,7 @@ public class PlacemarkTest extends TestCase {
         descElem.setText(pinDesc);
         pinElem.addContent(descElem);
 
-        placemark = Placemark.createPlacemark(pinElem, PinDescriptor.getInstance(), null);
+        placemark = PlacemarkIO.createPlacemark(pinElem, PinDescriptor.getInstance(), null);
         assertNotNull("pin must be not null", placemark);
         assertEquals(pinName, placemark.getName());
         assertEquals(pinDesc, placemark.getDescription());
@@ -294,7 +294,7 @@ public class PlacemarkTest extends TestCase {
         outlineElem.addContent(colorElem);
         pinElem.addContent(outlineElem);
 
-        placemark = Placemark.createPlacemark(pinElem, PinDescriptor.getInstance(), null);
+        placemark = PlacemarkIO.createPlacemark(pinElem, PinDescriptor.getInstance(), null);
         assertNotNull("pin must be not null", placemark);
         assertEquals(pinName, placemark.getName());
         assertEquals(pinDesc, placemark.getDescription());
@@ -307,7 +307,7 @@ public class PlacemarkTest extends TestCase {
     }
 
     public void testLabelSettings() {
-        Placemark p = new Placemark("rallamann", "rallamann", "", null, new GeoPos(), PinDescriptor.getInstance(), product.getGeoCoding());
+        Placemark p = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "rallamann", "rallamann", "", null, new GeoPos(), product.getGeoCoding());
         assertEquals("rallamann", p.getName());
         assertEquals("rallamann", p.getLabel());
 

@@ -227,7 +227,7 @@ public class PlacemarkIOTest {
             assertEquals(expectedPlacemark.getPixelPos(), actualPlacemark.getPixelPos());
             assertEquals(expectedPlacemark.getGeoPos(), actualPlacemark.getGeoPos());
             assertEquals(expectedPlacemark.getDescription(), actualPlacemark.getDescription());
-            PlacemarkDescriptor descriptor = expectedPlacemark.getPlacemarkDescriptor();
+            PlacemarkDescriptor descriptor = expectedPlacemark.getDescriptor();
             assertEquals(descriptor.getRoleLabel(), descriptorInstance.getRoleLabel());
         }
     }
@@ -239,8 +239,8 @@ public class PlacemarkIOTest {
             PixelPos pixelPos = new PixelPos((float) Math.random() * data_bounds.width,
                                              (float) Math.random() * data_bounds.height);
             GeoPos geoPos = geoCoding.getGeoPos(pixelPos, null);
-            Placemark placemark = new Placemark("name_" + i, "label_" + i, "description_" + i,
-                                                pixelPos, geoPos, descriptor, geoCoding);
+            Placemark placemark = Placemark.createPointPlacemark(descriptor, "name_" + i, "label_" + i, "description_" + i,
+                                                                 pixelPos, geoPos, geoCoding);
             placemark.getSymbol().setFillPaint(new Color((int) (Math.random() * Integer.MAX_VALUE), true));
             placemark.getSymbol().setOutlineColor(new Color((int) (Math.random() * Integer.MAX_VALUE), true));
             placemarkList.add(placemark);

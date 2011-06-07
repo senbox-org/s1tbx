@@ -22,8 +22,15 @@ import java.awt.*;
 
 public class GcpDescriptor extends AbstractPlacemarkDescriptor {
 
+    private static final SimpleFeatureType DEFAULT_FEATURE_TYPE = Placemark.createPointFeatureType("org.esa.beam.GroundControlPoint");
+
     public static GcpDescriptor getInstance() {
         return (GcpDescriptor) PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GcpDescriptor.class.getName());
+    }
+
+    @Override
+    public SimpleFeatureType getDefaultFeatureType() {
+        return DEFAULT_FEATURE_TYPE;
     }
 
     @Override

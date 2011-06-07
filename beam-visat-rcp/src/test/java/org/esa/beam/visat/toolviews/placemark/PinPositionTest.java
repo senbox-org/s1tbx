@@ -49,7 +49,7 @@ public class PinPositionTest {
         final Product product = new Product("P", "T", 10, 10);
         product.setGeoCoding(geoCoding);
 
-        placemark = new Placemark("P1", "L", "", new PixelPos(1.0f, 1.0f), null, PinDescriptor.getInstance(), product.getGeoCoding());
+        placemark = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "P1", "L", "", new PixelPos(1.0f, 1.0f), null, product.getGeoCoding());
         product.getPinGroup().add(placemark);
     }
 

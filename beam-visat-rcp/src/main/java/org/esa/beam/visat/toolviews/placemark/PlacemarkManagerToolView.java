@@ -349,12 +349,11 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     void newPin() {
         Guardian.assertNotNull("product", product);
         String[] uniquePinNameAndLabel = PlacemarkNameFactory.createUniqueNameAndLabel(placemarkDescriptor, product);
-        Placemark newPlacemark = new Placemark(uniquePinNameAndLabel[0],
-                                               uniquePinNameAndLabel[1],
-                                               "",
-                                               new PixelPos(0, 0), null,
-                                               placemarkDescriptor,
-                                               product.getGeoCoding());
+        Placemark newPlacemark = Placemark.createPointPlacemark(placemarkDescriptor, uniquePinNameAndLabel[0],
+                                                                uniquePinNameAndLabel[1],
+                                                                "",
+                                                                new PixelPos(0, 0), null,
+                                                                product.getGeoCoding());
         if (PlacemarkDialog.showEditPlacemarkDialog(getPaneWindow(), product, newPlacemark, placemarkDescriptor)) {
             makePlacemarkNameUnique(newPlacemark);
             updateUIState();
@@ -365,13 +364,12 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         Guardian.assertNotNull("product", product);
         Placemark activePlacemark = getSelectedPlacemark();
         Guardian.assertNotNull("activePlacemark", activePlacemark);
-        Placemark newPlacemark = new Placemark("copy_of_" + activePlacemark.getName(),
-                                               activePlacemark.getLabel(),
-                                               activePlacemark.getDescription(),
-                                               activePlacemark.getPixelPos(),
-                                               activePlacemark.getGeoPos(),
-                                               activePlacemark.getPlacemarkDescriptor(),
-                                               activePlacemark.getProduct().getGeoCoding());
+        Placemark newPlacemark = Placemark.createPointPlacemark(activePlacemark.getDescriptor(), "copy_of_" + activePlacemark.getName(),
+                                                                activePlacemark.getLabel(),
+                                                                activePlacemark.getDescription(),
+                                                                activePlacemark.getPixelPos(),
+                                                                activePlacemark.getGeoPos(),
+                                                                activePlacemark.getProduct().getGeoCoding());
         newPlacemark.setSymbol(createPinSymbolCopy(activePlacemark.getSymbol()));
         if (PlacemarkDialog.showEditPlacemarkDialog(getPaneWindow(), product, newPlacemark, placemarkDescriptor)) {
             makePlacemarkNameUnique(newPlacemark);

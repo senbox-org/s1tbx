@@ -451,9 +451,9 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                        ProductNodeGroup<Placemark> targetPlacemarkGroup, PlacemarkDescriptor descriptor) {
         final Placemark[] placemarks = sourcePlacemarkGroup.toArray(new Placemark[0]);
         for (Placemark placemark : placemarks) {
-            final Placemark placemark1 = new Placemark(placemark.getName(), placemark.getLabel(),
-                                                       placemark.getDescription(), null, placemark.getGeoPos(),
-                                                       descriptor, targetPlacemarkGroup.getProduct().getGeoCoding());
+            final Placemark placemark1 = Placemark.createPointPlacemark(descriptor, placemark.getName(), placemark.getLabel(),
+                                                                        placemark.getDescription(), null, placemark.getGeoPos(),
+                                                                        targetPlacemarkGroup.getProduct().getGeoCoding());
             targetPlacemarkGroup.add(placemark1);
         }
     }

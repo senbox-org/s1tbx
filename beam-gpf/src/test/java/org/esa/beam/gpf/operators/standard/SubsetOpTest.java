@@ -260,14 +260,14 @@ public class SubsetOpTest {
         Product product = new Product("p", "t", w, h);
 
         Placemark[] gcps = {
-                new Placemark("p1", "p1", "", new PixelPos(0.5f, 0.5f), new GeoPos(10, -10), GcpDescriptor.getInstance(),
-                              null),
-                new Placemark("p2", "p2", "", new PixelPos(w - 0.5f, 0.5f), new GeoPos(10, 10), GcpDescriptor.getInstance(),
-                              null),
-                new Placemark("p3", "p3", "", new PixelPos(w - 0.5f, h - 0.5f), new GeoPos(-10, 10),
-                              GcpDescriptor.getInstance(), null),
-                new Placemark("p4", "p4", "", new PixelPos(0.5f, h - 0.5f), new GeoPos(-10, -10),
-                              GcpDescriptor.getInstance(), null),
+                Placemark.createPointPlacemark(GcpDescriptor.getInstance(), "p1", "p1", "", new PixelPos(0.5f, 0.5f), new GeoPos(10, -10),
+                                               null),
+                Placemark.createPointPlacemark(GcpDescriptor.getInstance(), "p2", "p2", "", new PixelPos(w - 0.5f, 0.5f), new GeoPos(10, 10),
+                                               null),
+                Placemark.createPointPlacemark(GcpDescriptor.getInstance(), "p3", "p3", "", new PixelPos(w - 0.5f, h - 0.5f), new GeoPos(-10, 10),
+                                               null),
+                Placemark.createPointPlacemark(GcpDescriptor.getInstance(), "p4", "p4", "", new PixelPos(0.5f, h - 0.5f), new GeoPos(-10, -10),
+                                               null),
         };
         product.setGeoCoding(new GcpGeoCoding(GcpGeoCoding.Method.POLYNOMIAL1, gcps, w, h, Datum.WGS_84));
 

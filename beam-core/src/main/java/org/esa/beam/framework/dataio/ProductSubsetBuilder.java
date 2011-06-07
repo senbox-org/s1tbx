@@ -381,13 +381,12 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             final float y = (placemark.getPixelPos().y - offsetY) / subSamplingY;
 
             if (x >= 0 && x < getSceneRasterWidth() && y >= 0 && y < getSceneRasterHeight() || copyAll) {
-                targetPlacemarkGroup.add(new Placemark(placemark.getName(),
-                                                       placemark.getLabel(),
-                                                       placemark.getDescription(),
-                                                       new PixelPos(x, y),
-                                                       placemark.getGeoPos(),
-                                                       placemark.getPlacemarkDescriptor(),
-                                                       targetPlacemarkGroup.getProduct().getGeoCoding()));
+                targetPlacemarkGroup.add(Placemark.createPointPlacemark(placemark.getDescriptor(), placemark.getName(),
+                                                                        placemark.getLabel(),
+                                                                        placemark.getDescription(),
+                                                                        new PixelPos(x, y),
+                                                                        placemark.getGeoPos(),
+                                                                        targetPlacemarkGroup.getProduct().getGeoCoding()));
             }
         }
     }

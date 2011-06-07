@@ -79,8 +79,8 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
         final String label = uniqueNameAndLabel[1];
         final PixelPos pixelPos = new PixelPos(view.getCurrentPixelX() + 0.5f,
                                                view.getCurrentPixelY() + 0.5f);
-        final Placemark newPlacemark = new Placemark(name, label, "", pixelPos, null, placemarkDescriptor,
-                                         product.getGeoCoding());
+        final Placemark newPlacemark = Placemark.createPointPlacemark(placemarkDescriptor, name, label, "", pixelPos, null,
+                                                                      product.getGeoCoding());
 
         getPlacemarkGroup(product).add(newPlacemark);
     }

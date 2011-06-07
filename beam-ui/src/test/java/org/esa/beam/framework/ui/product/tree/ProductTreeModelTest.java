@@ -122,19 +122,24 @@ public class ProductTreeModelTest {
         ProductTN productTN = (ProductTN) treeModel.getChild(rootNode, 0);
         assertEquals(0, treeModel.getChildCount(productTN));
 
+        // 1 node: "Bands"
         product.addBand("b1", ProductData.TYPE_INT8);
         assertEquals(1, treeModel.getChildCount(productTN));
         product.addBand("b2", ProductData.TYPE_INT8);
         assertEquals(1, treeModel.getChildCount(productTN));
 
+        // 2 nodes now: "Bands" and "Vector Data" (with "Pins")
         final Placemark pin1 = createDummyPin("p1");
         product.getPinGroup().add(pin1);
         assertEquals(2, treeModel.getChildCount(productTN));
+        // Still 2 nodes: "Bands" and "Vector Data" (with "Pins", but "v1" is empty)
         final VectorDataNode vec1 = new VectorDataNode("v1", PlainFeatureFactory.createDefaultFeatureType());
         product.getVectorDataGroup().add(vec1);
         assertEquals(2, treeModel.getChildCount(productTN));
+        // When we remove "pin1", "Vector Data" goes away, because "Pins" is now empty
         product.getPinGroup().remove(pin1);
-        assertEquals(2, treeModel.getChildCount(productTN));
+        assertEquals(1, treeModel.getChildCount(productTN));
+        // Removing "vec1" should not change current state
         product.getVectorDataGroup().remove(vec1);
         assertEquals(1, treeModel.getChildCount(productTN));
     }
@@ -164,9 +169,9 @@ public class ProductTreeModelTest {
 
 
     private Placemark createDummyPin(String name) {
-        return new Placemark(name, "", "",
-                             new PixelPos(0.5f, 0.5f), null,
-                             PinDescriptor.getInstance(), null);
+        return Placemark.createPointPlacemark(PinDescriptor.getInstance(), name, "", "",
+                                              new PixelPos(0.5f, 0.5f), null,
+                                              null);
     }
 
     private Product createDummyProduct(String name) {

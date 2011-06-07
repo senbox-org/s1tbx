@@ -38,6 +38,8 @@ public interface PlacemarkDescriptor {
 
     Placemark createPlacemark(SimpleFeature feature);
 
+    SimpleFeatureType getDefaultFeatureType();
+
     boolean isCompatibleWith(SimpleFeatureType featureType);
 
     String getRoleName();

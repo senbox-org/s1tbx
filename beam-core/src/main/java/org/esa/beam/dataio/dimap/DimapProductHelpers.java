@@ -17,6 +17,7 @@ package org.esa.beam.dataio.dimap;
 
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
+import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
@@ -830,8 +831,8 @@ public class DimapProductHelpers {
         }
         for (Object elementObj : elements) {
             final Element element = (Element) elementObj;
-            final Placemark placemark = Placemark.createPlacemark(element, PinDescriptor.getInstance(),
-                                                                  product.getGeoCoding());
+            final Placemark placemark = PlacemarkIO.createPlacemark(element, PinDescriptor.getInstance(),
+                                                                    product.getGeoCoding());
             if (placemark != null) {
                 product.getPinGroup().add(placemark);
             }
@@ -848,7 +849,7 @@ public class DimapProductHelpers {
         }
         for (Object elementObj : elements) {
             final Element element = (Element) elementObj;
-            final Placemark placemark = Placemark.createPlacemark(element, GcpDescriptor.getInstance(), product.getGeoCoding());
+            final Placemark placemark = PlacemarkIO.createPlacemark(element, GcpDescriptor.getInstance(), product.getGeoCoding());
             if (placemark != null) {
                 product.getGcpGroup().add(placemark);
             }

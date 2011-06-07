@@ -262,7 +262,7 @@ public class VectorDataNode extends ProductNode {
     }
 
     public boolean isInternalNode() {
-        return getFeatureType() == Placemark.getFeatureType();
+        return getFeatureType().getTypeName().startsWith("org.esa.beam.");
     }
 
 }

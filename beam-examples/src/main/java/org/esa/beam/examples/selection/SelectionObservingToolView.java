@@ -109,7 +109,7 @@ public class SelectionObservingToolView extends AbstractToolView {
             // Looking for a special selected value in order to treat it differently
             if (selectedValue instanceof SimpleFeatureFigure) {
                 SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) selectedValue;
-                if (featureFigure.getSimpleFeature().getType() == Placemark.getFeatureType()) {
+                if (featureFigure.getSimpleFeature().getType().getTypeName().equals("org.esa.beam.Pin")) {
                     selectionTextArea.setText("A placemark is selected!");
                     return;
                 }

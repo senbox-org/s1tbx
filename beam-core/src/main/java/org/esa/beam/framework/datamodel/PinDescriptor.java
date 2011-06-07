@@ -22,8 +22,15 @@ import java.awt.*;
 
 public class PinDescriptor extends AbstractPlacemarkDescriptor {
 
+    private static final SimpleFeatureType DEFAULT_FEATURE_TYPE = Placemark.createPointFeatureType("org.esa.beam.Pin");
+
     public static PinDescriptor getInstance() {
         return (PinDescriptor) PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(PinDescriptor.class.getName());
+    }
+
+    @Override
+    public SimpleFeatureType getDefaultFeatureType() {
+        return DEFAULT_FEATURE_TYPE;
     }
 
     @Override

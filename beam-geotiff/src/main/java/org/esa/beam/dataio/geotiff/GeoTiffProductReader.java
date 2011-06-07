@@ -487,7 +487,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
             final String name = gcpDescriptor.getRoleName() + "_" + i;
             final String label = gcpDescriptor.getRoleLabel() + "_" + i;
-            final Placemark gcp = new Placemark(name, label, "", pixelPos, geoPos, gcpDescriptor, product.getGeoCoding());
+            final Placemark gcp = Placemark.createPointPlacemark(gcpDescriptor, name, label, "", pixelPos, geoPos, product.getGeoCoding());
             gcpGroup.add(gcp);
         }
 

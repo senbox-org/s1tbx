@@ -61,7 +61,7 @@ public class SelectionAwareAction extends AbstractVisatAction implements Selecti
 
         // Action is only enabled if a placemark is selected
         SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) selectedValue;
-        setEnabled(featureFigure.getSimpleFeature().getType() == Placemark.getFeatureType());
+        setEnabled(featureFigure.getSimpleFeature().getType().getTypeName().equals("org.esa.beam.Pin"));
     }
 
     private SelectionManager getSelectionManager() {

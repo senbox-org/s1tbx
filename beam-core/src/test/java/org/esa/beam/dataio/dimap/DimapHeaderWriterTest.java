@@ -310,16 +310,16 @@ public class DimapHeaderWriterTest extends TestCase {
 
     private void addPinsToProduct() {
         final PinDescriptor pinDescriptor = PinDescriptor.getInstance();
-        final Placemark placemark1 = new Placemark("pin1", "pin1", "", null, new GeoPos(), pinDescriptor, product.getGeoCoding());
+        final Placemark placemark1 = Placemark.createPointPlacemark(pinDescriptor, "pin1", "pin1", "", null, new GeoPos(), product.getGeoCoding());
         ProductNodeGroup<Placemark> pinGroup = product.getPinGroup();
         pinGroup.add(placemark1);
 
-        final Placemark placemark2 = new Placemark("pin2", "pin2", "", null, new GeoPos(4, 8), pinDescriptor, product.getGeoCoding());
+        final Placemark placemark2 = Placemark.createPointPlacemark(pinDescriptor, "pin2", "pin2", "", null, new GeoPos(4, 8), product.getGeoCoding());
         placemark2.setDescription("desc2");
         pinGroup.add(placemark2);
 
-        final Placemark placemark3 = new Placemark("pin3", "pin3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                                   pinDescriptor, product.getGeoCoding());
+        final Placemark placemark3 = Placemark.createPointPlacemark(pinDescriptor, "pin3", "pin3", "", null, new GeoPos(-23.1234f, -80.543f),
+                                                                    product.getGeoCoding());
         pinGroup.add(placemark3);
     }
 
@@ -370,18 +370,18 @@ public class DimapHeaderWriterTest extends TestCase {
 
     private void addGcpsToProduct() {
         final GcpDescriptor gcpDescriptor = GcpDescriptor.getInstance();
-        final Placemark placemark1 = new Placemark("gcp1", "gcp1", "", null, new GeoPos(),
-                                                   gcpDescriptor, product.getGeoCoding());
+        final Placemark placemark1 = Placemark.createPointPlacemark(gcpDescriptor, "gcp1", "gcp1", "", null, new GeoPos(),
+                                                                    product.getGeoCoding());
         ProductNodeGroup<Placemark> pinGroup = product.getGcpGroup();
         pinGroup.add(placemark1);
 
-        final Placemark placemark2 = new Placemark("gcp2", "gcp2", "", null, new GeoPos(4, 8),
-                                                   gcpDescriptor, product.getGeoCoding());
+        final Placemark placemark2 = Placemark.createPointPlacemark(gcpDescriptor, "gcp2", "gcp2", "", null, new GeoPos(4, 8),
+                                                                    product.getGeoCoding());
         placemark2.setDescription("desc2");
         pinGroup.add(placemark2);
 
-        final Placemark placemark3 = new Placemark("gcp3", "gcp3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                                   gcpDescriptor, product.getGeoCoding());
+        final Placemark placemark3 = Placemark.createPointPlacemark(gcpDescriptor, "gcp3", "gcp3", "", null, new GeoPos(-23.1234f, -80.543f),
+                                                                    product.getGeoCoding());
         pinGroup.add(placemark3);
     }
 

@@ -12,6 +12,6 @@ public abstract class AbstractPlacemarkDescriptor implements PlacemarkDescriptor
 
     @Override
     public Placemark createPlacemark(SimpleFeature feature) {
-        return new Placemark(feature, "", this);
+        return new Placemark(this, feature);
     }
 }

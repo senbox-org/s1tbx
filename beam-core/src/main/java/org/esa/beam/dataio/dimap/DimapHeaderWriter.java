@@ -17,6 +17,7 @@ package org.esa.beam.dataio.dimap;
 
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
+import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
@@ -120,7 +121,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         if (pins.length > 0) {
             println(pinGroupTags[0]);
             for (final Placemark placemark : pins) {
-                placemark.writeXML(this, indent + 1);
+                PlacemarkIO.writeXML(placemark, this, indent + 1);
             }
             println(pinGroupTags[1]);
         }
@@ -133,7 +134,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         if (gcps.length > 0) {
             println(gcpGroupTags[0]);
             for (final Placemark gcp : gcps) {
-                gcp.writeXML(this, indent + 1);
+                PlacemarkIO.writeXML(gcp, this, indent + 1);
             }
             println(gcpGroupTags[1]);
         }

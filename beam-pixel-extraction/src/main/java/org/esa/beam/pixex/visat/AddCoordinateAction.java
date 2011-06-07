@@ -35,9 +35,10 @@ class AddCoordinateAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        final Placemark placemark = new Placemark("Coord_" + tableModel.getRowCount(), "", "",
-                                                  new PixelPos(), new GeoPos(0, 0),
-                                                  PinDescriptor.getInstance(), null);
+        final Placemark placemark = Placemark.createPointPlacemark(PinDescriptor.getInstance(),
+                                                                   "Coord_" + tableModel.getRowCount(), "", "",
+                                                                   new PixelPos(), new GeoPos(0, 0),
+                                                                   null);
         tableModel.addPlacemark(placemark);
     }
 }
