@@ -54,7 +54,7 @@ public class CfBandPart extends ProfilePartIO {
     public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         // In order to inform the writer that it shall write the geophysical values of log-scaled bands
         // we set this property here.
-        ctx.setProperty(Constants.WRITE_LOGSCALED_BANDS_GEOPHYSICAL_PROPERTY, true);
+        ctx.setProperty(Constants.CONVERT_LOGSCALED_BANDS_PROPERTY, true);
         defineRasterDataNodes(ctx, p.getBands());
     }
 

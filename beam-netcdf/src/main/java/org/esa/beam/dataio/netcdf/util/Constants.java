@@ -63,7 +63,7 @@ public interface Constants {
 
     // context properties
     String Y_FLIPPED_PROPERTY_NAME = "yFlipped";
-    String WRITE_LOGSCALED_BANDS_GEOPHYSICAL_PROPERTY = "writeGeophysical";
+    String CONVERT_LOGSCALED_BANDS_PROPERTY = "convertLogScaledBands";
     String PRODUCT_FILENAME_PROPERTY = "productName";
 
 }

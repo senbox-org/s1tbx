@@ -41,7 +41,7 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
     private HashMap<String, Variable> variableMap;
     private NetcdfFileWriteable writeable;
     private boolean isYFlipped;
-    private boolean writeGeophysical;
+    private boolean convertLogScaledBands;
 
     DefaultNetCdfWriter(AbstractNetCdfWriterPlugIn writerPlugIn) {
         super(writerPlugIn);
@@ -66,9 +66,9 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
         if (yFlippedProperty instanceof Boolean) {
             isYFlipped = (Boolean) yFlippedProperty;
         }
-        Object writeGeophysicalProperty = context.getProperty(Constants.WRITE_LOGSCALED_BANDS_GEOPHYSICAL_PROPERTY);
-        if (writeGeophysicalProperty instanceof Boolean) {
-            writeGeophysical = (Boolean) writeGeophysicalProperty;
+        Object convertLogScaledBandsProperty = context.getProperty(Constants.CONVERT_LOGSCALED_BANDS_PROPERTY);
+        if (convertLogScaledBandsProperty instanceof Boolean) {
+            convertLogScaledBands = (Boolean) convertLogScaledBandsProperty;
         }
 
     }
@@ -100,7 +100,7 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
         writeOrigin[xIndex] = sourceOffsetX;
 
         ProductData scaledBuffer;
-        if (writeGeophysical && sourceBand.isLog10Scaled()) {
+        if (convertLogScaledBands && sourceBand.isLog10Scaled()) {
             scaledBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32, sourceBuffer.getNumElems());
             for (int i = 0; i < sourceBuffer.getNumElems(); i++) {
                 double elemDoubleAt = sourceBuffer.getElemDoubleAt(i);
