@@ -15,29 +15,52 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.beam.BeamCoreActivator;
+import org.opengis.feature.simple.SimpleFeatureType;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class PlacemarkDescriptorRegistry {
 
-    public static ServiceRegistry<PlacemarkDescriptor> getServiceRegistry() {
-        return Holder.serviceRegistry;
+    private static PlacemarkDescriptorRegistry instance = new PlacemarkDescriptorRegistry();
+    private ServiceRegistry<PlacemarkDescriptor> serviceRegistry;
+
+    public PlacemarkDescriptorRegistry() {
+        ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
+        serviceRegistry = serviceRegistryManager.getServiceRegistry(PlacemarkDescriptor.class);
+        if (!BeamCoreActivator.isStarted()) {
+            BeamCoreActivator.loadServices(serviceRegistry);
+        }
     }
 
-    private static class Holder {
-        private static ServiceRegistry<PlacemarkDescriptor> serviceRegistry;
+    public static PlacemarkDescriptorRegistry getInstance() {
+        return instance;
+    }
 
-        static {
-            ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
-            serviceRegistry = serviceRegistryManager.getServiceRegistry(PlacemarkDescriptor.class);
-            if (!BeamCoreActivator.isStarted()) {
-                BeamCoreActivator.loadServices(serviceRegistry);
+    public static void setInstance(PlacemarkDescriptorRegistry instance) {
+        Assert.notNull(instance, "instance");
+        PlacemarkDescriptorRegistry.instance = instance;
+    }
+
+    public PlacemarkDescriptor getPlacemarkDescriptor(String className) {
+        return serviceRegistry.getService(className);
+    }
+
+    public Set<PlacemarkDescriptor> getPlacemarkDescriptors() {
+        return serviceRegistry.getServices();
+    }
+
+    public Set<PlacemarkDescriptor> getPlacemarkDescriptors(SimpleFeatureType featureType) {
+        HashSet<PlacemarkDescriptor> set = new HashSet<PlacemarkDescriptor>();
+        for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
+            if (placemarkDescriptor.isCompatibleWith(featureType)) {
+                set.add(placemarkDescriptor);
             }
         }
-
-        public static ServiceRegistry<PlacemarkDescriptor> getInstance() {
-            return serviceRegistry;
-        }
+        return set;
     }
 }

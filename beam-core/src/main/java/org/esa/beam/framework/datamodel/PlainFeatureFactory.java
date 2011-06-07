@@ -26,7 +26,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 public class PlainFeatureFactory {
-    public static final String DEFAULT_TYPE_NAME = "Geometry";
+    public static final String DEFAULT_TYPE_NAME = "org.esa.beam.Geometry";
 
     public static final String ATTRIB_NAME_GEOMETRY = "geometry";
     public static final String ATTRIB_NAME_STYLE_CSS = "style_css";

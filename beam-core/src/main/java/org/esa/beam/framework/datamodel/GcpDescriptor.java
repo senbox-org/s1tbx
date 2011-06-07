@@ -16,18 +16,19 @@
 
 package org.esa.beam.framework.datamodel;
 
+import org.opengis.feature.simple.SimpleFeatureType;
+
 import java.awt.*;
 
 public class GcpDescriptor extends AbstractPlacemarkDescriptor {
 
-    /**
-     * @deprecated since BEAM 4.10, use {@link #getInstance()} instead
-     */
-    @Deprecated
-    public static final GcpDescriptor INSTANCE = getInstance();
-
     public static GcpDescriptor getInstance() {
-        return (GcpDescriptor) PlacemarkDescriptorRegistry.getServiceRegistry().getService(GcpDescriptor.class.getName());
+        return (GcpDescriptor) PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GcpDescriptor.class.getName());
+    }
+
+    @Override
+    public boolean isCompatibleWith(SimpleFeatureType featureType) {
+        return featureType.getTypeName().equals("org.esa.beam.GroundControlPoint");
     }
 
     @Override

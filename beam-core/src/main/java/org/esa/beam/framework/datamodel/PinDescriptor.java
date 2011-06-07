@@ -16,18 +16,19 @@
 
 package org.esa.beam.framework.datamodel;
 
+import org.opengis.feature.simple.SimpleFeatureType;
+
 import java.awt.*;
 
 public class PinDescriptor extends AbstractPlacemarkDescriptor {
 
-    /**
-     * @deprecated since BEAM 4.10, use {@link #getInstance()} instead
-     */
-    @Deprecated
-    public static final PinDescriptor INSTANCE = getInstance();
-
     public static PinDescriptor getInstance() {
-        return (PinDescriptor) PlacemarkDescriptorRegistry.getServiceRegistry().getService(PinDescriptor.class.getName());
+        return (PinDescriptor) PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(PinDescriptor.class.getName());
+    }
+
+    @Override
+    public boolean isCompatibleWith(SimpleFeatureType featureType) {
+        return featureType.getTypeName().equals("org.esa.beam.Pin");
     }
 
     @Override

@@ -1,5 +1,7 @@
 package org.esa.beam.framework.datamodel;
 
+import org.opengis.feature.simple.SimpleFeatureType;
+
 import java.awt.*;
 
 /**
@@ -9,6 +11,11 @@ import java.awt.*;
  * @since BEAM 4.10
  */
 public class GeometryDescriptor extends AbstractPlacemarkDescriptor {
+
+    @Override
+    public boolean isCompatibleWith(SimpleFeatureType featureType) {
+        return featureType.getTypeName().equals("org.esa.beam.Geometry");
+    }
 
     @Override
     public String getShowLayerCommandId() {

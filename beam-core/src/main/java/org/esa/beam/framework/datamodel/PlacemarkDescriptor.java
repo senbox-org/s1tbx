@@ -17,6 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.*;
 
@@ -36,6 +37,8 @@ import java.awt.*;
 public interface PlacemarkDescriptor {
 
     Placemark createPlacemark(SimpleFeature feature);
+
+    boolean isCompatibleWith(SimpleFeatureType featureType);
 
     String getRoleName();
 
