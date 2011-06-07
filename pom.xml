@@ -288,7 +288,7 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-netcdf</artifactId>
-                <version>1.0.101</version>
+                <version>1.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>

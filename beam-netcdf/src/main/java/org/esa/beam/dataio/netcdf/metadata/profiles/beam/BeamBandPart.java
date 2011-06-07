@@ -85,7 +85,17 @@ public class BeamBandPart extends ProfilePartIO {
         final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : p.getBands()) {
-            final DataType ncDataType = DataTypeUtils.getNetcdfDataType(band.getDataType());
+            int dataType;
+            if (band.isLog10Scaled()) {
+                dataType = band.getGeophysicalDataType();
+                // In order to inform the writer that it shall write the geophysical values of log-scaled bands
+                // we set this property here.
+                ctx.setProperty(Constants.WRITE_LOGSCALED_BANDS_GEOPHYSICAL_PROPERTY, true);
+            } else {
+                dataType = band.getDataType();
+            }
+
+            final DataType ncDataType = DataTypeUtils.getNetcdfDataType(dataType);
             String variableName = ReaderUtils.getVariableName(band);
             final Variable variable = ncFile.addVariable(variableName, ncDataType, dimensions);
             CfBandPart.writeCfBandAttributes(band, variable);
