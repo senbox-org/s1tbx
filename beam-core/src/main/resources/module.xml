@@ -43,6 +43,7 @@
         <![CDATA[
         <p>Changes in 4.10:<br/>
         [BEAM-1313] Sub-pixel geo-location is wrong<br/>
+        [BEAM-1310] Reprojection to MODIS sinusoidal grid does not properly work near dateline<br/>
         <p>Changes in 4.9:<br/>
         [BEAM-1291] Virtual bands may compute wrong results for non-zero levels of image pyramids<br/>
         [BEAM-1281] Orthorectification can not be used if tie-points are selected as elevation model<br/>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -126,20 +126,22 @@ public class Sinusoidal extends MapProjection {
     protected Point2D inverseTransformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException {
         double lon = x / cos(y);
+        // if the value for lon or lat exceed the valid range,
+        // set the to NaN to indicate an invalid phi or lambda.
         if (lon < -PI) {
-            lon = -PI;
+            lon = Double.NaN;
         }
         if (lon > +PI) {
-            lon = +PI;
+            lon = Double.NaN;
         }
         double lat = y;
         if (lat < -HALF_PI) {
             lon = 0;
-            lat = -HALF_PI;
+            lat = Double.NaN;
         }
         if (lat > +HALF_PI) {
             lon = 0;
-            lat = +HALF_PI;
+            lat = Double.NaN;
         }
         if (ptDst != null) {
             ptDst.setLocation(lon, lat);
