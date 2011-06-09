@@ -47,11 +47,11 @@ import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -101,11 +101,28 @@ import org.esa.beam.visat.toolviews.diag.TileCacheDiagnosisToolView;
 import org.esa.beam.visat.toolviews.stat.StatisticsToolView;
 
 import javax.media.jai.JAI;
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.Box;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 import javax.swing.filechooser.FileFilter;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dialog;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -114,6 +131,7 @@ import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1865,14 +1883,18 @@ public class VisatApp extends BasicApp implements AppContext {
 
     private CommandBar createLayersToolBar() {
         final CommandBar toolBar = createToolBar(LAYERS_TOOL_BAR_ID, "Layers");
-        addCommandsToToolBar(toolBar, new String[]{
+        ArrayList<String> commandIdList = new ArrayList<String>(Arrays.asList(
                 "showNoDataOverlay",
                 "showShapeOverlay",
                 "showGraticuleOverlay",
-                PinDescriptor.getInstance().getShowLayerCommandId(),
-                GcpDescriptor.getInstance().getShowLayerCommandId(),
-                "showWorldMapOverlay"
-        });
+                "showWorldMapOverlay"));
+        Set<PlacemarkDescriptor> placemarkDescriptors = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptors();
+        for (PlacemarkDescriptor placemarkDescriptor : placemarkDescriptors) {
+            if (placemarkDescriptor.getShowLayerCommandId() != null) {
+                commandIdList.add(placemarkDescriptor.getShowLayerCommandId());
+            }
+        }
+        addCommandsToToolBar(toolBar, commandIdList.toArray(new String[0]));
         return toolBar;
     }
 
