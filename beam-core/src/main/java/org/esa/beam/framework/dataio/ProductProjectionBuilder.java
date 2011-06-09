@@ -447,6 +447,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         return product;
     }
 
+    @Deprecated
     private static void copyPlacemarks(ProductNodeGroup<Placemark> sourcePlacemarkGroup,
                                        ProductNodeGroup<Placemark> targetPlacemarkGroup, PlacemarkDescriptor descriptor) {
         final Placemark[] placemarks = sourcePlacemarkGroup.toArray(new Placemark[0]);

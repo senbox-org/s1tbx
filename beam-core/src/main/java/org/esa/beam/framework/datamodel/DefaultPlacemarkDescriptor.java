@@ -18,56 +18,66 @@ public class DefaultPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
-    public SimpleFeatureType getDefaultFeatureType() {
-        return null;
-    }
-
-    @Override
     public boolean isCompatibleWith(SimpleFeatureType ft) {
         return true;
     }
 
     @Override
+    @Deprecated
+    public SimpleFeatureType getDefaultFeatureType() {
+        return null;
+    }
+
+    @Override
+    @Deprecated
     public String getRoleName() {
         return "default";
     }
 
     @Override
+    @Deprecated
     public String getRoleLabel() {
         return "default";
     }
 
     @Override
+    @Deprecated
     public PlacemarkGroup getPlacemarkGroup(Product product) {
         return null;
     }
 
     @Override
+    @Deprecated
     public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {
         return pixelPos;
     }
 
     @Override
+    @Deprecated
     public GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos) {
         return geoPos;
     }
 
     @Override
+    @Deprecated
     public String getShowLayerCommandId() {
         return null;
     }
 
     @Override
+    @Deprecated
     public PlacemarkSymbol createDefaultSymbol() {
         return null;
     }
 
     @Override
+    @Deprecated
     public Image getCursorImage() {
         return null;
     }
 
     @Override
+    @Deprecated
     public Point getCursorHotSpot() {
         return null;
     }

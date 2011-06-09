@@ -29,52 +29,61 @@ public class PinDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
-    public SimpleFeatureType getDefaultFeatureType() {
-        return DEFAULT_FEATURE_TYPE;
-    }
-
-    @Override
     public boolean isCompatibleWith(SimpleFeatureType featureType) {
         return featureType.getTypeName().equals("org.esa.beam.Pin");
     }
 
     @Override
+    @Deprecated
+    public SimpleFeatureType getDefaultFeatureType() {
+        return DEFAULT_FEATURE_TYPE;
+    }
+
+    @Override
+    @Deprecated
     public String getShowLayerCommandId() {
         return "showPinOverlay";
     }
 
     @Override
+    @Deprecated
     public String getRoleName() {
         return "pin";
     }
 
     @Override
+    @Deprecated
     public String getRoleLabel() {
         return "pin";
     }
 
     @Override
+    @Deprecated
     public Image getCursorImage() {
         return null;
     }
 
     @Override
+    @Deprecated
     public Point getCursorHotSpot() {
         return new Point();
     }
 
 
     @Override
+    @Deprecated
     public PlacemarkGroup getPlacemarkGroup(Product product) {
         return product.getPinGroup();
     }
 
     @Override
+    @Deprecated
     public PlacemarkSymbol createDefaultSymbol() {
         return PlacemarkSymbol.createDefaultPinSymbol();
     }
 
     @Override
+    @Deprecated
     public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {
         if (geoCoding == null || !geoCoding.canGetPixelPos() || geoPos == null) {
             return pixelPos;
@@ -83,6 +92,7 @@ public class PinDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
+    @Deprecated
     public GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos) {
         if (geoCoding == null || !geoCoding.canGetGeoPos()) {
             return geoPos;

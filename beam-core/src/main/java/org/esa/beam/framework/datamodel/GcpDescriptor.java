@@ -29,56 +29,66 @@ public class GcpDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
-    public SimpleFeatureType getDefaultFeatureType() {
-        return DEFAULT_FEATURE_TYPE;
-    }
-
-    @Override
     public boolean isCompatibleWith(SimpleFeatureType featureType) {
         return featureType.getTypeName().equals("org.esa.beam.GroundControlPoint");
     }
 
     @Override
+    @Deprecated
+    public SimpleFeatureType getDefaultFeatureType() {
+        return DEFAULT_FEATURE_TYPE;
+    }
+
+    @Override
+    @Deprecated
     public String getShowLayerCommandId() {
         return "showGcpOverlay";
     }
 
     @Override
+    @Deprecated
     public String getRoleName() {
         return "gcp";
     }
 
     @Override
+    @Deprecated
     public String getRoleLabel() {
         return "GCP";
     }
 
     @Override
+    @Deprecated
     public Image getCursorImage() {
         return null;
     }
 
     @Override
+    @Deprecated
     public Point getCursorHotSpot() {
         return new Point();
     }
 
     @Override
+    @Deprecated
     public PlacemarkGroup getPlacemarkGroup(Product product) {
         return product.getGcpGroup();
     }
 
     @Override
+    @Deprecated
     public PlacemarkSymbol createDefaultSymbol() {
         return PlacemarkSymbol.createDefaultGcpSymbol();
     }
 
     @Override
+    @Deprecated
     public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {
         return pixelPos;
     }
 
     @Override
+    @Deprecated
     public GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos) {
         return geoPos;
     }

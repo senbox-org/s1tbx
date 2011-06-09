@@ -21,51 +21,61 @@ public class GeometryDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
+    @Deprecated
     public SimpleFeatureType getDefaultFeatureType() {
         return DEFAULT_FEATURE_TYPE;
     }
 
     @Override
+    @Deprecated
     public String getShowLayerCommandId() {
         return null;
     }
 
     @Override
+    @Deprecated
     public String getRoleName() {
         return "geometry";
     }
 
     @Override
+    @Deprecated
     public String getRoleLabel() {
         return "geometry";
     }
 
     @Override
+    @Deprecated
     public Image getCursorImage() {
         return null;
     }
 
     @Override
+    @Deprecated
     public PlacemarkGroup getPlacemarkGroup(Product product) {
         return null;
     }
 
     @Override
+    @Deprecated
     public PlacemarkSymbol createDefaultSymbol() {
         return null;
     }
 
     @Override
+    @Deprecated
     public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {
         return null;
     }
 
     @Override
+    @Deprecated
     public GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos) {
         return null;
     }
 
     @Override
+    @Deprecated
     public Point getCursorHotSpot() {
         return null;
     }

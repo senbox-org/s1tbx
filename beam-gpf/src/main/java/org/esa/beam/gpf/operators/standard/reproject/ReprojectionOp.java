@@ -526,6 +526,7 @@ public class ReprojectionOp extends Operator {
         }
     }
 
+    @Deprecated
     private static void copyPlacemarks(ProductNodeGroup<Placemark> sourcePlacemarkGroup,
                                        ProductNodeGroup<Placemark> targetPlacemarkGroup,
                                        PlacemarkDescriptor descriptor) {
