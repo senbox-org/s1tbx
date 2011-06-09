@@ -16,9 +16,6 @@
 
 package org.esa.beam.framework.datamodel;
 
-import com.vividsolutions.jts.geom.Point;
-import org.geotools.feature.AttributeTypeBuilder;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
@@ -32,7 +29,7 @@ public class VectorDataNodeTest {
     public void testVectorData() throws TransformException, FactoryException {
         SimpleFeatureType pinType = Placemark.createPinFeatureType();
         SimpleFeatureType gcpType = Placemark.createGcpFeatureType();
-        SimpleFeatureType unknownType = createYetUnknownFeatureType();
+        SimpleFeatureType unknownType = PlacemarkDescriptorRegistryTest.createYetUnknownFeatureType();
         testVectorData(new VectorDataNode("Pins", pinType), "Pins", pinType);
         testVectorData(new VectorDataNode("GCPs", gcpType), "GCPs", gcpType);
         testVectorData(new VectorDataNode("Imported", unknownType), "Imported", unknownType);
@@ -66,25 +63,6 @@ public class VectorDataNodeTest {
         assertNotNull(vectorDataNode.getFeatureCollection());
         assertSame(expectedType, vectorDataNode.getFeatureType());
         assertSame(expectedType, vectorDataNode.getFeatureCollection().getSchema());
-    }
-
-    private SimpleFeatureType createYetUnknownFeatureType() {
-        SimpleFeatureTypeBuilder sftb = new SimpleFeatureTypeBuilder();
-        AttributeTypeBuilder atb = new AttributeTypeBuilder();
-
-        atb.setBinding(Point.class);
-        atb.nillable(false);
-        sftb.add(atb.buildDescriptor("PT"));
-        sftb.setDefaultGeometry("PT");
-
-        atb.setBinding(String.class);
-        sftb.add(atb.buildDescriptor("TXT"));
-
-        atb.setBinding(String.class);
-        sftb.add(atb.buildDescriptor("LAB"));
-
-        sftb.setName("CP");
-        return sftb.buildFeatureType();
     }
 
 }

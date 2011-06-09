@@ -47,6 +47,10 @@ public class PlacemarkDescriptorRegistry {
         PlacemarkDescriptorRegistry.instance = instance;
     }
 
+    public PlacemarkDescriptor getPlacemarkDescriptor(Class<? extends PlacemarkDescriptor> clazz) {
+        return getPlacemarkDescriptor(clazz.getName());
+    }
+
     public PlacemarkDescriptor getPlacemarkDescriptor(String className) {
         return serviceRegistry.getService(className);
     }
@@ -56,12 +60,19 @@ public class PlacemarkDescriptorRegistry {
     }
 
     public List<PlacemarkDescriptor> getPlacemarkDescriptors(SimpleFeatureType featureType) {
-        ArrayList<PlacemarkDescriptor> set = new ArrayList<PlacemarkDescriptor>();
+        ArrayList<PlacemarkDescriptor> list = new ArrayList<PlacemarkDescriptor>();
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
             if (placemarkDescriptor.isCompatibleWith(featureType)) {
-                set.add(placemarkDescriptor);
+                list.add(placemarkDescriptor);
             }
         }
-        return set;
+        moveDefaultToEndOfList(list);
+        return list;
+    }
+
+    private void moveDefaultToEndOfList(ArrayList<PlacemarkDescriptor> list) {
+        PlacemarkDescriptor defaultDescr = getPlacemarkDescriptor(DefaultPlacemarkDescriptor.class);
+        list.remove(defaultDescr);
+        list.add(defaultDescr);
     }
 }

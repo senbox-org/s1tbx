@@ -28,11 +28,8 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.BoundingBox;
 
-import java.awt.Image;
-import java.awt.Point;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * A container which allows to store vector data in the BEAM product model.
@@ -274,80 +271,10 @@ public class VectorDataNode extends ProductNode {
     private static PlacemarkDescriptor getPlacemarkDescriptor(final SimpleFeatureType featureType) {
         List<PlacemarkDescriptor> placemarkDescriptors = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptors(featureType);
         if (placemarkDescriptors.isEmpty()) {
-            BeamLogManager.getSystemLogger().warning("No PlacemarkDescriptor found for feature type " + featureType.getTypeName() + ", using fallback.");
-            return new FallbackPlacemarkDescriptor(featureType);
+            throw new IllegalStateException("No PlacemarkDescriptor found for feature type " + featureType.getTypeName());
         }
         return placemarkDescriptors.get(0);
     }
 
-    /**
-     * Used as a fallback for the case that
-     * we can't find any suitable {@link PlacemarkDescriptor} for a given SimpleFeatureType.
-     *
-     * @author Norman Fomferra
-     * @since BEAM 4.10
-     */
-    public static class FallbackPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
-        private final SimpleFeatureType featureType;
-
-        public FallbackPlacemarkDescriptor(SimpleFeatureType featureType) {
-            this.featureType = featureType;
-        }
-
-        @Override
-        public SimpleFeatureType getDefaultFeatureType() {
-            return featureType;
-        }
-
-        @Override
-        public boolean isCompatibleWith(SimpleFeatureType ft) {
-            return featureType == ft;
-        }
-
-        @Override
-        public String getRoleName() {
-            return featureType.getTypeName();
-        }
-
-        @Override
-        public String getRoleLabel() {
-            return featureType.getTypeName();
-        }
-
-        @Override
-        public PlacemarkGroup getPlacemarkGroup(Product product) {
-            return null;
-        }
-
-        @Override
-        public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {
-            return pixelPos;
-        }
-
-        @Override
-        public GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos) {
-            return geoPos;
-        }
-
-        @Override
-        public String getShowLayerCommandId() {
-            return null;
-        }
-
-        @Override
-        public PlacemarkSymbol createDefaultSymbol() {
-            return null;
-        }
-
-        @Override
-        public Image getCursorImage() {
-            return null;
-        }
-
-        @Override
-        public Point getCursorHotSpot() {
-            return null;
-        }
-    }
 }
 

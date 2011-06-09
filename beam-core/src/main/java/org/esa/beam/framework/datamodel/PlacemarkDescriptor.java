@@ -36,30 +36,42 @@ import java.awt.*;
  */
 public interface PlacemarkDescriptor {
 
-    Placemark createPlacemark(SimpleFeature feature);
 
-    SimpleFeatureType getDefaultFeatureType();
+    Placemark createPlacemark(SimpleFeature feature);
 
     boolean isCompatibleWith(SimpleFeatureType featureType);
 
+    // todo - remove deprecated methods (nf while revisioning Placemark API)
+
+    @Deprecated
+    SimpleFeatureType getDefaultFeatureType();
+
+    @Deprecated
     String getRoleName();
 
+    @Deprecated
     String getRoleLabel();
 
+    @Deprecated
     PlacemarkGroup getPlacemarkGroup(Product product);
 
+    @Deprecated
     PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos);
 
+    @Deprecated
     GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos);
 
     // GUI-related stuff
 
+    @Deprecated
     String getShowLayerCommandId();
 
+    @Deprecated
     PlacemarkSymbol createDefaultSymbol();
 
+    @Deprecated
     Image getCursorImage();
 
+    @Deprecated
     Point getCursorHotSpot();
-
 }
