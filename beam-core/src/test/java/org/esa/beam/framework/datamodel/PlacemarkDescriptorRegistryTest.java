@@ -3,6 +3,7 @@ package org.esa.beam.framework.datamodel;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -36,7 +37,7 @@ public class PlacemarkDescriptorRegistryTest {
 
         SimpleFeatureType ft = Placemark.createPointFeatureType("org.esa.beam.Pin");
 
-        Set<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(ft);
+        List<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(ft);
         assertNotNull(descriptors);
         // Note: for time being, we only expect one matching descriptor (since VectorDataNode can only handle one)
         assertEquals(1, descriptors.size());
@@ -51,7 +52,7 @@ public class PlacemarkDescriptorRegistryTest {
 
         SimpleFeatureType ft = Placemark.createPointFeatureType("org.esa.beam.GroundControlPoint");
 
-        Set<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(ft);
+        List<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(ft);
         assertNotNull(descriptors);
         // Note: for time being, we only expect one matching descriptor (since VectorDataNode can only handle one)
         assertEquals(1, descriptors.size());
@@ -66,7 +67,7 @@ public class PlacemarkDescriptorRegistryTest {
 
         SimpleFeatureType ft = PlainFeatureFactory.createDefaultFeatureType();
 
-        Set<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(ft);
+        List<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(ft);
         assertNotNull(descriptors);
         // Note: for time being, we only expect one matching descriptor (since VectorDataNode can only handle one)
         assertEquals(1, descriptors.size());

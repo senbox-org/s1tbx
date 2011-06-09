@@ -16,27 +16,26 @@
 
 package org.esa.beam.framework.datamodel;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import static org.junit.Assert.*;
 import org.junit.Test;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
+
+import static org.junit.Assert.*;
 
 
 public class VectorDataNodeTest {
     @Test
     public void testVectorData() throws TransformException, FactoryException {
-        SimpleFeatureType pinType = createPlacemarkFeatureType("PinType", "pixelPoint");
-        SimpleFeatureType gcpType = createPlacemarkFeatureType("GcpType", "geoPoint");
+        SimpleFeatureType pinType = Placemark.createPinFeatureType();
+        SimpleFeatureType gcpType = Placemark.createGcpFeatureType();
+        SimpleFeatureType unknownType = createYetUnknownFeatureType();
         testVectorData(new VectorDataNode("Pins", pinType), "Pins", pinType);
         testVectorData(new VectorDataNode("GCPs", gcpType), "GCPs", gcpType);
+        testVectorData(new VectorDataNode("Imported", unknownType), "Imported", unknownType);
     }
 
     @Test
@@ -44,8 +43,8 @@ public class VectorDataNodeTest {
         Product p = new Product("p", "pt", 512, 512);
         assertEquals(2, p.getVectorDataGroup().getNodeCount());
 
-        SimpleFeatureType pinType = createPlacemarkFeatureType("PinType", "pixelPoint");
-        SimpleFeatureType gcpType = createPlacemarkFeatureType("GcpType", "geoPoint");
+        SimpleFeatureType pinType = Placemark.createPinFeatureType();
+        SimpleFeatureType gcpType = Placemark.createGcpFeatureType();
 
         p.getVectorDataGroup().add(new VectorDataNode("Pins2", pinType));
         p.getVectorDataGroup().add(new VectorDataNode("GCPs2", gcpType));
@@ -62,31 +61,30 @@ public class VectorDataNodeTest {
     }
 
     private static void testVectorData(VectorDataNode vectorDataNode, String expectedName, SimpleFeatureType expectedType) {
+        assertNotNull(vectorDataNode.getPlacemarkDescriptor());
         assertEquals(expectedName, vectorDataNode.getName());
         assertNotNull(vectorDataNode.getFeatureCollection());
         assertSame(expectedType, vectorDataNode.getFeatureType());
         assertSame(expectedType, vectorDataNode.getFeatureCollection().getSchema());
     }
 
-    private static SimpleFeatureType createPlacemarkFeatureType(String typeName, String defaultGeometryName) {
-        SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
-        DefaultGeographicCRS crs = DefaultGeographicCRS.WGS84;
-        ftb.setCRS(crs);
-        ftb.setName(typeName);
-        ftb.add("label", String.class);
-        ftb.add("geoPoint", Point.class, crs);
-        ftb.add("pixelPoint", Point.class, crs);
-        ftb.setDefaultGeometry(defaultGeometryName);
-        return ftb.buildFeatureType();
+    private SimpleFeatureType createYetUnknownFeatureType() {
+        SimpleFeatureTypeBuilder sftb = new SimpleFeatureTypeBuilder();
+        AttributeTypeBuilder atb = new AttributeTypeBuilder();
+
+        atb.setBinding(Point.class);
+        atb.nillable(false);
+        sftb.add(atb.buildDescriptor("PT"));
+        sftb.setDefaultGeometry("PT");
+
+        atb.setBinding(String.class);
+        sftb.add(atb.buildDescriptor("TXT"));
+
+        atb.setBinding(String.class);
+        sftb.add(atb.buildDescriptor("LAB"));
+
+        sftb.setName("CP");
+        return sftb.buildFeatureType();
     }
 
-    private static SimpleFeature createFeature(SimpleFeatureType type, GeoPos geoPos, PixelPos pixelPos) {
-        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(type);
-        GeometryFactory gf = new GeometryFactory();
-        String id = "P_" + System.nanoTime();
-        fb.add(id);
-        fb.add(gf.createPoint(new Coordinate(geoPos.lon, geoPos.lat)));
-        fb.add(gf.createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
-        return fb.buildFeature(id);
-    }
 }

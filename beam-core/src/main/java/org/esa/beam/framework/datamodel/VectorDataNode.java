@@ -18,6 +18,7 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.feature.CollectionEvent;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -27,7 +28,11 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.BoundingBox;
 
+import java.awt.Image;
+import java.awt.Point;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A container which allows to store vector data in the BEAM product model.
@@ -74,7 +79,7 @@ public class VectorDataNode extends ProductNode {
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     public VectorDataNode(String name, SimpleFeatureType featureType) {
-        this(name, new DefaultFeatureCollection(name, featureType));
+        this(name, new DefaultFeatureCollection(name, featureType), getPlacemarkDescriptor(featureType));
     }
 
     /**
@@ -85,11 +90,7 @@ public class VectorDataNode extends ProductNode {
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
-        this(name, featureCollection, new GeometryDescriptor());
-    }
-
-    public VectorDataNode(String name, SimpleFeatureType featureType, PlacemarkDescriptor placemarkDescriptor) {
-        this(name, new DefaultFeatureCollection(name, featureType), placemarkDescriptor);
+        this(name, featureCollection, getPlacemarkDescriptor(featureCollection.getSchema()));
     }
 
     /**
@@ -100,7 +101,7 @@ public class VectorDataNode extends ProductNode {
      * @param placemarkDescriptor The placemark descriptor
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
-    public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, PlacemarkDescriptor placemarkDescriptor) {
+    private VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, PlacemarkDescriptor placemarkDescriptor) {
         super(name, "");
         this.featureType = featureCollection.getSchema();
         this.featureCollection = featureCollection;
@@ -121,10 +122,14 @@ public class VectorDataNode extends ProductNode {
         this.placemarkDescriptor = placemarkDescriptor;
     }
 
+    // Note: This is a temporary method. Soon, VectorDataNodes will be able to support all suitable PlacemarkDescriptors.
+    //       Then this method becomes getPlacemarkDescriptor(name)
     public PlacemarkDescriptor getPlacemarkDescriptor() {
         return placemarkDescriptor;
     }
 
+    // Note: This is a temporary method. Soon, VectorDataNodes will be able to support all suitable PlacemarkDescriptors.
+    //       Then this method becomes getPlacemarkGroup(name)
     public PlacemarkGroup getPlacemarkGroup() {
         if (placemarkGroup == null) {
             placemarkGroup = new PlacemarkGroup(getProduct(), getName(), this);
@@ -265,5 +270,84 @@ public class VectorDataNode extends ProductNode {
         return getFeatureType().getTypeName().startsWith("org.esa.beam.");
     }
 
+    // Note: This is a temporary method. Soon, VectorDataNodes will be able to support all suitable PlacemarkDescriptors
+    private static PlacemarkDescriptor getPlacemarkDescriptor(final SimpleFeatureType featureType) {
+        List<PlacemarkDescriptor> placemarkDescriptors = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptors(featureType);
+        if (placemarkDescriptors.isEmpty()) {
+            BeamLogManager.getSystemLogger().warning("No PlacemarkDescriptor found for feature type " + featureType.getTypeName() + ", using fallback.");
+            return new FallbackPlacemarkDescriptor(featureType);
+        }
+        return placemarkDescriptors.get(0);
+    }
+
+    /**
+     * Used as a fallback for the case that
+     * we can't find any suitable {@link PlacemarkDescriptor} for a given SimpleFeatureType.
+     *
+     * @author Norman Fomferra
+     * @since BEAM 4.10
+     */
+    public static class FallbackPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
+        private final SimpleFeatureType featureType;
+
+        public FallbackPlacemarkDescriptor(SimpleFeatureType featureType) {
+            this.featureType = featureType;
+        }
+
+        @Override
+        public SimpleFeatureType getDefaultFeatureType() {
+            return featureType;
+        }
+
+        @Override
+        public boolean isCompatibleWith(SimpleFeatureType ft) {
+            return featureType == ft;
+        }
+
+        @Override
+        public String getRoleName() {
+            return featureType.getTypeName();
+        }
+
+        @Override
+        public String getRoleLabel() {
+            return featureType.getTypeName();
+        }
+
+        @Override
+        public PlacemarkGroup getPlacemarkGroup(Product product) {
+            return null;
+        }
+
+        @Override
+        public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {
+            return pixelPos;
+        }
+
+        @Override
+        public GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos) {
+            return geoPos;
+        }
+
+        @Override
+        public String getShowLayerCommandId() {
+            return null;
+        }
+
+        @Override
+        public PlacemarkSymbol createDefaultSymbol() {
+            return null;
+        }
+
+        @Override
+        public Image getCursorImage() {
+            return null;
+        }
+
+        @Override
+        public Point getCursorHotSpot() {
+            return null;
+        }
+    }
 }
 

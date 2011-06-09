@@ -41,7 +41,7 @@ public class VectorDataNodeWriter {
     public void write(VectorDataNode vectorDataNode, File file) throws IOException {
         FileWriter writer = new FileWriter(file);
         try {
-            writeNodePropertise(vectorDataNode, writer);
+            writeNodeProperties(vectorDataNode, writer);
             writeFeatures(vectorDataNode.getFeatureCollection(), writer);
         } finally {
             writer.close();
@@ -54,7 +54,7 @@ public class VectorDataNodeWriter {
         writeFeatures0(featureCollection, writer);
     }
 
-    private void writeNodePropertise(VectorDataNode vectorDataNode, Writer writer) throws IOException {
+    private void writeNodeProperties(VectorDataNode vectorDataNode, Writer writer) throws IOException {
         String description = vectorDataNode.getDescription();
         if (StringUtils.isNotNullAndNotEmpty(description)) {
             writer.write("#" + ProductNode.PROPERTY_NAME_DESCRIPTION + "=" + description+"\n");

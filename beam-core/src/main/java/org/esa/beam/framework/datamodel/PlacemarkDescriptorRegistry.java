@@ -21,7 +21,8 @@ import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.beam.BeamCoreActivator;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class PlacemarkDescriptorRegistry {
@@ -54,8 +55,8 @@ public class PlacemarkDescriptorRegistry {
         return serviceRegistry.getServices();
     }
 
-    public Set<PlacemarkDescriptor> getPlacemarkDescriptors(SimpleFeatureType featureType) {
-        HashSet<PlacemarkDescriptor> set = new HashSet<PlacemarkDescriptor>();
+    public List<PlacemarkDescriptor> getPlacemarkDescriptors(SimpleFeatureType featureType) {
+        ArrayList<PlacemarkDescriptor> set = new ArrayList<PlacemarkDescriptor>();
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
             if (placemarkDescriptor.isCompatibleWith(featureType)) {
                 set.add(placemarkDescriptor);

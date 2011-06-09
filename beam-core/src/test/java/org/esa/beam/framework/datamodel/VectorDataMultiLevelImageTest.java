@@ -20,16 +20,13 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
+
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.Polygon;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 
@@ -42,7 +39,7 @@ public class VectorDataMultiLevelImageTest {
     @Before
     public void setup() {
         product = new Product("P", "T", 11, 11);
-        pyramids = new VectorDataNode("pyramids", createPyramidFeatureType());
+        pyramids = new VectorDataNode("pyramids", Placemark.createGeometryFeatureType());
         product.getVectorDataGroup().add(pyramids);
 
         image = new VectorDataMultiLevelImage(VectorDataMultiLevelImage.createMaskMultiLevelSource(pyramids), pyramids);
@@ -53,7 +50,7 @@ public class VectorDataMultiLevelImageTest {
         assertTrue(0 == image.getImage(0).getData().getSample(0, 0, 0));
         assertTrue(0 == image.getImage(0).getData().getSample(5, 5, 0));
         pyramids.getFeatureCollection().add(
-                createPyramidFeature("Cheops", new Rectangle2D.Double(2.0, 2.0, 7.0, 7.0)));
+                createFeature("Cheops", new Rectangle2D.Double(2.0, 2.0, 7.0, 7.0)));
         assertTrue(0 == image.getImage(0).getData().getSample(0, 0, 0));
         assertTrue(0 != image.getImage(0).getData().getSample(5, 5, 0));
     }
@@ -80,8 +77,8 @@ public class VectorDataMultiLevelImageTest {
         assertNull(image.getVectorData());
     }
 
-    private static SimpleFeature createPyramidFeature(String name, Rectangle2D rectangle) {
-        final SimpleFeatureType type = createPyramidFeatureType();
+    private static SimpleFeature createFeature(String name, Rectangle2D rectangle) {
+        final SimpleFeatureType type = Placemark.createGeometryFeatureType();
         final SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(type);
         final GeometryFactory geometryFactory = new GeometryFactory();
         final double x = rectangle.getX();
@@ -97,16 +94,5 @@ public class VectorDataMultiLevelImageTest {
         });
         featureBuilder.add(geometryFactory.createPolygon(linearRing, null));
         return featureBuilder.buildFeature(name);
-    }
-
-    private static SimpleFeatureType createPyramidFeatureType() {
-        final CoordinateReferenceSystem crs = DefaultGeographicCRS.WGS84;
-        final SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-        builder.setCRS(crs);
-        builder.setName("PyramidType");
-        builder.add("geometry", Polygon.class, crs);
-        builder.setDefaultGeometry("geometry");
-
-        return builder.buildFeatureType();
     }
 }

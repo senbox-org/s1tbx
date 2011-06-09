@@ -1288,7 +1288,7 @@ public class ProductUtils {
                 if (!sourceVDN.isInternalNode()) {
                     FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
                     featureCollection = new DefaultFeatureCollection(featureCollection);
-                    VectorDataNode targetVDN = new VectorDataNode(name, featureCollection, sourceVDN.getPlacemarkDescriptor());
+                    VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
                     targetVDN.setDefaultCSS(sourceVDN.getDefaultCSS());
                     targetVDN.setDescription(sourceVDN.getDescription());
                     targetProduct.getVectorDataGroup().add(targetVDN);
@@ -1315,7 +1315,7 @@ public class ProductUtils {
                     featureCollection = FeatureCollectionClipper.doOperation(featureCollection, srcModelCrs,
                                                                              clipGeometry, DefaultGeographicCRS.WGS84,
                                                                              null, targetModelCrs);
-                    VectorDataNode targetVDN = new VectorDataNode(name, featureCollection, sourceVDN.getPlacemarkDescriptor());
+                    VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
                     targetVDN.setDefaultCSS(sourceVDN.getDefaultCSS());
                     targetVDN.setDescription(sourceVDN.getDescription());
                     targetProduct.getVectorDataGroup().add(targetVDN);

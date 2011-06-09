@@ -272,13 +272,11 @@ public class Product extends ProductNode {
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
         this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
 
-        final VectorDataNode pinVectorDataNode = new VectorDataNode(PIN_MASK_NAME, Placemark.createPointFeatureType("org.esa.beam.Pin"),
-                                                                    PinDescriptor.getInstance());
+        final VectorDataNode pinVectorDataNode = new VectorDataNode(PIN_MASK_NAME, Placemark.createPinFeatureType());
         pinVectorDataNode.setDefaultCSS("symbol:pin; fill:#0000ff; fill-opacity:0.7; stroke:#ffffff; stroke-opacity:1.0; stroke-width:0.5");
         this.vectorDataGroup.add(pinVectorDataNode);
 
-        final VectorDataNode gcpVectorDataNode = new VectorDataNode(GCP_MASK_NAME, Placemark.createPointFeatureType("org.esa.beam.GroundControlPoint"),
-                                                                    GcpDescriptor.getInstance());
+        final VectorDataNode gcpVectorDataNode = new VectorDataNode(GCP_MASK_NAME, Placemark.createGcpFeatureType());
         gcpVectorDataNode.setDefaultCSS("symbol:plus; stroke:#ff8800; stroke-opacity:0.8; stroke-width:1.0");
         this.vectorDataGroup.add(gcpVectorDataNode);
 

@@ -411,6 +411,18 @@ public class Placemark extends ProductNode {
         return null;
     }
 
+    public static SimpleFeatureType createPinFeatureType() {
+        return createPointFeatureType("org.esa.beam.Pin");
+    }
+
+    public static SimpleFeatureType createGcpFeatureType() {
+        return createPointFeatureType("org.esa.beam.GroundControlPoint");
+    }
+
+    public static SimpleFeatureType createGeometryFeatureType() {
+        return PlainFeatureFactory.createDefaultFeatureType();
+    }
+
     public static SimpleFeatureType createPointFeatureType(String name) {
         final SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
 

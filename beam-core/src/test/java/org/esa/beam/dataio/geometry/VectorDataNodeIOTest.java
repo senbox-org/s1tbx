@@ -20,6 +20,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
@@ -96,7 +97,7 @@ public class VectorDataNodeIOTest {
     }
 
     private DefaultFeatureCollection createTestCollection() {
-        final SimpleFeatureType type = createFeatureType();
+        final SimpleFeatureType type = Placemark.createGeometryFeatureType();
         GeometryFactory gf = new GeometryFactory();
         Object[] data1 = {gf.toGeometry(new Envelope(0, 10, 0, 10)), "with\tTab"};
         Object[] data2 = {gf.toGeometry(new Envelope(20, 30, 0, 10)), "with     spaces"};
@@ -109,34 +110,6 @@ public class VectorDataNodeIOTest {
         collection.add(f2);
         collection.add(f3);
         return collection;
-    }
-
-    private static SimpleFeatureType createFeatureType() {
-
-        GeometryType gt1 = new GeometryTypeImpl(new NameImpl("geometry"), Polygon.class,
-                                                DefaultGeographicCRS.WGS84,
-                                                false, false, null, null, null);
-
-        AttributeType at2 = new AttributeTypeImpl(new NameImpl("label"), String.class,
-                                                  false, false, null, null, null);
-
-        GeometryDescriptor gd1 = new GeometryDescriptorImpl(gt1,
-                                                            new NameImpl("GEOMETRY"),
-                                                            0, 1,
-                                                            false,
-                                                            null);
-
-        AttributeDescriptor ad2 = new AttributeDescriptorImpl(at2,
-                                                              new NameImpl(ATTRIBUTE_NAME_LABEL),
-                                                              0, 1,
-                                                              false,
-                                                              null);
-
-
-        return new SimpleFeatureTypeImpl(new NameImpl("TestType"),
-                                         Arrays.asList(gd1, ad2),
-                                         gd1,
-                                         false, null, null, null);
     }
     
     @Test
@@ -161,10 +134,10 @@ public class VectorDataNodeIOTest {
     
     @Test
     public void testProperties() throws Exception {
-        VectorDataNode vectorDataNode = new VectorDataNode("aName", VectorDataNodeIOTest.createFeatureType());
-        vectorDataNode.setDescription("a simple description");
-        vectorDataNode.setDefaultCSS("a not valid CSS for I/O test only");
-        StringWriter writer = new StringWriter();
+        VectorDataNode vectorDataNode = new VectorDataNode("aName", Placemark.createGeometryFeatureType());
+        vectorDataNode.setDescription("Contains a set of pins");
+        vectorDataNode.setDefaultCSS("stroke:#ff0000");
+
         VectorDataNodeWriter vectorDataNodeWriter = new VectorDataNodeWriter();
         File tempFile = File.createTempFile("VectorDataNodeWriterTest_testProperties", "csv");
         tempFile.deleteOnExit();
@@ -175,11 +148,11 @@ public class VectorDataNodeIOTest {
         
         String firstLine = lineNumberReader.readLine();
         assertNotNull(firstLine);
-        assertEquals("#description=a simple description", firstLine);
+        assertEquals("#description=Contains a set of pins", firstLine);
         
         String secondLine = lineNumberReader.readLine();
         assertNotNull(secondLine);
-        assertEquals("#defaultCSS=a not valid CSS for I/O test only", secondLine);
+        assertEquals("#defaultCSS=stroke:#ff0000", secondLine);
         
         VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader(null);
         VectorDataNode vectorDataNode2 = vectorDataNodeReader.read(tempFile);
