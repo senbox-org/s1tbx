@@ -5,7 +5,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import java.awt.*;
 
 /**
- * A {@link PlacemarkDescriptor} that is used to describe placemarks comprising plain geometries.
+ * A {@link PlacemarkDescriptor} that is used to create placemarks that
+ * are actually plain geometries.
  *
  * @author Norman Fomferra
  * @since BEAM 4.10
