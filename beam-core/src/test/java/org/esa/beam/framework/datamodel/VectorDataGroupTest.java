@@ -16,12 +16,10 @@
 
 package org.esa.beam.framework.datamodel;
 
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.opengis.feature.simple.SimpleFeatureType;
+
+import static org.junit.Assert.*;
 
 public class VectorDataGroupTest {
 
@@ -84,13 +82,5 @@ public class VectorDataGroupTest {
 
         assertEquals(2, vectorDataGroup.getNodeCount());
         assertEquals(2, maskGroup.getNodeCount());
-    }
-
-    private SimpleFeatureType getFeatureType() {
-        final SimpleFeatureTypeBuilder featureTypeBuilder = new SimpleFeatureTypeBuilder();
-        featureTypeBuilder.setCRS(DefaultGeographicCRS.WGS84);
-        featureTypeBuilder.setName("TestVectorType");
-
-        return featureTypeBuilder.buildFeatureType();
     }
 }
