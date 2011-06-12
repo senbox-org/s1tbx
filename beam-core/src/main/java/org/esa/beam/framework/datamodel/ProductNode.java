@@ -27,24 +27,11 @@ import org.esa.beam.util.ObjectUtils;
  * product itself.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  */
 public abstract class ProductNode extends ExtensibleObject {
 
     public final static String PROPERTY_NAME_NAME = "name";
     public final static String PROPERTY_NAME_DESCRIPTION = "description";
-
-    /**
-     * @deprecated Since BEAM 4.7, not used anymore
-     */
-    @Deprecated
-    public final static String PROPERTY_NAME_OWNER = "owner";
-
-    /**
-     * @deprecated Since BEAM 4.7, not used anymore
-     */
-    @Deprecated
-    public final static String PROPERTY_NAME_MODIFIED = "modified";
 
     private transient Product product;
     private transient ProductNode owner;
@@ -376,12 +363,6 @@ public abstract class ProductNode extends ExtensibleObject {
         fireProductNodeChanged(propertyName, null, null);
     }
 
-    @Deprecated
-    // Since BEAM 4.7
-    public void fireProductNodeChanged(String propertyName, final Object oldValue) {
-        fireProductNodeChanged(propertyName, oldValue, null);
-    }
-
     public void fireProductNodeChanged(String propertyName, final Object oldValue, final Object newValue) {
         final Product product = getProduct();
         if (product != null) {
@@ -420,69 +401,6 @@ public abstract class ProductNode extends ExtensibleObject {
      * @param productWriter the product writer to be used to remove this node from the underlying file.
      */
     public void removeFromFile(ProductWriter productWriter) {
-    }
-
-    /////////////////////////////////////////////////////////////////////////
-    // Deprecated API
-
-    /**
-     * Utility method which adds the given node tho the supplied node list.
-     * <p/>
-     * <p>Note that this method automatically sets the owner of the given <code>node</code> to this node instance.
-     * Therefore this method should only be called on <code>ProductNode</code>s which own the given
-     * <code>nodeList</code>
-     * <p/>
-     * <p>If the given node has already a parent product, it's modified flag is set and a 'NodeAdded' event is fired.
-     *
-     * @param node     the node to be added
-     * @param nodeList the node list to which to add the node
-     * @see #removeNamedNode
-     * @deprecated since BEAM 4.7, don't use anymore
-     */
-    @Deprecated
-    protected void addNamedNode(ProductNode node, ProductNodeList nodeList) {
-        if (node != null && nodeList != null) {
-            nodeList.add(node);
-            node.setOwner(this);
-            Product product = getProduct();
-            if (product != null) {
-                product.fireNodeAdded(node, null);
-            }
-            setModified(true);
-        }
-    }
-
-    /**
-     * Utility method which removes  the given node tho the supplied node list. The method fires a 'NodeRemoved' event.
-     * <p/>
-     * <p>Note that this method automatically sets the owner of the given <code>node</code> to <code>null</code>.
-     * Therefore this method should only be called on <code>ProductNode</code>s which own the given
-     * <code>nodeList</code>
-     * <p/>
-     * <p>If the given node has already a parent product and the given node could be removed, the node's modified flag
-     * is set and a 'NodeRemoved' event is fired.
-     *
-     * @param node     the node to be removed
-     * @param nodeList the node list from which to remove the node
-     * @return <code>true</code> if the node has been removed
-     * @see #addNamedNode
-     * @deprecated since BEAM 4.7, don't use anymore
-     */
-    @Deprecated
-    protected boolean removeNamedNode(ProductNode node, ProductNodeList nodeList) {
-        boolean removed = false;
-        if (node != null && nodeList != null) {
-            removed = nodeList.remove(node);
-            if (removed) {
-                Product product = getProduct();
-                if (product != null) {
-                    product.setModified(true);
-                    product.fireNodeRemoved(node, null);
-                }
-                node.setOwner(null);
-            }
-        }
-        return removed;
     }
 
 }
