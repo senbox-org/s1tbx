@@ -26,7 +26,6 @@ import java.util.Collection;
  * A type-safe container for elements of the type <code>ProductNode</code>.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  */
 public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
 
@@ -225,7 +224,6 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
         return nodeList.getRemovedNodes();
     }
 
-
     @Override
     public long getRawStorageSize(ProductSubsetDef subsetDef) {
         long size = 0;
@@ -307,40 +305,6 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
 
         // Intended: set modified=true is last operation
         setModified(true);
-    }
-
-    /////////////////////////////////////////////////////////////////////////
-    // Deprecated API
-
-    /**
-     * @deprecated Since BEAM 4.7. Don't use anymore. Selection state is subject to UI.
-     */
-    @Deprecated
-    public void setSelectedNode(final String name) {
-    }
-
-    /**
-     * @deprecated Since BEAM 4.7. Don't use anymore. Selection state is subject to UI.
-     */
-    @Deprecated
-    public void setSelectedNode(final int index) {
-    }
-
-
-    /**
-     * @deprecated Since BEAM 4.7. Don't use anymore. Selection state is subject to UI.
-     */
-    @Deprecated
-    public T getSelectedNode() {
-        return null;
-    }
-
-    /**
-     * @deprecated Since BEAM 4.7. Don't use anymore. Selection state is subject to UI.
-     */
-    @Deprecated
-    public Collection<T> getSelectedNodes() {
-        return new ArrayList<T>(0);
     }
 
 }
