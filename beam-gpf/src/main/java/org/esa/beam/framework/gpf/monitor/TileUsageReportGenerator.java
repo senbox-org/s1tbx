@@ -26,15 +26,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.Writer;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A tile observer which produces tile usage reports from Velocity template files.
@@ -241,7 +233,7 @@ public class TileUsageReportGenerator extends TileComputationObserver {
     private static class VmFilenameFilter implements FilenameFilter {
         @Override
         public boolean accept(File dir, String name) {
-            return name.startsWith("SimpleTileComputationHandler.") && name.endsWith(".vm");
+            return name.startsWith("TileComputationObserver.") && name.endsWith(".vm");
         }
     }
 
