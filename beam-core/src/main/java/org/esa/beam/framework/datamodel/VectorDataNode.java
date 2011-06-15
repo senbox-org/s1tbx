@@ -119,14 +119,10 @@ public class VectorDataNode extends ProductNode {
         this.placemarkDescriptor = placemarkDescriptor;
     }
 
-    // Note: This is a temporary method. Soon, VectorDataNodes will be able to support all suitable PlacemarkDescriptors.
-    //       Then this method becomes getPlacemarkDescriptor(name)
     public PlacemarkDescriptor getPlacemarkDescriptor() {
         return placemarkDescriptor;
     }
 
-    // Note: This is a temporary method. Soon, VectorDataNodes will be able to support all suitable PlacemarkDescriptors.
-    //       Then this method becomes getPlacemarkGroup(name)
     public PlacemarkGroup getPlacemarkGroup() {
         if (placemarkGroup == null) {
             placemarkGroup = new PlacemarkGroup(getProduct(), getName(), this);
