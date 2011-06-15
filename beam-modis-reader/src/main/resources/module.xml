@@ -30,7 +30,7 @@
         <module>lib-hdf</module>
     </dependency>
     <dependency>
-        <module>beam-visat</module>
+        <module>beam-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 

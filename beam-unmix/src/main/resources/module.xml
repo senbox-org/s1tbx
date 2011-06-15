@@ -23,11 +23,8 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
-
-    <!--<activator>org.esa.beam.unmix.Activator</activator>-->
-
     <dependency>
-        <module>beam-visat</module>
+        <module>beam-visat-rcp</module>
         <optional>true</optional>
     </dependency>
     <dependency>

@@ -24,7 +24,7 @@
         <module>beam-core</module>
     </dependency>
     <dependency>
-        <module>beam-visat</module>
+        <module>beam-visat-rcp</module>
     </dependency>
 
     <extension point="beam-ui:actions">

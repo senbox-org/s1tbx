@@ -43,7 +43,7 @@
         <module>beam-gpf</module>
     </dependency>
     <dependency>
-        <module>beam-visat</module>
+        <module>beam-visat-rcp</module>
     </dependency>
 
     <categories>VISAT,System</categories>

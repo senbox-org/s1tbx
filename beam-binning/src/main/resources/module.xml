@@ -14,15 +14,12 @@
     <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-    
-    <dependency>
-        <module>beam-visat</module>
-    </dependency>
+
     <dependency>
         <module>beam-processing</module>
     </dependency>
     <dependency>
-        <module>beam-visat</module>
+        <module>beam-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
