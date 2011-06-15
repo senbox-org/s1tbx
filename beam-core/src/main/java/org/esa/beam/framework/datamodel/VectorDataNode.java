@@ -263,6 +263,11 @@ public class VectorDataNode extends ProductNode {
         super.dispose();
     }
 
+    /**
+     * @return true if the feature type's name starts with "org.esa.beam."
+     * @deprecated Since BEAM 4.10. No use.
+     */
+    @Deprecated
     public boolean isInternalNode() {
         return getFeatureType().getTypeName().startsWith("org.esa.beam.");
     }

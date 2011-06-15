@@ -64,7 +64,10 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.media.jai.PlanarImage;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
@@ -1285,14 +1288,13 @@ public class ProductUtils {
             for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
                 VectorDataNode sourceVDN = vectorDataGroup.get(i);
                 String name = sourceVDN.getName();
-                if (!sourceVDN.isInternalNode()) {
-                    FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
-                    featureCollection = new DefaultFeatureCollection(featureCollection);
-                    VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
-                    targetVDN.setDefaultCSS(sourceVDN.getDefaultCSS());
-                    targetVDN.setDescription(sourceVDN.getDescription());
-                    targetProduct.getVectorDataGroup().add(targetVDN);
-                }
+
+                FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
+                featureCollection = new DefaultFeatureCollection(featureCollection);
+                VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
+                targetVDN.setDefaultCSS(sourceVDN.getDefaultCSS());
+                targetVDN.setDescription(sourceVDN.getDescription());
+                targetProduct.getVectorDataGroup().add(targetVDN);
             }
         } else {
             Geometry clipGeometry;
@@ -1310,16 +1312,14 @@ public class ProductUtils {
             for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
                 VectorDataNode sourceVDN = vectorDataGroup.get(i);
                 String name = sourceVDN.getName();
-                if (!sourceVDN.isInternalNode()) {
-                    FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
-                    featureCollection = FeatureCollectionClipper.doOperation(featureCollection, srcModelCrs,
-                                                                             clipGeometry, DefaultGeographicCRS.WGS84,
-                                                                             null, targetModelCrs);
-                    VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
-                    targetVDN.setDefaultCSS(sourceVDN.getDefaultCSS());
-                    targetVDN.setDescription(sourceVDN.getDescription());
-                    targetProduct.getVectorDataGroup().add(targetVDN);
-                }
+                FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
+                featureCollection = FeatureCollectionClipper.doOperation(featureCollection, srcModelCrs,
+                                                                         clipGeometry, DefaultGeographicCRS.WGS84,
+                                                                         null, targetModelCrs);
+                VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
+                targetVDN.setDefaultCSS(sourceVDN.getDefaultCSS());
+                targetVDN.setDescription(sourceVDN.getDescription());
+                targetProduct.getVectorDataGroup().add(targetVDN);
             }
         }
     }

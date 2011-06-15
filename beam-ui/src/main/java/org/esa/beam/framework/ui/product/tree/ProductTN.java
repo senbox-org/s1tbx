@@ -78,7 +78,7 @@ class ProductTN extends AbstractTN {
         if (hasVectorData(product)) {
             childIndex++;
             if (childIndex == index) {
-                return new VectorDataGroupTN(ProductTN.VECTOR_DATA, this.product.getVectorDataGroup(), this);
+                return new ProductNodeTN(ProductTN.VECTOR_DATA, this.product.getVectorDataGroup(), this);
             }
         }
         if (hasBands(product)) {
@@ -221,6 +221,7 @@ class ProductTN extends AbstractTN {
         final ProductNodeGroup<VectorDataNode> vectorNodeGroup = product.getVectorDataGroup();
         for (int i = 0; i < vectorNodeGroup.getNodeCount(); i++) {
             final VectorDataNode vectorDataNode = vectorNodeGroup.get(i);
+            // remove following test, once VectorDataNode.isInternalNode() is not used anymore
             if (!vectorDataNode.isInternalNode() ||
                     (vectorDataNode.isInternalNode() && !vectorDataNode.getFeatureCollection().isEmpty())) {
                 return true;

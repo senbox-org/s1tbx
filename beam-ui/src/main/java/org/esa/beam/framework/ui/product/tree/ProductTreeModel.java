@@ -157,15 +157,7 @@ public class ProductTreeModel implements TreeModel {
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
-            if (event.getSourceNode() instanceof VectorDataNode) {
-                VectorDataNode vectorDataNode = (VectorDataNode) event.getSourceNode();
-                if (vectorDataNode.isInternalNode()) {
-                    TreePath path = getTreePath(event.getSourceNode());
-                    if (path != null) {
-                        fireTreeNodeChanged(path);
-                    }
-                }
-            } else if (event.getSourceNode() instanceof Product) {
+            if (event.getSourceNode() instanceof Product) {
                 Product product = (Product) event.getSourceNode();
                 TreePath path = getTreePath(product);
                 if (path != null) {

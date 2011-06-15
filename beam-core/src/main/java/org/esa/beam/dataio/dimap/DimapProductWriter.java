@@ -477,14 +477,7 @@ public class DimapProductWriter extends AbstractProductWriter {
     private void writeVectorData() {
         Product product = getSourceProduct();
         ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
-        boolean hasVectorData = false;
-        for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
-            VectorDataNode vectorDataNode = vectorDataGroup.get(i);
-            if (!vectorDataNode.isInternalNode()) {
-                hasVectorData = true;
-                break;
-            }
-        }
+
         File vectorDataDir = new File(_dataOutputDir, "vector_data");
         if (vectorDataDir.exists()) {
             File[] files = vectorDataDir.listFiles();
@@ -492,13 +485,12 @@ public class DimapProductWriter extends AbstractProductWriter {
                 file.delete();
             }
         }
-        if (hasVectorData) {
+
+        if (vectorDataGroup.getNodeCount() > 0) {
             vectorDataDir.mkdirs();
             for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
                 VectorDataNode vectorDataNode = vectorDataGroup.get(i);
-                if (!vectorDataNode.isInternalNode()) {
-                    writeVectorData(vectorDataDir, vectorDataNode);
-                }
+                writeVectorData(vectorDataDir, vectorDataNode);
             }
         }
     }
