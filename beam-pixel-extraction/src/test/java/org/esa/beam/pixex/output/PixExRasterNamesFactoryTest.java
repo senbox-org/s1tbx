@@ -31,8 +31,6 @@ public class PixExRasterNamesFactoryTest {
         maskGroup.add(newMask("mask1"));
         maskGroup.add(newMask("mask2"));
         maskGroup.add(newMask("mask3"));
-        maskGroup.remove(maskGroup.get(Product.PIN_MASK_NAME));
-        maskGroup.remove(maskGroup.get(Product.GCP_MASK_NAME));
     }
 
     @Test

@@ -38,17 +38,17 @@ public class VectorDataNodeTest {
     @Test
     public void testVectorDataGroup() throws TransformException, FactoryException {
         Product p = new Product("p", "pt", 512, 512);
-        assertEquals(2, p.getVectorDataGroup().getNodeCount());
+        assertEquals(0, p.getVectorDataGroup().getNodeCount());
 
         SimpleFeatureType pinType = Placemark.createPinFeatureType();
         SimpleFeatureType gcpType = Placemark.createGcpFeatureType();
 
-        p.getVectorDataGroup().add(new VectorDataNode("Pins2", pinType));
-        p.getVectorDataGroup().add(new VectorDataNode("GCPs2", gcpType));
-        assertEquals(4, p.getVectorDataGroup().getNodeCount());
+        p.getVectorDataGroup().add(new VectorDataNode("Pins", pinType));
+        p.getVectorDataGroup().add(new VectorDataNode("GCPs", gcpType));
+        assertEquals(2, p.getVectorDataGroup().getNodeCount());
 
-        testVectorData(p, "Pins2", pinType);
-        testVectorData(p, "GCPs2", gcpType);
+        testVectorData(p, "Pins", pinType);
+        testVectorData(p, "GCPs", gcpType);
     }
 
     private static void testVectorData(Product p, String expectedName, SimpleFeatureType expectedType) {

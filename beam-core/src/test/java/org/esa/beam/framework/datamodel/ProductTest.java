@@ -80,8 +80,8 @@ public class ProductTest extends TestCase {
         assertEquals(true, visitedList.contains("maskGroup"));
         assertEquals(true, visitedList.contains("indexCodingGroup"));
         assertEquals(true, visitedList.contains("flagCodingGroup"));
-        assertEquals(true, visitedList.contains("pins"));
-        assertEquals(true, visitedList.contains("ground_control_points"));
+        assertEquals(false, visitedList.contains("pins"));
+        assertEquals(false, visitedList.contains("ground_control_points"));
         assertEquals(true, visitedList.contains("vectorDataGroup"));
 
         try {

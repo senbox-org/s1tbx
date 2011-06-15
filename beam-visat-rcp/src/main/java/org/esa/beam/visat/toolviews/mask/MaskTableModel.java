@@ -16,17 +16,10 @@
 
 package org.esa.beam.visat.toolviews.mask;
 
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkGroup;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 
 import javax.swing.table.AbstractTableModel;
-import java.awt.Color;
+import java.awt.*;
 
 class MaskTableModel extends AbstractTableModel {
 
@@ -140,10 +133,6 @@ class MaskTableModel extends AbstractTableModel {
         return product;
     }
 
-    void setProduct(Product product) {
-        setProduct(product, null);
-    }
-
     void setProduct(Product product, RasterDataNode visibleBand) {
         if (this.product != product) {
             if (this.product != null) {
@@ -165,14 +154,11 @@ class MaskTableModel extends AbstractTableModel {
 
     Mask getMask(int selectedRow) {
         ProductNodeGroup<Mask> maskGroup = getMaskGroup();
-        int modelIndex = convertRow2ModelIndex(maskGroup, selectedRow);
-        return maskGroup.get(modelIndex);
+        return maskGroup.get(selectedRow);
     }
 
     int getMaskIndex(String name) {
-        int modelIndex = getMaskGroup().indexOf(name);
-        int rowIndex = convertModel2RowIndex(getMaskGroup(), modelIndex);
-        return rowIndex;
+        return getMaskGroup().indexOf(name);
     }
 
     void addMask(Mask mask) {
@@ -182,8 +168,7 @@ class MaskTableModel extends AbstractTableModel {
 
     public void addMask(Mask mask, int index) {
         ProductNodeGroup<Mask> maskGroup = getProduct().getMaskGroup();
-        int modelIndex = convertRow2ModelIndex(maskGroup, index);
-        maskGroup.add(modelIndex, mask);
+        maskGroup.add(index, mask);
         fireTableDataChanged();
     }
 
@@ -250,24 +235,13 @@ class MaskTableModel extends AbstractTableModel {
     @Override
     public int getRowCount() {
         ProductNodeGroup<Mask> maskGroup = getMaskGroup();
-        int maskCount = 0;
-        if (maskGroup != null) {
-            maskCount = maskGroup.getNodeCount();
-            if(isPlacemarkGroupEmpty(maskGroup.getProduct().getPinGroup())) {
-                maskCount--;
-            }
-            if(isPlacemarkGroupEmpty(maskGroup.getProduct().getGcpGroup())) {
-                maskCount--;
-            }
-        }
-        return maskCount;
+        return maskGroup != null ? maskGroup.getNodeCount() : 0;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         final ProductNodeGroup<Mask> maskGroup = getMaskGroup();
-        int modelIndex = convertRow2ModelIndex(maskGroup, rowIndex);
-        Mask mask = maskGroup.get(modelIndex);
+        Mask mask = maskGroup.get(rowIndex);
         int column = modeIdxs[columnIndex];
 
         if (column == IDX_VISIBILITY) {
@@ -300,8 +274,7 @@ class MaskTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         final ProductNodeGroup<Mask> maskGroup = getMaskGroup();
-        int modelIndex = convertRow2ModelIndex(maskGroup, rowIndex);
-        Mask mask = maskGroup.get(modelIndex);
+        Mask mask = maskGroup.get(rowIndex);
         int column = modeIdxs[columnIndex];
 
         if (column == IDX_VISIBILITY) {
@@ -346,44 +319,6 @@ class MaskTableModel extends AbstractTableModel {
 
     }
 
-    private int convertModel2RowIndex(ProductNodeGroup<Mask> maskGroup, int modelIndex) {
-        final PlacemarkGroup pinGroup = maskGroup.getProduct().getPinGroup();
-        final int pinIndex = maskGroup.indexOf(Product.PIN_MASK_NAME);
-
-        final PlacemarkGroup gcpGroup = maskGroup.getProduct().getGcpGroup();
-        final int gcpIndex = maskGroup.indexOf(Product.GCP_MASK_NAME);
-        int rowIndex = modelIndex;
-
-        if(isPlacemarkGroupEmpty(pinGroup) && rowIndex >= pinIndex ) {
-            rowIndex--;
-        }
-        if( isPlacemarkGroupEmpty(gcpGroup) && rowIndex >= gcpIndex ) {
-            rowIndex--;
-        }
-        return rowIndex;
-    }
-
-    private int convertRow2ModelIndex(ProductNodeGroup<Mask> maskGroup, int rowIndex) {
-        final PlacemarkGroup pinGroup = maskGroup.getProduct().getPinGroup();
-        final int pinIndex = maskGroup.indexOf(Product.PIN_MASK_NAME);
-
-        final PlacemarkGroup gcpGroup = maskGroup.getProduct().getGcpGroup();
-        final int gcpIndex = maskGroup.indexOf(Product.GCP_MASK_NAME);
-        int modelIndex = rowIndex;
-
-        if(isPlacemarkGroupEmpty(pinGroup) && modelIndex >= pinIndex ) {
-            modelIndex++;
-        }
-        if( isPlacemarkGroupEmpty(gcpGroup) && modelIndex >= gcpIndex ) {
-            modelIndex++;
-        }
-        return modelIndex;
-    }
-
-    private boolean isPlacemarkGroupEmpty(PlacemarkGroup placemarkGroup) {
-        return placemarkGroup.getNodeCount() == 0;
-    }
-
     private class MaskPNL extends ProductNodeListenerAdapter {
 
         @Override
@@ -404,9 +339,9 @@ class MaskTableModel extends AbstractTableModel {
         private void processEvent(ProductNodeEvent event) {
             if (event.getSourceNode() instanceof Mask) {
                 fireTableDataChanged();
-            }else if (event.getSourceNode() instanceof Placemark){
+            } else if (event.getSourceNode() instanceof Placemark) {
                 fireTableDataChanged();
-            }else if (event.getSourceNode() == visibleBand
+            } else if (event.getSourceNode() == visibleBand
                     && event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_IMAGE_INFO)) {
                 fireTableDataChanged();
             }

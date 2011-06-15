@@ -58,54 +58,27 @@ public class MaskFormTest extends TestCase {
         assertNotNull(maskManagerForm.getHelpButton());
         assertEquals("helpButton", maskManagerForm.getHelpButton().getName());
         assertNotNull(maskManagerForm.createContentPanel());
-        assertEquals(12, maskManagerForm.getRowCount());
+        assertEquals(10, maskManagerForm.getRowCount());
+
         final TableModel tableModel = maskManagerForm.getMaskTable().getModel();
-        assertEquals("M_3", tableModel.getValueAt(0, 0));
-        tableModel.setValueAt("test_3", 0, 0);
-        assertEquals("test_3", tableModel.getValueAt(0, 0));
-        assertEquals("M_4", tableModel.getValueAt(1, 0));
 
-        final PlacemarkGroup gcpGroup = product.getGcpGroup();
-        final PlacemarkGroup pinGroup = product.getPinGroup();
+        assertEquals("M_1", tableModel.getValueAt(0, 0));
 
-        gcpGroup.add(Placemark.createPointPlacemark(GcpDescriptor.getInstance(), "G", "L", "D", new PixelPos(10, 10), null, null));
-        assertEquals(13, maskManagerForm.getRowCount());
+        product.getPinGroup(); // Force addition of "pin" group
 
-        assertEquals(Product.GCP_MASK_NAME, tableModel.getValueAt(0, 0));
-        tableModel.setValueAt("test_gcp", 0, 0);
-        assertEquals("test_gcp", tableModel.getValueAt(0, 0));
+        assertEquals(11, maskManagerForm.getRowCount());
 
-        assertEquals("test_3", tableModel.getValueAt(1, 0));
-        tableModel.setValueAt("M_3", 1, 0);
-        assertEquals("M_3", tableModel.getValueAt(1, 0));
-
-        pinGroup.add(Placemark.createPointPlacemark(PinDescriptor.getInstance(), "P", "L", "D", new PixelPos(10, 10), null, null));
-        assertEquals(14, maskManagerForm.getRowCount());
-
-        assertEquals(Product.PIN_MASK_NAME, tableModel.getValueAt(0, 0));
-        tableModel.setValueAt("test_pin", 0, 0);
-        assertEquals("test_pin", tableModel.getValueAt(0, 0));
-
-        assertEquals("test_gcp", tableModel.getValueAt(1, 0));
-        tableModel.setValueAt(Product.GCP_MASK_NAME, 1, 0);
-        assertEquals(Product.GCP_MASK_NAME, tableModel.getValueAt(1, 0));
-
-        assertEquals("M_3", tableModel.getValueAt(2, 0));
-        tableModel.setValueAt("test_3", 2, 0);
-        assertEquals("test_3", tableModel.getValueAt(2, 0));
-
-        gcpGroup.removeAll();
-        assertEquals(13, maskManagerForm.getRowCount());
-        assertEquals("test_pin", tableModel.getValueAt(0, 0));
-        assertEquals("test_3", tableModel.getValueAt(1, 0));
-
+        assertEquals("M_1", tableModel.getValueAt(0, 0));
+        assertEquals("M_2", tableModel.getValueAt(1, 0));
+        assertEquals("M_10", tableModel.getValueAt(9, 0));
+        assertEquals("pins", tableModel.getValueAt(10, 0));
     }
 
     public void testMaskViewerForm() {
         assertSame(product, maskViewerForm.getProduct());
         assertNull(maskViewerForm.getHelpButton());
         assertNotNull(maskViewerForm.createContentPanel());
-        assertEquals(12, maskViewerForm.getRowCount());
+        assertEquals(10, maskViewerForm.getRowCount());
     }
 
     static Product createTestProduct() {

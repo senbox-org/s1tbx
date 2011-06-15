@@ -76,7 +76,9 @@ public class Product extends ProductNode {
     public static final String METADATA_ROOT_NAME = "metadata";
     public static final String HISTORY_ROOT_NAME = "history";
 
+    @Deprecated
     public static final String PIN_MASK_NAME = "pins";
+    @Deprecated
     public static final String GCP_MASK_NAME = "ground_control_points";
 
     public static final String PROPERTY_NAME_GEOCODING = "geoCoding";
@@ -271,14 +273,6 @@ public class Product extends ProductNode {
         this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "indexCodingGroup", true);
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
         this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
-
-        final VectorDataNode pinVectorDataNode = new VectorDataNode(PIN_MASK_NAME, Placemark.createPinFeatureType());
-        pinVectorDataNode.setDefaultCSS("symbol:pin; fill:#0000ff; fill-opacity:0.7; stroke:#ffffff; stroke-opacity:1.0; stroke-width:0.5");
-        this.vectorDataGroup.add(pinVectorDataNode);
-
-        final VectorDataNode gcpVectorDataNode = new VectorDataNode(GCP_MASK_NAME, Placemark.createGcpFeatureType());
-        gcpVectorDataNode.setDefaultCSS("symbol:plus; stroke:#ff8800; stroke-opacity:0.8; stroke-width:1.0");
-        this.vectorDataGroup.add(gcpVectorDataNode);
 
         setModified(false);
 
@@ -1138,7 +1132,15 @@ public class Product extends ProductNode {
      * @return the GCP group.
      */
     public PlacemarkGroup getGcpGroup() {
-        return getVectorDataGroup().get(GCP_MASK_NAME).getPlacemarkGroup();
+        VectorDataNode node = getVectorDataGroup().get(GCP_MASK_NAME);
+        if (node == null) {
+            synchronized (vectorDataGroup) {
+                node = new VectorDataNode(GCP_MASK_NAME, Placemark.createGcpFeatureType());
+                node.setDefaultCSS("symbol:plus; stroke:#ff8800; stroke-opacity:0.8; stroke-width:1.0");
+                this.vectorDataGroup.add(node);
+            }
+        }
+        return node.getPlacemarkGroup();
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1150,9 +1152,19 @@ public class Product extends ProductNode {
      * @return the pin group.
      */
     public PlacemarkGroup getPinGroup() {
-        return getVectorDataGroup().get(PIN_MASK_NAME).getPlacemarkGroup();
+        VectorDataNode node = vectorDataGroup.get(PIN_MASK_NAME);
+        if (node == null) {
+            synchronized (vectorDataGroup) {
+                node = new VectorDataNode(PIN_MASK_NAME, Placemark.createPinFeatureType());
+                node.setDefaultCSS("symbol:pin; fill:#0000ff; fill-opacity:0.7; stroke:#ffffff; stroke-opacity:1.0; stroke-width:0.5");
+                this.vectorDataGroup.add(node);
+            }
+        }
+        return node.getPlacemarkGroup();
     }
 
+    //
+    //////////////////////////////////////////////////////////////////////////
 
     /**
      * Checks whether or not the given product is compatible with this product.
