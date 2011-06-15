@@ -29,6 +29,7 @@ Further development towards TrackPoints
     We might something like dynamic features that are created for point features
     while bands are added removed --> dynamic feature type (featuture type extender, or
     "runtime feature type")
+- When copying VDNs --> rename ones with same name that exist before
 - Remove ProductProjectionBuilder but usage in MosaicProcessor: is it still required?
 - Remove all redundant calls to PinDescriptor.getInstance()
 - Remove all redundant calls to GcpDescriptor.getInstance()
