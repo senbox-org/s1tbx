@@ -1925,8 +1925,7 @@ public class VisatApp extends BasicApp implements AppContext {
                 "drawRectangleTool",
                 "drawEllipseTool",
                 "drawPolygonTool",
-// todo - activate magic stick (nf)
-//                "magicStickTool",
+                "magicStickTool",
                 "createVectorDataNode",
                 null,
         });
