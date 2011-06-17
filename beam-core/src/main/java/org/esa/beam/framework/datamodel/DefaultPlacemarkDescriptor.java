@@ -23,7 +23,6 @@ public class DefaultPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
-    @Deprecated
     public SimpleFeatureType getDefaultFeatureType() {
         return null;
     }

@@ -36,15 +36,13 @@ import java.awt.*;
  */
 public interface PlacemarkDescriptor {
 
-
     Placemark createPlacemark(SimpleFeature feature);
 
     boolean isCompatibleWith(SimpleFeatureType featureType);
 
-    // todo - remove deprecated methods (nf while revisioning Placemark API)
-
-    @Deprecated
     SimpleFeatureType getDefaultFeatureType();
+
+    // todo - remove deprecated methods (nf while revisioning Placemark API)
 
     @Deprecated
     String getRoleName();
