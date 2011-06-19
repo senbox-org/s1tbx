@@ -62,7 +62,7 @@ public class MagicStickUtilsTest {
                                                              NO_SPECTRA,
                                                              tolerance);
 
-        assertEquals("sqrt((b1-0.4)*(b1-0.4)+(b2-0.3)*(b2-0.3)+(b3-0.2)*(b3-0.2))/3 < 0.1", expression);
+        assertEquals("distance(b1,b2,b3,0.4,0.3,0.2)/3 < 0.1", expression);
     }
 
     @Test
@@ -83,8 +83,8 @@ public class MagicStickUtilsTest {
                                                              NO_SPECTRA,
                                                              tolerance);
 
-        assertEquals("sqrt((b1-0.4)*(b1-0.4)+(b2-0.3)*(b2-0.3)+(b3-0.2)*(b3-0.2))/3 < 0.1" +
-                             " || sqrt((b1-0.6)*(b1-0.6)+(b2-0.9)*(b2-0.9)+(b3-0.7)*(b3-0.7))/3 < 0.1", expression);
+        assertEquals("distance(b1,b2,b3,0.4,0.3,0.2)/3 < 0.1" +
+                             " || distance(b1,b2,b3,0.6,0.9,0.7)/3 < 0.1", expression);
     }
 
     @Test
@@ -101,6 +101,6 @@ public class MagicStickUtilsTest {
                                                              Arrays.asList(spectrum),
                                                              NO_SPECTRA, tolerance);
 
-        assertEquals("sqrt((a2-0.2)*(a2-0.2)) < 0.05", expression);
+        assertEquals("distance(a2,0.2) < 0.05", expression);
     }
 }

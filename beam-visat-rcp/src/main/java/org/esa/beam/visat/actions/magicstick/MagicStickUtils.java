@@ -4,6 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -49,19 +50,21 @@ class MagicStickUtils {
         if (bands.length == 0) {
             return "0";
         }
-        final StringBuilder sb = new StringBuilder();
+        final StringBuilder arguments = new StringBuilder();
         for (int i = 0; i < bands.length; i++) {
-            Band b = bands[i];
-            double v = spectrum[i];
             if (i > 0) {
-                sb.append("+");
+                arguments.append(",");
             }
-            sb.append(String.format("(%s-%s)*(%s-%s)", b.getName(), v, b.getName(), v));
+            arguments.append(BandArithmetic.createExternalName(bands[i].getName()));
+        }
+        for (int i = 0; i < spectrum.length; i++) {
+            arguments.append(",");
+            arguments.append(spectrum[i]);
         }
         if (bands.length == 1) {
-            return String.format("sqrt(%s) < %s", sb, tolerance);
+            return String.format("distance(%s) < %s", arguments, tolerance);
         } else {
-            return String.format("sqrt(%s)/%s < %s", sb, bands.length, tolerance);
+            return String.format("distance(%s)/%s < %s", arguments, bands.length, tolerance);
         }
     }
 
