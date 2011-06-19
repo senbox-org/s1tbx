@@ -28,11 +28,14 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.visat.VisatApp;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -40,6 +43,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static org.esa.beam.visat.actions.magicstick.MagicStickUtils.*;
 
@@ -54,12 +58,21 @@ import static org.esa.beam.visat.actions.magicstick.MagicStickUtils.*;
 public class MagicStickInteractor extends ViewportInteractor {
 
     private static final String DIALOG_TITLE = "Magic Stick";
-    private double tolerance = 0.1;
     private JDialog parameterWindow;
     private final MyLayerListener layerListener;
 
+    private Mode mode;
+    private ArrayList<double[]> plusSpectra;
+    private ArrayList<double[]> minusSpectra;
+    private double tolerance;
+
     public MagicStickInteractor() {
         layerListener = new MyLayerListener();
+
+        mode = Mode.SINGLE;
+        plusSpectra = new ArrayList<double[]>();
+        minusSpectra = new ArrayList<double[]>();
+        tolerance = 0.1;
     }
 
     @Override
@@ -116,7 +129,17 @@ public class MagicStickInteractor extends ViewportInteractor {
             return;
         }
 
-        final String expression = createExpression(spectralBands, spectrum, tolerance);
+        if (mode == Mode.SINGLE) {
+            plusSpectra.clear();
+            minusSpectra.clear();
+            plusSpectra.add(spectrum);
+        } else if (mode == Mode.PLUS) {
+            plusSpectra.add(spectrum);
+        } else if (mode == Mode.MINUS) {
+            minusSpectra.add(spectrum);
+        }
+
+        final String expression = createExpression(spectralBands, plusSpectra, minusSpectra, tolerance);
 
         setMagicStickMask(product, expression);
     }
@@ -124,16 +147,16 @@ public class MagicStickInteractor extends ViewportInteractor {
     private JDialog createParameterWindow() {
         JDialog parameterWindow = new JDialog(VisatApp.getApp().getMainFrame(), DIALOG_TITLE, false);
         UIUtils.centerComponent(parameterWindow, VisatApp.getApp().getMainFrame());
-        parameterWindow.getContentPane().add(new ToolForm().createPanel());
+        parameterWindow.getContentPane().add(new MagicStickForm().createPanel());
         parameterWindow.pack();
         return parameterWindow;
     }
 
 
-    private class ToolForm {
+    class MagicStickForm {
         private JTextField toleranceField;
 
-        private ToolForm() {
+        private MagicStickForm() {
         }
 
         public JPanel createPanel() {
@@ -156,7 +179,33 @@ public class MagicStickInteractor extends ViewportInteractor {
                 }
             });
 
-            JButton clearButton = new JButton("Clear Mask");
+            final JToggleButton plusButton = new JToggleButton(new ImageIcon(getClass().getResource("/org/esa/beam/resources/images/icons/Plus16.gif")));
+            final JToggleButton minusButton = new JToggleButton(new ImageIcon(getClass().getResource("/org/esa/beam/resources/images/icons/Minus16.gif")));
+            plusButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (plusButton.isSelected()) {
+                        minusButton.setSelected(false);
+                        mode = Mode.PLUS;
+                    } else {
+                        mode = Mode.SINGLE;
+                    }
+                    System.out.println("mode = " + mode);
+                }
+            });
+            minusButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (minusButton.isSelected()) {
+                        plusButton.setSelected(false);
+                        mode = Mode.MINUS;
+                    } else {
+                        mode = Mode.SINGLE;
+                    }
+                    System.out.println("mode = " + mode);
+                }
+            });
+            final JButton clearButton = new JButton(new ImageIcon(getClass().getResource("/org/esa/beam/resources/images/icons/Remove16.gif")));
             clearButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -166,21 +215,25 @@ public class MagicStickInteractor extends ViewportInteractor {
                     }
                     final Product product = view.getProduct();
                     setMagicStickMask(product, "0");
+                    plusSpectra.clear();
+                    minusSpectra.clear();
                 }
             });
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
+            buttonPanel.add(plusButton);
+            buttonPanel.add(minusButton);
+            buttonPanel.add(clearButton);
 
-            final TableLayout tableLayout = new TableLayout(3);
+            final TableLayout tableLayout = new TableLayout(2);
             tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
             tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-            tableLayout.setColumnWeightX(0, 0.1);
-            tableLayout.setColumnWeightX(1, 0.8);
-            tableLayout.setColumnWeightX(2, 0.1);
+            tableLayout.setTableWeightX(1.0);
+            tableLayout.setCellColspan(1, 0, 3);
             tableLayout.setTablePadding(4, 4);
             JPanel panel = new JPanel(tableLayout);
             panel.add(toleranceLabel);
             panel.add(toleranceField);
-            panel.add(clearButton);
-
+            panel.add(buttonPanel);
             return panel;
         }
 
@@ -211,5 +264,11 @@ public class MagicStickInteractor extends ViewportInteractor {
                 }
             }
         }
+    }
+
+    private enum Mode {
+        SINGLE,
+        PLUS,
+        MINUS,
     }
 }

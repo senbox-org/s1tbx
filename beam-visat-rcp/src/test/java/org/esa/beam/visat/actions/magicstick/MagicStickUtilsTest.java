@@ -6,6 +6,10 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 /**
@@ -13,6 +17,7 @@ import static org.junit.Assert.*;
  */
 public class MagicStickUtilsTest {
 
+    private static final List<double[]> NO_SPECTRA = Collections.<double[]>emptyList();
     private Product product;
     private Band b1;
     private Band b2;
@@ -52,9 +57,34 @@ public class MagicStickUtilsTest {
                 0.4, 0.3, 0.2
         };
         double tolerance = 0.1;
-        String expression = MagicStickUtils.createExpression(bands, spectrum, tolerance);
+        String expression = MagicStickUtils.createExpression(bands,
+                                                             Arrays.asList(spectrum),
+                                                             NO_SPECTRA,
+                                                             tolerance);
 
-        assertEquals("sqrt((b1-0.4)*(b1-0.4)+(b2-0.3)*(b2-0.3)+(b3-0.2)*(b3-0.2)) < 0.1", expression);
+        assertEquals("sqrt((b1-0.4)*(b1-0.4)+(b2-0.3)*(b2-0.3)+(b3-0.2)*(b3-0.2))/3 < 0.1", expression);
+    }
+
+    @Test
+    public void testCreateExpressionWith3Bands2PlusSpectra() throws Exception {
+
+        Band[] bands = {
+                b1, b2, b3
+        };
+        double[] spectrum1 = {
+                0.4, 0.3, 0.2
+        };
+        double[] spectrum2 = {
+                0.6, 0.9, 0.7
+        };
+        double tolerance = 0.1;
+        String expression = MagicStickUtils.createExpression(bands,
+                                                             Arrays.asList(spectrum1, spectrum2),
+                                                             NO_SPECTRA,
+                                                             tolerance);
+
+        assertEquals("sqrt((b1-0.4)*(b1-0.4)+(b2-0.3)*(b2-0.3)+(b3-0.2)*(b3-0.2))/3 < 0.1" +
+                             " || sqrt((b1-0.6)*(b1-0.6)+(b2-0.9)*(b2-0.9)+(b3-0.7)*(b3-0.7))/3 < 0.1", expression);
     }
 
     @Test
@@ -67,7 +97,9 @@ public class MagicStickUtilsTest {
                 0.2
         };
         double tolerance = 0.05;
-        String expression = MagicStickUtils.createExpression(bands, spectrum, tolerance);
+        String expression = MagicStickUtils.createExpression(bands,
+                                                             Arrays.asList(spectrum),
+                                                             NO_SPECTRA, tolerance);
 
         assertEquals("sqrt((a2-0.2)*(a2-0.2)) < 0.05", expression);
     }
