@@ -83,21 +83,21 @@ public final class Tokenizer {
     /**
      * The keywords regognized by this tokenizer.
      */
-    private final static String[] _keywords = new String[]{
+    private final static String[] keywords = new String[]{
             "and", "or", "not", "true", "false"
     };
 
     /**
      * The special tokens regognized by this tokenizer.
      */
-    private final static String[] _specialTokens = new String[]{
+    private final static String[] specialTokens = new String[]{
             "==", "<=", ">=", "!=", "&&", "||", "<<", ">>"
     };
 
     /**
      * The ordinary characters regognized by this tokenizer.
      */
-    private final static char[] _ordinaryChars = new char[]{
+    private final static char[] ordinaryChars = new char[]{
             '(', ')', '{', '}', '[', ']',
             ',', ':',
             '<', '>',
@@ -113,42 +113,42 @@ public final class Tokenizer {
     /**
      * The text source as character array.
      */
-    private final char[] _source;
+    private final char[] source;
 
     /**
      * The current token.
      */
-    private final StringBuffer _token;
+    private final StringBuffer token;
 
     /**
      * Determines whether the last token has been pushed back.
      */
-    private boolean _pushedBack;
+    private boolean pushedBack;
 
     /**
      * The type of the current token.
      */
-    private int _type;
+    private int type;
 
     /**
      * The current position within the text source.
      */
-    private int _pos;
+    private int pos;
 
     /**
      * The current line number within the text source.
      */
-    private int _line;
+    private int line;
 
     /**
      * The current column number within the text source.
      */
-    private int _column;
+    private int column;
 
     /**
      * Determines if tokenizing is performed case sensitive or not
      */
-    private boolean _caseSensitive;
+    private boolean caseSensitive;
 
     /**
      * Constructs a new tokenizer for the given text source.
@@ -157,14 +157,14 @@ public final class Tokenizer {
      * @param caseSensitive determines if tokenizing is performed case sensitive or not
      */
     public Tokenizer(final String source, final boolean caseSensitive) {
-        _source = source.toCharArray();
-        _line = 1;
-        _column = 0;
-        _pos = 0;
-        _type = TT_UNKNOWN;
-        _pushedBack = false;
-        _token = new StringBuffer();
-        _caseSensitive = caseSensitive;
+        this.source = source.toCharArray();
+        line = 1;
+        column = 0;
+        pos = 0;
+        type = TT_UNKNOWN;
+        pushedBack = false;
+        token = new StringBuffer();
+        this.caseSensitive = caseSensitive;
     }
 
     /**
@@ -181,21 +181,21 @@ public final class Tokenizer {
      * Returns the current token type.
      */
     public int getType() {
-        return _type;
+        return type;
     }
 
     /**
      * Gets the current source line number.
      */
     public int getLine() {
-        return _line;
+        return line;
     }
 
     /**
      * Gets the current source column number.
      */
     public int getColumn() {
-        return _column;
+        return column;
     }
 
     /**
@@ -203,7 +203,7 @@ public final class Tokenizer {
      * that it is returned again by a following <code>next()</code> call.
      */
     public void pushBack() {
-        _pushedBack = true;
+        pushedBack = true;
     }
 
     /**
@@ -213,7 +213,7 @@ public final class Tokenizer {
      * @return the current token string
      */
     public String getToken() {
-        return _token.toString();
+        return token.toString();
     }
 
     /**
@@ -226,18 +226,18 @@ public final class Tokenizer {
      */
     public int next() {
 
-        if (_pushedBack) {
-            _pushedBack = false;
-            return _type;
+        if (pushedBack) {
+            pushedBack = false;
+            return type;
         }
 
-        _type = TT_UNKNOWN;
-        _token.setLength(0);
+        type = TT_UNKNOWN;
+        token.setLength(0);
 
         eatWhite();
 
         if (isEos()) {
-            _type = TT_EOS;
+            type = TT_EOS;
         } else if (isNameStart()) {
             eatName();
         } else if (isEscapedNameStart()) {
@@ -249,26 +249,26 @@ public final class Tokenizer {
         } else if (isNumberStart()) {
             eatNumber();
         } else {
-            for (String specialToken : _specialTokens) {
+            for (String specialToken : specialTokens) {
                 final int n = specialToken.length();
-                int i = _pos;
-                for (; i < _pos + n; i++) {
-                    if (isEos(i) || specialToken.charAt(i - _pos) != peek(i)) {
+                int i = pos;
+                for (; i < pos + n; i++) {
+                    if (isEos(i) || specialToken.charAt(i - pos) != peek(i)) {
                         break;
                     }
                 }
-                if (i == _pos + n) {
-                    _type = TT_SPECIAL;
+                if (i == pos + n) {
+                    type = TT_SPECIAL;
                     eat(n);
                     break;
                 }
             }
 
-            if (_type != TT_SPECIAL) {
-                final int n = _ordinaryChars.length;
+            if (type != TT_SPECIAL) {
+                final int n = ordinaryChars.length;
                 for (int j = 0; j < n; j++) {
-                    if (_ordinaryChars[j] == peek()) {
-                        _type = peek();
+                    if (ordinaryChars[j] == peek()) {
+                        type = peek();
                         eat();
                         break;
                     }
@@ -276,7 +276,7 @@ public final class Tokenizer {
             }
         }
 
-        return _type;
+        return type;
     }
 
     /**
@@ -291,7 +291,7 @@ public final class Tokenizer {
         if (name == null || name.length() == 0) {
             return false;
         }
-        for (final String keyword : _keywords) {
+        for (final String keyword : keywords) {
             if (keyword.equalsIgnoreCase(name)) {
                 return false;
             }
@@ -327,8 +327,8 @@ public final class Tokenizer {
     private void eatWhite() {
         while (isWhite()) {
             if (peek() == '\n') {
-                _line++;
-                _column = 0;
+                line++;
+                column = 0;
             }
             incPos();
         }
@@ -339,22 +339,22 @@ public final class Tokenizer {
      * and increments the current source position.
      */
     private void eatName() {
-        _type = TT_NAME;
+        type = TT_NAME;
 
         do {
             eat();
         } while (isNamePart());
 
-        final String name = _token.toString();
-        for (String keyword : _keywords) {
+        final String name = token.toString();
+        for (String keyword : keywords) {
             final boolean isEqual;
-            if (_caseSensitive) {
+            if (caseSensitive) {
                 isEqual = name.equals(keyword);
             } else {
                 isEqual = name.equalsIgnoreCase(keyword);
             }
             if (isEqual) {
-                _type = TT_KEYWORD;
+                type = TT_KEYWORD;
                 break;
             }
         }
@@ -365,7 +365,7 @@ public final class Tokenizer {
      * to the current token and increments the current source position.
      */
     private void eatString() {
-        _type = TT_STRING;
+        type = TT_STRING;
         incPos(); // skip leading (")
         while (!isStringEnd()) {
             eat();
@@ -380,7 +380,7 @@ public final class Tokenizer {
      * to the current token and increments the current source position.
      */
     private void eatEsacpedName() {
-        _type = TT_ESCAPED_NAME;
+        type = TT_ESCAPED_NAME;
         incPos(); // skip leading (')
         while (!isEscapedNameEnd()) {
             if (isEscapedEscape()) {
@@ -403,27 +403,27 @@ public final class Tokenizer {
             eat(); // digit
         }
         if (isDot()) {
-            _type = TT_DOUBLE;
+            type = TT_DOUBLE;
             eat(); // '.'
             while (isDigit()) {
                 eat(); // digit
             }
         }
         if (isExpPartStart()) {
-            _type = TT_DOUBLE;
+            type = TT_DOUBLE;
             eat(); // 'e' or 'E'
             eat(); // '-' or '+' or digit
             while (isDigit()) {
                 eat(); // digit
             }
         }
-        if (_type != TT_DOUBLE) {
-            _type = TT_INT;
-            if (_token.charAt(0) == '0' && _token.length() > 1) {
-                _type = TT_OCT_INT;
-                for (int i = 0; i < _token.length(); i++) {
-                    if (isOctDigit(_token.charAt(i))) {
-                        _type = TT_INT;
+        if (type != TT_DOUBLE) {
+            type = TT_INT;
+            if (token.charAt(0) == '0' && token.length() > 1) {
+                type = TT_OCT_INT;
+                for (int i = 0; i < token.length(); i++) {
+                    if (isOctDigit(token.charAt(i))) {
+                        type = TT_INT;
                         break;
                     }
                 }
@@ -436,7 +436,7 @@ public final class Tokenizer {
      * constant to the current token and increments the current source position.
      */
     private void eatHexNumber() {
-        _type = TT_HEX_INT;
+        type = TT_HEX_INT;
         eat(); // '0'
         eat(); // 'x' or 'X'
         while (isHexDigit()) {
@@ -448,7 +448,7 @@ public final class Tokenizer {
      * Determines whether the character at the current position is a white space.
      */
     private boolean isWhite() {
-        return isWhite(_pos);
+        return isWhite(pos);
     }
 
     /**
@@ -471,7 +471,7 @@ public final class Tokenizer {
      * a single quote used to mark the end of an escaped name (').
      */
     private boolean isEscapedNameEnd() {
-        return isEos() || (isChar('\'') && !isChar(_pos + 1, '\''));
+        return isEos() || (isChar('\'') && !isChar(pos + 1, '\''));
     }
 
     /**
@@ -479,7 +479,7 @@ public final class Tokenizer {
      * the following character are both single quotes.
      */
     private boolean isEscapedEscape() {
-        return (isChar('\'') && isChar(_pos + 1, '\''));
+        return (isChar('\'') && isChar(pos + 1, '\''));
     }
 
     /**
@@ -507,7 +507,7 @@ public final class Tokenizer {
     }
 
     private boolean isHexNumberStart() {
-        return isHexNumberStart(_pos);
+        return isHexNumberStart(pos);
     }
 
     private boolean isHexNumberStart(final int i) {
@@ -515,7 +515,7 @@ public final class Tokenizer {
     }
 
     private boolean isDotAndDigit() {
-        return isDotAndDigit(_pos);
+        return isDotAndDigit(pos);
     }
 
     private boolean isDotAndDigit(final int i) {
@@ -528,11 +528,11 @@ public final class Tokenizer {
 
     private boolean isExpPartStart() {
         return (isChar('e') || isChar('E'))
-                && (isDigit(_pos + 1) || isSignAndDigit(_pos + 1));
+                && (isDigit(pos + 1) || isSignAndDigit(pos + 1));
     }
 
     private boolean isDot() {
-        return isDot(_pos);
+        return isDot(pos);
     }
 
     private boolean isDot(final int i) {
@@ -552,15 +552,15 @@ public final class Tokenizer {
     }
 
     private boolean isEos() {
-        return isEos(_pos);
+        return isEos(pos);
     }
 
     private boolean isEos(final int i) {
-        return i >= _source.length;
+        return i >= source.length;
     }
 
     private boolean isDigit() {
-        return isDigit(_pos);
+        return isDigit(pos);
     }
 
     private boolean isDigit(final int i) {
@@ -568,7 +568,7 @@ public final class Tokenizer {
     }
 
     private boolean isHexDigit() {
-        return isHexDigit(_pos);
+        return isHexDigit(pos);
     }
 
     private boolean isHexDigit(final int i) {
@@ -583,7 +583,7 @@ public final class Tokenizer {
     }
 
     private boolean isNameStart() {
-        return isNameStart(_pos);
+        return isNameStart(pos);
     }
 
     /**
@@ -591,7 +591,7 @@ public final class Tokenizer {
      * marks the beginning of a name (a letter or '_').
      */
     private boolean isNameStart(final int i) {
-        return !isEos(i) && (Character.isLetter(_source[i]) || _source[i] == '_' || _source[i] == '$');
+        return !isEos(i) && (Character.isLetter(source[i]) || source[i] == '_' || source[i] == '$');
     }
 
     /**
@@ -599,7 +599,7 @@ public final class Tokenizer {
      * part of a name (a letter, a digit or '_').
      */
     private boolean isNamePart() {
-        return isNamePart(_pos);
+        return isNamePart(pos);
     }
 
     /**
@@ -614,14 +614,14 @@ public final class Tokenizer {
      * Returns the character at the current position.
      */
     private char peek() {
-        return peek(_pos);
+        return peek(pos);
     }
 
     /**
      * Returns the character at the given position i.
      */
     private char peek(final int i) {
-        return isEos(i) ? '\0' : _source[i];
+        return isEos(i) ? '\0' : source[i];
     }
 
 
@@ -630,7 +630,7 @@ public final class Tokenizer {
      * current source position.
      */
     private void eat() {
-        _token.append(peek());
+        token.append(peek());
         incPos();
     }
 
@@ -639,7 +639,7 @@ public final class Tokenizer {
      * current source position by n.
      */
     private void eat(final int n) {
-        _token.append(_source, _pos, n);
+        token.append(source, pos, n);
         incPos(n);
     }
 
@@ -647,15 +647,15 @@ public final class Tokenizer {
      * Increments the current source position.
      */
     private void incPos() {
-        _pos++;
-        _column++;
+        pos++;
+        column++;
     }
 
     /**
      * Increments the current source position by n.
      */
     private void incPos(final int n) {
-        _pos += n;
-        _column += n;
+        pos += n;
+        column += n;
     }
 }

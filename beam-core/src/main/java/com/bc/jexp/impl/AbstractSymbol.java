@@ -33,20 +33,20 @@ import com.bc.jexp.Term;
  */
 public abstract class AbstractSymbol implements Symbol {
 
-    private final String _name;
-    private final int _retType;
+    private final String name;
+    private final int retType;
 
     protected AbstractSymbol(final String name, final int retType) {
-        _name = name.intern();
-        _retType = retType;
+        this.name = name.intern();
+        this.retType = retType;
     }
 
     public String getName() {
-        return _name;
+        return name;
     }
 
     public int getRetType() {
-        return _retType;
+        return retType;
     }
 
     public abstract static class B extends AbstractSymbol {

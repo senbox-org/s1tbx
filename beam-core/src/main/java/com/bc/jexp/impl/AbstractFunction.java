@@ -24,43 +24,46 @@ import com.bc.jexp.Term;
 
 /**
  * Provides an implementation of the <code>{@link com.bc.jexp.Function}</code> interface.
+ *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
  */
 public abstract class AbstractFunction implements Function {
 
-    private final String _name;
-    private final int _retType;
-    private final int _numArgs;
-    private final int[] _argTypes;
+    private final String name;
+    private final int retType;
+    private final int numArgs;
+    private final int[] argTypes;
 
     protected AbstractFunction(final String name, final int retType, final int numArgs) {
-        this(name, retType, numArgs, new int[numArgs]);
-        for (int i = 0; i < _argTypes.length; i++) {
-            _argTypes[i] = retType;
+        this(name, retType, numArgs, numArgs > 0 ? new int[numArgs] : null);
+        if (argTypes != null) {
+            for (int i = 0; i < argTypes.length; i++) {
+                argTypes[i] = retType;
+            }
         }
     }
 
     protected AbstractFunction(final String name, final int retType, final int numArgs, final int[] argTypes) {
-        _name = name.intern();
-        _retType = retType;
-        _numArgs = numArgs;
-        _argTypes = argTypes;
+        this.name = name.intern();
+        this.retType = retType;
+        this.numArgs = numArgs;
+        this.argTypes = argTypes;
     }
 
     public String getName() {
-        return _name;
+        return name;
     }
 
     public int getRetType() {
-        return _retType;
+        return retType;
     }
 
     public int getNumArgs() {
-        return _numArgs;
+        return numArgs;
     }
 
-    public int[] getArgTypes() {
-        return _argTypes;
+    public int getArgType(int argIndex) {
+        return argTypes != null ? argTypes[argIndex] : retType;
     }
 
     public static abstract class B extends AbstractFunction {

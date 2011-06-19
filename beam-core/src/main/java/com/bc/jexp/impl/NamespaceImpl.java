@@ -37,36 +37,36 @@ import com.bc.jexp.WritableNamespace;
  */
 public class NamespaceImpl implements WritableNamespace {
 
-    private final Namespace _defaultNamespace;
-    private final Map _symbols;
-    private final Map _functions;
+    private final Namespace defaultNamespace;
+    private final Map symbols;
+    private final Map functions;
 
     public NamespaceImpl() {
         this(null);
     }
 
     public NamespaceImpl(final Namespace defaultNamespace) {
-        _defaultNamespace = defaultNamespace;
-        _symbols = new HashMap(32);
-        _functions = new HashMap(16);
+        this.defaultNamespace = defaultNamespace;
+        symbols = new HashMap(32);
+        functions = new HashMap(16);
     }
 
     public final Namespace getDefaultNamespace() {
-        return _defaultNamespace;
+        return defaultNamespace;
     }
 
     public final void registerSymbol(final Symbol symbol) {
-        _symbols.put(symbol.getName(), symbol);
+        symbols.put(symbol.getName(), symbol);
     }
 
     public final void deregisterSymbol(final Symbol symbol) {
-        _symbols.remove(symbol.getName());
+        symbols.remove(symbol.getName());
     }
 
     public final Symbol resolveSymbol(final String name) {
-        Symbol symbol = (Symbol) _symbols.get(name);
-        if (symbol == null && _defaultNamespace != null) {
-            symbol = _defaultNamespace.resolveSymbol(name);
+        Symbol symbol = (Symbol) symbols.get(name);
+        if (symbol == null && defaultNamespace != null) {
+            symbol = defaultNamespace.resolveSymbol(name);
         }
         return symbol;
     }
@@ -86,7 +86,7 @@ public class NamespaceImpl implements WritableNamespace {
         } else {
             array = new Function[]{function};
         }
-        _functions.put(function.getName(), array);
+        functions.put(function.getName(), array);
     }
 
     public final void deregisterFunction(final Function function) {
@@ -97,7 +97,7 @@ public class NamespaceImpl implements WritableNamespace {
                 return;
             }
             array = (Function[]) functionList.toArray(new Function[functionList.size()]);
-            _functions.put(function.getName(), array);
+            functions.put(function.getName(), array);
         }
     }
 
@@ -108,11 +108,12 @@ public class NamespaceImpl implements WritableNamespace {
             int bestValidity = -1;
             for (int i = 0; i < functions.length; i++) {
                 Function function = functions[i];
-                if (function.getNumArgs() == args.length) {
-                    int validity = 0;
+                int definedNumArgs = function.getNumArgs();
+                if (definedNumArgs == args.length || definedNumArgs == -1) {
+                    int validity = definedNumArgs == args.length ? 10 : 0;
                     for (int j = 0; j < args.length; j++) {
                         Term arg = args[j];
-                        int argType = function.getArgTypes()[j];
+                        int argType = function.getArgType(j);
                         if (argType == arg.getRetType()) {
                             validity += 4;
                         } else if (argType == Term.TYPE_D && arg.isN()) {
@@ -131,17 +132,21 @@ public class NamespaceImpl implements WritableNamespace {
             if (bestFunction != null) {
                 return bestFunction;
             }
+
+            if (bestFunction != null) {
+                return bestFunction;
+            }
         }
-        if (_defaultNamespace != null) {
-            return _defaultNamespace.resolveFunction(name, args);
+        if (defaultNamespace != null) {
+            return defaultNamespace.resolveFunction(name, args);
         }
         return null;
     }
 
     public Symbol[] getAllSymbols() {
-        final ArrayList symbolList = new ArrayList(_symbols.values());
-        if (_defaultNamespace instanceof WritableNamespace) {
-            final WritableNamespace writableNamespace = (WritableNamespace) _defaultNamespace;
+        final ArrayList symbolList = new ArrayList(symbols.values());
+        if (defaultNamespace instanceof WritableNamespace) {
+            final WritableNamespace writableNamespace = (WritableNamespace) defaultNamespace;
             final Symbol[] defaultSymbols = writableNamespace.getAllSymbols();
             symbolList.addAll(Arrays.asList(defaultSymbols));
         }
@@ -149,14 +154,14 @@ public class NamespaceImpl implements WritableNamespace {
     }
 
     public final Function[] getAllFunctions() {
-        final Collection collection = _functions.values();
+        final Collection collection = functions.values();
         final ArrayList functionList = new ArrayList(32 + 2 * collection.size());
         for (Iterator iterator = collection.iterator(); iterator.hasNext();) {
             Function[] functions = (Function[]) iterator.next();
             functionList.addAll(Arrays.asList(functions));
         }
-        if (_defaultNamespace instanceof WritableNamespace) {
-            final WritableNamespace writableNamespace = (WritableNamespace) _defaultNamespace;
+        if (defaultNamespace instanceof WritableNamespace) {
+            final WritableNamespace writableNamespace = (WritableNamespace) defaultNamespace;
             final Function[] defaultFunctions = writableNamespace.getAllFunctions();
             functionList.addAll(Arrays.asList(defaultFunctions));
         }
@@ -164,6 +169,6 @@ public class NamespaceImpl implements WritableNamespace {
     }
 
     private Function[] getFunctions(final String name) {
-        return (Function[]) _functions.get(name);
+        return (Function[]) functions.get(name);
     }
 }

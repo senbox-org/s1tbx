@@ -258,14 +258,14 @@ public abstract class Term {
      */
     public static final class ConstB extends Term {
 
-        private final boolean _value;
+        private final boolean value;
 
         public ConstB(final boolean value) {
-            _value = value;
+            this.value = value;
         }
 
         public boolean getValue() {
-            return _value;
+            return value;
         }
 
         @Override
@@ -275,22 +275,22 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _value;
+            return value;
         }
 
         @Override
         public int evalI(final EvalEnv env) {
-            return toI(_value);
+            return toI(value);
         }
 
         @Override
         public double evalD(final EvalEnv env) {
-            return toD(_value);
+            return toD(value);
         }
 
         @Override
         public String toString() {
-            return String.valueOf(_value);
+            return String.valueOf(value);
         }
     }
 
@@ -302,14 +302,14 @@ public abstract class Term {
      */
     public static final class ConstI extends Term {
 
-        private final int _value;
+        private final int value;
 
         public ConstI(final int value) {
-            _value = value;
+            this.value = value;
         }
 
         public int getValue() {
-            return _value;
+            return value;
         }
 
         @Override
@@ -319,22 +319,22 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return toB(_value);
+            return toB(value);
         }
 
         @Override
         public int evalI(final EvalEnv env) {
-            return _value;
+            return value;
         }
 
         @Override
         public double evalD(final EvalEnv env) {
-            return _value;
+            return value;
         }
 
         @Override
         public String toString() {
-            return String.valueOf(_value);
+            return String.valueOf(value);
         }
     }
 
@@ -346,14 +346,14 @@ public abstract class Term {
      */
     public static final class ConstD extends Term {
 
-        private final double _value;
+        private final double value;
 
         public ConstD(final double value) {
-            _value = value;
+            this.value = value;
         }
 
         public double getValue() {
-            return _value;
+            return value;
         }
 
         @Override
@@ -363,30 +363,30 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return toB(_value);
+            return toB(value);
         }
 
         @Override
         public int evalI(final EvalEnv env) {
-            return toI(_value);
+            return toI(value);
         }
 
         @Override
         public double evalD(final EvalEnv env) {
-            return _value;
+            return value;
         }
 
         @Override
         public String toString() {
-            return String.valueOf(_value);
+            return String.valueOf(value);
         }
     }
 
     public static class ConstS extends Term {
-        private final String _value;
+        private final String value;
 
         public ConstS(String value) {
-            this._value = value;
+            this.value = value;
         }
 
         @Override
@@ -396,9 +396,9 @@ public abstract class Term {
 
         @Override
         public boolean evalB(EvalEnv context) {
-            if (_value.equalsIgnoreCase("true") ||
-                    _value.equalsIgnoreCase("false")) {
-                return Boolean.valueOf(_value);
+            if (value.equalsIgnoreCase("true") ||
+                    value.equalsIgnoreCase("false")) {
+                return Boolean.valueOf(value);
             } else {
                 throw new EvalException("Not a boolean.");
             }
@@ -407,7 +407,7 @@ public abstract class Term {
         @Override
         public int evalI(EvalEnv env) {
             try {
-                return Integer.valueOf(_value);
+                return Integer.valueOf(value);
             } catch (NumberFormatException e) {
                 throw new EvalException("Not an integer.", e);
             }
@@ -416,7 +416,7 @@ public abstract class Term {
         @Override
         public double evalD(EvalEnv env) {
             try {
-                return Double.valueOf(_value);
+                return Double.valueOf(value);
             } catch (NumberFormatException e) {
                 throw new EvalException("Not a double.", e);
             }
@@ -424,12 +424,12 @@ public abstract class Term {
 
         @Override
         public String evalS(EvalEnv env) {
-            return _value;
+            return value;
         }
 
         @Override
         public String toString() {
-            return "\"" + _value + "\"";
+            return "\"" + value + "\"";
         }
     }
 
@@ -440,48 +440,48 @@ public abstract class Term {
      */
     public static final class Ref extends Term {
 
-        protected final Symbol _symbol;
+        protected final Symbol symbol;
 
         public Ref(final Symbol symbol) {
-            _symbol = symbol;
+            this.symbol = symbol;
         }
 
         public Symbol getSymbol() {
-            return _symbol;
+            return symbol;
         }
 
         public Variable getVariable() {
-            return (_symbol instanceof Variable) ? (Variable) _symbol : null;
+            return (symbol instanceof Variable) ? (Variable) symbol : null;
         }
 
         @Override
         public int getRetType() {
-            return _symbol.getRetType();
+            return symbol.getRetType();
         }
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _symbol.evalB(env);
+            return symbol.evalB(env);
         }
 
         @Override
         public int evalI(final EvalEnv env) {
-            return _symbol.evalI(env);
+            return symbol.evalI(env);
         }
 
         @Override
         public double evalD(final EvalEnv env) {
-            return _symbol.evalD(env);
+            return symbol.evalD(env);
         }
 
         @Override
         public String evalS(EvalEnv env) {
-            return _symbol.evalS(env);
+            return symbol.evalS(env);
         }
 
         @Override
         public String toString() {
-            return _symbol.getName();
+            return symbol.getName();
         }
     }
 
@@ -492,44 +492,44 @@ public abstract class Term {
      */
     public static final class Call extends Term {
 
-        protected final Function _function;
-        protected final Term[] _args;
+        protected final Function function;
+        protected final Term[] args;
 
         public Call(final Function function, final List<Term> args) {
             this(function, args.toArray(new Term[args.size()]));
         }
 
         public Call(final Function function, final Term[] args) {
-            _function = function;
-            _args = args;
+            this.function = function;
+            this.args = args;
         }
 
         @Override
         public int getRetType() {
-            return _function.getRetType();
+            return function.getRetType();
         }
 
         public Function getFunction() {
-            return _function;
+            return function;
         }
 
         public Term[] getArgs() {
-            return _args;
+            return args;
         }
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _function.evalB(env, _args);
+            return function.evalB(env, args);
         }
 
         @Override
         public int evalI(final EvalEnv env) {
-            return _function.evalI(env, _args);
+            return function.evalI(env, args);
         }
 
         @Override
         public double evalD(final EvalEnv env) {
-            return _function.evalD(env, _args);
+            return function.evalD(env, args);
         }
 
         @Override
@@ -539,7 +539,7 @@ public abstract class Term {
 
         @Override
         public String toString() {
-            return getParamString(_function.getName(), _args);
+            return getParamString(function.getName(), args);
         }
     }
 
@@ -550,23 +550,23 @@ public abstract class Term {
      */
     public static abstract class Op extends Term {
 
-        protected final String _name;
-        protected final int _type;
-        protected final Term[] _args;
+        protected final String name;
+        protected final int type;
+        protected final Term[] args;
 
         protected Op(final String name, final int type, final Term[] args) {
-            _name = name.intern();
-            _type = type;
-            _args = args;
+            this.name = name.intern();
+            this.type = type;
+            this.args = args;
         }
 
         @Override
         public int getRetType() {
-            return _type;
+            return type;
         }
 
         public Term[] getArgs() {
-            return _args;
+            return args;
         }
 
         @Override
@@ -576,7 +576,7 @@ public abstract class Term {
 
         @Override
         public String toString() {
-            return getParamString(_name, _args);
+            return getParamString(name, args);
         }
 
     }
@@ -588,11 +588,11 @@ public abstract class Term {
      */
     public static abstract class Unary extends Op {
 
-        protected final Term _arg;
+        protected final Term arg;
 
         protected Unary(final String name, final int type, final Term arg) {
             super(name, type, new Term[]{arg});
-            _arg = arg;
+            this.arg = arg;
         }
     }
 
@@ -663,13 +663,13 @@ public abstract class Term {
 
     public static abstract class Binary extends Op {
 
-        protected final Term _arg1;
-        protected final Term _arg2;
+        protected final Term arg1;
+        protected final Term arg2;
 
         protected Binary(final String name, final int type, final Term arg1, final Term arg2) {
             super(name, type, new Term[]{arg1, arg2});
-            _arg1 = arg1;
-            _arg2 = arg2;
+            this.arg1 = arg1;
+            this.arg2 = arg2;
         }
 
     }
@@ -735,7 +735,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _type == TYPE_I ? toB(evalI(env)) : toB(evalD(env));
+            return type == TYPE_I ? toB(evalI(env)) : toB(evalD(env));
         }
     }
 
@@ -749,30 +749,30 @@ public abstract class Term {
      */
     public static final class Cond extends Op {
 
-        protected final Term _arg1;
-        protected final Term _arg2;
-        protected final Term _arg3;
+        protected final Term arg1;
+        protected final Term arg2;
+        protected final Term arg3;
 
         public Cond(final int type, final Term arg1, final Term arg2, final Term arg3) {
             super("Cond", type, new Term[]{arg1, arg2, arg3});
-            _arg1 = arg1;
-            _arg2 = arg2;
-            _arg3 = arg3;
+            this.arg1 = arg1;
+            this.arg2 = arg2;
+            this.arg3 = arg3;
         }
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalB(env) ? _arg2.evalB(env) : _arg3.evalB(env);
+            return arg1.evalB(env) ? arg2.evalB(env) : arg3.evalB(env);
         }
 
         @Override
         public int evalI(final EvalEnv env) {
-            return _arg1.evalB(env) ? _arg2.evalI(env) : _arg3.evalI(env);
+            return arg1.evalB(env) ? arg2.evalI(env) : arg3.evalI(env);
         }
 
         @Override
         public double evalD(final EvalEnv env) {
-            return _arg1.evalB(env) ? _arg2.evalD(env) : _arg3.evalD(env);
+            return arg1.evalB(env) ? arg2.evalD(env) : arg3.evalD(env);
         }
     }
 
@@ -822,7 +822,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return !_arg.evalB(env);
+            return !arg.evalB(env);
         }
     }
 
@@ -842,7 +842,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalB(env) && _arg2.evalB(env);
+            return arg1.evalB(env) && arg2.evalB(env);
         }
     }
 
@@ -862,7 +862,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalB(env) || _arg2.evalB(env);
+            return arg1.evalB(env) || arg2.evalB(env);
         }
     }
 
@@ -882,7 +882,7 @@ public abstract class Term {
 
         @Override
         public int evalI(final EvalEnv env) {
-            return ~_arg.evalI(env);
+            return ~arg.evalI(env);
         }
     }
 
@@ -902,7 +902,7 @@ public abstract class Term {
 
         @Override
         public int evalI(final EvalEnv env) {
-            return _arg1.evalI(env) ^ _arg2.evalI(env);
+            return arg1.evalI(env) ^ arg2.evalI(env);
         }
     }
 
@@ -922,7 +922,7 @@ public abstract class Term {
 
         @Override
         public int evalI(final EvalEnv env) {
-            return _arg1.evalI(env) & _arg2.evalI(env);
+            return arg1.evalI(env) & arg2.evalI(env);
         }
     }
 
@@ -942,7 +942,7 @@ public abstract class Term {
 
         @Override
         public int evalI(final EvalEnv env) {
-            return _arg1.evalI(env) | _arg2.evalI(env);
+            return arg1.evalI(env) | arg2.evalI(env);
         }
     }
 
@@ -962,12 +962,12 @@ public abstract class Term {
 
         @Override
         public int evalI(final EvalEnv env) {
-            return -_arg.evalI(env);
+            return -arg.evalI(env);
         }
 
         @Override
         public double evalD(final EvalEnv env) {
-            return -_arg.evalD(env);
+            return -arg.evalD(env);
         }
     }
 
@@ -989,12 +989,12 @@ public abstract class Term {
 
         @Override
         public int evalI(final EvalEnv env) {
-            return _arg1.evalI(env) + _arg2.evalI(env);
+            return arg1.evalI(env) + arg2.evalI(env);
         }
 
         @Override
         public double evalD(final EvalEnv env) {
-            return _arg1.evalD(env) + _arg2.evalD(env);
+            return arg1.evalD(env) + arg2.evalD(env);
         }
     }
 
@@ -1014,12 +1014,12 @@ public abstract class Term {
 
         @Override
         public int evalI(final EvalEnv env) {
-            return _arg1.evalI(env) - _arg2.evalI(env);
+            return arg1.evalI(env) - arg2.evalI(env);
         }
 
         @Override
         public double evalD(final EvalEnv env) {
-            return _arg1.evalD(env) - _arg2.evalD(env);
+            return arg1.evalD(env) - arg2.evalD(env);
         }
     }
 
@@ -1039,12 +1039,12 @@ public abstract class Term {
 
         @Override
         public int evalI(final EvalEnv env) {
-            return _arg1.evalI(env) * _arg2.evalI(env);
+            return arg1.evalI(env) * arg2.evalI(env);
         }
 
         @Override
         public double evalD(final EvalEnv env) {
-            return _arg1.evalD(env) * _arg2.evalD(env);
+            return arg1.evalD(env) * arg2.evalD(env);
         }
     }
 
@@ -1064,12 +1064,12 @@ public abstract class Term {
 
         @Override
         public int evalI(final EvalEnv env) {
-            return _arg1.evalI(env) / _arg2.evalI(env);
+            return arg1.evalI(env) / arg2.evalI(env);
         }
 
         @Override
         public double evalD(final EvalEnv env) {
-            return _arg1.evalD(env) / _arg2.evalD(env);
+            return arg1.evalD(env) / arg2.evalD(env);
         }
     }
 
@@ -1089,12 +1089,12 @@ public abstract class Term {
 
         @Override
         public int evalI(final EvalEnv env) {
-            return _arg1.evalI(env) % _arg2.evalI(env);
+            return arg1.evalI(env) % arg2.evalI(env);
         }
 
         @Override
         public double evalD(final EvalEnv env) {
-            return _arg1.evalD(env) % _arg2.evalD(env);
+            return arg1.evalD(env) % arg2.evalD(env);
         }
     }
 
@@ -1114,7 +1114,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalB(env) == _arg2.evalB(env);
+            return arg1.evalB(env) == arg2.evalB(env);
         }
     }
 
@@ -1134,7 +1134,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalI(env) == _arg2.evalI(env);
+            return arg1.evalI(env) == arg2.evalI(env);
         }
     }
 
@@ -1154,7 +1154,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalD(env) == _arg2.evalD(env);
+            return arg1.evalD(env) == arg2.evalD(env);
         }
     }
 
@@ -1174,7 +1174,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalB(env) != _arg2.evalB(env);
+            return arg1.evalB(env) != arg2.evalB(env);
         }
     }
 
@@ -1194,7 +1194,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalI(env) != _arg2.evalI(env);
+            return arg1.evalI(env) != arg2.evalI(env);
         }
     }
 
@@ -1214,7 +1214,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalD(env) != _arg2.evalD(env);
+            return arg1.evalD(env) != arg2.evalD(env);
         }
     }
 
@@ -1234,7 +1234,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalI(env) < _arg2.evalI(env);
+            return arg1.evalI(env) < arg2.evalI(env);
         }
     }
 
@@ -1254,7 +1254,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalD(env) < _arg2.evalD(env);
+            return arg1.evalD(env) < arg2.evalD(env);
         }
     }
 
@@ -1274,7 +1274,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalI(env) <= _arg2.evalI(env);
+            return arg1.evalI(env) <= arg2.evalI(env);
         }
     }
 
@@ -1294,7 +1294,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalD(env) <= _arg2.evalD(env);
+            return arg1.evalD(env) <= arg2.evalD(env);
         }
     }
 
@@ -1314,7 +1314,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalI(env) > _arg2.evalI(env);
+            return arg1.evalI(env) > arg2.evalI(env);
         }
     }
 
@@ -1334,7 +1334,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalD(env) > _arg2.evalD(env);
+            return arg1.evalD(env) > arg2.evalD(env);
         }
     }
 
@@ -1354,7 +1354,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalI(env) >= _arg2.evalI(env);
+            return arg1.evalI(env) >= arg2.evalI(env);
         }
     }
 
@@ -1374,7 +1374,7 @@ public abstract class Term {
 
         @Override
         public boolean evalB(final EvalEnv env) {
-            return _arg1.evalD(env) >= _arg2.evalD(env);
+            return arg1.evalD(env) >= arg2.evalD(env);
         }
     }
 

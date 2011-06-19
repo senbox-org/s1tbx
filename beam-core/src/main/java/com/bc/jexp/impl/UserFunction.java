@@ -39,12 +39,12 @@ import com.bc.jexp.Variable;
  */
 public final class UserFunction extends AbstractFunction {
 
-    private static int _stackSizeMax = 32;
-    private static double[] _stack;
-    private static int _stackIndex;
+    private static int stackSizeMax = 32;
+    private static double[] stack;
+    private static int stackIndex;
 
-    private final Variable[] _params;
-    private final Term _body;
+    private final Variable[] params;
+    private final Term body;
 
     static {
         createStack();
@@ -58,15 +58,15 @@ public final class UserFunction extends AbstractFunction {
      */
     public UserFunction(final String name, final Variable[] params, final Term body) {
         super(name, body.getRetType(), params.length, getArgTypes(params));
-        _params = params;
-        _body = body;
+        this.params = params;
+        this.body = body;
     }
 
     public boolean evalB(final EvalEnv env, final Term[] args) throws EvalException {
-        if (_body.isB()) {
-            final int si0 = _stackIndex;
+        if (body.isB()) {
+            final int si0 = stackIndex;
             prepareCall(env, args, si0);
-            final boolean ret = _body.evalB(env);
+            final boolean ret = body.evalB(env);
             finishCall(env, si0);
             return ret;
         }
@@ -74,10 +74,10 @@ public final class UserFunction extends AbstractFunction {
     }
 
     public int evalI(final EvalEnv env, final Term[] args) throws EvalException {
-        if (_body.isI()) {
-            final int si0 = _stackIndex;
+        if (body.isI()) {
+            final int si0 = stackIndex;
             prepareCall(env, args, si0);
-            final int ret = _body.evalI(env);
+            final int ret = body.evalI(env);
             finishCall(env, si0);
             return ret;
         }
@@ -85,9 +85,9 @@ public final class UserFunction extends AbstractFunction {
     }
 
     public double evalD(final EvalEnv env, final Term[] args) {
-        final int si0 = _stackIndex;
+        final int si0 = stackIndex;
         prepareCall(env, args, si0);
-        final double ret = _body.evalD(env);
+        final double ret = body.evalD(env);
         finishCall(env, si0);
         return ret;
     }
@@ -97,7 +97,7 @@ public final class UserFunction extends AbstractFunction {
      * @return the maximum stack size in element units.
      */
     public static int getStackSizeMax() {
-        return _stackSizeMax;
+        return stackSizeMax;
     }
 
     /**
@@ -105,30 +105,30 @@ public final class UserFunction extends AbstractFunction {
      * @param stackSizeMax the maximum stack size in element units.
      */
     public static void setStackSizeMax(final int stackSizeMax) {
-        _stackSizeMax = stackSizeMax;
+        UserFunction.stackSizeMax = stackSizeMax;
         createStack();
     }
 
     private static void createStack() {
-        _stack = new double[_stackSizeMax];
-        _stackIndex = 0;
+        stack = new double[stackSizeMax];
+        stackIndex = 0;
     }
 
     private void prepareCall(final EvalEnv env, final Term[] args, final int si0) {
-        if (_stack.length >= si0 + _params.length) {
+        if (stack.length >= si0 + params.length) {
             throw new EvalException("stack overflow");
         }
-        for (int i = 0; i < _params.length; i++) {
-            _stack[si0 + i] = _params[i].evalD(env);
-            _params[i].assignD(env, args[i].evalD(env));
+        for (int i = 0; i < params.length; i++) {
+            stack[si0 + i] = params[i].evalD(env);
+            params[i].assignD(env, args[i].evalD(env));
         }
-        _stackIndex += _params.length;
+        stackIndex += params.length;
     }
 
     private void finishCall(final EvalEnv env, final int si0) {
-        _stackIndex -= _params.length;
-        for (int i = 0; i < _params.length; i++) {
-            _params[i].assignD(env, _stack[si0 + i]);
+        stackIndex -= params.length;
+        for (int i = 0; i < params.length; i++) {
+            params[i].assignD(env, stack[si0 + i]);
         }
     }
 
