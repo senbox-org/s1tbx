@@ -328,9 +328,24 @@ public final class DefaultNamespace extends NamespaceImpl {
 
             public double evalD(final EvalEnv env, final Term[] args) {
                 double sqrSum = 0.0, v;
-                for (int i = 0; i < args.length; i++) {
+                final int n = args.length;
+                for (int i = 0; i < n; i++) {
                     v = args[i].evalD(env);
                     sqrSum += v * v;
+                }
+                return Math.sqrt(sqrSum);
+            }
+        });
+
+        registerFunction(new AbstractFunction.D("distance", -1) {
+
+            public double evalD(final EvalEnv env, final Term[] args) {
+                double sqrSum = 0.0, v1, v2;
+                final int n = args.length / 2;
+                for (int i = 0; i < n; i++) {
+                    v1 = args[i].evalD(env);
+                    v2 = args[i+n].evalD(env);
+                    sqrSum += (v1 - v2) * (v1 - v2);
                 }
                 return Math.sqrt(sqrSum);
             }
