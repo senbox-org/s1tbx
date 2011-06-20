@@ -168,7 +168,7 @@ public class ExpressionDescriptor extends OperationDescriptorImpl {
      *
      * @param sources        The name-to-source map.
      * @param dataType       The destination image's data type.
-     * @param expression     The methematical expression.
+     * @param expression     The mathematical expression.
      * @param compilerConfig The configuration for the Java expression compiler.
      * @param hints          The <code>RenderingHints</code> to use.
      *                       May be <code>null</code>.

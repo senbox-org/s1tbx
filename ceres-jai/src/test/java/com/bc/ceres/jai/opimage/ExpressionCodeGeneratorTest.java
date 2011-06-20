@@ -47,7 +47,7 @@ public class ExpressionCodeGeneratorTest extends TestCase {
         assertNotNull(code.getCharContent(true));
         assertTrue(code.getCharContent(true).length() > 0);
 
-        // Write jave code so that we can test the generated class.
+        // Write java code so that we can test the generated class.
         // Note that actual compilation is done from source code in RAM (Code).
         write(code);
     }
