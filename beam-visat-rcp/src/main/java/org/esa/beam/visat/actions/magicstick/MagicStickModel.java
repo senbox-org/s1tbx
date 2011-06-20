@@ -6,7 +6,7 @@ import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +17,60 @@ import java.util.List;
  * @author Norman Fomferra
  * @since BEAM 4.10
  */
-class MagicStickUtils {
+class MagicStickModel {
+
+    public enum Mode {
+        SINGLE,
+        PLUS,
+        MINUS,
+    }
+
     static final String MAGIC_STICK_MASK_NAME = "magic_stick";
+
+    private Mode mode;
+    private ArrayList<double[]> plusSpectra;
+    private ArrayList<double[]> minusSpectra;
+    private double tolerance;
+
+    MagicStickModel() {
+        mode = Mode.SINGLE;
+        plusSpectra = new ArrayList<double[]>();
+        minusSpectra = new ArrayList<double[]>();
+        tolerance = 0.1;
+    }
+
+    void addSpectrum(double[] spectrum) {
+        if (mode == Mode.SINGLE) {
+            plusSpectra.clear();
+            minusSpectra.clear();
+            plusSpectra.add(spectrum);
+        } else if (mode == Mode.PLUS) {
+            plusSpectra.add(spectrum);
+        } else if (mode == Mode.MINUS) {
+            minusSpectra.add(spectrum);
+        }
+    }
+
+    void clearSpectra() {
+        plusSpectra.clear();
+        minusSpectra.clear();
+    }
+
+    public Mode getMode() {
+        return mode;
+    }
+
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
+
+    public double getTolerance() {
+        return tolerance;
+    }
+
+    public void setTolerance(double tolerance) {
+        this.tolerance = tolerance;
+    }
 
     static Band[] getSpectralBands(Product product) {
         final Band[] bands = product.getBands();
@@ -37,40 +89,18 @@ class MagicStickUtils {
             magicStickMask.getImageConfig().setValue("expression", expression);
         } else {
             final int width = product.getSceneRasterWidth();
-            final int heigth = product.getSceneRasterHeight();
+            final int height = product.getSceneRasterHeight();
             product.getMaskGroup().add(Mask.BandMathsType.create(MAGIC_STICK_MASK_NAME,
-                                                                 "Magic stick mask",
-                                                                 width, heigth,
-                                                                 expression,
-                                                                 Color.RED, 0.5));
+                    "Magic stick mask",
+                    width, height,
+                    expression,
+                    Color.RED, 0.5));
         }
     }
 
-    static String createExpression(Band[] bands, double[] spectrum, double tolerance) {
-        if (bands.length == 0) {
-            return "0";
-        }
-        final StringBuilder arguments = new StringBuilder();
-        for (int i = 0; i < bands.length; i++) {
-            if (i > 0) {
-                arguments.append(",");
-            }
-            arguments.append(BandArithmetic.createExternalName(bands[i].getName()));
-        }
-        for (int i = 0; i < spectrum.length; i++) {
-            arguments.append(",");
-            arguments.append(spectrum[i]);
-        }
-        if (bands.length == 1) {
-            return String.format("distance(%s) < %s", arguments, tolerance);
-        } else {
-            return String.format("distance(%s)/%s < %s", arguments, bands.length, tolerance);
-        }
-    }
-
-    static String createExpression(Band[] bands, List<double[]> plusSpectra, List<double[]> minusSpectra, double tolerance) {
-        String plusPart = getPart(bands, plusSpectra, tolerance);
-        String minusPart = getPart(bands, minusSpectra, tolerance);
+    String createExpression(Band[] spectralBands) {
+        String plusPart = getPart(spectralBands, plusSpectra, tolerance);
+        String minusPart = getPart(spectralBands, minusSpectra, tolerance);
         if (!plusPart.isEmpty() && !minusPart.isEmpty()) {
             return String.format("(%s) && !(%s)", plusPart, minusPart);
         } else if (!plusPart.isEmpty()) {
@@ -94,6 +124,27 @@ class MagicStickUtils {
         return part.toString();
     }
 
+    private static String createExpression(Band[] bands, double[] spectrum, double tolerance) {
+        if (bands.length == 0) {
+            return "0";
+        }
+        final StringBuilder arguments = new StringBuilder();
+        for (int i = 0; i < bands.length; i++) {
+            if (i > 0) {
+                arguments.append(",");
+            }
+            arguments.append(BandArithmetic.createExternalName(bands[i].getName()));
+        }
+        for (double value : spectrum) {
+            arguments.append(",");
+            arguments.append(value);
+        }
+        if (bands.length == 1) {
+            return String.format("distance(%s) < %s", arguments, tolerance);
+        } else {
+            return String.format("distance(%s)/%s < %s", arguments, bands.length, tolerance);
+        }
+    }
 
     static double[] getSpectrum(Band[] bands, int pixelX, int pixelY) throws IOException {
         final double[] pixel = new double[1];

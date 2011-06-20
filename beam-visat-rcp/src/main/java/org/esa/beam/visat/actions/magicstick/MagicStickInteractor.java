@@ -16,10 +16,12 @@
 
 package org.esa.beam.visat.actions.magicstick;
 
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.figure.ViewportInteractor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -28,24 +30,19 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import java.awt.FlowLayout;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.ArrayList;
 
-import static org.esa.beam.visat.actions.magicstick.MagicStickUtils.*;
+import static org.esa.beam.visat.actions.magicstick.MagicStickModel.*;
 
 /**
  * An interactor that lets users create masks using a "magic stick".
@@ -57,22 +54,16 @@ import static org.esa.beam.visat.actions.magicstick.MagicStickUtils.*;
  */
 public class MagicStickInteractor extends ViewportInteractor {
 
-    private static final String DIALOG_TITLE = "Magic Stick";
+    private static final String DIALOG_TITLE = "Magic Stick Tool";
+
     private JDialog parameterWindow;
     private final MyLayerListener layerListener;
 
-    private Mode mode;
-    private ArrayList<double[]> plusSpectra;
-    private ArrayList<double[]> minusSpectra;
-    private double tolerance;
+    private MagicStickModel model;
 
     public MagicStickInteractor() {
         layerListener = new MyLayerListener();
-
-        mode = Mode.SINGLE;
-        plusSpectra = new ArrayList<double[]>();
-        minusSpectra = new ArrayList<double[]>();
-        tolerance = 0.1;
+        model = new MagicStickModel();
     }
 
     @Override
@@ -129,19 +120,21 @@ public class MagicStickInteractor extends ViewportInteractor {
             return;
         }
 
-        if (mode == Mode.SINGLE) {
-            plusSpectra.clear();
-            minusSpectra.clear();
-            plusSpectra.add(spectrum);
-        } else if (mode == Mode.PLUS) {
-            plusSpectra.add(spectrum);
-        } else if (mode == Mode.MINUS) {
-            minusSpectra.add(spectrum);
+        model.addSpectrum(spectrum);
+
+        updateMagicStickMask(product, spectralBands);
+    }
+
+    private void updateMagicStickMask() {
+        final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
+        if (view != null) {
+            final Product product = view.getProduct();
+            updateMagicStickMask(product, MagicStickModel.getSpectralBands(product));
         }
+    }
 
-        final String expression = createExpression(spectralBands, plusSpectra, minusSpectra, tolerance);
-
-        setMagicStickMask(product, expression);
+    private void updateMagicStickMask(Product product, Band[] spectralBands) {
+        MagicStickModel.setMagicStickMask(product, model.createExpression(spectralBands));
     }
 
     private JDialog createParameterWindow() {
@@ -152,97 +145,115 @@ public class MagicStickInteractor extends ViewportInteractor {
         return parameterWindow;
     }
 
-
+    // todo - Move class to top level and also extract MagicStickModel (mode, plusSpectra, minusSpectra, tolerance) (nf)
     class MagicStickForm {
         private JTextField toleranceField;
+        private JSlider toleranceSlider;
+        boolean adjustingSlider;
 
         private MagicStickForm() {
         }
 
         public JPanel createPanel() {
+
+            final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(model));
+            bindingContext.addPropertyChangeListener("tolerance", new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    adjustSlider();
+                    updateMagicStickMask();
+                }
+            });
+
             JLabel toleranceLabel = new JLabel("Tolerance:");
             toleranceLabel.setToolTipText("Sets the maximum Euclidian distance tolerated (in units of the spectral bands)");
 
             toleranceField = new JTextField(10);
-            toleranceField.setText(String.valueOf(tolerance));
-            toleranceField.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    updateTolerance();
-                }
-            });
-            toleranceField.addFocusListener(new FocusListener() {
-                public void focusGained(FocusEvent e) {
-                }
+            bindingContext.bind("tolerance", toleranceField);
+            toleranceField.setText(String.valueOf(model.getTolerance()));
 
-                public void focusLost(FocusEvent e) {
-                    updateTolerance();
+
+            toleranceSlider = new JSlider(-10, 20);
+            toleranceSlider.setSnapToTicks(false);
+            toleranceSlider.setPaintTicks(false);
+            toleranceSlider.setPaintLabels(false);
+            toleranceSlider.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    if (!adjustingSlider) {
+                        bindingContext.getPropertySet().setValue("tolerance", Math.pow(10.0, toleranceSlider.getValue() / 10.0));
+                    }
                 }
             });
 
             final JToggleButton plusButton = new JToggleButton(new ImageIcon(getClass().getResource("/org/esa/beam/resources/images/icons/Plus16.gif")));
+            plusButton.setToolTipText("Switch to 'plus' mode: Selected spectra will be included in the mask.");
             final JToggleButton minusButton = new JToggleButton(new ImageIcon(getClass().getResource("/org/esa/beam/resources/images/icons/Minus16.gif")));
+            minusButton.setToolTipText("Switch to 'minus' mode: Selected spectra will be excluded from the mask.");
             plusButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if (plusButton.isSelected()) {
-                        minusButton.setSelected(false);
-                        mode = Mode.PLUS;
-                    } else {
-                        mode = Mode.SINGLE;
-                    }
-                    System.out.println("mode = " + mode);
+                    bindingContext.getPropertySet().setValue("mode", plusButton.isSelected() ? Mode.PLUS : Mode.SINGLE);
                 }
             });
             minusButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if (minusButton.isSelected()) {
-                        plusButton.setSelected(false);
-                        mode = Mode.MINUS;
-                    } else {
-                        mode = Mode.SINGLE;
-                    }
-                    System.out.println("mode = " + mode);
+                    bindingContext.getPropertySet().setValue("mode", plusButton.isSelected() ? Mode.MINUS : Mode.SINGLE);
                 }
             });
+
+            bindingContext.addPropertyChangeListener("mode", new PropertyChangeListener() {
+                 @Override
+                 public void propertyChange(PropertyChangeEvent evt) {
+                     plusButton.setSelected(model.getMode() == Mode.PLUS);
+                     minusButton.setSelected(model.getMode() == Mode.MINUS);
+                 }
+             });
+
+
             final JButton clearButton = new JButton(new ImageIcon(getClass().getResource("/org/esa/beam/resources/images/icons/Remove16.gif")));
+            clearButton.setToolTipText("Clears the current mask and removes all spectra collected so far,");
             clearButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
-                    if (view == null) {
-                        return;
-                    }
-                    final Product product = view.getProduct();
-                    setMagicStickMask(product, "0");
-                    plusSpectra.clear();
-                    minusSpectra.clear();
+                    model.clearSpectra();
+                    updateMagicStickMask();
                 }
             });
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
-            buttonPanel.add(plusButton);
-            buttonPanel.add(minusButton);
-            buttonPanel.add(clearButton);
 
-            final TableLayout tableLayout = new TableLayout(2);
+            JToolBar toolBar = new JToolBar();
+            toolBar.setFloatable(false);
+            toolBar.add(plusButton);
+            toolBar.add(minusButton);
+            toolBar.add(clearButton);
+
+            JPanel toolBarPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
+            toolBarPanel.add(toolBar);
+
+            TableLayout tableLayout = new TableLayout(2);
             tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
             tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
             tableLayout.setTableWeightX(1.0);
-            tableLayout.setCellColspan(1, 0, 3);
             tableLayout.setTablePadding(4, 4);
+            tableLayout.setCellColspan(1, 0, tableLayout.getColumnCount());
+            tableLayout.setCellColspan(2, 0, tableLayout.getColumnCount());
+
             JPanel panel = new JPanel(tableLayout);
-            panel.add(toleranceLabel);
-            panel.add(toleranceField);
-            panel.add(buttonPanel);
+            panel.add(toleranceLabel, new TableLayout.Cell(0, 0));
+            panel.add(toleranceField, new TableLayout.Cell(0, 1));
+            panel.add(toleranceSlider, new TableLayout.Cell(1, 0));
+            panel.add(toolBarPanel, new TableLayout.Cell(2, 0));
+
+            adjustSlider();
+
             return panel;
         }
 
-        private void updateTolerance() {
-            try {
-                tolerance = Double.parseDouble(toleranceField.getText());
-            } catch (NumberFormatException e) {
-                toleranceField.setText(String.valueOf(tolerance));
-            }
+        private void adjustSlider() {
+            adjustingSlider = true;
+            toleranceSlider.setValue((int) Math.round(10.0 * Math.log10(model.getTolerance())));
+            adjustingSlider = false;
         }
 
     }
@@ -254,8 +265,7 @@ public class MagicStickInteractor extends ViewportInteractor {
     private static class MyLayerListener extends AbstractLayerListener {
         @Override
         public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
-            for (int i = 0; i < childLayers.length; i++) {
-                Layer childLayer = childLayers[i];
+            for (Layer childLayer : childLayers) {
                 LayerType layerType = childLayer.getLayerType();
                 if (layerType instanceof MaskLayerType) {
                     if (childLayer.getName().equals(MAGIC_STICK_MASK_NAME)) {
@@ -266,9 +276,4 @@ public class MagicStickInteractor extends ViewportInteractor {
         }
     }
 
-    private enum Mode {
-        SINGLE,
-        PLUS,
-        MINUS,
-    }
 }
