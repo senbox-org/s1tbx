@@ -16,9 +16,13 @@
 
 package com.bc.ceres.binding;
 
-import junit.framework.TestCase;
 
-public class PropertyDescriptorTest extends TestCase {
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class PropertyDescriptorTest {
+    @Test
     public void testMandatoryNameAndType() {
         PropertyDescriptor descriptor;
 
@@ -42,7 +46,7 @@ public class PropertyDescriptorTest extends TestCase {
             // ok
         }
     }
-
+        @Test
     public void testThatPrimitiveTypesAreAlwaysNotNull() {
         assertThatPrimitiveTypesAreAlwaysNotNull(Character.TYPE, Character.class);
         assertThatPrimitiveTypesAreAlwaysNotNull(Byte.TYPE, Byte.class);
@@ -57,5 +61,17 @@ public class PropertyDescriptorTest extends TestCase {
     private static void assertThatPrimitiveTypesAreAlwaysNotNull(Class<?> primitiveType, Class<?> wrapperType) {
         assertEquals(true, new PropertyDescriptor("vd", primitiveType).isNotNull());
         assertEquals(false, new PropertyDescriptor("vd", wrapperType).isNotNull());
+    }
+
+       @Test
+    public void testThatEnumTypesHaveValueSet() {
+        PropertyDescriptor descriptor = new PropertyDescriptor("letter", Letter.class);
+        assertNotNull(descriptor.getValueSet());
+        assertArrayEquals(new Object[]{Letter.A,Letter.B,Letter.C,Letter.D},
+                          descriptor.getValueSet().getItems());
+    }
+
+    public enum Letter {
+        A,B,C,D,
     }
 }
