@@ -21,6 +21,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.figure.ViewportInteractor;
 import org.esa.beam.framework.datamodel.Band;
@@ -172,7 +173,6 @@ public class MagicStickInteractor extends ViewportInteractor {
             bindingContext.bind("tolerance", toleranceField);
             toleranceField.setText(String.valueOf(model.getTolerance()));
 
-
             toleranceSlider = new JSlider(-10, 20);
             toleranceSlider.setSnapToTicks(false);
             toleranceSlider.setPaintTicks(false);
@@ -183,6 +183,25 @@ public class MagicStickInteractor extends ViewportInteractor {
                     if (!adjustingSlider) {
                         bindingContext.getPropertySet().setValue("tolerance", Math.pow(10.0, toleranceSlider.getValue() / 10.0));
                     }
+                }
+            });
+
+            JRadioButton b1 = new JRadioButton("Distance");
+            JRadioButton b2 = new JRadioButton("Shape");
+            JRadioButton b3 = new JRadioButton("Limits");
+            ButtonGroup methodGroup = new ButtonGroup();
+            methodGroup.add(b1);
+            methodGroup.add(b2);
+            methodGroup.add(b3);
+            bindingContext.bind("method", methodGroup);
+            JPanel methodPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
+            methodPanel.add(b1);
+            methodPanel.add(b2);
+            methodPanel.add(b3);
+            bindingContext.addPropertyChangeListener("method", new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                     updateMagicStickMask();
                 }
             });
 
@@ -238,12 +257,14 @@ public class MagicStickInteractor extends ViewportInteractor {
             tableLayout.setTablePadding(4, 4);
             tableLayout.setCellColspan(1, 0, tableLayout.getColumnCount());
             tableLayout.setCellColspan(2, 0, tableLayout.getColumnCount());
+            tableLayout.setCellColspan(3, 0, tableLayout.getColumnCount());
 
             JPanel panel = new JPanel(tableLayout);
             panel.add(toleranceLabel, new TableLayout.Cell(0, 0));
             panel.add(toleranceField, new TableLayout.Cell(0, 1));
             panel.add(toleranceSlider, new TableLayout.Cell(1, 0));
-            panel.add(toolBarPanel, new TableLayout.Cell(2, 0));
+            panel.add(methodPanel, new TableLayout.Cell(2, 0));
+            panel.add(toolBarPanel, new TableLayout.Cell(3, 0));
 
             adjustSlider();
 

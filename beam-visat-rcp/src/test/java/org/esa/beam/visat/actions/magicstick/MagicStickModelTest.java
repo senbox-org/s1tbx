@@ -6,11 +6,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 /**
  * @author Norman Fomferra
@@ -40,8 +36,9 @@ public class MagicStickModelTest {
     public void testConstructorSetsDefaultValues() throws Exception {
         MagicStickModel model = new MagicStickModel();
         assertEquals(MagicStickModel.Mode.SINGLE, model.getMode());
+        assertEquals(MagicStickModel.Method.DISTANCE, model.getMethod());
         assertEquals(0.1, model.getTolerance(), 0.0);
-        assertEquals("0", model.createExpression(new Band[0]));
+        assertEquals("0", model.createExpression());
     }
 
     @Test
@@ -56,9 +53,9 @@ public class MagicStickModelTest {
     @Test
     public void testCreateExpressionWith3Bands() throws Exception {
         MagicStickModel model = new MagicStickModel();
-        model.addSpectrum(new double[]{0.4, 0.3, 0.2});
+        model.addSpectrum(0.4, 0.3, 0.2);
         model.setTolerance(0.3);
-        String expression = model.createExpression(new Band[]{b1, b2, b3});
+        String expression = model.createExpression(b1, b2, b3);
         assertEquals("distance(b1,b2,b3,0.4,0.3,0.2)/3 < 0.3", expression);
     }
 
@@ -66,21 +63,33 @@ public class MagicStickModelTest {
     public void testCreateExpressionWith3Bands2PlusSpectra() throws Exception {
         MagicStickModel model = new MagicStickModel();
         model.setMode(MagicStickModel.Mode.PLUS);
-        model.addSpectrum(new double[]{0.4, 0.3, 0.2});
-        model.addSpectrum(new double[]{0.6, 0.9, 0.7});
+        model.addSpectrum(0.4, 0.3, 0.2);
+        model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.25);
-        String expression = model.createExpression(new Band[]{b1, b2, b3});
+        String expression = model.createExpression(b1, b2, b3);
         assertEquals("distance(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
-                " || distance(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+                             " || distance(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
     }
 
     @Test
     public void testCreateExpressionWith1Band() throws Exception {
         MagicStickModel model = new MagicStickModel();
-        model.addSpectrum(new double[]{0.2});
-        model.setTolerance(0.25);
+        model.addSpectrum(0.2);
         model.setTolerance(0.05);
-        String expression = model.createExpression(new Band[]{product.getBand("a2")});
+        String expression = model.createExpression(product.getBand("a2"));
         assertEquals("distance(a2,0.2) < 0.05", expression);
+    }
+
+    @Test
+    public void testCreateExpressionWithMethodShape() throws Exception {
+        MagicStickModel model = new MagicStickModel();
+        model.setMode(MagicStickModel.Mode.PLUS);
+        model.setMethod(MagicStickModel.Method.SHAPE);
+        model.addSpectrum(0.4, 0.3, 0.2);
+        model.addSpectrum(0.6, 0.9, 0.7);
+        model.setTolerance(0.25);
+        String expression = model.createExpression(b1, b2, b3);
+        assertEquals("shape(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
+                             " || shape(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
     }
 }

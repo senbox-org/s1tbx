@@ -6,9 +6,10 @@ import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -25,21 +26,29 @@ class MagicStickModel {
         MINUS,
     }
 
+    public enum Method {
+        DISTANCE,
+        SHAPE,
+        LIMITS,
+    }
+
     static final String MAGIC_STICK_MASK_NAME = "magic_stick";
 
     private Mode mode;
+    private Method method;
     private ArrayList<double[]> plusSpectra;
     private ArrayList<double[]> minusSpectra;
     private double tolerance;
 
     MagicStickModel() {
         mode = Mode.SINGLE;
+        method = Method.DISTANCE;
         plusSpectra = new ArrayList<double[]>();
         minusSpectra = new ArrayList<double[]>();
         tolerance = 0.1;
     }
 
-    void addSpectrum(double[] spectrum) {
+    void addSpectrum(double... spectrum) {
         if (mode == Mode.SINGLE) {
             plusSpectra.clear();
             minusSpectra.clear();
@@ -62,6 +71,14 @@ class MagicStickModel {
 
     public void setMode(Mode mode) {
         this.mode = mode;
+    }
+
+    public Method getMethod() {
+        return method;
+    }
+
+    public void setMethod(Method method) {
+        this.method = method;
     }
 
     public double getTolerance() {
@@ -91,40 +108,98 @@ class MagicStickModel {
             final int width = product.getSceneRasterWidth();
             final int height = product.getSceneRasterHeight();
             product.getMaskGroup().add(Mask.BandMathsType.create(MAGIC_STICK_MASK_NAME,
-                    "Magic stick mask",
-                    width, height,
-                    expression,
-                    Color.RED, 0.5));
+                                                                 "Magic stick mask",
+                                                                 width, height,
+                                                                 expression,
+                                                                 Color.RED, 0.5));
         }
     }
 
-    String createExpression(Band[] spectralBands) {
-        String plusPart = getPart(spectralBands, plusSpectra, tolerance);
-        String minusPart = getPart(spectralBands, minusSpectra, tolerance);
-        if (!plusPart.isEmpty() && !minusPart.isEmpty()) {
+    String createExpression(Band... spectralBands) {
+        final String plusPart;
+        final String minusPart;
+        if (getMethod() == Method.LIMITS) {
+            plusPart = getLimitsPart(spectralBands, plusSpectra, tolerance);
+            minusPart = getLimitsPart(spectralBands, minusSpectra, tolerance);
+        } else {
+            plusPart = getDistancePart(spectralBands, method, plusSpectra, tolerance);
+            minusPart = getDistancePart(spectralBands, method, minusSpectra, tolerance);
+        }
+        if (plusPart != null && minusPart != null) {
             return String.format("(%s) && !(%s)", plusPart, minusPart);
-        } else if (!plusPart.isEmpty()) {
+        } else if (plusPart != null) {
             return plusPart;
-        } else if (!minusSpectra.isEmpty()) {
+        } else if (minusPart != null) {
             return String.format("!(%s)", minusPart);
         } else {
             return "0";
         }
     }
 
-    private static String getPart(Band[] bands, List<double[]> spectra, double tolerance) {
+    private static String getLimitsPart(Band[] spectralBands, List<double[]> spectra, double tolerance) {
+        if (spectra.isEmpty()) {
+            return null;
+        }
+        double[] plusSpectrumMin = getMinSpectrum(spectralBands, spectra, tolerance);
+        double[] plusSpectrumMax = getMaxSpectrum(spectralBands, spectra, tolerance);
+        StringBuilder part = new StringBuilder();
+        for (int i = 0; i < spectralBands.length; i++) {
+            Band b = spectralBands[i];
+            if (i > 0) {
+                part.append(" && ");
+            }
+            part.append(String.format("%s >= %s && %s <= %s",
+                                      b.getName(), plusSpectrumMin[i],
+                                      b.getName(), plusSpectrumMax[i]));
+        }
+        return part.toString();
+    }
+
+    private static double[] getMinSpectrum(Band[] spectralBands, List<double[]> spectra, double tolerance) {
+        double[] minSpectrum = new double[spectralBands.length];
+        Arrays.fill(minSpectrum, +Double.MAX_VALUE);
+        for (double[] spectrum : spectra) {
+            for (int i = 0; i < spectrum.length; i++) {
+                double v = spectrum[i];
+                minSpectrum[i] = Math.min(minSpectrum[i], v);
+            }
+        }
+        for (int i = 0; i < minSpectrum.length; i++) {
+            minSpectrum[i] -= tolerance;
+        }
+        return minSpectrum;
+    }
+
+    private static double[] getMaxSpectrum(Band[] spectralBands, List<double[]> spectra, double tolerance) {
+        double[] maxSpectrum = new double[spectralBands.length];
+        Arrays.fill(maxSpectrum, -Double.MAX_VALUE);
+        for (double[] spectrum : spectra) {
+            for (int i = 0; i < spectrum.length; i++) {
+                maxSpectrum[i] = Math.max(maxSpectrum[i], spectrum[i]);
+            }
+        }
+        for (int i = 0; i < maxSpectrum.length; i++) {
+            maxSpectrum[i] += tolerance;
+        }
+        return maxSpectrum;
+    }
+
+    private static String getDistancePart(Band[] bands, Method method, List<double[]> spectra, double tolerance) {
+        if (spectra.isEmpty()) {
+            return null;
+        }
         final StringBuilder part = new StringBuilder();
         for (int i = 0; i < spectra.size(); i++) {
             double[] spectrum = spectra.get(i);
             if (i > 0) {
                 part.append(" || ");
             }
-            part.append(createExpression(bands, spectrum, tolerance));
+            part.append(createExpression(bands, method, spectrum, tolerance));
         }
         return part.toString();
     }
 
-    private static String createExpression(Band[] bands, double[] spectrum, double tolerance) {
+    private static String createExpression(Band[] bands, Method method, double[] spectrum, double tolerance) {
         if (bands.length == 0) {
             return "0";
         }
@@ -139,10 +214,11 @@ class MagicStickModel {
             arguments.append(",");
             arguments.append(value);
         }
+        String functionName = method == Method.DISTANCE ? "distance" : "shape";
         if (bands.length == 1) {
-            return String.format("distance(%s) < %s", arguments, tolerance);
+            return String.format("%s(%s) < %s", functionName, arguments, tolerance);
         } else {
-            return String.format("distance(%s)/%s < %s", arguments, bands.length, tolerance);
+            return String.format("%s(%s)/%s < %s", functionName, arguments, bands.length, tolerance);
         }
     }
 
