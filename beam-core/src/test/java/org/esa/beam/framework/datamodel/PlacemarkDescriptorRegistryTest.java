@@ -25,7 +25,7 @@ public class PlacemarkDescriptorRegistryTest {
         assertNotNull(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.PinDescriptor"));
         assertNotNull(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.GcpDescriptor"));
         assertNotNull(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.GeometryDescriptor"));
-        assertNull(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.DefaultPlacemarkDescriptor"));
+        assertNull(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.GenericPlacemarkDescriptor"));
 
         Set<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors();
         assertNotNull(descriptors);
@@ -34,7 +34,7 @@ public class PlacemarkDescriptorRegistryTest {
         assertTrue(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.PinDescriptor")));
         assertTrue(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.GcpDescriptor")));
         assertTrue(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.GeometryDescriptor")));
-        assertFalse(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.DefaultPlacemarkDescriptor")));
+        assertFalse(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.GenericPlacemarkDescriptor")));
     }
 
     @Test

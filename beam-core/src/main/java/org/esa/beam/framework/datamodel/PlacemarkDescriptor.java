@@ -36,11 +36,31 @@ import java.awt.*;
  */
 public interface PlacemarkDescriptor {
 
+    /**
+     * Creates a new placemark by wrapping the given feature.
+     *
+     * @param feature The feature to be wrapped.
+     * @return The new placemark.
+     */
     Placemark createPlacemark(SimpleFeature feature);
 
+    /**
+     * Tests if the given {@code featureType} is compatible with this placemark descriptor.
+     * The method shall only return {@code true}, if the {@link #createPlacemark(org.opengis.feature.simple.SimpleFeature)}
+     * method can successfully create a new placemark from a feature having the compatible {@code featureType}.
+     *
+     * @param featureType The feature type to be tested.
+     * @return {@code true}, if the {@code featureType} is compatible.
+     */
     boolean isCompatibleWith(SimpleFeatureType featureType);
 
-    SimpleFeatureType getDefaultFeatureType();
+    /**
+     * Gets the feature type that provides the minimum set of attributes
+     * required for this placemark descriptor.
+     *
+     * @return The base feature type.
+     */
+    SimpleFeatureType getBaseFeatureType();
 
     // todo - remove deprecated methods (nf while revisioning Placemark API)
 

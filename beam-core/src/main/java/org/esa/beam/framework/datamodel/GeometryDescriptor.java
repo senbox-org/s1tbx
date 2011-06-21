@@ -21,7 +21,7 @@ public class GeometryDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
-    public SimpleFeatureType getDefaultFeatureType() {
+    public SimpleFeatureType getBaseFeatureType() {
         return DEFAULT_FEATURE_TYPE;
     }
 

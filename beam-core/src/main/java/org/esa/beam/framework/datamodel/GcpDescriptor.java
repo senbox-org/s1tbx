@@ -34,7 +34,7 @@ public class GcpDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
-    public SimpleFeatureType getDefaultFeatureType() {
+    public SimpleFeatureType getBaseFeatureType() {
         return DEFAULT_FEATURE_TYPE;
     }
 

@@ -18,7 +18,6 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.feature.CollectionEvent;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -271,10 +270,10 @@ public class VectorDataNode extends ProductNode {
     // Note: This is a temporary method. Soon, VectorDataNodes will be able to support all suitable PlacemarkDescriptors
     private static PlacemarkDescriptor getPlacemarkDescriptor(final SimpleFeatureType featureType) {
         List<PlacemarkDescriptor> placemarkDescriptors = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptors(featureType);
-        if (placemarkDescriptors.isEmpty()) {
-            throw new IllegalStateException("No PlacemarkDescriptor found for feature type " + featureType.getTypeName());
+        if (!placemarkDescriptors.isEmpty()) {
+            return placemarkDescriptors.get(0);
         }
-        return placemarkDescriptors.get(0);
+        return new GenericPlacemarkDescriptor(featureType);
     }
 
 }
