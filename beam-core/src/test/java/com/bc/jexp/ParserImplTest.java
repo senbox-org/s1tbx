@@ -166,8 +166,9 @@ public class ParserImplTest {
         assertNotNull(term.getChildren());
         assertEquals(6, term.getChildren().length);
 
-        double d1 = (0.2 + 0.1) - (1.3 + 1.4);
-        double d2 = (0.3 + 0.2) - (1.1 + 1.3);
-        assertEquals(Math.sqrt(d1 * d1 + d2 * d2), term.evalD(env), 1.e-10);
+        double d1 = (0.1) - (1.4);
+        double d2 = (0.1 + 0.2) - (1.4 + 1.3);
+        double d3 = (0.1 + 0.2 + 0.3) - (1.4 + 1.3 + 1.1);
+        assertEquals(Math.sqrt(d1 * d1 + d2 * d2 + d3 * d3), term.evalD(env), 1.e-10);
     }
 }
