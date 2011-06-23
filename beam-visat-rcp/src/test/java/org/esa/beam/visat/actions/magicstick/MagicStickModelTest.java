@@ -6,6 +6,9 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.junit.Assert.*;
 
 /**
@@ -79,7 +82,7 @@ public class MagicStickModelTest {
         model.setTolerance(0.25);
         String expression = model.createExpression(b1, b2, b3);
         assertEquals("distance(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
-                             " || distance(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+                " || distance(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
     }
 
     @Test
@@ -93,7 +96,7 @@ public class MagicStickModelTest {
         model.setTolerance(0.25);
         String expression = model.createExpression(b1, b2, b3);
         assertEquals("distance_deriv(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
-                             " || distance_deriv(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+                " || distance_deriv(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
     }
 
     @Test
@@ -107,7 +110,7 @@ public class MagicStickModelTest {
         model.setTolerance(0.25);
         String expression = model.createExpression(b1, b2, b3);
         assertEquals("distance_integ(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
-                             " || distance_integ(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+                " || distance_integ(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
     }
 
     @Test
@@ -120,7 +123,18 @@ public class MagicStickModelTest {
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.1);
         String expression = model.createExpression(b1, b2, b3);
-        assertEquals("inrange(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
+
+        // Test: assertEquals("inrange(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
+        Pattern pattern = Pattern.compile("inrange\\(b1,b2,b3,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
+        Matcher matcher = pattern.matcher(expression);
+        assertTrue(matcher.find());
+        assertEquals(6, matcher.groupCount());
+        assertEquals(0.3, Double.parseDouble(matcher.group(1)), 1e-8);
+        assertEquals(0.2, Double.parseDouble(matcher.group(2)), 1e-8);
+        assertEquals(0.1, Double.parseDouble(matcher.group(3)), 1e-8);
+        assertEquals(0.7, Double.parseDouble(matcher.group(4)), 1e-8);
+        assertEquals(1.0, Double.parseDouble(matcher.group(5)), 1e-8);
+        assertEquals(0.8, Double.parseDouble(matcher.group(6)), 1e-8);
     }
 
     @Test
@@ -133,7 +147,18 @@ public class MagicStickModelTest {
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.1);
         String expression = model.createExpression(b1, b2, b3);
-        assertEquals("inrange_deriv(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
+
+        // Test: assertEquals("inrange_deriv(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
+        Pattern pattern = Pattern.compile("inrange_deriv\\(b1,b2,b3,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
+        Matcher matcher = pattern.matcher(expression);
+        assertTrue(matcher.find());
+        assertEquals(6, matcher.groupCount());
+        assertEquals(0.3, Double.parseDouble(matcher.group(1)), 1e-8);
+        assertEquals(0.2, Double.parseDouble(matcher.group(2)), 1e-8);
+        assertEquals(0.1, Double.parseDouble(matcher.group(3)), 1e-8);
+        assertEquals(0.7, Double.parseDouble(matcher.group(4)), 1e-8);
+        assertEquals(1.0, Double.parseDouble(matcher.group(5)), 1e-8);
+        assertEquals(0.8, Double.parseDouble(matcher.group(6)), 1e-8);
     }
 
     @Test
@@ -146,6 +171,17 @@ public class MagicStickModelTest {
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.1);
         String expression = model.createExpression(b1, b2, b3);
-        assertEquals("inrange_integ(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
+
+        // Test: assertEquals("inrange_integ(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
+        Pattern pattern = Pattern.compile("inrange_integ\\(b1,b2,b3,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
+        Matcher matcher = pattern.matcher(expression);
+        assertTrue(matcher.find());
+        assertEquals(6, matcher.groupCount());
+        assertEquals(0.3, Double.parseDouble(matcher.group(1)), 1e-8);
+        assertEquals(0.2, Double.parseDouble(matcher.group(2)), 1e-8);
+        assertEquals(0.1, Double.parseDouble(matcher.group(3)), 1e-8);
+        assertEquals(0.7, Double.parseDouble(matcher.group(4)), 1e-8);
+        assertEquals(1.0, Double.parseDouble(matcher.group(5)), 1e-8);
+        assertEquals(0.8, Double.parseDouble(matcher.group(6)), 1e-8);
     }
 }

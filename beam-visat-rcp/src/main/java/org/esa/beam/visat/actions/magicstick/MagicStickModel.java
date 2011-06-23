@@ -192,12 +192,8 @@ class MagicStickModel {
         Arrays.fill(minSpectrum, +Double.MAX_VALUE);
         for (double[] spectrum : spectra) {
             for (int i = 0; i < spectrum.length; i++) {
-                double v = spectrum[i];
-                minSpectrum[i] = Math.min(minSpectrum[i], v);
+                minSpectrum[i] = Math.min(minSpectrum[i], spectrum[i] - tolerance);
             }
-        }
-        for (int i = 0; i < minSpectrum.length; i++) {
-            minSpectrum[i] -= tolerance;
         }
         return minSpectrum;
     }
@@ -207,11 +203,8 @@ class MagicStickModel {
         Arrays.fill(maxSpectrum, -Double.MAX_VALUE);
         for (double[] spectrum : spectra) {
             for (int i = 0; i < spectrum.length; i++) {
-                maxSpectrum[i] = Math.max(maxSpectrum[i], spectrum[i]);
+                maxSpectrum[i] = Math.max(maxSpectrum[i], spectrum[i] + tolerance);
             }
-        }
-        for (int i = 0; i < maxSpectrum.length; i++) {
-            maxSpectrum[i] += tolerance;
         }
         return maxSpectrum;
     }
