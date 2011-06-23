@@ -60,18 +60,6 @@ public class MagicStickModelTest {
     }
 
     @Test
-    public void testCreateExpressionWith3Bands2PlusSpectra() throws Exception {
-        MagicStickModel model = new MagicStickModel();
-        model.setMode(MagicStickModel.Mode.PLUS);
-        model.addSpectrum(0.4, 0.3, 0.2);
-        model.addSpectrum(0.6, 0.9, 0.7);
-        model.setTolerance(0.25);
-        String expression = model.createExpression(b1, b2, b3);
-        assertEquals("distance(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
-                             " || distance(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
-    }
-
-    @Test
     public void testCreateExpressionWith1Band() throws Exception {
         MagicStickModel model = new MagicStickModel();
         model.addSpectrum(0.2);
@@ -81,15 +69,83 @@ public class MagicStickModelTest {
     }
 
     @Test
-    public void testCreateExpressionWithMethodShape() throws Exception {
+    public void testCreateExpressionDistIdent() throws Exception {
         MagicStickModel model = new MagicStickModel();
         model.setMode(MagicStickModel.Mode.PLUS);
-        model.setMethod(MagicStickModel.Method.SHAPE);
+        model.setMethod(MagicStickModel.Method.DISTANCE);
+        model.setOperator(MagicStickModel.Operator.IDENTITY);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.25);
         String expression = model.createExpression(b1, b2, b3);
-        assertEquals("shape(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
-                             " || shape(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+        assertEquals("distance(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
+                             " || distance(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+    }
+
+    @Test
+    public void testCreateExpressionDistDeriv() throws Exception {
+        MagicStickModel model = new MagicStickModel();
+        model.setMode(MagicStickModel.Mode.PLUS);
+        model.setMethod(MagicStickModel.Method.DISTANCE);
+        model.setOperator(MagicStickModel.Operator.DERIVATIVE);
+        model.addSpectrum(0.4, 0.3, 0.2);
+        model.addSpectrum(0.6, 0.9, 0.7);
+        model.setTolerance(0.25);
+        String expression = model.createExpression(b1, b2, b3);
+        assertEquals("distance_deriv(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
+                             " || distance_deriv(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+    }
+
+    @Test
+    public void testCreateExpressionDistInteg() throws Exception {
+        MagicStickModel model = new MagicStickModel();
+        model.setMode(MagicStickModel.Mode.PLUS);
+        model.setMethod(MagicStickModel.Method.DISTANCE);
+        model.setOperator(MagicStickModel.Operator.INTEGRAL);
+        model.addSpectrum(0.4, 0.3, 0.2);
+        model.addSpectrum(0.6, 0.9, 0.7);
+        model.setTolerance(0.25);
+        String expression = model.createExpression(b1, b2, b3);
+        assertEquals("distance_integ(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
+                             " || distance_integ(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+    }
+
+    @Test
+    public void testCreateExpressionLimitsIdent() throws Exception {
+        MagicStickModel model = new MagicStickModel();
+        model.setMode(MagicStickModel.Mode.PLUS);
+        model.setMethod(MagicStickModel.Method.LIMITS);
+        model.setOperator(MagicStickModel.Operator.IDENTITY);
+        model.addSpectrum(0.4, 0.3, 0.2);
+        model.addSpectrum(0.6, 0.9, 0.7);
+        model.setTolerance(0.1);
+        String expression = model.createExpression(b1, b2, b3);
+        assertEquals("inrange(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
+    }
+
+    @Test
+    public void testCreateExpressionLimitsDeriv() throws Exception {
+        MagicStickModel model = new MagicStickModel();
+        model.setMode(MagicStickModel.Mode.PLUS);
+        model.setMethod(MagicStickModel.Method.LIMITS);
+        model.setOperator(MagicStickModel.Operator.DERIVATIVE);
+        model.addSpectrum(0.4, 0.3, 0.2);
+        model.addSpectrum(0.6, 0.9, 0.7);
+        model.setTolerance(0.1);
+        String expression = model.createExpression(b1, b2, b3);
+        assertEquals("inrange_deriv(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
+    }
+
+    @Test
+    public void testCreateExpressionLimitsInteg() throws Exception {
+        MagicStickModel model = new MagicStickModel();
+        model.setMode(MagicStickModel.Mode.PLUS);
+        model.setMethod(MagicStickModel.Method.LIMITS);
+        model.setOperator(MagicStickModel.Operator.INTEGRAL);
+        model.addSpectrum(0.4, 0.3, 0.2);
+        model.addSpectrum(0.6, 0.9, 0.7);
+        model.setTolerance(0.1);
+        String expression = model.createExpression(b1, b2, b3);
+        assertEquals("inrange_integ(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
     }
 }

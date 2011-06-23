@@ -324,45 +324,103 @@ public final class DefaultNamespace extends NamespaceImpl {
             }
         });
 
-        registerFunction(new AbstractFunction.D("length", -1) {
+        registerFunction(new AbstractFunction.D("distance", -1) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                double sqrSum = 0.0, v;
-                final int n = args.length;
+                double sqrSum = 0.0;
+                final int n = args.length / 2;
                 for (int i = 0; i < n; i++) {
-                    v = args[i].evalD(env);
+                    final double v = args[i + n].evalD(env) - args[i].evalD(env);
                     sqrSum += v * v;
                 }
                 return Math.sqrt(sqrSum);
             }
         });
 
-        registerFunction(new AbstractFunction.D("distance", -1) {
+        registerFunction(new AbstractFunction.D("distance_deriv", -1) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                double sqrSum = 0.0, d;
-                final int n = args.length / 2;
-                for (int i = 0; i < n; i++) {
-                    d = args[i + n].evalD(env) - args[i].evalD(env);
-                    sqrSum += d * d;
-                }
-                return Math.sqrt(sqrSum);
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("shape", -1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                double sqrSum = 0.0, d;
+                double sqrSum = 0.0;
                 final int n = args.length / 2;
                 for (int i = 0; i < n - 1; i++) {
-                    d = (args[i + 1].evalD(env) - args[i].evalD(env))
-                            - (args[i + n + 1].evalD(env) - args[i + n].evalD(env));
-                    sqrSum += d * d;
+                    final double v1 = args[i + 1].evalD(env) - args[i].evalD(env);
+                    final double v2 = args[i + n + 1].evalD(env) - args[i + n].evalD(env);
+                    sqrSum += (v1 - v2) * (v1 - v2);
                 }
                 return Math.sqrt(sqrSum);
             }
         });
+
+        registerFunction(new AbstractFunction.D("distance_integ", -1) {
+
+            public double evalD(final EvalEnv env, final Term[] args) {
+                double sqrSum = 0.0;
+                double v1Sum = 0.0;
+                double v2Sum = 0.0;
+                final int n = args.length / 2;
+                for (int i = 0; i < n; i++) {
+                    v1Sum += args[i].evalD(env);
+                    v2Sum += args[i + n].evalD(env);
+                    sqrSum += (v2Sum - v1Sum) * (v2Sum - v1Sum);
+                }
+                return Math.sqrt(sqrSum);
+            }
+        });
+
+        registerFunction(new AbstractFunction.B("inrange", -1) {
+
+            public boolean evalB(final EvalEnv env, final Term[] args) {
+                final int n1 = args.length / 3;
+                final int n2 = n1 + args.length / 3;
+                for (int i = 0; i < n1; i++) {
+                    final double v = args[i].evalD(env);
+                    final double v1 = args[i + n1].evalD(env);
+                    final double v2 = args[i + n2].evalD(env);
+                    if (v < v1 || v > v2) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
+
+        registerFunction(new AbstractFunction.B("inrange_deriv", -1) {
+
+            public boolean evalB(final EvalEnv env, final Term[] args) {
+                final int n1 = args.length / 3;
+                final int n2 = 2 * n1;
+                for (int i = 0; i < n1 - 1; i++) {
+                    final double v = args[i + 1].evalD(env) - args[i].evalD(env);
+                    final double v1 = args[i + n1 + 1].evalD(env) - args[i + n1].evalD(env);
+                    final double v2 = args[i + n2 + 1].evalD(env) - args[i + n2].evalD(env);
+                    if (v < v1 || v > v2) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
+
+        registerFunction(new AbstractFunction.B("inrange_integ", -1) {
+
+            public boolean evalB(final EvalEnv env, final Term[] args) {
+                final int n1 = args.length / 3;
+                final int n2 = 2 * n1;
+                double vSum = 0.0;
+                double v1Sum = 0.0;
+                double v2Sum = 0.0;
+                for (int i = 0; i < n1; i++) {
+                    vSum += args[i].evalD(env);
+                    v1Sum += args[i + n1].evalD(env);
+                    v2Sum += args[i + n2].evalD(env);
+                    if (vSum < v1Sum || vSum > v2Sum) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
+
     }
 
 }

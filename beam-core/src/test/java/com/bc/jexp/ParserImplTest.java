@@ -135,21 +135,6 @@ public class ParserImplTest {
     }
 
     @Test
-    public void testLengthFunction() throws ParseException {
-        Term term = parser.parse("length(0.1, 0.2, 0.3, 0.2, 0.1)");
-        assertNotNull(term);
-        assertNotNull(term.getChildren());
-        assertEquals(5, term.getChildren().length);
-
-        assertEquals(Math.sqrt(0.1 * 0.1
-                                       + 0.2 * 0.2
-                                       + 0.3 * 0.3
-                                       + 0.2 * 0.2
-                                       + 0.1 * 0.1),
-                     term.evalD(env), 1.e-10);
-    }
-
-    @Test
     public void testDistanceFunction() throws ParseException {
         Term term = parser.parse("distance(0.1, 0.2, 0.3, 0.4, 0.3, 0.1)");
         assertNotNull(term);
@@ -163,14 +148,26 @@ public class ParserImplTest {
     }
 
     @Test
-    public void testShapeFunction() throws ParseException {
-        Term term = parser.parse("shape(0.1, 0.2, 0.3, 1.4, 1.3, 1.1)");
+    public void testDistanceDerivFunction() throws ParseException {
+        Term term = parser.parse("distance_deriv(0.1, 0.2, 0.3, 1.4, 1.3, 1.1)");
         assertNotNull(term);
         assertNotNull(term.getChildren());
         assertEquals(6, term.getChildren().length);
 
         double d1 = (0.2 - 0.1) - (1.3 - 1.4);
         double d2 = (0.3 - 0.2) - (1.1 - 1.3);
+        assertEquals(Math.sqrt(d1 * d1 + d2 * d2), term.evalD(env), 1.e-10);
+    }
+
+    @Test
+    public void testDistanceIntegFunction() throws ParseException {
+        Term term = parser.parse("distance_integ(0.1, 0.2, 0.3, 1.4, 1.3, 1.1)");
+        assertNotNull(term);
+        assertNotNull(term.getChildren());
+        assertEquals(6, term.getChildren().length);
+
+        double d1 = (0.2 + 0.1) - (1.3 + 1.4);
+        double d2 = (0.3 + 0.2) - (1.1 + 1.3);
         assertEquals(Math.sqrt(d1 * d1 + d2 * d2), term.evalD(env), 1.e-10);
     }
 }

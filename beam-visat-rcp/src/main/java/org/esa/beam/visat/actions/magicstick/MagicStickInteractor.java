@@ -21,7 +21,6 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.swing.TableLayout;
-import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.figure.ViewportInteractor;
 import org.esa.beam.framework.datamodel.Band;
@@ -55,9 +54,9 @@ import static org.esa.beam.visat.actions.magicstick.MagicStickModel.*;
  */
 public class MagicStickInteractor extends ViewportInteractor {
 
-    private static final String DIALOG_TITLE = "Magic Stick Tool";
+    private static final String DIALOG_TITLE = "Magic Stick Options";
 
-    private JDialog parameterWindow;
+    private JDialog optionsWindow;
     private final MyLayerListener layerListener;
 
     private MagicStickModel model;
@@ -69,10 +68,10 @@ public class MagicStickInteractor extends ViewportInteractor {
 
     @Override
     public boolean activate() {
-        if (parameterWindow == null) {
-            parameterWindow = createParameterWindow();
+        if (optionsWindow == null) {
+            optionsWindow = createOptionsWindow();
         }
-        parameterWindow.setVisible(true);
+        optionsWindow.setVisible(true);
 
         ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
         if (view != null) {
@@ -86,8 +85,8 @@ public class MagicStickInteractor extends ViewportInteractor {
     public void deactivate() {
         super.deactivate();
 
-        if (parameterWindow != null) {
-            parameterWindow.setVisible(false);
+        if (optionsWindow != null) {
+            optionsWindow.setVisible(false);
         }
 
         ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
@@ -138,12 +137,12 @@ public class MagicStickInteractor extends ViewportInteractor {
         MagicStickModel.setMagicStickMask(product, model.createExpression(spectralBands));
     }
 
-    private JDialog createParameterWindow() {
-        JDialog parameterWindow = new JDialog(VisatApp.getApp().getMainFrame(), DIALOG_TITLE, false);
-        UIUtils.centerComponent(parameterWindow, VisatApp.getApp().getMainFrame());
-        parameterWindow.getContentPane().add(new MagicStickForm().createPanel());
-        parameterWindow.pack();
-        return parameterWindow;
+    private JDialog createOptionsWindow() {
+        JDialog optionsWindow = new JDialog(VisatApp.getApp().getMainFrame(), DIALOG_TITLE, false);
+        UIUtils.centerComponent(optionsWindow, VisatApp.getApp().getMainFrame());
+        optionsWindow.getContentPane().add(new MagicStickForm().createPanel());
+        optionsWindow.pack();
+        return optionsWindow;
     }
 
     // todo - Move class to top level and also extract MagicStickModel (mode, plusSpectra, minusSpectra, tolerance) (nf)
@@ -186,19 +185,38 @@ public class MagicStickInteractor extends ViewportInteractor {
                 }
             });
 
-            JRadioButton b1 = new JRadioButton("Distance");
-            JRadioButton b2 = new JRadioButton("Shape");
-            JRadioButton b3 = new JRadioButton("Limits");
+            JRadioButton methodButton1 = new JRadioButton("Distance");
+            JRadioButton methodButton2 = new JRadioButton("Average");
+            JRadioButton methodButton3 = new JRadioButton("Limits");
             ButtonGroup methodGroup = new ButtonGroup();
-            methodGroup.add(b1);
-            methodGroup.add(b2);
-            methodGroup.add(b3);
+            methodGroup.add(methodButton1);
+            methodGroup.add(methodButton2);
+            methodGroup.add(methodButton3);
             bindingContext.bind("method", methodGroup);
             JPanel methodPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
-            methodPanel.add(b1);
-            methodPanel.add(b2);
-            methodPanel.add(b3);
+            methodPanel.add(methodButton1);
+            methodPanel.add(methodButton2);
+            methodPanel.add(methodButton3);
             bindingContext.addPropertyChangeListener("method", new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                     updateMagicStickMask();
+                }
+            });
+
+            JRadioButton operatorButton1 = new JRadioButton("Integral");
+            JRadioButton operatorButton2 = new JRadioButton("Identity");
+            JRadioButton operatorButton3 = new JRadioButton("Derivative");
+            ButtonGroup operatorGroup = new ButtonGroup();
+            operatorGroup.add(operatorButton1);
+            operatorGroup.add(operatorButton2);
+            operatorGroup.add(operatorButton3);
+            bindingContext.bind("operator", operatorGroup);
+            JPanel operatorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
+            operatorPanel.add(operatorButton1);
+            operatorPanel.add(operatorButton2);
+            operatorPanel.add(operatorButton3);
+            bindingContext.addPropertyChangeListener("operator", new PropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                      updateMagicStickMask();
@@ -258,13 +276,15 @@ public class MagicStickInteractor extends ViewportInteractor {
             tableLayout.setCellColspan(1, 0, tableLayout.getColumnCount());
             tableLayout.setCellColspan(2, 0, tableLayout.getColumnCount());
             tableLayout.setCellColspan(3, 0, tableLayout.getColumnCount());
+            tableLayout.setCellColspan(4, 0, tableLayout.getColumnCount());
 
             JPanel panel = new JPanel(tableLayout);
             panel.add(toleranceLabel, new TableLayout.Cell(0, 0));
             panel.add(toleranceField, new TableLayout.Cell(0, 1));
             panel.add(toleranceSlider, new TableLayout.Cell(1, 0));
             panel.add(methodPanel, new TableLayout.Cell(2, 0));
-            panel.add(toolBarPanel, new TableLayout.Cell(3, 0));
+            panel.add(operatorPanel, new TableLayout.Cell(3, 0));
+            panel.add(toolBarPanel, new TableLayout.Cell(4, 0));
 
             adjustSlider();
 

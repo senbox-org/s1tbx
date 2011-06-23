@@ -26,15 +26,22 @@ class MagicStickModel {
         MINUS,
     }
 
+    public enum Operator {
+        INTEGRAL,
+        IDENTITY,
+        DERIVATIVE,
+    }
+
     public enum Method {
         DISTANCE,
-        SHAPE,
+        AVERAGE,
         LIMITS,
     }
 
     static final String MAGIC_STICK_MASK_NAME = "magic_stick";
 
     private Mode mode;
+    private Operator operator;
     private Method method;
     private ArrayList<double[]> plusSpectra;
     private ArrayList<double[]> minusSpectra;
@@ -43,6 +50,7 @@ class MagicStickModel {
     MagicStickModel() {
         mode = Mode.SINGLE;
         method = Method.DISTANCE;
+        operator = Operator.IDENTITY;
         plusSpectra = new ArrayList<double[]>();
         minusSpectra = new ArrayList<double[]>();
         tolerance = 0.1;
@@ -75,6 +83,14 @@ class MagicStickModel {
 
     public Method getMethod() {
         return method;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public void setOperator(Operator operator) {
+        this.operator = operator;
     }
 
     public void setMethod(Method method) {
@@ -118,12 +134,17 @@ class MagicStickModel {
     String createExpression(Band... spectralBands) {
         final String plusPart;
         final String minusPart;
-        if (getMethod() == Method.LIMITS) {
-            plusPart = getLimitsPart(spectralBands, plusSpectra, tolerance);
-            minusPart = getLimitsPart(spectralBands, minusSpectra, tolerance);
+        if (getMethod() == Method.DISTANCE) {
+            plusPart = getDistancePart(spectralBands, operator, plusSpectra, tolerance);
+            minusPart = getDistancePart(spectralBands, operator, minusSpectra, tolerance);
+        } else if (getMethod() == Method.AVERAGE) {
+            plusPart = getAveragePart(spectralBands, operator, plusSpectra, tolerance);
+            minusPart = getAveragePart(spectralBands, operator, minusSpectra, tolerance);
+        } else if (getMethod() == Method.LIMITS) {
+            plusPart = getLimitsPart(spectralBands, operator, plusSpectra, tolerance);
+            minusPart = getLimitsPart(spectralBands, operator, minusSpectra, tolerance);
         } else {
-            plusPart = getDistancePart(spectralBands, method, plusSpectra, tolerance);
-            minusPart = getDistancePart(spectralBands, method, minusSpectra, tolerance);
+            throw new IllegalStateException("Unhandled method " + getMethod());
         }
         if (plusPart != null && minusPart != null) {
             return String.format("(%s) && !(%s)", plusPart, minusPart);
@@ -136,23 +157,34 @@ class MagicStickModel {
         }
     }
 
-    private static String getLimitsPart(Band[] spectralBands, List<double[]> spectra, double tolerance) {
+    private static String getLimitsPart(Band[] spectralBands, Operator operator, List<double[]> spectra, double tolerance) {
         if (spectra.isEmpty()) {
             return null;
         }
-        double[] plusSpectrumMin = getMinSpectrum(spectralBands, spectra, tolerance);
-        double[] plusSpectrumMax = getMaxSpectrum(spectralBands, spectra, tolerance);
-        StringBuilder part = new StringBuilder();
-        for (int i = 0; i < spectralBands.length; i++) {
-            Band b = spectralBands[i];
-            if (i > 0) {
-                part.append(" && ");
-            }
-            part.append(String.format("%s >= %s && %s <= %s",
-                                      b.getName(), plusSpectrumMin[i],
-                                      b.getName(), plusSpectrumMax[i]));
+        double[] minSpectrum = getMinSpectrum(spectralBands, spectra, tolerance);
+        double[] maxSpectrum = getMaxSpectrum(spectralBands, spectra, tolerance);
+        return getLimitsSubPart(spectralBands, operator, minSpectrum, maxSpectrum);
+    }
+
+    private static String getAveragePart(Band[] spectralBands, Operator operator, List<double[]> spectra, double tolerance) {
+        if (spectra.isEmpty()) {
+            return null;
         }
-        return part.toString();
+        double[] avgSpectrum = getAvgSpectrum(spectralBands, spectra);
+        return getDistanceSubPart(spectralBands, operator, avgSpectrum, tolerance);
+    }
+
+    private static double[] getAvgSpectrum(Band[] spectralBands, List<double[]> spectra) {
+        double[] avgSpectrum = new double[spectralBands.length];
+        for (double[] spectrum : spectra) {
+            for (int i = 0; i < spectrum.length; i++) {
+                avgSpectrum[i] += spectrum[i];
+            }
+        }
+        for (int i = 0; i < avgSpectrum.length; i++) {
+            avgSpectrum[i] /= spectra.size();
+        }
+        return avgSpectrum;
     }
 
     private static double[] getMinSpectrum(Band[] spectralBands, List<double[]> spectra, double tolerance) {
@@ -184,7 +216,7 @@ class MagicStickModel {
         return maxSpectrum;
     }
 
-    private static String getDistancePart(Band[] bands, Method method, List<double[]> spectra, double tolerance) {
+    private static String getDistancePart(Band[] bands, Operator operator, List<double[]> spectra, double tolerance) {
         if (spectra.isEmpty()) {
             return null;
         }
@@ -194,12 +226,12 @@ class MagicStickModel {
             if (i > 0) {
                 part.append(" || ");
             }
-            part.append(createExpression(bands, method, spectrum, tolerance));
+            part.append(getDistanceSubPart(bands, operator, spectrum, tolerance));
         }
         return part.toString();
     }
 
-    private static String createExpression(Band[] bands, Method method, double[] spectrum, double tolerance) {
+    private static String getDistanceSubPart(Band[] bands, Operator operator, double[] spectrum, double tolerance) {
         if (bands.length == 0) {
             return "0";
         }
@@ -214,13 +246,55 @@ class MagicStickModel {
             arguments.append(",");
             arguments.append(value);
         }
-        String functionName = method == Method.DISTANCE ? "distance" : "shape";
+        String functionName;
+        if (operator == Operator.IDENTITY) {
+            functionName = "distance";
+        } else if (operator == Operator.DERIVATIVE) {
+            functionName = "distance_deriv";
+        } else if (operator == Operator.INTEGRAL) {
+            functionName = "distance_integ";
+        } else {
+            throw new IllegalStateException("unhandled operator " + operator);
+        }
         if (bands.length == 1) {
             return String.format("%s(%s) < %s", functionName, arguments, tolerance);
         } else {
             return String.format("%s(%s)/%s < %s", functionName, arguments, bands.length, tolerance);
         }
     }
+
+    private static String getLimitsSubPart(Band[] bands, Operator operator, double[] minSpectrum,  double[] maxSpectrum) {
+        if (bands.length == 0) {
+            return "0";
+        }
+        final StringBuilder arguments = new StringBuilder();
+        for (int i = 0; i < bands.length; i++) {
+            if (i > 0) {
+                arguments.append(",");
+            }
+            arguments.append(BandArithmetic.createExternalName(bands[i].getName()));
+        }
+        for (double value : minSpectrum) {
+            arguments.append(",");
+            arguments.append(value);
+        }
+        for (double value : maxSpectrum) {
+            arguments.append(",");
+            arguments.append(value);
+        }
+        String functionName;
+        if (operator == Operator.IDENTITY) {
+            functionName = "inrange";
+        } else if (operator == Operator.DERIVATIVE) {
+            functionName = "inrange_deriv";
+        } else if (operator == Operator.INTEGRAL) {
+            functionName = "inrange_integ";
+        } else {
+            throw new IllegalStateException("unhandled operator " + operator);
+        }
+        return String.format("%s(%s)", functionName, arguments);
+    }
+
 
     static double[] getSpectrum(Band[] bands, int pixelX, int pixelY) throws IOException {
         final double[] pixel = new double[1];
