@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -145,10 +145,6 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
                 converter = propertyDescriptor.getConverter();
             }
             ValueSet valueSet = ValueSet.parseValueSet(parameter.valueSet(), converter);
-            propertyDescriptor.setValueSet(valueSet);
-        } else if (propertyDescriptor.getType().isEnum()) {
-            Class<?> type = propertyDescriptor.getType();
-            ValueSet valueSet = new ValueSet(type.getEnumConstants());
             propertyDescriptor.setValueSet(valueSet);
         }
         if (isSet(parameter.defaultValue())) {

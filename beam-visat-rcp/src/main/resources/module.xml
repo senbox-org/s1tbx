@@ -27,6 +27,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 4.10<br/>
+          [BEAM-1323] Add "magic stick" to VISAT that lets users create masks of similar pixels<br/>
         <p>Changes in 4.9<br/>
           [BEAM-1297] Add DEM-corrected latitude/longitude bands in satellite coordinates<br/>
           [BEAM-1292] Reprojection dialog shifts image if pixel size is changed<br/>
@@ -1662,6 +1664,20 @@
             <context>image</context>
             <helpId>rangeFinder</helpId>
         </action>
+        <action>
+            <id>magicStickTool</id>
+            <class>org.esa.beam.visat.actions.ToolAction</class>
+            <tool>org.esa.beam.visat.actions.magicstick.MagicStickTool</tool>
+            <interactor>org.esa.beam.visat.actions.magicstick.MagicStickInteractor</interactor>
+            <parent>tools</parent>
+            <placeAfter>rangeFinder</placeAfter>
+            <text>Magic Stick</text>
+            <shortDescr>Creates a ROI mask using a magic stick</shortDescr>
+            <largeIcon>/org/esa/beam/visat/actions/magicstick/MagicStick22.png</largeIcon>
+            <selected>false</selected>
+            <context>image</context>
+            <helpId>magicStickTool</helpId>
+        </action>
 
         <action>
             <id>layout</id>
@@ -1710,19 +1726,7 @@
                     <placeAfter>createElevationBand</placeAfter>
                     <separatorAfter>false</separatorAfter>
                 </action>
-                <action>
-                    <id>magicStickTool</id>
-                    <class>org.esa.beam.visat.actions.ToolAction</class>
-                    <tool>org.esa.beam.visat.actions.magic.MagicStickTool</tool>
-                    <parent>tools</parent>
-                    <placeAfter>selectTool</placeAfter>
-                    <text>Magic Stick</text>
-                    <shortDescr>Creates a ROI using a magic stick</shortDescr>
-                    <largeIcon>icons/MagicStickTool24.gif</largeIcon>
-                    <selected>false</selected>
-                    <context>image</context>
-                    <helpId>magicStickTool</helpId>
-                </action>
+
         -->
 
         <action>

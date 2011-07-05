@@ -25,60 +25,55 @@ public class PlacemarkDescriptorRegistryTest {
         assertNotNull(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.PinDescriptor"));
         assertNotNull(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.GcpDescriptor"));
         assertNotNull(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.GeometryDescriptor"));
-        assertNotNull(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.DefaultPlacemarkDescriptor"));
+        assertNull(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.GenericPlacemarkDescriptor"));
 
         Set<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors();
         assertNotNull(descriptors);
-        assertTrue("expected placemarkDescriptors.length > 4, but was " + descriptors.size(),
-                   descriptors.size() >= 4);
+        assertTrue("expected placemarkDescriptors.length >= 3, but was " + descriptors.size(),
+                   descriptors.size() >= 3);
         assertTrue(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.PinDescriptor")));
         assertTrue(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.GcpDescriptor")));
         assertTrue(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.GeometryDescriptor")));
-        assertTrue(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.DefaultPlacemarkDescriptor")));
+        assertFalse(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.GenericPlacemarkDescriptor")));
     }
 
     @Test
-    public void testThatPlacemarkDescriptorsAreFoundForPinFeatureType() throws Exception {
-        hahaha("org.esa.beam.Pin", "org.esa.beam.framework.datamodel.PinDescriptor");
+    public void testThatPlacemarkDescriptorIsFoundForPinFeatureType() throws Exception {
+        testThatPlacemarkDescriptorIsFound("org.esa.beam.Pin", "org.esa.beam.framework.datamodel.PinDescriptor");
     }
 
     @Test
-    public void testThatPlacemarkDescriptorsAreFoundForGcpFeatureType() throws Exception {
-        hahaha("org.esa.beam.GroundControlPoint", "org.esa.beam.framework.datamodel.GcpDescriptor");
+    public void testThatPlacemarkDescriptorIsFoundForGcpFeatureType() throws Exception {
+        testThatPlacemarkDescriptorIsFound("org.esa.beam.GroundControlPoint", "org.esa.beam.framework.datamodel.GcpDescriptor");
     }
 
     @Test
-    public void testThatPlacemarkDescriptorsAreFoundForGeometryFeatureType() throws Exception {
-        hahaha("org.esa.beam.Geometry", "org.esa.beam.framework.datamodel.GeometryDescriptor");
+    public void testThatPlacemarkDescriptorIsFoundForGeometryFeatureType() throws Exception {
+        testThatPlacemarkDescriptorIsFound("org.esa.beam.Geometry", "org.esa.beam.framework.datamodel.GeometryDescriptor");
     }
 
     @Test
-    public void testThatPlacemarkDescriptorsAreFoundForYetUnknownFeatureType() throws Exception {
+    public void testThatPlacemarkDescriptorIsNotFoundForYetUnknownFeatureType() throws Exception {
         PlacemarkDescriptorRegistry registry = new PlacemarkDescriptorRegistry();
 
         SimpleFeatureType ft = createYetUnknownFeatureType();
 
         List<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(ft);
         assertNotNull(descriptors);
-        assertEquals(1, descriptors.size());
-
-        assertSame(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.DefaultPlacemarkDescriptor"),
-                   descriptors.get(0));
+        assertEquals(0, descriptors.size());
     }
 
-    private void hahaha(String featureTypeName, String className) {
+    private void testThatPlacemarkDescriptorIsFound(String featureTypeName, String className) {
         PlacemarkDescriptorRegistry registry = new PlacemarkDescriptorRegistry();
 
         SimpleFeatureType ft = Placemark.createPointFeatureType(featureTypeName);
 
         List<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(ft);
         assertNotNull(descriptors);
-        assertEquals(2, descriptors.size());
+        assertEquals(1, descriptors.size());
 
         assertSame(registry.getPlacemarkDescriptor(className),
                    descriptors.get(0));
-        assertSame(registry.getPlacemarkDescriptor("org.esa.beam.framework.datamodel.DefaultPlacemarkDescriptor"),
-                   descriptors.get(1));
     }
 
     public static SimpleFeatureType createYetUnknownFeatureType() {

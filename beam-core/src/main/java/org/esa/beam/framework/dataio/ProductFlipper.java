@@ -107,7 +107,6 @@ public class ProductFlipper extends AbstractProductBuilder {
     @Override
     public void close() throws IOException {
         disposeBandMap();
-        sourceProduct = null;
         super.close();
     }
 

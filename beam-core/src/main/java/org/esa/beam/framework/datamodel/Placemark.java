@@ -350,7 +350,7 @@ public class Placemark extends ProductNode {
         }
 
         final Point geometry = geometryFactory.createPoint(toCoordinate(i2m.transform(imagePos, null)));
-        final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(descriptor.getDefaultFeatureType(),
+        final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(descriptor.getBaseFeatureType(),
                                                                              name,
                                                                              geometry,
                                                                              null);

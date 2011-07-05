@@ -26,13 +26,14 @@ public class ParseException extends Exception {
     private static final long serialVersionUID = 4479172738937713857L;
     
     /**
-     * The source code _line number in which the error occured.
+     * The source code line number in which the error occured.
      */
-    private final int _line;
+    private final int line;
+
     /**
-     * The _column number in the source code in which the error occured.
+     * The column number in the source code in which the error occured.
      */
-    private final int _column;
+    private final int column;
 
     /**
      * Constructs a new parser exception with the given message.
@@ -52,8 +53,8 @@ public class ParseException extends Exception {
      */
     public ParseException(final int line, final int column, final String message) {
         super(message);
-        _line = line;
-        _column = column;
+        this.line = line;
+        this.column = column;
     }
 
     /**
@@ -61,7 +62,7 @@ public class ParseException extends Exception {
      * @return the _line number or <code>-1</code> if not available
      */
     public final int getLine() {
-        return _line;
+        return line;
     }
 
     /**
@@ -69,6 +70,6 @@ public class ParseException extends Exception {
      * @return the _column number or <code>-1</code> if not available
      */
     public final int getColumn() {
-        return _column;
+        return column;
     }
 }

@@ -34,20 +34,17 @@ public final class ParserImpl implements Parser {
     /**
      * The environment used to resolve names.
      */
-    private Namespace _defaultNamespace;
+    private Namespace defaultNamespace;
 
     /**
      * The tokenizer used by this parser.
-     *
-     * @supplierCardinality 1
-     * @supplierRole -tokenizer
      */
-    private Tokenizer _tokenizer;
+    private Tokenizer tokenizer;
 
     /**
      * If true, the parser performs type checking on expressions.
      */
-    private boolean _typeChecking;
+    private boolean typeChecking;
 
 
     /**
@@ -82,9 +79,9 @@ public final class ParserImpl implements Parser {
      * @param typeChecking if true, the parser performs type checking on expressions
      */
     public ParserImpl(final Namespace namespace, boolean typeChecking) {
-        _defaultNamespace = namespace;
-        _typeChecking = typeChecking;
-        _tokenizer = null;
+        defaultNamespace = namespace;
+        this.typeChecking = typeChecking;
+        tokenizer = null;
     }
 
     /**
@@ -93,7 +90,7 @@ public final class ParserImpl implements Parser {
      * @return the default environment used to resolve names.
      */
     public final Namespace getDefaultNamespace() {
-        return _defaultNamespace;
+        return defaultNamespace;
     }
 
     /**
@@ -102,7 +99,7 @@ public final class ParserImpl implements Parser {
      * @return if true, the parser performs type checking on expressions
      */
     public boolean isTypeChecking() {
-        return _typeChecking;
+        return typeChecking;
     }
 
     /**
@@ -111,11 +108,10 @@ public final class ParserImpl implements Parser {
      *
      * @param code the code string, for the syntax of valid expressions refer
      *             to the class description
-     *
      * @throws ParseException if a parse reportError occurs
      */
     public final Term parse(final String code) throws ParseException {
-        return parse(code, _defaultNamespace);
+        return parse(code, defaultNamespace);
     }
 
     /**
@@ -125,21 +121,20 @@ public final class ParserImpl implements Parser {
      * @param code      the code string, for the syntax of valid expressions refer
      *                  to the class description
      * @param namespace the environment which is used to resolve names
-     *
      * @throws ParseException if a parse error occurs
      */
     public final Term parse(final String code, final Namespace namespace) throws ParseException {
         if (code == null) {
             throw new IllegalArgumentException("code is null");
         }
-        Namespace defaultNamespace = _defaultNamespace;
+        Namespace defaultNamespace = this.defaultNamespace;
         if (namespace != null && namespace != defaultNamespace) {
-            _defaultNamespace = new NamespaceImpl(namespace);
+            this.defaultNamespace = new NamespaceImpl(namespace);
         }
-        _tokenizer = new Tokenizer(code);
+        tokenizer = new Tokenizer(code);
         Term term = parseImpl();
-        _tokenizer = null;
-        _defaultNamespace = defaultNamespace;
+        tokenizer = null;
+        this.defaultNamespace = defaultNamespace;
         return term;
     }
 
@@ -147,11 +142,12 @@ public final class ParserImpl implements Parser {
      * Implements the <code>parse</code> method. Calls <code>parseTerm(false)</code>
      * and throws an exception if the next token is not the end-of-string.
      *
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parseImpl() throws ParseException {
         final Term expr = parseTerm(false);
-        final int tt = _tokenizer.next();
+        final int tt = tokenizer.next();
         if (tt != Tokenizer.TT_EOS) {
             reportError("Incomplete expression."); /*I18N*/
         }
@@ -163,6 +159,8 @@ public final class ParserImpl implements Parser {
      * a <code>parseAssign</code> method in order to signal that the assignment
      * operator '=' has the highest operator precedence.
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parseTerm(final boolean required) throws ParseException {
@@ -172,12 +170,14 @@ public final class ParserImpl implements Parser {
     /**
      * Parses an assignment expression <i>x '=' y</i>.
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parseAssign(final boolean required) throws ParseException {
         Term t1 = parseConditional(required);
         while (t1 != null) {
-            int tt = _tokenizer.next();
+            int tt = tokenizer.next();
             if (tt == '=') {
                 Term t2 = parseAssign(true);
                 if (t1 instanceof Term.Ref && ((Term.Ref) t1).getVariable() != null) {
@@ -186,7 +186,7 @@ public final class ParserImpl implements Parser {
                     reportError("Variable expected on the left side of assignment '='.");
                 }
             } else {
-                _tokenizer.pushBack();
+                tokenizer.pushBack();
                 break;
             }
         }
@@ -196,14 +196,16 @@ public final class ParserImpl implements Parser {
     /**
      * Parses a conditional expression (not implemented).
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parseConditional(final boolean required) throws ParseException {
         Term t1 = parseLogicalOr(required);
-        int tt = _tokenizer.next();
+        int tt = tokenizer.next();
         if (tt == '?') {
             Term t2 = parseTerm(true);
-            tt = _tokenizer.next();
+            tt = tokenizer.next();
             if (tt == ':') {
                 if (isTypeChecking() && !t1.isB()) {
                     reportError("Boolean operand expected before '?' in conditional '?:' term.");
@@ -221,11 +223,11 @@ public final class ParserImpl implements Parser {
                     reportError("Boolean or numeric operands expected in conditional '?:' term.");
                 }
             } else {
-                _tokenizer.pushBack();
+                tokenizer.pushBack();
                 reportError("Missing ':' part of conditional '?:' term.");
             }
         } else {
-            _tokenizer.pushBack();
+            tokenizer.pushBack();
         }
         return t1;
     }
@@ -233,12 +235,15 @@ public final class ParserImpl implements Parser {
     /**
      * Parses a logical OR expression <i>x '||' y</i>.
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parseLogicalOr(final boolean required) throws ParseException {
         Term t1 = parseLogicalAnd(required);
         while (t1 != null) {
-            /*int tt =*/ _tokenizer.next();
+            /*int tt =*/
+            tokenizer.next();
             if (isSpecial("||") || isKeyword("or")) {
                 Term t2 = parseLogicalAnd(true);
                 if ((t1.isB() && t2.isB()) || !isTypeChecking()) {
@@ -247,7 +252,7 @@ public final class ParserImpl implements Parser {
                     reportTypeErrorB2("'||' or 'or'");
                 }
             } else {
-                _tokenizer.pushBack();
+                tokenizer.pushBack();
                 break;
             }
         }
@@ -257,12 +262,15 @@ public final class ParserImpl implements Parser {
     /**
      * Parses a logical AND expression <i>x '&&' y</i>.
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parseLogicalAnd(final boolean required) throws ParseException {
         Term t1 = parseComparison(required);
         while (t1 != null) {
-            /*int tt =*/ _tokenizer.next();
+            /*int tt =*/
+            tokenizer.next();
             if (isSpecial("&&") || isKeyword("and")) {
                 Term t2 = parseComparison(true);
                 if ((t1.isB() && t2.isB()) || !isTypeChecking()) {
@@ -271,7 +279,7 @@ public final class ParserImpl implements Parser {
                     reportTypeErrorB2("'&&' or 'and'");
                 }
             } else {
-                _tokenizer.pushBack();
+                tokenizer.pushBack();
                 break;
             }
         }
@@ -287,12 +295,14 @@ public final class ParserImpl implements Parser {
      * <i>x '>' y</i>,
      * <i>x '>=' y</i>.
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parseComparison(final boolean required) throws ParseException {
         Term t1 = parseBitwiseOr(required);
         while (t1 != null) {
-            int tt = _tokenizer.next();
+            int tt = tokenizer.next();
             if (tt == '<') {
                 Term t2 = parseBitwiseOr(true);
                 if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
@@ -360,7 +370,7 @@ public final class ParserImpl implements Parser {
                     reportTypeErrorN2("'>='");
                 }
             } else {
-                _tokenizer.pushBack();
+                tokenizer.pushBack();
                 break;
             }
         }
@@ -370,12 +380,14 @@ public final class ParserImpl implements Parser {
     /**
      * Parses a bitwise OR expression <i>x '|' y</i>.
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parseBitwiseOr(final boolean required) throws ParseException {
         Term t1 = parseBtwiseXOr(required);
         while (t1 != null) {
-            int tt = _tokenizer.next();
+            int tt = tokenizer.next();
             if (tt == '|') {
                 Term t2 = parseBtwiseXOr(true);
                 if ((t1.isI() && t2.isI()) || !isTypeChecking()) {
@@ -384,7 +396,7 @@ public final class ParserImpl implements Parser {
                     reportTypeErrorI2("'|'");
                 }
             } else {
-                _tokenizer.pushBack();
+                tokenizer.pushBack();
                 break;
             }
         }
@@ -394,12 +406,14 @@ public final class ParserImpl implements Parser {
     /**
      * Parses a bitwise XOR expression <i>x '^' y</i>.
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parseBtwiseXOr(final boolean required) throws ParseException {
         Term t1 = parseBitwiseAnd(required);
         while (t1 != null) {
-            int tt = _tokenizer.next();
+            int tt = tokenizer.next();
             if (tt == '^') {
                 Term t2 = parseBitwiseAnd(true);
                 if ((t1.isI() && t2.isI()) || !isTypeChecking()) {
@@ -408,7 +422,7 @@ public final class ParserImpl implements Parser {
                     reportTypeErrorI2("'^'");
                 }
             } else {
-                _tokenizer.pushBack();
+                tokenizer.pushBack();
                 break;
             }
         }
@@ -419,12 +433,14 @@ public final class ParserImpl implements Parser {
     /**
      * Parses a bitwise AND expression <i>x '&' y</i>.
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parseBitwiseAnd(final boolean required) throws ParseException {
         Term t1 = parseAdd(required);
         while (t1 != null) {
-            int tt = _tokenizer.next();
+            int tt = tokenizer.next();
             if (tt == '&') {
                 Term t2 = parseAdd(true);
                 if ((t1.isI() && t2.isI()) || !isTypeChecking()) {
@@ -433,7 +449,7 @@ public final class ParserImpl implements Parser {
                     reportTypeErrorI2("'&'");
                 }
             } else {
-                _tokenizer.pushBack();
+                tokenizer.pushBack();
                 break;
             }
         }
@@ -443,12 +459,14 @@ public final class ParserImpl implements Parser {
     /**
      * Parses an additive expression <i>x '+' y</i> or <i>x '-' y</i>.
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parseAdd(final boolean required) throws ParseException {
         Term t1 = parseMul(required);
         while (t1 != null) {
-            int tt = _tokenizer.next();
+            int tt = tokenizer.next();
             if (tt == '+') {
                 Term t2 = parseMul(true);
                 if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
@@ -472,7 +490,7 @@ public final class ParserImpl implements Parser {
                     reportTypeErrorN2("'-'");
                 }
             } else {
-                _tokenizer.pushBack();
+                tokenizer.pushBack();
                 break;
             }
         }
@@ -483,12 +501,14 @@ public final class ParserImpl implements Parser {
      * Parses a multiplicative expression <i>x '*' y</i>, <i>x '/' y</i>
      * or <i>x '%' y</i> (modulo).
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parseMul(final boolean required) throws ParseException {
         Term t1 = parseUnary(required);
         while (t1 != null) {
-            int tt = _tokenizer.next();
+            int tt = tokenizer.next();
             if (tt == '*') {
                 Term t2 = parseUnary(true);
                 if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
@@ -523,7 +543,7 @@ public final class ParserImpl implements Parser {
                     reportTypeErrorN2("'%'");
                 }
             } else {
-                _tokenizer.pushBack();
+                tokenizer.pushBack();
                 break;
             }
         }
@@ -534,11 +554,13 @@ public final class ParserImpl implements Parser {
     /**
      * Parses an unary expression <i>'+' x</i>, <i>'-' x</i>, <i>'!' x</i>, <i>'~' x</i>.
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parseUnary(final boolean required) throws ParseException {
         Term t1 = null;
-        final int tt = _tokenizer.next();
+        final int tt = tokenizer.next();
         if (tt == '+') {
             Term t2 = parseUnary(true);
             if (t2.isI() || t2.isD()) {
@@ -578,7 +600,7 @@ public final class ParserImpl implements Parser {
                 reportTypeErrorI1("'~'");
             }
         } else {
-            _tokenizer.pushBack();
+            tokenizer.pushBack();
             t1 = parsePostfix(required);
         }
         return t1;
@@ -587,6 +609,8 @@ public final class ParserImpl implements Parser {
     /**
      * Parses an postfix expression.
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parsePostfix(final boolean required) throws ParseException {
@@ -600,11 +624,13 @@ public final class ParserImpl implements Parser {
      * <i>identifier</i> or a function call <i>identifier '(' arg1 ',' arg2 ','
      * arg3 ',' ...')'</i>.
      *
+     * @param required true, if the expression is required.
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term parsePrimary(final boolean required) throws ParseException {
         Term t1 = null;
-        int tt = _tokenizer.next();
+        int tt = tokenizer.next();
         if (tt == Tokenizer.TT_DOUBLE) {
             t1 = new Term.ConstD(convertDoubleToken());
         } else if (tt == Tokenizer.TT_INT) {
@@ -616,7 +642,7 @@ public final class ParserImpl implements Parser {
         } else if (tt == Tokenizer.TT_STRING) {
             t1 = new Term.ConstS(convertStringToken());
         } else if (tt == Tokenizer.TT_KEYWORD) {
-            String keyword = _tokenizer.getToken();
+            String keyword = tokenizer.getToken();
             if (keyword.equalsIgnoreCase("true")) {
                 t1 = new Term.ConstB(true);
             } else if (keyword.equalsIgnoreCase("false")) {
@@ -625,43 +651,43 @@ public final class ParserImpl implements Parser {
                 reportError("Unexpected keyword '" + keyword + "'.");
             }
         } else if (tt == Tokenizer.TT_NAME || tt == Tokenizer.TT_ESCAPED_NAME) {
-            String name = _tokenizer.getToken();
+            String name = tokenizer.getToken();
             t1 = parseCallOrRef(name);
         } else if (tt == '(') {
             t1 = parseTerm(true);
-            tt = _tokenizer.next();
+            tt = tokenizer.next();
             if (tt != ')') {
-                _tokenizer.pushBack();
+                tokenizer.pushBack();
                 reportError("Missing ')'."); /*I18N*/
             }
         } else {
             if (required) {
                 reportError("Term expected."); /*I18N*/
             }
-            _tokenizer.pushBack();
+            tokenizer.pushBack();
         }
         return t1;
     }
 
     private String convertStringToken() {
-        return _tokenizer.getToken();
+        return tokenizer.getToken();
     }
 
     private Term parseCallOrRef(final String name) throws ParseException {
         final int tt;
         Term t1 = null;
-        tt = _tokenizer.next();
+        tt = tokenizer.next();
         if (tt == '(') {
             Term[] args = parseArgumentList();
-            Function function = _defaultNamespace.resolveFunction(name, args);
+            Function function = defaultNamespace.resolveFunction(name, args);
             if (function != null) {
                 t1 = new Term.Call(function, args);
             } else {
                 reportError("Undefined function '" + getFunctionCallString(name, args) + "'."); /*I18N*/
             }
         } else {
-            _tokenizer.pushBack();
-            Symbol symbol = _defaultNamespace.resolveSymbol(name);
+            tokenizer.pushBack();
+            Symbol symbol = defaultNamespace.resolveSymbol(name);
             if (symbol != null) {
                 t1 = new Term.Ref(symbol);
             } else {
@@ -675,14 +701,15 @@ public final class ParserImpl implements Parser {
     /**
      * Parses a function argument list <i>'(' arg1 ',' arg2 ',' arg3 ',' ... ')'</i>
      *
+     * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
     private Term[] parseArgumentList() throws ParseException {
 
         final Term[] args = parseTermList();
-        final int tt = _tokenizer.next();
+        final int tt = tokenizer.next();
         if (tt != ')') {
-            _tokenizer.pushBack();
+            tokenizer.pushBack();
             reportError("Missing ')' or ','."); /*I18N*/
         }
 
@@ -692,6 +719,7 @@ public final class ParserImpl implements Parser {
     /**
      * Parses a term list <i>t1 ',' t2 ',' t3 ',' ... ',' tN</i>
      *
+     * @return The array of generated terms.
      * @throws ParseException if a parse error occurs
      */
     private Term[] parseTermList() throws ParseException {
@@ -710,11 +738,11 @@ public final class ParserImpl implements Parser {
             }
             terms[count++] = term;
 
-            int tt = _tokenizer.next();
+            int tt = tokenizer.next();
             if (tt == ',') {
                 term = parseTerm(true);
             } else {
-                _tokenizer.pushBack();
+                tokenizer.pushBack();
                 term = null;
             }
         }
@@ -772,13 +800,12 @@ public final class ParserImpl implements Parser {
 //            values = temp;
 //        }
 //
-//        // @todo
 //        return null;
 //
 //    }
 
     private double convertDoubleToken() throws ParseException {
-        final String token = _tokenizer.getToken();
+        final String token = tokenizer.getToken();
         try {
             return Double.parseDouble(token);
         } catch (NumberFormatException e) {
@@ -788,7 +815,7 @@ public final class ParserImpl implements Parser {
     }
 
     private int convertHexIntToken() throws ParseException {
-        final String token = _tokenizer.getToken();
+        final String token = tokenizer.getToken();
         try {
             String hexPart = token.substring(2); // skip '0x' prefix
             long l = Long.parseLong(hexPart, 16);
@@ -804,7 +831,7 @@ public final class ParserImpl implements Parser {
     }
 
     private int convertOctIntToken() throws ParseException {
-        final String token = _tokenizer.getToken();
+        final String token = tokenizer.getToken();
         try {
             String octPart = token.substring(1); // skip '0' prefix
             long l = Long.parseLong(octPart, 8);
@@ -820,7 +847,7 @@ public final class ParserImpl implements Parser {
     }
 
     private int convertIntToken() throws ParseException {
-        final String token = _tokenizer.getToken();
+        final String token = tokenizer.getToken();
         try {
             long l = Long.parseLong(token);
             if (l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE) {
@@ -835,8 +862,8 @@ public final class ParserImpl implements Parser {
     }
 
     private boolean isSpecial(final String special) {
-        if (_tokenizer.getType() == Tokenizer.TT_SPECIAL) {
-            String token = _tokenizer.getToken();
+        if (tokenizer.getType() == Tokenizer.TT_SPECIAL) {
+            String token = tokenizer.getToken();
             if (token.equals(special)) {
                 return true;
             }
@@ -845,8 +872,8 @@ public final class ParserImpl implements Parser {
     }
 
     private boolean isKeyword(final String keyword) {
-        if (_tokenizer.getType() == Tokenizer.TT_KEYWORD) {
-            String token = _tokenizer.getToken();
+        if (tokenizer.getType() == Tokenizer.TT_KEYWORD) {
+            String token = tokenizer.getToken();
             if (token.equalsIgnoreCase(keyword)) {
                 return true;
             }
@@ -858,10 +885,11 @@ public final class ParserImpl implements Parser {
     /**
      * Throws a <code>ParseException</code> with the given message
      *
+     * @param message Error message.
      * @throws ParseException always
      */
     private void reportError(final String message) throws ParseException {
-        throw new ParseException(_tokenizer.getLine(), _tokenizer.getColumn(), message);
+        throw new ParseException(tokenizer.getLine(), tokenizer.getColumn(), message);
     }
 
     private void reportTypeErrorB1(final String operator) throws ParseException {

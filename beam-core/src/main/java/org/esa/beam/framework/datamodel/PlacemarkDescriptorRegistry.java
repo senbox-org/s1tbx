@@ -66,13 +66,7 @@ public class PlacemarkDescriptorRegistry {
                 list.add(placemarkDescriptor);
             }
         }
-        moveDefaultToEndOfList(list);
         return list;
     }
 
-    private void moveDefaultToEndOfList(ArrayList<PlacemarkDescriptor> list) {
-        PlacemarkDescriptor defaultDescr = getPlacemarkDescriptor(DefaultPlacemarkDescriptor.class);
-        list.remove(defaultDescr);
-        list.add(defaultDescr);
-    }
 }

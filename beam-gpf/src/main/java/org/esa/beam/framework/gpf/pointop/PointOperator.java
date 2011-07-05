@@ -29,6 +29,7 @@ import org.esa.beam.util.ProductUtils;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -353,6 +354,10 @@ public abstract class PointOperator extends Operator {
         @Override
         public void defineSample(int index, String name, Product product) {
             T node = (T) product.getRasterDataNode(name);
+            if (node == null) {
+                String message = MessageFormat.format("The product: ''{0}'' does not contain a raster with the name: ''{1}''", product.getName(), name);
+                throw new IllegalArgumentException(message);
+            }
             if (index < nodes.size()) {
                 nodes.set(index, node);
             } else if (index == nodes.size()) {

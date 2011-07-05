@@ -33,10 +33,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-launcher</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-core</artifactId>
         </dependency>

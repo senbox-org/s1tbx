@@ -32,6 +32,7 @@
     <changelog>
         <![CDATA[
         Changes in 1.1:<br/>
+        [BEAM-1320] - BEAM-NetCDF reader/writer does not preserve solar flux information<br/>
         [BEAM-1315] - NetCDF-BEAM does not consider log-scaled attribute<br/>
         Changes in 1.0.101:<br/>
         [BEAM-1302] - Products read from NetCDF files should have a 'Global_Attributes' element in metadata<br/>

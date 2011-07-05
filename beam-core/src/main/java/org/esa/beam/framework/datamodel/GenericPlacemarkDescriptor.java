@@ -12,20 +12,22 @@ import java.awt.Point;
  * @author Norman Fomferra
  * @since BEAM 4.10
  */
-public class DefaultPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
+public class GenericPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
 
-    public DefaultPlacemarkDescriptor() {
+    private final SimpleFeatureType featureType;
+
+    public GenericPlacemarkDescriptor(SimpleFeatureType featureType) {
+        this.featureType = featureType;
     }
 
     @Override
     public boolean isCompatibleWith(SimpleFeatureType ft) {
-        return true;
+        return featureType.equals(ft);
     }
 
     @Override
-    @Deprecated
-    public SimpleFeatureType getDefaultFeatureType() {
-        return null;
+    public SimpleFeatureType getBaseFeatureType() {
+        return featureType;
     }
 
     @Override

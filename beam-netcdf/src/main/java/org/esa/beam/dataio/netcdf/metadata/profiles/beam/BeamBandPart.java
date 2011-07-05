@@ -24,7 +24,10 @@ import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
 import org.esa.beam.dataio.netcdf.util.NetcdfMultiLevelImage;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
@@ -33,6 +36,7 @@ import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 public class BeamBandPart extends ProfilePartIO {
@@ -42,6 +46,8 @@ public class BeamBandPart extends ProfilePartIO {
     public static final String VALID_PIXEL_EXPRESSION = "valid_pixel_expression";
     public static final String AUTO_GROUPING = "auto_grouping";
     public static final String QUICKLOOK_BAND_NAME = "quicklook_band_name";
+    public static final String SOLAR_FLUX = "solar_flux";
+    public static final String SPECTRAL_BAND_INDEX = "spectral_band_index";
 
 
     @Override
@@ -64,6 +70,13 @@ public class BeamBandPart extends ProfilePartIO {
                 band.setSourceImage(new NetcdfMultiLevelImage(band, variable, ctx));
             }
         }
+        // Work around for a bug in version 1.0.101
+        // The solar flux and spectral band index were not preserved.
+        // In order to overcome this bug, without having to rewrite the NetCDF files,
+        // the following method was introduced at 16.06.2011.
+        // The fix is mainly needed for the CoastColour project and only considers MERIS data.
+        maybeApplySpectralIndexAndSolarFluxFromMetadata(p);
+
         Attribute autoGroupingAttribute = netcdfFile.findGlobalAttribute(AUTO_GROUPING);
         if (autoGroupingAttribute != null) {
             String autoGrouping = autoGroupingAttribute.getStringValue();
@@ -112,7 +125,6 @@ public class BeamBandPart extends ProfilePartIO {
     }
 
     private static void readBeamBandAttributes(Variable variable, Band band) {
-        // todo se -- Log10 Scaling
         // todo se -- units for bandwidth and wavelength
 
         Attribute attribute = variable.findAttribute(BANDWIDTH);
@@ -123,15 +135,60 @@ public class BeamBandPart extends ProfilePartIO {
         if (attribute != null) {
             band.setSpectralWavelength(attribute.getNumericValue().floatValue());
         }
+        attribute = variable.findAttribute(SPECTRAL_BAND_INDEX);
+        if (attribute != null) {
+            band.setSpectralBandIndex(attribute.getNumericValue().intValue());
+        }
         attribute = variable.findAttribute(VALID_PIXEL_EXPRESSION);
         if (attribute != null) {
             band.setValidPixelExpression(attribute.getStringValue());
         }
+        attribute = variable.findAttribute(SOLAR_FLUX);
+        if (attribute != null) {
+            band.setSolarFlux(attribute.getNumericValue().floatValue());
+        }
+
         band.setName(ReaderUtils.getRasterName(variable));
     }
 
+
+    private void maybeApplySpectralIndexAndSolarFluxFromMetadata(Product p) {
+        List<Band> bands = Arrays.asList(p.getBands());
+        int spectralIndex = 0;
+        for (Band band : bands) {
+            boolean isSpectralBand = band.getSpectralWavelength() != 0.0f;
+            boolean isSpectralBandIndexSet = band.getSpectralBandIndex() != -1;
+            if (isSpectralBand && !isSpectralBandIndexSet) {
+                band.setSpectralBandIndex(spectralIndex);
+                boolean isSolarFluxSet = band.getSolarFlux() != 0.0f;
+                if (!isSolarFluxSet) {
+                    applySolarFluxFromMetadata(band, spectralIndex);
+                }
+                spectralIndex++;
+            }
+        }
+    }
+
+    private static void applySolarFluxFromMetadata(Band band, int spectralIndex) {
+        MetadataElement metadataRoot = band.getProduct().getMetadataRoot();
+        band.setSolarFlux(getSolarFluxFromMetadata(metadataRoot, spectralIndex));
+    }
+
+    private static float getSolarFluxFromMetadata(MetadataElement metadataRoot, int bandIndex) {
+        if (metadataRoot != null) {
+            MetadataElement scalingFactorGads = metadataRoot.getElement("Scaling_Factor_GADS");
+            if (scalingFactorGads != null) {
+                MetadataAttribute sunSpecFlux = scalingFactorGads.getAttribute("sun_spec_flux");
+                ProductData data = sunSpecFlux.getData();
+                if (data.getNumElems() > bandIndex) {
+                    return data.getElemFloatAt(bandIndex);
+                }
+            }
+        }
+        return 0.0f;
+    }
+
     public static void writeBeamBandAttributes(Band band, Variable variable) {
-        // todo se -- Log10 Scaling
         // todo se -- units for bandwidth and wavelength
 
         final float spectralBandwidth = band.getSpectralBandwidth();
@@ -145,6 +202,14 @@ public class BeamBandPart extends ProfilePartIO {
         final String validPixelExpression = band.getValidPixelExpression();
         if (validPixelExpression != null && validPixelExpression.trim().length() > 0) {
             variable.addAttribute(new Attribute(VALID_PIXEL_EXPRESSION, validPixelExpression));
+        }
+        final float solarFlux = band.getSolarFlux();
+        if (solarFlux > 0) {
+            variable.addAttribute(new Attribute(SOLAR_FLUX, solarFlux));
+        }
+        final float spectralBandIndex = band.getSpectralBandIndex();
+        if (spectralBandIndex >= 0) {
+            variable.addAttribute(new Attribute(SPECTRAL_BAND_INDEX, spectralBandIndex));
         }
         if (!band.getName().equals(variable.getName())) {
             variable.addAttribute(new Attribute(Constants.ORIG_NAME_ATT_NAME, band.getName()));

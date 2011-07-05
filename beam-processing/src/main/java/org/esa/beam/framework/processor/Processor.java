@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -256,7 +256,7 @@ public abstract class Processor {
             setCurrentStatus(ProcessorConstants.STATUS_FAILED);
             cleanupAfterFailure();
             throw e;
-        }finally {
+        } finally {
             bandNamesToCopy.clear();
         }
     }
@@ -500,7 +500,7 @@ public abstract class Processor {
      * @param outputProduct the product that contains the destination bands
      * @param pm            a monitor to inform the user about progress
      *
-     * @throws IOException  if the data could not be copied because of an I/O error
+     * @throws IOException        if the data could not be copied because of an I/O error
      * @throws ProcessorException if the data could not be copied because any other reason
      */
     protected final void copyBandData(String[] bandNames,
@@ -639,11 +639,11 @@ public abstract class Processor {
     /**
      * Copies the band with the given {@code bandName} from the {@code inputProduct}
      * to the {@code outputProduct}, if the band exists in the {@code inputProduct}.
-     *
+     * <p/>
      * The band is added to the copy list by calling {@link #addToBandNamesToCopy(String) addToBandNamesToCopy(bandName)}.
      *
-     * @param bandName The name of the band to be copied.
-     * @param inputProduct The input product.
+     * @param bandName      The name of the band to be copied.
+     * @param inputProduct  The input product.
      * @param outputProduct The output product.
      *
      * @see #copyBandData(String[], Product, Product, ProgressMonitor)
@@ -662,7 +662,7 @@ public abstract class Processor {
     /**
      * Copies the {@link GeoCoding geo-coding} from the input to the output product.
      *
-     * @param inputProduct The input product.
+     * @param inputProduct  The input product.
      * @param outputProduct The output product.
      */
     protected void copyGeoCoding(Product inputProduct, Product outputProduct) {
@@ -706,12 +706,14 @@ public abstract class Processor {
             bandsToCopy.add(pixelGeoCoding.getLonBand().getName());
             bandsToCopy.add(pixelGeoCoding.getLatBand().getName());
             String validMask = pixelGeoCoding.getValidMask();
-            try {
-                RasterDataNode[] refRasters = BandArithmetic.getRefRasters(validMask, new Product[]{inputProduct});
-                for (RasterDataNode rasterDataNode : refRasters) {
-                    bandsToCopy.add(rasterDataNode.getName());
+            if (validMask != null) {
+                try {
+                    RasterDataNode[] refRasters = BandArithmetic.getRefRasters(validMask, new Product[]{inputProduct});
+                    for (RasterDataNode rasterDataNode : refRasters) {
+                        bandsToCopy.add(rasterDataNode.getName());
+                    }
+                } catch (ParseException ignore) {
                 }
-            } catch (ParseException ignore) {
             }
         }
         return bandsToCopy;
