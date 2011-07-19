@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -30,7 +30,6 @@ import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
 
-import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
@@ -68,8 +67,8 @@ public class TiePointGrid extends RasterDataNode {
     private final float _subSamplingY;
 
     private int _discontinuity;
-    private TiePointGrid _sinGrid;
-    private TiePointGrid _cosGrid;
+    private volatile TiePointGrid _sinGrid;
+    private volatile TiePointGrid _cosGrid;
 
     /**
      * Constructs a new <code>TiePointGrid</code> with the given tie point grid properties.
@@ -814,7 +813,7 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     private boolean isDiscontNotInit() {
-        return _sinGrid == null;
+        return _sinGrid == null || _cosGrid == null;
     }
 
     private void initDiscont() {
