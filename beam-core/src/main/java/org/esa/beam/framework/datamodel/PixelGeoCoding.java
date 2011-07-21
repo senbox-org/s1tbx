@@ -331,7 +331,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     @Override
     public boolean isCrossingMeridianAt180() {
         if (_crossingMeridianAt180 == null) {
-            System.out.println("PixelGeoCoding.isCrossingMeridianAt180");
             _crossingMeridianAt180 = false;
             final PixelPos[] pixelPoses = ProductUtils.createPixelBoundary(_lonBand, null, 1);
             try {
