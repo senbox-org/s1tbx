@@ -37,6 +37,21 @@
             <shortDescr>Shows number selected placemarks.</shortDescr>
             <description>Shows the number of selected placemarks, is any.</description>
         </action>
+
+        <action>
+            <id>SimpleExampleOp</id>
+            <class>org.esa.beam.examples.gpf.dialog.SimpleExampleAction</class>
+            <parent>tools</parent>
+            <placeAfter>flhMciScientificTool</placeAfter>
+            <placeBefore>cloudScientificTool</placeBefore>
+            <helpId>simpleExample</helpId>
+            <text>Simple Example ...</text>
+            <shortDescr>Simple example operator with custom UI.</shortDescr>
+            <longDescr>Simple example operator with custom user interface.</longDescr>
+            <mnemonic>E</mnemonic>
+
+        </action>
+
     </extension>
 
     <extension point="beam-ui:toolViews">
