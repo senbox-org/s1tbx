@@ -126,22 +126,20 @@ public class Sinusoidal extends MapProjection {
     protected Point2D inverseTransformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException {
         double lon = x / cos(y);
-        // if the value for lon or lat exceed the valid range,
-        // set the to NaN to indicate an invalid phi or lambda.
         if (lon < -PI) {
-            lon = Double.NaN;
+            lon = -PI;
         }
         if (lon > +PI) {
-            lon = Double.NaN;
+            lon = +PI;
         }
         double lat = y;
         if (lat < -HALF_PI) {
             lon = 0;
-            lat = Double.NaN;
+            lat = -HALF_PI;
         }
         if (lat > +HALF_PI) {
             lon = 0;
-            lat = Double.NaN;
+            lat = +HALF_PI;
         }
         if (ptDst != null) {
             ptDst.setLocation(lon, lat);
