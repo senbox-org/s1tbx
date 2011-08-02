@@ -66,7 +66,9 @@ import org.opengis.referencing.operation.TransformException;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -154,9 +156,9 @@ public class ReprojectionOp extends Operator {
     private File wktFile;
 
     @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
-            "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
-            "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
-            "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
+                             "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
+                             "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
+                             "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
     private String crs;
 
     @Parameter(alias = "resampling",
@@ -191,7 +193,7 @@ public class ReprojectionOp extends Operator {
     private boolean orthorectify;
 
     @Parameter(description = "The name of the elevation model for the orthorectification. " +
-            "If not given tie-point data is used.")
+                             "If not given tie-point data is used.")
     private String elevationModelName;
 
     @Parameter(description = "The value used to indicate no-data.")
@@ -236,6 +238,13 @@ public class ReprojectionOp extends Operator {
                                     targetRect.height);
         targetProduct.setDescription(sourceProduct.getDescription());
         Dimension tileSize = ImageManager.getPreferredTileSize(targetProduct);
+        Dimension sourceProductPreferredTileSize = sourceProduct.getPreferredTileSize();
+        if (sourceProductPreferredTileSize != null) {
+            if (sourceProductPreferredTileSize.width == sourceProduct.getSceneRasterWidth()) {
+                tileSize.width = targetProduct.getSceneRasterWidth();
+                tileSize.height = Math.min(sourceProductPreferredTileSize.height, targetProduct.getSceneRasterHeight());
+            }
+        }
         targetProduct.setPreferredTileSize(tileSize);
         /*
         * 4. Define some target properties
