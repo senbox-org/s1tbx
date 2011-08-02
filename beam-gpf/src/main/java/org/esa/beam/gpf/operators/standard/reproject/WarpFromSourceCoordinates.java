@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,14 +15,13 @@
  */
 package org.esa.beam.gpf.operators.standard.reproject;
 
-import java.awt.Rectangle;
-import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
-
 import javax.media.jai.OpImage;
 import javax.media.jai.PixelAccessor;
 import javax.media.jai.UnpackedImageData;
 import javax.media.jai.Warp;
+import java.awt.Rectangle;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
 
 /**
  * Gives the warp coordinates using the data from the given image.
@@ -58,6 +57,10 @@ class WarpFromSourceCoordinates extends Warp {
         int xIDNew = opImage.XToTileX(xmin);
         int yIDNew = opImage.YToTileY(ymin);
         Raster tile = opImage.getTile(xIDNew, yIDNew);
+        if (!tile.getBounds().contains(bounds)) {
+            // Dont'n know why, but JAI can call with "width" or "height" == 0
+            return destRect;
+        }
         PixelAccessor accessor = new PixelAccessor(opImage);
         UnpackedImageData srcImD = accessor.getPixels(tile, bounds, DataBuffer.TYPE_FLOAT, false);
         float[] data = srcImD.getFloatData(0);
