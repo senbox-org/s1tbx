@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -38,40 +38,40 @@ public class TileImplTest extends TestCase {
         tile = createIntTile(ProductData.TYPE_INT8, -N05, 0.1);
         samples = tile.getSamplesFloat();
 
-        assertEquals(-N05 * 0.1F, samples[0], 1e-5F);
-        assertEquals((-N05 + 1) * 0.1F, samples[1], 1e-5F);
-        assertEquals(-1 * 0.1F, samples[N05 - 1], 1e-5F);
-        assertEquals(0 * 0.1F, samples[N05], 1e-5F);
-        assertEquals(1 * 0.1F, samples[N05 + 1], 1e-5F);
-        assertEquals((N05 - 2) * 0.1F, samples[N - 2], 1e-5F);
-        assertEquals((N05 - 1) * 0.1F, samples[N - 1], 1e-5F);
+        assertEquals(-N05 * 0.1F, samples[0], 1.0e-5F);
+        assertEquals((-N05 + 1) * 0.1F, samples[1], 1.0e-5F);
+        assertEquals(-1 * 0.1F, samples[N05 - 1], 1.0e-5F);
+        assertEquals(0 * 0.1F, samples[N05], 1.0e-5F);
+        assertEquals(1 * 0.1F, samples[N05 + 1], 1.0e-5F);
+        assertEquals((N05 - 2) * 0.1F, samples[N - 2], 1.0e-5F);
+        assertEquals((N05 - 1) * 0.1F, samples[N - 1], 1.0e-5F);
 
-        assertEquals(-N05 * 0.1F, tile.getSampleFloat(0, 0), 1e-5F);
-        assertEquals((-N05 + 1) * 0.1F, tile.getSampleFloat(1, 0), 1e-5F);
-        assertEquals(-1 * 0.1F, tile.getSampleFloat(W - 1, H / 2 - 1), 1e-5F);
-        assertEquals(0 * 0.1F, tile.getSampleFloat(0, H / 2), 1e-5F);
-        assertEquals(1 * 0.1F, tile.getSampleFloat(1, H / 2), 1e-5F);
-        assertEquals((N05 - 2) * 0.1F, tile.getSampleFloat(W - 2, H - 1), 1e-5F);
-        assertEquals((N05 - 1) * 0.1F, tile.getSampleFloat(W - 1, H - 1), 1e-5F);
+        assertEquals(-N05 * 0.1F, tile.getSampleFloat(0, 0), 1.0e-5F);
+        assertEquals((-N05 + 1) * 0.1F, tile.getSampleFloat(1, 0), 1.0e-5F);
+        assertEquals(-1 * 0.1F, tile.getSampleFloat(W - 1, H / 2 - 1), 1.0e-5F);
+        assertEquals(0 * 0.1F, tile.getSampleFloat(0, H / 2), 1.0e-5F);
+        assertEquals(1 * 0.1F, tile.getSampleFloat(1, H / 2), 1.0e-5F);
+        assertEquals((N05 - 2) * 0.1F, tile.getSampleFloat(W - 2, H - 1), 1.0e-5F);
+        assertEquals((N05 - 1) * 0.1F, tile.getSampleFloat(W - 1, H - 1), 1.0e-5F);
 
         tile = createIntTile(ProductData.TYPE_UINT8, 0, 0.1);
         samples = tile.getSamplesFloat();
 
-        assertEquals(0 * 0.1F, samples[0], 1e-5F);
-        assertEquals(1 * 0.1F, samples[1], 1e-5F);
-        assertEquals((N05 - 1) * 0.1F, samples[N05 - 1], 1e-5F);
-        assertEquals(N05 * 0.1F, samples[N05], 1e-5F);
-        assertEquals((N05 + 1) * 0.1F, samples[N05 + 1], 1e-5F);
-        assertEquals((N - 2) * 0.1F, samples[N - 2], 1e-5F);
-        assertEquals((N - 1) * 0.1F, samples[N - 1], 1e-5F);
+        assertEquals(0 * 0.1F, samples[0], 1.0e-5F);
+        assertEquals(1 * 0.1F, samples[1], 1.0e-5F);
+        assertEquals((N05 - 1) * 0.1F, samples[N05 - 1], 1.0e-5F);
+        assertEquals(N05 * 0.1F, samples[N05], 1.0e-5F);
+        assertEquals((N05 + 1) * 0.1F, samples[N05 + 1], 1.0e-5F);
+        assertEquals((N - 2) * 0.1F, samples[N - 2], 1.0e-5F);
+        assertEquals((N - 1) * 0.1F, samples[N - 1], 1.0e-5F);
 
-        assertEquals(0 * 0.1F, tile.getSampleFloat(0, 0), 1e-5F);
-        assertEquals(1 * 0.1F, tile.getSampleFloat(1, 0), 1e-5F);
-        assertEquals((N05 - 1) * 0.1F, tile.getSampleFloat(W - 1, H / 2 - 1), 1e-5F);
-        assertEquals(N05 * 0.1F, tile.getSampleFloat(0, H / 2), 1e-5F);
-        assertEquals((N05 + 1) * 0.1F, tile.getSampleFloat(1, H / 2), 1e-5F);
-        assertEquals((N - 2) * 0.1F, tile.getSampleFloat(W - 2, H - 1), 1e-5F);
-        assertEquals((N - 1) * 0.1F, tile.getSampleFloat(W - 1, H - 1), 1e-5F);
+        assertEquals(0 * 0.1F, tile.getSampleFloat(0, 0), 1.0e-5F);
+        assertEquals(1 * 0.1F, tile.getSampleFloat(1, 0), 1.0e-5F);
+        assertEquals((N05 - 1) * 0.1F, tile.getSampleFloat(W - 1, H / 2 - 1), 1.0e-5F);
+        assertEquals(N05 * 0.1F, tile.getSampleFloat(0, H / 2), 1.0e-5F);
+        assertEquals((N05 + 1) * 0.1F, tile.getSampleFloat(1, H / 2), 1.0e-5F);
+        assertEquals((N - 2) * 0.1F, tile.getSampleFloat(W - 2, H - 1), 1.0e-5F);
+        assertEquals((N - 1) * 0.1F, tile.getSampleFloat(W - 1, H - 1), 1.0e-5F);
     }
 
     public void testSignedAndUnsignedByteUnscaledSamples() {
@@ -119,6 +119,26 @@ public class TileImplTest extends TestCase {
 
     }
 
+    public void testSetSamplePreventsOverflow() {
+        Product product = new Product("n", "t", 1, 1);
+        Band band = product.addBand("x", ProductData.TYPE_INT8);
+        band.setRasterData(band.createCompatibleRasterData());
+        double scalingFactor = 2.5;
+        band.setScalingFactor(scalingFactor);
+
+        Tile scaledTile = new TileImpl(band, band.getSourceImage().getData());
+
+        int maxRawValue = Byte.MAX_VALUE;
+        double geoPhysicalValueOutOfRawRange = (maxRawValue + 1) * scalingFactor;
+        scaledTile.setSample(0, 0, geoPhysicalValueOutOfRawRange);
+        assertEquals(maxRawValue * scalingFactor, scaledTile.getSampleDouble(0, 0), 1.0e-6);
+
+        int minRawValue = Byte.MIN_VALUE;
+        geoPhysicalValueOutOfRawRange = (minRawValue - 1) * scalingFactor;
+        scaledTile.setSample(0, 0, geoPhysicalValueOutOfRawRange);
+        assertEquals(minRawValue * scalingFactor, scaledTile.getSampleDouble(0, 0), 1.0e-6);
+    }
+
     public void testGetSamplesFloat() {
         Tile tile;
         float[] samples;
@@ -129,10 +149,10 @@ public class TileImplTest extends TestCase {
         samples = tile.getSamplesFloat();
         assertSame(samples, tile.getDataBufferFloat());
         assertEquals(N, samples.length);
-        assertEquals(1.1F, samples[0], 1e-5F);
-        assertEquals(2.1F, samples[1], 1e-5F);
-        assertEquals(3.1F, samples[2], 1e-5F);
-        assertEquals(128.1F, samples[N - 1], 1e-5F);
+        assertEquals(1.1F, samples[0], 1.0e-5F);
+        assertEquals(2.1F, samples[1], 1.0e-5F);
+        assertEquals(3.1F, samples[2], 1.0e-5F);
+        assertEquals(128.1F, samples[N - 1], 1.0e-5F);
 
         tile = createRawTile(ProductData.TYPE_FLOAT64);
         assertNull(tile.getDataBufferFloat());
@@ -140,30 +160,30 @@ public class TileImplTest extends TestCase {
         samples = tile.getSamplesFloat();
         assertNotNull(samples);
         assertEquals(N, samples.length);
-        assertEquals(1.1F, samples[0], 1e-5F);
-        assertEquals(2.1F, samples[1], 1e-5F);
-        assertEquals(3.1F, samples[2], 1e-5F);
-        assertEquals(128.1F, samples[N - 1], 1e-5F);
+        assertEquals(1.1F, samples[0], 1.0e-5F);
+        assertEquals(2.1F, samples[1], 1.0e-5F);
+        assertEquals(3.1F, samples[2], 1.0e-5F);
+        assertEquals(128.1F, samples[N - 1], 1.0e-5F);
 
         tile = createScaledTile(ProductData.TYPE_UINT16, 2.5);
         assertNull(tile.getDataBufferDouble());
         samples = tile.getSamplesFloat();
         assertNotNull(samples);
         assertEquals(N, samples.length);
-        assertEquals(2.5F, samples[0], 1e-5F);
-        assertEquals(5.0F, samples[1], 1e-5F);
-        assertEquals(7.5F, samples[2], 1e-5F);
-        assertEquals(320.0F, samples[N - 1], 1e-5F);
+        assertEquals(2.5F, samples[0], 1.0e-5F);
+        assertEquals(5.0F, samples[1], 1.0e-5F);
+        assertEquals(7.5F, samples[2], 1.0e-5F);
+        assertEquals(320.0F, samples[N - 1], 1.0e-5F);
 
         tile = createScaledTileWithNaNs(ProductData.TYPE_UINT16, 2.5, 7.5);
         assertNull(tile.getDataBufferDouble());
         samples = tile.getSamplesFloat();
         assertNotNull(samples);
         assertEquals(N, samples.length);
-        assertEquals(2.5F, samples[0], 1e-5F);
-        assertEquals(5.0F, samples[1], 1e-5F);
+        assertEquals(2.5F, samples[0], 1.0e-5F);
+        assertEquals(5.0F, samples[1], 1.0e-5F);
         assertEquals(true, Float.isNaN(samples[2])); // no-data = 7.5
-        assertEquals(320.0F, samples[N - 1], 1e-5F);
+        assertEquals(320.0F, samples[N - 1], 1.0e-5F);
     }
 
     public void testGetSamplesDouble() {
@@ -176,10 +196,10 @@ public class TileImplTest extends TestCase {
         samples = tile.getSamplesDouble();
         assertNotNull(samples);
         assertEquals(N, samples.length);
-        assertEquals(2.5, samples[0], 1e-10);
-        assertEquals(5.0, samples[1], 1e-10);
+        assertEquals(2.5, samples[0], 1.0e-10);
+        assertEquals(5.0, samples[1], 1.0e-10);
         assertEquals(true, Double.isNaN(samples[2])); // no-data = 7.5
-        assertEquals(320.0, samples[N - 1], 1e-10);
+        assertEquals(320.0, samples[N - 1], 1.0e-10);
 
         tile = createRawTile(ProductData.TYPE_FLOAT32);
 
@@ -187,9 +207,9 @@ public class TileImplTest extends TestCase {
         samples = tile.getSamplesDouble();
         assertNotNull(samples);
         assertEquals(N, samples.length);
-        assertEquals(1.1, samples[0], 1e-5F);
-        assertEquals(2.1, samples[1], 1e-5F);
-        assertEquals(128.1F, samples[N - 1], 1e-5F);
+        assertEquals(1.1, samples[0], 1.0e-5F);
+        assertEquals(2.1, samples[1], 1.0e-5F);
+        assertEquals(128.1F, samples[N - 1], 1.0e-5F);
     }
 
     public void testSetSamples() {
@@ -203,8 +223,8 @@ public class TileImplTest extends TestCase {
         samples = tile.getSamplesDouble();
         assertNotNull(samples);
         assertEquals(N, samples.length);
-        assertEquals(5.0F, samples[0], 1e-5F);
-        assertEquals(5.0F, samples[N - 1], 1e-5F);
+        assertEquals(5.0F, samples[0], 1.0e-5F);
+        assertEquals(5.0F, samples[N - 1], 1.0e-5F);
 
         double[] newSamplesD = new double[N];
         Arrays.fill(newSamplesD, 12.2);
@@ -213,8 +233,8 @@ public class TileImplTest extends TestCase {
         samples = tile.getSamplesDouble();
         assertNotNull(samples);
         assertEquals(N, samples.length);
-        assertEquals(10.0, samples[0], 1e-10);
-        assertEquals(10.0, samples[N - 1], 1e-10);
+        assertEquals(10.0, samples[0], 1.0e-10);
+        assertEquals(10.0, samples[N - 1], 1.0e-10);
     }
 
     static Tile createRawTile(int type) {

@@ -49,6 +49,8 @@ public interface ProductConfigurer {
 
     void copyGeoCoding();
 
+    void copyMasks();
+
     void copyTiePointGrids(String... gridName);
 
     void copyBands(String... bandName);

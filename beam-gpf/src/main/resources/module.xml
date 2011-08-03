@@ -31,6 +31,8 @@
     <changelog>
         <![CDATA[
         <p>From 4.9 to 4.10:<br/>
+            [BEAM-1331] ProductConfigurer class is missing a copyMasks method<br/>
+            [BEAM-1330] Overflow might occur when setting a geo-physical sample to a tile<br/>
             [BEAM-1307] Problem with GPT tile computation observer<br/>
         <p>From 4.8 to 4.9:<br/>
             [BEAM-1301] gpt should be able to load the configuration saved from the UI<br/>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -47,7 +47,6 @@ public class TileImpl implements Tile {
     private final int height;
     private final boolean target;
     private final boolean scaled;
-    private final boolean signedByte;
     private final int scanlineOffset;
     private final int scanlineStride;
     private final byte[] dataBufferByte;
@@ -59,6 +58,7 @@ public class TileImpl implements Tile {
     private ProductData dataBuffer;
     private ProductData rawSamples;
     private boolean mustWriteSampleData;
+    private SampleConverterFactory.SampleConverter sampleConverter;
 
     public TileImpl(RasterDataNode rasterDataNode, Raster raster) {
         this(rasterDataNode, raster,
@@ -95,7 +95,6 @@ public class TileImpl implements Tile {
         this.target = target;
         // todo - optimize getSample()/setSample() methods by using a Closure that either honours scaling / signedByte. (nf 04.2010)
         this.scaled = rasterDataNode.isScalingApplied();
-        this.signedByte = rasterDataNode.getDataType() == ProductData.TYPE_INT8;
 
         int smX0 = rectangle.x - raster.getSampleModelTranslateX();
         int smY0 = rectangle.y - raster.getSampleModelTranslateY();
@@ -109,6 +108,8 @@ public class TileImpl implements Tile {
         this.dataBufferInt = (primitiveArray instanceof int[]) ? (int[]) primitiveArray : null;
         this.dataBufferFloat = (primitiveArray instanceof float[]) ? (float[]) primitiveArray : null;
         this.dataBufferDouble = (primitiveArray instanceof double[]) ? (double[]) primitiveArray : null;
+
+        sampleConverter = SampleConverterFactory.createConverter(rasterDataNode);
     }
 
     @Override
@@ -123,7 +124,7 @@ public class TileImpl implements Tile {
 
     @Override
     public float toRaw(float sample) {
-        return (float) rasterDataNode.scaleInverse(sample);
+        return (float) toRaw((double) sample);
     }
 
     @Override
@@ -408,44 +409,24 @@ public class TileImpl implements Tile {
     @Override
     public int getSampleInt(int x, int y) {
         int sample = raster.getSample(x, y, 0);
-        // handle unsigned data types, see also [BEAM-1147] (nf - 20100527)
-        if (signedByte) {
-            //noinspection SillyAssignment
-            sample = (byte) sample;
-        }
-        if (scaled) {
-            sample = (int) Math.floor(toGeoPhysical(sample) + 0.5);
-        }
-        return sample;
+        return (int) Math.floor(sampleConverter.toGeoPhysical(sample) + 0.5);
     }
 
     @Override
     public void setSample(int x, int y, int sample) {
-        if (scaled) {
-            sample = (int) Math.floor(toRaw((double) sample) + 0.5);
-        }
+        sample = (int) Math.floor(sampleConverter.toRaw(sample) + 0.5);
         writableRaster.setSample(x, y, 0, sample);
     }
 
     @Override
     public float getSampleFloat(int x, int y) {
         float sample = raster.getSampleFloat(x, y, 0);
-        // handle unsigned data types, see also [BEAM-1147] (nf - 20100527)
-        if (signedByte) {
-            //noinspection SillyAssignment
-            sample = (byte) sample;
-        }
-        if (scaled) {
-            sample = toGeoPhysical(sample);
-        }
-        return sample;
+        return (float) sampleConverter.toGeoPhysical(sample);
     }
 
     @Override
     public void setSample(int x, int y, float sample) {
-        if (scaled) {
-            sample = toRaw(sample);
-        }
+        sample = (float) sampleConverter.toRaw(sample);
         writableRaster.setSample(x, y, 0, sample);
     }
 
@@ -453,22 +434,12 @@ public class TileImpl implements Tile {
     @Override
     public double getSampleDouble(int x, int y) {
         double sample = raster.getSampleDouble(x, y, 0);
-        // handle unsigned data types, see also [BEAM-1147] (nf - 20100527)
-        if (signedByte) {
-            //noinspection SillyAssignment
-            sample = (byte) sample;
-        }
-        if (scaled) {
-            sample = toGeoPhysical(sample);
-        }
-        return sample;
+        return sampleConverter.toGeoPhysical(sample);
     }
 
     @Override
     public void setSample(int x, int y, double sample) {
-        if (scaled) {
-            sample = toRaw(sample);
-        }
+        sample = sampleConverter.toRaw(sample);
         writableRaster.setSample(x, y, 0, sample);
     }
 
