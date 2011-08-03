@@ -28,7 +28,7 @@
 
     <artifactId>beam-meris-radiometry</artifactId>
     <name>BEAM MERIS Radiometry Processor</name>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
 
 
     <description>

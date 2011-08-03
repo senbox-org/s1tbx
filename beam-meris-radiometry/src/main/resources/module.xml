@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-radiometry</symbolicName>
-    <version>1.0</version>
+    <version>1.1</version>
     <name>MERIS L1b Radiometry Processor</name>
 
     <description>
@@ -25,7 +25,11 @@
     </description>
 
     <changelog>
-        <![CDATA[]]>
+        <![CDATA[
+        <p>From 1.0 to 1.1:<br/>
+            [BEAM-1329] Smile effect correction does not detect land properly<br/>
+            [BEAM-1305] Meris radiometry processor does not copy masks<br/>
+        ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>

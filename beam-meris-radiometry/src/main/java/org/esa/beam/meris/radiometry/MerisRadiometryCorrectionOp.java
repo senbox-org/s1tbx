@@ -71,15 +71,15 @@ import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
                   description = "Performs radiometric corrections on MERIS L1b data products.",
                   authors = "Marc Bouvet (ESTEC); Marco Peters, Ralf Quast, Thomas Storm, Marco Zuehlke (Brockmann Consult)",
                   copyright = "(c) 2011 by Brockmann Consult",
-                  version = "1.0")
+                  version = "1.1")
 public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     private static final String UNIT_DL = "dl";
     private static final double RAW_SATURATION_THRESHOLD = 65435.0;
     private static final String DEFAULT_SOURCE_RAC_RESOURCE = "MER_RAC_AXVIEC20050708_135553_20021224_121445_20041213_220000";
     private static final String DEFAULT_TARGET_RAC_RESOURCE = "MER_RAC_AXVACR20091016_154511_20021224_121445_20041213_220000";
-    private static final int INVALID_BIT_INDEX = 4;
-    private static final int LAND_BIT_INDEX = 7;
+    private static final int INVALID_BIT_INDEX = 7;
+    private static final int LAND_BIT_INDEX = 4;
 
     @Parameter(defaultValue = "true",
                label = "Perform calibration",
@@ -247,6 +247,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
                 productConfigurer.copyBands(sourceBand.getName());
             }
         }
+        productConfigurer.copyMasks();
     }
 
     @Override
