@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -29,7 +29,7 @@ import java.util.StringTokenizer;
 /**
  * Utility function to deal with the HDF-EOS products.
  */
-class HdfEosUtils {
+public class HdfEosUtils {
     static final String STRUCT_METADATA = "StructMetadata";
     static final String CORE_METADATA = "CoreMetadata";
     static final String ARCHIVE_METADATA = "ArchiveMetadata";
