@@ -23,7 +23,7 @@ import org.esa.beam.util.ObjectUtils;
 import java.util.Arrays;
 
 /**
- * A container class which holds all information of an measurement.
+ * A container class which holds all information of a measurement.
  */
 public class Measurement {
 
