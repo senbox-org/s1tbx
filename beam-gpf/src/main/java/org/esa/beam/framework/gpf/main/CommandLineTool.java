@@ -70,7 +70,7 @@ class CommandLineTool {
     static final String DEFAULT_TARGET_FILEPATH = "./target.dim";
     static final String DEFAULT_FORMAT_NAME = ProductIO.DEFAULT_FORMAT_NAME;
     static final int DEFAULT_TILE_CACHE_SIZE_IN_M = 512;
-    static final int DEFAULT_TILE_SCHEDULER_PARALLELSIM = Runtime.getRuntime().availableProcessors();
+    static final int DEFAULT_TILE_SCHEDULER_PARALLELISM = Runtime.getRuntime().availableProcessors();
 
     private final CommandLineContext commandLineContext;
 

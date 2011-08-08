@@ -83,7 +83,7 @@ class CommandLineUsage {
                                     CommandLineTool.DEFAULT_TARGET_FILEPATH,
                                     CommandLineTool.DEFAULT_FORMAT_NAME,
                                     CommandLineTool.DEFAULT_TILE_CACHE_SIZE_IN_M,
-                                    CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELSIM,
+                                    CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELISM,
                                     opListText.toString());
     }
 

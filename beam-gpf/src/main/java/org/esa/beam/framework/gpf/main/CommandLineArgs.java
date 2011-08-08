@@ -62,7 +62,7 @@ class CommandLineArgs {
         targetFilepathMap = new TreeMap<String, String>();
         parameterMap = new TreeMap<String, String>();
         tileCacheCapacity = CommandLineTool.DEFAULT_TILE_CACHE_SIZE_IN_M * M;
-        tileSchedulerParallelism = CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELSIM;
+        tileSchedulerParallelism = CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELISM;
 
         // look for "-e" early do enable verbose error reports 
         for (String arg : this.args) {

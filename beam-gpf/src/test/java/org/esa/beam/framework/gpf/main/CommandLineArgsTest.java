@@ -205,7 +205,7 @@ public class CommandLineArgsTest extends TestCase {
         });
         lineArgs.parseArguments();
         assertEquals(512 * M, lineArgs.getTileCacheCapacity());
-        assertEquals(CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELSIM, lineArgs.getTileSchedulerParallelism());
+        assertEquals(CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELISM, lineArgs.getTileSchedulerParallelism());
 
         // test some valid value
         lineArgs = new CommandLineArgs(new String[]{
@@ -216,7 +216,7 @@ public class CommandLineArgsTest extends TestCase {
         });
         lineArgs.parseArguments();
         assertEquals(16 * M, lineArgs.getTileCacheCapacity());
-        assertEquals(CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELSIM, lineArgs.getTileSchedulerParallelism());
+        assertEquals(CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELISM, lineArgs.getTileSchedulerParallelism());
 
         // test some valid value
         lineArgs = new CommandLineArgs(new String[]{
