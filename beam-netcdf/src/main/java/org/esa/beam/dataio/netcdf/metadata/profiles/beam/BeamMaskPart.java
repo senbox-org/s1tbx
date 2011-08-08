@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -91,7 +91,7 @@ public class BeamMaskPart extends ProfilePartIO {
 
             final Attribute colorAttribute = variable.findAttribute(COLOR);
             if (colorAttribute != null && colorAttribute.getLength() >= 3
-                    && colorAttribute.getLength() <= 4) {
+                && colorAttribute.getLength() <= 4) {
                 mask.setImageColor(createColor(colorAttribute));
             }
 
@@ -143,9 +143,9 @@ public class BeamMaskPart extends ProfilePartIO {
             final Mask mask = maskGroup.get(maskName);
             if (Mask.BandMathsType.INSTANCE == mask.getImageType()) {
 
-                final String SCALAR = "";
+                final String scalar = ""; // indicating a scalar variable (without dimension)
                 String variableName = ReaderUtils.getVariableName(mask);
-                final Variable variable = ncFile.addVariable(variableName + SUFFIX_MASK, DataType.BYTE, SCALAR);
+                final Variable variable = ncFile.addVariable(variableName + SUFFIX_MASK, DataType.BYTE, scalar);
                 if (!variableName.equals(maskName)) {
                     variable.addAttribute(new Attribute(Constants.ORIG_NAME_ATT_NAME, maskName));
                 }
@@ -182,7 +182,7 @@ public class BeamMaskPart extends ProfilePartIO {
             final ProductNodeGroup<Mask> maskGroup = band.getOverlayMaskGroup();
             if (maskGroup.getNodeCount() >= 1) {
                 final String[] maskNames = maskGroup.getNodeNames();
-                final StringBuffer overlayNames = new StringBuffer();
+                final StringBuilder overlayNames = new StringBuilder();
                 for (String maskName : maskNames) {
                     overlayNames.append(maskName).append(" ");
                 }

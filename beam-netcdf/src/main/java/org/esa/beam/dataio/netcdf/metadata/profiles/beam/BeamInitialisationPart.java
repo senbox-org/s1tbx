@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -62,7 +62,6 @@ public class BeamInitialisationPart extends CfInitialisationPart {
         writeable.addAttribute(null, new Attribute(PRODUCT_TYPE, p.getProductType()));
         writeable.addAttribute(null, new Attribute("metadata_profile", "beam"));
         writeable.addAttribute(null, new Attribute("metadata_version", "0.5"));
-        writeable.addAttribute(null, new Attribute("Conventions", "CF-1.4"));
     }
 
     public String readProductType(ProfileReadContext ctx) {

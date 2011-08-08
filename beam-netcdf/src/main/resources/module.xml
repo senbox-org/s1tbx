@@ -32,7 +32,8 @@
     <changelog>
         <![CDATA[
         Changes in 1.1:<br/>
-        [BEAM-1322] - NetCDF/CF writer does not write coordinates<br/>
+        [BEAM-1333] - NetCDF files are not CF compliant<br/>
+        [BEAM-1332] - NetCDF/CF writer does not write coordinates<br/>
         [BEAM-1320] - BEAM-NetCDF reader/writer does not preserve solar flux information<br/>
         [BEAM-1315] - NetCDF-BEAM does not consider log-scaled attribute<br/>
         Changes in 1.0.101:<br/>

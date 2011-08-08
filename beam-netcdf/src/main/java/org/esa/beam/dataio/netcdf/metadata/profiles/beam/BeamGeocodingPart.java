@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,7 +18,6 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfGeocodingPart;
-import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -44,8 +43,8 @@ public class BeamGeocodingPart extends CfGeocodingPart {
 
     public static final String TIEPOINT_COORDINATES = "tiepoint_coordinates";
 
-    private final int lonIndex = 0;
-    private final int latIndex = 1;
+    private static final int LON_INDEX = 0;
+    private static final int LAT_INDEX = 1;
 
     @Override
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
@@ -55,10 +54,10 @@ public class BeamGeocodingPart extends CfGeocodingPart {
         if (tpCoordinatesAtt != null) {
             final String[] tpGridNames = tpCoordinatesAtt.getStringValue().split(" ");
             if (tpGridNames.length == 2
-                    && p.containsTiePointGrid(tpGridNames[lonIndex])
-                    && p.containsTiePointGrid(tpGridNames[latIndex])) {
-                final TiePointGrid lon = p.getTiePointGrid(tpGridNames[lonIndex]);
-                final TiePointGrid lat = p.getTiePointGrid(tpGridNames[latIndex]);
+                && p.containsTiePointGrid(tpGridNames[LON_INDEX])
+                && p.containsTiePointGrid(tpGridNames[LAT_INDEX])) {
+                final TiePointGrid lon = p.getTiePointGrid(tpGridNames[LON_INDEX]);
+                final TiePointGrid lat = p.getTiePointGrid(tpGridNames[LAT_INDEX]);
                 geoCoding = new TiePointGeoCoding(lat, lon);
             }
         } else {
@@ -68,7 +67,6 @@ public class BeamGeocodingPart extends CfGeocodingPart {
                 final Attribute i2mAtt = crsVar.findAttribute("i2m");
                 if (wktAtt != null && i2mAtt != null) {
                     geoCoding = createGeoCodingFromWKT(p, wktAtt.getStringValue(), i2mAtt.getStringValue());
-                    ctx.setProperty(Constants.Y_FLIPPED_PROPERTY_NAME, true);
                 }
             }
         }
@@ -98,27 +96,19 @@ public class BeamGeocodingPart extends CfGeocodingPart {
 
     @Override
     public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
+        super.preEncode(ctx, p);
         final GeoCoding geoCoding = p.getGeoCoding();
         if (geoCoding instanceof TiePointGeoCoding) {
             final TiePointGeoCoding tpGC = (TiePointGeoCoding) geoCoding;
             final String[] names = new String[2];
-            names[lonIndex] = tpGC.getLonGrid().getName();
-            names[latIndex] = tpGC.getLatGrid().getName();
+            names[LON_INDEX] = tpGC.getLonGrid().getName();
+            names[LAT_INDEX] = tpGC.getLatGrid().getName();
             final String value = StringUtils.arrayToString(names, " ");
             ctx.getNetcdfFileWriteable().addAttribute(null, new Attribute(TIEPOINT_COORDINATES, value));
         } else {
-            super.preEncode(ctx, p);
             if (geoCoding instanceof CrsGeoCoding) {
                 addWktAsVariable(ctx.getNetcdfFileWriteable(), geoCoding);
             }
-        }
-    }
-
-    @Override
-    public void encode(ProfileWriteContext ctx, Product p) throws IOException {
-        final GeoCoding geoCoding = p.getGeoCoding();
-        if (!(geoCoding instanceof TiePointGeoCoding)) {
-            super.encode(ctx, p);
         }
     }
 

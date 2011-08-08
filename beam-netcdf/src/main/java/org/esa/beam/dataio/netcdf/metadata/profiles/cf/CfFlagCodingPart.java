@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,6 +23,7 @@ import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriteable;
@@ -59,19 +60,24 @@ public class CfFlagCodingPart extends ProfilePartIO {
         final FlagCoding flagCoding = band.getFlagCoding();
         if (flagCoding != null) {
             final String[] flagNames = flagCoding.getFlagNames();
-            final int[] flagValues = new int[flagNames.length];
-            final StringBuffer meanings = new StringBuffer();
-            for (int i = 0; i < flagValues.length; i++) {
+            ProductData flagValueData = ProductData.createInstance(band.getDataType(), flagNames.length);
+            final StringBuilder meanings = new StringBuilder();
+            for (int i = 0; i < flagValueData.getNumElems(); i++) {
                 if (meanings.length() > 0) {
                     meanings.append(" ");
                 }
                 String name = flagNames[i];
                 meanings.append(name);
-                flagValues[i] = flagCoding.getFlagMask(name);
+                flagValueData.setElemIntAt(i, flagCoding.getFlagMask(name));
             }
             String variableName = ReaderUtils.getVariableName(band);
+            String description = flagCoding.getDescription();
+            if (description != null) {
+                ncFile.addVariableAttribute(variableName, new Attribute("long_name", description));
+            }
             ncFile.addVariableAttribute(variableName, new Attribute(FLAG_MEANINGS, meanings.toString()));
-            ncFile.addVariableAttribute(variableName, new Attribute(FLAG_MASKS, Array.factory(flagValues)));
+            ncFile.addVariableAttribute(variableName,
+                                        new Attribute(FLAG_MASKS, Array.factory(flagValueData.getElems())));
         }
     }
 

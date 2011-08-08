@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -74,15 +74,13 @@ public class CfGeocodingPart extends ProfilePartIO {
             final int h = product.getSceneRasterHeight();
             final GeoPos br = geoCoding.getGeoPos(new PixelPos(w - 0.5f, h - 0.5f), null);
             addGeographicCoordinateVariables(ncFile, ul, br);
-            ctx.setProperty(Constants.Y_FLIPPED_PROPERTY_NAME, true);
         } else {
-            addXYCoordinateVariables(ncFile);
             final boolean latLonPresent = isLatLonPresent(ncFile);
             if (!latLonPresent) {
                 addLatLonBands(ncFile);
             }
-            ctx.setProperty(Constants.Y_FLIPPED_PROPERTY_NAME, false);
         }
+        ctx.setProperty(Constants.Y_FLIPPED_PROPERTY_NAME, false);
     }
 
     private boolean isLatLonPresent(NetcdfFile ncFile) {
@@ -168,16 +166,6 @@ public class CfGeocodingPart extends ProfilePartIO {
         lon.addAttribute(new Attribute(Constants.VALID_MAX_ATT_NAME, br.getLon()));
     }
 
-    private void addXYCoordinateVariables(NetcdfFileWriteable ncFile) {
-        final Variable y = ncFile.addVariable(null, "y", DataType.FLOAT, "y");
-        y.addAttribute(new Attribute("axis", "y"));
-        y.addAttribute(new Attribute("long_name", "y-coordinate in Cartesian system"));
-
-        final Variable x = ncFile.addVariable(null, "x", DataType.FLOAT, "x");
-        x.addAttribute(new Attribute("axis", "x"));
-        x.addAttribute(new Attribute("long_name", "x-coordinate in Cartesian system"));
-    }
-
     private void addLatLonBands(final NetcdfFileWriteable ncFile) {
         final Variable lat = ncFile.addVariable(null, "lat", DataType.FLOAT, "y x");
         lat.addAttribute(new Attribute("units", "degrees_north"));
@@ -257,8 +245,7 @@ public class CfGeocodingPart extends ProfilePartIO {
             northing = minLat;
             pixelSizeX = (maxLon - minLon) / (sceneRasterWidth - 1);
             pixelSizeY = (maxLat - minLat) / (sceneRasterHeight - 1);
-            // must flip
-            yFlipped = true; // todo - check
+            yFlipped = false;
         } else {
             // CF convention
             final Array lonData = lon.read();

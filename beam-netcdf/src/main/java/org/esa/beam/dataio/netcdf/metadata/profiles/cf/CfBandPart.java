@@ -77,8 +77,9 @@ public class CfBandPart extends ProfilePartIO {
         if (description != null) {
             variable.addAttribute(new Attribute("long_name", description));
         }
-        final String unit = rasterDataNode.getUnit();
+        String unit = rasterDataNode.getUnit();
         if (unit != null) {
+            unit = CfCompliantUnitMapper.tryFindUnitString(unit);
             variable.addAttribute(new Attribute("units", unit));
         }
         final boolean unsigned = isUnsigned(rasterDataNode);
@@ -104,8 +105,10 @@ public class CfBandPart extends ProfilePartIO {
             noDataValue = rasterDataNode.getGeophysicalNoDataValue();
         }
         if (rasterDataNode.isNoDataValueUsed()) {
-            variable.addAttribute(new Attribute(Constants.FILL_VALUE_ATT_NAME, noDataValue));
+            Number fillValue = DataTypeUtils.convertTo(noDataValue, variable.getDataType());
+            variable.addAttribute(new Attribute(Constants.FILL_VALUE_ATT_NAME, fillValue));
         }
+        variable.addAttribute(new Attribute("coordinates", "lat lon"));
     }
 
     public static void defineRasterDataNodes(ProfileWriteContext ctx, RasterDataNode[] rasterDataNodes) {

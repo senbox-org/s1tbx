@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,9 +16,9 @@
 
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfileInitPartIO;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileInitPartIO;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Product;
@@ -42,6 +42,7 @@ public class CfInitialisationPart extends ProfileInitPartIO {
     @Override
     public void writeProductBody(ProfileWriteContext ctx, Product product) throws IOException {
         NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
+        writeable.addAttribute(null, new Attribute("Conventions", "CF-1.4"));
         if (CfGeocodingPart.isGeographicCRS(product.getGeoCoding())) {
             writeDimensions(writeable, product, "lat", "lon");
         } else {

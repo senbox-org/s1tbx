@@ -92,6 +92,37 @@ public class DataTypeUtils {
     }
 
     /**
+     * Converts the given double value to the Java type corresponding to the the given {@link DataType data type}.
+     *
+     * @param value    The value to be converted.
+     * @param dataType The NetCDF data type.
+     *
+     * @return The converted value corresponding to the given {@link DataType data type}.
+     *
+     * @throws IllegalArgumentException if {@link DataType dataType} is not one of {@link DataType#BYTE},
+     *                                  {@link DataType#SHORT}, {@link DataType#INT}, {@link DataType#LONG},
+     *                                  {@link DataType#FLOAT} or {@link DataType#DOUBLE}.
+     */
+    public static Number convertTo(double value, DataType dataType) {
+        switch (dataType) {
+            case BYTE:
+                return (byte) value;
+            case SHORT:
+                return (short) value;
+            case INT:
+                return (int) value;
+            case LONG:
+                return (long) value;
+            case FLOAT:
+                return (float) value;
+            case DOUBLE:
+                return value;
+            default:
+                throw new IllegalArgumentException("Can not convert data type:" + dataType.name());
+        }
+    }
+
+    /**
      * Creates a ProductData instance for the given netcdf attribute.
      *
      * @param attribute A netcdf attribute.
