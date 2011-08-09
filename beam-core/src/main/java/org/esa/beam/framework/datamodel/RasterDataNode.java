@@ -897,6 +897,30 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return true;
     }
 
+    // test, test, test (nf, 20110809)
+    public int getSampleInt(int x, int y) {
+        final PlanarImage image = getGeophysicalImage();
+        if (image != null) {
+            int tx = image.XToTileX(x);
+            int ty = image.YToTileY(y);
+            Raster tile = image.getTile(tx, ty);
+            return tile.getSample(x, y, 0);
+        }
+        return 0;
+    }
+
+    // test, test, test (nf, 20110809)
+    public float getSampleFloat(int x, int y) {
+        final PlanarImage image = getGeophysicalImage();
+        if (image != null) {
+            int tx = image.XToTileX(x);
+            int ty = image.YToTileY(y);
+            Raster tile = image.getTile(tx, ty);
+            return tile.getSampleFloat(x, y, 0);
+        }
+        return Float.NaN;
+    }
+
     /**
      * Checks whether or not the pixel located at (x,y) is valid.
      * A pixel is assumed to be valid either if  {@link #getValidMaskImage() validMaskImage} is null or
