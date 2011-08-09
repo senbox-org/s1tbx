@@ -137,8 +137,8 @@ public class N1PatcherOp extends MerisBasisOp implements Output {
                 ProductUtils.copyBand(bandName, n1Product, targetProduct);
             }
         }
-        final File patchedFileDir = patchedFile.getParentFile();
-        if (!patchedFileDir.exists()) {
+        final File patchedFileDir = patchedFile.getAbsoluteFile().getParentFile();
+        if (patchedFileDir != null && !patchedFileDir.exists()) {
             if (!patchedFileDir.mkdirs()) {
                 throw new OperatorException("Could not create path to file: " + patchedFile);
             }
