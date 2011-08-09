@@ -27,25 +27,17 @@ import com.bc.ceres.jai.operator.ReinterpretDescriptor;
 import com.bc.ceres.jai.operator.ScalingType;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.BitRaster;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.ObjectUtils;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.*;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
-import org.esa.beam.util.math.DoubleList;
-import org.esa.beam.util.math.Histogram;
-import org.esa.beam.util.math.IndexValidator;
-import org.esa.beam.util.math.MathUtils;
-import org.esa.beam.util.math.Quantizer;
-import org.esa.beam.util.math.Range;
+import org.esa.beam.util.math.*;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
-import java.awt.RenderingHints;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.IOException;
@@ -93,6 +85,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Text returned by the <code>{@link #getPixelString(int, int)}</code> method if pixel data was not loaded.
      */
+    @Deprecated
     public static final String NOT_LOADED_TEXT = "Not loaded"; /*I18N*/
     /**
      * Text returned by the <code>{@link #getPixelString(int, int)}</code> method if an I/O error occured while pixel data was
@@ -891,15 +884,15 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #setValidPixelExpression(String)
      */
     public boolean isPixelValid(int x, int y) {
-        // method is synchronized because as consequence of calling ROI.contains(x, y)
-        // com.sun.media.jai.iterator.RandomIterFallback.getSample(x, y, b) is called
-        // which is not thread safe
-        // An issue has been created in the JAI issue tracker:
-        // https://jai-core.dev.java.net/issues/show_bug.cgi?id=143
-        if (isValidMaskUsed()) {
-            synchronized (getClass()) { // synchronizing on the class object
-                return getValidMaskROI().contains(x, y);
-            }
+        if (!isValidMaskUsed()) {
+            return true;
+        }
+        final PlanarImage image = getValidMaskImage();
+        if (image != null) {
+            int tx = image.XToTileX(x);
+            int ty = image.YToTileY(y);
+            Raster tile = image.getTile(tx, ty);
+            return tile.getSample(x, y, 0) != 0;
         }
         return true;
     }
@@ -1823,11 +1816,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Returns whether the source image is set on this {@code RasterDataNode}.
      *
      * @return whether the source image is set.
-     * @since BEAM 4.5
      * @see #getSourceImage()
      * @see #setSourceImage(java.awt.image.RenderedImage)
      * @see #setSourceImage(com.bc.ceres.glevel.MultiLevelImage)
      * @see #createSourceImage()
+     * @since BEAM 4.5
      */
     public boolean isSourceImageSet() {
         return sourceImage != null;
@@ -1838,9 +1831,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @return The source image. Never {@code null}. In the case that {@link #isSourceImageSet()} returns {@code false},
      *         the method {@link #createSourceImage()} will be called in order to set and return a valid source image.
-     * @since BEAM 4.2
      * @see #createSourceImage()
      * @see #isSourceImageSet()
+     * @since BEAM 4.2
      */
     public MultiLevelImage getSourceImage() {
         if (!isSourceImageSet()) {
