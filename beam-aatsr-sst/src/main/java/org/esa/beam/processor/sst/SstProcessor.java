@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -50,8 +50,8 @@ public class SstProcessor extends Processor {
     private static final String PROCESSOR_SYMBOLIC_NAME = "beam-aatsr-sst";
     private static final String _nadirSstBandName = "nadir_sst";
     private static final String _dualSstBandName = "dual_sst";
-    private static final String _version = "1.4.100";
-    private static final String _copyright = "Copyright (C) 2002-2004 by Brockmann Consult (info@brockmann-consult.de)";
+    private static final String _version = "1.5";
+    private static final String _copyright = "Copyright (C) 2002-2011 by Brockmann Consult (info@brockmann-consult.de)";
     // coeffs are given for unscaled temperatures
     // thats why we do not need to scale the <x>.0 coeff
     private static final float COEFF_0_SCALE = 1.0f;
@@ -161,8 +161,7 @@ public class SstProcessor extends Processor {
                 if (_processNadir && !isAborted()) {
                     processNadir(SubProgressMonitor.create(pm, 1));
                 }
-            }
-            finally {
+            } finally {
                 pm.done();
             }
             closeProducts();
@@ -641,7 +640,7 @@ public class SstProcessor extends Processor {
             coeffs = _nadirCoeffs.getCoefficientsAt(n);
 
             // fill index map
-            for (int m = coeffs.getStart(); m < coeffs.getEnd(); m++) {
+            for (int m = coeffs.getStart(); m <= coeffs.getEnd(); m++) {
                 _nadirCoeffMap[m] = n;
             }
 
@@ -706,7 +705,7 @@ public class SstProcessor extends Processor {
             coeffs = _dualCoeffs.getCoefficientsAt(n);
 
             // fill index map
-            for (int m = coeffs.getStart(); m < coeffs.getEnd(); m++) {
+            for (int m = coeffs.getStart(); m <= coeffs.getEnd(); m++) {
                 _dualCoeffMap[m] = n;
             }
 
