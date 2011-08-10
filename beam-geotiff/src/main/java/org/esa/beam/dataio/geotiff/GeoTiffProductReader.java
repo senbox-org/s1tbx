@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -66,7 +66,9 @@ import javax.imageio.stream.ImageInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
@@ -132,7 +134,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
             }
             final DataBuffer dataBuffer = data.getDataBuffer();
             final SampleModel sampleModel = data.getSampleModel();
-            sampleModel.getSamples(0, 0, destWidth, destHeight, bandIdx, dArray, dataBuffer);
+            sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), bandIdx, dArray, dataBuffer);
             pm.worked(1);
 
             for (int i = 0; i < dArray.length; i++) {
@@ -231,6 +233,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
      *
      * @param product   the Product
      * @param inputFile the source tiff file
+     *
      * @throws IOException in case of an IO error
      */
     @SuppressWarnings({"UnusedDeclaration"})
@@ -258,7 +261,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
     }
 
     private void addBandsToProduct(TiffFileInfo tiffInfo, Product product) throws
-            IOException {
+                                                                           IOException {
         final ImageReadParam readParam = imageReader.getDefaultReadParam();
         TIFFRenderedImage baseImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(FIRST_IMAGE, readParam);
         SampleModel sampleModel = baseImage.getSampleModel();
@@ -487,7 +490,8 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
             final String name = gcpDescriptor.getRoleName() + "_" + i;
             final String label = gcpDescriptor.getRoleLabel() + "_" + i;
-            final Placemark gcp = Placemark.createPointPlacemark(gcpDescriptor, name, label, "", pixelPos, geoPos, product.getGeoCoding());
+            final Placemark gcp = Placemark.createPointPlacemark(gcpDescriptor, name, label, "", pixelPos, geoPos,
+                                                                 product.getGeoCoding());
             gcpGroup.add(gcp);
         }
 
