@@ -873,6 +873,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Checks whether or not the pixel located at (x,y) is valid.
      * A pixel is assumed to be valid either if  {@link #getValidMaskImage() validMaskImage} is null or
      * or if the bit corresponding to (x,y) is set within the returned mask image.
+     * <p/>
+     * <i>Note: Implementation changed by Norman (2011-08-09) in order to increase performance since
+     * a synchronised block was used due to problem with the JAI ROI class that has been used in
+     * the former implementation.</i>
      *
      * @param x the X co-ordinate of the pixel location
      * @param y the Y co-ordinate of the pixel location
@@ -897,28 +901,40 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return true;
     }
 
-    // test, test, test (nf, 20110809)
+    /**
+     * Gets a geo-physical sample value at the given pixel coordinate as {@code int} value.
+     * <p/>
+     * <i>Note: This method does not belong to the public API.
+     * It has been added by Norman (2011-08-09) in order to perform performance tests.</i>
+     *
+     * @param x pixel X coordinate
+     * @param y pixel Y coordinate
+     * @return The geo-physical sample value.
+     */
     public int getSampleInt(int x, int y) {
         final PlanarImage image = getGeophysicalImage();
-        if (image != null) {
-            int tx = image.XToTileX(x);
-            int ty = image.YToTileY(y);
-            Raster tile = image.getTile(tx, ty);
-            return tile.getSample(x, y, 0);
-        }
-        return 0;
+        int tx = image.XToTileX(x);
+        int ty = image.YToTileY(y);
+        Raster tile = image.getTile(tx, ty);
+        return tile.getSample(x, y, 0);
     }
 
-    // test, test, test (nf, 20110809)
+    /**
+     * Gets a geo-physical sample value at the given pixel coordinate as {@code float} value.
+     * <p/>
+     * <i>Note: This method does not belong to the public API.
+     * It has been added by Norman (2011-08-09) in order to perform performance tests.</i>
+     *
+     * @param x pixel X coordinate
+     * @param y pixel Y coordinate
+     * @return The geo-physical sample value.
+     */
     public float getSampleFloat(int x, int y) {
         final PlanarImage image = getGeophysicalImage();
-        if (image != null) {
-            int tx = image.XToTileX(x);
-            int ty = image.YToTileY(y);
-            Raster tile = image.getTile(tx, ty);
-            return tile.getSampleFloat(x, y, 0);
-        }
-        return Float.NaN;
+        int tx = image.XToTileX(x);
+        int ty = image.YToTileY(y);
+        Raster tile = image.getTile(tx, ty);
+        return tile.getSampleFloat(x, y, 0);
     }
 
     /**
