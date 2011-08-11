@@ -151,4 +151,19 @@ public class Measurement {
         result = 31 * result + (isValid ? 1 : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Measurement{" +
+                "time=" + time +
+                ", geoPos=" + geoPos +
+                ", values=" + (values == null ? null : Arrays.asList(values)) +
+                ", coordinateID=" + coordinateID +
+                ", productId=" + productId +
+                ", pixelX=" + pixelX +
+                ", pixelY=" + pixelY +
+                ", coordinateName='" + coordinateName + '\'' +
+                ", isValid=" + isValid +
+                '}';
+    }
 }

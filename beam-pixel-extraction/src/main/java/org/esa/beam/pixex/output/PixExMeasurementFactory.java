@@ -59,19 +59,16 @@ public class PixExMeasurementFactory implements MeasurementFactory {
                 if (!raster.isPixelValid(x, y)) {
                     values[i] = Double.NaN;
                 } else if (raster.isFloatingPointType()) {
-                    double[] temp = new double[1];
-                    raster.readPixels(x, y, 1, 1, temp);
-                    values[i] = temp[0];
+                    values[i] = (double) raster.getSampleFloat(x, y);
                 } else {
-                    int[] temp = new int[1];
-                    raster.readPixels(x, y, 1, 1, temp);
+                    int temp = raster.getSampleInt(x,y);
                     if (raster instanceof Mask) {
-                        values[i] = temp[0] == 0 ? 0 : 1; // normalize to 0 for false and 1 for true
+                        values[i] = temp == 0 ? 0 : 1; // normalize to 0 for false and 1 for true
                     } else {
                         if (raster.getDataType() == ProductData.TYPE_UINT32) {
-                            values[i] = temp[0] & 0xffffL;
+                            values[i] = temp & 0xffffL;
                         } else {
-                            values[i] = temp[0];
+                            values[i] = temp;
                         }
                     }
                 }

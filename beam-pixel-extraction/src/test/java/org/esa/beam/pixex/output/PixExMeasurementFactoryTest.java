@@ -54,6 +54,7 @@ public class PixExMeasurementFactoryTest {
         for (int i = 0; i < expectedMeasurements.length; i++) {
             expectedMeasurements[i] = createExpectedMeasurement(windowSize, pixelX, pixelY, coordinateID, cordName, i);
         }
+        // todo: this fails - check this!!
         assertThat(measurements, equalTo(expectedMeasurements));
     }
 
