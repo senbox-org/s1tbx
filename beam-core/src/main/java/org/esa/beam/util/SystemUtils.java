@@ -22,23 +22,15 @@ import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
 import javax.media.jai.OperationRegistry;
-import javax.swing.UIManager;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.datatransfer.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.security.CodeSource;
 import java.text.MessageFormat;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
@@ -475,28 +467,38 @@ public class SystemUtils {
     }
 
     public static Class<?> loadHdf4Lib(Class<?> callerClass) {
-        try {
-            return Class.forName(_H4_CLASS_NAME, true, callerClass.getClassLoader());
-        } catch (Throwable error) {
-            BeamLogManager.getSystemLogger().warning(MessageFormat.format("{0}: HDF-4 library not available: {1}: {2}", callerClass, error.getClass(), error.getMessage()));
+        return loadClassWithNativeDependencies(callerClass,
+                                               _H4_CLASS_NAME,
+                                               "{0}: HDF-4 library not available: {1}: {2}");
+    }
+
+    public static Class<?> loadHdf5Lib(Class<?> callerClass) {
+        return loadClassWithNativeDependencies(callerClass,
+                                               _H5_CLASS_NAME,
+                                               "{0}: HDF-5 library not available: {1}: {2}");
+    }
+
+    private static Class<?> loadClassWithNativeDependencies(Class<?> callerClass, String className, String warningPattern) {
+        ClassLoader classLoader = callerClass.getClassLoader();
+        String classResourceName = "/" + className.replace('.', '/') + ".class";
+        if (classLoader.getResource(classResourceName) != null) {
+            try {
+                return Class.forName(className, true, classLoader);
+            } catch (Throwable error) {
+                BeamLogManager.getSystemLogger().warning(MessageFormat.format(warningPattern, callerClass, error.getClass(), error.getMessage()));
+                return null;
+            }
+        } else {
             return null;
         }
     }
 
-    public static Class<?> loadHdf5Lib(Class<?> callerClass) {
-        try {
-            return Class.forName(_H5_CLASS_NAME, true, callerClass.getClassLoader());
-        } catch (Throwable error) {
-            BeamLogManager.getSystemLogger().warning(MessageFormat.format("{0}: HDF-5 library not available: {1}: {2}", callerClass, error.getClass(), error.getMessage()));
-            return null;
-        }
-    }
-    
     /**
      * Initialize third party libraries of BEAM.
+     *
      * @param cl The most useful class loader.
      * @since BEAM 4.8
-      */
+     */
     public static void init3rdPartyLibs(ClassLoader cl) {
         initJAI(cl);
         initGeoTools();
