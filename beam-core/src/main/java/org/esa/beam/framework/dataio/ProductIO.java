@@ -211,7 +211,7 @@ public class ProductIO {
         if (!file.exists()) {
             throw new FileNotFoundException("File not found: " + file.getPath());
         }
-        final ProductReader productReader = getProductReaderForFile(file);
+        final ProductReader productReader = getProductReaderForInput(file);
         if (productReader != null) {
             return productReader.readProductNodes(file, subsetDef);
         }
@@ -223,14 +223,34 @@ public class ProductIO {
      *
      * @param file the file to decode.
      * @return a product reader for the given file or <code>null</code> if the file cannot be decoded.
+     * @deprecated Since BEAM 4.10. Use {@link #getProductReaderForInput(Object)} instead.
      */
+    @Deprecated
     public static ProductReader getProductReaderForFile(File file) {
+        return getProductReaderForInput(file);
+    }
+
+    /**
+     * Tries to find a product reader instance suitable for the given input.
+     * The method returns {@code null}, if no
+     * registered product reader can handle the given {@code input} value.
+     * <p/>
+     * The {@code input} may be of any type, but most likely it will be a file path given by a {@code String} or
+     * {@code File} value. Some readers may also directly support an {@link javax.imageio.stream.ImageInputStream} object.
+     *
+     * @param input the input object.
+     * @return a product reader for the given {@code input} or {@code null} if no registered reader can handle
+     *         the it.
+     * @see ProductReaderPlugIn#getDecodeQualification(Object)
+     * @see ProductReader#readProductNodes(Object, ProductSubsetDef)
+     */
+    public static ProductReader getProductReaderForInput(Object input) {
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
         Iterator<ProductReaderPlugIn> it = registry.getAllReaderPlugIns();
         ProductReaderPlugIn selectedPlugIn = null;
         while (it.hasNext()) {
             ProductReaderPlugIn plugIn = it.next();
-            DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
+            DecodeQualification decodeQualification = plugIn.getDecodeQualification(input);
             if (decodeQualification == DecodeQualification.INTENDED) {
                 selectedPlugIn = plugIn;
                 break;
