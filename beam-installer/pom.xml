@@ -27,12 +27,13 @@
         <version>4.10-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Installer Files</name>
+    <name>BEAM Installer Resources</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-installer</artifactId>
 
     <packaging>jar</packaging>
 
+    <!--
     <dependencies>
 
         <dependency>
@@ -42,6 +43,7 @@
         </dependency>
 
     </dependencies>
+    -->
 
     <build>
         <directory>target</directory>
