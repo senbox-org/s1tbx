@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="5.0.8" transformSequenceNumber="3">
+<install4j version="5.0.9" transformSequenceNumber="3">
   <directoryPresets config="./src/main/resources/images" />
   <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="4.10" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
@@ -314,9 +314,6 @@
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction">
-                      <void property="linkDirectory">
-                        <string>${installer:sys.symlinkDir}</string>
-                      </void>
                       <void property="programGroupEntryConfigs">
                         <void method="add">
                           <object class="com.install4j.runtime.beans.screens.components.ProgramGroupFileConfig">
@@ -374,10 +371,76 @@
                 </serializedBean>
                 <condition>Util.isWindowsInstaller()</condition>
               </action>
-              <action name="" id="4354" customizedId="" beanClass="com.bc.install4j.ScriptPatcherAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+              <action name="" id="4354" customizedId="" beanClass="com.bc.install4j.ScriptPatcherAction" enabled="false" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
-                    <object class="com.bc.install4j.ScriptPatcherAction" />
+                    <object class="com.bc.install4j.ScriptPatcherAction">
+                      <void property="scriptDirPath">
+                        <string>binio</string>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="4718" customizedId="" beanClass="com.install4j.runtime.beans.actions.control.SetVariableAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.control.SetVariableAction">
+                      <void property="script">
+                        <object class="com.install4j.api.beans.ScriptProperty">
+                          <void property="value">
+                            <string>File[] files =  new File(context.getInstallationDirectory(), "bin").listFiles(new FilenameFilter() {
+    public boolean accept(File dir, String name) {
+        return name.endsWith(".bat") 
+            || name.endsWith(".cmd") 
+            || name.endsWith(".sh") 
+            || name.endsWith(".command"); 
+    }
+});
+// For testing returned 'files', uncomment the following:
+/*
+    if (files != null &amp;&amp; files.length &gt; 0) {
+        for (int i = 0; i &lt; files.length; i++) {
+            context.getProgressInterface().askContinue(new File(files[i]));
+        }
+    } else {
+        context.getProgressInterface().askContinue(new File("fileomat.txt"));  
+    }
+ */
+ return files;
+</string>
+                          </void>
+                        </object>
+                      </void>
+                      <void property="variableName">
+                        <string>binScripts</string>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="4717" customizedId="" beanClass="com.install4j.runtime.beans.actions.text.ReplaceInstallerVariablesAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="3" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.text.ReplaceInstallerVariablesAction">
+                      <void property="failIfNoReplacement">
+                        <boolean>true</boolean>
+                      </void>
+                      <void property="files">
+                        <array class="java.io.File" length="1">
+                          <void index="0">
+                            <object class="java.io.File">
+                              <string>${installer:binScripts}</string>
+                            </object>
+                          </void>
+                        </array>
+                      </void>
+                      <void property="ignoreMissing">
+                        <boolean>false</boolean>
+                      </void>
+                    </object>
                   </java>
                 </serializedBean>
                 <condition />
