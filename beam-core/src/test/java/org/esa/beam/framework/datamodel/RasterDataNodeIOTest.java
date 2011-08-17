@@ -52,15 +52,25 @@ public class RasterDataNodeIOTest extends TestCase {
     private Product p;
     private TestProductReader pr;
     private Rectangle rectangle;
+    private String enableSourceTileCachingOld;
 
     @Override
     protected void setUp() {
         p = createTestProduct();
         pr = (TestProductReader) p.getProductReader();
         rectangle = new Rectangle(0, 0, SW, SH);
+        enableSourceTileCachingOld = System.getProperty("beam.imageManager.enableSourceTileCaching");
+        System.setProperty("beam.imageManager.enableSourceTileCaching", "true");
     }
 
-    public void testUseProductReader() throws IOException {
+    @Override
+    public void tearDown() throws Exception {
+        if (enableSourceTileCachingOld != null) {
+            System.setProperty("beam.imageManager.enableSourceTileCaching", enableSourceTileCachingOld);
+        }
+    }
+
+    public void testThatSourceImagesGeneratedForBandsAreCached() throws IOException {
         final ProductData bpd = ProductData.createInstance(ProductData.TYPE_FLOAT32, SW * SH);
         final ProductData gpd = ProductData.createInstance(ProductData.TYPE_FLOAT32, GW * GH);
 
