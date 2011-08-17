@@ -272,7 +272,11 @@ public class Band extends AbstractBand {
 
                 @Override
                 public RenderedImage createImage(int level) {
-                    return new BandOpImage(Band.this, ResolutionLevel.create(getModel(), level));
+                    BandOpImage bandOpImage = new BandOpImage(Band.this, ResolutionLevel.create(getModel(), level));
+                    if (Boolean.getBoolean("beam.imageManager.disableSourceTileCaching")) {
+                        bandOpImage.setTileCache(null);
+                    }
+                    return bandOpImage;
                 }
             });
         }
