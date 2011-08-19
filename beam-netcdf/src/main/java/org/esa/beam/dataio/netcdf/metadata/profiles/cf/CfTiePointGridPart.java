@@ -19,11 +19,9 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
+import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import ucar.ma2.Array;
@@ -47,7 +45,8 @@ public class CfTiePointGridPart extends ProfilePartIO {
 
     @Override
     public void encode(ProfileWriteContext ctx, Product p) throws IOException {
-        boolean doFlip = mustFlip(p.getGeoCoding());
+        boolean doFlip = getYFlippedProperty(ctx);
+
         for (TiePointGrid tiePointGrid : p.getTiePointGrids()) {
             try {
                 final int h = tiePointGrid.getSceneRasterHeight();
@@ -66,13 +65,10 @@ public class CfTiePointGridPart extends ProfilePartIO {
         }
     }
 
-    private boolean mustFlip(GeoCoding geoCoding) {
-        if (geoCoding != null) {
-            final GeoPos gp0 = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
-            final GeoPos gp1 = geoCoding.getGeoPos(new PixelPos(0.5f, 1.5f), null);
-            if (gp1.lat - gp0.lat < 0) {
-                return true;
-            }
+    private boolean getYFlippedProperty(ProfileWriteContext ctx) {
+        Object yFlippedProperty = ctx.getProperty(Constants.Y_FLIPPED_PROPERTY_NAME);
+        if (yFlippedProperty instanceof Boolean) {
+            return (Boolean) yFlippedProperty;
         }
         return false;
     }
