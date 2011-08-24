@@ -29,6 +29,7 @@
     <changelog>
         <![CDATA[
         Changes in 1.2:<br/>
+        [BEAM-1340] GeoTIFF products with a single TAG_MODEL_TIE_POINT entry should be supported<br/>
         [BEAM-1336] ArrayIndexOutOfBoundsException occurs when reading GeoTIFF<br/>
         Changes in 1.1.1:<br/>
         [BEAM-1290] GeoTIFF writer can't write very large files<br/>
