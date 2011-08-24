@@ -53,6 +53,7 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffIIOMetadataDecoder;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffMetadata2CRSAdapter;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -341,7 +342,17 @@ public class GeoTiffProductReader extends AbstractProductReader {
         final GeoTiffIIOMetadataDecoder metadataDecoder = new GeoTiffIIOMetadataDecoder(metadata);
         final GeoTiffMetadata2CRSAdapter geoTiff2CRSAdapter = new GeoTiffMetadata2CRSAdapter(null);
         final MathTransform toModel = geoTiff2CRSAdapter.getRasterToModel(metadataDecoder, false);
-        final CoordinateReferenceSystem crs = geoTiff2CRSAdapter.createCoordinateSystem(metadataDecoder);
+        CoordinateReferenceSystem crs;
+        try {
+            crs = geoTiff2CRSAdapter.createCoordinateSystem(metadataDecoder);
+        } catch (UnsupportedOperationException e) {
+            if (toModel == null) {
+                throw e;
+            } else {
+                // ENVI falls back to WGS84, if no CRS is given in the GeoTIFF.
+                crs = DefaultGeographicCRS.WGS84;
+            }
+        }
         final CrsGeoCoding geoCoding = new CrsGeoCoding(crs, imageBounds, (AffineTransform) toModel);
         product.setGeoCoding(geoCoding);
     }
