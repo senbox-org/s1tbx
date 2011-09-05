@@ -24,8 +24,10 @@ import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
 import org.esa.beam.dataio.netcdf.util.NetcdfMultiLevelImage;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import ucar.ma2.DataType;
@@ -98,6 +100,9 @@ public class BeamBandPart extends ProfilePartIO {
         final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : p.getBands()) {
+            if (isPixelGeoCodingBand(band)) {
+                continue;
+            }
             int dataType;
             if (band.isLog10Scaled()) {
                 dataType = band.getGeophysicalDataType();
@@ -122,6 +127,16 @@ public class BeamBandPart extends ProfilePartIO {
         if (quicklookBandName != null && !quicklookBandName.isEmpty()) {
             ncFile.addAttribute(null, new Attribute(QUICKLOOK_BAND_NAME, quicklookBandName));
         }
+    }
+
+    private boolean isPixelGeoCodingBand(Band band) {
+        final GeoCoding geoCoding = band.getGeoCoding();
+        if (geoCoding instanceof PixelGeoCoding) {
+            PixelGeoCoding pixelGeoCoding = (PixelGeoCoding) geoCoding;
+            return pixelGeoCoding.getLatBand() == band || pixelGeoCoding.getLonBand() == band;
+        }
+        return false;
+
     }
 
     private static void readBeamBandAttributes(Variable variable, Band band) {

@@ -91,42 +91,49 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
     @Override
     public void writeBandRasterData(Band sourceBand, int sourceOffsetX, int sourceOffsetY, int sourceWidth,
                                     int sourceHeight, ProductData sourceBuffer, ProgressMonitor pm) throws IOException {
-        final int yIndex = 0;
-        final int xIndex = 1;
         final String variableName = ReaderUtils.getVariableName(sourceBand);
-        final DataType dataType = getDataType(variableName);
-        final int sceneHeight = sourceBand.getProduct().getSceneRasterHeight();
-        final int[] writeOrigin = new int[2];
-        writeOrigin[xIndex] = sourceOffsetX;
+        if (shallWriteVariable(variableName)) {
+            final int yIndex = 0;
+            final int xIndex = 1;
+            final DataType dataType = getDataType(variableName);
+            final int sceneHeight = sourceBand.getProduct().getSceneRasterHeight();
+            final int[] writeOrigin = new int[2];
+            writeOrigin[xIndex] = sourceOffsetX;
 
-        ProductData scaledBuffer;
-        if (convertLogScaledBands && sourceBand.isLog10Scaled()) {
-            scaledBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32, sourceBuffer.getNumElems());
-            for (int i = 0; i < sourceBuffer.getNumElems(); i++) {
-                double elemDoubleAt = sourceBuffer.getElemDoubleAt(i);
-                scaledBuffer.setElemDoubleAt(i, sourceBand.scale(elemDoubleAt));
+            ProductData scaledBuffer;
+            if (convertLogScaledBands && sourceBand.isLog10Scaled()) {
+                scaledBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32, sourceBuffer.getNumElems());
+                for (int i = 0; i < sourceBuffer.getNumElems(); i++) {
+                    double elemDoubleAt = sourceBuffer.getElemDoubleAt(i);
+                    scaledBuffer.setElemDoubleAt(i, sourceBand.scale(elemDoubleAt));
+                }
+            } else {
+                scaledBuffer = sourceBuffer;
             }
-        } else {
-            scaledBuffer = sourceBuffer;
-        }
 
-        final int[] sourceShape = new int[]{sourceHeight, sourceWidth};
-        final Array sourceArray = Array.factory(dataType, sourceShape, scaledBuffer.getElems());
+            final int[] sourceShape = new int[]{sourceHeight, sourceWidth};
+            final Array sourceArray = Array.factory(dataType, sourceShape, scaledBuffer.getElems());
 
-        final int[] sourceOrigin = new int[2];
-        sourceOrigin[xIndex] = 0;
-        final int[] writeShape = new int[]{1, sourceWidth};
-        for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
-            writeOrigin[yIndex] = isYFlipped ? (sceneHeight - 1) - y : y;
-            sourceOrigin[yIndex] = y - sourceOffsetY;
-            try {
-                Array dataArrayLine = sourceArray.sectionNoReduce(sourceOrigin, writeShape, null);
-                writeable.write(variableName, writeOrigin, dataArrayLine);
-            } catch (InvalidRangeException e) {
-                e.printStackTrace();
-                throw new IOException("Unable to encode netCDF data.", e);
+            final int[] sourceOrigin = new int[2];
+            sourceOrigin[xIndex] = 0;
+            final int[] writeShape = new int[]{1, sourceWidth};
+            for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
+                writeOrigin[yIndex] = isYFlipped ? (sceneHeight - 1) - y : y;
+                sourceOrigin[yIndex] = y - sourceOffsetY;
+                try {
+                    Array dataArrayLine = sourceArray.sectionNoReduce(sourceOrigin, writeShape, null);
+                    writeable.write(variableName, writeOrigin, dataArrayLine);
+                } catch (InvalidRangeException e) {
+                    e.printStackTrace();
+                    throw new IOException("Unable to encode netCDF data.", e);
+                }
             }
         }
+    }
+
+    private boolean shallWriteVariable(String variableName) {
+        final Variable variable = writeable.getRootGroup().findVariable(variableName);
+        return variable != null;
     }
 
     @Override
