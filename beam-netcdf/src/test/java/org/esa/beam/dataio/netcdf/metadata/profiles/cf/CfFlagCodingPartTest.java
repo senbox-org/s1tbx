@@ -37,15 +37,9 @@ public class CfFlagCodingPartTest extends TestCase {
         FlagCoding flagCoding = new FlagCoding("some_flags");
         flagBand.setSampleCoding(flagCoding);
         flagCoding.setDescription("A Flag Coding");
-        MetadataAttribute attribute;
-
-        attribute = new MetadataAttribute("FIRST_FLAG", ProductData.TYPE_UINT8);
-        attribute.getData().setElemInt(1);
-        flagCoding.addAttribute(attribute);
-
-        attribute = new MetadataAttribute("SECOND_FLAG", ProductData.TYPE_UINT8);
-        attribute.getData().setElemInt(2);
-        flagCoding.addAttribute(attribute);
+        for (int i = 0; i < 8; i++) {
+            addFlag(flagCoding, i);
+        }
 
         NetcdfFileWriteable writeable = NetcdfFileWriteable.createNew("not stored");
         writeable.addDimension("y", flagBand.getSceneRasterHeight());
@@ -60,10 +54,23 @@ public class CfFlagCodingPartTest extends TestCase {
         Attribute flagMasksAttrib = someFlagsVariable.findAttribute("flag_masks");
         assertNotNull(flagMasksAttrib);
         assertEquals(someFlagsVariable.getDataType(), flagMasksAttrib.getDataType());
-        assertEquals(2, flagMasksAttrib.getLength());
+        assertEquals(8, flagMasksAttrib.getLength());
+        assertTrue(flagMasksAttrib.isUnsigned());
+        for (int i = 0; i < 8; i++) {
+            assertEquals(1 << i, flagMasksAttrib.getValues().getInt(i));
+        }
 
         Attribute descriptionAttrib = someFlagsVariable.findAttribute("long_name");
         assertNotNull(flagCoding.getDescription(), descriptionAttrib.getStringValue());
 
+    }
+
+    private void addFlag(FlagCoding flagCoding, int index) {
+        MetadataAttribute attribute;
+
+        attribute = new MetadataAttribute(String.format("%d_FLAG", index + 1), ProductData.TYPE_UINT8);
+        final int maskValue = 1 << index;
+        attribute.getData().setElemInt(maskValue);
+        flagCoding.addAttribute(attribute);
     }
 }

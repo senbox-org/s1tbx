@@ -19,7 +19,6 @@ import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -76,12 +75,14 @@ public class CfFlagCodingPart extends ProfilePartIO {
                 ncFile.addVariableAttribute(variableName, new Attribute("long_name", description));
             }
             ncFile.addVariableAttribute(variableName, new Attribute(FLAG_MEANINGS, meanings.toString()));
-            ncFile.addVariableAttribute(variableName,
-                                        new Attribute(FLAG_MASKS, Array.factory(flagValueData.getElems())));
+
+            final Array maskValues = Array.factory(flagValueData.getElems());
+            maskValues.setUnsigned(flagValueData.isUnsigned());
+            ncFile.addVariableAttribute(variableName, new Attribute(FLAG_MASKS, maskValues));
         }
     }
 
-    public static FlagCoding readFlagCoding(ProfileReadContext ctx, String variableName) throws ProductIOException {
+    public static FlagCoding readFlagCoding(ProfileReadContext ctx, String variableName) {
         final Variable variable = ctx.getNetcdfFile().getRootGroup().findVariable(variableName);
         final String codingName = variableName + "_flag_coding";
         if (variable != null) {
@@ -91,13 +92,17 @@ public class CfFlagCodingPart extends ProfilePartIO {
         }
     }
 
-    private static FlagCoding readFlagCoding(Variable variable, String codingName) throws ProductIOException {
+    private static FlagCoding readFlagCoding(Variable variable, String codingName) {
         final Attribute flagMasks = variable.findAttribute(FLAG_MASKS);
         final int[] maskValues;
         if (flagMasks != null) {
+            final Array flagMasksArray = flagMasks.getValues();
+            // must set the unsigned property explicitly,
+            // even though it is set when writing the flag_masks attribute
+            flagMasksArray.setUnsigned(variable.isUnsigned());
             maskValues = new int[flagMasks.getLength()];
             for (int i = 0; i < maskValues.length; i++) {
-                maskValues[i] = flagMasks.getNumericValue(i).intValue();
+                maskValues[i] = flagMasksArray.getInt(i);
             }
         } else {
             maskValues = null;
@@ -114,8 +119,7 @@ public class CfFlagCodingPart extends ProfilePartIO {
         return createFlagCoding(codingName, maskValues, flagNames);
     }
 
-    private static FlagCoding createFlagCoding(String codingName, int[] maskValues, String[] flagNames)
-            throws ProductIOException {
+    private static FlagCoding createFlagCoding(String codingName, int[] maskValues, String[] flagNames) {
         if (maskValues != null && flagNames != null && maskValues.length == flagNames.length) {
             final FlagCoding coding = new FlagCoding(codingName);
             for (int i = 0; i < maskValues.length; i++) {

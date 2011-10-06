@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,11 +16,10 @@
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
-import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfFlagCodingPart;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
@@ -81,7 +80,7 @@ public class BeamFlagCodingPart extends ProfilePartIO {
         }
     }
 
-    public static FlagCoding readFlagCoding(ProfileReadContext ctx, String variableName) throws ProductIOException {
+    public static FlagCoding readFlagCoding(ProfileReadContext ctx, String variableName) {
         final FlagCoding flagCoding = CfFlagCodingPart.readFlagCoding(ctx, variableName);
 
         if (flagCoding != null) {
