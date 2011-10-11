@@ -187,6 +187,10 @@ public class ReprojectionOp extends Operator {
     private Integer width;
     @Parameter(description = "The height of the target product.")
     private Integer height;
+    @Parameter(description = "The tile size in X direction.")
+    private Integer tileSizeX;
+    @Parameter(description = "The pixel size in Y direction.")
+    private Integer tileSizeY;
 
     @Parameter(description = "Whether the source product should be orthorectified. (Not applicable to all products)",
                defaultValue = "false")
@@ -237,12 +241,17 @@ public class ReprojectionOp extends Operator {
                                     targetRect.width,
                                     targetRect.height);
         targetProduct.setDescription(sourceProduct.getDescription());
-        Dimension tileSize = ImageManager.getPreferredTileSize(targetProduct);
-        Dimension sourceProductPreferredTileSize = sourceProduct.getPreferredTileSize();
-        if (sourceProductPreferredTileSize != null) {
-            if (sourceProductPreferredTileSize.width == sourceProduct.getSceneRasterWidth()) {
-                tileSize.width = targetProduct.getSceneRasterWidth();
-                tileSize.height = Math.min(sourceProductPreferredTileSize.height, targetProduct.getSceneRasterHeight());
+        Dimension tileSize;
+        if (tileSizeX != null && tileSizeY != null) {
+            tileSize = new Dimension(tileSizeX, tileSizeY);
+        } else {
+            tileSize = ImageManager.getPreferredTileSize(targetProduct);
+            Dimension sourceProductPreferredTileSize = sourceProduct.getPreferredTileSize();
+            if (sourceProductPreferredTileSize != null) {
+                if (sourceProductPreferredTileSize.width == sourceProduct.getSceneRasterWidth()) {
+                    tileSize.width = targetProduct.getSceneRasterWidth();
+                    tileSize.height = Math.min(sourceProductPreferredTileSize.height, targetProduct.getSceneRasterHeight());
+                }
             }
         }
         targetProduct.setPreferredTileSize(tileSize);
