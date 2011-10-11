@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -27,15 +27,25 @@ import com.bc.ceres.jai.operator.ReinterpretDescriptor;
 import com.bc.ceres.jai.operator.ScalingType;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.*;
+import org.esa.beam.util.BitRaster;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
-import org.esa.beam.util.math.*;
+import org.esa.beam.util.math.DoubleList;
+import org.esa.beam.util.math.Histogram;
+import org.esa.beam.util.math.IndexValidator;
+import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.util.math.Quantizer;
+import org.esa.beam.util.math.Range;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
-import java.awt.*;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
@@ -1978,8 +1988,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                                                                                    scalingType,
                                                                                    interpretationType);
                 final SampleModel sampleModel = new SingleBandedSampleModel(targetDataType,
-                                                                            source.getWidth(),
-                                                                            source.getHeight());
+                                                                            source.getSampleModel().getWidth(),
+                                                                            source.getSampleModel().getHeight());
                 final ImageLayout imageLayout = ReinterpretDescriptor.createTargetImageLayout(source, sampleModel);
                 return ReinterpretDescriptor.create(source, factor, offset, scalingType, interpretationType,
                                                     new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout));

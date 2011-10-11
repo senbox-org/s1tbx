@@ -42,6 +42,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.10:<br/>
+        [BEAM-1345] Creating geophysical images for huge products fails<br/>
         [BEAM-1339] Reduce memory consumption<br/>
         [BEAM-1313] Sub-pixel geo-location is wrong for some product types<br/>
         <p>Changes in 4.9:<br/>
