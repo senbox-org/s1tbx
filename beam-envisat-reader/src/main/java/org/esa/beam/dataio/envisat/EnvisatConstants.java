@@ -126,7 +126,7 @@ public interface EnvisatConstants {
     /**
      * Y-offset of AATSR tie-points corresponds to the upper bound of a pixel.
      */
-    float AATSR_TIE_POINT_OFFSET_Y = 0.0F;
+    float AATSR_TIE_POINT_OFFSET_Y = 1.0F;
 
     /**
      * Number of localisation tie points in across track direction for the ASAR grid.
