@@ -1,6 +1,5 @@
 package org.esa.beam.dataio.envisat;
 
-import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
@@ -12,8 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class EnvisatProductReaderTest {
 
@@ -26,7 +24,8 @@ public class EnvisatProductReaderTest {
 
     @Test
     public void testAatsrGeoLocationRefersToLowerLeftCornerOfPixel() throws IOException, URISyntaxException {
-        final ProductReader reader = readerPlugIn.createReaderInstance();
+        final EnvisatProductReader reader = (EnvisatProductReader) readerPlugIn.createReaderInstance();
+
         try {
             final Product product = reader.readProductNodes(
                     new File(getClass().getResource(
@@ -36,23 +35,30 @@ public class EnvisatProductReaderTest {
             assertNotNull(latGrid);
             assertNotNull(lonGrid);
 
+            final ProductFile productFile = reader.getProductFile();
+
+            assertTrue(productFile.storesPixelsInChronologicalOrder());
+
             float offsetX = latGrid.getOffsetX();
+
+            assertEquals(-18.0f, offsetX, 0.0f);
+
             float offsetY = latGrid.getOffsetY();
+
+            assertEquals(1.0f, offsetY, 0.0f);
+
             float subSamplingX = latGrid.getSubSamplingX();
+
+            assertEquals(25.0f, subSamplingX, 0.0f);
+
             float subSamplingY = latGrid.getSubSamplingY();
 
-            assertEquals(-19.0f, offsetX, 0.0f);
-            assertEquals(1.0f, offsetY, 0.0f);
-            assertEquals(25.0f, subSamplingX, 0.0f);
             assertEquals(32.0f, subSamplingY, 0.0f);
 
-            final GeoPos geoPos = product.getGeoCoding().getGeoPos(new PixelPos(6.0f, 1.0f), null);
+            final GeoPos geoPos = product.getGeoCoding().getGeoPos(new PixelPos(-18.0f + 25.0f, 1.0f), null);
 
             assertEquals(latGrid.getTiePoints()[1], geoPos.getLat(), 0.0f);
             assertEquals(lonGrid.getTiePoints()[1], geoPos.getLon(), 0.0f);
-
-            assertEquals(latGrid.getOffsetY(), 1.0f, 0.0f);
-            assertEquals(lonGrid.getOffsetY(), 1.0f, 0.0f);
         } finally {
             reader.close();
         }
