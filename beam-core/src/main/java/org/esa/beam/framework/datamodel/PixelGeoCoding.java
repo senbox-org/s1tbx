@@ -1097,8 +1097,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
         private static ImageLayout layout(RenderedImage source) {
             final SampleModel sampleModel = RasterFactory.createBandedSampleModel(DataBuffer.TYPE_FLOAT,
-                                                                                  source.getWidth(),
-                                                                                  source.getHeight(),
+                                                                                  source.getTileWidth(),
+                                                                                  source.getTileHeight(),
                                                                                   2);
             final ImageLayout imageLayout = new ImageLayout();
             imageLayout.setSampleModel(sampleModel);
