@@ -94,6 +94,7 @@ Improvements
 
 
 Bugs
+[BEAM-1334] ProductData.UTC does not handle dates before 01/01/2000 correctly
 [BEAM-1292] - Reprojection dialog shifts image if pixel size is changed
 [BEAM-1290] - GeoTIFF writer can't write very large files
 [BEAM-1291] - Virtual bands may compute wrong results for non-zero levels of image pyramids
