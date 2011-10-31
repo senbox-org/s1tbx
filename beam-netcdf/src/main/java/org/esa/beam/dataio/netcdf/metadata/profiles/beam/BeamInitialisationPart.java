@@ -59,11 +59,12 @@ public class BeamInitialisationPart extends CfInitialisationPart {
     public void writeProductBody(ProfileWriteContext ctx, Product p) throws IOException {
         super.writeProductBody(ctx, p);
         NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
-        writeable.addAttribute(null, new Attribute(PRODUCT_TYPE, p.getProductType()));
-        writeable.addAttribute(null, new Attribute("metadata_profile", "beam"));
-        writeable.addAttribute(null, new Attribute("metadata_version", "0.5"));
+        writeable.addGlobalAttribute(new Attribute(PRODUCT_TYPE, p.getProductType()));
+        writeable.addGlobalAttribute(new Attribute("metadata_profile", "beam"));
+        writeable.addGlobalAttribute(new Attribute("metadata_version", "0.5"));
     }
 
+    @Override
     public String readProductType(ProfileReadContext ctx) {
         final Attribute productTypeAtt = ctx.getNetcdfFile().findGlobalAttribute(PRODUCT_TYPE);
         if (productTypeAtt != null) {

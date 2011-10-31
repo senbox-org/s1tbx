@@ -121,11 +121,11 @@ public class BeamBandPart extends ProfilePartIO {
         }
         Product.AutoGrouping autoGrouping = p.getAutoGrouping();
         if (autoGrouping != null) {
-            ncFile.addAttribute(null, new Attribute(AUTO_GROUPING, autoGrouping.toString()));
+            ncFile.addGlobalAttribute(new Attribute(AUTO_GROUPING, autoGrouping.toString()));
         }
         String quicklookBandName = p.getQuicklookBandName();
         if (quicklookBandName != null && !quicklookBandName.isEmpty()) {
-            ncFile.addAttribute(null, new Attribute(QUICKLOOK_BAND_NAME, quicklookBandName));
+            ncFile.addGlobalAttribute(new Attribute(QUICKLOOK_BAND_NAME, quicklookBandName));
         }
     }
 
