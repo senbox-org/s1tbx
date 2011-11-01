@@ -42,7 +42,7 @@ public class CfInitialisationPart extends ProfileInitPartIO {
     @Override
     public void writeProductBody(ProfileWriteContext ctx, Product product) throws IOException {
         NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
-        writeable.addAttribute(null, new Attribute("Conventions", "CF-1.4"));
+        writeable.addGlobalAttribute(new Attribute("Conventions", "CF-1.4"));
         if (CfGeocodingPart.isGeographicCRS(product.getGeoCoding())) {
             writeDimensions(writeable, product, "lat", "lon");
         } else {
