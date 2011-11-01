@@ -190,22 +190,18 @@ public class ProductExportAction extends ExecCommand {
         if (!getVisatApp().promptForOverwrite(selectedFile)) {
             return;
         }
-        final ProductSubsetDef productSubsetDef;
-        if (fileChooser.getProductSubsetDef() != null) {
-            productSubsetDef = fileChooser.getProductSubsetDef();
-        } else {
-            productSubsetDef = new ProductSubsetDef();
-            productSubsetDef.setSubsetName(selectedFile.getName());
+
+        final ProductSubsetDef productSubsetDef = fileChooser.getProductSubsetDef();
+        if (productSubsetDef != null) {
+            final String subsetName = productSubsetDef.getSubsetName();
+            try {
+                product = ProductSubsetBuilder.createProductSubset(product, productSubsetDef, subsetName, null);
+            } catch (IOException e) {
+                final String message = "An I/O error occurred while creating the product subset:\n" + e.getMessage();
+                getVisatApp().showErrorDialog(message);
+            }
         }
-        final String subsetName = productSubsetDef.getSubsetName();
-        try {
-            product = ProductSubsetBuilder.createProductSubset(product, productSubsetDef, subsetName, null);
-        } catch (IOException e) {
-            getVisatApp().showErrorDialog(
-                    "An I/O error occurred while creating the product subset:\n" + e.getMessage());
-        } finally {
-            // finally implementieren?
-        }
+
         getVisatApp().writeProduct(product, selectedFile, getFormatName());
     }
 
@@ -238,6 +234,5 @@ public class ProductExportAction extends ExecCommand {
     private static VisatApp getVisatApp() {
         return VisatApp.getApp();
     }
-
 
 }
