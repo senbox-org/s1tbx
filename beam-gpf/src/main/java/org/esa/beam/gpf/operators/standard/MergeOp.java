@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -47,6 +47,7 @@ public class MergeOp extends Operator {
     // todo - remove alias, property name is very clear.
     @Parameter(alias = "baseGeoInfo", description = "The ID of the source product providing the geo-coding.")
     private String copyGeoCodingFrom;
+    @SuppressWarnings({"MismatchedReadAndWriteOfArray"})
     @Parameter(itemAlias = "band", itemsInlined = true,
                description = "Defines a band to be included in the target product.")
     private BandDesc[] bands;
@@ -141,6 +142,11 @@ public class MergeOp extends Operator {
     private Band copyBandWithFeatures(Product srcProduct, Product outputProduct, String bandName) {
         Band destBand = ProductUtils.copyBand(bandName, srcProduct, outputProduct);
         Band srcBand = srcProduct.getBand(bandName);
+        if (srcBand == null) {
+            final String msg = String.format("Source product [%s] does not contain a band with the name [%s]",
+                                             srcProduct.getName(), bandName);
+            throw new OperatorException(msg);
+        }
         destBand.setSourceImage(srcBand.getSourceImage());
         if (srcBand.getFlagCoding() != null) {
             FlagCoding srcFlagCoding = srcBand.getFlagCoding();
@@ -162,10 +168,10 @@ public class MergeOp extends Operator {
 
     public static class BandDesc {
 
-        String product;
-        String name;
-        String newName;
-        String namePattern;
+        private String product;
+        private String name;
+        private String newName;
+        private String namePattern;
 
         public void setProduct(String product) {
             this.product = product;
