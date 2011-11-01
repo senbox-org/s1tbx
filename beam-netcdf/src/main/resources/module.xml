@@ -32,6 +32,7 @@
     <changelog>
         <![CDATA[
         Changes in 1.1:<br/>
+        [BEAM-1351] - Metadata is duplicated if NetCDF-BEAM file is saved again<br/>
         [BEAM-1333] - NetCDF files are not CF compliant<br/>
         [BEAM-1332] - NetCDF/CF writer does not write coordinates<br/>
         [BEAM-1320] - BEAM-NetCDF reader/writer does not preserve solar flux information<br/>
