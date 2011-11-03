@@ -19,7 +19,6 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 
-import java.awt.*;
 import java.awt.geom.GeneralPath;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,16 +101,15 @@ public class Graticule {
         double yMin = +1.0e10;
         double xMax = -1.0e10;
         double yMax = -1.0e10;
-        for (int i = 0; i < geoBoundary.length; i++) {
-            GeoPos geoPos = geoBoundary[i];
+        for (GeoPos geoPos : geoBoundary) {
             xMin = Math.min(xMin, geoPos.lon);
             yMin = Math.min(yMin, geoPos.lat);
             xMax = Math.max(xMax, geoPos.lon);
             yMax = Math.max(yMax, geoPos.lat);
         }
 
-        final List parallelList = computeParallelList(product.getGeoCoding(), geoBoundary, latMajorStep, lonMinorStep, yMin, yMax);
-        final List meridianList = computeMeridianList(product.getGeoCoding(), geoBoundary, lonMajorStep, latMinorStep, xMin, xMax);
+        final List<List<Coord>> parallelList = computeParallelList(product.getGeoCoding(), geoBoundary, latMajorStep, lonMinorStep, yMin, yMax);
+        final List<List<Coord>> meridianList = computeMeridianList(product.getGeoCoding(), geoBoundary, lonMajorStep, latMinorStep, xMin, xMax);
         final GeneralPath[] paths = createPaths(parallelList, meridianList);
         final TextGlyph[] textGlyphs = createTextGlyphs(parallelList, meridianList);
 
@@ -173,16 +171,15 @@ public class Graticule {
         double yMin = +1.0e10;
         double xMax = -1.0e10;
         double yMax = -1.0e10;
-        for (int i = 0; i < geoBoundary.length; i++) {
-            GeoPos geoPos = geoBoundary[i];
+        for (GeoPos geoPos : geoBoundary) {
             xMin = Math.min(xMin, geoPos.lon);
             yMin = Math.min(yMin, geoPos.lat);
             xMax = Math.max(xMax, geoPos.lon);
             yMax = Math.max(yMax, geoPos.lat);
         }
 
-        final List parallelList = computeParallelList(raster.getGeoCoding(), geoBoundary, latMajorStep, lonMinorStep, yMin, yMax);
-        final List meridianList = computeMeridianList(raster.getGeoCoding(), geoBoundary, lonMajorStep, latMinorStep, xMin, xMax);
+        final List<List<Coord>> parallelList = computeParallelList(raster.getGeoCoding(), geoBoundary, latMajorStep, lonMinorStep, yMin, yMax);
+        final List<List<Coord>> meridianList = computeMeridianList(raster.getGeoCoding(), geoBoundary, lonMajorStep, latMinorStep, xMin, xMax);
         final GeneralPath[] paths = createPaths(parallelList, meridianList);
         final TextGlyph[] textGlyphs = createTextGlyphs(parallelList, meridianList);
 
@@ -198,14 +195,15 @@ public class Graticule {
         return step;
     }
 
-    private static ArrayList computeParallelList(final GeoCoding geoCoding, final GeoPos[] geoBoundary,
-                                                 final double latMajorStep,
-                                                 final double lonMinorStep,
-                                                 final double yMin,
-                                                 final double yMax) {
+    private static List<List<Coord>> computeParallelList(final GeoCoding geoCoding,
+                                                         final GeoPos[] geoBoundary,
+                                                         final double latMajorStep,
+                                                         final double lonMinorStep,
+                                                         final double yMin,
+                                                         final double yMax) {
 //        final GeoCoding geoCoding = product.getGeoCoding();
-        ArrayList parallelList = new ArrayList();
-        ArrayList intersectionList = new ArrayList();
+        List<List<Coord>> parallelList = new ArrayList<List<Coord>>();
+        ArrayList<GeoPos> intersectionList = new ArrayList<GeoPos>();
         GeoPos geoPos, int1, int2;
         PixelPos pixelPos;
         float lat, lon;
@@ -214,16 +212,16 @@ public class Graticule {
             intersectionList.clear();
             computeParallelIntersections(geoBoundary, my, intersectionList);
             if (intersectionList.size() > 0 && intersectionList.size() % 2 == 0) {
-                final GeoPos[] intersections = (GeoPos[]) intersectionList.toArray(new GeoPos[intersectionList.size()]);
+                final GeoPos[] intersections = intersectionList.toArray(new GeoPos[intersectionList.size()]);
                 Arrays.sort(intersections, new GeoPosLonComparator());
-                ArrayList parallel = new ArrayList();
+                List<Coord> parallel = new ArrayList<Coord>();
                 // loop forward order
                 for (int i = 0; i < intersections.length; i += 2) {
                     int1 = intersections[i];
                     int2 = intersections[i + 1];
                     lat = int1.lat;
                     lon = int1.lon;
-                    for (int k = 0; k <= 1;) {
+                    for (int k = 0; k <= 1; ) {
                         geoPos = new GeoPos(lat, limitLon(lon));
                         pixelPos = geoCoding.getPixelPos(geoPos, null);
                         parallel.add(new Coord(geoPos, pixelPos));
@@ -240,14 +238,15 @@ public class Graticule {
         return parallelList;
     }
 
-    private static ArrayList computeMeridianList(final GeoCoding geoCoding, final GeoPos[] geoBoundary,
-                                                 final double lonMajorStep,
-                                                 final double latMinorStep,
-                                                 final double xMin,
-                                                 final double xMax) {
+    private static List<List<Coord>> computeMeridianList(final GeoCoding geoCoding,
+                                                         final GeoPos[] geoBoundary,
+                                                         final double lonMajorStep,
+                                                         final double latMinorStep,
+                                                         final double xMin,
+                                                         final double xMax) {
 //        final GeoCoding geoCoding = product.getGeoCoding();
-        ArrayList meridianList = new ArrayList();
-        ArrayList intersectionList = new ArrayList();
+        List<List<Coord>> meridianList = new ArrayList<List<Coord>>();
+        List<GeoPos> intersectionList = new ArrayList<GeoPos>();
         GeoPos geoPos, int1, int2;
         PixelPos pixelPos;
         float lat, lon;
@@ -256,16 +255,16 @@ public class Graticule {
             intersectionList.clear();
             computeMeridianIntersections(geoBoundary, mx, intersectionList);
             if (intersectionList.size() > 0 && intersectionList.size() % 2 == 0) {
-                final GeoPos[] intersections = (GeoPos[]) intersectionList.toArray(new GeoPos[intersectionList.size()]);
+                final GeoPos[] intersections = intersectionList.toArray(new GeoPos[intersectionList.size()]);
                 Arrays.sort(intersections, new GeoPosLatComparator());
-                ArrayList meridian = new ArrayList();
+                List<Coord> meridian = new ArrayList<Coord>();
                 // loop reverse order
                 for (int i = intersections.length - 2; i >= 0; i -= 2) {
                     int1 = intersections[i + 1];
                     int2 = intersections[i];
                     lat = int1.lat;
                     lon = int1.lon;
-                    for (int k = 0; k <= 1;) {
+                    for (int k = 0; k <= 1; ) {
                         geoPos = new GeoPos(lat, limitLon(lon));
                         pixelPos = geoCoding.getPixelPos(geoPos, null);
                         meridian.add(new Coord(geoPos, pixelPos));
@@ -284,7 +283,7 @@ public class Graticule {
 
     private static void computeParallelIntersections(final GeoPos[] geoBoundary,
                                                      final double my,
-                                                     final List intersectionList) {
+                                                     final List<GeoPos> intersectionList) {
         double p0x = 0, p0y = 0;
         double p1x, p1y;
         double pa;
@@ -310,7 +309,7 @@ public class Graticule {
 
     private static void computeMeridianIntersections(final GeoPos[] geoBoundary,
                                                      final double mx,
-                                                     final List intersectionList) {
+                                                     final List<GeoPos> intersectionList) {
         double p0x = 0, p0y = 0;
         double p1x, p1y;
         double pa;
@@ -334,24 +333,29 @@ public class Graticule {
         }
     }
 
-    private static GeneralPath[] createPaths(List parallelList, List meridianList) {
-        ArrayList generalPathList = new ArrayList();
+    private static GeneralPath[] createPaths(List<List<Coord>> parallelList, List<List<Coord>> meridianList) {
+        final ArrayList<GeneralPath> generalPathList = new ArrayList<GeneralPath>();
         addToPath(parallelList, generalPathList);
         addToPath(meridianList, generalPathList);
-        return (GeneralPath[]) generalPathList.toArray(new GeneralPath[generalPathList.size()]);
+        return generalPathList.toArray(new GeneralPath[generalPathList.size()]);
     }
 
-    private static void addToPath(List lineList, List generalPathList) {
-        for (int i = 0; i < lineList.size(); i++) {
-            List coordList = (List) lineList.get(i);
+    private static void addToPath(List<List<Coord>> lineList, List<GeneralPath> generalPathList) {
+        for (final List<Coord> coordList : lineList) {
             if (coordList.size() >= 2) {
                 final GeneralPath generalPath = new GeneralPath();
-                for (int j = 0; j < coordList.size(); j++) {
-                    PixelPos pixelPos = ((Coord) coordList.get(j)).pixelPos;
-                    if (j == 0) {
-                        generalPath.moveTo(pixelPos.x, pixelPos.y);
+                boolean restart = true;
+                for (Coord coord : coordList) {
+                    PixelPos pixelPos = coord.pixelPos;
+                    if (pixelPos.isValid()) {
+                        if (restart) {
+                            generalPath.moveTo(pixelPos.x, pixelPos.y);
+                        } else {
+                            generalPath.lineTo(pixelPos.x, pixelPos.y);
+                        }
+                        restart = false;
                     } else {
-                        generalPath.lineTo(pixelPos.x, pixelPos.y);
+                        restart = true;
                     }
                 }
                 generalPathList.add(generalPath);
@@ -359,48 +363,58 @@ public class Graticule {
         }
     }
 
-    private static TextGlyph[] createTextGlyphs(List parallelList, List meridianList) {
-        ArrayList textGlyphList = new ArrayList();
+    private static TextGlyph[] createTextGlyphs(List<List<Coord>> parallelList, List<List<Coord>> meridianList) {
+        final List<TextGlyph> textGlyphList = new ArrayList<TextGlyph>();
         createParallelTextGlyphs(parallelList, textGlyphList);
         createMeridianTextGlyphs(meridianList, textGlyphList);
-        return (TextGlyph[]) textGlyphList.toArray(new TextGlyph[textGlyphList.size()]);
+        return textGlyphList.toArray(new TextGlyph[textGlyphList.size()]);
     }
 
 
-    private static void createParallelTextGlyphs(List parallelList,
-                                                 List textGlyphList) {
+    private static void createParallelTextGlyphs(List<List<Coord>> parallelList,
+                                                 List<TextGlyph> textGlyphList) {
         Coord coord1;
         Coord coord2;
-        for (int i = 0; i < parallelList.size(); i++) {
-            final List parallel = (List) parallelList.get(i);
+        for (final List<Coord> parallel : parallelList) {
             if (parallel.size() >= 3) {
-                coord1 = (Coord) parallel.get(1);
-                coord2 = (Coord) parallel.get(2);
-                textGlyphList.add(createLatTextGlyph(coord1, coord2));
+                coord1 = parallel.get(1);
+                coord2 = parallel.get(2);
+                if (isCoordPairValid(coord1, coord2)) {
+                    textGlyphList.add(createLatTextGlyph(coord1, coord2));
+                }
             } else if (parallel.size() >= 2) {
-                coord1 = (Coord) parallel.get(0);
-                coord2 = (Coord) parallel.get(1);
-                textGlyphList.add(createLatTextGlyph(coord1, coord2));
+                coord1 = parallel.get(0);
+                coord2 = parallel.get(1);
+                if (isCoordPairValid(coord1, coord2)) {
+                    textGlyphList.add(createLatTextGlyph(coord1, coord2));
+                }
             }
         }
     }
 
-    private static void createMeridianTextGlyphs(List meridianList,
-                                                 List textGlyphList) {
+    private static void createMeridianTextGlyphs(List<List<Coord>> meridianList,
+                                                 List<TextGlyph> textGlyphList) {
         Coord coord1;
         Coord coord2;
-        for (int i = 0; i < meridianList.size(); i++) {
-            final List meridian = (List) meridianList.get(i);
+        for (List<Coord> meridian : meridianList) {
             if (meridian.size() >= 3) {
-                coord1 = (Coord) meridian.get(1);
-                coord2 = (Coord) meridian.get(2);
-                textGlyphList.add(createLonTextGlyph(coord1, coord2));
+                coord1 = meridian.get(1);
+                coord2 = meridian.get(2);
+                if (isCoordPairValid(coord1, coord2)) {
+                    textGlyphList.add(createLonTextGlyph(coord1, coord2));
+                }
             } else if (meridian.size() >= 2) {
-                coord1 = (Coord) meridian.get(0);
-                coord2 = (Coord) meridian.get(1);
-                textGlyphList.add(createLonTextGlyph(coord1, coord2));
+                coord1 = meridian.get(0);
+                coord2 = meridian.get(1);
+                if (isCoordPairValid(coord1, coord2)) {
+                    textGlyphList.add(createLonTextGlyph(coord1, coord2));
+                }
             }
         }
+    }
+
+    private static boolean isCoordPairValid(Coord coord1, Coord coord2) {
+        return coord1.pixelPos.isValid() && coord2.pixelPos.isValid();
     }
 
     private static TextGlyph createLatTextGlyph(Coord coord1, Coord coord2) {
@@ -457,22 +471,28 @@ public class Graticule {
     }
 
     /**
-     * Not used, but usefull for debugging: DON'T delete this method!
+     * Not used, but useful for debugging: DON'T delete this method!
      *
-     * @param geoCoding
-     * @param geoBoundary
+     * @param geoCoding   The geo-coding
+     * @param geoBoundary The geo-boundary
      * @return the geo-boundary
      */
+    @SuppressWarnings({"UnusedDeclaration"})
     private static GeneralPath createPixelBoundaryPath(final GeoCoding geoCoding, final GeoPos[] geoBoundary) {
         final GeneralPath generalPath = new GeneralPath();
-        for (int i = 0; i < geoBoundary.length; i++) {
-            final GeoPos geoPos = geoBoundary[i];
+        boolean restart = true;
+        for (final GeoPos geoPos : geoBoundary) {
             geoPos.lon = limitLon(geoPos.lon);
             final PixelPos pixelPos = geoCoding.getPixelPos(geoPos, null);
-            if (i == 0) {
-                generalPath.moveTo(pixelPos.x, pixelPos.y);
+            if (pixelPos.isValid()) {
+                if (restart) {
+                    generalPath.moveTo(pixelPos.x, pixelPos.y);
+                } else {
+                    generalPath.lineTo(pixelPos.x, pixelPos.y);
+                }
+                restart = false;
             } else {
-                generalPath.lineTo(pixelPos.x, pixelPos.y);
+                restart = true;
             }
         }
         return generalPath;
@@ -519,10 +539,9 @@ public class Graticule {
         }
     }
 
-    private static class GeoPosLatComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            final GeoPos geoPos1 = (GeoPos) o1;
-            final GeoPos geoPos2 = (GeoPos) o2;
+    private static class GeoPosLatComparator implements Comparator<GeoPos> {
+        @Override
+        public int compare(GeoPos geoPos1, GeoPos geoPos2) {
             final float delta = geoPos1.lat - geoPos2.lat;
             if (delta < 0f) {
                 return -1;
@@ -534,10 +553,9 @@ public class Graticule {
         }
     }
 
-    private static class GeoPosLonComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            final GeoPos geoPos1 = (GeoPos) o1;
-            final GeoPos geoPos2 = (GeoPos) o2;
+    private static class GeoPosLonComparator implements Comparator<GeoPos> {
+        @Override
+        public int compare(GeoPos geoPos1, GeoPos geoPos2) {
             final float delta = geoPos1.lon - geoPos2.lon;
             if (delta < 0f) {
                 return -1;
