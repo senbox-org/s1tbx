@@ -195,6 +195,21 @@ public class SummaryStxOpTest {
     }
 
     @Test
+    public void testAccumulateWithOnlyNaNDataWithoutMask() throws Exception {
+        SummaryStxOp op = new SummaryStxOp();
+        final RenderedOp nanImage = ConstantDescriptor.create(11.0f, 1.0f, new Float[]{Float.NaN}, null);
+        PixelAccessor dataAccessor = new PixelAccessor(nanImage);
+        Rectangle rectangle = nanImage.getData().getBounds();
+        op.accumulateDataFloat(dataAccessor, nanImage.getData(), null, null, rectangle);
+
+        assertEquals(Double.NaN, op.getMinimum(), 1.0e-6);
+        assertEquals(Double.NaN, op.getMaximum(), 1.0e-6);
+        assertEquals(Double.NaN, op.getMean(), 1.0e-6);
+        assertEquals(Double.NaN, op.getVariance(), 1.0e-6);
+        assertEquals(Double.NaN, op.getStdDev(), 1.0e-6);
+    }
+
+    @Test
     public void testAccumulateDataDouble() throws Exception {
         SummaryStxOp op = new SummaryStxOp();
         double[] data = new double[]{18.6, 18.7, 18.8, 18.9, 19.0, 19.1, 19.2, 19.3, 19.4, 19.5, 19.6};
