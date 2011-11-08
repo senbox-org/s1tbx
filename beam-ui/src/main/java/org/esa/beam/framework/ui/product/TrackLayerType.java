@@ -19,6 +19,7 @@ import java.awt.geom.Line2D;
  */
 public class TrackLayerType extends VectorDataLayerType {
 
+    @Override
     protected VectorDataLayer createLayer(VectorDataNode vectorDataNode, PropertySet configuration) {
         return new TrackLayer(this, vectorDataNode, configuration);
     }

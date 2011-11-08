@@ -287,28 +287,16 @@ public class ProductSceneImage implements ProductLayerContext {
 
     private synchronized Layer createVectorDataCollectionLayer() {
         final LayerType collectionLayerType = LayerTypeRegistry.getLayerType(VectorDataCollectionLayerType.class);
-        final VectorDataLayerType fallbackLayerType = LayerTypeRegistry.getLayerType(VectorDataLayerType.class);
         final Layer collectionLayer = collectionLayerType.createLayer(this, collectionLayerType.createLayerConfig(this));
         final ProductNodeGroup<VectorDataNode> vectorDataGroup = getRaster().getProduct().getVectorDataGroup();
 
         final VectorDataNode[] vectorDataNodes = vectorDataGroup.toArray(new VectorDataNode[vectorDataGroup.getNodeCount()]);
         for (final VectorDataNode vectorDataNode : vectorDataNodes) {
-            final Layer layer = createVectorDataLayer(vectorDataNode, fallbackLayerType);
+            final Layer layer = VectorDataLayerType.createLayer(this, vectorDataNode);
             collectionLayer.getChildren().add(layer);
         }
 
         return collectionLayer;
-    }
-
-    private Layer createVectorDataLayer(VectorDataNode vectorDataNode, VectorDataLayerType fallbackLayerType) {
-        final VectorDataLayerType specialLayerType = vectorDataNode.getExtension(VectorDataLayerType.class);
-        final Layer layer;
-        if (specialLayerType != null) {
-            layer = specialLayerType.createLayer(this, vectorDataNode);
-        } else {
-            layer = fallbackLayerType.createLayer(this, vectorDataNode);
-        }
-        return layer;
     }
 
     private synchronized Layer createMaskCollectionLayer() {
