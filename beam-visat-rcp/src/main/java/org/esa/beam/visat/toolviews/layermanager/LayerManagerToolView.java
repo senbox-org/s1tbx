@@ -16,11 +16,14 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.swing.selection.AbstractSelectionContext;
+import com.bc.ceres.swing.selection.Selection;
+import com.bc.ceres.swing.selection.SelectionContext;
+import com.bc.ceres.swing.selection.support.DefaultSelection;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.util.WeakHashMap;
 
 /**
@@ -37,12 +40,16 @@ public class LayerManagerToolView extends AbstractLayerToolView {
     private WeakHashMap<ProductSceneView, LayerManagerForm> layerManagerMap;
     private LayerManagerForm activeForm;
 
+    private LayerSelectionContext selectionContext;
+
+
     public LayerManagerToolView() {
     }
 
     @Override
     protected JComponent createControl() {
         layerManagerMap = new WeakHashMap<ProductSceneView, LayerManagerForm>();
+        selectionContext = new LayerSelectionContext();
         return super.createControl();
     }
 
@@ -60,7 +67,13 @@ public class LayerManagerToolView extends AbstractLayerToolView {
     protected void layerSelectionChanged(Layer oldLayer, Layer selectedLayer) {
         if (activeForm != null) {
             activeForm.updateFormControl();
+            selectionContext.fireSelectionChange(new DefaultSelection<Layer>(selectedLayer));
         }
+    }
+
+    @Override
+    public SelectionContext getSelectionContext() {
+        return selectionContext;
     }
 
     private void realizeActiveForm() {
@@ -91,4 +104,29 @@ public class LayerManagerToolView extends AbstractLayerToolView {
         return activeForm;
     }
 
+    private class LayerSelectionContext extends AbstractSelectionContext {
+
+        @Override
+        public void setSelection(Selection selection) {
+            Object selectedValue = selection.getSelectedValue();
+            if (selectedValue instanceof Layer) {
+                setSelectedLayer((Layer) selectedValue);
+            }
+        }
+
+        @Override
+        public Selection getSelection() {
+            Layer selectedLayer = getSelectedLayer();
+            if (selectedLayer != null) {
+                return new DefaultSelection<Layer>(selectedLayer);
+            } else {
+                return DefaultSelection.EMPTY;
+            }
+        }
+
+        @Override
+        protected void fireSelectionChange(Selection selection) {
+            super.fireSelectionChange(selection);
+        }
+    }
 }
