@@ -96,8 +96,14 @@
             <displayName type="java.lang.String"/>
             <frameIcon field="iconPath" type="java.lang.String"/>
             <resourceBundle type="java.lang.String"/>
-            <excludedActions type="java.lang.String[]"/>
-            <excludedToolViews type="java.lang.String[]"/>
+            <excludedActions type="java.lang.String[]">
+                <!-- Here: IDs of actions you wish to exclude from your application -->
+                <!-- e.g. <id>helpTopics</id> -->
+            </excludedActions>
+            <excludedToolViews type="java.lang.String[]">
+                <!-- Here:  IDs of tool views you wish to exclude from your application -->
+                <!-- e.g. <id>org.esa.beam.visat.toolviews.lm.LayersToolView</id> -->
+            </excludedToolViews>
         </applicationDescriptor>
     </extensionPoint>
 
