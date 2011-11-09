@@ -20,8 +20,6 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.ExtensionFactory;
-import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -30,9 +28,11 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.glayer.ProductLayerContext;
 
 /**
+ * A {@link LayerType} that creates layers of type {@link VectorDataLayer} for a given {@code VectorDataNode}.
+ *
  * @author Marco Peters
+ * @author Norman Fomferra
  * @author Ralf Quast
- * @version $ Revision $ Date $
  * @since BEAM 4.7
  */
 public class VectorDataLayerType extends LayerType {
@@ -63,7 +63,7 @@ public class VectorDataLayerType extends LayerType {
     public String getName() {
         return TYPE_NAME;
     }
-    
+
     @Override
     public String[] getAliases() {
         return ALIASES;
@@ -103,26 +103,6 @@ public class VectorDataLayerType extends LayerType {
         // Save the name of the vectorDataNode, so that we can reconstruct the layer later (e.g. if loaded from session file).
         configuration.setValue(PROPERTY_NAME_VECTOR_DATA, vectorDataNode.getName());
         return createLayer(vectorDataNode, configuration);
-    }
-
-    static {
-
-        ExtensionManager.getInstance().register(VectorDataNode.class, new ExtensionFactory() {
-            @Override
-            public Object getExtension(Object object, Class<?> extensionType) {
-                VectorDataNode node = (VectorDataNode) object;
-                if (node.getFeatureType().getTypeName().equals("TrackPoint")) {
-                    return LayerTypeRegistry.getLayerType(TrackLayerType.class);
-                }
-                return null;
-                // return LayerTypeRegistry.getLayerType(VectorDataLayerType.class);
-            }
-
-            @Override
-            public Class<?>[] getExtensionTypes() {
-                return new Class<?>[] {VectorDataLayerType.class};
-            }
-        });
     }
 
 }

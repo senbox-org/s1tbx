@@ -192,4 +192,17 @@
         </layerSource>
     </extensionPoint>
 
+
+    <!--
+        Experimental code added by Norman.
+        Demonstrates how we create layers for new feature types, e.g. "TrackPoint".
+        See class org.esa.beam.framework.ui.product.TrackLayerTypeFactory.
+    -->
+    <extension point="ceres-core:adapters">
+        <adapter>
+            <extensibleType>org.esa.beam.framework.datamodel.VectorDataNode</extensibleType>
+            <extensionFactory>org.esa.beam.framework.ui.product.TrackLayerTypeFactory</extensionFactory>
+        </adapter>
+    </extension>
+
 </module>

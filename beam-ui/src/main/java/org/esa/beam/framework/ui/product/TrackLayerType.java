@@ -13,6 +13,8 @@ import java.awt.geom.Line2D;
 /**
  * A special layer type that is used to create layers for {@link VectorDataNode}s that
  * have the {@code FeatureType} "TrackPoint".
+ * <p/>
+ * <i>Note: this is experimental code.</i>
  *
  * @author Norman Fomferra
  * @since BEAM 4.10

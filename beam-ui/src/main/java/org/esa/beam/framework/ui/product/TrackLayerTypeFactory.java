@@ -1,0 +1,31 @@
+package org.esa.beam.framework.ui.product;
+
+import com.bc.ceres.core.ExtensionFactory;
+import com.bc.ceres.glayer.LayerTypeRegistry;
+import org.esa.beam.framework.datamodel.VectorDataNode;
+
+/**
+ * The {@link ExtensionFactory} that adapts {@link VectorDataNode}s using the {@code FeatureType} "TrackPoint"
+ * to the special {@link TrackLayerType}.
+ * <p/>
+ * <i>Note: this is experimental code.</i>
+ *
+ * @author Norman Fomferra
+ * @since BEAM 4.10
+ */
+public class TrackLayerTypeFactory implements ExtensionFactory {
+    @Override
+    public Object getExtension(Object object, Class<?> extensionType) {
+        VectorDataNode node = (VectorDataNode) object;
+        if (node.getFeatureType().getTypeName().equals("TrackPoint")) {
+            return LayerTypeRegistry.getLayerType(TrackLayerType.class);
+        }
+        return null;
+        // return LayerTypeRegistry.getLayerType(VectorDataLayerType.class);
+    }
+
+    @Override
+    public Class<?>[] getExtensionTypes() {
+        return new Class<?>[]{VectorDataLayerType.class};
+    }
+}
