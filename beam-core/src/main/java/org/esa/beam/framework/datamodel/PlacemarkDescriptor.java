@@ -62,7 +62,7 @@ public interface PlacemarkDescriptor {
      */
     SimpleFeatureType getBaseFeatureType();
 
-    // todo - remove deprecated methods (nf while revisioning Placemark API)
+    // todo - remove deprecated methods (nf while revising Placemark API)
 
     @Deprecated
     String getRoleName();

@@ -56,8 +56,11 @@ public class Placemark extends ProductNode {
     public static final String PROPERTY_NAME_PIXELPOS = "pixelPos";
     public static final String PROPERTY_NAME_GEOPOS = "geoPos";
     public static final String PROPERTY_NAME_DATETIME = "dateTime";
+    public static final String PROPERTY_NAME_STYLE_CSS = PlainFeatureFactory.ATTRIB_NAME_STYLE_CSS;
+    @Deprecated
     private static final String PROPERTY_NAME_SYMBOL = "symbol";
 
+    @Deprecated
     public static final String PROPERTY_NAME_PINSYMBOL = "pinSymbol";
 
     private final PlacemarkDescriptor descriptor;
@@ -197,10 +200,12 @@ public class Placemark extends ProductNode {
     public void acceptVisitor(ProductVisitor visitor) {
     }
 
+    @Deprecated
     public PlacemarkSymbol getSymbol() {
         return (PlacemarkSymbol) feature.getAttribute(PROPERTY_NAME_SYMBOL);
     }
 
+    @Deprecated
     public void setSymbol(final PlacemarkSymbol symbol) {
         Guardian.assertNotNull("symbol", symbol);
         if (getSymbol() != symbol) {
@@ -336,7 +341,7 @@ public class Placemark extends ProductNode {
         final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
         PixelPos imagePos = pixelPos;
 
-        // todo - remove instanceof - bad code smell  (nf while revisioning Placemark API)
+        // todo - remove instanceof - bad code smell  (nf while revising Placemark API)
         if ((descriptor instanceof PinDescriptor || imagePos == null)
                 && geoPos != null
                 && geoCoding != null
@@ -438,6 +443,7 @@ public class Placemark extends ProductNode {
         builder.add(PROPERTY_NAME_GEOPOS, Point.class);
         builder.add(PROPERTY_NAME_SYMBOL, PlacemarkSymbol.class);
         builder.add(PROPERTY_NAME_DATETIME, Date.class);
+        builder.add(PROPERTY_NAME_STYLE_CSS, String.class);
 
         return builder.buildFeatureType();
     }
