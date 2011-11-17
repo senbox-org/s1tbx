@@ -16,6 +16,7 @@
 
 package com.bc.ceres.swing.figure;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.swing.figure.support.ScaleHandle;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
@@ -27,6 +28,9 @@ import java.util.List;
 
 /**
  * Base class for all {@link Figure} implementations.
+ *
+ * Provides support for the following properties:
+ * {@code selectable}, {@code selected}, {@code normalStyle}, {@code selectedStyle}.
  *
  * @author Norman Fomferra
  * @since Ceres 0.10
@@ -40,9 +44,18 @@ public abstract class AbstractFigure implements Figure {
     private boolean selectable;
     private boolean selected;
 
+    private FigureStyle normalStyle;
+    private FigureStyle selectedStyle;
+
+
     protected AbstractFigure() {
-        this.selectable = false;
-        this.selected = false;
+    }
+
+    protected AbstractFigure(FigureStyle normalStyle, FigureStyle selectedStyle) {
+        Assert.notNull(normalStyle, "normalStyle");
+        Assert.notNull(selectedStyle, "selectedStyle");
+        this.normalStyle = normalStyle;
+        this.selectedStyle = selectedStyle;
     }
 
     /**
@@ -73,6 +86,33 @@ public abstract class AbstractFigure implements Figure {
             this.selected = selected;
             fireFigureChanged();
         }
+    }
+
+    @Override
+    public FigureStyle getNormalStyle() {
+        return normalStyle;
+    }
+
+    public void setNormalStyle(FigureStyle normalStyle) {
+        Assert.notNull(normalStyle, "normalStyle");
+        this.normalStyle = normalStyle;
+        fireFigureChanged();
+    }
+
+    @Override
+    public FigureStyle getSelectedStyle() {
+        return selectedStyle;
+    }
+
+    public void setSelectedStyle(FigureStyle selectedStyle) {
+        Assert.notNull(selectedStyle, "selectedStyle");
+        this.selectedStyle = selectedStyle;
+        fireFigureChanged();
+    }
+
+    @Override
+    public FigureStyle getEffectiveStyle() {
+        return isSelected() ? getSelectedStyle() : getNormalStyle();
     }
 
     /**

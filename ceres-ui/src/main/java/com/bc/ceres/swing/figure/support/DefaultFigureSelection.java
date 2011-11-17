@@ -22,7 +22,7 @@ import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.Handle;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 import java.awt.geom.AffineTransform;
@@ -294,5 +294,4 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
         }
         return figures;
     }
-
 }

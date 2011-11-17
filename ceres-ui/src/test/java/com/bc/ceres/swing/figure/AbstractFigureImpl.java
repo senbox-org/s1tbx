@@ -17,6 +17,7 @@
 package com.bc.ceres.swing.figure;
 
 import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -54,5 +55,15 @@ class AbstractFigureImpl extends AbstractFigure {
     @Override
     public boolean isCloseTo(Point2D point, AffineTransform m2v) {
         return false;
+    }
+
+    @Override
+    public FigureStyle getNormalStyle() {
+        return new DefaultFigureStyle();
+    }
+
+    @Override
+    public FigureStyle getSelectedStyle() {
+        return new DefaultFigureStyle();
     }
 }

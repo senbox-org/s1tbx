@@ -45,8 +45,6 @@ import java.util.Arrays;
 public abstract class AbstractShapeFigure extends AbstractFigure implements ShapeFigure {
 
     private Rank rank;
-    private FigureStyle normalStyle;
-    private FigureStyle selectedStyle;
 
     protected AbstractShapeFigure() {
     }
@@ -59,12 +57,9 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
      * @param selectedStyle The style used for the "selected" state of the figure.
      */
     protected AbstractShapeFigure(Rank rank, FigureStyle normalStyle, FigureStyle selectedStyle) {
+        super(normalStyle, selectedStyle);
         Assert.notNull(rank, "rank");
-        Assert.notNull(normalStyle, "normalStyle");
-        Assert.notNull(selectedStyle, "selectedStyle");
         this.rank = rank;
-        this.normalStyle = normalStyle;
-        this.selectedStyle = selectedStyle;
         setSelectable(true);
     }
 
@@ -81,26 +76,6 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
    protected void setRank(Rank rank) {
        this.rank = rank;
    }
-
-    public FigureStyle getNormalStyle() {
-        return normalStyle;
-    }
-
-    public void setNormalStyle(FigureStyle normalStyle) {
-        Assert.notNull(normalStyle, "normalStyle");
-        this.normalStyle = normalStyle;
-        fireFigureChanged();
-    }
-
-    public FigureStyle getSelectedStyle() {
-        return selectedStyle;
-    }
-
-    public void setSelectedStyle(FigureStyle selectedStyle) {
-        Assert.notNull(selectedStyle, "selectedStyle");
-        this.selectedStyle = selectedStyle;
-        fireFigureChanged();
-    }
 
     @Override
     public Rectangle2D getBounds() {

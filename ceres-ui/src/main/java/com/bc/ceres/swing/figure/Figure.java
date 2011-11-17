@@ -67,6 +67,38 @@ public interface Figure extends Restorable, Cloneable {
     }
 
     /**
+     * @return The style used for the "normal" state of the figure.
+     * @since Ceres 0.13
+     */
+    FigureStyle getNormalStyle();
+
+    /**
+     * Sets the style used for the "normal" state of the figure.
+     * @param normalStyle The style used for the "normal" state of the figure.
+     * @since Ceres 0.13
+     */
+    void setNormalStyle(FigureStyle normalStyle);
+
+    /**
+     * @return The style used for the "selected" state of the figure.
+     * @since Ceres 0.13
+     */
+    FigureStyle getSelectedStyle();
+
+    /**
+     * Sets the style used for the "selected" state of the figure.
+     * @param selectedStyle The style used for the "selected" state of the figure.
+     * @since Ceres 0.13
+     */
+    void setSelectedStyle(FigureStyle selectedStyle);
+
+    /**
+     * @return The effective style used for the current state of the figure.
+     * @since Ceres 0.13
+     */
+    FigureStyle getEffectiveStyle();
+
+    /**
      * Tests if this figure is a figure collection.
      *
      * @return {@code true}, if so.
@@ -320,4 +352,5 @@ public interface Figure extends Restorable, Cloneable {
      */
     @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException"})
     Object clone();
+
 }

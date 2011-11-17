@@ -16,12 +16,11 @@
 
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.figure.support.NamedSymbol;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -35,8 +34,6 @@ import java.awt.geom.Rectangle2D;
  * @since Ceres 0.10
  */
 public abstract class AbstractPointFigure extends AbstractFigure implements PointFigure {
-    private FigureStyle normalStyle;
-    private FigureStyle selectedStyle;
 
     /**
      * Constructor. The rank will always be {@link Rank#POINT}.
@@ -45,31 +42,7 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
      * @param selectedStyle The style used for the "selected" state of the figure.
      */
     protected AbstractPointFigure(FigureStyle normalStyle, FigureStyle selectedStyle) {
-        Assert.notNull(normalStyle, "normalStyle");
-        Assert.notNull(selectedStyle, "selectedStyle");
-        this.normalStyle = normalStyle;
-        this.selectedStyle = selectedStyle;
-    }
-
-    /**
-     * @return The style used for the "normal" state of the figure.
-     */
-    public FigureStyle getNormalStyle() {
-        return normalStyle;
-    }
-
-    /**
-     * @return The style used for the "selected" state of the figure.
-     */
-    public FigureStyle getSelectedStyle() {
-        return selectedStyle;
-    }
-
-    /**
-     * @return The effective style used for the current state of the figure.
-     */
-    public FigureStyle getEffectiveStyle() {
-        return isSelected() ? getSelectedStyle() : getNormalStyle();
+        super(normalStyle, selectedStyle);
     }
 
     /**

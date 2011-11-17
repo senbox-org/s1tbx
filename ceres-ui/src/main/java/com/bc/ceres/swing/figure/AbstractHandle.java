@@ -33,12 +33,9 @@ import java.awt.geom.Rectangle2D;
 public abstract class AbstractHandle extends AbstractFigure implements Handle {
 
     private final Figure figure;
-    private final FigureStyle normalStyle;
-    private final FigureStyle selectedStyle;
     private final FigureChangeListener listener;
     private final Point2D.Double location;
     private Shape shape;
-    private boolean selected;
 
     /**
      * Constructor.
@@ -50,9 +47,9 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     protected AbstractHandle(Figure figure,
                              FigureStyle normalStyle,
                              FigureStyle selectedStyle) {
+        super(normalStyle, selectedStyle);
+        setSelectable(true);
         this.figure = figure;
-        this.normalStyle = normalStyle;
-        this.selectedStyle = selectedStyle;
 
         this.listener = new FigureChangeListener() {
             @Override
@@ -99,20 +96,6 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
         return figure;
     }
 
-    /**
-     * @return The handle's normal style.
-     */
-    public FigureStyle getNormalStyle() {
-        return normalStyle;
-    }
-
-    /**
-     * @return The handle's selected style.
-     */
-    public FigureStyle getSelectedStyle() {
-        return selectedStyle;
-    }
-
     @Override
     public Rank getRank() {
         return Rank.AREA;
@@ -141,16 +124,6 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     @Override
     public boolean isSelectable() {
         return true;
-    }
-
-    @Override
-    public boolean isSelected() {
-        return selected;
-    }
-
-    @Override
-    public void setSelected(boolean selected) {
-        this.selected = selected;
     }
 
     @Override
@@ -197,7 +170,7 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     }
 
     protected void drawHandle(Graphics2D g) {
-        FigureStyle handleStyle = isSelected() ? selectedStyle : normalStyle;
+        FigureStyle handleStyle = getEffectiveStyle();
 
         g.setPaint(handleStyle.getFillPaint());
         g.fill(getShape());

@@ -17,12 +17,7 @@
 package com.bc.ceres.swing.figure.support;
 
 import com.bc.ceres.grender.Rendering;
-import com.bc.ceres.swing.figure.AbstractFigure;
-import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.swing.figure.FigureChangeEvent;
-import com.bc.ceres.swing.figure.FigureCollection;
-import com.bc.ceres.swing.figure.Handle;
-import com.bc.ceres.swing.figure.FigureChangeListener;
+import com.bc.ceres.swing.figure.*;
 
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
@@ -54,6 +49,8 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     }
 
     private synchronized void init(List<Figure> list) {
+        setNormalStyle(new DefaultFigureStyle());
+        setSelectedStyle(new DefaultFigureStyle());
         this.figureList = new ArrayList<Figure>(list);
         this.figureSet = new HashSet<Figure>(list);
         this.changeDelegate = new ChangeDelegate();
