@@ -16,29 +16,19 @@
 
 package com.bc.ceres.swing.figure.support;
 
-import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.ValueRange;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.Symbol;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Paint;
-import java.awt.Stroke;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.util.*;
 
-import static java.lang.Math.*;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 public class DefaultFigureStyle extends PropertyContainer implements FigureStyle {
     //
@@ -59,14 +49,13 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
 
     private static final DefaultFigureStyle PROTOTYPE;
 
+    private FigureStyle parentStyle;
     private String name;
     private Map<String, Object> values;
     private Stroke stroke;
     private Paint strokePaint;
     private Paint fillPaint;
     private Symbol symbol;
-
-    private Class resourceLoader;
 
     static {
         PROTOTYPE = new DefaultFigureStyle();
@@ -78,9 +67,17 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     }
 
     public DefaultFigureStyle(String name) {
-        this.name = name;
+        this(name, PROTOTYPE);
+    }
+
+    public DefaultFigureStyle(FigureStyle parentStyle) {
+        this(null, parentStyle);
+    }
+
+    public DefaultFigureStyle(String name, FigureStyle parentStyle) {
+        this.name = name != null ? name : (parentStyle != null ? parentStyle.getName() : "");
+        this.parentStyle = parentStyle != null ? parentStyle : PROTOTYPE;
         this.values = new HashMap<String, Object>();
-        this.resourceLoader = this.getClass();
         addPropertyChangeListener(new EffectivePropertyNuller());
     }
 
@@ -141,9 +138,9 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         if (isPropertyDefined(name)) {
             return (T) super.getValue(name);
         }
-        Property prototypeProperty = PROTOTYPE.getProperty(name);
-        if (prototypeProperty != null) {
-            return (T) prototypeProperty.getValue();
+        Property property = parentStyle.getProperty(name);
+        if (property != null) {
+            return (T) property.getValue();
         }
         return null;
     }
@@ -154,7 +151,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
             super.setValue(name, value);
             return;
         }
-        Property property = PROTOTYPE.getProperty(name);
+        Property property = parentStyle.getProperty(name);
         if (property != null) {
             defineProperty(property.getDescriptor(), value);
         } else {
@@ -322,7 +319,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
 
     @Override
     public String toCssString() {
-        Map<String, Property> all = getOrderedMap();
+        Map<String, Property> all = getOrderedPropertyMap();
         Set<Map.Entry<String, Property>> entries = all.entrySet();
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, Property> entry : entries) {
@@ -372,18 +369,20 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         }
     }
 
-    public Class getResourceLoader() {
-        return resourceLoader;
+    private synchronized Map<String, Property> getOrderedPropertyMap() {
+        // Using a TreeMap makes sure that entries are ordered by key
+        Map<String, Property> propertyMap = new TreeMap<String, Property>();
+        if (parentStyle != PROTOTYPE) {
+            collectProperties(parentStyle.getProperties(), propertyMap);
+        }
+        collectProperties(getProperties(), propertyMap);
+        return propertyMap;
     }
 
-    private synchronized Map<String, Property> getOrderedMap() {
-        // Using a TreeMap makes sure that entries are ordered by key
-        Property[] properties = getProperties();
-        Map<String, Property> propertyMap = new TreeMap<String, Property>();
-        for (Property property1 : properties) {
-            propertyMap.put(property1.getName(), property1);
+    private static void collectProperties(Property[] properties, Map<String, Property> propertyMap) {
+        for (Property property : properties) {
+            propertyMap.put(property.getName(), property);
         }
-        return propertyMap;
     }
 
     private static DefaultFigureStyle setSymbol(Symbol symbol) {
@@ -475,7 +474,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
             return NamedSymbol.getSymbol(symbolName);
         }
         if (symbolImagePath != null) {
-            return ImageSymbol.createIcon(symbolImagePath, symbolRefX, symbolRefY, resourceLoader);
+            return ImageSymbol.createIcon(symbolImagePath, symbolRefX, symbolRefY, this.getClass());
         }
         return null;
     }
