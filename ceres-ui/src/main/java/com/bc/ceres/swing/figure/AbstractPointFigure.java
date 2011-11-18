@@ -18,6 +18,7 @@ package com.bc.ceres.swing.figure;
 
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.NamedSymbol;
 
 import java.awt.*;
@@ -45,18 +46,6 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
         super(normalStyle, selectedStyle);
     }
 
-    @Override
-    public void setNormalStyle(FigureStyle normalStyle) {
-        super.setNormalStyle(normalStyle);
-        updateSelectedFill();
-    }
-
-    @Override
-    public void setSelectedStyle(FigureStyle selectedStyle) {
-        super.setSelectedStyle(selectedStyle);
-        updateSelectedFill();
-    }
-
     /**
      * Gets the symbol used for the current state of the figure.
      *
@@ -64,7 +53,7 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
      */
     @Override
     public Symbol getSymbol() {
-        final Symbol symbol = getEffectiveStyle().getSymbol();
+        final Symbol symbol = getNormalStyle().getSymbol();
         if (symbol != null) {
             return symbol;
         }
@@ -147,6 +136,17 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
     }
 
     @Override
+    public FigureStyle getEffectiveStyle() {
+        if (isSelected()) {
+            final DefaultFigureStyle style = new DefaultFigureStyle(getNormalStyle());
+            //style.setStrokeColor(getSelectedStyle().getStrokeColor());
+            //style.setStrokeOpacity(getSelectedStyle().getStrokeOpacity());
+            return style;
+        }
+        return getNormalStyle();
+    }
+
+    @Override
     public final void draw(Rendering rendering) {
         final Viewport vp = rendering.getViewport();
         final AffineTransform m2v = vp.getModelToViewTransform();
@@ -173,8 +173,4 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
         getSymbol().draw(rendering, getEffectiveStyle());
     }
 
-    private void updateSelectedFill() {
-        getSelectedStyle().setValue("fill", getNormalStyle().getFillColor());
-        getSelectedStyle().setValue("fill-opacity", getNormalStyle().getFillOpacity());
-    }
 }
