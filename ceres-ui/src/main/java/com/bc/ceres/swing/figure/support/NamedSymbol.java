@@ -65,11 +65,15 @@ public class NamedSymbol implements Symbol {
         symbol.draw(rendering, style);
     }
 
+    @Override
+    public String toString() {
+        return getName();
+    }
+
     private static Map<String, NamedSymbol> getDeclaredSymbols() {
         HashMap<String, NamedSymbol> symbols = new HashMap<String, NamedSymbol>();
         Field[] declaredFields = NamedSymbol.class.getDeclaredFields();
-        for (int i = 0; i < declaredFields.length; i++) {
-            Field declaredField = declaredFields[i];
+        for (Field declaredField : declaredFields) {
             int modifiers = declaredField.getModifiers();
             if (Symbol.class.isAssignableFrom(declaredField.getType())
                     && Modifier.isPublic(modifiers)
