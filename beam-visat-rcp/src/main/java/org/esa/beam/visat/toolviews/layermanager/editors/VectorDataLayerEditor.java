@@ -32,6 +32,7 @@ import org.esa.beam.util.ObjectUtils;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -43,20 +44,21 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
     private static final String STROKE_COLOR_NAME = DefaultFigureStyle.STROKE_COLOR.getName();
     private static final String STROKE_WIDTH_NAME = DefaultFigureStyle.STROKE_WIDTH.getName();
     private static final String STROKE_OPACITY_NAME = DefaultFigureStyle.STROKE_OPACITY.getName();
+    public static final SimpleFeatureFigure[] NO_SIMPLE_FEATURE_FIGURES = new SimpleFeatureFigure[0];
 
     private final SelectionChangeHandler selectionChangeHandler;
-    private final StyleUpdater styleListener;
+    private final StyleUpdater styleUpdater;
     private final AtomicBoolean isAdjusting;
 
     public VectorDataLayerEditor() {
         selectionChangeHandler = new SelectionChangeHandler();
-        styleListener = new StyleUpdater();
+        styleUpdater = new StyleUpdater();
         isAdjusting = new AtomicBoolean(false);
     }
 
     @Override
     protected void addEditablePropertyDescriptors() {
-        final AbstractShapeFigure[] shapeFigures = getFigures();
+        final Figure[] shapeFigures = getFigures();
 
         final PropertyDescriptor fillColor = new PropertyDescriptor(DefaultFigureStyle.FILL_COLOR);
         fillColor.setDefaultValue(getStyleProperty(FILL_COLOR_NAME, shapeFigures));
@@ -83,14 +85,12 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
 
         if (isAdjusting.compareAndSet(false, true)) {
             try {
-                final AbstractShapeFigure[] selectedFigures = getFigures();
+                final SimpleFeatureFigure[] selectedFigures = getFigures();
                 updateBinding(selectedFigures, bindingContext);
             } finally {
                 isAdjusting.set(false);
             }
         }
-
-        super.handleLayerContentChanged();
     }
 
     @Override
@@ -99,7 +99,7 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
         if (figureEditor != null) {
             figureEditor.addSelectionChangeListener(selectionChangeHandler);
         }
-        getBindingContext().addPropertyChangeListener(styleListener);
+        getBindingContext().addPropertyChangeListener(styleUpdater);
     }
 
     @Override
@@ -108,10 +108,10 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
         if (figureEditor != null) {
             figureEditor.removeSelectionChangeListener(selectionChangeHandler);
         }
-        getBindingContext().removePropertyChangeListener(styleListener);
+        getBindingContext().removePropertyChangeListener(styleUpdater);
     }
 
-    private void updateBinding(AbstractShapeFigure[] selectedFigures, BindingContext bindingContext) {
+    private void updateBinding(SimpleFeatureFigure[] selectedFigures, BindingContext bindingContext) {
         final PropertySet propertySet = bindingContext.getPropertySet();
         setPropertyValue(FILL_COLOR_NAME, propertySet, getStyleProperty(FILL_COLOR_NAME, selectedFigures));
         setPropertyValue(FILL_OPACITY_NAME, propertySet, getStyleProperty(FILL_OPACITY_NAME, selectedFigures));
@@ -127,36 +127,32 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
         }
     }
 
-    private Object getStyleProperty(String propertyName, AbstractShapeFigure[] figures) {
-        Object lastProperty = null;
-        for (AbstractShapeFigure figure : figures) {
-            final Object currentProperty = figure.getNormalStyle().getValue(propertyName);
-            if (lastProperty == null) {
-                lastProperty = currentProperty;
+    private Object getStyleProperty(String propertyName, Figure[] figures) {
+        Object commonValue = null;
+        for (Figure figure : figures) {
+            final Object value = figure.getNormalStyle().getValue(propertyName);
+            if (commonValue == null) {
+                commonValue = value;
             } else {
-                if (!lastProperty.equals(currentProperty)) {
+                if (!commonValue.equals(value)) {
                     return null;
                 }
             }
         }
-        return lastProperty;
+        return commonValue;
     }
 
-    private AbstractShapeFigure[] getFigures() {
-        AbstractShapeFigure[] figures = new AbstractShapeFigure[0];
+    private SimpleFeatureFigure[] getFigures() {
+        SimpleFeatureFigure[] figures = NO_SIMPLE_FEATURE_FIGURES;
         if (getAppContext() != null) {
             final ProductSceneView sceneView = getAppContext().getSelectedProductSceneView();
             SimpleFeatureFigure[] featureFigures = sceneView.getSelectedFeatureFigures();
             if (featureFigures.length == 0) {
                 featureFigures = getAllFigures((VectorDataLayer) getCurrentLayer());
             }
-            List<AbstractShapeFigure> selFigureList = new ArrayList<AbstractShapeFigure>(7);
-            for (SimpleFeatureFigure featureFigure : featureFigures) {
-                if (featureFigure instanceof AbstractShapeFigure) {
-                    selFigureList.add((AbstractShapeFigure) featureFigure);
-                }
-            }
-            figures = selFigureList.toArray(new AbstractShapeFigure[selFigureList.size()]);
+            List<SimpleFeatureFigure> selFigureList = new ArrayList<SimpleFeatureFigure>(32);
+            Collections.addAll(selFigureList, featureFigures);
+            figures = selFigureList.toArray(new SimpleFeatureFigure[selFigureList.size()]);
         }
         return figures;
     }
@@ -193,14 +189,16 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
+            // System.out.printf("StyleUpdater: propertyChange(name=%s, oldValue=%s, newValue=%s)\n",
+            //                   evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
             if (evt.getNewValue() == null) {
                 return;
             }
-            final AbstractShapeFigure[] selectedFigures = getFigures();
+            final SimpleFeatureFigure[] selectedFigures = getFigures();
             final BindingContext bindContext = getBindingContext();
             if (isAdjusting.compareAndSet(false, true)) {
                 try {
-                    for (AbstractShapeFigure selectedFigure : selectedFigures) {
+                    for (SimpleFeatureFigure selectedFigure : selectedFigures) {
                         final Object oldFigureValue = selectedFigure.getNormalStyle().getValue(evt.getPropertyName());
                         final Object newValue = evt.getNewValue();
                         if (!newValue.equals(oldFigureValue)) {
@@ -209,6 +207,7 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
                             style.fromCssString(origStyle.toCssString());
                             transferPropertyValueToStyle(bindContext.getPropertySet(), evt.getPropertyName(), style);
                             selectedFigure.setNormalStyle(style);
+
                         }
                     }
                 } finally {
