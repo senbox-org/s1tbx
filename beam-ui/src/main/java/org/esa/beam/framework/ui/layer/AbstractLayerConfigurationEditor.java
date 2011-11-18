@@ -92,7 +92,7 @@ public abstract class AbstractLayerConfigurationEditor extends AbstractLayerEdit
     }
 
     /**
-     * Clients overide in order to subsequently call {@link #addPropertyDescriptor(com.bc.ceres.binding.PropertyDescriptor)}
+     * Clients override in order to subsequently call {@link #addPropertyDescriptor(com.bc.ceres.binding.PropertyDescriptor)}
      * for each property that shall be editable by this editor.
      */
     protected abstract void addEditablePropertyDescriptors();
