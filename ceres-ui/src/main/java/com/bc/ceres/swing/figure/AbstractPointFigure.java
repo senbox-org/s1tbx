@@ -45,6 +45,18 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
         super(normalStyle, selectedStyle);
     }
 
+    @Override
+    public void setNormalStyle(FigureStyle normalStyle) {
+        super.setNormalStyle(normalStyle);
+        updateSelectedFill();
+    }
+
+    @Override
+    public void setSelectedStyle(FigureStyle selectedStyle) {
+        super.setSelectedStyle(selectedStyle);
+        updateSelectedFill();
+    }
+
     /**
      * Gets the symbol used for the current state of the figure.
      *
@@ -159,5 +171,10 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
      */
     protected void drawPoint(Rendering rendering) {
         getSymbol().draw(rendering, getEffectiveStyle());
+    }
+
+    private void updateSelectedFill() {
+        getSelectedStyle().setValue("fill", getNormalStyle().getFillColor());
+        getSelectedStyle().setValue("fill-opacity", getNormalStyle().getFillOpacity());
     }
 }
