@@ -2378,8 +2378,6 @@ public class Product extends ProductNode {
      * Creates a bit-packed mask for all pixels of the scene covered by this product.
      * The given term is considered to be boolean, if it evaluates to <code>true</code>
      * the related bit in the mask is set.
-     * <p>Since the masks created by this method are cached, the method {@link #releaseValidMask(org.esa.beam.util.BitRaster)}
-     * should be called in order to release it.
      *
      * @param term the boolean term, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
      * @param pm   a progress monitor
