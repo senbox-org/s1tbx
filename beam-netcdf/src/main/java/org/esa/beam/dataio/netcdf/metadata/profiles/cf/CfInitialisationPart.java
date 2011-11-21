@@ -34,8 +34,8 @@ public class CfInitialisationPart extends ProfileInitPartIO {
         return new Product(
                 (String) ctx.getProperty(Constants.PRODUCT_FILENAME_PROPERTY),
                 readProductType(ctx),
-                ctx.getRasterDigest().getRasterDim().getDimX().getLength(),
-                ctx.getRasterDigest().getRasterDim().getDimY().getLength()
+                ctx.getRasterDigest().getRasterDim().getDimensionX().getLength(),
+                ctx.getRasterDigest().getRasterDim().getDimensionY().getLength()
         );
     }
 

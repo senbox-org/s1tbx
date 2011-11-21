@@ -16,45 +16,53 @@
 
 package org.esa.beam.dataio.netcdf.util;
 
+import com.bc.ceres.core.Assert;
+import ucar.nc2.Dimension;
 import ucar.nc2.Variable;
 
-import java.util.Arrays;
-
 /**
- * Represents a NC dimensions.
+ * Wraps a NetCDF dimension array so that it can be used as key.
  *
+ * @author Norman Fomferra
  * @author Sabine Embacher
  */
-public class Dimension {
+public class DimKey {
 
-    private final static int dimIdxX = 0;
-    private final static int dimIdyY = 1;
-    private final ucar.nc2.Dimension[] dims;
+    private final static int X = 0;
+    private final static int Y = 1;
+    private final Dimension[] dims;
 
-    public Dimension(ucar.nc2.Dimension[] dims) {
-        assert dims != null;
-        assert dims.length >= 1;
-        for (ucar.nc2.Dimension dim : dims) {
-            assert dim != null;
+    public DimKey(Dimension[] dims) {
+        Assert.argument(dims.length >= 1, "dims.length >= 1");
+        for (Dimension dim : dims) {
+            Assert.notNull(dim, "dim");
         }
-        this.dims = new ucar.nc2.Dimension[dims.length];
-        System.arraycopy(dims, 0, this.dims, 0, dims.length);
+        this.dims = dims.clone();
     }
 
-    public ucar.nc2.Dimension getDimX() {
-        return dims[dimIdxX];
+    public int getRank() {
+        return dims.length;
     }
 
-    public ucar.nc2.Dimension getDimY() {
-        return dims[dimIdyY];
+    public Dimension getDimensionX() {
+        return getDimension(X);
+    }
+
+    public Dimension getDimensionY() {
+        return getDimension(Y);
+    }
+
+    public Dimension getDimension(int index) {
+        return dims[index];
     }
 
     public boolean is2D() {
-        return dims.length == 2;
+        return getRank() == 2;
     }
 
     public boolean isTypicalRasterDim() {
         return is2D() && (matchesXYDimNames("lon", "lat") ||
+                          matchesXYDimNames("long", "lat") ||
                           matchesXYDimNames("longitude", "latitude") ||
                           matchesXYDimNames("ni", "nj") ||
                           matchesXYDimNames("x", "y"));
@@ -65,34 +73,32 @@ public class Dimension {
     public boolean fitsTo(final Variable varX, final Variable varY) {
         return varX.getRank() == 1 &&
                varY.getRank() == 1 &&
-               varX.getDimension(0).getLength() == getDimX().getLength() &&
-               varY.getDimension(0).getLength() == getDimY().getLength();
+               varX.getDimension(0).getLength() == getDimensionX().getLength() &&
+               varY.getDimension(0).getLength() == getDimensionY().getLength();
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (obj instanceof Dimension) {
-            final Dimension other = (Dimension) obj;
-            return Arrays.equals(dims, other.dims);
+        if (o == null || getClass() != o.getClass()) {
+            return false;
         }
-        return false;
+        DimKey dimKey = (DimKey) o;
+        return getDimensionY().equals(dimKey.getDimensionY())
+                && getDimensionX().equals(dimKey.getDimensionX());
     }
-
 
     @Override
     public int hashCode() {
-        int hash = 0;
-        for (ucar.nc2.Dimension dim : dims) {
-            hash += dim.hashCode();
-        }
-        return hash;
+        return 31 * getDimensionY().hashCode() + getDimensionX().hashCode();
     }
 
     private boolean matchesXYDimNames(final String xName, final String yName) {
-        return getDimX().getName().equalsIgnoreCase(xName)
-               && getDimY().getName().equalsIgnoreCase(yName);
+        return getDimensionX().getName().equalsIgnoreCase(xName)
+               && getDimensionY().getName().equalsIgnoreCase(yName);
     }
+
+
 }
