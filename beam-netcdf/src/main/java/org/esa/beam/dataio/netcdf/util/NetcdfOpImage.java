@@ -85,13 +85,13 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         }
         final int xIndex = rank - 1;
         final int yIndex = rank - 2;
-        final int tIndex = rank - 3;
+        final int zIndex = rank - 3;
 
         shape[yIndex] = sourceRect.height;
         shape[xIndex] = sourceRect.width;
 
-        if (tIndex >= 0) {
-            origin[tIndex] = zOrigin;
+        if (zIndex >= 0) {
+            origin[zIndex] = zOrigin;
         }
         origin[yIndex] = isYFlipped ? sourceHeight - sourceRect.y - sourceRect.height : sourceRect.y;
         origin[xIndex] = sourceRect.x;
