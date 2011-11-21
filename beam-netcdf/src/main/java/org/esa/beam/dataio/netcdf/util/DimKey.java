@@ -28,16 +28,14 @@ import ucar.nc2.Variable;
  */
 public class DimKey {
 
-    private final static int X = 0;
-    private final static int Y = 1;
     private final Dimension[] dims;
 
-    public DimKey(Dimension[] dims) {
+    public DimKey(Dimension... dims) {
         Assert.argument(dims.length >= 1, "dims.length >= 1");
         for (Dimension dim : dims) {
             Assert.notNull(dim, "dim");
         }
-        this.dims = dims.clone();
+        this.dims = dims;
     }
 
     public int getRank() {
@@ -45,36 +43,32 @@ public class DimKey {
     }
 
     public Dimension getDimensionX() {
-        return getDimension(X);
+        return getDimension(getRank() - 1);
     }
 
     public Dimension getDimensionY() {
-        return getDimension(Y);
+        return getDimension(getRank() - 2);
     }
 
     public Dimension getDimension(int index) {
         return dims[index];
     }
 
-    public boolean is2D() {
-        return getRank() == 2;
-    }
-
     public boolean isTypicalRasterDim() {
-        return is2D() && (matchesXYDimNames("lon", "lat") ||
-                          matchesXYDimNames("long", "lat") ||
-                          matchesXYDimNames("longitude", "latitude") ||
-                          matchesXYDimNames("ni", "nj") ||
-                          matchesXYDimNames("x", "y"));
+        return (matchesXYDimNames("lon", "lat") ||
+                matchesXYDimNames("long", "lat") ||
+                matchesXYDimNames("longitude", "latitude") ||
+                matchesXYDimNames("ni", "nj") ||
+                matchesXYDimNames("x", "y"));
     }
 
     // Move to GeocodingUtils
 
     public boolean fitsTo(final Variable varX, final Variable varY) {
         return varX.getRank() == 1 &&
-               varY.getRank() == 1 &&
-               varX.getDimension(0).getLength() == getDimensionX().getLength() &&
-               varY.getDimension(0).getLength() == getDimensionY().getLength();
+                varY.getRank() == 1 &&
+                varX.getDimension(0).getLength() == getDimensionX().getLength() &&
+                varY.getDimension(0).getLength() == getDimensionY().getLength();
     }
 
     @Override
@@ -97,8 +91,6 @@ public class DimKey {
 
     private boolean matchesXYDimNames(final String xName, final String yName) {
         return getDimensionX().getName().equalsIgnoreCase(xName)
-               && getDimensionY().getName().equalsIgnoreCase(yName);
+                && getDimensionY().getName().equalsIgnoreCase(yName);
     }
-
-
 }
