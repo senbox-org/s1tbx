@@ -38,14 +38,14 @@ public class NetcdfOpImage extends SingleBandedOpImage {
     private final Variable variable;
     private final boolean isYFlipped;
     private final int sourceHeight;
-    private final int tOrigin;
+    private final int zOrigin;
     private final Object readLock;
 
     /**
      * Used to construct an image.
      *
      * @param variable       The netCDF variable
-     * @param tOrigin         The 3rd-dimension index
+     * @param zOrigin         The 3rd-dimension index
      * @param isYFlipped     The {@code true} if this data should be flipped along the yAxis.
      * @param readLock       The the lock used for reading, usually the netcdf file that contains the variable
      * @param dataBufferType The data type.
@@ -54,12 +54,12 @@ public class NetcdfOpImage extends SingleBandedOpImage {
      * @param tileSize       The tile size for this image.
      * @param level          The resolution level.
      */
-    public NetcdfOpImage(Variable variable, int tOrigin, boolean isYFlipped, Object readLock, int dataBufferType,
+    public NetcdfOpImage(Variable variable, int zOrigin, boolean isYFlipped, Object readLock, int dataBufferType,
                          int sourceWidth, int sourceHeight,
                          Dimension tileSize, ResolutionLevel level) {
         super(dataBufferType, sourceWidth, sourceHeight, tileSize, null, level);
         this.variable = variable;
-        this.tOrigin = tOrigin;
+        this.zOrigin = zOrigin;
         this.readLock = readLock;
         this.isYFlipped = isYFlipped;
         this.sourceHeight = sourceHeight;
@@ -91,7 +91,7 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         shape[xIndex] = sourceRect.width;
 
         if (tIndex >= 0) {
-            origin[tIndex] = tOrigin;
+            origin[tIndex] = zOrigin;
         }
         origin[yIndex] = isYFlipped ? sourceHeight - sourceRect.y - sourceRect.height : sourceRect.y;
         origin[xIndex] = sourceRect.x;

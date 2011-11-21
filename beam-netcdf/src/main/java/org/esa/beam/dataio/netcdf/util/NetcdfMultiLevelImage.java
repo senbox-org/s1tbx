@@ -30,7 +30,7 @@ import java.awt.image.RenderedImage;
 public class NetcdfMultiLevelImage extends AbstractNetcdfMultiLevelImage {
 
     private final Variable variable;
-    private final int tOrigin;
+    private final int zOrigin;
     private final ProfileReadContext ctx;
 
     /**
@@ -49,13 +49,13 @@ public class NetcdfMultiLevelImage extends AbstractNetcdfMultiLevelImage {
      *
      * @param rdn the raster data node
      * @param variable the netcdf variable
-     * @param tOrigin the 3rd-dimension index
+     * @param zOrigin the 3rd-dimension index
      * @param ctx the context
      */
-    public NetcdfMultiLevelImage(RasterDataNode rdn, Variable variable, int tOrigin, ProfileReadContext ctx) {
+    public NetcdfMultiLevelImage(RasterDataNode rdn, Variable variable, int zOrigin, ProfileReadContext ctx) {
         super(rdn);
         this.variable = variable;
-        this.tOrigin = tOrigin;
+        this.zOrigin = zOrigin;
         this.ctx = ctx;
     }
 
@@ -71,7 +71,7 @@ public class NetcdfMultiLevelImage extends AbstractNetcdfMultiLevelImage {
         ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), level);
         Dimension tileSize = getPreferredTileSize(rdn);
 
-        return new NetcdfOpImage(variable, tOrigin, isYFlipped, lock,
+        return new NetcdfOpImage(variable, zOrigin, isYFlipped, lock,
                 dataBufferType, sceneRasterWidth, sceneRasterHeight,tileSize, resolutionLevel);
     }
 }
