@@ -16,14 +16,12 @@
 
 package com.bc.ceres.swing.binding;
 
-import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.TableLayout;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * A utility class used to create a {@link JPanel} containing default Swing components and their corresponding bindings for the
@@ -31,6 +29,9 @@ import javax.swing.JPanel;
  * <p/>
  * <p>If the {@code displayName} property of the binding's {@link com.bc.ceres.binding.PropertySet PropertySet}
  * is set, it will be used as label, otherwise a label is derived from the {@code name} property.</p>
+ * <p/>
+ * <p>Properties, whose attribute "enabled" is set to {@code false}, will be shown in disabled state.
+ * Properties, whose attribute "visible" is set to {@code false}, will not be shown at all.</p>
  */
 public class PropertyPane {
 
@@ -50,9 +51,9 @@ public class PropertyPane {
 
     public JPanel createPanel() {
         PropertySet propertyContainer = bindingContext.getPropertySet();
-        Property[] models = propertyContainer.getProperties();
+        Property[] properties = propertyContainer.getProperties();
 
-        boolean displayUnitColumn = wantDisplayUnitColumn(models);
+        boolean displayUnitColumn = wantDisplayUnitColumn(properties);
         TableLayout layout = new TableLayout(displayUnitColumn ? 3 : 2);
         layout.setTableAnchor(TableLayout.Anchor.WEST);
         layout.setTableFill(TableLayout.Fill.HORIZONTAL);
@@ -61,8 +62,11 @@ public class PropertyPane {
 
         int rowIndex = 0;
         final PropertyEditorRegistry registry = PropertyEditorRegistry.getInstance();
-        for (Property model : models) {
-            PropertyDescriptor descriptor = model.getDescriptor();
+        for (Property property : properties) {
+            PropertyDescriptor descriptor = property.getDescriptor();
+            if (Boolean.FALSE.equals(descriptor.getAttribute("visible"))) {
+                continue;
+            }
             PropertyEditor propertyEditor = registry.findPropertyEditor(descriptor);
             JComponent[] components = propertyEditor.createComponents(descriptor, bindingContext);
             if (components.length == 2) {
@@ -75,7 +79,7 @@ public class PropertyPane {
                 layout.setCellWeightX(rowIndex, 0, 1.0);
                 panel.add(components[0], new TableLayout.Cell(rowIndex, 0));
             }
-            if(displayUnitColumn) {
+            if (displayUnitColumn) {
                 final JLabel label = new JLabel("");
                 if (descriptor.getUnit() != null) {
                     label.setText(descriptor.getUnit());
