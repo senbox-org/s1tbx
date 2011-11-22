@@ -50,9 +50,11 @@ public class CfBandPart extends ProfilePartIO {
                 readCfBandAttributes(variable, band);
                 band.setSourceImage(new NetcdfMultiLevelImage(band, variable, ctx));
             } else if (rank == 3) {
-                bandNames.add(variable.getName());
                 Dimension zDim = dimensions.get(rank - 3);
                 int zDimLength = zDim.getLength();
+                if (zDimLength > 1) {
+                    bandNames.add(variable.getName());
+                }
                 for (int z = 0; z < zDimLength; z++) {
                     String zName = zDim.getName();
                     String skipPrefix = "n_";
@@ -60,7 +62,12 @@ public class CfBandPart extends ProfilePartIO {
                             && zName.length() > skipPrefix.length()) {
                         zName = zName.substring(skipPrefix.length());
                     }
-                    String bandName = String.format("%s_%s%d", variable.getName(), zName, (z + 1));
+                    String bandName;
+                    if (zDimLength > 1) {
+                        bandName = String.format("%s_%s%d", variable.getName(), zName, (z + 1));
+                    } else {
+                        bandName = variable.getName();
+                    }
                     Band band = p.addBand(bandName, rasterDataType);
                     readCfBandAttributes(variable, band);
                     band.setSourceImage(new NetcdfMultiLevelImage(band, variable, z, ctx));
