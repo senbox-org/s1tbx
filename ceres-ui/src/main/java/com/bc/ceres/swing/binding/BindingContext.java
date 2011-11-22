@@ -437,12 +437,13 @@ public class BindingContext {
     private void configureComponents(Binding binding) {
         final String propertyName = binding.getPropertyName();
         final String toolTipTextStr = getToolTipText(propertyName);
+        final boolean enabled = isEnabled(propertyName);
         final JComponent[] components = binding.getComponents();
         JComponent primaryComponent = components[0];
-        configureComponent(primaryComponent, propertyName, toolTipTextStr);
+        configureComponent(primaryComponent, propertyName, toolTipTextStr, enabled);
         for (int i = 1; i < components.length; i++) {
             JComponent component = components[i];
-            configureComponent(component, propertyName + "." + i, toolTipTextStr);
+            configureComponent(component, propertyName + "." + i, toolTipTextStr, enabled);
         }
     }
 
@@ -461,13 +462,21 @@ public class BindingContext {
         return toolTipText.toString();
     }
 
-    private static void configureComponent(JComponent component, String name, String toolTipText) {
+    private boolean isEnabled(String propertyName) {
+        final Property property = propertySet.getProperty(propertyName);
+        final PropertyDescriptor propertyDescriptor = property.getDescriptor();
+        final Object enabled = propertyDescriptor.getAttribute("enabled");
+        return enabled == null || !Boolean.FALSE.equals(enabled);
+    }
+
+    private static void configureComponent(JComponent component, String name, String toolTipText, boolean enabled) {
         if (component.getName() == null) {
             component.setName(name);
         }
         if (component.getToolTipText() == null && !toolTipText.isEmpty()) {
             component.setToolTipText(toolTipText);
         }
+        component.setEnabled(enabled);
     }
 
     /**
