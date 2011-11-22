@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 
 import java.awt.*;
@@ -61,10 +60,6 @@ public class PlacemarkDialogTest extends TestCase {
             assertEquals(2.3F, pixelPos.x, 1e-6F);
             assertEquals(14.1F, pixelPos.y, 1e-6F);
 
-            assertNotNull(pinDialog.getPlacemarkSymbol());
-            final PlacemarkSymbol defaultPlacemarkSymbol = PlacemarkSymbol.createDefaultPinSymbol();
-            pinDialog.setPlacemarkSymbol(defaultPlacemarkSymbol);
-            assertSame(defaultPlacemarkSymbol, pinDialog.getPlacemarkSymbol());
         } catch (HeadlessException e) {
             System.out.println("A " + PlacemarkDialogTest.class + " test has not been performed: HeadlessException");
         }

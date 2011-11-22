@@ -15,18 +15,20 @@
  */
 package org.esa.beam.visat.toolviews.placemark;
 
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.PropertyPane;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.param.ParamChangeEvent;
-import org.esa.beam.framework.param.ParamChangeListener;
-import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.Guardian;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
-import javax.swing.*;
-import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * A dialog used to create new placemarks or edit existing placemarks.
@@ -34,42 +36,93 @@ import java.awt.geom.Rectangle2D;
 public class PlacemarkDialog extends ModalDialog {
 
     private final Product product;
-    // todo - use ceres-binding
-    private Parameter paramName;
-    private Parameter paramLabel;
-    private Parameter paramUsePixelPos;
-    private Parameter paramLat;
-    private Parameter paramLon;
-    private Parameter paramPixelX;
-    private Parameter paramPixelY;
-    private Parameter paramDescription;
-    @Deprecated
-    private PlacemarkSymbol symbol;
-    private JLabel symbolLabel;
-    private Parameter paramColorOutline;
-    private Parameter paramColorFill;
-    private boolean canGetPixelPos;
-    private boolean canGetGeoPos;
-    private boolean adjusting;
-    private boolean symbolChanged;
-    private PlacemarkDescriptor placemarkDescriptor;
-    private boolean simultaneousEditingAllowed;
-    private String styleCss;
+    private final boolean canGetPixelPos;
+    private final boolean canGetGeoPos;
+    private final PlacemarkDescriptor placemarkDescriptor;
+    private final BindingContext bindingContext;
 
+    private boolean adjusting;
 
     public PlacemarkDialog(final Window parent, final Product product, final PlacemarkDescriptor placemarkDescriptor,
-                           boolean simultaneousEditingAllowed) {
+                           boolean geoAndPixelPositionsEditable) {
         super(parent, "New " + placemarkDescriptor.getRoleLabel(), ModalDialog.ID_OK_CANCEL, null); /*I18N*/
         Guardian.assertNotNull("product", product);
         this.product = product;
         this.placemarkDescriptor = placemarkDescriptor;
-        this.simultaneousEditingAllowed = simultaneousEditingAllowed;
-        initParameter();
-        creatUI();
-    }
+        bindingContext = new BindingContext();
+        GeoCoding geoCoding = this.product.getGeoCoding();
+        boolean hasGeoCoding = geoCoding != null;
+        canGetPixelPos = hasGeoCoding && geoCoding.canGetPixelPos();
+        canGetGeoPos = hasGeoCoding && geoCoding.canGetGeoPos();
+        boolean usePixelPos = false;
 
-    public boolean isSimultaneousEditingAllowed() {
-        return simultaneousEditingAllowed;
+        PropertySet propertySet = bindingContext.getPropertySet();
+        propertySet.addProperties(Property.create("name", ""),
+                                  Property.create("label", ""),
+                                  Property.create("description", ""),
+                                  Property.create("styleCss", ""),
+                                  Property.create("lat", 0.0F),
+                                  Property.create("lon", 0.0F),
+                                  Property.create("pixelX", 0.0F),
+                                  Property.create("pixelY", 0.0F),
+                                  Property.create("usePixelPos", usePixelPos)
+        );
+        propertySet.getProperty("usePixelPos").getDescriptor().setAttribute("enabled", hasGeoCoding && geoAndPixelPositionsEditable);
+        propertySet.getProperty("lat").getDescriptor().setDisplayName("Latitude");
+        propertySet.getProperty("lat").getDescriptor().setUnit("deg");
+        propertySet.getProperty("lon").getDescriptor().setDisplayName("Longitude");
+        propertySet.getProperty("lon").getDescriptor().setUnit("deg");
+        propertySet.getProperty("pixelX").getDescriptor().setDisplayName("Pixel X");
+        propertySet.getProperty("pixelX").getDescriptor().setUnit("pixels");
+        propertySet.getProperty("pixelY").getDescriptor().setDisplayName("Pixel Y");
+        propertySet.getProperty("pixelY").getDescriptor().setUnit("pixels");
+
+
+        PropertyChangeListener geoChangeListener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                updatePixelPos();
+            }
+        };
+
+        propertySet.getProperty("lat").addPropertyChangeListener(geoChangeListener);
+        propertySet.getProperty("lon").addPropertyChangeListener(geoChangeListener);
+
+        PropertyChangeListener pixelChangeListener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                updateGeoPos();
+            }
+        };
+
+        propertySet.getProperty("pixelX").addPropertyChangeListener(pixelChangeListener);
+        propertySet.getProperty("pixelY").addPropertyChangeListener(pixelChangeListener);
+
+        /*
+                symbolLabel = new JLabel() {
+                    @Override
+                    protected void paintComponent(Graphics g) {
+                        super.paintComponent(g);
+                        if (g instanceof Graphics2D) {
+                            Graphics2D g2d = (Graphics2D) g;
+                            final PixelPos refPoint = symbol.getRefPoint();
+                            Rectangle2D bounds = symbol.getBounds();
+                            double tx = refPoint.getX() - bounds.getX() / 2;
+                            double ty = refPoint.getY() - bounds.getY() / 2;
+                            g2d.translate(tx, ty);
+                            symbol.draw(g2d);
+                            g2d.translate(-tx, -ty);
+                        }
+                    }
+                };
+                symbolLabel.setPreferredSize(new Dimension(40, 40));
+        */
+
+        setContent(new PropertyPane(bindingContext).createPanel());
+        bindingContext.bindEnabledState("lat", false, "usePixelPos", true);
+        bindingContext.bindEnabledState("lon", false, "usePixelPos", true);
+        bindingContext.bindEnabledState("pixelX", true, "usePixelPos", true);
+        bindingContext.bindEnabledState("pixelY", true, "usePixelPos", true);
     }
 
     public Product getProduct() {
@@ -79,69 +132,74 @@ public class PlacemarkDialog extends ModalDialog {
     @Override
     protected void onOK() {
         if (ProductNode.isValidNodeName(getName())) {
-            if (symbolChanged) {
-                // Create new symbol instance so an event is fired by placemark when new symbol is set.
-                updateSymbolInstance();
-            }
             super.onOK();
         } else {
             showInformationDialog("'" + getName() + "' is not a valid " + placemarkDescriptor.getRoleLabel() + " name."); /*I18N*/
         }
     }
 
-    private void updateSymbolInstance() {
-        PlacemarkSymbol symbol = PlacemarkSymbol.createDefaultPinSymbol();
-        symbol.setOutlineColor(this.symbol.getOutlineColor());
-        symbol.setOutlineStroke(this.symbol.getOutlineStroke());
-        symbol.setFillPaint(this.symbol.getFillPaint());
-        symbol.setFilled(this.symbol.isFilled());
-        this.symbol = symbol;
-    }
-
     public String getName() {
-        return paramName.getValueAsText();
+        return bindingContext.getPropertySet().getValue("name");
     }
 
     public void setName(String name) {
-        paramName.setValueAsText(name, null);
+        bindingContext.getPropertySet().setValue("name", name);
     }
 
     public String getLabel() {
-        return paramLabel.getValueAsText();
+        return bindingContext.getPropertySet().getValue("label");
     }
 
     public void setLabel(String label) {
-        paramLabel.setValueAsText(label, null);
+        bindingContext.getPropertySet().setValue("label", label);
     }
 
-    public boolean isUsePixelPos() {
-        return (Boolean) paramUsePixelPos.getValue();
+    public String getDescription() {
+        return bindingContext.getPropertySet().getValue("description");
     }
 
-    /**
-     * Sets whether or not to use the pixel co-ordinates instead of geographic co-ordinates. Has no effect if the
-     * current product is null.
-     *
-     * @param usePixelPos whether or not to use the pixel co-ordinates instead of geographic co-ordinates
-     */
-    public void setUsePixelPos(boolean usePixelPos) {
-        paramUsePixelPos.setValue(usePixelPos, null);
+    public void setDescription(String description) {
+        bindingContext.getPropertySet().setValue("description", description);
+    }
+
+    public String getStyleCss() {
+        return bindingContext.getPropertySet().getValue("styleCss");
+    }
+
+    private void setStyleCss(String styleCss) {
+        bindingContext.getPropertySet().setValue("styleCss", styleCss);
+    }
+
+    public float getPixelX() {
+        return (Float) bindingContext.getPropertySet().getValue("pixelX");
+    }
+
+    public void setPixelX(float pixelX) {
+        bindingContext.getPropertySet().setValue("pixelX", pixelX);
+    }
+
+    public float getPixelY() {
+        return (Float) bindingContext.getPropertySet().getValue("pixelY");
+    }
+
+    public void setPixelY(float pixelY) {
+        bindingContext.getPropertySet().setValue("pixelY", pixelY);
     }
 
     public float getLat() {
-        return (Float) paramLat.getValue();
+        return (Float) bindingContext.getPropertySet().getValue("lat");
     }
 
     public void setLat(float lat) {
-        paramLat.setValue(lat, null);
+        bindingContext.getPropertySet().setValue("lat", lat);
     }
 
     public float getLon() {
-        return (Float) paramLon.getValue();
+        return (Float) bindingContext.getPropertySet().getValue("lon");
     }
 
     public void setLon(float lon) {
-        paramLon.setValue(lon, null);
+        bindingContext.getPropertySet().setValue("lon", lon);
     }
 
     public GeoPos getGeoPos() {
@@ -153,8 +211,8 @@ public class PlacemarkDialog extends ModalDialog {
             setLat(geoPos.lat);
             setLon(geoPos.lon);
         } else {
-            setLat(0.0f);
-            setLon(0.0f);
+            setLat(0.0F);
+            setLon(0.0F);
         }
     }
 
@@ -172,269 +230,6 @@ public class PlacemarkDialog extends ModalDialog {
         }
     }
 
-    public float getPixelX() {
-        return (Float) paramPixelX.getValue();
-    }
-
-    public void setPixelX(float pixelX) {
-        paramPixelX.setValue(pixelX, null);
-    }
-
-    public float getPixelY() {
-        return (Float) paramPixelY.getValue();
-    }
-
-    public void setPixelY(float pixelY) {
-        paramPixelY.setValue(pixelY, null);
-    }
-
-    public String getDescription() {
-        return paramDescription.getValueAsText();
-    }
-
-    public void setDescription(String description) {
-        paramDescription.setValueAsText(description, null);
-    }
-
-    public PlacemarkSymbol getPlacemarkSymbol() {
-        return symbol;
-    }
-
-    public void setPlacemarkSymbol(PlacemarkSymbol symbol) {
-        Color fillColor = (Color) symbol.getFillPaint();
-        Color outlineColor = symbol.getOutlineColor();
-        paramColorFill.setValue(fillColor, null);
-        paramColorOutline.setValue(outlineColor, null);
-        this.symbol = symbol;
-    }
-
-    public String getStyleCss() {
-        return styleCss;
-    }
-
-    private void setStyleCss(String styleCss) {
-        this.styleCss = styleCss;
-    }
-
-    private void initParameter() {
-        GeoCoding geoCoding = product.getGeoCoding();
-        boolean hasGeoCoding = geoCoding != null;
-        canGetPixelPos = hasGeoCoding && geoCoding.canGetPixelPos();
-        canGetGeoPos = hasGeoCoding && geoCoding.canGetGeoPos();
-
-        paramName = new Parameter("paramName", "");
-        paramName.getProperties().setLabel("Name");/*I18N*/
-
-        paramLabel = new Parameter("paramLabel", "");
-        paramLabel.getProperties().setLabel("Label");/*I18N*/
-
-        boolean usePixelPos = !hasGeoCoding;
-        paramUsePixelPos = new Parameter("paramUsePixelPos", usePixelPos);
-        paramUsePixelPos.getProperties().setLabel("Use pixel position");/*I18N*/
-        paramUsePixelPos.setUIEnabled(canGetPixelPos || canGetGeoPos);
-        paramUsePixelPos.addParamChangeListener(new ParamChangeListener() {
-            @Override
-            public void parameterValueChanged(ParamChangeEvent event) {
-                if (isSimultaneousEditingAllowed()) {
-                    boolean value = isUsePixelPos();
-                    paramLat.setUIEnabled(!value);
-                    paramLon.setUIEnabled(!value);
-                    paramPixelX.setUIEnabled(value);
-                    paramPixelY.setUIEnabled(value);
-                }
-            }
-        });
-
-        ParamChangeListener geoChangeListener = new ParamChangeListener() {
-            @Override
-            public void parameterValueChanged(ParamChangeEvent event) {
-                updatePixelPos();
-            }
-        };
-
-        paramLat = new Parameter("paramLat", 0.0f);
-        paramLat.getProperties().setLabel("Lat");/*I18N*/
-        paramLat.getProperties().setPhysicalUnit("deg"); /*I18N*/
-        paramLat.setUIEnabled(!usePixelPos || !isSimultaneousEditingAllowed());
-        paramLat.addParamChangeListener(geoChangeListener);
-
-        paramLon = new Parameter("paramLon", 0.0f);
-        paramLon.getProperties().setLabel("Lon");/*I18N*/
-        paramLon.getProperties().setPhysicalUnit("deg");/*I18N*/
-        paramLon.setUIEnabled(!usePixelPos || !isSimultaneousEditingAllowed());
-        paramLon.addParamChangeListener(geoChangeListener);
-
-        ParamChangeListener pixelChangeListener = new ParamChangeListener() {
-            @Override
-            public void parameterValueChanged(ParamChangeEvent event) {
-                updateGeoPos();
-            }
-        };
-
-        paramPixelX = new Parameter("paramPixelX", 0.0F);
-        paramPixelX.getProperties().setLabel("Pixel X");
-        paramPixelX.setUIEnabled(usePixelPos || !isSimultaneousEditingAllowed());
-        paramPixelX.addParamChangeListener(pixelChangeListener);
-
-        paramPixelY = new Parameter("paramPixelY", 0.0F);
-        paramPixelY.getProperties().setLabel("Pixel Y");
-        paramPixelY.setUIEnabled(usePixelPos || !isSimultaneousEditingAllowed());
-        paramPixelY.addParamChangeListener(pixelChangeListener);
-
-        paramDescription = new Parameter("paramDesc", "");
-        paramDescription.getProperties().setLabel("Description"); /*I18N*/
-        paramDescription.getProperties().setNumRows(3);
-
-        // todo - rewrite following code for the new styleCss property
-        if (symbol == null) {
-            symbol = placemarkDescriptor.createDefaultSymbol();
-        }
-
-        ParamChangeListener colorChangelistener = new ParamChangeListener() {
-            @Override
-            public void parameterValueChanged(ParamChangeEvent event) {
-                symbol.setFillPaint((Paint) paramColorFill.getValue());
-                symbol.setOutlineColor((Color) paramColorOutline.getValue());
-                symbolLabel.repaint();
-                symbolChanged = true;
-            }
-        };
-
-        paramColorOutline = new Parameter("outlineColor", symbol.getOutlineColor());
-        paramColorOutline.getProperties().setLabel("Outline colour");
-        paramColorOutline.getProperties().setNullValueAllowed(true);
-        paramColorOutline.addParamChangeListener(colorChangelistener);
-        paramColorOutline.setUIEnabled(symbol.getIcon() == null);
-
-        paramColorFill = new Parameter("fillColor", symbol.getFillPaint());
-        paramColorFill.getProperties().setLabel("Fill colour");
-        paramColorFill.getProperties().setNullValueAllowed(true);
-        paramColorFill.addParamChangeListener(colorChangelistener);
-        paramColorFill.setUIEnabled(symbol.getIcon() == null);
-    }
-
-    private void creatUI() {
-
-        symbolLabel = new JLabel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (g instanceof Graphics2D) {
-                    Graphics2D g2d = (Graphics2D) g;
-                    final PixelPos refPoint = symbol.getRefPoint();
-                    Rectangle2D bounds = symbol.getBounds();
-                    double tx = refPoint.getX() - bounds.getX() / 2;
-                    double ty = refPoint.getY() - bounds.getY() / 2;
-                    g2d.translate(tx, ty);
-                    symbol.draw(g2d);
-                    g2d.translate(-tx, -ty);
-                }
-            }
-        };
-        symbolLabel.setPreferredSize(new Dimension(40, 40));
-
-        JPanel dialogPane = GridBagUtils.createPanel();
-        final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
-        gbc.insets.top = 3;
-
-        gbc.gridy++;
-        gbc.gridwidth = 1;
-        GridBagUtils.addToPanel(dialogPane, paramName.getEditor().getLabelComponent(), gbc);
-        gbc.gridwidth = 4;
-        GridBagUtils.addToPanel(dialogPane, paramName.getEditor().getComponent(), gbc,
-                                "weightx=1, fill=HORIZONTAL");
-        gbc.gridy++;
-        gbc.gridwidth = 1;
-        GridBagUtils.addToPanel(dialogPane, paramLabel.getEditor().getLabelComponent(), gbc);
-        gbc.gridwidth = 4;
-        GridBagUtils.addToPanel(dialogPane, paramLabel.getEditor().getComponent(), gbc,
-                                "weightx=1, fill=HORIZONTAL");
-        if (isSimultaneousEditingAllowed()) {
-            gbc.gridwidth = 5;
-            gbc.gridy++;
-            GridBagUtils.addToPanel(dialogPane, paramUsePixelPos.getEditor().getComponent(), gbc);
-        }
-
-        gbc.gridy++;
-        GridBagUtils.addToPanel(dialogPane, paramPixelX.getEditor().getLabelComponent(), gbc,
-                                "weightx=0, gridwidth=1");
-        final int space = 30;
-        gbc.insets.right -= 2;
-        GridBagUtils.addToPanel(dialogPane, paramPixelX.getEditor().getComponent(), gbc, "weightx=1");
-        gbc.insets.right += 2;
-        gbc.insets.left -= 2;
-        GridBagUtils.addToPanel(dialogPane, new JLabel(""), gbc, "weightx=0");
-        gbc.insets.left += 2;
-        gbc.insets.left += space;
-        GridBagUtils.addToPanel(dialogPane, paramLon.getEditor().getLabelComponent(), gbc, "weightx=0");
-        gbc.insets.left -= space;
-        GridBagUtils.addToPanel(dialogPane, paramLon.getEditor().getComponent(), gbc, "weightx=1");
-        GridBagUtils.addToPanel(dialogPane, paramLon.getEditor().getPhysUnitLabelComponent(), gbc, "weightx=0");
-
-        gbc.gridy++;
-        GridBagUtils.addToPanel(dialogPane, paramPixelY.getEditor().getLabelComponent(), gbc);
-        gbc.insets.right -= 2;
-        GridBagUtils.addToPanel(dialogPane, paramPixelY.getEditor().getComponent(), gbc, "weightx=1");
-        gbc.insets.right += 2;
-        gbc.insets.left -= 2;
-        GridBagUtils.addToPanel(dialogPane, new JLabel(""), gbc, "weightx=0");
-        gbc.insets.left += 2;
-        gbc.insets.left += space;
-        GridBagUtils.addToPanel(dialogPane, paramLat.getEditor().getLabelComponent(), gbc, "weightx=0");
-        gbc.insets.left -= space;
-        GridBagUtils.addToPanel(dialogPane, paramLat.getEditor().getComponent(), gbc, "weightx=1");
-        GridBagUtils.addToPanel(dialogPane, paramLat.getEditor().getPhysUnitLabelComponent(), gbc, "weightx=0");
-
-
-        final int symbolSpace = 10;
-
-        gbc.gridy++;
-        gbc.insets.top += symbolSpace;
-        GridBagUtils.addToPanel(dialogPane, createSymbolPane(), gbc, "fill=NONE, gridwidth=5, weightx=0");
-
-        gbc.gridy++;
-        GridBagUtils.addToPanel(dialogPane, paramDescription.getEditor().getLabelComponent(), gbc, "fill=BOTH");
-        gbc.insets.top -= symbolSpace;
-        gbc.gridy++;
-        GridBagUtils.addToPanel(dialogPane, paramDescription.getEditor().getComponent(), gbc, "weighty=1");
-
-        setContent(dialogPane);
-
-        final JComponent editorComponent = paramName.getEditor().getEditorComponent();
-        if (editorComponent instanceof JTextComponent) {
-            JTextComponent tc = (JTextComponent) editorComponent;
-            tc.selectAll();
-        }
-    }
-
-    private JPanel createSymbolPane() {
-        final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
-        gbc.insets.top = 3;
-        final JPanel symbolPanel = GridBagUtils.createPanel();
-
-        gbc.gridheight = 1;
-
-        gbc.gridy = 0;
-        gbc.gridx = 0;
-        symbolPanel.add(paramColorFill.getEditor().getLabelComponent(), gbc);
-        gbc.gridx = 1;
-        symbolPanel.add(paramColorFill.getEditor().getComponent(), gbc);
-
-        gbc.gridy = 1;
-        gbc.gridx = 0;
-        symbolPanel.add(paramColorOutline.getEditor().getLabelComponent(), gbc);
-        gbc.gridx = 1;
-        symbolPanel.add(paramColorOutline.getEditor().getComponent(), gbc);
-
-        gbc.gridy = 0;
-        gbc.gridx = 2;
-        gbc.gridheight = 2;
-        gbc.insets.left = 10;
-        symbolPanel.add(symbolLabel, gbc);
-        gbc.insets.left = 0;
-
-        return symbolPanel;
-    }
 
     private void updatePixelPos() {
         if (canGetPixelPos && !adjusting) {
@@ -493,7 +288,6 @@ public class PlacemarkDialog extends ModalDialog {
         dialog.setPixelPos(placemark.getPixelPos());
         dialog.setGeoPos(placemark.getGeoPos());
         dialog.adjusting = false;
-        dialog.setPlacemarkSymbol(placemark.getSymbol());
         dialog.setStyleCss(placemark.getStyleCss());
         boolean ok = (dialog.show() == ID_OK);
         if (ok) {
@@ -506,11 +300,19 @@ public class PlacemarkDialog extends ModalDialog {
             placemark.setDescription(dialog.getDescription());
             placemark.setGeoPos(dialog.getGeoPos());
             placemark.setPixelPos(dialog.getPixelPos());
-            placemark.setSymbol(dialog.getPlacemarkSymbol());
             placemark.setStyleCss(dialog.getStyleCss());
 
         }
         return ok;
     }
 
+
+    public static void main(String[] args) throws TransformException, FactoryException {
+        Product product1 = new Product("A", "B", 360, 180);
+        product1.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 360, 180, -180.0, 90.0, 1.0, 1.0, 0.0, 0.0));
+        PinDescriptor descriptor = PinDescriptor.getInstance();
+        Placemark pin1 = Placemark.createPointPlacemark(descriptor, "pin_1", "Pin 1", "Schnatter!", new PixelPos(0, 0), new GeoPos(), product1.getGeoCoding());
+        product1.getPinGroup().add(pin1);
+        showEditPlacemarkDialog(null, product1, pin1, descriptor);
+    }
 }
