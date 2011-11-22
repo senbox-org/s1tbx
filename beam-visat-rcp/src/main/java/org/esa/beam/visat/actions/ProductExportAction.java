@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,11 +22,11 @@ import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.help.HelpSys;
+import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductFileChooser;
-import org.esa.beam.framework.ui.BasicApp;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.visat.VisatApp;
@@ -190,21 +190,18 @@ public class ProductExportAction extends ExecCommand {
         if (!getVisatApp().promptForOverwrite(selectedFile)) {
             return;
         }
-        final ProductSubsetDef productSubsetDef;
-        if (fileChooser.getProductSubsetDef() != null) {
-            productSubsetDef = fileChooser.getProductSubsetDef();
-        } else {
-            productSubsetDef = new ProductSubsetDef();
-            productSubsetDef.setSubsetName(selectedFile.getName());
+
+        final ProductSubsetDef productSubsetDef = fileChooser.getProductSubsetDef();
+        if (productSubsetDef != null) {
+            final String subsetName = productSubsetDef.getSubsetName();
+            try {
+                product = ProductSubsetBuilder.createProductSubset(product, productSubsetDef, subsetName, null);
+            } catch (IOException e) {
+                final String message = "An I/O error occurred while creating the product subset:\n" + e.getMessage();
+                getVisatApp().showErrorDialog(message);
+            }
         }
-        final String subsetName = productSubsetDef.getSubsetName();
-        try {
-            product = ProductSubsetBuilder.createProductSubset(product, productSubsetDef, subsetName, null);
-        } catch (IOException e) {
-            getVisatApp().showErrorDialog("An I/O error occured while creating the product subset:\n" + e.getMessage());
-        } finally {
-            // finally implementieren?
-        }
+
         getVisatApp().writeProduct(product, selectedFile, getFormatName());
     }
 
@@ -237,6 +234,5 @@ public class ProductExportAction extends ExecCommand {
     private static VisatApp getVisatApp() {
         return VisatApp.getApp();
     }
-
 
 }

@@ -430,8 +430,8 @@ public abstract class ProductFile {
     public abstract float getTiePointSubSamplingY(int gridWidth);
 
     /**
-     * Determines whether the pixels of a the scan lines in this product data file are stored in chronolgical order have
-     * to be flipped before they apear in "natural" way such that the first pixel of the first line is the most
+     * Determines whether the pixels of a the scan lines in this product data file are stored in chronological order have
+     * to be flipped before they appear in "natural" way such that the first pixel of the first line is the most
      * north-west pixel.
      * @return true, if so
      */

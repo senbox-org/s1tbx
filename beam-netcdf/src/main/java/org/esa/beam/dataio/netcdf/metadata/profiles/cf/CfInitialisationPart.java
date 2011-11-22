@@ -34,15 +34,15 @@ public class CfInitialisationPart extends ProfileInitPartIO {
         return new Product(
                 (String) ctx.getProperty(Constants.PRODUCT_FILENAME_PROPERTY),
                 readProductType(ctx),
-                ctx.getRasterDigest().getRasterDim().getDimX().getLength(),
-                ctx.getRasterDigest().getRasterDim().getDimY().getLength()
+                ctx.getRasterDigest().getRasterDim().getDimensionX().getLength(),
+                ctx.getRasterDigest().getRasterDim().getDimensionY().getLength()
         );
     }
 
     @Override
     public void writeProductBody(ProfileWriteContext ctx, Product product) throws IOException {
         NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
-        writeable.addAttribute(null, new Attribute("Conventions", "CF-1.4"));
+        writeable.addGlobalAttribute(new Attribute("Conventions", "CF-1.4"));
         if (CfGeocodingPart.isGeographicCRS(product.getGeoCoding())) {
             writeDimensions(writeable, product, "lat", "lon");
         } else {

@@ -19,7 +19,7 @@ import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.util.Dimension;
+import org.esa.beam.dataio.netcdf.util.DimKey;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
@@ -198,7 +198,7 @@ public class CfGeocodingPart extends ProfilePartIO {
         if (lonLat != null) {
             final Variable lonVariable = lonLat[0];
             final Variable latVariable = lonLat[1];
-            final Dimension rasterDim = ctx.getRasterDigest().getRasterDim();
+            final DimKey rasterDim = ctx.getRasterDigest().getRasterDim();
             if (rasterDim.fitsTo(lonVariable, latVariable)) {
                 try {
                     return createConventionBasedMapGeoCoding(lonVariable, latVariable,

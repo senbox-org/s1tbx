@@ -69,7 +69,7 @@ public class VectorDataCollectionLayer extends CollectionLayer {
     }
 
     private Layer createLayer(final VectorDataNode vectorDataNode) {
-        final Layer layer = VectorDataLayerType.createLayer(vectorDataNode);
+        final Layer layer = VectorDataLayerType.createLayer(null, vectorDataNode);
         layer.setVisible(false);
         return layer;
     }

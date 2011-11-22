@@ -576,8 +576,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                     if (y0 > 0 && pixelPos.y - y0 < 0.5f || y0 == rasterHeight - 1) {
                         y0 -= 1;
                     }
-                    final int x1 = x0 + 1;
-                    final int y1 = y0 + 1;
                     final float wx = pixelPos.x - (x0 + 0.5f);
                     final float wy = pixelPos.y - (y0 + 0.5f);
                     final Raster latLonData = latLonImage.getData(new Rectangle(x0, y0, 2, 2));
@@ -842,9 +840,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         try {
             mY = decomp.solve(mB);
         } catch (Exception e) {
-            System.out.println("y1 = " + ya[0] + ", " +
-                               "y2 = " + ya[1] + ", " +
-                               "y3 = " + ya[2] + "");
+            System.out.printf("y1 = %d, y2 = %d, y3 = %d%n", ya[0], ya[1], ya[2]);
             err = e;
 
         }
@@ -856,9 +852,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         try {
             mX = decomp.solve(mB);
         } catch (Exception e) {
-            System.out.println("x1 = " + xa[0] + ", " +
-                               "x2 = " + xa[1] + ", " +
-                               "x3 = " + xa[2] + "\n");
+            System.out.printf("x1 = %d, x2 = %d, x3 = %d%n", xa[0], xa[1], xa[2]);
             err = e;
         }
 
@@ -1013,6 +1007,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         /**
          * Constructs a new <code>TiePointGrid</code> with the given tie point grid properties.
          *
+         * @param p            the product which will become the owner of the created PixelGrid
          * @param name         the name of the new object
          * @param gridWidth    the width of the tie-point grid in pixels
          * @param gridHeight   the height of the tie-point grid in pixels
@@ -1097,8 +1092,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
         private static ImageLayout layout(RenderedImage source) {
             final SampleModel sampleModel = RasterFactory.createBandedSampleModel(DataBuffer.TYPE_FLOAT,
-                                                                                  source.getWidth(),
-                                                                                  source.getHeight(),
+                                                                                  source.getTileWidth(),
+                                                                                  source.getTileHeight(),
                                                                                   2);
             final ImageLayout imageLayout = new ImageLayout();
             imageLayout.setSampleModel(sampleModel);
@@ -1112,8 +1107,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             return hints;
         }
 
-        private static Vector vector(RenderedImage image1, RenderedImage image2, RenderedImage image3) {
-            Vector v = new Vector(3);
+        private static Vector<RenderedImage> vector(RenderedImage image1, RenderedImage image2, RenderedImage image3) {
+            Vector<RenderedImage> v = new Vector<RenderedImage>(3);
             v.addElement(image1);
             v.addElement(image2);
             if (image3 != null) {
@@ -1122,7 +1117,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             return v;
         }
 
-        public LatLonImage(RenderedImage latSrc, RenderedImage lonSrc, RenderedImage validSrc, GeoCoding estimator) {
+        private LatLonImage(RenderedImage latSrc, RenderedImage lonSrc, RenderedImage validSrc, GeoCoding estimator) {
             this(latSrc, lonSrc, validSrc, layout(latSrc), estimator);
         }
 
@@ -1180,8 +1175,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             int[] sLonBandOffsets = lonAcc.getBandOffsets();
             double[][] lonData = lonAcc.getDoubleDataArrays();
 
-            int[] mBandOffsets = null;
-            byte[][] mData = null;
             int mLineOffset = 0;
             int mLineStride = 0;
             int mPixelStride = 0;
@@ -1189,8 +1182,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             if (maskAcc != null) {
                 mLineStride = maskAcc.getScanlineStride();
                 mPixelStride = maskAcc.getPixelStride();
-                mBandOffsets = maskAcc.getBandOffsets();
-                mData = maskAcc.getByteDataArrays();
+                int[] mBandOffsets = maskAcc.getBandOffsets();
+                byte[][] mData = maskAcc.getByteDataArrays();
                 m = mData[0];
                 mLineOffset = mBandOffsets[0];
             }
@@ -1203,7 +1196,9 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
             double[] lat = latData[0];
             double[] lon = lonData[0];
+            @SuppressWarnings({"MismatchedReadAndWriteOfArray"})
             float[] dLat = dData[0];
+            @SuppressWarnings({"MismatchedReadAndWriteOfArray"})
             float[] dLon = dData[1];
 
             int sLatLineOffset = sLatBandOffsets[0];
@@ -1262,8 +1257,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             int[] sLonBandOffsets = lonAcc.getBandOffsets();
             float[][] lonData = lonAcc.getFloatDataArrays();
 
-            int[] mBandOffsets = null;
-            byte[][] mData = null;
             int mLineOffset = 0;
             int mLineStride = 0;
             int mPixelStride = 0;
@@ -1271,8 +1264,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             if (maskAcc != null) {
                 mLineStride = maskAcc.getScanlineStride();
                 mPixelStride = maskAcc.getPixelStride();
-                mBandOffsets = maskAcc.getBandOffsets();
-                mData = maskAcc.getByteDataArrays();
+                int[] mBandOffsets = maskAcc.getBandOffsets();
+                byte[][] mData = maskAcc.getByteDataArrays();
                 m = mData[0];
                 mLineOffset = mBandOffsets[0];
             }
@@ -1285,7 +1278,9 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
             float[] lat = latData[0];
             float[] lon = lonData[0];
+            @SuppressWarnings({"MismatchedReadAndWriteOfArray"})
             float[] dLat = dData[0];
+            @SuppressWarnings({"MismatchedReadAndWriteOfArray"})
             float[] dLon = dData[1];
 
             int sLatLineOffset = sLatBandOffsets[0];

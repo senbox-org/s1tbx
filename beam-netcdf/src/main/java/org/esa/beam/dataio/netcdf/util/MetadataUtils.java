@@ -38,9 +38,15 @@ import java.util.List;
  */
 public class MetadataUtils {
 
+    public static final String GLOBAL_ATTRIBUTES = "Global_Attributes";
+    public static final String VARIABLE_ATTRIBUTES = "Variable_Attributes";
+
+    private MetadataUtils() {
+    }
+
     public static void readNetcdfMetadata(NetcdfFile netcdfFile, MetadataElement root) {
-        root.addElement(readAttributeList(netcdfFile.getGlobalAttributes(), "Global_Attributes"));
-        root.addElement(readVariableDescriptions(netcdfFile.getVariables(), "Variable_Attributes"));
+        root.addElement(readAttributeList(netcdfFile.getGlobalAttributes(), GLOBAL_ATTRIBUTES));
+        root.addElement(readVariableDescriptions(netcdfFile.getVariables(), VARIABLE_ATTRIBUTES));
     }
 
     public static MetadataElement readAttributeList(final List<Attribute> attributeList,

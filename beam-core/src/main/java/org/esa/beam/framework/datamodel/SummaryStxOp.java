@@ -52,24 +52,29 @@ class SummaryStxOp implements StxOp {
     }
 
     final double getMinimum() {
-        return hasValidValues ? minimum : Double.NaN;
+        return hasValidValues() ? minimum : Double.NaN;
     }
 
     final double getMaximum() {
-        return hasValidValues ? maximum : Double.NaN;
+        return hasValidValues() ? maximum : Double.NaN;
     }
 
     final double getMean() {
-        return hasValidValues ? mean : Double.NaN;
+        return hasValidValues() ? mean : Double.NaN;
     }
 
     final double getStdDev() {
-        return hasValidValues ? Math.sqrt(getVariance()) : Double.NaN;
+        return hasValidValues() ? Math.sqrt(getVariance()) : Double.NaN;
     }
 
     final double getVariance() {
-        return hasValidValues ? m2 / (sampleCount - 1) : Double.NaN;
+        return hasValidValues() ? m2 / (sampleCount - 1) : Double.NaN;
     }
+
+    private boolean hasValidValues() {
+        return hasValidValues && minimum != Double.POSITIVE_INFINITY && maximum != Double.NEGATIVE_INFINITY;
+    }
+
 
     @Override
     public void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,

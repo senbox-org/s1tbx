@@ -90,16 +90,20 @@
         <applicationDescriptor type="org.esa.beam.framework.ui.application.ApplicationDescriptor"
                                class="@descriptorClass"
                                autoConfig="true">
-            <descriptorClass type="java.lang.Class">
-                org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor
-            </descriptorClass>
+            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor</descriptorClass>
             <applicationId type="java.lang.String"/>
             <!-- ID of the ceres application -->
             <displayName type="java.lang.String"/>
             <frameIcon field="iconPath" type="java.lang.String"/>
             <resourceBundle type="java.lang.String"/>
-            <excludedActions type="java.lang.String[]"/>
-            <excludedToolViews type="java.lang.String[]"/>
+            <excludedActions type="java.lang.String[]">
+                <!-- Here: IDs of actions you wish to exclude from your application -->
+                <!-- e.g. <id>helpTopics</id> -->
+            </excludedActions>
+            <excludedToolViews type="java.lang.String[]">
+                <!-- Here:  IDs of tool views you wish to exclude from your application -->
+                <!-- e.g. <id>org.esa.beam.visat.toolviews.lm.LayersToolView</id> -->
+            </excludedToolViews>
         </applicationDescriptor>
     </extensionPoint>
 
@@ -110,9 +114,7 @@
         <toolView type="org.esa.beam.framework.ui.application.ToolViewDescriptor"
                   class="@descriptorClass"
                   autoConfig="true">
-            <descriptorClass type="java.lang.Class">
-                org.esa.beam.framework.ui.application.support.DefaultToolViewDescriptor
-            </descriptorClass>
+            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.application.support.DefaultToolViewDescriptor</descriptorClass>
             <class field="toolViewClass" type="java.lang.Class"/>
             <title type="java.lang.String"/>
             <description type="java.lang.String"/>
@@ -158,8 +160,7 @@
         <layerEditor type="org.esa.beam.framework.ui.layer.LayerEditorDescriptor"
                      class="@descriptorClass"
                      autoConfig="true">
-            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.layer.DefaultLayerEditorDescriptor
-            </descriptorClass>
+            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.layer.DefaultLayerEditorDescriptor</descriptorClass>
 
             <!--
                  Either 'editor' or 'editorFactory' must be given:
@@ -188,8 +189,7 @@
         <layerSource type="org.esa.beam.framework.ui.layer.LayerSourceDescriptor"
                      class="@descriptorClass"
                      autoConfig="true">
-            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.layer.DefaultLayerSourceDescriptor
-            </descriptorClass>
+            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.layer.DefaultLayerSourceDescriptor</descriptorClass>
             <id field="id" type="java.lang.String"/>
             <name field="name" type="java.lang.String"/>
             <description field="description" type="java.lang.String"/>
@@ -197,5 +197,18 @@
             <layerType field="layerTypeClassName" type="java.lang.String"/>
         </layerSource>
     </extensionPoint>
+
+
+    <!--
+        Experimental code added by Norman.
+        Demonstrates how we create layers for new feature types, e.g. "TrackPoint".
+        See class org.esa.beam.framework.ui.product.TrackLayerTypeFactory.
+    -->
+    <extension point="ceres-core:adapters">
+        <adapter>
+            <extensibleType>org.esa.beam.framework.datamodel.VectorDataNode</extensibleType>
+            <extensionFactory>org.esa.beam.framework.ui.product.TrackLayerTypeFactory</extensionFactory>
+        </adapter>
+    </extension>
 
 </module>

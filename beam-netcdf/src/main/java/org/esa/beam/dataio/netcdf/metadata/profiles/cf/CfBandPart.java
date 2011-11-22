@@ -22,11 +22,8 @@ import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
 import org.esa.beam.dataio.netcdf.util.NetcdfMultiLevelImage;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.DataNode;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.util.StringUtils;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
@@ -34,6 +31,7 @@ import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CfBandPart extends ProfilePartIO {
@@ -42,12 +40,42 @@ public class CfBandPart extends ProfilePartIO {
 
     @Override
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
+        ArrayList<String> bandNames = new ArrayList<String>();
         for (Variable variable : ctx.getRasterDigest().getRasterVariables()) {
-            final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
-            final Band band = p.addBand(variable.getName(), rasterDataType);
-            readCfBandAttributes(variable, band);
-            band.setSourceImage(new NetcdfMultiLevelImage(band, variable, ctx));
+            List<Dimension> dimensions = variable.getDimensions();
+            int rank = dimensions.size();
+            int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
+            if (rank == 2) {
+                Band band = p.addBand(variable.getName(), rasterDataType);
+                readCfBandAttributes(variable, band);
+                band.setSourceImage(new NetcdfMultiLevelImage(band, variable, ctx));
+            } else if (rank == 3) {
+                Dimension zDim = dimensions.get(rank - 3);
+                int zDimLength = zDim.getLength();
+                if (zDimLength > 1) {
+                    bandNames.add(variable.getName());
+                }
+                for (int z = 0; z < zDimLength; z++) {
+                    String zName = zDim.getName();
+                    String skipPrefix = "n_";
+                    if (zName.toLowerCase().startsWith(skipPrefix)
+                            && zName.length() > skipPrefix.length()) {
+                        zName = zName.substring(skipPrefix.length());
+                    }
+                    String bandName;
+                    if (zDimLength > 1) {
+                        bandName = String.format("%s_%s%d", variable.getName(), zName, (z + 1));
+                    } else {
+                        bandName = variable.getName();
+                    }
+                    Band band = p.addBand(bandName, rasterDataType);
+                    readCfBandAttributes(variable, band);
+                    band.setSourceImage(new NetcdfMultiLevelImage(band, variable, z, ctx));
+                }
+            }
         }
+        String autoGrouping = StringUtils.join(bandNames, ":");
+        p.setAutoGrouping(autoGrouping);
     }
 
     @Override

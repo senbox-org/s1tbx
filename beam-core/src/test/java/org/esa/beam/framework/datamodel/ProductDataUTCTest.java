@@ -15,14 +15,14 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import junit.framework.TestCase;
+
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import junit.framework.TestCase;
 
 
 public class ProductDataUTCTest extends TestCase {
@@ -43,6 +43,20 @@ public class ProductDataUTCTest extends TestCase {
         assertEquals(6, utc.getSecondsFraction());
         assertEquals(7, utc.getMicroSecondsFraction());
         assertEquals("05-JAN-2000 00:00:06.000007", utc.format());
+    }
+
+    public void testMjdAfter2000() throws Exception {
+        final ProductData.UTC utc = ProductData.UTC.parse("02 Jul 2001 13:10:11", "dd MMM yyyy hh:mm:ss");
+        final double mjd = utc.getMJD();
+        final ProductData.UTC utc1 = new ProductData.UTC(mjd);
+        assertEquals(utc1.getAsDate().getTime(), utc.getAsDate().getTime());
+    }
+
+    public void testMjdBefore2000() throws Exception {
+        final ProductData.UTC utc = ProductData.UTC.parse("02 Jul 1999 13:10:11", "dd MMM yyyy hh:mm:ss");
+        final double mjd = utc.getMJD();
+        final ProductData.UTC utc1 = new ProductData.UTC(mjd);
+        assertEquals(utc1.getAsDate().getTime(), utc.getAsDate().getTime());
     }
 
     public void testMerisDateParsingErrors() throws ParseException {

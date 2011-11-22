@@ -55,7 +55,7 @@ public class BeamMetadataPart extends ProfilePartIO {
                 }
                 if (attrName.contains(SPLITTER)) {
                     String prefix = attrName.split(SPLITTER)[0];
-                    readMetaData(attribute, metadataRoot, prefix);
+                    readMetadata(attribute, metadataRoot, prefix);
                 } else {
                     ProductData attributeValue = DataTypeUtils.createProductData(attribute);
                     metadataRoot.addAttribute(new MetadataAttribute(attrName, attributeValue, true));
@@ -64,7 +64,7 @@ public class BeamMetadataPart extends ProfilePartIO {
         }
     }
 
-    private void readMetaData(Attribute attribute, MetadataElement metadataRoot, String prefix) {
+    private void readMetadata(Attribute attribute, MetadataElement metadataRoot, String prefix) {
         // create new subgroup or take existing one
         String[] splittedPrefix = prefix.split(SPLITTER);
         String metaDataElementName = prefix;
@@ -85,7 +85,7 @@ public class BeamMetadataPart extends ProfilePartIO {
         temp = splittedAttrName[0];
         if (splittedAttrName.length > 1) {
             // recursive call
-            readMetaData(attribute, metadataElement, prefix + SPLITTER + temp);
+            readMetadata(attribute, metadataElement, prefix + SPLITTER + temp);
         } else {
             // attribute is leaf, add attribute into subgroup
             String newAttributeName = attribute.getName().replaceFirst(prefix, "").replace(SPLITTER, "");
@@ -98,8 +98,8 @@ public class BeamMetadataPart extends ProfilePartIO {
                 }
             } else if (newAttributeName.endsWith(DESCRIPTION_SUFFIX)) {
                 // setting the description this way requires that it is written AFTER its attribute
-                MetadataAttribute anAttribute = metadataElement.getAttribute(newAttributeName.replace(
-                        DESCRIPTION_SUFFIX, ""));
+                MetadataAttribute anAttribute = metadataElement.getAttribute(
+                        newAttributeName.replace(DESCRIPTION_SUFFIX, ""));
                 String value = attribute.getStringValue();
                 if (value != null) {
                     anAttribute.setDescription(value);
@@ -122,35 +122,38 @@ public class BeamMetadataPart extends ProfilePartIO {
         }
     }
 
-    private void writeMetadataElement(MetadataElement element, Variable var, String prefix) throws
-                                                                                            IOException {
+    private void writeMetadataElement(MetadataElement element, Variable ncVariable, String prefix) throws IOException {
         for (int i = 0; i < element.getNumAttributes(); i++) {
             MetadataAttribute attribute = element.getAttributeAt(i);
-            writeMetadataAttribute(attribute, var, prefix);
+            writeMetadataAttribute(attribute, ncVariable, prefix);
         }
         for (int i = 0; i < element.getNumElements(); i++) {
             MetadataElement subElement = element.getElementAt(i);
-            writeMetadataElement(subElement, var, prefix + SPLITTER + subElement.getName());
+            final String subElementName = subElement.getName();
+            if (!isGlobalAttributesElement(subElementName)) {
+                writeMetadataElement(subElement, ncVariable, prefix + SPLITTER + subElementName);
+            }
         }
     }
 
-    private void writeMetadataAttribute(MetadataAttribute metadataAttr, Variable var, String prefix) throws
-                                                                                                     IOException {
+    private boolean isGlobalAttributesElement(String subElementName) {
+        return MetadataUtils.GLOBAL_ATTRIBUTES.equals(subElementName) ||
+               MetadataUtils.VARIABLE_ATTRIBUTES.equals(subElementName);
+    }
+
+    private void writeMetadataAttribute(MetadataAttribute metadataAttr, Variable ncVariable, String prefix) {
         final ProductData productData = metadataAttr.getData();
+        final String ncAttributeName = prefix + SPLITTER + metadataAttr.getName();
         if (productData instanceof ProductData.ASCII || productData instanceof ProductData.UTC) {
-            var.addAttribute(new Attribute(prefix + SPLITTER + metadataAttr.getName(), productData.getElemString()));
+            ncVariable.addAttribute(new Attribute(ncAttributeName, productData.getElemString()));
         } else {
-            var.addAttribute(
-                    new Attribute(prefix + SPLITTER + metadataAttr.getName(), Array.factory(productData.getElems())));
+            ncVariable.addAttribute(new Attribute(ncAttributeName, Array.factory(productData.getElems())));
         }
         if (metadataAttr.getUnit() != null) {
-            var.addAttribute(
-                    new Attribute(prefix + SPLITTER + metadataAttr.getName() + UNIT_SUFFIX, metadataAttr.getUnit()));
+            ncVariable.addAttribute(new Attribute(ncAttributeName + UNIT_SUFFIX, metadataAttr.getUnit()));
         }
         if (metadataAttr.getDescription() != null) {
-            var.addAttribute(
-                    new Attribute(prefix + SPLITTER + metadataAttr.getName() + DESCRIPTION_SUFFIX,
-                                  metadataAttr.getDescription()));
+            ncVariable.addAttribute(new Attribute(ncAttributeName + DESCRIPTION_SUFFIX, metadataAttr.getDescription()));
         }
     }
 }

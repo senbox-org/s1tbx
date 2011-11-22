@@ -16,24 +16,16 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
-import com.jidesoft.docking.DockableFrame;
-import com.jidesoft.docking.event.DockableFrameAdapter;
-import com.jidesoft.docking.event.DockableFrameEvent;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JComponent;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.awt.BorderLayout;
-import java.awt.Container;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -80,21 +72,9 @@ public abstract class AbstractLayerToolView extends AbstractToolView {
         prefixTitle = getDescriptor().getTitle();
         updateTitle();
 
-        DockableFrame dockableFrame = (DockableFrame) getContext().getPane().getControl();
-        dockableFrame.addDockableFrameListener(new DockableFrameAdapter() {
-            @Override
-            public void dockableFrameActivated(DockableFrameEvent dockableFrameEvent) {
-                if (selectedView != null) {
-                    final RasterDataNode raster = selectedView.getRaster();
-                    VisatApp.getApp().getProductTree().select(raster);
-                }
-            }
-        });
-
         final ProductSceneView sceneView = appContext.getSelectedProductSceneView();
         setSelectedView(sceneView);
 
-        VisatApp.getApp().addProductTreeListener(new LayerPTL());
         VisatApp.getApp().addInternalFrameListener(new LayerManagerIFL());
 
         return controlPanel;
@@ -149,7 +129,7 @@ public abstract class AbstractLayerToolView extends AbstractToolView {
         }
     }
 
-    private void setSelectedLayer(final Layer newLayer) {
+    protected void setSelectedLayer(final Layer newLayer) {
         Layer oldLayer = selectedLayer;
         if (newLayer != oldLayer) {
             selectedLayer = newLayer;
@@ -217,15 +197,4 @@ public abstract class AbstractLayerToolView extends AbstractToolView {
             }
         }
     }
-
-    private class LayerPTL extends ProductTreeListenerAdapter {
-
-        @Override
-        public void productNodeSelected(ProductNode productNode, int clickCount) {
-            if (productNode instanceof RasterDataNode) {
-                updateTitle();
-            }
-        }
-    }
-
 }

@@ -15,15 +15,7 @@
  */
 package org.esa.beam.visat.toolviews.placemark;
 
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.Parameter;
@@ -31,17 +23,9 @@ import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.Guardian;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.Paint;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -50,6 +34,7 @@ import java.awt.geom.Rectangle2D;
 public class PlacemarkDialog extends ModalDialog {
 
     private final Product product;
+    // todo - use ceres-binding
     private Parameter paramName;
     private Parameter paramLabel;
     private Parameter paramUsePixelPos;
@@ -58,6 +43,7 @@ public class PlacemarkDialog extends ModalDialog {
     private Parameter paramPixelX;
     private Parameter paramPixelY;
     private Parameter paramDescription;
+    @Deprecated
     private PlacemarkSymbol symbol;
     private JLabel symbolLabel;
     private Parameter paramColorOutline;
@@ -68,10 +54,11 @@ public class PlacemarkDialog extends ModalDialog {
     private boolean symbolChanged;
     private PlacemarkDescriptor placemarkDescriptor;
     private boolean simultaneousEditingAllowed;
+    private String styleCss;
 
 
     public PlacemarkDialog(final Window parent, final Product product, final PlacemarkDescriptor placemarkDescriptor,
-                     boolean simultaneousEditingAllowed) {
+                           boolean simultaneousEditingAllowed) {
         super(parent, "New " + placemarkDescriptor.getRoleLabel(), ModalDialog.ID_OK_CANCEL, null); /*I18N*/
         Guardian.assertNotNull("product", product);
         this.product = product;
@@ -221,6 +208,14 @@ public class PlacemarkDialog extends ModalDialog {
         this.symbol = symbol;
     }
 
+    public String getStyleCss() {
+        return styleCss;
+    }
+
+    private void setStyleCss(String styleCss) {
+        this.styleCss = styleCss;
+    }
+
     private void initParameter() {
         GeoCoding geoCoding = product.getGeoCoding();
         boolean hasGeoCoding = geoCoding != null;
@@ -290,6 +285,7 @@ public class PlacemarkDialog extends ModalDialog {
         paramDescription.getProperties().setLabel("Description"); /*I18N*/
         paramDescription.getProperties().setNumRows(3);
 
+        // todo - rewrite following code for the new styleCss property
         if (symbol == null) {
             symbol = placemarkDescriptor.createDefaultSymbol();
         }
@@ -473,18 +469,18 @@ public class PlacemarkDialog extends ModalDialog {
      * Shows a dialog to edit the properties of an placemark.
      * If the placemark does not belong to a product it will be added after editing.
      *
-     * @param parent the parent window fo the dialog
-     * @param product the product where the placemark is already contained or where it will be added
-     * @param placemark the placemark to edit
+     * @param parent              the parent window fo the dialog
+     * @param product             the product where the placemark is already contained or where it will be added
+     * @param placemark           the placemark to edit
      * @param placemarkDescriptor the descriptor of the placemark
      * @return <code>true</code> if editing was successful, otherwise <code>false</code>.
      */
     public static boolean showEditPlacemarkDialog(Window parent, Product product, Placemark placemark,
-                                            PlacemarkDescriptor placemarkDescriptor) {
+                                                  PlacemarkDescriptor placemarkDescriptor) {
         final PlacemarkDialog dialog = new PlacemarkDialog(parent, product, placemarkDescriptor,
-                                                  placemarkDescriptor instanceof PinDescriptor);
+                                                           placemarkDescriptor instanceof PinDescriptor);
         boolean belongsToProduct = placemark.getProduct() != null;
-        String titlePrefix = belongsToProduct ? "Edit" : "New"; 
+        String titlePrefix = belongsToProduct ? "Edit" : "New";
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
 
         dialog.getJDialog().setTitle(titlePrefix + " " + roleLabel);
@@ -498,6 +494,7 @@ public class PlacemarkDialog extends ModalDialog {
         dialog.setGeoPos(placemark.getGeoPos());
         dialog.adjusting = false;
         dialog.setPlacemarkSymbol(placemark.getSymbol());
+        dialog.setStyleCss(placemark.getStyleCss());
         boolean ok = (dialog.show() == ID_OK);
         if (ok) {
             if (!belongsToProduct) {
@@ -510,7 +507,10 @@ public class PlacemarkDialog extends ModalDialog {
             placemark.setGeoPos(dialog.getGeoPos());
             placemark.setPixelPos(dialog.getPixelPos());
             placemark.setSymbol(dialog.getPlacemarkSymbol());
+            placemark.setStyleCss(dialog.getStyleCss());
+
         }
         return ok;
     }
+
 }

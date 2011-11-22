@@ -82,6 +82,9 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
     protected void initReadContext(ProfileReadContext ctx) throws IOException {
         NetcdfFile netcdfFile = ctx.getNetcdfFile();
         final RasterDigest rasterDigest = RasterDigest.createRasterDigest(netcdfFile.getRootGroup());
+        if (rasterDigest == null) {
+            throw new IOException("File does not contain any bands.");
+        }
         ctx.setRasterDigest(rasterDigest);
     }
 

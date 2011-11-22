@@ -17,20 +17,11 @@
 package org.esa.beam.examples.selection;
 
 import com.bc.ceres.swing.TableLayout;
-import com.bc.ceres.swing.selection.AbstractSelectionContext;
-import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionContext;
-import com.bc.ceres.swing.selection.support.DefaultSelection;
+import com.bc.ceres.swing.selection.support.ListSelectionContext;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.*;
 
 // todo -
 // Currently the provided selection context gets lost if the application menu is invoked,
@@ -71,7 +62,7 @@ public class SelectionEmittingToolView extends AbstractToolView {
         panel.add(scrollPane);
 
         // SelectionContextImpl does the handling of selections
-        selectionContext = new SelectionContextImpl(selectableItemList);
+        selectionContext = new ListSelectionContext(selectableItemList);
         return panel;
     }
 
@@ -79,40 +70,4 @@ public class SelectionEmittingToolView extends AbstractToolView {
     public SelectionContext getSelectionContext() {
         return selectionContext;
     }
-
-    private static class SelectionContextImpl extends AbstractSelectionContext {
-
-
-        private JList list;
-
-        private SelectionContextImpl(JList list) {
-            this.list = list;
-            // register a listener at the source of selections to get notified if selection changes
-            this.list.addListSelectionListener(new ListSelectionListener() {
-                @Override
-                public void valueChanged(ListSelectionEvent e) {
-                    fireSelectionChange(getSelection());
-                }
-            });
-        }
-
-        @Override
-        public void setSelection(Selection selection) {
-            // Change the current selection; it is requested from an external source
-            list.setSelectedValue(selection.getSelectedValue(), true);
-        }
-
-        @Override
-        public Selection getSelection() {
-            // Create a Selection object if there is a selection otherwise use Selection.EMPTY if there is no selected item.
-            final Object selectedValue = list.getSelectedValue();
-            if (selectedValue == null) {
-                return Selection.EMPTY;
-            } else {
-                return new DefaultSelection<Object>(selectedValue);
-            }
-        }
-
-    }
-
 }

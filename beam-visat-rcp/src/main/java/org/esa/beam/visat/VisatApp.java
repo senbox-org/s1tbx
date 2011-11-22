@@ -1995,10 +1995,13 @@ public class VisatApp extends BasicApp implements AppContext {
                 toolBar.add(ToolButtonFactory.createToolBarSeparator());
             } else {
                 final Command command = getCommandManager().getCommand(commandID);
-                Assert.state(command != null, "commandID=" + commandID);
-                final AbstractButton toolBarButton = command.createToolBarButton();
-                toolBarButton.addMouseListener(getMouseOverActionHandler());
-                toolBar.add(toolBarButton);
+                if (command != null) {
+                    final AbstractButton toolBarButton = command.createToolBarButton();
+                    toolBarButton.addMouseListener(getMouseOverActionHandler());
+                    toolBar.add(toolBarButton);
+                } else {
+                    getLogger().warning(String.format("Toolbar '%s': No command found for ID = '%s'", toolBar.getName(), commandID));
+                }
             }
             toolBar.add(Box.createHorizontalStrut(1));
         }
