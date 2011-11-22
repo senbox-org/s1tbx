@@ -42,6 +42,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.10:<br/>
+        [BEAM-1360] Auto-grouping of product sometimes wrong<br/>
         [BEAM-1356] Scene view of a band can not be opened if all values are NaN<br/>
         [BEAM-1334] ProductData.UTC does not handle dates before 01/01/2000 correctly<br/>
         [BEAM-1345] Creating geophysical images for huge products fails<br/>

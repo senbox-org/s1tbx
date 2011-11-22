@@ -49,13 +49,8 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * <code>Product</code> instances are an in-memory representation of a remote sensing data product. The product is more
@@ -2030,14 +2025,31 @@ public class Product extends ProductNode {
         private static final String PATH_SEPARATOR = ":";
 
         private final String[][] paths;
+        private final Index[] indexes;
 
         private AutoGroupingImpl(String[][] paths) {
-            this.paths = paths;
+            this.paths = paths.clone();
+            this.indexes = new Index[paths.length];
+            for (int i = 0; i < paths.length; i++) {
+                String[] path = paths[i];
+                String entry = path.length > 0 ? path[0] : "";
+                indexes[i] = new Index(entry, i);
+            }
+            Arrays.sort(indexes, new Comparator<Index>() {
+                @Override
+                public int compare(Index o1, Index o2) {
+                    if (o1.entry.length() != o2.entry.length()) {
+                        return o2.entry.length() - o1.entry.length();
+                    }
+                    return o2.entry.compareTo(o1.entry);
+                }
+            });
         }
 
         @Override
         public int indexOf(String name) {
-            for (int i = 0, pathsLength = paths.length; i < pathsLength; i++) {
+            for (Index index : indexes) {
+                final int i = index.index;
                 String[] path = paths[i];
                 if (nameMatchesGroupPath(name, path)) {
                     return i;
@@ -2133,6 +2145,17 @@ public class Product extends ProductNode {
                 code += path.hashCode();
             }
             return code;
+        }
+
+
+        private static class Index {
+            final String entry;
+            final int index;
+
+            private Index(String entry, int index) {
+                this.entry = entry;
+                this.index = index;
+            }
         }
     }
 

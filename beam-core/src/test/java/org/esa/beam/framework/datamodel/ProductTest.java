@@ -19,32 +19,30 @@ package org.esa.beam.framework.datamodel;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.util.BeamConstants;
 import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.ProductUtilsTest;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-public class ProductTest extends TestCase {
+import static org.junit.Assert.*;
+
+
+public class ProductTest {
 
     private static final String _prodType = "TestProduct";
     private static final int _sceneWidth = 20;
@@ -52,23 +50,13 @@ public class ProductTest extends TestCase {
 
     private Product product;
 
-    public ProductTest(String testName) {
-        super(testName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ProductTest.class);
-    }
-
-    /**
-     * Initializes the tests
-     */
-    @Override
-    protected void setUp() {
+    @Before
+    public void setUp() throws Exception {
         product = new Product("product", _prodType, _sceneWidth, _sceneHeight);
         product.setModified(false);
     }
 
+    @Test
     public void testAcceptVisitor() {
         LinkedListProductVisitor visitor = new LinkedListProductVisitor();
         product.acceptVisitor(visitor);
@@ -91,6 +79,7 @@ public class ProductTest extends TestCase {
         }
     }
 
+    @Test
     public void testAddProductNodeListener() {
         ProductNodeListener listener = new DummyProductNodeListener();
         assertEquals("addProductNodeListener null", false, product.addProductNodeListener(null));
@@ -98,24 +87,7 @@ public class ProductTest extends TestCase {
         assertEquals("addProductNodeListener contained listener", false, product.addProductNodeListener(listener));
     }
 
-    public void testFireNodeAdded() {
-    }
-
-    public void testFireNodeChanged() {
-    }
-
-    public void testFireNodeRemoved() {
-    }
-
-    public void testHasProductListeners() {
-    }
-
-    public void testRemoveProductListener() {
-    }
-
-    public void testSetWriter() {
-    }
-
+    @Test
     public void testSetAndGetReader() {
         Product product = new Product("name", BeamConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME, 312, 213);
 
@@ -137,9 +109,7 @@ public class ProductTest extends TestCase {
         }
     }
 
-    public void testGetWriter() {
-    }
-
+    @Test
     public void testAddBandWithBandParameters() {
         assertEquals(0, product.getNumBands());
         assertEquals(0, product.getBandNames().length);
@@ -157,9 +127,7 @@ public class ProductTest extends TestCase {
         assertEquals("band1", product.getBand("band1").getName());
     }
 
-    /**
-     * Tests the functionality of getType
-     */
+    @Test
     public void testGetType() {
         Product prod;
 
@@ -170,9 +138,7 @@ public class ProductTest extends TestCase {
         assertEquals("TEST", prod.getProductType());
     }
 
-    /**
-     * Tests the functionality of getSceneRasterWidth
-     */
+    @Test
     public void testGetSceneRasterWidth() {
         Product prod;
 
@@ -183,9 +149,7 @@ public class ProductTest extends TestCase {
         assertEquals(789, prod.getSceneRasterWidth());
     }
 
-    /**
-     * Tests the functionality of getSceneRasterHeight
-     */
+    @Test
     public void testGetSceneRasterHeight() {
         Product prod;
 
@@ -196,6 +160,7 @@ public class ProductTest extends TestCase {
         assertEquals(427, prod.getSceneRasterHeight());
     }
 
+    @Test
     public void testBitmaskHandlingByte() {
         Product product = new Product("Y", "X", 4, 4);
 
@@ -247,6 +212,7 @@ public class ProductTest extends TestCase {
         testBitmaskHandling(product, "(flags.F1 AND flags.F2) OR flags.F3", F1_AND_F2_OR_F3_MASK);
     }
 
+    @Test
     public void testBitmaskHandlingUShort() {
         Product product = new Product("Y", "X", 4, 4);
 
@@ -354,6 +320,7 @@ public class ProductTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetAndSetRefNo() {
         assertEquals(0, product.getRefNo());
 
@@ -394,7 +361,8 @@ public class ProductTest extends TestCase {
         }
     }
 
-    public void testGetAndSetBandSubGroupPaths() {
+    @Test
+    public void testGetAndSetBandAutoGroupingProperty() {
         final Product product = new Product("A", "B", 10, 10);
         final MyProductNodeListener listener = new MyProductNodeListener();
         product.addProductNodeListener(listener);
@@ -405,30 +373,72 @@ public class ProductTest extends TestCase {
         assertEquals(2, autoGrouping.size());
         assertEquals("u", autoGrouping.get(0)[0]);
         assertEquals("v", autoGrouping.get(1)[0]);
-        assertEquals("autoGrouping", listener.pname );
+        assertEquals("autoGrouping", listener.pname);
 
         listener.pname = "";
         product.setAutoGrouping(uv);
-        assertEquals("", listener.pname );
+        assertEquals("", listener.pname);
 
         listener.pname = "";
         product.setAutoGrouping("u:v");
-        assertEquals("", listener.pname );
+        assertEquals("", listener.pname);
 
         listener.pname = "";
         product.setAutoGrouping("c");
-        assertEquals("autoGrouping", listener.pname );
+        assertEquals("autoGrouping", listener.pname);
 
         listener.pname = "";
         product.setAutoGrouping("");
-        assertEquals("autoGrouping", listener.pname );
+        assertEquals("autoGrouping", listener.pname);
 
         listener.pname = "";
         product.setAutoGrouping((Product.AutoGrouping) null);
-        assertEquals("", listener.pname );
+        assertEquals("", listener.pname);
     }
 
+    @Test
+    public void testGetAndSetBandAutoGroupingOrder() {
+        final Product product = new Product("A", "B", 10, 10);
+        product.setAutoGrouping("L_1:L_1_err:L_2:L_2_err:L_10:L_10_err:L_11:L_11_err:L_21:L_21_err");
+        final Product.AutoGrouping autoGrouping = product.getAutoGrouping();
 
+        assertNotNull(autoGrouping);
+        assertEquals(10, autoGrouping.size());
+
+        assertArrayEquals(new String []{"L_1"}, autoGrouping.get(0));
+        assertArrayEquals(new String []{"L_1_err"}, autoGrouping.get(1));
+        assertArrayEquals(new String []{"L_2"}, autoGrouping.get(2));
+        assertArrayEquals(new String []{"L_2_err"}, autoGrouping.get(3));
+        assertArrayEquals(new String []{"L_10"}, autoGrouping.get(4));
+        assertArrayEquals(new String []{"L_10_err"}, autoGrouping.get(5));
+        assertArrayEquals(new String []{"L_11"}, autoGrouping.get(6));
+        assertArrayEquals(new String []{"L_11_err"}, autoGrouping.get(7));
+        assertArrayEquals(new String []{"L_21"}, autoGrouping.get(8));
+        assertArrayEquals(new String []{"L_21_err"}, autoGrouping.get(9));
+
+        assertEquals(0, autoGrouping.indexOf("L_1_CAM1"));
+        assertEquals(0, autoGrouping.indexOf("L_1_CAM5"));
+        assertEquals(1, autoGrouping.indexOf("L_1_err_CAM1"));
+        assertEquals(1, autoGrouping.indexOf("L_1_err_CAM5"));
+        assertEquals(2, autoGrouping.indexOf("L_2_CAM1"));
+        assertEquals(2, autoGrouping.indexOf("L_2_CAM5"));
+        assertEquals(3, autoGrouping.indexOf("L_2_err_CAM1"));
+        assertEquals(3, autoGrouping.indexOf("L_2_err_CAM5"));
+        assertEquals(4, autoGrouping.indexOf("L_10_CAM1"));
+        assertEquals(4, autoGrouping.indexOf("L_10_CAM5"));
+        assertEquals(5, autoGrouping.indexOf("L_10_err_CAM1"));
+        assertEquals(5, autoGrouping.indexOf("L_10_err_CAM5"));
+        assertEquals(6, autoGrouping.indexOf("L_11_CAM1"));
+        assertEquals(6, autoGrouping.indexOf("L_11_CAM5"));
+        assertEquals(7, autoGrouping.indexOf("L_11_err_CAM1"));
+        assertEquals(7, autoGrouping.indexOf("L_11_err_CAM5"));
+        assertEquals(8, autoGrouping.indexOf("L_21_CAM1"));
+        assertEquals(8, autoGrouping.indexOf("L_21_CAM5"));
+        assertEquals(9, autoGrouping.indexOf("L_21_err_CAM1"));
+        assertEquals(9, autoGrouping.indexOf("L_21_err_CAM5"));
+    }
+
+    @Test
     public void testModifiedProperty() {
 
         assertEquals("product should be initially un-modified", false, product.isModified());
@@ -438,6 +448,7 @@ public class ProductTest extends TestCase {
         assertEquals(false, product.isModified());
     }
 
+    @Test
     public void testModifiedFlagAfterBandHasBeenAddedAndRemoved() {
 
         Band band = new Band("band1", ProductData.TYPE_FLOAT32, _sceneWidth, _sceneHeight);
@@ -455,6 +466,7 @@ public class ProductTest extends TestCase {
         assertEquals("removed band, modified flag should be set", true, product.isModified());
     }
 
+    @Test
     public void testModifiedFlagAfterBandHasBeenModified() {
 
         Band band = new Band("band1", ProductData.TYPE_FLOAT32, _sceneWidth, _sceneHeight);
@@ -474,6 +486,7 @@ public class ProductTest extends TestCase {
         assertEquals("data set to null, modified flag should be set", true, product.isModified());
     }
 
+    @Test
     public void testModifiedFlagDelegation() {
 
         Band band1 = new Band("band1", ProductData.TYPE_FLOAT32, _sceneWidth, _sceneHeight);
@@ -499,6 +512,7 @@ public class ProductTest extends TestCase {
         assertEquals(false, product.isModified());
     }
 
+    @Test
     public void testSetGeocoding() {
         MapProjection projection = createMapProjectionForTestSetGeocoding();
         MapInfo mapInfo = new MapInfo(projection, 0, 0, 23, 24, 12, 13, Datum.WGS_84);
@@ -538,6 +552,7 @@ public class ProductTest extends TestCase {
     }
 
 
+    @Test
     public void testUniqueGeoCodings() {
         Product p = new Product("N", "T", 4, 4);
 
@@ -564,6 +579,7 @@ public class ProductTest extends TestCase {
         assertTrue(p.isUsingSingleGeoCoding());
     }
 
+    @Test
     public void testContainsPixel() {
         Product p = new Product("x", "y", 1121, 2241);
 
@@ -582,8 +598,9 @@ public class ProductTest extends TestCase {
         p.dispose();
     }
 
+    @Test
     public void testReadBitmaskWithByteValues() throws ParseException,
-                                                       IOException {
+            IOException {
         Product product = new Product("Y", "X", 4, 4);
         Band band = product.addBand("flags", ProductData.TYPE_INT8);
 
@@ -670,8 +687,9 @@ public class ProductTest extends TestCase {
         assertEquals(true, ObjectUtils.equalObjects(currentF1AF2OF3Sub, F1_AND_F2_OR_F3_MASK_SUB));
     }
 
+    @Test
     public void testEnsureValidMask() throws ParseException,
-                                             IOException {
+            IOException {
         final Product product = new Product("n", "t", 18, 2);
         final Band flagsBand = product.addBand("flags", ProductData.TYPE_INT8);
         final FlagCoding flagCoding = new FlagCoding("fc");
@@ -695,6 +713,7 @@ public class ProductTest extends TestCase {
         }
     }
 
+    @Test
     public void testExpressionIsChangedIfANodeNameIsChanged() {
         final Product product = new Product("p", "t", 10, 10);
         final VirtualBand virtualBand = new VirtualBand("vb", ProductData.TYPE_FLOAT32, 10, 10,
@@ -714,6 +733,7 @@ public class ProductTest extends TestCase {
         assertSame(fileLocation, product.getFileLocation());
     }
 
+    @Test
     public void testThatAddBandThrowExceptionIfNameIsNotUnique() {
         final Product product = new Product("p", "t", 1, 1);
         product.addBand("band1", ProductData.TYPE_FLOAT32);
@@ -734,6 +754,7 @@ public class ProductTest extends TestCase {
         }
     }
 
+    @Test
     public void testThatAddTiePointGridThrowExceptionIfNameIsNotUnique() {
         final Product product = new Product("p", "t", 1, 1);
         product.addBand("band1", ProductData.TYPE_FLOAT32);
@@ -754,6 +775,7 @@ public class ProductTest extends TestCase {
         }
     }
 
+    @Test
     public void testPreferredTileSizeProperty() {
         Product product;
 
