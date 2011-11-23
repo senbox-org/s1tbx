@@ -47,7 +47,7 @@ public class VectorDataNodeReaderTest extends TestCase {
     public void testContents1() throws IOException {
         StringReader reader = new StringReader(CONTENTS_1);
 
-        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader(null);
+        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader("mem", null);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(reader);
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
@@ -107,7 +107,7 @@ public class VectorDataNodeReaderTest extends TestCase {
     public void testContents2() throws IOException {
         StringReader reader = new StringReader(CONTENTS_2);
 
-        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader(null);
+        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader("mem", null);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(reader);
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
@@ -133,7 +133,7 @@ public class VectorDataNodeReaderTest extends TestCase {
     public void testCRS() throws Exception {
         StringReader reader = new StringReader(CONTENTS_2);
 
-        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader(DefaultGeographicCRS.WGS84);
+        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader("mem", DefaultGeographicCRS.WGS84);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(reader);
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
@@ -185,7 +185,7 @@ public class VectorDataNodeReaderTest extends TestCase {
     }
 
     private void expectException(String contents) throws IOException {
-        new VectorDataNodeReader(null).readFeatures(new StringReader(contents));
+        new VectorDataNodeReader("mem", null).readFeatures(new StringReader(contents));
         fail("IOException expected");
     }
 }

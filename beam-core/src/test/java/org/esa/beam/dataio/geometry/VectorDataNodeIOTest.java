@@ -18,30 +18,19 @@ package org.esa.beam.dataio.geometry;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
 
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
-import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureImpl;
-import org.geotools.feature.simple.SimpleFeatureTypeImpl;
-import org.geotools.feature.type.AttributeDescriptorImpl;
-import org.geotools.feature.type.AttributeTypeImpl;
-import org.geotools.feature.type.GeometryDescriptorImpl;
-import org.geotools.feature.type.GeometryTypeImpl;
 import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.AttributeType;
-import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.feature.type.GeometryType;
 
 import java.io.File;
 import java.io.FileReader;
@@ -49,7 +38,6 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -80,7 +68,7 @@ public class VectorDataNodeIOTest {
     
     @Test
     public void testDecodingDelimiter() throws IOException {        
-        final VectorDataNodeReader reader = new VectorDataNodeReader(DefaultGeographicCRS.WGS84);
+        final VectorDataNodeReader reader = new VectorDataNodeReader("mem", DefaultGeographicCRS.WGS84);
         final FeatureCollection<SimpleFeatureType,SimpleFeature> readCollection = reader.readFeatures(
                 new StringReader(stringWriter.toString()));
 
@@ -154,7 +142,7 @@ public class VectorDataNodeIOTest {
         assertNotNull(secondLine);
         assertEquals("#defaultCSS=stroke:#ff0000", secondLine);
         
-        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader(null);
+        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader("mem", null);
         VectorDataNode vectorDataNode2 = vectorDataNodeReader.read(tempFile);
         
         assertNotNull(vectorDataNode2);
