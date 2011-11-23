@@ -64,7 +64,7 @@ public class VectorDataNode extends ProductNode {
     private final PlacemarkDescriptor placemarkDescriptor;
     private PlacemarkGroup placemarkGroup;
     private final CollectionListener featureCollectionListener;
-    private String defaultCSS;
+    private String defaultStyleCss;
     private ReferencedEnvelope bounds = null;
 
     /**
@@ -114,7 +114,7 @@ public class VectorDataNode extends ProductNode {
             }
         };
         this.featureCollection.addListener(featureCollectionListener);
-        this.defaultCSS = String.format(DEFAULT_STYLE_FORMAT, FILL_COLORS[(fillColorIndex++) % FILL_COLORS.length]);
+        this.defaultStyleCss = String.format(DEFAULT_STYLE_FORMAT, FILL_COLORS[(fillColorIndex++) % FILL_COLORS.length]);
         this.placemarkDescriptor = placemarkDescriptor;
     }
 
@@ -222,17 +222,16 @@ public class VectorDataNode extends ProductNode {
 
     @Override
     public long getRawStorageSize(ProductSubsetDef subsetDef) {
-        // todo - estimate shapefile size (nf, 10.2009)
-        return 0;
+        return featureType.getAttributeCount() * featureCollection.size() * 256;
     }
 
-    public String getDefaultCSS() {
-        return defaultCSS;
+    public String getDefaultStyleCss() {
+        return defaultStyleCss;
     }
 
-    public void setDefaultCSS(String defaultCSS) {
-        Assert.notNull(defaultCSS, "defaultCSS");
-        this.defaultCSS = defaultCSS;
+    public void setDefaultStyleCss(String defaultStyleCss) {
+        Assert.notNull(this.defaultStyleCss, "defaultStyleCss");
+        this.defaultStyleCss = defaultStyleCss;
     }
 
     @Override
@@ -274,6 +273,24 @@ public class VectorDataNode extends ProductNode {
             return placemarkDescriptors.get(0);
         }
         return new GenericPlacemarkDescriptor(featureType);
+    }
+
+    /**
+     * @deprecated since BEAM 4.10, use getDefaultStyleCss()
+     */
+    @SuppressWarnings({"JavaDoc"})
+    @Deprecated
+    public String getDefaultCSS() {
+        return getDefaultStyleCss();
+    }
+
+    /**
+     * @deprecated since BEAM 4.10, use setDefaultStyleCss()
+     */
+    @SuppressWarnings({"JavaDoc"})
+    @Deprecated
+    public void setDefaultCSS(String defaultCSS) {
+        setDefaultStyleCss(defaultCSS);
     }
 
 }
