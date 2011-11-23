@@ -100,8 +100,7 @@ public class VectorDataNodeWriter {
 
         List<AttributeDescriptor> attributeDescriptors = simpleFeatureType.getAttributeDescriptors();
         JavaTypeConverter typeConverter = new JavaTypeConverter();
-        for (int i = 0; i < attributeDescriptors.size(); i++) {
-            AttributeDescriptor attributeDescriptor = attributeDescriptors.get(i);
+        for (AttributeDescriptor attributeDescriptor : attributeDescriptors) {
             Class<?> binding = attributeDescriptor.getType().getBinding();
             String name = attributeDescriptor.getLocalName();
             String type = typeConverter.format(binding);
