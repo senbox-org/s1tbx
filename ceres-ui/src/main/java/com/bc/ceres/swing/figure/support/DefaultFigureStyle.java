@@ -81,7 +81,15 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         addPropertyChangeListener(new EffectivePropertyNuller());
     }
 
+    /**
+     * @deprecated Since Ceres 0.13, use {@link #createFromCss}
+     */
+    @Deprecated
     public static FigureStyle createFromCSS(String css) {
+        return createFromCss(css);
+    }
+
+    public static FigureStyle createFromCss(String css) {
         DefaultFigureStyle figureStyle = new DefaultFigureStyle();
         figureStyle.fromCssString(css);
         return figureStyle;
