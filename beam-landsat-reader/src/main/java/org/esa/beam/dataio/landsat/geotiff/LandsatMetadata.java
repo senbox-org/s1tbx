@@ -31,6 +31,7 @@ import java.util.Date;
 
 class LandsatMetadata {
 
+    private static final String SENSOR_ID = "SENSOR_ID";
     private final MetadataElement root;
 
     LandsatMetadata(Reader mtlReader) throws IOException {
@@ -168,8 +169,13 @@ class LandsatMetadata {
     }
 
     boolean isLandsatTM() {
-        MetadataElement productMetadata = getProductMetadata();
-        return "TM".equals(productMetadata.getAttributeString("SENSOR_ID"));
+        final MetadataElement productMetadata = getProductMetadata();
+        return "TM".equals(productMetadata.getAttributeString(SENSOR_ID));
+    }
+
+    boolean isLandsatETM_Plus() {
+        final MetadataElement productMetadata = getProductMetadata();
+        return "ETM+".equals(productMetadata.getAttributeString(SENSOR_ID));
     }
 
     public ProductData.UTC getCenterTime() {
