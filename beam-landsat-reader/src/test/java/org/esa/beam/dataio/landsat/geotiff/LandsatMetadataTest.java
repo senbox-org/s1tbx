@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.Test;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -54,9 +55,24 @@ public class LandsatMetadataTest {
         assertTrue(landsatMetadata.isLandsatTM());
         assertFalse(landsatMetadata.isLandsatETM_Plus());
 
+        assertEquals("Landsat5_TM_L1T", landsatMetadata.getProductType());
+
         ProductData.UTC cTime = landsatMetadata.getCenterTime();
         assertNotNull(cTime);
         assertEquals("14-SEP-2003 09:55:12.228000", cTime.format());
+
+        final Dimension panchromaticDim = landsatMetadata.getPanchromaticDim();
+        assertNull(panchromaticDim);    // no panchromatic band in Landsat5 tb 2011-11-25
+
+        final Dimension thermalDim = landsatMetadata.getThermalDim();
+        assertNotNull(thermalDim);
+        assertEquals(7461, thermalDim.getHeight(), 1e-8);
+        assertEquals(8401, thermalDim.getWidth(), 1e-8);
+
+        final Dimension reflectanceDim = landsatMetadata.getReflectanceDim();
+        assertNotNull(reflectanceDim);
+        assertEquals(7461, reflectanceDim.getHeight(), 1e-8);
+        assertEquals(8401, reflectanceDim.getWidth(), 1e-8);
     }
 
     @Test
@@ -86,8 +102,25 @@ public class LandsatMetadataTest {
         assertFalse(landsatMetadata.isLandsatTM());
         assertTrue(landsatMetadata.isLandsatETM_Plus());
 
+        assertEquals("Landsat7_ETM+_L1T", landsatMetadata.getProductType());
+
         ProductData.UTC cTime = landsatMetadata.getCenterTime();
         assertNotNull(cTime);
         assertEquals("15-JAN-2006 08:45:02.587000", cTime.format());
+
+        final Dimension panchromaticDim = landsatMetadata.getPanchromaticDim();
+        assertNotNull(panchromaticDim);
+        assertEquals(14001, panchromaticDim.getHeight(), 1e-8);
+        assertEquals(15541, panchromaticDim.getWidth(), 1e-8);
+
+        final Dimension thermalDim = landsatMetadata.getThermalDim();
+        assertNotNull(thermalDim);
+        assertEquals(7001, thermalDim.getHeight(), 1e-8);
+        assertEquals(7771, thermalDim.getWidth(), 1e-8);
+
+        final Dimension reflectanceDim = landsatMetadata.getReflectanceDim();
+        assertNotNull(reflectanceDim);
+        assertEquals(7001, reflectanceDim.getHeight(), 1e-8);
+        assertEquals(7771, reflectanceDim.getWidth(), 1e-8);
     }
 }

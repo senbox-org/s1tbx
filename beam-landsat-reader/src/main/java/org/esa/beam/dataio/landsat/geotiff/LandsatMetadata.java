@@ -129,7 +129,18 @@ class LandsatMetadata {
     }
 
     String getProductType() {
-        return getProductMetadata().getAttribute("PRODUCT_TYPE").getData().getElemString();
+        final MetadataAttribute product_type = getProductMetadata().getAttribute("PRODUCT_TYPE");
+        final MetadataAttribute spacecraft_id = getProductMetadata().getAttribute("SPACECRAFT_ID");
+        final MetadataAttribute sensor_id = getProductMetadata().getAttribute("SENSOR_ID");
+
+        final StringBuilder result = new StringBuilder();
+        result.append(spacecraft_id.getData().getElemString());
+        result.append("_");
+        result.append(sensor_id.getData().getElemString());
+        result.append("_");
+        result.append(product_type.getData().getElemString());
+
+        return result.toString();
     }
 
     MetadataElement getProductMetadata() {
