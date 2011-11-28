@@ -154,6 +154,10 @@
             <groupId>edu.ucar</groupId>
             <artifactId>netcdf</artifactId>
         </dependency>
+        <dependency>
+            <groupId>edu.ucar</groupId>
+            <artifactId>nujan</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.jython</groupId>

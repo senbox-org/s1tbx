@@ -14,22 +14,33 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.netcdf;
+package org.esa.beam.dataio.netcdf.nc;
 
-import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
+import ucar.ma2.DataType;
+
+import java.awt.Dimension;
+import java.io.IOException;
 
 /**
- * A context for writing metadata from the BEAM product model into NetCDF.
- * While writing a product this context can be used to store properties to
- * share them between multiple {@link org.esa.beam.dataio.netcdf.metadata.ProfilePartWriter ProfilePartWriter}.
+ * An abstraction of the netcdf3/4 writing API.
+ *
+ * @author MarcoZ
  */
-public interface ProfileWriteContext extends PropertyStore {
+public interface NFileWriteable {
 
-    /**
-     * Returns th instance of {@link org.esa.beam.dataio.netcdf.nc.NFileWriteable} which is used during writing.
-     *
-     * @return the {@link org.esa.beam.dataio.netcdf.nc.NFileWriteable}
-     */
-    public NFileWriteable getNetcdfFileWriteable();
+    void addDimension(String name, int length) throws IOException;
 
+    String getDimensions();
+
+    void addGlobalAttribute(String name, String value) throws IOException;
+
+    NVariable addScalarVariable(String name, DataType dataType) throws IOException;
+
+    NVariable addVariable(String name, DataType dataType, Dimension tileSize, String dims) throws IOException;
+
+    NVariable findVariable(String variableName);
+
+    void create() throws IOException;
+
+    void close() throws IOException;
 }

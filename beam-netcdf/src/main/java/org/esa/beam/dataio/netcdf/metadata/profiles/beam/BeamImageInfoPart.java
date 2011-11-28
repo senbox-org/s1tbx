@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,6 +18,8 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
+import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
@@ -27,7 +29,6 @@ import org.esa.beam.framework.datamodel.Product;
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.awt.Color;
@@ -52,18 +53,18 @@ public class BeamImageInfoPart extends ProfilePartIO {
 
     @Override
     public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
-        NetcdfFileWriteable fileWriteable = ctx.getNetcdfFileWriteable();
+        NFileWriteable fileWriteable = ctx.getNetcdfFileWriteable();
         for (Band band : p.getBands()) {
             ImageInfo imageInfo = band.getImageInfo();
             if (imageInfo != null) {
                 String variableName = ReaderUtils.getVariableName(band);
-                Variable variable = fileWriteable.getRootGroup().findVariable(variableName);
+                NVariable variable = fileWriteable.findVariable(variableName);
                 writeImageInfo(imageInfo.getColorPaletteDef().getPoints(), variable);
             }
         }
     }
 
-    private static void writeImageInfo(ColorPaletteDef.Point[] points, Variable variable) {
+    private static void writeImageInfo(ColorPaletteDef.Point[] points, NVariable variable) throws IOException {
         final double[] sampleValues = new double[points.length];
         final int[] redValues = new int[points.length];
         final int[] greenValues = new int[points.length];
@@ -75,10 +76,10 @@ public class BeamImageInfoPart extends ProfilePartIO {
             greenValues[i] = point.getColor().getGreen();
             blueValues[i] = point.getColor().getBlue();
         }
-        variable.addAttribute(new Attribute(COLOR_TABLE_SAMPLE_VALUES, Array.factory(sampleValues)));
-        variable.addAttribute(new Attribute(COLOR_TABLE_RED_VALUES, Array.factory(redValues)));
-        variable.addAttribute(new Attribute(COLOR_TABLE_GREEN_VALUES, Array.factory(greenValues)));
-        variable.addAttribute(new Attribute(COLOR_TABLE_BLUE_VALUES, Array.factory(blueValues)));
+        variable.addAttribute(COLOR_TABLE_SAMPLE_VALUES, Array.factory(sampleValues));
+        variable.addAttribute(COLOR_TABLE_RED_VALUES, Array.factory(redValues));
+        variable.addAttribute(COLOR_TABLE_GREEN_VALUES, Array.factory(greenValues));
+        variable.addAttribute(COLOR_TABLE_BLUE_VALUES, Array.factory(blueValues));
     }
 
     private static void readImageInfo(Variable variable, Band band) throws ProductIOException {

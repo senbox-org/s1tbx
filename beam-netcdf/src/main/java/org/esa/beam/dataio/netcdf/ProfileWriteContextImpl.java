@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,18 +16,18 @@
 
 package org.esa.beam.dataio.netcdf;
 
-import ucar.nc2.NetcdfFileWriteable;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-class ProfileWriteContextImpl implements ProfileWriteContext {
+public class ProfileWriteContextImpl implements ProfileWriteContext {
 
     private final Map<String, Object> propertyMap;
-    private final NetcdfFileWriteable netcdfWritable;
+    private final NFileWriteable netcdfWriteable;
 
-    public ProfileWriteContextImpl(NetcdfFileWriteable netcdfWritable) {
-        this.netcdfWritable = netcdfWritable;
+    public ProfileWriteContextImpl(NFileWriteable netcdfWriteable) {
+        this.netcdfWriteable = netcdfWriteable;
         propertyMap = new HashMap<String, Object>();
     }
 
@@ -42,7 +42,7 @@ class ProfileWriteContextImpl implements ProfileWriteContext {
     }
 
     @Override
-    public NetcdfFileWriteable getNetcdfFileWriteable() {
-        return netcdfWritable;
+    public NFileWriteable getNetcdfFileWriteable() {
+        return netcdfWriteable;
     }
 }

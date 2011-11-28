@@ -17,6 +17,8 @@
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
 import junit.framework.TestCase;
+import org.esa.beam.dataio.netcdf.nc.N3FileWriteable;
+import org.esa.beam.dataio.netcdf.nc.N3Variable;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -45,9 +47,9 @@ public class CfFlagCodingPartTest extends TestCase {
         writeable.addDimension("y", flagBand.getSceneRasterHeight());
         writeable.addDimension("x", flagBand.getSceneRasterWidth());
         final DataType ncDataType = DataTypeUtils.getNetcdfDataType(flagBand.getDataType());
-        CfBandPart.writeCfBandAttributes(flagBand, writeable.addVariable(flagBand.getName(), ncDataType,
-                                                                         writeable.getRootGroup().getDimensions()));
-        CfFlagCodingPart.writeFlagCoding(flagBand, writeable);
+        Variable variable = writeable.addVariable(flagBand.getName(), ncDataType, writeable.getRootGroup().getDimensions());
+        CfBandPart.writeCfBandAttributes(flagBand, new N3Variable(variable, writeable));
+        CfFlagCodingPart.writeFlagCoding(flagBand, new N3FileWriteable(writeable));
 
         Variable someFlagsVariable = writeable.findVariable("flag_band");
         assertNotNull(someFlagsVariable);

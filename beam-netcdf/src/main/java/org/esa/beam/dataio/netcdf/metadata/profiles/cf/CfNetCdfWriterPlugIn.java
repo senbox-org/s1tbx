@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,8 +19,11 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.AbstractNetCdfWriterPlugIn;
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPartWriter;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartWriter;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
+import org.esa.beam.dataio.netcdf.nc.NWritableFactory;
 import org.esa.beam.dataio.netcdf.util.Constants;
 
+import java.io.IOException;
 import java.util.Locale;
 
 public class CfNetCdfWriterPlugIn extends AbstractNetCdfWriterPlugIn {
@@ -38,6 +41,11 @@ public class CfNetCdfWriterPlugIn extends AbstractNetCdfWriterPlugIn {
     @Override
     public String getDescription(Locale locale) {
         return "NetCDF following CF-Convention";
+    }
+
+    @Override
+    public NFileWriteable createWritable(String outputPath) throws IOException {
+        return NWritableFactory.create(outputPath, "netcdf3");
     }
 
     @Override

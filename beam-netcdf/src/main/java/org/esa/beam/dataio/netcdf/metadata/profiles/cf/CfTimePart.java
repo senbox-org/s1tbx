@@ -18,13 +18,12 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.TimeUtils;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriteable;
 
 import java.io.IOException;
 
@@ -41,13 +40,13 @@ public class CfTimePart extends ProfilePartIO {
     @Override
     public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         ProductData.UTC utc = p.getStartTime();
-        NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
+        NFileWriteable writeable = ctx.getNetcdfFileWriteable();
         if (utc != null) {
-            writeable.addGlobalAttribute(new Attribute(Constants.START_DATE_ATT_NAME, utc.format()));
+            writeable.addGlobalAttribute(Constants.START_DATE_ATT_NAME, utc.format());
         }
         utc = p.getEndTime();
         if (utc != null) {
-            writeable.addGlobalAttribute(new Attribute(Constants.STOP_DATE_ATT_NAME, utc.format()));
+            writeable.addGlobalAttribute(Constants.STOP_DATE_ATT_NAME, utc.format());
         }
     }
 }

@@ -14,22 +14,29 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.netcdf;
+package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
+import org.esa.beam.dataio.netcdf.nc.NWritableFactory;
 
-/**
- * A context for writing metadata from the BEAM product model into NetCDF.
- * While writing a product this context can be used to store properties to
- * share them between multiple {@link org.esa.beam.dataio.netcdf.metadata.ProfilePartWriter ProfilePartWriter}.
- */
-public interface ProfileWriteContext extends PropertyStore {
+import java.io.IOException;
+import java.util.Locale;
 
-    /**
-     * Returns th instance of {@link org.esa.beam.dataio.netcdf.nc.NFileWriteable} which is used during writing.
-     *
-     * @return the {@link org.esa.beam.dataio.netcdf.nc.NFileWriteable}
-     */
-    public NFileWriteable getNetcdfFileWriteable();
+public class BeamNetCdf4WriterPlugIn extends BeamNetCdfWriterPlugIn {
+
+    @Override
+    public String[] getFormatNames() {
+        return new String[]{"NetCDF4-BEAM"};
+    }
+
+    @Override
+    public String getDescription(Locale locale) {
+        return "BEAM NetCDF4 products";
+    }
+
+    @Override
+    public NFileWriteable createWritable(String outputPath) throws IOException {
+        return NWritableFactory.create(outputPath, "netcdf4");
+    }
 
 }

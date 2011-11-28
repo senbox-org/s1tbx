@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,20 +16,19 @@
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
-import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
+import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -90,42 +89,38 @@ public class BeamTiePointGridPart extends ProfilePartIO {
 
     @Override
     public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
-        final HashMap<String, Dimension[]> dimMap = new HashMap<String, Dimension[]>();
-        final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
+        final HashMap<String, String> dimMap = new HashMap<String, String>();
+        final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
 
         for (TiePointGrid tiePointGrid : p.getTiePointGrids()) {
             final String key = "" + tiePointGrid.getRasterHeight() + " " + tiePointGrid.getRasterWidth();
-            if (!dimMap.containsKey(key)) {
+            String dimString = dimMap.get(key);
+            if (dimString == null) {
                 final int size = dimMap.size();
                 final String suffix = size > 0 ? "" + (size + 1) : "";
-                Dimension dimTpY = new Dimension("tp_y" + suffix, tiePointGrid.getRasterHeight());
-                Dimension dimTpX = new Dimension("tp_x" + suffix, tiePointGrid.getRasterWidth());
-                ncFile.addDimension(null, dimTpY);
-                ncFile.addDimension(null, dimTpX);
-                dimMap.put(key, new Dimension[]{dimTpY, dimTpX});
+                ncFile.addDimension("tp_y" + suffix, tiePointGrid.getRasterHeight());
+                ncFile.addDimension("tp_x" + suffix, tiePointGrid.getRasterWidth());
+                dimString = "tp_y" + suffix + " " + "tp_x" + suffix;
+                dimMap.put(key, dimString);
             }
             String variableName = ReaderUtils.getVariableName(tiePointGrid);
-            final Variable variable = ncFile.addVariable(variableName, DataType.FLOAT, dimMap.get(key));
-            variable.addAttribute(new Attribute(OFFSET_X, tiePointGrid.getOffsetX()));
-            variable.addAttribute(new Attribute(OFFSET_Y, tiePointGrid.getOffsetY()));
-            variable.addAttribute(new Attribute(SUBSAMPLING_X, tiePointGrid.getSubSamplingX()));
-            variable.addAttribute(new Attribute(SUBSAMPLING_Y, tiePointGrid.getSubSamplingY()));
+            final NVariable variable = ncFile.addVariable(variableName, DataType.FLOAT, null, dimString);
+            variable.addAttribute(OFFSET_X, tiePointGrid.getOffsetX());
+            variable.addAttribute(OFFSET_Y, tiePointGrid.getOffsetY());
+            variable.addAttribute(SUBSAMPLING_X, tiePointGrid.getSubSamplingX());
+            variable.addAttribute(SUBSAMPLING_Y, tiePointGrid.getSubSamplingY());
         }
     }
 
     @Override
     public void encode(ProfileWriteContext ctx, Product p) throws IOException {
         for (TiePointGrid tiePointGrid : p.getTiePointGrids()) {
-            try {
-                final int y = tiePointGrid.getRasterHeight();
-                final int x = tiePointGrid.getRasterWidth();
-                final int[] shape = new int[]{y, x};
-                final Array values = Array.factory(DataType.FLOAT, shape, tiePointGrid.getDataElems());
-                String variableName = ReaderUtils.getVariableName(tiePointGrid);
-                ctx.getNetcdfFileWriteable().write(variableName, values);
-            } catch (InvalidRangeException e) {
-                throw new ProductIOException("TiePointData not in the expected range");
-            }
+            final int y = tiePointGrid.getRasterHeight();
+            final int x = tiePointGrid.getRasterWidth();
+            final int[] shape = new int[]{y, x};
+            final Array values = Array.factory(DataType.FLOAT, shape, tiePointGrid.getDataElems());
+            String variableName = ReaderUtils.getVariableName(tiePointGrid);
+            ctx.getNetcdfFileWriteable().findVariable(variableName).writeFully(values);
         }
     }
 }

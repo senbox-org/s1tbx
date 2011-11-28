@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,11 +18,13 @@ package org.esa.beam.dataio.netcdf;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPartWriter;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartWriter;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.File;
+import java.io.IOException;
 
 public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn {
 
@@ -51,6 +53,15 @@ public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn 
      * @return the {@link org.esa.beam.dataio.netcdf.metadata.ProfileInitPartReader}
      */
     public abstract ProfileInitPartWriter createInitialisationPartWriter();
+
+    /**
+     * Creates an instance of {@link org.esa.beam.dataio.netcdf.nc.NFileWriteable} for the given
+     * output path.
+     *
+     * @return the {@link org.esa.beam.dataio.netcdf.nc.NFileWriteable}
+     */
+    public abstract NFileWriteable createWritable(String outputPath) throws IOException;
+
 
     /**
      * Creates an instance of {@link org.esa.beam.dataio.netcdf.metadata.ProfilePartWriter} responsible for writing

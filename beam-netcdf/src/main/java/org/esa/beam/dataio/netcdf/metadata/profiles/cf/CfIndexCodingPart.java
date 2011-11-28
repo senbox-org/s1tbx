@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,9 +15,11 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
+import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
@@ -25,7 +27,6 @@ import org.esa.beam.framework.datamodel.Product;
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -51,28 +52,28 @@ public class CfIndexCodingPart extends ProfilePartIO {
 
     @Override
     public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
-        NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
+        NFileWriteable writeable = ctx.getNetcdfFileWriteable();
         for (Band band : p.getBands()) {
             IndexCoding indexCoding = band.getIndexCoding();
             if (indexCoding != null) {
                 String variableName = ReaderUtils.getVariableName(band);
-                Variable variable = writeable.getRootGroup().findVariable(variableName);
+                NVariable variable = writeable.findVariable(variableName);
                 writeIndexCoding(indexCoding, variable);
             }
         }
     }
 
-    public static void writeIndexCoding(IndexCoding indexCoding, Variable variable) {
+    public static void writeIndexCoding(IndexCoding indexCoding, NVariable variable) throws IOException {
         final String[] indexNames = indexCoding.getIndexNames();
         final int[] indexValues = new int[indexNames.length];
-        final StringBuffer meanings = new StringBuffer();
+        final StringBuilder meanings = new StringBuilder();
         for (int i = 0; i < indexValues.length; i++) {
             String name = indexNames[i];
             meanings.append(name).append(" ");
             indexValues[i] = indexCoding.getIndexValue(name);
         }
-        variable.addAttribute(new Attribute(FLAG_MEANINGS, meanings.toString().trim()));
-        variable.addAttribute(new Attribute(FLAG_VALUES, Array.factory(indexValues)));
+        variable.addAttribute(FLAG_MEANINGS, meanings.toString().trim());
+        variable.addAttribute(FLAG_VALUES, Array.factory(indexValues));
     }
 
     public static IndexCoding readIndexCoding(Variable variable, String indexCodingName) {

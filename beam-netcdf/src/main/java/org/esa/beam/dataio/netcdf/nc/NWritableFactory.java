@@ -14,22 +14,24 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.netcdf;
+package org.esa.beam.dataio.netcdf.nc;
 
-import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
+import java.io.IOException;
 
 /**
- * A context for writing metadata from the BEAM product model into NetCDF.
- * While writing a product this context can be used to store properties to
- * share them between multiple {@link org.esa.beam.dataio.netcdf.metadata.ProfilePartWriter ProfilePartWriter}.
+ * A factory for the netcdf3/4 writing API.
+ *
+ * @author MarcoZ
  */
-public interface ProfileWriteContext extends PropertyStore {
+public class NWritableFactory {
 
-    /**
-     * Returns th instance of {@link org.esa.beam.dataio.netcdf.nc.NFileWriteable} which is used during writing.
-     *
-     * @return the {@link org.esa.beam.dataio.netcdf.nc.NFileWriteable}
-     */
-    public NFileWriteable getNetcdfFileWriteable();
-
+    public static NFileWriteable create(String filename, String format) throws IOException {
+        if ("netcdf3".equalsIgnoreCase(format)) {
+            return N3FileWriteable.create(filename);
+        } else if ("netcdf4".equalsIgnoreCase(format)) {
+            return N4FileWriteable.create(filename);
+        } else {
+            throw new IllegalArgumentException("Unsupported format: " +  format);
+        }
+    }
 }

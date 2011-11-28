@@ -17,17 +17,14 @@
 package org.esa.beam.dataio.netcdf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
+import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
-import ucar.ma2.Array;
-import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
-import ucar.nc2.NetcdfFileWriteable;
-import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,14 +35,14 @@ import java.util.HashMap;
  */
 class DefaultNetCdfWriter extends AbstractProductWriter {
 
-    private HashMap<String, Variable> variableMap;
-    private NetcdfFileWriteable writeable;
+    private HashMap<String, NVariable> variableMap;
+    private NFileWriteable writeable;
     private boolean isYFlipped;
     private boolean convertLogScaledBands;
 
     DefaultNetCdfWriter(AbstractNetCdfWriterPlugIn writerPlugIn) {
         super(writerPlugIn);
-        variableMap = new HashMap<String, Variable>();
+        variableMap = new HashMap<String, NVariable>();
     }
 
     @Override
@@ -55,10 +52,11 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
 
     @Override
     protected void writeProductNodesImpl() throws IOException {
-        writeable = NetcdfFileWriteable.createNew(getOutputString());
-        writeable.setLargeFile(true);
-        NetCdfWriteProfile profile = new NetCdfWriteProfile();
         AbstractNetCdfWriterPlugIn plugIn = getWriterPlugIn();
+
+        writeable = plugIn.createWritable(getOutputString());
+        NetCdfWriteProfile profile = new NetCdfWriteProfile();
+
         configureProfile(profile, plugIn);
         ProfileWriteContext context = new ProfileWriteContextImpl(writeable);
         profile.writeProduct(context, getSourceProduct());
@@ -93,13 +91,6 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
                                     int sourceHeight, ProductData sourceBuffer, ProgressMonitor pm) throws IOException {
         final String variableName = ReaderUtils.getVariableName(sourceBand);
         if (shallWriteVariable(variableName)) {
-            final int yIndex = 0;
-            final int xIndex = 1;
-            final DataType dataType = getDataType(variableName);
-            final int sceneHeight = sourceBand.getProduct().getSceneRasterHeight();
-            final int[] writeOrigin = new int[2];
-            writeOrigin[xIndex] = sourceOffsetX;
-
             ProductData scaledBuffer;
             if (convertLogScaledBands && sourceBand.isLog10Scaled()) {
                 scaledBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32, sourceBuffer.getNumElems());
@@ -110,29 +101,15 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
             } else {
                 scaledBuffer = sourceBuffer;
             }
-
-            final int[] sourceShape = new int[]{sourceHeight, sourceWidth};
-            final Array sourceArray = Array.factory(dataType, sourceShape, scaledBuffer.getElems());
-
-            final int[] sourceOrigin = new int[2];
-            sourceOrigin[xIndex] = 0;
-            final int[] writeShape = new int[]{1, sourceWidth};
-            for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
-                writeOrigin[yIndex] = isYFlipped ? (sceneHeight - 1) - y : y;
-                sourceOrigin[yIndex] = y - sourceOffsetY;
-                try {
-                    Array dataArrayLine = sourceArray.sectionNoReduce(sourceOrigin, writeShape, null);
-                    writeable.write(variableName, writeOrigin, dataArrayLine);
-                } catch (InvalidRangeException e) {
-                    e.printStackTrace();
-                    throw new IOException("Unable to encode netCDF data.", e);
-                }
+            synchronized (writeable) {
+                NVariable variable = getVariable(variableName);
+                variable.write(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, isYFlipped, scaledBuffer);
             }
         }
     }
 
     private boolean shallWriteVariable(String variableName) {
-        final Variable variable = writeable.getRootGroup().findVariable(variableName);
+        final NVariable variable = writeable.findVariable(variableName);
         return variable != null;
     }
 
@@ -159,15 +136,16 @@ class DefaultNetCdfWriter extends AbstractProductWriter {
         getOutputFile().delete();
     }
 
-    private DataType getDataType(String variableName) throws ProductIOException {
-        if (!variableMap.containsKey(variableName)) {
-            final Variable variable = writeable.getRootGroup().findVariable(variableName);
+    private synchronized NVariable getVariable(String variableName) throws ProductIOException {
+        NVariable variable = variableMap.get(variableName);
+        if (variable == null) {
+            variable = writeable.findVariable(variableName);
             if (variable == null) {
                 throw new ProductIOException("Nc raster data variable '" + variableName + "' not found");
             }
             variableMap.put(variableName, variable);
         }
-        return variableMap.get(variableName).getDataType();
+        return variable;
     }
 
     private File getOutputFile() {
