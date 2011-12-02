@@ -11,7 +11,10 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testOpenTgz() throws IOException {
-        final File testTgz = new File("./beam-landsat-reader/src/test/resources/org/esa/beam/dataio/landsat/tgz/test-archive.tgz");
+        File testTgz = new File("./beam-landsat-reader/src/test/resources/org/esa/beam/dataio/landsat/tgz/test-archive.tgz");
+        if (!testTgz.isFile()) {
+            testTgz = new File("./src/test/resources/org/esa/beam/dataio/landsat/tgz/test-archive.tgz");
+        }
         assertTrue(testTgz.isFile());
 
         final VirtualDirTgz vdTgz = new VirtualDirTgz(testTgz);
