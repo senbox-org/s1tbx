@@ -421,10 +421,13 @@
                 </serializedBean>
                 <condition />
               </action>
-              <action name="" id="4717" customizedId="" beanClass="com.install4j.runtime.beans.actions.text.ReplaceInstallerVariablesAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+              <action name="" id="4717" customizedId="" beanClass="com.install4j.runtime.beans.actions.text.ReplaceInstallerVariablesAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="3" errorMessage="">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.text.ReplaceInstallerVariablesAction">
+                      <void property="failIfNoReplacement">
+                        <boolean>true</boolean>
+                      </void>
                       <void property="files">
                         <array class="java.io.File" length="1">
                           <void index="0">
