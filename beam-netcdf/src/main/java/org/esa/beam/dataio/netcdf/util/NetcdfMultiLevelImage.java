@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,39 +23,39 @@ import org.esa.beam.jai.ResolutionLevel;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 
 
 public class NetcdfMultiLevelImage extends AbstractNetcdfMultiLevelImage {
 
     private final Variable variable;
-    private final int zOrigin;
+    private final int[] imageOrigin;
     private final ProfileReadContext ctx;
 
     /**
      * Constructs a new {@code NetcdfMultiLevelImage}.
      *
-     * @param rdn the raster data node
+     * @param rdn      the raster data node
      * @param variable the netcdf variable
-     * @param ctx the context
+     * @param ctx      the context
      */
     public NetcdfMultiLevelImage(RasterDataNode rdn, Variable variable, ProfileReadContext ctx) {
-        this(rdn, variable, -1, ctx);
+        this(rdn, variable, new int[0], ctx);
     }
 
     /**
      * Constructs a new {@code NetcdfMultiLevelImage}.
      *
-     * @param rdn the raster data node
-     * @param variable the netcdf variable
-     * @param zOrigin the 3rd-dimension index
-     * @param ctx the context
+     * @param rdn         the raster data node
+     * @param variable    the netcdf variable
+     * @param imageOrigin the index within a multidimensional image dataset
+     * @param ctx         the context
      */
-    public NetcdfMultiLevelImage(RasterDataNode rdn, Variable variable, int zOrigin, ProfileReadContext ctx) {
+    public NetcdfMultiLevelImage(RasterDataNode rdn, Variable variable, int[] imageOrigin, ProfileReadContext ctx) {
         super(rdn);
         this.variable = variable;
-        this.zOrigin = zOrigin;
+        this.imageOrigin = imageOrigin.clone();
         this.ctx = ctx;
     }
 
@@ -71,7 +71,7 @@ public class NetcdfMultiLevelImage extends AbstractNetcdfMultiLevelImage {
         ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), level);
         Dimension tileSize = getPreferredTileSize(rdn);
 
-        return new NetcdfOpImage(variable, zOrigin, isYFlipped, lock,
-                dataBufferType, sceneRasterWidth, sceneRasterHeight,tileSize, resolutionLevel);
+        return new NetcdfOpImage(variable, imageOrigin, isYFlipped, lock,
+                dataBufferType, sceneRasterWidth, sceneRasterHeight, tileSize, resolutionLevel);
     }
 }
