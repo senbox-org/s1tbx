@@ -24,7 +24,11 @@ import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
 import org.esa.beam.dataio.netcdf.util.NetcdfMultiLevelImage;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.DataNode;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ForLoop;
 import org.esa.beam.util.StringUtils;
@@ -63,7 +67,7 @@ public class CfBandPart extends ProfilePartIO {
                             String zName = zDim.getName();
                             String skipPrefix = "n_";
                             if (zName.toLowerCase().startsWith(skipPrefix)
-                                    && zName.length() > skipPrefix.length()) {
+                                && zName.length() > skipPrefix.length()) {
                                 zName = zName.substring(skipPrefix.length());
                             }
                             if (zDim.getLength() > 1) {
@@ -158,7 +162,8 @@ public class CfBandPart extends ProfilePartIO {
         variable.addAttribute("coordinates", "lat lon");
     }
 
-    public static void defineRasterDataNodes(ProfileWriteContext ctx, RasterDataNode[] rasterDataNodes) throws IOException {
+    public static void defineRasterDataNodes(ProfileWriteContext ctx, RasterDataNode[] rasterDataNodes) throws
+                                                                                                        IOException {
         final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final String dimensions = ncFile.getDimensions();
         for (RasterDataNode rasterDataNode : rasterDataNodes) {

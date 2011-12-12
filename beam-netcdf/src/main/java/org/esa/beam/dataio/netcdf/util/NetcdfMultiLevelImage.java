@@ -23,7 +23,7 @@ import org.esa.beam.jai.ResolutionLevel;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.awt.*;
+import java.awt.Dimension;
 import java.awt.image.RenderedImage;
 
 
@@ -72,6 +72,6 @@ public class NetcdfMultiLevelImage extends AbstractNetcdfMultiLevelImage {
         Dimension tileSize = getPreferredTileSize(rdn);
 
         return new NetcdfOpImage(variable, imageOrigin, isYFlipped, lock,
-                dataBufferType, sceneRasterWidth, sceneRasterHeight, tileSize, resolutionLevel);
+                                 dataBufferType, sceneRasterWidth, sceneRasterHeight, tileSize, resolutionLevel);
     }
 }
