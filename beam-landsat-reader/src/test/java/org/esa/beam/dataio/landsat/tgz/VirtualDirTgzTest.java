@@ -1,5 +1,6 @@
 package org.esa.beam.dataio.landsat.tgz;
 
+import org.esa.beam.dataio.landsat.TestUtil;
 import org.esa.beam.util.io.FileUtils;
 import org.junit.After;
 import org.junit.Test;
@@ -19,7 +20,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testOpenTgz() throws IOException {
-        File testTgz = getTestFile("test-archive.tgz");
+        File testTgz = TestUtil.getTestFile("test-archive.tgz");
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertEquals(testTgz.getPath(), virtualDir.getBasePath());
@@ -27,7 +28,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testOpenTar() throws IOException {
-        File testTar = getTestFile("test-archive.tar");
+        File testTar = TestUtil.getTestFile("test-archive.tar");
 
         virtualDir = new VirtualDirTgz(testTar);
         assertEquals(testTar.getPath(), virtualDir.getBasePath());
@@ -45,7 +46,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testTar_getInputStream() throws IOException {
-        final File testTgz = getTestFile("test-archive.tar");
+        final File testTgz = TestUtil.getTestFile("test-archive.tar");
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertExpectedInputStream();
@@ -53,7 +54,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testTgz_getInputStream() throws IOException {
-        final File testTgz = getTestFile("test-archive.tgz");
+        final File testTgz = TestUtil.getTestFile("test-archive.tgz");
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertExpectedInputStream();
@@ -61,7 +62,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testTar_getInputStream_invalidPath() throws IOException {
-        final File testTgz = getTestFile("test-archive.tar");
+        final File testTgz = TestUtil.getTestFile("test-archive.tar");
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertInputStreamInvalidPath();
@@ -69,7 +70,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testTgz_getInputStream_invalidPath() throws IOException {
-        final File testTgz = getTestFile("test-archive.tgz");
+        final File testTgz = TestUtil.getTestFile("test-archive.tgz");
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertInputStreamInvalidPath();
@@ -77,7 +78,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testTar_getFile() throws IOException {
-        final File testTgz = getTestFile("test-archive.tar");
+        final File testTgz = TestUtil.getTestFile("test-archive.tar");
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertExpectedFile();
@@ -85,7 +86,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testTgz_getFile() throws IOException {
-        final File testTgz = getTestFile("test-archive.tgz");
+        final File testTgz = TestUtil.getTestFile("test-archive.tgz");
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertExpectedFile();
@@ -93,7 +94,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testTar_getFile_invalidPath() throws IOException {
-        final File testTgz = getTestFile("test-archive.tar");
+        final File testTgz = TestUtil.getTestFile("test-archive.tar");
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertGetFileInvalidPath();
@@ -101,7 +102,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testTgz_getFile_invalidPath() throws IOException {
-        final File testTgz = getTestFile("test-archive.tgz");
+        final File testTgz = TestUtil.getTestFile("test-archive.tgz");
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertGetFileInvalidPath();
@@ -109,7 +110,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testTar_list() throws IOException {
-        final File testTgz = getTestFile("test-archive.tar");
+        final File testTgz = TestUtil.getTestFile("test-archive.tar");
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertCorrectList();
@@ -117,7 +118,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testTgz_list() throws IOException {
-        final File testTgz = getTestFile("test-archive.tgz");
+        final File testTgz = TestUtil.getTestFile("test-archive.tgz");
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertCorrectList();
@@ -125,7 +126,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testTar_list_invalidPath() throws IOException {
-        final File testTgz = getTestFile("test-archive.tar");
+        final File testTgz = TestUtil.getTestFile("test-archive.tar");
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertListInvalidPath();
@@ -133,7 +134,7 @@ public class VirtualDirTgzTest {
 
     @Test
     public void testTgz_list_invalidPath() throws IOException {
-        final File testTgz = getTestFile("test-archive.tgz");
+        final File testTgz = TestUtil.getTestFile("test-archive.tgz");
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertListInvalidPath();
@@ -217,15 +218,6 @@ public class VirtualDirTgzTest {
         if (virtualDir != null) {
             virtualDir.close();
         }
-    }
-
-    private File getTestFile(String file) {
-        File testTgz = new File("./beam-landsat-reader/src/test/resources/org/esa/beam/dataio/landsat/tgz/" + file);
-        if (!testTgz.isFile()) {
-            testTgz = new File("./src/test/resources/org/esa/beam/dataio/landsat/tgz/" + file);
-        }
-        assertTrue(testTgz.isFile());
-        return testTgz;
     }
 
     private void assertExpectedInputStream() throws IOException {
