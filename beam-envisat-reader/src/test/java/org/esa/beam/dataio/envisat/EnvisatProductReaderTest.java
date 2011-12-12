@@ -36,29 +36,61 @@ public class EnvisatProductReaderTest {
             assertNotNull(lonGrid);
 
             final ProductFile productFile = reader.getProductFile();
-
             assertTrue(productFile.storesPixelsInChronologicalOrder());
 
             float offsetX = latGrid.getOffsetX();
-
             assertEquals(-18.0f, offsetX, 0.0f);
 
             float offsetY = latGrid.getOffsetY();
-
             assertEquals(1.0f, offsetY, 0.0f);
 
             float subSamplingX = latGrid.getSubSamplingX();
-
             assertEquals(25.0f, subSamplingX, 0.0f);
 
             float subSamplingY = latGrid.getSubSamplingY();
-
             assertEquals(32.0f, subSamplingY, 0.0f);
 
-            final GeoPos geoPos = product.getGeoCoding().getGeoPos(new PixelPos(6.0f + 1.0f, 0.0f + 1.0f), null);
+            final GeoPos geoPos = product.getGeoCoding().getGeoPos(new PixelPos(offsetX + subSamplingX, offsetY), null);
+            assertEquals(44.541008f, geoPos.getLat(), 0.0f);
+            assertEquals(32.940247f, geoPos.getLon(), 0.0f);
+        } finally {
+            reader.close();
+        }
+    }
 
-            assertEquals(latGrid.getTiePoints()[1], geoPos.getLat(), 0.0f);
-            assertEquals(lonGrid.getTiePoints()[1], geoPos.getLon(), 0.0f);
+    @Test
+    public void testAatsrGeoLocation() throws IOException, URISyntaxException {
+        final EnvisatProductReader reader = (EnvisatProductReader) readerPlugIn.createReaderInstance();
+
+        try {
+            final Product product = reader.readProductNodes(
+                    new File(getClass().getResource(
+                            "ATS_TOA_1PRMAP20050504_080932_000000482037_00020_16607_0001.N1").toURI()), null);
+
+            final TiePointGrid latGrid = product.getTiePointGrid("latitude");
+            final TiePointGrid lonGrid = product.getTiePointGrid("longitude");
+            assertNotNull(latGrid);
+            assertNotNull(lonGrid);
+
+            final ProductFile productFile = reader.getProductFile();
+            assertTrue(productFile.storesPixelsInChronologicalOrder());
+
+            float offsetX = latGrid.getOffsetX();
+            assertEquals(-18.0f, offsetX, 0.0f);
+
+            float offsetY = latGrid.getOffsetY();
+            assertEquals(1.0f, offsetY, 0.0f);
+
+            float subSamplingX = latGrid.getSubSamplingX();
+            assertEquals(25.0f, subSamplingX, 0.0f);
+
+            float subSamplingY = latGrid.getSubSamplingY();
+            assertEquals(32.0f, subSamplingY, 0.0f);
+
+            final GeoPos geoPos = product.getGeoCoding().getGeoPos(new PixelPos(320.0f, 1.0f), null);
+
+            assertEquals(43.384750f, geoPos.getLat(), 0.0f);
+            assertEquals(39.040206f, geoPos.getLon(), 0.0f);
         } finally {
             reader.close();
         }
