@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,13 +17,16 @@
 package com.bc.install4j;
 
 import com.install4j.api.actions.AbstractInstallOrUninstallAction;
+import com.install4j.api.beans.ReplacementMode;
 import com.install4j.api.context.InstallerContext;
 import com.install4j.api.context.ProgressInterface;
 import com.install4j.api.context.UninstallerContext;
 import com.install4j.api.context.UserCanceledException;
-import com.install4j.api.beans.ReplacementMode;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 /**
  * A sample action that can be also used for the uninstaller.

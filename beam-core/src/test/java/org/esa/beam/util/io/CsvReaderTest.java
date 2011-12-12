@@ -16,124 +16,204 @@
 
 package org.esa.beam.util.io;
 
+import org.junit.Test;
+
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.IOException;
 import java.util.List;
-import java.util.ArrayList;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.*;
 
-import org.esa.beam.util.ArrayUtils;
+public class CsvReaderTest {
 
-public class CsvReaderTest extends TestCase {
+    public static final String CSV_DATA =
+            "radiance_4   |Radiance_MDS(4).3 |*   |Float|Linear_Scale|0.0|Scaling_Factor_GADS.8.4 |*|*\n" +
+                    "radiance_5   |Radiance_MDS(5).3 |*   |Float|Linear_Scale|0.0|Scaling_Factor_GADS.8.5 |*|*\n" +
+                    "radiance_6   |Radiance_MDS(6).3 |*   |Float|Linear_Scale|0.0|Scaling_Factor_GADS.8.6 |*|\n" +
+                    "radiance_7   |Radiance_MDS(7).3 |*   |Float|Linear_Scale|0.0|Scaling_Factor_GADS.8.7 ||*\n";
 
-    private CsvReader reader;
-    private List<String[]> expectedRecords;
-
-    public CsvReaderTest(String testName) {
-        super(testName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(CsvReaderTest.class);
-    }
-
-    @Override
-    protected void setUp() {
-        expectedRecords = new ArrayList<String[]>(6);
-        expectedRecords.add(
-                new String[]{"radiance_4",
-                             "Radiance_MDS(4).3",
-                             "*",
-                             "Float",
-                             "Linear_Scale",
-                             "0.0",
-                             "Scaling_Factor_GADS.8.4",
-                             "*",
-                             "*"});
-        expectedRecords.add(
-                new String[]{"radiance_5",
-                             "Radiance_MDS(5).3",
-                             "*",
-                             "Float",
-                             "Linear_Scale",
-                             "0.0",
-                             "Scaling_Factor_GADS.8.5",
-                             "*",
-                             "*"});
-        expectedRecords.add(
-                new String[]{"radiance_6",
-                             "Radiance_MDS(6).3",
-                             "*",
-                             "Float",
-                             "Linear_Scale",
-                             "0.0",
-                             "Scaling_Factor_GADS.8.6",
-                             "*",
-                             "*"});
-        expectedRecords.add(
-                new String[]{"radiance_7",
-                             "Radiance_MDS(7).3",
-                             "*",
-                             "Float",
-                             "Linear_Scale",
-                             "0.0",
-                             "Scaling_Factor_GADS.8.7",
-                             "*",
-                             "*"});
-
-        Reader reader = new StringReader("radiance_4   |Radiance_MDS(4).3 |*   |Float|Linear_Scale|0.0|Scaling_Factor_GADS.8.4 |*|*\n" +
-                                         "radiance_5   |Radiance_MDS(5).3 |*   |Float|Linear_Scale|0.0|Scaling_Factor_GADS.8.5 |*|*\n" +
-                                         "radiance_6   |Radiance_MDS(6).3 |*   |Float|Linear_Scale|0.0|Scaling_Factor_GADS.8.6 |*|*\n" +
-                                         "radiance_7   |Radiance_MDS(7).3 |*   |Float|Linear_Scale|0.0|Scaling_Factor_GADS.8.7 |*|*\n");
-        this.reader = new CsvReader(reader, new char[]{'|'});
-    }
-
-    public void testGetSeparators() {
-        Reader reader = new StringReader("testreader");
-        CsvReader csvReader;
-        char[] seperator;
-
-        seperator = new char[]{'|'};
-        csvReader = new CsvReader(reader, seperator);
-        assertEquals(seperator, csvReader.getSeparators());
-
-        seperator = new char[]{'|', ','};
-        csvReader = new CsvReader(reader, seperator);
-        assertEquals(seperator, csvReader.getSeparators());
-    }
-
-    public void testReadAllRecords() {
-        List<String[]> actualVector = null;
-        try {
-            actualVector = reader.readStringRecords();
-        } catch (java.io.IOException e) {
-            fail("no java.io.IOException expected");
-        }
-
-        assertEquals(actualVector.size(), expectedRecords.size());
-        for (int i = 0; i < actualVector.size(); i++) {
-            ArrayUtils.equalArrays(actualVector.get(i), expectedRecords.get(i));
-        }
-    }
-
-    public void testReadRecord() {
-
-        for (String[] expectedRecord : expectedRecords) {
-            try {
-                assertEquals(true, ArrayUtils.equalArrays(expectedRecord, reader.readRecord()));
-            } catch (IOException e) {
-                fail("no java.io.IOException expected");
+    private static final String[][] EXPECTED_RECORDS = new String[][]{
+            new String[]{
+                    "radiance_4",
+                    "Radiance_MDS(4).3",
+                    "*",
+                    "Float",
+                    "Linear_Scale",
+                    "0.0",
+                    "Scaling_Factor_GADS.8.4",
+                    "*",
+                    "*"
+            },
+            {
+                    "radiance_5",
+                    "Radiance_MDS(5).3",
+                    "*",
+                    "Float",
+                    "Linear_Scale",
+                    "0.0",
+                    "Scaling_Factor_GADS.8.5",
+                    "*",
+                    "*"
+            },
+            {
+                    "radiance_6",
+                    "Radiance_MDS(6).3",
+                    "*",
+                    "Float",
+                    "Linear_Scale",
+                    "0.0",
+                    "Scaling_Factor_GADS.8.6",
+                    "*",
+                    ""
+            },
+            {
+                    "radiance_7",
+                    "Radiance_MDS(7).3",
+                    "*",
+                    "Float",
+                    "Linear_Scale",
+                    "0.0",
+                    "Scaling_Factor_GADS.8.7",
+                    "",
+                    "*"
             }
-        }
+    };
 
-        try {
-            assertNull(reader.readRecord());
-        } catch (java.io.IOException ex) {
-            fail("no java.io.IOException expected");
+    @Test
+    public void testGetSeparators() {
+        Reader reader = new StringReader("mem");
+
+        assertArrayEquals(new char[]{'|'},
+                          new CsvReader(reader, new char[]{'|'}).getSeparators());
+
+        assertArrayEquals(new char[]{'|', ','},
+                          new CsvReader(reader, new char[]{'|', ','}).getSeparators());
+    }
+
+    @Test
+    public void testReadAllRecords() throws IOException {
+        CsvReader reader = createReader(CSV_DATA, '|');
+        List<String[]> records = reader.readStringRecords();
+        assertEquals(EXPECTED_RECORDS.length, records.size());
+        for (int i = 0; i < records.size(); i++) {
+            assertArrayEquals(EXPECTED_RECORDS[i], records.get(i));
         }
     }
+
+    @Test
+    public void testReadRecord() throws IOException {
+        CsvReader reader = createReader(CSV_DATA, '|');
+        for (String[] expectedRecord : EXPECTED_RECORDS) {
+            assertArrayEquals(expectedRecord, reader.readRecord());
+        }
+        assertNull(reader.readRecord());
+    }
+
+    @Test
+    public void testMultipleSeparators() throws Exception {
+        CsvReader reader = createReader("a$b|c\nd$$\n|$i", '|', '$');
+        List<String[]> records = reader.readStringRecords();
+        assertEquals(3, records.size());
+        assertArrayEquals(new String[]{"a", "b", "c"}, records.get(0));
+        assertArrayEquals(new String[]{"d", "", ""}, records.get(1));
+        assertArrayEquals(new String[]{"", "", "i"}, records.get(2));
+    }
+
+    @Test
+    public void testSemicolonSeparator() throws Exception {
+        CsvReader reader = createReader("a; b;c\nd;;\n;; i \n", ';');
+        List<String[]> records = reader.readStringRecords();
+        assertEquals(3, records.size());
+        assertArrayEquals(new String[]{"a", "b", "c"}, records.get(0));
+        assertArrayEquals(new String[]{"d", "", ""}, records.get(1));
+        assertArrayEquals(new String[]{"", "", "i"}, records.get(2));
+    }
+
+    @Test
+    public void testTabSeparator() throws Exception {
+        CsvReader reader = createReader("a\tb\tc\nd\t\t\n\t\ti", '\t');
+        List<String[]> records = reader.readStringRecords();
+        assertEquals(3, records.size());
+        assertArrayEquals(new String[]{"a", "b", "c"}, records.get(0));
+        assertArrayEquals(new String[]{"d", "", ""}, records.get(1));
+        assertArrayEquals(new String[]{"", "", "i"}, records.get(2));
+    }
+
+    @Test
+    public void testSpaceSeparator() throws Exception {
+        CsvReader reader = createReader(" a b  c\nd  \n  i", ' ');
+        List<String[]> records = reader.readStringRecords();
+        assertEquals(3, records.size());
+        assertArrayEquals(new String[]{"a", "b", "c"}, records.get(0));
+        assertArrayEquals(new String[]{"d"}, records.get(1));
+        assertArrayEquals(new String[]{"i"}, records.get(2));
+    }
+
+    @Test
+    public void testWhitespaceSeparators() throws Exception {
+        String csv = "\n// Holla!\n \t  \n a\tb  c\n\nd  \n\t i \n\n\n";
+        CsvReader reader = createReader(csv, false, null, '\t', ' ');
+        List<String[]> records = reader.readStringRecords();
+        assertEquals(9, records.size());
+        assertArrayEquals(new String[]{}, records.get(0));
+        assertArrayEquals(new String[]{"//", "Holla!"}, records.get(1));
+        assertArrayEquals(new String[]{}, records.get(2));
+        assertArrayEquals(new String[]{"a", "b", "c"}, records.get(3));
+        assertArrayEquals(new String[]{}, records.get(4));
+        assertArrayEquals(new String[]{"d"}, records.get(5));
+        assertArrayEquals(new String[]{"i"}, records.get(6));
+        assertArrayEquals(new String[]{}, records.get(7));
+        assertArrayEquals(new String[]{}, records.get(8));
+    }
+
+    @Test
+    public void testWhitespaceSeparatorIgnoringComments() throws Exception {
+        String csv = "\n// Holla!\n \t  \n a\tb  c\n\nd  \n\t i \n\n\n";
+        CsvReader reader = createReader(csv, false, "//", '\t', ' ');
+        List<String[]> records = reader.readStringRecords();
+        assertEquals(8, records.size());
+        assertArrayEquals(new String[]{}, records.get(0));
+        assertArrayEquals(new String[]{}, records.get(1));
+        assertArrayEquals(new String[]{"a", "b", "c"}, records.get(2));
+        assertArrayEquals(new String[]{}, records.get(3));
+        assertArrayEquals(new String[]{"d"}, records.get(4));
+        assertArrayEquals(new String[]{"i"}, records.get(5));
+        assertArrayEquals(new String[]{}, records.get(6));
+        assertArrayEquals(new String[]{}, records.get(7));
+    }
+
+    @Test
+    public void testWhitespaceSeparatorsIgnoringEmptyLines() throws Exception {
+        String csv = "\n// Holla!\n \t  \n a\tb  c\n\nd  \n\t i \n\n\n";
+        CsvReader reader = createReader(csv, true, null, '\t', ' ');
+        List<String[]> records = reader.readStringRecords();
+        assertEquals(4, records.size());
+        assertArrayEquals(new String[]{"//", "Holla!"}, records.get(0));
+        assertArrayEquals(new String[]{"a", "b", "c"}, records.get(1));
+        assertArrayEquals(new String[]{"d"}, records.get(2));
+        assertArrayEquals(new String[]{"i"}, records.get(3));
+    }
+
+    @Test
+    public void testWhitespaceSeparatorsIgnoringEmptyLinesAndComments() throws Exception {
+        String csv = "\n// Holla!\n \t  \n a\tb  c\n\nd  \n\t i \n\n\n";
+        CsvReader reader = createReader(csv, true, "//", '\t', ' ');
+        List<String[]> records = reader.readStringRecords();
+        assertEquals(3, records.size());
+        assertArrayEquals(new String[]{"a", "b", "c"}, records.get(0));
+        assertArrayEquals(new String[]{"d"}, records.get(1));
+        assertArrayEquals(new String[]{"i"}, records.get(2));
+    }
+
+    private static CsvReader createReader(String csv, char... separators) {
+        Reader reader = new StringReader(csv);
+        return new CsvReader(reader, separators);
+    }
+
+    private static CsvReader createReader(String csv,boolean ignoreEmptyLines, String commentPrefix, char... separators) {
+        Reader reader = new StringReader(csv);
+        return new CsvReader(reader, separators, ignoreEmptyLines, commentPrefix);
+    }
+
 }

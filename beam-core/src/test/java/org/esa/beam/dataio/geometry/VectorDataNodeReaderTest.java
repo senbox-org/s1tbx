@@ -178,13 +178,6 @@ public class VectorDataNodeReaderTest extends TestCase {
 
         try {
             expectException("FT\ta:Integer\n" +
-                    "ID1\t\n");
-        } catch (IOException e) {
-            // ok
-        }
-
-        try {
-            expectException("FT\ta:Integer\n" +
                     "ID1\t1234\tABC\n");
         } catch (IOException e) {
             // ok

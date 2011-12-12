@@ -18,6 +18,8 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfGeocodingPart;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
+import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -32,7 +34,6 @@ import org.opengis.referencing.operation.TransformException;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.awt.Rectangle;
@@ -104,7 +105,7 @@ public class BeamGeocodingPart extends CfGeocodingPart {
             names[LON_INDEX] = tpGC.getLonGrid().getName();
             names[LAT_INDEX] = tpGC.getLatGrid().getName();
             final String value = StringUtils.arrayToString(names, " ");
-            ctx.getNetcdfFileWriteable().addAttribute(null, new Attribute(TIEPOINT_COORDINATES, value));
+            ctx.getNetcdfFileWriteable().addGlobalAttribute(TIEPOINT_COORDINATES, value);
         } else {
             if (geoCoding instanceof CrsGeoCoding) {
                 addWktAsVariable(ctx.getNetcdfFileWriteable(), geoCoding);
@@ -112,15 +113,15 @@ public class BeamGeocodingPart extends CfGeocodingPart {
         }
     }
 
-    private void addWktAsVariable(NetcdfFileWriteable ncFile, GeoCoding geoCoding) {
+    private void addWktAsVariable(NFileWriteable ncFile, GeoCoding geoCoding) throws IOException {
         final CoordinateReferenceSystem crs = geoCoding.getMapCRS();
         final double[] matrix = new double[6];
         final MathTransform transform = geoCoding.getImageToMapTransform();
         if (transform instanceof AffineTransform) {
             ((AffineTransform) transform).getMatrix(matrix);
         }
-        final Variable crsVariable = ncFile.addVariable(null, "crs", DataType.INT, null);
-        crsVariable.addAttribute(new Attribute("wkt", crs.toWKT()));
-        crsVariable.addAttribute(new Attribute("i2m", StringUtils.arrayToCsv(matrix)));
+        final NVariable crsVariable = ncFile.addScalarVariable("crs", DataType.INT);
+        crsVariable.addAttribute("wkt", crs.toWKT());
+        crsVariable.addAttribute("i2m", StringUtils.arrayToCsv(matrix));
     }
 }

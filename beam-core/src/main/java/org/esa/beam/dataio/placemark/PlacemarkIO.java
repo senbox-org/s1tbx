@@ -18,16 +18,7 @@ package org.esa.beam.dataio.placemark;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.DimapProductHelpers;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
@@ -43,13 +34,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.Color;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.PushbackReader;
-import java.io.Reader;
-import java.io.Writer;
+import java.awt.*;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -264,62 +250,80 @@ public class PlacemarkIO {
                 product = placemark.getProduct();
             }
             if (product != null && additionalColumnNames.length != 0) {
-                pw.print("# Wavelength:");
-                //noinspection UnusedDeclaration
-                for (int i = 0; i < standardColumnNames.length + 2; i++) {
-                    // 2 additional for name and description of the placemark
-                    pw.print("\t");
-                }
-                for (String additionalColumnName : additionalColumnNames) {
-                    Band band = product.getBand(additionalColumnName);
-                    float spectralWavelength = 0.0f;
-                    if (band != null) {
-                        spectralWavelength = band.getSpectralWavelength();
-                    }
-                    pw.print(spectralWavelength + "\t");
-                }
-                pw.println();
+                pw.println(getWavelengthLine(product, standardColumnNames, additionalColumnNames));
             }
 
-
-            // Write header columns
-            pw.print(NAME_COL_NAME + "\t");
-            for (String name : standardColumnNames) {
-                pw.print(name + "\t");
-            }
-            pw.print(DESC_COL_NAME + "\t");
-            for (String additionalColumnName : additionalColumnNames) {
-                pw.print(additionalColumnName + "\t");
-            }
-            pw.println();
+            pw.println(getHeaderLine(standardColumnNames, additionalColumnNames));
 
             for (int i = 0; i < placemarkList.size(); i++) {
                 Placemark placemark = placemarkList.get(i);
                 Object[] values = valueList.get(i);
-                pw.print(placemark.getName() + "\t");
-                for (int col = 0; col < columnCountMin; col++) {
-                    printValue(pw, values[col]);
-                }
-                pw.print(placemark.getDescription() + "\t");
-                for (int col = columnCountMin; col < columnCount; col++) {
-                    printValue(pw, values[col]);
-                }
-                pw.println();
-
+                pw.println(getDataLine(placemark, values, columnCountMin, columnCount));
             }
         } finally {
             pw.close();
         }
     }
 
-    private static void printValue(PrintWriter pw, Object value) {
+    private static String getDataLine(Placemark placemark, Object[] values, int columnCountMin, int columnCount) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(placemark.getName());
+        for (int col = 0; col < columnCountMin; col++) {
+            formatValue(values[col], sb);
+        }
+        sb.append("\t");
+        sb.append(placemark.getDescription());
+        for (int col = columnCountMin; col < columnCount; col++) {
+            formatValue(values[col], sb);
+        }
+        return sb.toString();
+    }
+
+    private static void formatValue(Object value, StringBuilder sb) {
         String stringValue;
         if (value instanceof Date) {
             stringValue = dateFormat.format(value);
         } else {
             stringValue = value.toString();
         }
-        pw.print(stringValue + "\t");
+        sb.append("\t");
+        sb.append(stringValue);
+    }
+
+    private static String getHeaderLine(String[] standardColumnNames, String[] additionalColumnNames) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(NAME_COL_NAME);
+        for (String name : standardColumnNames) {
+            sb.append("\t");
+            sb.append(name);
+        }
+        sb.append("\t");
+        sb.append(DESC_COL_NAME);
+        for (String additionalColumnName : additionalColumnNames) {
+            sb.append("\t");
+            sb.append(additionalColumnName);
+        }
+        return sb.toString();
+    }
+
+    private static String getWavelengthLine(Product product, String[] standardColumnNames, String[] additionalColumnNames) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("# Wavelength:"); // --> Name
+        for (String standardColumnName : standardColumnNames) {
+            sb.append("\t");
+        }
+        sb.append("\t"); // --> Desc
+        for (String additionalColumnName : additionalColumnNames) {
+            Band band = product.getBand(additionalColumnName);
+            float spectralWavelength = 0.0f;
+            if (band != null) {
+                spectralWavelength = band.getSpectralWavelength();
+            }
+            sb.append("\t");
+            sb.append(spectralWavelength);
+        }
+        return sb.toString();
     }
 
     public static void writePlacemarksFile(Writer writer, List<Placemark> placemarks) throws IOException {

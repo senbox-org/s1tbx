@@ -19,6 +19,8 @@ import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
+import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.ProductIOException;
@@ -30,7 +32,6 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.awt.Color;
@@ -58,7 +59,7 @@ public class BeamMaskPart extends ProfilePartIO {
 
     @Override
     public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
-        NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
+        NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         writeMasks(p, ncFile);
         writeMaskOverlays(p, ncFile);
     }
@@ -136,28 +137,27 @@ public class BeamMaskPart extends ProfilePartIO {
         }
     }
 
-    private static void writeMasks(Product p, NetcdfFileWriteable ncFile) {
+    private static void writeMasks(Product p, NFileWriteable ncFile) throws IOException {
         final ProductNodeGroup<Mask> maskGroup = p.getMaskGroup();
         final String[] maskNames = maskGroup.getNodeNames();
         for (String maskName : maskNames) {
             final Mask mask = maskGroup.get(maskName);
             if (Mask.BandMathsType.INSTANCE == mask.getImageType()) {
 
-                final String scalar = ""; // indicating a scalar variable (without dimension)
                 String variableName = ReaderUtils.getVariableName(mask);
-                final Variable variable = ncFile.addVariable(variableName + SUFFIX_MASK, DataType.BYTE, scalar);
+                final NVariable variable = ncFile.addScalarVariable(variableName + SUFFIX_MASK, DataType.BYTE);
                 if (!variableName.equals(maskName)) {
-                    variable.addAttribute(new Attribute(Constants.ORIG_NAME_ATT_NAME, maskName));
+                    variable.addAttribute(Constants.ORIG_NAME_ATT_NAME, maskName);
                 }
 
                 final String description = mask.getDescription();
                 if (description != null && description.trim().length() > 0) {
-                    variable.addAttribute(new Attribute("title", description));
+                    variable.addAttribute("title", description);
                 }
 
                 final PropertyContainer imageConfig = mask.getImageConfig();
                 final String expression = (String) imageConfig.getValue(Mask.BandMathsType.PROPERTY_NAME_EXPRESSION);
-                variable.addAttribute(new Attribute(EXPRESSION, expression));
+                variable.addAttribute(EXPRESSION, expression);
 
                 final Color color = mask.getImageColor();
                 final int[] colorValues = new int[4];
@@ -165,10 +165,10 @@ public class BeamMaskPart extends ProfilePartIO {
                 colorValues[INDEX_GREEN] = color.getGreen();
                 colorValues[INDEX_BLUE] = color.getBlue();
                 colorValues[INDEX_ALPHA] = color.getAlpha();
-                variable.addAttribute(new Attribute(COLOR, Array.factory(colorValues)));
+                variable.addAttribute(COLOR, Array.factory(colorValues));
 
                 final double transparency = mask.getImageTransparency();
-                variable.addAttribute(new Attribute(TRANSPARENCY, transparency));
+                variable.addAttribute(TRANSPARENCY, transparency);
             } else if (Mask.RangeType.INSTANCE == mask.getImageType()) {
                 // todo se -- implement
             } else if (Mask.VectorDataType.INSTANCE == mask.getImageType()) {
@@ -177,7 +177,7 @@ public class BeamMaskPart extends ProfilePartIO {
         }
     }
 
-    private static void writeMaskOverlays(Product p, NetcdfFileWriteable ncFile) {
+    private static void writeMaskOverlays(Product p, NFileWriteable ncFile) throws IOException {
         for (Band band : p.getBands()) {
             final ProductNodeGroup<Mask> maskGroup = band.getOverlayMaskGroup();
             if (maskGroup.getNodeCount() >= 1) {
@@ -187,8 +187,8 @@ public class BeamMaskPart extends ProfilePartIO {
                     overlayNames.append(maskName).append(" ");
                 }
                 String variableName = ReaderUtils.getVariableName(band);
-                final Variable variable = ncFile.getRootGroup().findVariable(variableName);
-                variable.addAttribute(new Attribute(MASK_OVERLAYS, overlayNames.toString().trim()));
+                final NVariable variable = ncFile.findVariable(variableName);
+                variable.addAttribute(MASK_OVERLAYS, overlayNames.toString().trim());
             }
         }
     }

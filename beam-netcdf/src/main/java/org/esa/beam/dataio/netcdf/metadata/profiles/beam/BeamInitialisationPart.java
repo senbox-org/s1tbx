@@ -19,12 +19,12 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfInitialisationPart;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Product;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFileWriteable;
 
 import java.io.IOException;
 
@@ -58,10 +58,10 @@ public class BeamInitialisationPart extends CfInitialisationPart {
     @Override
     public void writeProductBody(ProfileWriteContext ctx, Product p) throws IOException {
         super.writeProductBody(ctx, p);
-        NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
-        writeable.addGlobalAttribute(new Attribute(PRODUCT_TYPE, p.getProductType()));
-        writeable.addGlobalAttribute(new Attribute("metadata_profile", "beam"));
-        writeable.addGlobalAttribute(new Attribute("metadata_version", "0.5"));
+        NFileWriteable writeable = ctx.getNetcdfFileWriteable();
+        writeable.addGlobalAttribute(PRODUCT_TYPE, p.getProductType());
+        writeable.addGlobalAttribute("metadata_profile", "beam");
+        writeable.addGlobalAttribute("metadata_version", "0.5");
     }
 
     @Override

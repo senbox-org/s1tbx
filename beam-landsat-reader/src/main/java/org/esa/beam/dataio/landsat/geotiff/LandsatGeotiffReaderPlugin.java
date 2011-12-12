@@ -31,7 +31,7 @@ import java.util.Locale;
  */
 public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
 
-    private static final Class[] READER_INPUT_TYPES = new Class[]{String.class,File.class};
+    private static final Class[] READER_INPUT_TYPES = new Class[]{String.class, File.class};
 
     private static final String[] FORMAT_NAMES = new String[]{"LandsatGeoTIFF"};
     private static final String[] DEFAULT_FILE_EXTENSIONS = new String[]{".txt", ".TXT"};
@@ -54,7 +54,8 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
                 try {
                     fileReader = new FileReader(file);
                     LandsatMetadata landsatMetadata = new LandsatMetadata(fileReader);
-                    if (landsatMetadata.isLandsatTM()) {
+                    if (landsatMetadata.isLandsatTM()
+                            || landsatMetadata.isLandsatETM_Plus()) {
                         return DecodeQualification.INTENDED;
                     }
                 } catch (IOException ignore) {
@@ -139,6 +140,5 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
             }
             return isMetadataFile(file);
         }
-
     }
 }

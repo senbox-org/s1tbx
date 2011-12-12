@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,10 @@
 
 package com.bc.install4j;
 
-import com.install4j.api.beaninfo.*;
+import com.install4j.api.beaninfo.ActionBeanInfo;
+import com.install4j.api.beaninfo.BeanValidationException;
+import com.install4j.api.beaninfo.BeanValidator;
+import com.install4j.api.beaninfo.Install4JPropertyDescriptor;
 import com.install4j.api.beans.Bean;
 
 /**

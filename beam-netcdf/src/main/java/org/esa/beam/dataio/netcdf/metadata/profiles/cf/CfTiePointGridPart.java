@@ -21,12 +21,10 @@ import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 
@@ -48,20 +46,16 @@ public class CfTiePointGridPart extends ProfilePartIO {
         boolean doFlip = getYFlippedProperty(ctx);
 
         for (TiePointGrid tiePointGrid : p.getTiePointGrids()) {
-            try {
-                final int h = tiePointGrid.getSceneRasterHeight();
-                final int w = tiePointGrid.getSceneRasterWidth();
-                final int[] shape = new int[]{h, w};
-                final Object data = tiePointGrid.getSourceImage().getData().getDataElements(0, 0, w, h, null);
-                Array values = Array.factory(DataType.FLOAT, shape, data);
-                if (doFlip) {
-                    values = values.flip(0);   // flip vertically
-                }
-                String variableName = ReaderUtils.getVariableName(tiePointGrid);
-                ctx.getNetcdfFileWriteable().write(variableName, values);
-            } catch (InvalidRangeException ignored) {
-                throw new ProductIOException("TiePointData not in the expected range");
+            final int h = tiePointGrid.getSceneRasterHeight();
+            final int w = tiePointGrid.getSceneRasterWidth();
+            final int[] shape = new int[]{h, w};
+            final Object data = tiePointGrid.getSourceImage().getData().getDataElements(0, 0, w, h, null);
+            Array values = Array.factory(DataType.FLOAT, shape, data);
+            if (doFlip) {
+                values = values.flip(0);   // flip vertically
             }
+            String variableName = ReaderUtils.getVariableName(tiePointGrid);
+            ctx.getNetcdfFileWriteable().findVariable(variableName).writeFully(values);
         }
     }
 

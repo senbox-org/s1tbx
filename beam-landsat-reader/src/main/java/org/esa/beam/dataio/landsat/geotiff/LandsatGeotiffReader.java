@@ -92,8 +92,8 @@ public class LandsatGeotiffReader extends AbstractProductReader {
             throw new IOException("Can not read metadata file: "+ mtlFile.getAbsolutePath());
         }
         LandsatMetadata landsatMetadata = new LandsatMetadata(new FileReader(mtlFile));
-        if (!landsatMetadata.isLandsatTM()) {
-            throw new ProductIOException("Product is not a 'Landsat5' product.");
+        if (!(landsatMetadata.isLandsatTM() || landsatMetadata.isLandsatETM_Plus())) {
+            throw new ProductIOException("Product is not a 'Landsat5' or 'Landsat7' product.");
         }
         Dimension refDim = landsatMetadata.getReflectanceDim();
         Dimension thmDim = landsatMetadata.getThermalDim();

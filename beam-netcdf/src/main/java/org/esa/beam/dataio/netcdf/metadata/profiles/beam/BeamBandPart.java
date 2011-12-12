@@ -19,6 +19,8 @@ import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
+import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
 import org.esa.beam.dataio.netcdf.util.NetcdfMultiLevelImage;
@@ -30,11 +32,11 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.jai.ImageManager;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -97,8 +99,8 @@ public class BeamBandPart extends ProfilePartIO {
 
     @Override
     public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
-        final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
-        final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
+        final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
+        final String dimensions = ncFile.getDimensions();
         for (Band band : p.getBands()) {
             if (isPixelGeoCodingBand(band)) {
                 continue;
@@ -115,17 +117,18 @@ public class BeamBandPart extends ProfilePartIO {
 
             final DataType ncDataType = DataTypeUtils.getNetcdfDataType(dataType);
             String variableName = ReaderUtils.getVariableName(band);
-            final Variable variable = ncFile.addVariable(variableName, ncDataType, dimensions);
+            java.awt.Dimension tileSize = ImageManager.getPreferredTileSize(p);
+            final NVariable variable = ncFile.addVariable(variableName, ncDataType, tileSize, dimensions);
             CfBandPart.writeCfBandAttributes(band, variable);
             writeBeamBandAttributes(band, variable);
         }
         Product.AutoGrouping autoGrouping = p.getAutoGrouping();
         if (autoGrouping != null) {
-            ncFile.addGlobalAttribute(new Attribute(AUTO_GROUPING, autoGrouping.toString()));
+            ncFile.addGlobalAttribute(AUTO_GROUPING, autoGrouping.toString());
         }
         String quicklookBandName = p.getQuicklookBandName();
         if (quicklookBandName != null && !quicklookBandName.isEmpty()) {
-            ncFile.addGlobalAttribute(new Attribute(QUICKLOOK_BAND_NAME, quicklookBandName));
+            ncFile.addGlobalAttribute(QUICKLOOK_BAND_NAME, quicklookBandName);
         }
     }
 
@@ -203,31 +206,31 @@ public class BeamBandPart extends ProfilePartIO {
         return 0.0f;
     }
 
-    public static void writeBeamBandAttributes(Band band, Variable variable) {
+    public static void writeBeamBandAttributes(Band band, NVariable variable) throws IOException {
         // todo se -- units for bandwidth and wavelength
 
         final float spectralBandwidth = band.getSpectralBandwidth();
         if (spectralBandwidth > 0) {
-            variable.addAttribute(new Attribute(BANDWIDTH, spectralBandwidth));
+            variable.addAttribute(BANDWIDTH, spectralBandwidth);
         }
         final float spectralWavelength = band.getSpectralWavelength();
         if (spectralWavelength > 0) {
-            variable.addAttribute(new Attribute(WAVELENGTH, spectralWavelength));
+            variable.addAttribute(WAVELENGTH, spectralWavelength);
         }
         final String validPixelExpression = band.getValidPixelExpression();
         if (validPixelExpression != null && validPixelExpression.trim().length() > 0) {
-            variable.addAttribute(new Attribute(VALID_PIXEL_EXPRESSION, validPixelExpression));
+            variable.addAttribute(VALID_PIXEL_EXPRESSION, validPixelExpression);
         }
         final float solarFlux = band.getSolarFlux();
         if (solarFlux > 0) {
-            variable.addAttribute(new Attribute(SOLAR_FLUX, solarFlux));
+            variable.addAttribute(SOLAR_FLUX, solarFlux);
         }
         final float spectralBandIndex = band.getSpectralBandIndex();
         if (spectralBandIndex >= 0) {
-            variable.addAttribute(new Attribute(SPECTRAL_BAND_INDEX, spectralBandIndex));
+            variable.addAttribute(SPECTRAL_BAND_INDEX, spectralBandIndex);
         }
         if (!band.getName().equals(variable.getName())) {
-            variable.addAttribute(new Attribute(Constants.ORIG_NAME_ATT_NAME, band.getName()));
+            variable.addAttribute(Constants.ORIG_NAME_ATT_NAME, band.getName());
         }
     }
 }

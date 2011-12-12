@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,9 +15,10 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
+import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -80,14 +81,14 @@ public class BeamStxPart extends ProfilePartIO {
             if (band.isStxSet()) {
                 String variableName = ReaderUtils.getVariableName(band);
                 final Stx stx = band.getStx();
-                final Variable variable = ctx.getNetcdfFileWriteable().getRootGroup().findVariable(variableName);
+                final NVariable variable = ctx.getNetcdfFileWriteable().findVariable(variableName);
                 final double[] statistics = new double[4];
                 statistics[INDEX_SCALED_MIN] = stx.getMin();
                 statistics[INDEX_SCALED_MAX] = stx.getMax();
                 statistics[INDEX_MEAN] = stx.getMean();
                 statistics[INDEX_STANDARD_DEVIATION] = stx.getStandardDeviation();
-                variable.addAttribute(new Attribute(STATISTICS, Array.factory(statistics)));
-                variable.addAttribute(new Attribute(SAMPLE_FREQUENCIES, Array.factory(stx.getHistogramBins())));
+                variable.addAttribute(STATISTICS, Array.factory(statistics));
+                variable.addAttribute(SAMPLE_FREQUENCIES, Array.factory(stx.getHistogramBins()));
             }
         }
     }

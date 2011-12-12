@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 
 package org.esa.beam.dataio.netcdf;
 
-import ucar.nc2.NetcdfFileWriteable;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
 
 /**
  * A context for writing metadata from the BEAM product model into NetCDF.
@@ -26,10 +26,10 @@ import ucar.nc2.NetcdfFileWriteable;
 public interface ProfileWriteContext extends PropertyStore {
 
     /**
-     * Returns th instance of {@link NetcdfFileWriteable} which is used during writing.
+     * Returns th instance of {@link org.esa.beam.dataio.netcdf.nc.NFileWriteable} which is used during writing.
      *
-     * @return the {@link NetcdfFileWriteable}
+     * @return the {@link org.esa.beam.dataio.netcdf.nc.NFileWriteable}
      */
-    public NetcdfFileWriteable getNetcdfFileWriteable();
+    public NFileWriteable getNetcdfFileWriteable();
 
 }

@@ -18,6 +18,7 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -25,7 +26,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -55,7 +55,7 @@ public class CfFlagCodingPart extends ProfilePartIO {
         }
     }
 
-    public static void writeFlagCoding(Band band, NetcdfFileWriteable ncFile) {
+    public static void writeFlagCoding(Band band, NFileWriteable ncFile) throws IOException {
         final FlagCoding flagCoding = band.getFlagCoding();
         if (flagCoding != null) {
             final String[] flagNames = flagCoding.getFlagNames();
@@ -72,13 +72,13 @@ public class CfFlagCodingPart extends ProfilePartIO {
             String variableName = ReaderUtils.getVariableName(band);
             String description = flagCoding.getDescription();
             if (description != null) {
-                ncFile.addVariableAttribute(variableName, new Attribute("long_name", description));
+                ncFile.findVariable(variableName).addAttribute("long_name", description);
             }
-            ncFile.addVariableAttribute(variableName, new Attribute(FLAG_MEANINGS, meanings.toString()));
+            ncFile.findVariable(variableName).addAttribute(FLAG_MEANINGS, meanings.toString());
 
             final Array maskValues = Array.factory(flagValueData.getElems());
             maskValues.setUnsigned(flagValueData.isUnsigned());
-            ncFile.addVariableAttribute(variableName, new Attribute(FLAG_MASKS, maskValues));
+            ncFile.findVariable(variableName).addAttribute(FLAG_MASKS, maskValues);
         }
     }
 
