@@ -24,7 +24,8 @@ import ucar.ma2.Section;
 import ucar.nc2.Variable;
 
 import javax.media.jai.PlanarImage;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 
@@ -112,12 +113,12 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         if (isYFlipped) {
             Array flippedArray = array.flip(yIndex);
             tile.setDataElements(destRect.x, destRect.y,
-                    destRect.width, destRect.height,
-                    flippedArray.copyTo1DJavaArray());
+                                 destRect.width, destRect.height,
+                                 flippedArray.copyTo1DJavaArray());
         } else {
             tile.setDataElements(destRect.x, destRect.y,
-                    destRect.width, destRect.height,
-                    array.getStorage());
+                                 destRect.width, destRect.height,
+                                 array.getStorage());
         }
     }
 
