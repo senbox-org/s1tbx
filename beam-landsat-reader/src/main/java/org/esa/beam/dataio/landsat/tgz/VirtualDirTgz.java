@@ -6,6 +6,7 @@ import org.xeustechnologies.jtar.TarEntry;
 import org.xeustechnologies.jtar.TarInputStream;
 
 import java.io.*;
+import java.util.zip.GZIPInputStream;
 
 public class VirtualDirTgz extends VirtualDir {
 
@@ -27,22 +28,24 @@ public class VirtualDirTgz extends VirtualDir {
 
     @Override
     public InputStream getInputStream(String path) throws IOException {
-        ensureUnpacked();
-        final File file = new File(extractDir, path);
-        if (!file.isFile()) {
-            throw new IOException();
-        }
+        final File file = getFile(path);
         return new FileInputStream(file);
     }
 
     @Override
     public File getFile(String path) throws IOException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        ensureUnpacked();
+        final File file = new File(extractDir, path);
+        if (!(file.isFile() || file.isDirectory())) {
+            throw new IOException();
+        }
+        return file;
     }
 
     @Override
     public String[] list(String path) throws IOException {
-        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
+        final File file = getFile(path);
+        return file.list();
     }
 
     @Override
@@ -53,7 +56,7 @@ public class VirtualDirTgz extends VirtualDir {
         }
     }
 
-    // @todo 3 tb/** this code is almost completey dublicated from com.bc.ceres.core.VirtualDir
+    // @todo 3 tb/** this code is almost completely duplicated from com.bc.ceres.core.VirtualDir
     // it maybe makes sense to move it to a file utility class
     static File createTargetDirInTemp(String name) throws IOException {
         File tempDir = null;
@@ -92,11 +95,21 @@ public class VirtualDirTgz extends VirtualDir {
         return path.substring(lastSepIndex + 1, path.length());
     }
 
+    static boolean isTgz(String filename) {
+        final String extension = FileUtils.getExtension(filename);
+        return (".tgz".equals(extension) || ".gz".equals(extension));
+    }
+
     private void ensureUnpacked() throws IOException {
         if (extractDir == null) {
             extractDir = createTargetDirInTemp(archiveFile.getName());
 
-            final TarInputStream tis = new TarInputStream(new BufferedInputStream(new FileInputStream(archiveFile)));
+            final TarInputStream tis;
+            if (isTgz(archiveFile.getName())) {
+                tis = new TarInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(archiveFile))));
+            } else {
+                tis = new TarInputStream(new BufferedInputStream(new FileInputStream(archiveFile)));
+            }
             TarEntry entry;
 
             while ((entry = tis.getNextEntry()) != null) {
