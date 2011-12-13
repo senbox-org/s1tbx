@@ -16,10 +16,14 @@
 
 package org.esa.beam.dataio.landsat.geotiff;
 
+import com.bc.ceres.core.VirtualDir;
+import org.esa.beam.dataio.landsat.tgz.VirtualDirTgz;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.io.FileUtils;
 
 import java.io.File;
 import java.io.FileReader;
@@ -40,31 +44,44 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
 
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
-        File dir = getFileInput(input);
-        if (dir == null) {
+        VirtualDir virtualDir;
+        try {
+            virtualDir = getInput(input);
+        } catch (IOException e) {
             return DecodeQualification.UNABLE;
         }
-        File[] files = dir.listFiles();
-        if (files == null) {
+
+        if (virtualDir == null) {
             return DecodeQualification.UNABLE;
         }
-        for (File file : files) {
-            if (isMetadataFile(file)) {
-                FileReader fileReader = null;
-                try {
+
+        String[] list = null;
+        try {
+            list = virtualDir.list("");
+            if (list == null || list.length == 0) {
+                return DecodeQualification.UNABLE;
+            }
+        } catch (IOException e) {
+            return DecodeQualification.UNABLE;
+        }
+
+        for (String fileName : list) {
+            FileReader fileReader = null;
+            try {
+                File file = virtualDir.getFile(fileName);
+                if (isMetadataFile(file)) {
                     fileReader = new FileReader(file);
                     LandsatMetadata landsatMetadata = new LandsatMetadata(fileReader);
-                    if (landsatMetadata.isLandsatTM()
-                            || landsatMetadata.isLandsatETM_Plus()) {
+                    if (landsatMetadata.isLandsatTM() || landsatMetadata.isLandsatETM_Plus()) {
                         return DecodeQualification.INTENDED;
                     }
-                } catch (IOException ignore) {
-                } finally {
-                    if (fileReader != null) {
-                        try {
-                            fileReader.close();
-                        } catch (IOException ignore) {
-                        }
+                }
+            } catch (IOException ignore) {
+            } finally {
+                if (fileReader != null) {
+                    try {
+                        fileReader.close();
+                    } catch (IOException ignore) {
                     }
                 }
             }
@@ -102,27 +119,51 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
         return FILE_FILTER;
     }
 
+    /**
+     * Retrieves the VirtualDir for input from the input object passed in
+     *
+     * @param input the input object (File or String)
+     * @return the VirtualDir representing the product
+     * @throws java.io.IOException on disk access failures
+     */
+    public static VirtualDir getInput(Object input) throws IOException {
+        File inputFile = getFileInput(input);
+
+        if (inputFile.isFile() && !isCompressedFile(inputFile)) {
+            inputFile = inputFile.getParentFile();
+        }
+
+        VirtualDir virtualDir = VirtualDir.create(inputFile);
+        if (virtualDir == null) {
+            virtualDir = new VirtualDirTgz(inputFile);
+        }
+        return virtualDir;
+    }
 
     static File getFileInput(Object input) {
         if (input instanceof String) {
-            return getFileInput(new File((String) input));
+            return new File((String) input);
         } else if (input instanceof File) {
-            return getFileInput((File) input);
+            return (File) input;
         }
         return null;
     }
 
-    static File getFileInput(File file) {
-        if (file.isDirectory()) {
-            return file;
-        } else {
-            return file.getParentFile();
-        }
+    static boolean isMetadataFile(File file) {
+        final String filename = file.getName().toLowerCase();
+        return filename.endsWith("_mtl.txt");
     }
 
-    static boolean isMetadataFile(File file) {
-        String filename = file.getName().toLowerCase();
-        return filename.endsWith("_mtl.txt");
+    static boolean isCompressedFile(File file) {
+        final String extension = FileUtils.getExtension(file);
+        if (StringUtils.isNullOrEmpty(extension)) {
+            return false;
+        }
+
+        return extension.contains("zip")
+                || extension.contains("tar")
+                || extension.contains("tgz")
+                || extension.contains("gz");
     }
 
     private static class LandsatGeoTiffFileFilter extends BeamFileFilter {

@@ -4,35 +4,19 @@ import com.bc.ceres.core.VirtualDir;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Locale;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class LandsatTMReaderPluginTest {
 
     @Test
-    public void testGetInput_Directory_File() {
-        final File testDirectory = TestUtil.getTestDirectory("");
+    public void testGetDescription() {
+        final LandsatTMReaderPlugIn plugIn = new LandsatTMReaderPlugIn();
 
-        final VirtualDir input = LandsatTMReaderPlugIn.getInput(testDirectory);
-        assertNotNull(input);
-        assertEquals(testDirectory.getPath(), input.getBasePath());
+        assertEquals("Landsat 5 TM Product Reader", plugIn.getDescription(Locale.getDefault()));
     }
-
-    @Test
-    public void testGetInput_Directory_String() {
-        final File testDirectory = TestUtil.getTestDirectory("");
-
-        final VirtualDir input = LandsatTMReaderPlugIn.getInput(testDirectory.getPath());
-        assertNotNull(input);
-        assertEquals(testDirectory.getPath(), input.getBasePath());
-    }
-
-
-
-    // @todo 1 tb/tb test for
-    // - file inside directory
-    // - zip file
-    // - tar file
-    // - tar.gz file
 }

@@ -17,12 +17,16 @@
 package org.esa.beam.dataio.landsat;
 
 import com.bc.ceres.core.VirtualDir;
+import org.esa.beam.dataio.landsat.tgz.VirtualDirTgz;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 
 /**
@@ -81,18 +85,6 @@ public final class LandsatTMReaderPlugIn implements ProductReaderPlugIn {
         }
 
         return file;
-    }
-
-    /**
-     * Retrieves the VirtualDir for input from the input object passed in
-     *
-     * @param input the input object (File or String)
-     * @return the VirtualDir representing the product
-     */
-    public static VirtualDir getInput(Object input) {
-        final File inputFile = getInputFile(input);
-        final VirtualDir virtualDir = VirtualDir.create(inputFile);
-        return virtualDir;
     }
 
     /**

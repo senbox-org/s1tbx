@@ -17,22 +17,19 @@
 package org.esa.beam.dataio.landsat.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.VirtualDir;
 import org.esa.beam.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.CropDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileReader;
@@ -52,7 +49,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
 
     private static final float[] wavelengths = {490, 560, 660, 830, 1670, 11500, 2240, 710};
     private static final float[] bandwidths = {66, 82, 67, 128, 217, 1000, 252, 380};
-    private static final Map<String, String> bandDescriptions = new HashMap<String,  String>();
+    private static final Map<String, String> bandDescriptions = new HashMap<String, String>();
     private static final String UNITS = "W/(m^2*sr*µm)";
 
     static {
@@ -69,6 +66,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
     }
 
     private List<Product> bandProducts;
+    private VirtualDir input;
 
     public LandsatGeotiffReader(LandsatGeotiffReaderPlugin readerPlugin) {
         super(readerPlugin);
@@ -76,10 +74,11 @@ public class LandsatGeotiffReader extends AbstractProductReader {
 
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        File dir = LandsatGeotiffReaderPlugin.getFileInput(getInput());
-        File[] files = dir.listFiles();
+        input = LandsatGeotiffReaderPlugin.getInput(getInput());
+        String[] list = input.list("");
         File mtlFile = null;
-        for (File file : files) {
+        for (String fileName : list) {
+            final File file = input.getFile(fileName);
             if (LandsatGeotiffReaderPlugin.isMetadataFile(file)) {
                 mtlFile = file;
                 break;
@@ -89,7 +88,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
             throw new IOException("Can not find metadata file.");
         }
         if (!mtlFile.canRead()) {
-            throw new IOException("Can not read metadata file: "+ mtlFile.getAbsolutePath());
+            throw new IOException("Can not read metadata file: " + mtlFile.getAbsolutePath());
         }
         LandsatMetadata landsatMetadata = new LandsatMetadata(new FileReader(mtlFile));
         if (!(landsatMetadata.isLandsatTM() || landsatMetadata.isLandsatETM_Plus())) {
@@ -98,7 +97,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         Dimension refDim = landsatMetadata.getReflectanceDim();
         Dimension thmDim = landsatMetadata.getThermalDim();
         Dimension panDim = landsatMetadata.getPanchromaticDim();
-        Dimension productDim = new Dimension(0,0);
+        Dimension productDim = new Dimension(0, 0);
         productDim = max(productDim, refDim);
         productDim = max(productDim, thmDim);
         productDim = max(productDim, panDim);
@@ -113,7 +112,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         product.setStartTime(utcCenter);
         product.setEndTime(utcCenter);
 
-        addBands(product, landsatMetadata, mtlFile.getParentFile());
+        addBands(product, landsatMetadata, input);
 
         return product;
     }
@@ -134,10 +133,12 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         return dim1;
     }
 
-    private void addBands(Product product, LandsatMetadata landsatMetadata, File folder) throws IOException {
-        GeoTiffProductReaderPlugIn plugIn = new GeoTiffProductReaderPlugIn();
-        MetadataAttribute[] productAttributes = landsatMetadata.getProductMetadata().getAttributes();
-        Pattern pattern = Pattern.compile("BAND(\\d{1,2})_FILE_NAME");
+    // @todo 1 tb/tb replace folder with VirtualDir
+    private void addBands(Product product, LandsatMetadata landsatMetadata, VirtualDir folder) throws IOException {
+        final GeoTiffProductReaderPlugIn plugIn = new GeoTiffProductReaderPlugIn();
+        final MetadataAttribute[] productAttributes = landsatMetadata.getProductMetadata().getAttributes();
+        final Pattern pattern = Pattern.compile("BAND(\\d{1,2})_FILE_NAME");
+
         bandProducts = new ArrayList<Product>();
         for (MetadataAttribute metadataAttribute : productAttributes) {
             String attributeName = metadataAttribute.getName();
@@ -145,7 +146,8 @@ public class LandsatGeotiffReader extends AbstractProductReader {
             if (matcher.matches()) {
                 String bandNumber = matcher.group(1);
                 String fileName = metadataAttribute.getData().getElemString();
-                File bandFile = new File(folder, fileName);
+
+                File bandFile = folder.getFile(fileName);
                 ProductReader productReader = plugIn.createReaderInstance();
                 Product bandProduct = productReader.readProductNodes(bandFile, null);
                 if (bandProduct != null) {
@@ -186,8 +188,8 @@ public class LandsatGeotiffReader extends AbstractProductReader {
                 band.setSourceImage(bandProduct.getBandAt(0).getSourceImage());
             } else {
                 PlanarImage image = createScaledImage(product.getSceneRasterWidth(), product.getSceneRasterHeight(),
-                        bandProduct.getSceneRasterWidth(), bandProduct.getSceneRasterHeight(),
-                        bandProduct.getBandAt(0).getSourceImage());
+                                                      bandProduct.getSceneRasterWidth(), bandProduct.getSceneRasterHeight(),
+                                                      bandProduct.getBandAt(0).getSourceImage());
                 band.setSourceImage(image);
             }
         }
@@ -213,6 +215,8 @@ public class LandsatGeotiffReader extends AbstractProductReader {
             bandProduct.closeIO();
         }
         bandProducts.clear();
+        input.close();
+        input = null;
         super.close();
     }
 }
