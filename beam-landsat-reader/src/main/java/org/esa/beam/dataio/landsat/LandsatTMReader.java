@@ -17,11 +17,7 @@ package org.esa.beam.dataio.landsat;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.datamodel.ProductData.UTC;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
@@ -74,7 +70,7 @@ final class LandsatTMReader extends AbstractProductReader {
             throw new IOException("No band reader for band '" + destband.getName() + "' available!");  /*I18N*/
         } else {
             reader.readBandData(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
-                                destOffsetX, destOffsetY, destWidth, destHeight, destBuffer, progressMonitor);
+                    destOffsetX, destOffsetY, destWidth, destHeight, destBuffer, progressMonitor);
         }
     }
 
@@ -88,6 +84,7 @@ final class LandsatTMReader extends AbstractProductReader {
         final String formatName = landsatTM.getProductName();
         final UTC startTime = landsatHeader.getAcquisitionDate();
         product = new Product(formatName + " " + landsatHeader.getRawDate(), formatName, width, height, this);
+        // @todo 3 tb/** make distinction between landsat 5 and 7 files
         product.setDescription(LANDSAT_TM_PRODUCT);
         product.setFileLocation(inputFile);
         product.setStartTime(startTime);
@@ -100,7 +97,7 @@ final class LandsatTMReader extends AbstractProductReader {
     /**
      * Adds all bands and band properties
      *
-     * @param landsatHeader
+     * @param landsatHeader the header class
      * @param height
      * @param width
      * @param formatName
@@ -157,7 +154,7 @@ final class LandsatTMReader extends AbstractProductReader {
      */
     private void setMetadata() {
         final List metadata = landsatTM.getMetadata();
-        for (Iterator iter = metadata.iterator(); iter.hasNext();) {
+        for (Iterator iter = metadata.iterator(); iter.hasNext(); ) {
             MetadataElement element = (MetadataElement) iter.next();
             product.getMetadataRoot().addElement(element);
         }
@@ -174,11 +171,11 @@ final class LandsatTMReader extends AbstractProductReader {
         float pcX = projCenter.getPixelX();
         float pcY = projCenter.getPixelY();
         final MapProjection mappro = UTM.createProjection(geoData.getMapZoneNumber() - 1,
-                                                          !projCenter.isNorthernHemisphere());
+                !projCenter.isNorthernHemisphere());
         final int width = landsatHeader.getImageWidth();
         final int height = landsatHeader.getImageHeight();
         MapInfo map = new MapInfo(mappro, pcX, pcY, (float) projCenter.getEasting(),
-                                  (float) projCenter.getNorthing(), pixelSize, pixelSize, Datum.WGS_84);
+                (float) projCenter.getNorthing(), pixelSize, pixelSize, Datum.WGS_84);
         map.setSceneWidth(width);
         map.setSceneHeight(height);
         map.setOrientation(geoData.getLookAngle() * -1);
@@ -193,7 +190,7 @@ final class LandsatTMReader extends AbstractProductReader {
      */
     @Override
     public final void close() throws
-                              IOException {
+            IOException {
         super.close();
         landsatTM.close();
         landsatTM = null;
