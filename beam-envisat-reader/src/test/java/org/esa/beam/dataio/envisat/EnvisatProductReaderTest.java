@@ -51,7 +51,7 @@ public class EnvisatProductReaderTest {
 
             final GeoPos geoPos = new GeoPos();
 
-            product.getGeoCoding().getGeoPos(new PixelPos(0.0F + 1.0F, 1.0f), geoPos);
+            product.getGeoCoding().getGeoPos(new PixelPos(0.0F + 1.0F, 1.0F), geoPos);
             assertEquals(44.550718F, geoPos.getLat(), 1.0E-5F);
             assertEquals(32.878792F, geoPos.getLon(), 1.0E-5F);
 
