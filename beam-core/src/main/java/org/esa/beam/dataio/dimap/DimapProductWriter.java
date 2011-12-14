@@ -21,16 +21,7 @@ import org.esa.beam.dataio.geometry.VectorDataNodeWriter;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FilterBand;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.io.FileUtils;
@@ -45,10 +36,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The product writer for BEAM DIMAP products.
+ * The product writer for the BEAM-DIMAP format.
+ * <p/>
+ * The BEAM-DIMAP version history is provided in the API doc of the {@link DimapProductWriterPlugIn}.
  *
  * @author Sabine Embacher
  * @version $Revision$ $Date$
+ * @see DimapProductWriterPlugIn
+ * @see DimapProductReaderPlugIn
  */
 public class DimapProductWriter extends AbstractProductWriter {
 
@@ -116,7 +111,6 @@ public class DimapProductWriter extends AbstractProductWriter {
      * product file without an previous call to the saveProductNodes to this product writer.
      *
      * @param outputFile the dimap header file location.
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     public void initDirs(final File outputFile) throws IOException {
@@ -354,8 +348,8 @@ public class DimapProductWriter extends AbstractProductWriter {
 
     private static long getImageFileSize(RasterDataNode band) {
         return (long) ProductData.getElemSize(band.getDataType()) *
-               (long) band.getRasterWidth() *
-               (long) band.getRasterHeight();
+                (long) band.getRasterWidth() *
+                (long) band.getRasterHeight();
     }
 
     private File getEnviHeaderFile(Band band) {
