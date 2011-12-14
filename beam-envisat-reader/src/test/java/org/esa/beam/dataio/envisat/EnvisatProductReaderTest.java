@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Locale;
 import java.util.Scanner;
 
 import static org.junit.Assert.*;
@@ -73,6 +74,8 @@ public class EnvisatProductReaderTest {
 
     private void readFloats(String resourceName, float[] floats) {
         final Scanner scanner = new Scanner(getClass().getResourceAsStream(resourceName), "US-ASCII");
+        scanner.useLocale(Locale.US);
+
         try {
             for (int i = 0; i < floats.length; i++) {
                 floats[i] = scanner.nextFloat();
