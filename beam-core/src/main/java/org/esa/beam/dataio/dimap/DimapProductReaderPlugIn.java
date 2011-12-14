@@ -31,6 +31,8 @@ import java.util.Locale;
  * <p/>
  * <p>XMLDecoder plug-ins are used to provide meta-information about a particular data format and to create instances of
  * the actual reader objects.
+ * <p/>
+ * The BEAM-DIMAP version history is provided in the API doc of the {@link DimapProductWriterPlugIn}.
  *
  * @author Sabine Embacher
  * @author Norman Fomferra
@@ -135,8 +137,7 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return an array containing valid input types, never <code>null</code>
      */
-    public Class[] getInputTypes
-            () {
+    public Class[] getInputTypes() {
         return new Class[]{String.class, File.class};
     }
 
@@ -145,13 +146,11 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return a new instance of the <code>DimapProductReader</code> class
      */
-    public ProductReader createReaderInstance
-            () {
+    public ProductReader createReaderInstance() {
         return new DimapProductReader(this);
     }
 
-    public BeamFileFilter getProductFileFilter
-            () {
+    public BeamFileFilter getProductFileFilter() {
         return dimapFileFilter;
     }
 }
