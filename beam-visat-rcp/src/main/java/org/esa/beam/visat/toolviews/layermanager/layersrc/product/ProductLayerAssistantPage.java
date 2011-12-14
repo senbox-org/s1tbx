@@ -162,8 +162,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
     private void collectCompatibleRasterDataNodes(RasterDataNode[] bands, CoordinateReferenceSystem crs,
                                                   Collection<RasterDataNode> rasterDataNodes) {
         for (RasterDataNode node : bands) {
-            GeoCoding geoCoding = node.getGeoCoding();
-            if (geoCoding != null && CRS.equalsIgnoreMetadata(crs, ImageManager.getModelCrs(geoCoding))) {
+            if (CRS.equalsIgnoreMetadata(crs, ImageManager.getModelCrs(node.getGeoCoding()))) {
                 rasterDataNodes.add(node);
             }
         }
