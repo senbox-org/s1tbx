@@ -55,7 +55,8 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
 
-        String[] list = null;
+        // @todo 1 tb/tb discuss how we can find a general solution for all readers capable of accepting compressed files
+        String[] list;
         try {
             list = virtualDir.list("");
             if (list == null || list.length == 0) {

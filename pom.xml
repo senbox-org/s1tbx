@@ -516,6 +516,13 @@
                 <version>2.5.2</version>
             </dependency>
 
+            <!-- TAR archive support ########################################  -->
+            <dependency>
+                <groupId>org.xeustechnologies</groupId>
+                <artifactId>jtar</artifactId>
+                <version>1.0.4</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

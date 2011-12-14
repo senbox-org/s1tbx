@@ -93,6 +93,15 @@ public class VirtualDirTgzTest {
     }
 
     @Test
+    public void testTar_noDirInTar_getFile() throws IOException {
+        final File testTgz = TestUtil.getTestFile("tgz/test-archive_wo_dir.tar");
+
+        virtualDir = new VirtualDirTgz(testTgz);
+        final File file_1 = virtualDir.getFile("file1.txt");
+        assertNotNull(file_1);
+    }
+
+    @Test
     public void testTar_getFile_invalidPath() throws IOException {
         final File testTgz = TestUtil.getTestFile("tgz/test-archive.tar");
 
