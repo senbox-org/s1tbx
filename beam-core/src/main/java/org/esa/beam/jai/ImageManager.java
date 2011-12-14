@@ -30,7 +30,12 @@ import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.MathUtils;
+import org.geotools.referencing.crs.DefaultImageCRS;
+import org.geotools.referencing.cs.DefaultCartesianCS;
+import org.geotools.referencing.datum.DefaultImageDatum;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.ImageCRS;
+import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
 import javax.media.jai.*;
@@ -56,6 +61,10 @@ public class ImageManager {
 
     private static final boolean CACHE_INTERMEDIATE_TILES = Boolean.getBoolean(
             "beam.imageManager.enableIntermediateTileCaching");
+
+    private static final ImageCRS DEFAULT_IMAGE_CRS = new DefaultImageCRS("BEAM",
+                                                                          new DefaultImageDatum("BEAM", PixelInCell.CELL_CORNER),
+                                                                          DefaultCartesianCS.DISPLAY);
 
     private final Map<MaskKey, MultiLevelImage> maskImageMap = new HashMap<MaskKey, MultiLevelImage>(101);
     private final ProductNodeListener rasterDataChangeListener;
@@ -93,15 +102,24 @@ public class ImageManager {
         return new AffineTransform();
     }
 
+    /**
+     * Gets the coordinate reference system used for the model space. The model space is coordinate system
+     * that is used to render images for display.
+     *
+     * @param geoCoding A geo-coding, may be {@code null}.
+     * @return The coordinate reference system used for the model space. If {@code geoCoding} is {@code null},
+     *         it will be a default image coordinate reference system (an instance of {@code org.opengis.referencing.crs.ImageCRS}).
+     */
     public static CoordinateReferenceSystem getModelCrs(GeoCoding geoCoding) {
-        if (geoCoding == null) {
-            return null;
+        if (geoCoding != null) {
+            final MathTransform image2Map = geoCoding.getImageToMapTransform();
+            if (image2Map instanceof AffineTransform) {
+                return geoCoding.getMapCRS();
+            }
+            return geoCoding.getImageCRS();
+        } else {
+            return DEFAULT_IMAGE_CRS;
         }
-        final MathTransform image2Map = geoCoding.getImageToMapTransform();
-        if (image2Map instanceof AffineTransform) {
-            return geoCoding.getMapCRS();
-        }
-        return geoCoding.getImageCRS();
     }
 
     public PlanarImage getSourceImage(RasterDataNode rasterDataNode, int level) {
