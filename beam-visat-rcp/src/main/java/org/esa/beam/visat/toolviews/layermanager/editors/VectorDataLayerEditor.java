@@ -28,9 +28,13 @@ import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.NamedSymbol;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.layer.AbstractLayerConfigurationEditor;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.SimpleFeatureFigure;
+import org.esa.beam.framework.ui.product.VectorDataFigureEditor;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.ObjectUtils;
 
 import java.beans.PropertyChangeEvent;
@@ -196,12 +200,15 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
         }
     }
 
+    /**
+     * Used to update the figure style, whenever users change style values using the editor.
+     */
     private class StyleUpdater implements PropertyChangeListener {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            // System.out.printf("StyleUpdater: propertyChange(name=%s, oldValue=%s, newValue=%s)\n",
-            //                   evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+            Debug.trace(String.format("VectorDataLayerEditor$StyleUpdater (1): property change: name=%s, oldValue=%s, newValue=%s",
+                                      evt.getPropertyName(), evt.getOldValue(), evt.getNewValue()));
             if (evt.getNewValue() == null) {
                 return;
             }
@@ -213,16 +220,39 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
                         final Object oldFigureValue = selectedFigure.getNormalStyle().getValue(evt.getPropertyName());
                         final Object newValue = evt.getNewValue();
                         if (!newValue.equals(oldFigureValue)) {
+                            Debug.trace(String.format("VectorDataLayerEditor$StyleUpdater (2): about to apply change: name=%s, oldValue=%s, newValue=%s",
+                                                      evt.getPropertyName(), oldFigureValue, evt.getNewValue()));
+                            // Transfer new style to affected selectedFigure.
                             final FigureStyle origStyle = selectedFigure.getNormalStyle();
                             final DefaultFigureStyle style = new DefaultFigureStyle();
                             style.fromCssString(origStyle.toCssString());
                             transferPropertyValueToStyle(bindContext.getPropertySet(), evt.getPropertyName(), style);
                             selectedFigure.setNormalStyle(style);
-
+                            // todo - Actually selectedFigure.setNormalStyle(style); --> should fire event, so that associated
+                            // placemark can save the new style. (nf 2011-11-23)
+                            setFeatureStyleCss(selectedFigure, style);
                         }
                     }
                 } finally {
                     isAdjusting.set(false);
+                }
+            }
+        }
+
+        private void setFeatureStyleCss(SimpleFeatureFigure selectedFigure, DefaultFigureStyle style) {
+            // Transfer new style to associated placemark. Awful code :-(
+            final FigureEditor figureEditor = getAppContext().getSelectedProductSceneView().getFigureEditor();
+            if (figureEditor instanceof VectorDataFigureEditor) {
+                VectorDataFigureEditor editor = (VectorDataFigureEditor) figureEditor;
+                final VectorDataNode vectorDataNode = editor.getVectorDataNode();
+                final Placemark placemark = vectorDataNode.getPlacemarkGroup().getPlacemark(selectedFigure.getSimpleFeature());
+                if (placemark != null) {
+                    placemark.setStyleCss(style.toCssString());
+                } else {
+                    final int index = selectedFigure.getSimpleFeature().getFeatureType().indexOf(Placemark.PROPERTY_NAME_STYLE_CSS);
+                    if (index != -1) {
+                        selectedFigure.getSimpleFeature().setAttribute(index, style.toCssString());
+                    }
                 }
             }
         }
