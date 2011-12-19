@@ -1,13 +1,6 @@
 package org.esa.beam.dataio.placemark;
 
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.GcpDescriptor;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.io.CsvReader;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.BeforeClass;
@@ -21,12 +14,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
-import java.util.TimeZone;
 
 import static org.junit.Assert.*;
 
@@ -209,10 +198,7 @@ public class PlacemarkIOTest {
         assertEquals(expectedPlacemarks.size(), actualPlacemarks.size());
         testReadStandardResult(expectedPlacemarks, actualPlacemarks, descriptorInstance);
         for (int i = 0; i < actualPlacemarks.size(); i++) {
-            PlacemarkSymbol expectedSymbol = expectedPlacemarks.get(i).getSymbol();
-            PlacemarkSymbol actualSymbol = actualPlacemarks.get(i).getSymbol();
-            assertEquals(expectedSymbol.getFillPaint(), actualSymbol.getFillPaint());
-            assertEquals(expectedSymbol.getOutlineColor(), actualSymbol.getOutlineColor());
+            assertEquals(expectedPlacemarks.get(i).getStyleCss(), actualPlacemarks.get(i).getStyleCss());
         }
     }
 
@@ -241,8 +227,7 @@ public class PlacemarkIOTest {
             GeoPos geoPos = geoCoding.getGeoPos(pixelPos, null);
             Placemark placemark = Placemark.createPointPlacemark(descriptor, "name_" + i, "label_" + i, "description_" + i,
                                                                  pixelPos, geoPos, geoCoding);
-            placemark.getSymbol().setFillPaint(new Color((int) (Math.random() * Integer.MAX_VALUE), true));
-            placemark.getSymbol().setOutlineColor(new Color((int) (Math.random() * Integer.MAX_VALUE), true));
+            placemark.setStyleCss("fill:#FFFFFF;stroke:#000000");
             placemarkList.add(placemark);
         }
         return placemarkList;

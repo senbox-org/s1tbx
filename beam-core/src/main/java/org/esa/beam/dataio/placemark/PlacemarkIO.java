@@ -16,6 +16,8 @@
 
 package org.esa.beam.dataio.placemark;
 
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.esa.beam.framework.datamodel.*;
@@ -24,6 +26,7 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.XmlWriter;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.DOMBuilder;
@@ -84,7 +87,7 @@ public class PlacemarkIO {
         final char[] magicBytes = new char[5];
         PushbackReader inputReader = new PushbackReader(reader, magicBytes.length);
         try {
-            inputReader.read(magicBytes); // todo - BAD PRACTICE HERE!!!
+            inputReader.read(magicBytes);
             inputReader.unread(magicBytes);
             if (XmlWriter.XML_HEADER_LINE.startsWith(new String(magicBytes))) {
                 return readPlacemarksFromXMLFile(inputReader, geoCoding, placemarkDescriptor);
@@ -414,20 +417,43 @@ public class PlacemarkIO {
 
         final Placemark placemark = Placemark.createPointPlacemark(descriptor, name1, label, description1, pixelPos, geoPos, geoCoding);
 
-        PlacemarkSymbol symbol = descriptor.createDefaultSymbol();
-        final Color fillColor = createColor(element.getChild(DimapProductConstants.TAG_PLACEMARK_FILL_COLOR));
-        if (fillColor != null) {
-            symbol.setFillPaint(fillColor);
+        String styleCss = element.getChildTextTrim(DimapProductConstants.TAG_PLACEMARK_STYLE_CSS);
+        if (styleCss == null) {
+            styleCss = getStyleCssFromOldFormat(element);
         }
-        final Color outlineColor = createColor(element.getChild(DimapProductConstants.TAG_PLACEMARK_OUTLINE_COLOR));
-        if (outlineColor != null) {
-            symbol.setOutlineColor(outlineColor);
-        }
-
-        placemark.setSymbol(symbol);
+        placemark.setStyleCss(styleCss);
 
         return placemark;
 
+    }
+
+    private static String getStyleCssFromOldFormat(Element element) {
+        StringBuilder styleCss = new StringBuilder();
+        buildStyleCss(getColorProperty(element, DimapProductConstants.TAG_PLACEMARK_FILL_COLOR, "fill"), styleCss);
+        buildStyleCss(getColorProperty(element, DimapProductConstants.TAG_PLACEMARK_OUTLINE_COLOR, "stroke"), styleCss);
+        return styleCss.toString();
+    }
+
+    private static void buildStyleCss(Property strokeProperty, StringBuilder styleCss) {
+        if (strokeProperty.getValue() != null) {
+            if (styleCss.length() > 0) {
+                styleCss.append(";");
+            }
+            styleCss.append(strokeProperty.getName()).append(":").append(strokeProperty.getValueAsText());
+        }
+    }
+
+    private static Property getColorProperty(Element element, String elementName, String propertyName) {
+        final Property fillProperty = Property.create(propertyName, Color.class);
+        final Color fillColor = createColor(element.getChild(elementName));
+        if (fillColor != null) {
+            try {
+                fillProperty.setValue(fillColor);
+            } catch (ValidationException e) {
+                BeamLogManager.getSystemLogger().warning(e.getMessage());
+            }
+        }
+        return fillProperty;
     }
 
     private static Color createColor(Element elem) {
@@ -466,13 +492,9 @@ public class PlacemarkIO {
             writer.printLine(indent, DimapProductConstants.TAG_PLACEMARK_PIXEL_X, pixelPos.x);
             writer.printLine(indent, DimapProductConstants.TAG_PLACEMARK_PIXEL_Y, pixelPos.y);
         }
-        final Color fillColor = (Color) placemark.getSymbol().getFillPaint();
-        if (fillColor != null) {
-            writeColor(DimapProductConstants.TAG_PLACEMARK_FILL_COLOR, indent, fillColor, writer);
-        }
-        final Color outlineColor = placemark.getSymbol().getOutlineColor();
-        if (outlineColor != null) {
-            writeColor(DimapProductConstants.TAG_PLACEMARK_OUTLINE_COLOR, indent, outlineColor, writer);
+        final String styleCss = placemark.getStyleCss();
+        if (styleCss != null && !styleCss.isEmpty()) {
+            writer.printLine(indent, DimapProductConstants.TAG_PLACEMARK_STYLE_CSS, styleCss);
         }
         writer.println(pinTags[1]);
     }

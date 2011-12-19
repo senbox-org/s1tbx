@@ -40,9 +40,7 @@ import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -364,6 +362,7 @@ public class WriteOp extends Operator implements Output {
             if (productWriter instanceof DimapProductWriter) {
                 // if we can update the header (only DIMAP) rewrite it!
                 synchronized (productWriter) {
+                    System.out.println("Writing header of " + targetProduct.getFileLocation());
                     productWriter.writeProductNodes(targetProduct, file);
                 }
             }

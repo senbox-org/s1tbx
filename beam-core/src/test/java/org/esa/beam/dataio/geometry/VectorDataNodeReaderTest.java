@@ -129,7 +129,7 @@ public class VectorDataNodeReaderTest extends TestCase {
         assertEquals("weight", ad2.getType().getName().getLocalPart());
         assertEquals(Float.class, ad2.getType().getBinding());
     }
-    
+
     public void testCRS() throws Exception {
         StringReader reader = new StringReader(CONTENTS_2);
 
@@ -170,17 +170,22 @@ public class VectorDataNodeReaderTest extends TestCase {
         }
 
         try {
-            expectException("FT\ta:Integer\n" +
-                    "ID1\tX\n");
+            String source = "FT\ta:Integer\n" +
+                    "ID1\tX\n";
+            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new VectorDataNodeReader("mem", null).readFeatures(new StringReader(source));
+            assertEquals(1, fc.size());
+            assertEquals(null, fc.features().next().getAttribute("a"));
         } catch (IOException e) {
-            // ok
+            fail("Not expected: IOException: " + e.getMessage());
         }
 
         try {
-            expectException("FT\ta:Integer\n" +
-                    "ID1\t1234\tABC\n");
+            String source = "FT\ta:Integer\n" +
+                    "ID1\t1234\tABC\n";
+            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new VectorDataNodeReader("mem", null).readFeatures(new StringReader(source));
+            assertEquals(0, fc.size());
         } catch (IOException e) {
-            // ok
+            fail("Not expected: IOException: " + e.getMessage());
         }
     }
 

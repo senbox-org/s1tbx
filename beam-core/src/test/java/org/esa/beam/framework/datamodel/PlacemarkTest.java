@@ -22,8 +22,6 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
 
-import java.awt.*;
-import java.awt.geom.Line2D;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,7 +102,8 @@ public class PlacemarkTest extends TestCase {
         assertEquals(4, events.size());
         assertEquals(4, eventTypes.size());
 
-        placemark1.setSymbol(new PlacemarkSymbol("symb1", new Line2D.Float(4, 5, 6, 7)));
+        // todo - fix problem due to removal of PlacemarkSymbol (nf 2011-11-23)
+        placemark1.setStyleCss("fill:#CAFEBABE");
         assertEquals(1, product.getPinGroup().getNodeCount());
         assertEquals(5, events.size());
         assertEquals(5, eventTypes.size());
@@ -132,7 +131,7 @@ public class PlacemarkTest extends TestCase {
                 ProductNode.PROPERTY_NAME_DESCRIPTION,
                 Placemark.PROPERTY_NAME_PIXELPOS,
                 Placemark.PROPERTY_NAME_GEOPOS,
-                Placemark.PROPERTY_NAME_PINSYMBOL,
+                Placemark.PROPERTY_NAME_STYLE_CSS,
                 null
         };
         final ProductNodeEvent[] currentProductNodeEvents = events.toArray(new ProductNodeEvent[events.size()]);
@@ -175,7 +174,8 @@ public class PlacemarkTest extends TestCase {
         Placemark placemark = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "pinName", "pinLabel", "", null, new GeoPos(4f, 87f),
                                                              product.getGeoCoding());
         placemark.setDescription("pinDescription");
-        placemark.setSymbol(PlacemarkSymbol.createDefaultPinSymbol());
+        // todo - fix problem due to removal of PlacemarkSymbol (nf 2011-11-23)
+        // placemark.setSymbol(PlacemarkSymbol.createDefaultPinSymbol());
 
         StringWriter stringWriter = new StringWriter();
         PlacemarkIO.writeXML(placemark, new XmlWriter(stringWriter, false), 0);
@@ -185,12 +185,6 @@ public class PlacemarkTest extends TestCase {
                 "    <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
                 "    <LATITUDE>4.0</LATITUDE>" + _ls +
                 "    <LONGITUDE>87.0</LONGITUDE>" + _ls +
-                "    <FillColor>" + _ls +
-                "        <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
-                "    </FillColor>" + _ls +
-                "    <OutlineColor>" + _ls +
-                "        <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
-                "    </OutlineColor>" + _ls +
                 "</Placemark>" + _ls;
         assertEquals(expected, stringWriter.toString());
 
@@ -202,12 +196,6 @@ public class PlacemarkTest extends TestCase {
                 "                <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
                 "                <LATITUDE>4.0</LATITUDE>" + _ls +
                 "                <LONGITUDE>87.0</LONGITUDE>" + _ls +
-                "                <FillColor>" + _ls +
-                "                    <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
-                "                </FillColor>" + _ls +
-                "                <OutlineColor>" + _ls +
-                "                    <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
-                "                </OutlineColor>" + _ls +
                 "            </Placemark>" + _ls;
         assertEquals(expected, stringWriter.toString());
     }
@@ -219,7 +207,7 @@ public class PlacemarkTest extends TestCase {
         final float pinLon = 23.4f;
 
         try {
-            PlacemarkIO.createPlacemark(null, (PlacemarkDescriptor) null, null);
+            PlacemarkIO.createPlacemark(null, null, null);
             fail("NullPointerException expected");
         } catch (NullPointerException e) {
             // OK
@@ -237,7 +225,7 @@ public class PlacemarkTest extends TestCase {
         pinElem.setAttribute(DimapProductConstants.ATTRIB_NAME, pinName);
 
         try {
-            PlacemarkIO.createPlacemark(pinElem, (PlacemarkDescriptor) null, null);
+            PlacemarkIO.createPlacemark(pinElem, null, null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // OK
@@ -248,7 +236,7 @@ public class PlacemarkTest extends TestCase {
         pinElem.addContent(latElem);
 
         try {
-            PlacemarkIO.createPlacemark(pinElem, (PlacemarkDescriptor) null, null);
+            PlacemarkIO.createPlacemark(pinElem, null, null);
             fail("IllegalArgumentException expected");
         } catch (Exception e) {
             // OK
@@ -300,10 +288,7 @@ public class PlacemarkTest extends TestCase {
         assertEquals(pinDesc, placemark.getDescription());
         assertEquals(pinLat, placemark.getGeoPos().lat, 1e-15f);
         assertEquals(pinLon, placemark.getGeoPos().lon, 1e-15f);
-        PlacemarkSymbol symbol = placemark.getSymbol();
-        assertNotNull(symbol);
-        assertEquals(Color.red, symbol.getFillPaint());
-        assertEquals(Color.blue, symbol.getOutlineColor());
+        assertEquals("fill:255,0,0;stroke:0,0,255", placemark.getStyleCss());
     }
 
     public void testLabelSettings() {

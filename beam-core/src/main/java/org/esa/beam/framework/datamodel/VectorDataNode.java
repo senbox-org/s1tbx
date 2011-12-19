@@ -18,10 +18,8 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.geotools.feature.CollectionEvent;
-import org.geotools.feature.CollectionListener;
-import org.geotools.feature.DefaultFeatureCollection;
-import org.geotools.feature.FeatureCollection;
+import org.esa.beam.util.Debug;
+import org.geotools.feature.*;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -65,7 +63,7 @@ public class VectorDataNode extends ProductNode {
     private PlacemarkGroup placemarkGroup;
     private final CollectionListener featureCollectionListener;
     private String defaultStyleCss;
-    private ReferencedEnvelope bounds = null;
+    private ReferencedEnvelope bounds;
 
     /**
      * Constructs a new vector data node for the given feature collection.
@@ -116,6 +114,23 @@ public class VectorDataNode extends ProductNode {
         this.featureCollection.addListener(featureCollectionListener);
         this.defaultStyleCss = String.format(DEFAULT_STYLE_FORMAT, FILL_COLORS[(fillColorIndex++) % FILL_COLORS.length]);
         this.placemarkDescriptor = placemarkDescriptor;
+        Debug.trace(String.format("VectorDataNode created: name=%s, featureType.typeName=%s, placemarkDescriptor.class=%s",
+                                  name, featureType.getTypeName(), placemarkDescriptor.getClass()));
+    }
+
+    /**
+     * Called when this node is added to or removed from a product.
+     * Overridden in order to create placemarks for features that are still
+     * without a placemark counterpart.
+     *
+     * @param owner the new owner
+     */
+    @Override
+    protected synchronized void setOwner(ProductNode owner) {
+        super.setOwner(owner);
+        if (getProduct() != null) {
+            updateFeatureCollectionByPlacemarkGroup();
+        }
     }
 
     public PlacemarkDescriptor getPlacemarkDescriptor() {
@@ -124,13 +139,17 @@ public class VectorDataNode extends ProductNode {
 
     public PlacemarkGroup getPlacemarkGroup() {
         if (placemarkGroup == null) {
-            placemarkGroup = new PlacemarkGroup(getProduct(), getName(), this);
+            synchronized (this) {
+                if (placemarkGroup == null) {
+                    placemarkGroup = new PlacemarkGroup(getProduct(), getName(), this);
+                }
+            }
         }
         return placemarkGroup;
     }
 
     @Override
-    public void setModified(boolean modified) {
+    public synchronized void setModified(boolean modified) {
         super.setModified(modified);
         if (placemarkGroup != null) {
             placemarkGroup.setModified(modified);
@@ -257,14 +276,24 @@ public class VectorDataNode extends ProductNode {
         super.dispose();
     }
 
-    /**
-     * @return true if the feature type's name starts with "org.esa.beam."
-     * @deprecated Since BEAM 4.10. No use.
-     */
-    @Deprecated
-    public boolean isInternalNode() {
-        return getFeatureType().getTypeName().startsWith("org.esa.beam.");
+    private void updateFeatureCollectionByPlacemarkGroup() {
+        final FeatureIterator<SimpleFeature> iterator = featureCollection.features();
+        try {
+            while (iterator.hasNext()) {
+                generatePlacemarkForFeature(iterator.next());
+            }
+        } finally {
+            featureCollection.close(iterator);
+        }
     }
+
+    private void generatePlacemarkForFeature(SimpleFeature feature) {
+        final Placemark placemark = getPlacemarkGroup().getPlacemark(feature);
+        if (placemark == null) {
+            placemarkGroup.add(placemarkDescriptor.createPlacemark(feature));
+        }
+    }
+
 
     // Note: This is a temporary method. Soon, VectorDataNodes will be able to support all suitable PlacemarkDescriptors
     private static PlacemarkDescriptor getPlacemarkDescriptor(final SimpleFeatureType featureType) {
@@ -273,6 +302,19 @@ public class VectorDataNode extends ProductNode {
             return placemarkDescriptors.get(0);
         }
         return new GenericPlacemarkDescriptor(featureType);
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    // Deprecated API
+    /////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @return true if the feature type's name starts with "org.esa.beam."
+     * @deprecated Since BEAM 4.10. No use.
+     */
+    @Deprecated
+    public boolean isInternalNode() {
+        return getFeatureType().getTypeName().startsWith("org.esa.beam.");
     }
 
     /**

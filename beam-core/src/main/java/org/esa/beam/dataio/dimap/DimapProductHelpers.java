@@ -18,52 +18,11 @@ package org.esa.beam.dataio.dimap;
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
 import org.esa.beam.dataio.placemark.PlacemarkIO;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.FXYGeoCoding;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GcpDescriptor;
-import org.esa.beam.framework.datamodel.GcpGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkGroup;
-import org.esa.beam.framework.datamodel.PointingFactory;
-import org.esa.beam.framework.datamodel.PointingFactoryRegistry;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.ROIDefinition;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.SampleCoding;
-import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
-import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.XmlWriter;
+import org.esa.beam.util.*;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.FXYSum;
@@ -87,15 +46,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
-
-import static org.esa.beam.framework.datamodel.GcpGeoCoding.Method;
 
 /**
  * This class defines some static methods used to create and access BEAM DIMAP XML documents.
@@ -239,14 +192,14 @@ public class DimapProductHelpers {
         Debug.assertNotNull(dom);
         Debug.assertNotNull(product);
         final Element rootElem = dom.getRootElement();
-        final Element geopositionElem = rootElem.getChild(DimapProductConstants.TAG_GEOPOSITION);
+        final Element geoPositionElem = rootElem.getChild(DimapProductConstants.TAG_GEOPOSITION);
         final Element coordRefSysElem = rootElem.getChild(DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
         final Datum datum = createDatum(dom);
-        if (geopositionElem != null) {
+        if (geoPositionElem != null) {
             if (coordRefSysElem != null) {
                 final Element wktElem = coordRefSysElem.getChild(DimapProductConstants.TAG_WKT);
                 if (wktElem != null) {
-                    return createCrsGeoCoding(product, geopositionElem, wktElem);
+                    return createCrsGeoCoding(product, geoPositionElem, wktElem);
                 }
             }
 
@@ -271,7 +224,7 @@ public class DimapProductHelpers {
                     final Element geopositionPointsElement
                             = geoPosElem.getChild(DimapProductConstants.TAG_GEOPOSITION_POINTS);
                     if (geopositionPointsElement != null) {
-                        geoCodings[bandIndex] = createGeoCodingFromGeopositionPointsElement(product,
+                        geoCodings[bandIndex] = createGeoCodingFromGeoPositionPointsElement(product,
                                                                                             datum,
                                                                                             geopositionPointsElement);
                     }
@@ -285,6 +238,9 @@ public class DimapProductHelpers {
             final String tagHorizontalCs = DimapProductConstants.TAG_HORIZONTAL_CS;
             final Element hCsElem = coordRefSysElem.getChild(tagHorizontalCs);
             if (hCsElem != null) {
+                // todo - this is actually wrong. We can derive a CrsGeoCoding here. (nf - 16.12.2011)
+                //        This is the DIMAP standard "Coordinate_Reference_System/Horizontal_CS" element which is
+                //        a subset of what our "WKT" element provides.
                 final MapInfo mapInfo = createMapInfoSinceDimap1_4_0(hCsElem);
                 if (mapInfo != null) {
                     mapInfo.setSceneWidth(product.getSceneRasterWidth());
@@ -399,18 +355,18 @@ public class DimapProductHelpers {
         return null;
     }
 
-    private static GeoCoding createGeoCodingFromGeopositionPointsElement(Product product,
+    private static GeoCoding createGeoCodingFromGeoPositionPointsElement(Product product,
                                                                          Datum datum,
-                                                                         Element geopositionPointsElement) {
+                                                                         Element geoPositionPointsElement) {
         GcpGeoCoding gcpGeoCoding = null;
         GeoCoding originalGeoCoding = null;
         GeoCoding tiePointGeoCoding = null;
 
         // 1. try creating a tie-point geo-coding
         final Element latElement =
-                geopositionPointsElement.getChild(DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LAT);
+                geoPositionPointsElement.getChild(DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LAT);
         final Element lonElement =
-                geopositionPointsElement.getChild(DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LON);
+                geoPositionPointsElement.getChild(DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LON);
         if (latElement != null && lonElement != null) {
             final String latName = latElement.getText();
             final String lonName = lonElement.getText();
@@ -429,10 +385,10 @@ public class DimapProductHelpers {
             return tiePointGeoCoding;
         }
         // 3. try creating a GCP geo-coding
-        final Element methodElement = geopositionPointsElement.getChild(DimapProductConstants.TAG_INTERPOLATION_METHOD);
+        final Element methodElement = geoPositionPointsElement.getChild(DimapProductConstants.TAG_INTERPOLATION_METHOD);
         if (methodElement != null) {
             final String methodName = methodElement.getText();
-            final Method method = Method.valueOf(Method.class, methodName);
+            final GcpGeoCoding.Method method = GcpGeoCoding.Method.valueOf(GcpGeoCoding.Method.class, methodName);
             final PlacemarkGroup gcpGroup = product.getGcpGroup();
             final Placemark[] placemarks = gcpGroup.toArray(new Placemark[gcpGroup.getNodeCount()]);
             try {
@@ -445,7 +401,7 @@ public class DimapProductHelpers {
             }
         }
         // 4. try creating the original geo-coding
-        final Element originalGeoCodingElement = geopositionPointsElement.getChild(
+        final Element originalGeoCodingElement = geoPositionPointsElement.getChild(
                 DimapProductConstants.TAG_ORIGINAL_GEOCODING);
         if (originalGeoCodingElement != null) {
             try {
@@ -472,10 +428,10 @@ public class DimapProductHelpers {
         return geoCodings[0];
     }
 
-    private static GeoCoding[] createCrsGeoCoding(Product product, Element geopositionElem, Element wktElem) {
+    private static GeoCoding[] createCrsGeoCoding(Product product, Element geoPositionElem, Element wktElem) {
         try {
             final CoordinateReferenceSystem crs = CRS.parseWKT(wktElem.getTextTrim());
-            final Element i2mElem = geopositionElem.getChild(
+            final Element i2mElem = geoPositionElem.getChild(
                     DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM);
             if (i2mElem != null) {
                 final String[] parameters = StringUtils.csvToArray(i2mElem.getTextTrim());
@@ -512,9 +468,9 @@ public class DimapProductHelpers {
         }
         final Element posEstimatorElement = geoPosElem.getChild(DimapProductConstants.TAG_PIXEL_POSITION_ESTIMATOR);
         if (posEstimatorElement != null) {
-            final Content posEstimatoContent = posEstimatorElement.detach();
+            final Content posEstimatorContent = posEstimatorElement.detach();
             final Document dom = new Document();
-            dom.addContent(posEstimatoContent);
+            dom.addContent(posEstimatorContent);
             product.setGeoCoding(createGeoCoding(dom, product)[0]);
         }
 
@@ -573,9 +529,9 @@ public class DimapProductHelpers {
             if (hcsElem != null) {
                 final Element gcsElem = hcsElem.getChild(DimapProductConstants.TAG_GEOGRAPHIC_CS);
                 if (gcsElem != null) {
-                    final Element horizDatumElem = gcsElem.getChild(DimapProductConstants.TAG_HORIZONTAL_DATUM);
-                    if (horizDatumElem != null) {
-                        final Element ellipsoidElem = horizDatumElem.getChild(DimapProductConstants.TAG_ELLIPSOID);
+                    final Element horizontalDatumElem = gcsElem.getChild(DimapProductConstants.TAG_HORIZONTAL_DATUM);
+                    if (horizontalDatumElem != null) {
+                        final Element ellipsoidElem = horizontalDatumElem.getChild(DimapProductConstants.TAG_ELLIPSOID);
                         if (ellipsoidElem != null) {
                             final Element ellipsoidParamElem = ellipsoidElem.getChild(
                                     DimapProductConstants.TAG_ELLIPSOID_PARAMETERS);
@@ -591,7 +547,7 @@ public class DimapProductHelpers {
                                     final String ellipsoidName = ellipsoidElem.getChildTextTrim(
                                             DimapProductConstants.TAG_ELLIPSOID_NAME);
                                     final Ellipsoid ellipsoid = new Ellipsoid(ellipsoidName, minorAxis, majorAxis);
-                                    final String datumName = horizDatumElem.getChildTextTrim(
+                                    final String datumName = horizontalDatumElem.getChildTextTrim(
                                             DimapProductConstants.TAG_HORIZONTAL_DATUM_NAME);
                                     return new Datum(datumName, ellipsoid, 0, 0, 0);
                                 }
@@ -617,8 +573,8 @@ public class DimapProductHelpers {
 
     private static MapInfo createMapInfoSinceDimap1_4_0(final Element horCsElem) {
         try {
-            final Element geogarphicCsElem = horCsElem.getChild(DimapProductConstants.TAG_GEOGRAPHIC_CS);
-            final Element horDatumElem = geogarphicCsElem.getChild(DimapProductConstants.TAG_HORIZONTAL_DATUM);
+            final Element geographicCsElem = horCsElem.getChild(DimapProductConstants.TAG_GEOGRAPHIC_CS);
+            final Element horDatumElem = geographicCsElem.getChild(DimapProductConstants.TAG_HORIZONTAL_DATUM);
             /**
              *     !!!ATTENTION !!!    -->   Read this!!!!
              *
@@ -630,13 +586,13 @@ public class DimapProductHelpers {
              * This methods results a Strings named "null" not a null object if the
              * element is not available in the XML dom.
              *
-             * Instead use the folowing sequence:
+             * Instead use the following sequence:
              * final Element horDatumNameElem = horDatumElem.getChild(DimapProductConstants.TAG_HORIZONTAL_DATUM_NAME);
              * final String datumName = horDatumNameElem.getTextTrim();
              *
-             * This sequence throws a NullpointerException if any of the mandatory entries are not exists.
-             * This thrown NullpointerException will be catched in this method to trace a log message
-             * that this geocoding sequence is malformed.
+             * This sequence throws a NullPointerException if any of the mandatory entries are not exists.
+             * This thrown NullPointerException will be catched in this method to trace a log message
+             * that this geo-coding sequence is malformed.
              */
             final Element horDatumNameElem = horDatumElem.getChild(DimapProductConstants.TAG_HORIZONTAL_DATUM_NAME);
             final String datumName = horDatumNameElem.getTextTrim();
@@ -766,7 +722,7 @@ public class DimapProductHelpers {
             }
             return mapInfo;
         } catch (Exception e) {
-            Debug.trace("Malformed geocoding");
+            Debug.trace("Malformed geo-coding");
             Debug.trace(e);
             return null;
         }
@@ -820,6 +776,8 @@ public class DimapProductHelpers {
         return null;
     }
 
+    // Since BEAM 4.10, pins are read from the folder "vector_data"
+    @Deprecated
     static void addPins(Document dom, Product product) {
         Element groupElement = dom.getRootElement().getChild(DimapProductConstants.TAG_PIN_GROUP);
         List elements;
@@ -839,6 +797,8 @@ public class DimapProductHelpers {
         }
     }
 
+    // Since BEAM 4.10, GCPs are read from the folder "vector_data"
+    @Deprecated
     static void addGcps(Document dom, Product product) {
         Element groupElement = dom.getRootElement().getChild(DimapProductConstants.TAG_GCP_GROUP);
         List elements;
@@ -1099,7 +1059,7 @@ public class DimapProductHelpers {
                 } else if (type == ProductData.TYPE_UTC) {
                     if (attValue.contains(",")) {
                         // *************************************************
-                        // this case is necesarry for backward compatibility
+                        // this case is necessary for backward compatibility
                         // *************************************************
                         final String[] dataValues = StringUtils.csvToArray(attValue);
                         data = ProductData.createInstance(type);
@@ -1116,7 +1076,7 @@ public class DimapProductHelpers {
                     }
                 } else if (ProductData.isUIntType(type) && attValue.contains("-")) {
                     // *************************************************
-                    // this case is necesarry for backward compatibility
+                    // this case is necessary for backward compatibility
                     // *************************************************
                     final String[] dataValues = StringUtils.csvToArray(attValue);
                     final int length = dataValues.length;
@@ -1690,10 +1650,6 @@ public class DimapProductHelpers {
             return is(element, DimapProductConstants.TAG_VIRTUAL_BAND_USE_INVALID_VALUE);
         }
 
-        private static boolean getCheckInvalids(Element element) {
-            return is(element, DimapProductConstants.TAG_VIRTUAL_BAND_CHECK_INVALIDS);
-        }
-
         private static boolean isVirtualBand(Element element) {
             return is(element, DimapProductConstants.TAG_VIRTUAL_BAND);
         }
@@ -1836,6 +1792,26 @@ public class DimapProductHelpers {
         private Element getRootElement() {
             return getDom().getRootElement();
         }
+    }
+
+    public static CoordinateReferenceSystem getCRS(Document dom) {
+        final Element rootElem = dom.getRootElement();
+        final Element coordRefSysElem = rootElem.getChild(DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
+        if (coordRefSysElem != null) {
+            final Element wktElem = coordRefSysElem.getChild(DimapProductConstants.TAG_WKT);
+            if (wktElem != null) {
+                try {
+                    return CRS.parseWKT(wktElem.getTextTrim());
+                } catch (FactoryException e) {
+                    Debug.trace(e);
+                }
+            } else {
+                // todo - Read the standard DIMAP "Coordinate_Reference_System" contents and derive CRS. (nf - 16.12.2011)
+                //        (Code is in createMapInfoSinceDimap1_4_0()). If we can't find any other info in this element,
+                //        we could return DefaultGeographicCRS.WGS84;
+            }
+        }
+        return null;
     }
 
 }

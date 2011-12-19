@@ -137,7 +137,7 @@ public class VectorDataNodeReader {
                         }
                         builder.set(simpleFeatureType.getDescriptor(i - 1).getLocalName(), value);
                     } catch (ConversionException e) {
-                        BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': failed to parse value '%s'",
+                        BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': %s",
                                                                                location, e.getMessage()));
                     }
                 }

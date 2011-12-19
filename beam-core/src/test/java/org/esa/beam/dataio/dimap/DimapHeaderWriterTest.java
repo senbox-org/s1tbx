@@ -17,29 +17,8 @@ package org.esa.beam.dataio.dimap;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.ConvolutionFilterBand;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.FXYGeoCoding;
-import org.esa.beam.framework.datamodel.GcpDescriptor;
-import org.esa.beam.framework.datamodel.GeneralFilterBand;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Kernel;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
-import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.FXYSum;
@@ -212,28 +191,6 @@ public class DimapHeaderWriterTest extends TestCase {
         assertEquals(expected, stringWriter.toString());
     }
 
-    // ###########################
-    // ##  W r i t e   P i n s  ##
-    // ###########################
-    public void testWritePins() {
-        addPinsToProduct();
-
-        dimapHeaderWriter.writeHeader();
-
-        assertEquals(getExpectedForWritePins(), stringWriter.toString());
-    }
-
-    // ###########################
-    // ##  W r i t e   G C P s  ##
-    // ###########################
-    public void testWriteGcps() {
-        addGcpsToProduct();
-
-        dimapHeaderWriter.writeHeader();
-
-        assertEquals(getExpectedForWriteGcps(), stringWriter.toString());
-    }
-
     // #########################################
     // ##  W r i t e   B i t m a s k D e f s  ##
     // #########################################
@@ -311,6 +268,7 @@ public class DimapHeaderWriterTest extends TestCase {
     private void addPinsToProduct() {
         final PinDescriptor pinDescriptor = PinDescriptor.getInstance();
         final Placemark placemark1 = Placemark.createPointPlacemark(pinDescriptor, "pin1", "pin1", "", null, new GeoPos(), product.getGeoCoding());
+        placemark1.setStyleCss("symbol:plus;stroke-width:2");
         ProductNodeGroup<Placemark> pinGroup = product.getPinGroup();
         pinGroup.add(placemark1);
 
@@ -333,36 +291,19 @@ public class DimapHeaderWriterTest extends TestCase {
                         "            <DESCRIPTION />" + LS +
                         "            <LATITUDE>0.0</LATITUDE>" + LS +
                         "            <LONGITUDE>0.0</LONGITUDE>" + LS +
-                        "            <FillColor>" + LS +
-                        "                <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + LS +
-                        "            </FillColor>" + LS +
-                        "            <OutlineColor>" + LS +
-                        "                <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + LS +
-                        "            </OutlineColor>" + LS +
+                        "            <STYLE_CSS>symbol:plus;stroke-width:2</STYLE_CSS>" + LS +
                         "        </Placemark>" + LS +
                         "        <Placemark name=\"pin2\">" + LS +
                         "            <LABEL>pin2</LABEL>" + LS +
                         "            <DESCRIPTION>desc2</DESCRIPTION>" + LS +
                         "            <LATITUDE>4.0</LATITUDE>" + LS +
                         "            <LONGITUDE>8.0</LONGITUDE>" + LS +
-                        "            <FillColor>" + LS +
-                        "                <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + LS +
-                        "            </FillColor>" + LS +
-                        "            <OutlineColor>" + LS +
-                        "                <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + LS +
-                        "            </OutlineColor>" + LS +
                         "        </Placemark>" + LS +
                         "        <Placemark name=\"pin3\">" + LS +
                         "            <LABEL>pin3</LABEL>" + LS +
                         "            <DESCRIPTION />" + LS +
                         "            <LATITUDE>-23.1234</LATITUDE>" + LS +
                         "            <LONGITUDE>-80.543</LONGITUDE>" + LS +
-                        "            <FillColor>" + LS +
-                        "                <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + LS +
-                        "            </FillColor>" + LS +
-                        "            <OutlineColor>" + LS +
-                        "                <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + LS +
-                        "            </OutlineColor>" + LS +
                         "        </Placemark>" + LS +
                         "    </Pin_Group>" + LS +
                         footer;
@@ -379,6 +320,7 @@ public class DimapHeaderWriterTest extends TestCase {
                                                                     product.getGeoCoding());
         placemark2.setDescription("desc2");
         pinGroup.add(placemark2);
+        placemark2.setStyleCss("symbol:star");
 
         final Placemark placemark3 = Placemark.createPointPlacemark(gcpDescriptor, "gcp3", "gcp3", "", null, new GeoPos(-23.1234f, -80.543f),
                                                                     product.getGeoCoding());
@@ -401,6 +343,7 @@ public class DimapHeaderWriterTest extends TestCase {
                         "            <DESCRIPTION>desc2</DESCRIPTION>" + LS +
                         "            <LATITUDE>4.0</LATITUDE>" + LS +
                         "            <LONGITUDE>8.0</LONGITUDE>" + LS +
+                        "            <STYLE_CSS>symbol:star</STYLE_CSS>" + LS +
                         "        </Placemark>" + LS +
                         "        <Placemark name=\"gcp3\">" + LS +
                         "            <LABEL>gcp3</LABEL>" + LS +
