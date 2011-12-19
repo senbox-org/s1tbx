@@ -308,8 +308,8 @@ public class PixelGeoCodingTest extends TestCase {
         PixelGeoCoding targetGC = (PixelGeoCoding) targetProduct.getGeoCoding();
         assertNotNull(targetGC.getPixelPosEstimator());
 
-        final GeoPos sourceGeoPos = sourceProduct.getGeoCoding().getGeoPos(new PixelPos(4.5f, 8.5f), null);
-        final GeoPos targetGeoPos = targetProduct.getGeoCoding().getGeoPos(new PixelPos(4.5f, 3.5f), null);
+        final GeoPos sourceGeoPos = sourceProduct.getGeoCoding().getGeoPos(new PixelPos(2.5f, 2.5f), null);
+        final GeoPos targetGeoPos = targetProduct.getGeoCoding().getGeoPos(new PixelPos(0.0f, 0.0f), null);
         assertEquals(sourceGeoPos.getLat(), targetGeoPos.getLat(), 1.0e-1);
         assertEquals(sourceGeoPos.getLon(), targetGeoPos.getLon(), 1.0e-1);
 
@@ -413,5 +413,9 @@ public class PixelGeoCodingTest extends TestCase {
 
         data.getDataElements(minX, minY, outData);
         assertEquals(33, outData[0]);
+
+        // In many cases, we use the tile rectangles in order to retrieve pixel data
+        // So make sure it also considers the min X and Y
+        assertEquals(new Rectangle(minX, minY, 8, 8), dst.getTileRect(0, 0));
     }
 }

@@ -31,24 +31,12 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.PointOpImage;
-import javax.media.jai.RasterAccessor;
-import javax.media.jai.RasterFactory;
-import javax.media.jai.RasterFormatTag;
+import javax.media.jai.*;
 import javax.media.jai.operator.CropDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.image.ComponentSampleModel;
-import java.awt.image.DataBuffer;
+import java.awt.*;
+import java.awt.image.*;
 import java.awt.image.DataBufferFloat;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.Vector;
 
@@ -189,7 +177,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      *                     e.g. for 300 meter pixels a search radius of 5 is a good choice. This parameter is ignored
      *                     if the source product is not geo-coded.
      * @param pm           a monitor to inform the user about progress
-     *
      * @throws IOException if an I/O error occurs while additional data is loaded from the source product
      */
     public PixelGeoCoding(final Band latBand, final Band lonBand, final String validMask, final int searchRadius,
@@ -379,7 +366,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param geoPos   the geographical position as lat/lon.
      * @param pixelPos an instance of <code>Point</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the pixel co-ordinates as x/y
      */
     @Override
@@ -555,7 +541,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the geographical position as lat/lon.
      */
     @Override
@@ -740,9 +725,11 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
     private void getGeoPosInternal(int pixelX, int pixelY, GeoPos geoPos) {
         if (useTiling) {
-            Raster data = latLonImage.getData(new Rectangle(pixelX, pixelY, 1, 1));
-            float lat = data.getSampleFloat(pixelX, pixelY, 0);
-            float lon = data.getSampleFloat(pixelX, pixelY, 1);
+            final int x = latLonImage.getMinX() + pixelX;
+            final int y = latLonImage.getMinY() + pixelY;
+            Raster data = latLonImage.getData(new Rectangle(x, y, 1, 1));
+            float lat = data.getSampleFloat(x, y, 0);
+            float lon = data.getSampleFloat(x, y, 1);
             geoPos.setLocation(lat, lon);
         } else {
             int i = rasterWidth * pixelY + pixelX;
@@ -874,13 +861,13 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             int dy = bestY - y0;
             if (Math.abs(dx) >= _searchRadius || Math.abs(dy) >= _searchRadius) {
                 Debug.trace("WARNING: search radius reached at " +
-                            "(x0 = " + x0 + ", y0 = " + y0 + "), " +
-                            "(dx = " + dx + ", dy = " + dy + "), " +
-                            "#best = " + bestCount);
+                                    "(x0 = " + x0 + ", y0 = " + y0 + "), " +
+                                    "(dx = " + dx + ", dy = " + dy + "), " +
+                                    "#best = " + bestCount);
             }
         } else {
             Debug.trace("WARNING: no better pixel found at " +
-                        "(x0 = " + x0 + ", y0 = " + y0 + ")");
+                                "(x0 = " + x0 + ", y0 = " + y0 + ")");
         }
     }
 
@@ -891,7 +878,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param srcScene  the source scene
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code>
-     *
      * @return true, if the geo-coding could be transferred.
      */
     @Override

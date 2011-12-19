@@ -30,9 +30,7 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ImageUtils;
 
 import javax.media.jai.PlanarImage;
-import java.awt.Color;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
@@ -145,7 +143,6 @@ public class Band extends AbstractBand {
      * Sets the sample coding for this band.
      *
      * @param sampleCoding the sample coding
-     *
      * @throws IllegalArgumentException if this band does not contain integer pixels
      */
     public void setSampleCoding(SampleCoding sampleCoding) {
@@ -287,7 +284,6 @@ public class Band extends AbstractBand {
      * @param height     the height of the raster data buffer
      * @param rasterData a raster data buffer receiving the pixels to be read
      * @param pm         a monitor to inform the user about progress
-     *
      * @throws java.io.IOException      if an I/O error occurs
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to which
@@ -310,9 +306,11 @@ public class Band extends AbstractBand {
             try {
                 pm.beginTask("Reading raster data...", 100);
                 final RenderedImage sourceImage = getSourceImage();
-                final Raster data = sourceImage.getData(new Rectangle(offsetX, offsetY, width, height));
+                final int x = sourceImage.getMinX() + offsetX;
+                final int y = sourceImage.getMinY() + offsetY;
+                final Raster data = sourceImage.getData(new Rectangle(x, y, width, height));
                 pm.worked(90);
-                data.getDataElements(offsetX, offsetY, width, height, rasterData.getElems());
+                data.getDataElements(x, y, width, height, rasterData.getElems());
                 pm.worked(10);
             } finally {
                 pm.done();
@@ -400,7 +398,6 @@ public class Band extends AbstractBand {
      * Gets an estimated raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
-     *
      * @return the size in bytes.
      */
     @Override
@@ -465,14 +462,14 @@ public class Band extends AbstractBand {
     @Override
     public String toString() {
         return getClass().getName() + "["
-               + getName() + ","
-               + ProductData.getTypeString(getDataType()) + "," +
-               +getRasterWidth() + "," +
-               +getRasterHeight() + "," +
-               +getSpectralBandIndex() + "," +
-               +getSpectralWavelength() + "," +
-               +getSpectralBandwidth() + "," +
-               +getSolarFlux() + "]";
+                + getName() + ","
+                + ProductData.getTypeString(getDataType()) + "," +
+                +getRasterWidth() + "," +
+                +getRasterHeight() + "," +
+                +getSpectralBandIndex() + "," +
+                +getSpectralWavelength() + "," +
+                +getSpectralBandwidth() + "," +
+                +getSolarFlux() + "]";
     }
 
     @Override
