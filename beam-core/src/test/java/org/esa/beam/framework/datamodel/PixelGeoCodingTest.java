@@ -21,6 +21,10 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.ConstantDescriptor;
+import javax.media.jai.operator.CropDescriptor;
+import java.awt.*;
 import java.awt.image.Raster;
 import java.io.IOException;
 
@@ -136,7 +140,7 @@ public class PixelGeoCodingTest extends TestCase {
         Product product = createProduct();
         TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
         PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
-                                                         product.getBand("lonBand"), null, 5, ProgressMonitor.NULL);
+                                                           product.getBand("lonBand"), null, 5, ProgressMonitor.NULL);
         product.setGeoCoding(pixelGeoCoding);
 
         String gp;
@@ -166,7 +170,7 @@ public class PixelGeoCodingTest extends TestCase {
         Product product = createProduct();
         TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
         PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
-                                                         product.getBand("lonBand"), null, 5, ProgressMonitor.NULL);
+                                                           product.getBand("lonBand"), null, 5, ProgressMonitor.NULL);
         product.setGeoCoding(pixelGeoCoding);
 
         String gp = tiePointGeoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null).toString();
@@ -178,7 +182,7 @@ public class PixelGeoCodingTest extends TestCase {
             product = createProduct();
             tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
             pixelGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
-                                                               product.getBand("lonBand"), null, 5, ProgressMonitor.NULL);
+                                                product.getBand("lonBand"), null, 5, ProgressMonitor.NULL);
 
             gp = tiePointGeoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null).toString();
             assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null).toString());
@@ -378,4 +382,36 @@ public class PixelGeoCodingTest extends TestCase {
         return floats;
     }
 
+    public void testThatImageMinXYAreImportant() throws Exception {
+        int minX = 4;
+        int minY = 3;
+
+        final RenderedOp src = ConstantDescriptor.create(16F, 16F, new Short[]{(short) 33}, null);
+        final RenderedOp dst = CropDescriptor.create(src, (float) minX, (float) minY, 8F, 8F, null);
+
+        assertEquals(minX, dst.getMinX());
+        assertEquals(minY, dst.getMinY());
+
+        // Test that we have to use the min X and Y
+        try {
+            dst.getData(new Rectangle(0, 0, 1, 1));
+            fail("IllegalArgumentException thrown by JAI expected");
+        } catch (IllegalArgumentException e) {
+            // ok
+        }
+
+        final Raster data = dst.getData(new Rectangle(minX, minY, 1, 1));
+        final short[] outData = new short[1];
+
+        // Test that we have to use the min X and Y
+        try {
+            data.getDataElements(0, 0, outData);
+            fail("ArrayIndexOutOfBoundsException thrown by AWT expected");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // ok
+        }
+
+        data.getDataElements(minX, minY, outData);
+        assertEquals(33, outData[0]);
+    }
 }
