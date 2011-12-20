@@ -44,6 +44,7 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
 
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
+        // Landsat 7 files must start with L7
         VirtualDir virtualDir;
         try {
             virtualDir = getInput(input);
@@ -55,7 +56,13 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
 
-        // @todo 1 tb/tb discuss how we can find a general solution for all readers capable of accepting compressed files
+        if (virtualDir.isCompressed() || virtualDir.isArchive()) {
+            if (isMatchingArchiveFileName(getFileInput(input).getName())) {
+                return DecodeQualification.INTENDED;
+            }
+            return DecodeQualification.SUITABLE;
+        }
+
         String[] list;
         try {
             list = virtualDir.list("");
@@ -165,6 +172,14 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
                 || extension.contains("tar")
                 || extension.contains("tgz")
                 || extension.contains("gz");
+    }
+
+    static boolean isMatchingArchiveFileName(String fileName) {
+        return StringUtils.isNotNullAndNotEmpty(fileName) &&
+                (fileName.startsWith("L5_")
+                || fileName.startsWith("LT5")
+                || fileName.startsWith("L7_")
+                || fileName.startsWith("LE7"));
     }
 
     private static class LandsatGeoTiffFileFilter extends BeamFileFilter {

@@ -56,6 +56,16 @@ public class VirtualDirTgz extends VirtualDir {
         }
     }
 
+    @Override
+    public boolean isCompressed() {
+        return isTgz(archiveFile.getName());
+    }
+
+    @Override
+    public boolean isArchive() {
+        return true;
+    }
+
     // @todo 3 tb/** this code is almost completely duplicated from com.bc.ceres.core.VirtualDir
     // it maybe makes sense to move it to a file utility class
     static File createTargetDirInTemp(String name) throws IOException {

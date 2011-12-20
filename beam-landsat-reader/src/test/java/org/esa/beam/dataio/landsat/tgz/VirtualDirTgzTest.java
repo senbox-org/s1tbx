@@ -24,6 +24,9 @@ public class VirtualDirTgzTest {
 
         virtualDir = new VirtualDirTgz(testTgz);
         assertEquals(testTgz.getPath(), virtualDir.getBasePath());
+
+        assertTrue(virtualDir.isCompressed());
+        assertTrue(virtualDir.isArchive());
     }
 
     @Test
@@ -32,6 +35,9 @@ public class VirtualDirTgzTest {
 
         virtualDir = new VirtualDirTgz(testTar);
         assertEquals(testTar.getPath(), virtualDir.getBasePath());
+
+        assertFalse(virtualDir.isCompressed());
+        assertTrue(virtualDir.isArchive());
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
