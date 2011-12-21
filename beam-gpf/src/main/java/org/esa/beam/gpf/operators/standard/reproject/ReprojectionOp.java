@@ -19,29 +19,8 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GcpDescriptor;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.ImageGeometry;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.dataop.dem.ElevationModel;
-import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
-import org.esa.beam.framework.dataop.dem.Orthorectifier;
-import org.esa.beam.framework.dataop.dem.Orthorectifier2;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.dem.*;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -66,9 +45,7 @@ import org.opengis.referencing.operation.TransformException;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -156,9 +133,9 @@ public class ReprojectionOp extends Operator {
     private File wktFile;
 
     @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
-                             "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
-                             "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
-                             "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
+            "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
+            "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
+            "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
     private String crs;
 
     @Parameter(alias = "resampling",
@@ -197,7 +174,7 @@ public class ReprojectionOp extends Operator {
     private boolean orthorectify;
 
     @Parameter(description = "The name of the elevation model for the orthorectification. " +
-                             "If not given tie-point data is used.")
+            "If not given tie-point data is used.")
     private String elevationModelName;
 
     @Parameter(description = "The value used to indicate no-data.")
@@ -279,13 +256,6 @@ public class ReprojectionOp extends Operator {
         if (includeTiePointGrids) {
             reprojectRasterDataNodes(sourceProduct.getTiePointGrids());
         }
-        /*
-        * Placemarks & masks
-        */
-        copyPlacemarks(sourceProduct.getPinGroup(), targetProduct.getPinGroup(),
-                       PinDescriptor.getInstance());
-        copyPlacemarks(sourceProduct.getGcpGroup(), targetProduct.getGcpGroup(),
-                       GcpDescriptor.getInstance());
         ProductUtils.copyVectorData(sourceProduct, targetProduct);
         ProductUtils.copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
@@ -360,7 +330,7 @@ public class ReprojectionOp extends Operator {
         final GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceRaster);
         final String exp = sourceRaster.getValidMaskExpression();
         if (exp != null) {
-            // TODO decide between Virtualband and a special implementation (mz, 2009.11.11)
+            // TODO decide between VirtualBand and a special implementation (mz, 2009.11.11)
 //            final String externalName = BandArithmetic.createExternalName(sourceRaster.getName());
 //            exp = String.format("(%s) ? %s : %s", exp, externalName, Double.toString(targetNoDataValue));
 //            sourceImage = createVirtualSourceImage(exp, geoDataType, targetNoDataValue);
@@ -541,30 +511,6 @@ public class ReprojectionOp extends Operator {
         for (int i = 0; i < indexCodingGroup.getNodeCount(); i++) {
             IndexCoding sourceIndexCoding = indexCodingGroup.get(i);
             ProductUtils.copyIndexCoding(sourceIndexCoding, targetProduct);
-        }
-    }
-
-    @Deprecated
-    private static void copyPlacemarks(ProductNodeGroup<Placemark> sourcePlacemarkGroup,
-                                       ProductNodeGroup<Placemark> targetPlacemarkGroup,
-                                       PlacemarkDescriptor descriptor) {
-        final Placemark[] placemarks = sourcePlacemarkGroup.toArray(new Placemark[0]);
-        for (Placemark placemark : placemarks) {
-            PixelPos targetPixelPos = null;
-            if (descriptor instanceof GcpDescriptor) { // reproject GCP position
-                final PixelPos srcPixelPos = placemark.getPixelPos();
-                final GeoPos srcGeoPos = new GeoPos();
-                sourcePlacemarkGroup.getProduct().getGeoCoding().getGeoPos(srcPixelPos, srcGeoPos);
-
-                targetPixelPos = new PixelPos(srcPixelPos.x, srcPixelPos.y);
-                targetPlacemarkGroup.getProduct().getGeoCoding().getPixelPos(srcGeoPos, targetPixelPos);
-            }
-
-            final Placemark placemark1 = Placemark.createPointPlacemark(descriptor, placemark.getName(), placemark.getLabel(),
-                                                                        placemark.getDescription(), targetPixelPos,
-                                                                        placemark.getGeoPos(),
-                                                                        targetPlacemarkGroup.getProduct().getGeoCoding());
-            targetPlacemarkGroup.add(placemark1);
         }
     }
 

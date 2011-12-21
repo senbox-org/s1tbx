@@ -100,7 +100,9 @@ public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
     }
 
     private void addToVectorData(final Placemark placemark) {
-        vectorDataNode.getFeatureCollection().add(placemark.getFeature());
+        if (!vectorDataNode.getFeatureCollection().contains(placemark.getFeature())) {
+            vectorDataNode.getFeatureCollection().add(placemark.getFeature());
+        }
     }
 
     private void removeFromVectorData(Placemark placemark) {

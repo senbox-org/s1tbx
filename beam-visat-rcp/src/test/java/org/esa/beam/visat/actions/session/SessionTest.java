@@ -248,6 +248,8 @@ public class SessionTest extends TestCase {
         final VirtualBand bandD = new VirtualBand("D", ProductData.TYPE_INT32, 16, 16, "0.23");
         productY.addBand(bandC);
         productY.addBand(bandD);
+        productY.getPinGroup().add(Placemark.createPointPlacemark(PinDescriptor.getInstance(), "Pin", "", "", new PixelPos(0, 0), null, null));
+        productY.getGcpGroup().add(Placemark.createPointPlacemark(GcpDescriptor.getInstance(), "GCP", "", "", new PixelPos(0, 0), null, null));
         productY.addBitmaskDef(new BitmaskDef("M1", "descr", "D > 0.23", Color.RED, 0.3f));
         productY.addBitmaskDef(new BitmaskDef("M2", "descr", "C < 0.23", Color.BLUE, 0.3f));
         writeProduct(productX);

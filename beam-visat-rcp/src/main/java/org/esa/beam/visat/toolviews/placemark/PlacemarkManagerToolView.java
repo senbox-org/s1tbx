@@ -22,20 +22,7 @@ import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.jidesoft.grid.SortableTable;
 import org.esa.beam.dataio.placemark.PlacemarkIO;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.DecimalTableCellRenderer;
 import org.esa.beam.framework.ui.FloatCellEditor;
@@ -56,49 +43,18 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.MouseInputAdapter;
-import javax.swing.event.TableColumnModelEvent;
-import javax.swing.event.TableColumnModelListener;
+import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -370,38 +326,11 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                                                                 activePlacemark.getPixelPos(),
                                                                 activePlacemark.getGeoPos(),
                                                                 activePlacemark.getProduct().getGeoCoding());
-        newPlacemark.setSymbol(createPinSymbolCopy(activePlacemark.getSymbol()));
+        newPlacemark.setStyleCss(activePlacemark.getStyleCss());
         if (PlacemarkDialog.showEditPlacemarkDialog(getPaneWindow(), product, newPlacemark, placemarkDescriptor)) {
             makePlacemarkNameUnique(newPlacemark);
             updateUIState();
         }
-    }
-
-    private static PlacemarkSymbol createPinSymbolCopy(PlacemarkSymbol symbol) {
-        final PlacemarkSymbol placemarkSymbol = new PlacemarkSymbol(symbol.getName(), symbol.getShape());
-        final ImageIcon icon = symbol.getIcon();
-        if (icon != null) {
-            placemarkSymbol.setIcon(icon);
-        }
-        if (symbol.getFillPaint() instanceof Color) {
-            final Color color = (Color) symbol.getFillPaint();
-            placemarkSymbol.setFillPaint(
-                    new Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
-        }
-        placemarkSymbol.setFilled(symbol.isFilled());
-        final Color outlineColor = symbol.getOutlineColor();
-        if (outlineColor != null) {
-            placemarkSymbol.setOutlineColor(
-                    new Color(outlineColor.getRed(), outlineColor.getGreen(), outlineColor.getBlue(),
-                              outlineColor.getAlpha()));
-        }
-        if (placemarkSymbol.getOutlineStroke() instanceof BasicStroke) {
-            BasicStroke basicStroke = (BasicStroke) placemarkSymbol.getOutlineStroke();
-            placemarkSymbol.setOutlineStroke(new BasicStroke(basicStroke.getLineWidth()));
-        }
-        final PixelPos refPoint = symbol.getRefPoint();
-        placemarkSymbol.setRefPoint(new PixelPos(refPoint.x, refPoint.y));
-        return placemarkSymbol;
     }
 
     private ProductNodeGroup<Placemark> getPlacemarkGroup() {
@@ -501,7 +430,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
      * Turns the first letter of the given string to upper case.
      *
      * @param string the string to change
-     *
      * @return a changed string
      */
     private String firstLetterUp(String string) {
@@ -579,7 +507,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
             final PixelPos pixelPos = placemark.getPixelPos();
             if ((!product.containsPixel(pixelPos) && (geoCoding == null || !geoCoding.canGetPixelPos()))
-                && placemarkDescriptor instanceof PinDescriptor) {
+                    && placemarkDescriptor instanceof PinDescriptor) {
                 numInvalids++;
                 continue;
             }
@@ -1067,7 +995,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             if (layer instanceof VectorDataLayer) {
                 VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
                 if (vectorDataLayer.getVectorDataNode() == getProduct().getPinGroup().getVectorDataNode() ||
-                    vectorDataLayer.getVectorDataNode() == getProduct().getGcpGroup().getVectorDataNode()) {
+                        vectorDataLayer.getVectorDataNode() == getProduct().getGcpGroup().getVectorDataNode()) {
                     updateUIState();
                 }
             }

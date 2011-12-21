@@ -25,22 +25,16 @@ import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.util.Debug;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.HashMap;
@@ -171,8 +165,11 @@ public class VectorDataLayer extends Layer {
             if (sourceFigure instanceof SimpleFeatureFigure) {
                 SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) sourceFigure;
                 try {
+                    final VectorDataNode vectorDataNode = VectorDataLayer.this.vectorDataNode;
+                    final SimpleFeature simpleFeature = featureFigure.getSimpleFeature();
+                    Debug.trace("VectorDataLayer$FigureChangeHandler: vectorDataNode=" + vectorDataNode.getName() + ", featureType=" + simpleFeature.getFeatureType().getTypeName());
                     reactingAgainstFigureChange = true;
-                    VectorDataLayer.this.vectorDataNode.fireFeaturesChanged(featureFigure.getSimpleFeature());
+                    vectorDataNode.fireFeaturesChanged(simpleFeature);
                     // todo - compute changed modelRegion instead of passing null (nf)
                     fireLayerDataChanged(null);
                 } finally {

@@ -22,15 +22,7 @@ import org.esa.beam.dataio.geometry.VectorDataNodeReader;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FilterBand;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.io.FileUtils;
@@ -43,12 +35,7 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.text.MessageFormat;
 import java.util.Hashtable;
 import java.util.Map;
@@ -62,6 +49,7 @@ import java.util.logging.Level;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  * @see org.esa.beam.dataio.dimap.DimapProductReaderPlugIn
+ * @see org.esa.beam.dataio.dimap.DimapProductWriterPlugIn
  */
 public class DimapProductReader extends AbstractProductReader {
 
@@ -120,21 +108,21 @@ public class DimapProductReader extends AbstractProductReader {
     }
 
     // todo - Put this into interface ReconfigurableProductReader and make DimapProductReader implement it
-    public void bindProduct(Object input, Product product) throws IOException {
+    public void bindProduct(Object input, Product existingProduct) throws IOException {
         Assert.notNull(input, "input");
-        Assert.notNull(product, "product");
+        Assert.notNull(existingProduct, "existingProduct");
         setInput(input);
-        processProduct(product);
+        processProduct(existingProduct);
     }
 
-    protected Product processProduct(Product product) throws IOException {
+    protected Product processProduct(Product existingProduct) throws IOException {
         initInput();
         Document dom = readDom();
 
-        this.product = product == null ? DimapProductHelpers.createProduct(dom) : product;
+        this.product = existingProduct == null ? DimapProductHelpers.createProduct(dom) : existingProduct;
         this.product.setProductReader(this);
 
-        if (product == null) {
+        if (existingProduct == null) {
             readTiePointGrids(dom);
         }
 
@@ -142,11 +130,12 @@ public class DimapProductReader extends AbstractProductReader {
         sourceRasterHeight = this.product.getSceneRasterHeight();
 
         bindBandsToFiles(dom);
-        if (product == null) {
+        if (existingProduct == null) {
+            final CoordinateReferenceSystem crs = DimapProductHelpers.getCRS(dom);
+            readVectorData(crs);
             DimapProductHelpers.addGcps(dom, this.product);
-            initGeoCodings(dom);
             DimapProductHelpers.addPins(dom, this.product);
-            readVectorData();
+            initGeoCodings(dom);
             DimapProductHelpers.addMaskUsages(dom, this.product);
         }
         this.product.setProductReader(this);
@@ -278,7 +267,6 @@ public class DimapProductReader extends AbstractProductReader {
      * @param destWidth     the width of region to be read given in the band's raster co-ordinates
      * @param destHeight    the height of region to be read given in the band's raster co-ordinates
      * @param pm            a monitor to inform the user about progress
-     *
      * @throws java.io.IOException if  an I/O error occurs
      * @see #getSubsetDef
      */
@@ -382,7 +370,7 @@ public class DimapProductReader extends AbstractProductReader {
         return null;
     }
 
-    private void readVectorData() {
+    private void readVectorData(CoordinateReferenceSystem crs) {
         File dataDir = new File(inputDir, FileUtils.getFilenameWithoutExtension(
                 inputFile) + DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION);
         File vectorDataDir = new File(dataDir, "vector_data");
@@ -393,14 +381,18 @@ public class DimapProductReader extends AbstractProductReader {
                     return name.endsWith(VectorDataNodeIO.FILENAME_EXTENSION);
                 }
             });
-            CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(product.getGeoCoding());
+            CoordinateReferenceSystem modelCrs = product.getGeoCoding() != null ? ImageManager.getModelCrs(product.getGeoCoding()) : crs;
             for (File vectorFile : vectorFiles) {
                 try {
-                    VectorDataNodeReader nodeReader = new VectorDataNodeReader(modelCrs);
-                    VectorDataNode vectorDataNode = nodeReader.read(vectorFile);
-                    product.getVectorDataGroup().add(vectorDataNode);
+                    VectorDataNode vectorDataNode = VectorDataNodeReader.read(vectorFile, modelCrs);
+                    final ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
+                    final VectorDataNode existing = vectorDataGroup.get(vectorDataNode.getName());
+                    if (existing != null) {
+                        vectorDataGroup.remove(existing);
+                    }
+                    vectorDataGroup.add(vectorDataNode);
                 } catch (IOException e) {
-                    BeamLogManager.getSystemLogger().throwing("DimapProductReader", "readVectorData", e);
+                    BeamLogManager.getSystemLogger().log(Level.SEVERE, "Error reading '" + vectorFile + "'", e);
                 }
             }
         }

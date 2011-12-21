@@ -17,42 +17,10 @@ package org.esa.beam.dataio.dimap;
 
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
-import org.esa.beam.dataio.placemark.PlacemarkIO;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.FXYGeoCoding;
-import org.esa.beam.framework.datamodel.FilterBand;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GcpGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.SampleCoding;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.XmlWriter;
+import org.esa.beam.util.*;
 import org.jdom.Element;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -68,6 +36,8 @@ import java.util.Vector;
 
 /**
  * This class is used to print the DIMAP XML header of the given product to a given writer or file.
+ * <p/>
+ * The BEAM-DIMAP version history is provided in the API doc of the {@link DimapProductWriterPlugIn}.
  */
 public final class DimapHeaderWriter extends XmlWriter {
 
@@ -108,36 +78,8 @@ public final class DimapHeaderWriter extends XmlWriter {
         writeMasks(indent);
         writeImageInterpretationElements(indent);
         writeAnnotatonDataSet(indent);
-        writePins(indent);
-        writeGcps(indent);
         print(tags[1]);
         close();
-    }
-
-    protected void writePins(int indent) {
-        ProductNodeGroup<Placemark> pinGroup = product.getPinGroup();
-        final Placemark[] pins = pinGroup.toArray(new Placemark[pinGroup.getNodeCount()]);
-        final String[] pinGroupTags = createTags(indent, DimapProductConstants.TAG_PIN_GROUP);
-        if (pins.length > 0) {
-            println(pinGroupTags[0]);
-            for (final Placemark placemark : pins) {
-                PlacemarkIO.writeXML(placemark, this, indent + 1);
-            }
-            println(pinGroupTags[1]);
-        }
-    }
-
-    protected void writeGcps(int indent) {
-        ProductNodeGroup<Placemark> gcpGroup = product.getGcpGroup();
-        final Placemark[] gcps = gcpGroup.toArray(new Placemark[gcpGroup.getNodeCount()]);
-        final String[] gcpGroupTags = createTags(indent, DimapProductConstants.TAG_GCP_GROUP);
-        if (gcps.length > 0) {
-            println(gcpGroupTags[0]);
-            for (final Placemark gcp : gcps) {
-                PlacemarkIO.writeXML(gcp, this, indent + 1);
-            }
-            println(gcpGroupTags[1]);
-        }
     }
 
     protected void writeAnnotatonDataSet(int indent) {
@@ -197,8 +139,8 @@ public final class DimapHeaderWriter extends XmlWriter {
                 xmlAttribs.add(new String[]{DimapProductConstants.ATTRIB_MODE, "rw"});
             }
             if (attribute.getNumDataElems() > 1 &&
-                !ProductData.TYPESTRING_ASCII.equals(dataTypeString) &&
-                !ProductData.TYPESTRING_UTC.equals(dataTypeString)) {
+                    !ProductData.TYPESTRING_ASCII.equals(dataTypeString) &&
+                    !ProductData.TYPESTRING_UTC.equals(dataTypeString)) {
                 xmlAttribs.add(
                         new String[]{DimapProductConstants.ATTRIB_ELEMS, String.valueOf(attribute.getNumDataElems())});
             }

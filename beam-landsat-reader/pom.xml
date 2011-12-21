@@ -41,15 +41,9 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-geotiff</artifactId>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.apache.commons</groupId>-->
-        <!--<artifactId>commons-compress</artifactId>-->
-        <!--<version>1.0</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.xeustechnologies</groupId>
             <artifactId>jtar</artifactId>
-            <version>1.0.4</version>
         </dependency>
     </dependencies>
 </project>

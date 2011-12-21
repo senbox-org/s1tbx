@@ -56,6 +56,16 @@ public class VirtualDirTgz extends VirtualDir {
         }
     }
 
+    @Override
+    public boolean isCompressed() {
+        return isTgz(archiveFile.getName());
+    }
+
+    @Override
+    public boolean isArchive() {
+        return true;
+    }
+
     // @todo 3 tb/** this code is almost completely duplicated from com.bc.ceres.core.VirtualDir
     // it maybe makes sense to move it to a file utility class
     static File createTargetDirInTemp(String name) throws IOException {
@@ -116,17 +126,30 @@ public class VirtualDirTgz extends VirtualDir {
                 final String entryName = entry.getName();
                 if (entry.isDirectory()) {
                     final File directory = new File(extractDir, entryName);
-                    if (!directory.mkdirs()) {
-                        throw new IOException("unable to create directory: " + directory.getAbsolutePath());
-                    }
+                    ensureDirectory(directory);
                     continue;
                 }
 
                 final String fileNameFromPath = getFilenameFromPath(entryName);
                 final int pathIndex = entryName.indexOf(fileNameFromPath);
-                final String tarPath = entryName.substring(0, pathIndex - 1);
-                final File targetDir = new File(extractDir, tarPath);
+                String tarPath = null;
+                if (pathIndex > 0) {
+                    tarPath = entryName.substring(0, pathIndex - 1);
+                }
+
+                File targetDir;
+                if (tarPath != null) {
+                    targetDir = new File(extractDir, tarPath);
+                } else {
+                    targetDir = extractDir;
+                }
+
+                ensureDirectory(targetDir);
                 final File targetFile = new File(targetDir, fileNameFromPath);
+                if (targetFile.isFile()) {
+                    continue;
+                }
+
                 if (!targetFile.createNewFile()) {
                     throw new IOException("Unable to create file: " + targetFile.getAbsolutePath());
                 }
@@ -141,6 +164,14 @@ public class VirtualDirTgz extends VirtualDir {
                 // @todo 3 tb/tb try finally - make sure everything is closed
                 outStream.flush();
                 outStream.close();
+            }
+        }
+    }
+
+    private void ensureDirectory(File targetDir) throws IOException {
+        if (!targetDir.isDirectory()) {
+            if (!targetDir.mkdirs()) {
+                throw new IOException("unable to create directory: " + targetDir.getAbsolutePath());
             }
         }
     }

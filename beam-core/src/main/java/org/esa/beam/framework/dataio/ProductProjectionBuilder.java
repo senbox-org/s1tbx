@@ -18,24 +18,8 @@ package org.esa.beam.framework.dataio;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.util.CachingObjectArray;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GcpDescriptor;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
-import org.esa.beam.framework.datamodel.Pointing;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.dataop.dem.ElevationModel;
-import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
-import org.esa.beam.framework.dataop.dem.Orthorectifier;
-import org.esa.beam.framework.dataop.dem.Orthorectifier2;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.dem.*;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.util.Debug;
@@ -438,11 +422,14 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         addBandsToProduct(product);
         ProductUtils.copyMasks(getSourceProduct(), product);
         ProductUtils.copyOverlayMasks(getSourceProduct(), product);
-        copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(),
-                       PinDescriptor.getInstance());
-        copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(),
-                       GcpDescriptor.getInstance());
-        // TODO - TESTTESTTEST (nf)
+        if (getSourceProduct().getPinGroup(false) != null) {
+            copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(),
+                           PinDescriptor.getInstance());
+        }
+        if (getSourceProduct().getGcpGroup(false) != null) {
+            copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(),
+                           GcpDescriptor.getInstance());
+        }
         product.setPreferredTileSize(64, 64);
         return product;
     }

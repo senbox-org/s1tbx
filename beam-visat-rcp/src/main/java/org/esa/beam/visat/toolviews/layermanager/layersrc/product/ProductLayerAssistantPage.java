@@ -23,12 +23,7 @@ import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.jidesoft.tree.AbstractTreeModel;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -37,18 +32,14 @@ import org.esa.beam.jai.ImageManager;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -151,20 +142,18 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
         RasterDataNode raster = ctx.getSelectedProductSceneView().getRaster();
         GeoCoding geoCoding = raster.getGeoCoding();
-        CoordinateReferenceSystem modelCRS = geoCoding != null ? ImageManager.getModelCrs(geoCoding) : null;
-        if (modelCRS != null) {
-            final ProductManager productManager = ctx.getProductManager();
-            final Product[] products = productManager.getProducts();
-            for (Product product : products) {
-                if (product == selectedProduct) {
-                    continue;
-                }
-                compatibleNodes = new ArrayList<RasterDataNode>();
-                collectCompatibleRasterDataNodes(product.getBands(), modelCRS, compatibleNodes);
-                collectCompatibleRasterDataNodes(product.getTiePointGrids(), modelCRS, compatibleNodes);
-                if (!compatibleNodes.isEmpty()) {
-                    compatibleNodeLists.add(new CompatibleNodeList(product.getDisplayName(), compatibleNodes));
-                }
+        CoordinateReferenceSystem modelCRS = ImageManager.getModelCrs(geoCoding);
+        final ProductManager productManager = ctx.getProductManager();
+        final Product[] products = productManager.getProducts();
+        for (Product product : products) {
+            if (product == selectedProduct) {
+                continue;
+            }
+            compatibleNodes = new ArrayList<RasterDataNode>();
+            collectCompatibleRasterDataNodes(product.getBands(), modelCRS, compatibleNodes);
+            collectCompatibleRasterDataNodes(product.getTiePointGrids(), modelCRS, compatibleNodes);
+            if (!compatibleNodes.isEmpty()) {
+                compatibleNodeLists.add(new CompatibleNodeList(product.getDisplayName(), compatibleNodes));
             }
         }
         return new ProductTreeModel(compatibleNodeLists);
@@ -173,8 +162,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
     private void collectCompatibleRasterDataNodes(RasterDataNode[] bands, CoordinateReferenceSystem crs,
                                                   Collection<RasterDataNode> rasterDataNodes) {
         for (RasterDataNode node : bands) {
-            GeoCoding geoCoding = node.getGeoCoding();
-            if (geoCoding != null && CRS.equalsIgnoreMetadata(crs, ImageManager.getModelCrs(geoCoding))) {
+            if (CRS.equalsIgnoreMetadata(crs, ImageManager.getModelCrs(node.getGeoCoding()))) {
                 rasterDataNodes.add(node);
             }
         }

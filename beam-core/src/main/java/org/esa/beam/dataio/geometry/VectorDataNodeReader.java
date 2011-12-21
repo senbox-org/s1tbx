@@ -18,13 +18,13 @@ package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
-
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.converters.JavaTypeConverter;
 import org.esa.beam.util.io.CsvReader;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.converters.JavaTypeConverter;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -33,47 +33,54 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class VectorDataNodeReader {
 
+    private final String location;
     private final CoordinateReferenceSystem modelCrs;
 
-    public VectorDataNodeReader(CoordinateReferenceSystem modelCrs) {
+    public VectorDataNodeReader(String location, CoordinateReferenceSystem modelCrs) {
+        this.location = location;
         this.modelCrs = modelCrs;
     }
 
+    public static VectorDataNode read(File file, CoordinateReferenceSystem modelCrs) throws IOException {
+        return new VectorDataNodeReader(file.getPath(), modelCrs).read(file);
+    }
+
     public VectorDataNode read(File file) throws IOException {
+        final String name = FileUtils.getFilenameWithoutExtension(file);
         FileReader headerReader = new FileReader(file);
         FileReader featureReader = new FileReader(file);
         try {
-            Map<String, String> properties = readNodeProperties(headerReader);
-            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures(featureReader);
-            VectorDataNode vectorDataNode = new VectorDataNode(FileUtils.getFilenameWithoutExtension(file), featureCollection);
-            if (properties.containsKey(ProductNode.PROPERTY_NAME_DESCRIPTION)) {
-                vectorDataNode.setDescription(properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
-            }
-            if (properties.containsKey(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS)) {
-                vectorDataNode.setDefaultCSS(properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
-            }
-            return vectorDataNode;
+            return read(name, headerReader, featureReader);
         } finally {
             headerReader.close();
             featureReader.close();
         }
     }
 
-    private Map<String, String> readNodeProperties(FileReader reader) throws IOException {
+    private VectorDataNode read(String name, Reader headerReader, Reader featureReader) throws IOException {
+        Map<String, String> properties = readNodeProperties(headerReader);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures(featureReader);
+        VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);
+        if (properties.containsKey(ProductNode.PROPERTY_NAME_DESCRIPTION)) {
+            vectorDataNode.setDescription(properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
+        }
+        if (properties.containsKey(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS)) {
+            vectorDataNode.setDefaultCSS(properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
+        }
+        return vectorDataNode;
+    }
+
+    private Map<String, String> readNodeProperties(Reader reader) throws IOException {
         LineNumberReader lineNumberReader = new LineNumberReader(reader);
-        Map<String, String> properiesMap = new HashMap<String, String>();
+        Map<String, String> propertiesMap = new HashMap<String, String>();
         String line = lineNumberReader.readLine();
-        while(line != null) {
+        while (line != null) {
             if (line.startsWith("#")) {
                 line = line.substring(1);
                 int index = line.indexOf('=');
@@ -82,14 +89,14 @@ public class VectorDataNodeReader {
                     String value = line.substring(index + 1).trim();
                     if (StringUtils.isNotNullAndNotEmpty(name) &&
                             StringUtils.isNotNullAndNotEmpty(value)) {
-                        properiesMap.put(name, value);
+                        propertiesMap.put(name, value);
                     }
                 }
             }
             line = lineNumberReader.readLine();
         }
         lineNumberReader.close();
-        return properiesMap;
+        return propertiesMap;
     }
 
     public FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures(Reader reader) throws IOException {
@@ -109,8 +116,11 @@ public class VectorDataNodeReader {
             if (tokens == null) {
                 break;
             }
-            if (tokens.length != 1 + simpleFeatureType.getAttributeCount()) {
-                throw new IOException("Shit.");  // todo - msg
+            final int expectedTokenCount = 1 + simpleFeatureType.getAttributeCount();
+            if (tokens.length != expectedTokenCount) {
+                BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
+                                                                       location, expectedTokenCount, tokens.length));
+                continue;
             }
             builder.reset();
             String fid = null;
@@ -127,7 +137,8 @@ public class VectorDataNodeReader {
                         }
                         builder.set(simpleFeatureType.getDescriptor(i - 1).getLocalName(), value);
                     } catch (ConversionException e) {
-                        throw new IOException("Shit.", e);  // todo - msg
+                        BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': %s",
+                                                                               location, e.getMessage()));
                     }
                 }
             }

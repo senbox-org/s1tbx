@@ -30,7 +30,7 @@ import java.util.List;
 public class VectorDataFigureEditor extends DefaultFigureEditor {
 
     private final ProductSceneView productSceneView;
-    private VectorDataNode currentVectorDataNode;
+    private VectorDataNode vectorDataNode;
 
     public VectorDataFigureEditor(ProductSceneView productSceneView) {
         super(productSceneView.getLayerCanvas(),
@@ -45,10 +45,14 @@ public class VectorDataFigureEditor extends DefaultFigureEditor {
         return productSceneView;
     }
 
+    public VectorDataNode getVectorDataNode() {
+        return vectorDataNode;
+    }
+
     public void vectorDataLayerSelected(VectorDataLayer vectorDataLayer) {
         Debug.trace("VectorDataFigureEditor.vectorDataLayerSelected: " + vectorDataLayer.getName());
 
-        this.currentVectorDataNode = vectorDataLayer.getVectorDataNode();
+        this.vectorDataNode = vectorDataLayer.getVectorDataNode();
 
         setFigureCollection(vectorDataLayer.getFigureCollection());
         setFigureFactory(vectorDataLayer.getFigureFactory());
@@ -63,8 +67,8 @@ public class VectorDataFigureEditor extends DefaultFigureEditor {
     public void insertFigures(boolean performInsert, Figure... figures) {
         Debug.trace("VectorDataFigureEditor.insertFigures " + performInsert + ", " + figures.length);
         super.insertFigures(performInsert, figures);
-        if (currentVectorDataNode != null) {
-            currentVectorDataNode.getFeatureCollection().addAll(toSimpleFeatureList(figures));
+        if (vectorDataNode != null) {
+            vectorDataNode.getFeatureCollection().addAll(toSimpleFeatureList(figures));
         } else {
             // warn
         }
@@ -74,8 +78,8 @@ public class VectorDataFigureEditor extends DefaultFigureEditor {
     public void deleteFigures(boolean performDelete, Figure... figures) {
         Debug.trace("VectorDataFigureEditor.deleteFigures " + performDelete + ", " + figures.length);
         super.deleteFigures(performDelete, figures);
-        if (currentVectorDataNode != null) {
-            currentVectorDataNode.getFeatureCollection().removeAll(toSimpleFeatureList(figures));
+        if (vectorDataNode != null) {
+            vectorDataNode.getFeatureCollection().removeAll(toSimpleFeatureList(figures));
         } else {
             // warn
         }
@@ -85,10 +89,10 @@ public class VectorDataFigureEditor extends DefaultFigureEditor {
     public void changeFigure(Figure figure, Object figureMemento, String presentationName) {
         Debug.trace("VectorDataFigureEditor.changeFigure " + figure + ", " + presentationName);
         super.changeFigure(figure, figureMemento, presentationName);
-        if (currentVectorDataNode != null) {
+        if (vectorDataNode != null) {
             if (figure instanceof SimpleFeatureFigure) {
                 SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
-                currentVectorDataNode.fireFeaturesChanged(featureFigure.getSimpleFeature());
+                vectorDataNode.fireFeaturesChanged(featureFigure.getSimpleFeature());
             }
         } else {
             // warn

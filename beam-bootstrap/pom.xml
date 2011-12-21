@@ -126,6 +126,10 @@
             <groupId>com.bc.jnn</groupId>
             <artifactId>jnn</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.xeustechnologies</groupId>
+            <artifactId>jtar</artifactId>
+        </dependency>
 
 
         <!-- NEW IN 4.6: GeoTools -->

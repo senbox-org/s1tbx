@@ -99,4 +99,27 @@ public class LandsatGeotiffReaderPluginTest {
         assertTrue(LandsatGeotiffReaderPlugin.isMetadataFile(metaFile));
         assertFalse(LandsatGeotiffReaderPlugin.isMetadataFile(nonMetaFile));
     }
+
+    @Test
+    public void testGetInputTypes() {
+        final LandsatGeotiffReaderPlugin plugin = new LandsatGeotiffReaderPlugin();
+
+        final Class[] inputTypes = plugin.getInputTypes();
+        assertEquals(2, inputTypes.length);
+        assertEquals(String.class, inputTypes[0]);
+        assertEquals(File.class, inputTypes[1]);
+    }
+
+    @Test
+    public void testIsMatchingArchiveFileName() {
+         assertTrue(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("L5_30m19950627.tgz"));
+         assertTrue(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("L5_60m19950627.tgz"));
+         assertTrue(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("LE71810402006015ASN00.tar"));
+         assertTrue(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("L7_1810402006015ASN00.tar"));
+
+        assertFalse(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("ATS_TOA_1PPTOM20070110_192521_000000822054_00328_25432_0001.N1"));
+        assertFalse(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("SchnickSchnack.zip"));
+        assertFalse(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("hoppla.txt"));
+        assertFalse(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName(""));
+    }
 }

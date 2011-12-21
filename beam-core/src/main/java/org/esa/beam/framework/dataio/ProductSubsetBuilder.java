@@ -17,27 +17,11 @@ package org.esa.beam.framework.dataio;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
@@ -115,7 +99,6 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
      * @param destOffsetY   the Y-offset in the band's raster co-ordinates
      * @param destWidth     the width of region to be read given in the band's raster co-ordinates
      * @param destHeight    the height of region to be read given in the band's raster co-ordinates
-     *
      * @throws IOException if an I/O error occurs
      * @see #getSubsetDef
      */
@@ -133,7 +116,7 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         if (sourceBand.getRasterData() != null) {
             // if the destination region equals the entire raster
             if (sourceBand.getSceneRasterWidth() == destWidth
-                && sourceBand.getSceneRasterHeight() == destHeight) {
+                    && sourceBand.getSceneRasterHeight() == destHeight) {
                 copyBandRasterDataFully(sourceBand,
                                         destBuffer,
                                         destWidth, destHeight);
@@ -149,7 +132,7 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         } else {
             // if the desired destination region equals the source raster
             if (sourceWidth == destWidth
-                && sourceHeight == destHeight) {
+                    && sourceHeight == destHeight) {
                 readBandRasterDataRegion(sourceBand,
                                          sourceOffsetX, sourceOffsetY,
                                          sourceWidth, sourceHeight,
@@ -340,55 +323,8 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         ProductUtils.copyPreferredTileSize(sourceProduct, product);
         setSceneRasterStartAndStopTime(product);
         addSubsetInfoMetadata(product);
-        addPlacemarks(product);
 
         return product;
-    }
-
-    private void addPlacemarks(Product product) {
-        copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(), false);
-        copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(), true);
-    }
-
-    private void copyPlacemarks(ProductNodeGroup<Placemark> sourcePlacemarkGroup,
-                                ProductNodeGroup<Placemark> targetPlacemarkGroup,
-                                boolean copyAll) {
-        final Placemark[] placemarks = new Placemark[sourcePlacemarkGroup.getNodeCount()];
-        sourcePlacemarkGroup.toArray(placemarks);
-
-        final int offsetX;
-        final int offsetY;
-        if (getSubsetDef() != null && getSubsetDef().getRegion() != null) {
-            offsetX = getSubsetDef().getRegion().x;
-            offsetY = getSubsetDef().getRegion().y;
-        } else {
-            offsetX = 0;
-            offsetY = 0;
-        }
-
-        final int subSamplingX;
-        final int subSamplingY;
-        if (getSubsetDef() != null) {
-            subSamplingX = getSubsetDef().getSubSamplingY();
-            subSamplingY = getSubsetDef().getSubSamplingX();
-        } else {
-            subSamplingX = 1;
-            subSamplingY = 1;
-        }
-
-        for (final Placemark placemark : placemarks) {
-            final float x = (placemark.getPixelPos().x - offsetX) / subSamplingX;
-            final float y = (placemark.getPixelPos().y - offsetY) / subSamplingY;
-
-            if (x >= 0 && x < getSceneRasterWidth() && y >= 0 && y < getSceneRasterHeight() || copyAll) {
-                targetPlacemarkGroup.add(Placemark.createPointPlacemark(placemark.getDescriptor(), placemark.getName(),
-                                                                        placemark.getLabel(),
-                                                                        placemark.getDescription(),
-                                                                        new PixelPos(x, y),
-                                                                        placemark.getGeoPos(),
-                                                                        targetPlacemarkGroup.getProduct().getGeoCoding()));
-            }
-        }
     }
 
     private void setSceneRasterStartAndStopTime(Product product) {
@@ -570,9 +506,9 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         }
         final Rectangle sourceRegion = new Rectangle(0, 0, sourceProduct.getSceneRasterWidth(), getSceneRasterHeight());
         return subsetDef.getRegion() == null
-               || subsetDef.getRegion().equals(sourceRegion)
-                  && subsetDef.getSubSamplingX() == 1
-                  && subsetDef.getSubSamplingY() == 1;
+                || subsetDef.getRegion().equals(sourceRegion)
+                && subsetDef.getSubSamplingX() == 1
+                && subsetDef.getSubSamplingY() == 1;
     }
 
     protected void addGeoCodingToProduct(final Product product) {

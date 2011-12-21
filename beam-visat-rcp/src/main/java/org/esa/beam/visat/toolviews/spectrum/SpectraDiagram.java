@@ -16,6 +16,8 @@
 
 package org.esa.beam.visat.toolviews.spectrum;
 
+import com.bc.ceres.swing.figure.FigureStyle;
+import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
@@ -24,9 +26,7 @@ import org.esa.beam.framework.ui.diagram.Diagram;
 import org.esa.beam.framework.ui.diagram.DiagramAxis;
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Paint;
+import java.awt.*;
 
 
 class SpectraDiagram extends Diagram {
@@ -44,7 +44,7 @@ class SpectraDiagram extends Diagram {
     public Band[] getBands() {
         return bands;
     }
-    
+
     public boolean isUserSelection() {
         return userSelection;
     }
@@ -74,14 +74,10 @@ class SpectraDiagram extends Diagram {
         SpectrumGraph spectrumGraph = new SpectrumGraph(placemark, getBands());
         DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) spectrumGraph.getStyle();
         if (placemark != null) {
-            Paint fillPaint = placemark.getSymbol().getFillPaint();
-            if (fillPaint instanceof Color) {
-                style.setOutlineColor(((Color) fillPaint).darker());
-            } else {
-                style.setOutlineColor(placemark.getSymbol().getOutlineColor());
-            }
-            style.setOutlineStroke(placemark.getSymbol().getOutlineStroke());
-            style.setFillPaint(fillPaint);
+            final FigureStyle figureStyle = DefaultFigureStyle.createFromCss(placemark.getStyleCss());
+            style.setOutlineColor(figureStyle.getStrokeColor());
+            style.setOutlineStroke(figureStyle.getStroke());
+            style.setFillPaint(figureStyle.getFillPaint());
         } else {
             style.setOutlineColor(Color.BLACK);
             style.setOutlineStroke(new BasicStroke(1.5f));
@@ -96,7 +92,7 @@ class SpectraDiagram extends Diagram {
             removeGraph(cursorSpectrumGraph);
         }
     }
-    
+
     public void setBands(Band[] bands, boolean userSelection) {
         this.bands = bands;
         this.userSelection = userSelection;

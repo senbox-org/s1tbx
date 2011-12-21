@@ -133,7 +133,6 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         return dim1;
     }
 
-    // @todo 1 tb/tb replace folder with VirtualDir
     private void addBands(Product product, LandsatMetadata landsatMetadata, VirtualDir folder) throws IOException {
         final GeoTiffProductReaderPlugIn plugIn = new GeoTiffProductReaderPlugIn();
         final MetadataAttribute[] productAttributes = landsatMetadata.getProductMetadata().getAttributes();
