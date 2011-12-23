@@ -109,7 +109,7 @@ import java.util.Vector;
  */
 public class ProductSceneView extends BasicView
         implements FigureEditorAware, ProductNodeView, PropertyMapChangeListener, PixelInfoFactory, ProductLayerContext,
-                   ViewportAware {
+        ViewportAware {
 
     public static final String BASE_IMAGE_LAYER_ID = "org.esa.beam.layers.baseImage";
     public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
@@ -270,7 +270,7 @@ public class ProductSceneView extends BasicView
         figureEditor.addSelectionChangeListener(new PinSelectionChangeListener());
 
         this.scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN,
-                                                                             false);
+                false);
         if (scrollBarsShown) {
             this.scrollPane = createScrollPane();
             add(scrollPane, BorderLayout.CENTER);
@@ -314,7 +314,7 @@ public class ProductSceneView extends BasicView
 
     private AdjustableViewScrollPane createScrollPane() {
         AbstractButton zoomAllButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomAll13.gif"),
-                                                                      false);
+                false);
         zoomAllButton.setFocusable(false);
         zoomAllButton.setFocusPainted(false);
         zoomAllButton.addActionListener(new ActionListener() {
@@ -339,7 +339,6 @@ public class ProductSceneView extends BasicView
      * Gets the current selection context, if any.
      *
      * @return The current selection context, or {@code null} if none exists.
-     *
      * @since BEAM 4.7
      */
     @Override
@@ -393,7 +392,6 @@ public class ProductSceneView extends BasicView
      *
      * @param pixelX the pixel X co-ordinate
      * @param pixelY the pixel Y co-ordinate
-     *
      * @return the info string at the given position
      */
     @Override
@@ -417,7 +415,6 @@ public class ProductSceneView extends BasicView
      * otherwise defer to the component's layout manager.
      *
      * @return the value of the <code>preferredSize</code> property
-     *
      * @see #setPreferredSize
      * @see javax.swing.plaf.ComponentUI
      */
@@ -533,7 +530,6 @@ public class ProductSceneView extends BasicView
      * Gets the product raster with the specified index.
      *
      * @param index the zero-based product raster index
-     *
      * @return the product raster with the given index
      */
     public RasterDataNode getRaster(int index) {
@@ -651,7 +647,7 @@ public class ProductSceneView extends BasicView
 
             if (layer == null) {
                 layer = LayerUtils.getChildLayer(getRootLayer(), LayerUtils.SearchMode.DEEP,
-                                                 VectorDataLayerFilterFactory.createGeometryFilter());
+                        VectorDataLayerFilterFactory.createGeometryFilter());
             }
             if (layer != null) {
                 final VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
@@ -763,16 +759,14 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param vectorDataNode The vector data node, whose layer shall be selected.
-     *
      * @return The layer, or {@code null}.
-     *
      * @since BEAM 4.7
      */
     public VectorDataLayer selectVectorDataLayer(VectorDataNode vectorDataNode) {
         LayerFilter layerFilter = new VectorDataLayerFilter(vectorDataNode);
         VectorDataLayer layer = (VectorDataLayer) LayerUtils.getChildLayer(getRootLayer(),
-                                                                           LayerUtils.SEARCH_DEEP,
-                                                                           layerFilter);
+                LayerUtils.SEARCH_DEEP,
+                layerFilter);
         if (layer != null) {
             setSelectedLayer(layer);
         }
@@ -781,9 +775,7 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param pin The pins to test.
-     *
      * @return {@code true}, if the pin is selected.
-     *
      * @since BEAM 4.7
      */
     public boolean isPinSelected(Placemark pin) {
@@ -792,9 +784,7 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param gcp The ground control point to test.
-     *
      * @return {@code true}, if the ground control point is selected.
-     *
      * @since BEAM 4.7
      */
     public boolean isGcpSelected(Placemark gcp) {
@@ -803,7 +793,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The (first) selected pin.
-     *
      * @since BEAM 4.7
      */
     public Placemark getSelectedPin() {
@@ -812,7 +801,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The selected pins.
-     *
      * @since BEAM 4.7
      */
     public Placemark[] getSelectedPins() {
@@ -821,7 +809,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The selected ground control points.
-     *
      * @since BEAM 4.7
      */
     public Placemark[] getSelectedGcps() {
@@ -830,7 +817,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param pins The selected pins.
-     *
      * @since BEAM 4.7
      */
     public void selectPins(Placemark[] pins) {
@@ -839,7 +825,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param gpcs The selected ground control points.
-     *
      * @since BEAM 4.7
      */
     public void selectGcps(Placemark[] gpcs) {
@@ -848,7 +833,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The (first) selected feature figure.
-     *
      * @since BEAM 4.7
      */
     public SimpleFeatureFigure getSelectedFeatureFigure() {
@@ -863,7 +847,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The selected feature figures.
-     *
      * @since BEAM 4.7
      */
     public SimpleFeatureFigure[] getSelectedFeatureFigures() {
@@ -1020,7 +1003,7 @@ public class ProductSceneView extends BasicView
         final Product currentProduct = getRaster().getProduct();
         final Product otherProduct = view.getRaster().getProduct();
         if (otherProduct == currentProduct ||
-            otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
+                otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
 
             Viewport viewPortToChange = view.layerCanvas.getViewport();
             Viewport myViewPort = layerCanvas.getViewport();
@@ -1064,8 +1047,8 @@ public class ProductSceneView extends BasicView
                 final Color color = (Color) noDataLayer.getConfiguration().getValue(
                         NoDataLayerType.PROPERTY_NAME_COLOR);
                 final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(),
-                                                                                           color, expression, true,
-                                                                                           getBaseImageLayer().getImageToModelTransform());
+                        color, expression, true,
+                        getBaseImageLayer().getImageToModelTransform());
                 noDataLayer.setMultiLevelSource(multiLevelSource);
             } else {
                 noDataLayer.setMultiLevelSource(MultiLevelSource.NULL);
@@ -1108,10 +1091,10 @@ public class ProductSceneView extends BasicView
          */
         public RGBChannel(final Product product, final String name, final String expression) {
             super(name,
-                  ProductData.TYPE_FLOAT32,
-                  product.getSceneRasterWidth(),
-                  product.getSceneRasterHeight(),
-                  expression);
+                    ProductData.TYPE_FLOAT32,
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(),
+                    expression);
             setOwner(product);
             setModified(false);
         }
@@ -1196,7 +1179,7 @@ public class ProductSceneView extends BasicView
     private boolean isPixelPosValid(int currentPixelX, int currentPixelY, int currentLevel) {
         return currentPixelX >= 0 && currentPixelX < baseImageLayer.getImage(
                 currentLevel).getWidth() && currentPixelY >= 0
-               && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
+                && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
     }
 
     private void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
@@ -1213,40 +1196,41 @@ public class ProductSceneView extends BasicView
     }
 
     private void setPixelPos(MouseEvent e, boolean showBorder) {
-        Point2D p = new Point2D.Double(e.getX() + 0.5, e.getY() + 0.5);
+        if (e.getID() == MouseEvent.MOUSE_EXITED) {
+            currentLevelPixelX = -1;
+            firePixelPosNotAvailable();
+        } else {
+            Point2D p = new Point2D.Double(e.getX() + 0.5, e.getY() + 0.5);
 
-        Viewport viewport = getLayerCanvas().getViewport();
-        int currentLevel = baseImageLayer.getLevel(viewport);
-        AffineTransform v2mTransform = viewport.getViewToModelTransform();
-        final Point2D modelP = v2mTransform.transform(p, null);
+            Viewport viewport = getLayerCanvas().getViewport();
+            int currentLevel = baseImageLayer.getLevel(viewport);
+            AffineTransform v2mTransform = viewport.getViewToModelTransform();
+            final Point2D modelP = v2mTransform.transform(p, null);
 
-        AffineTransform m2iTransform = baseImageLayer.getModelToImageTransform();
-        Point2D imageP = m2iTransform.transform(modelP, null);
-        currentPixelX = (int) Math.floor(imageP.getX());
-        currentPixelY = (int) Math.floor(imageP.getY());
+            AffineTransform m2iTransform = baseImageLayer.getModelToImageTransform();
+            Point2D imageP = m2iTransform.transform(modelP, null);
+            currentPixelX = (int) Math.floor(imageP.getX());
+            currentPixelY = (int) Math.floor(imageP.getY());
 
-        AffineTransform m2iLevelTransform = baseImageLayer.getModelToImageTransform(currentLevel);
-        Point2D imageLevelP = m2iLevelTransform.transform(modelP, null);
-        int currentPixelX = (int) Math.floor(imageLevelP.getX());
-        int currentPixelY = (int) Math.floor(imageLevelP.getY());
-        if (currentPixelX != currentLevelPixelX || currentPixelY != currentLevelPixelY || currentLevel != this.currentLevel) {
-            if (isPixelBorderDisplayEnabled() && (showBorder || pixelBorderDrawn)) {
-                drawPixelBorder(currentPixelX, currentPixelY, currentLevel, showBorder);
-            }
-            currentLevelPixelX = currentPixelX;
-            currentLevelPixelY = currentPixelY;
-            this.currentLevel = currentLevel;
-            if (e.getID() != MouseEvent.MOUSE_EXITED) {
+            AffineTransform m2iLevelTransform = baseImageLayer.getModelToImageTransform(currentLevel);
+            Point2D imageLevelP = m2iLevelTransform.transform(modelP, null);
+            int currentPixelX = (int) Math.floor(imageLevelP.getX());
+            int currentPixelY = (int) Math.floor(imageLevelP.getY());
+            if (currentPixelX != currentLevelPixelX || currentPixelY != currentLevelPixelY || currentLevel != this.currentLevel) {
+                if (isPixelBorderDisplayEnabled() && (showBorder || pixelBorderDrawn)) {
+                    drawPixelBorder(currentPixelX, currentPixelY, currentLevel, showBorder);
+                }
+                currentLevelPixelX = currentPixelX;
+                currentLevelPixelY = currentPixelY;
+                this.currentLevel = currentLevel;
                 firePixelPosChanged(e, currentLevelPixelX, currentLevelPixelY, this.currentLevel);
-            } else {
-                firePixelPosNotAvailable();
             }
         }
     }
 
     private boolean isPixelBorderDisplayEnabled() {
         return pixelBorderShown &&
-               getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
+                getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
     }
 
     private void drawPixelBorder(int currentPixelX, int currentPixelY, int currentLevel, boolean showBorder) {
