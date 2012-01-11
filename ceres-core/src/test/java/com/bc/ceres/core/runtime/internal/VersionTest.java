@@ -196,6 +196,10 @@ public class VersionTest extends TestCase {
         v2 = new Version(4, 2, 1, "9785");
         assertTrue(v1.compareTo(v2) < 0);
 
+        v1 = new Version(1, 0, 0, "SNAPSHOT-20120110135600");
+        v2 = new Version(1, 0, 0, "SNAPSHOT-20120110135601");
+        assertTrue(v1.compareTo(v2) < 0);
+
         v1 = new Version(4, 2, 1, "");
         v2 = new Version(4, 2, 1, "0");
         assertTrue(v1.compareTo(v2) == 0);
