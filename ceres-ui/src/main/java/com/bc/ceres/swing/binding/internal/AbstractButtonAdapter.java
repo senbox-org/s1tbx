@@ -60,8 +60,9 @@ public class AbstractButtonAdapter extends ComponentAdapter implements ActionLis
 
     @Override
     public void adjustComponents() {
-        boolean selected = (Boolean) getBinding().getPropertyValue();
-        button.setSelected(selected);
+        Boolean selected = (Boolean) getBinding().getPropertyValue();
+        if(selected != null)
+            button.setSelected(selected);
     }
 
     @Override
