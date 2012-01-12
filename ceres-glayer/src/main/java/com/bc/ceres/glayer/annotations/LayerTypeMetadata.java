@@ -14,6 +14,11 @@ import java.lang.annotation.*;
 @Target(value = ElementType.TYPE)
 public @interface LayerTypeMetadata {
     /**
+     * @return The name of the layer type.
+     */
+    String name() default "";
+
+    /**
      * @return An array of alias names for the layer type. The primary usage of alias names is providing backward
      *         compatibility with layer types that have been renamed.
      */

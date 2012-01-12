@@ -23,6 +23,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.grender.Rendering;
 
 import java.awt.Color;
@@ -70,21 +71,11 @@ public class BackgroundLayer extends Layer {
         g.setPaint(oldPaint);
     }
 
+    @LayerTypeMetadata(name = "BackgroundLayerType",
+                       aliasNames = {"com.bc.ceres.glayer.support.BackgroundLayer$Type"})
     public static class Type extends LayerType {
 
-        private static final String TYPE_NAME = "BackgroundLayerType";
-        private static final String[] ALIASES = {"com.bc.ceres.glayer.support.BackgroundLayer$Type"};
         private static final String COLOR = "color";
-
-        @Override
-        public String getName() {
-            return TYPE_NAME;
-        }
-        
-        @Override
-        public String[] getAliases() {
-            return ALIASES;
-        }
 
         @Override
         public boolean isValidFor(LayerContext ctx) {

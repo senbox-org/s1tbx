@@ -24,6 +24,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelRenderer;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -278,21 +279,10 @@ public class ImageLayer extends Layer {
         return configuration;
     }
 
+    @LayerTypeMetadata(name = "ImageLayerType",
+                       aliasNames = {"com.bc.ceres.glayer.support.ImageLayer$Type"})
     public static class Type extends LayerType {
 
-        private static final String TYPE_NAME = "ImageLayerType";
-        private static final String[] ALIASES = {"com.bc.ceres.glayer.support.ImageLayer$Type"};
-
-        @Override
-        public String getName() {
-            return TYPE_NAME;
-        }
-        
-        @Override
-        public String[] getAliases() {
-            return ALIASES;
-        }
-        
         @Override
         public boolean isValidFor(LayerContext ctx) {
             return true;
