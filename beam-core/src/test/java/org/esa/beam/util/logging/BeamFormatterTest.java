@@ -45,7 +45,7 @@ public class BeamFormatterTest extends TestCase {
         BeamFormatter formatter = new BeamFormatter(_head);
         String formattedMessage = formatter.format(record);
 
-        assertTrue(-1 != formattedMessage.indexOf(message));
-        assertTrue(-1 != formattedMessage.indexOf("INFO"));
+        assertTrue(formattedMessage.contains(message));
+        assertTrue(formattedMessage.contains("INFO"));
     }
 }

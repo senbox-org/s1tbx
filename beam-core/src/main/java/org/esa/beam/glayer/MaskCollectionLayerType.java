@@ -21,26 +21,16 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
 
+@LayerTypeMetadata(name = "MaskCollectionLayerType",
+                   aliasNames = {"org.esa.beam.glayer.MaskCollectionLayerType"})
 public class MaskCollectionLayerType extends CollectionLayer.Type {
 
     public static final String PROPERTY_NAME_RASTER = "raster";
 
-    private static final String TYPE_NAME = "MaskCollectionLayerType";
-    private static final String[] ALIASES = {"org.esa.beam.glayer.MaskCollectionLayerType"};
-
-    @Override
-    public String getName() {
-        return TYPE_NAME;
-    }
-    
-    @Override
-    public String[] getAliases() {
-        return ALIASES;
-    }
-    
     @Override
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);

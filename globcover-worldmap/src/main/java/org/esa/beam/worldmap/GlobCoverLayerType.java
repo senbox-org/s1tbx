@@ -20,6 +20,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.glayer.WorldMapLayerType;
@@ -37,19 +38,14 @@ import java.net.URL;
  * @author Marco Zühlke
  * @since BEAM 4.8
  */
+@LayerTypeMetadata(name = "GlobCoverLayerType")
 public class GlobCoverLayerType extends WorldMapLayerType {
 
     private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.worldImageDir";
     private static final String WORLD_MAP_LAYER_NAME = "World Map (ESA GlobCover)";
     private static final String WORLD_MAP_LABEL = "ESA GlobCover";
-    private static final String TYPE_NAME = "GlobCoverLayerType";
 
     private volatile MultiLevelSource multiLevelSource;
-
-    @Override
-    public String getName() {
-        return TYPE_NAME;
-    }
 
     @Override
     public String getLabel() {

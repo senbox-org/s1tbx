@@ -21,6 +21,7 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.Band;
@@ -34,6 +35,8 @@ import org.esa.beam.glevel.BandImageMultiLevelSource;
 
 import java.awt.geom.AffineTransform;
 
+@LayerTypeMetadata(name = "RgbImageLayerType",
+                   aliasNames = {"org.esa.beam.glayer.RgbImageLayerType"})
 public class RgbImageLayerType extends ImageLayer.Type {
 
     private static final String PROPERTY_NAME_PRODUCT = "product";
@@ -41,19 +44,6 @@ public class RgbImageLayerType extends ImageLayer.Type {
     private static final String PROPERTY_NAME_EXPRESSION_G = "expressionG";
     private static final String PROPERTY_NAME_EXPRESSION_B = "expressionB";
 
-    private static final String TYPE_NAME = "RgbImageLayerType";
-    private static final String[] ALIASES = {"org.esa.beam.glayer.RgbImageLayerType"};
-
-    @Override
-    public String getName() {
-        return TYPE_NAME;
-    }
-    
-    @Override
-    public String[] getAliases() {
-        return ALIASES;
-    }
-    
     @Override
     public ImageLayer createLayer(LayerContext ctx, PropertySet configuration) {
         MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(

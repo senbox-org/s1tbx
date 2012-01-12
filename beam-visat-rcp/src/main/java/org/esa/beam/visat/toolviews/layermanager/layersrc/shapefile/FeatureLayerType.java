@@ -28,6 +28,7 @@ import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
@@ -59,6 +60,8 @@ import java.util.List;
  * <p/>
  * Unstable API. Use at own risk.
  */
+@LayerTypeMetadata(name = "FeatureLayerType",
+                   aliasNames = {"org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayerType"})
 public class FeatureLayerType extends LayerType {
 
     public static final String PROPERTY_NAME_SLD_STYLE = "sldStyle";
@@ -67,19 +70,6 @@ public class FeatureLayerType extends LayerType {
     public static final String PROPERTY_NAME_FEATURE_COLLECTION_CRS = "featureCollectionTargetCrs";
     public static final String PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY = "featureCollectionClipGeometry";
 
-    private static final String TYPE_NAME = "FeatureLayerType";
-    private static final String[] ALIASES = {"org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayerType"};
-
-    @Override
-    public String getName() {
-        return TYPE_NAME;
-    }
-    
-    @Override
-    public String[] getAliases() {
-        return ALIASES;
-    }
-    
     @Override
     public boolean isValidFor(LayerContext ctx) {
         return true;

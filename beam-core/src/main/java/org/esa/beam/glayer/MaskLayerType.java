@@ -21,6 +21,7 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerTypeRegistry;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
@@ -38,12 +39,11 @@ import java.awt.image.RenderedImage;
  * @version $ Revision: $ Date: $
  * @since BEAM 4.7
  */
+@LayerTypeMetadata(name = "MaskLayerType",
+                   aliasNames = {"org.esa.beam.glayer.MaskLayerType"})
 public class MaskLayerType extends ImageLayer.Type {
 
     public static final String PROPERTY_NAME_MASK = "mask";
-
-    private static final String TYPE_NAME = "MaskLayerType";
-    private static final String[] ALIASES = {"org.esa.beam.glayer.MaskLayerType"};
 
     public static Layer createLayer(RasterDataNode raster, Mask mask) {
         final MaskLayerType type = LayerTypeRegistry.getLayerType(MaskLayerType.class);
@@ -56,16 +56,6 @@ public class MaskLayerType extends ImageLayer.Type {
         return layer;
     }
 
-    @Override
-    public String getName() {
-        return TYPE_NAME;
-    }
-    
-    @Override
-    public String[] getAliases() {
-        return ALIASES;
-    }
-    
     @Override
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(

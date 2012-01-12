@@ -24,6 +24,7 @@ import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -85,15 +86,9 @@ public class DefaultLayerSourceDescriptorTest {
     }
 
 
+    @LayerTypeMetadata(name = "SimpleTestLayerType")
     private static class SimpleTestLayerType extends LayerType {
 
-        private static final String TYPE_NAME = "SimpleTestLayerType";
-
-        @Override
-        public String getName() {
-            return TYPE_NAME;
-        }
-        
         @Override
         public boolean isValidFor(LayerContext ctx) {
             return true;

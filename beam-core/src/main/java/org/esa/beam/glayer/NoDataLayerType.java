@@ -21,6 +21,7 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -38,25 +39,14 @@ import java.beans.PropertyChangeEvent;
  * @version $ Revision: $ Date: $
  * @since BEAM 4.6
  */
+@LayerTypeMetadata(name = "NoDataLayerType",
+                   aliasNames = {"org.esa.beam.glayer.NoDataLayerType"})
 public class NoDataLayerType extends ImageLayer.Type {
 
     public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
     public static final String PROPERTY_NAME_COLOR = "color";
     public static final String PROPERTY_NAME_RASTER = "raster";
     public static final Color DEFAULT_COLOR = Color.ORANGE;
-
-    private static final String TYPE_NAME = "NoDataLayerType";
-    private static final String[] ALIASES = {"org.esa.beam.glayer.NoDataLayerType"};
-
-    @Override
-    public String getName() {
-        return TYPE_NAME;
-    }
-
-    @Override
-    public String[] getAliases() {
-        return ALIASES;
-    }
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {

@@ -16,23 +16,17 @@
 
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertySet;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.dom.DefaultDomConverter;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerTypeRegistry;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 import org.geotools.data.ows.CRSEnvelope;
@@ -41,13 +35,10 @@ import org.geotools.data.wms.WebMapServer;
 import org.geotools.data.wms.request.GetMapRequest;
 import org.geotools.data.wms.response.GetMapResponse;
 import org.geotools.ows.ServiceException;
-import org.geotools.referencing.CRS;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -57,10 +48,14 @@ import java.net.URL;
 import java.util.List;
 
 /**
+ * Layer type for layer that displays images coming from an OGC WMS.
+ *
  * @author Marco Peters
  * @version $ Revision $ Date $
  * @since BEAM 4.6
  */
+@LayerTypeMetadata(name = "WmsLayerType",
+                   aliasNames = {"org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsLayerType"})
 public class WmsLayerType extends ImageLayer.Type {
 
     public static final String PROPERTY_NAME_RASTER = "raster";
@@ -70,19 +65,6 @@ public class WmsLayerType extends ImageLayer.Type {
     public static final String PROPERTY_NAME_STYLE_NAME = "styleName";
     public static final String PROPERTY_NAME_IMAGE_SIZE = "imageSize";
 
-    private static final String TYPE_NAME = "WmsLayerType";
-    private static final String[] ALIASES = {"org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsLayerType"};
-
-    @Override
-    public String getName() {
-        return TYPE_NAME;
-    }
-    
-    @Override
-    public String[] getAliases() {
-        return ALIASES;
-    }
-    
     @Override
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final WebMapServer mapServer;
@@ -96,7 +78,6 @@ public class WmsLayerType extends ImageLayer.Type {
         final int layerIndex = (Integer) configuration.getValue(WmsLayerType.PROPERTY_NAME_LAYER_INDEX);
         final org.geotools.data.ows.Layer wmsLayer = getLayer(mapServer, layerIndex);
         final MultiLevelSource multiLevelSource = createMultiLevelSource(configuration, mapServer, wmsLayer);
-        final AffineTransform i2mTransform = multiLevelSource.getModel().getImageToModelTransform(0);
 
         final ImageLayer.Type imageLayerType = LayerTypeRegistry.getLayerType(ImageLayer.Type.class);
         final PropertySet config = imageLayerType.createLayerConfig(ctx);
