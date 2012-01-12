@@ -36,22 +36,37 @@ public abstract class LayerType extends ExtensibleObject {
     }
 
     /**
-     * Return the name of this layer type. This name will used for storing layer of this
-     * type in session.
+     * Gets the name of this layer type. This name is used to persist / externalise layers of this
+     * type.
+     * <p>
+     * The default implementation returns the name given by the
+     * {@link com.bc.ceres.glayer.annotations.LayerTypeMetadata#name()} annotation property, if any.
+     * Otherwise, the fully qualified class name is returned.
+     * </p>
+     * <p>
+     * As of Ceres 0.13, it is not recommended to override this method. Instead use the
+     * {@link com.bc.ceres.glayer.annotations.LayerTypeMetadata#name()}
+     * annotation property for your special layer type.
+     * </p>
      *
      * @return The name of this layer type.
      */
     public String getName() {
+        final LayerTypeMetadata layerTypeMetadata = getClass().getAnnotation(LayerTypeMetadata.class);
+        if (layerTypeMetadata != null && !layerTypeMetadata.name().isEmpty()) {
+            return layerTypeMetadata.name();
+        }
         return getClass().getName();
     }
 
     /**
-     * Return aliases under which this layer type is also known. The intention is to allow changing
+     * Gets the alias names under which this layer type is also known. The intention is to allow changing
      * the type name and be backwards compatible with respect to layer types that have been persisted / externalised
      * before the name change occurred.
      * <p>
-     * The default implementation returns the alias names given by the {@link LayerTypeMetadata}, if any.
-     * Otherwise an empty array is returned.
+     * The default implementation returns the alias names given by the
+     * {@link com.bc.ceres.glayer.annotations.LayerTypeMetadata#aliasNames()} annotation property, if any.
+     * Otherwise, an empty array is returned.
      * </p>
      * <p>
      * As of Ceres 0.13, it is not recommended to override this method. Instead use the {@link LayerTypeMetadata}

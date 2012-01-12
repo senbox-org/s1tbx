@@ -22,36 +22,36 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.*;
 
 public class LayerTypeMetadataTest {
 
     @Test
     public void testAnnotatedLayerType() {
         final LayerType layerType = new AnnotatedLayerType();
-        final String[] aliases = layerType.getAliases();
-        assertArrayEquals(new String[]{"x", "y", "z"}, aliases);
+        assertEquals("ALT", layerType.getName());
+        assertArrayEquals(new String[]{"x", "y", "z"}, layerType.getAliases());
     }
 
     @Test
     public void testNonAnnotatedLayerType() {
         final LayerType layerType = new NonAnnotatedLayerType();
-        final String[] aliases = layerType.getAliases();
-        assertArrayEquals(new String[]{}, aliases);
+        assertEquals(layerType.getClass().getName(), layerType.getName());
+        assertArrayEquals(new String[]{}, layerType.getAliases());
     }
 
     @Test
     public void testDerivedAnnotatedLayerType() {
         final LayerType layerType = new DerivedAnnotatedLayerType();
-        final String[] aliases = layerType.getAliases();
-        assertArrayEquals(new String[]{"u", "v"}, aliases);
+        assertEquals(layerType.getClass().getName(), layerType.getName());
+        assertArrayEquals(new String[]{"u", "v"}, layerType.getAliases());
     }
 
     @Test
     public void testDerivedNonAnnotatedLayerType() {
         final LayerType layerType = new DerivedNonAnnotatedLayerType();
-        final String[] aliases = layerType.getAliases();
-        assertArrayEquals(new String[]{}, aliases);
+        assertEquals(layerType.getClass().getName(), layerType.getName());
+        assertArrayEquals(new String[]{}, layerType.getAliases());
     }
 
     @LayerTypeMetadata(aliasNames = {"u", "v"})
@@ -61,7 +61,7 @@ public class LayerTypeMetadataTest {
     public static class DerivedNonAnnotatedLayerType extends AnnotatedLayerType {
     }
 
-    @LayerTypeMetadata(aliasNames = {"x", "y", "z"})
+    @LayerTypeMetadata(name = "ALT", aliasNames = {"x", "y", "z"})
     public static class AnnotatedLayerType extends LayerType {
         @Override
         public boolean isValidFor(LayerContext ctx) {

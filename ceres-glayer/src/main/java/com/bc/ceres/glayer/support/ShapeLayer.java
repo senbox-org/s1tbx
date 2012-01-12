@@ -23,6 +23,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 
@@ -118,24 +119,13 @@ public class ShapeLayer extends Layer {
         }
     }
 
+    @LayerTypeMetadata(name = "ShapeLayerType",
+                       aliasNames = {"com.bc.ceres.glayer.support.ShapeLayer$Type"})
     public static class Type extends LayerType {
 
         public static final String PROPERTY_SHAPE_LIST = "shapes";
         public static final String PROPTERY_SHAPE_TO_MODEL_TRANSFORM = "shapeToModelTransform";
 
-        private static final String TYPE_NAME = "ShapeLayerType";
-        private static final String[] ALIASES = {"com.bc.ceres.glayer.support.ShapeLayer$Type"};
-
-        @Override
-        public String getName() {
-            return TYPE_NAME;
-        }
-        
-        @Override
-        public String[] getAliases() {
-            return ALIASES;
-        }
-        
         @Override
         public boolean isValidFor(LayerContext ctx) {
             return true;
