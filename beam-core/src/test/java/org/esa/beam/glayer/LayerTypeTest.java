@@ -23,6 +23,8 @@ import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+
 public abstract class LayerTypeTest {
 
     private final Class<? extends LayerType> layerTypeClass;
@@ -43,8 +45,9 @@ public abstract class LayerTypeTest {
     public void testLayerType() {
         final LayerType layerType = getLayerType();
 
-        org.junit.Assert.assertNotNull(layerType);
-        org.junit.Assert.assertTrue(layerTypeClass.isAssignableFrom(layerType.getClass()));
+
+        assertNotNull(layerType);
+        assertTrue(layerTypeClass.isAssignableFrom(layerType.getClass()));
     }
 
     @Test
@@ -53,30 +56,30 @@ public abstract class LayerTypeTest {
 
         try {
             layerType.createLayer(null, null);
-            org.junit.Assert.fail();
+            fail();
         } catch (NullPointerException expected) {
         }
     }
 
     protected static void ensurePropertyIsDefined(PropertySet template, String name, Class<?> type) {
-        final Property model = template.getProperty(name);
-        org.junit.Assert.assertNotNull(model);
+        final Property property = template.getProperty(name);
+        assertNotNull(property);
 
-        final PropertyDescriptor descriptor = model.getDescriptor();
-        org.junit.Assert.assertNotNull(descriptor);
-        org.junit.Assert.assertEquals(type, descriptor.getType());
-        org.junit.Assert.assertNotNull(descriptor.getDefaultValue());
-        org.junit.Assert.assertNotNull(model.getValue());
+        final PropertyDescriptor descriptor = property.getDescriptor();
+        assertNotNull(descriptor);
+        assertEquals(type, descriptor.getType());
+        assertNotNull(descriptor.getDefaultValue());
+        assertNotNull(property.getValue());
     }
 
     protected static void ensurePropertyIsDeclaredButNotDefined(PropertySet template, String name, Class<?> type) {
-        final Property model = template.getProperty(name);
-        org.junit.Assert.assertNotNull(model);
+        final Property property = template.getProperty(name);
+        assertNotNull(property);
 
-        final PropertyDescriptor descriptor = model.getDescriptor();
-        org.junit.Assert.assertNotNull(descriptor);
-        org.junit.Assert.assertEquals(type, descriptor.getType());
-        org.junit.Assert.assertNull(descriptor.getDefaultValue());
-        org.junit.Assert.assertNull(model.getValue());
+        final PropertyDescriptor descriptor = property.getDescriptor();
+        assertNotNull(descriptor);
+        assertEquals(type, descriptor.getType());
+        assertNull(descriptor.getDefaultValue());
+        assertNull(property.getValue());
     }
 }
