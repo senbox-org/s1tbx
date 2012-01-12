@@ -18,6 +18,7 @@ package com.bc.ceres.glayer;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 
 
 /**
@@ -51,20 +52,9 @@ public class CollectionLayer extends Layer {
         return LayerTypeRegistry.getLayerType(Type.class);
     }
 
+    @LayerTypeMetadata(name = "CollectionLayerType",
+                       aliasNames = {"com.bc.ceres.glayer.CollectionLayer$Type"})
     public static class Type extends LayerType {
-        
-        private static final String TYPE_NAME = "CollectionLayerType";
-        private static final String[] ALIASES = {"com.bc.ceres.glayer.CollectionLayer$Type"};
-
-        @Override
-        public String getName() {
-            return TYPE_NAME;
-        }
-        
-        @Override
-        public String[] getAliases() {
-            return ALIASES;
-        }
         
         @Override
         public boolean isValidFor(LayerContext ctx) {
