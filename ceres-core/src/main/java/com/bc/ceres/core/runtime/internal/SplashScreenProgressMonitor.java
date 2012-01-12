@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,18 +22,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeConfig;
 
 import javax.imageio.ImageIO;
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.SplashScreen;
-import java.awt.Toolkit;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +39,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
     private static final String CONFIG_KEY_TASK_LABEL_FONT = "splash.taskLabel.font";
     private static final String CONFIG_KEY_TASK_LABEL_COLOR = "splash.taskLabel.color";
     private static final String CONFIG_KEY_TASK_LABEL_POS = "splash.taskLabel.pos";
+    private static final String CONFIG_KEY_VERSION_ENABLED = "splash.version.enabled";
     private static final String CONFIG_KEY_VERSION_FONT = "splash.version.font";
     private static final String CONFIG_KEY_VERSION_POS = "splash.version.pos";
 
@@ -66,6 +56,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
     private Font taskLabelFont;
     private Color taskLabelColor;
     private Point taskLabelPos;
+    private boolean versionLabelEnabled;
     private Font versionLabelFont;
     private Point versionLabelPos;
     private Color progressBarColor;
@@ -130,29 +121,25 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
             taskLabelColor = Color.WHITE;
         }
         
-	    taskLabelEnabled = getConfiguredTaskNameEnabled(config);
+	    taskLabelEnabled = getConfiguredOptionEnabled(config, CONFIG_KEY_TASK_LABEL_ENABLED);
         if (taskLabelEnabled) {
-            final String fontDesc = config.getContextProperty(CONFIG_KEY_TASK_LABEL_FONT);
-		    taskLabelFont = getConfiguredTaskLabelFont(fontDesc);
-
-	        final String posStr = config.getContextProperty(CONFIG_KEY_TASK_LABEL_POS);
-	        taskLabelPos = getConfiguredTaskLabelPos(posStr);
+		    taskLabelFont = getConfiguredFont(config, CONFIG_KEY_TASK_LABEL_FONT);
+	        taskLabelPos = getConfiguredPos(config, CONFIG_KEY_TASK_LABEL_POS);
             if (taskLabelPos == null) {
-                taskLabelPos = new Point(progressBarArea.x,
-                                         progressBarArea.y + progressBarArea.height + 10);
+                taskLabelPos = new Point(progressBarArea.x, progressBarArea.y + progressBarArea.height + 10);
             }
         }
 
-        final String fontDesc = config.getContextProperty(CONFIG_KEY_VERSION_FONT);
-        versionLabelFont = getConfiguredTaskLabelFont(fontDesc);
-        final String posStr = config.getContextProperty(CONFIG_KEY_VERSION_POS);
-        versionLabelPos = getConfiguredTaskLabelPos(posStr);
-        if (versionLabelPos == null) {
-            versionLabelPos = new Point(progressBarArea.x,
-                    progressBarArea.y + progressBarArea.height + 30);
+        versionLabelEnabled = getConfiguredOptionEnabled(config, CONFIG_KEY_VERSION_ENABLED);
+        if (versionLabelEnabled) {
+            versionLabelFont = getConfiguredFont(config, CONFIG_KEY_VERSION_FONT);
+            versionLabelPos = getConfiguredPos(config, CONFIG_KEY_VERSION_POS);
+            if (versionLabelPos == null) {
+                versionLabelPos = new Point(progressBarArea.x, progressBarArea.y + progressBarArea.height + 30);
+            }
+            versionText = "Version "+config.getContextProperty("version");
         }
 
-        versionText = "Version "+config.getContextProperty("version");
         graphics = this.splashScreen.createGraphics();
         graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -241,7 +228,9 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         if (taskLabelEnabled) {
             paintTaskLabel();
         }
-        paintVersionLabel();
+        if (versionLabelEnabled) {
+            paintVersionLabel();
+        }
         paintBar();
 
         splashScreen.update();
@@ -292,8 +281,8 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         }
     }
 
-    private boolean getConfiguredTaskNameEnabled(RuntimeConfig config) {
-        return Boolean.parseBoolean(config.getContextProperty(CONFIG_KEY_TASK_LABEL_ENABLED, "false"));
+    private boolean getConfiguredOptionEnabled(RuntimeConfig config, String key) {
+        return Boolean.parseBoolean(config.getContextProperty(key, "false"));
     }
 
 
@@ -348,7 +337,8 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         return null;
     }
 
-    private static Point getConfiguredTaskLabelPos(final String posStr) {
+    private static Point getConfiguredPos(RuntimeConfig config, String key) {
+        String posStr = config.getContextProperty(key);
         if (posStr != null && !posStr.isEmpty()) {
             StringTokenizer st = new StringTokenizer(posStr, ",");
             int n = st.countTokens();
@@ -365,7 +355,8 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         return null;
     }
     
-    private static Font getConfiguredTaskLabelFont(final String fontDesc) {
+    private static Font getConfiguredFont(RuntimeConfig config, String key) {
+        String fontDesc = config.getContextProperty(key);
         if (fontDesc == null || fontDesc.isEmpty()) {
             return new Font("Verdana", Font.ITALIC, 10);
         }
