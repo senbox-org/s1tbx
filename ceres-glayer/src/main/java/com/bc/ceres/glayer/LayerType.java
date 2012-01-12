@@ -18,6 +18,7 @@ package com.bc.ceres.glayer;
 
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ExtensibleObject;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 
 /**
  * A layer type is a factory for layer instances and layer (default) configurations.
@@ -45,12 +46,25 @@ public abstract class LayerType extends ExtensibleObject {
     }
 
     /**
-     * Return aliases under which this layer type is also know. the intention is to allow changing
-     * the type name and be backwards compatible in regards to old sessions.
+     * Return aliases under which this layer type is also known. The intention is to allow changing
+     * the type name and be backwards compatible with respect to layer types that have been persisted / externalised
+     * before the name change occurred.
+     * <p>
+     * The default implementation returns the alias names given by the {@link LayerTypeMetadata}, if any.
+     * Otherwise an empty array is returned.
+     * </p>
+     * <p>
+     * As of Ceres 0.13, it is not recommended to override this method. Instead use the {@link LayerTypeMetadata}
+     * annotation for your special layer type.
+     * </p>
      *
      * @return The aliases of this layer type.
      */
     public String[] getAliases() {
+        final LayerTypeMetadata layerTypeMetadata = getClass().getAnnotation(LayerTypeMetadata.class);
+        if (layerTypeMetadata != null) {
+            return layerTypeMetadata.aliasNames();
+        }
         return NO_ALIASES;
     }
 
