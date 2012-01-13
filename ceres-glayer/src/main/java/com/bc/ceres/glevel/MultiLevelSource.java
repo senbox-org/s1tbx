@@ -52,7 +52,7 @@ public interface MultiLevelSource {
     RenderedImage getImage(int level);
 
     /**
-     * Gets the shape of the area where this image's raster has valid pixels at the given resolution level.
+     * Gets the shape of the area where this image's raster data contains valid pixels at the given resolution level.
      * The method returns <code>null</code>, if the entire image raster contains valid pixels.
      *
      * @param level The resolution level.
