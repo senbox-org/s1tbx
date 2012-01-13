@@ -82,7 +82,7 @@ public class ImportTrackAction extends ExecCommand {
 
         String name = FileUtils.getFilenameWithoutExtension(file);
         VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);
-        vectorDataNode.setDefaultCSS("symbol: cross; stroke:#ffaaaa; stroke-opacity:1.0; stroke-width:1.0");
+        vectorDataNode.setDefaultStyleCss("symbol: cross; stroke:#ffaaaa; stroke-opacity:1.0; stroke-width:1.0");
         product.getVectorDataGroup().add(vectorDataNode);
     }
 
@@ -106,7 +106,7 @@ public class ImportTrackAction extends ExecCommand {
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = FeatureCollections.newCollection();
         SimpleFeatureType trackFeatureType = createTrackFeatureType(geoCoding);
         double[] record;
-        int i = 0;
+        int pointIndex = 0;
         while ((record = csvReader.readDoubleRecord()) != null) {
             if (record.length < 3) {
                 throw new IOException("Illegal track file format.");
@@ -116,8 +116,16 @@ public class ImportTrackAction extends ExecCommand {
             float lon = (float) record[1];
             double data = record[2];
 
-            featureCollection.add(createFeature(trackFeatureType, geoCoding, i, lat, lon, data));
-            i++;
+            final SimpleFeature feature = createFeature(trackFeatureType, geoCoding, pointIndex, lat, lon, data);
+            if (feature != null) {
+                featureCollection.add(feature);
+            }
+
+            pointIndex++;
+        }
+
+        if (featureCollection.isEmpty()) {
+            throw new IOException("No track point found or all of them are located outside the scene boundaries.");
         }
 
         return featureCollection;
@@ -134,11 +142,14 @@ public class ImportTrackAction extends ExecCommand {
         return ftb.buildFeatureType();
     }
 
-    private static SimpleFeature createFeature(SimpleFeatureType type, GeoCoding geoCoding, long i, float lat, float lon, double data) {
+    private static SimpleFeature createFeature(SimpleFeatureType type, GeoCoding geoCoding, long pointIndex, float lat, float lon, double data) {
         PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos(lat, lon), null);
+        if (!pixelPos.isValid()) {
+            return null;
+        }
         SimpleFeatureBuilder fb = new SimpleFeatureBuilder(type);
         GeometryFactory gf = new GeometryFactory();
-        fb.add(i);
+        fb.add(pointIndex);
         fb.add(gf.createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
         fb.add(gf.createPoint(new Coordinate(lon, lat)));
         fb.add(data);
