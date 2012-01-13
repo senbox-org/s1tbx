@@ -35,6 +35,7 @@ public interface MultiLevelSource {
 
     /**
      * Gets the layout model for the multi-resolution image supported by this {@code LevelImageSource}.
+     *
      * @return the multi-resolution image model.
      */
     MultiLevelModel getModel();
@@ -51,24 +52,24 @@ public interface MultiLevelSource {
     RenderedImage getImage(int level);
 
     /**
-     * Gets the scaled shape for the given resolution level.
-     * If not {@code null} this shape encloses the entire area of the image, that contains data.
+     * Gets the shape of the area where this image's raster has valid pixels at the given resolution level.
+     * The method returns <code>null</code>, if the entire image raster contains valid pixels.
      *
      * @param level The resolution level.
-     * @return The scaled shape, can be {@code null}.
+     * @return The shape of the area where the image has data, can be {@code null}.
      */
     Shape getImageShape(int level);
 
     /**
      * <p>Provides a hint that the level images provided so far will no longer be accessed from a
      * reference in user space.</p>
-     *
+     * <p/>
      * <p>Therefore implementations of this method might also dispose any cached level images
      * that have been provided so far.</p>
-     *
+     * <p/>
      * <p>After calling this method, a call to {@link #getImage(int)}} for the same level may
      * return a new level image instance.</p>
-     *
+     * <p/>
      * <p>This method is particularly useful if properties have changed that affect the appearance of the
      * returned images at all levels, e.g. after a new color palette has been assigned or the
      * contrast range has changed.</p>
