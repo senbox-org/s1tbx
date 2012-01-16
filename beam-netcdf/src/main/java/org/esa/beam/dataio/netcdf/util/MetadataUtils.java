@@ -55,22 +55,33 @@ public class MetadataUtils {
         MetadataElement metadataElement = new MetadataElement(elementName);
         for (Attribute attribute : attributeList) {
             final int productDataType = DataTypeUtils.getEquivalentProductDataType(attribute.getDataType(), false,
-                                                                                   false);
+                    false);
             if (productDataType != -1) {
-                ProductData productData;
+                ProductData productData = null;
                 if (attribute.isString()) {
-                    productData = ProductData.createInstance(attribute.getStringValue());
+                    final String stringValue = attribute.getStringValue();
+                    if (stringValue != null) {
+                        productData = ProductData.createInstance(stringValue);
+                    }
                 } else if (attribute.isArray()) {
-                    productData = ProductData.createInstance(productDataType, attribute.getLength());
-                    productData.setElems(attribute.getValues().getStorage());
+                    final Array values = attribute.getValues();
+                    if (values != null) {
+                        productData = ProductData.createInstance(productDataType, attribute.getLength());
+                        productData.setElems(values.getStorage());
+                    }
                 } else {
-                    productData = ProductData.createInstance(productDataType, 1);
-                    productData.setElems(attribute.getValues().getStorage());
+                    final Array values = attribute.getValues();
+                    if (values != null) {
+                        productData = ProductData.createInstance(productDataType, 1);
+                        productData.setElems(values.getStorage());
+                    }
                 }
-                MetadataAttribute metadataAttribute = new MetadataAttribute(attribute.getName(),
-                                                                            productData,
-                                                                            true);
-                metadataElement.addAttribute(metadataAttribute);
+                if (productData != null) {
+                    MetadataAttribute metadataAttribute = new MetadataAttribute(attribute.getName(),
+                            productData,
+                            true);
+                    metadataElement.addAttribute(metadataAttribute);
+                }
             }
         }
         return metadataElement;
@@ -111,6 +122,9 @@ public class MetadataUtils {
         final boolean unsigned = variable.isUnsigned();
         final boolean rasterDataOnly = false;
         final int productDataType = DataTypeUtils.getEquivalentProductDataType(ncDataType, unsigned, rasterDataOnly);
+        if (productDataType == -1) {
+            return;
+        }
         final Array values;
         try {
             long variableSize = variable.getSize();

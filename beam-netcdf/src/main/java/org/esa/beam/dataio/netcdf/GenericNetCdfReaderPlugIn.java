@@ -89,9 +89,13 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
 
     private DecodeQualification getDecodeQualification(AbstractNetCdfReaderPlugIn[] plugIns, NetcdfFile netcdfFile) throws IOException {
         for (AbstractNetCdfReaderPlugIn plugIn : plugIns) {
-            final DecodeQualification decodeQualification = plugIn.getDecodeQualification(netcdfFile);
-            if (DecodeQualification.INTENDED.equals(decodeQualification) || DecodeQualification.SUITABLE.equals(decodeQualification)) {
-                return DecodeQualification.SUITABLE;
+            try {
+                final DecodeQualification decodeQualification = plugIn.getDecodeQualification(netcdfFile);
+                if (DecodeQualification.INTENDED.equals(decodeQualification) || DecodeQualification.SUITABLE.equals(decodeQualification)) {
+                    return DecodeQualification.SUITABLE;
+                }
+            } catch (Exception ignore) {
+                ignore.printStackTrace();
             }
         }
         return DecodeQualification.UNABLE;
