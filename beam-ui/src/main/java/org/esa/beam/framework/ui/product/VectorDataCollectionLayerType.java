@@ -21,25 +21,15 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.glayer.ProductLayerContext;
 
+@LayerTypeMetadata(name = "VectorDataCollectionLayerType",
+                   aliasNames = {"org.esa.beam.framework.ui.product.VectorDataCollectionLayerType"})
 public class VectorDataCollectionLayerType extends CollectionLayer.Type {
 
-    private static final String TYPE_NAME = "VectorDataCollectionLayerType";
-    private static final String[] ALIASES = {"org.esa.beam.framework.ui.product.VectorDataCollectionLayerType"};
-
-    @Override
-    public String getName() {
-        return TYPE_NAME;
-    }
-    
-    @Override
-    public String[] getAliases() {
-        return ALIASES;
-    }
-    
     @Override
     public boolean isValidFor(LayerContext ctx) {
         return ctx instanceof ProductLayerContext;

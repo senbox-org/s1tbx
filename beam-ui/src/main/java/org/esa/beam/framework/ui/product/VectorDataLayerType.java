@@ -24,6 +24,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.glayer.ProductLayerContext;
 
@@ -35,14 +36,12 @@ import org.esa.beam.glayer.ProductLayerContext;
  * @author Ralf Quast
  * @since BEAM 4.7
  */
+@LayerTypeMetadata(name = "VectorDataLayerType",
+                   aliasNames = {"org.esa.beam.framework.ui.product.VectorDataLayerType"})
 public class VectorDataLayerType extends LayerType {
 
     public static final String PROPERTY_NAME_VECTOR_DATA = "vectorData";
     public static final String VECTOR_DATA_LAYER_ID_PREFIX = "org.esa.beam.layers.vectorData";
-
-    private static final String TYPE_NAME = "VectorDataLayerType";
-    private static final String[] ALIASES = {"org.esa.beam.framework.ui.product.VectorDataLayerType"};
-
 
     public static VectorDataLayer createLayer(LayerContext ctx, VectorDataNode vectorDataNode) {
         final VectorDataLayerType specialLayerType = vectorDataNode.getExtension(VectorDataLayerType.class);
@@ -57,16 +56,6 @@ public class VectorDataLayerType extends LayerType {
             layer = fallbackLayerType.createLayerInternal(ctx, vectorDataNode);
         }
         return layer;
-    }
-
-    @Override
-    public String getName() {
-        return TYPE_NAME;
-    }
-
-    @Override
-    public String[] getAliases() {
-        return ALIASES;
     }
 
     @Override

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="5.0.9" transformSequenceNumber="3">
+<install4j version="5.0.10" transformSequenceNumber="3">
   <directoryPresets config="./src/main/resources/images" />
   <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="4.10" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
@@ -408,7 +408,7 @@
         context.getProgressInterface().askContinue(new File("fileomat.txt"));  
     }
  */
- return files;
+return files;
 </string>
                           </void>
                         </object>
@@ -421,7 +421,7 @@
                 </serializedBean>
                 <condition />
               </action>
-              <action name="" id="4717" customizedId="" beanClass="com.install4j.runtime.beans.actions.text.ReplaceInstallerVariablesAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="3" errorMessage="">
+              <action name="" id="4717" customizedId="" beanClass="com.install4j.runtime.beans.actions.text.ReplaceInstallerVariablesAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="3" errorMessage="Failed to replace variables in scripts in '${installer:sys.installationDir}/bin'.">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.text.ReplaceInstallerVariablesAction">
@@ -1763,6 +1763,7 @@ if (wizardContext != null) {
         <entry location="bin/beam-cli.sh" fileType="regular" />
         <entry location="bin/binning.command" fileType="regular" />
         <entry location="bin/binning.sh" fileType="regular" />
+        <entry location="bin/detect_java.sh" fileType="regular" />
         <entry location="bin/flhmci.command" fileType="regular" />
         <entry location="bin/flhmci.sh" fileType="regular" />
         <entry location="bin/gpt.command" fileType="regular" />
@@ -1771,12 +1772,8 @@ if (wizardContext != null) {
         <entry location="bin/mapproj.sh" fileType="regular" />
         <entry location="bin/meris-cloud.command" fileType="regular" />
         <entry location="bin/meris-cloud.sh" fileType="regular" />
-        <entry location="bin/meris-rad2refl.command" fileType="regular" />
-        <entry location="bin/meris-rad2refl.sh" fileType="regular" />
         <entry location="bin/meris-smac.command" fileType="regular" />
         <entry location="bin/meris-smac.sh" fileType="regular" />
-        <entry location="bin/meris-smile.command" fileType="regular" />
-        <entry location="bin/meris-smile.sh" fileType="regular" />
         <entry location="bin/mosaic.command" fileType="regular" />
         <entry location="bin/mosaic.sh" fileType="regular" />
         <entry location="bin/pconvert.command" fileType="regular" />
@@ -1803,6 +1800,7 @@ if (wizardContext != null) {
         <entry location="bin/beam-cli.sh" fileType="regular" />
         <entry location="bin/binning.command" fileType="regular" />
         <entry location="bin/binning.sh" fileType="regular" />
+        <entry location="bin/detect_java.sh" fileType="regular" />
         <entry location="bin/flhmci.command" fileType="regular" />
         <entry location="bin/flhmci.sh" fileType="regular" />
         <entry location="bin/gpt.command" fileType="regular" />
@@ -1811,12 +1809,8 @@ if (wizardContext != null) {
         <entry location="bin/mapproj.sh" fileType="regular" />
         <entry location="bin/meris-cloud.command" fileType="regular" />
         <entry location="bin/meris-cloud.sh" fileType="regular" />
-        <entry location="bin/meris-rad2refl.command" fileType="regular" />
-        <entry location="bin/meris-rad2refl.sh" fileType="regular" />
         <entry location="bin/meris-smac.command" fileType="regular" />
         <entry location="bin/meris-smac.sh" fileType="regular" />
-        <entry location="bin/meris-smile.command" fileType="regular" />
-        <entry location="bin/meris-smile.sh" fileType="regular" />
         <entry location="bin/mosaic.command" fileType="regular" />
         <entry location="bin/mosaic.sh" fileType="regular" />
         <entry location="bin/pconvert.command" fileType="regular" />
@@ -2012,7 +2006,7 @@ if (wizardContext != null) {
       </installerScript>
     </unixInstaller>
   </mediaSets>
-  <buildIds buildAll="true">
+  <buildIds buildAll="false">
     <mediaSet refId="4707" />
   </buildIds>
   <buildOptions verbose="false" faster="false" debug="false" />

@@ -80,13 +80,13 @@ public class DimKey {
             return false;
         }
         DimKey dimKey = (DimKey) o;
-        return getDimensionY().equals(dimKey.getDimensionY())
-                && getDimensionX().equals(dimKey.getDimensionX());
+        return getDimensionY().getLength() == dimKey.getDimensionY().getLength()
+                && getDimensionX().getLength() == dimKey.getDimensionX().getLength();
     }
 
     @Override
     public int hashCode() {
-        return 31 * getDimensionY().hashCode() + getDimensionX().hashCode();
+        return 31 * getDimensionY().getLength() + getDimensionX().getLength();
     }
 
     private boolean matchesXYDimNames(final String xName, final String yName) {

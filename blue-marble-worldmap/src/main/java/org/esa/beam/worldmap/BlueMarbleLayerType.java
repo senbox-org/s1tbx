@@ -20,6 +20,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.glayer.WorldMapLayerType;
@@ -37,29 +38,19 @@ import java.net.URL;
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
  */
+@LayerTypeMetadata(name = "BlueMarbleLayerType",
+                   aliasNames = {"org.esa.beam.worldmap.BlueMarbleLayerType"})
 public class BlueMarbleLayerType extends WorldMapLayerType {
 
     private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.worldImageDir";
     private static final String WORLD_MAP_LAYER_NAME = "World Map (NASA Blue Marble)";
     private static final String WORLD_MAP_LABEL = "NASA Blue Marble";
-    private static final String TYPE_NAME = "BlueMarbleLayerType";
-    private static final String[] ALIASES = {"org.esa.beam.worldmap.BlueMarbleLayerType"};
 
     private volatile MultiLevelSource multiLevelSource;
 
     @Override
-    public String getName() {
-        return TYPE_NAME;
-    }
-
-    @Override
     public String getLabel() {
         return WORLD_MAP_LABEL;
-    }
-
-    @Override
-    public String[] getAliases() {
-        return ALIASES;
     }
 
     @Override

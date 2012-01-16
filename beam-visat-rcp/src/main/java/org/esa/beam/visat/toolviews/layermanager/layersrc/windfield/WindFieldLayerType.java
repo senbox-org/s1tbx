@@ -25,6 +25,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
 /**
@@ -33,27 +34,16 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
  * @author Norman Fomferra
  * @since BEAM 4.6
  */
+@LayerTypeMetadata(name = "WindFieldLayerType",
+                   aliasNames = {"org.esa.beam.visat.toolviews.layermanager.layersrc.windfield.WindFieldLayerType"})
 public class WindFieldLayerType extends LayerType {
 
-    private static final String TYPE_NAME = "WindFieldLayerType";
-    private static final String[] ALIASES = {"org.esa.beam.visat.toolviews.layermanager.layersrc.windfield.WindFieldLayerType"};
-    
     public static WindFieldLayer createLayer(RasterDataNode windu, RasterDataNode windv) {
         LayerType type = LayerTypeRegistry.getLayerType(WindFieldLayerType.class);
         final PropertySet template = type.createLayerConfig(null);
         template.setValue("windu", windu);
         template.setValue("windv", windv);
         return new WindFieldLayer(type, windu, windv, template);
-    }
-
-    @Override
-    public String getName() {
-        return TYPE_NAME;
-    }
-    
-    @Override
-    public String[] getAliases() {
-        return ALIASES;
     }
 
     @Override

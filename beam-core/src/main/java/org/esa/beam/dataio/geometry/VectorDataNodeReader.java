@@ -71,7 +71,7 @@ public class VectorDataNodeReader {
             vectorDataNode.setDescription(properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
         }
         if (properties.containsKey(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS)) {
-            vectorDataNode.setDefaultCSS(properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
+            vectorDataNode.setDefaultStyleCss(properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
         }
         return vectorDataNode;
     }

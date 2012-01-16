@@ -4,6 +4,7 @@
 .idea/
 /config/
 /modules/
+/testdata/
 target/
 beam.ids
 src/main/sql/*.jar

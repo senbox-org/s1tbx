@@ -21,6 +21,7 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -28,23 +29,12 @@ import org.esa.beam.glevel.BandImageMultiLevelSource;
 
 import java.awt.geom.AffineTransform;
 
+@LayerTypeMetadata(name = "RasterImageLayerType",
+                   aliasNames = {"org.esa.beam.glayer.RasterImageLayerType"})
 public class RasterImageLayerType extends ImageLayer.Type {
 
     public static final String PROPERTY_NAME_RASTER = "raster";
 
-    private static final String TYPE_NAME = "RasterImageLayerType";
-    private static final String[] ALIASES = {"org.esa.beam.glayer.RasterImageLayerType"};
-
-    @Override
-    public String getName() {
-        return TYPE_NAME;
-    }
-    
-    @Override
-    public String[] getAliases() {
-        return ALIASES;
-    }
-    
     @Override
     public ImageLayer createLayer(LayerContext ctx, PropertySet configuration) {
         MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(
