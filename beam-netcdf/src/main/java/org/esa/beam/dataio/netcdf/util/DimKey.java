@@ -90,7 +90,11 @@ public class DimKey {
     }
 
     private boolean matchesXYDimNames(final String xName, final String yName) {
-        return getDimensionX().getName().equalsIgnoreCase(xName)
-                && getDimensionY().getName().equalsIgnoreCase(yName);
+        if (getDimensionX().getName() != null && getDimensionY().getName() != null) {
+            return getDimensionX().getName().equalsIgnoreCase(xName)
+                    && getDimensionY().getName().equalsIgnoreCase(yName);
+        } else {
+            return false;
+        }
     }
 }
