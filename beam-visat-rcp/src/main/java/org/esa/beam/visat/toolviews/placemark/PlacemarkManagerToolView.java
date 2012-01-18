@@ -785,8 +785,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(
-                    product) && sourceNode instanceof Placemark) {
+            if (sourceNode instanceof Placemark
+                    && sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product)) {
                 placemarkTableModel.removePlacemark((Placemark) sourceNode);
                 updateUIState();
             }
