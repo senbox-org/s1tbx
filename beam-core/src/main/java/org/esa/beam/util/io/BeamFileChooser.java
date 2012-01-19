@@ -207,16 +207,13 @@ public class BeamFileChooser extends JFileChooser {
      * @see BeamFileFilter
      */
     public boolean checkExtension(String filename) {
-        FileFilter[] fileFilters = getChoosableFileFilters();
-        return brrr(filename, fileFilters);
-    }
-
-    public static boolean brrr(String filename, FileFilter[] fileFilters) {
         if (filename != null) {
+            FileFilter[] fileFilters = getChoosableFileFilters();
             if (fileFilters != null) {
                 for (FileFilter filter : fileFilters) {
                     if (filter instanceof BeamFileFilter) {
-                        if (((BeamFileFilter) filter).checkExtension(filename)) {
+                        final BeamFileFilter beamFileFilter = (BeamFileFilter) filter;
+                        if (beamFileFilter.checkExtension(filename)) {
                             return true;
                         }
                     }
