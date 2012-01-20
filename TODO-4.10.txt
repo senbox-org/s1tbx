@@ -33,7 +33,6 @@ Further development towards TrackPoints
 - Remove ProductProjectionBuilder but usage in MosaicProcessor: is it still required?
 - Remove all redundant calls to PinDescriptor.getInstance()
 - Remove all redundant calls to GcpDescriptor.getInstance()
-- Remove VDN.isInternalNode(), because there is later no need to differentiate
 - Remove VectorDataGroupTN.mustCount(), because there is later no need to differentiate
 - Ease access from Figure (selection) to specific Placemarks + Features
 - InsertPlacemarkInteractor --> InsertPointPlacemarkInteractor

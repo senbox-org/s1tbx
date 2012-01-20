@@ -262,9 +262,7 @@ public class ProductsToolView extends AbstractToolView {
         }
 
         private boolean isDeletableVectorData(Object selectedObject) {
-            // remove this method, once VectorDataNode.isInternalNode() is not used anymore
-            return selectedObject instanceof VectorDataNode &&
-                    !((VectorDataNode) selectedObject).isInternalNode();
+            return selectedObject instanceof VectorDataNode;
         }
 
         private boolean isDeletableRasterData(Object selectedObject) {
