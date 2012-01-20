@@ -861,7 +861,7 @@ public class ProductSceneView extends BasicView
         return selectedFigures.toArray(new SimpleFeatureFigure[selectedFigures.size()]);
     }
 
-    private boolean selectPlacemarks(PlacemarkGroup placemarkGroup, Placemark[] placemarks) {
+    public boolean selectPlacemarks(PlacemarkGroup placemarkGroup, Placemark[] placemarks) {
         VectorDataLayer layer = selectVectorDataLayer(placemarkGroup.getVectorDataNode());
         if (layer != null) {
             FigureCollection figureCollection = layer.getFigureCollection();
