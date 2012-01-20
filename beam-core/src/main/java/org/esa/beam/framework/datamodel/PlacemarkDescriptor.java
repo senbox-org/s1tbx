@@ -85,9 +85,6 @@ public interface PlacemarkDescriptor {
     String getShowLayerCommandId();
 
     @Deprecated
-    PlacemarkSymbol createDefaultSymbol();
-
-    @Deprecated
     Image getCursorImage();
 
     @Deprecated

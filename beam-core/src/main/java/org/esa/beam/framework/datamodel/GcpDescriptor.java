@@ -76,12 +76,6 @@ public class GcpDescriptor extends AbstractPlacemarkDescriptor {
 
     @Override
     @Deprecated
-    public PlacemarkSymbol createDefaultSymbol() {
-        return PlacemarkSymbol.createDefaultGcpSymbol();
-    }
-
-    @Override
-    @Deprecated
     public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {
         return pixelPos;
     }

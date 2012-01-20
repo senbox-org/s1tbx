@@ -77,12 +77,6 @@ public class PinDescriptor extends AbstractPlacemarkDescriptor {
 
     @Override
     @Deprecated
-    public PlacemarkSymbol createDefaultSymbol() {
-        return PlacemarkSymbol.createDefaultPinSymbol();
-    }
-
-    @Override
-    @Deprecated
     public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {
         if (geoCoding == null || !geoCoding.canGetPixelPos() || geoPos == null) {
             return pixelPos;

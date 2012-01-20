@@ -102,7 +102,6 @@ public class PlacemarkTest extends TestCase {
         assertEquals(4, events.size());
         assertEquals(4, eventTypes.size());
 
-        // todo - fix problem due to removal of PlacemarkSymbol (nf 2011-11-23)
         placemark1.setStyleCss("fill:#CAFEBABE");
         assertEquals(1, product.getPinGroup().getNodeCount());
         assertEquals(5, events.size());
@@ -174,8 +173,6 @@ public class PlacemarkTest extends TestCase {
         Placemark placemark = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "pinName", "pinLabel", "", null, new GeoPos(4f, 87f),
                                                              product.getGeoCoding());
         placemark.setDescription("pinDescription");
-        // todo - fix problem due to removal of PlacemarkSymbol (nf 2011-11-23)
-        // placemark.setSymbol(PlacemarkSymbol.createDefaultPinSymbol());
 
         StringWriter stringWriter = new StringWriter();
         PlacemarkIO.writeXML(placemark, new XmlWriter(stringWriter, false), 0);

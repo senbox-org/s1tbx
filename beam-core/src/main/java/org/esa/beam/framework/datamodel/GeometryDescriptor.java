@@ -57,12 +57,6 @@ public class GeometryDescriptor extends AbstractPlacemarkDescriptor {
 
     @Override
     @Deprecated
-    public PlacemarkSymbol createDefaultSymbol() {
-        return null;
-    }
-
-    @Override
-    @Deprecated
     public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {
         return null;
     }

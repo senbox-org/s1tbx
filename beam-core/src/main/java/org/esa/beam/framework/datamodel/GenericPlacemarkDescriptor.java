@@ -68,12 +68,6 @@ public class GenericPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
 
     @Override
     @Deprecated
-    public PlacemarkSymbol createDefaultSymbol() {
-        return null;
-    }
-
-    @Override
-    @Deprecated
     public Image getCursorImage() {
         return null;
     }
