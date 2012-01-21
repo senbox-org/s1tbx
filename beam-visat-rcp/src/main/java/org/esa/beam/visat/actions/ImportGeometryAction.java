@@ -137,7 +137,7 @@ public class ImportGeometryAction extends ExecCommand {
         try {
             vectorDataNode = readGeometry(visatApp, file, product);
         } catch (Exception e) {
-            visatApp.showErrorDialog(DLG_TITLE, "Failed to import geometry.\n" + "An I/O Error occured:\n"
+            visatApp.showErrorDialog(DLG_TITLE, "Failed to import geometry.\n" + "An I/O Error occurred:\n"
                                                 + e.getMessage()); /* I18N */
             Debug.trace(e);
             return;
@@ -195,7 +195,7 @@ public class ImportGeometryAction extends ExecCommand {
             SimpleFeatureType featureType = ShapefileUtils.createStyledFeatureType(featureCollection.getSchema());
             VectorDataNode vectorDataNode = new VectorDataNode(name, featureType);
             FeatureCollection<SimpleFeatureType, SimpleFeature> styledCollection = vectorDataNode.getFeatureCollection();
-            String defaultCSS = vectorDataNode.getDefaultCSS();
+            String defaultCSS = vectorDataNode.getDefaultStyleCss();
             ShapefileUtils.applyStyle(styles[0], defaultCSS, featureCollection, styledCollection);
             return vectorDataNode;
         } else {
@@ -301,7 +301,6 @@ public class ImportGeometryAction extends ExecCommand {
                     Arrays.fill(valid, false);
 
                     if (tt == StreamTokenizer.TT_EOF) {
-                        column = 0;
                         break;
                     } else if (tt == StreamTokenizer.TT_EOL) {
                         column = 0;
@@ -382,7 +381,7 @@ public class ImportGeometryAction extends ExecCommand {
         DefaultFeatureCollection featureCollection = new DefaultFeatureCollection(name, simpleFeatureType);
 
         VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);
-        String style = vectorDataNode.getDefaultCSS();
+        String style = vectorDataNode.getDefaultStyleCss();
         SimpleFeature simpleFeature = PlainFeatureFactory.createPlainFeature(simpleFeatureType, name, geometry, style);
         featureCollection.add(simpleFeature);
 
