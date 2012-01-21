@@ -2177,15 +2177,6 @@ public class VisatApp extends BasicApp implements AppContext {
 
 
     /**
-     * Creates a new product metadata view and opens an internal frame for it.
-     */
-    public synchronized ProductMetadataView createProductMetadataView(final MetadataElement element) {
-        final ShowMetadataViewAction command = (ShowMetadataViewAction) getCommandManager().getCommand(
-                ShowMetadataViewAction.ID);
-        return command.openMetadataView(element);
-    }
-
-    /**
      * Creates an internal frame and adds it to VISAT's desktop.
      *
      * @param title   a frame title
