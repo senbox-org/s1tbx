@@ -40,6 +40,7 @@ import org.esa.beam.framework.ui.product.tree.ProductTreeModel;
 import org.esa.beam.framework.ui.product.tree.AbstractTN;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
+import org.esa.beam.visat.actions.ShowPlacemarkViewAction;
 import org.esa.beam.visat.internal.RasterDataNodeDeleter;
 
 import javax.swing.JComponent;
@@ -199,12 +200,25 @@ public class ProductsToolView extends AbstractToolView {
         public void vectorDataSelected(final VectorDataNode vectorDataNode, int clickCount) {
             setSelectedProductNode(vectorDataNode);
             setSelectedVectorDataNode(vectorDataNode);
+            final JInternalFrame frame = visatApp.findInternalFrame(vectorDataNode);
+            if (frame != null) {
+                try {
+                    frame.setSelected(true);
+                } catch (PropertyVetoException ignored) {
+                    // ok
+                }
+                return;
+            }
+            if (clickCount == 2) {
+                final ExecCommand command = visatApp.getCommandManager().getExecCommand(ShowPlacemarkViewAction.ID);
+                command.execute(vectorDataNode);
+            }
         }
 
         @Override
-        public void metadataElementSelected(final MetadataElement group, final int clickCount) {
-            setSelectedProductNode(group);
-            final JInternalFrame frame = visatApp.findInternalFrame(group);
+        public void metadataElementSelected(final MetadataElement metadataElement, final int clickCount) {
+            setSelectedProductNode(metadataElement);
+            final JInternalFrame frame = visatApp.findInternalFrame(metadataElement);
             if (frame != null) {
                 try {
                     frame.setSelected(true);
@@ -215,7 +229,7 @@ public class ProductsToolView extends AbstractToolView {
             }
             if (clickCount == 2) {
                 final ExecCommand command = visatApp.getCommandManager().getExecCommand(ShowMetadataViewAction.ID);
-                command.execute(group);
+                command.execute(metadataElement);
             }
         }
 

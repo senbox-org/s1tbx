@@ -424,6 +424,19 @@
         </toolView>
 
         <toolView>
+            <id>org.esa.beam.visat.toolviews.placemark.PlacemarkEditorToolView</id>
+            <class>org.esa.beam.visat.toolviews.placemark.PlacemarkEditorToolView</class>
+            <title>Placemark Editor</title>
+            <description>Editor for placemarks of a data product.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/PinManager16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/PinManager24.gif</largeIcon>
+            <helpId>showPlacemarkEditorWnd</helpId>
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+
+        <toolView>
             <id>org.esa.beam.visat.toolviews.placemark.pin.PinManagerToolView</id>
             <class>org.esa.beam.visat.toolviews.placemark.pin.PinManagerToolView</class>
             <title>Pin Manager</title>
@@ -1085,6 +1098,21 @@
             <shortDescr>Open metadata view.</shortDescr>
             <description>Open a metadata view for the selected metadata node.</description>
             <context>metadataNode</context>
+            <smallIcon>icons/ImageView16.gif</smallIcon>
+            <largeIcon>icons/ImageView24.gif</largeIcon>
+        </action>
+
+        <action>
+            <parent>view</parent>
+            <id>showPlacemarkView</id>
+            <class>org.esa.beam.visat.actions.ShowPlacemarkViewAction</class>
+            <placeAfter>showMetadataView</placeAfter>
+            <text>Open Placemark View</text>
+            <mnemonic>P</mnemonic>
+            <accellerator>control alt P</accellerator>
+            <shortDescr>Open placemark view.</shortDescr>
+            <description>Open a placemark view for the selected metadata node.</description>
+            <context>vectorDataNode</context>
             <smallIcon>icons/ImageView16.gif</smallIcon>
             <largeIcon>icons/ImageView24.gif</largeIcon>
         </action>

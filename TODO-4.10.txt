@@ -37,3 +37,28 @@ Further development towards TrackPoints
 - Ease access from Figure (selection) to specific Placemarks + Features
 - InsertPlacemarkInteractor --> InsertPointPlacemarkInteractor
 
+- Discuss following roles
+  * VectorDataNode:
+    + feature type / placemark descriptor
+    + collection of placemarks
+  * Placemark (VectorDataItem)
+    + placemark descriptor
+    + feature
+
+- Harmonise flat data table I/O
+  - exported pin files
+  - vector data node I/O
+  - pixel extraction, PixBox
+  - Calvalus in-situ data / pixel extraction
+  - column naming: camel-case or underscore
+  - copy to clipboard
+  - Format:
+
+    property-record        := '#'<property-name> '=' <property-value>
+    attribute-header       := <attribute-name> [':'<attribute-type>]
+    feature-format         := {<property-record> NL} <feature-type-record> {NL <feature-record>}
+    simple-format          := {<property-record> NL} <header-record>       {NL <data-record>}
+    feature-type-record    := '@'<feature-type-name> {TAB <attribute-header>}
+    feature-record:        := <feature-id>           {TAB <attribute-value>}
+    header-record          := <attribute-header> {TAB <attribute-header>}
+    data-record:           := <attribute-value>  {TAB <attribute-value>}
