@@ -24,7 +24,7 @@ import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ConfigurationSchemaElement;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.XppDomReader;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 
 import java.text.MessageFormat;
 
@@ -42,7 +42,7 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
     private ExtensionImpl declaringExtension;
     private ConfigurationSchemaElementImpl schemaElement;
 
-    public ConfigurationElementImpl(ConfigurationElementImpl parent, Xpp3Dom dom) {
+    public ConfigurationElementImpl(ConfigurationElementImpl parent, XppDom dom) {
         super(parent, dom);
     }
 
@@ -255,7 +255,7 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
     }
 
     @Override
-    protected ConfigurationElement[] createChildren(Xpp3Dom[] doms) {
+    protected ConfigurationElement[] createChildren(XppDom[] doms) {
         ConfigurationElement[] children = createEmptyArray(doms.length);
         for (int i = 0; i < doms.length; i++) {
             ConfigurationElementImpl child = new ConfigurationElementImpl(this, doms[i]);

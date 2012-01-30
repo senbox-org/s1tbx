@@ -28,7 +28,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomReader;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -205,15 +205,15 @@ public class ModuleManifestParser {
         return xstream;
     }
 
-    private static Xpp3Dom readDom(HierarchicalStreamReader source) {
+    private static XppDom readDom(HierarchicalStreamReader source) {
         XppDomWriter destination = new XppDomWriter();
         new HierarchicalStreamCopier().copy(source, destination);
         return destination.getConfiguration();
     }
 
-    private static void writeDom(Xpp3Dom dom, HierarchicalStreamWriter destination) {
-        Xpp3Dom[] children = dom.getChildren();
-        for (Xpp3Dom child : children) {
+    private static void writeDom(XppDom dom, HierarchicalStreamWriter destination) {
+        XppDom[] children = dom.getChildren();
+        for (XppDom child : children) {
             new HierarchicalStreamCopier().copy(new XppDomReader(child), destination);
         }
     }
@@ -256,7 +256,7 @@ public class ModuleManifestParser {
                 throw new ConversionException(
                         MessageFormat.format("element [{0}]: missing attribute [point]", source.getNodeName()));
             }
-            Xpp3Dom dom = readDom(source);
+            XppDom dom = readDom(source);
             return new ExtensionImpl(point, new ConfigurationElementImpl(null, dom), id);
         }
     }
@@ -302,7 +302,7 @@ public class ModuleManifestParser {
                 throw new ConversionException(
                         MessageFormat.format("element [{0}]: missing attribute [id]", source.getNodeName()));
             }
-            Xpp3Dom dom = readDom(source);
+            XppDom dom = readDom(source);
             return new ExtensionPointImpl(id, new ConfigurationSchemaElementImpl(null, dom));
         }
     }

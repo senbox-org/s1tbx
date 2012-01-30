@@ -20,28 +20,28 @@ import com.bc.ceres.core.Assert;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.XppDomReader;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 
 import java.io.StringWriter;
 import java.util.HashMap;
 
 
 public class Xpp3DomElement implements DomElement {
-    private final Xpp3Dom xpp3Dom;
+    private final XppDom xpp3Dom;
     private DomElement parent;
-    private HashMap<Xpp3Dom, DomElement> children;
+    private HashMap<XppDom, DomElement> children;
 
     public Xpp3DomElement(String name) {
-        this(new Xpp3Dom(name));
+        this(new XppDom(name));
     }
 
-    public Xpp3DomElement(Xpp3Dom xpp3Dom) {
+    public Xpp3DomElement(XppDom xpp3Dom) {
         Assert.notNull(xpp3Dom, "xpp3Dom");
         Assert.notNull(xpp3Dom.getName(), "xpp3Dom.getName()");
         this.xpp3Dom = xpp3Dom;
     }
 
-    public Xpp3Dom getXpp3Dom() {
+    public XppDom getXpp3Dom() {
         return xpp3Dom;
     }
 
@@ -86,7 +86,7 @@ public class Xpp3DomElement implements DomElement {
 
     @Override
     public DomElement getChild(int index) {
-        Xpp3Dom child = xpp3Dom.getChild(index);
+        XppDom child = xpp3Dom.getChild(index);
         if (child == null) {
             return null;
         }
@@ -95,7 +95,7 @@ public class Xpp3DomElement implements DomElement {
 
     @Override
     public DomElement getChild(String elementName) {
-        final Xpp3Dom child = xpp3Dom.getChild(elementName);
+        final XppDom child = xpp3Dom.getChild(elementName);
         if (child == null) {
             return null;
         }
@@ -109,14 +109,14 @@ public class Xpp3DomElement implements DomElement {
 
     @Override
     public DomElement createChild(String name) {
-        final Xpp3DomElement child = new Xpp3DomElement(new Xpp3Dom(name));
+        final Xpp3DomElement child = new Xpp3DomElement(new XppDom(name));
         addChild(child);
         return child;
     }
 
     @Override
     public void addChild(DomElement child) {
-        final Xpp3Dom dom;
+        final XppDom dom;
         if (child instanceof Xpp3DomElement) {
             dom = ((Xpp3DomElement) child).getXpp3Dom();
         } else {
@@ -148,8 +148,8 @@ public class Xpp3DomElement implements DomElement {
         return writer.toString();
     }
 
-    private Xpp3Dom toXpp3Dom(DomElement domElement) {
-        Xpp3Dom xpp3Dom = new Xpp3Dom(domElement.getName());
+    private XppDom toXpp3Dom(DomElement domElement) {
+        XppDom xpp3Dom = new XppDom(domElement.getName());
         if (domElement.getValue() != null) {
             xpp3Dom.setValue(domElement.getValue());
         }
@@ -164,7 +164,7 @@ public class Xpp3DomElement implements DomElement {
         return xpp3Dom;
     }
 
-    private DomElement[] getChildren(Xpp3Dom[] xppChildren) {
+    private DomElement[] getChildren(XppDom[] xppChildren) {
         final DomElement[] domElements = new Xpp3DomElement[xppChildren.length];
         for (int i = 0; i < xppChildren.length; i++) {
             domElements[i] = getChild(xppChildren[i]);
@@ -172,14 +172,14 @@ public class Xpp3DomElement implements DomElement {
         return domElements;
     }
 
-    private DomElement getChild(Xpp3Dom child) {
+    private DomElement getChild(XppDom child) {
         if (children != null) {
             DomElement childElement = children.get(child);
             if (childElement != null) {
                 return childElement;
             }
         } else {
-            children = new HashMap<Xpp3Dom, DomElement>();
+            children = new HashMap<XppDom, DomElement>();
         }
 
         DomElement childElement = new Xpp3DomElement(child);

@@ -18,7 +18,7 @@ package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.runtime.ConfigurationSchemaElement;
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,7 +30,7 @@ public class ConfigurationSchemaElementImpl extends ConfigurationElementBaseImpl
     private XStream xStream;
     private Set<Class> classesWithConfiguredAliases;
 
-    public ConfigurationSchemaElementImpl(ConfigurationSchemaElementImpl parent, Xpp3Dom dom) {
+    public ConfigurationSchemaElementImpl(ConfigurationSchemaElementImpl parent, XppDom dom) {
         super(parent, dom);
     }
 
@@ -39,7 +39,7 @@ public class ConfigurationSchemaElementImpl extends ConfigurationElementBaseImpl
     }
 
     @Override
-    protected ConfigurationSchemaElement[] createChildren(Xpp3Dom[] doms) {
+    protected ConfigurationSchemaElement[] createChildren(XppDom[] doms) {
         ConfigurationSchemaElement[] children = createEmptyArray(doms.length);
         for (int i = 0; i < doms.length; i++) {
             ConfigurationSchemaElementImpl child = new ConfigurationSchemaElementImpl(this, doms[i]);

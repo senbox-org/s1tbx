@@ -21,7 +21,7 @@ import com.bc.ceres.core.CoreException;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.XppDomReader;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import junit.framework.TestCase;
 
 import java.io.IOException;
@@ -41,11 +41,11 @@ public class ModuleManifestParserTest
     }
 
     public void testXStreamUnmarshal() {
-        Xpp3Dom fooElem = new Xpp3Dom(Foo.class.getName());
-        Xpp3Dom nameElem = new Xpp3Dom("name");
+        XppDom fooElem = new XppDom(Foo.class.getName());
+        XppDom nameElem = new XppDom("name");
         nameElem.setValue("Bibo");
         fooElem.addChild(nameElem);
-        Xpp3Dom ageElem = new Xpp3Dom("age");
+        XppDom ageElem = new XppDom("age");
         ageElem.setValue("41");
         fooElem.addChild(ageElem);
 
@@ -65,7 +65,7 @@ public class ModuleManifestParserTest
         XppDomWriter domWriter = new XppDomWriter();
         new XStream().marshal(foo, domWriter);
 
-        Xpp3Dom fooElem = domWriter.getConfiguration();
+        XppDom fooElem = domWriter.getConfiguration();
         assertNotNull(fooElem);
         assertNotNull(fooElem.getChild("name"));
         assertNotNull(fooElem.getChild("age"));
