@@ -82,6 +82,11 @@ public interface Module extends Comparable<Module> {
     String getContactAddress();
 
     /**
+     * @return The agency providing the funding for development, or <code>null</code> if not set.
+     */
+    String getFunding();
+
+    /**
      * @return The module's description, or <code>null</code> if not set.
      */
     String getDescription();

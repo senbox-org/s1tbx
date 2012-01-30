@@ -55,6 +55,7 @@ public class ModuleImpl implements Module {
     private String copyright; // IDE warning "private field never used" is ok
     private String vendor; // IDE warning "private field never used" is ok
     private String contactAddress; // IDE warning "private field never used" is ok
+    private String funding; // IDE warning "private field never used" is ok
     private String url; // IDE warning "private field never used" is ok
     private boolean usingJni; // IDE warning "private field never assigned" is ok
     private String aboutUrl;
@@ -133,6 +134,10 @@ public class ModuleImpl implements Module {
 
     public String getContactAddress() {
         return contactAddress;
+    }
+
+    public String getFunding() {
+        return funding == null ? "European Space Agency" : funding;
     }
 
     public String getUrl() {

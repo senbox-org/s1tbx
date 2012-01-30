@@ -233,6 +233,7 @@ public class ModuleManagerPane extends JPanel {
         installedModulesTableModel = new ModuleTableModel(moduleManager.getInstalledModuleItems(),
                                                           new String[]{
                                                                   "Name",
+                                                                  "Agency",
                                                                   "Version",
                                                                   "State",
                                                                   "Action"});
@@ -240,6 +241,7 @@ public class ModuleManagerPane extends JPanel {
         updatableModulesTableModel = new ModuleTableModel(moduleManager.getUpdatableModuleItems(),
                                                           new String[]{
                                                                   "Name",
+                                                                  "Agency",
                                                                   "Version",
                                                                   "New Version",
                                                                   "Date",
@@ -249,6 +251,7 @@ public class ModuleManagerPane extends JPanel {
         availableModulesTableModel = new ModuleTableModel(moduleManager.getAvailableModuleItems(),
                                                           new String[]{
                                                                   "Name",
+                                                                  "Agency",
                                                                   "Version",
                                                                   "Date",
                                                                   "Size",

@@ -34,6 +34,11 @@ class ModuleTableModel extends AbstractTableModel {
                 return ModuleTextFactory.getNameText(moduleItem);
             }
         });
+        defineColumn("Agency", String.class, new ModuleValueAccessor() {
+            public Object getValue(ModuleItem moduleItem) {
+                return ModuleTextFactory.getFundingText(moduleItem);
+            }
+        });
         defineColumn("Version", String.class, new ModuleValueAccessor() {
             public Object getValue(ModuleItem moduleItem) {
                 return ModuleTextFactory.getVersionText(moduleItem);

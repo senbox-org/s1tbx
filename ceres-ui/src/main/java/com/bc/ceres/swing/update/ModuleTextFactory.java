@@ -95,6 +95,15 @@ class ModuleTextFactory {
         return getText(repositoryModule != null ? dateInstance.format(new Date(repositoryModule.getLastModified())) : null);
     }
 
+    static String getFundingText(ModuleItem moduleItem) {
+        ModuleImpl module = moduleItem.getModule();
+        return getFundingText(module);
+    }
+
+    static String getFundingText(Module module) {
+        return getText(module.getFunding());
+    }
+
     static String getSizeText(ModuleItem moduleItem) {
         long bytes = moduleItem.getRepositoryModule().getContentLength();
         long kilos = Math.round(bytes / 1024.0);
