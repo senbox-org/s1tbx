@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,11 +16,11 @@
 
 package org.esa.beam.processor.binning.store;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.esa.beam.processor.binning.L3Context;
 import org.esa.beam.processor.binning.database.BinLocator;
+
+import java.io.File;
+import java.io.IOException;
 
 
 public class BinStoreFactory {
@@ -46,7 +46,8 @@ public class BinStoreFactory {
         System.out.println("height = " + height);
         System.out.println("numVarsPerBin = " + numVarsPerBin);
         System.out.println("SIZE (in floats) = " + size);
-        if (size < 20E6) {
+        long memLimit = Long.getLong("beam.binning.memoryLimit.spatialStore", 20000000);
+        if (size < memLimit) {
             store = new MemoryBinStore(width, height, numVarsPerBin);
         } else {
             store = new QuadTreeBinStore(dbDir, fileName, width, height, numVarsPerBin);
