@@ -73,8 +73,10 @@ Revise data import / export
     - lat, latitude
     - lon, long, longitude
     - time, date, date_time, dateTime
+    - station, easting, northing
     Attribute format detection may apply if <attribute-type-spec> is missing
     - number, date, time
+    Must specify which coordinate system
 
 
 - Revise profile plot with respect to reference data
