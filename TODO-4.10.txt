@@ -103,7 +103,7 @@ Revise data import / export
     - optionally hide points with to large time delta
 
 - Revise PixExOp according to following use cases
-    - It shall be able to import coordinates in two different ways:
+    - It shall be possible to import coordinates in two different ways:
         - Import coordinates only (without time information)
           This is needed if a pixel extraction for all input products is needed, not only for products
           which matches the time.
@@ -114,15 +114,15 @@ Revise data import / export
         - Import coordinates and Time
           already implemented!
           The Name inside the Popup Menu should be changed to "Load coordinates and time"
-    - It should be able to define a filename pattern for date extraction
+    - It should be possible to define a filename pattern for date extraction
         - There should be a text input field to define a date pattern
-            e.g.  YYYYMMDD_{8d}    20120524_13692749   ->  24.5.2012
+            e.g.  YYYYMMDD    20120524_13692749   ->  24.5.2012
         - There should be a text input field to define filename pattern
-            e.g.   .*{date}.*{date}.*\.dim
+            e.g.   *${date}_??????_${date}_??????_*.dim
             LL_K2PIS_20120524_13692749_bas_20120601_21875615_rim_dum.dim
             --> Start Time = 24.5.2012
             --> Stop Time =  1.6.2012
-    - It should be able to define different output formats
+    - It should be possible to define different output formats
         - Default output format  ---> is a valid CALVALUS import file
         - ODESA output format  ---> there are scripts existing in AR which can be translated to Java which defines
                                     exactly the needs for a valid ODESA import file.
@@ -138,7 +138,7 @@ Revise data import / export
                 the second one is for the time pattern
             - in the case of two columns export it should be able to define a time fill value
                 "noTime", "00:00", ...
-            - in all this cases, it should be able to pick predefined date or time patterns
+            - in all this cases, it should be possible to pick from predefined date or time patterns
             - in the case, that a user defined export is not selected, all the fields should
               be visible but not enabled. Inside the fields, the defined export format (default
               od ODESA) should be visible.
