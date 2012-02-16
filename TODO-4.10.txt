@@ -101,3 +101,45 @@ Revise data import / export
     - allow for macro pixels (see Calvalus match-up scenario)
     - possibly visualise time difference
     - optionally hide points with to large time delta
+
+- Revise PixExOp according to following use cases
+    - It shall be able to import coordinates in two different ways:
+        - Import coordinates only (without time information)
+          This is needed if a pixel extraction for all input products is needed, not only for products
+          which matches the time.
+          The Name inside the Popup Menu should be "Load Coordinates"
+          In this case the import file must have a "name", "station" or "label" column.
+          All the coordinates with the same name are interpreted as one coordinate.
+          If the coordinates with one name are slightly different the first coordinate will be imported.
+        - Import coordinates and Time
+          already implemented!
+          The Name inside the Popup Menu should be changed to "Load coordinates and time"
+    - It should be able to define a filename pattern for date extraction
+        - There should be a text input field to define a date pattern
+            e.g.  YYYYMMDD_{8d}    20120524_13692749   ->  24.5.2012
+        - There should be a text input field to define filename pattern
+            e.g.   .*{date}.*{date}.*\.dim
+            LL_K2PIS_20120524_13692749_bas_20120601_21875615_rim_dum.dim
+            --> Start Time = 24.5.2012
+            --> Stop Time =  1.6.2012
+    - It should be able to define different output formats
+        - Default output format  ---> is a valid CALVALUS import file
+        - ODESA output format  ---> there are scripts existing in AR which can be translated to Java which defines
+                                    exactly the needs for a valid ODESA import file.
+                                    For ODESA there should be exported two files.
+                                       One with all the exported data
+                                       One with aggregated data like mean, median, standard deviation, ...
+        - user defined Export
+            - one column time export
+                there should be a text field to define a date/time output pattern
+            - two columns time export
+                there should be two text fields
+                the first one is for the date pattern
+                the second one is for the time pattern
+            - in the case of two columns export it should be able to define a time fill value
+                "noTime", "00:00", ...
+            - in all this cases, it should be able to pick predefined date or time patterns
+            - in the case, that a user defined export is not selected, all the fields should
+              be visible but not enabled. Inside the fields, the defined export format (default
+              od ODESA) should be visible.
+
