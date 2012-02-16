@@ -60,6 +60,11 @@ public class MagicStickModelTest {
         model.setTolerance(0.3);
         String expression = model.createExpression(b1, b2, b3);
         assertEquals("distance(b1,b2,b3,0.4,0.3,0.2)/3 < 0.3", expression);
+
+        model.setNormalize(true);
+        expression = model.createExpression(b1, b2, b3);
+        assertTrue(expression.startsWith("distance(b1/b1,b2/b1,b3/b1,1.0,0."));
+        assertTrue(expression.endsWith(")/3 < 0.3"));
     }
 
     @Test
@@ -69,6 +74,10 @@ public class MagicStickModelTest {
         model.setTolerance(0.05);
         String expression = model.createExpression(product.getBand("a2"));
         assertEquals("distance(a2,0.2) < 0.05", expression);
+
+        model.setNormalize(true);
+        expression = model.createExpression(product.getBand("a2"));
+        assertEquals("distance(a2/a2,1.0) < 0.05", expression);
     }
 
     @Test
@@ -82,7 +91,12 @@ public class MagicStickModelTest {
         model.setTolerance(0.25);
         String expression = model.createExpression(b1, b2, b3);
         assertEquals("distance(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
-                " || distance(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+                             " || distance(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+
+        model.setNormalize(true);
+        expression = model.createExpression(b1, b2, b3);
+        assertTrue(expression.startsWith("distance(b1/b1,b2/b1,b3/b1,1.0,0."));
+        assertTrue(expression.endsWith(")/3 < 0.25"));
     }
 
     @Test
@@ -96,7 +110,12 @@ public class MagicStickModelTest {
         model.setTolerance(0.25);
         String expression = model.createExpression(b1, b2, b3);
         assertEquals("distance_deriv(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
-                " || distance_deriv(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+                             " || distance_deriv(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+
+        model.setNormalize(true);
+        expression = model.createExpression(b1, b2, b3);
+        assertTrue(expression.startsWith("distance_deriv(b1/b1,b2/b1,b3/b1,1.0,0."));
+        assertTrue(expression.endsWith(")/3 < 0.25"));
     }
 
     @Test
@@ -110,7 +129,12 @@ public class MagicStickModelTest {
         model.setTolerance(0.25);
         String expression = model.createExpression(b1, b2, b3);
         assertEquals("distance_integ(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
-                " || distance_integ(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+                             " || distance_integ(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
+
+        model.setNormalize(true);
+        expression = model.createExpression(b1, b2, b3);
+        assertTrue(expression.startsWith("distance_integ(b1/b1,b2/b1,b3/b1,1.0,0."));
+        assertTrue(expression.endsWith(")/3 < 0.25"));
     }
 
     @Test
@@ -127,14 +151,29 @@ public class MagicStickModelTest {
         // Test: assertEquals("inrange(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
         Pattern pattern = Pattern.compile("inrange\\(b1,b2,b3,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
         Matcher matcher = pattern.matcher(expression);
-        assertTrue(matcher.find());
-        assertEquals(6, matcher.groupCount());
-        assertEquals(0.3, Double.parseDouble(matcher.group(1)), 1e-8);
-        assertEquals(0.2, Double.parseDouble(matcher.group(2)), 1e-8);
-        assertEquals(0.1, Double.parseDouble(matcher.group(3)), 1e-8);
-        assertEquals(0.7, Double.parseDouble(matcher.group(4)), 1e-8);
-        assertEquals(1.0, Double.parseDouble(matcher.group(5)), 1e-8);
-        assertEquals(0.8, Double.parseDouble(matcher.group(6)), 1e-8);
+        assertTrue(expression, matcher.find());
+        assertEquals(expression, 6, matcher.groupCount());
+        assertEquals(expression, 0.3, Double.parseDouble(matcher.group(1)), 1e-8);
+        assertEquals(expression, 0.2, Double.parseDouble(matcher.group(2)), 1e-8);
+        assertEquals(expression, 0.1, Double.parseDouble(matcher.group(3)), 1e-8);
+        assertEquals(expression, 0.7, Double.parseDouble(matcher.group(4)), 1e-8);
+        assertEquals(expression, 1.0, Double.parseDouble(matcher.group(5)), 1e-8);
+        assertEquals(expression, 0.8, Double.parseDouble(matcher.group(6)), 1e-8);
+
+        model.setNormalize(true);
+        expression = model.createExpression(b1, b2, b3);
+
+        // Test: assertEquals("inrange(b1/b1,b2/b1,b3/b1,0.9,0.6499999999999999,0.4,1.1,1.6,1.2666666666666668)", expression);
+        pattern = Pattern.compile("inrange\\(b1/b1,b2/b1,b3/b1,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
+        matcher = pattern.matcher(expression);
+        assertTrue(expression, matcher.find());
+        assertEquals(expression, 6, matcher.groupCount());
+        assertEquals(expression, 0.9, Double.parseDouble(matcher.group(1)), 1e-8);
+        assertEquals(expression, 0.65, Double.parseDouble(matcher.group(2)), 1e-8);
+        assertEquals(expression, 0.4, Double.parseDouble(matcher.group(3)), 1e-8);
+        assertEquals(expression, 1.1, Double.parseDouble(matcher.group(4)), 1e-8);
+        assertEquals(expression, 1.6, Double.parseDouble(matcher.group(5)), 1e-8);
+        assertEquals(expression, 1.26666666, Double.parseDouble(matcher.group(6)), 1e-8);
     }
 
     @Test
@@ -151,14 +190,29 @@ public class MagicStickModelTest {
         // Test: assertEquals("inrange_deriv(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
         Pattern pattern = Pattern.compile("inrange_deriv\\(b1,b2,b3,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
         Matcher matcher = pattern.matcher(expression);
-        assertTrue(matcher.find());
-        assertEquals(6, matcher.groupCount());
-        assertEquals(0.3, Double.parseDouble(matcher.group(1)), 1e-8);
-        assertEquals(0.2, Double.parseDouble(matcher.group(2)), 1e-8);
-        assertEquals(0.1, Double.parseDouble(matcher.group(3)), 1e-8);
-        assertEquals(0.7, Double.parseDouble(matcher.group(4)), 1e-8);
-        assertEquals(1.0, Double.parseDouble(matcher.group(5)), 1e-8);
-        assertEquals(0.8, Double.parseDouble(matcher.group(6)), 1e-8);
+        assertTrue(expression, matcher.find());
+        assertEquals(expression, 6, matcher.groupCount());
+        assertEquals(expression, 0.3, Double.parseDouble(matcher.group(1)), 1e-8);
+        assertEquals(expression, 0.2, Double.parseDouble(matcher.group(2)), 1e-8);
+        assertEquals(expression, 0.1, Double.parseDouble(matcher.group(3)), 1e-8);
+        assertEquals(expression, 0.7, Double.parseDouble(matcher.group(4)), 1e-8);
+        assertEquals(expression, 1.0, Double.parseDouble(matcher.group(5)), 1e-8);
+        assertEquals(expression, 0.8, Double.parseDouble(matcher.group(6)), 1e-8);
+
+        model.setNormalize(true);
+        expression = model.createExpression(b1, b2, b3);
+
+        // Test: assertEquals("inrange_deriv(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
+        pattern = Pattern.compile("inrange_deriv\\(b1/b1,b2/b1,b3/b1,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
+        matcher = pattern.matcher(expression);
+        assertTrue(expression, matcher.find());
+        assertEquals(expression, 6, matcher.groupCount());
+        assertEquals(expression, 0.9, Double.parseDouble(matcher.group(1)), 1e-8);
+        assertEquals(expression, 0.65, Double.parseDouble(matcher.group(2)), 1e-8);
+        assertEquals(expression, 0.4, Double.parseDouble(matcher.group(3)), 1e-8);
+        assertEquals(expression, 1.1, Double.parseDouble(matcher.group(4)), 1e-8);
+        assertEquals(expression, 1.6, Double.parseDouble(matcher.group(5)), 1e-8);
+        assertEquals(expression, 1.26666666, Double.parseDouble(matcher.group(6)), 1e-8);
     }
 
     @Test
@@ -175,13 +229,28 @@ public class MagicStickModelTest {
         // Test: assertEquals("inrange_integ(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
         Pattern pattern = Pattern.compile("inrange_integ\\(b1,b2,b3,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
         Matcher matcher = pattern.matcher(expression);
-        assertTrue(matcher.find());
-        assertEquals(6, matcher.groupCount());
-        assertEquals(0.3, Double.parseDouble(matcher.group(1)), 1e-8);
-        assertEquals(0.2, Double.parseDouble(matcher.group(2)), 1e-8);
-        assertEquals(0.1, Double.parseDouble(matcher.group(3)), 1e-8);
-        assertEquals(0.7, Double.parseDouble(matcher.group(4)), 1e-8);
-        assertEquals(1.0, Double.parseDouble(matcher.group(5)), 1e-8);
-        assertEquals(0.8, Double.parseDouble(matcher.group(6)), 1e-8);
+        assertTrue(expression, matcher.find());
+        assertEquals(expression, 6, matcher.groupCount());
+        assertEquals(expression, 0.3, Double.parseDouble(matcher.group(1)), 1e-8);
+        assertEquals(expression, 0.2, Double.parseDouble(matcher.group(2)), 1e-8);
+        assertEquals(expression, 0.1, Double.parseDouble(matcher.group(3)), 1e-8);
+        assertEquals(expression, 0.7, Double.parseDouble(matcher.group(4)), 1e-8);
+        assertEquals(expression, 1.0, Double.parseDouble(matcher.group(5)), 1e-8);
+        assertEquals(expression, 0.8, Double.parseDouble(matcher.group(6)), 1e-8);
+
+        model.setNormalize(true);
+        expression = model.createExpression(b1, b2, b3);
+
+        // Test: assertEquals("inrange_integ(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
+        pattern = Pattern.compile("inrange_integ\\(b1/b1,b2/b1,b3/b1,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
+        matcher = pattern.matcher(expression);
+        assertTrue(expression, matcher.find());
+        assertEquals(expression, 6, matcher.groupCount());
+        assertEquals(expression, 0.9, Double.parseDouble(matcher.group(1)), 1e-8);
+        assertEquals(expression, 0.65, Double.parseDouble(matcher.group(2)), 1e-8);
+        assertEquals(expression, 0.4, Double.parseDouble(matcher.group(3)), 1e-8);
+        assertEquals(expression, 1.1, Double.parseDouble(matcher.group(4)), 1e-8);
+        assertEquals(expression, 1.6, Double.parseDouble(matcher.group(5)), 1e-8);
+        assertEquals(expression, 1.26666666, Double.parseDouble(matcher.group(6)), 1e-8);
     }
 }
