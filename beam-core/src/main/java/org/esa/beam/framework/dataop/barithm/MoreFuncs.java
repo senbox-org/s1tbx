@@ -188,15 +188,15 @@ class MoreFuncs {
 
     private static void registerConstant(WritableNamespace namespace, final String symbolName, Object propertyValue) {
         final Class getterType = propertyValue.getClass();
-        if (getterType.equals(Double.TYPE) ||
-                getterType.equals(Float.TYPE)) {
+        if (getterType.equals(Double.class) ||
+                getterType.equals(Float.class)) {
             namespace.registerSymbol(SymbolFactory.createConstant(symbolName, ((Number) propertyValue).doubleValue()));
-        } else if (getterType.equals(Byte.TYPE) ||
-                getterType.equals(Short.TYPE) ||
-                getterType.equals(Integer.TYPE) ||
-                getterType.equals(Long.TYPE)) {
+        } else if (getterType.equals(Byte.class) ||
+                getterType.equals(Short.class) ||
+                getterType.equals(Integer.class) ||
+                getterType.equals(Long.class)) {
             namespace.registerSymbol(SymbolFactory.createConstant(symbolName, ((Number) propertyValue).intValue()));
-        } else if (getterType.equals(Boolean.TYPE)) {
+        } else if (getterType.equals(Boolean.class)) {
             namespace.registerSymbol(
                     SymbolFactory.createConstant(symbolName, (Boolean) propertyValue));
         }
