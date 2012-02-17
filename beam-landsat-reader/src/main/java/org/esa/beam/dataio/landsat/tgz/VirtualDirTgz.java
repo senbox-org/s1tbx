@@ -66,9 +66,13 @@ public class VirtualDirTgz extends VirtualDir {
         return true;
     }
 
-    // @todo 3 tb/** this code is almost completely duplicated from com.bc.ceres.core.VirtualDir
-    // it maybe makes sense to move it to a file utility class
-    static File createTargetDirInTemp(String name) throws IOException {
+    @Override
+    public void finalize() throws Throwable {
+        super.finalize();
+        close();
+    }
+
+    public File getTempDir() throws IOException {
         File tempDir = null;
         String tempDirName = System.getProperty("java.io.tmpdir");
         if (tempDirName != null) {
@@ -82,6 +86,13 @@ public class VirtualDirTgz extends VirtualDir {
                 }
             }
         }
+        return tempDir;
+    }
+
+    // @todo 3 tb/** this code is almost completely duplicated from com.bc.ceres.core.VirtualDir
+    // it maybe makes sense to move it to a file utility class
+    File createTargetDirInTemp(String name) throws IOException {
+        File tempDir = getTempDir();
 
         File targetDir = new File(tempDir, name);
         if (!targetDir.exists()) {

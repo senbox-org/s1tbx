@@ -162,7 +162,10 @@ public class VirtualDirTgzTest {
 
         File dirInTemp = null;
         try {
-            dirInTemp = VirtualDirTgz.createTargetDirInTemp("wurst");
+            final File testTgz = TestUtil.getTestFile("tgz/test-archive.tgz");
+            virtualDir = new VirtualDirTgz(testTgz);
+
+            dirInTemp = virtualDir.createTargetDirInTemp("wurst");
             assertNotNull(dirInTemp);
             assertTrue(dirInTemp.isDirectory());
             assertEquals(new File(tempDirName, "wurst").getAbsolutePath(), dirInTemp.getAbsolutePath());
@@ -182,7 +185,10 @@ public class VirtualDirTgzTest {
 
         File dirInTemp = null;
         try {
-            dirInTemp = VirtualDirTgz.createTargetDirInTemp("Schneck");
+            final File testTgz = TestUtil.getTestFile("tgz/test-archive.tgz");
+            virtualDir = new VirtualDirTgz(testTgz);
+
+            dirInTemp = virtualDir.createTargetDirInTemp("Schneck");
             assertNotNull(dirInTemp);
             assertTrue(dirInTemp.isDirectory());
             assertEquals(new File(userHome, ".beam/temp/Schneck").getAbsolutePath(), dirInTemp.getAbsolutePath());
@@ -192,6 +198,23 @@ public class VirtualDirTgzTest {
                 FileUtils.deleteTree(dirInTemp);
             }
         }
+    }
+
+    @Test
+    public void testFinalize() throws Throwable {
+        final File testTgz = TestUtil.getTestFile("tgz/test-archive.tgz");
+
+        virtualDir = new VirtualDirTgz(testTgz);
+        assertExpectedFile();
+
+        final File tempDir = virtualDir.getTempDir();
+        assertNotNull(tempDir);
+        
+        final File createDir = new File(tempDir, "test-archive.tgz");
+        assertTrue(createDir.isDirectory());
+
+        virtualDir.finalize();
+        assertFalse(createDir.isDirectory());
     }
 
     @Test
