@@ -16,19 +16,11 @@
 
 package org.esa.beam.framework.dataop.barithm;
 
-import com.bc.jexp.EvalEnv;
-import com.bc.jexp.EvalException;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.Term;
-import com.bc.jexp.WritableNamespace;
+import com.bc.jexp.*;
 import com.bc.jexp.impl.AbstractFunction;
 import com.bc.jexp.impl.AbstractSymbol;
 import com.bc.jexp.impl.SymbolFactory;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.*;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
@@ -75,21 +67,21 @@ class MoreFuncs {
         BandArithmetic.registerFunction(new AbstractFunction.D("sinh", 1) {
             @Override
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
-                return MoreFuncs.sinh(args[0].evalD(env));
+                return Math.sinh(args[0].evalD(env));
             }
         });
 
         BandArithmetic.registerFunction(new AbstractFunction.D("cosh", 1) {
             @Override
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
-                return MoreFuncs.cosh(args[0].evalD(env));
+                return Math.cosh(args[0].evalD(env));
             }
         });
 
         BandArithmetic.registerFunction(new AbstractFunction.D("tanh", 1) {
             @Override
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
-                return MoreFuncs.tanh(args[0].evalD(env));
+                return Math.tanh(args[0].evalD(env));
             }
         });
 
@@ -164,7 +156,7 @@ class MoreFuncs {
         RasterDataEvalEnv rasterEnv = (RasterDataEvalEnv) env;
         int pixelX = rasterEnv.getPixelX();
         int pixelY = rasterEnv.getPixelY();
-        if (pixelX >= 0 && pixelX < width && pixelY >= 0 && pixelY < height)  {
+        if (pixelX >= 0 && pixelX < width && pixelY >= 0 && pixelY < height) {
             return geoCoding.getGeoPos(new PixelPos(pixelX + 0.5f, pixelY + 0.5f), null);
         }
         return INVALID_GEO_POS;
@@ -177,8 +169,8 @@ class MoreFuncs {
             final String methodName = method.getName();
             final Class methodType = method.getReturnType();
             if (methodType.isPrimitive() &&
-                MoreFuncs.hasGetterPrefix(methodName) &&
-                method.getParameterTypes().length == 0) {
+                    MoreFuncs.hasGetterPrefix(methodName) &&
+                    method.getParameterTypes().length == 0) {
                 Object propertyValue = null;
                 try {
                     propertyValue = method.invoke(band, (Object[]) null);
@@ -197,12 +189,12 @@ class MoreFuncs {
     private static void registerConstant(WritableNamespace namespace, final String symbolName, Object propertyValue) {
         final Class getterType = propertyValue.getClass();
         if (getterType.equals(Double.TYPE) ||
-            getterType.equals(Float.TYPE)) {
+                getterType.equals(Float.TYPE)) {
             namespace.registerSymbol(SymbolFactory.createConstant(symbolName, ((Number) propertyValue).doubleValue()));
         } else if (getterType.equals(Byte.TYPE) ||
-                   getterType.equals(Short.TYPE) ||
-                   getterType.equals(Integer.TYPE) ||
-                   getterType.equals(Long.TYPE)) {
+                getterType.equals(Short.TYPE) ||
+                getterType.equals(Integer.TYPE) ||
+                getterType.equals(Long.TYPE)) {
             namespace.registerSymbol(SymbolFactory.createConstant(symbolName, ((Number) propertyValue).intValue()));
         } else if (getterType.equals(Boolean.TYPE)) {
             namespace.registerSymbol(
@@ -242,20 +234,6 @@ class MoreFuncs {
 
     private static boolean hasPrefix(final String methodName, final String prefix) {
         return methodName.startsWith(prefix) && methodName.length() > prefix.length();
-    }
-
-    private static double sinh(final double x) {
-        return 0.5 * (Math.exp(x) - Math.exp(-x));
-    }
-
-    private static double cosh(final double x) {
-        return 0.5 * (Math.exp(x) + Math.exp(-x));
-    }
-
-    private static double tanh(final double x) {
-        final double a = Math.exp(x);
-        final double b = Math.exp(-x);
-        return (a - b) / (a + b);
     }
 
     private static double sech(final double x) {
