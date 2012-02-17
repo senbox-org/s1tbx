@@ -1,5 +1,6 @@
 package org.esa.beam.visat.actions.magicstick;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
@@ -14,17 +15,22 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 /**
- *
  * @author Norman Fomferra
  * @since BEAM 4.10
  */
 class MagicStickForm {
+    public static final int TOLERANCE_SLIDER_RESOLUTION = 1000;
     private MagicStickInteractor interactor;
     private JTextField toleranceField;
     private JSlider toleranceSlider;
 
     boolean adjustingSlider;
     private JCheckBox normalizeCheckBox;
+    private JTextField minToleranceField;
+    private JTextField maxToleranceField;
+
+    private double minTolerance;
+    private double maxTolerance;
 
     MagicStickForm(MagicStickInteractor interactor) {
         this.interactor = interactor;
@@ -48,7 +54,7 @@ class MagicStickForm {
         bindingContext.bind("tolerance", toleranceField);
         toleranceField.setText(String.valueOf(interactor.getModel().getTolerance()));
 
-        toleranceSlider = new JSlider(-10, 20);
+        toleranceSlider = new JSlider(0, TOLERANCE_SLIDER_RESOLUTION);
         toleranceSlider.setSnapToTicks(false);
         toleranceSlider.setPaintTicks(false);
         toleranceSlider.setPaintLabels(false);
@@ -56,10 +62,24 @@ class MagicStickForm {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (!adjustingSlider) {
-                    bindingContext.getPropertySet().setValue("tolerance", Math.pow(10.0, toleranceSlider.getValue() / 10.0));
+                    int sliderValue = toleranceSlider.getValue();
+                    bindingContext.getPropertySet().setValue("tolerance", sliderValueToTolerance(sliderValue));
                 }
             }
         });
+        minTolerance = 0;
+        maxTolerance = 100;
+        minToleranceField = new JTextField(8);
+        maxToleranceField = new JTextField(8);
+        bindingContext.getPropertySet().addProperty(Property.createForField(this, "minTolerance"));
+        bindingContext.getPropertySet().addProperty(Property.createForField(this, "maxTolerance"));
+        bindingContext.bind("minTolerance", minToleranceField);
+        bindingContext.bind("maxTolerance", maxToleranceField);
+
+        JPanel toleranceSliderPanel = new JPanel(new BorderLayout(2, 2));
+        toleranceSliderPanel.add(minToleranceField, BorderLayout.WEST);
+        toleranceSliderPanel.add(toleranceSlider, BorderLayout.CENTER);
+        toleranceSliderPanel.add(maxToleranceField, BorderLayout.EAST);
 
         normalizeCheckBox = new JCheckBox("Normalize spectra");
         normalizeCheckBox.setToolTipText("Normalizes spectra by dividing them by their first values");
@@ -166,7 +186,7 @@ class MagicStickForm {
         JPanel panel = new JPanel(tableLayout);
         panel.add(toleranceLabel, new TableLayout.Cell(0, 0));
         panel.add(toleranceField, new TableLayout.Cell(0, 1));
-        panel.add(toleranceSlider, new TableLayout.Cell(1, 0));
+        panel.add(toleranceSliderPanel, new TableLayout.Cell(1, 0));
         panel.add(methodPanel, new TableLayout.Cell(2, 0));
         panel.add(operatorPanel, new TableLayout.Cell(3, 0));
         panel.add(normalizeCheckBox, new TableLayout.Cell(4, 0));
@@ -179,8 +199,17 @@ class MagicStickForm {
 
     private void adjustSlider() {
         adjustingSlider = true;
-        toleranceSlider.setValue((int) Math.round(10.0 * Math.log10(interactor.getModel().getTolerance())));
+        double tolerance = interactor.getModel().getTolerance();
+        toleranceSlider.setValue(toleranceToSliderValue(tolerance));
         adjustingSlider = false;
+    }
+
+    private int toleranceToSliderValue(double tolerance) {
+        return (int) Math.round(Math.abs(TOLERANCE_SLIDER_RESOLUTION * ((tolerance - minTolerance) / (maxTolerance - minTolerance))));
+    }
+
+    private double sliderValueToTolerance(int sliderValue) {
+        return minTolerance + sliderValue * (maxTolerance - minTolerance) / TOLERANCE_SLIDER_RESOLUTION;
     }
 
 }
