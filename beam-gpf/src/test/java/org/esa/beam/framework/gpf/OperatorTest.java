@@ -64,7 +64,7 @@ public class OperatorTest {
         }
     }
 
-     @Test
+    @Test
     public void testSourceProducts() throws IOException, OperatorException {
         final Operator operator = new Operator() {
             @Override

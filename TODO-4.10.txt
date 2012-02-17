@@ -116,9 +116,9 @@ Revise data import / export
           The Name inside the Popup Menu should be changed to "Load coordinates and time"
     - It should be possible to define a filename pattern for date extraction
         - There should be a text input field to define a date pattern
-            e.g.  YYYYMMDD    20120524_13692749   ->  24.5.2012
+            e.g.  yyyyMMdd    20120524   ->  24.5.2012
         - There should be a text input field to define filename pattern
-            e.g.   *${date}_??????_${date}_??????_*.dim
+            e.g.   *${date}_????????_${date}_????????_*.dim
             LL_K2PIS_20120524_13692749_bas_20120601_21875615_rim_dum.dim
             --> Start Time = 24.5.2012
             --> Stop Time =  1.6.2012

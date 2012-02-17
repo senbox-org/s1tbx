@@ -74,13 +74,15 @@ class PixelExtractionDialog extends ModalDialog {
                 }
             }
         });
+
         parametersForm = new PixelExtractionParametersForm(appContext, propertyContainer);
-        JTabbedPane tabbedPanel = new JTabbedPane();
+
         final JPanel ioPanel = ioForm.getPanel();
         ioPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
         final JPanel parametersPanel = parametersForm.getPanel();
         parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
 
+        JTabbedPane tabbedPanel = new JTabbedPane();
         tabbedPanel.addTab("Input/Output", ioPanel);
         tabbedPanel.addTab("Parameters", parametersPanel);
 
