@@ -1,6 +1,5 @@
 package org.esa.beam.visat.actions.magicstick;
 
-import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
@@ -20,6 +19,7 @@ import java.beans.PropertyChangeListener;
  */
 class MagicStickForm {
     public static final int TOLERANCE_SLIDER_RESOLUTION = 1000;
+
     private MagicStickInteractor interactor;
     private JTextField toleranceField;
     private JSlider toleranceSlider;
@@ -28,9 +28,6 @@ class MagicStickForm {
     private JCheckBox normalizeCheckBox;
     private JTextField minToleranceField;
     private JTextField maxToleranceField;
-
-    private double minTolerance;
-    private double maxTolerance;
 
     MagicStickForm(MagicStickInteractor interactor) {
         this.interactor = interactor;
@@ -67,14 +64,19 @@ class MagicStickForm {
                 }
             }
         });
-        minTolerance = 0;
-        maxTolerance = 100;
+
         minToleranceField = new JTextField(8);
         maxToleranceField = new JTextField(8);
-        bindingContext.getPropertySet().addProperty(Property.createForField(this, "minTolerance"));
-        bindingContext.getPropertySet().addProperty(Property.createForField(this, "maxTolerance"));
         bindingContext.bind("minTolerance", minToleranceField);
         bindingContext.bind("maxTolerance", maxToleranceField);
+        final PropertyChangeListener minMaxToleranceListener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                adjustSlider();
+            }
+        };
+        bindingContext.addPropertyChangeListener("minTolerance", minMaxToleranceListener);
+        bindingContext.addPropertyChangeListener("maxTolerance", minMaxToleranceListener);
 
         JPanel toleranceSliderPanel = new JPanel(new BorderLayout(2, 2));
         toleranceSliderPanel.add(minToleranceField, BorderLayout.WEST);
@@ -205,10 +207,16 @@ class MagicStickForm {
     }
 
     private int toleranceToSliderValue(double tolerance) {
+        MagicStickModel model = interactor.getModel();
+        double minTolerance = model.getMinTolerance();
+        double maxTolerance = model.getMaxTolerance();
         return (int) Math.round(Math.abs(TOLERANCE_SLIDER_RESOLUTION * ((tolerance - minTolerance) / (maxTolerance - minTolerance))));
     }
 
     private double sliderValueToTolerance(int sliderValue) {
+        MagicStickModel model = interactor.getModel();
+        double minTolerance = model.getMinTolerance();
+        double maxTolerance = model.getMaxTolerance();
         return minTolerance + sliderValue * (maxTolerance - minTolerance) / TOLERANCE_SLIDER_RESOLUTION;
     }
 

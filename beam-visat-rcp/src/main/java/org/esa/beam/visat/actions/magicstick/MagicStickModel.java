@@ -5,7 +5,7 @@ import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,10 +41,14 @@ class MagicStickModel {
     private Mode mode;
     private Operator operator;
     private Method method;
-    private List<double[]> plusSpectra;
-    private List<double[]> minusSpectra;
+
+    private ArrayList<double[]> plusSpectra;
+    private ArrayList<double[]> minusSpectra;
     private double tolerance;
     private boolean normalize;
+
+    private double minTolerance;
+    private double maxTolerance;
 
     MagicStickModel() {
         mode = Mode.SINGLE;
@@ -53,6 +57,8 @@ class MagicStickModel {
         plusSpectra = new ArrayList<double[]>();
         minusSpectra = new ArrayList<double[]>();
         tolerance = 0.1;
+        minTolerance = 0.0;
+        maxTolerance = 1.0;
     }
 
     void addSpectrum(double... spectrum) {
@@ -104,6 +110,14 @@ class MagicStickModel {
         this.tolerance = tolerance;
     }
 
+    public double getMinTolerance() {
+        return minTolerance;
+    }
+
+    public double getMaxTolerance() {
+        return maxTolerance;
+    }
+
     public boolean isNormalize() {
         return normalize;
     }
@@ -131,10 +145,10 @@ class MagicStickModel {
             final int width = product.getSceneRasterWidth();
             final int height = product.getSceneRasterHeight();
             product.getMaskGroup().add(Mask.BandMathsType.create(MAGIC_STICK_MASK_NAME,
-                    "Magic stick mask",
-                    width, height,
-                    expression,
-                    Color.RED, 0.5));
+                                                                 "Magic stick mask",
+                                                                 width, height,
+                                                                 expression,
+                                                                 Color.RED, 0.5));
         }
     }
 
@@ -247,7 +261,7 @@ class MagicStickModel {
     }
 
     private static double getSpectrumValue(double[] spectrum, int i, boolean normalize) {
-        return normalize ?  spectrum[i] / spectrum[0] : spectrum[i];
+        return normalize ? spectrum[i] / spectrum[0] : spectrum[i];
     }
 
     private static String getDistanceSubPart(Band[] bands, Operator operator, double[] spectrum, double tolerance, boolean normalize) {
