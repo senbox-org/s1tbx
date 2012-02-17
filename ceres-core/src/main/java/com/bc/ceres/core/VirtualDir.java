@@ -112,7 +112,7 @@ public abstract class VirtualDir {
 
     public abstract boolean isArchive();
 
-    File getTempDir() throws IOException {
+    public File getTempDir() throws IOException {
         return null;
     }
 
@@ -301,7 +301,7 @@ public abstract class VirtualDir {
         }
 
         // package local to be usable in test tb 2012-02-17
-        File getTempDir() throws IOException {
+        public File getTempDir() throws IOException {
             File tempDir = null;
             String tempDirName = System.getProperty("java.io.tmpdir");
             if (tempDirName != null) {
