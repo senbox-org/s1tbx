@@ -239,8 +239,8 @@ public abstract class AbstractDomConverter implements DomConverter {
     /**
      * Creates a {@link DomConverter} for a child element of a given value type.
      * This factory method is called by the {@link #convertValueToDom(Object, DomElement)} method
-     * in order to convert a value with no value {@link com.bc.ceres.binding.Converter Converter}
-     * assigned to it.
+     * in order to convert a value for which no {@link com.bc.ceres.binding.Converter Converter}
+     * was found.
      *
      * @param element   The element which requires the converter.
      * @param valueType The type of the value to be converted.
@@ -249,7 +249,7 @@ public abstract class AbstractDomConverter implements DomConverter {
     protected abstract DomConverter createChildConverter(DomElement element, Class<?> valueType);
 
     /**
-     * Gets a {@link DomConverter} for the given descriptor.
+     * Gets a {@link DomConverter} for the given property descriptor.
      *
      * @param descriptor The descriptor which requires the converter.
      * @return The converter, may be {@code null}.
