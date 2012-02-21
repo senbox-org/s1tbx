@@ -80,7 +80,7 @@ import java.util.zip.ZipOutputStream;
 import static java.lang.Math.*;
 
 /**
- * This operator is used to extracts pixels from given locations and source products.
+ * This operator is used to extract pixels from given locations and source products.
  * It can also create sub-scenes containing all locations found in the source products and create
  * KMZ files which contain the locations found in a source product
  *
@@ -445,14 +445,15 @@ public class PixExOp extends Operator implements Output {
         try {
             product = ProductIO.readProduct(file);
             if (extractTimeFromFilename) {
-//                final ProductData.UTC[] startEnd = timeStampExtractor.extractTimeStamp(file.getName());
-//                product.setStartTime(startEnd[0]);
-//                product.setEndTime(startEnd[1]);
+                final ProductData.UTC[] timeStamps = timeStampExtractor.extractTimeStamps(file.getName());
+                product.setStartTime(timeStamps[0]);
+                product.setEndTime(timeStamps[1]);
             }
             if (product != null) {
                 return extractMeasurements(product);
             }
         } catch (Exception ignore) {
+            // todo
         } finally {
             if (product != null) {
                 product.dispose();
