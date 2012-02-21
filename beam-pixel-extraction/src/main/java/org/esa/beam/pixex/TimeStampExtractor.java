@@ -52,7 +52,7 @@ public class TimeStampExtractor {
         init();
     }
 
-    public ProductData.UTC[] extractTimeStamps(String fileName) throws ParseException {
+    public ProductData.UTC[] extractTimeStamps(String fileName) {
         final Matcher matcher;
         if(filenameHasStopTime()) {
             matcher = doubleDatesPattern.matcher(fileName);
@@ -61,8 +61,7 @@ public class TimeStampExtractor {
         }
         final boolean matches = matcher.matches();
         if(!matches) {
-            // todo
-            throw new IllegalStateException("");
+            throw new IllegalArgumentException("Given filename '" + fileName + "' does not match pattern '" + matcher.pattern().pattern());
         }
 
         final String startYearGroup = getString(matcher, DateType.YEAR, startDateGroupIndices);
@@ -73,8 +72,13 @@ public class TimeStampExtractor {
         final String startSecondGroup = getString(matcher, DateType.SECOND, startDateGroupIndices);
 
         String pattern = createPattern(startYearGroup, startMonthGroup, startDayGroup, startHourGroup, startMinuteGroup, startSecondGroup);
-        final ProductData.UTC startTime = ProductData.UTC.parse(
-                startYearGroup + startMonthGroup + startDayGroup + startHourGroup + startMinuteGroup + startSecondGroup, pattern);
+        final ProductData.UTC startTime;
+        try {
+            startTime = ProductData.UTC.parse(
+                    startYearGroup + startMonthGroup + startDayGroup + startHourGroup + startMinuteGroup + startSecondGroup, pattern);
+        } catch (ParseException e) {
+            throw new IllegalStateException(e);
+        }
 
         if(!filenameHasStopTime()) {
             return new ProductData.UTC[]{startTime, startTime};
@@ -88,9 +92,14 @@ public class TimeStampExtractor {
         final String stopSecondGroup = getString(matcher, DateType.SECOND, stopDateGroupIndices);
 
         pattern = createPattern(stopYearGroup, stopMonthGroup, stopDayGroup, stopHourGroup, stopMinuteGroup, stopSecondGroup);
-        final ProductData.UTC stopTime = ProductData.UTC.parse(
-                stopYearGroup + stopMonthGroup + stopDayGroup + stopHourGroup + stopMinuteGroup + stopSecondGroup, pattern);
-        
+        final ProductData.UTC stopTime;
+        try {
+            stopTime = ProductData.UTC.parse(
+                    stopYearGroup + stopMonthGroup + stopDayGroup + stopHourGroup + stopMinuteGroup + stopSecondGroup, pattern);
+        } catch (ParseException e) {
+            throw new IllegalStateException(e);
+        }
+
         return new ProductData.UTC[]{startTime, stopTime};
     }
 

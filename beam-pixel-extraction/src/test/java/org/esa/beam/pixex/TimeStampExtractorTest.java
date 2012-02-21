@@ -56,6 +56,13 @@ public class TimeStampExtractorTest {
         assertEquals(dateRange[0].getAsDate().getTime(), dateRange[1].getAsDate().getTime());
     }
 
+//    @Test(expected = IllegalArgumentException.class)
+    @Test
+    public void testExtractTimeStamps_badFilename() throws ParseException {
+        final TimeStampExtractor extractor = new TimeStampExtractor("yyyyMMdd", "${date}*.dim");
+        extractor.extractTimeStamps("something20110603.dim");
+    }
+
     @Test
     public void testDateInterpretationPatternValidator() throws Exception {
         final TimeStampExtractor.DateInterpretationPatternValidator validator = new TimeStampExtractor.DateInterpretationPatternValidator();

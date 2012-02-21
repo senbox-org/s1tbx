@@ -453,7 +453,6 @@ public class PixExOp extends Operator implements Output {
                 return extractMeasurements(product);
             }
         } catch (Exception ignore) {
-            // todo
         } finally {
             if (product != null) {
                 product.dispose();
