@@ -244,9 +244,6 @@ public class TimeStampExtractor {
             if (!pattern.contains("yyyy")) {
                 throw new ValidationException("Value of dateInterpretationPattern must contain 'yyyy' as year placeholder.");
             }
-//            if (!pattern.contains("MM")) {
-//                throw new ValidationException("Value of dateInterpretationPattern must contain 'MM' as month placeholder.");
-//            }
             if (countOf("yyyy").in(pattern) > 1
                     || countOf("MM").in(pattern) > 1
                     || countOf("dd").in(pattern) > 1
