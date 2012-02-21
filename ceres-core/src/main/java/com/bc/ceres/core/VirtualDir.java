@@ -177,7 +177,7 @@ public abstract class VirtualDir {
 
         private static final int BUFFER_SIZE = 4 * 1024 * 1024;
 
-        private final ZipFile zipFile;
+        private ZipFile zipFile;
         private File tempZipFileDir;
 
         private Zip(ZipFile zipFile) throws IOException {
@@ -276,6 +276,7 @@ public abstract class VirtualDir {
         private void cleanup() {
             try {
                 zipFile.close();
+                zipFile = null;
             } catch (IOException e) {
                 // ok
             }
