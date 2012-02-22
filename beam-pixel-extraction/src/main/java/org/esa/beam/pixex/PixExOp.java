@@ -369,7 +369,7 @@ public class PixExOp extends Operator implements Output {
         return lowerTimeBound.compareTo(coordinateCal) <= 0 && upperTimeBound.compareTo(coordinateCal) >= 0;
     }
 
-    void parseTimeDelta(String timeDelta) {
+    private void parseTimeDelta(String timeDelta) {
         if(timeDifference.isEmpty()) {
             return;
         }
