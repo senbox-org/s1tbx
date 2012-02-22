@@ -552,7 +552,7 @@ public class PixExOp extends Operator implements Output {
         setTargetProduct(product);
     }
 
-    static File[] getParsedInputPaths(File[] filePaths) {
+    public static File[] getParsedInputPaths(File[] filePaths) {
         final ArrayList<File> directoryList = new ArrayList<File>();
         for (File file : filePaths) {
             String trimmedPath = file.getPath().trim();

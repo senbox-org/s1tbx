@@ -19,6 +19,7 @@ package org.esa.beam.pixex.visat;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
@@ -39,6 +40,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -70,7 +73,28 @@ class PixelExtractionDialog extends ModalDialog {
                 if (sourceProducts.length > 0) {
                     parametersForm.setActiveProduct(sourceProducts[0]);
                 } else {
-                    parametersForm.setActiveProduct(null);
+                    if(parameterMap.containsKey("inputPaths")) {
+                        final File[] inputPaths = (File[]) parameterMap.get("inputPaths");
+                        try {
+                            Product firstProduct = null;
+                            File file = PixExOp.getParsedInputPaths(inputPaths)[0];
+                            if (file.isDirectory()) {
+                                for (File subFile : file.listFiles()) {
+                                    firstProduct = ProductIO.readProduct(subFile);
+                                    if(firstProduct != null) {
+                                        break;
+                                    }
+                                }
+                            } else {
+                                firstProduct = ProductIO.readProduct(file);
+                            }
+                            parametersForm.setActiveProduct(firstProduct);
+                        } catch (IOException ignore) {
+                            parametersForm.setActiveProduct(null);
+                        }
+                    } else {
+                        parametersForm.setActiveProduct(null);
+                    }
                 }
             }
         });
