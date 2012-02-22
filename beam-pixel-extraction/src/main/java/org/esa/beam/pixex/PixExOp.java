@@ -134,7 +134,6 @@ public class PixExOp extends Operator implements Output {
             validator = WindowSizeValidator.class)
     private Integer windowSize;
 
-
     @Parameter(description = "The output directory.", notNull = true)
     private File outputDir;
 
@@ -161,7 +160,7 @@ public class PixExOp extends Operator implements Output {
             defaultValue = "false")
     private boolean exportKmz;
 
-    @Parameter(description = "If set to true, a the sensing start ans sensing stop should be extracted from the filename " +
+    @Parameter(description = "If set to true, the sensing start and sensing stop should be extracted from the filename " +
             "of each input product.",
             defaultValue = "false",
             label = "Extract time from product filename")
