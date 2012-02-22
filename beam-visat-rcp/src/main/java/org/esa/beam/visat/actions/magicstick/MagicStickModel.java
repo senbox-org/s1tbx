@@ -1,9 +1,13 @@
 package org.esa.beam.visat.actions.magicstick;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.SingleValueConverter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.StringUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -16,8 +20,7 @@ import java.util.List;
  * @author Norman Fomferra
  * @since BEAM 4.10
  */
-class MagicStickModel implements Cloneable  {
-
+class MagicStickModel implements Cloneable {
 
     public enum Mode {
         SINGLE,
@@ -137,9 +140,18 @@ class MagicStickModel implements Cloneable  {
         return minTolerance;
     }
 
+    public void setMinTolerance(double minTolerance) {
+        this.minTolerance = minTolerance;
+    }
+
     public double getMaxTolerance() {
         return maxTolerance;
     }
+
+    public void setMaxTolerance(double maxTolerance) {
+        this.maxTolerance = maxTolerance;
+    }
+
 
     public boolean isNormalize() {
         return normalize;
@@ -147,6 +159,22 @@ class MagicStickModel implements Cloneable  {
 
     public void setNormalize(boolean normalize) {
         this.normalize = normalize;
+    }
+
+    public List<double[]> getPlusSpectra() {
+        return plusSpectra;
+    }
+
+    void setPlusSpectra(List<double[]> plusSpectra) {
+        this.plusSpectra = new ArrayList<double[]>(plusSpectra);
+    }
+
+    public List<double[]> getMinusSpectra() {
+        return minusSpectra;
+    }
+
+    void setMinusSpectra(List<double[]> minusSpectra) {
+        this.minusSpectra = new ArrayList<double[]>(minusSpectra);
     }
 
     static Band[] getSpectralBands(Product product) {
@@ -352,5 +380,74 @@ class MagicStickModel implements Cloneable  {
             arguments.append(",");
             arguments.append(value);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MagicStickModel that = (MagicStickModel) o;
+
+        if (Double.compare(that.maxTolerance, maxTolerance) != 0) return false;
+        if (Double.compare(that.minTolerance, minTolerance) != 0) return false;
+        if (normalize != that.normalize) return false;
+        if (Double.compare(that.tolerance, tolerance) != 0) return false;
+        if (method != that.method) return false;
+        if (mode != that.mode) return false;
+        if (operator != that.operator) return false;
+        if (!ObjectUtils.equalObjects(plusSpectra.toArray(), that.plusSpectra.toArray())) return false;
+        if (!ObjectUtils.equalObjects(minusSpectra.toArray(), that.minusSpectra.toArray())) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = mode.hashCode();
+        result = 31 * result + operator.hashCode();
+        result = 31 * result + method.hashCode();
+        result = 31 * result + plusSpectra.hashCode();
+        result = 31 * result + minusSpectra.hashCode();
+        temp = tolerance != +0.0d ? Double.doubleToLongBits(tolerance) : 0L;
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (normalize ? 1 : 0);
+        temp = minTolerance != +0.0d ? Double.doubleToLongBits(minTolerance) : 0L;
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = maxTolerance != +0.0d ? Double.doubleToLongBits(maxTolerance) : 0L;
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
+
+    public static MagicStickModel fromXml(String xml) {
+        return (MagicStickModel) createXStream().fromXML(xml);
+    }
+
+    public String toXml() {
+        return createXStream().toXML(this);
+    }
+
+    private static XStream createXStream() {
+        final XStream xStream = new XStream();
+        xStream.alias("magicStickModel", MagicStickModel.class);
+        xStream.registerConverter(new SingleValueConverter() {
+            @Override
+            public String toString(Object obj) {
+                return StringUtils.arrayToString(obj, ",");
+            }
+
+            @Override
+            public Object fromString(String str) {
+                return StringUtils.toDoubleArray(str, ",");
+            }
+
+            @Override
+            public boolean canConvert(Class type) {
+                return type.equals(double[].class);
+            }
+        });
+        return xStream;
     }
 }

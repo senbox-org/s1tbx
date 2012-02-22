@@ -3,7 +3,6 @@ package org.esa.beam.visat.actions.magicstick;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.annotations.ParameterBlockConverter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -255,17 +254,40 @@ public class MagicStickModelTest {
         assertEquals(expression, 1.26666666, Double.parseDouble(matcher.group(6)), 1e-8);
     }
 
-
     @Test
-    public void testXml() throws Exception {
+    public void testClone() throws Exception {
         final MagicStickModel model = new MagicStickModel();
+        model.setTolerance(0.005);
+        model.setMinTolerance(0.0);
+        model.setMaxTolerance(0.01);
+        model.setNormalize(true);
         model.setMode(MagicStickModel.Mode.PLUS);
         model.addSpectrum(1, 2, 3, 4, 5, 6);
         model.addSpectrum(2, 3, 4, 5, 6, 7);
         model.setMode(MagicStickModel.Mode.MINUS);
         model.addSpectrum(3, 4, 5, 6, 7, 8);
         model.addSpectrum(4, 5, 6, 7, 8, 9);
-        final String xml = new ParameterBlockConverter().convertObjectToXml(model);
-        System.out.println(xml);
+
+        final MagicStickModel modelCopy = model.clone();
+        assertEquals(model, modelCopy);
+    }
+
+    @Test
+    public void testXml() throws Exception {
+        final MagicStickModel model = new MagicStickModel();
+        model.setTolerance(0.005);
+        model.setMinTolerance(0.0);
+        model.setMaxTolerance(0.01);
+        model.setNormalize(true);
+        model.setMode(MagicStickModel.Mode.PLUS);
+        model.addSpectrum(1, 2, 3, 4, 5, 6);
+        model.addSpectrum(2, 3, 4, 5, 6, 7);
+        model.setMode(MagicStickModel.Mode.MINUS);
+        model.addSpectrum(3, 4, 5, 6, 7, 8);
+        model.addSpectrum(4, 5, 6, 7, 8, 9);
+
+        final String xml = model.toXml();
+        final MagicStickModel modelCopy = MagicStickModel.fromXml(xml);
+        assertEquals(model, modelCopy);
     }
 }
