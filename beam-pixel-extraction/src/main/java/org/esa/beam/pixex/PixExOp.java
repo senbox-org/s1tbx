@@ -56,7 +56,7 @@ import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
@@ -123,8 +123,9 @@ public class PixExOp extends Operator implements Output {
     private Coordinate[] coordinates;
 
     @Parameter(description = "The acceptable time difference compared to the time given for a coordinate.\n" +
-            "The format is a number followed by (D)ay, (H)our or (M)inute.",
-            defaultValue = "1D")
+            "The format is a number followed by (D)ay, (H)our or (M)inute. If no time difference is provided, " +
+            "all input products are considered regardless of their time.",
+            defaultValue = "")
     private String timeDifference;
 
     @Parameter(description = "Path to a file containing geo-coordinates. BEAM's placemark files can be used.")
@@ -188,19 +189,6 @@ public class PixExOp extends Operator implements Output {
     private KmlDocument kmlDocument;
     private ArrayList<String> knownKmzPlacemarks;
     private TimeStampExtractor timeStampExtractor;
-
-
-    int getTimeDelta() {
-        return timeDelta;
-    }
-
-    int getCalendarField() {
-        return calendarField;
-    }
-
-    Iterator<Measurement> getMeasurements() {
-        return measurements;
-    }
 
     @Override
     public void initialize() throws OperatorException {
@@ -294,6 +282,17 @@ public class PixExOp extends Operator implements Output {
         super.dispose();
     }
 
+    int getTimeDelta() {
+        return timeDelta;
+    }
+
+    int getCalendarField() {
+        return calendarField;
+    }
+
+    Iterator<Measurement> getMeasurements() {
+        return measurements;
+    }
 
     private boolean extractMeasurement(Product product, Coordinate coordinate,
                                        int coordinateID, RenderedImage validMaskImage) throws IOException {
@@ -301,8 +300,8 @@ public class PixExOp extends Operator implements Output {
         if (!product.containsPixel(centerPos)) {
             return false;
         }
-        final ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, centerPos.y);
         if (coordinate.getDateTime() != null) {
+            final ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, centerPos.y);
             if (scanLineTime == null || !isPixelInTimeSpan(coordinate, timeDelta, calendarField, scanLineTime)) {
                 return false;
             }
@@ -353,6 +352,10 @@ public class PixExOp extends Operator implements Output {
 
     private boolean isPixelInTimeSpan(Coordinate coordinate, int timeDiff, int calendarField,
                                       ProductData.UTC timeAtPixel) {
+        if(timeDifference.isEmpty()) {
+            return true;
+        }
+
         final Calendar currentDate = timeAtPixel.getAsCalendar();
 
         final Calendar lowerTimeBound = (Calendar) currentDate.clone();
@@ -367,6 +370,9 @@ public class PixExOp extends Operator implements Output {
     }
 
     void parseTimeDelta(String timeDelta) {
+        if(timeDifference.isEmpty()) {
+            return;
+        }
         this.timeDelta = Integer.parseInt(timeDelta.substring(0, timeDelta.length() - 1));
         final String s = timeDelta.substring(timeDelta.length() - 1).toUpperCase();
         if ("D".equals(s)) {

@@ -92,6 +92,7 @@ class PixelExtractionParametersForm {
     private JLabel expressionNoteLabel;
     private JSpinner timeSpinner;
     private JComboBox timeUnitComboBox;
+    private String allowedTimeDifference = "";
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -124,7 +125,7 @@ class PixelExtractionParametersForm {
     }
 
     public String getAllowedTimeDifference() {
-        return String.valueOf(timeSpinner.getValue()) + timeUnitComboBox.getSelectedItem().toString().charAt(0);
+        return allowedTimeDifference;
     }
 
     public boolean isExportExpressionResultSelected() {
@@ -157,10 +158,10 @@ class PixelExtractionParametersForm {
         final JComponent[] coordinatesComponents = createCoordinatesComponents();
         mainPanel.add(coordinatesComponents[0]);
         mainPanel.add(coordinatesComponents[1]);
-        final JComponent[] timeDeltaComponents = createTimeDeltaComponents();
-        mainPanel.add(timeDeltaComponents[0]);
-        mainPanel.add(timeDeltaComponents[1]);
-        mainPanel.add(timeDeltaComponents[2]);
+        final Component[] timeDeltaComponents = createTimeDeltaComponents(tableLayout);
+        for (Component timeDeltaComponent : timeDeltaComponents) {
+            mainPanel.add(timeDeltaComponent);
+        }
 
         final BindingContext bindingContext = new BindingContext(container);
 
@@ -234,12 +235,39 @@ class PixelExtractionParametersForm {
         return exportPanel;
     }
 
-    private JComponent[] createTimeDeltaComponents() {
-        final JLabel label = new JLabel("Allowed time difference:");
+    private Component[] createTimeDeltaComponents(TableLayout tableLayout) {
+        final JLabel boxLabel = new JLabel("Allowed time difference:");
+        final JCheckBox box = new JCheckBox("Use time difference constrain");
+        final Component horizontalSpacer = tableLayout.createHorizontalSpacer();
+        
+        final Component horizontalSpacer2 = tableLayout.createHorizontalSpacer();
         timeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, null, 1));
+        timeSpinner.setEnabled(false);
+        timeSpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                allowedTimeDifference = String.valueOf(timeSpinner.getValue()) + timeUnitComboBox.getSelectedItem().toString().charAt(0);
+            }
+        });
         timeUnitComboBox = new JComboBox(new String[]{"Day(s)", "Hour(s)", "Minute(s)"});
+        timeUnitComboBox.setEnabled(false);
+        timeUnitComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                allowedTimeDifference = String.valueOf(timeSpinner.getValue()) + timeUnitComboBox.getSelectedItem().toString().charAt(0);
+            }
+        });
 
-        return new JComponent[]{label, timeSpinner, timeUnitComboBox};
+        box.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                timeSpinner.setEnabled(box.isSelected());
+                timeUnitComboBox.setEnabled(box.isSelected());
+                allowedTimeDifference = "";
+            }
+        });
+        
+        return new Component[]{boxLabel, box, horizontalSpacer, horizontalSpacer2, timeSpinner, timeUnitComboBox};
     }
 
     private void updateUi() {
