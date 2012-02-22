@@ -378,29 +378,6 @@ public class PixExOpTest {
         computeData(parameterMap, sourceProduct);
     }
 
-    @Test
-    public void testTimeDeltaParsing() throws Exception {
-        final PixExOp op = new PixExOp();
-        op.parseTimeDelta("2D");
-        assertEquals(2, op.getTimeDelta());
-        assertEquals(Calendar.DATE, op.getCalendarField());
-        op.parseTimeDelta("30m");
-        assertEquals(30, op.getTimeDelta());
-        assertEquals(Calendar.MINUTE, op.getCalendarField());
-        op.parseTimeDelta("12H");
-        assertEquals(12, op.getTimeDelta());
-        assertEquals(Calendar.HOUR, op.getCalendarField());
-        op.parseTimeDelta("480M");
-        assertEquals(480, op.getTimeDelta());
-        assertEquals(Calendar.MINUTE, op.getCalendarField());
-        op.parseTimeDelta("31d");
-        assertEquals(31, op.getTimeDelta());
-        assertEquals(Calendar.DATE, op.getCalendarField());
-        op.parseTimeDelta("1h");
-        assertEquals(1, op.getTimeDelta());
-        assertEquals(Calendar.HOUR, op.getCalendarField());
-    }
-
     public static File getOutpuDir(String methodName, Class testClass) {
         final File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File baseTestDir = new File(tmpDir, testClass.getSimpleName());

@@ -126,7 +126,7 @@ public class PixExOp extends Operator implements Output {
             "The format is a number followed by (D)ay, (H)our or (M)inute. If no time difference is provided, " +
             "all input products are considered regardless of their time.",
             defaultValue = "")
-    private String timeDifference;
+    private String timeDifference = "";
 
     @Parameter(description = "Path to a file containing geo-coordinates. BEAM's placemark files can be used.")
     private File coordinatesFile;
