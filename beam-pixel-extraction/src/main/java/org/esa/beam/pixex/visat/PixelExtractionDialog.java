@@ -72,30 +72,32 @@ class PixelExtractionDialog extends ModalDialog {
                 final Product[] sourceProducts = ioForm.getSourceProducts();
                 if (sourceProducts.length > 0) {
                     parametersForm.setActiveProduct(sourceProducts[0]);
+                    return;
                 } else {
                     if(parameterMap.containsKey("inputPaths")) {
                         final File[] inputPaths = (File[]) parameterMap.get("inputPaths");
-                        try {
-                            Product firstProduct = null;
-                            File file = PixExOp.getParsedInputPaths(inputPaths)[0];
-                            if (file.isDirectory()) {
-                                for (File subFile : file.listFiles()) {
-                                    firstProduct = ProductIO.readProduct(subFile);
-                                    if(firstProduct != null) {
-                                        break;
+                        if(inputPaths.length > 0) {
+                            try {
+                                Product firstProduct = null;
+                                File file = PixExOp.getParsedInputPaths(inputPaths)[0];
+                                if (file.isDirectory()) {
+                                    for (File subFile : file.listFiles()) {
+                                        firstProduct = ProductIO.readProduct(subFile);
+                                        if(firstProduct != null) {
+                                            break;
+                                        }
                                     }
+                                } else {
+                                    firstProduct = ProductIO.readProduct(file);
                                 }
-                            } else {
-                                firstProduct = ProductIO.readProduct(file);
+                                parametersForm.setActiveProduct(firstProduct);
+                                return;
+                            } catch (IOException ignore) {
                             }
-                            parametersForm.setActiveProduct(firstProduct);
-                        } catch (IOException ignore) {
-                            parametersForm.setActiveProduct(null);
                         }
-                    } else {
-                        parametersForm.setActiveProduct(null);
                     }
                 }
+                parametersForm.setActiveProduct(null);
             }
         });
 
