@@ -89,11 +89,9 @@ class PixelExtractionIOForm {
         addRemoveButtonPanel.add(createRemoveInputButton());
         panel.add(addRemoveButtonPanel);
 
-
         panel.add(new JLabel("Time extraction:"));
         panel.add(new TimeExtractionPane(container));
         panel.add(new JLabel(""));
-
 
         JLabel outputDirLabel = new JLabel("Output directory:");
         panel.add(outputDirLabel);
