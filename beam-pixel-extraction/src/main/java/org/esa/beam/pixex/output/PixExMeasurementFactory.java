@@ -1,6 +1,12 @@
 package org.esa.beam.pixex.output;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.MeasurementFactory;
 import org.esa.beam.util.ProductUtils;
@@ -9,6 +15,7 @@ import java.awt.image.Raster;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class PixExMeasurementFactory implements MeasurementFactory {
 
@@ -28,7 +35,7 @@ public class PixExMeasurementFactory implements MeasurementFactory {
                                             Product product, Raster validData) throws IOException {
         final long productId = productRegistry.getProductId(product);
         final int numPixels = windowSize * windowSize;
-        final ArrayList<Measurement> measurements = new ArrayList<Measurement>();
+        final List<Measurement> measurements = new ArrayList<Measurement>();
         final String[] rasterNames = rasterNamesFactory.getRasterNames(product);
         final Number[] values = new Number[rasterNames.length];
         Arrays.fill(values, Double.NaN);
