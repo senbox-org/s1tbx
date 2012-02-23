@@ -26,7 +26,7 @@ import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.pixex.PixExOp;
 
 import javax.swing.AbstractButton;
@@ -46,7 +46,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-class PixelExtractionDialog extends ModalDialog {
+class PixelExtractionDialog extends ModelessDialog {
 
     private final Map<String, Object> parameterMap;
     private final AppContext appContext;
