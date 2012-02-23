@@ -30,63 +30,62 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The merge operator allows copying raster data from other products to a specified product. The first given product is
+ * considered the 'master product', into which the raster data coming from the other products is copied.
+ */
 @OperatorMetadata(alias = "Merge",
-                  description = "Merges an arbitrary number of source bands into the target product.",
-                  internal = true)
+                  description = "Merges an arbitrary number of source bands into the target product.")
 public class MergeOp extends Operator {
 
-    @Parameter(defaultValue = "mergedProduct", description = "The name of the target product.")
-    private String productName;
-    @Parameter(defaultValue = "UNKNOWN", description = "The type of the target product.")
-    private String productType;
-    // todo - remove alias, property name is very clear.
-    @Parameter(alias = "baseGeoInfo", description = "The ID of the source product providing the geo-coding.")
-    private String copyGeoCodingFrom;
-    @SuppressWarnings({"MismatchedReadAndWriteOfArray"})
-    @Parameter(itemAlias = "band", itemsInlined = true,
-               description = "Defines a band to be included in the target product.")
-    private BandDesc[] bands;
+    @Parameter(itemAlias = "include", itemsInlined = false,
+               description = "Defines a node to be included in the target product.")
+    private NodeDesc[] includes;
     @TargetProduct
     private Product targetProduct;
 
-
     @Override
     public void initialize() throws OperatorException {
-
-        if (StringUtils.isNotNullAndNotEmpty(copyGeoCodingFrom)) {
-            Product baseGeoProduct = getSourceProduct(copyGeoCodingFrom);
-            final int sceneRasterWidth = baseGeoProduct.getSceneRasterWidth();
-            final int sceneRasterHeight = baseGeoProduct.getSceneRasterHeight();
-            targetProduct = new Product(productName, productType,
-                                        sceneRasterWidth, sceneRasterHeight);
-
-            copyGeoCoding(baseGeoProduct, targetProduct);
-        } else {
-            BandDesc bandDesc = bands[0];
-            Product srcProduct = getSourceProduct(bandDesc.product);
-            final int sceneRasterWidth = srcProduct.getSceneRasterWidth();
-            final int sceneRasterHeight = srcProduct.getSceneRasterHeight();
-            targetProduct = new Product(productName, productType,
-                                        sceneRasterWidth, sceneRasterHeight);
+        targetProduct = getSourceProducts()[0];
+        validateSourceProducts();
+        if (includes == null || includes.length == 0) {
+            List<NodeDesc> nodeDescList = new ArrayList<NodeDesc>();
+            final Product[] sourceProducts = getSourceProducts();
+            for (final Product sourceProduct : sourceProducts) {
+                if (sourceProduct != targetProduct) {
+                    for (String bandName : sourceProduct.getBandNames()) {
+                        final NodeDesc nodeDesc = new NodeDesc();
+                        nodeDesc.name = bandName;
+                        nodeDesc.productId = getSourceProductId(sourceProduct);
+                        nodeDescList.add(nodeDesc);
+                    }
+                }
+            }
+            includes = nodeDescList.toArray(new NodeDesc[nodeDescList.size()]);
         }
 
         Set<Product> allSrcProducts = new HashSet<Product>();
-        for (BandDesc bandDesc : bands) {
-            Product srcProduct = getSourceProduct(bandDesc.product);
-            if (StringUtils.isNotNullAndNotEmpty(bandDesc.name)) {
-                if (StringUtils.isNotNullAndNotEmpty(bandDesc.newName)) {
-                    copyBandWithFeatures(srcProduct, targetProduct, bandDesc.name, bandDesc.newName);
+        for (NodeDesc nodeDesc : includes) {
+            Product srcProduct = getSourceProduct(nodeDesc.productId);
+            if (srcProduct == targetProduct) {
+                continue;
+            }
+            if (StringUtils.isNotNullAndNotEmpty(nodeDesc.name)) {
+                if (StringUtils.isNotNullAndNotEmpty(nodeDesc.newName)) {
+                    copyBandWithFeatures(srcProduct, targetProduct, nodeDesc.name, nodeDesc.newName);
                 } else {
-                    copyBandWithFeatures(srcProduct, targetProduct, bandDesc.name);
+                    copyBandWithFeatures(srcProduct, targetProduct, nodeDesc.name);
                 }
                 allSrcProducts.add(srcProduct);
-            } else if (StringUtils.isNotNullAndNotEmpty(bandDesc.namePattern)) {
-                Pattern pattern = Pattern.compile(bandDesc.namePattern);
+            } else if (StringUtils.isNotNullAndNotEmpty(nodeDesc.namePattern)) {
+                Pattern pattern = Pattern.compile(nodeDesc.namePattern);
                 for (String bandName : srcProduct.getBandNames()) {
                     Matcher matcher = pattern.matcher(bandName);
                     if (matcher.matches()) {
@@ -98,9 +97,11 @@ public class MergeOp extends Operator {
         }
 
         for (Product srcProduct : allSrcProducts) {
-            mergeAutoGrouping(srcProduct);
-            ProductUtils.copyMasks(srcProduct, targetProduct);
-            ProductUtils.copyOverlayMasks(srcProduct, targetProduct);
+            if (srcProduct != targetProduct) {
+                mergeAutoGrouping(srcProduct);
+                ProductUtils.copyMasks(srcProduct, targetProduct);
+                ProductUtils.copyOverlayMasks(srcProduct, targetProduct);
+            }
         }
     }
 
@@ -166,15 +167,24 @@ public class MergeOp extends Operator {
         getLogger().warning("Wrongly configured ProductMerger operator. Tiles should not be requested.");
     }
 
-    public static class BandDesc {
+    private void validateSourceProducts() {
+        for (Product sourceProduct : getSourceProducts()) {
+            if (!targetProduct.isCompatibleProduct(sourceProduct, 1.0E-5f)) {
+                throw new OperatorException("Product '" + getSourceProductId(sourceProduct) + "' is not compatible to" +
+                                            " master product.");
+            }
+        }
+    }
 
-        private String product;
+    public static class NodeDesc {
+
+        private String productId;
         private String name;
         private String newName;
         private String namePattern;
 
-        public void setProduct(String product) {
-            this.product = product;
+        public void setProductId(String productId) {
+            this.productId = productId;
         }
 
         public void setName(String name) {
