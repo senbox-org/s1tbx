@@ -55,11 +55,13 @@ public class DimKey {
     }
 
     public boolean isTypicalRasterDim() {
-        return (matchesXYDimNames("lon", "lat") ||
+        return matchesXYDimNames("lon", "lat") ||
                 matchesXYDimNames("long", "lat") ||
                 matchesXYDimNames("longitude", "latitude") ||
                 matchesXYDimNames("ni", "nj") ||
-                matchesXYDimNames("x", "y"));
+                matchesXYDimNames("NX", "NY") ||
+                matchesXYDimNames("SX", "SY") ||
+                matchesXYDimNames("x", "y");
     }
 
     // Move to GeocodingUtils
