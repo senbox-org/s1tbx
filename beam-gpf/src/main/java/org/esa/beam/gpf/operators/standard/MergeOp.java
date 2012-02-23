@@ -38,16 +38,28 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The merge operator allows copying raster data from other products to a specified product. The first given product is
- * considered the 'master product', into which the raster data coming from the other products is copied.
+ * The merge operator allows copying raster data from other products to a specified product. The first product provided
+ * is considered the 'master product', into which the raster data coming from the other products is copied.
+ *
+ * It is mandatory that the products share the same scene, that is, their width and height need to match with those of
+ * the master product as well as their geographic position.
+ *
+ * @author Olaf Danne
+ * @author Norman Fomferra
+ * @author Marco Peters
+ * @author Ralf Quast
+ * @author Marco Zuehlke
+ * @author Thomas Storm
+ *
  */
 @OperatorMetadata(alias = "Merge",
                   description = "Merges an arbitrary number of source bands into the target product.")
 public class MergeOp extends Operator {
 
     @Parameter(itemAlias = "include", itemsInlined = false,
-               description = "Defines a node to be included in the target product.")
-    private NodeDesc[] includes;
+               description = "Defines a node to be included in the target product. If no includes are provided, all" +
+                             " bands are copied.")
+    private NodeDescriptor[] includes;
     @TargetProduct
     private Product targetProduct;
 
@@ -56,36 +68,36 @@ public class MergeOp extends Operator {
         targetProduct = getSourceProducts()[0];
         validateSourceProducts();
         if (includes == null || includes.length == 0) {
-            List<NodeDesc> nodeDescList = new ArrayList<NodeDesc>();
+            List<NodeDescriptor> nodeDescriptorList = new ArrayList<NodeDescriptor>();
             final Product[] sourceProducts = getSourceProducts();
             for (final Product sourceProduct : sourceProducts) {
                 if (sourceProduct != targetProduct) {
                     for (String bandName : sourceProduct.getBandNames()) {
-                        final NodeDesc nodeDesc = new NodeDesc();
-                        nodeDesc.name = bandName;
-                        nodeDesc.productId = getSourceProductId(sourceProduct);
-                        nodeDescList.add(nodeDesc);
+                        final NodeDescriptor nodeDescriptor = new NodeDescriptor();
+                        nodeDescriptor.name = bandName;
+                        nodeDescriptor.productId = getSourceProductId(sourceProduct);
+                        nodeDescriptorList.add(nodeDescriptor);
                     }
                 }
             }
-            includes = nodeDescList.toArray(new NodeDesc[nodeDescList.size()]);
+            includes = nodeDescriptorList.toArray(new NodeDescriptor[nodeDescriptorList.size()]);
         }
 
         Set<Product> allSrcProducts = new HashSet<Product>();
-        for (NodeDesc nodeDesc : includes) {
-            Product srcProduct = getSourceProduct(nodeDesc.productId);
+        for (NodeDescriptor nodeDescriptor : includes) {
+            Product srcProduct = getSourceProduct(nodeDescriptor.productId);
             if (srcProduct == targetProduct) {
                 continue;
             }
-            if (StringUtils.isNotNullAndNotEmpty(nodeDesc.name)) {
-                if (StringUtils.isNotNullAndNotEmpty(nodeDesc.newName)) {
-                    copyBandWithFeatures(srcProduct, targetProduct, nodeDesc.name, nodeDesc.newName);
+            if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.name)) {
+                if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.newName)) {
+                    copyBandWithFeatures(srcProduct, targetProduct, nodeDescriptor.name, nodeDescriptor.newName);
                 } else {
-                    copyBandWithFeatures(srcProduct, targetProduct, nodeDesc.name);
+                    copyBandWithFeatures(srcProduct, targetProduct, nodeDescriptor.name);
                 }
                 allSrcProducts.add(srcProduct);
-            } else if (StringUtils.isNotNullAndNotEmpty(nodeDesc.namePattern)) {
-                Pattern pattern = Pattern.compile(nodeDesc.namePattern);
+            } else if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.namePattern)) {
+                Pattern pattern = Pattern.compile(nodeDescriptor.namePattern);
                 for (String bandName : srcProduct.getBandNames()) {
                     Matcher matcher = pattern.matcher(bandName);
                     if (matcher.matches()) {
@@ -121,19 +133,6 @@ public class MergeOp extends Operator {
         }
     }
 
-    /*
-     * Copies the tie point data, geocoding and the start and stop time.
-     */
-    private static void copyGeoCoding(Product sourceProduct,
-                                      Product destinationProduct) {
-        // copy all tie point grids to output product
-        ProductUtils.copyTiePointGrids(sourceProduct, destinationProduct);
-        // copy geo-coding to the output product
-        ProductUtils.copyGeoCoding(sourceProduct, destinationProduct);
-        destinationProduct.setStartTime(sourceProduct.getStartTime());
-        destinationProduct.setEndTime(sourceProduct.getEndTime());
-    }
-
     private void copyBandWithFeatures(Product srcProduct, Product outputProduct, String oldBandName,
                                       String newBandName) {
         Band destBand = copyBandWithFeatures(srcProduct, outputProduct, oldBandName);
@@ -162,11 +161,6 @@ public class MergeOp extends Operator {
         return destBand;
     }
 
-    @Override
-    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        getLogger().warning("Wrongly configured ProductMerger operator. Tiles should not be requested.");
-    }
-
     private void validateSourceProducts() {
         for (Product sourceProduct : getSourceProducts()) {
             if (!targetProduct.isCompatibleProduct(sourceProduct, 1.0E-5f)) {
@@ -176,7 +170,12 @@ public class MergeOp extends Operator {
         }
     }
 
-    public static class NodeDesc {
+    @Override
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        getLogger().warning("Wrongly configured ProductMerger operator. Tiles should not be requested.");
+    }
+
+    public static class NodeDescriptor {
 
         private String productId;
         private String name;
