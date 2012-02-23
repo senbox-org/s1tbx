@@ -579,6 +579,16 @@ public class PixExOp extends Operator implements Output {
         }
     }
 
+    public boolean wasSuccessful() {
+        // todo - implement
+        return false;
+    }
+
+    public String getErrorMessage() {
+        // todo - implement
+        return null;
+    }
+
     private static class DirectoryFileFilter implements FileFilter {
 
         @Override
