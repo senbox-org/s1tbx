@@ -47,11 +47,17 @@
 
     <categories>VISAT,Processing</categories>
 
+    <extension point="ceres-core:serviceProviders">
+        <serviceProvider>org.esa.beam.framework.gpf.OperatorSpi</serviceProvider>
+    </extension>
+
     <extension point="beam-ui:actions">
         <action>
-            <parent>export</parent>
+            <parent>tool</parent>
             <id>pixelExtraction</id>
             <class>org.esa.beam.pixex.visat.PixelExtractionAction</class>
+            <operatorName>PixEx</operatorName>
+            <dialogTitle>Pixel Extraction</dialogTitle>
             <helpId>pixelExtraction</helpId>
             <text>Export Pixels...</text>
             <description>Exports the pixels of a given list of coordinates.</description>
