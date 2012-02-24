@@ -17,8 +17,6 @@ package org.esa.beam.gpf.operators.standard;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -26,6 +24,7 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
@@ -39,8 +38,9 @@ import java.util.regex.Pattern;
 
 /**
  * The merge operator allows copying raster data from other products to a specified product. The first product provided
- * is considered the 'master product', into which the raster data coming from the other products is copied.
- *
+ * is considered the 'master product', into which the raster data coming from the other products is copied. Existing
+ * nodes are kept.
+ * <p/>
  * It is mandatory that the products share the same scene, that is, their width and height need to match with those of
  * the master product as well as their geographic position.
  *
@@ -50,26 +50,35 @@ import java.util.regex.Pattern;
  * @author Ralf Quast
  * @author Marco Zuehlke
  * @author Thomas Storm
- *
  */
 @OperatorMetadata(alias = "Merge",
-                  description = "Merges an arbitrary number of source bands into the target product.")
+                  description = "Allows copying raster data from other products to a specified product.",
+                  authors = "BEAM team",
+                  version = "1.0",
+                  copyright = "(c) 2012 by Brockmann Consult")
 public class MergeOp extends Operator {
 
-    @Parameter(itemAlias = "include", itemsInlined = false,
-               description = "Defines a node to be included in the target product. If no includes are provided, all" +
-                             " bands are copied.")
-    private NodeDescriptor[] includes;
+    @SourceProducts(description = "The products to be merged. The first product is considered the 'master product', " +
+                                  "which receives nodes from subsequently provided products.")
+    private Product[] sourceProducts;
+    
     @TargetProduct
     private Product targetProduct;
 
+    @Parameter(itemAlias = "include", itemsInlined = false,
+               description = "Defines nodes to be included in the target product. If no includes are provided, all" +
+                             " nodes are copied.")
+    private NodeDescriptor[] includes;
+    @Parameter(itemAlias = "exclude", itemsInlined = false,
+               description = "Defines nodes to be excluded from the target product.")
+    private NodeDescriptor[] excludes;
+
     @Override
     public void initialize() throws OperatorException {
-        targetProduct = getSourceProducts()[0];
+        targetProduct = sourceProducts[0];
         validateSourceProducts();
         if (includes == null || includes.length == 0) {
             List<NodeDescriptor> nodeDescriptorList = new ArrayList<NodeDescriptor>();
-            final Product[] sourceProducts = getSourceProducts();
             for (final Product sourceProduct : sourceProducts) {
                 if (sourceProduct != targetProduct) {
                     for (String bandName : sourceProduct.getBandNames()) {
@@ -83,6 +92,9 @@ public class MergeOp extends Operator {
             includes = nodeDescriptorList.toArray(new NodeDescriptor[nodeDescriptorList.size()]);
         }
 
+        if (!(excludes == null || excludes.length == 0)) {
+            throw new OperatorException("Defining excludes is not supported yet.");
+        }
         Set<Product> allSrcProducts = new HashSet<Product>();
         for (NodeDescriptor nodeDescriptor : includes) {
             Product srcProduct = getSourceProduct(nodeDescriptor.productId);
@@ -91,9 +103,9 @@ public class MergeOp extends Operator {
             }
             if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.name)) {
                 if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.newName)) {
-                    copyBandWithFeatures(srcProduct, targetProduct, nodeDescriptor.name, nodeDescriptor.newName);
+                    copyBandWithFeatures(srcProduct, nodeDescriptor.name, nodeDescriptor.newName);
                 } else {
-                    copyBandWithFeatures(srcProduct, targetProduct, nodeDescriptor.name);
+                    copyBandWithFeatures(srcProduct, nodeDescriptor.name, nodeDescriptor.name);
                 }
                 allSrcProducts.add(srcProduct);
             } else if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.namePattern)) {
@@ -101,7 +113,7 @@ public class MergeOp extends Operator {
                 for (String bandName : srcProduct.getBandNames()) {
                     Matcher matcher = pattern.matcher(bandName);
                     if (matcher.matches()) {
-                        copyBandWithFeatures(srcProduct, targetProduct, bandName);
+                        copyBandWithFeatures(srcProduct, bandName, bandName);
                         allSrcProducts.add(srcProduct);
                     }
                 }
@@ -133,32 +145,19 @@ public class MergeOp extends Operator {
         }
     }
 
-    private void copyBandWithFeatures(Product srcProduct, Product outputProduct, String oldBandName,
-                                      String newBandName) {
-        Band destBand = copyBandWithFeatures(srcProduct, outputProduct, oldBandName);
-        destBand.setName(newBandName);
-    }
-
-    private Band copyBandWithFeatures(Product srcProduct, Product outputProduct, String bandName) {
-        Band destBand = ProductUtils.copyBand(bandName, srcProduct, outputProduct);
-        Band srcBand = srcProduct.getBand(bandName);
-        if (srcBand == null) {
+    private void copyBandWithFeatures(Product sourceProduct, String oldBandName, String newBandName) {
+        Band sourceBand = sourceProduct.getBand(oldBandName);
+        if (sourceBand == null) {
             final String msg = String.format("Source product [%s] does not contain a band with the name [%s]",
-                                             srcProduct.getName(), bandName);
+                                             sourceProduct.getName(), oldBandName);
             throw new OperatorException(msg);
         }
-        destBand.setSourceImage(srcBand.getSourceImage());
-        if (srcBand.getFlagCoding() != null) {
-            FlagCoding srcFlagCoding = srcBand.getFlagCoding();
-            ProductUtils.copyFlagCoding(srcFlagCoding, outputProduct);
-            destBand.setSampleCoding(outputProduct.getFlagCodingGroup().get(srcFlagCoding.getName()));
+
+        if(targetProduct.containsBand(newBandName)) {
+            return;
         }
-        if (srcBand.getIndexCoding() != null) {
-            IndexCoding srcIndexCoding = srcBand.getIndexCoding();
-            ProductUtils.copyIndexCoding(srcIndexCoding, outputProduct);
-            destBand.setSampleCoding(outputProduct.getIndexCodingGroup().get(srcIndexCoding.getName()));
-        }
-        return destBand;
+        Band targetBand = targetProduct.addBand(newBandName, sourceBand.getDataType());
+        ProductUtils.copyBandProperties(sourceBand, targetBand);
     }
 
     private void validateSourceProducts() {

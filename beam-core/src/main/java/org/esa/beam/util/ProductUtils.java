@@ -1186,6 +1186,24 @@ public class ProductUtils {
         }
     }
 
+     // todo - include in ProductUtils#copyRasterDataNodeProperties() after evaluation with Olaf
+    public static void copyBandProperties(Band sourceBand, Band targetBand) {
+        Product outputProduct = targetBand.getProduct();
+        copyRasterDataNodeProperties(sourceBand, targetBand);
+
+        targetBand.setSourceImage(sourceBand.getSourceImage());
+        if (sourceBand.getFlagCoding() != null) {
+            FlagCoding srcFlagCoding = sourceBand.getFlagCoding();
+            copyFlagCoding(srcFlagCoding, outputProduct);
+            targetBand.setSampleCoding(outputProduct.getFlagCodingGroup().get(srcFlagCoding.getName()));
+        }
+        if (sourceBand.getIndexCoding() != null) {
+            IndexCoding srcIndexCoding = sourceBand.getIndexCoding();
+            copyIndexCoding(srcIndexCoding, outputProduct);
+            targetBand.setSampleCoding(outputProduct.getIndexCodingGroup().get(srcIndexCoding.getName()));
+        }
+    }
+
     /**
      * Copies the spectral properties from source band to target band. These properties are:
      * <ul>
