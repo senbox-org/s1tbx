@@ -79,6 +79,12 @@ Revise data import / export
     Must specify which coordinate system
 
 
+- Revise Spectrum view
+  - use JFreeChart
+  - lines are too thin!
+  - fixed axis ranges!!!
+
+
 - Revise profile plot with respect to reference data
     - shall operate on selected vector data nodes
       - if VDN contains points geometry types:
@@ -90,7 +96,7 @@ Revise data import / export
            - for each shape a profile is drawn using the shape's color
            - the selected shape may be also hi-lighted in the chart
            - option to only display selected shape
-    - possibly visualise time difference
+    - possibly visualise time difference   (separate plot)
     - optionally hide points with to large time delta
 
 - revise scatter plot with respect to reference data
