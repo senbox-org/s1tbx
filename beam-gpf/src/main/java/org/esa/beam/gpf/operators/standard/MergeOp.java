@@ -30,63 +30,74 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The merge operator allows copying raster data from other products to a specified product. The first product provided
+ * is considered the 'master product', into which the raster data coming from the other products is copied.
+ *
+ * It is mandatory that the products share the same scene, that is, their width and height need to match with those of
+ * the master product as well as their geographic position.
+ *
+ * @author Olaf Danne
+ * @author Norman Fomferra
+ * @author Marco Peters
+ * @author Ralf Quast
+ * @author Marco Zuehlke
+ * @author Thomas Storm
+ *
+ */
 @OperatorMetadata(alias = "Merge",
-                  description = "Merges an arbitrary number of source bands into the target product.",
-                  internal = true)
+                  description = "Merges an arbitrary number of source bands into the target product.")
 public class MergeOp extends Operator {
 
-    @Parameter(defaultValue = "mergedProduct", description = "The name of the target product.")
-    private String productName;
-    @Parameter(defaultValue = "UNKNOWN", description = "The type of the target product.")
-    private String productType;
-    // todo - remove alias, property name is very clear.
-    @Parameter(alias = "baseGeoInfo", description = "The ID of the source product providing the geo-coding.")
-    private String copyGeoCodingFrom;
-    @SuppressWarnings({"MismatchedReadAndWriteOfArray"})
-    @Parameter(itemAlias = "band", itemsInlined = true,
-               description = "Defines a band to be included in the target product.")
-    private BandDesc[] bands;
+    @Parameter(itemAlias = "include", itemsInlined = false,
+               description = "Defines a node to be included in the target product. If no includes are provided, all" +
+                             " bands are copied.")
+    private NodeDescriptor[] includes;
     @TargetProduct
     private Product targetProduct;
 
-
     @Override
     public void initialize() throws OperatorException {
-
-        if (StringUtils.isNotNullAndNotEmpty(copyGeoCodingFrom)) {
-            Product baseGeoProduct = getSourceProduct(copyGeoCodingFrom);
-            final int sceneRasterWidth = baseGeoProduct.getSceneRasterWidth();
-            final int sceneRasterHeight = baseGeoProduct.getSceneRasterHeight();
-            targetProduct = new Product(productName, productType,
-                                        sceneRasterWidth, sceneRasterHeight);
-
-            copyGeoCoding(baseGeoProduct, targetProduct);
-        } else {
-            BandDesc bandDesc = bands[0];
-            Product srcProduct = getSourceProduct(bandDesc.product);
-            final int sceneRasterWidth = srcProduct.getSceneRasterWidth();
-            final int sceneRasterHeight = srcProduct.getSceneRasterHeight();
-            targetProduct = new Product(productName, productType,
-                                        sceneRasterWidth, sceneRasterHeight);
+        targetProduct = getSourceProducts()[0];
+        validateSourceProducts();
+        if (includes == null || includes.length == 0) {
+            List<NodeDescriptor> nodeDescriptorList = new ArrayList<NodeDescriptor>();
+            final Product[] sourceProducts = getSourceProducts();
+            for (final Product sourceProduct : sourceProducts) {
+                if (sourceProduct != targetProduct) {
+                    for (String bandName : sourceProduct.getBandNames()) {
+                        final NodeDescriptor nodeDescriptor = new NodeDescriptor();
+                        nodeDescriptor.name = bandName;
+                        nodeDescriptor.productId = getSourceProductId(sourceProduct);
+                        nodeDescriptorList.add(nodeDescriptor);
+                    }
+                }
+            }
+            includes = nodeDescriptorList.toArray(new NodeDescriptor[nodeDescriptorList.size()]);
         }
 
         Set<Product> allSrcProducts = new HashSet<Product>();
-        for (BandDesc bandDesc : bands) {
-            Product srcProduct = getSourceProduct(bandDesc.product);
-            if (StringUtils.isNotNullAndNotEmpty(bandDesc.name)) {
-                if (StringUtils.isNotNullAndNotEmpty(bandDesc.newName)) {
-                    copyBandWithFeatures(srcProduct, targetProduct, bandDesc.name, bandDesc.newName);
+        for (NodeDescriptor nodeDescriptor : includes) {
+            Product srcProduct = getSourceProduct(nodeDescriptor.productId);
+            if (srcProduct == targetProduct) {
+                continue;
+            }
+            if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.name)) {
+                if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.newName)) {
+                    copyBandWithFeatures(srcProduct, targetProduct, nodeDescriptor.name, nodeDescriptor.newName);
                 } else {
-                    copyBandWithFeatures(srcProduct, targetProduct, bandDesc.name);
+                    copyBandWithFeatures(srcProduct, targetProduct, nodeDescriptor.name);
                 }
                 allSrcProducts.add(srcProduct);
-            } else if (StringUtils.isNotNullAndNotEmpty(bandDesc.namePattern)) {
-                Pattern pattern = Pattern.compile(bandDesc.namePattern);
+            } else if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.namePattern)) {
+                Pattern pattern = Pattern.compile(nodeDescriptor.namePattern);
                 for (String bandName : srcProduct.getBandNames()) {
                     Matcher matcher = pattern.matcher(bandName);
                     if (matcher.matches()) {
@@ -98,9 +109,11 @@ public class MergeOp extends Operator {
         }
 
         for (Product srcProduct : allSrcProducts) {
-            mergeAutoGrouping(srcProduct);
-            ProductUtils.copyMasks(srcProduct, targetProduct);
-            ProductUtils.copyOverlayMasks(srcProduct, targetProduct);
+            if (srcProduct != targetProduct) {
+                mergeAutoGrouping(srcProduct);
+                ProductUtils.copyMasks(srcProduct, targetProduct);
+                ProductUtils.copyOverlayMasks(srcProduct, targetProduct);
+            }
         }
     }
 
@@ -118,19 +131,6 @@ public class MergeOp extends Operator {
                 }
             }
         }
-    }
-
-    /*
-     * Copies the tie point data, geocoding and the start and stop time.
-     */
-    private static void copyGeoCoding(Product sourceProduct,
-                                      Product destinationProduct) {
-        // copy all tie point grids to output product
-        ProductUtils.copyTiePointGrids(sourceProduct, destinationProduct);
-        // copy geo-coding to the output product
-        ProductUtils.copyGeoCoding(sourceProduct, destinationProduct);
-        destinationProduct.setStartTime(sourceProduct.getStartTime());
-        destinationProduct.setEndTime(sourceProduct.getEndTime());
     }
 
     private void copyBandWithFeatures(Product srcProduct, Product outputProduct, String oldBandName,
@@ -161,20 +161,29 @@ public class MergeOp extends Operator {
         return destBand;
     }
 
+    private void validateSourceProducts() {
+        for (Product sourceProduct : getSourceProducts()) {
+            if (!targetProduct.isCompatibleProduct(sourceProduct, 1.0E-5f)) {
+                throw new OperatorException("Product '" + getSourceProductId(sourceProduct) + "' is not compatible to" +
+                                            " master product.");
+            }
+        }
+    }
+
     @Override
     public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         getLogger().warning("Wrongly configured ProductMerger operator. Tiles should not be requested.");
     }
 
-    public static class BandDesc {
+    public static class NodeDescriptor {
 
-        private String product;
+        private String productId;
         private String name;
         private String newName;
         private String namePattern;
 
-        public void setProduct(String product) {
-            this.product = product;
+        public void setProductId(String productId) {
+            this.productId = productId;
         }
 
         public void setName(String name) {

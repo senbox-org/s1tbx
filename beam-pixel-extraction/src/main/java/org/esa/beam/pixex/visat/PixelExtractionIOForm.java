@@ -30,25 +30,12 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
 
-import javax.swing.AbstractButton;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -85,7 +72,7 @@ class PixelExtractionIOForm {
         tableLayout.setColumnWeightX(1, 1.0);
         tableLayout.setCellWeightY(0, 1, 1.0);
         tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH);
-        tableLayout.setCellColspan(2, 1, 2);
+        tableLayout.setCellColspan(3, 1, 2);
         panel = new JPanel(tableLayout);
 
         listModel = new InputListModel(container.getProperty("inputPaths"));
@@ -101,6 +88,10 @@ class PixelExtractionIOForm {
         addRemoveButtonPanel.add(createAddInputButton());
         addRemoveButtonPanel.add(createRemoveInputButton());
         panel.add(addRemoveButtonPanel);
+
+        panel.add(new JLabel("Time extraction:"));
+        panel.add(new TimeExtractionPane(container));
+        panel.add(new JLabel(""));
 
         JLabel outputDirLabel = new JLabel("Output directory:");
         panel.add(outputDirLabel);
@@ -181,7 +172,7 @@ class PixelExtractionIOForm {
                 try {
                     outputFileProperty.setValue(selectedFile);
                     appContext.getPreferences().setPropertyString(LAST_OPEN_OUTPUT_DIR,
-                                                                  selectedFile.getAbsolutePath());
+                            selectedFile.getAbsolutePath());
 
                 } catch (ValidationException ve) {
                     // not expected to ever come here
@@ -193,9 +184,19 @@ class PixelExtractionIOForm {
     }
 
     private JTextField createFilePrefixField(Property property) {
+        return createTextFieldBinding(property);
+    }
+
+    private JTextField createTextFieldBinding(Property property) {
         final JTextField textField = new JTextField();
         context.bind(property.getName(), textField);
         return textField;
+    }
+
+    private JCheckBox createCheckBoxBinding(Property property) {
+        final JCheckBox checkBox = new JCheckBox(property.getDescriptor().getDisplayName());
+        context.bind(property.getName(), checkBox);
+        return checkBox;
     }
 
     private JList createInputPathsList(InputListModel inputListModel) {
@@ -207,7 +208,7 @@ class PixelExtractionIOForm {
 
     private AbstractButton createAddInputButton() {
         final AbstractButton addButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Plus24.gif"),
-                                                                        false);
+                false);
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -225,7 +226,7 @@ class PixelExtractionIOForm {
 
     private AbstractButton createRemoveInputButton() {
         final AbstractButton removeButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Minus24.gif"),
-                                                                           false);
+                false);
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -279,6 +280,48 @@ class PixelExtractionIOForm {
                 inputChangeListener.stateChanged(new ChangeEvent(this));
             }
         }
+    }
 
+    private class TimeExtractionPane extends JPanel {
+        public TimeExtractionPane(PropertyContainer container) {
+            super(new BorderLayout(0, 5));
+
+            final JCheckBox extractTime = createCheckBoxBinding(container.getProperty("extractTimeFromFilename"));
+
+            final Property datePattern = container.getProperty("dateInterpretationPattern");
+            final String dateDN = datePattern.getDescriptor().getDisplayName();
+            final JPanel datePanel = new JPanel(new BorderLayout(0, 2));
+            final JLabel dateLabel = new JLabel(dateDN + ":");
+            final JTextField datePatternField = createTextFieldBinding(datePattern);
+            dateLabel.setEnabled(false);
+            datePatternField.setEnabled(false);
+            datePanel.add(dateLabel, BorderLayout.NORTH);
+            datePanel.add(datePatternField, BorderLayout.CENTER);
+
+            final Property filenamePattern = container.getProperty("filenameInterpretationPattern");
+            final String filenameDN = filenamePattern.getDescriptor().getDisplayName();
+            final JPanel filenamePanel = new JPanel(new BorderLayout(0, 2));
+            final JLabel filenameLabel = new JLabel(filenameDN + ":");
+            final JTextField filenamePatternField = createTextFieldBinding(filenamePattern);
+            filenameLabel.setEnabled(false);
+            filenamePatternField.setEnabled(false);
+            filenamePanel.add(filenameLabel, BorderLayout.NORTH);
+            filenamePanel.add(filenamePatternField, BorderLayout.CENTER);
+
+            extractTime.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    final boolean selected = extractTime.isSelected();
+                    dateLabel.setEnabled(selected);
+                    datePatternField.setEnabled(selected);
+                    filenameLabel.setEnabled(selected);
+                    filenamePatternField.setEnabled(selected);
+                }
+            });
+
+            add(extractTime, BorderLayout.NORTH);
+            add(datePanel, BorderLayout.CENTER);
+            add(filenamePanel, BorderLayout.SOUTH);
+        }
     }
 }
