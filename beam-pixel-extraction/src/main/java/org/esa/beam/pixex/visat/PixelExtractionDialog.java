@@ -157,19 +157,7 @@ class PixelExtractionDialog extends ModelessDialog {
             AbstractButton runButton = getButton(ID_OK);
             runButton.setEnabled(false);
             try {
-                final PixExOp pixExOp = new PixExOp();
-                pixExOp.setSourceProducts(ioForm.getSourceProducts());
-                for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
-                    pixExOp.setParameter(entry.getKey(), entry.getValue());
-                }
-                pixExOp.initialize();
-                if(!pixExOp.wasSuccessful()) {
-                    String message = pixExOp.getErrorMessage();
-                    // todo - find better exception type
-                    throw new Exception(message);
-                }
-                pixExOp.dispose();
-//                GPF.createProduct("PixEx", parameterMap, ioForm.getSourceProducts());
+                GPF.createProduct("PixEx", parameterMap, ioForm.getSourceProducts());
                 pm.worked(1);
             } finally {
                 pm.done();

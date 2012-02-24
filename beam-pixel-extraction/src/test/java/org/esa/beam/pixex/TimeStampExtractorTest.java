@@ -21,7 +21,7 @@ public class TimeStampExtractorTest {
     }
 
     @Test
-    public void testExtractTimeStamps_1() throws ParseException {
+    public void testExtractTimeStamps_1() throws ParseException, ValidationException {
         final TimeStampExtractor extractor = new TimeStampExtractor("yyyyMMdd", "${date}*.dim");
         final ProductData.UTC[] timeStamps = extractor.extractTimeStamps("20111103_est_wac_wew_1200.dim");
         assertEquals(2, timeStamps.length);
@@ -30,7 +30,7 @@ public class TimeStampExtractorTest {
     }
 
     @Test
-    public void testExtractTimeStamps_2() throws ParseException {
+    public void testExtractTimeStamps_2() throws ParseException, ValidationException {
         final TimeStampExtractor extractor = new TimeStampExtractor("yyyyMMdd", ".*_${date}_*.dim");
         ProductData.UTC[] timeStamps = extractor.extractTimeStamps("leading_characters_20111103_est_wac_wew_1200.dim");
         assertEquals(timeStamps.length, 2);
@@ -39,7 +39,7 @@ public class TimeStampExtractorTest {
     }
 
     @Test
-    public void testExtractTimeStamps_3() throws ParseException {
+    public void testExtractTimeStamps_3() throws ParseException, ValidationException {
         final TimeStampExtractor extractor = new TimeStampExtractor("yyyyMMdd", "${date}_${date}*.dim");
         ProductData.UTC[] dateRange = extractor.extractTimeStamps("20110917_20110923_bas_wac_acr_1200.dim");
         assertEquals(dateRange.length, 2);
@@ -48,7 +48,7 @@ public class TimeStampExtractorTest {
     }
 
     @Test
-    public void testExtractTimeStamps_4() throws ParseException {
+    public void testExtractTimeStamps_4() throws ParseException, ValidationException {
         final TimeStampExtractor extractor = new TimeStampExtractor("yyyyMM", "${date}*.dim");
         ProductData.UTC[] dateRange = extractor.extractTimeStamps("201106_bas_wac_acr_1200.dim");
         assertEquals(dateRange.length, 2);
@@ -57,7 +57,7 @@ public class TimeStampExtractorTest {
     }
 
     @Test
-    public void testExtractTimeStamps_5() throws ParseException {
+    public void testExtractTimeStamps_5() throws ParseException, ValidationException {
         final TimeStampExtractor extractor = new TimeStampExtractor("yyyyMMdd_hh_mm_ss", "*${date}*.dim");
         ProductData.UTC[] dateRange = extractor.extractTimeStamps("something20110601_12_53_10_bas_wac_acr_1200.dim");
         assertEquals(dateRange.length, 2);
@@ -65,8 +65,8 @@ public class TimeStampExtractorTest {
         assertEquals(dateRange[0].getAsDate().getTime(), dateRange[1].getAsDate().getTime());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testExtractTimeStamps_badFilename() throws ParseException {
+    @Test(expected = ValidationException.class)
+    public void testExtractTimeStamps_badFilename() throws ParseException, ValidationException {
         final TimeStampExtractor extractor = new TimeStampExtractor("yyyyMMdd", "${date}*.dim");
         extractor.extractTimeStamps("something20110603.dim");
     }

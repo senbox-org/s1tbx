@@ -36,7 +36,7 @@ public class TimeStampExtractor {
         init();
     }
 
-    public ProductData.UTC[] extractTimeStamps(String fileName) {
+    public ProductData.UTC[] extractTimeStamps(String fileName) throws ValidationException {
         final ProductData.UTC startTime = timeStampAccess.getStartTime(fileName);
         final ProductData.UTC stopTime = timeStampAccess.getStopTime(fileName);
         return new ProductData.UTC[]{startTime, stopTime};
@@ -196,9 +196,9 @@ public class TimeStampExtractor {
         return dateMatcher;
     }
 
-    private void validateFileName(Matcher matcher, String fileName) {
+    private void validateFileName(Matcher matcher, String fileName) throws ValidationException {
         if(!matcher.matches()) {
-            throw new IllegalArgumentException("Given filename '" + fileName + "' does not match pattern '" + matcher.pattern().pattern());
+            throw new ValidationException("Given filename '" + fileName + "' does not match the given date pattern.");
         }
     }
 
@@ -295,8 +295,8 @@ public class TimeStampExtractor {
     private static interface TimeStampAccess {
 
         void init();
-        ProductData.UTC getStartTime(String fileName);
-        ProductData.UTC getStopTime(String fileName);
+        ProductData.UTC getStartTime(String fileName) throws ValidationException;
+        ProductData.UTC getStopTime(String fileName) throws ValidationException;
     }
 
     private class StartTimeAccess implements TimeStampAccess {
@@ -315,14 +315,14 @@ public class TimeStampExtractor {
         }
 
         @Override
-        public ProductData.UTC getStartTime(String fileName) {
+        public ProductData.UTC getStartTime(String fileName) throws ValidationException {
             final Matcher matcher = startDatePattern.matcher(fileName);
             validateFileName(matcher, fileName);
             return createTime(matcher, startDateGroupIndices);
         }
 
         @Override
-        public ProductData.UTC getStopTime(String fileName) {
+        public ProductData.UTC getStopTime(String fileName) throws ValidationException {
             return getStartTime(fileName);
         }
     }
@@ -348,14 +348,14 @@ public class TimeStampExtractor {
         }
 
         @Override
-        public ProductData.UTC getStartTime(String fileName) {
+        public ProductData.UTC getStartTime(String fileName) throws ValidationException {
             final Matcher matcher = startStopDatesPattern.matcher(fileName);
             validateFileName(matcher, fileName);
             return createTime(matcher, startDateGroupIndices);
         }
 
         @Override
-        public ProductData.UTC getStopTime(String fileName) {
+        public ProductData.UTC getStopTime(String fileName) throws ValidationException {
             final Matcher matcher = startStopDatesPattern.matcher(fileName);
             validateFileName(matcher, fileName);
             return createTime(matcher, stopDateGroupIndices);

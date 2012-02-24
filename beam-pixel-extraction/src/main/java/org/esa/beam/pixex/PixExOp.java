@@ -192,7 +192,7 @@ public class PixExOp extends Operator implements Output {
 
     @Override
     public void initialize() throws OperatorException {
-        if (coordinatesFile == null && coordinates == null) {
+        if (coordinatesFile == null && (coordinates == null || coordinates.length == 0)) {
             throw new OperatorException("No coordinates specified.");
         }
         if (outputDir != null && !outputDir.exists() && !outputDir.mkdirs()) {
@@ -449,15 +449,20 @@ public class PixExOp extends Operator implements Output {
         Product product = null;
         try {
             product = ProductIO.readProduct(file);
+            if(product == null) {
+                getLogger().warning("Unable to read product from file '" + file.getAbsolutePath() + "'.");
+                return false;
+            }
             if (extractTimeFromFilename) {
                 final ProductData.UTC[] timeStamps = timeStampExtractor.extractTimeStamps(file.getName());
                 product.setStartTime(timeStamps[0]);
                 product.setEndTime(timeStamps[1]);
             }
-            if (product != null) {
-                return extractMeasurements(product);
-            }
-        } catch (Exception ignore) {
+            return extractMeasurements(product);
+        } catch (ValidationException e) {
+            throw new OperatorException(e);
+        } catch (IOException e) {
+            getLogger().warning("Unable to read product from file '" + file.getAbsolutePath() + "'.");
         } finally {
             if (product != null) {
                 product.dispose();
@@ -579,16 +584,6 @@ public class PixExOp extends Operator implements Output {
         }
     }
 
-    public boolean wasSuccessful() {
-        // todo - implement
-        return false;
-    }
-
-    public String getErrorMessage() {
-        // todo - implement
-        return null;
-    }
-
     private static class DirectoryFileFilter implements FileFilter {
 
         @Override
@@ -614,9 +609,10 @@ public class PixExOp extends Operator implements Output {
             }
             final GeoCoding geoCoding = product.getGeoCoding();
             if (geoCoding == null) {
-                final String msgPattern = "Product [%s] refused. Cause: Product is not geo-coded.";
-                logger.warning(String.format(msgPattern, product.getFileLocation()));
-                return false;
+                throw new OperatorException("geoCoding == null");
+//                final String msgPattern = "Product [%s] refused. Cause: Product is not geo-coded.";
+//                logger.warning(String.format(msgPattern, product.getFileLocation()));
+//                return false;
             }
             if (!geoCoding.canGetPixelPos()) {
                 final String msgPattern = "Product [%s] refused. Cause: Pixel position can not be determined.";
