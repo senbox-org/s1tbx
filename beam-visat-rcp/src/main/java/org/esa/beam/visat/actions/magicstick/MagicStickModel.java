@@ -39,17 +39,15 @@ class MagicStickModel implements Cloneable  {
 
     static final String MAGIC_STICK_MASK_NAME = "magic_stick";
 
-    private Mode mode;
-    private Operator operator;
-    private Method method;
-
-    private ArrayList<double[]> plusSpectra;
-    private ArrayList<double[]> minusSpectra;
     private double tolerance;
-    private boolean normalize;
-
     private double minTolerance;
     private double maxTolerance;
+    private Operator operator;
+    private Method method;
+    private boolean normalize;
+    private Mode mode;
+    private ArrayList<double[]> plusSpectra;
+    private ArrayList<double[]> minusSpectra;
 
     MagicStickModel() {
         mode = Mode.SINGLE;

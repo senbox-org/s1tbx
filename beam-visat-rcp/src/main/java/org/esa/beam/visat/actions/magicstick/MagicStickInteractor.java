@@ -171,7 +171,7 @@ public class MagicStickInteractor extends ViewportInteractor {
         this.undoContext = undoContext;
     }
 
-    private void updateModel(MagicStickModel other) {
+    void updateModel(MagicStickModel other) {
         getModel().set(other);
         updateMagicStickMask();
         form.getBindingContext().adjustComponents();
@@ -219,13 +219,8 @@ public class MagicStickInteractor extends ViewportInteractor {
         }
 
         @Override
-        public boolean canRedo() {
-            return super.canRedo();    //To change body of overridden methods use File | Settings | File Templates.
-        }
-
-        @Override
         public String getPresentationName() {
-            return "Click spectrum";
+            return "Modify magic stick mask";
         }
     }
 

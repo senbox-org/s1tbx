@@ -5,6 +5,8 @@ import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
+import com.thoughtworks.xstream.XStream;
+import org.esa.beam.util.io.FileUtils;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -16,6 +18,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.*;
+import java.text.MessageFormat;
+import java.util.prefs.Preferences;
 
 /**
  * @author Norman Fomferra
@@ -23,6 +28,7 @@ import java.beans.PropertyChangeListener;
  */
 class MagicStickForm {
     public static final int TOLERANCE_SLIDER_RESOLUTION = 1000;
+    public static final String PREFERENCES_KEY_LAST_DIR = "beam.magicStick.lastDir";
 
     private MagicStickInteractor interactor;
 
@@ -36,14 +42,14 @@ class MagicStickForm {
     private JTextField maxToleranceField;
 
     private UndoContext undoContext;
-    private final JButton redoButton;
-    private final JButton undoButton;
+    private JButton redoButton;
+    private JButton undoButton;
     private BindingContext bindingContext;
 
+    private File settingsFile;
+
     MagicStickForm(MagicStickInteractor interactor) {
-         this.interactor = interactor;
-        redoButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/edit-redo.png")));
-        undoButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/edit-undo.png")));
+        this.interactor = interactor;
     }
 
     public BindingContext getBindingContext() {
@@ -85,8 +91,8 @@ class MagicStickForm {
             }
         });
 
-        minToleranceField = new JTextField(8);
-        maxToleranceField = new JTextField(8);
+        minToleranceField = new JTextField(4);
+        maxToleranceField = new JTextField(4);
         bindingContext.bind("minTolerance", minToleranceField);
         bindingContext.bind("maxTolerance", maxToleranceField);
         final PropertyChangeListener minMaxToleranceListener = new PropertyChangeListener() {
@@ -176,9 +182,9 @@ class MagicStickForm {
             }
         });
 
-        final JButton clearButton = new JButton(new ImageIcon(getClass().getResource("/org/esa/beam/resources/images/icons/Remove16.gif")));
-        clearButton.setToolTipText("Clears the current mask and removes all spectra collected so far,");
-        clearButton.addActionListener(new ActionListener() {
+        final JButton newButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/document-new.png")));
+        newButton.setToolTipText("New settings");
+        newButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 interactor.getModel().clearSpectra();
@@ -186,6 +192,34 @@ class MagicStickForm {
             }
         });
 
+        final JButton openButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/document-open.png")));
+        openButton.setToolTipText("Open settings");
+        openButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openSettings((Component) e.getSource());
+            }
+        });
+
+        final JButton saveButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/document-save.png")));
+        saveButton.setToolTipText("Save settings");
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveSettings((Component) e.getSource(), settingsFile);
+            }
+        });
+
+        final JButton saveAsButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/document-save-as.png")));
+        saveAsButton.setToolTipText("Save settings as");
+        saveAsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveSettings((Component) e.getSource(), null);
+            }
+        });
+
+        undoButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/edit-undo.png")));
         undoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -194,6 +228,7 @@ class MagicStickForm {
                 }
             }
         });
+        redoButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/edit-redo.png")));
         redoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -212,12 +247,16 @@ class MagicStickForm {
 
         JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
+        toolBar.add(newButton);
+        toolBar.add(openButton);
+        toolBar.add(saveButton);
+        toolBar.add(saveAsButton);
+        toolBar.add(new JLabel("   "));
         toolBar.add(undoButton);
         toolBar.add(redoButton);
-        toolBar.add(new JLabel("    "));
+        toolBar.add(new JLabel("   "));
         toolBar.add(plusButton);
         toolBar.add(minusButton);
-        toolBar.add(clearButton);
 
         JPanel toolBarPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
         toolBarPanel.add(toolBar);
@@ -244,6 +283,82 @@ class MagicStickForm {
         adjustSlider();
 
         return panel;
+    }
+
+    private void openSettings(Component parent) {
+        File settingsFile = getFile(parent, this.settingsFile, true);
+        if (settingsFile == null) {
+            return;
+        }
+        try {
+            MagicStickModel model = (MagicStickModel) createXStream().fromXML(FileUtils.readText(settingsFile));
+            interactor.updateModel(model);
+            this.settingsFile = settingsFile;
+        } catch (IOException e) {
+            String msg = MessageFormat.format("Failed to open settings:\n{0}", e.getMessage());
+            JOptionPane.showMessageDialog(parent, msg, "I/O Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void saveSettings(Component parent, File settingsFile) {
+        if (settingsFile == null) {
+            settingsFile = getFile(parent, this.settingsFile, false);
+            if (settingsFile == null) {
+                return;
+            }
+        }
+        try {
+            FileWriter writer = new FileWriter(settingsFile);
+            try {
+                writer.write(createXStream().toXML(interactor.getModel()));
+            } finally {
+                writer.close();
+            }
+            this.settingsFile = settingsFile;
+        } catch (IOException e) {
+            String msg = MessageFormat.format("Failed to safe settings:\n{0}", e.getMessage());
+            JOptionPane.showMessageDialog(parent, msg, "I/O Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private XStream createXStream() {
+        XStream xStream = new XStream();
+        xStream.alias("magicStickSettings", MagicStickModel.class);
+        xStream.aliasType("magicStickSettings", MagicStickModel.class);
+        return xStream;
+    }
+
+
+    private static File getFile(Component parent, File file, boolean open) {
+        String directoryPath = Preferences.userRoot().absolutePath();
+        System.out.println("directoryPath = " + directoryPath);
+        JFileChooser fileChooser = new JFileChooser(Preferences.userRoot().get(PREFERENCES_KEY_LAST_DIR, System.getProperty("user.home")));
+        if (file != null) {
+            fileChooser.setSelectedFile(file);
+        } else {
+            fileChooser.setSelectedFile(new File(fileChooser.getCurrentDirectory(), "magic-stick-settings.xml"));
+        }
+        while (true) {
+            int resp = open ? fileChooser.showOpenDialog(parent) : fileChooser.showSaveDialog(parent);
+            File settingsFile = fileChooser.getSelectedFile();
+            Preferences.userRoot().put(PREFERENCES_KEY_LAST_DIR, fileChooser.getCurrentDirectory().getPath());
+            if (resp != JFileChooser.APPROVE_OPTION) {
+                return null;
+            }
+            if (open || !settingsFile.exists()) {
+                return settingsFile;
+            }
+            String msg = MessageFormat.format("Settings file ''{0}'' already exists." +
+                                                      "\nOverwrite?", settingsFile.getName());
+            int resp2 = JOptionPane.showConfirmDialog(parent, msg,
+                                                      "File exists", JOptionPane.YES_NO_CANCEL_OPTION);
+            if (resp2 == JOptionPane.YES_OPTION) {
+                return settingsFile;
+            }
+            if (resp2 == JOptionPane.CANCEL_OPTION) {
+                return null;
+            }
+        }
     }
 
     void updateUndoRedoState() {
