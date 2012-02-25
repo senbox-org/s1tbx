@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -68,7 +68,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * todo - add API doc
+ * Data container used for storing/restoring BEAM sessions.
  *
  * @author Ralf Quast
  * @author Norman Fomferra
@@ -78,13 +78,20 @@ import java.util.List;
 @XStreamAlias("session")
 public class Session {
 
-    public static final String CURRENT_MODEL_VERSION = "1.0.0";
+    public static String CURRENT_MODEL_VERSION = "1.0.0";
 
-    final String modelVersion;
+    String modelVersion;
     @XStreamAlias("products")
-    final ProductRef[] productRefs;
+    ProductRef[] productRefs;
     @XStreamAlias("views")
-    final ViewRef[] viewRefs;
+    ViewRef[] viewRefs;
+
+    /**
+     * No-arg constructor required by XStream.
+     */
+    @SuppressWarnings("UnusedDeclaration")
+    public Session() {
+    }
 
     public Session(URI rootURI, Product[] products, ProductNodeView[] views) {
         modelVersion = CURRENT_MODEL_VERSION;
@@ -96,7 +103,7 @@ public class Session {
             productRefs[i] = new ProductRef(product.getRefNo(), relativeProductURI);
         }
 
-        final ProductManager productManager = new ProductManager();
+        ProductManager productManager = new ProductManager();
         for (Product product : products) {
             productManager.addProduct(product);
         }
@@ -107,14 +114,14 @@ public class Session {
             ViewportDef viewportDef = null;
             LayerRef[] layerRefs = new LayerRef[0];
             if (view instanceof ProductSceneView) {
-                final ProductSceneView sceneView = (ProductSceneView) view;
-                final Viewport viewport = sceneView.getLayerCanvas().getViewport();
+                ProductSceneView sceneView = (ProductSceneView) view;
+                Viewport viewport = sceneView.getLayerCanvas().getViewport();
                 viewportDef = new ViewportDef(viewport.isModelYAxisDown(),
                                               viewport.getOffsetX(),
                                               viewport.getOffsetY(),
                                               viewport.getZoomFactor(),
                                               viewport.getOrientation());
-                final List<Layer> layers = sceneView.getRootLayer().getChildren();
+                List<Layer> layers = sceneView.getRootLayer().getChildren();
                 layerRefs = getLayerRefs(layers, productManager);
             }
 
@@ -130,11 +137,11 @@ public class Session {
             int productRefNo = 0;
 
             if (view instanceof ProductSceneView) {
-                final ProductSceneView psv = (ProductSceneView) view;
+                ProductSceneView psv = (ProductSceneView) view;
                 if (psv.isRGB()) {
                     viewName = psv.getSceneName();
 
-                    final RasterDataNode[] rasters = psv.getRasters();
+                    RasterDataNode[] rasters = psv.getRasters();
                     expressionR = getExpression(rasters[0]);
                     expressionG = getExpression(rasters[1]);
                     expressionB = getExpression(rasters[2]);
@@ -175,7 +182,7 @@ public class Session {
 
     // todo - code duplication in RgbImageLayerType.java (nf 10.2009)
     private static String getExpression(RasterDataNode raster) {
-        final Product product = raster.getProduct();
+        Product product = raster.getProduct();
         if (product != null) {
             if (product.containsBand(raster.getName())) {
                 return raster.getName();
@@ -189,11 +196,11 @@ public class Session {
     }
 
     private static URI getFileLocationURI(URI rootURI, Product product) {
-        final File file = product.getFileLocation();
+        File file = product.getFileLocation();
         if (file == null) {
             return null;
         }
-        final URI uri = file.toURI();
+        URI uri = file.toURI();
         if (rootURI == null) {
             return uri;
         }
@@ -201,7 +208,7 @@ public class Session {
     }
 
     private static LayerRef[] getLayerRefs(List<Layer> layers, ProductManager productManager) {
-        final ArrayList<LayerRef> layerRefs = new ArrayList<LayerRef>(layers.size());
+        ArrayList<LayerRef> layerRefs = new ArrayList<LayerRef>(layers.size());
         for (int i = 0; i < layers.size(); i++) {
             Layer layer = layers.get(i);
             if (isSerializableLayer(layer)) {
@@ -216,7 +223,7 @@ public class Session {
                     e.printStackTrace();
                 }
                 layerRefs.add(new LayerRef(layer, i, element,
-                                            getLayerRefs(layer.getChildren(), productManager)));
+                                           getLayerRefs(layer.getChildren(), productManager)));
             }
         }
         return layerRefs.toArray(new LayerRef[layerRefs.size()]);
@@ -229,11 +236,11 @@ public class Session {
 
 
     private static PropertyContainer getConfigurationCopy(PropertySet propertyContainer) {
-        final PropertyContainer configuration = new PropertyContainer();
+        PropertyContainer configuration = new PropertyContainer();
 
         for (Property model : propertyContainer.getProperties()) {
-            final PropertyDescriptor descriptor = new PropertyDescriptor(model.getDescriptor());
-            final DefaultPropertyAccessor valueAccessor = new DefaultPropertyAccessor();
+            PropertyDescriptor descriptor = new PropertyDescriptor(model.getDescriptor());
+            DefaultPropertyAccessor valueAccessor = new DefaultPropertyAccessor();
             valueAccessor.setValue(model.getValue());
             configuration.addProperty(new Property(descriptor, valueAccessor));
         }
@@ -266,11 +273,11 @@ public class Session {
             CanceledException {
         try {
             pm.beginTask("Restoring session", 100);
-            final ArrayList<Exception> problems = new ArrayList<Exception>();
-            final ProductManager productManager = restoreProducts(rootURI, SubProgressMonitor.create(pm, 80),
-                                                                  problemSolver, problems);
+            ArrayList<Exception> problems = new ArrayList<Exception>();
+            ProductManager productManager = restoreProducts(rootURI, SubProgressMonitor.create(pm, 80),
+                                                            problemSolver, problems);
             // Note: ProductManager is used for the SessionDomConverter
-            final ProductNodeView[] views = restoreViews(productManager, appContext.getPreferences(), SubProgressMonitor.create(pm, 20), problems
+            ProductNodeView[] views = restoreViews(productManager, appContext.getPreferences(), SubProgressMonitor.create(pm, 20), problems
             );
             return new RestoredSession(productManager.getProducts(),
                                        views,
@@ -282,12 +289,12 @@ public class Session {
 
     ProductManager restoreProducts(URI rootURI, ProgressMonitor pm, ProblemSolver problemSolver,
                                    List<Exception> problems) throws CanceledException {
-        final ProductManager productManager = new ProductManager();
+        ProductManager productManager = new ProductManager();
         try {
             pm.beginTask("Restoring products", productRefs.length);
             for (ProductRef productRef : productRefs) {
                 try {
-                    final Product product;
+                    Product product;
                     File productFile = new File(rootURI.resolve(productRef.uri));
                     if (productFile.exists()) {
                         product = ProductIO.readProduct(productFile);
@@ -347,10 +354,10 @@ public class Session {
                                          ProgressMonitor pm,
                                          List<Exception> problems,
                                          List<ProductNodeView> views) throws Exception {
-        final ProductSceneView view = createSceneView(viewRef, productManager, applicationPreferences, pm);
+        ProductSceneView view = createSceneView(viewRef, productManager, applicationPreferences, pm);
         views.add(view);
         for (int i = 0; i < viewRef.getLayerCount(); i++) {
-            final LayerRef ref = viewRef.getLayerRef(i);
+            LayerRef ref = viewRef.getLayerRef(i);
             if (isBaseImageLayerRef(view, ref)) {
                 // The BaseImageLayer is not restored by LayerRef, so we have to adjust
                 // transparency and visibility  manually
@@ -378,7 +385,7 @@ public class Session {
         if (product == null) {
             throw new Exception("Unknown product reference number: " + viewRef.productRefNo);
         }
-        final ProductSceneImage sceneImage;
+        ProductSceneImage sceneImage;
         if (viewRef.productNodeName != null) {
             RasterDataNode node = product.getRasterDataNode(viewRef.productNodeName);
             if (node != null) {
@@ -388,18 +395,18 @@ public class Session {
                 throw new Exception("Unknown raster data source: " + viewRef.productNodeName);
             }
         } else {
-            final Band rBand = getRgbBand(product, viewRef.expressionR,
-                                          RGBImageProfile.RGB_BAND_NAMES[0]);
-            final Band gBand = getRgbBand(product, viewRef.expressionG,
-                                          RGBImageProfile.RGB_BAND_NAMES[1]);
-            final Band bBand = getRgbBand(product, viewRef.expressionB,
-                                          RGBImageProfile.RGB_BAND_NAMES[2]);
+            Band rBand = getRgbBand(product, viewRef.expressionR,
+                                    RGBImageProfile.RGB_BAND_NAMES[0]);
+            Band gBand = getRgbBand(product, viewRef.expressionG,
+                                    RGBImageProfile.RGB_BAND_NAMES[1]);
+            Band bBand = getRgbBand(product, viewRef.expressionB,
+                                    RGBImageProfile.RGB_BAND_NAMES[2]);
             sceneImage = new ProductSceneImage(viewRef.viewName, rBand, gBand, bBand,
                                                applicationPreferences,
                                                SubProgressMonitor.create(pm, 1));
         }
 
-        final ProductSceneView view = new ProductSceneView(sceneImage);
+        ProductSceneView view = new ProductSceneView(sceneImage);
         Rectangle bounds = viewRef.bounds;
         if (bounds != null && !bounds.isEmpty()) {
             view.setBounds(bounds);
@@ -446,12 +453,12 @@ public class Session {
                                     Layer parentLayer,
                                     LayerRef layerRef,
                                     ProductManager productManager) throws ConversionException, ValidationException {
-        final LayerType type = LayerTypeRegistry.getLayerType(layerRef.layerTypeName);
+        LayerType type = LayerTypeRegistry.getLayerType(layerRef.layerTypeName);
         if (type != null) {
-            final SessionDomConverter converter = new SessionDomConverter(productManager);
-            final PropertySet template = type.createLayerConfig(layerContext);
+            SessionDomConverter converter = new SessionDomConverter(productManager);
+            PropertySet template = type.createLayerConfig(layerContext);
             converter.convertDomToValue(layerRef.configuration, template);
-            final Layer layer = type.createLayer(layerContext, template);
+            Layer layer = type.createLayer(layerContext, template);
             layer.setId(layerRef.id);
             layer.setVisible(layerRef.visible);
             layer.setTransparency(layerRef.transparency);
@@ -493,9 +500,16 @@ public class Session {
     @XStreamAlias("product")
     public static class ProductRef {
 
-        final int refNo;
+        int refNo;
         @XStreamConverter(URIConverterWrapper.class)
-        final URI uri;
+        URI uri;
+
+        /**
+         * No-arg constructor required by XStream.
+         */
+        @SuppressWarnings("UnusedDeclaration")
+        public ProductRef() {
+        }
 
         public ProductRef(int refNo, URI uri) {
             this.refNo = refNo;
@@ -506,21 +520,28 @@ public class Session {
     @XStreamAlias("view")
     public static class ViewRef {
 
-        final int id;
-        final String type;
-        final Rectangle bounds;
+        int id;
+        String type;
+        Rectangle bounds;
         @XStreamAlias("viewport")
-        final ViewportDef viewportDef;
+        ViewportDef viewportDef;
 
-        final int productRefNo;
-        final String productNodeName;
-        final String viewName;
-        final String expressionR;
-        final String expressionG;
-        final String expressionB;
+        int productRefNo;
+        String productNodeName;
+        String viewName;
+        String expressionR;
+        String expressionG;
+        String expressionB;
 
         @XStreamAlias("layers")
-        final LayerRef[] layerRefs;
+        LayerRef[] layerRefs;
+
+        /**
+         * No-arg constructor required by XStream.
+         */
+        @SuppressWarnings("UnusedDeclaration")
+        public ViewRef() {
+        }
 
         public ViewRef(int id, String type, Rectangle bounds,
                        ViewportDef viewportDef, int productRefNo,
@@ -553,15 +574,22 @@ public class Session {
     public static class LayerRef {
 
         @XStreamAlias("type")
-        final String layerTypeName;
-        final String id;
-        final String name;
-        final boolean visible;
-        final double transparency;
-        final int zOrder;
+        String layerTypeName;
+        String id;
+        String name;
+        boolean visible;
+        double transparency;
+        int zOrder;
         @XStreamConverter(DomElementXStreamConverter.class)
-        final DomElement configuration;
-        final LayerRef[] children;
+        DomElement configuration;
+        LayerRef[] children;
+
+        /**
+         * No-arg constructor required by XStream.
+         */
+        @SuppressWarnings("UnusedDeclaration")
+        public LayerRef() {
+        }
 
         public LayerRef(Layer layer, int zOrder, DomElement configuration, LayerRef[] children) {
             this.layerTypeName = layer.getLayerType().getName();
@@ -578,11 +606,18 @@ public class Session {
     @XStreamAlias("viewport")
     public static class ViewportDef {
 
-        final boolean modelYAxisDown;
-        final double offsetX;
-        final double offsetY;
-        final double zoomFactor;
-        final double orientation;
+        boolean modelYAxisDown;
+        double offsetX;
+        double offsetY;
+        double zoomFactor;
+        double orientation;
+
+        /**
+         * No-arg constructor required by XStream.
+         */
+        @SuppressWarnings("UnusedDeclaration")
+        public ViewportDef() {
+        }
 
         public ViewportDef(boolean modelYAxisDown,
                            double offsetX,
@@ -614,7 +649,7 @@ public class Session {
 
     private static class Channel extends VirtualBand {
 
-        public Channel(final String name, Product product, final String expression) {
+        public Channel(String name, Product product, String expression) {
             super(name, ProductData.TYPE_FLOAT32, product.getSceneRasterWidth(), product.getSceneRasterHeight(),
                   expression);
             setOwner(product);
