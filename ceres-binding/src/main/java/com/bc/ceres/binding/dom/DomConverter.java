@@ -43,7 +43,7 @@ public interface DomConverter {
      * @param parentElement The parent DOM element.
      * @param value         The value which receives the DOM representation of the value or {@code null}.
      *                      If {@code value} is {@code null}, the method is responsible for the creation of a new instance
-     *                      and its configuration using the DOM. @return The converted and configured value.
+     *                      and its configuration using the DOM.
      *
      * @return The converted value, never {@code null}.
      *
