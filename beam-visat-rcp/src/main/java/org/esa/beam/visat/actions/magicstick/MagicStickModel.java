@@ -16,7 +16,8 @@ import java.util.List;
  * @author Norman Fomferra
  * @since BEAM 4.10
  */
-class MagicStickModel {
+class MagicStickModel implements Cloneable  {
+
 
     public enum Mode {
         SINGLE,
@@ -59,6 +60,30 @@ class MagicStickModel {
         tolerance = 0.1;
         minTolerance = 0.0;
         maxTolerance = 1.0;
+    }
+
+    @SuppressWarnings("CloneDoesntDeclareCloneNotSupportedException")
+    @Override
+    public MagicStickModel clone()  {
+        try {
+            MagicStickModel clone = (MagicStickModel) super.clone();
+            clone.plusSpectra = new ArrayList<double[]>(plusSpectra);
+            clone.minusSpectra = new ArrayList<double[]>(minusSpectra);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException(e) ;
+        }
+    }
+    
+    public void set(MagicStickModel other) {
+        method = other.method;
+        operator = other.operator;
+        mode = other.mode;
+        tolerance = other.tolerance;
+        minTolerance = other.minTolerance;
+        maxTolerance = other.maxTolerance;
+        plusSpectra = new ArrayList<double[]>(other.plusSpectra);
+        minusSpectra = new ArrayList<double[]>(other.minusSpectra);
     }
 
     void addSpectrum(double... spectrum) {

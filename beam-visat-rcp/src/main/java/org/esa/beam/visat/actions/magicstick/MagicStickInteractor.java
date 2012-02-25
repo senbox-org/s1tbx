@@ -20,6 +20,8 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.swing.figure.ViewportInteractor;
+import com.bc.ceres.swing.undo.UndoContext;
+import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.UIUtils;
@@ -28,6 +30,10 @@ import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoableEdit;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
@@ -50,6 +56,8 @@ public class MagicStickInteractor extends ViewportInteractor {
     private final MyLayerListener layerListener;
 
     private MagicStickModel model;
+    private UndoContext undoContext;
+    private MagicStickForm form;
 
     public MagicStickInteractor() {
         layerListener = new MyLayerListener();
@@ -127,10 +135,11 @@ public class MagicStickInteractor extends ViewportInteractor {
         } catch (IOException e1) {
             return;
         }
-
+        MagicStickModel oldModel = getModel().clone();
         getModel().addSpectrum(spectrum);
-
         updateMagicStickMask(product, spectralBands);
+        MagicStickModel newModel = getModel().clone();
+        undoContext.postEdit(new MyUndoableEdit(oldModel, newModel));
     }
 
     void updateMagicStickMask() {
@@ -146,9 +155,10 @@ public class MagicStickInteractor extends ViewportInteractor {
     }
 
     private JDialog createOptionsWindow() {
+        form = new MagicStickForm(this);
         JDialog optionsWindow = new JDialog(VisatApp.getApp().getMainFrame(), DIALOG_TITLE, false);
         UIUtils.centerComponent(optionsWindow, VisatApp.getApp().getMainFrame());
-        optionsWindow.getContentPane().add(new MagicStickForm(this).createPanel());
+        optionsWindow.getContentPane().add(form.createPanel());
         optionsWindow.pack();
         return optionsWindow;
     }
@@ -156,6 +166,18 @@ public class MagicStickInteractor extends ViewportInteractor {
     public MagicStickModel getModel() {
         return model;
     }
+
+    public void setUndoContext(UndoContext undoContext) {
+        this.undoContext = undoContext;
+    }
+
+    private void updateModel(MagicStickModel other) {
+        getModel().set(other);
+        updateMagicStickMask();
+        form.getBindingContext().adjustComponents();
+        form.updateUndoRedoState();
+    }
+
 
     /**
      * A layer listener that sets the layer for "magic_stick" mask
@@ -172,6 +194,38 @@ public class MagicStickInteractor extends ViewportInteractor {
                     }
                 }
             }
+        }
+    }
+
+    private class MyUndoableEdit extends AbstractUndoableEdit {
+        private final MagicStickModel oldModel;
+        private final MagicStickModel newModel;
+
+        public MyUndoableEdit(MagicStickModel oldModel, MagicStickModel newModel) {
+            this.oldModel = oldModel;
+            this.newModel = newModel;
+        }
+
+        @Override
+        public void undo() throws CannotUndoException {
+            super.undo();
+            updateModel(oldModel);
+        }
+
+        @Override
+        public void redo() throws CannotRedoException {
+            super.redo();
+            updateModel(newModel);
+        }
+
+        @Override
+        public boolean canRedo() {
+            return super.canRedo();    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public String getPresentationName() {
+            return "Click spectrum";
         }
     }
 

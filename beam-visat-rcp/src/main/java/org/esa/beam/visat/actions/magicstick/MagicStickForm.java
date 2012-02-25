@@ -3,10 +3,14 @@ package org.esa.beam.visat.actions.magicstick;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.undo.UndoContext;
+import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,21 +25,37 @@ class MagicStickForm {
     public static final int TOLERANCE_SLIDER_RESOLUTION = 1000;
 
     private MagicStickInteractor interactor;
-    private JTextField toleranceField;
-    private JSlider toleranceSlider;
 
+    // don't forget: private JCheckBox cumulativeModeCheckBox;
+    private JTextField toleranceField;
+
+    private JSlider toleranceSlider;
     boolean adjustingSlider;
     private JCheckBox normalizeCheckBox;
     private JTextField minToleranceField;
     private JTextField maxToleranceField;
 
+    private UndoContext undoContext;
+    private final JButton redoButton;
+    private final JButton undoButton;
+    private BindingContext bindingContext;
+
     MagicStickForm(MagicStickInteractor interactor) {
-        this.interactor = interactor;
+         this.interactor = interactor;
+        redoButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/edit-redo.png")));
+        undoButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/edit-undo.png")));
+    }
+
+    public BindingContext getBindingContext() {
+        return bindingContext;
     }
 
     public JPanel createPanel() {
 
-        final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(interactor.getModel()));
+        undoContext = new DefaultUndoContext(this);
+        interactor.setUndoContext(undoContext);
+
+        bindingContext = new BindingContext(PropertyContainer.createObjectBacked(interactor.getModel()));
         bindingContext.addPropertyChangeListener("tolerance", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -166,8 +186,35 @@ class MagicStickForm {
             }
         });
 
+        undoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (undoContext.canUndo()) {
+                    undoContext.undo();
+                }
+            }
+        });
+        redoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (undoContext.canRedo()) {
+                    undoContext.redo();
+                }
+            }
+        });
+        updateUndoRedoState();
+        undoContext.addUndoableEditListener(new UndoableEditListener() {
+            @Override
+            public void undoableEditHappened(UndoableEditEvent e) {
+                updateUndoRedoState();
+            }
+        });
+
         JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
+        toolBar.add(undoButton);
+        toolBar.add(redoButton);
+        toolBar.add(new JLabel("    "));
         toolBar.add(plusButton);
         toolBar.add(minusButton);
         toolBar.add(clearButton);
@@ -197,6 +244,11 @@ class MagicStickForm {
         adjustSlider();
 
         return panel;
+    }
+
+    void updateUndoRedoState() {
+        undoButton.setEnabled(undoContext.canUndo());
+        redoButton.setEnabled(undoContext.canRedo());
     }
 
     private void adjustSlider() {
