@@ -16,7 +16,7 @@
 
 package org.esa.beam.framework.gpf.graph;
 
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.TestOps;
@@ -88,49 +88,49 @@ public class GraphIOTest extends TestCase {
         String actualXML = writer.toString();
         String expectedXML =
                 "<graph id=\"myOneNodeGraph\">\n" +
-                "  <version>1.0</version>\n" +
-                "  <node id=\"node1\">\n" +
-                "    <operator>Op1</operator>\n" +
-                "    <sources/>\n" +
-                "  </node>\n" +
-                "</graph>";
+                        "  <version>1.0</version>\n" +
+                        "  <node id=\"node1\">\n" +
+                        "    <operator>Op1</operator>\n" +
+                        "    <sources/>\n" +
+                        "  </node>\n" +
+                        "</graph>";
         assertEquals(expectedXML, actualXML);
     }
-    
+
     public void testWriteToXMLWithApplicationData() throws Exception {
         Graph graph1 = new Graph("myOneNodeGraph");
         Node node1 = new Node("node1", "Op1");
         graph1.addNode(node1);
-        
-        Xpp3Dom xpp3Dom = new Xpp3Dom("");
-        Xpp3Dom font = new Xpp3Dom("font");
+
+        XppDom xpp3Dom = new XppDom("");
+        XppDom font = new XppDom("font");
         font.setValue("big");
         xpp3Dom.addChild(font);
         graph1.setAppData("foo", xpp3Dom);
 
-        Xpp3Dom xpp3Dom2 = new Xpp3Dom("");
-        Xpp3Dom colour = new Xpp3Dom("colour");
+        XppDom xpp3Dom2 = new XppDom("");
+        XppDom colour = new XppDom("colour");
         colour.setValue("red");
         xpp3Dom2.addChild(colour);
         graph1.setAppData("baz", xpp3Dom2);
-        
+
         StringWriter writer = new StringWriter();
         GraphIO.write(graph1, writer);
         String actualXML = writer.toString();
         String expectedXML =
                 "<graph id=\"myOneNodeGraph\">\n" +
-                "  <version>1.0</version>\n" +
-                "  <node id=\"node1\">\n" +
-                "    <operator>Op1</operator>\n" +
-                "    <sources/>\n" +
-                "  </node>\n" +
-                "  <applicationData id=\"foo\">\n" +
-                "    <font>big</font>\n" +
-                "  </applicationData>\n" +
-                "  <applicationData id=\"baz\">\n" +
-                "    <colour>red</colour>\n" +
-                "  </applicationData>\n" +
-                "</graph>";
+                        "  <version>1.0</version>\n" +
+                        "  <node id=\"node1\">\n" +
+                        "    <operator>Op1</operator>\n" +
+                        "    <sources/>\n" +
+                        "  </node>\n" +
+                        "  <applicationData id=\"foo\">\n" +
+                        "    <font>big</font>\n" +
+                        "  </applicationData>\n" +
+                        "  <applicationData id=\"baz\">\n" +
+                        "    <colour>red</colour>\n" +
+                        "  </applicationData>\n" +
+                        "</graph>";
         assertEquals(expectedXML, actualXML);
 
     }
@@ -138,11 +138,11 @@ public class GraphIOTest extends TestCase {
     public void testReadXMLWithoutVersion() throws Exception {
         String expectedXML =
                 "<graph id=\"myOneNodeGraph\">\n" +
-                "  <node id=\"node1\">\n" +
-                "    <operator>Op1</operator>\n" +
-                "    <sources/>\n" +
-                "  </node>\n" +
-                "</graph>";
+                        "  <node id=\"node1\">\n" +
+                        "    <operator>Op1</operator>\n" +
+                        "    <sources/>\n" +
+                        "  </node>\n" +
+                        "</graph>";
         StringReader reader = new StringReader(expectedXML);
         Exception caught = null;
         try {
@@ -158,12 +158,12 @@ public class GraphIOTest extends TestCase {
     public void testReadFromXML() throws Exception {
         String expectedXML =
                 "<graph id=\"myOneNodeGraph\">\n" +
-                "  <version>1.0</version>\n" +
-                "  <node id=\"node1\">\n" +
-                "    <operator>Op1</operator>\n" +
-                "    <sources/>\n" +
-                "  </node>\n" +
-                "</graph>";
+                        "  <version>1.0</version>\n" +
+                        "  <node id=\"node1\">\n" +
+                        "    <operator>Op1</operator>\n" +
+                        "    <sources/>\n" +
+                        "  </node>\n" +
+                        "</graph>";
         StringReader reader = new StringReader(expectedXML);
         Graph graph = GraphIO.read(reader);
 
@@ -177,71 +177,71 @@ public class GraphIOTest extends TestCase {
         assertNotNull(node1);
         assertEquals("Op1", node1.getOperatorName());
     }
-    
+
     public void testReadFromXMLWithAppData() throws Exception {
         String expectedXML =
                 "<graph id=\"myOneNodeGraph\">\n" +
-                "  <version>1.0</version>\n" +
-                "  <node id=\"node1\">\n" +
-                "    <operator>Op1</operator>\n" +
-                "    <sources/>\n" +
-                "  </node>\n" +
-                
-                " <applicationData id=\"foo\">\n" +
-                "    <font>Big</font>\n" +
-                "    <colour>red</colour>\n" +
-                " </applicationData>\n" +
-                " <applicationData id=\"bar\">\n" +
-                "    <textmode>true</textmode>\n" +
-                " </applicationData>\n" +
-                
-                "</graph>";
+                        "  <version>1.0</version>\n" +
+                        "  <node id=\"node1\">\n" +
+                        "    <operator>Op1</operator>\n" +
+                        "    <sources/>\n" +
+                        "  </node>\n" +
+
+                        " <applicationData id=\"foo\">\n" +
+                        "    <font>Big</font>\n" +
+                        "    <colour>red</colour>\n" +
+                        " </applicationData>\n" +
+                        " <applicationData id=\"bar\">\n" +
+                        "    <textmode>true</textmode>\n" +
+                        " </applicationData>\n" +
+
+                        "</graph>";
         StringReader reader = new StringReader(expectedXML);
         Graph graph = GraphIO.read(reader);
-        
-        Xpp3Dom fooData = graph.getApplicationData("foo");
+
+        XppDom fooData = graph.getApplicationData("foo");
         assertNotNull(fooData);
         assertEquals(2, fooData.getChildCount());
         assertEquals("Big", fooData.getChild("font").getValue());
         assertEquals("red", fooData.getChild("colour").getValue());
-        
-        Xpp3Dom barData = graph.getApplicationData("bar");
+
+        XppDom barData = graph.getApplicationData("bar");
         assertNotNull(barData);
         assertEquals(1, barData.getChildCount());
         assertEquals("true", barData.getChild("textmode").getValue());
-        
+
     }
 
 
     public void testReadFromXMLWithHeader() throws Exception {
         String expectedXML =
                 "<graph id=\"myOneNodeGraph\">\n" +
-                "  <version>1.0</version>\n" +
+                        "  <version>1.0</version>\n" +
 
-                "  <header>\n" +
-                "    <target refid=\"node1\" />\n" +
+                        "  <header>\n" +
+                        "    <target refid=\"node1\" />\n" +
 
-                "    <source name=\"input1\" optional=\"true\" description=\"AATSR L1b TOA\"/>\n" +  // -Sinput1=FILE_PATH
-                "    <source name=\"input2\" description=\"CHRIS/proba\">C:\\data\\x.dim</source>\n" +  // -Sinput2=FILE_PATH
+                        "    <source name=\"input1\" optional=\"true\" description=\"AATSR L1b TOA\"/>\n" +  // -Sinput1=FILE_PATH
+                        "    <source name=\"input2\" description=\"CHRIS/proba\">C:\\data\\x.dim</source>\n" +  // -Sinput2=FILE_PATH
 
-                "    <parameter name=\"ignore\" defaultValue=\"true\" type=\"boolean\"/>\n" + // -PignoreSign=false
-                "    <parameter name=\"regex\" description=\"a regular expression\" type=\"String\"/>\n" +
-                "    <parameter name=\"threshold\" type=\"double\" interval=\"(0,1]\"/>\n" +
-                "    <parameter name=\"ernie\" type=\"int\" valueSet=\"2,4,6,8\"/>\n" +
-                "  </header>\n" +
+                        "    <parameter name=\"ignore\" defaultValue=\"true\" type=\"boolean\"/>\n" + // -PignoreSign=false
+                        "    <parameter name=\"regex\" description=\"a regular expression\" type=\"String\"/>\n" +
+                        "    <parameter name=\"threshold\" type=\"double\" interval=\"(0,1]\"/>\n" +
+                        "    <parameter name=\"ernie\" type=\"int\" valueSet=\"2,4,6,8\"/>\n" +
+                        "  </header>\n" +
 
-                "  <node id=\"node1\">\n" +
-                "    <operator>Op1</operator>\n" +
-                "    <sources>\n" +
-                "      <toa refid=\"input1\"/>\n" +
-                "      <chris refid=\"input2\"/>\n" +
-                "    </sources>\n" +
-                "    <parameters>\n" +
-                "       <ignoreSign refid=\"ignore\"/>\n" +
-                "       <expression refid=\"regex\"/>\n" +
-                "    </parameters>\n" +
-                "  </node>\n" +
-                "</graph>";
+                        "  <node id=\"node1\">\n" +
+                        "    <operator>Op1</operator>\n" +
+                        "    <sources>\n" +
+                        "      <toa refid=\"input1\"/>\n" +
+                        "      <chris refid=\"input2\"/>\n" +
+                        "    </sources>\n" +
+                        "    <parameters>\n" +
+                        "       <ignoreSign refid=\"ignore\"/>\n" +
+                        "       <expression refid=\"regex\"/>\n" +
+                        "    </parameters>\n" +
+                        "  </node>\n" +
+                        "</graph>";
         StringReader reader = new StringReader(expectedXML);
         Graph graph = GraphIO.read(reader);
 
@@ -333,31 +333,31 @@ public class GraphIOTest extends TestCase {
     public void testReadXml() throws Exception {
         String xml =
                 "<graph id=\"foo\">\n" +
-                "<version>1.0</version>\n" +
-                "  <node id=\"grunt\">\n" +
-                "    <operator>Op1</operator>\n" +
-                "  </node>\n" +
-                "  <node id=\"baz\">\n" +
-                "    <operator>Op2</operator>\n" +
-                "    <sources>\n" +
-                "      <input refid=\"grunt\"/>\n" +
-                "    </sources>\n" +
-                "    <parameters>\n" +
-                "       <threshold>0.86</threshold>\n" +
-                "    </parameters>\n" +
-                "  </node>\n" +
-                "  <node id=\"bar\">\n" +
-                "    <operator>Op3</operator>\n" +
-                "    <sources>\n" +
-                "      <input1 refid=\"grunt\"/>\n" +
-                "      <input2 refid=\"baz\"/>\n" +
-                "    </sources>\n" +
-                "    <parameters>\n" +
-                "       <ignoreSign>true</ignoreSign>\n" +
-                "       <expression>A+B</expression>\n" +
-                "    </parameters>\n" +
-                "  </node>\n" +
-                "</graph>";
+                        "<version>1.0</version>\n" +
+                        "  <node id=\"grunt\">\n" +
+                        "    <operator>Op1</operator>\n" +
+                        "  </node>\n" +
+                        "  <node id=\"baz\">\n" +
+                        "    <operator>Op2</operator>\n" +
+                        "    <sources>\n" +
+                        "      <input refid=\"grunt\"/>\n" +
+                        "    </sources>\n" +
+                        "    <parameters>\n" +
+                        "       <threshold>0.86</threshold>\n" +
+                        "    </parameters>\n" +
+                        "  </node>\n" +
+                        "  <node id=\"bar\">\n" +
+                        "    <operator>Op3</operator>\n" +
+                        "    <sources>\n" +
+                        "      <input1 refid=\"grunt\"/>\n" +
+                        "      <input2 refid=\"baz\"/>\n" +
+                        "    </sources>\n" +
+                        "    <parameters>\n" +
+                        "       <ignoreSign>true</ignoreSign>\n" +
+                        "       <expression>A+B</expression>\n" +
+                        "    </parameters>\n" +
+                        "  </node>\n" +
+                        "</graph>";
 
         Graph graph = GraphIO.read(new StringReader(xml));
         assertEquals("foo", graph.getId());
@@ -424,20 +424,20 @@ public class GraphIOTest extends TestCase {
     public void testGraphWithReference() throws Exception {
         String xml =
                 "<graph id=\"foo\">\n" +
-                "<version>1.0</version>\n" +
-                "  <node id=\"bert\">\n" +
-                "    <operator>Op4</operator>\n" +
-                "  </node>\n" +
-                "  <node id=\"baz\">\n" +
-                "    <operator>Op2</operator>\n" +
-                "    <sources>\n" +
-                "      <input refid=\"bert\"/>\n" +
-                "    </sources>\n" +
-                "    <parameters>\n" +
-                "       <threshold refid=\"bert.pi\"/>\n" +
-                "    </parameters>\n" +
-                "  </node>\n" +
-                "</graph>";
+                        "<version>1.0</version>\n" +
+                        "  <node id=\"bert\">\n" +
+                        "    <operator>Op4</operator>\n" +
+                        "  </node>\n" +
+                        "  <node id=\"baz\">\n" +
+                        "    <operator>Op2</operator>\n" +
+                        "    <sources>\n" +
+                        "      <input refid=\"bert\"/>\n" +
+                        "    </sources>\n" +
+                        "    <parameters>\n" +
+                        "       <threshold refid=\"bert.pi\"/>\n" +
+                        "    </parameters>\n" +
+                        "  </node>\n" +
+                        "</graph>";
 
         Graph graph = GraphIO.read(new StringReader(xml));
 
@@ -468,23 +468,23 @@ public class GraphIOTest extends TestCase {
     public void testGraphWithReferenceWithoutSourceProduct() throws Exception {
         String xml =
                 "<graph id=\"foo\">\n" +
-                "<version>1.0</version>\n" +
-                "  <node id=\"grunt\">\n" +
-                "    <operator>Op1</operator>\n" +
-                "  </node>\n" +
-                "  <node id=\"bert\">\n" +
-                "    <operator>Op4</operator>\n" +
-                "  </node>\n" +
-                "  <node id=\"baz\">\n" +
-                "    <operator>Op2</operator>\n" +
-                "    <sources>\n" +
-                "      <input refid=\"grunt\"/>\n" +
-                "    </sources>\n" +
-                "    <parameters>\n" +
-                "       <threshold refid=\"bert.pi\"/>\n" +
-                "    </parameters>\n" +
-                "  </node>\n" +
-                "</graph>";
+                        "<version>1.0</version>\n" +
+                        "  <node id=\"grunt\">\n" +
+                        "    <operator>Op1</operator>\n" +
+                        "  </node>\n" +
+                        "  <node id=\"bert\">\n" +
+                        "    <operator>Op4</operator>\n" +
+                        "  </node>\n" +
+                        "  <node id=\"baz\">\n" +
+                        "    <operator>Op2</operator>\n" +
+                        "    <sources>\n" +
+                        "      <input refid=\"grunt\"/>\n" +
+                        "    </sources>\n" +
+                        "    <parameters>\n" +
+                        "       <threshold refid=\"bert.pi\"/>\n" +
+                        "    </parameters>\n" +
+                        "  </node>\n" +
+                        "</graph>";
 
         Graph graph = GraphIO.read(new StringReader(xml));
 

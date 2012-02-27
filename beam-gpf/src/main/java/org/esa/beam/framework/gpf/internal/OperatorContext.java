@@ -15,38 +15,18 @@
  */
 package org.esa.beam.framework.gpf.internal;
 
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.PropertyDescriptorFactory;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.binding.dom.Xpp3DomElement;
+import com.bc.ceres.binding.dom.XppDomElement;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.jai.tilecache.DefaultSwapSpace;
 import com.bc.ceres.jai.tilecache.SwappingTileCache;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.SourceProducts;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.annotations.TargetProperty;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.annotations.*;
 import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.framework.gpf.monitor.TileComputationEvent;
@@ -58,22 +38,15 @@ import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;
 import javax.media.jai.OpImage;
 import javax.media.jai.TileCache;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -129,6 +102,7 @@ public class OperatorContext {
     /**
      * Makes sure that the given JAI OpImage has a valid tile cache (see System property {@link GPF#USE_FILE_TILE_CACHE_PROPERTY}),
      * or makes sure that it has none (see System property {@link GPF#DISABLE_TILE_CACHE_PROPERTY}).
+     *
      * @param image Any JAI OpImage.
      */
     public static void setTileCache(OpImage image) {
@@ -148,7 +122,7 @@ public class OperatorContext {
                 tileCache = new SwappingTileCache(JAI.getDefaultInstance().getTileCache().getMemoryCapacity(),
                                                   new DefaultSwapSpace(SwappingTileCache.DEFAULT_SWAP_DIR,
                                                                        BeamLogManager.getSystemLogger()));
-            }else {
+            } else {
                 tileCache = JAI.getDefaultInstance().getTileCache();
             }
             BeamLogManager.getSystemLogger().info(String.format("All GPF operators will share an instance of %s with a capacity of %dM",
@@ -560,7 +534,7 @@ public class OperatorContext {
         final DefaultDomConverter domConverter = new DefaultDomConverter(context.operator.getClass(),
                                                                          new ParameterDescriptorFactory(
                                                                                  sourceProductMap));
-        final Xpp3DomElement parametersDom = new Xpp3DomElement("parameters");
+        final XppDomElement parametersDom = new XppDomElement("parameters");
         try {
             domConverter.convertValueToDom(context.operator, parametersDom);
         } catch (ConversionException e) {
@@ -1081,15 +1055,15 @@ public class OperatorContext {
     }
 
     public void fireTileComputed(OperatorImage operatorImage, Rectangle destRect, long startNanos) {
-         if (tileComputationObserver != null) {
-             long endNanos = System.nanoTime();
-             int tileX = operatorImage.XToTileX(destRect.x);
-             int tileY = operatorImage.YToTileY(destRect.y);
-             tileComputationObserver.tileComputed(new TileComputationEvent(operatorImage, tileX, tileY, startNanos, endNanos));
-         }
-     }
+        if (tileComputationObserver != null) {
+            long endNanos = System.nanoTime();
+            int tileX = operatorImage.XToTileX(destRect.x);
+            int tileY = operatorImage.YToTileY(destRect.y);
+            tileComputationObserver.tileComputed(new TileComputationEvent(operatorImage, tileX, tileY, startNanos, endNanos));
+        }
+    }
 
-     boolean isComputingImageOf(Band band) {
+    boolean isComputingImageOf(Band band) {
         if (band.isSourceImageSet()) {
             RenderedImage sourceImage = band.getSourceImage().getImage(0);
             OperatorImage targetImage = getTargetImage(band);

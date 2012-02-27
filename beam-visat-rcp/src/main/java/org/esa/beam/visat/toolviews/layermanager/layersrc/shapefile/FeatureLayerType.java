@@ -16,15 +16,11 @@
 
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertySet;
-import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.binding.dom.Xpp3DomElement;
+import com.bc.ceres.binding.dom.XppDomElement;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -138,7 +134,7 @@ public class FeatureLayerType extends LayerType {
 
         @Override
         public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                                                                                       ValidationException {
+                ValidationException {
             final DomElement child = parentElement.getChild(0);
             SLDParser s = new SLDParser(CommonFactoryFinder.getStyleFactory(null), new StringReader(child.toXml()));
             final Style[] styles = s.readXML();
@@ -154,7 +150,7 @@ public class FeatureLayerType extends LayerType {
                 final String s = transformer.transform(style);
                 XppDomWriter domWriter = new XppDomWriter();
                 new HierarchicalStreamCopier().copy(new XppReader(new StringReader(s)), domWriter);
-                parentElement.addChild(new Xpp3DomElement(domWriter.getConfiguration()));
+                parentElement.addChild(new XppDomElement(domWriter.getConfiguration()));
             } catch (TransformerException e) {
                 throw new IllegalArgumentException(e);
             }
@@ -170,7 +166,7 @@ public class FeatureLayerType extends LayerType {
 
         @Override
         public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                                                                                       ValidationException {
+                ValidationException {
             try {
                 value = CRS.parseWKT(parentElement.getValue());
             } catch (FactoryException e) {
@@ -196,7 +192,7 @@ public class FeatureLayerType extends LayerType {
 
         @Override
         public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                                                                                       ValidationException {
+                ValidationException {
             com.vividsolutions.jts.geom.GeometryFactory gf = new com.vividsolutions.jts.geom.GeometryFactory();
             final DefaultDomConverter domConverter = new DefaultDomConverter(Coordinate.class);
             final DomElement[] children = parentElement.getChildren("coordinate");

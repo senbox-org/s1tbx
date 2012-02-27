@@ -16,7 +16,7 @@
 
 package org.esa.beam.framework.gpf.graph;
 
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import org.esa.beam.framework.gpf.internal.ApplicationData;
 
 import java.util.ArrayList;
@@ -91,7 +91,6 @@ public class Graph {
      * Adds a <code>Node</code> to the graph
      *
      * @param node a node
-     *
      * @throws IllegalArgumentException if the id of the given node is already in use
      */
     public void addNode(Node node) {
@@ -105,7 +104,6 @@ public class Graph {
      * Removes the {@link Node} with the given {@code id} from this graph if present.
      *
      * @param id the id of the {@link Node} to be removed
-     *
      * @return {@code true} if the graph contains a {@link Node} with the given {@code id}. Else {@code false}.
      */
     public boolean removeNode(String id) {
@@ -116,7 +114,6 @@ public class Graph {
      * Gets the {@link Node} at the given index.
      *
      * @param index the index
-     *
      * @return the node at the given index
      */
     public Node getNode(int index) {
@@ -128,7 +125,6 @@ public class Graph {
      * {@code null} if the graph contains no respective {@link Node}.
      *
      * @param id the id of the Node to be removed
-     *
      * @return {@code true} if the graph contains a {@link Node} with the given {@code id}. Else {@code false}.
      */
     public Node getNode(String id) {
@@ -154,10 +150,9 @@ public class Graph {
      * if for this id no application is available.
      *
      * @param appId the application ID
-     *
-     * @return the application data as an Xpp3Dom
+     * @return the application data as an XppDom
      */
-    public Xpp3Dom getApplicationData(String appId) {
+    public XppDom getApplicationData(String appId) {
         for (ApplicationData appData : applicationData) {
             if (appData.getId().equals(appId)) {
                 return appData.getData();
@@ -170,9 +165,9 @@ public class Graph {
      * Sets the application data for the given ID
      *
      * @param id   The application ID.
-     * @param data The application data as Xpp3Dom.
+     * @param data The application data as XppDom.
      */
-    public void setAppData(String id, Xpp3Dom data) {
+    public void setAppData(String id, XppDom data) {
         for (int i = 0; i < applicationData.size(); i++) {
             if (applicationData.get(i).getId().equals(id)) {
                 applicationData.remove(i);

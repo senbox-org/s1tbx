@@ -3,12 +3,12 @@ package org.esa.beam.framework.gpf.annotations;
 import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.binding.dom.Xpp3DomElement;
+import com.bc.ceres.binding.dom.XppDomElement;
 import com.bc.ceres.core.Assert;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 
 import java.io.StringReader;
 import java.util.HashMap;
@@ -48,8 +48,8 @@ public class ParameterBlockConverter {
     public DomElement convertXmlToDomElement(String xml) {
         XppDomWriter domWriter = new XppDomWriter();
         new HierarchicalStreamCopier().copy(new XppReader(new StringReader(xml)), domWriter);
-        Xpp3Dom xpp3Dom = domWriter.getConfiguration();
-        return new Xpp3DomElement(xpp3Dom);
+        XppDom xppDom = domWriter.getConfiguration();
+        return new XppDomElement(xppDom);
     }
 
     public <T> T convertXmlToObject(String xml, T object) throws BindingException {
@@ -67,7 +67,7 @@ public class ParameterBlockConverter {
 
     public String convertObjectToXml(Object object) throws ConversionException {
         DefaultDomConverter domConverter = new DefaultDomConverter(object.getClass(), parameterDescriptorFactory);
-        DomElement parametersDom = new Xpp3DomElement(parameterElementName);
+        DomElement parametersDom = new XppDomElement(parameterElementName);
         domConverter.convertValueToDom(object, parametersDom);
         return parametersDom.toXml();
     }

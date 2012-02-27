@@ -31,6 +31,7 @@
     <changelog>
         <![CDATA[
         <p>From 4.9 to 4.10:<br/>
+        	[BEAM-1372] Use latest XStream library<br/>
             [BEAM-1346] The reprojection operator should allow to specify the tile size of the result<br/>
             [BEAM-1335] N1Patcher does not handle relative paths correctly<br/>
             [BEAM-1331] ProductConfigurer class is missing a copyMasks method<br/>

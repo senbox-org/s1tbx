@@ -17,12 +17,12 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.binding.dom.Xpp3DomElement;
+import com.bc.ceres.binding.dom.XppDomElement;
 import com.jidesoft.action.CommandMenuBar;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.help.HelpSys;
@@ -32,26 +32,11 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.io.FileUtils;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
@@ -186,13 +171,13 @@ public class OperatorMenu {
                     sb.append(line);
                     line = br.readLine();
                 }
-                return new Xpp3DomElement(createDom(sb.toString()));
+                return new XppDomElement(createDom(sb.toString()));
             } finally {
                 br.close();
             }
         }
 
-        private Xpp3Dom createDom(String xml) {
+        private XppDom createDom(String xml) {
             XppDomWriter domWriter = new XppDomWriter();
             new HierarchicalStreamCopier().copy(new XppReader(new StringReader(xml)), domWriter);
             return domWriter.getConfiguration();

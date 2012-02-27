@@ -109,7 +109,13 @@ public class OpenSessionAction extends ExecCommand {
         @Override
         protected RestoredSession doInBackground(ProgressMonitor pm) throws Exception {
             final Session session = SessionIO.getInstance().readSession(sessionFile);
-            URI rootURI = sessionFile.getParentFile().toURI();
+            final File parentFile = sessionFile.getParentFile();
+            final URI rootURI;
+            if (parentFile != null) {
+                rootURI = parentFile.toURI();
+            } else {
+                rootURI = new File(".").toURI();
+            }
             return session.restore(app, rootURI, pm, new SessionProblemSolver());
         }
 
@@ -202,9 +208,9 @@ public class OpenSessionAction extends ExecCommand {
                 final int[] answer = new int[1];
                 final String title = MessageFormat.format(TITLE + " - Resolving [{0}]", file);
                 final String msg = MessageFormat.format("Product [{0}] has been renamed or (re-)moved.\n" +
-                        "Its location was [{1}].\n" +
-                        "Do you wish to provide its new location?\n" +
-                        "(Select ''No'' if the product shall no longer be part of the session.)",
+                                                                "Its location was [{1}].\n" +
+                                                                "Do you wish to provide its new location?\n" +
+                                                                "(Select ''No'' if the product shall no longer be part of the session.)",
                                                         id, file);
                 try {
                     SwingUtilities.invokeAndWait(new Runnable() {
