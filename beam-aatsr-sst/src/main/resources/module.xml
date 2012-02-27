@@ -39,6 +39,9 @@
         <module>beam-envisat-reader</module>
     </dependency>
     <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
         <module>beam-visat-rcp</module>
         <optional>true</optional>
     </dependency>
