@@ -105,8 +105,8 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
             getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
         }
+        productChangedHandler = new ProductChangedHandler();
         if (!sourceProductSelectorList.isEmpty()) {
-            productChangedHandler = new ProductChangedHandler();
             sourceProductSelectorList.get(0).addSelectionChangeListener(productChangedHandler);
         }
     }
