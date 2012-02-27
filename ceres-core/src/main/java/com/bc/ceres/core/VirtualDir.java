@@ -112,6 +112,16 @@ public abstract class VirtualDir {
 
     public abstract boolean isArchive();
 
+    public File getTempDir() throws IOException {
+        return null;
+    }
+
+    @Override
+    public void finalize() throws Throwable {
+        super.finalize();
+    }
+
+
     private static class Dir extends VirtualDir {
 
         private final File dir;
@@ -167,7 +177,7 @@ public abstract class VirtualDir {
 
         private static final int BUFFER_SIZE = 4 * 1024 * 1024;
 
-        private final ZipFile zipFile;
+        private ZipFile zipFile;
         private File tempZipFileDir;
 
         private Zip(ZipFile zipFile) throws IOException {
@@ -244,14 +254,13 @@ public abstract class VirtualDir {
 
         @Override
         public void close() {
-            try {
-                zipFile.close();
-            } catch (IOException e) {
-                // ok
-            }
-            if (tempZipFileDir != null) {
-                deleteFileTree(tempZipFileDir);
-            }
+            cleanup();
+        }
+
+        @Override
+        public void finalize() throws Throwable {
+            super.finalize();
+            cleanup();
         }
 
         @Override
@@ -262,6 +271,18 @@ public abstract class VirtualDir {
         @Override
         public boolean isArchive() {
             return true;
+        }
+
+        private void cleanup() {
+            try {
+                zipFile.close();
+                zipFile = null;
+            } catch (IOException e) {
+                // ok
+            }
+            if (tempZipFileDir != null) {
+                deleteFileTree(tempZipFileDir);
+            }
         }
 
         private InputStream getInputStream(ZipEntry zipEntry) throws IOException {
@@ -280,7 +301,8 @@ public abstract class VirtualDir {
             return zipEntry;
         }
 
-        private static File getTempDir() throws IOException {
+        // package local to be usable in test tb 2012-02-17
+        public File getTempDir() throws IOException {
             File tempDir = null;
             String tempDirName = System.getProperty("java.io.tmpdir");
             if (tempDirName != null) {
