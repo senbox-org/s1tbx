@@ -73,8 +73,15 @@
             <helpId>sstScientificTool</helpId>
             <placeAfter>smacScientificTool</placeAfter>
         </action>
+        <action>
+            <id>newSstScientificTool</id>
+            <helpId></helpId>
+            <class>org.esa.beam.processor.sst.visat.ComputeSstAction</class>
+            <parent>tools</parent>
+            <text>Compute SST ((A)ATSR)...</text>
+            <mnemonic></mnemonic>
+        </action>
     </extension>
-
 
     <extension point="beam-ui:helpSets">
         <helpSet>
