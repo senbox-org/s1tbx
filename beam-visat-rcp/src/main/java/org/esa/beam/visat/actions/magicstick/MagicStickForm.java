@@ -18,7 +18,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.prefs.Preferences;
 
@@ -324,10 +326,8 @@ class MagicStickForm {
     private XStream createXStream() {
         XStream xStream = new XStream();
         xStream.alias("magicStickSettings", MagicStickModel.class);
-        xStream.aliasType("magicStickSettings", MagicStickModel.class);
         return xStream;
     }
-
 
     private static File getFile(Component parent, File file, boolean open) {
         String directoryPath = Preferences.userRoot().absolutePath();
