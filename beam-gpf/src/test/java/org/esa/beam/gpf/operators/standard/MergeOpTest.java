@@ -61,7 +61,8 @@ public class MergeOpTest {
         productB.addBand("B", ProductData.TYPE_FLOAT32);
 
         final MergeOp mergeOp = new MergeOp();
-        mergeOp.setSourceProducts(productA, productB);
+        mergeOp.setSourceProduct("dummy1", productA);
+        mergeOp.setSourceProduct("dummy2", productB);
         final Product mergedProduct = mergeOp.getTargetProduct();
         assertNotNull(mergedProduct);
         assertTrue(mergedProduct.containsBand("A"));
