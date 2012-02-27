@@ -20,7 +20,7 @@ import java.util.List;
  * @author Norman Fomferra
  * @since BEAM 4.10
  */
-class MagicStickModel implements Cloneable {
+public class MagicStickModel implements Cloneable {
 
     public enum Mode {
         SINGLE,
@@ -52,7 +52,7 @@ class MagicStickModel implements Cloneable {
     private ArrayList<double[]> plusSpectra;
     private ArrayList<double[]> minusSpectra;
 
-    MagicStickModel() {
+    public MagicStickModel() {
         mode = Mode.SINGLE;
         method = Method.DISTANCE;
         operator = Operator.IDENTITY;
@@ -65,17 +65,17 @@ class MagicStickModel implements Cloneable {
 
     @SuppressWarnings("CloneDoesntDeclareCloneNotSupportedException")
     @Override
-    public MagicStickModel clone()  {
+    public MagicStickModel clone() {
         try {
             MagicStickModel clone = (MagicStickModel) super.clone();
             clone.plusSpectra = new ArrayList<double[]>(plusSpectra);
             clone.minusSpectra = new ArrayList<double[]>(minusSpectra);
             return clone;
         } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException(e) ;
+            throw new IllegalStateException(e);
         }
     }
-    
+
     public void set(MagicStickModel other) {
         method = other.method;
         operator = other.operator;
