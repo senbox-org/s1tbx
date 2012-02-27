@@ -1,0 +1,13 @@
+ENVI
+description = {Normalized surface reflectance, band 1 - Unit: dl - Wavelength: 412.691nm}
+samples = 11
+lines = 11
+bands = 1
+header offset = 0
+file type = ENVI Standard
+data type = 12
+interleave = bsq
+byte order = 1
+wavelength = {412.691}
+data gain values = {1.831110603234265E-5}
+data offset values = {-0.20001831650733948}

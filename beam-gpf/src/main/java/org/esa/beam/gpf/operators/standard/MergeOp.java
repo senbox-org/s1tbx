@@ -24,6 +24,7 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
@@ -52,14 +53,18 @@ import java.util.regex.Pattern;
  * @author Thomas Storm
  */
 @OperatorMetadata(alias = "Merge",
-                  description = "Allows copying raster data from other products to a specified product.",
+                  description = "Allows copying raster data from other products to a specified product. The " +
+                                "'master product' receives nodes from the source products products.",
                   authors = "BEAM team",
                   version = "1.0",
-                  copyright = "(c) 2012 by Brockmann Consult")
+                  copyright = "(c) 2012 by Brockmann Consult",
+                  internal = false)
 public class MergeOp extends Operator {
 
-    @SourceProducts(description = "The products to be merged. The first product is considered the 'master product', " +
-                                  "which receives nodes from subsequently provided products.")
+    @SourceProduct(description = "The 'master product', which receives nodes from subsequently provided products.")
+    private Product masterProduct;
+    
+    @SourceProducts(description = "The products to be merged into the 'master product'.")
     private Product[] sourceProducts;
     
     @TargetProduct
@@ -75,7 +80,7 @@ public class MergeOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        targetProduct = sourceProducts[0];
+        targetProduct = masterProduct;
         validateSourceProducts();
         if (includes == null || includes.length == 0) {
             List<NodeDescriptor> nodeDescriptorList = new ArrayList<NodeDescriptor>();

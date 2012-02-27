@@ -34,26 +34,7 @@ public class MergeOpTest {
     }
 
     @Test
-    public void testGraph() throws Exception {
-        final String xml = "<graph id=\"someGraphId\">\n" +
-                         "    <version>1.0</version>\n" +
-                         "    <node id=\"someNodeId\">\n" +
-                         "      <operator>Merge</operator>\n" +
-                         "      <sources/>\n" +
-                         "      <parameters>\n" +
-                         "        <includes>\n" +
-                         "          <include>\n" +
-                         "            <pattern>radiance_(.*)</pattern>\n" +
-                         "            <renameTo>rad_$1</renameTo>\n" +
-                         "          </include>\n" +
-                         "        </includes>\n" +
-                         "      </parameters>\n" +
-                         "    </node>\n" +
-                         "  </graph>";
-    }
-
-    @Test
-    public void testMergeOp() throws Exception {
+    public void testMergeOp_includeAll() throws Exception {
         final Product productA = new Product("dummy1", "mergeOpTest", 10, 10);
         final Product productB = new Product("dummy2", "mergeOpTest", 10, 10);
         
@@ -61,7 +42,7 @@ public class MergeOpTest {
         productB.addBand("B", ProductData.TYPE_FLOAT32);
 
         final MergeOp mergeOp = new MergeOp();
-        mergeOp.setSourceProduct("dummy1", productA);
+        mergeOp.setSourceProduct("masterProduct", productA);
         mergeOp.setSourceProduct("dummy2", productB);
         final Product mergedProduct = mergeOp.getTargetProduct();
         assertNotNull(mergedProduct);
@@ -71,14 +52,72 @@ public class MergeOpTest {
         assertSame(productA, mergedProduct);
     }
 
-    @Test(expected = OperatorException.class)
+    @Test
+    public void testMergeOp_includeByPattern() throws Exception {
+        final Product productA = new Product("dummy1", "mergeOpTest", 10, 10);
+        final Product productB = new Product("dummy2", "mergeOpTest", 10, 10);
+
+        productA.addBand("A", ProductData.TYPE_FLOAT32);
+        productB.addBand("B", ProductData.TYPE_FLOAT32);
+        productB.addBand("C", ProductData.TYPE_FLOAT32);
+
+        final MergeOp mergeOp = new MergeOp();
+        mergeOp.setSourceProduct("masterProduct", productA);
+        mergeOp.setSourceProduct("dummy2", productB);
+        final MergeOp.NodeDescriptor nodeDescriptor = new MergeOp.NodeDescriptor();
+        nodeDescriptor.setNamePattern("B");
+        nodeDescriptor.setProductId("dummy2");
+        final MergeOp.NodeDescriptor[] nodeDescriptors = new MergeOp.NodeDescriptor[]{nodeDescriptor};
+        mergeOp.setParameter("includes", nodeDescriptors);
+        final Product mergedProduct = mergeOp.getTargetProduct();
+        assertNotNull(mergedProduct);
+        assertTrue(mergedProduct.containsBand("A"));
+        assertTrue(mergedProduct.containsBand("B"));
+        assertTrue(!mergedProduct.containsBand("C"));
+    }
+
+    @Test
+    public void testMergeOp_includeByNameAndRename() throws Exception {
+        final Product productA = new Product("dummy1", "mergeOpTest", 10, 10);
+        final Product productB = new Product("dummy2", "mergeOpTest", 10, 10);
+
+        productA.addBand("A", ProductData.TYPE_FLOAT32);
+        productB.addBand("B", ProductData.TYPE_FLOAT32);
+        productB.addBand("C", ProductData.TYPE_FLOAT32);
+
+        final MergeOp mergeOp = new MergeOp();
+        mergeOp.setSourceProduct("masterProduct", productA);
+        mergeOp.setSourceProduct("dummy2", productB);
+        final MergeOp.NodeDescriptor nodeDescriptor = new MergeOp.NodeDescriptor();
+        nodeDescriptor.setName("B");
+        nodeDescriptor.setNewName("Beeh");
+        nodeDescriptor.setProductId("dummy2");
+        final MergeOp.NodeDescriptor[] nodeDescriptors = new MergeOp.NodeDescriptor[]{nodeDescriptor};
+        mergeOp.setParameter("includes", nodeDescriptors);
+        final Product mergedProduct = mergeOp.getTargetProduct();
+        assertNotNull(mergedProduct);
+        assertTrue(mergedProduct.containsBand("A"));
+        assertTrue(mergedProduct.containsBand("Beeh"));
+        assertTrue(!mergedProduct.containsBand("B"));
+        assertTrue(!mergedProduct.containsBand("C"));
+    }
+
+    @Test
     public void testValidateSourceProducts_Failing() throws Exception {
         final MergeOp mergeOp = new MergeOp();
 
         final Product productA = new Product("dummy1", "mergeOpTest", 10, 10);
         final Product productB = new Product("dummy2", "mergeOpTest", 11, 11);
 
-        mergeOp.setSourceProducts(productA, productB);
-        mergeOp.getTargetProduct();
+        mergeOp.setSourceProduct("masterProduct", productA);
+        mergeOp.setSourceProduct("dummy2", productB);
+        try{
+            mergeOp.getTargetProduct();
+            fail();
+        } catch (OperatorException e) {
+            final String expectedErrorMessage = "Product .* is not compatible to master product";
+            assertTrue("expected: '" + expectedErrorMessage + "', actual: '" + e.getMessage() + "'",
+                       e.getMessage().replace(".", "").matches(expectedErrorMessage));
+        }
     }
 }
