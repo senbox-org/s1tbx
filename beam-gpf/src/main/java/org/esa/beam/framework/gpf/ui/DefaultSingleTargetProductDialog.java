@@ -20,6 +20,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.Selection;
@@ -58,6 +59,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
     private ProductChangedHandler productChangedHandler;
     private DefaultIOParametersPanel ioParametersPanel;
     private final OperatorParameterSupport parameterSupport;
+    private final BindingContext bindingContext;
 
     public static SingleTargetProductDialog createDefaultDialog(String operatorName, AppContext appContext) {
         return new DefaultSingleTargetProductDialog(operatorName, appContext, operatorName, null);
@@ -84,7 +86,9 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                                                      parameterSupport,
                                                      helpID);
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
-        PropertySet propertyContainer = parameterSupport.getPopertySet();
+        final PropertySet propertyContainer = parameterSupport.getPopertySet();
+        bindingContext = new BindingContext(propertyContainer);
+        
         if (propertyContainer.getProperties().length > 0) {
             if (!sourceProductSelectorList.isEmpty()) {
                 Property[] properties = propertyContainer.getProperties();
@@ -98,7 +102,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                 rasterDataNodeTypeProperties = rdnTypeProperties.toArray(
                         new PropertyDescriptor[rdnTypeProperties.size()]);
             }
-            PropertyPane parametersPane = new PropertyPane(propertyContainer);
+            final PropertyPane parametersPane = new PropertyPane(bindingContext);
             final JPanel parametersPanel = parametersPane.createPanel();
             parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             this.form.add("Processing Parameters", new JScrollPane(parametersPanel));
@@ -137,6 +141,10 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
     public void setTargetProductNameSuffix(String suffix) {
         targetProductNameSuffix = suffix;
+    }
+
+    public BindingContext getBindingContext() {
+        return bindingContext;
     }
 
     private class ProductChangedHandler extends AbstractSelectionChangeListener implements ProductNodeListener {
