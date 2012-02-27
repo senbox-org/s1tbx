@@ -17,23 +17,17 @@
 package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.binding.dom.Xpp3DomElement;
+import com.bc.ceres.binding.dom.XppDomElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.media.jai.JAI;
-import java.awt.Dimension;
+import java.awt.*;
 import java.text.MessageFormat;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -126,7 +120,7 @@ public class GraphContext {
         if (domElement == null) {
             return null;
         }
-        DomElement resolvedElement = new Xpp3DomElement(domElement.getName());
+        DomElement resolvedElement = new XppDomElement(domElement.getName());
         Set<OperatorConfiguration.Reference> references = new HashSet<OperatorConfiguration.Reference>(17);
         DomElement[] children = domElement.getChildren();
 

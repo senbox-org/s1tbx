@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.10<br/>
+          [BEAM-1372] Use latest XStream library<br/>
           [BEAM-1352] When exporting a product a SubsetInfo is always added to metadata tree<br/>
           [BEAM-1323] Add "magic stick" to VISAT that lets users create masks of similar pixels<br/>
         <p>Changes in 4.9<br/>
@@ -226,7 +227,8 @@
 
     <extension point="beam-ui:layerEditors">
         <layerEditor>
-            <editorFactory>org.esa.beam.visat.toolviews.layermanager.editors.VectorDataLayerEditorFactory</editorFactory>
+            <editorFactory>org.esa.beam.visat.toolviews.layermanager.editors.VectorDataLayerEditorFactory
+            </editorFactory>
             <layer>org.esa.beam.framework.ui.product.VectorDataLayer</layer>
         </layerEditor>
         <layerEditor>

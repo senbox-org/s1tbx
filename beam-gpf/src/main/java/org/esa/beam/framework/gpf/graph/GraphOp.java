@@ -66,7 +66,7 @@ public class GraphOp extends Operator {
 //        parameters.put("THR", 66.0);
 
 //        Xpp3Dom configuration = operatorContext.configuration.getConfiguration();
-//        final Xpp3DomElement xpp3DomElement = Xpp3DomElement.createDomElement(configuration);
+//        final XppDomElement xpp3DomElement = XppDomElement.createDomElement(configuration);
 //
 //        ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
 //        final DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), parameterDescriptorFactory);

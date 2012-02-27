@@ -16,17 +16,9 @@
 
 package org.esa.beam.visat.actions.session;
 
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
-import com.bc.ceres.binding.dom.DefaultDomConverter;
-import com.bc.ceres.binding.dom.DefaultDomElement;
-import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.binding.dom.DomElementXStreamConverter;
-import com.bc.ceres.binding.dom.Xpp3DomElement;
+import com.bc.ceres.binding.dom.*;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelRenderer;
@@ -35,14 +27,10 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -121,7 +109,7 @@ public class LayerIOTest extends TestCase {
         xs.processAnnotations(M.class);
         xs.registerConverter(new DomElementXStreamConverter());
         xs.alias("configuration", DomElement.class, DefaultDomElement.class);
-        xs.alias("configuration", DomElement.class, Xpp3DomElement.class);
+        xs.alias("configuration", DomElement.class, XppDomElement.class);
         xs.useAttributeFor(M.class, "typeName");
 
         final String xml = xs.toXML(m1);

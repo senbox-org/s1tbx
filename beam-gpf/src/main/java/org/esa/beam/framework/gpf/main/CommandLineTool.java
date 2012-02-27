@@ -23,19 +23,15 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.binding.dom.Xpp3DomElement;
+import com.bc.ceres.binding.dom.XppDomElement;
 import com.bc.ceres.core.ProgressMonitor;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.graph.Graph;
@@ -289,8 +285,8 @@ class CommandLineTool {
     private static DomElement createDomElement(String xml) {
         XppDomWriter domWriter = new XppDomWriter();
         new HierarchicalStreamCopier().copy(new XppReader(new StringReader(xml)), domWriter);
-        Xpp3Dom xpp3Dom = domWriter.getConfiguration();
-        return new Xpp3DomElement(xpp3Dom);
+        XppDom xppDom = domWriter.getConfiguration();
+        return new XppDomElement(xppDom);
     }
 
 

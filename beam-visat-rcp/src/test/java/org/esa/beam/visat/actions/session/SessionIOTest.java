@@ -19,7 +19,7 @@ package org.esa.beam.visat.actions.session;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.DomElementXStreamConverter;
-import com.bc.ceres.binding.dom.Xpp3DomElement;
+import com.bc.ceres.binding.dom.XppDomElement;
 import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.core.SingleTypeExtensionFactory;
 import com.bc.ceres.glayer.Layer;
@@ -30,7 +30,7 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
 import junit.framework.TestCase;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -130,7 +130,7 @@ public class SessionIOTest extends TestCase {
         public void write(Layer layer, Writer writer, DomConverter domConverter) {
             initIO();
 
-            final Xpp3DomElement configuration = new Xpp3DomElement("configuration");
+            final XppDomElement configuration = new XppDomElement("configuration");
             try {
                 domConverter.convertValueToDom(layer, configuration);
             } catch (com.bc.ceres.binding.ConversionException e) {
@@ -157,7 +157,7 @@ public class SessionIOTest extends TestCase {
                     if (xs == null) {
                         xs = new XStream();
                         xs.processAnnotations(LayerMemento.class);
-                        xs.alias("configuration", DomElement.class, Xpp3DomElement.class);
+                        xs.alias("configuration", DomElement.class, XppDomElement.class);
                         xs.useAttributeFor(LayerMemento.class, "typeName");
                     }
                 }

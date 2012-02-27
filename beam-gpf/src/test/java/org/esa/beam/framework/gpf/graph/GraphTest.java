@@ -16,8 +16,7 @@
 
 package org.esa.beam.framework.gpf.graph;
 
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
-
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import junit.framework.TestCase;
 
 public class GraphTest extends TestCase {
@@ -72,25 +71,25 @@ public class GraphTest extends TestCase {
             // expected
         }
     }
-    
-    public void testapplicationData() throws Exception {
+
+    public void testApplicationData() throws Exception {
         Graph graph = new Graph("chain1");
         assertNull(graph.getApplicationData("foo"));
-        
-        Xpp3Dom xpp3Dom1 = new Xpp3Dom("");
-        Xpp3Dom font = new Xpp3Dom("font");
+
+        XppDom xpp3Dom1 = new XppDom("");
+        XppDom font = new XppDom("font");
         font.setValue("big");
         xpp3Dom1.addChild(font);
         graph.setAppData("foo", xpp3Dom1);
-        
+
         assertSame(xpp3Dom1, graph.getApplicationData("foo"));
-        
-        Xpp3Dom xpp3Dom2 = new Xpp3Dom("");
-        Xpp3Dom font2 = new Xpp3Dom("font");
+
+        XppDom xpp3Dom2 = new XppDom("");
+        XppDom font2 = new XppDom("font");
         font2.setValue("small");
         xpp3Dom2.addChild(font2);
         graph.setAppData("foo", xpp3Dom2);
-        
+
         assertSame(xpp3Dom2, graph.getApplicationData("foo"));
     }
 
