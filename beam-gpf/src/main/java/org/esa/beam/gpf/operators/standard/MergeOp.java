@@ -157,7 +157,7 @@ public class MergeOp extends Operator {
             return;
         }
         Band targetBand = targetProduct.addBand(newBandName, sourceBand.getDataType());
-        ProductUtils.copyBandProperties(sourceBand, targetBand);
+        ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
     }
 
     private void validateSourceProducts() {

@@ -1183,6 +1183,18 @@ public class ProductUtils {
             Band sourceBand = (Band) sourceRaster;
             Band targetBand = (Band) targetRaster;
             copySpectralBandProperties(sourceBand, targetBand);
+            targetBand.setSourceImage(sourceBand.getSourceImage());
+            Product outputProduct = targetBand.getProduct();
+            if (sourceBand.getFlagCoding() != null) {
+                FlagCoding srcFlagCoding = sourceBand.getFlagCoding();
+                copyFlagCoding(srcFlagCoding, outputProduct);
+                targetBand.setSampleCoding(outputProduct.getFlagCodingGroup().get(srcFlagCoding.getName()));
+            }
+            if (sourceBand.getIndexCoding() != null) {
+                IndexCoding srcIndexCoding = sourceBand.getIndexCoding();
+                copyIndexCoding(srcIndexCoding, outputProduct);
+                targetBand.setSampleCoding(outputProduct.getIndexCodingGroup().get(srcIndexCoding.getName()));
+            }
         }
     }
 
