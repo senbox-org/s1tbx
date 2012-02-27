@@ -325,6 +325,7 @@ class MagicStickForm {
 
     private XStream createXStream() {
         XStream xStream = new XStream();
+        xStream.setClassLoader(MagicStickModel.class.getClassLoader());
         xStream.alias("magicStickSettings", MagicStickModel.class);
         return xStream;
     }
