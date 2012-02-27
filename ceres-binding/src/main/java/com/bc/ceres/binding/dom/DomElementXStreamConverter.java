@@ -50,7 +50,7 @@ public class DomElementXStreamConverter implements Converter {
         HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
         XppDomWriter xppDomWriter = new XppDomWriter();
         copier.copy(hierarchicalStreamReader, xppDomWriter);
-        return new Xpp3DomElement(xppDomWriter.getConfiguration());
+        return new XppDomElement(xppDomWriter.getConfiguration());
     }
 
 }

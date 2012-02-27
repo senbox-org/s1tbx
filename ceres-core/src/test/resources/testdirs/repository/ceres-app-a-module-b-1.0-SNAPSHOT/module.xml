@@ -3,9 +3,7 @@
     <symbolicName>module-b</symbolicName>
     <activator>com.bc.ceres.ActivatorB</activator>
     <version>1.7</version>
-    <dependencies>
-        <dependency>
-            <module>module-a</module>
-        </dependency>
-    </dependencies>
+    <dependency>
+        <module>module-a</module>
+    </dependency>
 </module>

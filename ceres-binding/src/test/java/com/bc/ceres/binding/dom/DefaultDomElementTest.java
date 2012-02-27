@@ -51,13 +51,13 @@ public class DefaultDomElementTest extends AbstractDomElementTest {
 
     public void testMixChildren() {
         testMixChildren(new DefaultDomElement("a"), new DefaultDomElement("b"), new DefaultDomElement("c"));
-        testMixChildren(new DefaultDomElement("a"), new DefaultDomElement("b"), new Xpp3DomElement("c"));
-        testMixChildren(new DefaultDomElement("a"), new Xpp3DomElement("b"), new DefaultDomElement("c"));
-        testMixChildren(new DefaultDomElement("a"), new Xpp3DomElement("b"), new Xpp3DomElement("c"));
-        testMixChildren(new Xpp3DomElement("a"), new DefaultDomElement("b"), new DefaultDomElement("c"));
-        testMixChildren(new Xpp3DomElement("a"), new DefaultDomElement("b"), new Xpp3DomElement("c"));
-        testMixChildren(new Xpp3DomElement("a"), new Xpp3DomElement("b"), new DefaultDomElement("c"));
-        testMixChildren(new Xpp3DomElement("a"), new Xpp3DomElement("b"), new Xpp3DomElement("c"));
+        testMixChildren(new DefaultDomElement("a"), new DefaultDomElement("b"), new XppDomElement("c"));
+        testMixChildren(new DefaultDomElement("a"), new XppDomElement("b"), new DefaultDomElement("c"));
+        testMixChildren(new DefaultDomElement("a"), new XppDomElement("b"), new XppDomElement("c"));
+        testMixChildren(new XppDomElement("a"), new DefaultDomElement("b"), new DefaultDomElement("c"));
+        testMixChildren(new XppDomElement("a"), new DefaultDomElement("b"), new XppDomElement("c"));
+        testMixChildren(new XppDomElement("a"), new XppDomElement("b"), new DefaultDomElement("c"));
+        testMixChildren(new XppDomElement("a"), new XppDomElement("b"), new XppDomElement("c"));
     }
 
     private void testMixChildren(DomElement a, DomElement b, DomElement c) {
@@ -72,9 +72,9 @@ public class DefaultDomElementTest extends AbstractDomElementTest {
         assertSame(a.getChild("b"), a.getChild("b").getChild("c").getParent());
 
         assertEquals("<a>\n" +
-                "<b>\n" +
-                "<c/>\n" +
-                "</b>\n" +
-                "</a>", a.toXml().replace("  ", ""));
+                             "<b>\n" +
+                             "<c/>\n" +
+                             "</b>\n" +
+                             "</a>", a.toXml().replace("  ", ""));
     }
 }

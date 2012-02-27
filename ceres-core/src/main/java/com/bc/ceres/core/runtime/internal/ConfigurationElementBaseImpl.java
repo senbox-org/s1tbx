@@ -17,7 +17,7 @@
 package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.runtime.ConfigurationElementBase;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 
 import java.util.ArrayList;
 
@@ -33,15 +33,15 @@ public abstract class ConfigurationElementBaseImpl<T extends ConfigurationElemen
         implements ConfigurationElementBase<T> {
 
     private final T parent;
-    private final Xpp3Dom dom;
+    private final XppDom dom;
     private T[] children;
 
-    protected ConfigurationElementBaseImpl(T parent, Xpp3Dom dom) {
+    protected ConfigurationElementBaseImpl(T parent, XppDom dom) {
         this.dom = dom;
         this.parent = parent;
     }
 
-    Xpp3Dom getDom() {
+    XppDom getDom() {
         return dom;
     }
 
@@ -96,7 +96,7 @@ public abstract class ConfigurationElementBaseImpl<T extends ConfigurationElemen
         return getDom().getAttributeNames();
     }
 
-    protected abstract T[] createChildren(Xpp3Dom[] doms);
+    protected abstract T[] createChildren(XppDom[] doms);
 
     protected abstract T[] createEmptyArray(int n);
 }

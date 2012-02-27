@@ -9,6 +9,7 @@
     <changelog>
         <![CDATA[
         Changes in 0.13<br/>
+        [CERES-056] Use latest XStream library<br/>
         [CERES-055] Core API: Add extension point "adapters" in order to have declarative extension types<br/>
         [CERES-054] Core API: ExtensionManager should query all possible extension factories<br/>
         Changes in 0.12<br/>
@@ -68,7 +69,7 @@
             </extension>
 
         -->
-        <application type="com.bc.ceres.core.runtime.RuntimeRunnable" />
+        <application type="com.bc.ceres.core.runtime.RuntimeRunnable"/>
 
     </extensionPoint>
 

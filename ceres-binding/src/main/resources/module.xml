@@ -11,6 +11,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 0.13</p>
+        [CERES-056] Use latest XStream library<br/>
         <p>Changes in 0.12</p>
         [CERES-52] Enums are note correctly converted<br/>
         [CERES-51] Boolean text converter should accept numbers<br/>

@@ -2,12 +2,10 @@
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>module-e</symbolicName>
     <activator>com.bc.ceres.ActivatorE</activator>
-    <dependencies>
-        <dependency>
-            <module>module-b</module>
-        </dependency>
-        <dependency>
-            <module>module-d</module>
-        </dependency>
-    </dependencies>
+    <dependency>
+        <module>module-b</module>
+    </dependency>
+    <dependency>
+        <module>module-d</module>
+    </dependency>
 </module>

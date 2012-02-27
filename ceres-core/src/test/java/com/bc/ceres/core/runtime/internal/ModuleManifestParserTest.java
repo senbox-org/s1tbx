@@ -16,12 +16,12 @@
 
 package com.bc.ceres.core.runtime.internal;
 
-import com.bc.ceres.core.runtime.*;
 import com.bc.ceres.core.CoreException;
+import com.bc.ceres.core.runtime.*;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.XppDomReader;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import junit.framework.TestCase;
 
 import java.io.IOException;
@@ -41,11 +41,11 @@ public class ModuleManifestParserTest
     }
 
     public void testXStreamUnmarshal() {
-        Xpp3Dom fooElem = new Xpp3Dom(Foo.class.getName());
-        Xpp3Dom nameElem = new Xpp3Dom("name");
+        XppDom fooElem = new XppDom(Foo.class.getName());
+        XppDom nameElem = new XppDom("name");
         nameElem.setValue("Bibo");
         fooElem.addChild(nameElem);
-        Xpp3Dom ageElem = new Xpp3Dom("age");
+        XppDom ageElem = new XppDom("age");
         ageElem.setValue("41");
         fooElem.addChild(ageElem);
 
@@ -65,7 +65,7 @@ public class ModuleManifestParserTest
         XppDomWriter domWriter = new XppDomWriter();
         new XStream().marshal(foo, domWriter);
 
-        Xpp3Dom fooElem = domWriter.getConfiguration();
+        XppDom fooElem = domWriter.getConfiguration();
         assertNotNull(fooElem);
         assertNotNull(fooElem.getChild("name"));
         assertNotNull(fooElem.getChild("age"));
@@ -210,13 +210,13 @@ public class ModuleManifestParserTest
         testDependency(module_e, 1, "module-d", null, "3");
         testDependency(module_e, 2, null, "netcdf", "1.2.4");
 
-        testExtension(module_e.getExtensions()[0],  module_e, "e-eb11", "module-b:ep-1");
-        testExtension(module_e.getExtensions()[1],  module_e, "e-eb21", "module-b:ep-2");
-        testExtension(module_e.getExtensions()[2],  module_e, "e-eb31", "module-b:ep-3");
-        testExtension(module_e.getExtensions()[3],  module_e, "e-eb32", "module-b:ep-3");
-        testExtension(module_e.getExtensions()[4],  module_e, "e-ed21", "module-d:ep-2");
-        testExtension(module_e.getExtensions()[5],  module_e, "e-ed22", "module-d:ep-2");
-        testExtension(module_e.getExtensions()[6],  module_e, "e-ed33", "module-d:ep-3");
+        testExtension(module_e.getExtensions()[0], module_e, "e-eb11", "module-b:ep-1");
+        testExtension(module_e.getExtensions()[1], module_e, "e-eb21", "module-b:ep-2");
+        testExtension(module_e.getExtensions()[2], module_e, "e-eb31", "module-b:ep-3");
+        testExtension(module_e.getExtensions()[3], module_e, "e-eb32", "module-b:ep-3");
+        testExtension(module_e.getExtensions()[4], module_e, "e-ed21", "module-d:ep-2");
+        testExtension(module_e.getExtensions()[5], module_e, "e-ed22", "module-d:ep-2");
+        testExtension(module_e.getExtensions()[6], module_e, "e-ed33", "module-d:ep-3");
     }
 
     public void testModuleMinimum() throws IOException, CoreException {
@@ -238,9 +238,9 @@ public class ModuleManifestParserTest
         assertNotNull(module_details);
         testModule(module_details, "module-details", "9.9.9", "jar", "Module Details",
                    "Lorem ipsum ex sint omnes intellegebat vis, mucius nostrum usu id. No probo probatus qui, has ceteros " +
-                   "nostrum dissentias an, affert torquatos vim ut. In eos nulla quaerendum, est labore appareat ea. Admodum " +
-                   "assueverit constituam ut vis, oratio fabulas nostrum te vel. Id eam utamur deleniti consulatu. Quo utinam graeco " +
-                   "consetetur at. Nam nullam nominati interpretaris ei.",
+                           "nostrum dissentias an, affert torquatos vim ut. In eos nulla quaerendum, est labore appareat ea. Admodum " +
+                           "assueverit constituam ut vis, oratio fabulas nostrum te vel. Id eam utamur deleniti consulatu. Quo utinam graeco " +
+                           "consetetur at. Nam nullam nominati interpretaris ei.",
                    DefaultActivator.class.getName(), 0, 0, 0);
 
         assertEquals("ACME Inc.", module_details.getVendor());
@@ -272,10 +272,10 @@ public class ModuleManifestParserTest
         assertEquals("element-linebreak-module", module.getSymbolicName());
 
         assertEquals("Ju faka fojo pasko cia, obl subjunkcio solstariva supersigno er, onia kontra?a cis fi. Tek he metr kien. Mis co " +
-                     "havi alta negativa. End nf pero ioma. De meze tuje tempolongo des. " +
-                     "Sola seksa geinstruisto sur fi, mf vole estiel eksterna sia. Ato semajntago substantiva ed, ge volu kvanto " +
-                     "anta?parto ili, pov em super jugoslavo. Ne cent intera vir, nea video matematika rolvorta?o am. Eksa sekvanta " +
-                     "deksesuma sep ej, kv nen amen lingvonomo, eg jen stif kelka rekta. Je tuja samo aha, ko hoj pako kasedo.", module.getDescription());
+                             "havi alta negativa. End nf pero ioma. De meze tuje tempolongo des. " +
+                             "Sola seksa geinstruisto sur fi, mf vole estiel eksterna sia. Ato semajntago substantiva ed, ge volu kvanto " +
+                             "anta?parto ili, pov em super jugoslavo. Ne cent intera vir, nea video matematika rolvorta?o am. Eksa sekvanta " +
+                             "deksesuma sep ej, kv nen amen lingvonomo, eg jen stif kelka rekta. Je tuja samo aha, ko hoj pako kasedo.", module.getDescription());
     }
 
     public void testModuleEmptyId() throws IOException {
@@ -292,7 +292,7 @@ public class ModuleManifestParserTest
             TestHelpers.parseModuleManifest("xml/module-empty-version.xml");
             fail("error expected");
         } catch (CoreException e) {
-            assertTrue(e.getMessage().indexOf("version") >= 0);
+            assertTrue(e.getMessage().contains("version"));
         }
     }
 
@@ -301,7 +301,7 @@ public class ModuleManifestParserTest
             TestHelpers.parseModuleManifest("xml/module-invalid-version.xml");
             fail("error expected");
         } catch (CoreException e) {
-            assertTrue(e.getMessage().indexOf("version") >= 0);
+            assertTrue(e.getMessage().contains("version"));
         }
     }
 
