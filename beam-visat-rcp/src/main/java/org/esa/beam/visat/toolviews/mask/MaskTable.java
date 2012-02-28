@@ -15,7 +15,7 @@
  */
 package org.esa.beam.visat.toolviews.mask;
 
-import com.jidesoft.combobox.ColorComboBox;
+import com.jidesoft.combobox.ColorExComboBox;
 import com.jidesoft.grid.ColorCellEditor;
 import com.jidesoft.grid.ColorCellRenderer;
 import org.esa.beam.framework.datamodel.Mask;
@@ -23,18 +23,11 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.UIUtils;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 
 class MaskTable extends JTable {
@@ -129,14 +122,6 @@ class MaskTable extends JTable {
         }
     }
 
-    private static Component configureColorComboBox(ColorComboBox comboBox) {
-        comboBox.setColorValueVisible(false);
-        comboBox.setUseAlphaColorButtons(false);
-        comboBox.setAllowDefaultColor(false);
-        comboBox.setAllowMoreColors(true);
-        return comboBox;
-    }
-
     private class ToolTipMIL extends MouseInputAdapter {
 
         private int currentRowIndex;
@@ -169,21 +154,27 @@ class MaskTable extends JTable {
 
     private static class ColorCE extends ColorCellEditor {
         @Override
-        public Component getTableCellEditorComponent(JTable table, Object value,
-                                                     boolean isSelected, int row, int column) {
-            ColorComboBox comboBox = (ColorComboBox) super.getTableCellEditorComponent(table, value,
-                                                                                       isSelected, row, column);
-            return configureColorComboBox(comboBox);
+        protected ColorExComboBox createColorComboBox() {
+            ColorExComboBox comboBox = super.createColorComboBox();
+            comboBox.setColorValueVisible(true);
+            comboBox.setColorIconVisible(true);
+            comboBox.setInvalidValueAllowed(false);
+            comboBox.setAllowDefaultColor(true);
+            comboBox.setAllowMoreColors(true);
+            return comboBox;
         }
     }
 
     private static class ColorCR extends ColorCellRenderer {
+
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                                                        boolean isSelected, boolean hasFocus, int row, int column) {
-            ColorComboBox comboBox = (ColorComboBox) super.getTableCellRendererComponent(table, value,
-                                                                                         isSelected, hasFocus, row, column);
-            return configureColorComboBox(comboBox);
+            setColorIconVisible(true);
+            setColorValueVisible(true);
+            setCrossBackGroundStyle(true);
+            return super.getTableCellRendererComponent(table, value,
+                                                       isSelected, hasFocus, row, column);
         }
     }
 

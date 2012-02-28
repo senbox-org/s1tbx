@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.10<br/>
+          [BEAM-1373] Use latest JIDE libraries<br/>
           [BEAM-1372] Use latest XStream library<br/>
           [BEAM-1352] When exporting a product a SubsetInfo is always added to metadata tree<br/>
           [BEAM-1323] Add "magic stick" to VISAT that lets users create masks of similar pixels<br/>
