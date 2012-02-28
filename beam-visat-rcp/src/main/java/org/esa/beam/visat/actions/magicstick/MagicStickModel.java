@@ -45,6 +45,7 @@ public class MagicStickModel implements Cloneable {
     private double tolerance;
     private double minTolerance;
     private double maxTolerance;
+    private String[] bandNames;
     private Operator operator;
     private Method method;
     private boolean normalize;
@@ -56,6 +57,7 @@ public class MagicStickModel implements Cloneable {
         mode = Mode.SINGLE;
         method = Method.DISTANCE;
         operator = Operator.IDENTITY;
+        bandNames = new String[0];
         plusSpectra = new ArrayList<double[]>();
         minusSpectra = new ArrayList<double[]>();
         tolerance = 0.1;
@@ -102,6 +104,14 @@ public class MagicStickModel implements Cloneable {
     void clearSpectra() {
         plusSpectra.clear();
         minusSpectra.clear();
+    }
+
+    public String[] getBandNames() {
+        return bandNames;
+    }
+
+    public void setBandNames(String[] bandNames) {
+        this.bandNames = bandNames;
     }
 
     public Mode getMode() {
@@ -396,6 +406,7 @@ public class MagicStickModel implements Cloneable {
         if (method != that.method) return false;
         if (mode != that.mode) return false;
         if (operator != that.operator) return false;
+        if (!ObjectUtils.equalObjects(bandNames, that.bandNames)) return false;
         if (!ObjectUtils.equalObjects(plusSpectra.toArray(), that.plusSpectra.toArray())) return false;
         if (!ObjectUtils.equalObjects(minusSpectra.toArray(), that.minusSpectra.toArray())) return false;
 
@@ -411,6 +422,7 @@ public class MagicStickModel implements Cloneable {
         result = 31 * result + method.hashCode();
         result = 31 * result + plusSpectra.hashCode();
         result = 31 * result + minusSpectra.hashCode();
+        result = 31 * result + bandNames.hashCode();
         temp = tolerance != +0.0d ? Double.doubleToLongBits(tolerance) : 0L;
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (normalize ? 1 : 0);

@@ -1,12 +1,17 @@
 package org.esa.beam.visat.actions.magicstick;
 
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.ComponentAdapter;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
+import com.jidesoft.combobox.CheckBoxListExComboBox;
 import com.thoughtworks.xstream.XStream;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -16,12 +21,15 @@ import javax.swing.event.UndoableEditListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.prefs.Preferences;
 
 /**
@@ -72,6 +80,25 @@ class MagicStickForm {
             }
         });
 
+        // todo - update band list, every time the selected view changes (nf)
+        Band[] spectralBands = MagicStickModel.getSpectralBands(VisatApp.getApp().getSelectedProduct());
+        String[] bandNames = new String[spectralBands.length];
+        for (int i = 0; i < bandNames.length; i++) {
+            bandNames[i] = spectralBands[i].getName();
+        }
+        CheckBoxListExComboBox bandComboBox = new CheckBoxListExComboBox(bandNames, String[].class);
+        bandComboBox.setEditable(true);
+        bandComboBox.setEnabled(true);
+        bandComboBox.setStretchToFit(true);
+
+        bindingContext.bind("bandNames", new CheckBoxListExComboBoxComponentAdapter(bandComboBox));
+        // todo - remove test code (nf)
+        bindingContext.addPropertyChangeListener("bandNames", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                System.out.println("bandNames = " + Arrays.toString(interactor.getModel().getBandNames()));
+            }
+        });
         JLabel toleranceLabel = new JLabel("Tolerance:");
         toleranceLabel.setToolTipText("Sets the maximum Euclidian distance tolerated (in units of the spectral bands)");
 
@@ -272,15 +299,18 @@ class MagicStickForm {
         tableLayout.setCellColspan(2, 0, tableLayout.getColumnCount());
         tableLayout.setCellColspan(3, 0, tableLayout.getColumnCount());
         tableLayout.setCellColspan(4, 0, tableLayout.getColumnCount());
+        tableLayout.setCellColspan(5, 0, tableLayout.getColumnCount());
+        tableLayout.setCellColspan(6, 0, tableLayout.getColumnCount());
 
         JPanel panel = new JPanel(tableLayout);
         panel.add(toleranceLabel, new TableLayout.Cell(0, 0));
         panel.add(toleranceField, new TableLayout.Cell(0, 1));
         panel.add(toleranceSliderPanel, new TableLayout.Cell(1, 0));
-        panel.add(methodPanel, new TableLayout.Cell(2, 0));
-        panel.add(operatorPanel, new TableLayout.Cell(3, 0));
-        panel.add(normalizeCheckBox, new TableLayout.Cell(4, 0));
-        panel.add(toolBarPanel, new TableLayout.Cell(5, 0));
+        panel.add(bandComboBox, new TableLayout.Cell(2, 0));
+        panel.add(methodPanel, new TableLayout.Cell(3, 0));
+        panel.add(operatorPanel, new TableLayout.Cell(4, 0));
+        panel.add(normalizeCheckBox, new TableLayout.Cell(5, 0));
+        panel.add(toolBarPanel, new TableLayout.Cell(6, 0));
 
         adjustSlider();
 
@@ -388,4 +418,50 @@ class MagicStickForm {
         return minTolerance + sliderValue * (maxTolerance - minTolerance) / TOLERANCE_SLIDER_RESOLUTION;
     }
 
+
+    private static class CheckBoxListExComboBoxComponentAdapter extends ComponentAdapter {
+        private final CheckBoxListExComboBox comboBox;
+        private final CheckBoxListExComboBoxComponentAdapter.MyItemListener itemListener;
+
+        public CheckBoxListExComboBoxComponentAdapter(CheckBoxListExComboBox comboBox) {
+            this.comboBox = comboBox;
+            itemListener = new MyItemListener();
+        }
+
+        @Override
+        public JComponent[] getComponents() {
+            return new JComponent[]{comboBox};
+        }
+
+        @Override
+        public void bindComponents() {
+            comboBox.addItemListener(itemListener);
+        }
+
+        @Override
+        public void unbindComponents() {
+            comboBox.removeItemListener(itemListener);
+        }
+
+        @Override
+        public void adjustComponents() {
+            PropertySet propertySet = getBinding().getContext().getPropertySet();
+            comboBox.setSelectedObjects((Object[]) propertySet.getValue(getBinding().getPropertyName()));
+        }
+
+        private class MyItemListener implements ItemListener {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                boolean updateOnChange = comboBox.isUpdateOnChange();
+                System.out.println("updateOnChange = " + updateOnChange);
+                Object[] selectedObjects = comboBox.getSelectedObjects();
+                String[] names = new String[selectedObjects.length];
+                for (int i = 0; i < names.length; i++) {
+                    names[i] = (String) selectedObjects[i];
+                }
+                PropertySet propertySet = getBinding().getContext().getPropertySet();
+                propertySet.setValue(getBinding().getPropertyName(), names);
+            }
+        }
+    }
 }

@@ -21,7 +21,6 @@ import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.swing.figure.ViewportInteractor;
 import com.bc.ceres.swing.undo.UndoContext;
-import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.UIUtils;
@@ -33,16 +32,16 @@ import javax.swing.*;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
-import javax.swing.undo.UndoableEdit;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 
-import static org.esa.beam.visat.actions.magicstick.MagicStickModel.*;
+import static org.esa.beam.visat.actions.magicstick.MagicStickModel.MAGIC_STICK_MASK_NAME;
+import static org.esa.beam.visat.actions.magicstick.MagicStickModel.getSpectralBands;
 
 /**
  * An interactor that lets users create masks using a "magic stick".
- * The mask comprises all pixels in the image that are spectrally close to the pixel that
+ * The mask comprises all pixels in the image that are "spectrally" close to the pixel that
  * has been selected using the magic stick.
  *
  * @author Norman Fomferra
