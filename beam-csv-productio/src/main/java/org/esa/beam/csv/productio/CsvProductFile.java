@@ -25,11 +25,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * TODO fill out or delete
@@ -103,14 +101,12 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
 
             int columnIndex = 0;
             while ((line = reader.readLine()) != null) {
-                final StringTokenizer stringTokenizer = new StringTokenizer(line, "\t");
                 String locationName = null;
                 ProductData.UTC time = null;
                 float lat = Float.NaN;
                 float lon = Float.NaN;
                 List<Object> values = new ArrayList<Object>();
-                while (stringTokenizer.hasMoreTokens()) {
-                    final String token = stringTokenizer.nextToken();
+                for (String token : getTokens(line)) {
                     final HeaderImpl.AttributeHeader attributeHeader = header.getAttributeHeader(columnIndex);
                     if(contains(Constants.LOCATION_NAMES, attributeHeader.name)) {
                         locationName = token;
@@ -119,7 +115,11 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
                     } else if(contains(Constants.LON_NAMES, attributeHeader.name)) {
                         lon = Float.parseFloat(token);
                     } else if(contains(Constants.TIME_NAMES, attributeHeader.name)) {
-                        time = ProductData.UTC.parse(token, Constants.TIME_PATTERN);
+                        if(token != null && !token.isEmpty()) {
+                            time = ProductData.UTC.parse(token, Constants.TIME_PATTERN);
+                        } else {
+                            time = null;
+                        }
                     } else {
                         values.add(toObject(token, new Class<?>[]{Double.class, Long.class, ProductData.UTC.class, String.class}));
                     }
@@ -142,6 +142,27 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         }
     }
 
+    @Override
+    public void parseHeader() throws IOException {
+        header = new HeaderImpl(csv);
+    }
+
+    @Override
+    public List<Record> getRecords() {
+        return Collections.unmodifiableList(records);
+    }
+
+
+    @Override
+    public Header getHeader() {
+        return header;
+    }
+
+    @Override
+    public Map<String, String> getProperties() {
+        return Collections.unmodifiableMap(properties);
+    }
+
     private boolean contains(String[] possibleStrings, String s) {
         for (String possibleString : possibleStrings) {
             if(possibleString.equals(s)) {
@@ -149,6 +170,18 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
             }
         }
         return false;
+    }
+
+    private ArrayList<String> getTokens(String line) {
+        int pos2;
+        int pos1 = 0;
+        final ArrayList<String> strings = new ArrayList<String>();
+        while ((pos2 = line.indexOf('\t', pos1)) >= 0) {
+            strings.add(line.substring(pos1, pos2).trim());
+            pos1 = pos2 + 1;
+        }
+        strings.add(line.substring(pos1).trim());
+        return strings;
     }
 
     private Object toObject(String textValue, Class<?>[] types) {
@@ -205,27 +238,6 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
                 throw e;
             }
         }
-    }
-
-    @Override
-    public void parseHeader() throws IOException {
-        header = new HeaderImpl(csv);
-    }
-
-
-    @Override
-    public List<Record> getRecords() {
-        return Collections.unmodifiableList(records);
-    }
-
-    @Override
-    public Header getHeader() {
-        return header;
-    }
-
-    @Override
-    public Map<String, String> getProperties() {
-        return Collections.unmodifiableMap(properties);
     }
 
     static class ParseException extends Exception {
