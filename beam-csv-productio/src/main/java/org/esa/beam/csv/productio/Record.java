@@ -20,8 +20,9 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ProductData;
 
 /**
- * TODO fill out or delete
+ * Interface representing a view on a data row within a csv product file.
  *
+ * @author Olaf Danne
  * @author Thomas Storm
  */
 public interface Record {

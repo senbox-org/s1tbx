@@ -26,8 +26,7 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 /**
- * TODO fill out or delete
- *
+ * @author Olaf Danne
  * @author Thomas Storm
  */
 public class CsvProductFileTest {
@@ -35,9 +34,11 @@ public class CsvProductFileTest {
     @Test
     public void testParseProperties() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
-        final CsvProductFile csvProductFile = new CsvProductFile(simpleFormatExample);
-        csvProductFile.parseProperties();
-        final Map<String,String> properties = csvProductFile.getProperties();
+        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
+        parser.parseProperties();
+
+        final CsvProductSource productSource = parser.getCsvProductSource();
+        final Map<String,String> properties = productSource.getProperties();
         assertNotNull(properties);
         assertEquals(2, properties.size());
         assertEquals("POLYGON(0.0, 1.0, 1.1)", properties.get("geometry1"));
@@ -46,17 +47,19 @@ public class CsvProductFileTest {
 
     @Test(expected = CsvProductFile.ParseException.class)
     public void testParseProperties_Fail() throws Exception {
-        final CsvProductFile csvProductFile = new CsvProductFile("invalid_path");
-        csvProductFile.parseProperties();
+        final CsvProductSourceParser parser = new CsvProductFile("invalid_path");
+        parser.parseProperties();
     }
 
     @Test
     public void testParseRecords() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
-        final CsvProductFile csvProductFile = new CsvProductFile(simpleFormatExample);
-        csvProductFile.parseHeader();
-        csvProductFile.parseRecords();
-        final List<Record> records = csvProductFile.getRecords();
+        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
+        parser.parseHeader();
+        parser.parseRecords();
+
+        final CsvProductSource csvProductSource = parser.getCsvProductSource();
+        final List<Record> records = csvProductSource.getRecords();
         
         assertEquals(3, records.size());
         
@@ -100,9 +103,11 @@ public class CsvProductFileTest {
     @Test
     public void testParseHeader() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
-        final CsvProductFile csvProductFile = new CsvProductFile(simpleFormatExample);
-        csvProductFile.parseHeader();
-        final Header header = csvProductFile.getHeader();
+        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
+        parser.parseHeader();
+
+        final CsvProductSource csvProductSource = parser.getCsvProductSource();
+        final Header header = csvProductSource.getHeader();
         assertNotNull(header);
         assertTrue(header.hasLocationName());
         assertTrue(header.hasLocation());

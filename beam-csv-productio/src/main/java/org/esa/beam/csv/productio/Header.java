@@ -17,8 +17,9 @@
 package org.esa.beam.csv.productio;
 
 /**
- * TODO fill out or delete
+ * Interface representing the header row of a csv product file.
  *
+ * @author Olaf Danne
  * @author Thomas Storm
  */
 public interface Header {

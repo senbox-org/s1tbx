@@ -17,8 +17,9 @@
 package org.esa.beam.csv.productio;
 
 /**
- * TODO fill out or delete
+ * Interface extending the standard header by feature-specific methods.
  *
+ * @author Olaf Danne
  * @author Thomas Storm
  */
 public interface FeatureHeader extends Header {

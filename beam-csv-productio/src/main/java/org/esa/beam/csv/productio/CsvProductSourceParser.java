@@ -16,19 +16,41 @@
 
 package org.esa.beam.csv.productio;
 
-import java.io.IOException;
-
 /**
- * TODO fill out or delete
+ * Interface providing methods for parsing a csv product source.
  *
+ * @author Olaf Danne
  * @author Thomas Storm
  */
 public interface CsvProductSourceParser {
 
+    /**
+     * Triggers parsing of the properties.
+     *
+     * @throws CsvProductFile.ParseException if something goes wrong.
+     */
     void parseProperties() throws CsvProductFile.ParseException;
 
+    /**
+     * Triggers parsing of the header.
+     *
+     * @throws CsvProductFile.ParseException if something goes wrong.
+     */
+    void parseHeader() throws CsvProductFile.ParseException;
+
+    /**
+     * Triggers parsing of the records. Before calling this method, {@link CsvProductSourceParser#parseHeader()} must
+     * have been called.
+     *
+     * @throws IllegalStateException         if this method is called before {@link CsvProductSourceParser#parseHeader()} has
+     *                                       been called.
+     * @throws CsvProductFile.ParseException if something goes wrong.
+     */
     void parseRecords() throws CsvProductFile.ParseException;
 
-    void parseHeader() throws IOException;
+    /**
+     * @return A view on the {@link CsvProductSource} parsed using this interface.
+     */
+    CsvProductSource getCsvProductSource();
 
 }

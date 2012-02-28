@@ -17,11 +17,12 @@
 package org.esa.beam.csv.productio;
 
 /**
- * TODO fill out or delete
+ * Some constants.
  *
+ * @author Olaf Danne
  * @author Thomas Storm
  */
-public class Constants {
+class Constants {
 
     static final String[] LAT_NAMES = new String[]{"lat", "latitude", "northing"};
     static final String[] LON_NAMES = new String[]{"lon", "long", "longitude", "easting"};

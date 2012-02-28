@@ -22,7 +22,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import java.util.Arrays;
 
 /**
- * A container class which holds all information of a measurement.
+ * A default implementation of {@link Record} which holds all information of a measurement.
  */
 public class Measurement implements Record {
 

@@ -17,20 +17,19 @@
 package org.esa.beam.csv.productio;
 
 /**
- * TODO fill out or delete
+ * Interface extending a record to feature-specific methods.
  *
+ * @author Olaf Danne
  * @author Thomas Storm
  */
 public interface FeatureRecord extends Record {
 
     /**
-     *
      * @return {@code true}, if feature record has an ID.
      */
     boolean hasFeatureId();
 
     /**
-     *
      * @return the feature ID
      */
     String getFeatureId();

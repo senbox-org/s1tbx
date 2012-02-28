@@ -25,8 +25,9 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * TODO fill out or delete
+ * A default implementation of {@link Header}.
  *
+ * @author Olaf Danne
  * @author Thomas Storm
  */
 public class HeaderImpl implements Header {

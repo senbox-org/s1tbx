@@ -20,16 +20,26 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TODO fill out or delete
+ * Interface providing access methods on a csv product.
  *
+ * @author Olaf Danne
  * @author Thomas Storm
  */
 public interface CsvProductSource {
 
+    /**
+     * @return An unmodifiable list of data records.
+     */
     List<Record> getRecords();
-    
+
+    /**
+     * @return A header representation on the csv file.
+     */
     Header getHeader();
-    
+
+    /**
+     * @return An unmodifiable map of properties.
+     */
     Map<String, String> getProperties();
-    
+
 }

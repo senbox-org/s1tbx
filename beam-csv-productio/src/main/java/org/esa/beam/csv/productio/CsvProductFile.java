@@ -30,8 +30,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TODO fill out or delete
+ * A CsvProductFile is a view on a csv file allowing a) to parse it using the {@link CsvProductSourceParser} interface
+ * and b) to receive its values using the {@link CsvProductSource} interface.
  *
+ * @author Olaf Danne
  * @author Thomas Storm
  */
 public class CsvProductFile implements CsvProductSourceParser, CsvProductSource {
@@ -143,8 +145,17 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
     }
 
     @Override
-    public void parseHeader() throws IOException {
-        header = new HeaderImpl(csv);
+    public void parseHeader() throws ParseException {
+        try {
+            header = new HeaderImpl(csv);
+        } catch (IOException e) {
+            throw new ParseException(e);
+        }
+    }
+
+    @Override
+    public CsvProductSource getCsvProductSource() {
+        return this;
     }
 
     @Override
@@ -248,10 +259,6 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
 
         private ParseException(Throwable cause) {
             super(cause);
-        }
-
-        ParseException(String message, Throwable cause) {
-            super(message, cause);
         }
     }
 
