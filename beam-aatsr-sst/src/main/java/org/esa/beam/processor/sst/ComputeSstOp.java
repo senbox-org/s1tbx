@@ -90,13 +90,13 @@ public class ComputeSstOp extends PixelOperator {
         }
     }
 
-    @SourceProduct(alias = "source",
+    @SourceProduct(description = "The path of the (A)ATSR source product",
+                   label = "(A)ATSR source product",
                    bands = {
                            SstConstants.NADIR_370_BAND,
                            SstConstants.NADIR_1100_BAND,
                            SstConstants.NADIR_1200_BAND
-                   },
-                   description = "The path of the (A)ATSR source product")
+                   })
     private Product sourceProduct;
 
     @Parameter(defaultValue = "true",
