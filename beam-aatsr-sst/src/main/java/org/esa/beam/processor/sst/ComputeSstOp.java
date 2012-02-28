@@ -167,26 +167,11 @@ public class ComputeSstOp extends PixelOperator {
     public void dispose() {
         super.dispose();
 
-        nadirMaskOpImage.dispose();
+        if (nadirMaskOpImage != null) {
+            nadirMaskOpImage.dispose();
+        }
         if (dualMaskOpImage != null) {
             dualMaskOpImage.dispose();
-        }
-    }
-
-    @Override
-    protected void prepareInputs() throws OperatorException {
-        super.prepareInputs();
-
-        final File auxdataDir = installAuxiliaryData();
-        if (nadir) {
-            initNadirCoefficients(auxdataDir);
-            nadirMaskOpImage = VirtualBandOpImage.createMask(nadirMaskExpression, sourceProduct,
-                                                             ResolutionLevel.MAXRES);
-        }
-        if (dual) {
-            initDualCoefficients(auxdataDir);
-            dualMaskOpImage = VirtualBandOpImage.createMask(dualMaskExpression, sourceProduct,
-                                                            ResolutionLevel.MAXRES);
         }
     }
 
@@ -290,6 +275,27 @@ public class ComputeSstOp extends PixelOperator {
             dualSstBand.setDescription(SstConstants.OUT_BAND_DUAL_DESCRIPTION);
             dualSstBand.setGeophysicalNoDataValue(invalidSstValue);
             dualSstBand.setNoDataValueUsed(true);
+        }
+    }
+
+    @Override
+    protected void prepareInputs() throws OperatorException {
+        super.prepareInputs();
+
+        final File auxdataDir = installAuxiliaryData();
+        if (nadir) {
+            initNadirCoefficients(auxdataDir);
+            if (nadirMaskExpression != null && !nadirMaskExpression.isEmpty()) {
+                nadirMaskOpImage = VirtualBandOpImage.createMask(nadirMaskExpression, sourceProduct,
+                                                                 ResolutionLevel.MAXRES);
+            }
+        }
+        if (dual) {
+            initDualCoefficients(auxdataDir);
+            if (dualMaskExpression != null && !dualMaskExpression.isEmpty()) {
+                dualMaskOpImage = VirtualBandOpImage.createMask(dualMaskExpression, sourceProduct,
+                                                                ResolutionLevel.MAXRES);
+            }
         }
     }
 
@@ -439,7 +445,10 @@ public class ComputeSstOp extends PixelOperator {
         return targetDir;
     }
 
-    private static boolean isMasked(OpImage maskOpImage, int x, int y) {
+    private static boolean isMasked(final OpImage maskOpImage, final int x, final int y) {
+        if (maskOpImage == null) {
+            return true;
+        }
         final int tileX = maskOpImage.XToTileX(x);
         final int tileY = maskOpImage.YToTileY(y);
         final Raster tile = maskOpImage.getTile(tileX, tileY);

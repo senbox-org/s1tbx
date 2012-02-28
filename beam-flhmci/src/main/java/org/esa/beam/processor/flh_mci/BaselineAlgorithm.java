@@ -24,19 +24,19 @@ import org.esa.beam.util.Guardian;
 public final class BaselineAlgorithm {
 
     public static final float DEFAULT_CLOUD_CORRECT = 1.005f;
-    private double _lambdaFactor;
-    private double _invDelta;
-    private double _cloudCorrect;
-    private float _invalid;
+    private double lambdaFactor;
+    private double inverseDelta;
+    private double cloudCorrectionFactor;
+    private float invalidValue;
 
     /**
      * Constructs the object with default parameters
      */
     public BaselineAlgorithm() {
-        _lambdaFactor = 1.0;
-        _invDelta = 1.0;
-        _invalid = 0.f;
-        _cloudCorrect = DEFAULT_CLOUD_CORRECT;
+        lambdaFactor = 1.0;
+        inverseDelta = 1.0;
+        invalidValue = 0.f;
+        cloudCorrectionFactor = DEFAULT_CLOUD_CORRECT;
     }
 
     /**
@@ -48,8 +48,8 @@ public final class BaselineAlgorithm {
      * @param signal signal band wavelength in nm
      */
     public final void setWavelengths(float low, float high, float signal) throws ProcessorException {
-        float num;
-        float denom;
+        double num;
+        double denom;
 
         // check for correct wavelengths
         // -----------------------------
@@ -71,17 +71,17 @@ public final class BaselineAlgorithm {
             throw new ProcessorException(FlhMciConstants.ERROR_MSG_DENOM_ZERO);
         }
         // inverse wavelength delta needed for baseline slope calculation
-        _invDelta = 1.0 / denom;
+        inverseDelta = 1.0 / denom;
 
         // wavelength factor
-        _lambdaFactor = num / denom;
+        lambdaFactor = num / denom;
     }
 
     /**
      * Sets the value used for invalid pixel.
      */
-    public final void setInvalidPixelValue(float invalid) {
-        _invalid = invalid;
+    public final void setInvalidValue(float invalid) {
+        this.invalidValue = invalid;
     }
 
     /**
@@ -90,7 +90,7 @@ public final class BaselineAlgorithm {
      * @param fFactor
      */
     public final void setCloudCorrectionFactor(float fFactor) {
-        _cloudCorrect = fFactor;
+        cloudCorrectionFactor = fFactor;
     }
 
     /**
@@ -126,16 +126,20 @@ public final class BaselineAlgorithm {
         for (int n = 0; n < low.length; n++) {
             // check if the pixel shall be processed
             if (!process[n]) {
-                line_ret[n] = _invalid;
+                line_ret[n] = invalidValue;
                 continue;
             }
 
             // calculate line height
             delta = high[n] - low[n];
-            line_ret[n] = (float) (signal[n] - _cloudCorrect * (low[n] + (delta * _lambdaFactor)));
+            line_ret[n] = (float) (signal[n] - cloudCorrectionFactor * (low[n] + (delta * lambdaFactor)));
         }
 
         return line_ret;
+    }
+
+    final double computeLineHeight(double lower, double upper, double peak) {
+        return peak - cloudCorrectionFactor * (lower + (upper - lower) * lambdaFactor);
     }
 
     /**
@@ -169,14 +173,18 @@ public final class BaselineAlgorithm {
         for (int n = 0; n < low.length; n++) {
             // check if the pixel shall be processed
             if (!process[n]) {
-                slope_ret[n] = _invalid;
+                slope_ret[n] = invalidValue;
                 continue;
             }
 
             radianceDelta = high[n] - low[n];
-            slope_ret[n] = (float) (radianceDelta * _invDelta);
+            slope_ret[n] = (float) (radianceDelta * inverseDelta);
         }
 
         return slope_ret;
+    }
+
+    final double computeSlope(double lower, double upper) {
+        return (upper - lower) * inverseDelta;
     }
 }

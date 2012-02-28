@@ -643,7 +643,7 @@ public final class FlhMciProcessor extends Processor {
         _algorithm.setWavelengths(_wavelengthLow, _wavelengthHigh, _wavelengthSignal);
 
         // set invalid pixel
-        _algorithm.setInvalidPixelValue(_invalidPixelValue);
+        _algorithm.setInvalidValue(_invalidPixelValue);
     }
 
     /**

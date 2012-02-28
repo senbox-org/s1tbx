@@ -50,6 +50,15 @@
             <helpId>flhMciScientificTool</helpId>
             <placeAfter>imageAnalysis</placeAfter>
         </action>
+        <action>
+            <id>computeFlhMci</id>
+            <helpId></helpId>
+            <class>org.esa.beam.processor.flh_mci.visat.ComputeFlhMciAction</class>
+            <parent>tools</parent>
+            <text>Compute FLH/MCI...</text>
+            <mnemonic></mnemonic>
+            <placeAfter></placeAfter>
+        </action>
     </extension>
 
     <extension point="beam-ui:helpSets">

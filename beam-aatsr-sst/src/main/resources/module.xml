@@ -74,12 +74,13 @@
             <placeAfter>smacScientificTool</placeAfter>
         </action>
         <action>
-            <id>newSstScientificTool</id>
+            <id>computeSst</id>
             <helpId></helpId>
             <class>org.esa.beam.processor.sst.visat.ComputeSstAction</class>
             <parent>tools</parent>
             <text>Compute SST ((A)ATSR)...</text>
             <mnemonic></mnemonic>
+            <placeAfter></placeAfter>
         </action>
     </extension>
 

@@ -331,7 +331,7 @@ public class BaselineAlgorithmTest extends TestCase {
         boolean[] process = {true, true, false, true};
 
         float[] fRet;
-        _algo.setInvalidPixelValue(invalid);
+        _algo.setInvalidValue(invalid);
         try {
             _algo.setWavelengths(lowWave, hiWave, signalWave);
             _algo.setCloudCorrectionFactor(1.0f);
@@ -475,7 +475,7 @@ public class BaselineAlgorithmTest extends TestCase {
         float hiWave = 4.f;
         float signalWave = 3.f;  // not needed for the slope but checked
 
-        _algo.setInvalidPixelValue(invalid);
+        _algo.setInvalidValue(invalid);
         try {
             _algo.setWavelengths(lowWave, hiWave, signalWave);
             fRet = _algo.processSlope(low, high, process, recycle);
