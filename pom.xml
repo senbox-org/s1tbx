@@ -189,6 +189,7 @@
         <module>beam-geotiff</module>
         <module>beam-hdf5-writer</module>
         <module>beam-rtp-codec</module>
+        <module>beam-csv-productio</module>
 
         <module>lib-hdf</module>
         <module>blue-marble-worldmap</module>
