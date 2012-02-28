@@ -16,14 +16,6 @@
 
 package org.esa.beam.csv.productio;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
 /**
  * A default implementation of {@link Header}.
  *
@@ -39,61 +31,13 @@ public class HeaderImpl implements Header {
     private AttributeHeader[] measurementAttributeHeaders;
     private AttributeHeader[] attributeHeaders;
 
-    public HeaderImpl(File csv) throws IOException {
-        parseHeader(csv);
-    }
-
-    private void parseHeader(File csv) throws IOException {
-        List<String> attributeHeaderList = new ArrayList<String>();
-        BufferedReader reader = null;
-        try {
-            String line;
-            reader = new BufferedReader(new FileReader(csv));
-            while ((line = reader.readLine()) != null) {
-                if(line.startsWith("#")) {
-                    continue;
-                }
-                final StringTokenizer stringTokenizer = new StringTokenizer(line, "\t");
-                while (stringTokenizer.hasMoreTokens()) {
-                    final String token = stringTokenizer.nextToken();
-                    attributeHeaderList.add(token.trim());
-                }
-                break;
-            }
-            columnCount = attributeHeaderList.size();
-
-            int latIndex = indexOf(line, Constants.LAT_NAMES);
-            int lonIndex = indexOf(line, Constants.LON_NAMES);
-            int timeIndex = indexOf(line, Constants.TIME_NAMES);
-            int locationNameIndex = indexOf(line, Constants.LOCATION_NAMES);
-
-            hasLocation = latIndex >= 0 && lonIndex >= 0;
-            hasTime = timeIndex >= 0;
-            hasLocationName = locationNameIndex >= 0;
-
-        } finally {
-            if (reader != null) {
-                reader.close();
-            }
-        }
-
-        final List<AttributeHeader> tempMeasurementAttributeHeaders = new ArrayList<AttributeHeader>();
-        final List<AttributeHeader> tempAttributeHeaders = new ArrayList<AttributeHeader>();
-        for (final String attributeHeader : attributeHeaderList) {
-            final String[] strings = attributeHeader.split(":");
-            final String name = strings[0];
-            final String type = strings[1];
-
-            final AttributeHeader header = new AttributeHeader();
-            header.name = name;
-            header.type = type;
-            tempAttributeHeaders.add(header);
-            if (!isReservedField(name)) {
-                tempMeasurementAttributeHeaders.add(header);
-            }
-        }
-        measurementAttributeHeaders = tempMeasurementAttributeHeaders.toArray(new AttributeHeader[tempMeasurementAttributeHeaders.size()]);
-        attributeHeaders = tempAttributeHeaders.toArray(new AttributeHeader[tempAttributeHeaders.size()]);
+    public HeaderImpl(int columnCount, boolean hasLocation, boolean hasLocationName, boolean hasTime, AttributeHeader[] attributeHeaders, AttributeHeader[] measurementAttributeHeaders) {
+        this.columnCount = columnCount;
+        this.hasLocation = hasLocation;
+        this.hasLocationName = hasLocationName;
+        this.hasTime = hasTime;
+        this.attributeHeaders = attributeHeaders;
+        this.measurementAttributeHeaders = measurementAttributeHeaders;
     }
 
     @Override
@@ -126,25 +70,7 @@ public class HeaderImpl implements Header {
         return attributeHeaders[columnIndex];
     }
 
-    private static int indexOf(String line, String[] possibleValues) {
-        int index = -1;
-        for (String possibleValue : possibleValues) {
-            index = line.indexOf(possibleValue);
-            if(index != -1) {
-                return index;
-            }
-        }
-        return index;
-    }
-
-    private boolean isReservedField(String name) {
-        return (indexOf(name, Constants.LAT_NAMES) >= 0 ||
-                indexOf(name, Constants.LON_NAMES) >= 0 ||
-                indexOf(name, Constants.TIME_NAMES) >= 0 ||
-                indexOf(name, Constants.LOCATION_NAMES) >= 0);
-    }
-
-    public class AttributeHeader {
+    public static class AttributeHeader {
         String name;
         Object type;
     }

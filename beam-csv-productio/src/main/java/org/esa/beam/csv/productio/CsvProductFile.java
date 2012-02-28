@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * A CsvProductFile is a view on a csv file allowing a) to parse it using the {@link CsvProductSourceParser} interface
@@ -146,11 +147,69 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
 
     @Override
     public void parseHeader() throws ParseException {
+        List<String> attributeHeaderList = new ArrayList<String>();
+        BufferedReader reader = null;
+        int columnCount;
+        boolean hasLocation;
+        boolean hasTime;
+        boolean hasLocationName;
         try {
-            header = new HeaderImpl(csv);
+            String line;
+            reader = new BufferedReader(new FileReader(csv));
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("#")) {
+                    continue;
+                }
+                final StringTokenizer stringTokenizer = new StringTokenizer(line, "\t");
+                while (stringTokenizer.hasMoreTokens()) {
+                    final String token = stringTokenizer.nextToken();
+                    attributeHeaderList.add(token.trim());
+                }
+                break;
+            }
+            columnCount = attributeHeaderList.size();
+
+            int latIndex = indexOf(line, Constants.LAT_NAMES);
+            int lonIndex = indexOf(line, Constants.LON_NAMES);
+            int timeIndex = indexOf(line, Constants.TIME_NAMES);
+            int locationNameIndex = indexOf(line, Constants.LOCATION_NAMES);
+
+            hasLocation = latIndex >= 0 && lonIndex >= 0;
+            hasTime = timeIndex >= 0;
+            hasLocationName = locationNameIndex >= 0;
         } catch (IOException e) {
             throw new ParseException(e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ignored) {
+                }
+            }
         }
+
+        final List<HeaderImpl.AttributeHeader> tempMeasurementAttributeHeaders = new ArrayList<HeaderImpl.AttributeHeader>();
+        final List<HeaderImpl.AttributeHeader> tempAttributeHeaders = new ArrayList<HeaderImpl.AttributeHeader>();
+        for (final String csvAttributeHeader : attributeHeaderList) {
+            final String[] strings = csvAttributeHeader.split(":");
+            final String name = strings[0];
+            final String type = strings[1];
+
+            final HeaderImpl.AttributeHeader attributeHeader = new HeaderImpl.AttributeHeader();
+            attributeHeader.name = name;
+            attributeHeader.type = type;
+            tempAttributeHeaders.add(attributeHeader);
+            if (!isReservedField(name)) {
+                tempMeasurementAttributeHeaders.add(attributeHeader);
+            }
+        }
+
+        header = new HeaderImpl(columnCount,
+                                hasLocation,
+                                hasLocationName,
+                                hasTime,
+                                tempAttributeHeaders.toArray(new HeaderImpl.AttributeHeader[tempAttributeHeaders.size()]),
+                                tempMeasurementAttributeHeaders.toArray(new HeaderImpl.AttributeHeader[tempMeasurementAttributeHeaders.size()]));
     }
 
     @Override
@@ -249,6 +308,24 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
                 throw e;
             }
         }
+    }
+
+    private static int indexOf(String line, String[] possibleValues) {
+        int index = -1;
+        for (String possibleValue : possibleValues) {
+            index = line.indexOf(possibleValue);
+            if(index != -1) {
+                return index;
+            }
+        }
+        return index;
+    }
+
+    private boolean isReservedField(String name) {
+        return (indexOf(name, Constants.LAT_NAMES) >= 0 ||
+                indexOf(name, Constants.LON_NAMES) >= 0 ||
+                indexOf(name, Constants.TIME_NAMES) >= 0 ||
+                indexOf(name, Constants.LOCATION_NAMES) >= 0);
     }
 
     static class ParseException extends Exception {
