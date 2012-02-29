@@ -14,19 +14,24 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.csv.productio;
+package org.esa.beam.csv.dataio;
 
 /**
- * Some constants.
+ * Interface extending a record to feature-specific methods.
  *
  * @author Olaf Danne
  * @author Thomas Storm
  */
-class Constants {
+public interface FeatureRecord extends Record {
 
-    static final String[] LAT_NAMES = new String[]{"lat", "latitude", "northing"};
-    static final String[] LON_NAMES = new String[]{"lon", "long", "longitude", "easting"};
-    static final String[] TIME_NAMES = new String[]{"time", "date", "date_time", "dateTime"};
-    static final String[] LOCATION_NAMES = new String[]{"name", "station", "label"};
-    static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+    /**
+     * @return {@code true}, if feature record has an ID.
+     */
+    boolean hasFeatureId();
+
+    /**
+     * @return the feature ID
+     */
+    String getFeatureId();
+
 }

@@ -14,20 +14,19 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.csv.productio;
+package org.esa.beam.csv.dataio;
 
 /**
- * Interface extending the standard header by feature-specific methods.
+ * Some constants.
  *
  * @author Olaf Danne
  * @author Thomas Storm
  */
-public interface FeatureHeader extends Header {
+class Constants {
 
-    /**
-     *
-     * @return the name of the feature type
-     */
-    String getFeatureTypeName();
-
+    static final String[] LAT_NAMES = new String[]{"lat", "latitude", "northing"};
+    static final String[] LON_NAMES = new String[]{"lon", "long", "longitude", "easting"};
+    static final String[] TIME_NAMES = new String[]{"time", "date", "date_time", "dateTime"};
+    static final String[] LOCATION_NAMES = new String[]{"name", "station", "label"};
+    static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
 }

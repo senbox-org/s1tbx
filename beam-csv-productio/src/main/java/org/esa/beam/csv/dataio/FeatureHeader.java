@@ -14,24 +14,20 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.csv.productio;
+package org.esa.beam.csv.dataio;
 
 /**
- * Interface extending a record to feature-specific methods.
+ * Interface extending the standard header by feature-specific methods.
  *
  * @author Olaf Danne
  * @author Thomas Storm
  */
-public interface FeatureRecord extends Record {
+public interface FeatureHeader extends Header {
 
     /**
-     * @return {@code true}, if feature record has an ID.
+     *
+     * @return the name of the feature type
      */
-    boolean hasFeatureId();
-
-    /**
-     * @return the feature ID
-     */
-    String getFeatureId();
+    String getFeatureTypeName();
 
 }

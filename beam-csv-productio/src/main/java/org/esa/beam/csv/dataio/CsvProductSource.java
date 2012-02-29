@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.csv.productio;
+package org.esa.beam.csv.dataio;
 
 import java.util.List;
 import java.util.Properties;
