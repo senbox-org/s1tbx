@@ -6,7 +6,7 @@ public enum Presets {
                   "NOT l1_flags.LAND_OCEAN AND NOT l1_flags.BRIGHT AND NOT l1_flags.INVALID"),
     MERIS_L2_FLH("MERIS L2 FLH", "reflec_7", "reflec_9", "reflec_8", "FLH", "FLH_slope",
                  "l2_flags.WATER"),
-    MERIS_L2_MCI("MERIS L2 FLH", "reflec_8", "reflec_10", "reflec_9", "MCI", "MCI_slope",
+    MERIS_L2_MCI("MERIS L2 MCI", "reflec_8", "reflec_10", "reflec_9", "MCI", "MCI_slope",
                  "l2_flags.WATER");
 
     private final String label;
