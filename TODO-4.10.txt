@@ -79,7 +79,7 @@ Revise data import / export
     Attribute format detection may apply if <attribute-type-spec> is missing
     - number, date, time
     Must specify which coordinate system
-    Date format is yyyy-MM-ddThh:mm:ss per convention; may be extended to allow specifying arbitrary date formats (see
+    Date format is yyyy-MM-ddTHH:mm:ss per convention; may be extended to allow specifying arbitrary date formats (see
     PixEx)
 
 
