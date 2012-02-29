@@ -25,6 +25,7 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeFilter;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.pointop.PixelOperator;
@@ -40,6 +41,13 @@ import org.esa.beam.util.ProductUtils;
 import javax.media.jai.OpImage;
 import java.awt.image.Raster;
 
+/**
+ * An operator for computing fluorescence line height (FLH) or maximum chlorophyll index (MCI).
+ *
+ * @author Ralf Quast
+ */
+@OperatorMetadata(alias = "SST", authors = "Ralf Quast", copyright = "Brockmann Consult GmbH", version = "2.0",
+                  description = "Computes fluorescence line height (FLH) or maximum chlorophyll index (MCI).")
 public class ComputeFlhMciOp extends PixelOperator {
 
     @SourceProduct
@@ -61,7 +69,8 @@ public class ComputeFlhMciOp extends PixelOperator {
     private String maskExpression;
     @Parameter(defaultValue = "1.005")
     private float cloudCorrectionFactor;
-    @Parameter(defaultValue = "0.0", label = "Invalid FLH/MCI value", description = "Value used to fill invalid pixels")
+    @Parameter(defaultValue = "0.0", label = "Invalid FLH/MCI value",
+               description = "Value used to fill invalid FLH/MCI pixels")
     private float invalidFlhMciValue;
 
     private transient BaselineAlgorithm algorithm;
