@@ -21,7 +21,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -38,11 +38,11 @@ public class CsvProductFileTest {
         parser.parseProperties();
 
         final CsvProductSource productSource = parser.getCsvProductSource();
-        final Map<String,String> properties = productSource.getProperties();
+        final Properties properties = productSource.getProperties();
         assertNotNull(properties);
         assertEquals(2, properties.size());
-        assertEquals("POLYGON(0.0, 1.0, 1.1)", properties.get("geometry1"));
-        assertEquals("POLYGON(2.0, 1.0, 1.1)", properties.get("geometry2"));
+        assertEquals("POLYGON(0.0, 1.0, 1.1)", properties.getProperty("geometry1"));
+        assertEquals("POLYGON(2.0, 1.0, 1.1)", properties.getProperty("geometry2"));
     }
 
     @Test(expected = CsvProductFile.ParseException.class)

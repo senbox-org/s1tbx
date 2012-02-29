@@ -71,7 +71,13 @@ public class HeaderImpl implements Header {
     }
 
     public static class AttributeHeader {
+
+        public AttributeHeader(String name, String type) {
+            this.name = name;
+            this.type = type;
+        }
+
         String name;
-        Object type;
+        String type;
     }
 }

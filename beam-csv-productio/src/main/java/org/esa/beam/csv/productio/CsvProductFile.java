@@ -25,9 +25,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 import java.util.StringTokenizer;
 
 /**
@@ -39,7 +38,7 @@ import java.util.StringTokenizer;
  */
 public class CsvProductFile implements CsvProductSourceParser, CsvProductSource {
 
-    private final Map<String, String> properties = new HashMap<String, String>();
+    private final Properties properties = new Properties();
     private final List<Record> records = new ArrayList<Record>();
     private final File csv;
 
@@ -195,9 +194,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
             final String name = strings[0];
             final String type = strings[1];
 
-            final HeaderImpl.AttributeHeader attributeHeader = new HeaderImpl.AttributeHeader();
-            attributeHeader.name = name;
-            attributeHeader.type = type;
+            final HeaderImpl.AttributeHeader attributeHeader = new HeaderImpl.AttributeHeader(name, type);
             tempAttributeHeaders.add(attributeHeader);
             if (!isReservedField(name)) {
                 tempMeasurementAttributeHeaders.add(attributeHeader);
@@ -218,6 +215,11 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
     }
 
     @Override
+    public int getRecordCount() {
+        return records.size();
+    }
+
+    @Override
     public List<Record> getRecords() {
         return Collections.unmodifiableList(records);
     }
@@ -229,8 +231,8 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
     }
 
     @Override
-    public Map<String, String> getProperties() {
-        return Collections.unmodifiableMap(properties);
+    public Properties getProperties() {
+        return properties;
     }
 
     private boolean contains(String[] possibleStrings, String s) {

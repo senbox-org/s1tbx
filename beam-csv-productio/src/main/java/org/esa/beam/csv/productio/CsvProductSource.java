@@ -17,7 +17,7 @@
 package org.esa.beam.csv.productio;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 /**
  * Interface providing access methods on a csv product.
@@ -27,6 +27,11 @@ import java.util.Map;
  */
 public interface CsvProductSource {
 
+    /**
+     * @return The number of data records.
+     */
+    int getRecordCount();
+    
     /**
      * @return An unmodifiable list of data records.
      */
@@ -40,6 +45,6 @@ public interface CsvProductSource {
     /**
      * @return An unmodifiable map of properties.
      */
-    Map<String, String> getProperties();
+    Properties getProperties();
 
 }
