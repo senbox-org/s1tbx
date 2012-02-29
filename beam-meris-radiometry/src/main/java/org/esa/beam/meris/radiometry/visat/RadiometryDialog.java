@@ -28,7 +28,7 @@ import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.ArrayUtils;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 import java.util.HashMap;
 
 class RadiometryDialog extends SingleTargetProductDialog {
@@ -50,8 +50,7 @@ class RadiometryDialog extends SingleTargetProductDialog {
                                                      operatorSpi.getOperatorClass(),
                                                      parameterSupport,
                                                      helpId);
-        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
-
+        setMenuBar(operatorMenu.createDefaultMenu());
     }
 
     @Override
@@ -87,7 +86,7 @@ class RadiometryDialog extends SingleTargetProductDialog {
             }
             if (!isEnvisatSource) {
                 final String msg = "If " + EnvisatConstants.ENVISAT_FORMAT_NAME + " is selected as output format, " +
-                                   "the source product must be in the same format.";
+                        "the source product must be in the same format.";
                 JOptionPane.showMessageDialog(this.getContent(), msg, "Invalid Settings", JOptionPane.ERROR_MESSAGE);
                 return false;
             }

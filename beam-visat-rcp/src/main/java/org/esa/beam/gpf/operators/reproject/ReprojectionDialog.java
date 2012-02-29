@@ -23,11 +23,7 @@ import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.ui.DefaultAppContext;
-import org.esa.beam.framework.gpf.ui.OperatorMenu;
-import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
-import org.esa.beam.framework.gpf.ui.ParameterUpdater;
-import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
+import org.esa.beam.framework.gpf.ui.*;
 import org.esa.beam.framework.ui.AppContext;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -63,7 +59,7 @@ class ReprojectionDialog extends SingleTargetProductDialog {
                                                      parameterSupport,
                                                      helpID);
 
-        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
+        setMenuBar(operatorMenu.createDefaultMenu());
     }
 
     @Override

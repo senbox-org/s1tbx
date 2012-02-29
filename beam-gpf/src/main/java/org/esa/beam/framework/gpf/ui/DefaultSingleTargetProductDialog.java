@@ -34,9 +34,7 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.ui.AppContext;
 
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,7 +86,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
         final PropertySet propertyContainer = parameterSupport.getPopertySet();
         bindingContext = new BindingContext(propertyContainer);
-        
+
         if (propertyContainer.getProperties().length > 0) {
             if (!sourceProductSelectorList.isEmpty()) {
                 Property[] properties = propertyContainer.getProperties();
@@ -107,7 +105,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             this.form.add("Processing Parameters", new JScrollPane(parametersPanel));
 
-            getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
+            setMenuBar(operatorMenu.createDefaultMenu());
         }
         productChangedHandler = new ProductChangedHandler();
         if (!sourceProductSelectorList.isEmpty()) {

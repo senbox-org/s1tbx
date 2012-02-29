@@ -46,7 +46,8 @@ class CollocationDialog extends SingleTargetProductDialog {
                                                      CollocateOp.class,
                                                      parameterSupport,
                                                      HELP_ID);
-        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
+
+        setMenuBar(operatorMenu.createDefaultMenu());
 
         form = new CollocationForm(parameterSupport.getPopertySet(), getTargetProductSelector(), appContext);
 

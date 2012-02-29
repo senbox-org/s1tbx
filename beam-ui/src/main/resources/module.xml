@@ -25,6 +25,8 @@
     <description>This module provides user interface components used e.g. by VISAT.</description>
     <changelog>
         <![CDATA[
+        <p>Changes in 4.10<br/>
+        [BEAM-1374] On Mac OS X, processor windows don't have menu bars<br/>
         <p>Changes in 4.9<br/>
         [BEAM-1292] Reprojection dialog shifts image if pixel size is changed<br/>
         [BEAM-1184] Reprojection dialog does not remember values<br/>
@@ -90,7 +92,9 @@
         <applicationDescriptor type="org.esa.beam.framework.ui.application.ApplicationDescriptor"
                                class="@descriptorClass"
                                autoConfig="true">
-            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor</descriptorClass>
+            <descriptorClass type="java.lang.Class">
+                org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor
+            </descriptorClass>
             <applicationId type="java.lang.String"/>
             <!-- ID of the ceres application -->
             <displayName type="java.lang.String"/>
@@ -114,7 +118,9 @@
         <toolView type="org.esa.beam.framework.ui.application.ToolViewDescriptor"
                   class="@descriptorClass"
                   autoConfig="true">
-            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.application.support.DefaultToolViewDescriptor</descriptorClass>
+            <descriptorClass type="java.lang.Class">
+                org.esa.beam.framework.ui.application.support.DefaultToolViewDescriptor
+            </descriptorClass>
             <class field="toolViewClass" type="java.lang.Class"/>
             <title type="java.lang.String"/>
             <description type="java.lang.String"/>
@@ -160,7 +166,8 @@
         <layerEditor type="org.esa.beam.framework.ui.layer.LayerEditorDescriptor"
                      class="@descriptorClass"
                      autoConfig="true">
-            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.layer.DefaultLayerEditorDescriptor</descriptorClass>
+            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.layer.DefaultLayerEditorDescriptor
+            </descriptorClass>
 
             <!--
                  Either 'editor' or 'editorFactory' must be given:
@@ -189,7 +196,8 @@
         <layerSource type="org.esa.beam.framework.ui.layer.LayerSourceDescriptor"
                      class="@descriptorClass"
                      autoConfig="true">
-            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.layer.DefaultLayerSourceDescriptor</descriptorClass>
+            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.layer.DefaultLayerSourceDescriptor
+            </descriptorClass>
             <id field="id" type="java.lang.String"/>
             <name field="name" type="java.lang.String"/>
             <description field="description" type="java.lang.String"/>

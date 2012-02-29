@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.10<br/>
+          [BEAM-1374] On Mac OS X, processor windows don't have menu bars<br/>
           [BEAM-1373] Use latest JIDE libraries<br/>
           [BEAM-1372] Use latest XStream library<br/>
           [BEAM-1352] When exporting a product a SubsetInfo is always added to metadata tree<br/>

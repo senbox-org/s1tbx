@@ -20,18 +20,12 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.ui.DefaultAppContext;
-import org.esa.beam.framework.gpf.ui.OperatorMenu;
-import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
-import org.esa.beam.framework.gpf.ui.ParameterUpdater;
-import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
+import org.esa.beam.framework.gpf.ui.*;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.unmixing.Endmember;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
 
-import javax.swing.JDialog;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 import java.util.Map;
 
 
@@ -66,7 +60,7 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
                                                      parameterSupport,
                                                      HELP_ID);
 
-        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
+        setMenuBar(operatorMenu.createDefaultMenu());
     }
 
     private void updateEndmemberFormModel(Map<String, Object> parameterMap) {
@@ -127,8 +121,8 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
         }
         if (!matchingWavelength(endmembers, sourceWavelengths, sourceBandwidths, minBandwidth)) {
             showErrorDialog("One or more source wavelengths do not fit\n" +
-                            "to one or more endmember spectra.\n\n" +
-                            "Consider increasing the maximum wavelength deviation.");
+                                    "to one or more endmember spectra.\n\n" +
+                                    "Consider increasing the maximum wavelength deviation.");
             return false;
         }
 
@@ -155,7 +149,7 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
     }
 
     public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException,
-                                                  InstantiationException, ClassNotFoundException {
+            InstantiationException, ClassNotFoundException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         float[] wl = new float[]{
                 412.6395569f,

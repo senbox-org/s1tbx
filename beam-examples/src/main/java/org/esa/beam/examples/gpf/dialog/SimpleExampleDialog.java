@@ -29,7 +29,7 @@ public class SimpleExampleDialog extends SingleTargetProductDialog {
                                                      operatorSpi.getOperatorClass(),
                                                      parameterSupport,
                                                      helpId);
-        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
+        setMenuBar(operatorMenu.createDefaultMenu());
     }
 
     @Override
