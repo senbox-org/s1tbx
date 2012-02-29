@@ -1,12 +1,12 @@
-package org.esa.beam.processor.flh_mci;
+package org.esa.beam.processor.flh_mci.visat;
 
-public enum Presets {
+enum Presets {
     NONE("None", "", "", "", "", "", ""),
     MERIS_L1B_MCI("MERIS L1b MCI", "radiance_8", "radiance_10", "radiance_9", "MCI", "MCI_slope",
                   "NOT l1_flags.LAND_OCEAN AND NOT l1_flags.BRIGHT AND NOT l1_flags.INVALID"),
     MERIS_L2_FLH("MERIS L2 FLH", "reflec_7", "reflec_9", "reflec_8", "FLH", "FLH_slope",
                  "l2_flags.WATER"),
-    MERIS_L2_MCI("MERIS L2 FLH", "reflec_8", "reflec_10", "reflec_9", "MCI", "MCI_slope",
+    MERIS_L2_MCI("MERIS L2 MCI", "reflec_8", "reflec_10", "reflec_9", "MCI", "MCI_slope",
                  "l2_flags.WATER");
 
     private final String label;
@@ -33,27 +33,27 @@ public enum Presets {
         return label;
     }
 
-    public String getLowerBaselineBandName() {
+    String getLowerBaselineBandName() {
         return lowerBaselineBandName;
     }
 
-    public String getUpperBaselineBandName() {
+    String getUpperBaselineBandName() {
         return upperBaselineBandName;
     }
 
-    public String getSignalBandName() {
+    String getSignalBandName() {
         return signalBandName;
     }
 
-    public String getLineHeightBandName() {
+    String getLineHeightBandName() {
         return lineHeightBandName;
     }
 
-    public String getSlopeBandName() {
+    String getSlopeBandName() {
         return slopeBandName;
     }
 
-    public String getMaskExpression() {
+    String getMaskExpression() {
         return maskExpression;
     }
 }

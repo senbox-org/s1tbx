@@ -28,5 +28,5 @@ class Constants {
     static final String[] LON_NAMES = new String[]{"lon", "long", "longitude", "easting"};
     static final String[] TIME_NAMES = new String[]{"time", "date", "date_time", "dateTime"};
     static final String[] LOCATION_NAMES = new String[]{"name", "station", "label"};
-    static final String TIME_PATTERN = "yyyy-MM-dd'T'hh:mm:ss";
+    static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
 }

@@ -51,13 +51,15 @@ import java.util.List;
 public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog {
 
     private final String operatorName;
-    private final JTabbedPane form;
-    private PropertyDescriptor[] rasterDataNodeTypeProperties;
-    private String targetProductNameSuffix;
-    private ProductChangedHandler productChangedHandler;
+    private final OperatorSpi operatorSpi;
     private DefaultIOParametersPanel ioParametersPanel;
     private final OperatorParameterSupport parameterSupport;
     private final BindingContext bindingContext;
+
+    private JTabbedPane form;
+    private PropertyDescriptor[] rasterDataNodeTypeProperties;
+    private String targetProductNameSuffix;
+    private ProductChangedHandler productChangedHandler;
 
     public static SingleTargetProductDialog createDefaultDialog(String operatorName, AppContext appContext) {
         return new DefaultSingleTargetProductDialog(operatorName, appContext, operatorName, null);
@@ -68,21 +70,14 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         this.operatorName = operatorName;
         targetProductNameSuffix = "";
 
-        final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
+        operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
         if (operatorSpi == null) {
             throw new IllegalArgumentException("operatorName");
         }
 
         ioParametersPanel = new DefaultIOParametersPanel(getAppContext(), operatorSpi, getTargetProductSelector());
 
-        this.form = new JTabbedPane();
-        this.form.add("I/O Parameters", ioParametersPanel);
-
         parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass());
-        OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
-                                                     operatorSpi.getOperatorClass(),
-                                                     parameterSupport,
-                                                     helpID);
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
         final PropertySet propertyContainer = parameterSupport.getPopertySet();
         bindingContext = new BindingContext(propertyContainer);
@@ -100,12 +95,6 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                 rasterDataNodeTypeProperties = rdnTypeProperties.toArray(
                         new PropertyDescriptor[rdnTypeProperties.size()]);
             }
-            final PropertyPane parametersPane = new PropertyPane(bindingContext);
-            final JPanel parametersPanel = parametersPane.createPanel();
-            parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
-            this.form.add("Processing Parameters", new JScrollPane(parametersPanel));
-
-            setMenuBar(operatorMenu.createDefaultMenu());
         }
         productChangedHandler = new ProductChangedHandler();
         if (!sourceProductSelectorList.isEmpty()) {
@@ -116,6 +105,13 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
     @Override
     public int show() {
         ioParametersPanel.initSourceProductSelectors();
+        if (form == null) {
+            initForm();
+            if (getMenuBar() == null) {
+                final OperatorMenu operatorMenu = createDefaultMenuBar();
+                setMenuBar(operatorMenu.createDefaultMenu());
+            }
+        }
         setContent(form);
         return super.show();
     }
@@ -143,6 +139,25 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
     public BindingContext getBindingContext() {
         return bindingContext;
+    }
+
+    private void initForm() {
+        form = new JTabbedPane();
+        form.add("I/O Parameters", ioParametersPanel);
+
+        if (bindingContext.getPropertySet().getProperties().length > 0) {
+            final PropertyPane parametersPane = new PropertyPane(bindingContext);
+            final JPanel parametersPanel = parametersPane.createPanel();
+            parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
+            form.add("Processing Parameters", new JScrollPane(parametersPanel));
+        }
+    }
+
+    private OperatorMenu createDefaultMenuBar() {
+        return new OperatorMenu(getJDialog(),
+                                operatorSpi.getOperatorClass(),
+                                parameterSupport,
+                                getHelpID());
     }
 
     private class ProductChangedHandler extends AbstractSelectionChangeListener implements ProductNodeListener {
