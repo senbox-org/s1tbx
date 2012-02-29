@@ -134,7 +134,7 @@ public class ComputeSstOp extends PixelOperator {
     private String nadirMaskExpression;
 
     @Parameter(defaultValue = "-999.0f", label = "Invalid SST value",
-               description = "Value for invalid SST pixels")
+               description = "Value used to fill invalid SST pixels")
     private float invalidSstValue;
 
     private transient float[] a0;
