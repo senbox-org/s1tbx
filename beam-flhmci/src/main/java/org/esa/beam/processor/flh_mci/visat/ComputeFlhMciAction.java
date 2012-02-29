@@ -8,7 +8,6 @@ import org.esa.beam.framework.gpf.ui.DefaultSingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.processor.flh_mci.ComputeFlhMciOp;
-import org.esa.beam.processor.flh_mci.Presets;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 
 import java.beans.PropertyChangeEvent;
