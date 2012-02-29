@@ -29,4 +29,5 @@ class Constants {
     static final String[] TIME_NAMES = new String[]{"time", "date", "date_time", "dateTime"};
     static final String[] LOCATION_NAMES = new String[]{"name", "station", "label"};
     static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+    public static final String DEFAULT_SEPARATOR = "\t";
 }

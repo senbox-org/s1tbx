@@ -20,7 +20,9 @@ import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.io.FileUtils;
 
+import java.io.File;
 import java.util.Locale;
 
 /**
@@ -29,40 +31,64 @@ import java.util.Locale;
  * @author Olaf Danne
  * @author Thomas Storm
  */
-public class CsvProductReaderPlugIn implements ProductReaderPlugIn{
+public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
-        return null;
+        final File file = new File(input.toString());
+        if(!isFileExtensionValid(file)) {
+            return DecodeQualification.UNABLE;
+        }
+
+        // todo: check for more criteria of input file
+        /**
+         * 1) try to parse properties if existing
+         * 2) try to parse header
+         * 3) try to parse first record if existing
+         *
+         * if step 2 fails, return UNABLE
+         */
+        return DecodeQualification.INTENDED;
+    }
+
+    private boolean isFileExtensionValid(File file) {
+        boolean hasValidExtension = false;
+        for (String extension : getDefaultFileExtensions()) {
+            if(FileUtils.getExtension(file).toLowerCase().equals(extension)) {
+                hasValidExtension = true;
+                break;
+            }
+        }
+        return hasValidExtension;
     }
 
     @Override
     public Class[] getInputTypes() {
-        return new Class[0];
+        return new Class[]{String.class, File.class};
     }
 
     @Override
     public ProductReader createReaderInstance() {
-        return null;
+        return new CsvProductReader(this);
     }
 
     @Override
     public String[] getFormatNames() {
-        return new String[0];
+        return new String[]{"CSV"};
     }
 
     @Override
     public String[] getDefaultFileExtensions() {
-        return new String[0];
+        return new String[]{".csv",".txt",".dat"};
     }
 
     @Override
     public String getDescription(Locale locale) {
-        return null;
+        return "CSV products";
     }
 
     @Override
     public BeamFileFilter getProductFileFilter() {
-        return null;
+        return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
     }
 }

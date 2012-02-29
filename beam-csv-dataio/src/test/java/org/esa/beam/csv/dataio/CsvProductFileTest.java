@@ -40,9 +40,10 @@ public class CsvProductFileTest {
         final CsvProductSource productSource = parser.getCsvProductSource();
         final Properties properties = productSource.getProperties();
         assertNotNull(properties);
-        assertEquals(2, properties.size());
+        assertEquals(3, properties.size());
         assertEquals("POLYGON(0.0, 1.0, 1.1)", properties.getProperty("geometry1"));
         assertEquals("POLYGON(2.0, 1.0, 1.1)", properties.getProperty("geometry2"));
+        assertEquals(",", properties.getProperty("separator"));
     }
 
     @Test(expected = CsvProductFile.ParseException.class)
@@ -55,6 +56,7 @@ public class CsvProductFileTest {
     public void testParseRecords() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
         final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
+        parser.parseProperties();
         parser.parseHeader();
         parser.parseRecords();
 
@@ -104,6 +106,7 @@ public class CsvProductFileTest {
     public void testParseHeader() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
         final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
+        parser.parseProperties();
         parser.parseHeader();
 
         final CsvProductSource csvProductSource = parser.getCsvProductSource();

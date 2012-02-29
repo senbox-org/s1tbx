@@ -43,7 +43,9 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
     private final File csv;
 
     private Header header;
-    
+
+    private boolean propertiesParsed = false;
+
     public CsvProductFile(String csv) {
         this(new File(csv));
     }
@@ -77,6 +79,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         } catch (IOException e) {
             throw new ParseException(e);
         } finally {
+            propertiesParsed = true;
             if (reader != null) {
                 try {
                     reader.close();
@@ -146,6 +149,10 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
 
     @Override
     public void parseHeader() throws ParseException {
+        if(!propertiesParsed) {
+            throw new IllegalStateException("Properties need to be parsed before header.");
+        }
+
         List<String> attributeHeaderList = new ArrayList<String>();
         BufferedReader reader = null;
         int columnCount;
@@ -159,7 +166,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
                 if (line.startsWith("#")) {
                     continue;
                 }
-                final StringTokenizer stringTokenizer = new StringTokenizer(line, "\t");
+                final StringTokenizer stringTokenizer = new StringTokenizer(line, properties.getProperty("separator", Constants.DEFAULT_SEPARATOR));
                 while (stringTokenizer.hasMoreTokens()) {
                     final String token = stringTokenizer.nextToken();
                     attributeHeaderList.add(token.trim());
@@ -248,7 +255,8 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         int pos2;
         int pos1 = 0;
         final ArrayList<String> strings = new ArrayList<String>();
-        while ((pos2 = line.indexOf('\t', pos1)) >= 0) {
+        final String separator = properties.getProperty("separator", Constants.DEFAULT_SEPARATOR);
+        while ((pos2 = line.indexOf(separator, pos1)) >= 0) {
             strings.add(line.substring(pos1, pos2).trim());
             pos1 = pos2 + 1;
         }

@@ -1,14 +1,14 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-csv-productio</symbolicName>
-    <version>1.0.1</version>
-    <name>ATSR Product Reader</name>
+    <symbolicName>beam-csv-dataio</symbolicName>
+    <version>4.10</version>
+    <name>CSV Product Reader</name>
 
-    <description>Enables BEAM to read ERS-1 and -2 ATSR data products.</description>
+    <description>Enables BEAM to read data products from CSV files.</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2012 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -20,26 +20,18 @@
         <optional>true</optional>
     </dependency>
 
-    <changelog>
-        <![CDATA[
-        Changes in Version 1.0.1<br/>
-       [BEAM-898] ATSR active fire bitmasks<br/>
-        ]]>
-    </changelog>
-
-    <categories>Reader,ERS,ATSR</categories>
+    <categories>Reader,CSV</categories>
 
     <extension point="beam-ui:actions">
         <action>
-            <id>importAtsrProduct</id>
+            <id>importCsvProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>ATSR</formatName>
+            <formatName>CSV</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <largeIcon>icons/Import24.gif</largeIcon>
-            <mnemonic>A</mnemonic>
-            <shortDescr>Import a ATSR data product or product subset.</shortDescr>
-            <description>Import a ATSR data product or product subset.</description>
-            <helpId>importAtsrProduct</helpId>
+            <shortDescr>Import a CSV data product.</shortDescr>
+            <description>Import a CSV data product.</description>
+            <helpId>importCsvProduct</helpId>
         </action>
     </extension>
 
