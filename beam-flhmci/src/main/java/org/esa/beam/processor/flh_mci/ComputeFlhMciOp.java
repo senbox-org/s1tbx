@@ -57,11 +57,11 @@ public class ComputeFlhMciOp extends PixelOperator {
     private boolean slope;
     @Parameter(validator = NodeNameValidator.class)
     private String slopeBandName;
-    @Parameter
+    @Parameter(description = "Mask expression used to identify valid pixels")
     private String maskExpression;
     @Parameter(defaultValue = "1.005")
     private float cloudCorrectionFactor;
-    @Parameter(defaultValue = "0.0", label = "Invalid FLH/MCI value")
+    @Parameter(defaultValue = "0.0", label = "Invalid FLH/MCI value", description = "Value used to fill invalid pixels")
     private float invalidFlhMciValue;
 
     private transient BaselineAlgorithm algorithm;
