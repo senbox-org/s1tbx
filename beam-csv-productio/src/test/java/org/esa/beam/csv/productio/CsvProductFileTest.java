@@ -71,8 +71,8 @@ public class CsvProductFileTest {
         assertEquals(new GeoPos(30.0f, 50.0f), records.get(1).getLocation());
         assertEquals(new GeoPos(40.0f, 120.0f), records.get(2).getLocation());
 
-        assertEquals(ProductData.UTC.parse("2010-06-01 12:45:00", "yyyy-MM-dd hh:mm:ss").getAsDate().getTime(), records.get(0).getTime().getAsDate().getTime());
-        assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd hh:mm:ss").getAsDate().getTime(), records.get(1).getTime().getAsDate().getTime());
+        assertEquals(ProductData.UTC.parse("2010-06-01 12:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), records.get(0).getTime().getAsDate().getTime());
+        assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), records.get(1).getTime().getAsDate().getTime());
         assertEquals(null, records.get(2).getTime());
 
         for (Record record : records) {
@@ -93,10 +93,10 @@ public class CsvProductFileTest {
         assertEquals(10.5, records.get(2).getAttributeValues()[0]);
         assertEquals(10.6, records.get(2).getAttributeValues()[1]);
         
-        assertEquals(ProductData.UTC.parse("2011-06-01 10:45:00", "yyyy-MM-dd hh:mm:ss").getAsDate().getTime(),
+        assertEquals(ProductData.UTC.parse("2011-06-01 10:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(),
                      ((ProductData.UTC)records.get(0).getAttributeValues()[2]).getAsDate().getTime());
         assertEquals(null, records.get(1).getAttributeValues()[2]);
-        assertEquals(ProductData.UTC.parse("2011-06-01 12:45:00", "yyyy-MM-dd hh:mm:ss").getAsDate().getTime(),
+        assertEquals(ProductData.UTC.parse("2011-06-01 12:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(),
                      ((ProductData.UTC)records.get(2).getAttributeValues()[2]).getAsDate().getTime());
     }
 
