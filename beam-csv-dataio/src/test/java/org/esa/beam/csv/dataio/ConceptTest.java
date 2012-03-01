@@ -17,15 +17,24 @@
 package org.esa.beam.csv.dataio;
 
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.simple.SimpleFeatureImpl;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.filter.identity.FeatureIdImpl;
 import org.junit.Test;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.PropertyDescriptor;
 
-import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -37,21 +46,24 @@ public class ConceptTest {
 
     @Test
     public void testConcept() throws Exception {
-        final CsvProductSource source = new MyCsvProductSource("band3", "int");
-        final String productName = source.getProperties().getProperty("productName", "defaultProductName");
-        final String productType = source.getProperties().getProperty("productType", "defaultProductType");
+        final CsvProductSource source = new MyCsvProductSource("band3", Integer.class);
+        final String productName =
+                source.getProperties().get("productName") != null ? source.getProperties().get("productName") :
+                "defaultProductName";
+        final String productType=
+                source.getProperties().get("productType") != null ? source.getProperties().get("productType") :
+                "defaultProductType";
         final int sceneRasterWidth = source.getRecordCount();
-        final HeaderImpl.AttributeHeader[] measurementAttributeHeaders = source.getHeader().getMeasurementAttributeHeaders();
+        final Collection<PropertyDescriptor> descriptors = source.getFeatureType().getDescriptors();
+
         final Product product = new Product(productName, productType, sceneRasterWidth, 1);
 
-        List<Band> bands = new ArrayList<Band>(measurementAttributeHeaders.length);
+        List<Band> bands = new ArrayList<Band>(descriptors.size());
 
-        for (final HeaderImpl.AttributeHeader measurementAttributeHeader : measurementAttributeHeaders) {
-            int dataType = getDataType(measurementAttributeHeader.type);
-            bands.add(product.addBand(measurementAttributeHeader.name, dataType));
+        for (final PropertyDescriptor propertyDescriptor : descriptors) {
+            int dataType = getDataType(propertyDescriptor.getType().getBinding());
+            bands.add(product.addBand(propertyDescriptor.getName().toString(), dataType));
         }
-
-        assignBandData(source, bands);
 
         assertEquals("testProductName", product.getName());
         assertEquals("defaultProductType", product.getProductType());
@@ -62,6 +74,8 @@ public class ConceptTest {
         assertEquals("band1", product.getBands()[0].getName());
         assertEquals("band2", product.getBands()[1].getName());
         assertEquals("band3", product.getBands()[2].getName());
+
+        assignBandData(source, bands);
 
         final ProductData band0Data = bands.get(0).getData();
         final ProductData band1Data = bands.get(1).getData();
@@ -85,17 +99,20 @@ public class ConceptTest {
     }
 
     private void assignBandData(CsvProductSource source, List<Band> bands) {
-        final List<Record> records = source.getRecords();
-        if(records.size() != bands.size()) {
-            throw new IllegalArgumentException("record count != band count");
+        if (source.getFeatureType().getDescriptors().size() != bands.size()) {
+            throw new IllegalArgumentException("number of bands not equal to number of measurement attributes");
         }
+
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> features = source.getFeatureCollection();
         for (int bandIndex = 0; bandIndex < bands.size(); bandIndex++) {
             final Band band = bands.get(bandIndex);
-            final Object[] elems = new Object[records.size()];
-            for (int recordIndex = 0; recordIndex < records.size(); recordIndex++) {
-                final Record record = records.get(recordIndex);
-                Object value = record.getAttributeValues()[bandIndex];
-                elems[recordIndex] = value;
+            final Object[] elems = new Object[features.size()];
+            final FeatureIterator<SimpleFeature> featureIterator = features.features();
+            int recordIndex = 0;
+            while (featureIterator.hasNext()) {
+                final SimpleFeature simpleFeature = featureIterator.next();
+                Object value = simpleFeature.getAttribute(bandIndex);
+                elems[recordIndex++] = value;
             }
 
             final ProductData data = getProductData(elems, band.getDataType());
@@ -105,16 +122,8 @@ public class ConceptTest {
 
     @Test
     public void testInvalidInput() throws Exception {
-        final CsvProductSource source = new MyCsvProductSource("band3", "UINT");
-        List<Band> bands = new ArrayList<Band>(1);
-
-        for (HeaderImpl.AttributeHeader attributeHeader : source.getHeader().getMeasurementAttributeHeaders()) {
-            int dataType = getDataType(attributeHeader.type);
-            bands.add(new Band(attributeHeader.name, dataType, 3, 1));
-        }
-
         try {
-            assignBandData(source, bands);
+            getProductData(null, getDataType(String.class));
             fail();
         } catch (IllegalArgumentException expected) {
             assertTrue(expected.getMessage().matches("Unsupported type.*"));
@@ -123,20 +132,18 @@ public class ConceptTest {
 
     @Test
     public void testRecordCountUnequalToBandCount() throws Exception {
-        final CsvProductSource source = new MyCsvProductSource("band3", "UINT");
+        final CsvProductSource source = new MyCsvProductSource("band3", Integer.class);
         List<Band> bands = new ArrayList<Band>(1);
 
-        for (HeaderImpl.AttributeHeader attributeHeader : source.getHeader().getMeasurementAttributeHeaders()) {
-            int dataType = getDataType(attributeHeader.type);
-            bands.add(new Band(attributeHeader.name, dataType, 3, 1));
+        for (int i = 0; i < 4; i++) {
+            bands.add(new Band("band" + i, ProductData.TYPE_FLOAT32, 3, 1));
         }
-        bands.add(new Band("test", ProductData.TYPE_FLOAT32, 1, 1));
 
         try {
             assignBandData(source, bands);
             fail();
         } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage().equals("record count != band count"));
+            assertTrue(expected.getMessage().equals("number of bands not equal to number of measurement attributes"));
         }
     }
 
@@ -193,43 +200,36 @@ public class ConceptTest {
 
     @Test
     public void testGetDataType() throws Exception {
-        assertEquals(ProductData.TYPE_ASCII, getDataType("string"));
-        assertEquals(ProductData.TYPE_FLOAT32, getDataType("Float"));
-        assertEquals(ProductData.TYPE_FLOAT64, getDataType("DOUBLE"));
-        assertEquals(ProductData.TYPE_UINT8, getDataType("uint8"));
-        assertEquals(ProductData.TYPE_INT8, getDataType("iNT8"));
+        assertEquals(ProductData.TYPE_ASCII, getDataType(String.class));
+        assertEquals(ProductData.TYPE_FLOAT32, getDataType(Float.class));
+        assertEquals(ProductData.TYPE_FLOAT64, getDataType(Double.class));
+        assertEquals(ProductData.TYPE_INT8, getDataType(Byte.class));
     }
 
-    private int getDataType(String type) {
-        if ("string".equals(type.toLowerCase())) {
+    private int getDataType(Class<?> type) {
+        if (type.getSimpleName().toLowerCase().equals("string")) {
             return ProductData.TYPE_ASCII;
-        } else if ("float".equals(type.toLowerCase())) {
+        } else if (type.getSimpleName().toLowerCase().equals("float")) {
             return ProductData.TYPE_FLOAT32;
-        } else if ("double".equals(type.toLowerCase())) {
+        } else if (type.getSimpleName().toLowerCase().equals("double")) {
             return ProductData.TYPE_FLOAT64;
-        } else if ("byte".equals(type.toLowerCase()) || "int8".equals(type.toLowerCase())) {
+        } else if (type.getSimpleName().toLowerCase().equals("byte")) {
             return ProductData.TYPE_INT8;
-        } else if ("ubyte".equals(type.toLowerCase()) || "uint8".equals(type.toLowerCase())) {
-            return ProductData.TYPE_UINT8;
-        } else if ("short".equals(type.toLowerCase()) || "int16".equals(type.toLowerCase())) {
+        } else if (type.getSimpleName().toLowerCase().equals("short")) {
             return ProductData.TYPE_INT16;
-        } else if ("ushort".equals(type.toLowerCase()) || "uint16".equals(type.toLowerCase())) {
-            return ProductData.TYPE_UINT16;
-        } else if ("int".equals(type.toLowerCase()) || "int32".equals(type.toLowerCase())) {
+        } else if (type.getSimpleName().toLowerCase().equals("integer")) {
             return ProductData.TYPE_INT32;
-        } else if ("uint".equals(type.toLowerCase()) || "uint32".equals(type.toLowerCase())) {
-            return ProductData.TYPE_UINT32;
         }
-        throw new IllegalArgumentException("Unknown type '" + type + "'.");
+        throw new IllegalArgumentException("Unsupported type '" + type + "'.");
     }
 
     private static class MyCsvProductSource implements CsvProductSource {
 
-        private MyHeader header;
+        private SimpleFeatureType simpleFeatureType;
         private final String name;
-        private final String type;
+        private final Class type;
 
-        private MyCsvProductSource(String name, String type) {
+        private MyCsvProductSource(String name, Class type) {
             this.name = name;
             this.type = type;
         }
@@ -240,125 +240,47 @@ public class ConceptTest {
         }
 
         @Override
-        public List<Record> getRecords() {
-            final ArrayList<Record> records = new ArrayList<Record>(3);
-            try {
-                records.add(new MyRecord(new Object[]{
-                        1.0f,
-                        1.1f,
-                        5
-                }, new GeoPos(10.0f, 10.0f), "location1", ProductData.UTC.parse("2010-01-01", "yyyy-MM-dd")));
-                records.add(new MyRecord(new Object[]{
-                        2.0f,
-                        2.1f,
-                        7
-                }, new GeoPos(20.0f, 20.0f), "location2", ProductData.UTC.parse("2020-01-01", "yyyy-MM-dd")));
-                records.add(new MyRecord(new Object[]{
-                        3.0f,
-                        3.1f,
-                        123
-                }, new GeoPos(30.0f, 30.0f), "location3", ProductData.UTC.parse("2030-01-01", "yyyy-MM-dd")));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            return records;
+        public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatureCollection() {
+            final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = new DefaultFeatureCollection("id", getFeatureType());
+
+            collection.add(new SimpleFeatureImpl(new Object[]{1.0f, 1.1f, 5},
+                                                 getFeatureType(),
+                                                 new FeatureIdImpl("0"),
+                                                 true));
+            collection.add(new SimpleFeatureImpl(new Object[]{2.0f, 2.1f, 7},
+                                                 getFeatureType(),
+                                                 new FeatureIdImpl("1"),
+                                                 true));
+            collection.add(new SimpleFeatureImpl(new Object[]{3.0f, 3.1f, 123},
+                                                 getFeatureType(),
+                                                 new FeatureIdImpl("2"),
+                                                 true));
+
+            return collection;
         }
 
         @Override
-        public Header getHeader() {
-            if (header == null) {
-                header = new MyHeader(name, type);
+        public SimpleFeatureType getFeatureType() {
+            if (simpleFeatureType == null) {
+                final SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+
+                builder.setName("header");
+
+                builder.add("band1", Float.class);
+                builder.add("band2", Float.class);
+                builder.add(name, type);
+
+                simpleFeatureType = builder.buildFeatureType();
             }
-            return header;
+            return simpleFeatureType;
         }
 
         @Override
-        public Properties getProperties() {
-            final Properties properties = new Properties();
+        public Map<String, String> getProperties() {
+            final HashMap<String,String> properties = new HashMap<String,String>();
             properties.put("productName", "testProductName");
             return properties;
         }
 
-        private static class MyRecord implements Record {
-
-            private final Object[] values;
-            private final GeoPos location;
-            private final String locationName;
-            private final ProductData.UTC time;
-
-            private MyRecord(Object[] values, GeoPos location, String locationName, ProductData.UTC time) {
-                this.values = values;
-                this.location = location;
-                this.locationName = locationName;
-                this.time = time;
-            }
-
-            @Override
-            public GeoPos getLocation() {
-                return location;
-            }
-
-            @Override
-            public ProductData.UTC getTime() {
-                return time;
-            }
-
-            @Override
-            public Object[] getAttributeValues() {
-                final Object[] objects = new Object[values.length];
-                for (int i = 0; i < values.length; i++) {
-                    objects[i] = values[i];
-                }
-                return objects;
-            }
-
-            @Override
-            public String getLocationName() {
-                return locationName;
-            }
-        }
-    }
-
-    private static class MyHeader implements Header {
-
-        private final HeaderImpl.AttributeHeader attributeHeader;
-
-        private MyHeader(String name, String type) {
-            attributeHeader = new HeaderImpl.AttributeHeader(name, type);
-        }
-
-        @Override
-        public boolean hasLocation() {
-            return false;
-        }
-
-        @Override
-        public boolean hasTime() {
-            return false;
-        }
-
-        @Override
-        public boolean hasLocationName() {
-            return false;
-        }
-
-        @Override
-        public HeaderImpl.AttributeHeader[] getMeasurementAttributeHeaders() {
-            final HeaderImpl.AttributeHeader[] attributeHeaders = new HeaderImpl.AttributeHeader[3];
-            attributeHeaders[0] = new HeaderImpl.AttributeHeader("band1", "float");
-            attributeHeaders[1] = new HeaderImpl.AttributeHeader("band2", "float");
-            attributeHeaders[2] = attributeHeader;
-            return attributeHeaders;
-        }
-
-        @Override
-        public int getColumnCount() {
-            return 0;
-        }
-
-        @Override
-        public HeaderImpl.AttributeHeader getAttributeHeader(int columnIndex) {
-            return null;
-        }
     }
 }

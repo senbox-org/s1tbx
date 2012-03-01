@@ -18,10 +18,15 @@ package org.esa.beam.csv.dataio;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.geotools.feature.FeatureCollection;
 import org.junit.Test;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.FeatureType;
+import org.opengis.feature.type.PropertyDescriptor;
 
-import java.util.List;
-import java.util.Properties;
+import java.util.Collection;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -38,12 +43,12 @@ public class CsvProductFileTest {
         parser.parseProperties();
 
         final CsvProductSource productSource = parser.getCsvProductSource();
-        final Properties properties = productSource.getProperties();
+        final Map<String,String> properties = productSource.getProperties();
         assertNotNull(properties);
         assertEquals(3, properties.size());
-        assertEquals("POLYGON(0.0, 1.0, 1.1)", properties.getProperty("geometry1"));
-        assertEquals("POLYGON(2.0, 1.0, 1.1)", properties.getProperty("geometry2"));
-        assertEquals(",", properties.getProperty("separator"));
+        assertEquals("POLYGON(0.0, 1.0, 1.1)", properties.get("geometry1"));
+        assertEquals("POLYGON(2.0, 1.0, 1.1)", properties.get("geometry2"));
+        assertEquals(",", properties.get("separator"));
     }
 
     @Test(expected = CsvProductFile.ParseException.class)
@@ -61,45 +66,72 @@ public class CsvProductFileTest {
         parser.parseRecords();
 
         final CsvProductSource csvProductSource = parser.getCsvProductSource();
-        final List<Record> records = csvProductSource.getRecords();
-        
-        assertEquals(3, records.size());
-        
-        assertEquals("AMRU1", records.get(0).getLocationName());
-        assertEquals("AMRU1", records.get(1).getLocationName());
-        assertEquals("AMRU2", records.get(2).getLocationName());
+        SimpleFeature[] features = toSimpleFeatureArray(csvProductSource.getFeatureCollection());
 
-        assertEquals(new GeoPos(30.0f, 50.0f), records.get(0).getLocation());
-        assertEquals(new GeoPos(30.0f, 50.0f), records.get(1).getLocation());
-        assertEquals(new GeoPos(40.0f, 120.0f), records.get(2).getLocation());
+        assertEquals(3, features.length);
 
-        assertEquals(ProductData.UTC.parse("2010-06-01 12:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), records.get(0).getTime().getAsDate().getTime());
-        assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), records.get(1).getTime().getAsDate().getTime());
-        assertEquals(null, records.get(2).getTime());
+        SimpleFeature feature = features[0];
 
-        for (Record record : records) {
-            assertEquals(3, record.getAttributeValues().length);
-            
-            assertEquals(Double.class, record.getAttributeValues()[0].getClass());
-            assertEquals(Double.class, record.getAttributeValues()[1].getClass());
-        }
-        assertEquals(ProductData.UTC.class, records.get(0).getAttributeValues()[2].getClass());
-        assertEquals(ProductData.UTC.class, records.get(2).getAttributeValues()[2].getClass());
+        assertEquals(7, feature.getAttributeCount());
+        assertEquals(String.class, feature.getAttribute(0).getClass());
+        assertEquals(Float.class, feature.getAttribute(1).getClass());
+        assertEquals(Float.class, feature.getAttribute(2).getClass());
+        assertEquals(ProductData.UTC.class, feature.getAttribute(3).getClass());
+        assertEquals(Float.class, feature.getAttribute(4).getClass());
+        assertEquals(Float.class, feature.getAttribute(5).getClass());
+        assertEquals(ProductData.UTC.class, feature.getAttribute(6).getClass());
 
-        assertEquals(Double.NaN, records.get(0).getAttributeValues()[0]);
-        assertEquals(13.4, records.get(0).getAttributeValues()[1]);
+        feature = features[1];
 
-        assertEquals(18.3, records.get(1).getAttributeValues()[0]);
-        assertEquals(2.4, records.get(1).getAttributeValues()[1]);
+        assertEquals(7, feature.getAttributeCount());
+        assertEquals(String.class, feature.getAttribute(0).getClass());
+        assertEquals(Float.class, feature.getAttribute(1).getClass());
+        assertEquals(Float.class, feature.getAttribute(2).getClass());
+        assertEquals(ProductData.UTC.class, feature.getAttribute(3).getClass());
+        assertEquals(Float.class, feature.getAttribute(4).getClass());
+        assertEquals(Float.class, feature.getAttribute(5).getClass());
+        assertEquals(null, feature.getAttribute(6));
 
-        assertEquals(10.5, records.get(2).getAttributeValues()[0]);
-        assertEquals(10.6, records.get(2).getAttributeValues()[1]);
-        
+        feature = features[2];
+
+        assertEquals(7, feature.getAttributeCount());
+        assertEquals(String.class, feature.getAttribute(0).getClass());
+        assertEquals(Float.class, feature.getAttribute(1).getClass());
+        assertEquals(Float.class, feature.getAttribute(2).getClass());
+        assertEquals(null, feature.getAttribute(3));
+        assertEquals(Float.class, feature.getAttribute(4).getClass());
+        assertEquals(Float.class, feature.getAttribute(5).getClass());
+        assertEquals(ProductData.UTC.class, feature.getAttribute(6).getClass());
+
+        assertEquals("AMRU1", features[0].getAttribute(0));
+        assertEquals("AMRU1", features[1].getAttribute(0));
+        assertEquals("AMRU2", features[2].getAttribute(0));
+
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[0].getAttribute(1), (Float)features[0].getAttribute(2)));
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[1].getAttribute(1), (Float)features[1].getAttribute(2)));
+        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Float)features[2].getAttribute(1), (Float)features[2].getAttribute(2)));
+
+        assertEquals(ProductData.UTC.parse("2010-06-01 12:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[0].getAttribute(3)).getAsDate().getTime());
+        assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[1].getAttribute(3)).getAsDate().getTime());
+        assertEquals(null, features[2].getAttribute(3));
+
+        assertEquals(Float.NaN, features[0].getAttribute(4));
+        assertEquals(18.3f, features[1].getAttribute(4));
+        assertEquals(10.6f, features[2].getAttribute(5));
+
         assertEquals(ProductData.UTC.parse("2011-06-01 10:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(),
-                     ((ProductData.UTC)records.get(0).getAttributeValues()[2]).getAsDate().getTime());
-        assertEquals(null, records.get(1).getAttributeValues()[2]);
-        assertEquals(ProductData.UTC.parse("2011-06-01 12:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(),
-                     ((ProductData.UTC)records.get(2).getAttributeValues()[2]).getAsDate().getTime());
+                     ((ProductData.UTC)features[0].getAttribute(6)).getAsDate().getTime());
+
+    }
+
+    private SimpleFeature[] toSimpleFeatureArray(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
+        final Object[] objects = featureCollection.toArray(new Object[featureCollection.size()]);
+        final SimpleFeature[] simpleFeatures = new SimpleFeature[objects.length];
+        for (int i = 0; i < simpleFeatures.length; i++) {
+            simpleFeatures[i] = (SimpleFeature)objects[i];
+
+        }
+        return simpleFeatures;
     }
 
     @Test
@@ -110,33 +142,37 @@ public class CsvProductFileTest {
         parser.parseHeader();
 
         final CsvProductSource csvProductSource = parser.getCsvProductSource();
-        final Header header = csvProductSource.getHeader();
-        assertNotNull(header);
-        assertTrue(header.hasLocationName());
-        assertTrue(header.hasLocation());
-        assertTrue(header.hasTime());
+        final FeatureType featureType = csvProductSource.getFeatureType();
 
-        final HeaderImpl.AttributeHeader[] attributeHeaders = header.getMeasurementAttributeHeaders();
-        assertEquals(3, attributeHeaders.length);
-        assertEquals("radiance_1", attributeHeaders[0].name);
-        assertEquals("float", attributeHeaders[0].type);
-        assertEquals("radiance_2", attributeHeaders[1].name);
-        assertEquals("float", attributeHeaders[1].type);
-        assertEquals("testTime", attributeHeaders[2].name);
-        assertEquals("time", attributeHeaders[2].type);
+        assertNotNull(featureType);
 
-        assertEquals(7, header.getColumnCount());
+        final PropertyDescriptor[] propertyDescriptors = toPropertyDescriptorArray(featureType.getDescriptors());
+        assertEquals(7, propertyDescriptors.length);
+        assertEquals("station", propertyDescriptors[0].getName().toString());
+        assertEquals("lat", propertyDescriptors[1].getName().toString());
+        assertEquals("lon", propertyDescriptors[2].getName().toString());
+        assertEquals("date_time", propertyDescriptors[3].getName().toString());
+        assertEquals("radiance_1", propertyDescriptors[4].getName().toString());
+        assertEquals("radiance_2", propertyDescriptors[5].getName().toString());
+        assertEquals("testTime", propertyDescriptors[6].getName().toString());
 
-        HeaderImpl.AttributeHeader attributeHeader = header.getAttributeHeader(0);
-        assertEquals("station", attributeHeader.name);
-        assertEquals("string", attributeHeader.type);
+        assertEquals(7, propertyDescriptors.length);
+        assertTrue(propertyDescriptors[0].getType().getBinding().getSimpleName().matches(".*String"));
+        assertTrue(propertyDescriptors[1].getType().getBinding().getSimpleName().matches(".*Float"));
+        assertTrue(propertyDescriptors[2].getType().getBinding().getSimpleName().matches(".*Float"));
+        assertTrue(propertyDescriptors[3].getType().getBinding().getSimpleName().matches(".*UTC"));
+        assertTrue(propertyDescriptors[4].getType().getBinding().getSimpleName().matches(".*Float"));
+        assertTrue(propertyDescriptors[5].getType().getBinding().getSimpleName().matches(".*Float"));
+        assertTrue(propertyDescriptors[6].getType().getBinding().getSimpleName().matches(".*UTC"));
+    }
 
-        attributeHeader = header.getAttributeHeader(3);
-        assertEquals("date_time", attributeHeader.name);
-        assertEquals("time", attributeHeader.type);
+    private PropertyDescriptor[] toPropertyDescriptorArray(Collection<PropertyDescriptor> descriptors) {
+        final Object[] objects = descriptors.toArray(new Object[descriptors.size()]);
+        final PropertyDescriptor[] propertyDescriptors = new PropertyDescriptor[objects.length];
+        for (int i = 0; i < propertyDescriptors.length; i++) {
+            propertyDescriptors[i] = (PropertyDescriptor)objects[i];
 
-        attributeHeader = header.getAttributeHeader(5);
-        assertEquals("radiance_2", attributeHeader.name);
-        assertEquals("float", attributeHeader.type);
+        }
+        return propertyDescriptors;
     }
 }

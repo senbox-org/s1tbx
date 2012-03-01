@@ -59,7 +59,7 @@ Revise data import / export
   - format proposal:
 
     feature-format         := {<property-record> NL} <feature-type-record> {NL <feature-record>}
-    feature-type-record    := '@'<feature-type-name> {<sep> <attribute-header>}
+    feature-type-record    := <feature-type-name> {<sep> <attribute-header>}
     feature-record         := <feature-id>           {<sep> <attribute-value>}
 
     simple-format          := {<property-record> NL} <header-record>       {NL <data-record>}
