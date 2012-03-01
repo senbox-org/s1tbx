@@ -28,6 +28,7 @@ class Constants {
     static final String[] LON_NAMES = new String[]{"lon", "long", "longitude", "easting"};
     static final String[] TIME_NAMES = new String[]{"time", "date", "date_time", "dateTime"};
     static final String[] LOCATION_NAMES = new String[]{"name", "station", "label"};
+    static final String[] CRS_IDENTIFIERS = new String[]{"crs"};
     static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
     public static final String DEFAULT_SEPARATOR = "\t";
 }

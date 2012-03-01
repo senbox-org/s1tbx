@@ -22,13 +22,16 @@ import com.bc.ceres.binding.ConverterRegistry;
 import org.esa.beam.dataio.geometry.VectorDataNodeIO;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.converters.JavaTypeConverter;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.BufferedReader;
@@ -68,10 +71,6 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
 
     @Override
     public void parseProperties() throws ParseException {
-
-        // todo - parse CRS
-        // crs = .... ;
-
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(csv));
@@ -90,9 +89,14 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
                     throw new ParseException("Empty property name in '" + line + "'");
                 }
                 String value = line.substring(pos + 1).trim();
+                if(contains(Constants.CRS_IDENTIFIERS, name)) {
+                    crs = CRS.parseWKT(value);
+                }
                 properties.put(name, value);
             }
         } catch (IOException e) {
+            throw new ParseException(e);
+        } catch (FactoryException e) {
             throw new ParseException(e);
         } finally {
             propertiesParsed = true;
@@ -143,8 +147,9 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
                                 value = converters[i - 1].parse(token);
                             }
                             builder.set(simpleFeatureType.getDescriptor(i - 1).getLocalName(), value);
-                        } catch (ConversionException ignored) {
-                            // todo
+                        } catch (ConversionException e) {
+                            BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': %s",
+                                                                                   csv.getPath(), e.getMessage()));
                         }
                     }
                 }
@@ -271,6 +276,15 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         return strings.toArray(new String[strings.size()]);
     }
 
+    private boolean contains(String[] possibleStrings, String s) {
+        for (String possibleString : possibleStrings) {
+            if(possibleString.toLowerCase().equals(s.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     static class ParseException extends Exception {
 
         ParseException(String message) {
@@ -325,15 +339,5 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
             }
             return result;
         }
-
-        private boolean contains(String[] possibleStrings, String s) {
-            for (String possibleString : possibleStrings) {
-                if(possibleString.equals(s)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
     }
 }
