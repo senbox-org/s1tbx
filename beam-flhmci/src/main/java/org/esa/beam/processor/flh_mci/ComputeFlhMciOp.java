@@ -46,7 +46,7 @@ import java.awt.image.Raster;
  *
  * @author Ralf Quast
  */
-@OperatorMetadata(alias = "SST", authors = "Ralf Quast", copyright = "Brockmann Consult GmbH", version = "2.0",
+@OperatorMetadata(alias = "FLH/MCI", authors = "Ralf Quast", copyright = "Brockmann Consult GmbH", version = "2.0",
                   description = "Computes fluorescence line height (FLH) or maximum chlorophyll index (MCI).")
 public class ComputeFlhMciOp extends PixelOperator {
 
