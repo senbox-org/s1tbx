@@ -135,6 +135,12 @@ public class ComputeFlhMciOp extends PixelOperator {
     }
 
     @Override
+    public void dispose() {
+        super.dispose();
+        maskOpImage.dispose();
+    }
+
+    @Override
     protected void prepareInputs() throws OperatorException {
         super.prepareInputs();
 
