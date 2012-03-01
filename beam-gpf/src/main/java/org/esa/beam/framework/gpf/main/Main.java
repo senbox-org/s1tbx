@@ -28,17 +28,21 @@ import java.util.Locale;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        if (System.getProperty("ceres.context") == null) {
-            System.setProperty("ceres.context", "beam");
-        }
         try {
-            Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
-            SystemUtils.init3rdPartyLibs(Main.class.getClassLoader());
-            new CommandLineTool().run(args);
+            run(args);
         } catch (Exception e) {
             System.err.println("\nError: " + e.getMessage());
             System.exit(1);
         }
+    }
+
+    public static void run(String[] args) throws Exception {
+        if (System.getProperty("ceres.context") == null) {
+            System.setProperty("ceres.context", "beam");
+        }
+        Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
+        SystemUtils.init3rdPartyLibs(Main.class.getClassLoader());
+        new CommandLineTool().run(args);
     }
 
 }
