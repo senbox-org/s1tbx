@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -1154,12 +1154,8 @@ public class ProductUtils {
         if (sourceBand == null) {
             return null;
         }
-        Band targetBand = new Band(targetBandName,
-                                   sourceBand.getDataType(),
-                                   sourceBand.getRasterWidth(),
-                                   sourceBand.getRasterHeight());
+        Band targetBand = targetProduct.addBand(targetBandName, sourceBand.getDataType());
         copyRasterDataNodeProperties(sourceBand, targetBand);
-        targetProduct.addBand(targetBand);
         return targetBand;
     }
 
@@ -1184,19 +1180,19 @@ public class ProductUtils {
             Band targetBand = (Band) targetRaster;
             copySpectralBandProperties(sourceBand, targetBand);
             targetBand.setSourceImage(sourceBand.getSourceImage());
-            Product outputProduct = targetBand.getProduct();
-            if(outputProduct == null) {
+            Product targetProduct = targetBand.getProduct();
+            if(targetProduct == null) {
                 return;
             }
             if (sourceBand.getFlagCoding() != null) {
                 FlagCoding srcFlagCoding = sourceBand.getFlagCoding();
-                copyFlagCoding(srcFlagCoding, outputProduct);
-                targetBand.setSampleCoding(outputProduct.getFlagCodingGroup().get(srcFlagCoding.getName()));
+                copyFlagCoding(srcFlagCoding, targetProduct);
+                targetBand.setSampleCoding(targetProduct.getFlagCodingGroup().get(srcFlagCoding.getName()));
             }
             if (sourceBand.getIndexCoding() != null) {
                 IndexCoding srcIndexCoding = sourceBand.getIndexCoding();
-                copyIndexCoding(srcIndexCoding, outputProduct);
-                targetBand.setSampleCoding(outputProduct.getIndexCodingGroup().get(srcIndexCoding.getName()));
+                copyIndexCoding(srcIndexCoding, targetProduct);
+                targetBand.setSampleCoding(targetProduct.getIndexCodingGroup().get(srcIndexCoding.getName()));
             }
         }
     }
