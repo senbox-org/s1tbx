@@ -23,9 +23,7 @@ import org.esa.beam.util.Guardian;
 import java.io.IOException;
 
 /**
- * The <code>AbstractProductReader</code>  class can be used as a base class for new product writer implementations. The
- * only two methods which clients must implement are <code>writeProductNodes()</code> and <code>writeBandData</code>
- * methods.
+ * The <code>AbstractProductWriter</code> class can be used as a base class for new product writer implementations.
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
