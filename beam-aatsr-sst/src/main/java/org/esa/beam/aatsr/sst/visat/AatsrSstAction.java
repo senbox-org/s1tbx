@@ -29,7 +29,7 @@ public class AatsrSstAction extends AbstractVisatAction {
     public void actionPerformed(CommandEvent event) {
         final String operatorName = AatsrSstOp.Spi.class.getName();
         final AppContext appContext = getAppContext();
-        final String title = "(A)ATSR SST Computation";
+        final String title = "(A)ATSR SST Processor";
         final String helpID = event.getCommand().getHelpId();
 
         final DefaultSingleTargetProductDialog dialog = new DefaultSingleTargetProductDialog(operatorName, appContext,
