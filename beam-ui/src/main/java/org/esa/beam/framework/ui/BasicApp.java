@@ -18,11 +18,7 @@ package org.esa.beam.framework.ui;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.jidesoft.action.CommandBar;
-import com.jidesoft.action.DefaultDockableBarDockableHolder;
-import com.jidesoft.action.DockableBar;
-import com.jidesoft.action.DockableBarContext;
-import com.jidesoft.action.DockableBarManager;
+import com.jidesoft.action.*;
 import com.jidesoft.action.event.DockableBarAdapter;
 import com.jidesoft.action.event.DockableBarEvent;
 import com.jidesoft.docking.DefaultDockingManager;
@@ -35,19 +31,8 @@ import com.jidesoft.swing.LayoutPersistence;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor;
-import org.esa.beam.framework.ui.command.Command;
-import org.esa.beam.framework.ui.command.CommandGroup;
-import org.esa.beam.framework.ui.command.CommandManager;
-import org.esa.beam.framework.ui.command.CommandMenuUtils;
-import org.esa.beam.framework.ui.command.CommandUIFactory;
-import org.esa.beam.framework.ui.command.DefaultCommandManager;
-import org.esa.beam.framework.ui.command.DefaultCommandUIFactory;
-import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.framework.ui.command.*;
+import org.esa.beam.util.*;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.FileChooserFactory;
 import org.esa.beam.util.io.FileUtils;
@@ -55,54 +40,17 @@ import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
-import javax.swing.AbstractButton;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JToolBar;
-import javax.swing.RepaintManager;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.UIDefaults;
-import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
-import java.awt.Rectangle;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -217,7 +165,6 @@ public class BasicApp {
      *                         application does not use resource bundles
      * @param appLoggerName    the logger name for the application logging, can be <code>null</code> if the application
      *                         does not use logging
-     *
      * @see java.util.ResourceBundle
      */
     protected BasicApp(String appName,
@@ -227,11 +174,11 @@ public class BasicApp {
                        String appResource,
                        String appLoggerName) {
         this(createApplicationDescriptor(appName,
-                                         appSymbolicName,
-                                         appVersion,
-                                         appCopyrightInfo,
-                                         appResource,
-                                         appLoggerName));
+                appSymbolicName,
+                appVersion,
+                appCopyrightInfo,
+                appResource,
+                appLoggerName));
     }
 
     public ApplicationDescriptor getApplicationDescriptor() {
@@ -301,7 +248,6 @@ public class BasicApp {
      * (if any) is closed.</li> </ol>
      *
      * @param pm a progress monitor, e.g. for splash-screen
-     *
      * @throws Exception if an error occurs
      */
     public void startUp(ProgressMonitor pm) throws Exception {
@@ -478,20 +424,27 @@ public class BasicApp {
     private boolean initLookAndFeel() {
         String currentLafClassName = UIManager.getLookAndFeel().getClass().getName();
 
-        String defaultLAFClassName = getDefaultLookAndFeelClassName();
-
-        String newLafClassName = getPreferences().getPropertyString(PROPERTY_KEY_APP_UI_LAF, defaultLAFClassName);
+        String defaultLafClassName = getDefaultLookAndFeelClassName();
+        String newLafClassName = getPreferences().getPropertyString(PROPERTY_KEY_APP_UI_LAF, defaultLafClassName);
+        // This should fix a problem occurring in JIDE 3.3.5 with the GTKLookAndFeel (nf, 2012-03-02)
+        if (newLafClassName.equals("com.sun.java.swing.plaf.gtk.GTKLookAndFeel")) {
+            newLafClassName = defaultLafClassName;
+        }
         if (!uiDefaultsInitialized || !currentLafClassName.equals(newLafClassName)) {
             try {
                 UIManager.setLookAndFeel(newLafClassName);
-                LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
                 getPreferences().setPropertyString(PROPERTY_KEY_APP_UI_LAF, newLafClassName);
-                // Uncomment this, if we want icons to be displayed on title pane of a DockableFrame
-                // UIManager.getDefaults().put("DockableFrameTitlePane.showIcon", Boolean.TRUE);
-                return true;
             } catch (Throwable ignored) {
                 // ignore
             }
+            try {
+                LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
+                // Uncomment this, if we want icons to be displayed on title pane of a DockableFrame
+                // UIManager.getDefaults().put("DockableFrameTitlePane.showIcon", Boolean.TRUE);
+            } catch (Throwable ignored) {
+                // ignore
+            }
+            return true;
         }
         return false;
     }
@@ -499,7 +452,7 @@ public class BasicApp {
     private String getDefaultLookAndFeelClassName() {
         String defaultLookAndFeelClassName = UIManager.getSystemLookAndFeelClassName();
         String osName = System.getProperty("os.name").toLowerCase();
-        // returning Nimbus as default LAF id not Mac OS and not Windows
+        // returning Nimbus as default LAF if not Mac OS and not Windows
         if (!SystemUtils.isRunningOnMacOS() && !osName.contains("windows")) {
             final UIManager.LookAndFeelInfo[] lookAndFeels = UIManager.getInstalledLookAndFeels();
             for (UIManager.LookAndFeelInfo laf : lookAndFeels) {
@@ -608,7 +561,6 @@ public class BasicApp {
      * <p/>The default implementation does nothing.
      *
      * @param pm a progress monitor, can be used to signal progress
-     *
      * @throws Exception if an error occurs
      */
     protected void initClient(ProgressMonitor pm) throws Exception {
@@ -622,7 +574,6 @@ public class BasicApp {
      * <p/>The default implementation does nothing.
      *
      * @param pm a progress monitor, can be used to signal progress
-     *
      * @throws Exception if an error occurs
      */
     protected void initClientUI(ProgressMonitor pm) throws Exception {
@@ -708,9 +659,9 @@ public class BasicApp {
         String buildDate = applicationDescriptor.getBuildDate();
         if (buildId != null && buildDate != null) {
             return String.format("build %s from %s", buildId, buildDate);
-        } else if (buildId != null ) {
+        } else if (buildId != null) {
             return String.format("build %s", buildId);
-        } else if (buildDate != null ) {
+        } else if (buildDate != null) {
             return String.format("from %s", buildDate);
         } else {
             return "no build info";
@@ -845,8 +796,8 @@ public class BasicApp {
                 if (command instanceof ExecCommand && command.getLargeIcon() != null) {
                     String rootParent = findRootParent(command);
                     if ((rootParent == null
-                         && toolBarGroup == null)
-                        || (rootParent != null
+                            && toolBarGroup == null)
+                            || (rootParent != null
                             && rootParent.equalsIgnoreCase(toolBarGroup))) {
                         AbstractButton button = command.createToolBarButton();
                         if (button != null) {
@@ -1002,10 +953,7 @@ public class BasicApp {
         getPreferences().setPropertyInt("frame.size.height", getMainFrame().getSize().height);
 
         getPreferences().setPropertyBool("frame.ui.dblbuf",
-                                         RepaintManager.currentManager(getMainFrame()).isDoubleBufferingEnabled());
-
-        getPreferences().setPropertyString("frame.ui.laf",
-                                           UIManager.getLookAndFeel().getClass().getName());
+                RepaintManager.currentManager(getMainFrame()).isDoubleBufferingEnabled());
 
         //////////////////////////////////////////////////////////////
 
@@ -1106,9 +1054,9 @@ public class BasicApp {
         if (!useSystemFontSettings) {
             final Font currentMenuFont = uiDefaults.getFont("Menu.font");
             final String fontName = getPreferences().getPropertyString(PROPERTY_KEY_APP_UI_FONT_NAME,
-                                                                       currentMenuFont.getName());
+                    currentMenuFont.getName());
             final int fontSize = getPreferences().getPropertyInt(PROPERTY_KEY_APP_UI_FONT_SIZE,
-                                                                 currentMenuFont.getSize());
+                    currentMenuFont.getSize());
             if (!currentMenuFont.getName().equalsIgnoreCase(fontName) || currentMenuFont.getSize() != fontSize) {
                 changeUIDefaultsFonts(uiDefaults, fontName, fontSize);
                 mustUpdateComponentTreeUI = true;
@@ -1233,7 +1181,6 @@ public class BasicApp {
      * @param title      a dialog-box title
      * @param dirsOnly   whether or not to select only directories
      * @param fileFilter the file filter to be used, can be <code>null</code>
-     *
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
     public final File showFileOpenDialog(String title, boolean dirsOnly, FileFilter fileFilter) {
@@ -1247,7 +1194,6 @@ public class BasicApp {
      * @param dirsOnly           whether or not to select only directories
      * @param fileFilter         the file filter to be used, can be <code>null</code>
      * @param lastDirPropertyKey the key under which the last directory the user visited is stored
-     *
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
     public final File showFileOpenDialog(String title,
@@ -1258,7 +1204,7 @@ public class BasicApp {
         Assert.argument(!lastDirPropertyKey.isEmpty(), "!lastDirPropertyKey.isEmpty()");
 
         String lastDir = getPreferences().getPropertyString(lastDirPropertyKey,
-                                                            SystemUtils.getUserHomeDir().getPath());
+                SystemUtils.getUserHomeDir().getPath());
         File currentDir = new File(lastDir);
 
         BeamFileChooser fileChooser = new BeamFileChooser();
@@ -1296,7 +1242,6 @@ public class BasicApp {
      * @param fileFilter       the file filter to be used, can be <code>null</code>
      * @param defaultExtension the extension used as default
      * @param fileName         the initial filename
-     *
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
     public final File showFileSaveDialog(String title,
@@ -1305,11 +1250,11 @@ public class BasicApp {
                                          String defaultExtension,
                                          final String fileName) {
         return showFileSaveDialog(title,
-                                  dirsOnly,
-                                  fileFilter,
-                                  defaultExtension,
-                                  fileName,
-                                  PROPERTY_KEY_APP_LAST_SAVE_DIR);
+                dirsOnly,
+                fileFilter,
+                defaultExtension,
+                fileName,
+                PROPERTY_KEY_APP_LAST_SAVE_DIR);
     }
 
     /**
@@ -1321,7 +1266,6 @@ public class BasicApp {
      * @param defaultExtension   the extension used as default
      * @param fileName           the initial filename
      * @param lastDirPropertyKey the key under which the last directory the user visited is stored
-     *
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
     public final File showFileSaveDialog(String title,
@@ -1337,21 +1281,21 @@ public class BasicApp {
         File file = null;
         while (file == null) {
             file = showFileSaveDialogImpl(title,
-                                          dirsOnly,
-                                          fileFilter,
-                                          defaultExtension,
-                                          fileName,
-                                          lastDirPropertyKey);
+                    dirsOnly,
+                    fileFilter,
+                    defaultExtension,
+                    fileName,
+                    lastDirPropertyKey);
             if (file == null) {
                 return null; // Cancel
             } else if (file.exists()) {
                 int status = JOptionPane.showConfirmDialog(getMainFrame(),
-                                                           MessageFormat.format(
-                                                                   "The file ''{0}'' already exists.\nOverwrite it?",
-                                                                   file),
-                                                           MessageFormat.format("{0} - {1}", getAppName(), title),
-                                                           JOptionPane.YES_NO_CANCEL_OPTION,
-                                                           JOptionPane.WARNING_MESSAGE);
+                        MessageFormat.format(
+                                "The file ''{0}'' already exists.\nOverwrite it?",
+                                file),
+                        MessageFormat.format("{0} - {1}", getAppName(), title),
+                        JOptionPane.YES_NO_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
                 if (status == JOptionPane.CANCEL_OPTION) {
                     return null; // Cancel
                 } else if (status == JOptionPane.NO_OPTION) {
@@ -1372,7 +1316,7 @@ public class BasicApp {
         Assert.argument(!lastDirPropertyKey.isEmpty(), "!lastDirPropertyKey.isEmpty()");
 
         String lastDir = getPreferences().getPropertyString(lastDirPropertyKey,
-                                                            SystemUtils.getUserHomeDir().getPath());
+                SystemUtils.getUserHomeDir().getPath());
         File currentDir = new File(lastDir);
 
         final BeamFileChooser fileChooser = new BeamFileChooser();
@@ -1425,7 +1369,6 @@ public class BasicApp {
      * deregistered using the <code>{@link #unregisterJob}</code> method.
      *
      * @param job any job-like object
-     *
      * @deprecated No longer used
      */
     public final synchronized void registerJob(Object job) {
@@ -1437,7 +1380,6 @@ public class BasicApp {
      * <code>{@link #registerJob}</code> method have been deregistered.
      *
      * @param job any job-like object
-     *
      * @deprecated No longer used
      */
     public final synchronized void unregisterJob(Object job) {
@@ -1454,12 +1396,12 @@ public class BasicApp {
             message = "An unknown error occured."; /*I18N*/
         } else if (e.getMessage() == null) {
             message = "An exception occured:\n"
-                      + "   Type: " + e.getClass().getName() + "\n"
-                      + "   No message text available."; /*I18N*/
+                    + "   Type: " + e.getClass().getName() + "\n"
+                    + "   No message text available."; /*I18N*/
         } else {
             message = "An exception occured:\n"
-                      + "   Type: " + e.getClass().getName() + "\n"
-                      + "   Message: " + e.getMessage(); /*I18N*/
+                    + "   Type: " + e.getClass().getName() + "\n"
+                    + "   Message: " + e.getMessage(); /*I18N*/
         }
 
         getMainFrame().setCursor(Cursor.getDefaultCursor());
@@ -1502,7 +1444,7 @@ public class BasicApp {
 
     public final void showOutOfMemoryErrorDialog(String message) {
         showErrorDialog("Out of Memory",
-                        getAppName() + " is out of memory.\n" +
+                getAppName() + " is out of memory.\n" +
                         message + "\n\n" +
                         "You can try to release memory by closing products or image views which\n" +
                         "you currently not really need.\n" +
@@ -1513,14 +1455,14 @@ public class BasicApp {
     public final void showMessageDialog(String title, String message, int messageType, String preferencesKey) {
         if (suppressibleOptionPane != null && !StringUtils.isNullOrEmpty(preferencesKey)) {
             suppressibleOptionPane.showMessageDialog(preferencesKey, getMainFrame(),
-                                                     message,
-                                                     getAppName() + " - " + title,
-                                                     messageType);
+                    message,
+                    getAppName() + " - " + title,
+                    messageType);
         } else {
             JOptionPane.showMessageDialog(getMainFrame(),
-                                          message,
-                                          getAppName() + " - " + title,
-                                          messageType);
+                    message,
+                    getAppName() + " - " + title,
+                    messageType);
         }
     }
 
@@ -1535,21 +1477,21 @@ public class BasicApp {
     public final int showQuestionDialog(String title, String message, boolean allowCancel, String preferencesKey) {
         if (suppressibleOptionPane != null && !StringUtils.isNullOrEmpty(preferencesKey)) {
             return suppressibleOptionPane.showConfirmDialog(preferencesKey,
-                                                            getMainFrame(),
-                                                            message,
-                                                            getAppName() + " - " + title,
-                                                            allowCancel
-                                                            ? JOptionPane.YES_NO_CANCEL_OPTION
-                                                            : JOptionPane.YES_NO_OPTION,
-                                                            JOptionPane.QUESTION_MESSAGE);
+                    getMainFrame(),
+                    message,
+                    getAppName() + " - " + title,
+                    allowCancel
+                            ? JOptionPane.YES_NO_CANCEL_OPTION
+                            : JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
         } else {
             return JOptionPane.showConfirmDialog(getMainFrame(),
-                                                 message,
-                                                 getAppName() + " - " + title,
-                                                 allowCancel
-                                                 ? JOptionPane.YES_NO_CANCEL_OPTION
-                                                 : JOptionPane.YES_NO_OPTION,
-                                                 JOptionPane.QUESTION_MESSAGE);
+                    message,
+                    getAppName() + " - " + title,
+                    allowCancel
+                            ? JOptionPane.YES_NO_CANCEL_OPTION
+                            : JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
         }
     }
 
@@ -1612,9 +1554,7 @@ public class BasicApp {
      * file does not exists, the question dialog does not comes up.
      *
      * @param file the file to check for existance
-     *
      * @return <code>true</code> if the user confirmes the dialog with 'yes' or the given file does not exist.
-     *
      * @throws IllegalArgumentException if <code>file</code> is <code>null</code>
      */
     public final boolean promptForOverwrite(File file) {
@@ -1623,10 +1563,10 @@ public class BasicApp {
             return true;
         }
         int answer = showQuestionDialog("File Exists",
-                                        "The file\n"
-                                        + "'" + file.getPath() + "'\n"
-                                        + "already exists.\n\n"
-                                        + "Do you really want to overwrite it?\n", null);
+                "The file\n"
+                        + "'" + file.getPath() + "'\n"
+                        + "already exists.\n\n"
+                        + "Do you really want to overwrite it?\n", null);
         return answer == JOptionPane.YES_OPTION;
     }
 
@@ -1716,7 +1656,7 @@ public class BasicApp {
     private void initResources() throws MissingResourceException {
         if (applicationDescriptor.getResourceBundleName() != null) {
             resourceBundle = ResourceBundle.getBundle(applicationDescriptor.getResourceBundleName(),
-                                                      Locale.getDefault(), getClass().getClassLoader());
+                    Locale.getDefault(), getClass().getClassLoader());
         } else {
             resourceBundle = null;
         }
