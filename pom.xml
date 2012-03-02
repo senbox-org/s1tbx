@@ -43,7 +43,6 @@
         <netcdf.version>4.2.20</netcdf.version>
     </properties>
 
-
     <organization>
         <name>Brockmann Consult GmbH</name>
         <url>http://envisat.esa.int/beam/</url>
@@ -63,11 +62,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
-    <scm>
-        <connection>scm:svn:https://www.brockmann-consult.de/svn/os/beam-4.x/trunk</connection>
-        <url>https://www.brockmann-consult.de/svn/os/beam-4.x/trunk</url>
-    </scm>
 
     <repositories>
         <repository>
