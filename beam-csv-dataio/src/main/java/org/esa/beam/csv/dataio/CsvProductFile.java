@@ -16,18 +16,32 @@
 
 package org.esa.beam.csv.dataio;
 
-import org.esa.beam.framework.datamodel.GeoPos;
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ConverterRegistry;
+import org.esa.beam.dataio.geometry.VectorDataNodeIO;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.converters.JavaTypeConverter;
+import org.esa.beam.util.logging.BeamLogManager;
+import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A CsvProductFile is a view on a csv file allowing a) to parse it using the {@link CsvProductSourceParser} interface
@@ -38,13 +52,13 @@ import java.util.StringTokenizer;
  */
 public class CsvProductFile implements CsvProductSourceParser, CsvProductSource {
 
-    private final Properties properties = new Properties();
-    private final List<Record> records = new ArrayList<Record>();
+    private final Map<String,String> properties = new HashMap<String,String>();
+    private FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
     private final File csv;
 
-    private Header header;
-
     private boolean propertiesParsed = false;
+    private SimpleFeatureType simpleFeatureType;
+    private CoordinateReferenceSystem crs;
 
     public CsvProductFile(String csv) {
         this(new File(csv));
@@ -52,6 +66,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
 
     public CsvProductFile(File csv) {
         this.csv = csv;
+        ConverterRegistry.getInstance().setConverter(ProductData.UTC.class, new UTCConverter());
     }
 
     @Override
@@ -74,9 +89,14 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
                     throw new ParseException("Empty property name in '" + line + "'");
                 }
                 String value = line.substring(pos + 1).trim();
+                if(contains(Constants.CRS_IDENTIFIERS, name)) {
+                    crs = CRS.parseWKT(value);
+                }
                 properties.put(name, value);
             }
         } catch (IOException e) {
+            throw new ParseException(e);
+        } catch (FactoryException e) {
             throw new ParseException(e);
         } finally {
             propertiesParsed = true;
@@ -91,49 +111,50 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
 
     @Override
     public void parseRecords() throws ParseException {
-        if(header == null) {
-            throw new IllegalStateException("header needs to be parsed first");
+        Converter<?>[] converters;
+        try {
+            converters = VectorDataNodeIO.getConverters(simpleFeatureType);
+        } catch (IOException e) {
+            throw new ParseException(e);
         }
+
+        featureCollection = new DefaultFeatureCollection("?", simpleFeatureType);
+        SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeatureType);
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(csv));
+            skipNonRecordLines(reader);
             String line;
-            while((line = reader.readLine()) != null) {
-                if(!line.startsWith("#")) {
+            while ((line = reader.readLine()) != null) {
+                String[] tokens = getTokens(line);
+                if (tokens == null) {
                     break;
                 }
-            }
-
-            int columnIndex = 0;
-            while ((line = reader.readLine()) != null) {
-                String locationName = null;
-                ProductData.UTC time = null;
-                float lat = Float.NaN;
-                float lon = Float.NaN;
-                List<Object> values = new ArrayList<Object>();
-                for (String token : getTokens(line)) {
-                    final HeaderImpl.AttributeHeader attributeHeader = header.getAttributeHeader(columnIndex);
-                    if(contains(Constants.LOCATION_NAMES, attributeHeader.name)) {
-                        locationName = token;
-                    } else if(contains(Constants.LAT_NAMES, attributeHeader.name)) {
-                        lat = Float.parseFloat(token);
-                    } else if(contains(Constants.LON_NAMES, attributeHeader.name)) {
-                        lon = Float.parseFloat(token);
-                    } else if(contains(Constants.TIME_NAMES, attributeHeader.name)) {
-                        if(token != null && !token.isEmpty()) {
-                            time = ProductData.UTC.parse(token, Constants.TIME_PATTERN);
-                        } else {
-                            time = null;
-                        }
-                    } else {
-                        values.add(toObject(token, new Class<?>[]{Double.class, Long.class, ProductData.UTC.class, String.class}));
-                    }
-                    
-                    columnIndex++;
+                final int expectedTokenCount = 1 + simpleFeatureType.getAttributeCount();
+                if (tokens.length != expectedTokenCount) {
+                    continue;
                 }
-                final Measurement measurement = new Measurement(locationName, time, new GeoPos(lat, lon), values.toArray(new Object[values.size()]));
-                records.add(measurement);
-                columnIndex = 0;
+                builder.reset();
+                String featureId = null;
+                for (int i = 0; i < tokens.length; i++) {
+                    String token = tokens[i];
+                    if (i == 0) {
+                        featureId = token;
+                    } else {
+                        try {
+                            Object value = null;
+                            if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
+                                value = converters[i - 1].parse(token);
+                            }
+                            builder.set(simpleFeatureType.getDescriptor(i - 1).getLocalName(), value);
+                        } catch (ConversionException e) {
+                            BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': %s",
+                                                                                   csv.getPath(), e.getMessage()));
+                        }
+                    }
+                }
+                SimpleFeature simpleFeature = builder.buildFeature(featureId);
+                featureCollection.add(simpleFeature);
             }
         } catch (Exception e) {
             throw new ParseException(e);
@@ -147,18 +168,53 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         }
     }
 
+    private void skipNonRecordLines(BufferedReader reader) throws IOException {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (!line.startsWith("#")) {
+                break;
+            }
+        }
+    }
+
+    private void createFeatureType(String[] headerLine) throws IOException {
+        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+        builder.setCRS(crs != null ? crs : DefaultGeographicCRS.WGS84);
+        JavaTypeConverter jtc = new UtcCapableJavaTypeConverter();
+        for (int i = 0; i < headerLine.length; i++) {
+            if (i == 0) {
+                builder.setName(headerLine[0]);
+            } else {
+                String token = headerLine[i];
+                final int colonPos = token.indexOf(':');
+                if (colonPos == -1) {
+                    throw new IOException(String.format("Missing type specifier in attribute descriptor '%s'", token));
+                } else if (colonPos == 0) {
+                    throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
+                }
+                String attributeName = token.substring(0, colonPos);
+                String attributeTypeName = token.substring(colonPos + 1).toLowerCase();
+                attributeTypeName = attributeTypeName.substring(0, 1).toUpperCase() + attributeTypeName.substring(1);
+                Class<?> attributeType;
+                try {
+                    attributeType = jtc.parse(attributeTypeName);
+                } catch (ConversionException e) {
+                    throw new IOException(
+                            String.format("Unknown type in attribute descriptor '%s'", token), e);
+                }
+                builder.add(attributeName, attributeType);
+            }
+        }
+        simpleFeatureType = builder.buildFeatureType();
+    }
+
     @Override
     public void parseHeader() throws ParseException {
         if(!propertiesParsed) {
             throw new IllegalStateException("Properties need to be parsed before header.");
         }
 
-        List<String> attributeHeaderList = new ArrayList<String>();
         BufferedReader reader = null;
-        int columnCount;
-        boolean hasLocation;
-        boolean hasTime;
-        boolean hasLocationName;
         try {
             String line;
             reader = new BufferedReader(new FileReader(csv));
@@ -166,54 +222,20 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
                 if (line.startsWith("#")) {
                     continue;
                 }
-                final StringTokenizer stringTokenizer = new StringTokenizer(line, properties.getProperty("separator", Constants.DEFAULT_SEPARATOR));
-                while (stringTokenizer.hasMoreTokens()) {
-                    final String token = stringTokenizer.nextToken();
-                    attributeHeaderList.add(token.trim());
-                }
+                final String separator = properties.get("separator") != null ? properties.get("separator") : Constants.DEFAULT_SEPARATOR ;
+                createFeatureType(line.split(separator));
                 break;
             }
-            columnCount = attributeHeaderList.size();
-
-            int latIndex = indexOf(line, Constants.LAT_NAMES);
-            int lonIndex = indexOf(line, Constants.LON_NAMES);
-            int timeIndex = indexOf(line, Constants.TIME_NAMES);
-            int locationNameIndex = indexOf(line, Constants.LOCATION_NAMES);
-
-            hasLocation = latIndex >= 0 && lonIndex >= 0;
-            hasTime = timeIndex >= 0;
-            hasLocationName = locationNameIndex >= 0;
         } catch (IOException e) {
             throw new ParseException(e);
         } finally {
-            if (reader != null) {
+            if(reader != null) {
                 try {
                     reader.close();
-                } catch (IOException ignored) {
+                } catch (IOException ignore) {
                 }
             }
         }
-
-        final List<HeaderImpl.AttributeHeader> tempMeasurementAttributeHeaders = new ArrayList<HeaderImpl.AttributeHeader>();
-        final List<HeaderImpl.AttributeHeader> tempAttributeHeaders = new ArrayList<HeaderImpl.AttributeHeader>();
-        for (final String csvAttributeHeader : attributeHeaderList) {
-            final String[] strings = csvAttributeHeader.split(":");
-            final String name = strings[0];
-            final String type = strings[1];
-
-            final HeaderImpl.AttributeHeader attributeHeader = new HeaderImpl.AttributeHeader(name, type);
-            tempAttributeHeaders.add(attributeHeader);
-            if (!isReservedField(name)) {
-                tempMeasurementAttributeHeaders.add(attributeHeader);
-            }
-        }
-
-        header = new HeaderImpl(columnCount,
-                                hasLocation,
-                                hasLocationName,
-                                hasTime,
-                                tempAttributeHeaders.toArray(new HeaderImpl.AttributeHeader[tempAttributeHeaders.size()]),
-                                tempMeasurementAttributeHeaders.toArray(new HeaderImpl.AttributeHeader[tempMeasurementAttributeHeaders.size()]));
     }
 
     @Override
@@ -223,119 +245,44 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
 
     @Override
     public int getRecordCount() {
-        return records.size();
+        return featureCollection.size();
     }
 
     @Override
-    public List<Record> getRecords() {
-        return Collections.unmodifiableList(records);
-    }
-
-
-    @Override
-    public Header getHeader() {
-        return header;
+    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatureCollection() {
+        return featureCollection;
     }
 
     @Override
-    public Properties getProperties() {
+    public SimpleFeatureType getFeatureType() {
+        return simpleFeatureType;
+    }
+
+    @Override
+    public Map<String, String> getProperties() {
         return properties;
     }
 
-    private boolean contains(String[] possibleStrings, String s) {
-        for (String possibleString : possibleStrings) {
-            if(possibleString.equals(s)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private ArrayList<String> getTokens(String line) {
+    private String[] getTokens(String line) {
         int pos2;
         int pos1 = 0;
         final ArrayList<String> strings = new ArrayList<String>();
-        final String separator = properties.getProperty("separator", Constants.DEFAULT_SEPARATOR);
+        final String separator = properties.get("separator") != null ? properties.get("separator") : Constants.DEFAULT_SEPARATOR ;
         while ((pos2 = line.indexOf(separator, pos1)) >= 0) {
             strings.add(line.substring(pos1, pos2).trim());
             pos1 = pos2 + 1;
         }
         strings.add(line.substring(pos1).trim());
-        return strings;
+        return strings.toArray(new String[strings.size()]);
     }
 
-    private Object toObject(String textValue, Class<?>[] types) {
-        if (textValue != null && !textValue.isEmpty()) {
-            for (final Class<?> type : types) {
-                Object value = parse(textValue, type);
-                if (value != null) {
-                    return value;
-                }
+    private boolean contains(String[] possibleStrings, String s) {
+        for (String possibleString : possibleStrings) {
+            if(possibleString.toLowerCase().equals(s.toLowerCase())) {
+                return true;
             }
         }
-        return null;
-    }
-
-    private static Object parse(String text, Class<?> type) {
-        if (type.equals(Double.class)) {
-            try {
-                return parseDouble(text);
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        } else if (type.equals(String.class)) {
-            return text;
-        } else if (type.equals(ProductData.UTC.class)) {
-            try {
-                return ProductData.UTC.parse(text, Constants.TIME_PATTERN);
-            } catch (java.text.ParseException e) {
-                return null;
-            }
-        } else if (type.equals(Long.class)) {
-            final long longValue;
-            try {
-                longValue = Long.parseLong(text);
-            } catch (NumberFormatException e) {
-                return null;
-            }
-            return longValue;
-        } else {
-            throw new IllegalStateException("Unhandled data type: " + type);
-        }
-    }
-
-    private static Double parseDouble(String text) {
-        try {
-            return Double.valueOf(text);
-        } catch (NumberFormatException e) {
-            if (text.equalsIgnoreCase("nan")) {
-                return Double.NaN;
-            } else if (text.equalsIgnoreCase("inf") || text.equalsIgnoreCase("infinity")) {
-                return Double.POSITIVE_INFINITY;
-            } else if (text.equalsIgnoreCase("-inf") || text.equalsIgnoreCase("-infinity")) {
-                return Double.NEGATIVE_INFINITY;
-            } else {
-                throw e;
-            }
-        }
-    }
-
-    private static int indexOf(String line, String[] possibleValues) {
-        int index = -1;
-        for (String possibleValue : possibleValues) {
-            index = line.indexOf(possibleValue);
-            if(index != -1) {
-                return index;
-            }
-        }
-        return index;
-    }
-
-    private boolean isReservedField(String name) {
-        return (indexOf(name, Constants.LAT_NAMES) >= 0 ||
-                indexOf(name, Constants.LON_NAMES) >= 0 ||
-                indexOf(name, Constants.TIME_NAMES) >= 0 ||
-                indexOf(name, Constants.LOCATION_NAMES) >= 0);
+        return false;
     }
 
     static class ParseException extends Exception {
@@ -349,4 +296,48 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         }
     }
 
+    private static class UTCConverter implements Converter<ProductData.UTC> {
+
+        @Override
+        public Class<? extends ProductData.UTC> getValueType() {
+            return ProductData.UTC.class;
+        }
+
+        @Override
+        public ProductData.UTC parse(String text) throws ConversionException {
+            try {
+                return ProductData.UTC.parse(text, Constants.TIME_PATTERN);
+            } catch (java.text.ParseException e) {
+                throw new ConversionException(e);
+            }
+        }
+
+        @Override
+        public String format(ProductData.UTC value) {
+            final SimpleDateFormat sdf = new SimpleDateFormat(Constants.TIME_PATTERN);
+            return sdf.format(value.getAsDate());
+        }
+    }
+
+    private class UtcCapableJavaTypeConverter extends JavaTypeConverter {
+
+        @Override
+        public Class parse(String text) throws ConversionException {
+            Class result;
+            try{
+                result = super.parse(text);
+            } catch (ConversionException e) {
+                if(contains(Constants.TIME_NAMES, text.toLowerCase())) {
+                    try {
+                        result = getClass().getClassLoader().loadClass("org.esa.beam.framework.datamodel.ProductData$UTC");
+                    } catch (ClassNotFoundException e1) {
+                        throw new ConversionException(e1);
+                    }
+                } else {
+                    throw new ConversionException(e);
+                }
+            }
+            return result;
+        }
+    }
 }

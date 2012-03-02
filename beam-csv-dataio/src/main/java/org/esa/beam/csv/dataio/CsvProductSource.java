@@ -16,8 +16,11 @@
 
 package org.esa.beam.csv.dataio;
 
-import java.util.List;
-import java.util.Properties;
+import org.geotools.feature.FeatureCollection;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+
+import java.util.Map;
 
 /**
  * Interface providing access methods on a csv product.
@@ -35,16 +38,16 @@ public interface CsvProductSource {
     /**
      * @return An unmodifiable list of data records.
      */
-    List<Record> getRecords();
+    FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatureCollection();
 
     /**
      * @return A header representation on the csv file.
      */
-    Header getHeader();
+    SimpleFeatureType getFeatureType();
 
     /**
      * @return An unmodifiable map of properties.
      */
-    Properties getProperties();
+    Map<String, String> getProperties();
 
 }
