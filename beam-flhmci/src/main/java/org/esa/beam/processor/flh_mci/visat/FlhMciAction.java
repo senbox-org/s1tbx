@@ -7,21 +7,21 @@ import com.bc.ceres.swing.binding.BindingContext;
 import org.esa.beam.framework.gpf.ui.DefaultSingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.processor.flh_mci.ComputeFlhMciOp;
+import org.esa.beam.processor.flh_mci.FlhMciOp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class ComputeFlhMciAction extends AbstractVisatAction {
+public class FlhMciAction extends AbstractVisatAction {
 
     private Presets preset = Presets.NONE;
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        final String operatorName = ComputeFlhMciOp.Spi.class.getName();
+        final String operatorName = FlhMciOp.Spi.class.getName();
         final AppContext appContext = getAppContext();
-        final String title = "FLH/MCI Computation";
+        final String title = "FLH/MCI Processor";
         final String helpID = event.getCommand().getHelpId();
 
         final DefaultSingleTargetProductDialog dialog = new DefaultSingleTargetProductDialog(operatorName, appContext,

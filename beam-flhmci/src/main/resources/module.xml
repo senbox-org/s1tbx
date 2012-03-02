@@ -39,6 +39,7 @@
     <categories>Application,Processor,MERIS,AVHRR</categories>
 
     <extension point="beam-ui:actions">
+        <!-- old FLH/MCI processor action
         <action>
             <id>flhMciScientificTool</id>
             <class>org.esa.beam.visat.actions.ProcessorAction</class>
@@ -50,14 +51,16 @@
             <helpId>flhMciScientificTool</helpId>
             <placeAfter>imageAnalysis</placeAfter>
         </action>
+        -->
         <action>
-            <id>computeFlhMci</id>
-            <helpId></helpId>
-            <class>org.esa.beam.processor.flh_mci.visat.ComputeFlhMciAction</class>
+            <id>flhMciScientificTool</id>
+            <helpId>flhMciScientificTool</helpId>
+            <class>org.esa.beam.processor.flh_mci.visat.FlhMciAction</class>
             <parent>tools</parent>
-            <text>Compute FLH/MCI...</text>
-            <mnemonic></mnemonic>
-            <placeAfter></placeAfter>
+            <text>FLH/MCI Processor...</text>
+            <shortDescr>Invoke the FLH/MCI processor.</shortDescr>
+            <mnemonic>F</mnemonic>
+            <placeAfter>imageAnalysis</placeAfter>
         </action>
     </extension>
 

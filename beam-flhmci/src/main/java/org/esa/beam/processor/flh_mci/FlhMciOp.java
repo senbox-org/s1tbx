@@ -44,11 +44,13 @@ import java.awt.image.Raster;
 /**
  * An operator for computing fluorescence line height (FLH) or maximum chlorophyll index (MCI).
  *
+ * @author Tom Block
  * @author Ralf Quast
  */
-@OperatorMetadata(alias = "FLH/MCI", authors = "Ralf Quast", copyright = "Brockmann Consult GmbH", version = "2.0",
+@OperatorMetadata(alias = "FLH_MCI", authors = "Tom Block, Ralf Quast", copyright = "Brockmann Consult GmbH",
+                  version = "2.0",
                   description = "Computes fluorescence line height (FLH) or maximum chlorophyll index (MCI).")
-public class ComputeFlhMciOp extends PixelOperator {
+public class FlhMciOp extends PixelOperator {
 
     @SourceProduct
     private Product sourceProduct;
@@ -65,7 +67,7 @@ public class ComputeFlhMciOp extends PixelOperator {
     private boolean slope;
     @Parameter(validator = NodeNameValidator.class)
     private String slopeBandName;
-    @Parameter(description = "Mask expression used to identify valid pixels")
+    @Parameter(description = "Mask expression used to identify valid pixels") // todo - use ExpressionEditor
     private String maskExpression;
     @Parameter(defaultValue = "1.005")
     private float cloudCorrectionFactor;
@@ -137,7 +139,9 @@ public class ComputeFlhMciOp extends PixelOperator {
     @Override
     public void dispose() {
         super.dispose();
-        maskOpImage.dispose();
+        if (maskOpImage != null) {
+            maskOpImage.dispose();
+        }
     }
 
     @Override
@@ -186,7 +190,7 @@ public class ComputeFlhMciOp extends PixelOperator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(ComputeFlhMciOp.class);
+            super(FlhMciOp.class);
         }
     }
 
