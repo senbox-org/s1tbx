@@ -5,8 +5,9 @@
     <name>Level-3 Binning Processor</name>
 
     <description>
-        The Level-3 Binning Processor distributes the contributions of a Level 2 pixels in satellite coordinates
-        to a fixed Level 3 grid using a geographic reference system.
+        The Level-3 Binning Processor performs a spatial and temporal aggregation of a number of input (Level-2)
+        products
+        using the NASA SeaDAS binning scheme.
     </description>
 
     <vendor>Brockmann Consult GmbH</vendor>
