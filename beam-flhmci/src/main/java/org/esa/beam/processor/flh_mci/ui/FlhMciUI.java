@@ -58,6 +58,7 @@ import java.util.Vector;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+@Deprecated
 public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener {
 
     private ParamGroup _paramGroup;

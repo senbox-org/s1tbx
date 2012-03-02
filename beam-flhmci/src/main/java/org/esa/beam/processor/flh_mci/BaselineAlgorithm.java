@@ -104,6 +104,7 @@ public final class BaselineAlgorithm {
      *
      * @return array of baseline height values
      */
+    @Deprecated
     public final float[] process(float[] low, float[] high, float[] signal, boolean[] process, float[] recycle) {
         Guardian.assertNotNull("low data", low);
         Guardian.assertNotNull("high data", high);
@@ -152,6 +153,7 @@ public final class BaselineAlgorithm {
      *
      * @return array of baseline height values
      */
+    @Deprecated
     public final float[] processSlope(float[] low, float[] high, boolean[] process, float[] recycle) {
         Guardian.assertNotNull("low data", low);
         Guardian.assertNotNull("high data", high);

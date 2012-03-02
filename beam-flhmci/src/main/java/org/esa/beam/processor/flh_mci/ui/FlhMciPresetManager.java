@@ -27,6 +27,7 @@ import org.esa.beam.util.Guardian;
  * <p/>
  * The manager is implemented as a singleton.
  */
+@Deprecated
 public class FlhMciPresetManager {
 
     private final Map<String, FlhMciPreset> _presetMap;

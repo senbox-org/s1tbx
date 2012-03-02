@@ -42,6 +42,7 @@ import java.util.logging.Logger;
 /**
  * The main class for the FLH_MCI processor.
  */
+@Deprecated
 public final class FlhMciProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "BEAM FLH/MCI Processor";

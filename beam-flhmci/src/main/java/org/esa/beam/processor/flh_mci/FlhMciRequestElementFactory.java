@@ -39,6 +39,7 @@ import org.esa.beam.util.SystemUtils;
  * This class is responsible for checking any request file loaded for valid content. It is passed to the request loader
  * to do this.
  */
+@Deprecated
 public class FlhMciRequestElementFactory implements RequestElementFactory {
 
     private final Map<String,ParamProperties> _paramInfoMap = new HashMap<String, ParamProperties>();
