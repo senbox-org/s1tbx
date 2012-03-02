@@ -350,14 +350,20 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
             try{
                 result = super.parse(text);
             } catch (ConversionException e) {
-                if(contains(Constants.TIME_NAMES, text.toLowerCase())) {
-                    try {
+                try {
+                    if (contains(Constants.TIME_NAMES, text.toLowerCase())) {
                         result = getClass().getClassLoader().loadClass(ProductData.UTC.class.getName());
-                    } catch (ClassNotFoundException e1) {
-                        throw new ConversionException(e1);
+                    } else if ("ubyte".toLowerCase().equals(text.toLowerCase())) {
+                        result = getClass().getClassLoader().loadClass(Byte.class.getName());
+                    } else if ("ushort".toLowerCase().equals(text.toLowerCase())) {
+                        result = getClass().getClassLoader().loadClass(Short.class.getName());
+                    } else if ("uint".toLowerCase().equals(text.toLowerCase())) {
+                        result = getClass().getClassLoader().loadClass(Integer.class.getName());
+                    } else {
+                        throw new ConversionException(e);
                     }
-                } else {
-                    throw new ConversionException(e);
+                } catch (ClassNotFoundException e1) {
+                    throw new ConversionException(e1);
                 }
             }
             return result;

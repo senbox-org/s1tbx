@@ -16,6 +16,7 @@
 
 package org.esa.beam.csv.dataio.reader;
 
+import org.esa.beam.csv.dataio.Constants;
 import org.esa.beam.csv.dataio.CsvProductFile;
 import org.esa.beam.csv.dataio.CsvProductSourceParser;
 import org.esa.beam.framework.dataio.DecodeQualification;
@@ -75,7 +76,7 @@ public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public String[] getFormatNames() {
-        return new String[]{"CSV"};
+        return new String[]{Constants.FORMAT_NAME};
     }
 
     @Override
@@ -85,7 +86,7 @@ public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public String getDescription(Locale locale) {
-        return "CSV products";
+        return Constants.DESCRIPTION;
     }
 
     @Override
