@@ -29,11 +29,11 @@ interface CommandLineContext {
 
     void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException;
 
-    Graph readGraph(String filepath, Map<String, String> parameterMap) throws GraphException, IOException;
+    Graph readGraph(String filePath, Map<String, String> templateVariables) throws GraphException, IOException;
+
+    Map<String, String> readParametersFile(String filePath, Map<String, String> templateVariables) throws IOException;
 
     void executeGraph(Graph graph) throws GraphException;
-
-    Map<String, String> readParameterFile(String propertiesFilepath) throws IOException;
 
     Product createOpProduct(String opName, Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException;
 

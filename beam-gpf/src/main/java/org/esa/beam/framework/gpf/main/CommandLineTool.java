@@ -67,6 +67,7 @@ class CommandLineTool {
     static final String DEFAULT_FORMAT_NAME = ProductIO.DEFAULT_FORMAT_NAME;
     static final int DEFAULT_TILE_CACHE_SIZE_IN_M = 512;
     static final int DEFAULT_TILE_SCHEDULER_PARALLELISM = Runtime.getRuntime().availableProcessors();
+    static final String KEY_PARAMETERS_XML = "gpt.parameters.xml";
 
     private final CommandLineContext commandLineContext;
 
@@ -99,8 +100,8 @@ class CommandLineTool {
             if (lineArgs.isHelpRequested()) {
                 if (lineArgs.getOperatorName() != null) {
                     commandLineContext.print(CommandLineUsage.getUsageTextForOperator(lineArgs.getOperatorName()));
-                } else if (lineArgs.getGraphFilepath() != null) {
-                    commandLineContext.print(CommandLineUsage.getUsageTextForGraph(lineArgs.getGraphFilepath(),
+                } else if (lineArgs.getGraphFilePath() != null) {
+                    commandLineContext.print(CommandLineUsage.getUsageTextForGraph(lineArgs.getGraphFilePath(),
                                                                                    commandLineContext));
                 } else {
                     commandLineContext.print(CommandLineUsage.getUsageText());
@@ -125,19 +126,20 @@ class CommandLineTool {
         if (lineArgs.getOperatorName() != null) {
             // Operator name given: parameters and sources are parsed from command-line args
             runOperator(lineArgs);
-        } else if (lineArgs.getGraphFilepath() != null) {
+        } else if (lineArgs.getGraphFilePath() != null) {
             // Path to Graph XML given: parameters and sources are parsed from command-line args
             runGraph(lineArgs, operatorSpiRegistry);
         }
     }
 
+    private void runOperator(CommandLineArgs lineArgs)
+            throws IOException, ValidationException {
 
-    private void runOperator(CommandLineArgs lineArgs) throws IOException,
-            ValidationException {
+        Map<String, String> parameterMap = getRawParameterMap(lineArgs);
+        String operatorName = lineArgs.getOperatorName();
+        Map<String, Object> parameters = convertParameterMap(operatorName, parameterMap);
         Map<String, Product> sourceProducts = getSourceProductMap(lineArgs);
-        Map<String, Object> parameters = getParameterMap(lineArgs);
-        String opName = lineArgs.getOperatorName();
-        Product targetProduct = createOpProduct(opName, parameters, sourceProducts);
+        Product targetProduct = createOpProduct(operatorName, parameters, sourceProducts);
         // write product only if Operator does not implement the Output interface
         OperatorProductReader opProductReader = null;
         if (targetProduct.getProductReader() instanceof OperatorProductReader) {
@@ -148,34 +150,34 @@ class CommandLineTool {
             final OperatorExecutor executor = OperatorExecutor.create(operator);
             executor.execute(ProgressMonitor.NULL);
         } else {
-            String filePath = lineArgs.getTargetFilepath();
+            String filePath = lineArgs.getTargetFilePath();
             String formatName = lineArgs.getTargetFormatName();
             writeProduct(targetProduct, filePath, formatName, lineArgs.isClearCacheAfterRowWrite());
         }
     }
 
-    private void runGraph(CommandLineArgs lineArgs, OperatorSpiRegistry operatorSpiRegistry) throws IOException,
-            GraphException {
+    private void runGraph(CommandLineArgs lineArgs, OperatorSpiRegistry operatorSpiRegistry)
+            throws IOException, GraphException {
+
+        Map<String, String> templateVariables = getRawParameterMap(lineArgs);
+
         Map<String, String> sourceNodeIdMap = getSourceNodeIdMap(lineArgs);
-        Map<String, String> parameters = new TreeMap<String, String>(sourceNodeIdMap);
-        if (lineArgs.getParameterFilepath() != null) {
-            parameters.putAll(readParameterFile(lineArgs.getParameterFilepath()));
-        }
-        parameters.putAll(lineArgs.getParameterMap());
-        Graph graph = readGraph(lineArgs.getGraphFilepath(), parameters);
+        templateVariables.putAll(sourceNodeIdMap);
+
+        Graph graph = readGraph(lineArgs.getGraphFilePath(), templateVariables);
         Node lastNode = graph.getNode(graph.getNodeCount() - 1);
-        SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
+        SortedMap<String, String> sourceFilePathsMap = lineArgs.getSourceFilePathMap();
 
         // For each source path add a ReadOp to the graph
         String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadOp.class);
-        for (Entry<String, String> entry : sourceFilepathsMap.entrySet()) {
+        for (Entry<String, String> entry : sourceFilePathsMap.entrySet()) {
             String sourceId = entry.getKey();
-            String sourceFilepath = entry.getValue();
+            String sourceFilePath = entry.getValue();
             String sourceNodeId = sourceNodeIdMap.get(sourceId);
             if (graph.getNode(sourceNodeId) == null) {
 
                 DomElement configuration = new DefaultDomElement("parameters");
-                configuration.createChild("file").setValue(sourceFilepath);
+                configuration.createChild("file").setValue(sourceFilePath);
 
                 Node sourceNode = new Node(sourceNodeId, readOperatorAlias);
                 sourceNode.setConfiguration(configuration);
@@ -196,7 +198,7 @@ class CommandLineTool {
             String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
 
             DomElement configuration = new DefaultDomElement("parameters");
-            configuration.createChild("file").setValue(lineArgs.getTargetFilepath());
+            configuration.createChild("file").setValue(lineArgs.getTargetFilePath());
             configuration.createChild("formatName").setValue(lineArgs.getTargetFormatName());
             configuration.createChild("clearCacheAfterRowWrite").setValue(
                     Boolean.toString(lineArgs.isClearCacheAfterRowWrite()));
@@ -230,18 +232,6 @@ class CommandLineTool {
 
     }
 
-
-    private Map<String, Object> getParameterMap(CommandLineArgs lineArgs) throws ValidationException, IOException {
-        Map<String, String> parameterMap = new HashMap<String, String>();
-        if (lineArgs.getParameterFilepath() != null) {
-            parameterMap = readParameterFile(lineArgs.getParameterFilepath());
-        }
-
-        String operatorName = lineArgs.getOperatorName();
-        parameterMap.putAll(lineArgs.getParameterMap());
-        return convertParameterMap(operatorName, parameterMap);
-    }
-
     private static Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap) throws
             ValidationException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
@@ -251,7 +241,7 @@ class CommandLineTool {
         container.setDefaultValues();
 
         // handle xml parameters
-        String xmlParameters = parameterMap.get("gpt.xml.parameters");
+        String xmlParameters = parameterMap.get(KEY_PARAMETERS_XML);
         if (xmlParameters != null) {
             OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
             Class<? extends Operator> operatorClass = operatorSpi.getOperatorClass();
@@ -265,7 +255,7 @@ class CommandLineTool {
                         "Can not convert XML parameters for operator '%s'", operatorName));
             }
 
-            parameterMap.remove("gpt.xml.parameters");
+            parameterMap.remove(KEY_PARAMETERS_XML);
         }
 
         for (Entry<String, String> entry : parameterMap.entrySet()) {
@@ -293,17 +283,18 @@ class CommandLineTool {
     private Map<String, Product> getSourceProductMap(CommandLineArgs lineArgs) throws IOException {
         SortedMap<File, Product> fileToProductMap = new TreeMap<File, Product>();
         SortedMap<String, Product> productMap = new TreeMap<String, Product>();
-        SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
-        for (Entry<String, String> entry : sourceFilepathsMap.entrySet()) {
+        SortedMap<String, String> sourceFilePathsMap = lineArgs.getSourceFilePathMap();
+        for (Entry<String, String> entry : sourceFilePathsMap.entrySet()) {
             String sourceId = entry.getKey();
-            String sourceFilepath = entry.getValue();
-            Product product = addProduct(sourceFilepath, fileToProductMap);
+            String sourceFilePath = entry.getValue();
+            Product product = addProduct(sourceFilePath, fileToProductMap);
             productMap.put(sourceId, product);
         }
         return productMap;
     }
 
-    private Product addProduct(String sourceFilepath, Map<File, Product> fileToProductMap) throws IOException {
+    private Product addProduct(String sourceFilepath,
+                               Map<File, Product> fileToProductMap) throws IOException {
         File sourceFile = new File(sourceFilepath).getCanonicalFile();
         Product product = fileToProductMap.get(sourceFile);
         if (product == null) {
@@ -317,21 +308,43 @@ class CommandLineTool {
         return product;
     }
 
+    // TODO - also use this scheme in the GPF GUIs (nf, 2012-03-02)
+    // See also [BEAM-1375] Allow gpt to use template variables in parameter files
+    private Map<String, String> getRawParameterMap(CommandLineArgs lineArgs) throws IOException {
+        Map<String, String> parameterMap = new HashMap<String, String>();
+        if (lineArgs.getParametersFilePath() != null) {
+            Map<String, String> templateVariables = new HashMap<String, String>();
+            templateVariables.put("gpt.parametersFile", lineArgs.getParametersFilePath());
+            templateVariables.put("gpt.operator", lineArgs.getOperatorName());
+            templateVariables.put("gpt.graphFile", lineArgs.getGraphFilePath());
+            templateVariables.put("gpt.targetFile", lineArgs.getTargetFilePath());
+            templateVariables.put("gpt.targetFormat", lineArgs.getTargetFormatName());
+            templateVariables.putAll(lineArgs.getParameterMap());
+            templateVariables.putAll(lineArgs.getTargetFilePathMap());
+            templateVariables.putAll(lineArgs.getSourceFilePathMap());
+            parameterMap = readParameterFile(lineArgs.getParametersFilePath(), templateVariables);
+        }
+        // CLI parameters shall always overwrite file parameters
+        parameterMap.putAll(lineArgs.getParameterMap());
+        return parameterMap;
+    }
+
     private Map<String, String> getSourceNodeIdMap(CommandLineArgs lineArgs) throws IOException {
         SortedMap<File, String> fileToNodeIdMap = new TreeMap<File, String>();
         SortedMap<String, String> nodeIdMap = new TreeMap<String, String>();
-        SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
-        for (Entry<String, String> entry : sourceFilepathsMap.entrySet()) {
+        SortedMap<String, String> sourceFilePathsMap = lineArgs.getSourceFilePathMap();
+        for (Entry<String, String> entry : sourceFilePathsMap.entrySet()) {
             String sourceId = entry.getKey();
-            String sourceFilepath = entry.getValue();
-            String nodeId = addNodeId(sourceFilepath, fileToNodeIdMap);
+            String sourceFilePath = entry.getValue();
+            String nodeId = addNodeId(sourceFilePath, fileToNodeIdMap);
             nodeIdMap.put(sourceId, nodeId);
         }
         return nodeIdMap;
     }
 
-    private String addNodeId(String sourceFilepath, Map<File, String> fileToNodeId) throws IOException {
-        File sourceFile = new File(sourceFilepath).getCanonicalFile();
+    private String addNodeId(String sourceFilePath,
+                             Map<File, String> fileToNodeId) throws IOException {
+        File sourceFile = new File(sourceFilePath).getCanonicalFile();
         String nodeId = fileToNodeId.get(sourceFile);
         if (nodeId == null) {
             nodeId = "ReadProduct$" + fileToNodeId.size();
@@ -340,28 +353,34 @@ class CommandLineTool {
         return nodeId;
     }
 
-    Product readProduct(String productFilepath) throws IOException {
-        return commandLineContext.readProduct(productFilepath);
+    Product readProduct(String filePath) throws IOException {
+        return commandLineContext.readProduct(filePath);
     }
 
-    void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws
+    void writeProduct(Product targetProduct,
+                      String filePath,
+                      String formatName,
+                      boolean clearCacheAfterRowWrite) throws
             IOException {
         commandLineContext.writeProduct(targetProduct, filePath, formatName, clearCacheAfterRowWrite);
     }
 
-    Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException, GraphException {
-        return commandLineContext.readGraph(filepath, parameterMap);
+    Graph readGraph(String filePath,
+                    Map<String, String> templateVariables) throws IOException, GraphException {
+        return commandLineContext.readGraph(filePath, templateVariables);
     }
 
     void executeGraph(Graph graph) throws GraphException {
         commandLineContext.executeGraph(graph);
     }
 
-    Map<String, String> readParameterFile(String propertiesFilepath) throws IOException {
-        return commandLineContext.readParameterFile(propertiesFilepath);
+    Map<String, String> readParameterFile(String filePath,
+                                          Map<String, String> templateVariables) throws IOException {
+        return commandLineContext.readParametersFile(filePath, templateVariables);
     }
 
-    private Product createOpProduct(String opName, Map<String, Object> parameters,
+    private Product createOpProduct(String opName,
+                                    Map<String, Object> parameters,
                                     Map<String, Product> sourceProducts) throws OperatorException {
         return commandLineContext.createOpProduct(opName, parameters, sourceProducts);
     }

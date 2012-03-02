@@ -17,6 +17,7 @@
 package org.esa.beam.framework.gpf.main;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.util.TemplateReader;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
@@ -28,11 +29,7 @@ import org.esa.beam.framework.gpf.graph.GraphProcessor;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.io.FileUtils;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -58,11 +55,11 @@ class DefaultCommandLineContext implements CommandLineContext {
     }
 
     @Override
-    public Graph readGraph(String filepath, Map<String, String> parameterMap) throws GraphException, IOException {
-        FileReader fileReader = new FileReader(filepath);
+    public Graph readGraph(String filePath, Map<String, String> templateVariables) throws GraphException, IOException {
+        FileReader fileReader = new FileReader(filePath);
         Graph graph;
         try {
-            graph = GraphIO.read(fileReader, parameterMap);
+            graph = GraphIO.read(fileReader, templateVariables);
         } finally {
             fileReader.close();
         }
@@ -76,19 +73,28 @@ class DefaultCommandLineContext implements CommandLineContext {
     }
 
     @Override
-    public Map<String, String> readParameterFile(String filepath) throws IOException {
-        File file = new File(filepath);
-        String fileContent = FileUtils.readText(file);
-        if (fileContent.contains("<parameters>") && fileContent.contains("</parameters>")) {
+    public Map<String, String> readParametersFile(String filePath, Map<String, String> templateVariables) throws IOException {
+        File file = new File(filePath);
+        Reader reader = new FileReader(file);
+        if (templateVariables != null) {
+            reader = new TemplateReader(reader, templateVariables);
+        }
+        String fileContent = FileUtils.readText(reader);
+        if (isParametersXml(fileContent)) {
             Map<String, String> map = new HashMap<String, String>();
-            map.put("gpt.xml.parameters", fileContent);
+            map.put(CommandLineTool.KEY_PARAMETERS_XML, fileContent);
             return map;
         } else {
-            return readProperies(fileContent);
+            return readProperties(fileContent);
         }
     }
 
-    private Map<String, String> readProperies(String fileContent) throws IOException {
+    private boolean isParametersXml(String fileContent) {
+        // TODO - this is not a sufficient test (nf, 2012-03-02)
+        return fileContent.contains("<parameters>") && fileContent.contains("</parameters>");
+    }
+
+    private Map<String, String> readProperties(String fileContent) throws IOException {
         Properties properties = new Properties();
         Reader reader = new StringReader(fileContent);
         HashMap<String, String> hashMap;

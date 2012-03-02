@@ -25,7 +25,6 @@ import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.Node;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,6 +34,8 @@ import java.io.StringReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.*;
 
 public class CommandLineToolMultiSourceGraphTest {
 
@@ -92,7 +93,7 @@ public class CommandLineToolMultiSourceGraphTest {
         map.put("ReadProduct$1", "ernie.dim");
         map.put("ReadProduct$2", "idefix.dim");
 
-        testGraph(new String[]{"graph.xml","-SVincent=vincent.dim", "ernie.dim","idefix.dim"},
+        testGraph(new String[]{"graph.xml", "-SVincent=vincent.dim", "ernie.dim", "idefix.dim"},
                   5,
                   "g=graph.xml;e=chain1;",
                   map,
@@ -101,7 +102,7 @@ public class CommandLineToolMultiSourceGraphTest {
                   "BEAM-DIMAP"
         );
     }
-    
+
     @Test
     public void testGraphWithOnlyNamedSources() throws Exception {
         final Map<String, String> map = new HashMap<String, String>();
@@ -109,7 +110,7 @@ public class CommandLineToolMultiSourceGraphTest {
         map.put("ReadProduct$1", "ernie.dim");
         map.put("ReadProduct$2", "idefix.dim");
 
-        testGraph(new String[]{"graph.xml","-SVincent=vincent.dim", "-Sernie=ernie.dim","-Sidefix=idefix.dim"},
+        testGraph(new String[]{"graph.xml", "-SVincent=vincent.dim", "-Sernie=ernie.dim", "-Sidefix=idefix.dim"},
                   5,
                   "g=graph.xml;e=chain1;",
                   map,
@@ -123,7 +124,7 @@ public class CommandLineToolMultiSourceGraphTest {
     private void testGraph(String[] args,
                            int expectedNodeCount,
                            String expectedLog,
-                           Map<String, String> expectedSourceNodeIdFilpathMap,
+                           Map<String, String> expectedSourceNodeIdFilePathMap,
                            String expectedTargetNodeId,
                            String expectedTargetFilepath,
                            String expectedTargetFormat) throws Exception {
@@ -135,12 +136,12 @@ public class CommandLineToolMultiSourceGraphTest {
         assertNotNull(executedGraph);
         assertEquals(expectedNodeCount, executedGraph.getNodeCount());
 
-        for (Map.Entry<String, String> entry : expectedSourceNodeIdFilpathMap.entrySet()) {
-            String expectedSourceFilepath = entry.getValue();
-            if (expectedSourceFilepath != null) {
+        for (Map.Entry<String, String> entry : expectedSourceNodeIdFilePathMap.entrySet()) {
+            String expectedSourceFilePath = entry.getValue();
+            if (expectedSourceFilePath != null) {
                 Node generatedReaderNode1 = executedGraph.getNode(entry.getKey());
                 assertNotNull(generatedReaderNode1);
-                assertEquals(expectedSourceFilepath,
+                assertEquals(expectedSourceFilePath,
                              generatedReaderNode1.getConfiguration().getChild("file").getValue());
             }
 
@@ -181,22 +182,22 @@ public class CommandLineToolMultiSourceGraphTest {
         }
 
         @Override
-        public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException, GraphException {
+        public Graph readGraph(String filepath, Map<String, String> templateVariables) throws IOException, GraphException {
 
             logString += "g=" + filepath + ";";
 
             String xml =
                     "<graph id=\"chain1\">" +
-                    "<version>1.0</version>\n" +
-                    "<node id=\"node1\">" +
-                    "  <operator>org.esa.beam.framework.gpf.TestOps$Op5$Spi</operator>\n" +
-                    "  <sources>\n" +
-                    "    <sourceProducts>${sourceProducts}</sourceProducts>\n" +
-                    "  </sources>\n" +
-                    "</node>" +
-                    "</graph>";
+                            "<version>1.0</version>\n" +
+                            "<node id=\"node1\">" +
+                            "  <operator>org.esa.beam.framework.gpf.TestOps$Op5$Spi</operator>\n" +
+                            "  <sources>\n" +
+                            "    <sourceProducts>${sourceProducts}</sourceProducts>\n" +
+                            "  </sources>\n" +
+                            "</node>" +
+                            "</graph>";
 
-            return GraphIO.read(new StringReader(xml), parameterMap);
+            return GraphIO.read(new StringReader(xml), templateVariables);
         }
 
         @Override
@@ -214,7 +215,7 @@ public class CommandLineToolMultiSourceGraphTest {
         }
 
         @Override
-        public Map<String, String> readParameterFile(String propertiesFilepath) throws IOException {
+        public Map<String, String> readParametersFile(String filePath, Map<String, String> templateVariables) throws IOException {
             return Collections.emptyMap();
         }
 

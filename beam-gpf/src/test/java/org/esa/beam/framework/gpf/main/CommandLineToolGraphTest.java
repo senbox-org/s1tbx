@@ -279,52 +279,52 @@ public class CommandLineToolGraphTest extends TestCase {
         }
 
         @Override
-        public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException, GraphException {
+        public Graph readGraph(String filepath, Map<String, String> templateVariables) throws IOException, GraphException {
 
             logString += "g=" + filepath + ";";
             String xml;
             if ("graph.xml".equals(filepath)) {
                 xml = "<graph id=\"chain1\">" +
-                      "<version>1.0</version>\n" +
-                      "<header>\n" +
-                      "<target refid=\"node2\"/>\n" +
-                      "<source name=\"sourceProduct1\" description=\"First source product\"/>\n" +
-                      "<source name=\"sourceProduct2\"/>\n" +
-                      "<parameter name=\"threshold\" type=\"double\" description=\"Threshold value\"/>\n" +
-                      "<parameter name=\"expression\" type=\"String\"/>\n" +
-                      "</header>\n" +
-                      "<node id=\"node1\">" +
-                      "  <operator>org.esa.beam.framework.gpf.TestOps$Op2$Spi</operator>\n" +
-                      "  <sources>\n" +
-                      "    <input>${sourceProduct}</input>\n" +
-                      "  </sources>\n" +
-                      "  <parameters>\n" +
-                      "    <threshold>${threshold}</threshold>\n" +
-                      "  </parameters>\n" +
-                      "</node>" +
-                      "<node id=\"node2\">" +
-                      "  <operator>org.esa.beam.framework.gpf.TestOps$Op3$Spi</operator>\n" +
-                      "  <sources>\n" +
-                      "    <input1 refid=\"node1\"/>\n" +
-                      "    <input2>${sourceProduct2}</input2>\n" +
-                      "  </sources>\n" +
-                      "  <parameters>\n" +
-                      "    <expression>${expression}</expression>\n" +
-                      "  </parameters>\n" +
-                      "</node>" +
-                      "</graph>";
+                        "<version>1.0</version>\n" +
+                        "<header>\n" +
+                        "<target refid=\"node2\"/>\n" +
+                        "<source name=\"sourceProduct1\" description=\"First source product\"/>\n" +
+                        "<source name=\"sourceProduct2\"/>\n" +
+                        "<parameter name=\"threshold\" type=\"double\" description=\"Threshold value\"/>\n" +
+                        "<parameter name=\"expression\" type=\"String\"/>\n" +
+                        "</header>\n" +
+                        "<node id=\"node1\">" +
+                        "  <operator>org.esa.beam.framework.gpf.TestOps$Op2$Spi</operator>\n" +
+                        "  <sources>\n" +
+                        "    <input>${sourceProduct}</input>\n" +
+                        "  </sources>\n" +
+                        "  <parameters>\n" +
+                        "    <threshold>${threshold}</threshold>\n" +
+                        "  </parameters>\n" +
+                        "</node>" +
+                        "<node id=\"node2\">" +
+                        "  <operator>org.esa.beam.framework.gpf.TestOps$Op3$Spi</operator>\n" +
+                        "  <sources>\n" +
+                        "    <input1 refid=\"node1\"/>\n" +
+                        "    <input2>${sourceProduct2}</input2>\n" +
+                        "  </sources>\n" +
+                        "  <parameters>\n" +
+                        "    <expression>${expression}</expression>\n" +
+                        "  </parameters>\n" +
+                        "</node>" +
+                        "</graph>";
             } else if ("graphWithOutput.xml".equals(filepath)) {
                 xml = "<graph id=\"chain1\">" +
-                      "<version>1.0</version>\n" +
-                      "<node id=\"node1\">" +
-                      "  <operator>org.esa.beam.framework.gpf.TestOps$OpImplementingOutput$Spi</operator>\n" +
-                      "</node>" +
-                      "</graph>";
+                        "<version>1.0</version>\n" +
+                        "<node id=\"node1\">" +
+                        "  <operator>org.esa.beam.framework.gpf.TestOps$OpImplementingOutput$Spi</operator>\n" +
+                        "</node>" +
+                        "</graph>";
             } else {
                 throw new IllegalArgumentException(
                         "Path to graph file must be either 'graph.xml' or 'graphWithOutput.xml'");
             }
-            return GraphIO.read(new StringReader(xml), parameterMap);
+            return GraphIO.read(new StringReader(xml), templateVariables);
         }
 
         @Override
@@ -342,7 +342,7 @@ public class CommandLineToolGraphTest extends TestCase {
         }
 
         @Override
-        public Map<String, String> readParameterFile(String propertiesFilepath) throws IOException {
+        public Map<String, String> readParametersFile(String filePath, Map<String, String> templateVariables) throws IOException {
             HashMap<String, String> hashMap = new HashMap<String, String>();
             hashMap.put("expression", "sqrt(x*x + y*y)");
             hashMap.put("threshold", "-0.5125");

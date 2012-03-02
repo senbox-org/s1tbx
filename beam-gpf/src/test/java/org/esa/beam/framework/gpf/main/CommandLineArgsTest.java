@@ -17,11 +17,7 @@
 package org.esa.beam.framework.gpf.main;
 
 import junit.framework.TestCase;
-import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
@@ -54,10 +50,10 @@ public class CommandLineArgsTest extends TestCase {
         lineArgs.parseArguments();
         assertEquals(true, lineArgs.isHelpRequested());
         assertEquals("Reproject", lineArgs.getOperatorName());
-        assertEquals(null, lineArgs.getGraphFilepath());
-        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
+        assertEquals(null, lineArgs.getGraphFilePath());
+        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilePath());
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
-        SortedMap<String, String> map = lineArgs.getSourceFilepathMap();
+        SortedMap<String, String> map = lineArgs.getSourceFilePathMap();
         assertNotNull(map);
         assertEquals(0, map.size());
     }
@@ -67,10 +63,10 @@ public class CommandLineArgsTest extends TestCase {
         lineArgs.parseArguments();
         assertEquals(false, lineArgs.isHelpRequested());
         assertEquals("Reproject", lineArgs.getOperatorName());
-        assertEquals(null, lineArgs.getGraphFilepath());
-        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
+        assertEquals(null, lineArgs.getGraphFilePath());
+        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilePath());
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
-        SortedMap<String, String> map = lineArgs.getSourceFilepathMap();
+        SortedMap<String, String> map = lineArgs.getSourceFilePathMap();
         assertNotNull(map);
         assertEquals(0, map.size());
     }
@@ -79,10 +75,10 @@ public class CommandLineArgsTest extends TestCase {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"Reproject", "source.dim"});
         lineArgs.parseArguments();
         assertEquals("Reproject", lineArgs.getOperatorName());
-        assertEquals(null, lineArgs.getGraphFilepath());
-        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
+        assertEquals(null, lineArgs.getGraphFilePath());
+        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilePath());
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
-        SortedMap<String, String> sourceMap = lineArgs.getSourceFilepathMap();
+        SortedMap<String, String> sourceMap = lineArgs.getSourceFilePathMap();
         assertNotNull(sourceMap);
         assertEquals(3, sourceMap.size());
         assertEquals("source.dim", sourceMap.get("sourceProduct"));
@@ -94,10 +90,10 @@ public class CommandLineArgsTest extends TestCase {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"Reproject", "-t", "output.dim", "source.dim"});
         lineArgs.parseArguments();
         assertEquals("Reproject", lineArgs.getOperatorName());
-        assertEquals(null, lineArgs.getGraphFilepath());
-        assertEquals("output.dim", lineArgs.getTargetFilepath());
+        assertEquals(null, lineArgs.getGraphFilePath());
+        assertEquals("output.dim", lineArgs.getTargetFilePath());
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
-        SortedMap<String, String> sourceMap = lineArgs.getSourceFilepathMap();
+        SortedMap<String, String> sourceMap = lineArgs.getSourceFilePathMap();
         assertNotNull(sourceMap);
         assertEquals(3, sourceMap.size());
         assertEquals("source.dim", sourceMap.get("sourceProduct"));
@@ -109,10 +105,10 @@ public class CommandLineArgsTest extends TestCase {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"./map-proj.xml", "source.dim"});
         lineArgs.parseArguments();
         assertEquals(null, lineArgs.getOperatorName());
-        assertEquals("./map-proj.xml", lineArgs.getGraphFilepath());
-        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
+        assertEquals("./map-proj.xml", lineArgs.getGraphFilePath());
+        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilePath());
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
-        SortedMap<String, String> map = lineArgs.getSourceFilepathMap();
+        SortedMap<String, String> map = lineArgs.getSourceFilePathMap();
         assertNotNull(map);
         assertEquals("source.dim", map.get("sourceProduct"));
         assertEquals("source.dim", map.get("sourceProduct.1"));
@@ -124,10 +120,10 @@ public class CommandLineArgsTest extends TestCase {
         lineArgs.parseArguments();
         lineArgs.parseArguments();
         assertEquals(null, lineArgs.getOperatorName());
-        assertEquals("./map-proj.xml", lineArgs.getGraphFilepath());
-        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
+        assertEquals("./map-proj.xml", lineArgs.getGraphFilePath());
+        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilePath());
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
-        SortedMap<String, String> map = lineArgs.getSourceFilepathMap();
+        SortedMap<String, String> map = lineArgs.getSourceFilePathMap();
         assertNotNull(map);
     }
 
@@ -179,7 +175,7 @@ public class CommandLineArgsTest extends TestCase {
                 "param.properties",
         });
         lineArgs.parseArguments();
-        assertEquals("param.properties", lineArgs.getParameterFilepath());
+        assertEquals("param.properties", lineArgs.getParametersFilePath());
     }
 
     public void testClearCacheAfterRowWrite() throws Exception {
@@ -280,13 +276,13 @@ public class CommandLineArgsTest extends TestCase {
                 "source.dim",
         });
         lineArgs.parseArguments();
-        SortedMap<String, String> targetMap = lineArgs.getTargetFilepathMap();
+        SortedMap<String, String> targetMap = lineArgs.getTargetFilePathMap();
         assertNotNull(targetMap);
         assertEquals(2, targetMap.size());
         assertEquals("./out/ndviProduct.dim", targetMap.get("ndvi"));
         assertEquals("./out/snowMask.dim", targetMap.get("snow"));
-        assertEquals(null, lineArgs.getTargetFilepath());
-        SortedMap<String, String> sourceMap = lineArgs.getSourceFilepathMap();
+        assertEquals(null, lineArgs.getTargetFilePath());
+        SortedMap<String, String> sourceMap = lineArgs.getSourceFilePathMap();
         assertEquals(3, sourceMap.size());
         assertEquals("source.dim", sourceMap.get("sourceProduct"));
         assertEquals("source.dim", sourceMap.get("sourceProduct.1"));
@@ -302,7 +298,7 @@ public class CommandLineArgsTest extends TestCase {
                 "source.dim",
         });
         lineArgs.parseArguments();
-        SortedMap<String, String> sourceMap = lineArgs.getSourceFilepathMap();
+        SortedMap<String, String> sourceMap = lineArgs.getSourceFilePathMap();
         assertNotNull(sourceMap);
         assertEquals("./inp/NDVI.dim", sourceMap.get("ndviProduct"));
         assertEquals("./inp/cloud-mask.dim", sourceMap.get("cloudProduct"));
@@ -317,7 +313,7 @@ public class CommandLineArgsTest extends TestCase {
                 "input.dim",
         });
         lineArgs.parseArguments();
-        SortedMap<String, String> sourceMap = lineArgs.getSourceFilepathMap();
+        SortedMap<String, String> sourceMap = lineArgs.getSourceFilePathMap();
         assertNotNull(sourceMap);
         assertEquals("./inp/cloud-mask.dim", sourceMap.get("sourceProduct"));
         assertEquals("./inp/cloud-mask.dim", sourceMap.get("sourceProduct.1"));

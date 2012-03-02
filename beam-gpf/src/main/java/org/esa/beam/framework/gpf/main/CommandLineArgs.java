@@ -38,13 +38,13 @@ class CommandLineArgs {
 
     private String[] args;
     private String operatorName;
-    private String graphFilepath;
-    private String targetFilepath;
+    private String graphFilePath;
+    private String targetFilePath;
     private TreeMap<String, String> parameterMap;
-    private TreeMap<String, String> sourceFilepathMap;
+    private TreeMap<String, String> sourceFilePathMap;
     private String targetFormatName;
-    private String parameterFilepath;
-    private TreeMap<String, String> targetFilepathMap;
+    private String parameterFilePath;
+    private TreeMap<String, String> targetFilePathMap;
     private boolean helpRequested;
     private boolean stackTraceDump;
     private boolean clearCacheAfterRowWrite;
@@ -58,8 +58,8 @@ class CommandLineArgs {
             helpRequested = true;
         }
 
-        sourceFilepathMap = new TreeMap<String, String>();
-        targetFilepathMap = new TreeMap<String, String>();
+        sourceFilePathMap = new TreeMap<String, String>();
+        targetFilePathMap = new TreeMap<String, String>();
         parameterMap = new TreeMap<String, String>();
         tileCacheCapacity = CommandLineTool.DEFAULT_TILE_CACHE_SIZE_IN_M * M;
         tileSchedulerParallelism = CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELISM;
@@ -82,10 +82,10 @@ class CommandLineArgs {
                     parameterMap.put(pair[0], pair[1]);
                 } else if (arg.startsWith("-S")) {
                     String[] pair = parseNameValuePair(arg);
-                    sourceFilepathMap.put(pair[0], pair[1]);
+                    sourceFilePathMap.put(pair[0], pair[1]);
                 } else if (arg.startsWith("-T")) {
                     String[] pair = parseNameValuePair(arg);
-                    targetFilepathMap.put(pair[0], pair[1]);
+                    targetFilePathMap.put(pair[0], pair[1]);
                 } else if (arg.equals("-h")) {
                     helpRequested = true;
                 } else if (arg.equals("-x")) {
@@ -93,13 +93,13 @@ class CommandLineArgs {
                 } else if (arg.equals("-e")) {
                     // already parsed
                 } else if (arg.equals("-t")) {
-                    targetFilepath = parseOptionArgument(arg, i);
+                    targetFilePath = parseOptionArgument(arg, i);
                     i++;
                 } else if (arg.equals("-f")) {
                     targetFormatName = parseOptionArgument(arg, i);
                     i++;
                 } else if (arg.equals("-p")) {
-                    parameterFilepath = parseOptionArgument(arg, i);
+                    parameterFilePath = parseOptionArgument(arg, i);
                     i++;
                 } else if (arg.equals("-q")) {
                     tileSchedulerParallelism = parseOptionArgumentInt(arg, i);
@@ -113,35 +113,35 @@ class CommandLineArgs {
             } else {
                 if (argCount == 0) {
                     if (arg.endsWith(".xml") || arg.endsWith(".XML") || arg.contains("/") || arg.contains("\\")) {
-                        graphFilepath = arg;
+                        graphFilePath = arg;
                     } else {
                         operatorName = arg;
                     }
                 } else {
                     int index = argCount - 1;
                     if (index == 0) {
-                        sourceFilepathMap.put(GPF.SOURCE_PRODUCT_FIELD_NAME, arg);
+                        sourceFilePathMap.put(GPF.SOURCE_PRODUCT_FIELD_NAME, arg);
                     }
-                    sourceFilepathMap.put(GPF.SOURCE_PRODUCT_FIELD_NAME + "." + (index + 1), arg);
+                    sourceFilePathMap.put(GPF.SOURCE_PRODUCT_FIELD_NAME + "." + (index + 1), arg);
                     // kept for backward compatibility
                     // since BEAM 4.9 the pattern above is preferred
-                    sourceFilepathMap.put(GPF.SOURCE_PRODUCT_FIELD_NAME + (index + 1), arg);
+                    sourceFilePathMap.put(GPF.SOURCE_PRODUCT_FIELD_NAME + (index + 1), arg);
                 }
                 argCount++;
             }
         }
 
-        if (operatorName == null && graphFilepath == null && !helpRequested) {
+        if (operatorName == null && graphFilePath == null && !helpRequested) {
             throw error("Either operator name or graph XML file must be given");
         }
-        if (graphFilepath == null && !targetFilepathMap.isEmpty()) {
+        if (graphFilePath == null && !targetFilePathMap.isEmpty()) {
             throw error("Defined target products only valid for graph XML");
         }
-        if (targetFilepath == null && targetFilepathMap.isEmpty()) {
-            targetFilepath = CommandLineTool.DEFAULT_TARGET_FILEPATH;
+        if (targetFilePath == null && targetFilePathMap.isEmpty()) {
+            targetFilePath = CommandLineTool.DEFAULT_TARGET_FILEPATH;
         }
-        if (targetFormatName == null && targetFilepath != null) {
-            final String extension = FileUtils.getExtension(targetFilepath);
+        if (targetFormatName == null && targetFilePath != null) {
+            final String extension = FileUtils.getExtension(targetFilePath);
             if (extension == null || extension.isEmpty()) {
                 targetFormatName = ProductIO.DEFAULT_FORMAT_NAME;
                 // todo - decide if to append extension or not  (nf - 29.10.2007)
@@ -162,20 +162,20 @@ class CommandLineArgs {
         return operatorName;
     }
 
-    public String getGraphFilepath() {
-        return graphFilepath;
+    public String getGraphFilePath() {
+        return graphFilePath;
     }
 
-    public String getTargetFilepath() {
-        return targetFilepath;
+    public String getTargetFilePath() {
+        return targetFilePath;
     }
 
     public String getTargetFormatName() {
         return targetFormatName;
     }
 
-    public String getParameterFilepath() {
-        return parameterFilepath;
+    public String getParametersFilePath() {
+        return parameterFilePath;
     }
 
     public long getTileCacheCapacity() {
@@ -194,12 +194,12 @@ class CommandLineArgs {
         return parameterMap;
     }
 
-    public SortedMap<String, String> getSourceFilepathMap() {
-        return sourceFilepathMap;
+    public SortedMap<String, String> getSourceFilePathMap() {
+        return sourceFilePathMap;
     }
 
-    public SortedMap<String, String> getTargetFilepathMap() {
-        return targetFilepathMap;
+    public SortedMap<String, String> getTargetFilePathMap() {
+        return targetFilePathMap;
     }
 
     public boolean isHelpRequested() {
@@ -219,8 +219,8 @@ class CommandLineArgs {
     }
 
     private int parseOptionArgumentInt(String arg, int index) throws Exception {
-       String valueString = parseOptionArgument(arg, index);
-       return Integer.parseInt(valueString);
+        String valueString = parseOptionArgument(arg, index);
+        return Integer.parseInt(valueString);
     }
 
     private long parseOptionArgumentBytes(String arg, int index) throws Exception {

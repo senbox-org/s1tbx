@@ -19,11 +19,7 @@ package org.esa.beam.framework.gpf.main;
 import com.sun.media.jai.util.SunTileScheduler;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.framework.gpf.TestOps;
+import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
@@ -87,11 +83,11 @@ public class CommandLineToolOperatorTest extends TestCase {
         clTool.run(new String[]{"Op4", "-h"});
         assertTrue(context.output.startsWith(
                 "Usage:\n" +
-                "  gpt Op4 [options] \n" +
-                "\n" +
-                "Computed Properties:\n" +
-                "String[] names\n" +
-                "double PI         The ratio of any circle's circumference to its diameter"
+                        "  gpt Op4 [options] \n" +
+                        "\n" +
+                        "Computed Properties:\n" +
+                        "String[] names\n" +
+                        "double PI         The ratio of any circle's circumference to its diameter"
         ));
 
     }
@@ -107,8 +103,8 @@ public class CommandLineToolOperatorTest extends TestCase {
     public void testOperatorTwoSources() throws Exception {
         clTool.run(new String[]{"Op3", "-Sinput1=vercingetorix.dim", "-Sinput2=asterix.N1"});
         String expectedLog = "s0=" + new File("vercingetorix.dim").getCanonicalPath() + ";" +
-                             "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
-                             "o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
+                "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
+                "o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
         assertEquals(expectedLog, context.logString);
         assertEquals("Op3", context.opName);
         assertNotNull(context.parameters);
@@ -117,9 +113,9 @@ public class CommandLineToolOperatorTest extends TestCase {
     public void testOperatorMultiSources() throws Exception {
         clTool.run(new String[]{"Op5", "-SVincent=vincent.dim", "asterix.N1", "obelix.nc"});
         String expectedLog = "s0=" + new File("vincent.dim").getCanonicalPath() + ";" +
-                             "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
-                             "s2=" + new File("obelix.nc").getCanonicalPath() + ";" +
-                             "o=Op5;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
+                "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
+                "s2=" + new File("obelix.nc").getCanonicalPath() + ";" +
+                "o=Op5;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
         assertEquals(expectedLog, context.logString);
         assertEquals("Op5", context.opName);
         assertNotNull(context.parameters);
@@ -241,7 +237,7 @@ public class CommandLineToolOperatorTest extends TestCase {
         }
 
         @Override
-        public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException {
+        public Graph readGraph(String filepath, Map<String, String> templateVariables) throws IOException {
             fail("did not expect to come here");
             return null;
         }
@@ -252,19 +248,19 @@ public class CommandLineToolOperatorTest extends TestCase {
         }
 
         @Override
-        public Map<String, String> readParameterFile(String propertiesFilepath) throws IOException {
+        public Map<String, String> readParametersFile(String filePath, Map<String, String> templateVariables) throws IOException {
             HashMap<String, String> hashMap = new HashMap<String, String>();
-            if ("testOperatorWithParametersFromFile".equals(propertiesFilepath)) {
+            if ("testOperatorWithParametersFromFile".equals(filePath)) {
                 hashMap.put("expression", "log(2+radiance_13)");
                 hashMap.put("ignoreSign", "true");
                 hashMap.put("factor", "-0.035");
-            } else if ("testOperatorWithParametersFromXMLFile".equals(propertiesFilepath)) {
+            } else if ("testOperatorWithParametersFromXMLFile".equals(filePath)) {
                 hashMap.put("gpt.xml.parameters",
                             "<parameters>" +
                                     "<expression>log(2+radiance_13)</expression>" +
                                     "<ignoreSign>true</ignoreSign>" +
                                     "<factor>-0.035</factor>" +
-                            "</parameters>");
+                                    "</parameters>");
             } else {
                 hashMap.put("expression", "sqrt(x*x + y*y)");
                 hashMap.put("threshold", "-0.5125");
