@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.processor.sst;
+package org.esa.beam.aatsr.sst;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
@@ -32,6 +32,10 @@ import org.esa.beam.framework.gpf.pointop.WritableSample;
 import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
+import org.esa.beam.processor.sst.SstCoefficientLoader;
+import org.esa.beam.processor.sst.SstCoefficientSet;
+import org.esa.beam.processor.sst.SstCoefficients;
+import org.esa.beam.processor.sst.SstConstants;
 import org.esa.beam.util.ResourceInstaller;
 import org.esa.beam.util.SystemUtils;
 
@@ -45,11 +49,13 @@ import java.net.URL;
 /**
  * An operator for computing sea surface temperature from (A)ATSR products.
  *
+ * @author Tom Block
  * @author Ralf Quast
  */
-@OperatorMetadata(alias = "SST", authors = "Ralf Quast", copyright = "Brockmann Consult GmbH", version = "2.0",
+@OperatorMetadata(alias = "Aatsr.SST", authors = "Tom Block, Ralf Quast", copyright = "Brockmann Consult GmbH",
+                  version = "2.0",
                   description = "Computes sea surface temperature (SST) from (A)ATSR products.")
-public class ComputeSstOp extends PixelOperator {
+public class AatsrSstOp extends PixelOperator {
 
     private static final float COEFF_0_SCALE = 1.0f;
 
@@ -70,7 +76,7 @@ public class ComputeSstOp extends PixelOperator {
         GRIDDED_POLAR_SINGLE_VIEW("Gridded polar single view", "GR_POL_SING.coef"),
         GRIDDED_TEMPERATE_SINGLE_VIEW("Gridded temperate single view", "GR_TEM_SING.coef"),
         GRIDDED_TROPICAL_SINGLE_VIEW("Gridded tropical single view", "GR_TRO_SING.coef"),
-        GRIDDED_TROPICAL_DUAL_VIEW_IPF("Gridded tropical dual view (IPF)", "GR_IPF_DUAL.coef");
+        GRIDDED_DUAL_VIEW_IPF("Gridded dual view (IPF)", "GR_IPF_DUAL.coef");
 
         private final String label;
         private final String filename;
@@ -109,7 +115,7 @@ public class ComputeSstOp extends PixelOperator {
                valueSet = {
                        "AVERAGE_POLAR_DUAL_VIEW", "AVERAGE_TEMPERATE_DUAL_VIEW", "AVERAGE_TROPICAL_DUAL_VIEW",
                        "GRIDDED_POLAR_DUAL_VIEW", "GRIDDED_TEMPERATE_DUAL_VIEW", "GRIDDED_TROPICAL_DUAL_VIEW",
-                       "GRIDDED_TROPICAL_DUAL_VIEW_IPF"
+                       "GRIDDED_DUAL_VIEW_IPF"
                })
     private Files dualCoefficientsFile;
 
@@ -430,12 +436,12 @@ public class ComputeSstOp extends PixelOperator {
     }
 
     private File installAuxiliaryData() {
-        final File defaultTargetDir = new File(SystemUtils.getApplicationDataDir(), "beam-aatsr-sst/auxdata/sst");
+        final File defaultTargetDir = new File(SystemUtils.getApplicationDataDir(), "beam-aatsr-sst/auxdata/aatsr/sst");
         final String targetPath = System.getProperty(SST_AUXDATA_DIR_PROPERTY, defaultTargetDir.getAbsolutePath());
         final File targetDir = new File(targetPath);
 
         final URL url = ResourceInstaller.getSourceUrl(getClass());
-        final ResourceInstaller installer = new ResourceInstaller(url, "auxdata/sst", targetDir);
+        final ResourceInstaller installer = new ResourceInstaller(url, "auxdata/aatsr/sst", targetDir);
         try {
             installer.install(".*", ProgressMonitor.NULL);
         } catch (IOException e) {
@@ -459,7 +465,7 @@ public class ComputeSstOp extends PixelOperator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(ComputeSstOp.class);
+            super(AatsrSstOp.class);
         }
     }
 }

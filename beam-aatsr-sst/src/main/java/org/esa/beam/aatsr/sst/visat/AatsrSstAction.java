@@ -14,20 +14,20 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.processor.sst.visat;
+package org.esa.beam.aatsr.sst.visat;
 
 import com.bc.ceres.swing.binding.BindingContext;
+import org.esa.beam.aatsr.sst.AatsrSstOp;
 import org.esa.beam.framework.gpf.ui.DefaultSingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.processor.sst.ComputeSstOp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 
-public class ComputeSstAction extends AbstractVisatAction {
+public class AatsrSstAction extends AbstractVisatAction {
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        final String operatorName = ComputeSstOp.Spi.class.getName();
+        final String operatorName = AatsrSstOp.Spi.class.getName();
         final AppContext appContext = getAppContext();
         final String title = "(A)ATSR SST Computation";
         final String helpID = event.getCommand().getHelpId();
