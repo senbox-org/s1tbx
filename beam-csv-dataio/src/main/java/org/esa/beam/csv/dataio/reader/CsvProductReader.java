@@ -105,10 +105,6 @@ public class CsvProductReader extends AbstractProductReader {
         return simpleFeatures;
     }
 
-    private SimpleFeature[] toSimpleFeatureArray(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
-        return toSimpleFeatureArray(featureCollection, 0, featureCollection.size());
-    }
-
     private void getProductData(Object[] elems, ProductData destBuffer) {
         switch (destBuffer.getType()) {
             case ProductData.TYPE_FLOAT32: {
