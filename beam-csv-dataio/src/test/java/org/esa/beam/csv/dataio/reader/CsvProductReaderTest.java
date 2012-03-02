@@ -81,4 +81,23 @@ public class CsvProductReaderTest {
         assertEquals(10.5f, radiance1Data.getSampleFloat(2, 0, 0), 1.0E-6);
         assertEquals(10.6f, radiance2Data.getSampleFloat(2, 0, 0), 1.0E-6);
     }
+
+    @Test
+    public void testInvalidInput() throws Exception {
+        try {
+            ((CsvProductReader)reader).getProductData(null, new ProductData.UTC());
+            fail();
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage().matches("Unsupported type.*"));
+        }
+    }
+
+    @Test
+    public void testGetDataType() throws Exception {
+        assertEquals(ProductData.TYPE_ASCII, ((CsvProductReader)reader).getProductDataType(String.class));
+        assertEquals(ProductData.TYPE_FLOAT32, ((CsvProductReader)reader).getProductDataType(Float.class));
+        assertEquals(ProductData.TYPE_FLOAT64, ((CsvProductReader)reader).getProductDataType(Double.class));
+        assertEquals(ProductData.TYPE_INT8, ((CsvProductReader)reader).getProductDataType(Byte.class));
+    }
+
 }

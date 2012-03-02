@@ -105,7 +105,7 @@ public class CsvProductReader extends AbstractProductReader {
         return simpleFeatures;
     }
 
-    private void getProductData(Object[] elems, ProductData destBuffer) {
+    void getProductData(Object[] elems, ProductData destBuffer) {
         switch (destBuffer.getType()) {
             case ProductData.TYPE_FLOAT32: {
                 for (int i = 0; i < elems.length; i++) {
@@ -148,7 +148,7 @@ public class CsvProductReader extends AbstractProductReader {
         }
     }
 
-    private int getProductDataType(Class<?> type) {
+    int getProductDataType(Class<?> type) {
         if (type.getSimpleName().toLowerCase().equals("string")) {
             return ProductData.TYPE_ASCII;
         } else if (type.getSimpleName().toLowerCase().equals("float")) {
