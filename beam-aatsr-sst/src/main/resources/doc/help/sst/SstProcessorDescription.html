@@ -50,11 +50,6 @@
         standard file dialog. </li>
     <li><b>Output product format</b>: Select one of the available output product
         formats. </li>
-    <li><b>Log filename prefix</b>: Select the prefix text used for the logfile
-        written during processing. For a complete description of the logging capabilities
-        please refer to <a href="../general.html#processor_loggin">the logging documentation</a>.</li>
-    <li><b>Extra log to output directory</b>: Select whether to write an additional
-        log file to the directory selected for the output product. </li>
 </ol>
 
 <h3>The SST Processing Parameters tab</h3>
@@ -62,34 +57,35 @@
 <p align="center"><img src="images/SstParams.png"></p>
 <ol>
 
-    <li><b>Generate dual-view sst</b>: Select whether to process the dual view SST
+    <li><b>Generate dual-view SST</b>: Select whether to process the dual view SST
         or not.</li>
-    <li><b>Coefficient file for dual view</b>:
+    <li><b>Dual-view coefficient file</b>:
         Select one of the available coefficient sets for dual view processing.
         The list shows the description strings of all coefficient files available.</li>
 
-    <li><b>Bitmask for dual-view</b>: Select a bitmask expression to be checked
+    <li><b>Dual-view mask</b>: Specify a mask expression to be checked
         during dual view processing. You can either type the expression manually to
         the text field or use the bitmask expression editor by pressing the edit button
         <img src="images/FileDialogButton.png"> to the right.</li>
 
-    <li><b>Generate nadir-view sst</b>: Select whether to process the nadir view
+    <li><b>Generate nadir-view SST</b>: Select whether to process the nadir view
         SST or not.</li>
-    <li><b>Coefficient file for nadir view</b>:
+    <li><b>Nadir-view coefficient file</b>:
         Select one of the available coefficient sets for nadir view processing.
         The list shows the description strings of all coefficient files available.</li>
 
-    <li><b>Bitmask for nadir-view</b>: Select a bitmask expression to be checked
+    <li><b>Nadir-view mask</b>: Specify a mask expression to be checked
         during nadir view processing. You can either type the expression manually
         to the text field or use the bitmask expression editor by pressing the edit
         button <img src="images/FileDialogButton.png"> to the
         right.</li>
-    <li><b>Invalid pixel value</b>:
-        Select the value to be written to the output when the processor detects an
+    <li><b>Invalid SST value</b>:
+        Specify the value to be written to the output when the processor detects an
         invalid condition (either by the pixel being masked out or by a processing
         failure e.g division by zero).</li>
 </ol>
 
+<!-- the following text applies to the old SST processor only
 <h3>The SST processing request file</h3>
 
 <p>
@@ -157,6 +153,8 @@
         <td>&gt;= 0.0</td>
     </tr>
 </table>
+-->
+
 <hr>
 </body>
 </html>
