@@ -42,6 +42,7 @@ import org.esa.beam.util.SystemUtils;
  * <p/>
  * It is implemented as a singleton
  */
+@Deprecated
 public class SstRequestElementFactory implements RequestElementFactory {
 
     private final DefaultRequestElementFactory _defaultFactory;

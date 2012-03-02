@@ -44,6 +44,7 @@ import java.util.logging.Logger;
 /**
  * The worker class for the sea surface temperature processor.
  */
+@Deprecated
 public class SstProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "BEAM SST Processor";

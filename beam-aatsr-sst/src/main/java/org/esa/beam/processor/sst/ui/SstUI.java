@@ -62,6 +62,7 @@ import java.util.logging.Logger;
 /**
  * This class implements the graphical user interface for the BEAM Sea Surface Temperature processor.
  */
+@Deprecated
 public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
 
     private JTabbedPane _tabbedPane;
