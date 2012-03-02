@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,7 +17,6 @@
 package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.CoreException;
-import static com.bc.ceres.core.runtime.Constants.MODULE_MANIFEST_NAME;
 import com.bc.ceres.core.runtime.ProxyConfig;
 
 import java.io.*;
@@ -27,6 +26,8 @@ import java.text.MessageFormat;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import static com.bc.ceres.core.runtime.Constants.MODULE_MANIFEST_NAME;
 
 public class ModuleReader {
 
@@ -125,8 +126,8 @@ public class ModuleReader {
             }
         }
         logger.info(MessageFormat.format("Module [{0}] read from [{1}].",
-                                         module.getSymbolicName(),
-                                         module.getLocation()));
+                module.getSymbolicName(),
+                module.getLocation()));
     }
 
 
@@ -138,13 +139,13 @@ public class ModuleReader {
         // todo - see FileHelper for similar OS dependent construct --> try to generyfy this in a class 'OS'
         FilenameFilter ff;
         String osNameLC = System.getProperty("os.name", "").toLowerCase();
-        if (osNameLC.indexOf("windows") >= 0) {
+        if (osNameLC.contains("windows")) {
             ff = new FilenameFilter() {
                 public boolean accept(File dir, String name) {
                     return name.toLowerCase().endsWith(".dll");
                 }
             };
-        } else if (osNameLC.indexOf("mac os x") >= 0) {
+        } else if (osNameLC.contains("mac os x")) {
             ff = new FilenameFilter() {
                 public boolean accept(File dir, String name) {
                     return name.endsWith(".jnilib") || name.endsWith(".dylib");
@@ -156,6 +157,22 @@ public class ModuleReader {
                     return name.endsWith(".so");
                 }
             };
+        }
+        // first search for native libraries in architecture specific directories
+        Platform currentPlatform = Platform.getCurrentPlatform();
+        if (currentPlatform != null) {
+            String platformPath = Platform.getSourcePathPrefix(currentPlatform.getId(), currentPlatform.getBitCount());
+            File platformDir = new File(dir, platformPath);
+            if (platformDir.exists() && platformDir.isDirectory()) {
+                String[] result = new DirScanner(platformDir, true, true).scan(ff);
+                if (result.length > 0) {
+                    String[] fullResult = new String[result.length];
+                    for (int i = 0; i < fullResult.length; i++) {
+                        fullResult[i] = platformPath + "/" + result[i];
+                    }
+                    return fullResult;
+                }
+            }
         }
         return new DirScanner(dir, true, true).scan(ff);
     }
