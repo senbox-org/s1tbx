@@ -255,7 +255,7 @@ public class CommandLineToolOperatorTest extends TestCase {
                 hashMap.put("ignoreSign", "true");
                 hashMap.put("factor", "-0.035");
             } else if ("testOperatorWithParametersFromXMLFile".equals(filePath)) {
-                hashMap.put("gpt.xml.parameters",
+                hashMap.put(CommandLineTool.KEY_PARAMETERS_XML,
                             "<parameters>" +
                                     "<expression>log(2+radiance_13)</expression>" +
                                     "<ignoreSign>true</ignoreSign>" +
