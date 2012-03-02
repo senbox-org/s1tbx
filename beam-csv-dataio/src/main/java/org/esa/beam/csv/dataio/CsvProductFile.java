@@ -285,7 +285,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         return false;
     }
 
-    static class ParseException extends Exception {
+    public static class ParseException extends Exception {
 
         ParseException(String message) {
             super(message);
@@ -329,7 +329,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
             } catch (ConversionException e) {
                 if(contains(Constants.TIME_NAMES, text.toLowerCase())) {
                     try {
-                        result = getClass().getClassLoader().loadClass("org.esa.beam.framework.datamodel.ProductData$UTC");
+                        result = getClass().getClassLoader().loadClass(ProductData.UTC.class.getName());
                     } catch (ClassNotFoundException e1) {
                         throw new ConversionException(e1);
                     }

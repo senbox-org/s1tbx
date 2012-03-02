@@ -68,7 +68,7 @@ public class CsvProductFileTest {
         final CsvProductSource csvProductSource = parser.getCsvProductSource();
         SimpleFeature[] features = toSimpleFeatureArray(csvProductSource.getFeatureCollection());
 
-        assertEquals(3, features.length);
+        assertEquals(3, csvProductSource.getRecordCount());
 
         SimpleFeature feature = features[0];
 
