@@ -25,24 +25,10 @@ package org.esa.beam.csv.dataio;
 public interface CsvProductSourceParser {
 
     /**
-     * Triggers parsing of the properties.
-     *
-     * @throws CsvProductFile.ParseException if something goes wrong.
-     */
-    void parseProperties() throws CsvProductFile.ParseException;
-
-    /**
-     * Triggers parsing of the header.
-     *
-     * @throws CsvProductFile.ParseException if something goes wrong.
-     */
-    void parseHeader() throws CsvProductFile.ParseException;
-
-    /**
-     * Triggers parsing of the records. Before calling this method, {@link CsvProductSourceParser#parseHeader()} must
+     * Triggers parsing of the records. Before calling this method, {@link CsvProductSourceParser#parse()} must
      * have been called.
      *
-     * @throws IllegalStateException         if this method is called before {@link CsvProductSourceParser#parseHeader()} has
+     * @throws IllegalStateException         if this method is called before {@link CsvProductSourceParser#parse()} has
      *                                       been called.
      * @throws CsvProductFile.ParseException if something goes wrong.
      */
@@ -50,7 +36,9 @@ public interface CsvProductSourceParser {
 
     /**
      * @return A view on the {@link CsvProductSource} parsed using this interface.
+     *
+     * @throws CsvProductFile.ParseException if something goes wrong.
      */
-    CsvProductSource getCsvProductSource();
+    CsvProductSource parse() throws CsvProductFile.ParseException;
 
 }

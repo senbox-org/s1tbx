@@ -40,9 +40,17 @@ public class CsvProductReaderPlugInTest {
 
     @Test
     public void testGetDecodeQualification() throws Exception {
-        final CsvProductReaderPlugIn csvProductReaderPlugIn = new CsvProductReaderPlugIn();
-        File validFile = new File("test1.csv");
-        assertEquals(DecodeQualification.INTENDED, csvProductReaderPlugIn.getDecodeQualification(validFile));
+        File validFile = new File(getClass().getResource("../simple_format_example.txt").getFile());
+        File validFileWithoutProperties = new File(getClass().getResource("../simple_format_no_properties.txt").getFile());
+        File invalidProperties = new File(getClass().getResource("../simple_format_invalid_properties.txt").getFile());
+        File invalidHeader = new File(getClass().getResource("../simple_format_no_header.txt").getFile());
+        File invalidType = new File(getClass().getResource("../simple_format_invalid_type.txt").getFile());
+
+        assertEquals(DecodeQualification.SUITABLE, csvProductReaderPlugIn.getDecodeQualification(validFile));
+        assertEquals(DecodeQualification.SUITABLE, csvProductReaderPlugIn.getDecodeQualification(validFileWithoutProperties));
+        assertEquals(DecodeQualification.UNABLE, csvProductReaderPlugIn.getDecodeQualification(invalidProperties));
+        assertEquals(DecodeQualification.UNABLE, csvProductReaderPlugIn.getDecodeQualification(invalidHeader));
+        assertEquals(DecodeQualification.UNABLE, csvProductReaderPlugIn.getDecodeQualification(invalidType));
     }
 
     @Test

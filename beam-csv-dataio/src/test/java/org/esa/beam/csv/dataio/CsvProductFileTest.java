@@ -40,9 +40,9 @@ public class CsvProductFileTest {
     public void testParseProperties() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
         final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
-        parser.parseProperties();
+        parser.parse();
 
-        final CsvProductSource productSource = parser.getCsvProductSource();
+        final CsvProductSource productSource = parser.parse();
         final Map<String,String> properties = productSource.getProperties();
         assertNotNull(properties);
         assertEquals(3, properties.size());
@@ -54,18 +54,17 @@ public class CsvProductFileTest {
     @Test(expected = CsvProductFile.ParseException.class)
     public void testParseProperties_Fail() throws Exception {
         final CsvProductSourceParser parser = new CsvProductFile("invalid_path");
-        parser.parseProperties();
+        parser.parse();
     }
 
     @Test
     public void testParseRecords() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
         final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
-        parser.parseProperties();
-        parser.parseHeader();
+        parser.parse();
         parser.parseRecords();
 
-        final CsvProductSource csvProductSource = parser.getCsvProductSource();
+        final CsvProductSource csvProductSource = parser.parse();
         SimpleFeature[] features = toSimpleFeatureArray(csvProductSource.getFeatureCollection());
 
         assertEquals(3, csvProductSource.getRecordCount());
@@ -138,10 +137,9 @@ public class CsvProductFileTest {
     public void testParseHeader() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
         final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
-        parser.parseProperties();
-        parser.parseHeader();
+        parser.parse();
 
-        final CsvProductSource csvProductSource = parser.getCsvProductSource();
+        final CsvProductSource csvProductSource = parser.parse();
         final FeatureType featureType = csvProductSource.getFeatureType();
 
         assertNotNull(featureType);

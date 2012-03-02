@@ -34,10 +34,13 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,8 +72,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         ConverterRegistry.getInstance().setConverter(ProductData.UTC.class, new UTCConverter());
     }
 
-    @Override
-    public void parseProperties() throws ParseException {
+    private void parseProperties() throws ParseException {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(csv));
@@ -208,8 +210,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         simpleFeatureType = builder.buildFeatureType();
     }
 
-    @Override
-    public void parseHeader() throws ParseException {
+    private void parseHeader() throws ParseException {
         if(!propertiesParsed) {
             throw new IllegalStateException("Properties need to be parsed before header.");
         }
@@ -239,13 +240,35 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
     }
 
     @Override
-    public CsvProductSource getCsvProductSource() {
+    public CsvProductSource parse() throws ParseException {
+        parseProperties();
+        parseHeader();
         return this;
     }
 
     @Override
-    public int getRecordCount() {
-        return featureCollection.size();
+    public int getRecordCount() throws IOException {
+        int count = 1;
+        InputStream stream = null;
+        try {
+            stream = new BufferedInputStream(new FileInputStream(csv));
+            byte[] buffer = new byte[100 * 1024];
+            int readChars;
+            while ((readChars = stream.read(buffer)) != -1) {
+                for (int i = 0; i < readChars; ++i) {
+                    if (buffer[i] == '\n')
+                        ++count;
+                }
+            }
+        } finally {
+            if(stream != null) {
+                stream.close();
+            }
+        }
+        count -= properties.size();
+        final int headerLineCount = 1;
+        count -= headerLineCount;
+        return count;
     }
 
     @Override

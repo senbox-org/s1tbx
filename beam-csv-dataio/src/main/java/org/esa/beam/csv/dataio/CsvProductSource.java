@@ -20,6 +20,7 @@ import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -33,7 +34,7 @@ public interface CsvProductSource {
     /**
      * @return The number of data records.
      */
-    int getRecordCount();
+    int getRecordCount() throws IOException;
     
     /**
      * @return An unmodifiable list of data records.

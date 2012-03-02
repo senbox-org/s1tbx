@@ -16,6 +16,8 @@
 
 package org.esa.beam.csv.dataio.reader;
 
+import org.esa.beam.csv.dataio.CsvProductFile;
+import org.esa.beam.csv.dataio.CsvProductSourceParser;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -40,15 +42,14 @@ public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
 
-        // todo: check for more criteria of input file
-        /**
-         * 1) try to parse properties if existing
-         * 2) try to parse header
-         * 3) try to parse first record if existing
-         *
-         * if step 2 fails, return UNABLE
-         */
-        return DecodeQualification.INTENDED;
+        final CsvProductSourceParser csvProductFile = new CsvProductFile(input.toString());
+        try {
+            csvProductFile.parse();
+        } catch (CsvProductFile.ParseException e) {
+            return DecodeQualification.UNABLE;
+        }
+
+        return DecodeQualification.SUITABLE;
     }
 
     private boolean isFileExtensionValid(File file) {

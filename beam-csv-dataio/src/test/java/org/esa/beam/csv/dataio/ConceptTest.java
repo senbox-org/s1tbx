@@ -219,6 +219,8 @@ public class ConceptTest {
             return ProductData.TYPE_INT16;
         } else if (type.getSimpleName().toLowerCase().equals("integer")) {
             return ProductData.TYPE_INT32;
+        } else if(type.getSimpleName().toLowerCase().equals("utc")) {
+            return ProductData.TYPE_UTC;
         }
         throw new IllegalArgumentException("Unsupported type '" + type + "'.");
     }
