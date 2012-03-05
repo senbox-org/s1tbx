@@ -54,16 +54,6 @@ public class SstConstantsTest extends TestCase {
     }
 
     /**
-     * Tests for correct constants for the dual view bitmask expression
-     */
-    public void testDualViewBitmask() {
-        assertEquals("dual_view_bitmask", SstConstants.DUAL_VIEW_BITMASK_PARAM_NAME);
-        assertEquals(
-                "!cloud_flags_nadir.LAND & !cloud_flags_nadir.CLOUDY & !cloud_flags_nadir.SUN_GLINT & !cloud_flags_fward.LAND & !cloud_flags_fward.CLOUDY & !cloud_flags_fward.SUN_GLINT",
-                SstConstants.DEFAULT_DUAL_VIEW_BITMASK);
-    }
-
-    /**
      * Tests for correct constants for the parameter process nadir view sst
      */
     public void testProcessNadirViewSst() {
@@ -77,15 +67,6 @@ public class SstConstantsTest extends TestCase {
     public void testNadirViewCoefficientFile() {
         assertEquals("nadir_view_coeff_file", SstConstants.NADIR_VIEW_COEFF_FILE_PARAM_NAME);
         assertEquals("test coefficients nadir 1", SstConstants.DEFAULT_NADIR_VIEW_COEFF_FILE);
-    }
-
-    /**
-     * Tests for correct constants for the nadir view bitmask expression
-     */
-    public void testNadirViewBitmask() {
-        assertEquals("nadir_view_bitmask", SstConstants.NADIR_VIEW_BITMASK_PARAM_NAME);
-        assertEquals("!cloud_flags_nadir.LAND & !cloud_flags_nadir.CLOUDY & !cloud_flags_nadir.SUN_GLINT",
-                     SstConstants.DEFAULT_NADIR_VIEW_BITMASK);
     }
 
     /**
