@@ -75,7 +75,7 @@ public class SstConstants implements ProcessorConstants {
     @Deprecated
     public static final String DUAL_VIEW_BITMASK_DESCRIPTION = "Bitmask for dual-view SST";
     // default value for parameter "dual view bitmask"
-    public static final String DEFAULT_DUAL_VIEW_BITMASK = "!cloud_flags_nadir.LAND & !cloud_flags_nadir.CLOUDY & !cloud_flags_nadir.SUN_GLINT & !cloud_flags_fward.LAND & !cloud_flags_fward.CLOUDY & !cloud_flags_fward.SUN_GLINT";
+    public static final String DEFAULT_DUAL_VIEW_BITMASK = "!cloud_flags_nadir.LAND and !cloud_flags_nadir.CLOUDY and !cloud_flags_nadir.SUN_GLINT and !cloud_flags_fward.LAND and !cloud_flags_fward.CLOUDY and !cloud_flags_fward.SUN_GLINT";
 
     // parameter name for the parameter "process nadir view sst"
     @Deprecated
@@ -113,7 +113,7 @@ public class SstConstants implements ProcessorConstants {
     @Deprecated
     public static final String NADIR_VIEW_BITMASK_DESCRIPTION = "Bimask for nadir-view SST";
     // default value for parameter "nadir view bitmask"
-    public static final String DEFAULT_NADIR_VIEW_BITMASK = "!cloud_flags_nadir.LAND & !cloud_flags_nadir.CLOUDY & !cloud_flags_nadir.SUN_GLINT";
+    public static final String DEFAULT_NADIR_VIEW_BITMASK = "!cloud_flags_nadir.LAND and !cloud_flags_nadir.CLOUDY and !cloud_flags_nadir.SUN_GLINT";
 
     // parameter name for the parameter "invalid pixel value"
     @Deprecated
