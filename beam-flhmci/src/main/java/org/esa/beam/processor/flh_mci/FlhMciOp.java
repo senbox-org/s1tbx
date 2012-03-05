@@ -52,7 +52,7 @@ import java.awt.image.Raster;
                   description = "Computes fluorescence line height (FLH) or maximum chlorophyll index (MCI).")
 public class FlhMciOp extends PixelOperator {
 
-    @SourceProduct
+    @SourceProduct(alias = "source", label = "Source product")
     private Product sourceProduct;
 
     @Parameter(rasterDataNodeType = Band.class)

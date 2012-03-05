@@ -96,7 +96,8 @@ public class AatsrSstOp extends PixelOperator {
         }
     }
 
-    @SourceProduct(description = "The path of the (A)ATSR source product",
+    @SourceProduct(alias = "source",
+                   description = "The path of the (A)ATSR source product",
                    label = "(A)ATSR source product",
                    bands = {
                            SstConstants.NADIR_370_BAND,
