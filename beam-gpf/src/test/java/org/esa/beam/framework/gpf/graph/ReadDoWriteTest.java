@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,12 +23,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.GPFFacadeTest;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -46,7 +41,8 @@ import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 public class ReadDoWriteTest {
@@ -161,9 +157,7 @@ public class ReadDoWriteTest {
             targetProduct.addBand("OperatorBand", ProductData.TYPE_INT8);
             targetProduct.addBand("ConstantBand", ProductData.TYPE_FLOAT32).setSourceImage(constImage);
             targetProduct.addBand(new VirtualBand("VirtualBand", ProductData.TYPE_FLOAT32, width, height, "OperatorBand + ConstantBand"));
-            Band sourceBand = sourceProduct.getBandAt(0);
-            Band targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct);
-            targetBand.setSourceImage(sourceBand.getSourceImage());
+            ProductUtils.copyBand(sourceProduct.getBandAt(0).getName(), sourceProduct, targetProduct, true);
         }
 
         @Override

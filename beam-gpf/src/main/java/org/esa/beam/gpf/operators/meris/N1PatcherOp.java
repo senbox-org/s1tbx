@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -33,7 +33,7 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -134,7 +134,7 @@ public class N1PatcherOp extends MerisBasisOp implements Output {
         targetProduct = createCompatibleProduct(n1Product, "n1Product", "MER_L1");
         for (String bandName : n1Product.getBandNames()) {
             if (!"l1_flags".equals(bandName) && !targetProduct.containsBand(bandName)) {
-                ProductUtils.copyBand(bandName, n1Product, targetProduct);
+                ProductUtils.copyBand(bandName, n1Product, targetProduct, false);
             }
         }
         final File patchedFileDir = patchedFile.getAbsoluteFile().getParentFile();
@@ -143,7 +143,7 @@ public class N1PatcherOp extends MerisBasisOp implements Output {
                 throw new OperatorException("Could not create path to file: " + patchedFile);
             }
         }
-        ProductUtils.copyFlagBands(n1Product, targetProduct);
+        ProductUtils.copyFlagBands(n1Product, targetProduct, false);
         try {
             File originalFileLocation = n1Product.getFileLocation();
             if (originalFileLocation == null) {

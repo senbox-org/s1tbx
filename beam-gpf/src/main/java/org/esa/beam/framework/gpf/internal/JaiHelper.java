@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,15 +21,13 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.RenderedOp;
-import java.awt.RenderingHints;
-import java.awt.image.RenderedImage;
+import java.awt.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,10 +72,8 @@ public class JaiHelper {
         Product targetProduct = new Product("jai", "jai", width, height);
         for (int i = 0; i < sourceBands.length; i++) {
             Band sourceBand = sourceBands[i];
-            Band targetBand = new Band(sourceBand.getName(), sourceBand.getDataType(), width, height);
-            ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+            Band targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, false);
             targetBand.setSourceImage(bandRenderedOps[i]);
-            targetProduct.addBand(targetBand);
         }
         for (final TiePointGrid sourceGrid : tiePointGrids) {
             Band targetBand = new Band(sourceGrid.getName(), sourceGrid.getDataType(), width, height);

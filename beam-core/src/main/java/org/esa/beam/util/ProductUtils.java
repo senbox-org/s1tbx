@@ -169,12 +169,12 @@ public class ProductUtils {
             // Compute indices into palette --> rgbSamples
             if (indexCoding == null) {
                 raster.quantizeRasterData(minSample,
-                                          maxSample,
-                                          1.0,
-                                          rgbSamples,
-                                          0,
-                                          numColorComponents,
-                                          ProgressMonitor.NULL);
+                        maxSample,
+                        1.0,
+                        rgbSamples,
+                        0,
+                        numColorComponents,
+                        ProgressMonitor.NULL);
                 indexValidator = new IndexValidator() {
                     @Override
                     public boolean validateIndex(int pixelIndex) {
@@ -214,7 +214,7 @@ public class ProductUtils {
             }
 
             convertPaletteToRgbSamples(palette, imageInfo.getNoDataColor(), numColorComponents, rgbSamples,
-                                       indexValidator);
+                    indexValidator);
             pm.worked(40);
             checkCanceled(pm);
 
@@ -304,12 +304,12 @@ public class ProductUtils {
                 final RasterDataNode raster = rasters[i];
                 pm.setSubTaskName(taskMessages[i]);
                 raster.quantizeRasterData(imageInfo.getRgbChannelDef().getMinDisplaySample(i),
-                                          imageInfo.getRgbChannelDef().getMaxDisplaySample(i),
-                                          imageInfo.getRgbChannelDef().getGamma(i),
-                                          rgbSamples,
-                                          numColorComponents - 1 - i,
-                                          numColorComponents,
-                                          ProgressMonitor.NULL);
+                        imageInfo.getRgbChannelDef().getMaxDisplaySample(i),
+                        imageInfo.getRgbChannelDef().getGamma(i),
+                        rgbSamples,
+                        numColorComponents - 1 - i,
+                        numColorComponents,
+                        ProgressMonitor.NULL);
                 pm.worked(30);
                 checkCanceled(pm);
             }
@@ -363,11 +363,11 @@ public class ProductUtils {
         final DataBuffer db = new DataBufferByte(rgbSamples, rgbSamples.length);
         final int colorComponentCount = imageInfo.getColorComponentCount();
         final WritableRaster wr = Raster.createInterleavedRaster(db, width, height,
-                                                                 colorComponentCount * width,
-                                                                 colorComponentCount,
-                                                                 colorComponentCount == 4 ?
-                                                                         RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
-                                                                 null);
+                colorComponentCount * width,
+                colorComponentCount,
+                colorComponentCount == 4 ?
+                        RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
+                null);
         return new BufferedImage(cm, wr, false, null);
     }
 
@@ -461,13 +461,13 @@ public class ProductUtils {
         final float easting = (float) envelope[0].getX();
         final float northing = (float) envelope[1].getY();
         final MapInfo mapInfo = new MapInfo(mapProjection,
-                                            0.5F,
-                                            0.5F,
-                                            easting,
-                                            northing,
-                                            pixelSize,
-                                            pixelSize,
-                                            gc.getDatum());
+                0.5F,
+                0.5F,
+                easting,
+                northing,
+                pixelSize,
+                pixelSize,
+                gc.getDatum());
         mapInfo.setSceneSizeFitted(true);
         mapInfo.setSceneWidth(targetW);
         mapInfo.setSceneHeight(targetH);
@@ -518,13 +518,13 @@ public class ProductUtils {
         final float northing = (float) pMax.getY() - pixelY * pixelSize;
 
         final MapInfo mapInfo = new MapInfo(mapProjection,
-                                            pixelX,
-                                            pixelY,
-                                            easting,
-                                            northing,
-                                            pixelSize,
-                                            pixelSize,
-                                            gc.getDatum());
+                pixelX,
+                pixelY,
+                easting,
+                northing,
+                pixelSize,
+                pixelSize,
+                gc.getDatum());
         mapInfo.setOrientation((float) orientation);
         mapInfo.setSceneSizeFitted(true);
         mapInfo.setSceneWidth(targetW);
@@ -542,7 +542,7 @@ public class ProductUtils {
         final double mapW = envelope[1].getX() - envelope[0].getX();
         final double mapH = envelope[1].getY() - envelope[0].getY();
         return new Dimension(1 + (int) Math.floor(mapW / pixelSizeX),
-                             1 + (int) Math.floor(mapH / pixelSizeY));
+                1 + (int) Math.floor(mapH / pixelSizeY));
     }
 
     /**
@@ -802,9 +802,9 @@ public class ProductUtils {
                                                  final boolean usePixelCenter) {
         if (rect == null) {
             rect = new Rectangle(0,
-                                 0,
-                                 product.getSceneRasterWidth(),
-                                 product.getSceneRasterHeight());
+                    0,
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight());
         }
         return createRectBoundary(rect, step, usePixelCenter);
     }
@@ -825,9 +825,9 @@ public class ProductUtils {
     public static PixelPos[] createPixelBoundary(RasterDataNode raster, Rectangle rect, int step) {
         if (rect == null) {
             rect = new Rectangle(0,
-                                 0,
-                                 raster.getSceneRasterWidth(),
-                                 raster.getSceneRasterHeight());
+                    0,
+                    raster.getSceneRasterWidth(),
+                    raster.getSceneRasterHeight());
         }
         return createRectBoundary(rect, step);
     }
@@ -1062,30 +1062,25 @@ public class ProductUtils {
         }
     }
 
-
     /**
      * Copies all bands which contain a flagcoding from the source product to the target product.
      *
-     * @param sourceProduct the source product
-     * @param targetProduct the target product
+     * @param sourceProduct   the source product
+     * @param targetProduct   the target product
+     * @param copySourceImage whether the source image of the source band should be copied.
+     * @since BEAM 4.10
      */
-    public static void copyFlagBands(Product sourceProduct, Product targetProduct) {
+    public static void copyFlagBands(Product sourceProduct, Product targetProduct, boolean copySourceImage) {
         Guardian.assertNotNull("source", sourceProduct);
         Guardian.assertNotNull("target", targetProduct);
         if (sourceProduct.getFlagCodingGroup().getNodeCount() > 0) {
-            copyFlagCodings(sourceProduct, targetProduct);
 
             // loop over bands and check if they have a flags coding attached
             for (int i = 0; i < sourceProduct.getNumBands(); i++) {
                 Band sourceBand = sourceProduct.getBandAt(i);
                 String bandName = sourceBand.getName();
-                FlagCoding coding = sourceBand.getFlagCoding();
-                if (coding != null) {
-                    Band targetBand = targetProduct.getBand(bandName);
-                    if (targetBand == null) {
-                        targetBand = copyBand(bandName, sourceProduct, targetProduct);
-                    }
-                    targetBand.setSampleCoding(targetProduct.getFlagCodingGroup().get(coding.getName()));
+                if (sourceBand.isFlagBand() && targetProduct.getBand(bandName) == null) {
+                    copyBand(bandName, sourceProduct, targetProduct, copySourceImage);
                 }
             }
 
@@ -1095,6 +1090,18 @@ public class ProductUtils {
             copyMasks(sourceProduct, targetProduct);
             copyOverlayMasks(sourceProduct, targetProduct);
         }
+    }
+
+    /**
+     * Copies all bands which contain a flagcoding from the source product to the target product.
+     *
+     * @param sourceProduct the source product
+     * @param targetProduct the target product
+     * @deprecated since BEAM 4.10, use {@link #copyFlagBands(Product, Product, boolean)} instead.
+     */
+    @Deprecated
+    public static void copyFlagBands(Product sourceProduct, Product targetProduct) {
+        copyFlagBands(sourceProduct, targetProduct, false);
     }
 
     /**
@@ -1124,26 +1131,30 @@ public class ProductUtils {
     /**
      * Copies the named band from the source product to the target product.
      *
-     * @param sourceBandName the name of the band to be copied.
-     * @param sourceProduct  the source product.
-     * @param targetProduct  the target product.
+     * @param sourceBandName  the name of the band to be copied.
+     * @param sourceProduct   the source product.
+     * @param targetProduct   the target product.
+     * @param copySourceImage whether the source image of the source band should be copied.
      * @return the copy of the band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
+     * @since BEAM 4.10
      */
-    public static Band copyBand(String sourceBandName, Product sourceProduct, Product targetProduct) {
-        return copyBand(sourceBandName, sourceProduct, sourceBandName, targetProduct);
+    public static Band copyBand(String sourceBandName, Product sourceProduct, Product targetProduct, boolean copySourceImage) {
+        return copyBand(sourceBandName, sourceProduct, sourceBandName, targetProduct, copySourceImage);
     }
 
     /**
      * Copies the named band from the source product to the target product.
      *
-     * @param sourceBandName the name of the band to be copied.
-     * @param sourceProduct  the source product.
-     * @param targetBandName the name of the band copied.
-     * @param targetProduct  the target product.
+     * @param sourceBandName  the name of the band to be copied.
+     * @param sourceProduct   the source product.
+     * @param targetBandName  the name of the band copied.
+     * @param targetProduct   the target product.
+     * @param copySourceImage whether the source image of the source band should be copied.
      * @return the copy of the band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
+     * @since BEAM 4.10
      */
     public static Band copyBand(String sourceBandName, Product sourceProduct,
-                                String targetBandName, Product targetProduct) {
+                                String targetBandName, Product targetProduct, boolean copySourceImage) {
         Guardian.assertNotNull("sourceProduct", sourceProduct);
         Guardian.assertNotNull("targetProduct", targetProduct);
 
@@ -1156,6 +1167,9 @@ public class ProductUtils {
         }
         Band targetBand = targetProduct.addBand(targetBandName, sourceBand.getDataType());
         copyRasterDataNodeProperties(sourceBand, targetBand);
+        if (copySourceImage) {
+            targetBand.setSourceImage(sourceBand.getSourceImage());
+        }
         return targetBand;
     }
 
@@ -1179,9 +1193,8 @@ public class ProductUtils {
             Band sourceBand = (Band) sourceRaster;
             Band targetBand = (Band) targetRaster;
             copySpectralBandProperties(sourceBand, targetBand);
-            targetBand.setSourceImage(sourceBand.getSourceImage());
             Product targetProduct = targetBand.getProduct();
-            if(targetProduct == null) {
+            if (targetProduct == null) {
                 return;
             }
             if (sourceBand.getFlagCoding() != null) {
@@ -1195,6 +1208,36 @@ public class ProductUtils {
                 targetBand.setSampleCoding(targetProduct.getIndexCodingGroup().get(srcIndexCoding.getName()));
             }
         }
+    }
+
+    /**
+     * Copies the named band from the source product to the target product.
+     *
+     * @param sourceBandName the name of the band to be copied.
+     * @param sourceProduct  the source product.
+     * @param targetProduct  the target product.
+     * @return the copy of the band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
+     * @deprecated since BEAM 4.10, use {@link #copyBand(String, Product, Product, boolean)} instead.
+     */
+    @Deprecated
+    public static Band copyBand(String sourceBandName, Product sourceProduct, Product targetProduct) {
+        return copyBand(sourceBandName, sourceProduct, sourceBandName, targetProduct, false);
+    }
+
+    /**
+     * Copies the named band from the source product to the target product.
+     *
+     * @param sourceBandName the name of the band to be copied.
+     * @param sourceProduct  the source product.
+     * @param targetBandName the name of the band copied.
+     * @param targetProduct  the target product.
+     * @return the copy of the band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
+     * @deprecated since BEAM 4.10, use {@link #copyBand(String, Product, String, Product, boolean)} instead.
+     */
+    @Deprecated
+    public static Band copyBand(String sourceBandName, Product sourceProduct,
+                                String targetBandName, Product targetProduct) {
+        return copyBand(sourceBandName, sourceProduct, targetBandName, targetProduct, false);
     }
 
     /**
@@ -1293,8 +1336,8 @@ public class ProductUtils {
                 String name = sourceVDN.getName();
                 FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
                 featureCollection = FeatureCollectionClipper.doOperation(featureCollection, srcModelCrs,
-                                                                         clipGeometry, DefaultGeographicCRS.WGS84,
-                                                                         null, targetModelCrs);
+                        clipGeometry, DefaultGeographicCRS.WGS84,
+                        null, targetModelCrs);
                 VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
                 targetVDN.setDefaultCSS(sourceVDN.getDefaultCSS());
                 targetVDN.setDescription(sourceVDN.getDescription());
@@ -1369,7 +1412,7 @@ public class ProductUtils {
         image = getCompatibleBufferedImageForScatterPlot(image, width, height, background);
         final byte[] pixelValues = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         ScatterPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roiMask, width,
-                               height, pixelValues, pm);
+                height, pixelValues, pm);
         return image;
     }
 
@@ -1402,9 +1445,9 @@ public class ProductUtils {
                 a[i] = (byte) 255;
             }
             image = new BufferedImage(width,
-                                      height,
-                                      BufferedImage.TYPE_BYTE_INDEXED,
-                                      new IndexColorModel(8, palSize, r, g, b, a));
+                    height,
+                    BufferedImage.TYPE_BYTE_INDEXED,
+                    new IndexColorModel(8, palSize, r, g, b, a));
         }
         return image;
     }
@@ -1448,7 +1491,7 @@ public class ProductUtils {
         final GeoCoding geoCoding = product.getGeoCoding();
         if (geoCoding != null) {
             final PixelPos centerPixelPos = new PixelPos(0.5f * product.getSceneRasterWidth() + 0.5f,
-                                                         0.5f * product.getSceneRasterHeight() + 0.5f);
+                    0.5f * product.getSceneRasterHeight() + 0.5f);
             return geoCoding.getGeoPos(centerPixelPos, null);
         }
         return null;
@@ -1776,7 +1819,7 @@ public class ProductUtils {
         final Dimension preferredTileSize = sourceProduct.getPreferredTileSize();
         if (preferredTileSize != null) {
             final Rectangle targetRect = new Rectangle(targetProduct.getSceneRasterWidth(),
-                                                       targetProduct.getSceneRasterHeight());
+                    targetProduct.getSceneRasterHeight());
             final Rectangle tileRect = new Rectangle(preferredTileSize).intersection(targetRect);
             targetProduct.setPreferredTileSize(tileRect.width, tileRect.height);
         }
@@ -2051,10 +2094,10 @@ public class ProductUtils {
                                                  final double defaultNoDataValue,
                                                  final Map<Band, RasterDataNode> addedRasterDataNodes) {
         copyBandsForGeomTransform(sourceProduct,
-                                  targetProduct,
-                                  false,
-                                  defaultNoDataValue,
-                                  addedRasterDataNodes);
+                targetProduct,
+                false,
+                defaultNoDataValue,
+                addedRasterDataNodes);
     }
 
     /**
@@ -2101,21 +2144,21 @@ public class ProductUtils {
                 final Band targetBand;
                 if (sourceBand instanceof VirtualBand) {
                     targetBand = new VirtualBand(sourceBand.getName(),
-                                                 sourceBand.getDataType(),
-                                                 targetProduct.getSceneRasterWidth(),
-                                                 targetProduct.getSceneRasterHeight(),
-                                                 ((VirtualBand) sourceBand).getExpression());
+                            sourceBand.getDataType(),
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight(),
+                            ((VirtualBand) sourceBand).getExpression());
                 } else if (sourceBand.isScalingApplied()) {
                     targetBand = new Band(sourceBand.getName(),
-                                          ProductData.TYPE_FLOAT32,
-                                          targetProduct.getSceneRasterWidth(),
-                                          targetProduct.getSceneRasterHeight());
+                            ProductData.TYPE_FLOAT32,
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight());
                     targetBand.setLog10Scaled(sourceBand.isLog10Scaled());
                 } else {
                     targetBand = new Band(sourceBand.getName(),
-                                          sourceBand.getDataType(),
-                                          targetProduct.getSceneRasterWidth(),
-                                          targetProduct.getSceneRasterHeight());
+                            sourceBand.getDataType(),
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight());
                 }
                 targetBand.setUnit(sourceBand.getUnit());
                 if (sourceBand.getDescription() != null) {
@@ -2164,9 +2207,9 @@ public class ProductUtils {
             for (final TiePointGrid sourceGrid : sourceProduct.getTiePointGrids()) {
                 if (sourceGrid.getGeoCoding() != null) {
                     Band targetBand = new Band(sourceGrid.getName(),
-                                               sourceGrid.getGeophysicalDataType(),
-                                               targetProduct.getSceneRasterWidth(),
-                                               targetProduct.getSceneRasterHeight());
+                            sourceGrid.getGeophysicalDataType(),
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight());
                     targetBand.setUnit(sourceGrid.getUnit());
                     if (sourceGrid.getDescription() != null) {
                         targetBand.setDescription(sourceGrid.getDescription());

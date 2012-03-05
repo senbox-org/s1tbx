@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,35 +16,19 @@
 
 package org.esa.beam.util;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
+import javax.media.jai.operator.ConstantDescriptor;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 public class ProductUtilsTest {
 
@@ -279,6 +263,7 @@ public class ProductUtilsTest {
         final int size = 10;
         final Product source = new Product("source", "test", size, size);
         final Band flagBand = source.addBand("flag", ProductData.TYPE_INT8);
+        flagBand.setSourceImage(ConstantDescriptor.create((float)size, (float)size, new Byte[]{42}, null));
         final FlagCoding originalFlagCoding = new FlagCoding("flagCoding");
         originalFlagCoding.addFlag("erni", 1, "erni flag");
         originalFlagCoding.addFlag("bert", 2, "bert flag");
@@ -290,15 +275,25 @@ public class ProductUtilsTest {
                                                     Color.WHITE, 0.6f);
         source.getMaskGroup().add(mask);
 
-        final Product target = new Product("target", "T", size, size);
-        ProductUtils.copyFlagBands(source, target);
+        Product target = new Product("target", "T", size, size);
+        ProductUtils.copyFlagBands(source, target, false);
 
         assertEquals(1, target.getFlagCodingGroup().getNodeCount());
-        final Band targetFlagBand = target.getBand("flag");
-        assertTrue(targetFlagBand != null);
+        Band targetFlagBand = target.getBand("flag");
+        assertNotNull(targetFlagBand);
         assertTrue(targetFlagBand.isFlagBand());
+        assertFalse(targetFlagBand.isSourceImageSet());
         assertTrue(target.getMaskGroup().contains(maskName));
 
+        target = new Product("target", "T", size, size);
+        ProductUtils.copyFlagBands(source, target, true);
+
+        assertEquals(1, target.getFlagCodingGroup().getNodeCount());
+        targetFlagBand = target.getBand("flag");
+        assertNotNull(targetFlagBand);
+        assertTrue(targetFlagBand.isFlagBand());
+        assertTrue(targetFlagBand.isSourceImageSet());
+        assertTrue(target.getMaskGroup().contains(maskName));
     }
 
     @Test

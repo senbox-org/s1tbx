@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,8 +17,6 @@
 package org.esa.beam.framework.gpf.pointop;
 
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeFilter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -27,8 +25,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.ProductUtils;
 
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -507,33 +504,7 @@ public abstract class PointOperator extends Operator {
         }
 
         private void copyBand(String name) {
-            Band sourceBand = getSourceProduct().getBand(name);
-            Band targetBand = ProductUtils.copyBand(name, getSourceProduct(), getTargetProduct());
-            targetBand.setSourceImage(sourceBand.getSourceImage());
-            maybeCopyFlagCoding(sourceBand, targetBand);
-            maybeCopyIndexCoding(sourceBand, targetBand);
-        }
-
-        private void maybeCopyFlagCoding(Band sourceBand, Band targetBand) {
-            FlagCoding sourceCoding = sourceBand.getFlagCoding();
-            if (sourceCoding != null) {
-                FlagCoding targetCoding = getTargetProduct().getFlagCodingGroup().get(sourceCoding.getName());
-                if (targetCoding == null) {
-                    targetCoding = ProductUtils.copyFlagCoding(sourceCoding, getTargetProduct());
-                }
-                targetBand.setSampleCoding(targetCoding);
-            }
-        }
-
-        private void maybeCopyIndexCoding(Band sourceBand, Band targetBand) {
-            IndexCoding sourceCoding = sourceBand.getIndexCoding();
-            if (sourceCoding != null) {
-                IndexCoding targetCoding = getTargetProduct().getIndexCodingGroup().get(sourceCoding.getName());
-                if (targetCoding == null) {
-                    targetCoding = ProductUtils.copyIndexCoding(sourceCoding, getTargetProduct());
-                }
-                targetBand.setSampleCoding(targetCoding);
-            }
+            ProductUtils.copyBand(name, getSourceProduct(), getTargetProduct(), true);
         }
     }
 }

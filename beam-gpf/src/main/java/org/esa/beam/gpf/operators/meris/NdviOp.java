@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,12 +17,7 @@
 package org.esa.beam.gpf.operators.meris;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -32,8 +27,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 
-import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Map;
 
 /**
@@ -87,7 +81,7 @@ public class NdviOp extends Operator {
         // copy geo-coding and the lat/lon tiepoints to the output product
         ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
 
-        ProductUtils.copyFlagBands(sourceProduct, targetProduct);
+        ProductUtils.copyFlagBands(sourceProduct, targetProduct, true);
 
         // create and add the NDVI flags coding
         FlagCoding ndviFlagCoding = createNdviFlagCoding();
@@ -119,15 +113,8 @@ public class NdviOp extends Operator {
 
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
-        pm.beginTask("Computing NDVI", rectangle.height + 1);
+        pm.beginTask("Computing NDVI", rectangle.height);
         try {
-
-            Tile l1flagsSourceTile = getSourceTile(sourceProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle);
-            Tile l1flagsTargetTile = targetTiles.get(targetProduct.getBand(L1FLAGS_INPUT_BAND_NAME));
-            // TODO replace copy by OpImage delegation
-            final int length = rectangle.width * rectangle.height;
-            System.arraycopy(l1flagsSourceTile.getRawSamples().getElems(), 0, l1flagsTargetTile.getRawSamples().getElems(), 0, length);
-            pm.worked(1);
 
             Tile lowerTile = getSourceTile(_lowerInputBand, rectangle);
             Tile upperTile = getSourceTile(_upperInputBand, rectangle);

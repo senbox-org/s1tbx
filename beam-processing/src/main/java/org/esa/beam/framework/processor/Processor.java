@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,23 +21,12 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.processor.ui.ProcessorUI;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.ResourceInstaller;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.*;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -652,7 +641,7 @@ public abstract class Processor {
      */
     protected void copyBand(String bandName, Product inputProduct, Product outputProduct) {
         if (!outputProduct.containsBand(bandName)) {
-            final Band band = ProductUtils.copyBand(bandName, inputProduct, outputProduct);
+            final Band band = ProductUtils.copyBand(bandName, inputProduct, outputProduct, false);
             if (band != null) {
                 addToBandNamesToCopy(bandName);
             }
@@ -686,7 +675,7 @@ public abstract class Processor {
      * @param outputProduct The output product.
      */
     protected void copyFlagBands(Product inputProduct, Product outputProduct) {
-        ProductUtils.copyFlagBands(inputProduct, outputProduct);
+        ProductUtils.copyFlagBands(inputProduct, outputProduct, false);
         if (inputProduct.getFlagCodingGroup().getNodeCount() > 0) {
             // loop over bands and check if they have a flags coding attached
             for (int n = 0; n < inputProduct.getNumBands(); n++) {
