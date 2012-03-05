@@ -522,8 +522,6 @@ public class PixExOp extends Operator implements Output {
         return coordinatesFound;
     }
 
-    private ArrayList<Product> products;
-
     private void exportSubScene(Product product, List<Coordinate> coordinates) throws IOException {
         final ProductSubsetDef subsetDef = new ProductSubsetDef(product.getName() + "_subScene");
 
