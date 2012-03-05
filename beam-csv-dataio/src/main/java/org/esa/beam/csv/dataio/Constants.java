@@ -24,12 +24,12 @@ package org.esa.beam.csv.dataio;
  */
 public class Constants {
 
-    static final String[] LAT_NAMES = new String[]{"lat", "latitude", "northing"};
-    static final String[] LON_NAMES = new String[]{"lon", "long", "longitude", "easting"};
-    static final String[] TIME_NAMES = new String[]{"time", "date", "date_time", "dateTime"};
-    static final String[] LOCATION_NAMES = new String[]{"name", "station", "label"};
-    static final String[] CRS_IDENTIFIERS = new String[]{"crs"};
-    static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+    public static final String[] LAT_NAMES = new String[]{"lat", "latitude", "northing"};
+    public static final String[] LON_NAMES = new String[]{"lon", "long", "longitude", "easting"};
+    public static final String[] TIME_NAMES = new String[]{"time", "date", "date_time", "dateTime"};
+    public static final String[] LOCATION_NAMES = new String[]{"name", "station", "label"};
+    public static final String[] CRS_IDENTIFIERS = new String[]{"crs"};
+    public static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
     public static final String DEFAULT_SEPARATOR = "\t";
     public static final String FORMAT_NAME = "CSV";
     public static final String DESCRIPTION = "CSV products";

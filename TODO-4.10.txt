@@ -82,6 +82,39 @@ Revise data import / export
     Date format is yyyy-MM-ddTHH:mm:ss per convention; may be extended to allow specifying arbitrary date formats (see
     PixEx)
 
+    Metadata treatment: Each property is considered metadata and treated accordingly.
+    Non-numerical attributes within the feature type record are considered metadata, too.
+
+MetadataRoot
+     |
+     +-+- Property-Metadata
+       |	|
+       |	+- each Property / Value
+       |
+       +- Record Metadata
+       		|
+       		+- each Attribute a_i in feature type with not-numerical DataType
+       			|
+       			+- featureId_0
+       			|	|
+       			|	+- attr_0 / value
+       			|	|
+       			|	+- attr_1 / value
+       			|	|
+       			|	.
+       			|	.
+       			|	.
+       			|
+       			+- featureId_1
+       			|	|
+       			|	+- attr_0 / value
+       			|	|
+       			|	+- attr_1 / value
+       			|	|
+       			.	.
+       			.	.
+       			.	.
+
 
 - Revise Spectrum view
   - use JFreeChart
