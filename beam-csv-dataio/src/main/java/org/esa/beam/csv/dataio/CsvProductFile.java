@@ -182,7 +182,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
     private void createFeatureType(String[] headerLine) throws IOException {
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
         builder.setCRS(crs != null ? crs : DefaultGeographicCRS.WGS84);
-        JavaTypeConverter jtc = new UtcCapableJavaTypeConverter();
+        JavaTypeConverter jtc = new CsvJavaTypeConverter();
         for (int i = 0; i < headerLine.length; i++) {
             if (i == 0) {
                 builder.setName(headerLine[0]);
@@ -342,7 +342,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         }
     }
 
-    private class UtcCapableJavaTypeConverter extends JavaTypeConverter {
+    private class CsvJavaTypeConverter extends JavaTypeConverter {
 
         @Override
         public Class parse(String text) throws ConversionException {

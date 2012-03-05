@@ -45,7 +45,7 @@ public class CsvProductFileTest {
         final CsvProductSource productSource = parser.parse();
         final Map<String,String> properties = productSource.getProperties();
         assertNotNull(properties);
-        assertEquals(3, properties.size());
+        assertEquals(4, properties.size());
         assertEquals("POLYGON(0.0, 1.0, 1.1)", properties.get("geometry1"));
         assertEquals("POLYGON(2.0, 1.0, 1.1)", properties.get("geometry2"));
         assertEquals(",", properties.get("separator"));
