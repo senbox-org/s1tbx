@@ -47,6 +47,8 @@ public class DataTypeUtils {
             return unsigned ? ProductData.TYPE_UINT16 : ProductData.TYPE_INT16;
         } else if (dataType == DataType.INT) {
             return unsigned ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
+        } else if (dataType == DataType.LONG) {
+            return unsigned ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
         } else if (dataType == DataType.FLOAT) {
             return ProductData.TYPE_FLOAT32;
         } else if (dataType == DataType.DOUBLE) {

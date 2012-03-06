@@ -19,6 +19,7 @@ package org.esa.beam.dataio.netcdf.util;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.SingleBandedOpImage;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.Section;
 import ucar.nc2.Variable;
@@ -26,6 +27,7 @@ import ucar.nc2.Variable;
 import javax.media.jai.PlanarImage;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 
@@ -36,17 +38,34 @@ import java.io.IOException;
 public class NetcdfOpImage extends SingleBandedOpImage {
 
     private final Variable variable;
-    private final boolean isYFlipped;
+    private final boolean flipY;
     private final int sourceHeight;
     private final int[] imageOrigin;
     private final Object readLock;
+    private final ArrayConverter arrayConverter;
+
+    public static RenderedImage createLsbImage(Variable variable, int[] imageOrigin, boolean flipY,
+                                               Object readLock, int dataBufferType,
+                                               int sourceWidth, int sourceHeight,
+                                               Dimension tileSize, ResolutionLevel level) {
+        return new NetcdfOpImage(variable, imageOrigin, flipY, readLock, dataBufferType, sourceWidth, sourceHeight,
+                                 tileSize, level, ArrayConverter.LSB);
+    }
+
+    public static RenderedImage createMsbImage(Variable variable, int[] imageOrigin, boolean flipY,
+                                               Object readLock, int dataBufferType,
+                                               int sourceWidth, int sourceHeight,
+                                               Dimension tileSize, ResolutionLevel level) {
+        return new NetcdfOpImage(variable, imageOrigin, flipY, readLock, dataBufferType, sourceWidth, sourceHeight,
+                                 tileSize, level, ArrayConverter.MSB);
+    }
 
     /**
      * Used to construct an image.
      *
      * @param variable       The netCDF variable
      * @param imageOrigin    The index within a multidimensional image dataset
-     * @param isYFlipped     The {@code true} if this data should be flipped along the yAxis.
+     * @param flipY          The {@code true} if this data should be flipped along the yAxis.
      * @param readLock       The the lock used for reading, usually the netcdf file that contains the variable
      * @param dataBufferType The data type.
      * @param sourceWidth    The width of the level 0 image.
@@ -54,15 +73,23 @@ public class NetcdfOpImage extends SingleBandedOpImage {
      * @param tileSize       The tile size for this image.
      * @param level          The resolution level.
      */
-    public NetcdfOpImage(Variable variable, int[] imageOrigin, boolean isYFlipped, Object readLock, int dataBufferType,
+    public NetcdfOpImage(Variable variable, int[] imageOrigin, boolean flipY, Object readLock, int dataBufferType,
                          int sourceWidth, int sourceHeight,
                          Dimension tileSize, ResolutionLevel level) {
+        this(variable, imageOrigin, flipY, readLock, dataBufferType, sourceWidth, sourceHeight, tileSize, level,
+             ArrayConverter.IDENTITY);
+    }
+
+    private NetcdfOpImage(Variable variable, int[] imageOrigin, boolean flipY, Object readLock, int dataBufferType,
+                          int sourceWidth, int sourceHeight,
+                          Dimension tileSize, ResolutionLevel level, ArrayConverter arrayConverter) {
         super(dataBufferType, sourceWidth, sourceHeight, tileSize, null, level);
         this.variable = variable;
         this.imageOrigin = imageOrigin.clone();
         this.readLock = readLock;
-        this.isYFlipped = isYFlipped;
+        this.flipY = flipY;
         this.sourceHeight = sourceHeight;
+        this.arrayConverter = arrayConverter;
     }
 
     @Override
@@ -92,14 +119,14 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         if (imageOrigin.length >= 0) {
             System.arraycopy(imageOrigin, 0, origin, 0, imageOrigin.length);
         }
-        origin[yIndex] = isYFlipped ? sourceHeight - sourceRect.y - sourceRect.height : sourceRect.y;
+        origin[yIndex] = flipY ? sourceHeight - sourceRect.y - sourceRect.height : sourceRect.y;
         origin[xIndex] = sourceRect.x;
 
         double scale = getScale();
         stride[yIndex] = (int) scale;
         stride[xIndex] = (int) scale;
 
-        Array array;
+        final Array array;
         synchronized (readLock) {
             try {
                 final Section section = new Section(origin, shape, stride);
@@ -110,16 +137,50 @@ public class NetcdfOpImage extends SingleBandedOpImage {
                 throw new IllegalArgumentException(e);
             }
         }
-        if (isYFlipped) {
-            Array flippedArray = array.flip(yIndex);
+        final Array convertedArray = arrayConverter.convert(array);
+        if (flipY) {
             tile.setDataElements(destRect.x, destRect.y,
                                  destRect.width, destRect.height,
-                                 flippedArray.copyTo1DJavaArray());
+                                 convertedArray.flip(yIndex).copyTo1DJavaArray());
         } else {
             tile.setDataElements(destRect.x, destRect.y,
                                  destRect.width, destRect.height,
-                                 array.getStorage());
+                                 convertedArray.getStorage());
         }
+    }
+
+    private interface ArrayConverter {
+
+        public ArrayConverter IDENTITY = new ArrayConverter() {
+            @Override
+            public Array convert(Array array) {
+                return array;
+            }
+        };
+
+        public ArrayConverter LSB = new ArrayConverter() {
+            @Override
+            public Array convert(Array array) {
+                final Array convertedArray = Array.factory(DataType.INT, array.getShape());
+                for (int i = 0; i < convertedArray.getSize(); i++) {
+                    convertedArray.setInt(i, (int) (array.getLong(i) & 0x00000000FFFFFFFFL));
+                }
+                return convertedArray;
+            }
+        };
+
+        public ArrayConverter MSB = new ArrayConverter() {
+            @Override
+            public Array convert(Array array) {
+                final Array convertedArray = Array.factory(DataType.INT, array.getShape());
+                for (int i = 0; i < convertedArray.getSize(); i++) {
+                    convertedArray.setInt(i, (int) (array.getLong(i) >>> 32));
+                }
+                return convertedArray;
+            }
+        };
+
+        Array convert(Array array);
     }
 
     private Rectangle getSourceRect(Rectangle rect) {

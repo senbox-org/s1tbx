@@ -20,6 +20,7 @@ import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
+import ucar.ma2.DataType;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -71,7 +72,17 @@ public class NetcdfMultiLevelImage extends AbstractNetcdfMultiLevelImage {
         ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), level);
         Dimension tileSize = getPreferredTileSize(rdn);
 
-        return new NetcdfOpImage(variable, imageOrigin, isYFlipped, lock,
-                                 dataBufferType, sceneRasterWidth, sceneRasterHeight, tileSize, resolutionLevel);
+        if (variable.getDataType() == DataType.LONG) {
+            if (rdn.getName().endsWith("_lsb")) {
+                return NetcdfOpImage.createLsbImage(variable, imageOrigin, isYFlipped, lock, dataBufferType,
+                                                    sceneRasterWidth, sceneRasterHeight, tileSize, resolutionLevel);
+            } else {
+                return NetcdfOpImage.createMsbImage(variable, imageOrigin, isYFlipped, lock, dataBufferType,
+                                                    sceneRasterWidth, sceneRasterHeight, tileSize, resolutionLevel);
+            }
+        } else {
+            return new NetcdfOpImage(variable, imageOrigin, isYFlipped, lock,
+                                     dataBufferType, sceneRasterWidth, sceneRasterHeight, tileSize, resolutionLevel);
+        }
     }
 }

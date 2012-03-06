@@ -37,14 +37,7 @@ public class CfFlagCodingPart extends ProfilePartIO {
 
     @Override
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
-        final Band[] bands = p.getBands();
-        for (Band band : bands) {
-            final FlagCoding flagCoding = readFlagCoding(ctx, band.getName());
-            if (flagCoding != null) {
-                p.getFlagCodingGroup().add(flagCoding);
-                band.setSampleCoding(flagCoding);
-            }
-        }
+        // already handled in CfBandPart
     }
 
     @Override

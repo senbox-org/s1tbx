@@ -58,6 +58,7 @@ public class BeamBandPart extends ProfilePartIO {
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
         NetcdfFile netcdfFile = ctx.getNetcdfFile();
         final List<Variable> variables = netcdfFile.getVariables();
+
         for (Variable variable : variables) {
             final List<Dimension> dimensions = variable.getDimensions();
             if (dimensions.size() != 2) {
