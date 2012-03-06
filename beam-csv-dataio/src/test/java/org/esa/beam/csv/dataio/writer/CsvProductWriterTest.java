@@ -21,9 +21,11 @@ import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.awt.image.DataBuffer;
 import java.io.StringWriter;
 
 import static org.junit.Assert.*;
@@ -47,9 +49,9 @@ public class CsvProductWriterTest {
                                                                                  CsvProductWriter.WRITE_PROPERTIES);
         writer = plugIn.createWriterInstance();
         product = new Product("testProduct", "testType", 2, 3);
-        product.addBand("radiance_1", ProductData.TYPE_FLOAT32);
-        product.addBand("radiance_2", ProductData.TYPE_FLOAT64);
-        product.addBand("radiance_3", ProductData.TYPE_INT32);
+        fillBandDataFloat(product.addBand("radiance_1", ProductData.TYPE_FLOAT32), 0);
+        fillBandDataFloat(product.addBand("radiance_2", ProductData.TYPE_FLOAT64), 10);
+        fillBandDataInt(product.addBand("radiance_3", ProductData.TYPE_INT32), 100);
         writer.writeProductNodes(product, "");
     }
 
@@ -60,13 +62,6 @@ public class CsvProductWriterTest {
 
     @Test
     public void testWriteFeatures() throws Exception {
-        final Band radiance1 = product.getBand("radiance_1");
-        final Band radiance2 = product.getBand("radiance_2");
-        final Band radiance3 = product.getBand("radiance_3");
-        fillBandDataFloat(radiance1, 0);
-        fillBandDataFloat(radiance2, 10);
-        fillBandDataInt(radiance3, 100);
-
         writer.writeBandRasterData(null, -1, -1, -1, -1, null, ProgressMonitor.NULL);
         final StringBuilder expected = new StringBuilder("featureId\tradiance_1:float\tradiance_2:double\tradiance_3:int\n");
         expected.append("0\t0.0\t10.0\t100\n");

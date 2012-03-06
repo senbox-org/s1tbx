@@ -255,7 +255,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
             byte[] buffer = new byte[100 * 1024];
             int readChars;
             while ((readChars = stream.read(buffer)) != -1) {
-                for (int i = 0; i < readChars; ++i) {
+                for (int i = 0; i < readChars-1; ++i) {
                     if (buffer[i] == '\n')
                         ++count;
                 }

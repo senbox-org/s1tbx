@@ -25,6 +25,7 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -63,7 +64,7 @@ public class CsvProductReader extends AbstractProductReader {
         }
         final int sceneRasterWidth = source.getRecordCount();
         // todo - get name and type from properties, if existing
-        final Product product = new Product("name", "type", sceneRasterWidth, 1);
+        final Product product = new Product(getInput().toString(), "CSV", sceneRasterWidth, 1);
         for(AttributeDescriptor descriptor : source.getFeatureType().getAttributeDescriptors()) {
             if(isAccessibleBandType(descriptor.getType().getBinding())) {
                 int type = getProductDataType(descriptor.getType().getBinding());
@@ -72,6 +73,7 @@ public class CsvProductReader extends AbstractProductReader {
         }
         // todo - somehow handle attributes which are of no band type, such as utc
         // todo - put properties into metadata
+        // todo - separation of bands and tiepoint grids?!
         return product;
     }
 
@@ -99,7 +101,7 @@ public class CsvProductReader extends AbstractProductReader {
     private SimpleFeature[] toSimpleFeatureArray(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, int sourceOffsetX, int destWidth) {
         final Object[] objects = featureCollection.toArray(new Object[featureCollection.size()]);
         final SimpleFeature[] simpleFeatures = new SimpleFeature[objects.length];
-        for (int i = sourceOffsetX; i < destWidth; i++) {
+        for (int i = sourceOffsetX; i < sourceOffsetX + destWidth; i++) {
             simpleFeatures[i] = (SimpleFeature)objects[i];
         }
         return simpleFeatures;
