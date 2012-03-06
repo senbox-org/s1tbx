@@ -23,11 +23,13 @@ import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.util.io.FileUtils;
+import ucar.nc2.Variable;
 
 import java.awt.Dimension;
 import java.io.File;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 
 class ModisDaacAttributes implements ModisGlobalAttributes {
@@ -38,8 +40,13 @@ class ModisDaacAttributes implements ModisGlobalAttributes {
     private Date _sensingStop;
     private HdfEosStructMetadata hdfEosStructMetadata;
 
-    public ModisDaacAttributes(final HdfAttributes hdfAttributes) throws ProductIOException {
-        decode(hdfAttributes);
+    public ModisDaacAttributes(List<Variable> variables) throws ProductIOException {
+        //decode(hdfAttributes);
+        decode(variables);
+    }
+
+    public ModisDaacAttributes(HdfAttributes globalHdfAttrs) {
+        // @todo 1 tb/tb just to satisfy the compiler - delete when finished with porting
     }
 
     public String getProductName() {
@@ -85,6 +92,14 @@ class ModisDaacAttributes implements ModisGlobalAttributes {
     ///////////////////////////////////////////////////////////////////////////
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
+
+    private void decode(List<Variable> variables) {
+        decodeECSCore(variables);
+    }
+
+    private void decodeECSCore(List<Variable> variables) {
+        //To change body of created methods use File | Settings | File Templates.
+    }
 
     private void decode(final HdfAttributes hdfAttributes) throws ProductIOException {
         decodeECSCore(hdfAttributes);
