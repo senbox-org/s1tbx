@@ -72,6 +72,7 @@ public class CsvProductFileTest {
         SimpleFeature feature = features[0];
 
         assertEquals(7, feature.getAttributeCount());
+        assertEquals("" + 26, feature.getID());
         assertEquals(String.class, feature.getAttribute(0).getClass());
         assertEquals(Float.class, feature.getAttribute(1).getClass());
         assertEquals(Float.class, feature.getAttribute(2).getClass());
@@ -83,6 +84,7 @@ public class CsvProductFileTest {
         feature = features[1];
 
         assertEquals(7, feature.getAttributeCount());
+        assertEquals("" + 28, feature.getID());
         assertEquals(String.class, feature.getAttribute(0).getClass());
         assertEquals(Float.class, feature.getAttribute(1).getClass());
         assertEquals(Float.class, feature.getAttribute(2).getClass());
@@ -94,6 +96,79 @@ public class CsvProductFileTest {
         feature = features[2];
 
         assertEquals(7, feature.getAttributeCount());
+        assertEquals("" + 371, feature.getID());
+        assertEquals(String.class, feature.getAttribute(0).getClass());
+        assertEquals(Float.class, feature.getAttribute(1).getClass());
+        assertEquals(Float.class, feature.getAttribute(2).getClass());
+        assertEquals(null, feature.getAttribute(3));
+        assertEquals(Float.class, feature.getAttribute(4).getClass());
+        assertEquals(Float.class, feature.getAttribute(5).getClass());
+        assertEquals(ProductData.UTC.class, feature.getAttribute(6).getClass());
+
+        assertEquals("AMRU1", features[0].getAttribute(0));
+        assertEquals("AMRU1", features[1].getAttribute(0));
+        assertEquals("AMRU2", features[2].getAttribute(0));
+
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[0].getAttribute(1), (Float)features[0].getAttribute(2)));
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[1].getAttribute(1), (Float)features[1].getAttribute(2)));
+        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Float)features[2].getAttribute(1), (Float)features[2].getAttribute(2)));
+
+        assertEquals(ProductData.UTC.parse("2010-06-01 12:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[0].getAttribute(3)).getAsDate().getTime());
+        assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[1].getAttribute(3)).getAsDate().getTime());
+        assertEquals(null, features[2].getAttribute(3));
+
+        assertEquals(Float.NaN, features[0].getAttribute(4));
+        assertEquals(18.3f, features[1].getAttribute(4));
+        assertEquals(10.6f, features[2].getAttribute(5));
+
+        assertEquals(ProductData.UTC.parse("2011-06-01 10:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(),
+                     ((ProductData.UTC)features[0].getAttribute(6)).getAsDate().getTime());
+
+    }
+
+
+    @Test
+    public void testParseRecords_NoFeatureId() throws Exception {
+        final String simpleFormatExample = getClass().getResource("simple_format_no_feature_id.txt").getFile();
+        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
+        parser.parse();
+        parser.parseRecords();
+
+        final CsvProductSource csvProductSource = parser.parse();
+        SimpleFeature[] features = toSimpleFeatureArray(csvProductSource.getFeatureCollection());
+
+        assertEquals(3, csvProductSource.getRecordCount());
+
+        SimpleFeature feature = features[0];
+
+        assertEquals(7, feature.getAttributeCount());
+        
+        assertEquals("" + 0, feature.getID());
+        assertEquals(String.class, feature.getAttribute(0).getClass());
+        assertEquals(Float.class, feature.getAttribute(1).getClass());
+        assertEquals(Float.class, feature.getAttribute(2).getClass());
+        assertEquals(ProductData.UTC.class, feature.getAttribute(3).getClass());
+        assertEquals(Float.class, feature.getAttribute(4).getClass());
+        assertEquals(Float.class, feature.getAttribute(5).getClass());
+        assertEquals(ProductData.UTC.class, feature.getAttribute(6).getClass());
+
+        feature = features[1];
+
+        assertEquals(7, feature.getAttributeCount());
+
+        assertEquals("" + 1, feature.getID());
+        assertEquals(String.class, feature.getAttribute(0).getClass());
+        assertEquals(Float.class, feature.getAttribute(1).getClass());
+        assertEquals(Float.class, feature.getAttribute(2).getClass());
+        assertEquals(ProductData.UTC.class, feature.getAttribute(3).getClass());
+        assertEquals(Float.class, feature.getAttribute(4).getClass());
+        assertEquals(Float.class, feature.getAttribute(5).getClass());
+        assertEquals(null, feature.getAttribute(6));
+
+        feature = features[2];
+
+        assertEquals(7, feature.getAttributeCount());
+        assertEquals("" + 2, feature.getID());
         assertEquals(String.class, feature.getAttribute(0).getClass());
         assertEquals(Float.class, feature.getAttribute(1).getClass());
         assertEquals(Float.class, feature.getAttribute(2).getClass());
@@ -136,6 +211,37 @@ public class CsvProductFileTest {
     @Test
     public void testParseHeader() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
+        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
+        parser.parse();
+
+        final CsvProductSource csvProductSource = parser.parse();
+        final FeatureType featureType = csvProductSource.getFeatureType();
+
+        assertNotNull(featureType);
+
+        final PropertyDescriptor[] propertyDescriptors = toPropertyDescriptorArray(featureType.getDescriptors());
+        assertEquals(7, propertyDescriptors.length);
+        assertEquals("station", propertyDescriptors[0].getName().toString());
+        assertEquals("lat", propertyDescriptors[1].getName().toString());
+        assertEquals("lon", propertyDescriptors[2].getName().toString());
+        assertEquals("date_time", propertyDescriptors[3].getName().toString());
+        assertEquals("radiance_1", propertyDescriptors[4].getName().toString());
+        assertEquals("radiance_2", propertyDescriptors[5].getName().toString());
+        assertEquals("testTime", propertyDescriptors[6].getName().toString());
+
+        assertEquals(7, propertyDescriptors.length);
+        assertTrue(propertyDescriptors[0].getType().getBinding().getSimpleName().matches(".*String"));
+        assertTrue(propertyDescriptors[1].getType().getBinding().getSimpleName().matches(".*Float"));
+        assertTrue(propertyDescriptors[2].getType().getBinding().getSimpleName().matches(".*Float"));
+        assertTrue(propertyDescriptors[3].getType().getBinding().getSimpleName().matches(".*UTC"));
+        assertTrue(propertyDescriptors[4].getType().getBinding().getSimpleName().matches(".*Float"));
+        assertTrue(propertyDescriptors[5].getType().getBinding().getSimpleName().matches(".*Float"));
+        assertTrue(propertyDescriptors[6].getType().getBinding().getSimpleName().matches(".*UTC"));
+    }
+
+    @Test
+    public void testParseHeader_NoFeatureId() throws Exception {
+        final String simpleFormatExample = getClass().getResource("simple_format_no_feature_id.txt").getFile();
         final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
         parser.parse();
 
