@@ -115,6 +115,9 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
 
     @Override
     public void parseRecords() throws ParseException {
+        if (featureCollection != null) {
+            return;
+        }
         Converter<?>[] converters;
         try {
             converters = VectorDataNodeIO.getConverters(simpleFeatureType);

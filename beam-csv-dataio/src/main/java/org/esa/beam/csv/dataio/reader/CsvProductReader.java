@@ -26,12 +26,16 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The CsvProductReader is able to read a CSV file into a product.
@@ -43,7 +47,7 @@ public class CsvProductReader extends AbstractProductReader {
 
     private CsvProductSource source;
     private CsvProductSourceParser parser;
-
+    
     /**
      * Constructs a new abstract product reader.
      *
@@ -65,8 +69,8 @@ public class CsvProductReader extends AbstractProductReader {
         final int sceneRasterWidth = source.getRecordCount();
         // todo - get name and type from properties, if existing
         final Product product = new Product(getInput().toString(), "CSV", sceneRasterWidth, 1);
-        for(AttributeDescriptor descriptor : source.getFeatureType().getAttributeDescriptors()) {
-            if(isAccessibleBandType(descriptor.getType().getBinding())) {
+        for (AttributeDescriptor descriptor : source.getFeatureType().getAttributeDescriptors()) {
+            if (isAccessibleBandType(descriptor.getType().getBinding())) {
                 int type = getProductDataType(descriptor.getType().getBinding());
                 product.addBand(descriptor.getName().toString(), type);
             }
@@ -82,27 +86,32 @@ public class CsvProductReader extends AbstractProductReader {
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
+        BeamLogManager.getSystemLogger().log(Level.INFO, MessageFormat.format("reading band data from {0} to {1}",
+                                                                              sourceOffsetX, sourceOffsetX + destWidth));
+        pm.beginTask("reading band data...", destWidth);
         try {
             parser.parseRecords();
         } catch (CsvProductFile.ParseException e) {
             throw new IOException(e);
         }
-
         final SimpleFeature[] simpleFeatures = toSimpleFeatureArray(source.getFeatureCollection(), sourceOffsetX, destWidth);
         final Object[] elems = new Object[simpleFeatures.length];
         int featureIndex = 0;
         for (SimpleFeature simpleFeature : simpleFeatures) {
             final Object attribute = simpleFeature.getAttribute(destBand.getName());
             elems[featureIndex++] = attribute;
+            pm.worked(1);
         }
         getProductData(elems, destBuffer);
+        pm.done();
     }
 
     private SimpleFeature[] toSimpleFeatureArray(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, int sourceOffsetX, int destWidth) {
         final Object[] objects = featureCollection.toArray(new Object[featureCollection.size()]);
-        final SimpleFeature[] simpleFeatures = new SimpleFeature[objects.length];
+        final SimpleFeature[] simpleFeatures = new SimpleFeature[destWidth];
+        int j = 0;
         for (int i = sourceOffsetX; i < sourceOffsetX + destWidth; i++) {
-            simpleFeatures[i] = (SimpleFeature)objects[i];
+            simpleFeatures[j++] = (SimpleFeature) objects[i];
         }
         return simpleFeatures;
     }
@@ -163,7 +172,7 @@ public class CsvProductReader extends AbstractProductReader {
             return ProductData.TYPE_INT16;
         } else if (type.getSimpleName().toLowerCase().equals("integer")) {
             return ProductData.TYPE_INT32;
-        } else if(type.getSimpleName().toLowerCase().equals("utc")) {
+        } else if (type.getSimpleName().toLowerCase().equals("utc")) {
             return ProductData.TYPE_UTC;
         }
         throw new IllegalArgumentException("Unsupported type '" + type + "'.");
@@ -172,9 +181,9 @@ public class CsvProductReader extends AbstractProductReader {
     private boolean isAccessibleBandType(Class<?> type) {
         final String className = type.getSimpleName().toLowerCase();
         return className.equals("float") ||
-               className.equals("double") ||
-               className.equals("byte") ||
-               className.equals("short") ||
-               className.equals("integer");
+                className.equals("double") ||
+                className.equals("byte") ||
+                className.equals("short") ||
+                className.equals("integer");
     }
 }
