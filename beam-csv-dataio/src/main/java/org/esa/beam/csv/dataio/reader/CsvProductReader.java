@@ -86,11 +86,14 @@ public class CsvProductReader extends AbstractProductReader {
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-        BeamLogManager.getSystemLogger().log(Level.INFO, MessageFormat.format("reading band data from {0} to {1}",
-                                                                              sourceOffsetX, sourceOffsetX + destWidth));
+        BeamLogManager.getSystemLogger().log(Level.INFO, MessageFormat.format("reading band data (" + destBand.getName() + ") from {0} to {1}",
+                                                                              sourceOffsetX, sourceOffsetX + destWidth - 1));
         pm.beginTask("reading band data...", destWidth);
         try {
-            parser.parseRecords();
+            synchronized (parser) {
+                // todo: don't read all at once, tell parser how many records we want to get
+                parser.parseRecords();
+            }
         } catch (CsvProductFile.ParseException e) {
             throw new IOException(e);
         }

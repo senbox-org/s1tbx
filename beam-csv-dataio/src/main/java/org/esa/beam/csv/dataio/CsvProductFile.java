@@ -166,6 +166,9 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
                 }
                 SimpleFeature simpleFeature = builder.buildFeature(featureId);
                 featureCollection.add(simpleFeature);
+                if (featureCount % 500 == 0) {
+                    System.out.println("featureCount = " + featureCount);
+                }
             }
         } catch (Exception e) {
             throw new ParseException(e);
