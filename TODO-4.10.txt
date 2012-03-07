@@ -59,8 +59,8 @@ Revise data import / export
   - format proposal:
 
     feature-format         := {<property-record> NL} <feature-type-record> {NL <feature-record>}
-    feature-type-record    := <feature-type-name> {<sep> <attribute-header>}
-    feature-record         := <feature-id>           {<sep> <attribute-value>}
+    feature-type-record    := {<feature-type-name>} {<sep> <attribute-header>}
+    feature-record         := {<feature-id>}           {<sep> <attribute-value>}
 
     simple-format          := {<property-record> NL} <header-record>       {NL <data-record>}
     header-record          := <attribute-header> {<sep> <attribute-header>}
@@ -71,6 +71,9 @@ Revise data import / export
     property-record        := '#'<property-name> '=' <property-value>
     sep                    := TAB | [';' | ',', ...]  (TBC)
 
+    Note that it is optional to provide a column for the feature id. If no such column is present, the features are
+    assigned ids in ascending order, starting from 0. If the first column shall be considered the feature id, it is
+    mandatory that it is named 'featureId'.
     Special-meaning attribute names may be auto-detected by BEAM:
     - lat, latitude
     - lon, long, longitude

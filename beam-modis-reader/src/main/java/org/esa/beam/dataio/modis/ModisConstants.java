@@ -17,7 +17,7 @@ package org.esa.beam.dataio.modis;
 
 public class ModisConstants {
 
-    public static final String DEFAULT_FILE_EXTENSION = "hdf";
+    public static final String DEFAULT_FILE_EXTENSION = ".hdf";
     public static final String READER_DESCRIPTION = "MODIS HDF4 Data Products";
     public static final String FORMAT_NAME = "MODIS";
 

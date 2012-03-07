@@ -55,6 +55,7 @@ import java.util.Map;
  */
 public class CsvProductFile implements CsvProductSourceParser, CsvProductSource {
 
+    public static final String DEFAULT_HEADER_NAME = "Csv";
     private final Map<String, String> properties = new HashMap<String, String>();
     private FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
     private final File csv;
@@ -62,6 +63,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
     private boolean propertiesParsed = false;
     private SimpleFeatureType simpleFeatureType;
     private CoordinateReferenceSystem crs;
+    private boolean hasFeatureId = false;
 
     public CsvProductFile(String csv) {
         this(new File(csv));
@@ -127,28 +129,32 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
             reader = new BufferedReader(new FileReader(csv));
             skipNonRecordLines(reader);
             String line;
+            int featureCount = 0;
             while ((line = reader.readLine()) != null) {
                 String[] tokens = getTokens(line);
                 if (tokens == null) {
                     break;
                 }
-                final int expectedTokenCount = 1 + simpleFeatureType.getAttributeCount();
+                int expectedTokenCount = simpleFeatureType.getAttributeCount();
+                expectedTokenCount += hasFeatureId ? 1 : 0;
                 if (tokens.length != expectedTokenCount) {
                     continue;
                 }
                 builder.reset();
-                String featureId = null;
+                String featureId = "" + featureCount++;
                 for (int i = 0; i < tokens.length; i++) {
                     String token = tokens[i];
-                    if (i == 0) {
+                    if (i == 0 && hasFeatureId) {
                         featureId = token;
                     } else {
                         try {
                             Object value = null;
+                            int currentIndex = i;
+                            currentIndex -= hasFeatureId ? 1 : 0;
                             if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
-                                value = converters[i - 1].parse(token);
+                                value = converters[currentIndex].parse(token);
                             }
-                            builder.set(simpleFeatureType.getDescriptor(i - 1).getLocalName(), value);
+                            builder.set(simpleFeatureType.getDescriptor(currentIndex).getLocalName(), value);
                         } catch (ConversionException e) {
                             BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': %s",
                                                                                    csv.getPath(), e.getMessage()));
@@ -183,33 +189,33 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
         builder.setCRS(crs != null ? crs : DefaultGeographicCRS.WGS84);
         JavaTypeConverter jtc = new CsvJavaTypeConverter();
-        for (int i = 0; i < headerLine.length; i++) {
-            if (i == 0) {
-                builder.setName(headerLine[0]);
-            } else {
-                String token = headerLine[i];
-                String attributeTypeName;
-                String attributeName;
-                final int colonPos = token.indexOf(':');
-                if (colonPos == -1) {
-                    attributeName = token;
-                    attributeTypeName = "double";
-                } else if (colonPos == 0) {
-                    throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
-                } else {
-                    attributeName = token.substring(0, colonPos);
-                    attributeTypeName = token.substring(colonPos + 1).toLowerCase();
-                }
-                attributeTypeName = attributeTypeName.substring(0, 1).toUpperCase() + attributeTypeName.substring(1);
-                Class<?> attributeType;
-                try {
-                    attributeType = jtc.parse(attributeTypeName);
-                } catch (ConversionException e) {
-                    throw new IOException(
-                            String.format("Unknown type in attribute descriptor '%s'", token), e);
-                }
-                builder.add(attributeName, attributeType);
+        builder.setName(DEFAULT_HEADER_NAME);
+        for (String token : headerLine) {
+            if(token.toLowerCase().equals("featureId".toLowerCase())) {
+                hasFeatureId = true;
+                continue;
             }
+            String attributeTypeName;
+            String attributeName;
+            final int colonPos = token.indexOf(':');
+            if (colonPos == -1) {
+                attributeName = token;
+                attributeTypeName = "double";
+            } else if (colonPos == 0) {
+                throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
+            } else {
+                attributeName = token.substring(0, colonPos);
+                attributeTypeName = token.substring(colonPos + 1).toLowerCase();
+            }
+            attributeTypeName = attributeTypeName.substring(0, 1).toUpperCase() + attributeTypeName.substring(1);
+            Class<?> attributeType;
+            try {
+                attributeType = jtc.parse(attributeTypeName);
+            } catch (ConversionException e) {
+                throw new IOException(
+                        String.format("Unknown type in attribute descriptor '%s'", token), e);
+            }
+            builder.add(attributeName, attributeType);
         }
         simpleFeatureType = builder.buildFeatureType();
     }
@@ -260,8 +266,9 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
             int readChars;
             while ((readChars = stream.read(buffer)) != -1) {
                 for (int i = 0; i < readChars - 1; ++i) {
-                    if (buffer[i] == '\n')
+                    if (buffer[i] == '\n') {
                         ++count;
+                    }
                 }
             }
         } finally {
@@ -294,7 +301,8 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         int pos2;
         int pos1 = 0;
         final ArrayList<String> strings = new ArrayList<String>();
-        final String separator = properties.get("separator") != null ? properties.get("separator") : Constants.DEFAULT_SEPARATOR;
+        final String separator =
+                properties.get("separator") != null ? properties.get("separator") : Constants.DEFAULT_SEPARATOR;
         while ((pos2 = line.indexOf(separator, pos1)) >= 0) {
             strings.add(line.substring(pos1, pos2).trim());
             pos1 = pos2 + 1;
