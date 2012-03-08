@@ -16,7 +16,6 @@
 
 package org.esa.beam.csv.dataio;
 
-import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -33,13 +32,9 @@ public interface CsvProductSource {
 
     /**
      * @return The number of data records.
+     * @throws java.io.IOException if sth. goes wrong
      */
     int getRecordCount() throws IOException;
-    
-    /**
-     * @return An unmodifiable list of data records.
-     */
-    FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatureCollection();
 
     /**
      * @return A header representation on the csv file.
@@ -51,4 +46,8 @@ public interface CsvProductSource {
      */
     Map<String, String> getProperties();
 
+    /**
+     * @return all SimpleFeatures currently parsed
+     */
+    SimpleFeature[] getSimpleFeatures();
 }

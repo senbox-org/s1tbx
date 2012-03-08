@@ -30,15 +30,32 @@ public interface CsvProductSourceParser {
      *
      * @throws IllegalStateException         if this method is called before {@link CsvProductSourceParser#parse()} has
      *                                       been called.
-     * @throws CsvProductFile.ParseException if something goes wrong.
+     * @throws ParseException                if something goes wrong.
+     * @param offset                         the offset from which to start parsing.
+     * @param numRecords                     the number of records to parse.
      */
-    void parseRecords() throws CsvProductFile.ParseException;
+    void parseRecords(int offset, int numRecords) throws ParseException;
 
     /**
      * @return A view on the {@link CsvProductSource} parsed using this interface.
      *
-     * @throws CsvProductFile.ParseException if something goes wrong.
+     * @throws ParseException if something goes wrong.
      */
-    CsvProductSource parse() throws CsvProductFile.ParseException;
+    CsvProductSource parse() throws ParseException;
 
+    /**
+     * Closes the parser and its associated data sources.
+     */
+    void close();
+
+    class ParseException extends Exception {
+
+        ParseException(String message) {
+            super(message);
+        }
+
+        ParseException(Throwable cause) {
+            super(cause);
+        }
+    }
 }

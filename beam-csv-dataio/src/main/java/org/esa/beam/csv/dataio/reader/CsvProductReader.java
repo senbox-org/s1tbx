@@ -25,17 +25,13 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.logging.BeamLogManager;
-import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The CsvProductReader is able to read a CSV file into a product.
@@ -47,7 +43,8 @@ public class CsvProductReader extends AbstractProductReader {
 
     private CsvProductSource source;
     private CsvProductSourceParser parser;
-    
+    private int offset = -1;
+
     /**
      * Constructs a new abstract product reader.
      *
@@ -59,11 +56,19 @@ public class CsvProductReader extends AbstractProductReader {
     }
 
     @Override
+    public void close() throws IOException {
+        super.close();
+        if (parser != null) {
+            parser.close();
+        }
+    }
+
+    @Override
     protected Product readProductNodesImpl() throws IOException {
         try {
             parser = new CsvProductFile(getInput().toString());
             source = parser.parse();
-        } catch (CsvProductFile.ParseException e) {
+        } catch (CsvProductSourceParser.ParseException e) {
             throw new IOException(e);
         }
         final int sceneRasterWidth = source.getRecordCount();
@@ -89,15 +94,17 @@ public class CsvProductReader extends AbstractProductReader {
         BeamLogManager.getSystemLogger().log(Level.INFO, MessageFormat.format("reading band data (" + destBand.getName() + ") from {0} to {1}",
                                                                               sourceOffsetX, sourceOffsetX + destWidth - 1));
         pm.beginTask("reading band data...", destWidth);
-        try {
-            synchronized (parser) {
-                // todo: don't read all at once, tell parser how many records we want to get
-                parser.parseRecords();
+        if (sourceOffsetX > offset) {
+            offset = sourceOffsetX;
+            try {
+                synchronized (parser) {
+                    parser.parseRecords(sourceOffsetX, destWidth);
+                }
+            } catch (CsvProductSourceParser.ParseException e) {
+                throw new IOException(e);
             }
-        } catch (CsvProductFile.ParseException e) {
-            throw new IOException(e);
         }
-        final SimpleFeature[] simpleFeatures = toSimpleFeatureArray(source.getFeatureCollection(), sourceOffsetX, destWidth);
+        final SimpleFeature[] simpleFeatures = source.getSimpleFeatures();
         final Object[] elems = new Object[simpleFeatures.length];
         int featureIndex = 0;
         for (SimpleFeature simpleFeature : simpleFeatures) {
@@ -107,16 +114,6 @@ public class CsvProductReader extends AbstractProductReader {
         }
         getProductData(elems, destBuffer);
         pm.done();
-    }
-
-    private SimpleFeature[] toSimpleFeatureArray(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, int sourceOffsetX, int destWidth) {
-        final Object[] objects = featureCollection.toArray(new Object[featureCollection.size()]);
-        final SimpleFeature[] simpleFeatures = new SimpleFeature[destWidth];
-        int j = 0;
-        for (int i = sourceOffsetX; i < sourceOffsetX + destWidth; i++) {
-            simpleFeatures[j++] = (SimpleFeature) objects[i];
-        }
-        return simpleFeatures;
     }
 
     void getProductData(Object[] elems, ProductData destBuffer) {

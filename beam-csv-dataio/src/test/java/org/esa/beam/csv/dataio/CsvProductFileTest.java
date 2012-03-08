@@ -51,7 +51,7 @@ public class CsvProductFileTest {
         assertEquals(",", properties.get("separator"));
     }
 
-    @Test(expected = CsvProductFile.ParseException.class)
+    @Test(expected = CsvProductSourceParser.ParseException.class)
     public void testParseProperties_Fail() throws Exception {
         final CsvProductSourceParser parser = new CsvProductFile("invalid_path");
         parser.parse();
@@ -61,13 +61,13 @@ public class CsvProductFileTest {
     public void testParseRecords() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
         final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
-        parser.parse();
-        parser.parseRecords();
-
         final CsvProductSource csvProductSource = parser.parse();
-        SimpleFeature[] features = toSimpleFeatureArray(csvProductSource.getFeatureCollection());
+        parser.parseRecords(0, 3);
 
-        assertEquals(3, csvProductSource.getRecordCount());
+        SimpleFeature[] features = csvProductSource.getSimpleFeatures();
+
+        assertEquals(4, csvProductSource.getRecordCount());
+        assertEquals(3, features.length);
 
         SimpleFeature feature = features[0];
 
@@ -131,13 +131,13 @@ public class CsvProductFileTest {
     public void testParseRecords_NoFeatureId() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_no_feature_id.txt").getFile();
         final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
-        parser.parse();
-        parser.parseRecords();
-
         final CsvProductSource csvProductSource = parser.parse();
-        SimpleFeature[] features = toSimpleFeatureArray(csvProductSource.getFeatureCollection());
+        parser.parseRecords(0, 3);
+
+        SimpleFeature[] features = csvProductSource.getSimpleFeatures();
 
         assertEquals(3, csvProductSource.getRecordCount());
+        assertEquals(3, features.length);
 
         SimpleFeature feature = features[0];
 
@@ -197,6 +197,70 @@ public class CsvProductFileTest {
                      ((ProductData.UTC)features[0].getAttribute(6)).getAsDate().getTime());
 
     }
+
+    @Test
+    public void testParseRecords_NotAllRecords() throws Exception {
+        final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
+        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
+        final CsvProductSource csvProductSource = parser.parse();
+        parser.parseRecords(1, 2);
+
+        SimpleFeature[] features = csvProductSource.getSimpleFeatures();
+
+        assertEquals(4, csvProductSource.getRecordCount());
+        assertEquals(2, features.length);
+
+        SimpleFeature feature = features[0];
+
+        assertEquals(7, feature.getAttributeCount());
+
+        assertEquals("" + 28, feature.getID());
+        assertEquals(String.class, feature.getAttribute(0).getClass());
+        assertEquals(Float.class, feature.getAttribute(1).getClass());
+        assertEquals(Float.class, feature.getAttribute(2).getClass());
+        assertEquals(ProductData.UTC.class, feature.getAttribute(3).getClass());
+        assertEquals(Float.class, feature.getAttribute(4).getClass());
+        assertEquals(Float.class, feature.getAttribute(5).getClass());
+        assertEquals(null, feature.getAttribute(6));
+
+        feature = features[1];
+
+        assertEquals(7, feature.getAttributeCount());
+        assertEquals("" + 371, feature.getID());
+        assertEquals(String.class, feature.getAttribute(0).getClass());
+        assertEquals(Float.class, feature.getAttribute(1).getClass());
+        assertEquals(Float.class, feature.getAttribute(2).getClass());
+        assertEquals(null, feature.getAttribute(3));
+        assertEquals(Float.class, feature.getAttribute(4).getClass());
+        assertEquals(Float.class, feature.getAttribute(5).getClass());
+        assertEquals(ProductData.UTC.class, feature.getAttribute(6).getClass());
+
+        assertEquals("AMRU1", features[0].getAttribute(0));
+        assertEquals("AMRU2", features[1].getAttribute(0));
+
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[0].getAttribute(1), (Float)features[0].getAttribute(2)));
+        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Float)features[1].getAttribute(1), (Float)features[1].getAttribute(2)));
+
+        assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[0].getAttribute(3)).getAsDate().getTime());
+        assertEquals(null, features[1].getAttribute(3));
+
+        assertEquals(18.3f, features[0].getAttribute(4));
+        assertEquals(10.6f, features[1].getAttribute(5));
+    }
+
+    @Test
+    public void testParseRecords_LessRecordsThanExpected() throws Exception {
+        final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
+        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
+        final CsvProductSource csvProductSource = parser.parse();
+        parser.parseRecords(0, 10);
+
+        SimpleFeature[] features = csvProductSource.getSimpleFeatures();
+
+        assertEquals(4, csvProductSource.getRecordCount());
+        assertEquals(4, features.length);
+    }
+
 
     private SimpleFeature[] toSimpleFeatureArray(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
         final Object[] objects = featureCollection.toArray(new Object[featureCollection.size()]);

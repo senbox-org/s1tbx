@@ -46,8 +46,10 @@ public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
         final CsvProductSourceParser csvProductFile = new CsvProductFile(input.toString());
         try {
             csvProductFile.parse();
-        } catch (CsvProductFile.ParseException e) {
+        } catch (CsvProductSourceParser.ParseException e) {
             return DecodeQualification.UNABLE;
+        } finally {
+            csvProductFile.close();
         }
 
         return DecodeQualification.SUITABLE;

@@ -50,7 +50,7 @@ public class CsvProductReaderTest {
         final Product product = readTestProduct();
 
         assertNotNull(product);
-        assertEquals(3, product.getSceneRasterWidth());
+        assertEquals(4, product.getSceneRasterWidth());
         assertEquals(1, product.getSceneRasterHeight());
         final Band[] bands = product.getBands();
         assertEquals(4, bands.length);
@@ -74,8 +74,8 @@ public class CsvProductReaderTest {
         final Raster radiance1Data = radiance1.getSourceImage().getData();
         final Raster radiance2Data = radiance2.getSourceImage().getData();
 
-        assertEquals(3, radiance1Data.getDataBuffer().getSize());
-        assertEquals(3, radiance2Data.getDataBuffer().getSize());
+        assertEquals(4, radiance1Data.getDataBuffer().getSize());
+        assertEquals(4, radiance2Data.getDataBuffer().getSize());
 
         assertEquals(Float.NaN, radiance1Data.getSampleFloat(0, 0, 0), 1.0E-6);
         assertEquals(13.4f, radiance2Data.getSampleFloat(0, 0, 0), 1.0E-6);
