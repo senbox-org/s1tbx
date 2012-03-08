@@ -90,17 +90,17 @@ public class CfBandPart extends ProfilePartIO {
             // todo - description
             readCfBandAttributes(variable, lowerBand);
             lowerBand.setSourceImage(new NetcdfMultiLevelImage(lowerBand, variable, ctx));
-            addFlagCodingIfApplicable(p, lowerBand, variable, lowerBand.getName(), false);
+            addFlagCodingIfApplicable(p, lowerBand, variable, variable.getName() + "_lsb", false);
 
             final Band upperBand = p.addBand(bandBasename + "_msb", rasterDataType);
             readCfBandAttributes(variable, upperBand);
             upperBand.setSourceImage(new NetcdfMultiLevelImage(upperBand, variable, ctx));
-            addFlagCodingIfApplicable(p, upperBand, variable, upperBand.getName(), true);
+            addFlagCodingIfApplicable(p, upperBand, variable, variable.getName() + "_msb", true);
         } else {
             final Band band = p.addBand(bandBasename, rasterDataType);
             readCfBandAttributes(variable, band);
             band.setSourceImage(new NetcdfMultiLevelImage(band, variable, ctx));
-            addFlagCodingIfApplicable(p, band, variable, band.getName(), false);
+            addFlagCodingIfApplicable(p, band, variable, variable.getName(), false);
         }
     }
 
@@ -236,13 +236,12 @@ public class CfBandPart extends ProfilePartIO {
         return ProductData.isUIntType(dataNode.getDataType());
     }
 
-    private static void addFlagCodingIfApplicable(Product p, Band band, Variable variable, String flagCodingBasename,
+    private static void addFlagCodingIfApplicable(Product p, Band band, Variable variable, String flagCodingName,
                                                   boolean msb) {
         final Attribute flagMaskAttribute = variable.findAttribute("flag_masks");
         final Attribute flagMeaningsAttribute = variable.findAttribute("flag_meanings");
 
         if (flagMaskAttribute != null && flagMeaningsAttribute != null) {
-            final String flagCodingName = flagCodingBasename + "_flag_coding";
             if (!p.getFlagCodingGroup().contains(flagCodingName)) {
                 final FlagCoding flagCoding = new FlagCoding(flagCodingName);
                 final String[] flagMeanings = flagMeaningsAttribute.getStringValue().split(" ");
@@ -258,7 +257,7 @@ public class CfBandPart extends ProfilePartIO {
                             case SHORT:
                                 flagCoding.addFlag(flagMeaning,
                                                    DataType.unsignedShortToInt(
-                                                           flagMaskAttribute.getNumericValue(i).byteValue()), null);
+                                                           flagMaskAttribute.getNumericValue(i).shortValue()), null);
                                 break;
                             case INT:
                                 flagCoding.addFlag(flagMeaning, flagMaskAttribute.getNumericValue(i).intValue(), null);
