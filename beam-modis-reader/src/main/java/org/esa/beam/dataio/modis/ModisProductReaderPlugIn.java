@@ -15,6 +15,7 @@
  */
 package org.esa.beam.dataio.modis;
 
+import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -55,7 +56,7 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
             if (NetcdfFile.canOpen(filePath)) {
                 ncfile = NetcdfFile.open(filePath);
 
-                ModisGlobalAttributes modisAttributes;
+                ModisGlobalAttributes modisAttributes = null;
                 final Variable structMeta = ncfile.findTopVariable(ModisConstants.STRUCT_META_KEY);
                 if (structMeta == null) {
                     // is IMAPP format
@@ -63,6 +64,11 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
                 } else {
                     final List<Variable> variables = ncfile.getVariables();
                     modisAttributes = new ModisDaacAttributes(variables);
+                }
+
+                final String productType = modisAttributes.getProductType();
+                if (ModisProductDb.getInstance().isSupportedProduct(productType)) {
+                    return DecodeQualification.INTENDED;
                 }
             }
         } catch (IOException ignore) {
