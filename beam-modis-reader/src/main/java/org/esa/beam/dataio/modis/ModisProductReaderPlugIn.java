@@ -17,6 +17,7 @@ package org.esa.beam.dataio.modis;
 
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
@@ -56,15 +57,7 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
             if (NetcdfFile.canOpen(filePath)) {
                 ncfile = NetcdfFile.open(filePath);
 
-                ModisGlobalAttributes modisAttributes = null;
-                final Variable structMeta = ncfile.findTopVariable(ModisConstants.STRUCT_META_KEY);
-                if (structMeta == null) {
-                    // is IMAPP format
-                    System.out.println("IMAPP format");
-                } else {
-                    final List<Variable> variables = ncfile.getVariables();
-                    modisAttributes = new ModisDaacAttributes(variables);
-                }
+                final ModisGlobalAttributes modisAttributes = readGlobalMetadata(ncfile);
 
                 final String productType = modisAttributes.getProductType();
                 if (ModisProductDb.getInstance().isSupportedProduct(productType)) {
@@ -81,44 +74,21 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
             }
         }
 
-        // @todo 1 tb/tb - add tests
-        // @todo 1 tb/tb - remove HDF
-//        if (file != null && file.exists() && file.isFile() && file.getPath().toLowerCase().endsWith(ModisConstants.DEFAULT_FILE_EXTENSION)) {
-//            try {
-//                String path = file.getPath();
-//                if (HDF.getWrap().Hishdf(path)) {
-//                    int fileId = HDFConstants.FAIL;
-//                    int sdStart = HDFConstants.FAIL;
-//                    try {
-//                        fileId = HDF.getWrap().Hopen(path, HDFConstants.DFACC_RDONLY);
-//                        sdStart = HDF.getWrap().SDstart(path, HDFConstants.DFACC_RDONLY);
-//                        HdfAttributes globalAttrs = HdfUtils.readAttributes(sdStart);
-//
-//                        // check wheter daac or imapp
-//                        ModisGlobalAttributes modisAttributes;
-//                        if (globalAttrs.getStringAttributeValue(ModisConstants.STRUCT_META_KEY) == null) {
-//                            modisAttributes = new ModisImappAttributes(file, sdStart, globalAttrs);
-//                        } else {
-//                            modisAttributes = new ModisDaacAttributes(globalAttrs);
-//                        }
-//                        final String productType = modisAttributes.getProductType();
-//                        if (ModisProductDb.getInstance().isSupportedProduct(productType)) {
-//                            return DecodeQualification.INTENDED;
-//                        }
-//                    } catch (HDFException ignore) {
-//                    } finally {
-//                        if (sdStart != HDFConstants.FAIL) {
-//                            HDF.getWrap().Hclose(sdStart);
-//                        }
-//                        if (fileId != HDFConstants.FAIL) {
-//                            HDF.getWrap().Hclose(fileId);
-//                        }
-//                    }
-//                }
-//            } catch (Exception ignore) {
-//            }
-//        }
         return DecodeQualification.UNABLE;
+    }
+
+    private ModisGlobalAttributes readGlobalMetadata(NetcdfFile ncfile) throws ProductIOException {
+        ModisGlobalAttributes modisAttributes = null;
+        final Variable structMeta = ncfile.findTopVariable(ModisConstants.STRUCT_META_KEY);
+        if (structMeta == null) {
+            // @todo 1 tb/tb implement IMAPP parsing
+            // is IMAPP format
+            System.out.println("IMAPP format");
+        } else {
+            final List<Variable> variables = ncfile.getVariables();
+            modisAttributes = new ModisDaacAttributes(variables);
+        }
+        return modisAttributes;
     }
 
     /**

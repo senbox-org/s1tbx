@@ -38,7 +38,7 @@ import java.util.logging.Logger;
 class ModisImappAttributes implements ModisGlobalAttributes {
 
     private final File _inFile;
-    private final Logger _logger;
+    private final Logger logger;
     private final int _sdId;
     private Dimension _productDimension;
     private HashMap<String, Integer> _dimensionMap;
@@ -51,7 +51,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
 
 
     public ModisImappAttributes(File inFile, int sdId, final HdfAttributes hdfAttributes) throws ProductIOException {
-        _logger = BeamLogManager.getSystemLogger();
+        logger = BeamLogManager.getSystemLogger();
         _inFile = inFile;
         this._sdId = sdId;
 
@@ -139,7 +139,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
         if (index > 0) {
             _productType = _productName.substring(0, index);
         } else {
-            _logger.warning("Unable to retrieve the product type from the file name.");
+            logger.warning("Unable to retrieve the product type from the file name.");
             _productType = "unknown";
         }
     }
@@ -163,7 +163,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
 
                 if (!HDF.getWrap().SDgetinfo(sdsId, dimName, dimSize, dimInfo)) {
                     final String msg = "Unable to retrieve meta information for dataset '" + dimName[0] + '\'';
-                    _logger.severe(msg);
+                    logger.severe(msg);
                     throw new HDFException(msg);
                 }
 
@@ -215,7 +215,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
             final String endTime = hdfAttributes.getStringAttributeValue(ModisConstants.RANGE_END_TIME_KEY);
 
             if (startDate == null || startTime == null) {
-                _logger.warning("Unable to retrieve sensing start time from metadata");
+                logger.warning("Unable to retrieve sensing start time from metadata");
                 _sensingStart = null;
                 //throw new ProductIOException("Unable to retrieve sensing start time from metadata");
             } else {
@@ -223,7 +223,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
             }
 
             if (endDate == null || endTime == null) {
-                _logger.warning("Unable to retrieve sensing stop time from metadata");
+                logger.warning("Unable to retrieve sensing stop time from metadata");
                 _sensingStop = null;
                 //throw new ProductIOException("Unable to retrieve sensing stop time from metadata");
             } else {

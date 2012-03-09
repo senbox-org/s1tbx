@@ -25,13 +25,13 @@ import org.esa.beam.dataio.modis.hdf.HdfUtils;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.logging.BeamLogManager;
+import ucar.nc2.NetcdfFile;
 
 import java.awt.*;
 import java.io.File;
@@ -51,6 +51,7 @@ public class ModisProductReader extends AbstractProductReader {
     private int _sdStart;
     private ModisFileReader _fileReader;
     private ModisGlobalAttributes _globalAttributes;
+    private NetcdfFile netcdfFile;
 
     /**
      * Constructs a new MODIS product reader.
@@ -59,6 +60,8 @@ public class ModisProductReader extends AbstractProductReader {
      */
     public ModisProductReader(ModisProductReaderPlugIn plugin) {
         super(plugin);
+
+        netcdfFile = null;
 
         _fileId = HDFConstants.FAIL;
         _sdStart = HDFConstants.FAIL;
@@ -75,6 +78,12 @@ public class ModisProductReader extends AbstractProductReader {
      */
     @Override
     public void close() throws IOException {
+        if (netcdfFile != null) {
+            netcdfFile.close();
+            netcdfFile = null;
+        }
+
+        // @todo 1 tb/tb remove this code
         if (_fileId != HDFConstants.FAIL) {
             try {
                 // close all band readers
@@ -151,9 +160,9 @@ public class ModisProductReader extends AbstractProductReader {
 
         try {
             reader.readBandData(sourceOffsetX, sourceOffsetY,
-                    sourceWidth, sourceHeight,
-                    sourceStepX, sourceStepY,
-                    destBuffer, pm);
+                                sourceWidth, sourceHeight,
+                                sourceStepX, sourceStepY,
+                                destBuffer, pm);
         } catch (HDFException e) {
             final IOException ioException = new IOException(e.getMessage());
             ioException.initCause(e);
@@ -170,7 +179,13 @@ public class ModisProductReader extends AbstractProductReader {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected Product readProductNodesImpl() throws IOException, IllegalFileFormatException {
+    protected Product readProductNodesImpl() throws IOException {
+        final File inputFile = getInputFile();
+        netcdfFile = NetcdfFile.open(inputFile.getPath());
+
+        readGlobalMetaData();
+
+        // @todo 1 tb/tb remove this code
         try {
             try {
                 final File inFile = getInputFile();
@@ -186,7 +201,7 @@ public class ModisProductReader extends AbstractProductReader {
                 final Dimension productDim = _globalAttributes.getProductDimensions();
                 final Product product;
                 product = new Product(_globalAttributes.getProductName(), _globalAttributes.getProductType(),
-                        productDim.width, productDim.height, this);
+                                      productDim.width, productDim.height, this);
                 product.setFileLocation(inFile);
                 _fileReader.addRastersAndGeocoding(_sdStart, _globalAttributes, product);
 
@@ -221,6 +236,8 @@ public class ModisProductReader extends AbstractProductReader {
             throw new ProductIOException(e.getMessage());
         }
     }
+
+
 
     private ModisFileReader createFileReader() {
         return new ModisFileReader();
@@ -257,6 +274,10 @@ public class ModisProductReader extends AbstractProductReader {
         } else {
             _globalAttributes = new ModisDaacAttributes(_globalHdfAttrs);
         }
+    }
+
+    private void readGlobalMetaData() {
+        //To change body of created methods use File | Settings | File Templates.
     }
 
     private boolean isImappFormat() {
