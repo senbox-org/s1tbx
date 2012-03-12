@@ -158,7 +158,7 @@ class MosaicMapProjectionPanel extends JPanel {
 
         boundsInputPanel = new BoundsInputPanel(bindingCtx, MosaicFormModel.PROPERTY_UPDATE_MODE);
 
-        panel.add(boundsInputPanel.createBoundsInputPanel());
+        panel.add(boundsInputPanel.createBoundsInputPanel(true));
         panel.add(worldMapPanel);
         panel.add(showSourceProductsCheckBox);
 

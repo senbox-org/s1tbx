@@ -78,7 +78,14 @@ public class BoundsInputPanel {
         unitMap.put("km", 1.0);
     }
 
-    public JPanel createBoundsInputPanel() {
+    /**
+     * Creates the UI component. The enable state of the UI is controlled via the parameter <code>disableUIProperty</code>.
+     * If it matches the value of the property provided in the constructor, the UI will be disabled.
+     *
+     * @param disableUIProperty Controls the enable state of the UI.
+     * @return The UI component.
+     */
+    public JPanel createBoundsInputPanel(boolean disableUIProperty) {
         final TableLayout layout = new TableLayout(9);
         layout.setTableAnchor(TableLayout.Anchor.WEST);
         layout.setTableFill(TableLayout.Fill.BOTH);
@@ -105,21 +112,21 @@ public class BoundsInputPanel {
         final JFormattedTextField westLonField = new JFormattedTextField(doubleFormatter);
         westLonField.setHorizontalAlignment(JTextField.RIGHT);
         bindingContext.bind(PROPERTY_WEST_BOUND, westLonField);
-        bindingContext.bindEnabledState(PROPERTY_WEST_BOUND, false, enablePropertyKey, true);
+        bindingContext.bindEnabledState(PROPERTY_WEST_BOUND, false, enablePropertyKey, disableUIProperty);
         panel.add(westLonField);
         panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
         panel.add(new JLabel("East:"));
         final JFormattedTextField eastLonField = new JFormattedTextField(doubleFormatter);
         eastLonField.setHorizontalAlignment(JTextField.RIGHT);
         bindingContext.bind(PROPERTY_EAST_BOUND, eastLonField);
-        bindingContext.bindEnabledState(PROPERTY_EAST_BOUND, false, enablePropertyKey, true);
+        bindingContext.bindEnabledState(PROPERTY_EAST_BOUND, false, enablePropertyKey, disableUIProperty);
         panel.add(eastLonField);
         panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
         panel.add(new JLabel("Pixel size X:"));
         pixelSizeXField = new JFormattedTextField(doubleFormatter);
         pixelSizeXField.setHorizontalAlignment(JTextField.RIGHT);
         bindingContext.bind(PROPERTY_PIXEL_SIZE_X, pixelSizeXField);
-        bindingContext.bindEnabledState(PROPERTY_PIXEL_SIZE_X, false, enablePropertyKey, true);
+        bindingContext.bindEnabledState(PROPERTY_PIXEL_SIZE_X, false, enablePropertyKey, disableUIProperty);
         panel.add(pixelSizeXField);
         panel.add(pixelXUnit);
 
@@ -127,21 +134,21 @@ public class BoundsInputPanel {
         final JFormattedTextField northLatField = new JFormattedTextField(doubleFormatter);
         northLatField.setHorizontalAlignment(JTextField.RIGHT);
         bindingContext.bind(PROPERTY_NORTH_BOUND, northLatField);
-        bindingContext.bindEnabledState(PROPERTY_NORTH_BOUND, false, enablePropertyKey, true);
+        bindingContext.bindEnabledState(PROPERTY_NORTH_BOUND, false, enablePropertyKey, disableUIProperty);
         panel.add(northLatField);
         panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
         panel.add(new JLabel("South:"));
         final JFormattedTextField southLatField = new JFormattedTextField(doubleFormatter);
         southLatField.setHorizontalAlignment(JTextField.RIGHT);
         bindingContext.bind(PROPERTY_SOUTH_BOUND, southLatField);
-        bindingContext.bindEnabledState(PROPERTY_SOUTH_BOUND, false, enablePropertyKey, true);
+        bindingContext.bindEnabledState(PROPERTY_SOUTH_BOUND, false, enablePropertyKey, disableUIProperty);
         panel.add(southLatField);
         panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
         panel.add(new JLabel("Pixel size Y:"));
         pixelSizeYField = new JFormattedTextField(doubleFormatter);
         pixelSizeYField.setHorizontalAlignment(JTextField.RIGHT);
         bindingContext.bind(PROPERTY_PIXEL_SIZE_Y, pixelSizeYField);
-        bindingContext.bindEnabledState(PROPERTY_PIXEL_SIZE_Y, false, enablePropertyKey, true);
+        bindingContext.bindEnabledState(PROPERTY_PIXEL_SIZE_Y, false, enablePropertyKey, disableUIProperty);
         panel.add(pixelSizeYField);
         panel.add(pixelYUnit);
 
