@@ -47,6 +47,8 @@ public class BoundsInputPanel {
     public static final String PROPERTY_NORTH_BOUND = "northBound";
     public static final String PROPERTY_EAST_BOUND = "eastBound";
     public static final String PROPERTY_SOUTH_BOUND = "southBound";
+    public static final String PROPERTY_PIXEL_SIZE_X = "pixelSizeX";
+    public static final String PROPERTY_PIXEL_SIZE_Y = "pixelSizeY";
 
     private final BindingContext bindingContext;
     private final String enablePropertyKey;
@@ -116,8 +118,8 @@ public class BoundsInputPanel {
         panel.add(new JLabel("Pixel size X:"));
         pixelSizeXField = new JFormattedTextField(doubleFormatter);
         pixelSizeXField.setHorizontalAlignment(JTextField.RIGHT);
-        bindingContext.bind("pixelSizeX", pixelSizeXField);
-        bindingContext.bindEnabledState("pixelSizeX", false, enablePropertyKey, true);
+        bindingContext.bind(PROPERTY_PIXEL_SIZE_X, pixelSizeXField);
+        bindingContext.bindEnabledState(PROPERTY_PIXEL_SIZE_X, false, enablePropertyKey, true);
         panel.add(pixelSizeXField);
         panel.add(pixelXUnit);
 
@@ -138,8 +140,8 @@ public class BoundsInputPanel {
         panel.add(new JLabel("Pixel size Y:"));
         pixelSizeYField = new JFormattedTextField(doubleFormatter);
         pixelSizeYField.setHorizontalAlignment(JTextField.RIGHT);
-        bindingContext.bind("pixelSizeY", pixelSizeYField);
-        bindingContext.bindEnabledState("pixelSizeY", false, enablePropertyKey, true);
+        bindingContext.bind(PROPERTY_PIXEL_SIZE_Y, pixelSizeYField);
+        bindingContext.bindEnabledState(PROPERTY_PIXEL_SIZE_Y, false, enablePropertyKey, true);
         panel.add(pixelSizeYField);
         panel.add(pixelYUnit);
 
