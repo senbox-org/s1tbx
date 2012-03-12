@@ -24,6 +24,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.BoundsInputPanel;
 import org.esa.beam.framework.ui.WorldMapPane;
 import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.framework.ui.crs.CrsForm;
@@ -32,29 +33,18 @@ import org.esa.beam.framework.ui.crs.CustomCrsForm;
 import org.esa.beam.framework.ui.crs.PredefinedCrsForm;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.cs.CoordinateSystem;
 
-import javax.measure.unit.NonSI;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import java.awt.Dimension;
-import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.ParseException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * @author Marco Peters
@@ -67,22 +57,14 @@ class MosaicMapProjectionPanel extends JPanel {
     private final MosaicFormModel mosaicModel;
 
     private CrsSelectionPanel crsSelectionPanel;
+    private BoundsInputPanel boundsInputPanel;
     private final BindingContext bindingCtx;
     private String[] demValueSet;
-    private JLabel pixelXUnit;
-    private JLabel pixelYUnit;
-    private Map<String, Double> unitMap;
-    private JFormattedTextField pixelSizeXField;
-    private JFormattedTextField pixelSizeYField;
 
     MosaicMapProjectionPanel(AppContext appContext, MosaicFormModel mosaicModel) {
         this.appContext = appContext;
         this.mosaicModel = mosaicModel;
         bindingCtx = new BindingContext(mosaicModel.getPropertySet());
-        unitMap = new HashMap<String, Double>();
-        unitMap.put("°", 0.05);
-        unitMap.put("m", 1000.0);
-        unitMap.put("km", 1.0);
         init();
         createUI();
         updateForCrsChanged();
@@ -148,17 +130,7 @@ class MosaicMapProjectionPanel extends JPanel {
     }
 
     private void updatePixelUnit(CoordinateReferenceSystem crs) {
-        final CoordinateSystem coordinateSystem = crs.getCoordinateSystem();
-        final String unitX = coordinateSystem.getAxis(0).getUnit().toString();
-        if (!unitX.equals(pixelXUnit.getText())) {
-            pixelXUnit.setText(unitX);
-            pixelSizeXField.setValue(unitMap.get(unitX));
-        }
-        final String unitY = coordinateSystem.getAxis(1).getUnit().toString();
-        if (!unitY.equals(pixelYUnit.getText())) {
-            pixelYUnit.setText(unitY);
-            pixelSizeYField.setValue(unitMap.get(unitY));
-        }
+        boundsInputPanel.updatePixelUnit(crs);
     }
 
     private JPanel createMosaicBoundsPanel() {
@@ -184,79 +156,11 @@ class MosaicMapProjectionPanel extends JPanel {
         final JCheckBox showSourceProductsCheckBox = new JCheckBox("Display source products");
         bindingCtx.bind(MosaicFormModel.PROPERTY_SHOW_SOURCE_PRODUCTS, showSourceProductsCheckBox);
 
-        panel.add(createBoundsInputPanel());
+        boundsInputPanel = new BoundsInputPanel(bindingCtx, MosaicFormModel.PROPERTY_UPDATE_MODE);
+
+        panel.add(boundsInputPanel.createBoundsInputPanel());
         panel.add(worldMapPanel);
         panel.add(showSourceProductsCheckBox);
-
-        return panel;
-    }
-
-    private JPanel createBoundsInputPanel() {
-        final TableLayout layout = new TableLayout(9);
-        layout.setTableAnchor(TableLayout.Anchor.WEST);
-        layout.setTableFill(TableLayout.Fill.BOTH);
-        layout.setTableWeightX(1.0);
-        layout.setTableWeightY(1.0);
-        layout.setTablePadding(3, 3);
-        layout.setColumnWeightX(0, 0.0);
-        layout.setColumnWeightX(1, 1.0);
-        layout.setColumnWeightX(2, 0.0);
-        layout.setColumnWeightX(3, 0.0);
-        layout.setColumnWeightX(4, 1.0);
-        layout.setColumnWeightX(5, 0.0);
-        layout.setColumnWeightX(6, 0.0);
-        layout.setColumnWeightX(7, 1.0);
-        layout.setColumnWeightX(8, 0.0);
-        layout.setColumnPadding(2, new Insets(3, 0, 3, 12));
-        layout.setColumnPadding(5, new Insets(3, 0, 3, 12));
-        final JPanel panel = new JPanel(layout);
-        final DoubleFormatter doubleFormatter = new DoubleFormatter("###0.0##");
-        pixelXUnit = new JLabel(NonSI.DEGREE_ANGLE.toString());
-        pixelYUnit = new JLabel(NonSI.DEGREE_ANGLE.toString());
-
-        panel.add(new JLabel("West:"));
-        final JFormattedTextField westLonField = new JFormattedTextField(doubleFormatter);
-        westLonField.setHorizontalAlignment(JTextField.RIGHT);
-        bindingCtx.bind(MosaicFormModel.PROPERTY_WEST_BOUND, westLonField);
-        bindingCtx.bindEnabledState(MosaicFormModel.PROPERTY_WEST_BOUND, false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
-        panel.add(westLonField);
-        panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
-        panel.add(new JLabel("East:"));
-        final JFormattedTextField eastLonField = new JFormattedTextField(doubleFormatter);
-        eastLonField.setHorizontalAlignment(JTextField.RIGHT);
-        bindingCtx.bind(MosaicFormModel.PROPERTY_EAST_BOUND, eastLonField);
-        bindingCtx.bindEnabledState(MosaicFormModel.PROPERTY_EAST_BOUND, false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
-        panel.add(eastLonField);
-        panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
-        panel.add(new JLabel("Pixel size X:"));
-        pixelSizeXField = new JFormattedTextField(doubleFormatter);
-        pixelSizeXField.setHorizontalAlignment(JTextField.RIGHT);
-        bindingCtx.bind("pixelSizeX", pixelSizeXField);
-        bindingCtx.bindEnabledState("pixelSizeX", false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
-        panel.add(pixelSizeXField);
-        panel.add(pixelXUnit);
-
-        panel.add(new JLabel("North:"));
-        final JFormattedTextField northLatField = new JFormattedTextField(doubleFormatter);
-        northLatField.setHorizontalAlignment(JTextField.RIGHT);
-        bindingCtx.bind(MosaicFormModel.PROPERTY_NORTH_BOUND, northLatField);
-        bindingCtx.bindEnabledState(MosaicFormModel.PROPERTY_NORTH_BOUND, false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
-        panel.add(northLatField);
-        panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
-        panel.add(new JLabel("South:"));
-        final JFormattedTextField southLatField = new JFormattedTextField(doubleFormatter);
-        southLatField.setHorizontalAlignment(JTextField.RIGHT);
-        bindingCtx.bind(MosaicFormModel.PROPERTY_SOUTH_BOUND, southLatField);
-        bindingCtx.bindEnabledState(MosaicFormModel.PROPERTY_SOUTH_BOUND, false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
-        panel.add(southLatField);
-        panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
-        panel.add(new JLabel("Pixel size Y:"));
-        pixelSizeYField = new JFormattedTextField(doubleFormatter);
-        pixelSizeYField.setHorizontalAlignment(JTextField.RIGHT);
-        bindingCtx.bind("pixelSizeY", pixelSizeYField);
-        bindingCtx.bindEnabledState("pixelSizeY", false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
-        panel.add(pixelSizeYField);
-        panel.add(pixelYUnit);
 
         return panel;
     }
@@ -329,34 +233,6 @@ class MosaicMapProjectionPanel extends JPanel {
             if (knownProperties.contains(evt.getPropertyName())) {
                 setMapBoundary(mosaicModel.getWorldMapModel());
             }
-        }
-
-    }
-
-    private static class DoubleFormatter extends JFormattedTextField.AbstractFormatter {
-
-        private final DecimalFormat format;
-
-        DoubleFormatter(String pattern) {
-            final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
-            format = new DecimalFormat(pattern, decimalFormatSymbols);
-
-            format.setParseIntegerOnly(false);
-            format.setParseBigDecimal(false);
-            format.setDecimalSeparatorAlwaysShown(true);
-        }
-
-        @Override
-        public Object stringToValue(String text) throws ParseException {
-            return format.parse(text).doubleValue();
-        }
-
-        @Override
-        public String valueToString(Object value) throws ParseException {
-            if (value == null) {
-                return "";
-            }
-            return format.format(value);
         }
     }
 }

@@ -26,6 +26,7 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.beam.framework.ui.BoundsInputPanel;
 import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.gpf.operators.standard.MosaicOp;
 import org.esa.beam.util.math.MathUtils;
@@ -61,11 +62,6 @@ class MosaicFormModel {
     public static final String PROPERTY_UPDATE_PRODUCT = "updateProduct";
     public static final String PROPERTY_UPDATE_MODE = "updateMode";
     public static final String PROPERTY_SHOW_SOURCE_PRODUCTS = "showSourceProducts";
-
-    public static final String PROPERTY_WEST_BOUND = "westBound";
-    public static final String PROPERTY_NORTH_BOUND = "northBound";
-    public static final String PROPERTY_EAST_BOUND = "eastBound";
-    public static final String PROPERTY_SOUTH_BOUND = "southBound";
 
     private final PropertySet container;
     private final Map<String, Object> parameterMap = new HashMap<String, Object>();
@@ -239,10 +235,10 @@ class MosaicFormModel {
     }
 
     ReferencedEnvelope getTargetEnvelope() {
-        final double west = (Double) getPropertyValue(PROPERTY_WEST_BOUND);
-        final double north = (Double) getPropertyValue(PROPERTY_NORTH_BOUND);
-        final double east = (Double) getPropertyValue(PROPERTY_EAST_BOUND);
-        final double south = (Double) getPropertyValue(PROPERTY_SOUTH_BOUND);
+        final double west = (Double) getPropertyValue(BoundsInputPanel.PROPERTY_WEST_BOUND);
+        final double north = (Double) getPropertyValue(BoundsInputPanel.PROPERTY_NORTH_BOUND);
+        final double east = (Double) getPropertyValue(BoundsInputPanel.PROPERTY_EAST_BOUND);
+        final double south = (Double) getPropertyValue(BoundsInputPanel.PROPERTY_SOUTH_BOUND);
 
         final Rectangle2D bounds = new Rectangle2D.Double();
         bounds.setFrameFromDiagonal(west, north, east, south);
