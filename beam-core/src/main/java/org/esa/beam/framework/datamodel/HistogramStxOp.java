@@ -32,14 +32,14 @@ final class HistogramStxOp extends StxOp {
 
     private final double lowValue;
     private final double highValue;
-    private final double binWidth;
+    private final boolean logScaled;
     private final int[] bins;
 
-    HistogramStxOp(int numBins, double lowValue, double highValue) {
+    HistogramStxOp(int numBins, double lowValue, double highValue, boolean logScaled) {
         super("Histogram");
         this.lowValue = lowValue;
         this.highValue = highValue;
-        this.binWidth = (highValue - lowValue) / numBins;
+        this.logScaled = logScaled;
         this.bins = new int[numBins];
     }
 
@@ -79,17 +79,19 @@ final class HistogramStxOp extends StxOp {
 
         // }} Block End
 
+        final Transformer t = logScaled ? new LogTransformer(this.lowValue) : new IdentityTransformer();
+
         final int[] bins = this.bins;
-        final double lowValue = this.lowValue;
-        final double highValue = this.highValue;
-        final double binWidth = this.binWidth;
+        final double lowValue = t.transform(this.lowValue);
+        final double highValue = t.transform(this.highValue);
+        final double binWidth = (highValue - lowValue) / bins.length;
 
         for (int y = 0; y < height; y++) {
             int dataPixelOffset = dataLineOffset;
             int maskPixelOffset = maskLineOffset;
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
-                    final double value = values.getDouble(dataPixelOffset);
+                    final double value = t.transform(values.getDouble(dataPixelOffset));
                     if (value >= lowValue && value <= highValue) {
                         int i = (int) ((value - lowValue) / binWidth);
                         i = i == bins.length ? i - 1 : i;
@@ -103,4 +105,33 @@ final class HistogramStxOp extends StxOp {
             maskLineOffset += maskLineStride;
         }
     }
+
+    private interface Transformer {
+        double transform(double x);
+    }
+
+    private static final class IdentityTransformer implements Transformer {
+        @Override
+        public double transform(double x) {
+            return x;
+        }
+    }
+
+    private static final class LogTransformer implements Transformer {
+        private final double bias;
+
+        private LogTransformer(double x0) {
+            this.bias = 1.0 - x0;
+        }
+
+        @Override
+        public double transform(double x) {
+            double tx = x + bias;
+            if (tx <= 0.0) {
+                return Double.NaN;
+            }
+            return Math.log10(tx);
+        }
+    }
+
 }

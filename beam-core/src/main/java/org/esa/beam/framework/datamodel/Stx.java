@@ -52,11 +52,12 @@ public class Stx {
     private final double minimum;
     private final double maximum;
     private final double stdDev;
+    private final double mean;
+    private final double median;
     private final long sampleCount;
     private final int resolutionLevel;
     private final Histogram histogram;
-    private final double mean;
-    private final double median;
+    private final boolean logHistogram;
 
     /**
      * Constructor. Prefer using a {@link StxBuilder} since the constructor may change in the future.
@@ -66,10 +67,11 @@ public class Stx {
      * @param mean            the mean value, if it is {@link Double#NaN} the mean is taken from the {@code histogram}
      * @param stdDev          the value of the standard deviation, if it is {@link Double#NaN} it is taken from the {@code histogram}
      * @param histogram       the histogram
+     * @param logHistogram    {@code true} if the histogram has been computed on logarithms
      * @param resolutionLevel the resolution level this {@code Stx} is for
-     * @see Stx#Stx(double, double, double, double, javax.media.jai.Histogram, int)
      */
-    public Stx(double minimum, double maximum, double mean, double stdDev, Histogram histogram, int resolutionLevel) {
+    public Stx(double minimum, double maximum, double mean, double stdDev,
+               Histogram histogram, boolean logHistogram, int resolutionLevel) {
         this.minimum = Double.isNaN(minimum) ? histogram.getLowValue(0) : minimum;
         this.maximum = Double.isNaN(maximum) ? histogram.getHighValue(0) : maximum;
         this.mean = Double.isNaN(mean) ? histogram.getMean()[0] : mean;
@@ -78,6 +80,7 @@ public class Stx {
         this.resolutionLevel = resolutionLevel;
         this.sampleCount = computeSum(histogram.getBins(0));
         this.median = computeMedian(histogram, this.sampleCount);
+        this.logHistogram = logHistogram;
     }
 
     /**
@@ -90,12 +93,13 @@ public class Stx {
      * @param intType           if true, statistics are computed from a data basis of integer number type.
      * @param sampleFrequencies the frequencies of the samples
      * @param resolutionLevel   the resolution level this {@code Stx} is for
-     * @see Stx#Stx(double, double, double, double, javax.media.jai.Histogram, int)
+     * @see Stx#Stx(double, double, double, double, javax.media.jai.Histogram, boolean, int)
      */
     public Stx(double minimum, double maximum, double mean, double stdDev, boolean intType, int[] sampleFrequencies,
                int resolutionLevel) {
-        this(minimum, maximum, mean, stdDev, createHistogram(minimum, maximum + (intType ? 1.0 : 0.0), sampleFrequencies),
-             resolutionLevel);
+        this(minimum, maximum, mean, stdDev,
+             createHistogram(minimum, maximum + (intType ? 1.0 : 0.0), sampleFrequencies),
+             false, resolutionLevel);
     }
 
 
@@ -237,6 +241,20 @@ public class Stx {
     }
 
     /**
+     * @return The histogram.
+     */
+    public Histogram getHistogram() {
+        return histogram;
+    }
+
+    /**
+     * @return {@code true} if the histogram is computed from log(x).
+     */
+    public boolean isLogHistogram() {
+        return logHistogram;
+    }
+
+    /**
      * @param binIndex The bin index.
      * @return The minimum value of the bin given by the bin index.
      */
@@ -253,7 +271,7 @@ public class Stx {
     }
 
     /**
-     * @return The width a histogram bin.
+     * @return The width of a histogram bin.
      */
     public double getHistogramBinWidth() {
         return (getMaximum() - getMinimum()) / getHistogramBinCount();
@@ -353,11 +371,11 @@ public class Stx {
             if (min == Double.MAX_VALUE && max == Double.MIN_VALUE) {
                 final Histogram histogram = createHistogram(1, 0, 1);
                 histogram.getBins(0)[0] = 0;
-                return new Stx(0.0, 1.0, Double.NaN, Double.NaN, histogram, level);
+                return new Stx(0.0, 1.0, Double.NaN, Double.NaN, histogram, false, level);
             }
 
             double off = getHighValueOffset(raster);
-            final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max + off);
+            final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max + off, false);
             accumulate(raster, level, maskImage, maskShape, histogramOp, SubProgressMonitor.create(pm, 1));
 
             // Create JAI histogram, but use our "BEAM" bins
@@ -377,7 +395,7 @@ public class Stx {
             pm.beginTask("Computing statistics", 3);
 
             double off = getHighValueOffset(raster);
-            final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max + off);
+            final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max + off, false);
             accumulate(raster, level, maskImage, maskShape, histogramOp, SubProgressMonitor.create(pm, 1));
 
             // Create JAI histogram, but use our "BEAM" bins
@@ -401,7 +419,7 @@ public class Stx {
             stdDev = meanOp.getStandardDeviation();
         }
 
-        return new Stx(min, max, mean, stdDev, histogram, level);
+        return new Stx(min, max, mean, stdDev, histogram, false, level);
     }
 
     static double getHighValueOffset(RasterDataNode raster) {

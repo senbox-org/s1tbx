@@ -27,7 +27,8 @@ public class StxBuilder {
     Mask roiMask;
     RenderedImage roiImage;
     Integer histogramBinCount;
-    Boolean intType;
+    Boolean intHistogram;
+    Boolean logHistogram;
     int[] histogramBins;
 
     public StxBuilder() {
@@ -88,8 +89,13 @@ public class StxBuilder {
         return this;
     }
 
-    public StxBuilder withIntType(boolean intType) {
-        this.intType = intType;
+    public StxBuilder withIntHistogram(boolean intHistogram) {
+        this.intHistogram = intHistogram;
+        return this;
+    }
+
+    public StxBuilder withLogHistogram(boolean logHistogram) {
+        this.logHistogram = logHistogram;
         return this;
     }
 
@@ -104,6 +110,7 @@ public class StxBuilder {
         double mean = this.mean != null ? this.mean.doubleValue() : Double.NaN;
         double stdDev = this.stdDev != null ? this.stdDev.doubleValue() : Double.NaN;
         int level = this.resolutionLevel != null ? this.resolutionLevel : 0;
+        boolean logHistogram = this.logHistogram != null ? this.logHistogram : false;
 
         Histogram histogram;
 
@@ -141,9 +148,9 @@ public class StxBuilder {
 
                 if (mustComputeHistogramStx) {
                     int binCount = histogramBinCount != null ? histogramBinCount : DEFAULT_BIN_COUNT;
-                    boolean intType = raster.getGeophysicalImage().getSampleModel().getDataType() < DataBuffer.TYPE_FLOAT;
-                    double offset = intType ? 1.0 : 0.0;
-                    final HistogramStxOp histogramOp = new HistogramStxOp(binCount, minimum, maximum + offset);
+                    boolean intHistogram = raster.getGeophysicalImage().getSampleModel().getDataType() < DataBuffer.TYPE_FLOAT;
+                    double offset = intHistogram ? 1.0 : 0.0;
+                    final HistogramStxOp histogramOp = new HistogramStxOp(binCount, minimum, maximum + offset, logHistogram);
                     Stx.accumulate(raster, level, maskImage, maskShape, histogramOp, SubProgressMonitor.create(pm, 50));
                     histogram = Stx.createHistogram(binCount, minimum, maximum + offset);
                     System.arraycopy(histogramOp.getBins(), 0, histogram.getBins(0), 0, binCount);
@@ -161,13 +168,13 @@ public class StxBuilder {
             if (Double.isNaN(maximum)) {
                 throw new IllegalStateException("Failed to derive maximum");
             }
-            boolean intType = this.intType != null ? this.intType : false;
-            double offset = intType ? 1.0 : 0.0;
+            boolean intHistogram = this.intHistogram != null ? this.intHistogram : false;
+            double offset = intHistogram ? 1.0 : 0.0;
             histogram = Stx.createHistogram(minimum, maximum + offset, this.histogramBins);
         } else {
             throw new IllegalStateException("Failed to derive histogram");
         }
 
-        return new Stx(minimum, maximum, mean, stdDev, histogram, level);
+        return new Stx(minimum, maximum, mean, stdDev, histogram, logHistogram, level);
     }
 }
