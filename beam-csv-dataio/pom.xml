@@ -12,7 +12,6 @@
     <name>BEAM CSV Product IO</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-csv-dataio</artifactId>
-    <version>${parent.version}</version>
 
     <packaging>jar</packaging>
 
