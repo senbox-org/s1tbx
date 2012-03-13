@@ -97,11 +97,11 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
     }
 
     public double getMinSample() {
-        return scaling == null ? 0 : scaling.scale(stx.getMin());
+        return scaling == null ? 0 : stx.getMinimum();
     }
 
     public double getMaxSample() {
-        return scaling == null ? 0 : scaling.scale(stx.getMax());
+        return scaling == null ? 0 : stx.getMaximum();
     }
 
     public boolean isHistogramAvailable() {

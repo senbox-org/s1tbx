@@ -484,7 +484,7 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
 
     private void copyStx(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
         final Stx sourceStx = sourceRaster.getStx();
-        final Stx targetStx = new Stx(sourceStx.getMin(), sourceStx.getMax(),
+        final Stx targetStx = new Stx(sourceStx.getMinimum(), sourceStx.getMaximum(),
                                       sourceStx.getMean(), sourceStx.getStandardDeviation(),
                                       ProductData.isIntType(sourceRaster.getDataType()),
                                       Arrays.copyOf(sourceStx.getHistogramBins(), sourceStx.getHistogramBins().length),

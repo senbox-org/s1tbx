@@ -17,28 +17,9 @@ package org.esa.beam.framework.dataop.barithm;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.EvalEnv;
-import com.bc.jexp.EvalException;
-import com.bc.jexp.Function;
-import com.bc.jexp.Namespace;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.Term;
-import com.bc.jexp.WritableNamespace;
-import com.bc.jexp.impl.AbstractSymbol;
-import com.bc.jexp.impl.DefaultNamespace;
-import com.bc.jexp.impl.NamespaceImpl;
-import com.bc.jexp.impl.ParserImpl;
-import com.bc.jexp.impl.Tokenizer;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Scaling;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import com.bc.jexp.*;
+import com.bc.jexp.impl.*;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Guardian;
 
 import java.io.IOException;
@@ -134,13 +115,11 @@ public class BandArithmetic {
      * @param products            the array of input products
      * @param defaultProductIndex the index of the product for which also symbols without the
      *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
-     *
      * @return the compiled expression
-     *
      * @throws ParseException if a parse error occurs
      */
     public static Term parseExpression(String expression, Product[] products, int defaultProductIndex) throws
-                                                                                                       ParseException {
+            ParseException {
         Assert.notNull(expression, null);
         final Namespace namespace = createDefaultNamespace(products, defaultProductIndex);
         final Parser parser = new ParserImpl(namespace, false);
@@ -155,7 +134,6 @@ public class BandArithmetic {
      * @param products            the array of input products
      * @param defaultProductIndex the index of the product for which also symbols without the
      *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
-     *
      * @return a default namespace, never <code>null</code>
      */
     public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex) {
@@ -178,7 +156,6 @@ public class BandArithmetic {
      * @param defaultProductIndex the index of the product for which also symbols without the
      *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
      * @param prefixProvider      a product prefix provider
-     *
      * @return a default namespace, never <code>null</code>
      */
     public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex,
@@ -204,6 +181,10 @@ public class BandArithmetic {
         return namespace;
     }
 
+    /**
+     * @deprecated Since BEAM 4.10. Use {@link VirtualBand} or {@link org.esa.beam.jai.VirtualBandOpImage}.
+     */
+    @Deprecated
     public static int computeBand(final String expression,
                                   final String validMaskExpression,
                                   final Product[] sourceProducts,
@@ -231,6 +212,10 @@ public class BandArithmetic {
                            targetRasterData, scaling, pm);
     }
 
+    /**
+     * @deprecated Since BEAM 4.10. Use {@link VirtualBand} or {@link org.esa.beam.jai.VirtualBandOpImage}.
+     */
+    @Deprecated
     public static int computeBand(final Term term,
                                   final Term validMaskTerm,
                                   final boolean checkInvalids,
@@ -326,7 +311,7 @@ public class BandArithmetic {
     }
 
     private static String createUnambiguousExpression(String vme, Product[] products, int productIndex) throws
-                                                                                                        ParseException {
+            ParseException {
         RasterDataNode[] rasters = getRefRasters(vme, products, productIndex);
         for (RasterDataNode raster : rasters) {
             String name = raster.getName();
@@ -394,7 +379,6 @@ public class BandArithmetic {
      * e.g. if multilple {@link SingleFlagSymbol}s refer to the same raster.
      *
      * @param rasterDataSymbols the array to be analysed
-     *
      * @return the array of raster data nodes, never <code>null</code> but may be empty
      */
     public static RasterDataNode[] getRefRasters(RasterDataSymbol[] rasterDataSymbols) {
@@ -414,7 +398,6 @@ public class BandArithmetic {
      * Utility method which returns all raster data symbols references in a given term.
      *
      * @param term the term to be analysed
-     *
      * @return the array of raster data symbols, never <code>null</code> but may be empty
      */
     public static RasterDataSymbol[] getRefRasterDataSymbols(Term term) {
@@ -426,7 +409,6 @@ public class BandArithmetic {
      * The order of the returned rasters is the order they appear in the given terms.
      *
      * @param terms the term array to be analysed
-     *
      * @return the array of raster data symbols, never <code>null</code> but may be empty
      */
     public static RasterDataSymbol[] getRefRasterDataSymbols(Term[] terms) {
@@ -447,7 +429,6 @@ public class BandArithmetic {
      * <p>The method simply delgates to {@link Tokenizer#createExternalName(String)}.
      *
      * @param name the name
-     *
      * @return a valid external name
      */
     public static String createExternalName(final String name) {
@@ -460,7 +441,6 @@ public class BandArithmetic {
      * number returned by {@link org.esa.beam.framework.datamodel.Product#getRefNo()}.
      *
      * @param product the product, must not be <code>null</code>
-     *
      * @return a node name prefix, never null.
      */
     public static String getProductNodeNamePrefix(Product product) {

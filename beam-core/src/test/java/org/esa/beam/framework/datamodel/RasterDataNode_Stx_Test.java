@@ -15,18 +15,14 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
-import javax.media.jai.TiledImage;
 import javax.media.jai.PlanarImage;
-import java.awt.image.PixelInterleavedSampleModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.SampleModel;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
-import java.awt.image.DataBufferFloat;
+import javax.media.jai.TiledImage;
+import java.awt.image.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class RasterDataNode_Stx_Test {
 
@@ -43,15 +39,15 @@ public class RasterDataNode_Stx_Test {
         final Stx stx = band.getStx();
         assertNotNull(stx);
         assertEquals(0, stx.getResolutionLevel());
-        assertEquals(1, stx.getMin(), 1e-11);
-        assertEquals(6, stx.getMax(), 1e-11);
+        assertEquals(1, stx.getMinimum(), 1e-11);
+        assertEquals(6, stx.getMaximum(), 1e-11);
         assertEquals(3.5, stx.getMean(), 1e-11);
         assertEquals(1.8708286933869707, stx.getStandardDeviation(), 1e-11);
         assertEquals(0.009765625, stx.getHistogramBinWidth(), 1e-11);
         assertEquals(512, stx.getHistogramBinCount());
 
         final double[] values = {1, 2, 3, 4, 5, 6};
-        final int[] binIdx = {0, 102, 204, 307,409, 511};
+        final int[] binIdx = {0, 102, 204, 307, 409, 511};
         assertBinValues(stx, binIdx, values);
     }
 
@@ -68,15 +64,15 @@ public class RasterDataNode_Stx_Test {
         final Stx stx = band.getStx();
         assertNotNull(stx);
         assertEquals(0, stx.getResolutionLevel());
-        assertEquals(1, stx.getMin(), 1e-11);
-        assertEquals(6, stx.getMax(), 1e-11);
+        assertEquals(1, stx.getMinimum(), 1e-11);
+        assertEquals(6, stx.getMaximum(), 1e-11);
         assertEquals(3.6, stx.getMean(), 1e-11);
         assertEquals(2.073644135332772, stx.getStandardDeviation(), 1e-11);
         assertEquals(0.009765625, stx.getHistogramBinWidth(), 1e-11);
         assertEquals(512, stx.getHistogramBinCount());
 
         final double[] values = {1, 2, 4, 5, 6};
-        final int[] binIdx = {0, 102, 307,409, 511};
+        final int[] binIdx = {0, 102, 307, 409, 511};
         assertBinValues(stx, binIdx, values);
     }
 
@@ -84,7 +80,7 @@ public class RasterDataNode_Stx_Test {
     public void testValues_41_52_63_74_85_96() {
         final int w = 2;
         final int h = 3;
-        final float[] floats = {4.1f,5.2f,6.3f,7.4f,8.5f,9.6f};
+        final float[] floats = {4.1f, 5.2f, 6.3f, 7.4f, 8.5f, 9.6f};
         final Double noDataValue = null;
         final Band band = createBand("name", ProductData.TYPE_FLOAT32, w, h, floats, noDataValue);
         final Product product = new Product("p", "t", w, h);
@@ -93,8 +89,8 @@ public class RasterDataNode_Stx_Test {
         final Stx stx = band.getStx();
         assertNotNull(stx);
         assertEquals(0, stx.getResolutionLevel());
-        assertEquals(4.1, stx.getMin(), 1e-6);
-        assertEquals(9.6, stx.getMax(), 1e-6);
+        assertEquals(4.1, stx.getMinimum(), 1e-6);
+        assertEquals(9.6, stx.getMaximum(), 1e-6);
         assertEquals(6.850000063578288, stx.getMean(), 1e-11);
         assertEquals(2.057911715653782, stx.getStandardDeviation(), 1e-11);
         assertEquals(0.010742188431322575, stx.getHistogramBinWidth(), 1e-11);
@@ -104,11 +100,12 @@ public class RasterDataNode_Stx_Test {
         final int[] binIdx = {0, 102, 204, 307, 409, 511};
         assertBinValues(stx, binIdx, values);
     }
+
     @Test
     public void testValues_41_52_63_74_85_96_NoDataValue_74() {
         final int w = 2;
         final int h = 3;
-        final float[] floats = {4.1f,5.2f,6.3f,7.4f,8.5f,9.6f};
+        final float[] floats = {4.1f, 5.2f, 6.3f, 7.4f, 8.5f, 9.6f};
         final Double noDataValue = 7.4d;
         final Band band = createBand("name", ProductData.TYPE_FLOAT32, w, h, floats, noDataValue);
         final Product product = new Product("p", "t", w, h);
@@ -117,8 +114,8 @@ public class RasterDataNode_Stx_Test {
         final Stx stx = band.getStx();
         assertNotNull(stx);
         assertEquals(0, stx.getResolutionLevel());
-        assertEquals(4.1, stx.getMin(), 1e-6);
-        assertEquals(9.6, stx.getMax(), 1e-6);
+        assertEquals(4.1, stx.getMinimum(), 1e-6);
+        assertEquals(9.6, stx.getMaximum(), 1e-6);
         assertEquals(6.740000057220459, stx.getMean(), 1e-11);
         assertEquals(2.281008719030014, stx.getStandardDeviation(), 1e-11);
         assertEquals(0.010742188431322575, stx.getHistogramBinWidth(), 1e-11);
@@ -137,8 +134,8 @@ public class RasterDataNode_Stx_Test {
 
         for (int i = 0; i < binIdx.length; i++) {
             assertEquals(1, bins[binIdx[i]]);
-            final double min = stx.getHistogramBinMin(binIdx[i]);
-            final double max = stx.getHistogramBinMax(binIdx[i]);
+            final double min = stx.getHistogramBinMinimum(binIdx[i]);
+            final double max = stx.getHistogramBinMaximum(binIdx[i]);
             assertEquals(true, min <= values[i] && min >= values[i] - binWidth);
             assertEquals(true, max >= values[i] && max <= values[i] + binWidth);
         }

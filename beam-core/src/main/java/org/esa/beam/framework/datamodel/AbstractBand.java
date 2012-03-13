@@ -720,57 +720,6 @@ public abstract class AbstractBand extends RasterDataNode {
     @Override
     public abstract long getRawStorageSize(ProductSubsetDef subsetDef);
 
-    /**
-     * (Re-)Computes this band's data using the given arithmetic expression.
-     *
-     * @param expression          the arithmetic expression string, e.g. "1 + log(radiance_5 / radiance_13)"
-     * @param validMaskExpression the arithmetic expression identifying valid source pixels, e.g. "radiance_5 > 0.0 && radiance_13 > 0.0"
-     * @param sourceProducts      the list of source products possibly referenced in the expression
-     * @param defaultProductIndex the index of the product for which also symbols without the
-     *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
-     * @param checkInvalids       if true, the method recognizes numerically invalid values (NaN, Infinity)
-     * @param useInvalidValue     if true, numerically invalid values (NaN, Infinity) are set to <code>invalidValue</code>,
-     *                            ignored if <code>checkInvalids = false</code>
-     * @param noDataValue         the value used in place of  numerically invalid values if <code>useInvalidValue =
-     *                            true</code>, ignored if  <code>checkInvalids = false</code>
-     * @param pm                  a monitor to inform the user about progress
-     * @return the number of invalid pixels, zero if  <code>checkInvalids = false</code>
-     * @throws IOException    if an I/O error occurs
-     * @throws ParseException if the expression syntax is invalid
-     */
-    public int computeBand(final String expression,
-                           final String validMaskExpression,
-                           final Product[] sourceProducts,
-                           final int defaultProductIndex,
-                           final boolean checkInvalids,
-                           final boolean useInvalidValue,
-                           final double noDataValue,
-                           ProgressMonitor pm) throws IOException, ParseException {
-
-        ProductData targetRasterData = getRasterData();
-        if (targetRasterData == null) {
-            targetRasterData = createCompatibleRasterData();
-        }
-
-        final int numInvalids = BandArithmetic.computeBand(expression,
-                                                           validMaskExpression,
-                                                           sourceProducts,
-                                                           defaultProductIndex,
-                                                           checkInvalids,
-                                                           useInvalidValue,
-                                                           noDataValue,
-                                                           0, 0,
-                                                           getRasterWidth(),
-                                                           getRasterHeight(),
-                                                           targetRasterData,
-                                                           this,
-                                                           pm);
-
-        setRasterData(targetRasterData);
-        fireProductNodeDataChanged();
-        return numInvalids;
-    }
-
     //////////////////////////////////////////////////////////////////////////
     // Implementation helpers
 
@@ -827,18 +776,61 @@ public abstract class AbstractBand extends RasterDataNode {
         return array;
     }
 
-    protected static ProductData ensureMinLengthArray(ProductData productData, int length) {
-        if (productData == null) {
-            return new ProductData.Float(length);
-        }
-        if (productData.getNumElems() < length) {
-            throw new IllegalArgumentException("The length of the given buffer is less than " + length);
-        }
-        return productData;
-    }
-
     /////////////////////////////////////////////////////////////////////////
     // Deprecated API
 
+
+    /**
+     * (Re-)Computes this band's data using the given arithmetic expression.
+     *
+     * @param expression          the arithmetic expression string, e.g. "1 + log(radiance_5 / radiance_13)"
+     * @param validMaskExpression the arithmetic expression identifying valid source pixels, e.g. "radiance_5 > 0.0 && radiance_13 > 0.0"
+     * @param sourceProducts      the list of source products possibly referenced in the expression
+     * @param defaultProductIndex the index of the product for which also symbols without the
+     *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
+     * @param checkInvalids       if true, the method recognizes numerically invalid values (NaN, Infinity)
+     * @param useInvalidValue     if true, numerically invalid values (NaN, Infinity) are set to <code>invalidValue</code>,
+     *                            ignored if <code>checkInvalids = false</code>
+     * @param noDataValue         the value used in place of  numerically invalid values if <code>useInvalidValue =
+     *                            true</code>, ignored if  <code>checkInvalids = false</code>
+     * @param pm                  a monitor to inform the user about progress
+     * @return the number of invalid pixels, zero if  <code>checkInvalids = false</code>
+     * @throws IOException    if an I/O error occurs
+     * @throws ParseException if the expression syntax is invalid
+     * @deprecated Since BEAM 4.10. Use {@link VirtualBand} or {@link org.esa.beam.jai.VirtualBandOpImage}.
+     */
+    @Deprecated
+    public int computeBand(final String expression,
+                           final String validMaskExpression,
+                           final Product[] sourceProducts,
+                           final int defaultProductIndex,
+                           final boolean checkInvalids,
+                           final boolean useInvalidValue,
+                           final double noDataValue,
+                           ProgressMonitor pm) throws IOException, ParseException {
+
+        ProductData targetRasterData = getRasterData();
+        if (targetRasterData == null) {
+            targetRasterData = createCompatibleRasterData();
+        }
+
+        final int numInvalids = BandArithmetic.computeBand(expression,
+                                                           validMaskExpression,
+                                                           sourceProducts,
+                                                           defaultProductIndex,
+                                                           checkInvalids,
+                                                           useInvalidValue,
+                                                           noDataValue,
+                                                           0, 0,
+                                                           getRasterWidth(),
+                                                           getRasterHeight(),
+                                                           targetRasterData,
+                                                           this,
+                                                           pm);
+
+        setRasterData(targetRasterData);
+        fireProductNodeDataChanged();
+        return numInvalids;
+    }
 
 }

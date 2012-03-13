@@ -1574,8 +1574,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public synchronized ImageInfo createDefaultImageInfo(double[] histoSkipAreas, ProgressMonitor pm) {
         Stx stx = getStx(false, pm);
         Histogram histogram = new Histogram(stx.getHistogramBins(),
-                                            stx.getMin(),
-                                            stx.getMax());
+                                            stx.getMinimum(),
+                                            stx.getMaximum());
         return createDefaultImageInfo(histoSkipAreas, histogram);
     }
 
@@ -1601,11 +1601,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
         final double min, max;
         if (range.getMin() != range.getMax()) {
-            min = scale(range.getMin());
-            max = scale(range.getMax());
+            min = range.getMin();
+            max = range.getMax();
         } else {
-            min = scale(histogram.getMin());
-            max = scale(histogram.getMax());
+            min = histogram.getMin();
+            max = histogram.getMax();
         }
 
         double center = scale(0.5 * (scaleInverse(min) + scaleInverse(max)));

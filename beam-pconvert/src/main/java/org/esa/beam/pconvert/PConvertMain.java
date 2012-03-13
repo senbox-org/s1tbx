@@ -20,11 +20,7 @@ import org.esa.beam.dataio.dimap.DimapProductWriterPlugIn;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.util.BeamConstants;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.*;
 import org.esa.beam.util.geotiff.GeoTIFF;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import org.esa.beam.util.io.FileUtils;
@@ -33,7 +29,7 @@ import org.esa.beam.util.jai.JAIUtils;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.operator.BandSelectDescriptor;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
@@ -195,7 +191,7 @@ public class PConvertMain {
     // Main
     /////////////////////////////////////////////////////////////////////////
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
         SystemUtils.init3rdPartyLibs(PConvertMain.class.getClassLoader());
         new PConvertMain(args).run();
@@ -551,8 +547,8 @@ public class PConvertMain {
                 } else {
                     Stx stx = band.getStx();
                     band.getImageInfo().setColorPaletteDef(colorPaletteDef,
-                                                           band.scale(stx.getMin()),
-                                                           band.scale(stx.getMax()), false);
+                                                           stx.getMinimum(),
+                                                           stx.getMaximum(), false);
                 }
             }
             if (_noDataColor != null) {
@@ -682,8 +678,8 @@ public class PConvertMain {
         product = createProductSubset(product, _maxOutputResolution, _bandIndices, outputFile);
         try {
             log("writing a data product of size " + product.getSceneRasterWidth() + " x " +
-                    product.getSceneRasterHeight() + " pixels to '" +
-                    outputFile.getPath() + "'...");
+                        product.getSceneRasterHeight() + " pixels to '" +
+                        outputFile.getPath() + "'...");
             ProductIO.writeProduct(product, outputFile, _formatName, false, ProgressMonitor.NULL);
         } catch (IOException e) {
             Debug.trace(e);

@@ -20,30 +20,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.beam.GlobalTestTools;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GcpGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.util.BeamConstants;
 import org.esa.beam.util.Debug;
@@ -51,17 +29,12 @@ import org.esa.beam.util.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 
-import java.awt.Color;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -214,8 +187,8 @@ public class DimapDocumentTest extends TestCase {
         final Band firstBand = bands[0];
         final Stx stx = firstBand.getStx();
         assertNotNull(stx);
-        assertEquals(-0.2, stx.getMin(), 1.0e-6);
-        assertEquals(3.0, stx.getMax(), 1.0e-6);
+        assertEquals(-0.2, stx.getMinimum(), 1.0e-6);
+        assertEquals(3.0, stx.getMaximum(), 1.0e-6);
         assertEquals(5.5, stx.getMean(), 1.0e-6);
         assertEquals(3.67, stx.getStandardDeviation(), 1.0e-6);
 
@@ -1080,17 +1053,17 @@ public class DimapDocumentTest extends TestCase {
                 Line2D.Float line = (Line2D.Float) shape;
                 type = "Line2D";
                 values = "" + line.getX1() + "," + line.getY1()
-                         + "," + line.getX2() + "," + line.getY2();
+                        + "," + line.getX2() + "," + line.getY2();
             } else if (shape instanceof Rectangle2D.Float) {
                 final Rectangle2D.Float rectangle = (Rectangle2D.Float) shape;
                 type = "Rectangle2D";
                 values = "" + rectangle.getX() + "," + rectangle.getY()
-                         + "," + rectangle.getWidth() + "," + rectangle.getHeight();
+                        + "," + rectangle.getWidth() + "," + rectangle.getHeight();
             } else if (shape instanceof Ellipse2D.Float) {
                 final Ellipse2D.Float ellipse = (Ellipse2D.Float) shape;
                 type = "Ellipse2D";
                 values = "" + ellipse.getX() + "," + ellipse.getY()
-                         + "," + ellipse.getWidth() + "," + ellipse.getHeight();
+                        + "," + ellipse.getWidth() + "," + ellipse.getHeight();
             } else {
                 type = "Path";
                 final PathIterator iterator = shape.getPathIterator(null);
@@ -1261,8 +1234,8 @@ public class DimapDocumentTest extends TestCase {
                     mdAttr.setAttribute(DimapProductConstants.ATTRIB_MODE, "rw");
                 }
                 if (attribute.getNumDataElems() > 1 &&
-                    !ProductData.TYPESTRING_ASCII.equals(dataTypeString) &&
-                    !ProductData.TYPESTRING_UTC.equals(dataTypeString)) {
+                        !ProductData.TYPESTRING_ASCII.equals(dataTypeString) &&
+                        !ProductData.TYPESTRING_UTC.equals(dataTypeString)) {
                     mdAttr.setAttribute(DimapProductConstants.ATTRIB_ELEMS,
                                         String.valueOf(attribute.getNumDataElems()));
                 }
@@ -1377,9 +1350,9 @@ public class DimapDocumentTest extends TestCase {
                     imageDisplayElem.addContent(bandStatisticsElem);
                     JDomHelper.addElement(DimapProductConstants.TAG_BAND_INDEX, i, bandStatisticsElem);
                     if (band.isStxSet()) {
-                        JDomHelper.addElement(DimapProductConstants.TAG_STX_MIN, band.getStx().getMin(),
+                        JDomHelper.addElement(DimapProductConstants.TAG_STX_MIN, band.getStx().getMinimum(),
                                               bandStatisticsElem);
-                        JDomHelper.addElement(DimapProductConstants.TAG_STX_MAX, band.getStx().getMax(),
+                        JDomHelper.addElement(DimapProductConstants.TAG_STX_MAX, band.getStx().getMaximum(),
                                               bandStatisticsElem);
                         JDomHelper.addElement(DimapProductConstants.TAG_STX_MEAN, band.getStx().getMean(),
                                               bandStatisticsElem);
