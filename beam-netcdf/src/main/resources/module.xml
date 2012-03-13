@@ -32,8 +32,10 @@
     <changelog>
         <![CDATA[
         Changes in 1.1:<br/>
+        [BEAM-1381] - Statistics written to NetCDF files shall be in geo-physical units<br/>
         [BEAM-1363] - Write NetCDf 4 files using compression<br/>
         [BEAM-1351] - Metadata is duplicated if NetCDF-BEAM file is saved again<br/>
+        [BEAM-1347] - Wrong Histogram in exported NetCDF-BEAM product<br/>
         [BEAM-1333] - NetCDF files are not CF compliant<br/>
         [BEAM-1332] - NetCDF/CF writer does not write coordinates<br/>
         [BEAM-1320] - BEAM-NetCDF reader/writer does not preserve solar flux information<br/>
