@@ -59,6 +59,47 @@ public class Stx {
     private final double median;
 
     /**
+     * Constructor. Prefer using a {@link StxBuilder} since the constructor may change in the future.
+     *
+     * @param minimum         the minimum value, if it is {@link Double#NaN} the minimum is taken from the {@code histogram}
+     * @param maximum         the maximum value, if it is {@link Double#NaN} the maximum is taken from the {@code histogram}
+     * @param mean            the mean value, if it is {@link Double#NaN} the mean is taken from the {@code histogram}
+     * @param stdDev          the value of the standard deviation, if it is {@link Double#NaN} it is taken from the {@code histogram}
+     * @param histogram       the histogram
+     * @param resolutionLevel the resolution level this {@code Stx} is for
+     * @see Stx#Stx(double, double, double, double, javax.media.jai.Histogram, int)
+     */
+    public Stx(double minimum, double maximum, double mean, double stdDev, Histogram histogram, int resolutionLevel) {
+        this.minimum = Double.isNaN(minimum) ? histogram.getLowValue(0) : minimum;
+        this.maximum = Double.isNaN(maximum) ? histogram.getHighValue(0) : maximum;
+        this.mean = Double.isNaN(mean) ? histogram.getMean()[0] : mean;
+        this.stdDev = Double.isNaN(stdDev) ? histogram.getStandardDeviation()[0] : stdDev;
+        this.histogram = histogram;
+        this.resolutionLevel = resolutionLevel;
+        this.sampleCount = computeSum(histogram.getBins(0));
+        this.median = computeMedian(histogram, this.sampleCount);
+    }
+
+    /**
+     * Constructor. Prefer using a {@link StxBuilder} since the constructor may change in the future.
+     *
+     * @param minimum           the minimum value
+     * @param maximum           the maximum value
+     * @param mean              the mean value, if it's {@link Double#NaN} the mean will be computed
+     * @param stdDev            the value of the standard deviation, if it's {@link Double#NaN} it will be computed
+     * @param intType           if true, statistics are computed from a data basis of integer number type.
+     * @param sampleFrequencies the frequencies of the samples
+     * @param resolutionLevel   the resolution level this {@code Stx} is for
+     * @see Stx#Stx(double, double, double, double, javax.media.jai.Histogram, int)
+     */
+    public Stx(double minimum, double maximum, double mean, double stdDev, boolean intType, int[] sampleFrequencies,
+               int resolutionLevel) {
+        this(minimum, maximum, mean, stdDev, createHistogram(minimum, maximum + (intType ? 1.0 : 0.0), sampleFrequencies),
+             resolutionLevel);
+    }
+
+
+    /**
      * Creates statistics for the given raster data node at the given resolution level.
      *
      * @param raster The raster data node.
@@ -161,46 +202,6 @@ public class Stx {
 
 
     /**
-     * Constructor.
-     *
-     * @param minimum           the minimum value
-     * @param maximum           the maximum value
-     * @param mean              the mean value, if it's {@link Double#NaN} the mean will be computed
-     * @param stdDev            the value of the standard deviation, if it's {@link Double#NaN} it will be computed
-     * @param intType           if true, statistics are computed from a data basis of integer number type.
-     * @param sampleFrequencies the frequencies of the samples
-     * @param resolutionLevel   the resolution level this {@code Stx} is for
-     * @see Stx#Stx(double, double, double, double, javax.media.jai.Histogram, int)
-     */
-    public Stx(double minimum, double maximum, double mean, double stdDev, boolean intType, int[] sampleFrequencies,
-               int resolutionLevel) {
-        this(minimum, maximum, mean, stdDev, createHistogram(minimum, maximum + (intType ? 1.0 : 0.0), sampleFrequencies),
-             resolutionLevel);
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param minimum         the minimum value
-     * @param maximum         the maximum value
-     * @param mean            the mean value, if it's {@link Double#NaN} the mean is taken from the {@code histogram}
-     * @param stdDev          the value of the standard deviation, if it's {@link Double#NaN} it is taken from the {@code histogram}
-     * @param histogram       the histogram
-     * @param resolutionLevel the resolution level this {@code Stx} is for
-     * @see Stx#Stx(double, double, double, double, javax.media.jai.Histogram, int)
-     */
-    private Stx(double minimum, double maximum, double mean, double stdDev, Histogram histogram, int resolutionLevel) {
-        this.minimum = minimum;
-        this.maximum = maximum;
-        this.mean = Double.isNaN(mean) ? histogram.getMean()[0] : mean;
-        this.stdDev = Double.isNaN(stdDev) ? histogram.getStandardDeviation()[0] : stdDev;
-        this.histogram = histogram;
-        this.resolutionLevel = resolutionLevel;
-        this.sampleCount = computeSum(histogram.getBins(0));
-        this.median = computeMedian(histogram, this.sampleCount);
-    }
-
-    /**
      * @return The minimum value.
      */
     public double getMinimum() {
@@ -222,7 +223,7 @@ public class Stx {
     }
 
     /**
-     * @return The median value.
+     * @return The median value (estimation based on Gaussian distribution).
      */
     public double getMedian() {
         return median;
@@ -286,13 +287,13 @@ public class Stx {
         return resolutionLevel;
     }
 
-    private static Histogram createHistogram(double minSample, double maxSample, int[] sampleFrequencies) {
+    static Histogram createHistogram(double minSample, double maxSample, int[] sampleFrequencies) {
         final Histogram histogram = createHistogram(sampleFrequencies.length, minSample, maxSample);
         System.arraycopy(sampleFrequencies, 0, histogram.getBins(0), 0, sampleFrequencies.length);
         return histogram;
     }
 
-    private static long computeSum(int[] sampleFrequencies) {
+    static long computeSum(int[] sampleFrequencies) {
         long sum = 0;
         for (int sampleFrequency : sampleFrequencies) {
             sum += sampleFrequency;
@@ -300,7 +301,7 @@ public class Stx {
         return sum;
     }
 
-    private static double computeMedian(Histogram histogram, long sampleCount) {
+    static double computeMedian(Histogram histogram, long sampleCount) {
         boolean isEven = sampleCount % 2 == 0;
         double halfSampleCount = sampleCount / 2.0;
         final int bandIndex = 0;
@@ -330,15 +331,15 @@ public class Stx {
         return Double.NaN;
     }
 
-    private static double getMeanOfBin(Histogram histogram, int bandIndex, int binIndex) {
+    static double getMeanOfBin(Histogram histogram, int bandIndex, int binIndex) {
         final double binLowValue = histogram.getBinLowValue(bandIndex, binIndex);
         final double binMaxValue = histogram.getBinLowValue(bandIndex, binIndex + 1);
         return (binLowValue + binMaxValue) / 2;
     }
 
 
-    private static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
-                                  int binCount, ProgressMonitor pm) {
+    static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
+                          int binCount, ProgressMonitor pm) {
         try {
             pm.beginTask("Computing statistics", 3);
             final SummaryStxOp summaryOp = new SummaryStxOp();
@@ -370,8 +371,8 @@ public class Stx {
         }
     }
 
-    private static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
-                                  int binCount, double min, double max, ProgressMonitor pm) {
+    static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
+                          int binCount, double min, double max, ProgressMonitor pm) {
         try {
             pm.beginTask("Computing statistics", 3);
 
@@ -390,9 +391,9 @@ public class Stx {
         }
     }
 
-    private static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
-                                  Histogram histogram, double min, double max, double mean, double stdDev,
-                                  ProgressMonitor pm) {
+    static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
+                          Histogram histogram, double min, double max, double mean, double stdDev,
+                          ProgressMonitor pm) {
         if (Double.isNaN(mean) || Double.isNaN(stdDev)) {
             final SummaryStxOp meanOp = new SummaryStxOp();
             accumulate(raster, level, maskImage, maskShape, meanOp, pm);
@@ -403,19 +404,19 @@ public class Stx {
         return new Stx(min, max, mean, stdDev, histogram, level);
     }
 
-    private static double getHighValueOffset(RasterDataNode raster) {
+    static double getHighValueOffset(RasterDataNode raster) {
         return ProductData.isIntType(raster.getDataType()) ? 1.0 : 0.0;
     }
 
-    private static Histogram createHistogram(int binCount, double min, double max) {
+    static Histogram createHistogram(int binCount, double min, double max) {
         return min < max ? new Histogram(binCount, min, max, 1) : new Histogram(binCount, min, min + 1e-10, 1);
     }
 
-    private static void accumulate(RasterDataNode rasterDataNode,
-                                   int level,
-                                   RenderedImage roiImage, Shape roiShape,
-                                   StxOp op,
-                                   ProgressMonitor pm) {
+    static void accumulate(RasterDataNode rasterDataNode,
+                           int level,
+                           RenderedImage roiImage, Shape roiShape,
+                           StxOp op,
+                           ProgressMonitor pm) {
 
         Assert.notNull(rasterDataNode, "raster");
         Assert.argument(level >= 0, "level");
@@ -432,7 +433,7 @@ public class Stx {
         accumulate(op, dataImage, maskImage, maskShape, pm);
     }
 
-    private static void accumulate(StxOp op, PlanarImage dataImage, PlanarImage maskImage, Shape maskShape, ProgressMonitor pm) {
+    static void accumulate(StxOp op, PlanarImage dataImage, PlanarImage maskImage, Shape maskShape, ProgressMonitor pm) {
         if (maskImage != null) {
             ensureImageCompatibility(dataImage, maskImage);
         }
@@ -470,7 +471,7 @@ public class Stx {
         }
     }
 
-    private static void accumulateTile(StxOp op, PlanarImage dataImage, PlanarImage maskImage, PixelAccessor dataAccessor, PixelAccessor maskAccessor, int tileX, int tileY) {
+    static void accumulateTile(StxOp op, PlanarImage dataImage, PlanarImage maskImage, PixelAccessor dataAccessor, PixelAccessor maskAccessor, int tileX, int tileY) {
         final Raster dataTile = dataImage.getTile(tileX, tileY);
         if (!(dataTile instanceof NoDataRaster)) {
             // data and mask image might not have the same tile size
@@ -485,7 +486,7 @@ public class Stx {
         }
     }
 
-    private static void ensureImageCompatibility(PlanarImage dataImage, PlanarImage maskImage) {
+    static void ensureImageCompatibility(PlanarImage dataImage, PlanarImage maskImage) {
         if (maskImage.getSampleModel().getNumBands() != 1) {
             throw new IllegalStateException("maskSampleModel.numBands != 1");
         }
@@ -518,7 +519,7 @@ public class Stx {
         }
     }
 
-    private static PlanarImage getEffectiveMaskImage(RasterDataNode raster, int level, RenderedImage roiImage) {
+    static PlanarImage getEffectiveMaskImage(RasterDataNode raster, int level, RenderedImage roiImage) {
         PlanarImage maskImage = ImageManager.getInstance().getValidMaskImage(raster, level);
         if (roiImage != null) {
             if (maskImage != null) {
@@ -534,7 +535,7 @@ public class Stx {
         return maskImage;
     }
 
-    private static Shape getEffectiveShape(RasterDataNode raster, Shape maskShape) {
+    static Shape getEffectiveShape(RasterDataNode raster, Shape maskShape) {
         Shape validShape = raster.getValidShape();
         Shape effectiveShape = validShape;
         if (validShape != null && maskShape != null) {
