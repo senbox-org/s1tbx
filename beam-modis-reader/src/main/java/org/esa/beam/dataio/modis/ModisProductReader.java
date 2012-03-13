@@ -36,16 +36,12 @@ import ucar.nc2.NetcdfFile;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.logging.Logger;
 
 public class ModisProductReader extends AbstractProductReader {
 
     private HdfAttributes _globalHdfAttrs;
-    private final HashMap _bandReader;
     private final Logger _logger;
     private int _fileId;
     private int _sdStart;
@@ -66,8 +62,6 @@ public class ModisProductReader extends AbstractProductReader {
         _fileId = HDFConstants.FAIL;
         _sdStart = HDFConstants.FAIL;
 
-        _bandReader = new HashMap();
-
         _logger = BeamLogManager.getSystemLogger();
     }
 
@@ -86,17 +80,6 @@ public class ModisProductReader extends AbstractProductReader {
         // @todo 1 tb/tb remove this code
         if (_fileId != HDFConstants.FAIL) {
             try {
-                // close all band readers
-                // ----------------------
-                Collection readers = _bandReader.values();
-                Iterator it = readers.iterator();
-                ModisBandReader reader;
-                while (it.hasNext()) {
-                    reader = (ModisBandReader) it.next();
-                    reader.close();
-                }
-                _bandReader.clear();
-
                 _fileReader.close();
 
                 // and finish file access
@@ -160,9 +143,9 @@ public class ModisProductReader extends AbstractProductReader {
 
         try {
             reader.readBandData(sourceOffsetX, sourceOffsetY,
-                                sourceWidth, sourceHeight,
-                                sourceStepX, sourceStepY,
-                                destBuffer, pm);
+                    sourceWidth, sourceHeight,
+                    sourceStepX, sourceStepY,
+                    destBuffer, pm);
         } catch (HDFException e) {
             final IOException ioException = new IOException(e.getMessage());
             ioException.initCause(e);
@@ -183,7 +166,7 @@ public class ModisProductReader extends AbstractProductReader {
         final File inputFile = getInputFile();
         netcdfFile = NetcdfFile.open(inputFile.getPath());
 
-        readGlobalMetaData();
+        readGlobalMetaData(inputFile, netcdfFile);
 
         // @todo 1 tb/tb remove this code
         try {
@@ -193,7 +176,7 @@ public class ModisProductReader extends AbstractProductReader {
                 _fileId = HDF.getWrap().Hopen(path, HDFConstants.DFACC_RDONLY);
                 _sdStart = HDF.getWrap().SDstart(path, HDFConstants.DFACC_RDONLY);
 
-                readGlobalMetaData(inFile);
+                readGlobalMetaData(inFile, netcdfFile);
                 checkProductType();
                 //checkDayNightMode();
                 _fileReader = createFileReader();
@@ -201,7 +184,7 @@ public class ModisProductReader extends AbstractProductReader {
                 final Dimension productDim = _globalAttributes.getProductDimensions();
                 final Product product;
                 product = new Product(_globalAttributes.getProductName(), _globalAttributes.getProductType(),
-                                      productDim.width, productDim.height, this);
+                        productDim.width, productDim.height, this);
                 product.setFileLocation(inFile);
                 _fileReader.addRastersAndGeocoding(_sdStart, _globalAttributes, product);
 
@@ -238,7 +221,6 @@ public class ModisProductReader extends AbstractProductReader {
     }
 
 
-
     private ModisFileReader createFileReader() {
         return new ModisFileReader();
 //        if (isImappFormat()) {
@@ -265,20 +247,21 @@ public class ModisProductReader extends AbstractProductReader {
      *
      * @throws HDFException
      */
-    private void readGlobalMetaData(File inFile) throws HDFException, ProductIOException {
-        _globalHdfAttrs = HdfUtils.readAttributes(_sdStart);
+    private void readGlobalMetaData(File inFile, NetcdfFile netcdfFile) throws  ProductIOException {
+        try {
+            _globalHdfAttrs = HdfUtils.readAttributes(_sdStart);
+        } catch (HDFException e) {
+            throw new ProductIOException(e.getMessage());
+        }
 
         // check wheter daac or imapp
         if (isImappFormat()) {
-            _globalAttributes = new ModisImappAttributes(inFile, _sdStart, _globalHdfAttrs);
+            _globalAttributes = new ModisImappAttributes(inFile, netcdfFile, _sdStart, _globalHdfAttrs);
         } else {
             _globalAttributes = new ModisDaacAttributes(_globalHdfAttrs);
         }
     }
 
-    private void readGlobalMetaData() {
-        //To change body of created methods use File | Settings | File Templates.
-    }
 
     private boolean isImappFormat() {
         return _globalHdfAttrs.getStringAttributeValue(ModisConstants.STRUCT_META_KEY) == null;

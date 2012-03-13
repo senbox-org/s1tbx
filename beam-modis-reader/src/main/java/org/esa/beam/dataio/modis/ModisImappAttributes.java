@@ -26,8 +26,9 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
+import ucar.nc2.NetcdfFile;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.File;
 import java.text.ParseException;
 import java.util.Date;
@@ -37,7 +38,7 @@ import java.util.logging.Logger;
 
 class ModisImappAttributes implements ModisGlobalAttributes {
 
-    private final File _inFile;
+    private final File inputFile;
     private final Logger logger;
     private final int _sdId;
     private Dimension _productDimension;
@@ -50,10 +51,11 @@ class ModisImappAttributes implements ModisGlobalAttributes {
     private Date _sensingStop;
 
 
-    public ModisImappAttributes(File inFile, int sdId, final HdfAttributes hdfAttributes) throws ProductIOException {
+    public ModisImappAttributes(File inFile, NetcdfFile ncfile, NetcdfFile qcfile, int sdId, final HdfAttributes hdfAttributes) throws ProductIOException {
         logger = BeamLogManager.getSystemLogger();
-        _inFile = inFile;
-        this._sdId = sdId;
+        inputFile = inFile;
+
+        _sdId = sdId;
 
         parseFileNameAndType();
         parseProductDimensions();
@@ -134,7 +136,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
     ///////////////////////////////////////////////////////////////////////////
 
     private void parseFileNameAndType() {
-        _productName = FileUtils.getFilenameWithoutExtension(_inFile);
+        _productName = FileUtils.getFilenameWithoutExtension(inputFile);
         final int index = _productName.indexOf('.');
         if (index > 0) {
             _productType = _productName.substring(0, index);
@@ -145,8 +147,8 @@ class ModisImappAttributes implements ModisGlobalAttributes {
     }
 
     private void parseProductDimensions() throws ProductIOException {
-        // @todo 1 tb/tb this is a rather crude method to retrieve the product dimension: scan all datasets.
-        // Find out if there is a clever and more performant way to do this
+//        // @todo 1 tb/tb replace this code with NetCDF specific code
+//        // Find out if there is a clever and more performant way to do this
         int[] numDatasets = new int[1];
         int maxWidth = 0;
         int maxHeight = 0;

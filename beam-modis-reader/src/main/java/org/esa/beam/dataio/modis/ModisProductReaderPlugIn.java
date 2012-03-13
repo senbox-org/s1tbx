@@ -57,7 +57,7 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
             if (NetcdfFile.canOpen(filePath)) {
                 ncfile = NetcdfFile.open(filePath);
 
-                final ModisGlobalAttributes modisAttributes = readGlobalMetadata(ncfile);
+                final ModisGlobalAttributes modisAttributes = readGlobalMetadata(ncfile, file);
 
                 final String productType = modisAttributes.getProductType();
                 if (ModisProductDb.getInstance().isSupportedProduct(productType)) {
@@ -77,13 +77,14 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    private ModisGlobalAttributes readGlobalMetadata(NetcdfFile ncfile) throws ProductIOException {
+    private ModisGlobalAttributes readGlobalMetadata(NetcdfFile ncfile, File file) throws ProductIOException {
         ModisGlobalAttributes modisAttributes = null;
         final Variable structMeta = ncfile.findTopVariable(ModisConstants.STRUCT_META_KEY);
         if (structMeta == null) {
             // @todo 1 tb/tb implement IMAPP parsing
             // is IMAPP format
             System.out.println("IMAPP format");
+            modisAttributes = new ModisImappAttributes(file, ncfile, null, 0, null);
         } else {
             final List<Variable> variables = ncfile.getVariables();
             modisAttributes = new ModisDaacAttributes(variables);
