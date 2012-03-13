@@ -26,6 +26,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.10<br/>
+        [BEAM-1379] Log-scaled data and log-scaled display shall be independent<br/>
         [BEAM-1374] On Mac OS X, processor windows don't have menu bars<br/>
         <p>Changes in 4.9<br/>
         [BEAM-1292] Reprojection dialog shifts image if pixel size is changed<br/>
