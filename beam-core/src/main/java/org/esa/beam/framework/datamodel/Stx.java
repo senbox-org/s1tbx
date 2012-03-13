@@ -56,32 +56,9 @@ public class Stx {
     private final double median;
     private final long sampleCount;
     private final int resolutionLevel;
-    private final Histogram histogram;
     private final boolean logHistogram;
-
-    /**
-     * Constructor. Prefer using a {@link StxBuilder} since the constructor may change in the future.
-     *
-     * @param minimum         the minimum value, if it is {@link Double#NaN} the minimum is taken from the {@code histogram}
-     * @param maximum         the maximum value, if it is {@link Double#NaN} the maximum is taken from the {@code histogram}
-     * @param mean            the mean value, if it is {@link Double#NaN} the mean is taken from the {@code histogram}
-     * @param stdDev          the value of the standard deviation, if it is {@link Double#NaN} it is taken from the {@code histogram}
-     * @param histogram       the histogram
-     * @param logHistogram    {@code true} if the histogram has been computed on logarithms
-     * @param resolutionLevel the resolution level this {@code Stx} is for
-     */
-    public Stx(double minimum, double maximum, double mean, double stdDev,
-               Histogram histogram, boolean logHistogram, int resolutionLevel) {
-        this.minimum = Double.isNaN(minimum) ? histogram.getLowValue(0) : minimum;
-        this.maximum = Double.isNaN(maximum) ? histogram.getHighValue(0) : maximum;
-        this.mean = Double.isNaN(mean) ? histogram.getMean()[0] : mean;
-        this.stdDev = Double.isNaN(stdDev) ? histogram.getStandardDeviation()[0] : stdDev;
-        this.histogram = histogram;
-        this.resolutionLevel = resolutionLevel;
-        this.sampleCount = computeSum(histogram.getBins(0));
-        this.median = computeMedian(histogram, this.sampleCount);
-        this.logHistogram = logHistogram;
-    }
+    private final boolean intHistogram;
+    private final Histogram histogram;
 
     /**
      * Constructor. Prefer using a {@link StxBuilder} since the constructor may change in the future.
@@ -90,16 +67,42 @@ public class Stx {
      * @param maximum           the maximum value
      * @param mean              the mean value, if it's {@link Double#NaN} the mean will be computed
      * @param stdDev            the value of the standard deviation, if it's {@link Double#NaN} it will be computed
-     * @param intType           if true, statistics are computed from a data basis of integer number type.
+     * @param logHistogram
+     * @param intHistogram
      * @param sampleFrequencies the frequencies of the samples
-     * @param resolutionLevel   the resolution level this {@code Stx} is for
-     * @see Stx#Stx(double, double, double, double, javax.media.jai.Histogram, boolean, int)
+     * @param resolutionLevel   the resolution level this {@code Stx} is for   @see Stx#Stx(double, double, double, double, boolean, javax.media.jai.Histogram, int)
      */
-    public Stx(double minimum, double maximum, double mean, double stdDev, boolean intType, int[] sampleFrequencies,
+    public Stx(double minimum, double maximum, double mean, double stdDev, boolean logHistogram, boolean intHistogram, int[] sampleFrequencies,
                int resolutionLevel) {
         this(minimum, maximum, mean, stdDev,
-             createHistogram(minimum, maximum + (intType ? 1.0 : 0.0), sampleFrequencies),
-             false, resolutionLevel);
+             logHistogram, intHistogram, createHistogram(minimum, maximum + (intHistogram ? 1.0 : 0.0), sampleFrequencies),
+             resolutionLevel);
+    }
+
+    /**
+     * Constructor. Prefer using a {@link StxBuilder} since the constructor may change in the future.
+     *
+     * @param minimum         the minimum value, if it is {@link Double#NaN} the minimum is taken from the {@code histogram}
+     * @param maximum         the maximum value, if it is {@link Double#NaN} the maximum is taken from the {@code histogram}
+     * @param mean            the mean value, if it is {@link Double#NaN} the mean is taken from the {@code histogram}
+     * @param stdDev          the value of the standard deviation, if it is {@link Double#NaN} it is taken from the {@code histogram}
+     * @param logHistogram    {@code true} if the histogram has been computed on logarithms
+     * @param intHistogram
+     * @param histogram       the histogram
+     * @param resolutionLevel the resolution level this {@code Stx} is for
+     */
+    Stx(double minimum, double maximum, double mean, double stdDev,
+        boolean logHistogram, boolean intHistogram, Histogram histogram, int resolutionLevel) {
+        this.minimum = Double.isNaN(minimum) ? histogram.getLowValue(0) : minimum;
+        this.maximum = Double.isNaN(maximum) ? histogram.getHighValue(0) : maximum;
+        this.mean = Double.isNaN(mean) ? histogram.getMean()[0] : mean;
+        this.stdDev = Double.isNaN(stdDev) ? histogram.getStandardDeviation()[0] : stdDev;
+        this.logHistogram = logHistogram;
+        this.intHistogram = intHistogram;
+        this.histogram = histogram;
+        this.resolutionLevel = resolutionLevel;
+        this.sampleCount = computeSum(histogram.getBins(0));
+        this.median = computeMedian(histogram, this.sampleCount);
     }
 
 
@@ -248,7 +251,14 @@ public class Stx {
     }
 
     /**
-     * @return {@code true} if the histogram is computed from log(x).
+     * @return {@code true} if the histogram is computed from integer samples.
+     */
+    public boolean isIntHistogram() {
+        return intHistogram;
+    }
+
+    /**
+     * @return {@code true} if the histogram is computed from log-samples.
      */
     public boolean isLogHistogram() {
         return logHistogram;
@@ -371,7 +381,7 @@ public class Stx {
             if (min == Double.MAX_VALUE && max == Double.MIN_VALUE) {
                 final Histogram histogram = createHistogram(1, 0, 1);
                 histogram.getBins(0)[0] = 0;
-                return new Stx(0.0, 1.0, Double.NaN, Double.NaN, histogram, false, level);
+                return new Stx(0.0, 1.0, Double.NaN, Double.NaN, false, isIntHistogram(raster), histogram, level);
             }
 
             double off = getHighValueOffset(raster);
@@ -418,12 +428,15 @@ public class Stx {
             mean = meanOp.getMean();
             stdDev = meanOp.getStandardDeviation();
         }
-
-        return new Stx(min, max, mean, stdDev, histogram, false, level);
+        return new Stx(min, max, mean, stdDev, false, isIntHistogram(raster), histogram, level);
     }
 
     static double getHighValueOffset(RasterDataNode raster) {
-        return ProductData.isIntType(raster.getDataType()) ? 1.0 : 0.0;
+        return isIntHistogram(raster) ? 1.0 : 0.0;
+    }
+
+    static boolean isIntHistogram(RasterDataNode raster) {
+        return !ProductData.isFloatingPointType(raster.getGeophysicalDataType());
     }
 
     static Histogram createHistogram(int binCount, double min, double max) {

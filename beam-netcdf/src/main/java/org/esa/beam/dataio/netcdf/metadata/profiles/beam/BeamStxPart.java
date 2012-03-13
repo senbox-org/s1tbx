@@ -22,6 +22,7 @@ import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.Stx;
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
@@ -57,7 +58,7 @@ public class BeamStxPart extends ProfilePartIO {
                 final Number stdDevNumber = statistics.getNumericValue(INDEX_STANDARD_DEVIATION);
                 final double stdDev = stdDevNumber != null ? stdDevNumber.doubleValue() : Double.NaN;
 
-                final boolean intType = variable.getDataType().isIntegral();
+                final boolean intHistogram = !ProductData.isFloatingPointType(band.getGeophysicalDataType());
 
                 final int[] frequencies = new int[sampleFrequencies.getLength()];
                 for (int i = 0; i < frequencies.length; i++) {
@@ -65,7 +66,7 @@ public class BeamStxPart extends ProfilePartIO {
                     frequencies[i] = fNumber != null ? fNumber.intValue() : 0;
                 }
                 final int resolutionLevel = 0;
-                band.setStx(new Stx(min, max, mean, stdDev, intType, frequencies, resolutionLevel));
+                band.setStx(new Stx(min, max, mean, stdDev, false, intHistogram, frequencies, resolutionLevel));
             }
         }
     }

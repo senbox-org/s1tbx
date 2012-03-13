@@ -23,7 +23,6 @@ import org.esa.beam.util.ProductUtils;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -484,10 +483,13 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
 
     private void copyStx(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
         final Stx sourceStx = sourceRaster.getStx();
-        final Stx targetStx = new Stx(sourceStx.getMinimum(), sourceStx.getMaximum(),
-                                      sourceStx.getMean(), sourceStx.getStandardDeviation(),
-                                      ProductData.isIntType(sourceRaster.getDataType()),
-                                      Arrays.copyOf(sourceStx.getHistogramBins(), sourceStx.getHistogramBins().length),
+        final Stx targetStx = new Stx(sourceStx.getMinimum(),
+                                      sourceStx.getMaximum(),
+                                      sourceStx.getMean(),
+                                      sourceStx.getStandardDeviation(),
+                                      sourceStx.isLogHistogram(),
+                                      sourceStx.isIntHistogram(),
+                                      sourceStx.getHistogramBins().clone(),
                                       sourceStx.getResolutionLevel());
         targetRaster.setStx(targetStx);
     }
