@@ -1227,10 +1227,10 @@ public class DimapProductHelpers {
             final Integer level = getElemInt(bandStatisticsElem, DimapProductConstants.TAG_STX_LEVEL);
             final int[] bins = getHistogramBins(bandStatisticsElem);
             if (minSample != null && maxSample != null) {
-                return new Stx(band.scaleInverse(minSample),
-                               band.scaleInverse(maxSample),
-                               mean != null ? band.scaleInverse(mean) : Double.NaN,
-                               stdDev != null ? band.scaleInverse(stdDev) : Double.NaN,
+                return new Stx(minSample,
+                               maxSample,
+                               mean != null ? mean : Double.NaN,
+                               stdDev != null ? stdDev : Double.NaN,
                                ProductData.isIntType(band.getDataType()),
                                bins == null ? new int[0] : bins,
                                level == null ? 0 : level);

@@ -16,27 +16,66 @@
 
 package org.esa.beam.framework.datamodel;
 
-import javax.media.jai.PixelAccessor;
-import java.awt.image.Raster;
-import java.awt.Rectangle;
+import org.esa.beam.util.math.DoubleList;
 
-interface StxOp {
-    String getName();
+import javax.media.jai.UnpackedImageData;
+import java.awt.image.DataBuffer;
 
-    void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
+/**
+ * A statistics operator.
+ *
+ * @author Norman Fomferra
+ * @since BEAM 4.5.1, full revision in 4.10
+ */
+abstract class StxOp {
 
-    void accumulateDataByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
+    private final String name;
 
-    void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
+    protected StxOp(String name) {
+        this.name = name;
+    }
 
-    void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
+    public String getName() {
+        return name;
+    }
 
-    void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
+    public abstract void accumulateData(UnpackedImageData dataPixels,
+                                        UnpackedImageData maskPixels);
 
-    void accumulateDataUInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
+    static DoubleList asDoubleList(UnpackedImageData dataPixels) {
+        if (dataPixels.type == DataBuffer.TYPE_BYTE) {
+            return new DoubleList.Byte(dataPixels.getByteData(0));
+        } else if (dataPixels.type == DataBuffer.TYPE_SHORT) {
+            return new DoubleList.Short(dataPixels.getShortData(0));
+        } else if (dataPixels.type == DataBuffer.TYPE_USHORT) {
+            return new DoubleList.UShort(dataPixels.getShortData(0));
+        } else if (dataPixels.type == DataBuffer.TYPE_INT) {
+            return new DoubleList.Int(dataPixels.getIntData(0));
+        } else if (dataPixels.type == DataBuffer.TYPE_FLOAT) {
+            return new DoubleList.Float(dataPixels.getFloatData(0));
+        } else if (dataPixels.type == DataBuffer.TYPE_DOUBLE) {
+            return new DoubleList.Double(dataPixels.getDoubleData(0));
+        } else {
+            return new ZeroDoubleList(dataPixels.rect.width * dataPixels.rect.height);
+        }
+    }
 
-    void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
+    final static class ZeroDoubleList implements DoubleList {
 
-    void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
+        private final int size;
 
+        public ZeroDoubleList(int size) {
+            this.size = size;
+        }
+
+        @Override
+        public int getSize() {
+            return size;
+        }
+
+        @Override
+        public double getDouble(int index) {
+            return 0.0;
+        }
+    }
 }
