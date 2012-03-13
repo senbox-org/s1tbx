@@ -156,9 +156,9 @@ class MosaicMapProjectionPanel extends JPanel {
         final JCheckBox showSourceProductsCheckBox = new JCheckBox("Display source products");
         bindingCtx.bind(MosaicFormModel.PROPERTY_SHOW_SOURCE_PRODUCTS, showSourceProductsCheckBox);
 
-        boundsInputPanel = new BoundsInputPanel(bindingCtx, MosaicFormModel.PROPERTY_UPDATE_MODE);
+        boundsInputPanel = new BoundsInputPanel(bindingCtx, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
 
-        panel.add(boundsInputPanel.createBoundsInputPanel(true));
+        panel.add(boundsInputPanel.createBoundsInputPanel());
         panel.add(worldMapPanel);
         panel.add(showSourceProductsCheckBox);
 
