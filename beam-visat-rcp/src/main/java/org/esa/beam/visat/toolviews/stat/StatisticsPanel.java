@@ -25,10 +25,8 @@ import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingWorker;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -85,7 +83,7 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
         // not used
         return DEFAULT_STATISTICS_TEXT;
     }
-    
+
     private static class ComputeResult {
         final Stx stx;
         final Mask mask;
@@ -121,7 +119,7 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
                 }
                 return null;
             }
-            
+
             @Override
             protected void process(List<ComputeResult> chunks) {
                 for (ComputeResult result : chunks) {
@@ -143,7 +141,7 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
                     getTextArea().setText(existingText + text);
                 }
             }
-            
+
             @Override
             protected void done() {
                 try {
@@ -151,10 +149,10 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
                 } catch (Exception e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                "Failed to compute statistics.\nAn error occured:" + e.getMessage(),
-                                                /*I18N*/
-                                                "Statistics", /*I18N*/
-                                                JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute statistics.\nAn error occured:" + e.getMessage(),
+                                                  /*I18N*/
+                                                  "Statistics", /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
@@ -176,7 +174,7 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
         sb.append("Only ROI-Mask pixels considered:  \t");
         sb.append(maskUsed ? "Yes" : "No");
         sb.append("\n");
-        
+
         if (maskUsed) {
             sb.append("ROI-Mask name:  \t");
             sb.append(mask.getName());
@@ -200,13 +198,13 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
         sb.append("\n");
 
         sb.append("Minimum:  \t");
-        sb.append(getMin(stat));
+        sb.append(stat.getMinimum());
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
 
         sb.append("Maximum:  \t");
-        sb.append(getMax(stat));
+        sb.append(stat.getMaximum());
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
@@ -214,19 +212,19 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
         sb.append("\n");
 
         sb.append("Mean:     \t");
-        sb.append(getMean(stat));
+        sb.append(stat.getMean());
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
 
         sb.append("Median:  \t");
-        sb.append(getMedian(stat));
+        sb.append(stat.getMedian());
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
 
         sb.append("Std-Dev:  \t");
-        sb.append(getStandardDeviation(stat));
+        sb.append(stat.getStandardDeviation());
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
@@ -240,37 +238,8 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
         return sb.toString();
     }
 
-    private double getCoefficientOfVariation(Stx stat) {
-        return getStandardDeviation(stat) / getMean(stat);
+    private double getCoefficientOfVariation(Stx stx) {
+        return stx.getStandardDeviation() / stx.getMean();
     }
 
-    private double getMedian(Stx stat) {
-        return getRaster().scale(stat.getMedian());
-    }
-
-    private double getMin(Stx stat) {
-        return getRaster().scale(stat.getMin());
-    }
-
-    private double getMax(Stx stat) {
-        return getRaster().scale(stat.getMax());
-    }
-
-    private double getMean(Stx stat) {
-        return getRaster().scale(stat.getMean());
-    }
-
-    /*
-     * Use error-propagation to compute stddev for log10-scaled bands.
-     */
-    private double getStandardDeviation(Stx stat) {
-        final RasterDataNode raster = getRaster();
-        final double alpha = raster.getScalingFactor();
-        final double delta = stat.getStandardDeviation();
-        if (raster.isLog10Scaled()) {
-            return Math.abs(raster.scale(stat.getMean()) * Math.log(10.0) * alpha * delta);
-        } else {
-            return Math.abs(alpha * delta);
-        }
-    }
 }

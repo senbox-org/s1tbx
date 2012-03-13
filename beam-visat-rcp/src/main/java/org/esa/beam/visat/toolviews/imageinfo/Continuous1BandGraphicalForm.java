@@ -18,15 +18,14 @@ package org.esa.beam.visat.toolviews.imageinfo;
 
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Scaling;
 import org.esa.beam.framework.ui.ImageInfoEditor;
 import org.esa.beam.framework.ui.ImageInfoEditorModel;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
-import javax.swing.AbstractButton;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.event.ChangeListener;
-import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -133,7 +132,6 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         imageInfoEditor.distributeSlidersEvenly();
     }
 
-
     public AbstractButton[] getToolButtons() {
         return new AbstractButton[]{
                 imageInfoEditorSupport.autoStretch95Button,
@@ -148,7 +146,9 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     }
 
     static void setDisplayProperties(ImageInfoEditorModel model, RasterDataNode raster) {
-        model.setDisplayProperties(raster.getName(), raster.getUnit(), raster.getStx(), raster);
+        // In BEAM 4.10, Stx is geo-pyhsical, scaling not required, possibly only for log-scaled
+        // model.setDisplayProperties(raster.getName(), raster.getUnit(), raster.getStx(), raster);
+        model.setDisplayProperties(raster.getName(), raster.getUnit(), raster.getStx(), Scaling.IDENTITY);
     }
 
 

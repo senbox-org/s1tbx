@@ -43,21 +43,16 @@ import org.jfree.data.xy.XIntervalSeries;
 import org.jfree.data.xy.XIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
-import javax.swing.BorderFactory;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.GridBagConstraints;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * A pane within the statistcs window which displays a histogram.
- *
  */
 class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeMask {
 
     private static final String NO_DATA_MESSAGE = "No histogram computed yet.\n" +
-                                                  ZOOM_TIP_MESSAGE;
+            ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Histogram";
     private static final String TITLE_PREFIX = CHART_TITLE;
 
@@ -287,8 +282,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
                     Stx stx = get();
                     if (stx.getSampleCount() > 0) {
                         if (autoMinMaxEnabled) {
-                            final double min = getRaster().scale(stx.getMin());
-                            final double max = getRaster().scale(stx.getMax());
+                            final double min = stx.getMinimum();
+                            final double max = stx.getMaximum();
                             final double v = MathUtils.computeRoundFactor(min, max, 4);
                             histogramComputing = true;
                             histoMinParam.setValue(StatisticsUtils.round(min, v), null);
@@ -323,8 +318,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
             final RasterDataNode raster = getRaster();
             final XIntervalSeries series = new XIntervalSeries(raster.getName());
             for (int i = 0; i < binCounts.length; i++) {
-                final double xMin = raster.scale(stx.getHistogramBinMin(i));
-                final double xMax = raster.scale(stx.getHistogramBinMax(i));
+                final double xMin = stx.getHistogramBinMinimum(i);
+                final double xMax = stx.getHistogramBinMaximum(i);
                 final double xAvg = (xMin + xMax) * 0.5;
                 series.add(xAvg, xMin, xMax, binCounts[i]);
             }
@@ -360,8 +355,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
 
         final int[] binVals = stx.getHistogramBins();
         final int numBins = binVals.length;
-        final double min = getRaster().scale(stx.getMin());
-        final double max = getRaster().scale(stx.getMax());
+        final double min = stx.getMinimum();
+        final double max = stx.getMaximum();
 
         final StringBuilder sb = new StringBuilder(16000);
 
