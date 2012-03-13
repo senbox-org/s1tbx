@@ -330,7 +330,8 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     private void validateSourceProduct() throws OperatorException {
         if (!MERIS_L1_TYPE_PATTERN.matcher(sourceProduct.getProductType()).matches()) {
-            throw new OperatorException("Source product must be of type MERIS Level 1b.");
+            String msg = String.format("Source product must be of type MERIS Level 1b. Product type is: '%s'", sourceProduct.getProductType());
+            getLogger().warning(msg);
         }
         if (doCalibration || doEqualization) {
             if (sourceProduct.getStartTime() == null) {
