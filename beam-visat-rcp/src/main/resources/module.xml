@@ -1699,18 +1699,17 @@
             <helpId>rangeFinder</helpId>
         </action>
         <action>
-            <id>magicStickTool</id>
+            <id>magicWandTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
-            <tool>org.esa.beam.visat.actions.magicstick.MagicStickTool</tool>
-            <interactor>org.esa.beam.visat.actions.magicstick.MagicStickInteractor</interactor>
+            <interactor>org.esa.beam.visat.actions.masktools.MagicWandInteractor</interactor>
             <parent>tools</parent>
             <placeAfter>rangeFinder</placeAfter>
-            <text>Magic Stick</text>
-            <shortDescr>Creates a ROI mask using a magic stick</shortDescr>
-            <largeIcon>/org/esa/beam/visat/actions/magicstick/MagicStick22.png</largeIcon>
+            <text>Magic Wand</text>
+            <shortDescr>Creates a ROI mask using a magic wand</shortDescr>
+            <largeIcon>/org/esa/beam/visat/actions/masktools/MagicWand22.png</largeIcon>
             <selected>false</selected>
             <context>image</context>
-            <helpId>magicStickTool</helpId>
+            <helpId>magicWandTool</helpId>
         </action>
 
         <action>

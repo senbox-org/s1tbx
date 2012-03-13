@@ -1,4 +1,4 @@
-package org.esa.beam.visat.actions.magicstick;
+package org.esa.beam.visat.actions.masktools;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 /**
  * @author Norman Fomferra
  */
-public class MagicStickModelTest {
+public class MagicWandModelTest {
 
     private Product product;
     private Band b1;
@@ -37,16 +37,16 @@ public class MagicStickModelTest {
 
     @Test
     public void testConstructorSetsDefaultValues() throws Exception {
-        MagicStickModel model = new MagicStickModel();
-        assertEquals(MagicStickModel.Mode.SINGLE, model.getMode());
-        assertEquals(MagicStickModel.Method.DISTANCE, model.getMethod());
+        MagicWandModel model = new MagicWandModel();
+        assertEquals(MagicWandModel.Mode.SINGLE, model.getMode());
+        assertEquals(MagicWandModel.Method.DISTANCE, model.getMethod());
         assertEquals(0.1, model.getTolerance(), 0.0);
         assertEquals("0", model.createExpression());
     }
 
     @Test
     public void testGetSpectralBands() throws Exception {
-        Band[] bands = MagicStickModel.getSpectralBands(product);
+        Band[] bands = MagicWandModel.getSpectralBands(product);
         assertEquals(3, bands.length);
         assertSame(bands[0], b1);
         assertSame(bands[1], b2);
@@ -55,7 +55,7 @@ public class MagicStickModelTest {
 
     @Test
     public void testCreateExpressionWith3Bands() throws Exception {
-        MagicStickModel model = new MagicStickModel();
+        MagicWandModel model = new MagicWandModel();
         model.addSpectrum(0.4, 0.3, 0.2);
         model.setTolerance(0.3);
         String expression = model.createExpression(b1, b2, b3);
@@ -69,7 +69,7 @@ public class MagicStickModelTest {
 
     @Test
     public void testCreateExpressionWith1Band() throws Exception {
-        MagicStickModel model = new MagicStickModel();
+        MagicWandModel model = new MagicWandModel();
         model.addSpectrum(0.2);
         model.setTolerance(0.05);
         String expression = model.createExpression(product.getBand("a2"));
@@ -82,10 +82,10 @@ public class MagicStickModelTest {
 
     @Test
     public void testCreateExpressionDistIdent() throws Exception {
-        MagicStickModel model = new MagicStickModel();
-        model.setMode(MagicStickModel.Mode.PLUS);
-        model.setMethod(MagicStickModel.Method.DISTANCE);
-        model.setOperator(MagicStickModel.Operator.IDENTITY);
+        MagicWandModel model = new MagicWandModel();
+        model.setMode(MagicWandModel.Mode.PLUS);
+        model.setMethod(MagicWandModel.Method.DISTANCE);
+        model.setOperator(MagicWandModel.Operator.IDENTITY);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.25);
@@ -101,10 +101,10 @@ public class MagicStickModelTest {
 
     @Test
     public void testCreateExpressionDistDeriv() throws Exception {
-        MagicStickModel model = new MagicStickModel();
-        model.setMode(MagicStickModel.Mode.PLUS);
-        model.setMethod(MagicStickModel.Method.DISTANCE);
-        model.setOperator(MagicStickModel.Operator.DERIVATIVE);
+        MagicWandModel model = new MagicWandModel();
+        model.setMode(MagicWandModel.Mode.PLUS);
+        model.setMethod(MagicWandModel.Method.DISTANCE);
+        model.setOperator(MagicWandModel.Operator.DERIVATIVE);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.25);
@@ -120,10 +120,10 @@ public class MagicStickModelTest {
 
     @Test
     public void testCreateExpressionDistInteg() throws Exception {
-        MagicStickModel model = new MagicStickModel();
-        model.setMode(MagicStickModel.Mode.PLUS);
-        model.setMethod(MagicStickModel.Method.DISTANCE);
-        model.setOperator(MagicStickModel.Operator.INTEGRAL);
+        MagicWandModel model = new MagicWandModel();
+        model.setMode(MagicWandModel.Mode.PLUS);
+        model.setMethod(MagicWandModel.Method.DISTANCE);
+        model.setOperator(MagicWandModel.Operator.INTEGRAL);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.25);
@@ -139,10 +139,10 @@ public class MagicStickModelTest {
 
     @Test
     public void testCreateExpressionLimitsIdent() throws Exception {
-        MagicStickModel model = new MagicStickModel();
-        model.setMode(MagicStickModel.Mode.PLUS);
-        model.setMethod(MagicStickModel.Method.LIMITS);
-        model.setOperator(MagicStickModel.Operator.IDENTITY);
+        MagicWandModel model = new MagicWandModel();
+        model.setMode(MagicWandModel.Mode.PLUS);
+        model.setMethod(MagicWandModel.Method.LIMITS);
+        model.setOperator(MagicWandModel.Operator.IDENTITY);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.1);
@@ -178,10 +178,10 @@ public class MagicStickModelTest {
 
     @Test
     public void testCreateExpressionLimitsDeriv() throws Exception {
-        MagicStickModel model = new MagicStickModel();
-        model.setMode(MagicStickModel.Mode.PLUS);
-        model.setMethod(MagicStickModel.Method.LIMITS);
-        model.setOperator(MagicStickModel.Operator.DERIVATIVE);
+        MagicWandModel model = new MagicWandModel();
+        model.setMode(MagicWandModel.Mode.PLUS);
+        model.setMethod(MagicWandModel.Method.LIMITS);
+        model.setOperator(MagicWandModel.Operator.DERIVATIVE);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.1);
@@ -217,10 +217,10 @@ public class MagicStickModelTest {
 
     @Test
     public void testCreateExpressionLimitsInteg() throws Exception {
-        MagicStickModel model = new MagicStickModel();
-        model.setMode(MagicStickModel.Mode.PLUS);
-        model.setMethod(MagicStickModel.Method.LIMITS);
-        model.setOperator(MagicStickModel.Operator.INTEGRAL);
+        MagicWandModel model = new MagicWandModel();
+        model.setMode(MagicWandModel.Mode.PLUS);
+        model.setMethod(MagicWandModel.Method.LIMITS);
+        model.setOperator(MagicWandModel.Operator.INTEGRAL);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.1);
@@ -256,38 +256,38 @@ public class MagicStickModelTest {
 
     @Test
     public void testClone() throws Exception {
-        final MagicStickModel model = new MagicStickModel();
+        final MagicWandModel model = new MagicWandModel();
         model.setTolerance(0.005);
         model.setMinTolerance(0.0);
         model.setMaxTolerance(0.01);
         model.setNormalize(true);
-        model.setMode(MagicStickModel.Mode.PLUS);
+        model.setMode(MagicWandModel.Mode.PLUS);
         model.addSpectrum(1, 2, 3, 4, 5, 6);
         model.addSpectrum(2, 3, 4, 5, 6, 7);
-        model.setMode(MagicStickModel.Mode.MINUS);
+        model.setMode(MagicWandModel.Mode.MINUS);
         model.addSpectrum(3, 4, 5, 6, 7, 8);
         model.addSpectrum(4, 5, 6, 7, 8, 9);
 
-        final MagicStickModel modelCopy = model.clone();
+        final MagicWandModel modelCopy = model.clone();
         assertEquals(model, modelCopy);
     }
 
     @Test
     public void testXml() throws Exception {
-        final MagicStickModel model = new MagicStickModel();
+        final MagicWandModel model = new MagicWandModel();
         model.setTolerance(0.005);
         model.setMinTolerance(0.0);
         model.setMaxTolerance(0.01);
         model.setNormalize(true);
-        model.setMode(MagicStickModel.Mode.PLUS);
+        model.setMode(MagicWandModel.Mode.PLUS);
         model.addSpectrum(1, 2, 3, 4, 5, 6);
         model.addSpectrum(2, 3, 4, 5, 6, 7);
-        model.setMode(MagicStickModel.Mode.MINUS);
+        model.setMode(MagicWandModel.Mode.MINUS);
         model.addSpectrum(3, 4, 5, 6, 7, 8);
         model.addSpectrum(4, 5, 6, 7, 8, 9);
 
         final String xml = model.toXml();
-        final MagicStickModel modelCopy = MagicStickModel.fromXml(xml);
+        final MagicWandModel modelCopy = MagicWandModel.fromXml(xml);
         assertEquals(model, modelCopy);
     }
 }

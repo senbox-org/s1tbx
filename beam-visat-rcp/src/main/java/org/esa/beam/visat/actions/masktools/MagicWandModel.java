@@ -1,4 +1,4 @@
-package org.esa.beam.visat.actions.magicstick;
+package org.esa.beam.visat.actions.masktools;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.SingleValueConverter;
@@ -15,12 +15,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Utilities for the magic stick tool (interactor).
+ * Utilities for the magic wand tool (interactor).
  *
  * @author Norman Fomferra
  * @since BEAM 4.10
  */
-public class MagicStickModel implements Cloneable {
+public class MagicWandModel implements Cloneable {
 
     public enum Mode {
         SINGLE,
@@ -40,7 +40,7 @@ public class MagicStickModel implements Cloneable {
         LIMITS,
     }
 
-    static final String MAGIC_STICK_MASK_NAME = "magic_stick";
+    static final String MAGIC_WAND_MASK_NAME = "magic_wand";
 
     private double tolerance;
     private double minTolerance;
@@ -53,7 +53,7 @@ public class MagicStickModel implements Cloneable {
     private ArrayList<double[]> plusSpectra;
     private ArrayList<double[]> minusSpectra;
 
-    public MagicStickModel() {
+    public MagicWandModel() {
         mode = Mode.SINGLE;
         method = Method.DISTANCE;
         operator = Operator.IDENTITY;
@@ -67,9 +67,9 @@ public class MagicStickModel implements Cloneable {
 
     @SuppressWarnings("CloneDoesntDeclareCloneNotSupportedException")
     @Override
-    public MagicStickModel clone() {
+    public MagicWandModel clone() {
         try {
-            MagicStickModel clone = (MagicStickModel) super.clone();
+            MagicWandModel clone = (MagicWandModel) super.clone();
             clone.plusSpectra = new ArrayList<double[]>(plusSpectra);
             clone.minusSpectra = new ArrayList<double[]>(minusSpectra);
             return clone;
@@ -78,7 +78,7 @@ public class MagicStickModel implements Cloneable {
         }
     }
 
-    public void set(MagicStickModel other) {
+    public void set(MagicWandModel other) {
         method = other.method;
         operator = other.operator;
         mode = other.mode;
@@ -198,15 +198,15 @@ public class MagicStickModel implements Cloneable {
         return spectralBands.toArray(new Band[spectralBands.size()]);
     }
 
-    static void setMagicStickMask(Product product, String expression) {
-        final Mask magicStickMask = product.getMaskGroup().get(MAGIC_STICK_MASK_NAME);
-        if (magicStickMask != null) {
-            magicStickMask.getImageConfig().setValue("expression", expression);
+    static void setMagicWandMask(Product product, String expression) {
+        final Mask magicWandMask = product.getMaskGroup().get(MAGIC_WAND_MASK_NAME);
+        if (magicWandMask != null) {
+            magicWandMask.getImageConfig().setValue("expression", expression);
         } else {
             final int width = product.getSceneRasterWidth();
             final int height = product.getSceneRasterHeight();
-            product.getMaskGroup().add(Mask.BandMathsType.create(MAGIC_STICK_MASK_NAME,
-                                                                 "Magic stick mask",
+            product.getMaskGroup().add(Mask.BandMathsType.create(MAGIC_WAND_MASK_NAME,
+                                                                 "Magic wand mask",
                                                                  width, height,
                                                                  expression,
                                                                  Color.RED, 0.5));
@@ -397,7 +397,7 @@ public class MagicStickModel implements Cloneable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MagicStickModel that = (MagicStickModel) o;
+        MagicWandModel that = (MagicWandModel) o;
 
         if (Double.compare(that.maxTolerance, maxTolerance) != 0) return false;
         if (Double.compare(that.minTolerance, minTolerance) != 0) return false;
@@ -433,8 +433,8 @@ public class MagicStickModel implements Cloneable {
         return result;
     }
 
-    public static MagicStickModel fromXml(String xml) {
-        return (MagicStickModel) createXStream().fromXML(xml);
+    public static MagicWandModel fromXml(String xml) {
+        return (MagicWandModel) createXStream().fromXML(xml);
     }
 
     public String toXml() {
@@ -443,7 +443,7 @@ public class MagicStickModel implements Cloneable {
 
     private static XStream createXStream() {
         final XStream xStream = new XStream();
-        xStream.alias("magicStickModel", MagicStickModel.class);
+        xStream.alias("magicWandSettings", MagicWandModel.class);
         xStream.registerConverter(new SingleValueConverter() {
             @Override
             public String toString(Object obj) {

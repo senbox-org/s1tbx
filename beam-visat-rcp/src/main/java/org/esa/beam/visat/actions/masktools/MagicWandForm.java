@@ -1,4 +1,4 @@
-package org.esa.beam.visat.actions.magicstick;
+package org.esa.beam.visat.actions.masktools;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
@@ -36,11 +36,11 @@ import java.util.prefs.Preferences;
  * @author Norman Fomferra
  * @since BEAM 4.10
  */
-class MagicStickForm {
+class MagicWandForm {
     public static final int TOLERANCE_SLIDER_RESOLUTION = 1000;
-    public static final String PREFERENCES_KEY_LAST_DIR = "beam.magicStick.lastDir";
+    public static final String PREFERENCES_KEY_LAST_DIR = "beam.magicWand.lastDir";
 
-    private MagicStickInteractor interactor;
+    private MagicWandInteractor interactor;
 
     // don't forget: private JCheckBox cumulativeModeCheckBox;
     private JTextField toleranceField;
@@ -58,7 +58,7 @@ class MagicStickForm {
 
     private File settingsFile;
 
-    MagicStickForm(MagicStickInteractor interactor) {
+    MagicWandForm(MagicWandInteractor interactor) {
         this.interactor = interactor;
     }
 
@@ -76,12 +76,12 @@ class MagicStickForm {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 adjustSlider();
-                interactor.updateMagicStickMask();
+                interactor.updateMask();
             }
         });
 
         // todo - update band list, every time the selected view changes (nf)
-        Band[] spectralBands = MagicStickModel.getSpectralBands(VisatApp.getApp().getSelectedProduct());
+        Band[] spectralBands = MagicWandModel.getSpectralBands(VisatApp.getApp().getSelectedProduct());
         String[] bandNames = new String[spectralBands.length];
         for (int i = 0; i < bandNames.length; i++) {
             bandNames[i] = spectralBands[i].getName();
@@ -144,7 +144,7 @@ class MagicStickForm {
         bindingContext.addPropertyChangeListener("normalize", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                interactor.updateMagicStickMask();
+                interactor.updateMask();
             }
         });
 
@@ -163,7 +163,7 @@ class MagicStickForm {
         bindingContext.addPropertyChangeListener("method", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                interactor.updateMagicStickMask();
+                interactor.updateMask();
             }
         });
 
@@ -182,7 +182,7 @@ class MagicStickForm {
         bindingContext.addPropertyChangeListener("operator", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                interactor.updateMagicStickMask();
+                interactor.updateMask();
             }
         });
 
@@ -193,21 +193,21 @@ class MagicStickForm {
         plusButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                bindingContext.getPropertySet().setValue("mode", plusButton.isSelected() ? MagicStickModel.Mode.PLUS : MagicStickModel.Mode.SINGLE);
+                bindingContext.getPropertySet().setValue("mode", plusButton.isSelected() ? MagicWandModel.Mode.PLUS : MagicWandModel.Mode.SINGLE);
             }
         });
         minusButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                bindingContext.getPropertySet().setValue("mode", plusButton.isSelected() ? MagicStickModel.Mode.MINUS : MagicStickModel.Mode.SINGLE);
+                bindingContext.getPropertySet().setValue("mode", plusButton.isSelected() ? MagicWandModel.Mode.MINUS : MagicWandModel.Mode.SINGLE);
             }
         });
 
         bindingContext.addPropertyChangeListener("mode", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                plusButton.setSelected(interactor.getModel().getMode() == MagicStickModel.Mode.PLUS);
-                minusButton.setSelected(interactor.getModel().getMode() == MagicStickModel.Mode.MINUS);
+                plusButton.setSelected(interactor.getModel().getMode() == MagicWandModel.Mode.PLUS);
+                minusButton.setSelected(interactor.getModel().getMode() == MagicWandModel.Mode.MINUS);
             }
         });
 
@@ -217,7 +217,7 @@ class MagicStickForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 interactor.getModel().clearSpectra();
-                interactor.updateMagicStickMask();
+                interactor.updateMask();
             }
         });
 
@@ -323,7 +323,7 @@ class MagicStickForm {
             return;
         }
         try {
-            MagicStickModel model = (MagicStickModel) createXStream().fromXML(FileUtils.readText(settingsFile));
+            MagicWandModel model = (MagicWandModel) createXStream().fromXML(FileUtils.readText(settingsFile));
             interactor.updateModel(model);
             this.settingsFile = settingsFile;
         } catch (IOException e) {
@@ -355,8 +355,8 @@ class MagicStickForm {
 
     private XStream createXStream() {
         XStream xStream = new XStream();
-        xStream.setClassLoader(MagicStickModel.class.getClassLoader());
-        xStream.alias("magicStickSettings", MagicStickModel.class);
+        xStream.setClassLoader(MagicWandModel.class.getClassLoader());
+        xStream.alias("magicWandSettings", MagicWandModel.class);
         return xStream;
     }
 
@@ -367,7 +367,7 @@ class MagicStickForm {
         if (file != null) {
             fileChooser.setSelectedFile(file);
         } else {
-            fileChooser.setSelectedFile(new File(fileChooser.getCurrentDirectory(), "magic-stick-settings.xml"));
+            fileChooser.setSelectedFile(new File(fileChooser.getCurrentDirectory(), "magic-wand-settings.xml"));
         }
         while (true) {
             int resp = open ? fileChooser.showOpenDialog(parent) : fileChooser.showSaveDialog(parent);
@@ -405,14 +405,14 @@ class MagicStickForm {
     }
 
     private int toleranceToSliderValue(double tolerance) {
-        MagicStickModel model = interactor.getModel();
+        MagicWandModel model = interactor.getModel();
         double minTolerance = model.getMinTolerance();
         double maxTolerance = model.getMaxTolerance();
         return (int) Math.round(Math.abs(TOLERANCE_SLIDER_RESOLUTION * ((tolerance - minTolerance) / (maxTolerance - minTolerance))));
     }
 
     private double sliderValueToTolerance(int sliderValue) {
-        MagicStickModel model = interactor.getModel();
+        MagicWandModel model = interactor.getModel();
         double minTolerance = model.getMinTolerance();
         double maxTolerance = model.getMaxTolerance();
         return minTolerance + sliderValue * (maxTolerance - minTolerance) / TOLERANCE_SLIDER_RESOLUTION;

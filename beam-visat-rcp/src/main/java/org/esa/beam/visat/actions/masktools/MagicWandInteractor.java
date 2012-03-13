@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.visat.actions.magicstick;
+package org.esa.beam.visat.actions.masktools;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
@@ -36,31 +36,31 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 
-import static org.esa.beam.visat.actions.magicstick.MagicStickModel.MAGIC_STICK_MASK_NAME;
-import static org.esa.beam.visat.actions.magicstick.MagicStickModel.getSpectralBands;
+import static org.esa.beam.visat.actions.masktools.MagicWandModel.MAGIC_WAND_MASK_NAME;
+import static org.esa.beam.visat.actions.masktools.MagicWandModel.getSpectralBands;
 
 /**
- * An interactor that lets users create masks using a "magic stick".
+ * An interactor that lets users create masks using a "magic wand".
  * The mask comprises all pixels in the image that are "spectrally" close to the pixel that
- * has been selected using the magic stick.
+ * has been selected using the magic wand.
  *
  * @author Norman Fomferra
  * @since BEAM 4.10
  */
-public class MagicStickInteractor extends ViewportInteractor {
+public class MagicWandInteractor extends ViewportInteractor {
 
-    private static final String DIALOG_TITLE = "Magic Stick Options";
+    private static final String DIALOG_TITLE = "Magic Wand Settings";
 
     private JDialog optionsWindow;
     private final MyLayerListener layerListener;
 
-    private MagicStickModel model;
+    private MagicWandModel model;
     private UndoContext undoContext;
-    private MagicStickForm form;
+    private MagicWandForm form;
 
-    public MagicStickInteractor() {
+    public MagicWandInteractor() {
         layerListener = new MyLayerListener();
-        model = new MagicStickModel();
+        model = new MagicWandModel();
     }
 
     static double[] getSpectrum(Band[] bands, int pixelX, int pixelY) throws IOException {
@@ -134,27 +134,27 @@ public class MagicStickInteractor extends ViewportInteractor {
         } catch (IOException e1) {
             return;
         }
-        MagicStickModel oldModel = getModel().clone();
+        MagicWandModel oldModel = getModel().clone();
         getModel().addSpectrum(spectrum);
-        updateMagicStickMask(product, spectralBands);
-        MagicStickModel newModel = getModel().clone();
+        updateMagicWandMask(product, spectralBands);
+        MagicWandModel newModel = getModel().clone();
         undoContext.postEdit(new MyUndoableEdit(oldModel, newModel));
     }
 
-    void updateMagicStickMask() {
+    void updateMask() {
         final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
         if (view != null) {
             final Product product = view.getProduct();
-            updateMagicStickMask(product, MagicStickModel.getSpectralBands(product));
+            updateMagicWandMask(product, MagicWandModel.getSpectralBands(product));
         }
     }
 
-    private void updateMagicStickMask(Product product, Band[] spectralBands) {
-        MagicStickModel.setMagicStickMask(product, getModel().createExpression(spectralBands));
+    private void updateMagicWandMask(Product product, Band[] spectralBands) {
+        MagicWandModel.setMagicWandMask(product, getModel().createExpression(spectralBands));
     }
 
     private JDialog createOptionsWindow() {
-        form = new MagicStickForm(this);
+        form = new MagicWandForm(this);
         JDialog optionsWindow = new JDialog(VisatApp.getApp().getMainFrame(), DIALOG_TITLE, false);
         UIUtils.centerComponent(optionsWindow, VisatApp.getApp().getMainFrame());
         optionsWindow.getContentPane().add(form.createPanel());
@@ -162,7 +162,7 @@ public class MagicStickInteractor extends ViewportInteractor {
         return optionsWindow;
     }
 
-    public MagicStickModel getModel() {
+    public MagicWandModel getModel() {
         return model;
     }
 
@@ -170,16 +170,16 @@ public class MagicStickInteractor extends ViewportInteractor {
         this.undoContext = undoContext;
     }
 
-    void updateModel(MagicStickModel other) {
+    void updateModel(MagicWandModel other) {
         getModel().set(other);
-        updateMagicStickMask();
+        updateMask();
         form.getBindingContext().adjustComponents();
         form.updateUndoRedoState();
     }
 
 
     /**
-     * A layer listener that sets the layer for "magic_stick" mask
+     * A layer listener that sets the layer for "magic_wand" mask
      * visible, once it is added to the view's layer tree.
      */
     private static class MyLayerListener extends AbstractLayerListener {
@@ -188,7 +188,7 @@ public class MagicStickInteractor extends ViewportInteractor {
             for (Layer childLayer : childLayers) {
                 LayerType layerType = childLayer.getLayerType();
                 if (layerType instanceof MaskLayerType) {
-                    if (childLayer.getName().equals(MAGIC_STICK_MASK_NAME)) {
+                    if (childLayer.getName().equals(MAGIC_WAND_MASK_NAME)) {
                         childLayer.setVisible(true);
                     }
                 }
@@ -197,10 +197,10 @@ public class MagicStickInteractor extends ViewportInteractor {
     }
 
     private class MyUndoableEdit extends AbstractUndoableEdit {
-        private final MagicStickModel oldModel;
-        private final MagicStickModel newModel;
+        private final MagicWandModel oldModel;
+        private final MagicWandModel newModel;
 
-        public MyUndoableEdit(MagicStickModel oldModel, MagicStickModel newModel) {
+        public MyUndoableEdit(MagicWandModel oldModel, MagicWandModel newModel) {
             this.oldModel = oldModel;
             this.newModel = newModel;
         }
@@ -219,7 +219,7 @@ public class MagicStickInteractor extends ViewportInteractor {
 
         @Override
         public String getPresentationName() {
-            return "Modify magic stick mask";
+            return "Modify magic wand mask";
         }
     }
 
