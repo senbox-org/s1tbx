@@ -27,7 +27,7 @@ public class StxFactory {
     private Number minimum;
     private Number maximum;
     private Number mean;
-    private Number stdDev;
+    private Number standardDeviation;
     private Histogram histogram;
     private Integer resolutionLevel;
     private Mask roiMask;
@@ -56,8 +56,8 @@ public class StxFactory {
         return this;
     }
 
-    public StxFactory withStdDev(Number stdDev) {
-        this.stdDev = stdDev;
+    public StxFactory withStandardDeviation(Number standardDeviation) {
+        this.standardDeviation = standardDeviation;
         return this;
     }
 
@@ -131,7 +131,7 @@ public class StxFactory {
         double minimum = this.minimum != null ? this.minimum.doubleValue() : Double.NaN;
         double maximum = this.maximum != null ? this.maximum.doubleValue() : Double.NaN;
         double mean = this.mean != null ? this.mean.doubleValue() : Double.NaN;
-        double stdDev = this.stdDev != null ? this.stdDev.doubleValue() : Double.NaN;
+        double stdDev = this.standardDeviation != null ? this.standardDeviation.doubleValue() : Double.NaN;
         boolean logHistogram = this.logHistogram != null ? this.logHistogram : false;
         boolean intHistogram = this.intHistogram != null ? this.intHistogram : false;
         int level = this.resolutionLevel != null ? this.resolutionLevel : 0;
@@ -167,7 +167,7 @@ public class StxFactory {
                     if (this.mean == null) {
                         mean = meanOp.getMean();
                     }
-                    if (this.stdDev == null) {
+                    if (this.standardDeviation == null) {
                         stdDev = meanOp.getStandardDeviation();
                     }
                 }
@@ -359,10 +359,6 @@ public class StxFactory {
         return effectiveShape;
     }
 
-    static boolean isIntHistogram(RasterDataNode raster) {
-        return !ProductData.isFloatingPointType(raster.getGeophysicalDataType());
-    }
-
     static Histogram createHistogram(int binCount, double minimum, double maximum, boolean logHistogram, boolean intHistogram) {
         Scaling histogramScaling = Stx.getHistogramScaling(logHistogram, minimum);
         double adjustedMaximum = maximum;
@@ -426,64 +422,4 @@ public class StxFactory {
         final double binMaxValue = histogram.getBinLowValue(bandIndex, binIndex + 1);
         return (binLowValue + binMaxValue) / 2;
     }
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    // TODO - check usages of following methods and, if required, replace by StxFactory. (nf)
-
-    @Deprecated
-    static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
-                          int binCount, ProgressMonitor pm) {
-        try {
-            pm.beginTask("Computing statistics", 3);
-            final SummaryStxOp summaryOp = new SummaryStxOp();
-            accumulate(raster, level, maskImage, maskShape, summaryOp, SubProgressMonitor.create(pm, 1));
-
-            double min = summaryOp.getMinimum();
-            double max = summaryOp.getMaximum();
-            double mean = summaryOp.getMean();
-            double stdDev = summaryOp.getStandardDeviation();
-
-            final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max, isIntHistogram(raster), false);
-            accumulate(raster, level, maskImage, maskShape, histogramOp, SubProgressMonitor.create(pm, 1));
-            final Histogram histogram = histogramOp.getHistogram();
-
-            return createImpl(raster, level, maskImage, maskShape, histogram, min, max, mean, stdDev,
-                              SubProgressMonitor.create(pm, 1));
-        } finally {
-            pm.done();
-        }
-    }
-
-    @Deprecated
-    static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
-                          int binCount, double min, double max, ProgressMonitor pm) {
-        try {
-            pm.beginTask("Computing statistics", 3);
-
-            final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max, isIntHistogram(raster), false);
-            accumulate(raster, level, maskImage, maskShape, histogramOp, SubProgressMonitor.create(pm, 1));
-            final Histogram histogram = histogramOp.getHistogram();
-
-            return createImpl(raster, level, maskImage, maskShape, histogram, min, max, Double.NaN, Double.NaN,
-                              SubProgressMonitor.create(pm, 1));
-        } finally {
-            pm.done();
-        }
-    }
-
-    @Deprecated
-    private static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
-                                  Histogram histogram, double min, double max, double mean, double stdDev,
-                                  ProgressMonitor pm) {
-        if (Double.isNaN(mean) || Double.isNaN(stdDev)) {
-            final SummaryStxOp meanOp = new SummaryStxOp();
-            accumulate(raster, level, maskImage, maskShape, meanOp, pm);
-            mean = meanOp.getMean();
-            stdDev = meanOp.getStandardDeviation();
-        }
-        return new Stx(min, max, mean, stdDev, false, isIntHistogram(raster), histogram, level);
-    }
-
-
 }

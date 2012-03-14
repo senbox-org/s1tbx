@@ -22,6 +22,7 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -269,9 +270,9 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
                 if (selectedMask == null && range == null && numBins == Stx.DEFAULT_BIN_COUNT) {
                     stx = getRaster().getStx(true, pm);
                 } else if (range == null) {
-                    stx = Stx.create(getRaster(), selectedMask, numBins, pm);
+                    stx = new StxFactory().withRoiMask(selectedMask).withHistogramBinCount(numBins).create(getRaster(), pm);
                 } else {
-                    stx = Stx.create(getRaster(), selectedMask, numBins, range.getMin(), range.getMax(), pm);
+                    stx = new StxFactory().withRoiMask(selectedMask).withHistogramBinCount(numBins).withMinimum(range.getMin()).withMaximum(range.getMax()).create(getRaster(), pm);
                 }
                 return stx;
             }

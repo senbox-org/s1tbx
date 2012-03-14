@@ -516,7 +516,11 @@ public class Band extends AbstractBand {
         final double min = minSample;
         final double max = maxSample;
 
-        return Stx.create(this, level, binCount, min, max, pm);
+        return new StxFactory()
+                .withResolutionLevel(level)
+                .withHistogramBinCount(binCount)
+                .withMinimum(min)
+                .withMaximum(max).create(this, pm);
     }
 
     /**

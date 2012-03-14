@@ -486,8 +486,13 @@ public class DimapDocumentTest extends TestCase {
     }
 
     private Stx createStx() {
-        int[] bins = new int[]{4, 5, 4, 7, 5, 8};
-        return new Stx(-0.2, 3, 5.5, 3.67, false, false, bins, 0);
+        return new StxFactory()
+                .withMinimum(-0.2)
+                .withMaximum(3)
+                .withMean(5.5)
+                .withStandardDeviation(3.67)
+                .withHistogramBins(new int[]{4, 5, 4, 7, 5, 8})
+                .create();
     }
 
     private ImageInfo createImageInfo() {

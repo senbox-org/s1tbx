@@ -22,6 +22,7 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
 
@@ -107,10 +108,10 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
                         final Stx stx;
                         ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
                         if (mask == null) {
-                            stx = Stx.create(getRaster(), 0, subPm);
+                            stx = new StxFactory().withResolutionLevel(0).create(getRaster(), subPm);
                             getRaster().setStx(stx);
                         } else {
-                            stx = Stx.create(getRaster(), mask, subPm);
+                            stx = new StxFactory().withRoiMask(mask).create(getRaster(), subPm);
                         }
                         publish(new ComputeResult(stx, mask));
                     }

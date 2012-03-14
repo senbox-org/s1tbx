@@ -20,10 +20,7 @@ import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.*;
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
@@ -66,7 +63,18 @@ public class BeamStxPart extends ProfilePartIO {
                     frequencies[i] = fNumber != null ? fNumber.intValue() : 0;
                 }
                 final int resolutionLevel = 0;
-                band.setStx(new Stx(min, max, mean, stdDev, false, intHistogram, frequencies, resolutionLevel));
+
+                Stx stx = new StxFactory()
+                        .withMinimum(min)
+                        .withMaximum(max)
+                        .withMean(mean)
+                        .withStandardDeviation(stdDev)
+                        .withIntHistogram(intHistogram)
+                        .withHistogramBins(frequencies)
+                        .withResolutionLevel(resolutionLevel)
+                        .create();
+
+                band.setStx(stx);
             }
         }
     }

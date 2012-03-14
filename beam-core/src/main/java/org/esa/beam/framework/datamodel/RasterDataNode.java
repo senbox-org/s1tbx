@@ -2130,7 +2130,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @since BEAM 4.5
      */
     protected Stx computeStxImpl(int level, ProgressMonitor pm) {
-        return Stx.create(this, level, pm);
+        return new StxFactory().withResolutionLevel(level).create(this, pm);
     }
 
     /**

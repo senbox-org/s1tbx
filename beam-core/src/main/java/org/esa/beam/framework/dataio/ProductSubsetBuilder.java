@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 
+import javax.media.jai.Histogram;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Map;
@@ -483,14 +484,23 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
 
     private void copyStx(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
         final Stx sourceStx = sourceRaster.getStx();
+        final Histogram sourceHistogram = sourceStx.getHistogram();
+        final Histogram targetHistogram = new Histogram(sourceStx.getHistogramBinCount(),
+                                                        sourceHistogram.getLowValue(0),
+                                                        sourceHistogram.getHighValue(0),
+                                                        1);
+
+        System.arraycopy(sourceHistogram.getBins(0), 0, targetHistogram.getBins(0), 0, sourceStx.getHistogramBinCount());
+
         final Stx targetStx = new Stx(sourceStx.getMinimum(),
                                       sourceStx.getMaximum(),
                                       sourceStx.getMean(),
                                       sourceStx.getStandardDeviation(),
                                       sourceStx.isLogHistogram(),
                                       sourceStx.isIntHistogram(),
-                                      sourceStx.getHistogramBins().clone(),
+                                      targetHistogram,
                                       sourceStx.getResolutionLevel());
+
         targetRaster.setStx(targetStx);
     }
 

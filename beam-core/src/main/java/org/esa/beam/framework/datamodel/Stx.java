@@ -20,8 +20,6 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 
 import javax.media.jai.Histogram;
-import java.awt.*;
-import java.awt.image.RenderedImage;
 
 /**
  * Provides statistic information for a raster data node at a given image resolution level.
@@ -56,7 +54,7 @@ public class Stx {
     private final Scaling histogramScaling;
 
     /**
-     * Constructor. Prefer using a {@link StxFactory} since the constructor may change in the future.
+     * Constructor. Avoid using it directly. instead, use the {@link StxFactory} since the constructor may change in the future.
      *
      * @param minimum           the minimum value, if it is {@link Double#NaN} the minimum is taken from the {@code histogram}
      * @param maximum           the maximum value, if it is {@link Double#NaN} the maximum is taken from the {@code histogram}
@@ -67,8 +65,8 @@ public class Stx {
      * @param histogram         the histogram
      * @param resolutionLevel   the resolution level this {@code Stx} is for
      */
-    Stx(double minimum, double maximum, double mean, double standardDeviation,
-        boolean logHistogram, boolean intHistogram, Histogram histogram, int resolutionLevel) {
+    public Stx(double minimum, double maximum, double mean, double standardDeviation,
+               boolean logHistogram, boolean intHistogram, Histogram histogram, int resolutionLevel) {
 
         Assert.argument(!Double.isNaN(minimum) && !Double.isInfinite(minimum), "minimum");
         Assert.argument(!Double.isNaN(maximum) && !Double.isInfinite(maximum), "maximum");
@@ -333,7 +331,7 @@ public class Stx {
      */
     @Deprecated
     public static Stx create(RasterDataNode raster, int level, ProgressMonitor pm) {
-        return StxFactory.createImpl(raster, level, null, null, DEFAULT_BIN_COUNT, pm);
+        return new StxFactory().withResolutionLevel(level).create(raster, pm);
     }
 
     /**
@@ -347,13 +345,7 @@ public class Stx {
      */
     @Deprecated
     public static Stx create(RasterDataNode raster, Mask roiMask, ProgressMonitor pm) {
-        Shape maskShape = null;
-        RenderedImage maskImage = null;
-        if (roiMask != null) {
-            maskShape = roiMask.getValidShape();
-            maskImage = roiMask.getSourceImage();
-        }
-        return StxFactory.createImpl(raster, 0, maskImage, maskShape, DEFAULT_BIN_COUNT, pm);
+        return new StxFactory().withRoiMask(roiMask).create(raster, pm);
     }
 
     /**
@@ -368,13 +360,7 @@ public class Stx {
      */
     @Deprecated
     public static Stx create(RasterDataNode raster, Mask roiMask, int binCount, ProgressMonitor pm) {
-        Shape maskShape = null;
-        RenderedImage maskImage = null;
-        if (roiMask != null) {
-            maskShape = roiMask.getValidShape();
-            maskImage = roiMask.getSourceImage();
-        }
-        return StxFactory.createImpl(raster, 0, maskImage, maskShape, binCount, pm);
+        return new StxFactory().withRoiMask(roiMask).withHistogramBinCount(binCount).create(raster, pm);
     }
 
     /**
@@ -392,7 +378,7 @@ public class Stx {
     @Deprecated
     public static Stx create(RasterDataNode raster, int level, int binCount, double min, double max,
                              ProgressMonitor pm) {
-        return StxFactory.createImpl(raster, level, null, null, binCount, min, max, pm);
+        return new StxFactory().withResolutionLevel(level).withHistogramBinCount(binCount).withMinimum(min).withMaximum(max).create(raster, pm);
     }
 
     /**
@@ -410,35 +396,6 @@ public class Stx {
     @Deprecated
     public static Stx create(RasterDataNode raster, Mask roiMask, int binCount, double min, double max,
                              ProgressMonitor pm) {
-        Shape maskShape = null;
-        RenderedImage maskImage = null;
-        if (roiMask != null) {
-            maskShape = roiMask.getValidShape();
-            maskImage = roiMask.getSourceImage();
-        }
-        return StxFactory.createImpl(raster, 0, maskImage, maskShape, binCount, min, max, pm);
+        return new StxFactory().withRoiMask(roiMask).withHistogramBinCount(binCount).withMinimum(min).withMaximum(max).create(raster, pm);
     }
-
-
-    /**
-     * Constructor. Prefer using a {@link StxFactory} since the constructor may change in the future.
-     *
-     * @param minimum           the minimum value
-     * @param maximum           the maximum value
-     * @param mean              the mean value, if it's {@link Double#NaN} the mean will be computed
-     * @param standardDeviation the value of the standard deviation, if it's {@link Double#NaN} it will be computed
-     * @param logHistogram      {@code true} if the histogram has been computed on logarithms, see {@link #getHistogram()}
-     * @param intHistogram      {@code true} if the histogram has been computed from integer samples, see {@link #getHistogram()}
-     * @param histogramBins     the histogram bins containing the frequencies of image samples
-     * @param resolutionLevel   the resolution level this {@code Stx} is for   @see Stx#Stx(double, double, double, double, boolean, javax.media.jai.Histogram, int)
-     */
-    @Deprecated
-    public Stx(double minimum, double maximum, double mean, double standardDeviation,
-               boolean logHistogram, boolean intHistogram, int[] histogramBins,
-               int resolutionLevel) {
-        this(minimum, maximum, mean, standardDeviation,
-             logHistogram, intHistogram, StxFactory.createHistogram(minimum, maximum, logHistogram, intHistogram, histogramBins),
-             resolutionLevel);
-    }
-
 }

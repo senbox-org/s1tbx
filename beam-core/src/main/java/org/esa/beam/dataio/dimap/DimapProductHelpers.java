@@ -1228,14 +1228,14 @@ public class DimapProductHelpers {
             final int[] bins = getHistogramBins(bandStatisticsElem);
             boolean intHistogram = !ProductData.isFloatingPointType(band.getGeophysicalDataType());
             if (minSample != null && maxSample != null) {
-                return new Stx(minSample,
-                               maxSample,
-                               mean != null ? mean : Double.NaN,
-                               stdDev != null ? stdDev : Double.NaN,
-                               false,
-                               intHistogram,
-                               bins == null ? new int[0] : bins,
-                               level == null ? 0 : level);
+                return new StxFactory()
+                        .withMinimum(minSample)
+                        .withMaximum(maxSample)
+                        .withMean(mean)
+                        .withStandardDeviation(stdDev)
+                        .withIntHistogram(intHistogram)
+                        .withHistogramBins(bins == null ? new int[0] : bins)
+                        .withResolutionLevel(level).create();
             }
             return null;
         }

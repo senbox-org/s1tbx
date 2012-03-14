@@ -15,41 +15,40 @@
  */
 
 package org.esa.beam.dataio.envisat;
+
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
 
 import java.io.IOException;
 
-import com.bc.ceres.core.ProgressMonitor;
-
-public class StxPerfomanceCheck {
+public class StxPerformanceCheck {
 
     public static void main(String[] args) throws Exception {
         System.out.println("Stx computation performance test:");
         System.out.println("=================================");
-        for (int i = 0; i < args.length; i++) {
-            String filePath = args[i];
-            performeBandTest(filePath);
+        for (String filePath : args) {
+            performBandTest(filePath);
         }
     }
 
-    private static void performeBandTest(String filePath) throws IOException {
+    private static void performBandTest(String filePath) throws IOException {
         Product product = ProductIO.readProduct(filePath);
         Band band0 = product.getBandAt(0);
         double[] times = computeStx(band0);
-        
+
         System.out.println(product.getProductType());
-        System.out.println("band width : "+band0.getSceneRasterWidth());
-        System.out.println("band height: "+band0.getSceneRasterHeight());
+        System.out.println("band width : " + band0.getSceneRasterWidth());
+        System.out.println("band height: " + band0.getSceneRasterHeight());
         System.out.println();
         for (int i = 0; i < times.length; i++) {
-            System.out.println("stx"+i+" : "+times[i]);
+            System.out.println("stx" + i + " : " + times[i]);
         }
         System.out.println();
     }
-    
+
     private static double[] computeStx(Band band) {
         double[] times = new double[3];
         for (int i = 0; i < times.length; i++) {
@@ -57,11 +56,11 @@ public class StxPerfomanceCheck {
         }
         return times;
     }
+
     private static double computeStxOnce(Band band) {
         final long t0 = System.nanoTime();
-        Stx stx1 = Stx.create(band, 0, ProgressMonitor.NULL);
+        new StxFactory().create(band, ProgressMonitor.NULL);
         final long t1 = System.nanoTime();
-        return (t1-t0)/1e6;
-        
+        return (t1 - t0) / 1e6;
     }
 }

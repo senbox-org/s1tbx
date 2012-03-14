@@ -460,7 +460,7 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
             if (mask == null) {
                 stx = raster.getStx(false, pm);
             } else {
-                stx = Stx.create(raster, mask, pm);
+                stx = new StxFactory().withRoiMask(mask).create(raster, pm);
             }
             return new Range(stx.getMinimum(), stx.getMaximum());
         } else {
