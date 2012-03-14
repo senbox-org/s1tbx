@@ -260,7 +260,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         } else {
             final double min = ((Number) histoMinParam.getValue()).doubleValue();
             final double max = ((Number) histoMaxParam.getValue()).doubleValue();
-            range = new Range(getRaster().scaleInverse(min), getRaster().scaleInverse(max));
+            range = new Range(min, max);
         }
 
         ProgressMonitorSwingWorker<Stx, Object> swingWorker = new ProgressMonitorSwingWorker<Stx, Object>(this, "Computing Histogram") {
