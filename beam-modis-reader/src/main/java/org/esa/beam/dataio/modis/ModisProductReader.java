@@ -245,7 +245,7 @@ public class ModisProductReader extends AbstractProductReader {
     /**
      * Reads the global metadata and extracts some basic constants (width, height etc ...)
      *
-     * @throws HDFException
+     * @throws ProductIOException on product access failures
      */
     private void readGlobalMetaData(File inFile, NetcdfFile netcdfFile) throws  ProductIOException {
         try {
@@ -256,8 +256,7 @@ public class ModisProductReader extends AbstractProductReader {
 
         // check wheter daac or imapp
         if (isImappFormat()) {
-            // @todo 1 tb/tb add QC file
-            _globalAttributes = new ModisImappAttributes(inFile, netcdfFile, null, _globalHdfAttrs);
+            _globalAttributes = new ModisImappAttributes(inFile, netcdfFile);
         } else {
             _globalAttributes = new ModisDaacAttributes(_globalHdfAttrs);
         }

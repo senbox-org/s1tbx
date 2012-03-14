@@ -23,17 +23,9 @@ import org.esa.beam.dataio.modis.hdf.HdfAttributes;
 import org.esa.beam.dataio.modis.hdf.HdfDataField;
 import org.esa.beam.dataio.modis.hdf.HdfUtils;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
-import org.esa.beam.dataio.modis.productdb.ModisBandDescription;
-import org.esa.beam.dataio.modis.productdb.ModisProductDb;
-import org.esa.beam.dataio.modis.productdb.ModisProductDescription;
-import org.esa.beam.dataio.modis.productdb.ModisTiePointDescription;
-import org.esa.beam.dataio.modis.productdb.ModisSpectralInfo;
+import org.esa.beam.dataio.modis.productdb.*;
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
@@ -69,6 +61,7 @@ class ModisFileReader {
      * @param sdStart       the id of the HDF SDstart
      * @param globalAttribs the struct global attributes object
      * @param product       the product to be supplied with bands
+     * @throws IOException on disk access failures
      */
     public void addRastersAndGeocoding(final int sdStart, final ModisGlobalAttributes globalAttribs,
                                        final Product product) throws HDFException, IOException {
@@ -106,7 +99,6 @@ class ModisFileReader {
      * Retrieves the band reader with the given name. If none exists returns null.
      *
      * @param band
-     *
      * @return the band reader
      */
     public ModisBandReader getBandReader(final Band band) {
@@ -121,7 +113,6 @@ class ModisFileReader {
      * Closes the sds with the given sdsId
      *
      * @param sdsId
-     *
      * @throws ncsa.hdf.hdflib.HDFException
      */
     private void closeSds(int sdsId) throws HDFException {
@@ -167,7 +158,6 @@ class ModisFileReader {
      *
      * @param sdsId
      * @param name
-     *
      * @return a float (array)
      */
     private float[] getNamedFloatAttribute(int sdsId, String name) throws HDFException {
@@ -255,15 +245,14 @@ class ModisFileReader {
                     if (bandDesc.getScalingMethod() != null) {
                         if (scales.length <= j || offsets.length <= j) {
                             _logger.warning("Unable to assign the scaling method '" +
-                                            bandDesc.getScalingMethod() + "' to the band '" + bandName + '\'');
-                        } else
-                        if (bandDesc.getScalingMethod().equalsIgnoreCase(ModisConstants.EXPONENTIAL_SCALE_NAME)) {
+                                                    bandDesc.getScalingMethod() + "' to the band '" + bandName + '\'');
+                        } else if (bandDesc.getScalingMethod().equalsIgnoreCase(ModisConstants.EXPONENTIAL_SCALE_NAME)) {
                             readers[j].setScaleAndOffset(scales[j], offsets[j]);
                         } else if (bandDesc.getScalingMethod().equalsIgnoreCase(ModisConstants.LINEAR_SCALE_NAME)) {
                             band.setScalingFactor(scales[j]);
                             band.setScalingOffset(-offsets[j] * scales[j]);
                         } else if (bandDesc.getScalingMethod().equalsIgnoreCase(
-                                    ModisConstants.SLOPE_INTERCEPT_SCALE_NAME)) {
+                                ModisConstants.SLOPE_INTERCEPT_SCALE_NAME)) {
                             band.setScalingFactor(scales[j]);
                             band.setScalingOffset(offsets[j]);
                         } else if (bandDesc.getScalingMethod().equalsIgnoreCase(ModisConstants.POW_10_SCALE_NAME)) {
@@ -340,7 +329,7 @@ class ModisFileReader {
      * @param product
      */
     private void addModisTiePointGeoCoding(Product product) throws HDFException,
-                                                                   IOException {
+            IOException {
         ModisProductDescription prodDesc = _prodDb.getProductDescription(product.getProductType());
         final String[] geolocationDatasetNames;
         if (prodDesc.hasExternalGeolocation()) {
@@ -373,11 +362,10 @@ class ModisFileReader {
      * @param sdId
      * @param productType
      * @param prod
-     *
      * @throws ncsa.hdf.hdflib.HDFException
      */
     private void addTiePointGrids(int sdId, String productType, Product prod, ModisGlobalAttributes globalAttribs)
-                throws HDFException, ProductIOException {
+            throws HDFException, ProductIOException {
         TiePointGrid grid;
         String[] tiePointGridNames = _prodDb.getTiePointNames(productType);
 
@@ -394,15 +382,13 @@ class ModisFileReader {
      *
      * @param sdId
      * @param name
-     *
      * @return
-     *
      * @throws ncsa.hdf.hdflib.HDFException
      */
     private TiePointGrid readNamedTiePointGrid(int sdId, String prodType, String name,
                                                ModisGlobalAttributes globalAttribs) throws
-                                                                                    ProductIOException,
-                                                                                    HDFException {
+            ProductIOException,
+            HDFException {
         TiePointGrid gridRet = null;
         int sdsId = HDFConstants.FAIL;
         int dimId;
@@ -502,25 +488,24 @@ class ModisFileReader {
      *
      * @param size
      * @param dataType
-     *
      * @return the array
      */
     private static Object allocateDataArray(int size, int dataType) {
         Object ret = null;
 
         switch (dataType) {
-        case ProductData.TYPE_FLOAT32:
-            ret = new float[size];
-            break;
+            case ProductData.TYPE_FLOAT32:
+                ret = new float[size];
+                break;
 
-        case ProductData.TYPE_INT16:
-        case ProductData.TYPE_UINT16:
-            ret = new short[size];
-            break;
-        case ProductData.TYPE_INT8:
-        case ProductData.TYPE_UINT8:
-            ret = new byte[size];
-            break;
+            case ProductData.TYPE_INT16:
+            case ProductData.TYPE_UINT16:
+                ret = new short[size];
+                break;
+            case ProductData.TYPE_INT8:
+            case ProductData.TYPE_UINT8:
+                ret = new byte[size];
+                break;
         }
         return ret;
     }
@@ -532,7 +517,6 @@ class ModisFileReader {
      * @param buffer
      * @param scale
      * @param offset
-     *
      * @return the scaled array
      */
     private static float[] scaleArray(int dataType, Object buffer, float scale, float offset) {
@@ -589,7 +573,7 @@ class ModisFileReader {
      * @param product
      */
     private String[] loadExternalQCFile(Product product, ModisProductDescription prodDesc) throws HDFException,
-                                                                                                  ProductIOException {
+            ProductIOException {
         FileContainer qcFile = assembleQCFile(product, prodDesc);
         if (qcFile == null) {
             _logger.warning("MODIS QC file not found.");
@@ -607,7 +591,7 @@ class ModisFileReader {
         if (globalHdfAttrs.getStringAttributeValue(ModisConstants.HDF_EOS_VERSION_KEY) == null) {
             // @todo 1 tb/tb add netCdfFile as second parameter
             // @todo 1 tb/tb add QualityControlFile as third parameter - netCDF file
-            globalAttributes = new ModisImappAttributes(qcFile.getFile(), null, null, globalHdfAttrs);
+            globalAttributes = new ModisImappAttributes(qcFile.getFile(), null);
         } else {
             globalAttributes = new ModisDaacAttributes(globalHdfAttrs);
         }
@@ -616,7 +600,7 @@ class ModisFileReader {
 
         for (int n = 0; n < tiePointGridNames.length; n++) {
             final TiePointGrid grid
-                        = readNamedTiePointGrid(_qcFileId, qcFile.getType(), tiePointGridNames[n], globalAttributes);
+                    = readNamedTiePointGrid(_qcFileId, qcFile.getType(), tiePointGridNames[n], globalAttributes);
             if (grid != null) {
                 product.addTiePointGrid(grid);
             }
@@ -631,7 +615,6 @@ class ModisFileReader {
      *
      * @param product
      * @param desc
-     *
      * @return a file container with the qc file or null
      */
     private static FileContainer assembleQCFile(Product product, ModisProductDescription desc) {
@@ -719,9 +702,9 @@ class ModisFileReader {
      * @@throws ncsa.hdf.hdflib.HDFException
      */
     protected String getBandNameExtensions(
-                final int sdId, final int sdsId,
-                final String productType, final String bandNameAttribName)
-                throws HDFException {
+            final int sdId, final int sdsId,
+            final String productType, final String bandNameAttribName)
+            throws HDFException {
         if (bandNameAttribName == null) {
             return null;
         }
@@ -775,7 +758,6 @@ class ModisFileReader {
          *
          * @param dir  the directory in which the file was found.
          * @param name the name of the file.
-         *
          * @return <code>true</code> if and only if the name should be included in the file list; <code>false</code>
          *         otherwise.
          */

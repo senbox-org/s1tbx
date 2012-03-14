@@ -77,21 +77,6 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    private ModisGlobalAttributes readGlobalMetadata(NetcdfFile ncfile, File file) throws ProductIOException {
-        ModisGlobalAttributes modisAttributes = null;
-        final Variable structMeta = ncfile.findTopVariable(ModisConstants.STRUCT_META_KEY);
-        if (structMeta == null) {
-            // @todo 1 tb/tb implement IMAPP parsing
-            // is IMAPP format
-            System.out.println("IMAPP format");
-            modisAttributes = new ModisImappAttributes(file, ncfile, null, null);
-        } else {
-            final List<Variable> variables = ncfile.getVariables();
-            modisAttributes = new ModisDaacAttributes(variables);
-        }
-        return modisAttributes;
-    }
-
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
      * <p/>
@@ -152,5 +137,17 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
      */
     public String[] getFormatNames() {
         return new String[]{ModisConstants.FORMAT_NAME};
+    }
+
+    private ModisGlobalAttributes readGlobalMetadata(NetcdfFile ncfile, File file) throws ProductIOException {
+        ModisGlobalAttributes modisAttributes;
+        final Variable structMeta = ncfile.findTopVariable(ModisConstants.STRUCT_META_KEY);
+        if (structMeta == null) {
+            modisAttributes = new ModisImappAttributes(file, ncfile);
+        } else {
+            final List<Variable> variables = ncfile.getVariables();
+            modisAttributes = new ModisDaacAttributes(variables);
+        }
+        return modisAttributes;
     }
 }

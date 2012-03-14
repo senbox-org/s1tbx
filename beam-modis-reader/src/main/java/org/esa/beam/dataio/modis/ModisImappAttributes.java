@@ -16,7 +16,6 @@
 
 package org.esa.beam.dataio.modis;
 
-import org.esa.beam.dataio.modis.hdf.HdfAttributes;
 import org.esa.beam.dataio.modis.hdf.HdfDataField;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -40,7 +39,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
     private static final String LINE_NUMBERS = "line_numbers";
     private static final String FRAME_NUMBERS = "frame_numbers";
     private final Logger logger;
-    private NetcdfFile ncfile;
+    private NetcdfFile ncFile;
     private Dimension productDimension;
     private HashMap<String, Integer> dimensionMap;
     private HashMap<String, IncrementOffset> subsamplingMap;
@@ -50,8 +49,8 @@ class ModisImappAttributes implements ModisGlobalAttributes {
     private Date sensingStart;
     private Date sensingStop;
 
-    public ModisImappAttributes(File inFile, NetcdfFile ncfile, NetcdfFile qcfile, final HdfAttributes hdfAttributes) throws ProductIOException {
-        this.ncfile = ncfile;
+    public ModisImappAttributes(File inFile, NetcdfFile ncFile) throws ProductIOException {
+        this.ncFile = ncFile;
         logger = BeamLogManager.getSystemLogger();
 
         final FileDescriptor descriptor = parseFileNameAndType(inFile);
@@ -157,7 +156,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
         int maxWidth = 0;
         int maxHeight = 0;
 
-        final List<Variable> variables = ncfile.getVariables();
+        final List<Variable> variables = ncFile.getVariables();
         for (int i = 0; i < variables.size(); i++) {
             final Variable variable = variables.get(i);
 
@@ -210,7 +209,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
     }
 
     private void extractStartAndStopTimes() throws ProductIOException {
-        final List<Attribute> globalAttributes = ncfile.getGlobalAttributes();
+        final List<Attribute> globalAttributes = ncFile.getGlobalAttributes();
         Attribute startDateAttribute = null;
         Attribute startTimeAttribute = null;
         Attribute endDateAttribute = null;
