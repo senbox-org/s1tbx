@@ -32,6 +32,7 @@ public class StxFactory {
     private Integer resolutionLevel;
     private Mask roiMask;
     private RenderedImage roiImage;
+    private Shape roiShape;
     private Integer histogramBinCount;
     private Boolean intHistogram;
     private Boolean logHistogram;
@@ -85,8 +86,17 @@ public class StxFactory {
         return this;
     }
 
+    /**
+     * @param roiImage The ROI image. Ignored if ROI mask is used.
+     * @return This instance.
+     */
     public StxFactory withRoiImage(RenderedImage roiImage) {
         this.roiImage = roiImage;
+        return this;
+    }
+
+    public StxFactory withRoiShape(Shape roiShape) {
+        this.roiShape = roiShape;
         return this;
     }
 
@@ -130,11 +140,13 @@ public class StxFactory {
 
         if (raster != null) {
 
-            Shape maskShape = null;
-            RenderedImage maskImage = null;
+            Shape roiShape = this.roiShape;
+            RenderedImage roiImage = this.roiImage;
             if (roiMask != null) {
-                maskShape = roiMask.getValidShape();
-                maskImage = roiMask.getSourceImage();
+                if (roiMask.getValidShape() != null) {
+                    roiShape = roiMask.getValidShape();
+                }
+                roiImage = roiMask.getSourceImage();
             }
 
             boolean mustComputeSummaryStx = this.minimum == null || this.maximum == null;
@@ -145,7 +157,7 @@ public class StxFactory {
 
                 if (mustComputeSummaryStx) {
                     final SummaryStxOp meanOp = new SummaryStxOp();
-                    accumulate(raster, level, maskImage, maskShape, meanOp, SubProgressMonitor.create(pm, 50));
+                    accumulate(raster, level, roiImage, roiShape, meanOp, SubProgressMonitor.create(pm, 50));
                     if (this.minimum == null) {
                         minimum = meanOp.getMinimum();
                     }
@@ -164,7 +176,7 @@ public class StxFactory {
                     int binCount = histogramBinCount != null ? histogramBinCount : DEFAULT_BIN_COUNT;
                     intHistogram = raster.getGeophysicalImage().getSampleModel().getDataType() < DataBuffer.TYPE_FLOAT;
                     final HistogramStxOp histogramOp = new HistogramStxOp(binCount, minimum, maximum, intHistogram, logHistogram);
-                    accumulate(raster, level, maskImage, maskShape, histogramOp, SubProgressMonitor.create(pm, 50));
+                    accumulate(raster, level, roiImage, roiShape, histogramOp, SubProgressMonitor.create(pm, 50));
                     histogram = histogramOp.getHistogram();
                 }
 
@@ -235,7 +247,6 @@ public class StxFactory {
 
         try {
             pm.beginTask("Computing " + op.getName(), dataImage.getNumXTiles() * dataImage.getNumYTiles());
-
 
             for (int tileY = dataImage.getTileGridYOffset(); tileY <= tileY2; tileY++) {
                 for (int tileX = dataImage.getTileGridXOffset(); tileX <= tileX2; tileX++) {
@@ -315,6 +326,9 @@ public class StxFactory {
 
     static PlanarImage getEffectiveMaskImage(RasterDataNode raster, int level, RenderedImage roiImage) {
         PlanarImage maskImage = ImageManager.getInstance().getValidMaskImage(raster, level);
+        if (maskImage == roiImage) {
+            return maskImage;
+        }
         if (roiImage != null) {
             if (maskImage != null) {
                 final ImageLayout imageLayout = new ImageLayout();
@@ -329,15 +343,18 @@ public class StxFactory {
         return maskImage;
     }
 
-    static Shape getEffectiveShape(RasterDataNode raster, Shape maskShape) {
+    static Shape getEffectiveShape(RasterDataNode raster, Shape roiShape) {
         Shape validShape = raster.getValidShape();
+        if (validShape == roiShape) {
+            return validShape;
+        }
         Shape effectiveShape = validShape;
-        if (validShape != null && maskShape != null) {
+        if (validShape != null && roiShape != null) {
             Area area = new Area(validShape);
-            area.intersect(new Area(maskShape));
+            area.intersect(new Area(roiShape));
             effectiveShape = area;
-        } else if (maskShape != null) {
-            effectiveShape = maskShape;
+        } else if (roiShape != null) {
+            effectiveShape = roiShape;
         }
         return effectiveShape;
     }

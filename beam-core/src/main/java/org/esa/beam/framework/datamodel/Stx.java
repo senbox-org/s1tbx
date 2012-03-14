@@ -16,6 +16,7 @@
 
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 
 import javax.media.jai.Histogram;
@@ -41,12 +42,12 @@ public class Stx {
 
     public static final int DEFAULT_BIN_COUNT = 512;
 
+    private final long sampleCount;
     private final double minimum;
     private final double maximum;
     private final double mean;
     private final double standardDeviation;
     private final double median;
-    private final long sampleCount;
     private final int resolutionLevel;
     private final boolean logHistogram;
     private final boolean intHistogram;
@@ -68,19 +69,24 @@ public class Stx {
      */
     Stx(double minimum, double maximum, double mean, double standardDeviation,
         boolean logHistogram, boolean intHistogram, Histogram histogram, int resolutionLevel) {
+
+        Assert.argument(!Double.isNaN(minimum) && !Double.isInfinite(minimum), "minimum");
+        Assert.argument(!Double.isNaN(maximum) && !Double.isInfinite(maximum), "maximum");
+        Assert.argument(resolutionLevel >= 0, "resolutionLevel");
+
         // todo - this is still a lot of behaviour, move all computations to StxFactory (nf)
         // todo - minimum and maximum must always be valid (nf)
-        this.minimum = Double.isNaN(minimum) ? histogram.getLowValue(0) : minimum;
-        this.maximum = Double.isNaN(maximum) ? histogram.getHighValue(0) : maximum;
-        this.mean = Double.isNaN(mean) ? histogram.getMean()[0] : mean;
-        this.standardDeviation = Double.isNaN(standardDeviation) ? histogram.getStandardDeviation()[0] : standardDeviation;
+        this.sampleCount = StxFactory.computeSum(histogram.getBins(0));
+        this.minimum = minimum;
+        this.maximum = maximum;
+        this.histogramScaling = getHistogramScaling(logHistogram, minimum);
+        this.mean = Double.isNaN(mean) ? histogramScaling.scaleInverse(histogram.getMean()[0]) : mean;
+        this.standardDeviation = Double.isNaN(standardDeviation) ? histogramScaling.scaleInverse(histogram.getStandardDeviation()[0]) : standardDeviation;
+        this.median = histogramScaling.scaleInverse(StxFactory.computeMedian(histogram, this.sampleCount));
         this.logHistogram = logHistogram;
         this.intHistogram = intHistogram;
         this.histogram = histogram;
         this.resolutionLevel = resolutionLevel;
-        this.sampleCount = StxFactory.computeSum(histogram.getBins(0));
-        this.median = StxFactory.computeMedian(histogram, this.sampleCount);
-        this.histogramScaling = getHistogramScaling(logHistogram, minimum);
     }
 
     /**
