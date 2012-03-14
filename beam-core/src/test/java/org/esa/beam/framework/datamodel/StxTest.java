@@ -19,7 +19,7 @@ package org.esa.beam.framework.datamodel;
 import com.bc.ceres.core.ProgressMonitor;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class StxTest {
 
@@ -56,13 +56,13 @@ public class StxTest {
         band.setNoDataValueUsed(true);
         band.setNoDataValue(-0.5);
 
-        Stx stx = Stx.create(band, band.getValidMaskImage(), ProgressMonitor.NULL);
+        Stx stx = StxFactory.create(band, band.getValidMaskImage(), ProgressMonitor.NULL);
         assertEquals(5.0e-1, stx.getMedian(), 0.1e-1);
         assertEquals(4.1e-5, stx.getMean(), 0.1e-5);
         assertEquals(3464.4, stx.getStandardDeviation(), 1.0e-1);
 
         band.setNoDataValue(0.5);
-        stx = Stx.create(band, band.getValidMaskImage(), ProgressMonitor.NULL);
+        stx = StxFactory.create(band, band.getValidMaskImage(), ProgressMonitor.NULL);
         assertEquals(-5.0e-1, stx.getMedian(), 0.1e-1);
         assertEquals(-4.1e-5, stx.getMean(), 0.1e-5);
         assertEquals(3464.4, stx.getStandardDeviation(), 1.0e-1);
