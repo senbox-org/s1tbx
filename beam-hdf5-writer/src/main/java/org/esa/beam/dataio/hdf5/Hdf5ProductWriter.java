@@ -651,8 +651,8 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
 
                 if (band.isStxSet()) {
                     final Stx stx = band.getStx();
-                    createScalarAttribute(datasetID, "min_sample", band.scaleInverse(stx.getMinimum()));
-                    createScalarAttribute(datasetID, "max_sample", band.scaleInverse(stx.getMaximum()));
+                    createScalarAttribute(datasetID, "min_sample", stx.getMinimum());
+                    createScalarAttribute(datasetID, "max_sample", stx.getMaximum());
                 }
                 if (band.getImageInfo() != null) {
                     final ColorPaletteDef paletteDef = band.getImageInfo().getColorPaletteDef();
