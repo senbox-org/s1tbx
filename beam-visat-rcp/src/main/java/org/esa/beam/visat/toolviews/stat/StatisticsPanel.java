@@ -224,7 +224,7 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
         sb.append(unit);
         sb.append("\n");
 
-        sb.append("Std-Dev:  \t");
+        sb.append("Standard deviation:  \t");
         sb.append(stat.getStandardDeviation());
         sb.append("\t ");
         sb.append(unit);
