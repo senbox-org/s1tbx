@@ -7,11 +7,11 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Norman Fomferra
  */
-public class StxBuilderTest {
+public class StxFactoryTest {
     @Test
     public void testSimpleCase() throws Exception {
-        final StxBuilder builder = new StxBuilder();
-        final Stx stx = builder
+        final StxFactory factory = new StxFactory();
+        final Stx stx = factory
                 .withMinimum(0.0)
                 .withMaximum(1.0)
                 .withHistogramBins(new int[]{1, 2, 3, 6, 3, 2, 1})

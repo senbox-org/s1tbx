@@ -32,10 +32,21 @@ import java.awt.image.RenderedImage;
 import java.util.concurrent.CancellationException;
 
 /**
- * Instances of the <code>Stx</code> class provide statistics for a band.
- * Preliminary API. Use at your own risk.
+ * Instances of the <code>Stx</code> class provide statistics for a raster data node at a given image resolution level.
+ * Instances of the <code>Stx</code> class are created using the {@link StxFactory}.
  * <p/>
- * <i>Important note: This class has been revised in BEAM 4.10. It now operates on the
+ * The {@link #getHistogram() histogram} returned by this class may be computed on the logarithms of image samples.
+ * In this case {@link #isLogHistogram()} returns true and it is expected that the equation
+ * {@code logx = Math.log10(1 + x - min)} has been used to compute the histogram from
+ * image samples {@code x}, with {@code min} being the value returned by {@link #getMinimum()}.
+ * Thus, the equation {@code min + Math.pow(x, 10) - 1} must be used to compute the actual value from any
+ * histogram property {@code x} such as low value, high value, bin low value, mean, moment, entropy, etc.
+ * <p/>
+ * The {@link #getHistogram() histogram} may furthermore be computed from integer image data.
+ * In this case {@link #isIntHistogram()} returns true and the high value of the histogram is by one higher than
+ * the value returned by {@link #getMinimum()}.
+ * <p/>
+ * <i>Important note: This class has been revised in BEAM 4.10. It is now derived upon
  * geo-physically interpreted image data (before it operated on the raw, unscaled data). Thus, it is
  * not required to scale the returned statistical properties, e.g. we used to write
  * {@code band.scale(stx.getMean())}. This is not required anymore.</i>
@@ -61,7 +72,7 @@ public class Stx {
     private final Histogram histogram;
 
     /**
-     * Constructor. Prefer using a {@link StxBuilder} since the constructor may change in the future.
+     * Constructor. Prefer using a {@link StxFactory} since the constructor may change in the future.
      *
      * @param minimum           the minimum value
      * @param maximum           the maximum value
@@ -80,7 +91,7 @@ public class Stx {
     }
 
     /**
-     * Constructor. Prefer using a {@link StxBuilder} since the constructor may change in the future.
+     * Constructor. Prefer using a {@link StxFactory} since the constructor may change in the future.
      *
      * @param minimum         the minimum value, if it is {@link Double#NaN} the minimum is taken from the {@code histogram}
      * @param maximum         the maximum value, if it is {@link Double#NaN} the maximum is taken from the {@code histogram}

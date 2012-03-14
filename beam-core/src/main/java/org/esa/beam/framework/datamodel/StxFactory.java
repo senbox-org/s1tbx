@@ -9,11 +9,12 @@ import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 
 /**
- * Builder for {@link Stx} instances (builder pattern).
+ * The factory for {@link Stx} instances.
+ * The design of this class is following the Builder pattern.
  *
  * @author Norman Fomferra
  */
-public class StxBuilder {
+public class StxFactory {
     public static final int DEFAULT_BIN_COUNT = 512;
 
     private final RasterDataNode raster;
@@ -31,70 +32,70 @@ public class StxBuilder {
     Boolean logHistogram;
     int[] histogramBins;
 
-    public StxBuilder() {
+    public StxFactory() {
         this(null);
     }
 
-    public StxBuilder(RasterDataNode raster) {
+    public StxFactory(RasterDataNode raster) {
         this.raster = raster;
     }
 
-    public StxBuilder withMinimum(Number minimum) {
+    public StxFactory withMinimum(Number minimum) {
         this.minimum = minimum;
         return this;
     }
 
-    public StxBuilder withMaximum(Number maximum) {
+    public StxFactory withMaximum(Number maximum) {
         this.maximum = maximum;
         return this;
     }
 
-    public StxBuilder withMean(Number mean) {
+    public StxFactory withMean(Number mean) {
         this.mean = mean;
         return this;
     }
 
-    public StxBuilder withStdDev(Number stdDev) {
+    public StxFactory withStdDev(Number stdDev) {
         this.stdDev = stdDev;
         return this;
     }
 
-    public StxBuilder withIntHistogram(boolean intHistogram) {
+    public StxFactory withIntHistogram(boolean intHistogram) {
         this.intHistogram = intHistogram;
         return this;
     }
 
-    public StxBuilder withLogHistogram(boolean logHistogram) {
+    public StxFactory withLogHistogram(boolean logHistogram) {
         this.logHistogram = logHistogram;
         return this;
     }
 
-    public StxBuilder withHistogram(Histogram histogram) {
+    public StxFactory withHistogram(Histogram histogram) {
         this.histogram = histogram;
         return this;
     }
 
-    public StxBuilder withResolutionLevel(Integer resolutionLevel) {
+    public StxFactory withResolutionLevel(Integer resolutionLevel) {
         this.resolutionLevel = resolutionLevel;
         return this;
     }
 
-    public StxBuilder withRoiMask(Mask roiMask) {
+    public StxFactory withRoiMask(Mask roiMask) {
         this.roiMask = roiMask;
         return this;
     }
 
-    public StxBuilder withRoiImage(RenderedImage roiImage) {
+    public StxFactory withRoiImage(RenderedImage roiImage) {
         this.roiImage = roiImage;
         return this;
     }
 
-    public StxBuilder withHistogramBinCount(Integer histogramBinCount) {
+    public StxFactory withHistogramBinCount(Integer histogramBinCount) {
         this.histogramBinCount = histogramBinCount;
         return this;
     }
 
-    public StxBuilder withHistogramBins(int[] histogramBins) {
+    public StxFactory withHistogramBins(int[] histogramBins) {
         this.histogramBins = histogramBins;
         return this;
     }
