@@ -44,7 +44,7 @@ public class Stx {
     private final double minimum;
     private final double maximum;
     private final double mean;
-    private final double stdDev;
+    private final double standardDeviation;
     private final double median;
     private final long sampleCount;
     private final int resolutionLevel;
@@ -52,31 +52,35 @@ public class Stx {
     private final boolean intHistogram;
     private final Histogram histogram;
 
+    private final Scaling histogramScaling;
+
     /**
      * Constructor. Prefer using a {@link StxFactory} since the constructor may change in the future.
      *
-     * @param minimum         the minimum value, if it is {@link Double#NaN} the minimum is taken from the {@code histogram}
-     * @param maximum         the maximum value, if it is {@link Double#NaN} the maximum is taken from the {@code histogram}
-     * @param mean            the mean value, if it is {@link Double#NaN} the mean is taken from the {@code histogram}
-     * @param stdDev          the value of the standard deviation, if it is {@link Double#NaN} it is taken from the {@code histogram}
-     * @param logHistogram    {@code true} if the histogram has been computed on logarithms, see {@link #getHistogram()}
-     * @param intHistogram    {@code true} if the histogram has been computed from integer samples, see {@link #getHistogram()}
-     * @param histogram       the histogram
-     * @param resolutionLevel the resolution level this {@code Stx} is for
+     * @param minimum           the minimum value, if it is {@link Double#NaN} the minimum is taken from the {@code histogram}
+     * @param maximum           the maximum value, if it is {@link Double#NaN} the maximum is taken from the {@code histogram}
+     * @param mean              the mean value, if it is {@link Double#NaN} the mean is taken from the {@code histogram}
+     * @param standardDeviation the value of the standard deviation, if it is {@link Double#NaN} it is taken from the {@code histogram}
+     * @param logHistogram      {@code true} if the histogram has been computed on logarithms, see {@link #getHistogram()}
+     * @param intHistogram      {@code true} if the histogram has been computed from integer samples, see {@link #getHistogram()}
+     * @param histogram         the histogram
+     * @param resolutionLevel   the resolution level this {@code Stx} is for
      */
-    Stx(double minimum, double maximum, double mean, double stdDev,
+    Stx(double minimum, double maximum, double mean, double standardDeviation,
         boolean logHistogram, boolean intHistogram, Histogram histogram, int resolutionLevel) {
         // todo - this is still a lot of behaviour, move all computations to StxFactory (nf)
+        // todo - minimum and maximum must always be valid (nf)
         this.minimum = Double.isNaN(minimum) ? histogram.getLowValue(0) : minimum;
         this.maximum = Double.isNaN(maximum) ? histogram.getHighValue(0) : maximum;
         this.mean = Double.isNaN(mean) ? histogram.getMean()[0] : mean;
-        this.stdDev = Double.isNaN(stdDev) ? histogram.getStandardDeviation()[0] : stdDev;
+        this.standardDeviation = Double.isNaN(standardDeviation) ? histogram.getStandardDeviation()[0] : standardDeviation;
         this.logHistogram = logHistogram;
         this.intHistogram = intHistogram;
         this.histogram = histogram;
         this.resolutionLevel = resolutionLevel;
         this.sampleCount = StxFactory.computeSum(histogram.getBins(0));
         this.median = StxFactory.computeMedian(histogram, this.sampleCount);
+        this.histogramScaling = getHistogramScaling(logHistogram, minimum);
     }
 
     /**
@@ -111,7 +115,7 @@ public class Stx {
      * @return The standard deviation value.
      */
     public double getStandardDeviation() {
-        return stdDev;
+        return standardDeviation;
     }
 
     /**
@@ -122,7 +126,8 @@ public class Stx {
      * {@code logx = Math.log10(1 + x - min)} has been used to compute the histogram from
      * image samples {@code x}, with {@code min} being the value returned by {@link #getMinimum()}.
      * Thus, the equation {@code min + Math.pow(x, 10) - 1} must be used to compute the actual value from any
-     * histogram property {@code x} such as low value, high value, bin low value, mean, moment, entropy, etc.
+     * property taken from the returned histogram object such as low value, high value, bin low value,
+     * mean, moment, entropy, etc. Scaling is best done using the {@link #getHistogramScaling()} object.
      * <p/>
      * The returned histogram may furthermore be computed from integer image data.
      * In this case {@link #isIntHistogram()} returns true and the high value of the histogram is by one higher than
@@ -133,6 +138,7 @@ public class Stx {
      * @return The histogram.
      * @see #isIntHistogram()
      * @see #isLogHistogram()
+     * @see #getHistogramScaling()
      */
     public Histogram getHistogram() {
         return histogram;
@@ -149,37 +155,58 @@ public class Stx {
     /**
      * @return {@code true} if the histogram is computed from log-samples.
      * @see #getHistogram()
+     * @see #getHistogramScaling()
      */
     public boolean isLogHistogram() {
         return logHistogram;
     }
 
     /**
+     * Gets the (inclusive) minimum value of the histogram bin given by the bin index.
+     * <p/>
+     * The value returned is in units of the image samples,
+     * {@link #getHistogramScaling() histogram scaling} is already applied
+     *
      * @param binIndex The bin index.
-     * @return The minimum value of the bin given by the bin index.
+     * @return The (inclusive) minimum value of the bin given by the bin index.
      */
     public double getHistogramBinMinimum(int binIndex) {
         double value = histogram.getBinLowValue(0, binIndex);
-        return transform(value);
+        return histogramScaling.scaleInverse(value);
     }
 
     /**
+     * Gets the (exclusive) maximum value of the histogram bin given by the bin index.
+     * <p/>
+     * The value returned is in units of the image samples,
+     * {@link #getHistogramScaling() histogram scaling} is already applied
+     *
      * @param binIndex The bin index.
-     * @return The maximum value of the bin given by the bin index.
+     * @return The (exclusive) maximum value of the bin given by the bin index.
      */
     public double getHistogramBinMaximum(int binIndex) {
         double value = binIndex < histogram.getNumBins(0) ? histogram.getBinLowValue(0, binIndex + 1) : histogram.getHighValue(0);
-        return transform(value);
+        return histogramScaling.scaleInverse(value);
     }
 
     /**
-     * @return The width of a histogram bin.
+     * Gets the width of any histogram bin.
+     * <p/>
+     * The method's return value is undefined if {@link #isLogHistogram()} returns {@code true}. In this case you will have to use
+     * {@link #getHistogramBinWidth(int)}.
+     *
+     * @return The width of any histogram bin.
      */
     public double getHistogramBinWidth() {
         return (getMaximum() - getMinimum()) / getHistogramBinCount();
     }
 
     /**
+     * Gets the width of the histogram bin given by the bin index.
+     * <p/>
+     * The value returned is in units of the image samples,
+     * {@link #getHistogramScaling() histogram scaling} is already applied
+     *
      * @param binIndex The bin index.
      * @return The width of the bin given by the bin index.
      */
@@ -202,6 +229,13 @@ public class Stx {
     }
 
     /**
+     * @return The image sample scaling used for deriving the histogram.
+     */
+    public Scaling getHistogramScaling() {
+        return histogramScaling;
+    }
+
+    /**
      * @return The total number of samples seen.
      */
     public long getSampleCount() {
@@ -215,27 +249,72 @@ public class Stx {
         return resolutionLevel;
     }
 
-    private double transform(double value) {
-        if (logHistogram) {
-            return getMinimum() + Math.pow(value, 10) - 1.0;
+    static Scaling getHistogramScaling(boolean logHistogram, double minimum) {
+        return logHistogram ? new LogScaling(minimum) : Scaling.IDENTITY;
+    }
+
+    static final class LogScaling implements Scaling {
+        private final double bias;
+
+        /**
+         * @param minimum The minimum expected sample value.
+         */
+        LogScaling(double minimum) {
+            this.bias = 1.0 - minimum;
         }
-        return value;
+
+        @Override
+        public double scale(double value) {
+            final double v = bias + value;
+            if (v < 1.0e-42) {
+                return Double.NaN;
+            }
+            return Math.log10(v);
+        }
+
+        @Override
+        public double scaleInverse(double value) {
+            return Math.pow(10.0, value) - bias;
+        }
+
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Deprecated API
 
-
+    /**
+     * @deprecated since BEAM 4.10, use {@link #getHistogramBinMinimum(int)}
+     */
     @Deprecated
     public double getHistogramBinMin(int binIndex) {
         return getHistogramBinMinimum(binIndex);
     }
 
+    /**
+     * @deprecated since BEAM 4.10, use {@link #getHistogramBinMaximum(int)}
+     */
     @Deprecated
     public double getHistogramBinMax(int binIndex) {
         return getHistogramBinMaximum(binIndex);
     }
 
+    /**
+     * @deprecated since BEAM 4.10, use {@link #getMinimum()}
+     */
+    @Deprecated
+    public double getMin() {
+        return getMinimum();
+    }
+
+    /**
+     * @deprecated since BEAM 4.10, use {@link #getMaximum()} ()}
+     */
+    @Deprecated
+    public double getMax() {
+        return getMaximum();
+    }
+
+    // todo - check if the following createXXX need to be maintained, otherwise remove (nf)
 
     /**
      * Creates statistics for the given raster data node at the given resolution level.
@@ -338,21 +417,21 @@ public class Stx {
     /**
      * Constructor. Prefer using a {@link StxFactory} since the constructor may change in the future.
      *
-     * @param minimum         the minimum value
-     * @param maximum         the maximum value
-     * @param mean            the mean value, if it's {@link Double#NaN} the mean will be computed
-     * @param stdDev          the value of the standard deviation, if it's {@link Double#NaN} it will be computed
-     * @param logHistogram    {@code true} if the histogram has been computed on logarithms, see {@link #getHistogram()}
-     * @param intHistogram    {@code true} if the histogram has been computed from integer samples, see {@link #getHistogram()}
-     * @param histogramBins   the histogram bins containing the frequencies of image samples
-     * @param resolutionLevel the resolution level this {@code Stx} is for   @see Stx#Stx(double, double, double, double, boolean, javax.media.jai.Histogram, int)
+     * @param minimum           the minimum value
+     * @param maximum           the maximum value
+     * @param mean              the mean value, if it's {@link Double#NaN} the mean will be computed
+     * @param standardDeviation the value of the standard deviation, if it's {@link Double#NaN} it will be computed
+     * @param logHistogram      {@code true} if the histogram has been computed on logarithms, see {@link #getHistogram()}
+     * @param intHistogram      {@code true} if the histogram has been computed from integer samples, see {@link #getHistogram()}
+     * @param histogramBins     the histogram bins containing the frequencies of image samples
+     * @param resolutionLevel   the resolution level this {@code Stx} is for   @see Stx#Stx(double, double, double, double, boolean, javax.media.jai.Histogram, int)
      */
     @Deprecated
-    public Stx(double minimum, double maximum, double mean, double stdDev,
+    public Stx(double minimum, double maximum, double mean, double standardDeviation,
                boolean logHistogram, boolean intHistogram, int[] histogramBins,
                int resolutionLevel) {
-        this(minimum, maximum, mean, stdDev,
-             logHistogram, intHistogram, StxFactory.createHistogram(minimum, maximum + (intHistogram ? 1.0 : 0.0), histogramBins),
+        this(minimum, maximum, mean, standardDeviation,
+             logHistogram, intHistogram, StxFactory.createHistogram(minimum, maximum, logHistogram, intHistogram, histogramBins),
              resolutionLevel);
     }
 

@@ -122,11 +122,11 @@ public class StxFactory {
         double maximum = this.maximum != null ? this.maximum.doubleValue() : Double.NaN;
         double mean = this.mean != null ? this.mean.doubleValue() : Double.NaN;
         double stdDev = this.stdDev != null ? this.stdDev.doubleValue() : Double.NaN;
-        int level = this.resolutionLevel != null ? this.resolutionLevel : 0;
         boolean logHistogram = this.logHistogram != null ? this.logHistogram : false;
         boolean intHistogram = this.intHistogram != null ? this.intHistogram : false;
+        int level = this.resolutionLevel != null ? this.resolutionLevel : 0;
 
-        Histogram histogram;
+        Histogram histogram = this.histogram;
 
         if (raster != null) {
 
@@ -137,7 +137,7 @@ public class StxFactory {
                 maskImage = roiMask.getSourceImage();
             }
 
-            boolean mustComputeSummaryStx = this.minimum == null || this.maximum == null || this.mean == null || this.stdDev == null;
+            boolean mustComputeSummaryStx = this.minimum == null || this.maximum == null;
             boolean mustComputeHistogramStx = this.histogram == null && this.histogramBins == null;
 
             try {
@@ -163,11 +163,9 @@ public class StxFactory {
                 if (mustComputeHistogramStx) {
                     int binCount = histogramBinCount != null ? histogramBinCount : DEFAULT_BIN_COUNT;
                     intHistogram = raster.getGeophysicalImage().getSampleModel().getDataType() < DataBuffer.TYPE_FLOAT;
-                    double offset = intHistogram ? 1.0 : 0.0;
-                    final HistogramStxOp histogramOp = new HistogramStxOp(binCount, minimum, maximum + offset, logHistogram);
+                    final HistogramStxOp histogramOp = new HistogramStxOp(binCount, minimum, maximum, intHistogram, logHistogram);
                     accumulate(raster, level, maskImage, maskShape, histogramOp, SubProgressMonitor.create(pm, 50));
-                    histogram = createHistogram(binCount, minimum, maximum + offset);
-                    System.arraycopy(histogramOp.getBins(), 0, histogram.getBins(0), 0, binCount);
+                    histogram = histogramOp.getHistogram();
                 }
 
             } finally {
@@ -175,161 +173,37 @@ public class StxFactory {
             }
         }
 
-        if (this.histogram == null && this.histogramBins != null) {
-            if (Double.isNaN(minimum)) {
+        if (histogram == null) {
+            if (this.histogramBins != null) {
+                histogram = createHistogram(minimum, maximum, logHistogram, intHistogram, this.histogramBins);
+            } else {
+                throw new IllegalStateException("Failed to derive histogram");
+            }
+        }
+
+        if (Double.isNaN(minimum)) {
+            if (!logHistogram) {
+                minimum = histogram.getLowValue(0);
+            } else {
                 throw new IllegalStateException("Failed to derive minimum");
             }
-            if (Double.isNaN(maximum)) {
+        }
+
+        if (Double.isNaN(maximum)) {
+            if (!logHistogram) {
+                maximum = histogram.getHighValue(0);
+            } else {
                 throw new IllegalStateException("Failed to derive maximum");
             }
-            double offset = intHistogram ? 1.0 : 0.0;
-            histogram = createHistogram(minimum, maximum + offset, this.histogramBins);
-        } else {
-            throw new IllegalStateException("Failed to derive histogram");
         }
 
         return new Stx(minimum, maximum, mean, stdDev, logHistogram, intHistogram, histogram, level);
     }
 
-
-    @Deprecated
-    static Stx create(RasterDataNode raster, RenderedImage roiImage, ProgressMonitor pm) {
-        return createImpl(raster, 0, roiImage, null, Stx.DEFAULT_BIN_COUNT, pm);
-    }
-
-    static Histogram createHistogram(double minSample, double maxSample, int[] sampleFrequencies) {
-        final Histogram histogram = createHistogram(sampleFrequencies.length, minSample, maxSample);
-        System.arraycopy(sampleFrequencies, 0, histogram.getBins(0), 0, sampleFrequencies.length);
-        return histogram;
-    }
-
-    static long computeSum(int[] sampleFrequencies) {
-        long sum = 0;
-        for (int sampleFrequency : sampleFrequencies) {
-            sum += sampleFrequency;
-        }
-        return sum;
-    }
-
-    static double computeMedian(Histogram histogram, long sampleCount) {
-        boolean isEven = sampleCount % 2 == 0;
-        double halfSampleCount = sampleCount / 2.0;
-        final int bandIndex = 0;
-        int[] bins = histogram.getBins(bandIndex);
-        long currentSampleCount = 0;
-        int lastConsideredBinIndex = 0;
-        for (int i = 0, binsLength = bins.length; i < binsLength; i++) {
-            currentSampleCount += bins[i];
-
-            if (currentSampleCount > halfSampleCount) {
-                if (isEven) {
-                    double binValue = getMeanOfBin(histogram, bandIndex, i);
-                    double lastBinValue = getMeanOfBin(histogram, bandIndex, lastConsideredBinIndex);
-                    return (lastBinValue + binValue) / 2;
-                } else {
-                    final double binLowValue = histogram.getBinLowValue(bandIndex, i);
-                    final double binMaxValue = histogram.getBinLowValue(bandIndex, i + 1);
-                    final double previousSampleCount = currentSampleCount - bins[i];
-                    double weight = (halfSampleCount - previousSampleCount) / (currentSampleCount - previousSampleCount);
-                    return binLowValue * (1 - weight) + binMaxValue * weight;
-                }
-            }
-            if (bins[i] > 0) {
-                lastConsideredBinIndex = i;
-            }
-        }
-        return Double.NaN;
-    }
-
-    static double getMeanOfBin(Histogram histogram, int bandIndex, int binIndex) {
-        final double binLowValue = histogram.getBinLowValue(bandIndex, binIndex);
-        final double binMaxValue = histogram.getBinLowValue(bandIndex, binIndex + 1);
-        return (binLowValue + binMaxValue) / 2;
-    }
-
-    @Deprecated
-    static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
-                          int binCount, ProgressMonitor pm) {
-        try {
-            pm.beginTask("Computing statistics", 3);
-            final SummaryStxOp summaryOp = new SummaryStxOp();
-            accumulate(raster, level, maskImage, maskShape, summaryOp, SubProgressMonitor.create(pm, 1));
-
-            double min = summaryOp.getMinimum();
-            double max = summaryOp.getMaximum();
-            double mean = summaryOp.getMean();
-            double stdDev = summaryOp.getStandardDeviation();
-
-            if (min == Double.MAX_VALUE && max == Double.MIN_VALUE) {
-                final Histogram histogram = createHistogram(1, 0, 1);
-                histogram.getBins(0)[0] = 0;
-                return new Stx(0.0, 1.0, Double.NaN, Double.NaN, false, isIntHistogram(raster), histogram, level);
-            }
-
-            double off = getHighValueOffset(raster);
-            final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max + off, false);
-            accumulate(raster, level, maskImage, maskShape, histogramOp, SubProgressMonitor.create(pm, 1));
-
-            // Create JAI histogram, but use our "BEAM" bins
-            final Histogram histogram = createHistogram(binCount, min, max + off);
-            System.arraycopy(histogramOp.getBins(), 0, histogram.getBins(0), 0, binCount);
-
-            return createImpl(raster, level, maskImage, maskShape, histogram, min, max, mean, stdDev,
-                              SubProgressMonitor.create(pm, 1));
-        } finally {
-            pm.done();
-        }
-    }
-
-    @Deprecated
-    static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
-                          int binCount, double min, double max, ProgressMonitor pm) {
-        try {
-            pm.beginTask("Computing statistics", 3);
-
-            double off = getHighValueOffset(raster);
-            final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max + off, false);
-            accumulate(raster, level, maskImage, maskShape, histogramOp, SubProgressMonitor.create(pm, 1));
-
-            // Create JAI histogram, but use our "BEAM" bins
-            final Histogram histogram = createHistogram(binCount, min, max + off);
-            System.arraycopy(histogramOp.getBins(), 0, histogram.getBins(0), 0, binCount);
-
-            return createImpl(raster, level, maskImage, maskShape, histogram, min, max, Double.NaN, Double.NaN,
-                              SubProgressMonitor.create(pm, 1));
-        } finally {
-            pm.done();
-        }
-    }
-
-    @Deprecated
-    static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
-                          Histogram histogram, double min, double max, double mean, double stdDev,
-                          ProgressMonitor pm) {
-        if (Double.isNaN(mean) || Double.isNaN(stdDev)) {
-            final SummaryStxOp meanOp = new SummaryStxOp();
-            accumulate(raster, level, maskImage, maskShape, meanOp, pm);
-            mean = meanOp.getMean();
-            stdDev = meanOp.getStandardDeviation();
-        }
-        return new Stx(min, max, mean, stdDev, false, isIntHistogram(raster), histogram, level);
-    }
-
-    static double getHighValueOffset(RasterDataNode raster) {
-        return isIntHistogram(raster) ? 1.0 : 0.0;
-    }
-
-    static boolean isIntHistogram(RasterDataNode raster) {
-        return !ProductData.isFloatingPointType(raster.getGeophysicalDataType());
-    }
-
-    static Histogram createHistogram(int binCount, double min, double max) {
-        return min < max ? new Histogram(binCount, min, max, 1) : new Histogram(binCount, min, min + 1e-10, 1);
-    }
-
     static void accumulate(RasterDataNode rasterDataNode,
                            int level,
-                           RenderedImage roiImage, Shape roiShape,
+                           RenderedImage roiImage,
+                           Shape roiShape,
                            StxOp op,
                            ProgressMonitor pm) {
 
@@ -386,15 +260,20 @@ public class StxFactory {
         }
     }
 
-    static void accumulateTile(StxOp op, PlanarImage dataImage, PlanarImage maskImage, PixelAccessor dataAccessor, PixelAccessor maskAccessor, int tileX, int tileY) {
+    static void accumulateTile(StxOp op,
+                               PlanarImage dataImage,
+                               PlanarImage maskImage,
+                               PixelAccessor dataAccessor,
+                               PixelAccessor maskAccessor,
+                               int tileX, int tileY) {
         final Raster dataTile = dataImage.getTile(tileX, tileY);
         if (!(dataTile instanceof NoDataRaster)) {
             // data and mask image might not have the same tile size
             // --> we can not use the tile index of the one for the other, so we use the bounds
             final Raster maskTile = maskImage != null ? maskImage.getData(dataTile.getBounds()) : null;
             final Rectangle rect = new Rectangle(dataImage.getMinX(), dataImage.getMinY(),
-                                                 dataImage.getWidth(), dataImage.getHeight()).intersection(
-                    dataTile.getBounds());
+                                                 dataImage.getWidth(), dataImage.getHeight())
+                    .intersection(dataTile.getBounds());
             final UnpackedImageData dataPixels = dataAccessor.getPixels(dataTile, rect, dataImage.getSampleModel().getDataType(), false);
             final UnpackedImageData maskPixels = maskAccessor != null ? maskAccessor.getPixels(maskTile, rect, DataBuffer.TYPE_BYTE, false) : null;
             op.accumulateData(dataPixels, maskPixels);
@@ -462,5 +341,132 @@ public class StxFactory {
         }
         return effectiveShape;
     }
+
+    static boolean isIntHistogram(RasterDataNode raster) {
+        return !ProductData.isFloatingPointType(raster.getGeophysicalDataType());
+    }
+
+    static Histogram createHistogram(int binCount, double minimum, double maximum, boolean logHistogram, boolean intHistogram) {
+        Scaling histogramScaling = Stx.getHistogramScaling(logHistogram, minimum);
+        double adjustedMaximum = maximum;
+        if (intHistogram) {
+            adjustedMaximum = maximum + 1.0;
+        } else if (minimum == maximum) {
+            adjustedMaximum = minimum + 1e-10;
+        }
+        return new Histogram(binCount,
+                             histogramScaling.scale(minimum),
+                             histogramScaling.scale(adjustedMaximum),
+                             1);
+    }
+
+    static Histogram createHistogram(double minimum, double maximum, boolean logHistogram, boolean intHistogram, int[] bins) {
+        final Histogram histogram = createHistogram(bins.length, minimum, maximum, logHistogram, intHistogram);
+        System.arraycopy(bins, 0, histogram.getBins(0), 0, bins.length);
+        return histogram;
+    }
+
+    static long computeSum(int[] sampleFrequencies) {
+        long sum = 0;
+        for (int sampleFrequency : sampleFrequencies) {
+            sum += sampleFrequency;
+        }
+        return sum;
+    }
+
+    static double computeMedian(Histogram histogram, long sampleCount) {
+        boolean isEven = sampleCount % 2 == 0;
+        double halfSampleCount = sampleCount / 2.0;
+        final int bandIndex = 0;
+        int[] bins = histogram.getBins(bandIndex);
+        long currentSampleCount = 0;
+        int lastConsideredBinIndex = 0;
+        for (int i = 0, binsLength = bins.length; i < binsLength; i++) {
+            currentSampleCount += bins[i];
+
+            if (currentSampleCount > halfSampleCount) {
+                if (isEven) {
+                    double binValue = getMeanOfBin(histogram, bandIndex, i);
+                    double lastBinValue = getMeanOfBin(histogram, bandIndex, lastConsideredBinIndex);
+                    return (lastBinValue + binValue) / 2;
+                } else {
+                    final double binLowValue = histogram.getBinLowValue(bandIndex, i);
+                    final double binMaxValue = histogram.getBinLowValue(bandIndex, i + 1);
+                    final double previousSampleCount = currentSampleCount - bins[i];
+                    double weight = (halfSampleCount - previousSampleCount) / (currentSampleCount - previousSampleCount);
+                    return binLowValue * (1 - weight) + binMaxValue * weight;
+                }
+            }
+            if (bins[i] > 0) {
+                lastConsideredBinIndex = i;
+            }
+        }
+        return Double.NaN;
+    }
+
+    static double getMeanOfBin(Histogram histogram, int bandIndex, int binIndex) {
+        final double binLowValue = histogram.getBinLowValue(bandIndex, binIndex);
+        final double binMaxValue = histogram.getBinLowValue(bandIndex, binIndex + 1);
+        return (binLowValue + binMaxValue) / 2;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // TODO - check usages of following methods and, if required, replace by StxFactory. (nf)
+
+    @Deprecated
+    static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
+                          int binCount, ProgressMonitor pm) {
+        try {
+            pm.beginTask("Computing statistics", 3);
+            final SummaryStxOp summaryOp = new SummaryStxOp();
+            accumulate(raster, level, maskImage, maskShape, summaryOp, SubProgressMonitor.create(pm, 1));
+
+            double min = summaryOp.getMinimum();
+            double max = summaryOp.getMaximum();
+            double mean = summaryOp.getMean();
+            double stdDev = summaryOp.getStandardDeviation();
+
+            final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max, isIntHistogram(raster), false);
+            accumulate(raster, level, maskImage, maskShape, histogramOp, SubProgressMonitor.create(pm, 1));
+            final Histogram histogram = histogramOp.getHistogram();
+
+            return createImpl(raster, level, maskImage, maskShape, histogram, min, max, mean, stdDev,
+                              SubProgressMonitor.create(pm, 1));
+        } finally {
+            pm.done();
+        }
+    }
+
+    @Deprecated
+    static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
+                          int binCount, double min, double max, ProgressMonitor pm) {
+        try {
+            pm.beginTask("Computing statistics", 3);
+
+            final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max, isIntHistogram(raster), false);
+            accumulate(raster, level, maskImage, maskShape, histogramOp, SubProgressMonitor.create(pm, 1));
+            final Histogram histogram = histogramOp.getHistogram();
+
+            return createImpl(raster, level, maskImage, maskShape, histogram, min, max, Double.NaN, Double.NaN,
+                              SubProgressMonitor.create(pm, 1));
+        } finally {
+            pm.done();
+        }
+    }
+
+    @Deprecated
+    private static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
+                                  Histogram histogram, double min, double max, double mean, double stdDev,
+                                  ProgressMonitor pm) {
+        if (Double.isNaN(mean) || Double.isNaN(stdDev)) {
+            final SummaryStxOp meanOp = new SummaryStxOp();
+            accumulate(raster, level, maskImage, maskShape, meanOp, pm);
+            mean = meanOp.getMean();
+            stdDev = meanOp.getStandardDeviation();
+        }
+        return new Stx(min, max, mean, stdDev, false, isIntHistogram(raster), histogram, level);
+    }
+
 
 }

@@ -11,38 +11,41 @@ import static org.junit.Assert.assertNotNull;
 public class StxFactoryTest {
     @Test
     public void testMinMaxBins() throws Exception {
-        final StxFactory factory = new StxFactory();
-        final Stx stx = factory
+        StxFactory factory = new StxFactory();
+        factory
                 .withMinimum(-1.0)
                 .withMaximum(1.0)
-                .withHistogramBins(new int[]{1, 2, 3, 6, 6, 3, 2, 1})
-                .create();
+                .withHistogramBins(new int[]{1, 2, 3, 6, 6, 3, 2, 1});
+        Stx stx = factory.create();
 
         assertEquals(-1.0, stx.getMinimum(), 1e-10);
         assertEquals(1.0, stx.getMaximum(), 1e-10);
         assertEquals(-0.125, stx.getMean(), 1e-10);
-        assertEquals(-0.125, stx.getMedian(), 1e-10);
+        assertEquals(0.0, stx.getMedian(), 1e-10);
+        assertEquals(0.0, stx.getHistogram().getPTileThreshold(0.5)[0] + stx.getHistogramBinWidth(), 1e-10);
         assertNotNull(stx.getHistogram());
         assertEquals(1, stx.getHistogram().getNumBands());
-        assertEquals(7, stx.getHistogram().getNumBins()[0]);
+        assertEquals(8, stx.getHistogram().getNumBins()[0]);
         assertEquals(-1.0, stx.getHistogram().getLowValue(0), 1e-10);
         assertEquals(1.0, stx.getHistogram().getHighValue(0), 1e-10);
     }
 
     @Test
     public void testMinMaxBinsIntHistogram() throws Exception {
-        final StxFactory factory = new StxFactory();
-        final Stx stx = factory
+        StxFactory factory = new StxFactory();
+        factory
                 .withMinimum(0)
                 .withMaximum(10)
                 .withIntHistogram(true)
-                .withHistogramBins(new int[]{1, 2, 3, 6, 3, 2, 1})
-                .create();
+                .withHistogramBins(new int[]{1, 2, 3, 6, 3, 2, 1});
+        Stx stx = factory.create();
 
         assertEquals(0, stx.getMinimum(), 1e-10);
         assertEquals(10, stx.getMaximum(), 1e-10);
-        assertEquals(0.42857142857142855, stx.getMean(), 1e-10);
-        assertEquals(0.42857142857142855, stx.getMedian(), 1e-10);
+        assertEquals(4.7142857142857135, stx.getMean(), 1e-10);
+        assertEquals(4.714285714285714, stx.getMedian(), 1e-10);
+        assertEquals(4.714285714285714, stx.getHistogram().getPTileThreshold(0.5)[0], 1e-10);
+
         assertNotNull(stx.getHistogram());
         assertEquals(1, stx.getHistogram().getNumBands());
         assertEquals(7, stx.getHistogram().getNumBins()[0]);

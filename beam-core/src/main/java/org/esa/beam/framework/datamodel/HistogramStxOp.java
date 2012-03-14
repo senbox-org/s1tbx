@@ -18,33 +18,34 @@ package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.util.math.DoubleList;
 
+import javax.media.jai.Histogram;
 import javax.media.jai.UnpackedImageData;
 
 /**
- * Utility class for calculating a histogram.
+ * Utility class for the cumulative calculation of histograms from image data.
  *
  * @author Norman Fomferra
- * @author Marco Peters
- * @author Ralf Quast
- * @since BEAM 4.5.1
+ * @since BEAM 4.5.1, full revision in BEAM 4.10
  */
 final class HistogramStxOp extends StxOp {
 
-    private final double lowValue;
-    private final double highValue;
-    private final boolean logScaled;
-    private final int[] bins;
+    private final Histogram histogram;
+    private final Scaling scaling;
 
-    HistogramStxOp(int numBins, double lowValue, double highValue, boolean logScaled) {
+    HistogramStxOp(int binCount, double minimum, double maximum, boolean intHistogram, boolean logHistogram) {
         super("Histogram");
-        this.lowValue = lowValue;
-        this.highValue = highValue;
-        this.logScaled = logScaled;
-        this.bins = new int[numBins];
+        if (Double.isNaN(minimum) || Double.isInfinite(minimum)) {
+            minimum = 0.0;
+        }
+        if (Double.isNaN(maximum) || Double.isInfinite(maximum)) {
+            maximum = minimum;
+        }
+        scaling = Stx.getHistogramScaling(logHistogram, minimum);
+        histogram = StxFactory.createHistogram(binCount, minimum, maximum, logHistogram, intHistogram);
     }
 
-    int[] getBins() {
-        return bins;
+    public Histogram getHistogram() {
+        return histogram;
     }
 
     @Override
@@ -79,11 +80,9 @@ final class HistogramStxOp extends StxOp {
 
         // }} Block End
 
-        final Transformer t = logScaled ? new LogTransformer(this.lowValue) : new IdentityTransformer();
-
-        final int[] bins = this.bins;
-        final double lowValue = t.transform(this.lowValue);
-        final double highValue = t.transform(this.highValue);
+        final int[] bins = histogram.getBins(0);
+        final double lowValue = histogram.getLowValue(0);
+        final double highValue = histogram.getHighValue(0);
         final double binWidth = (highValue - lowValue) / bins.length;
 
         for (int y = 0; y < height; y++) {
@@ -91,10 +90,12 @@ final class HistogramStxOp extends StxOp {
             int maskPixelOffset = maskLineOffset;
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
-                    final double value = t.transform(values.getDouble(dataPixelOffset));
+                    final double value = scaling.scale(values.getDouble(dataPixelOffset));
                     if (value >= lowValue && value <= highValue) {
                         int i = (int) ((value - lowValue) / binWidth);
-                        i = i == bins.length ? i - 1 : i;
+                        if (i == bins.length) {
+                            i--;
+                        }
                         bins[i]++;
                     }
                 }
@@ -105,33 +106,4 @@ final class HistogramStxOp extends StxOp {
             maskLineOffset += maskLineStride;
         }
     }
-
-    private interface Transformer {
-        double transform(double x);
-    }
-
-    private static final class IdentityTransformer implements Transformer {
-        @Override
-        public double transform(double x) {
-            return x;
-        }
-    }
-
-    private static final class LogTransformer implements Transformer {
-        private final double bias;
-
-        private LogTransformer(double x0) {
-            this.bias = 1.0 - x0;
-        }
-
-        @Override
-        public double transform(double x) {
-            double tx = x + bias;
-            if (tx <= 0.0) {
-                return Double.NaN;
-            }
-            return Math.log10(tx);
-        }
-    }
-
 }

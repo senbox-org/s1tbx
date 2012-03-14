@@ -46,10 +46,12 @@ final class SummaryStxOp extends StxOp {
     }
 
     double getMinimum() {
+        // Check case in which we have never seen any data tile
         return minimum == POSITIVE_INFINITY ? NaN : minimum;
     }
 
     double getMaximum() {
+        // Check case in which we have never seen any data tile
         return maximum == NEGATIVE_INFINITY ? NaN : maximum;
     }
 
