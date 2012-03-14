@@ -149,6 +149,10 @@ public class StxFactory {
                 roiImage = roiMask.getSourceImage();
             }
 
+            if (this.intHistogram == null) {
+                intHistogram = raster.getGeophysicalImage().getSampleModel().getDataType() < DataBuffer.TYPE_FLOAT;
+            }
+
             boolean mustComputeSummaryStx = this.minimum == null || this.maximum == null;
             boolean mustComputeHistogramStx = this.histogram == null && this.histogramBins == null;
 
@@ -174,7 +178,6 @@ public class StxFactory {
 
                 if (mustComputeHistogramStx) {
                     int binCount = histogramBinCount != null ? histogramBinCount : DEFAULT_BIN_COUNT;
-                    intHistogram = raster.getGeophysicalImage().getSampleModel().getDataType() < DataBuffer.TYPE_FLOAT;
                     final HistogramStxOp histogramOp = new HistogramStxOp(binCount, minimum, maximum, intHistogram, logHistogram);
                     accumulate(raster, level, roiImage, roiShape, histogramOp, SubProgressMonitor.create(pm, 50));
                     histogram = histogramOp.getHistogram();
