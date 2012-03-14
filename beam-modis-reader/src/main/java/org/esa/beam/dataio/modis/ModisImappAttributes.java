@@ -16,62 +16,62 @@
 
 package org.esa.beam.dataio.modis;
 
-import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.modis.hdf.HdfAttributes;
 import org.esa.beam.dataio.modis.hdf.HdfDataField;
-import org.esa.beam.dataio.modis.hdf.HdfUtils;
-import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 import java.awt.*;
 import java.io.File;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 
 
 class ModisImappAttributes implements ModisGlobalAttributes {
 
-    private final File inputFile;
+    private static final String LINE_NUMBERS = "line_numbers";
+    private static final String FRAME_NUMBERS = "frame_numbers";
     private final Logger logger;
-    private final int _sdId;
-    private Dimension _productDimension;
-    private HashMap<String, Integer> _dimensionMap;
-    private HashMap<String, IncrementOffset> _subsamplingMap;
+    private NetcdfFile ncfile;
+    private Dimension productDimension;
+    private HashMap<String, Integer> dimensionMap;
+    private HashMap<String, IncrementOffset> subsamplingMap;
 
-    private String _productName;
-    private String _productType;
-    private Date _sensingStart;
-    private Date _sensingStop;
+    private String productName;
+    private String productType;
+    private Date sensingStart;
+    private Date sensingStop;
 
-
-    public ModisImappAttributes(File inFile, NetcdfFile ncfile, NetcdfFile qcfile, int sdId, final HdfAttributes hdfAttributes) throws ProductIOException {
+    public ModisImappAttributes(File inFile, NetcdfFile ncfile, NetcdfFile qcfile, final HdfAttributes hdfAttributes) throws ProductIOException {
+        this.ncfile = ncfile;
         logger = BeamLogManager.getSystemLogger();
-        inputFile = inFile;
 
-        _sdId = sdId;
+        final FileDescriptor descriptor = parseFileNameAndType(inFile);
+        productName = descriptor.getProductName();
+        productType = descriptor.getProductType();
 
-        parseFileNameAndType();
         parseProductDimensions();
-        extractStartAndStopTimes(hdfAttributes);
+        extractStartAndStopTimes();
     }
 
     public String getProductName() {
-        return _productName;
+        return productName;
     }
 
     public String getProductType() {
-        return _productType;
+        return productType;
     }
 
     public Dimension getProductDimensions() {
-        return _productDimension;
+        return productDimension;
     }
 
     public boolean isImappFormat() {
@@ -90,9 +90,9 @@ class ModisImappAttributes implements ModisGlobalAttributes {
         final String widthName = name + "_width";
         final String heightName = name + "_height";
         final String layersName = name + "_z";
-        Integer width = _dimensionMap.get(widthName);
-        Integer height = _dimensionMap.get(heightName);
-        Integer z = _dimensionMap.get(layersName);
+        Integer width = dimensionMap.get(widthName);
+        Integer height = dimensionMap.get(heightName);
+        Integer z = dimensionMap.get(layersName);
 
         if (width == null || height == null) {
             return null;
@@ -112,7 +112,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
     }
 
     public int[] getSubsamplingAndOffset(String dimensionName) {
-        final IncrementOffset incrementOffset = _subsamplingMap.get(dimensionName);
+        final IncrementOffset incrementOffset = subsamplingMap.get(dimensionName);
         if (incrementOffset != null) {
             int[] result = new int[2];
             result[0] = incrementOffset.increment;
@@ -124,115 +124,153 @@ class ModisImappAttributes implements ModisGlobalAttributes {
     }
 
     public Date getSensingStart() {
-        return _sensingStart;
+        return sensingStart;
     }
 
     public Date getSensingStop() {
-        return _sensingStop;
+        return sensingStop;
     }
 
     ///////////////////////////////////////////////////////////////////////////
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    private void parseFileNameAndType() {
-        _productName = FileUtils.getFilenameWithoutExtension(inputFile);
-        final int index = _productName.indexOf('.');
+    static FileDescriptor parseFileNameAndType(File file) {
+        final FileDescriptor descriptor = new FileDescriptor();
+
+        final String productName = FileUtils.getFilenameWithoutExtension(file);
+        descriptor.setProductName(productName);
+
+        final int index = productName.indexOf('.');
         if (index > 0) {
-            _productType = _productName.substring(0, index);
+            descriptor.setProductType(productName.substring(0, index));
         } else {
-            logger.warning("Unable to retrieve the product type from the file name.");
-            _productType = "unknown";
+            BeamLogManager.getSystemLogger().warning("Unable to retrieve the product type from the file name.");
+            descriptor.setProductType("unknown");
         }
+        return descriptor;
     }
 
     private void parseProductDimensions() throws ProductIOException {
-//        // @todo 1 tb/tb replace this code with NetCDF specific code
-//        // Find out if there is a clever and more performant way to do this
-        int[] numDatasets = new int[1];
+        dimensionMap = new HashMap<String, Integer>();
+        subsamplingMap = new HashMap<String, IncrementOffset>();
         int maxWidth = 0;
         int maxHeight = 0;
-        _dimensionMap = new HashMap<String, Integer>();
-        _subsamplingMap = new HashMap<String, IncrementOffset>();
-        try {
-            HDF.getWrap().SDfileinfo(_sdId, numDatasets);
 
-            int[] dimSize = new int[3];
-            int[] dimInfo = new int[3];
-            String[] dimName = {""};
-            for (int n = 0; n < numDatasets[0]; n++) {
-                final int sdsId = HDF.getWrap().SDselect(_sdId, n);
+        final List<Variable> variables = ncfile.getVariables();
+        for (int i = 0; i < variables.size(); i++) {
+            final Variable variable = variables.get(i);
 
-                if (!HDF.getWrap().SDgetinfo(sdsId, dimName, dimSize, dimInfo)) {
-                    final String msg = "Unable to retrieve meta information for dataset '" + dimName[0] + '\'';
-                    logger.severe(msg);
-                    throw new HDFException(msg);
-                }
+            final String name = variable.getName();
+            final String widthName = name + "_width";
+            final String heightName = name + "_height";
+            final String zName = name + "_z";
 
-                final String widthName = dimName[0] + "_width";
-                final String heightName = dimName[0] + "_height";
-                final String zName = dimName[0] + "_z";
-
-                if (dimSize[2] == 0) {
-                    maxWidth = Math.max(maxWidth, dimSize[1]);
-                    maxHeight = Math.max(maxHeight, dimSize[0]);
-                    _dimensionMap.put(widthName, dimSize[1]);
-                    _dimensionMap.put(heightName, dimSize[0]);
-                } else {
-                    maxWidth = Math.max(maxWidth, dimSize[2]);
-                    maxHeight = Math.max(maxHeight, dimSize[1]);
-                    _dimensionMap.put(widthName, dimSize[2]);
-                    _dimensionMap.put(heightName, dimSize[1]);
-                    _dimensionMap.put(zName, dimSize[0]);
-                }
-
-                ModisUtils.clearDimensionArrays(dimInfo, dimSize);
-                addTiePointOffsetAndSubsampling(sdsId, widthName, heightName);
-
-                HDF.getWrap().SDendaccess(sdsId);
+            final List<ucar.nc2.Dimension> dimensions = variable.getDimensions();
+            if (dimensions.size() == 2) {
+                maxWidth = Math.max(maxWidth, dimensions.get(1).getLength());
+                maxHeight = Math.max(maxHeight, dimensions.get(0).getLength());
+                dimensionMap.put(widthName, dimensions.get(1).getLength());
+                dimensionMap.put(heightName, dimensions.get(0).getLength());
+            } else if(dimensions.size() == 3){
+                maxWidth = Math.max(maxWidth, dimensions.get(2).getLength());
+                maxHeight = Math.max(maxHeight, dimensions.get(1).getLength());
+                dimensionMap.put(widthName, dimensions.get(2).getLength());
+                dimensionMap.put(heightName, dimensions.get(1).getLength());
+                dimensionMap.put(zName, dimensions.get(0).getLength());
             }
-        } catch (HDFException e) {
-            throw new ProductIOException(e.getMessage());
-        } finally {
-            _productDimension = new Dimension(maxWidth, maxHeight);
+
+            addTiePointOffsetAndSubsampling(variable, widthName, heightName);
+        }
+
+        productDimension = new Dimension(maxWidth, maxHeight);
+    }
+
+    private void addTiePointOffsetAndSubsampling(Variable variable, String widthName, String heightName) {
+        final List<Attribute> attributes = variable.getAttributes();
+        Attribute lineNumbersAttribute = null;
+        Attribute frameNumbersAttribute = null;
+        for (int i = 0; i < attributes.size(); i++) {
+            final Attribute attribute = attributes.get(i);
+            if (LINE_NUMBERS.equals(attribute.getName())) {
+                lineNumbersAttribute = attribute;
+            }
+
+            if (FRAME_NUMBERS.equals(attribute.getName())) {
+                frameNumbersAttribute = attribute;
+            }
+        }
+
+        if (lineNumbersAttribute != null) {
+            subsamplingMap.put(heightName, ModisUtils.getIncrementOffset(lineNumbersAttribute.getStringValue()));
+        }
+        if (frameNumbersAttribute != null) {
+            subsamplingMap.put(widthName, ModisUtils.getIncrementOffset(frameNumbersAttribute.getStringValue()));
         }
     }
 
-    private void addTiePointOffsetAndSubsampling(int sdsId, String widthName, String heightName) throws HDFException {
-        final String lineNumbers = HdfUtils.getNamedStringAttribute(sdsId, "line_numbers");
-        if (StringUtils.isNotNullAndNotEmpty(lineNumbers)) {
-            _subsamplingMap.put(heightName, ModisUtils.getIncrementOffset(lineNumbers));
-        }
-        final String frameNumbers = HdfUtils.getNamedStringAttribute(sdsId, "frame_numbers");
-        if (StringUtils.isNotNullAndNotEmpty(frameNumbers)) {
-            _subsamplingMap.put(widthName, ModisUtils.getIncrementOffset(frameNumbers));
-        }
-    }
+    private void extractStartAndStopTimes() throws ProductIOException {
+        final List<Attribute> globalAttributes = ncfile.getGlobalAttributes();
+        Attribute startDateAttribute = null;
+        Attribute startTimeAttribute = null;
+        Attribute endDateAttribute = null;
+        Attribute endTimeAttribute = null;
 
-    private void extractStartAndStopTimes(HdfAttributes hdfAttributes) throws ProductIOException {
+        for (int i = 0; i < globalAttributes.size(); i++) {
+            final Attribute attribute = globalAttributes.get(i);
+            final String attributeName = attribute.getName();
+            if (ModisConstants.RANGE_BEGIN_DATE_KEY.equals(attributeName)) {
+                startDateAttribute = attribute;
+            }
+            if (ModisConstants.RANGE_BEGIN_TIME_KEY.equals(attributeName)) {
+                startTimeAttribute = attribute;
+            }
+            if (ModisConstants.RANGE_END_DATE_KEY.equals(attributeName)) {
+                endDateAttribute = attribute;
+            }
+            if (ModisConstants.RANGE_END_TIME_KEY.equals(attributeName)) {
+                endTimeAttribute = attribute;
+            }
+        }
+
         try {
-            final String startDate = hdfAttributes.getStringAttributeValue(ModisConstants.RANGE_BEGIN_DATE_KEY);
-            final String startTime = hdfAttributes.getStringAttributeValue(ModisConstants.RANGE_BEGIN_TIME_KEY);
-            final String endDate = hdfAttributes.getStringAttributeValue(ModisConstants.RANGE_END_DATE_KEY);
-            final String endTime = hdfAttributes.getStringAttributeValue(ModisConstants.RANGE_END_TIME_KEY);
-
-            if (startDate == null || startTime == null) {
+            if (startDateAttribute == null || startTimeAttribute == null) {
                 logger.warning("Unable to retrieve sensing start time from metadata");
-                _sensingStart = null;
-                //throw new ProductIOException("Unable to retrieve sensing start time from metadata");
+                sensingStart = null;
             } else {
-                _sensingStart = ModisUtils.createDateFromStrings(startDate, startTime);
+                sensingStart = ModisUtils.createDateFromStrings(startDateAttribute.getStringValue(),
+                                                                 startTimeAttribute.getStringValue());
             }
-
-            if (endDate == null || endTime == null) {
+            if (endDateAttribute == null || endTimeAttribute == null) {
                 logger.warning("Unable to retrieve sensing stop time from metadata");
-                _sensingStop = null;
-                //throw new ProductIOException("Unable to retrieve sensing stop time from metadata");
+                sensingStop = null;
             } else {
-                _sensingStop = ModisUtils.createDateFromStrings(endDate, endTime);
+                sensingStop = ModisUtils.createDateFromStrings(endDateAttribute.getStringValue(),
+                                                                endTimeAttribute.getStringValue());
             }
         } catch (ParseException e) {
             throw new ProductIOException(e.getMessage());
+        }
+    }
+
+    static class FileDescriptor {
+        private String productName;
+        private String productType;
+
+        public void setProductName(String productName) {
+            this.productName = productName;
+        }
+
+        public String getProductName() {
+            return productName;
+        }
+
+        public void setProductType(String productType) {
+            this.productType = productType;
+        }
+
+        public String getProductType() {
+            return productType;
         }
     }
 }

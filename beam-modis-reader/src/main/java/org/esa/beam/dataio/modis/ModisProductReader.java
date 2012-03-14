@@ -257,7 +257,7 @@ public class ModisProductReader extends AbstractProductReader {
         // check wheter daac or imapp
         if (isImappFormat()) {
             // @todo 1 tb/tb add QC file
-            _globalAttributes = new ModisImappAttributes(inFile, netcdfFile, null, 0, _globalHdfAttrs);
+            _globalAttributes = new ModisImappAttributes(inFile, netcdfFile, null, _globalHdfAttrs);
         } else {
             _globalAttributes = new ModisDaacAttributes(_globalHdfAttrs);
         }

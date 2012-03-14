@@ -607,7 +607,7 @@ class ModisFileReader {
         if (globalHdfAttrs.getStringAttributeValue(ModisConstants.HDF_EOS_VERSION_KEY) == null) {
             // @todo 1 tb/tb add netCdfFile as second parameter
             // @todo 1 tb/tb add QualityControlFile as third parameter - netCDF file
-            globalAttributes = new ModisImappAttributes(qcFile.getFile(), null, null, _qcFileId, globalHdfAttrs);
+            globalAttributes = new ModisImappAttributes(qcFile.getFile(), null, null, globalHdfAttrs);
         } else {
             globalAttributes = new ModisDaacAttributes(globalHdfAttrs);
         }

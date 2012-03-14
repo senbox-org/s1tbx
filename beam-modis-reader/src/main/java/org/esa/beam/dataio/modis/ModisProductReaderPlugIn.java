@@ -84,7 +84,7 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
             // @todo 1 tb/tb implement IMAPP parsing
             // is IMAPP format
             System.out.println("IMAPP format");
-            modisAttributes = new ModisImappAttributes(file, ncfile, null, 0, null);
+            modisAttributes = new ModisImappAttributes(file, ncfile, null, null);
         } else {
             final List<Variable> variables = ncfile.getVariables();
             modisAttributes = new ModisDaacAttributes(variables);
