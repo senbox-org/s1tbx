@@ -171,8 +171,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         final XYPlot xyPlot = chart.getXYPlot();
         XYBarRenderer renderer = (XYBarRenderer) xyPlot.getRenderer();
         renderer.setDrawBarOutline(false);
-        renderer.setShadowVisible(false);
-        renderer.setBaseFillPaint(Color.DARK_GRAY);
+        renderer.setShadowVisible(true);
+        renderer.setShadowYOffset(-4.0);
         renderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
         renderer.setBarPainter(new StandardXYBarPainter());
 
@@ -341,18 +341,22 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
                 series.add(xMin, xMin, xMax, binCounts[i]);
             }
             dataset.addSeries(series);
-            chart.getXYPlot().getDomainAxis().setLabel(getAxisLabel(raster));
         }
         chart.getXYPlot().setDataset(dataset);
         chart.fireChartChanged();
     }
 
-    private static String getAxisLabel(RasterDataNode raster) {
-        final String unit = raster.getUnit();
-        if (unit != null) {
-            return raster.getName() + " (" + unit + ")";
+    private String getAxisLabel() {
+        RasterDataNode raster = getRaster();
+        if (raster != null) {
+            final String unit = raster.getUnit();
+            if (unit != null) {
+                return raster.getName() + " (" + unit + ")";
+            }
+            return raster.getName();
+        } else {
+            return "Values";
         }
-        return raster.getName();
     }
 
     private Container getParentComponent() {
@@ -420,6 +424,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
                 chart.getXYPlot().setDomainAxis(xAxis);
             }
         }
+        chart.getXYPlot().getDomainAxis().setLabel(getAxisLabel());
     }
 
 }
