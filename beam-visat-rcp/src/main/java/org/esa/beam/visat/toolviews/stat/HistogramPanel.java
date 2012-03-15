@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -38,6 +38,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.xy.XIntervalSeries;
 import org.jfree.data.xy.XIntervalSeriesCollection;
@@ -173,6 +174,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         renderer.setShadowVisible(false);
         renderer.setBaseFillPaint(Color.DARK_GRAY);
         renderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
+        renderer.setBarPainter(new StandardXYBarPainter());
 
         ChartPanel histogramDisplay = createChartPanel(chart);
 
