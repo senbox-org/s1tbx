@@ -19,8 +19,10 @@ package org.esa.beam.dataio.modis;
 import org.esa.beam.dataio.modis.hdf.HdfDataField;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -82,6 +84,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
     }
 
     public GeoCoding createGeocoding() {
+        // @todo 1 tb/tb why no geocoding?
         return null;
     }
 
@@ -128,6 +131,16 @@ class ModisImappAttributes implements ModisGlobalAttributes {
 
     public Date getSensingStop() {
         return sensingStop;
+    }
+
+    @Override
+    public int getNumGlobalAttributes() {
+        return ncFile.getGlobalAttributes().size();
+    }
+
+    @Override
+    public MetadataAttribute getMetadataAttributeAt(int index) {
+        throw new NotImplementedException();
     }
 
     ///////////////////////////////////////////////////////////////////////////

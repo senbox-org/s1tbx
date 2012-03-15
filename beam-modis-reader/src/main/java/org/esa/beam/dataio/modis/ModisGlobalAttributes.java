@@ -19,6 +19,7 @@ package org.esa.beam.dataio.modis;
 import org.esa.beam.dataio.modis.hdf.HdfDataField;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
 
 import java.awt.Dimension;
 import java.util.Date;
@@ -32,6 +33,7 @@ public interface ModisGlobalAttributes {
 
     Dimension getProductDimensions();
 
+    /** @deprecated */
     HdfDataField getDatafield(String name) throws ProductIOException;
 
     Date getSensingStart();
@@ -45,4 +47,8 @@ public interface ModisGlobalAttributes {
     String getEosType();
 
     GeoCoding createGeocoding();
+    
+    int getNumGlobalAttributes();
+
+    MetadataAttribute getMetadataAttributeAt(int index);
 }

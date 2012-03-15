@@ -22,7 +22,10 @@ import org.esa.beam.dataio.modis.hdf.HdfEosStructMetadata;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.util.io.FileUtils;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.awt.*;
@@ -40,9 +43,12 @@ class ModisDaacAttributes implements ModisGlobalAttributes {
     private String productType;
     private Date sensingStart;
     private Date sensingStop;
+    private NetcdfFile ncfile;
     private HdfEosStructMetadata hdfEosStructMetadata;
 
-    public ModisDaacAttributes(List<Variable> variables) throws ProductIOException {
+    public ModisDaacAttributes(NetcdfFile ncfile) throws ProductIOException {
+        this.ncfile = ncfile;
+        final List<Variable> variables = ncfile.getVariables();
         try {
             decode(variables);
         } catch (IOException e) {
@@ -93,6 +99,16 @@ class ModisDaacAttributes implements ModisGlobalAttributes {
 
     public Date getSensingStop() {
         return sensingStop;
+    }
+
+    @Override
+    public int getNumGlobalAttributes() {
+        return ncfile.getGlobalAttributes().size();
+    }
+
+    @Override
+    public MetadataAttribute getMetadataAttributeAt(int index) {
+        throw new NotImplementedException();
     }
 
     ///////////////////////////////////////////////////////////////////////////

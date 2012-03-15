@@ -26,7 +26,6 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Locale;
 
 public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
@@ -139,14 +138,17 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
         return new String[]{ModisConstants.FORMAT_NAME};
     }
 
+    static boolean isImappFormat(NetcdfFile ncfile) {
+        final Variable structMeta = ncfile.findTopVariable(ModisConstants.STRUCT_META_KEY);
+        return structMeta == null;
+    }
+
     private ModisGlobalAttributes readGlobalMetadata(NetcdfFile ncfile, File file) throws ProductIOException {
         ModisGlobalAttributes modisAttributes;
-        final Variable structMeta = ncfile.findTopVariable(ModisConstants.STRUCT_META_KEY);
-        if (structMeta == null) {
+        if (isImappFormat(ncfile)) {
             modisAttributes = new ModisImappAttributes(file, ncfile);
         } else {
-            final List<Variable> variables = ncfile.getVariables();
-            modisAttributes = new ModisDaacAttributes(variables);
+            modisAttributes = new ModisDaacAttributes(ncfile);
         }
         return modisAttributes;
     }

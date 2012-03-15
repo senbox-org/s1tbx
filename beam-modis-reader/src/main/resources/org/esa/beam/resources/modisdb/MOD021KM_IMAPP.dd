@@ -13,21 +13,21 @@
 #   7 - the name of the attribute containing the physical unit
 #   8 - the spectral band index or the name of the attribute containing the spectral band indices - or '@' and a band name when the band indices are referenced somewhere else in the product
 #   9 - the attribute name containing a description for the band
-# 1   | 2                                   | 3     | 4   | 5               | 6                     | 7                 | 8                     | 9         |
-#-----+-------------------------------------+-------+-----+-----------------+-----------------------+-------------------+-----------------------+-----------+
-SDS   | EV_250_Aggr1km_RefSB                | true  | lin | radiance_scales | radiance_offsets      | radiance_units    | band_names            | long_name |
-SDS   | EV_500_Aggr1km_RefSB                | true  | lin | radiance_scales | radiance_offsets      | radiance_units    | band_names            | long_name |
-SDS   | EV_1KM_RefSB                        | true  | lin | radiance_scales | radiance_offsets      | radiance_units    | band_names            | long_name |
-SDS   | EV_1KM_Emissive                     | true  | lin | radiance_scales | radiance_offsets      | radiance_units    | band_names            | long_name |
-SDS   | EV_Band26                           | true  | lin | radiance_scales | radiance_offsets      | radiance_units    | 26                    | long_name |
-SDS   | EV_250_Aggr1km_RefSB_Uncert_Indexes | false | *   | *               | *                     | units             | @EV_250_Aggr1km_RefSB | long_name |
-SDS   | EV_500_Aggr1km_RefSB_Uncert_Indexes | false | *   | *               | *                     | units             | @EV_500_Aggr1km_RefSB | long_name |
-SDS   | EV_1KM_Emissive_Uncert_Indexes      | false | *   | *               | *                     | units             | @EV_1KM_Emissive      | long_name |
-SDS   | EV_1KM_RefSB_Uncert_Indexes         | false | *   | *               | *                     | units             | @EV_1KM_RefSB         | long_name |
-SDS   | EV_Band26_Uncert_Indexes            | false | *   | *               | *                     | units             | 26                    | long_name |
-SDS   | EV_250_Aggr1km_RefSB_Samples_Used   | false | *   | *               | *                     | units             | @EV_250_Aggr1km_RefSB | long_name |
-SDS   | EV_500_Aggr1km_RefSB_Samples_Used   | false | *   | *               | *                     | units             | @EV_500_Aggr1km_RefSB | long_name |
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+# 1   | 2                                   | 3     | 4   | 5               | 6                     | 7                 | 8                     | 9
+#-----+-------------------------------------+-------+-----+-----------------+-----------------------+-------------------+-----------------------+-----------
+SDS   | EV_250_Aggr1km_RefSB                | true  | lin | radiance_scales | radiance_offsets      | radiance_units    | band_names            | long_name
+SDS   | EV_500_Aggr1km_RefSB                | true  | lin | radiance_scales | radiance_offsets      | radiance_units    | band_names            | long_name
+SDS   | EV_1KM_RefSB                        | true  | lin | radiance_scales | radiance_offsets      | radiance_units    | band_names            | long_name
+SDS   | EV_1KM_Emissive                     | true  | lin | radiance_scales | radiance_offsets      | radiance_units    | band_names            | long_name
+SDS   | EV_Band26                           | true  | lin | radiance_scales | radiance_offsets      | radiance_units    | 26                    | long_name
+SDS   | EV_250_Aggr1km_RefSB_Uncert_Indexes | false | *   | *               | *                     | units             | @EV_250_Aggr1km_RefSB | long_name
+SDS   | EV_500_Aggr1km_RefSB_Uncert_Indexes | false | *   | *               | *                     | units             | @EV_500_Aggr1km_RefSB | long_name
+SDS   | EV_1KM_Emissive_Uncert_Indexes      | false | *   | *               | *                     | units             | @EV_1KM_Emissive      | long_name
+SDS   | EV_1KM_RefSB_Uncert_Indexes         | false | *   | *               | *                     | units             | @EV_1KM_RefSB         | long_name
+SDS   | EV_Band26_Uncert_Indexes            | false | *   | *               | *                     | units             | 26                    | long_name
+SDS   | EV_250_Aggr1km_RefSB_Samples_Used   | false | *   | *               | *                     | units             | @EV_250_Aggr1km_RefSB | long_name
+SDS   | EV_500_Aggr1km_RefSB_Samples_Used   | false | *   | *               | *                     | units             | @EV_500_Aggr1km_RefSB | long_name
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
 TIEP  | Latitude      | *            | * | units
 TIEP  | Longitude     | *            | * | units
 TIEP  | Height        | *            | * | units
