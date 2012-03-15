@@ -363,7 +363,7 @@ public class StxFactory {
     }
 
     static Histogram createHistogram(int binCount, double minimum, double maximum, boolean logHistogram, boolean intHistogram) {
-        Scaling histogramScaling = Stx.getHistogramScaling(logHistogram, minimum);
+        Scaling histogramScaling = Stx.getHistogramScaling(logHistogram);
         double adjustedMaximum = maximum;
         if (intHistogram) {
             adjustedMaximum = maximum + 1.0;

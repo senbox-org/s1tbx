@@ -39,6 +39,7 @@ import javax.media.jai.Histogram;
 public class Stx {
 
     public static final int DEFAULT_BIN_COUNT = 512;
+    public static final LogScaling LOG10_SCALING = new LogScaling();
 
     private final long sampleCount;
     private final double minimum;
@@ -77,7 +78,7 @@ public class Stx {
         this.sampleCount = StxFactory.computeSum(histogram.getBins(0));
         this.minimum = minimum;
         this.maximum = maximum;
-        this.histogramScaling = getHistogramScaling(logHistogram, minimum);
+        this.histogramScaling = getHistogramScaling(logHistogram);
         this.mean = Double.isNaN(mean) ? histogramScaling.scaleInverse(histogram.getMean()[0]) : mean;
         this.standardDeviation = Double.isNaN(standardDeviation) ? histogramScaling.scaleInverse(histogram.getStandardDeviation()[0]) : standardDeviation;
         this.median = histogramScaling.scaleInverse(StxFactory.computeMedian(histogram, this.sampleCount));
@@ -126,12 +127,10 @@ public class Stx {
      * Gets the histogram computed from image samples.
      * <p/>
      * The returned histogram may have been computed on the logarithms of image samples.
-     * In this case {@link #isLogHistogram()} returns true and it is expected that the equation
-     * {@code logx = Math.log10(1 + x - min)} has been used to compute the histogram from
-     * image samples {@code x}, with {@code min} being the value returned by {@link #getMinimum()}.
-     * Thus, the equation {@code min + Math.pow(x, 10) - 1} must be used to compute the actual value from any
-     * property taken from the returned histogram object such as low value, high value, bin low value,
-     * mean, moment, entropy, etc. Scaling is best done using the {@link #getHistogramScaling()} object.
+     * In this case {@link #isLogHistogram()} returns true and it is expected that the histogram has been
+     * computed from logarithms (base 10) of image samples.
+     * Therefore, any statistical property retrieved from the returned histogram object such as low value, high value, bin low value,
+     * mean, moment, entropy, etc. must be raised to the power of 10. Scaling is best done using the {@link #getHistogramScaling()} object.
      * <p/>
      * The returned histogram may furthermore be computed from integer image data.
      * In this case {@link #isIntHistogram()} returns true and the high value of the histogram is by one higher than
@@ -253,32 +252,26 @@ public class Stx {
         return resolutionLevel;
     }
 
-    static Scaling getHistogramScaling(boolean logHistogram, double minimum) {
-        return logHistogram ? new LogScaling(minimum) : Scaling.IDENTITY;
+    static Scaling getHistogramScaling(boolean logHistogram) {
+        return logHistogram ? LOG10_SCALING : Scaling.IDENTITY;
     }
 
     static final class LogScaling implements Scaling {
-        private final double bias;
-
-        /**
-         * @param minimum The minimum expected sample value.
-         */
-        LogScaling(double minimum) {
-            this.bias = 1.0 - minimum;
-        }
 
         @Override
         public double scale(double value) {
-            final double v = bias + value;
-            if (v < 1.0e-42) {
-                return Double.NaN;
+            if (value <= 1.0E-100) {
+                return -100.0;
             }
-            return Math.log10(v);
+            return Math.log10(value);
         }
 
         @Override
         public double scaleInverse(double value) {
-            return Math.pow(10.0, value) - bias;
+            if (value <= -100.0) {
+                return 1.0E-100;
+            }
+            return Math.pow(10.0, value);
         }
 
     }

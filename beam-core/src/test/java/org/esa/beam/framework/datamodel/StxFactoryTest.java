@@ -65,14 +65,14 @@ public class StxFactoryTest {
 
         assertEquals(0, stx.getMinimum(), 1e-10);
         assertEquals(100, stx.getMaximum(), 1e-10);
-        assertEquals(6.5316581703709, stx.getMean(), 1e-10);
-        assertEquals(9.0498756211209, stx.getMedian(), 1e-10);
+        assertEquals(0.0, stx.getMean(), 1e-10);
+        assertEquals(0.0, stx.getMedian(), 1e-10);
 
         assertNotNull(stx.getHistogram());
         assertEquals(1, stx.getHistogram().getNumBands());
         assertEquals(8, stx.getHistogram().getNumBins()[0]);
-        assertEquals(0, stx.getHistogram().getLowValue(0), 1e-10);
-        assertEquals(2.0043213737826, stx.getHistogram().getHighValue(0), 1e-10);
+        assertEquals(-100.0, stx.getHistogram().getLowValue(0), 1e-10);
+        assertEquals(2.0, stx.getHistogram().getHighValue(0), 1e-10);
         assertArrayEquals(new int[]{1, 2, 3, 6, 6, 3, 2, 1}, stx.getHistogramBins());
     }
 

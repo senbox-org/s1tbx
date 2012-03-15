@@ -61,7 +61,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
     private Parameter autoMinMaxEnabledParam;
     private Parameter histoMinParam;
     private Parameter histoMaxParam;
-    private Parameter logScaled;
+    private Parameter logarithmicAxis;
+    private Parameter logarithmicHistogram;
     private boolean histogramComputing;
     private SingleRoiComputePanel computePanel;
     private XIntervalSeriesCollection dataset;
@@ -90,13 +91,12 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
     protected void updateContent() {
         if (computePanel != null) {
             computePanel.setRaster(getRaster());
-            if (!(Boolean) autoMinMaxEnabledParam.getValue()) {
-                return;
-            }
             chart.setTitle(getRaster() != null ? CHART_TITLE + " for " + getRaster().getName() : CHART_TITLE);
             updateXAxis();
-            histoMinParam.setDefaultValue();
-            histoMaxParam.setDefaultValue();
+            if ((Boolean) autoMinMaxEnabledParam.getValue()) {
+                histoMinParam.setDefaultValue();
+                histoMaxParam.setDefaultValue();
+            }
             chart.getXYPlot().setDataset(null);
             chart.fireChartChanged();
         }
@@ -136,10 +136,15 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         histoMaxParam.getProperties().setNumCols(7);
         paramGroup.addParameter(histoMaxParam);
 
-        logScaled = new Parameter("histo.logScaled", false);
-        logScaled.getProperties().setLabel("Logarithmic X axis");    /*I18N*/
-        logScaled.getProperties().setDescription("Optimise histogram for log-normal distributions");    /*I18N*/
-        paramGroup.addParameter(logScaled);
+        logarithmicAxis = new Parameter("histo.logarithmicAxis", false);
+        logarithmicAxis.getProperties().setLabel("Logarithmic X-axis");    /*I18N*/
+        logarithmicAxis.getProperties().setDescription("Use a logarithmic X-axis");    /*I18N*/
+        paramGroup.addParameter(logarithmicAxis);
+
+        logarithmicHistogram = new Parameter("histo.logarithmicHistogram", false);
+        logarithmicHistogram.getProperties().setLabel("Logarithmic histogram");    /*I18N*/
+        logarithmicHistogram.getProperties().setDescription("Compute logarithmic histogram (for log-normal pixel distributions)");    /*I18N*/
+        paramGroup.addParameter(logarithmicHistogram);
 
         paramGroup.addParamChangeListener(new ParamChangeListener() {
 
@@ -212,6 +217,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         final boolean autoMinMaxEnabled = (Boolean) autoMinMaxEnabledParam.getValue();
         histoMinParam.setUIEnabled(!autoMinMaxEnabled);
         histoMaxParam.setUIEnabled(!autoMinMaxEnabled);
+        updateXAxis();
     }
 
     private JPanel createOptionsPane() {
@@ -239,8 +245,10 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
                                 "gridx=0,weightx=1");
         GridBagUtils.addToPanel(optionsPane, histoMaxParam.getEditor().getComponent(), gbc, "gridx=1,weightx=0");
 
-        GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=4,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, logScaled.getEditor().getComponent(), gbc, "gridx=0,weightx=0");
+        GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=4,insets.top=2,insets.bottom=0");
+        GridBagUtils.addToPanel(optionsPane, logarithmicAxis.getEditor().getComponent(), gbc, "gridx=0,weightx=0");
+        GridBagUtils.setAttributes(gbc, "gridy=5");
+        GridBagUtils.addToPanel(optionsPane, logarithmicHistogram.getEditor().getComponent(), gbc, "gridx=0,weightx=0");
 
         optionsPane.setBorder(BorderFactory.createTitledBorder("X"));
 
@@ -260,7 +268,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
             min = (Number) histoMinParam.getValue();
             max = (Number) histoMaxParam.getValue();
         }
-        final boolean logHistogram = (Boolean) logScaled.getValue();
+        final boolean logHistogram = (Boolean) logarithmicHistogram.getValue();
 
         ProgressMonitorSwingWorker<Stx, Object> swingWorker = new ProgressMonitorSwingWorker<Stx, Object>(this, "Computing Histogram") {
             @Override
@@ -328,8 +336,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
             for (int i = 0; i < binCounts.length; i++) {
                 final double xMin = stx.getHistogramBinMinimum(i);
                 final double xMax = stx.getHistogramBinMaximum(i);
-                final double xAvg = (xMin + xMax) * 0.5;
-                series.add(xAvg, xMin, xMax, binCounts[i]);
+                series.add(xMin, xMin, xMax, binCounts[i]);
             }
             dataset.addSeries(series);
             chart.getXYPlot().getDomainAxis().setLabel(getAxisLabel(raster));
@@ -395,11 +402,13 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
     }
 
     private void updateXAxis() {
-        if ((Boolean) logScaled.getValue()) {
+        if ((Boolean) logarithmicAxis.getValue()) {
             ValueAxis oldDomainAxis = chart.getXYPlot().getDomainAxis();
             if (!(oldDomainAxis instanceof LogarithmicAxis)) {
                 LogarithmicAxis logAxisX = new LogarithmicAxis("Values");
                 logAxisX.setAllowNegativesFlag(true);
+                logAxisX.setLog10TickLabelsFlag(true);
+                logAxisX.setMinorTickCount(10);
                 chart.getXYPlot().setDomainAxis(logAxisX);
             }
         } else {

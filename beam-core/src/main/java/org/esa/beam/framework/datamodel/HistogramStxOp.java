@@ -40,7 +40,7 @@ final class HistogramStxOp extends StxOp {
         if (Double.isNaN(maximum) || Double.isInfinite(maximum)) {
             maximum = minimum;
         }
-        scaling = Stx.getHistogramScaling(logHistogram, minimum);
+        scaling = Stx.getHistogramScaling(logHistogram);
         histogram = StxFactory.createHistogram(binCount, minimum, maximum, logHistogram, intHistogram);
     }
 
