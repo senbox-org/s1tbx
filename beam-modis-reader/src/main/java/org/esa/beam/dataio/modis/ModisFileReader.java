@@ -31,6 +31,7 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.Range;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -58,29 +59,6 @@ class ModisFileReader {
         _qcFileId = HDFConstants.FAIL;
     }
 
-    /**
-     * Adds all the bands, the tie point grids and the geocoding to the product.
-     *
-     * @param sdStart       the id of the HDF SDstart
-     * @param globalAttribs the struct global attributes object
-     * @param product       the product to be supplied with bands
-     * @throws IOException on disk access failures
-     */
-    void addRastersAndGeocoding(final int sdStart, final ModisGlobalAttributes globalAttribs,
-                                final Product product) throws HDFException, IOException {
-        String productType = product.getProductType();
-        if (globalAttribs.isImappFormat()) {
-            productType += "_IMAPP";
-        }
-        addBandsToProduct(sdStart, productType, product);
-        if (ModisConstants.EOS_TYPE_GRID.equals(globalAttribs.getEosType())) {
-            addMapGeocoding(product, globalAttribs);
-        } else {
-            addTiePointGrids(sdStart, productType, product, globalAttribs);
-            addModisTiePointGeoCoding(product);
-        }
-    }
-
     void addRastersAndGeocoding(NetcdfFile netcdfFile, Product product, ModisGlobalAttributes globalAttribs) throws HDFException {
         String productType = product.getProductType();
         if (globalAttribs.isImappFormat()) {
@@ -88,6 +66,14 @@ class ModisFileReader {
         }
 
         addBandsToProduct(netcdfFile, productType, product);
+
+        // @todo 1 tb/tb replace with NetCDF compatible code
+//        if (ModisConstants.EOS_TYPE_GRID.equals(globalAttribs.getEosType())) {
+//            addMapGeocoding(product, globalAttribs);
+//        } else {
+//            addTiePointGrids(sdStart, productType, product, globalAttribs);
+//            addModisTiePointGeoCoding(product);
+//        }
     }
 
     private void addMapGeocoding(final Product product,
@@ -232,9 +218,10 @@ class ModisFileReader {
 
                 final ModisBandDescription bandDesc = prodDb.getBandDescription(prodType, bandNames[i]);
                 final ModisBandReader[] readers = ModisBandReaderFactory.getReaders(sdsId, bandDesc);
-                // @todo --------------------------------
+
                 final String bandNameExtensions = getBandNameExtensions(sdStart, sdsId, prodType,
                                                                         bandDesc.getBandAttribName());
+                // @todo  CONTINUE HERE --------------------------------
                 final float[] scales = getNamedFloatAttribute(sdsId, bandDesc.getScaleAttribName());
                 final float[] offsets = getNamedFloatAttribute(sdsId, bandDesc.getOffsetAttribName());
 
@@ -306,6 +293,9 @@ class ModisFileReader {
 
             final ModisBandDescription bandDesc = prodDb.getBandDescription(prodType, bandNames[i]);
             final ModisBandReader[] readers = ModisBandReaderFactory.getReaders(variable, bandDesc);
+
+            final String bandNameExtensions = getBandNameExtensions(variable, variables, prodType,
+                                                                    bandDesc.getBandAttribName());
         }
     }
 
@@ -748,7 +738,7 @@ class ModisFileReader {
      * @@return
      * @@throws ncsa.hdf.hdflib.HDFException
      */
-    protected String getBandNameExtensions(
+    private String getBandNameExtensions(
             final int sdId, final int sdsId,
             final String productType, final String bandNameAttribName)
             throws HDFException {
@@ -786,6 +776,54 @@ class ModisFileReader {
         }
 
         return attribValue;
+    }
+
+    private String getBandNameExtensions(Variable variable, List<Variable> variables, final String productType, final String bandNameAttribName) {
+        if (bandNameAttribName == null) {
+            return null;
+        }
+
+        String attribValue = null;
+        // we have to distinguish three possibilities here
+        if (bandNameAttribName.startsWith("@")) {
+            // band names are referenced in another band of this product
+            final String correspBand = bandNameAttribName.substring(1);
+            final ModisBandDescription desc = prodDb.getBandDescription(productType, correspBand);
+            final String bandAttribName = desc.getBandAttribName();
+
+            final List<Attribute> attributes = variable.getAttributes();
+            final Attribute bandAttrib = getAttributeByName(bandAttribName, attributes);
+            if (bandAttrib != null) {
+                attribValue = bandAttrib.getStringValue();
+            }
+            if (attribValue == null) {
+                final Variable correspVariable = getVariableByName(variables, correspBand);
+                if (correspVariable != null) {
+                    final List<Attribute> correspAttributes = correspVariable.getAttributes();
+                    final Attribute correspAttribute = getAttributeByName(bandAttribName, correspAttributes);
+                    if (correspAttribute != null) {
+                        attribValue = correspAttribute.getStringValue();
+                    }
+                }
+            }
+        } else if (StringUtils.isIntegerString(bandNameAttribName)) {
+            // band name is directly in the *.dd file
+            attribValue = bandNameAttribName;
+        } else {
+            // band name is in an attribute
+            //attribValue = HdfUtils.getNamedStringAttribute(sdsId, bandNameAttribName);
+        }
+        return attribValue;
+    }
+
+    private Attribute getAttributeByName(String bandAttribName, List<Attribute> attributes) {
+        for (int i = 0; i < attributes.size(); i++) {
+            final Attribute attribute = attributes.get(i);
+            if (attribute.getName().equals(bandAttribName)) {
+                return attribute;
+            }
+        }
+        return null;    // not found
     }
 
     ///////////////////////////////////////////////////////////////////////////
