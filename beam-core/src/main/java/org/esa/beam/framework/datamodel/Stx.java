@@ -258,18 +258,21 @@ public class Stx {
 
     static final class LogScaling implements Scaling {
 
+        static double EPS = 1.0E-9;
+        static double LOG10_EPS = -9.0;
+
         @Override
         public double scale(double value) {
-            if (value <= 1.0E-100) {
-                return -100.0;
+            if (value <= EPS) {
+                return LOG10_EPS;
             }
             return Math.log10(value);
         }
 
         @Override
         public double scaleInverse(double value) {
-            if (value <= -100.0) {
-                return 1.0E-100;
+            if (value <= LOG10_EPS) {
+                return EPS;
             }
             return Math.pow(10.0, value);
         }
