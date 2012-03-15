@@ -28,7 +28,6 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.logging.BeamLogManager;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 
@@ -36,11 +35,9 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.logging.Logger;
 
 public class ModisProductReader extends AbstractProductReader {
 
-    private final Logger logger;
     private int _fileId;
     private int _sdStart;
     private ModisFileReader fileReader;
@@ -54,7 +51,6 @@ public class ModisProductReader extends AbstractProductReader {
      */
     public ModisProductReader(ModisProductReaderPlugIn plugin) {
         super(plugin);
-        logger = BeamLogManager.getSystemLogger();
 
         netcdfFile = null;
 
@@ -148,13 +144,7 @@ public class ModisProductReader extends AbstractProductReader {
                                 sourceWidth, sourceHeight,
                                 sourceStepX, sourceStepY,
                                 destBuffer, pm);
-        } catch (HDFException e) {
-            // @todo 1 tb/tb remove HDFException
-            final IOException ioException = new IOException(e.getMessage());
-            ioException.initCause(e);
-            throw ioException;
-        }
-        catch (InvalidRangeException e) {
+        } catch (InvalidRangeException e) {
             final IOException ioException = new IOException(e.getMessage());
             ioException.initCause(e);
             throw ioException;

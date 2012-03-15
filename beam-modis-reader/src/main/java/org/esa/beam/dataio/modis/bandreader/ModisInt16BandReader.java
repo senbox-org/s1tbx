@@ -16,8 +16,6 @@
 
 package org.esa.beam.dataio.modis.bandreader;
 
-import ncsa.hdf.hdflib.HDFException;
-import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
@@ -67,7 +65,7 @@ public class ModisInt16BandReader extends ModisBandReader {
     }
 
     @Override
-    protected void readLine() throws HDFException, InvalidRangeException, IOException {
+    protected void readLine() throws InvalidRangeException, IOException {
         final Section section = new Section(_start, _count, _stride);
         final Array array = variable.read(section);
         final Object storage = array.getStorage();

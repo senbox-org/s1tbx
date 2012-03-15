@@ -18,7 +18,6 @@
 package org.esa.beam.dataio.modis.bandreader;
 
 import com.bc.ceres.core.ProgressMonitor;
-import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.modis.ModisConstants;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.math.Range;
@@ -140,7 +139,7 @@ abstract public class ModisBandReader {
                                               final int sourceStepX, final int sourceStepY,
                                               final ProductData destBuffer);
 
-    abstract protected void readLine() throws HDFException, InvalidRangeException, IOException;
+    abstract protected void readLine() throws InvalidRangeException, IOException;
 
     abstract protected void validate(final int x);
 
@@ -177,13 +176,13 @@ abstract public class ModisBandReader {
      * @param sourceStepY   the sub-sampling in Y direction within the region providing samples to be read
      * @param destBuffer    the destination buffer which receives the sample values to be read
      * @param pm            a monitor to inform the user about progress
-     * @throws ncsa.hdf.hdflib.HDFException -
+     * @throws IOException on disk access failures
      * @throws org.esa.beam.framework.dataio.ProductIOException
-     *                                      -
+     *                     -
      */
     public void readBandData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                              int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm)
-            throws HDFException, IOException, InvalidRangeException {
+            throws IOException, InvalidRangeException {
         _start[_yCoord] = sourceOffsetY;
         _start[_xCoord] = sourceOffsetX;
         _count[_yCoord] = 1;
