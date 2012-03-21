@@ -45,19 +45,19 @@ import java.awt.event.ActionListener;
  * @author Marco Zuehlke
  */
 class MultipleRoiComputePanel extends JPanel {
-    
+
     interface ComputeMasks {
         void compute(Mask[] selectedMasks);
     }
-    
+
     private final ProductNodeListener productNodeListener;
-    
+
     private final JButton computeButton;
     private final JCheckBox useRoiCheckBox;
     private final JComboBox maskNameComboBox;
     private final JRadioButton iterateButton;
     private final JRadioButton singleButton;
-    
+
     private RasterDataNode raster;
     private Product product;
 
@@ -84,7 +84,7 @@ class MultipleRoiComputePanel extends JPanel {
                         selectedMasks = new Mask[] {mask};
                     }
                 } else {
-                    selectedMasks = new Mask[] {null}; 
+                    selectedMasks = new Mask[] {null};
                 }
                 method.compute(selectedMasks);
             }
@@ -94,40 +94,40 @@ class MultipleRoiComputePanel extends JPanel {
         useRoiCheckBox = new JCheckBox("Use ROI-Mask");
         useRoiCheckBox.setMnemonic('R');
         useRoiCheckBox.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateEnablement();
             }
         });
-        
+
         maskNameComboBox = new JComboBox();
         iterateButton = new JRadioButton("Iterate over all");
         singleButton = new JRadioButton();
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(iterateButton);
         buttonGroup.add(singleButton);
-        
+
         final TableLayout tableLayoutSingle = new TableLayout(2);
         tableLayoutSingle.setTableAnchor(TableLayout.Anchor.WEST);
         tableLayoutSingle.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayoutSingle.setTableWeightX(1.0);
-        
+
         JPanel singlePanel = new JPanel(tableLayoutSingle);
         singlePanel.add(singleButton);
         singlePanel.add(maskNameComboBox);
-        
+
         final TableLayout tableLayoutRoi = new TableLayout(1);
         tableLayoutRoi.setTableAnchor(TableLayout.Anchor.WEST);
         tableLayoutRoi.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayoutRoi.setTableWeightX(1.0);
-        
+
         JPanel roiPanel = new JPanel(tableLayoutRoi);
         roiPanel.add(singlePanel);
         roiPanel.add(iterateButton);
 
         ActionListener actionListener = new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateEnablement();
@@ -135,7 +135,7 @@ class MultipleRoiComputePanel extends JPanel {
         };
         iterateButton.addActionListener(actionListener);
         singleButton.addActionListener(actionListener);
-        
+
         final TableLayout tableLayout = new TableLayout(1);
         tableLayout.setTableAnchor(TableLayout.Anchor.SOUTHWEST);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
@@ -190,21 +190,19 @@ class MultipleRoiComputePanel extends JPanel {
         }
         updateEnablement();
     }
-    
+
     private void updateEnablement() {
         boolean useRoi = useRoiCheckBox.isSelected() && useRoiCheckBox.isEnabled();
-        int numRoiMasks = maskNameComboBox.getModel().getSize();
-        boolean hasMultipleRois = numRoiMasks > 1;
-        
-        singleButton.setEnabled(hasMultipleRois && useRoi);
-        iterateButton.setEnabled(hasMultipleRois && useRoi);
-        if (hasMultipleRois && useRoi && !singleButton.isSelected() && !iterateButton.isSelected()) {
+
+        singleButton.setEnabled(useRoi);
+        iterateButton.setEnabled(useRoi);
+        if (useRoi && !singleButton.isSelected() && !iterateButton.isSelected()) {
             singleButton.setSelected(true);
         }
         boolean useSingleRoi = singleButton.isSelected();
-        maskNameComboBox.setEnabled(hasMultipleRois && useRoi && useSingleRoi);
+        maskNameComboBox.setEnabled(useRoi && useSingleRoi);
     }
-    
+
     private class PNL implements ProductNodeListener {
 
         @Override
@@ -226,7 +224,7 @@ class MultipleRoiComputePanel extends JPanel {
         public void nodeRemoved(ProductNodeEvent event) {
             handleEvent(event);
         }
-        
+
         private void handleEvent(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
             if (sourceNode instanceof Mask) {
