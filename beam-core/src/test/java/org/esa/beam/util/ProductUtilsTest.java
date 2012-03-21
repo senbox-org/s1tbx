@@ -408,9 +408,9 @@ public class ProductUtilsTest {
 
     @Test
     public void testCreateRectBoundary_usePixelCenter_false() {
-        final boolean notUsePixelCenter = false;
+        final boolean usePixelCenter = false;
         final PixelPos[] rectBoundary = ProductUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7,
-                                                                        notUsePixelCenter);
+                                                                        usePixelCenter);
         assertEquals(12, rectBoundary.length);
         assertEquals(new PixelPos(2, 3), rectBoundary[0]);
         assertEquals(new PixelPos(9, 3), rectBoundary[1]);
