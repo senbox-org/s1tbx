@@ -865,18 +865,13 @@ public class ProductUtils {
      * @return the rectangular boundary
      */
     public static PixelPos[] createRectBoundary(final Rectangle rect, int step, final boolean usePixelCenter) {
-        final float insetDistance;
-        if (usePixelCenter) {
-            insetDistance = 0.5f;
-        } else {
-            insetDistance = 0.0f;
-        }
-        final float x1 = rect.x + insetDistance;
-        final float y1 = rect.y + insetDistance;
-        final float w = rect.width - 2 * insetDistance;
-        final float h = rect.height - 2 * insetDistance;
-        final float x2 = x1 + w;
-        final float y2 = y1 + h;
+        final float insetDistance = usePixelCenter ? 0.5f : 0.0f;
+        final int x1 = rect.x;
+        final int y1 = rect.y;
+        final int w = usePixelCenter ? rect.width - 1 : rect.width;
+        final int h = usePixelCenter ? rect.height - 1 : rect.height;
+        final int x2 = x1 + w;
+        final int y2 = y1 + h;
 
         if (step <= 0) {
             step = 2 * Math.max(rect.width, rect.height); // don't step!
@@ -884,28 +879,28 @@ public class ProductUtils {
 
         final ArrayList<PixelPos> pixelPosList = new ArrayList<PixelPos>(2 * (rect.width + rect.height) / step + 10);
 
-        float lastX = 0;
-        for (float x = x1; x < x2; x += step) {
-            pixelPosList.add(new PixelPos(x, y1));
+        int lastX = 0;
+        for (int x = x1; x < x2; x += step) {
+            pixelPosList.add(new PixelPos(x + insetDistance, y1 + insetDistance));
             lastX = x;
         }
 
-        float lastY = 0;
-        for (float y = y1; y < y2; y += step) {
-            pixelPosList.add(new PixelPos(x2, y));
+        int lastY = 0;
+        for (int y = y1; y < y2; y += step) {
+            pixelPosList.add(new PixelPos(x2 + insetDistance, y + insetDistance));
             lastY = y;
         }
 
-        pixelPosList.add(new PixelPos(x2, y2));
+        pixelPosList.add(new PixelPos(x2 + insetDistance, y2 + insetDistance));
 
-        for (float x = lastX; x > x1; x -= step) {
-            pixelPosList.add(new PixelPos(x, y2));
+        for (int x = lastX; x > x1; x -= step) {
+            pixelPosList.add(new PixelPos(x + insetDistance, y2 + insetDistance));
         }
 
-        pixelPosList.add(new PixelPos(x1, y2));
+        pixelPosList.add(new PixelPos(x1 + insetDistance, y2 + insetDistance));
 
-        for (float y = lastY; y > y1; y -= step) {
-            pixelPosList.add(new PixelPos(x1, y));
+        for (int y = lastY; y > y1; y -= step) {
+            pixelPosList.add(new PixelPos(x1 + insetDistance, y + insetDistance));
         }
 
         return pixelPosList.toArray(new PixelPos[pixelPosList.size()]);
