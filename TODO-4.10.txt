@@ -189,3 +189,4 @@ MetadataRoot
               be visible but not enabled. Inside the fields, the defined export format (default
               od ODESA) should be visible.
 
+- NavigationPanel shall allow linking by geo-coordinates
