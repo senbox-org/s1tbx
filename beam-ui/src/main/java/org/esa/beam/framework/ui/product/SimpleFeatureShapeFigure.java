@@ -35,7 +35,7 @@ public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements Sim
 
     private final SimpleFeature simpleFeature;
     private Shape geometryShape;
-    private Class<?> geometryType;
+    private final Class<?> geometryType;
 
     public SimpleFeatureShapeFigure(SimpleFeature simpleFeature, FigureStyle style) {
         this(simpleFeature, style, style);
