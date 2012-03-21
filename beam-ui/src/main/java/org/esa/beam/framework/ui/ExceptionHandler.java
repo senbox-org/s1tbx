@@ -20,7 +20,7 @@ package org.esa.beam.framework.ui;
  * The <code>ExceptionHandler</code> are an alternative way to handle exceptions in the <code>ProductTree</code>.
  * Methods who catch exceptions can use this handler to popup an error Dialog.
  *
- * @author Sabine embacher
+ * @author Sabine Embacher
  * @version $Revision$  $Date$
  * @see org.esa.beam.framework.ui.product.ProductTree
  */
