@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,7 +23,7 @@ import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.BitSetter;
 import org.esa.beam.util.ImageUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.ComponentSampleModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
@@ -62,7 +62,7 @@ public class TileImpl implements Tile {
 
     public TileImpl(RasterDataNode rasterDataNode, Raster raster) {
         this(rasterDataNode, raster,
-             new Rectangle(raster.getMinX(), raster.getMinY(), raster.getWidth(), raster.getHeight()), false);
+                new Rectangle(raster.getMinX(), raster.getMinY(), raster.getWidth(), raster.getHeight()), false);
     }
 
     public TileImpl(RasterDataNode rasterDataNode, WritableRaster raster, Rectangle rectangle) {
@@ -141,7 +141,9 @@ public class TileImpl implements Tile {
     public boolean isSampleValid(int x, int y) {
         // todo - THIS IS VERY INEFFICIENT! (nf - 04.2010) 
         // fixme - read flag directly from a validMaskTile:TileImpl (nf - 04.2010)
-        return rasterDataNode.isPixelValid(x, y);
+        return x >= 0 && x < rasterDataNode.getSceneRasterWidth() &&
+                y >= 0 && y < rasterDataNode.getSceneRasterHeight() &&
+                rasterDataNode.isPixelValid(x, y);
     }
 
     @Override
@@ -193,7 +195,7 @@ public class TileImpl implements Tile {
     public synchronized ProductData getDataBuffer() {
         if (dataBuffer == null) {
             dataBuffer = ProductData.createInstance(rasterDataNode.getDataType(),
-                                                    ImageUtils.getPrimitiveArray(raster.getDataBuffer()));
+                    ImageUtils.getPrimitiveArray(raster.getDataBuffer()));
         }
         return dataBuffer;
     }
@@ -258,8 +260,8 @@ public class TileImpl implements Tile {
         if (target) {
             if (rawSamples != this.rawSamples || mustWriteSampleData) {
                 writableRaster.setDataElements(minX, minY,
-                                               width, height,
-                                               rawSamples.getElems());
+                        width, height,
+                        rawSamples.getElems());
             }
         }
     }
