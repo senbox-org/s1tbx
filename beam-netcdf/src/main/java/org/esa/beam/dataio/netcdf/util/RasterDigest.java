@@ -16,6 +16,7 @@
 
 package org.esa.beam.dataio.netcdf.util;
 
+import ucar.ma2.DataType;
 import ucar.nc2.Dimension;
 import ucar.nc2.Group;
 import ucar.nc2.Variable;
@@ -97,7 +98,7 @@ public class RasterDigest {
         final List<Variable> variables = group.getVariables();
         for (final Variable variable : variables) {
             final int rank = variable.getRank();
-            if (rank >= 2 && DataTypeUtils.isValidRasterDataType(variable.getDataType())) {
+            if (rank >= 2 && (DataTypeUtils.isValidRasterDataType(variable.getDataType()) || variable.getDataType() == DataType.LONG)) {
                 final Dimension dimX = variable.getDimension(rank - 1);
                 final Dimension dimY = variable.getDimension(rank - 2);
                 if (dimX.getLength() > 1 && dimY.getLength() > 1) {
