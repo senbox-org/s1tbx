@@ -1,6 +1,6 @@
 package org.esa.beam.csv.dataio.writer;
 
-import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -100,7 +100,7 @@ class FeatureCsvWriter implements CsvWriter {
             this.featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) input[1];
         } else if (input.length >= 2 && input[0] instanceof SimpleFeatureType) {
             this.featureType = (SimpleFeatureType) input[0];
-            this.featureCollection = new DefaultFeatureCollection("id", featureType);
+            this.featureCollection = new ListFeatureCollection(featureType);
             for (int i = 1; i < input.length; i++) {
                 featureCollection.add((SimpleFeature) input[i]);
             }

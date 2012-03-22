@@ -23,7 +23,7 @@ import org.esa.beam.dataio.geometry.VectorDataNodeIO;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.converters.JavaTypeConverter;
 import org.esa.beam.util.logging.BeamLogManager;
-import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -34,7 +34,14 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,7 +86,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
             throw new ParseException(e);
         }
 
-        featureCollection = new DefaultFeatureCollection("?", simpleFeatureType);
+        featureCollection = new ListFeatureCollection(simpleFeatureType);
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeatureType);
 
         try {
@@ -395,7 +402,6 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
 
         private LineCountReader(Reader in) {
             super(in);
-            System.out.println("new reader created !!");
         }
 
         @Override
