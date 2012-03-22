@@ -87,13 +87,14 @@ public class CfBandPart extends ProfilePartIO {
         final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
         if (variable.getDataType() == DataType.LONG) {
             final Band lowerBand = p.addBand(bandBasename + "_lsb", rasterDataType);
-            // todo - description
             readCfBandAttributes(variable, lowerBand);
+            lowerBand.setDescription(lowerBand.getDescription() + "(least significant bytes)");
             lowerBand.setSourceImage(new NetcdfMultiLevelImage(lowerBand, variable, ctx));
             addFlagCodingIfApplicable(p, lowerBand, variable, variable.getName() + "_lsb", false);
 
             final Band upperBand = p.addBand(bandBasename + "_msb", rasterDataType);
             readCfBandAttributes(variable, upperBand);
+            upperBand.setDescription(upperBand.getDescription() + "(most significant bytes)");
             upperBand.setSourceImage(new NetcdfMultiLevelImage(upperBand, variable, ctx));
             addFlagCodingIfApplicable(p, upperBand, variable, variable.getName() + "_msb", true);
         } else {
@@ -229,10 +230,10 @@ public class CfBandPart extends ProfilePartIO {
         if (workarounds != null && workarounds.hasWorkaround(variable.getName(), variable.getDataType())) {
             return workarounds.getRasterDataType(variable.getName(), variable.getDataType());
         }
-        final int rasterDataType = DataTypeUtils.getRasterDataType(variable);
+        int rasterDataType = DataTypeUtils.getRasterDataType(variable);
         if (rasterDataType == -1) {
             if (variable.getDataType() == DataType.LONG) {
-                return variable.isUnsigned() ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
+                rasterDataType = variable.isUnsigned() ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
             }
         }
         return rasterDataType;
