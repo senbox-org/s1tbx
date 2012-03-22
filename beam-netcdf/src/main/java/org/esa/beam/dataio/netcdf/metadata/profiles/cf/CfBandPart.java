@@ -88,13 +88,17 @@ public class CfBandPart extends ProfilePartIO {
         if (variable.getDataType() == DataType.LONG) {
             final Band lowerBand = p.addBand(bandBasename + "_lsb", rasterDataType);
             readCfBandAttributes(variable, lowerBand);
-            lowerBand.setDescription(lowerBand.getDescription() + "(least significant bytes)");
+            if (lowerBand.getDescription() != null) {
+                lowerBand.setDescription(lowerBand.getDescription() + "(least significant bytes)");
+            }
             lowerBand.setSourceImage(new NetcdfMultiLevelImage(lowerBand, variable, ctx));
             addFlagCodingIfApplicable(p, lowerBand, variable, variable.getName() + "_lsb", false);
 
             final Band upperBand = p.addBand(bandBasename + "_msb", rasterDataType);
             readCfBandAttributes(variable, upperBand);
-            upperBand.setDescription(upperBand.getDescription() + "(most significant bytes)");
+            if (upperBand.getDescription() != null) {
+                upperBand.setDescription(upperBand.getDescription() + "(most significant bytes)");
+            }
             upperBand.setSourceImage(new NetcdfMultiLevelImage(upperBand, variable, ctx));
             addFlagCodingIfApplicable(p, upperBand, variable, variable.getName() + "_msb", true);
         } else {
