@@ -229,7 +229,13 @@ public class CfBandPart extends ProfilePartIO {
         if (workarounds != null && workarounds.hasWorkaround(variable.getName(), variable.getDataType())) {
             return workarounds.getRasterDataType(variable.getName(), variable.getDataType());
         }
-        return DataTypeUtils.getRasterDataType(variable);
+        final int rasterDataType = DataTypeUtils.getRasterDataType(variable);
+        if (rasterDataType == -1) {
+            if (variable.getDataType() == DataType.LONG) {
+                return variable.isUnsigned() ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
+            }
+        }
+        return rasterDataType;
     }
 
     private static boolean isUnsigned(DataNode dataNode) {
