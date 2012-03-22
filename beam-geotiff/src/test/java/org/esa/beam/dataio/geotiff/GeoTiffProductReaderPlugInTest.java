@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,8 +16,8 @@
 
 package org.esa.beam.dataio.geotiff;
 
-import com.sun.media.jai.codec.ByteArraySeekableStream;
 import com.bc.ceres.core.ProgressMonitor;
+import com.sun.media.jai.codec.ByteArraySeekableStream;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
@@ -27,7 +27,6 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.UTM;
 import org.esa.beam.util.io.BeamFileFilter;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,9 +37,12 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+
+import static org.junit.Assert.*;
 
 /**
  * todo - add API doc
@@ -105,14 +107,15 @@ public class GeoTiffProductReaderPlugInTest {
     }
 
     @Test
-    public void testOutputTypes() {
+    public void testInputTypes() {
         final Class[] classes = plugIn.getInputTypes();
 
         assertNotNull(classes);
-        assertEquals(2, classes.length);
+        assertEquals(3, classes.length);
         final List<Class> list = Arrays.asList(classes);
         assertEquals(true, list.contains(File.class));
         assertEquals(true, list.contains(String.class));
+        assertEquals(true, list.contains(InputStream.class));
     }
 
     @Test

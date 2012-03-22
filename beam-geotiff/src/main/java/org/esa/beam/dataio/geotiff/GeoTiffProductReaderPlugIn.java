@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,8 +15,6 @@
  */
 package org.esa.beam.dataio.geotiff;
 
-import com.sun.media.imageioimpl.plugins.tiff.TIFFIFD;
-import com.sun.media.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -27,6 +25,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Locale;
 
@@ -37,9 +36,15 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
         try {
-            final File file = Utils.getFile(input);
-            final ImageInputStream stream = ImageIO.createImageInputStream(file);
-
+            final Object imageIOInput;
+            if (input instanceof String) {
+                imageIOInput = new File((String) input);
+            } else if (input instanceof File || input instanceof InputStream) {
+                imageIOInput = input;
+            } else {
+                return DecodeQualification.UNABLE;        
+            }
+            final ImageInputStream stream = ImageIO.createImageInputStream(imageIOInput);
             try {
                 return getDecodeQualificationImpl(stream);
             } finally {
@@ -74,7 +79,7 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public Class[] getInputTypes() {
-        return new Class[]{String.class, File.class};
+        return new Class[]{String.class, File.class, InputStream.class,};
     }
 
     @Override

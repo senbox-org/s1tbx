@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,7 +23,6 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -31,19 +30,6 @@ import java.util.StringTokenizer;
 public class Utils {
 
     public static final int PRIVATE_BEAM_TIFF_TAG_NUMBER = 65000;
-
-
-    static File getFile(final Object o) {
-        final File inputFile;
-        if (o instanceof File) {
-            inputFile = (File) o;
-        } else if (o instanceof String) {
-            inputFile = new File((String) o);
-        } else {
-            throw new IllegalArgumentException("unsupported input source: " + o);
-        }
-        return inputFile;
-    }
 
     public static List<TIFFField> createGeoTIFFFields(GeoTIFFMetadata geoTIFFMetadata) {
         final List<TIFFField> list = new ArrayList<TIFFField>(6);
