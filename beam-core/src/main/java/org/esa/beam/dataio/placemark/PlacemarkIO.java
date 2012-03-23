@@ -417,11 +417,7 @@ public class PlacemarkIO {
 
         final Placemark placemark = Placemark.createPointPlacemark(descriptor, name1, label, description1, pixelPos, geoPos, geoCoding);
 
-        String styleCss = element.getChildTextTrim(DimapProductConstants.TAG_PLACEMARK_STYLE_CSS);
-        if (styleCss == null) {
-            styleCss = getStyleCssFromOldFormat(element);
-        }
-        placemark.setStyleCss(styleCss);
+        placemark.setStyleCss(element.getChildTextTrim(DimapProductConstants.TAG_PLACEMARK_STYLE_CSS));
 
         return placemark;
 
