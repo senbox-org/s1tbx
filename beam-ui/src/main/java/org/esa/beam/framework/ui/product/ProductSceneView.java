@@ -845,6 +845,8 @@ public class ProductSceneView extends BasicView
             }
             figureEditor.getFigureSelection().removeAllFigures();
             figureEditor.getFigureSelection().addFigures(selectedFigures.toArray(new Figure[selectedFigures.size()]));
+            final int selectionStage = Math.min(selectedFigures.size(), 2);
+            figureEditor.getFigureSelection().setSelectionStage(selectionStage);
             return true;
         }
         return false;

@@ -965,8 +965,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 for (int i = 0; i < placemarks.length; i++) {
                     Placemark placemark = placemarks[i];
                     int sortedIndex = placemarkTable.getSortedRowAt(i);
-                    boolean selected = placemarkTable.isRowSelected(sortedIndex);
-                    if (selected) {
+                    if (placemarkTable.isRowSelected(sortedIndex)) {
                         selectedPlacemarks.add(placemark);
                     }
                 }
@@ -995,7 +994,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             if (layer instanceof VectorDataLayer) {
                 VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
                 if (vectorDataLayer.getVectorDataNode() == getProduct().getPinGroup().getVectorDataNode() ||
-                        vectorDataLayer.getVectorDataNode() == getProduct().getGcpGroup().getVectorDataNode()) {
+                    vectorDataLayer.getVectorDataNode() == getProduct().getGcpGroup().getVectorDataNode()) {
                     updateUIState();
                 }
             }
