@@ -42,6 +42,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.10<br/>
+          [BEAM-1385] Import images as products (missing RGB product reader)<br/>
           [BEAM-1384] Synchronise image views via geographical center coordinates<br/>
           [BEAM-1360] Auto-grouping of product sometimes wrong<br/>
           [BEAM-1356] Scene view of a band can not be opened if all values are NaN<br/>

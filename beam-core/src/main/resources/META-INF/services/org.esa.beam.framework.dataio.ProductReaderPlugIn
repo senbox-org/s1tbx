@@ -1,1 +1,2 @@
 org.esa.beam.dataio.dimap.DimapProductReaderPlugIn
+org.esa.beam.dataio.rgb.ImageProductReaderPlugIn
