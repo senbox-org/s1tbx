@@ -38,22 +38,8 @@ import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionContext;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkGroup;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.ui.BasicView;
-import org.esa.beam.framework.ui.PixelInfoFactory;
-import org.esa.beam.framework.ui.PixelPositionListener;
-import org.esa.beam.framework.ui.PopupMenuHandler;
-import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.ui.*;
 import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.glayer.GraticuleLayer;
@@ -65,31 +51,11 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.SystemUtils;
 
-import javax.swing.AbstractButton;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.MouseInputListener;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -270,7 +236,7 @@ public class ProductSceneView extends BasicView
         figureEditor.addSelectionChangeListener(new PinSelectionChangeListener());
 
         this.scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN,
-                false);
+                                                                             false);
         if (scrollBarsShown) {
             this.scrollPane = createScrollPane();
             add(scrollPane, BorderLayout.CENTER);
@@ -314,7 +280,7 @@ public class ProductSceneView extends BasicView
 
     private AdjustableViewScrollPane createScrollPane() {
         AbstractButton zoomAllButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomAll13.gif"),
-                false);
+                                                                      false);
         zoomAllButton.setFocusable(false);
         zoomAllButton.setFocusPainted(false);
         zoomAllButton.addActionListener(new ActionListener() {
@@ -647,7 +613,7 @@ public class ProductSceneView extends BasicView
 
             if (layer == null) {
                 layer = LayerUtils.getChildLayer(getRootLayer(), LayerUtils.SearchMode.DEEP,
-                        VectorDataLayerFilterFactory.createGeometryFilter());
+                                                 VectorDataLayerFilterFactory.createGeometryFilter());
             }
             if (layer != null) {
                 final VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
@@ -765,8 +731,8 @@ public class ProductSceneView extends BasicView
     public VectorDataLayer selectVectorDataLayer(VectorDataNode vectorDataNode) {
         LayerFilter layerFilter = new VectorDataLayerFilter(vectorDataNode);
         VectorDataLayer layer = (VectorDataLayer) LayerUtils.getChildLayer(getRootLayer(),
-                LayerUtils.SEARCH_DEEP,
-                layerFilter);
+                                                                           LayerUtils.SEARCH_DEEP,
+                                                                           layerFilter);
         if (layer != null) {
             setSelectedLayer(layer);
         }
@@ -999,15 +965,34 @@ public class ProductSceneView extends BasicView
         layerCanvas.getViewport().setZoomFactor(viewScale, x, y);
     }
 
-    public void synchronizeViewport(ProductSceneView view) {
+    public void synchronizeViewport(ProductSceneView otherView) {
         final Product currentProduct = getRaster().getProduct();
-        final Product otherProduct = view.getRaster().getProduct();
+        final Product otherProduct = otherView.getRaster().getProduct();
+        Viewport otherViewport = otherView.layerCanvas.getViewport();
+        Viewport thisViewport = layerCanvas.getViewport();
         if (otherProduct == currentProduct ||
                 otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
+            otherViewport.setTransform(thisViewport);
+        } else {
+            RasterDataNode thisRaster = getRaster();
+            RasterDataNode otherRaster = otherView.getRaster();
+            if (thisRaster.getGeoCoding() == null && otherRaster.getGeoCoding() == null) {
+                return;
+            }
+            double viewCenterX = thisViewport.getViewBounds().getCenterX();
+            double viewCenterY = thisViewport.getViewBounds().getCenterY();
+            Point2D viewCenter = new Point2D.Double(viewCenterX, viewCenterY);
+            Point2D modelCenter = thisViewport.getViewToModelTransform().transform(viewCenter, null);
+            Point2D imageCenter = getBaseImageLayer().getModelToImageTransform().transform(modelCenter, null);
 
-            Viewport viewPortToChange = view.layerCanvas.getViewport();
-            Viewport myViewPort = layerCanvas.getViewport();
-            viewPortToChange.setTransform(myViewPort);
+            GeoPos thisGeoPos = thisRaster.getGeoCoding().getGeoPos(new PixelPos((float) imageCenter.getX(), (float) imageCenter.getY()), null);
+            PixelPos otherPixelPos = otherRaster.getGeoCoding().getPixelPos(thisGeoPos, null);
+            if (otherPixelPos.isValid()) {
+                Point2D otherModelCenter = otherView.getBaseImageLayer().getImageToModelTransform().transform(otherPixelPos, null);
+                otherViewport.setZoomFactor(otherViewport.getZoomFactor(),
+                                            otherModelCenter.getX(),
+                                            otherModelCenter.getY());
+            }
         }
     }
 
@@ -1047,8 +1032,8 @@ public class ProductSceneView extends BasicView
                 final Color color = (Color) noDataLayer.getConfiguration().getValue(
                         NoDataLayerType.PROPERTY_NAME_COLOR);
                 final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(),
-                        color, expression, true,
-                        getBaseImageLayer().getImageToModelTransform());
+                                                                                           color, expression, true,
+                                                                                           getBaseImageLayer().getImageToModelTransform());
                 noDataLayer.setMultiLevelSource(multiLevelSource);
             } else {
                 noDataLayer.setMultiLevelSource(MultiLevelSource.NULL);
@@ -1091,10 +1076,10 @@ public class ProductSceneView extends BasicView
          */
         public RGBChannel(final Product product, final String name, final String expression) {
             super(name,
-                    ProductData.TYPE_FLOAT32,
-                    product.getSceneRasterWidth(),
-                    product.getSceneRasterHeight(),
-                    expression);
+                  ProductData.TYPE_FLOAT32,
+                  product.getSceneRasterWidth(),
+                  product.getSceneRasterHeight(),
+                  expression);
             setOwner(product);
             setModified(false);
         }
@@ -1203,7 +1188,6 @@ public class ProductSceneView extends BasicView
             Point2D p = new Point2D.Double(e.getX() + 0.5, e.getY() + 0.5);
 
             Viewport viewport = getLayerCanvas().getViewport();
-            int currentLevel = baseImageLayer.getLevel(viewport);
             AffineTransform v2mTransform = viewport.getViewToModelTransform();
             final Point2D modelP = v2mTransform.transform(p, null);
 
@@ -1212,6 +1196,7 @@ public class ProductSceneView extends BasicView
             currentPixelX = (int) Math.floor(imageP.getX());
             currentPixelY = (int) Math.floor(imageP.getY());
 
+            int currentLevel = baseImageLayer.getLevel(viewport);
             AffineTransform m2iLevelTransform = baseImageLayer.getModelToImageTransform(currentLevel);
             Point2D imageLevelP = m2iLevelTransform.transform(modelP, null);
             int currentPixelX = (int) Math.floor(imageLevelP.getX());

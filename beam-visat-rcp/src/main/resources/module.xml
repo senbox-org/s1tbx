@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.10<br/>
+          [BEAM-1384] Synchronise image views via geographical center coordinates<br/>
           [BEAM-1379] Log-scaled data and log-scaled display shall be independent<br/>
           [BEAM-1374] On Mac OS X, processor windows don't have menu bars<br/>
           [BEAM-1373] Use latest JIDE libraries<br/>
