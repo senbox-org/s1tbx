@@ -52,7 +52,6 @@ public class BoundsInputPanel {
 
     private final BindingContext bindingContext;
     private final String enablePropertyKey;
-    private final boolean disableUIProperty;
 
     private JLabel pixelXUnit;
     private JLabel pixelYUnit;
@@ -61,22 +60,18 @@ public class BoundsInputPanel {
     private Map<String, Double> unitMap;
 
     /**
-     * Default constructor.  The enable state of the UI is controlled via the parameter <code>disableUIProperty</code>.
-     * If it matches the value of the property provided in the constructor, the UI will be disabled.
-     *
+     * Default constructor.
      *
      * @param bindingContext    The binding context, in which the properties given by the constants
      *                          <code>PROPERTY_WEST_BOUND</code>, <code>PROPERTY_NORTH_BOUND</code>,
      *                          <code>PROPERTY_EAST_BOUND</code>, and <code>PROPERTY_SOUTH_BOUND</code> are bound
      *                          accordingly.
-     * @param disableUIProperty Controls the enable state of the UI.
      * @param enablePropertyKey The key for the property which specifies whether the subcomponents of this component
      *                          are enabled.
      */
-    public BoundsInputPanel(BindingContext bindingContext, String enablePropertyKey, boolean disableUIProperty) {
+    public BoundsInputPanel(BindingContext bindingContext, String enablePropertyKey) {
         this.bindingContext = bindingContext;
         this.enablePropertyKey = enablePropertyKey;
-        this.disableUIProperty = disableUIProperty;
         unitMap = new HashMap<String, Double>();
         unitMap.put("°", 0.05);
         unitMap.put("m", 1000.0);
@@ -84,11 +79,13 @@ public class BoundsInputPanel {
     }
 
     /**
-     * Creates the UI component.
+     * Creates the UI component. The enable state of the UI is controlled via the parameter <code>disableUIProperty</code>.
+     * If it matches the value of the property provided in the constructor, the UI will be disabled.
      *
+     * @param disableUIProperty Controls the enable state of the UI.
      * @return The UI component.
      */
-    public JPanel createBoundsInputPanel() {
+    public JPanel createBoundsInputPanel(boolean disableUIProperty) {
         final TableLayout layout = new TableLayout(9);
         layout.setTableAnchor(TableLayout.Anchor.WEST);
         layout.setTableFill(TableLayout.Fill.BOTH);
