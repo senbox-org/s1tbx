@@ -1,16 +1,21 @@
 package org.esa.beam.framework.gpf.pointop;
 
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import javax.media.jai.operator.ConstantDescriptor;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class PointOperatorInitialiseTest {
 
     @Test
     public void testInitialiseSequenceOfSampleOperator() throws Exception {
-        MySampleOperator operator = new MySampleOperator();
+        TracingSampleOperator operator = new TracingSampleOperator();
         operator.setSourceProduct(new Product("N", "T", 200, 100));
         operator.getTargetProduct();
         assertEquals("12345", operator.trace);
@@ -18,7 +23,7 @@ public class PointOperatorInitialiseTest {
 
     @Test
     public void testInitialiseSequenceOfPixelOperator() throws Exception {
-        MyPixelOperator operator = new MyPixelOperator();
+        TracingPixelOperator operator = new TracingPixelOperator();
         operator.setSourceProduct(new Product("N", "T", 200, 100));
         operator.getTargetProduct();
         assertEquals("12345", operator.trace);
@@ -26,7 +31,7 @@ public class PointOperatorInitialiseTest {
 
     @Test
     public void testDefaultValidateInputShallNotFail() throws Exception {
-        MyPointOperator operator = new MyPointOperator();
+        EmptyPointOperator operator = new EmptyPointOperator();
         operator.setSourceProducts(new Product("N1", "T", 200, 100),
                                    new Product("N2", "T", 200, 100),
                                    new Product("N3", "T", 200, 100));
@@ -39,7 +44,7 @@ public class PointOperatorInitialiseTest {
 
     @Test
     public void testDefaultValidateInputShallFail() throws Exception {
-        MyPointOperator operator = new MyPointOperator();
+        EmptyPointOperator operator = new EmptyPointOperator();
         operator.setSourceProducts(new Product("N1", "T", 200, 100),
                                    new Product("N2", "T", 200, 100),
                                    new Product("N3", "T", 200, 101));
@@ -51,9 +56,31 @@ public class PointOperatorInitialiseTest {
         }
     }
 
+    @Test
+    public void testThatOnlyExistingBandsCanProvideSourceSamples() throws Exception {
+        BadSourceSamplePointOperator operator = new BadSourceSamplePointOperator();
+        operator.setSourceProducts(new Product("N1", "T", 200, 100));
+        try {
+            operator.getTargetProduct();
+            fail("OperatorException expected, because only existing bands can provide source samples.");
+        } catch (OperatorException e) {
+            assertEquals("Product 'N1' does not contain a raster data node with name 'missing_band'", e.getMessage());
+        }
+    }
 
+    @Test
+    public void testThatOnlySourcelessBandsCanProvideTargetSamples() throws Exception {
+        BadTargetSamplePointOperator operator = new BadTargetSamplePointOperator();
+        operator.setSourceProducts(new Product("N1", "T", 200, 100));
+        try {
+            operator.getTargetProduct();
+            fail("OperatorException expected, because only sourceless bands can provide target samples.");
+        } catch (OperatorException e) {
+            assertEquals("Raster data node 'const_7' must be sourceless, since it is a computed target", e.getMessage());
+        }
+    }
 
-    private static class MyPixelOperator extends PixelOperator {
+    private static class TracingPixelOperator extends PixelOperator {
         String trace = "";
 
         @Override
@@ -89,7 +116,7 @@ public class PointOperatorInitialiseTest {
         }
     }
 
-    private static class MySampleOperator extends SampleOperator {
+    private static class TracingSampleOperator extends SampleOperator {
         String trace = "";
 
         @Override
@@ -125,13 +152,50 @@ public class PointOperatorInitialiseTest {
         }
     }
 
-    private static class MyPointOperator extends PointOperator {
+    private static class EmptyPointOperator extends PointOperator {
         @Override
         protected void configureSourceSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
         }
 
         @Override
         protected void configureTargetSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+        }
+    }
+
+    private static class BadSourceSamplePointOperator extends PointOperator {
+
+        @Override
+        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+            // OperatorException expected, since 'missing_band' is not a source band
+            sampleConfigurer.defineSample(0, "missing_band");
+        }
+
+        @Override
+        protected void configureTargetSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+        }
+    }
+
+    private static class BadTargetSamplePointOperator extends PointOperator {
+
+        @Override
+        protected void configureTargetProduct(ProductConfigurer productConfigurer) {
+            super.configureTargetProduct(productConfigurer);
+
+            final Band band = productConfigurer.addBand("const_7", ProductData.TYPE_FLOAT32);
+            band.setSourceImage(ConstantDescriptor.create((float) productConfigurer.getTargetProduct().getSceneRasterWidth(),
+                                                          (float) productConfigurer.getTargetProduct().getSceneRasterHeight(),
+                                                          new Float[]{7.0F}, null));
+
+        }
+
+        @Override
+        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+        }
+
+        @Override
+        protected void configureTargetSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+            // OperatorException expected, since 'const_7' is not sourceless
+            sampleConfigurer.defineSample(0, "const_7");
         }
     }
 }

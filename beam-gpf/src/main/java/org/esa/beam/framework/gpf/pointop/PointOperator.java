@@ -102,7 +102,6 @@ public abstract class PointOperator extends Operator {
      * The default implementation creates a target product instance given the raster size of the (first) source product.
      *
      * @return A new target product instance.
-     *
      * @throws OperatorException If the target product cannot be created.
      */
     protected Product createTargetProduct() throws OperatorException {
@@ -133,7 +132,6 @@ public abstract class PointOperator extends Operator {
      * in their implementation.
      *
      * @param productConfigurer The target product configurer.
-     *
      * @throws OperatorException If the target product cannot be configured.
      * @see Product#addBand(org.esa.beam.framework.datamodel.Band)
      * @see Product#addBand(String, String)
@@ -153,7 +151,6 @@ public abstract class PointOperator extends Operator {
      * <p/> The method is called by {@link #initialize()}.
      *
      * @param sampleConfigurer The configurer that defines the layout of a pixel.
-     *
      * @throws OperatorException If the source samples cannot be configured.
      */
     protected abstract void configureSourceSamples(SampleConfigurer sampleConfigurer) throws OperatorException;
@@ -165,7 +162,6 @@ public abstract class PointOperator extends Operator {
      * <p/> The method is called by {@link #initialize()}.
      *
      * @param sampleConfigurer The configurer that defines the layout of a pixel.
-     *
      * @throws OperatorException If the target samples cannot be configured.
      */
     protected abstract void configureTargetSamples(SampleConfigurer sampleConfigurer) throws OperatorException;
@@ -348,14 +344,19 @@ public abstract class PointOperator extends Operator {
 
         final List<T> nodes = new ArrayList<T>();
 
-        @Override
-        public void defineSample(int index, String name, Product product) {
+        void defineSample(int index, String name, Product product, boolean sourceless) throws OperatorException {
             T node = (T) product.getRasterDataNode(name);
             if (node == null) {
                 String message = MessageFormat.format(
-                        "The product: ''{0}'' does not contain a raster with the name: ''{1}''",
+                        "Product ''{0}'' does not contain a raster data node with name ''{1}''",
                         product.getName(), name);
-                throw new IllegalArgumentException(message);
+                throw new OperatorException(message);
+            }
+            if (sourceless && node.isSourceImageSet()) {
+                String message = MessageFormat.format(
+                        "Raster data node ''{0}'' must be sourceless, since it is a computed target",
+                        name);
+                throw new OperatorException(message);
             }
             if (index < nodes.size()) {
                 nodes.set(index, node);
@@ -378,16 +379,25 @@ public abstract class PointOperator extends Operator {
 
         @Override
         public void defineSample(int index, String name) {
-            defineSample(index, name, getSourceProduct());
+            defineSample(index, name, getSourceProduct(), false);
         }
 
+        @Override
+        public void defineSample(int index, String name, Product product) {
+            super.defineSample(index, name, product, false);
+        }
     }
 
     private final class TargetSampleConfigurer extends AbstractSampleConfigurer<Band> {
 
         @Override
         public void defineSample(int index, String name) {
-            defineSample(index, name, getTargetProduct());
+            defineSample(index, name, getTargetProduct(), true);
+        }
+
+        @Override
+        public void defineSample(int index, String name, Product product) {
+            super.defineSample(index, name, product, true);
         }
 
         @Override
