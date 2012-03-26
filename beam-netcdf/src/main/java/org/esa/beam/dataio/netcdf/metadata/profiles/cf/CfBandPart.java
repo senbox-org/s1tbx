@@ -274,7 +274,7 @@ public class CfBandPart extends ProfilePartIO {
                                 flagCoding.addFlag(flagMeaning, flagMaskAttribute.getNumericValue(i).intValue(), null);
                                 break;
                             case LONG:
-                                final long value = flagMaskAttribute.getNumericValue().longValue();
+                                final long value = flagMaskAttribute.getNumericValue(i).longValue();
                                 if (msb) {
                                     final long flagMask = value >>> 32;
                                     if (flagMask > 0) {
