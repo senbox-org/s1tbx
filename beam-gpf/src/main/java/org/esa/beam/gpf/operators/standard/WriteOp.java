@@ -107,7 +107,7 @@ public class WriteOp extends Operator implements Output {
 
     @Parameter(defaultValue = "true",
                description = "If true, all output files are deleted after a failed write operation.")
-    private boolean deleteOutputOnFailure;
+    private boolean deleteOutputOnFailure = true;
 
     @Parameter(defaultValue = "true",
                description = "If true, the write operation waits until an entire tile row is computed.")
@@ -214,10 +214,12 @@ public class WriteOp extends Operator implements Output {
 
             stopTileComputationObservation();
         } catch (OperatorException e) {
-            try {
-                productWriter.deleteOutput();
-            } catch (Exception e2) {
-                getLogger().warning("Failed to delete output after failure: " + e2.getMessage());
+            if (deleteOutputOnFailure) {
+                try {
+                    productWriter.deleteOutput();
+                } catch (Exception e2) {
+                    getLogger().warning("Failed to delete output after failure: " + e2.getMessage());
+                }
             }
             throw e;
         } finally {
@@ -228,6 +230,9 @@ public class WriteOp extends Operator implements Output {
     @Override
     public void initialize() throws OperatorException {
         targetProduct = sourceProduct;
+        if(targetProduct.getFileLocation().exists()) {
+            deleteOutputOnFailure = false;
+        }
         productWriter = ProductIO.getProductWriter(formatName);
         if (productWriter == null) {
             throw new OperatorException("No data product writer for the '" + formatName + "' format available");
