@@ -16,13 +16,7 @@
 
 package org.esa.beam.jai;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.Lineal;
-import com.vividsolutions.jts.geom.Polygonal;
-import com.vividsolutions.jts.geom.Puntal;
-
+import com.vividsolutions.jts.geom.*;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.geotools.feature.FeatureCollection;
@@ -35,10 +29,8 @@ import org.opengis.referencing.operation.MathTransform2D;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -66,7 +58,7 @@ public class VectorDataMaskOpImage extends SingleBandedOpImage {
         AffineTransform transform = ImageManager.getImageToModelTransform(geoCoding);
         try {
             transform.invert();
-            m2iTransform = transform; 
+            m2iTransform = transform;
         } catch (NoninvertibleTransformException e) {
             throw new IllegalArgumentException("Could not invert model-to-image transformation.", e);
         }
@@ -88,20 +80,24 @@ public class VectorDataMaskOpImage extends SingleBandedOpImage {
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = vectorDataNode.getFeatureCollection();
         FeatureIterator<SimpleFeature> featureIterator = features.features();
-        AffineTransform transform = AffineTransform.getScaleInstance(1.0 / getScale(), 1.0 / getScale());
-        transform.concatenate(m2iTransform);
-        AffineTransform2D transform2D = new AffineTransform2D(transform);
-        
-        while (featureIterator.hasNext()) {
-            SimpleFeature feature = featureIterator.next();
-            Object value = feature.getDefaultGeometry();
-            if (value instanceof Geometry) {
-                try {
-                    renderGeometry((Geometry) value, graphics2D, transform2D);
-                } catch (Exception ignored) {
-                    // ignore
+        try {
+            AffineTransform transform = AffineTransform.getScaleInstance(1.0 / getScale(), 1.0 / getScale());
+            transform.concatenate(m2iTransform);
+            AffineTransform2D transform2D = new AffineTransform2D(transform);
+
+            while (featureIterator.hasNext()) {
+                SimpleFeature feature = featureIterator.next();
+                Object value = feature.getDefaultGeometry();
+                if (value instanceof Geometry) {
+                    try {
+                        renderGeometry((Geometry) value, graphics2D, transform2D);
+                    } catch (Exception ignored) {
+                        // ignore
+                    }
                 }
             }
+        } finally {
+            featureIterator.close();
         }
 
         graphics2D.dispose();
