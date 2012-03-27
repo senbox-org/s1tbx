@@ -230,7 +230,7 @@ public class WriteOp extends Operator implements Output {
     @Override
     public void initialize() throws OperatorException {
         targetProduct = sourceProduct;
-        if(targetProduct.getFileLocation().exists()) {
+        if(targetProduct.getFileLocation() != null && targetProduct.getFileLocation().exists()) {
             deleteOutputOnFailure = false;
         }
         productWriter = ProductIO.getProductWriter(formatName);
