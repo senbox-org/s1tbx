@@ -25,7 +25,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.BoundingBox;
 
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -228,11 +227,16 @@ public class VectorDataNode extends ProductNode {
         if (bounds == null) {
             bounds = new ReferencedEnvelope(featureType.getCoordinateReferenceSystem());
 
-            for (Iterator<SimpleFeature> i = featureCollection.iterator(); i.hasNext(); ) {
-                BoundingBox geomBounds = i.next().getBounds();
-                if (!geomBounds.isEmpty()) {
-                    bounds.include(geomBounds);
+            FeatureIterator<SimpleFeature> iterator = featureCollection.features();
+            try {
+                while (iterator.hasNext()) {
+                    BoundingBox geomBounds = iterator.next().getBounds();
+                    if (!geomBounds.isEmpty()) {
+                        bounds.include(geomBounds);
+                    }
                 }
+            } finally {
+                iterator.close();
             }
         }
         return bounds;
@@ -283,7 +287,7 @@ public class VectorDataNode extends ProductNode {
                 generatePlacemarkForFeature(iterator.next());
             }
         } finally {
-            featureCollection.close(iterator);
+            iterator.close();
         }
     }
 
