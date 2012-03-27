@@ -50,7 +50,7 @@ import java.util.regex.Pattern;
  */
 @OperatorMetadata(alias = "Merge",
                   description = "Allows copying raster data from other products to a specified product. The " +
-                                "'master product' receives nodes from the source products products.",
+                          "'master product' receives nodes from the source products products.",
                   authors = "BEAM team",
                   version = "1.0",
                   copyright = "(c) 2012 by Brockmann Consult",
@@ -59,16 +59,16 @@ public class MergeOp extends Operator {
 
     @SourceProduct(description = "The 'master product', which receives nodes from subsequently provided products.")
     private Product masterProduct;
-    
+
     @SourceProducts(description = "The products to be merged into the 'master product'.")
     private Product[] sourceProducts;
-    
+
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(itemAlias = "include", itemsInlined = false,
                description = "Defines nodes to be included in the target product. If no includes are provided, all" +
-                             " nodes are copied.")
+                       " nodes are copied.")
     private NodeDescriptor[] includes;
     @Parameter(itemAlias = "exclude", itemsInlined = false,
                description = "Defines nodes to be excluded from the target product.")
@@ -149,12 +149,12 @@ public class MergeOp extends Operator {
     private void copyBandWithFeatures(Product sourceProduct, String oldBandName, String newBandName) {
         Band sourceBand = sourceProduct.getBand(oldBandName);
         if (sourceBand == null) {
-            final String msg = String.format("Source product [%s] does not contain a band with the name [%s]",
+            final String msg = String.format("Source product [%s] does not contain a band with name [%s]",
                                              sourceProduct.getName(), oldBandName);
             throw new OperatorException(msg);
         }
 
-        if(targetProduct.containsBand(newBandName)) {
+        if (targetProduct.containsBand(newBandName)) {
             return;
         }
         ProductUtils.copyBand(oldBandName, sourceProduct, newBandName, targetProduct, true);
@@ -163,15 +163,15 @@ public class MergeOp extends Operator {
     private void validateSourceProducts() {
         for (Product sourceProduct : getSourceProducts()) {
             if (!targetProduct.isCompatibleProduct(sourceProduct, 1.0E-5f)) {
-                throw new OperatorException("Product '" + getSourceProductId(sourceProduct) + "' is not compatible to" +
-                                            " master product.");
+                throw new OperatorException(String.format("Product [%s] is not compatible to master product.",
+                                                          getSourceProductId(sourceProduct)));
             }
         }
     }
 
     @Override
     public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        getLogger().warning("Wrongly configured ProductMerger operator. Tiles should not be requested.");
+        getLogger().warning("Wrongly configured operator. Tiles should not be requested.");
     }
 
     public static class NodeDescriptor {
