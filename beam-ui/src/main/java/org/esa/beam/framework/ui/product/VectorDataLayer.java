@@ -106,7 +106,7 @@ public class VectorDataLayer extends Layer {
             if (featureFigure != null) {
                 figureMap.remove(simpleFeature);
             } else {
-                featureFigure = getFigureFactory().createSimpleFeatureFigure(simpleFeature, vectorDataNode.getDefaultCSS());
+                featureFigure = getFigureFactory().createSimpleFeatureFigure(simpleFeature, vectorDataNode.getDefaultStyleCss());
                 figureCollection.addFigure(featureFigure);
             }
             featureFigure.forceRegeneration();
