@@ -161,14 +161,17 @@ public class PlacemarkEditorToolView extends AbstractToolView {
             }
 
             editor.setText(String.format("<html>" +
-                    "Vector data node <b>%s</b><br>" +
-                    "%d placemark(s)<br>" +
-                    "%d feature(s)<br>" +
-                    "%d figure(s) selected</html>",
-                    vectorDataNode.getName(),
-                    vectorDataNode.getPlacemarkGroup().getNodeCount(),
-                    vectorDataNode.getFeatureCollection().size(),
-                    selectedFigureCount));
+                                                 "Vector data node <b>%s</b><br>" +
+                                                 "Feature type <b>%s</b><br>" +
+                                                 "<br>" +
+                                                 "%d placemark(s)<br>" +
+                                                 "%d feature(s)<br>" +
+                                                 "%d figure(s) selected</html>",
+                                         vectorDataNode.getName(),
+                                         vectorDataNode.getFeatureType().getTypeName(),
+                                         vectorDataNode.getPlacemarkGroup().getNodeCount(),
+                                         vectorDataNode.getFeatureCollection().size(),
+                                         selectedFigureCount));
         } else {
             editor.setText("No selection.");
         }
