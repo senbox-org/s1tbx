@@ -20,7 +20,6 @@ import org.opengis.feature.simple.SimpleFeature;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
@@ -106,14 +105,7 @@ public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
     }
 
     private void removeFromVectorData(Placemark placemark) {
-        final Iterator<SimpleFeature> iterator = vectorDataNode.getFeatureCollection().iterator();
-        while (iterator.hasNext()) {
-            final SimpleFeature feature = iterator.next();
-            if (feature == placemark.getFeature()) {
-                iterator.remove();
-                break;
-            }
-        }
+        vectorDataNode.getFeatureCollection().remove(placemark.getFeature());
     }
 
     private class VectorDataNodeListener extends ProductNodeListenerAdapter {
