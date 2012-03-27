@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,18 +28,7 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.framework.param.ParamChangeEvent;
@@ -52,32 +41,11 @@ import org.esa.beam.framework.ui.SliderBoxImageDisplay;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.BeamConstants;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.*;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
-import java.awt.Window;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
@@ -85,11 +53,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -869,12 +834,12 @@ public class ProductSubsetDialog extends ModalDialog {
             paramX1 = new Parameter("source_x1", x1);
             paramX1.getProperties().setDescription("Start X co-ordinate given in pixels"); /*I18N*/
             paramX1.getProperties().setMinValue(0);
-            paramX1.getProperties().setMaxValue(w - wMin - 1);
+            paramX1.getProperties().setMaxValue((w - wMin - 1) > 0 ? w - wMin - 1 : 0);
 
             paramY1 = new Parameter("source_y1", y1);
             paramY1.getProperties().setDescription("Start Y co-ordinate given in pixels"); /*I18N*/
             paramY1.getProperties().setMinValue(0);
-            paramY1.getProperties().setMaxValue(h - hMin - 1);
+            paramY1.getProperties().setMaxValue((h - hMin - 1) > 0 ? h - hMin - 1 : 0);
 
             paramX2 = new Parameter("source_x2", x2);
             paramX2.getProperties().setDescription("End X co-ordinate given in pixels");/*I18N*/
