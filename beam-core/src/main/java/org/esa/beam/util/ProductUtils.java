@@ -169,12 +169,12 @@ public class ProductUtils {
             // Compute indices into palette --> rgbSamples
             if (indexCoding == null) {
                 raster.quantizeRasterData(minSample,
-                        maxSample,
-                        1.0,
-                        rgbSamples,
-                        0,
-                        numColorComponents,
-                        ProgressMonitor.NULL);
+                                          maxSample,
+                                          1.0,
+                                          rgbSamples,
+                                          0,
+                                          numColorComponents,
+                                          ProgressMonitor.NULL);
                 indexValidator = new IndexValidator() {
                     @Override
                     public boolean validateIndex(int pixelIndex) {
@@ -214,7 +214,7 @@ public class ProductUtils {
             }
 
             convertPaletteToRgbSamples(palette, imageInfo.getNoDataColor(), numColorComponents, rgbSamples,
-                    indexValidator);
+                                       indexValidator);
             pm.worked(40);
             checkCanceled(pm);
 
@@ -304,12 +304,12 @@ public class ProductUtils {
                 final RasterDataNode raster = rasters[i];
                 pm.setSubTaskName(taskMessages[i]);
                 raster.quantizeRasterData(imageInfo.getRgbChannelDef().getMinDisplaySample(i),
-                        imageInfo.getRgbChannelDef().getMaxDisplaySample(i),
-                        imageInfo.getRgbChannelDef().getGamma(i),
-                        rgbSamples,
-                        numColorComponents - 1 - i,
-                        numColorComponents,
-                        ProgressMonitor.NULL);
+                                          imageInfo.getRgbChannelDef().getMaxDisplaySample(i),
+                                          imageInfo.getRgbChannelDef().getGamma(i),
+                                          rgbSamples,
+                                          numColorComponents - 1 - i,
+                                          numColorComponents,
+                                          ProgressMonitor.NULL);
                 pm.worked(30);
                 checkCanceled(pm);
             }
@@ -363,11 +363,11 @@ public class ProductUtils {
         final DataBuffer db = new DataBufferByte(rgbSamples, rgbSamples.length);
         final int colorComponentCount = imageInfo.getColorComponentCount();
         final WritableRaster wr = Raster.createInterleavedRaster(db, width, height,
-                colorComponentCount * width,
-                colorComponentCount,
-                colorComponentCount == 4 ?
-                        RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
-                null);
+                                                                 colorComponentCount * width,
+                                                                 colorComponentCount,
+                                                                 colorComponentCount == 4 ?
+                                                                         RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
+                                                                 null);
         return new BufferedImage(cm, wr, false, null);
     }
 
@@ -461,13 +461,13 @@ public class ProductUtils {
         final float easting = (float) envelope[0].getX();
         final float northing = (float) envelope[1].getY();
         final MapInfo mapInfo = new MapInfo(mapProjection,
-                0.5F,
-                0.5F,
-                easting,
-                northing,
-                pixelSize,
-                pixelSize,
-                gc.getDatum());
+                                            0.5F,
+                                            0.5F,
+                                            easting,
+                                            northing,
+                                            pixelSize,
+                                            pixelSize,
+                                            gc.getDatum());
         mapInfo.setSceneSizeFitted(true);
         mapInfo.setSceneWidth(targetW);
         mapInfo.setSceneHeight(targetH);
@@ -518,13 +518,13 @@ public class ProductUtils {
         final float northing = (float) pMax.getY() - pixelY * pixelSize;
 
         final MapInfo mapInfo = new MapInfo(mapProjection,
-                pixelX,
-                pixelY,
-                easting,
-                northing,
-                pixelSize,
-                pixelSize,
-                gc.getDatum());
+                                            pixelX,
+                                            pixelY,
+                                            easting,
+                                            northing,
+                                            pixelSize,
+                                            pixelSize,
+                                            gc.getDatum());
         mapInfo.setOrientation((float) orientation);
         mapInfo.setSceneSizeFitted(true);
         mapInfo.setSceneWidth(targetW);
@@ -542,7 +542,7 @@ public class ProductUtils {
         final double mapW = envelope[1].getX() - envelope[0].getX();
         final double mapH = envelope[1].getY() - envelope[0].getY();
         return new Dimension(1 + (int) Math.floor(mapW / pixelSizeX),
-                1 + (int) Math.floor(mapH / pixelSizeY));
+                             1 + (int) Math.floor(mapH / pixelSizeY));
     }
 
     /**
@@ -802,9 +802,9 @@ public class ProductUtils {
                                                  final boolean usePixelCenter) {
         if (rect == null) {
             rect = new Rectangle(0,
-                    0,
-                    product.getSceneRasterWidth(),
-                    product.getSceneRasterHeight());
+                                 0,
+                                 product.getSceneRasterWidth(),
+                                 product.getSceneRasterHeight());
         }
         return createRectBoundary(rect, step, usePixelCenter);
     }
@@ -825,9 +825,9 @@ public class ProductUtils {
     public static PixelPos[] createPixelBoundary(RasterDataNode raster, Rectangle rect, int step) {
         if (rect == null) {
             rect = new Rectangle(0,
-                    0,
-                    raster.getSceneRasterWidth(),
-                    raster.getSceneRasterHeight());
+                                 0,
+                                 raster.getSceneRasterWidth(),
+                                 raster.getSceneRasterHeight());
         }
         return createRectBoundary(rect, step);
     }
@@ -1303,7 +1303,7 @@ public class ProductUtils {
                 FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
                 featureCollection = new DefaultFeatureCollection(featureCollection);
                 VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
-                targetVDN.setDefaultCSS(sourceVDN.getDefaultCSS());
+                targetVDN.setDefaultStyleCss(sourceVDN.getDefaultStyleCss());
                 targetVDN.setDescription(sourceVDN.getDescription());
                 targetProduct.getVectorDataGroup().add(targetVDN);
             }
@@ -1331,10 +1331,10 @@ public class ProductUtils {
                 String name = sourceVDN.getName();
                 FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
                 featureCollection = FeatureCollectionClipper.doOperation(featureCollection, srcModelCrs,
-                        clipGeometry, DefaultGeographicCRS.WGS84,
-                        null, targetModelCrs);
+                                                                         clipGeometry, DefaultGeographicCRS.WGS84,
+                                                                         null, targetModelCrs);
                 VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
-                targetVDN.setDefaultCSS(sourceVDN.getDefaultCSS());
+                targetVDN.setDefaultStyleCss(sourceVDN.getDefaultStyleCss());
                 targetVDN.setDescription(sourceVDN.getDescription());
                 targetProduct.getVectorDataGroup().add(targetVDN);
             }
@@ -1407,7 +1407,7 @@ public class ProductUtils {
         image = getCompatibleBufferedImageForScatterPlot(image, width, height, background);
         final byte[] pixelValues = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         ScatterPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roiMask, width,
-                height, pixelValues, pm);
+                               height, pixelValues, pm);
         return image;
     }
 
@@ -1440,9 +1440,9 @@ public class ProductUtils {
                 a[i] = (byte) 255;
             }
             image = new BufferedImage(width,
-                    height,
-                    BufferedImage.TYPE_BYTE_INDEXED,
-                    new IndexColorModel(8, palSize, r, g, b, a));
+                                      height,
+                                      BufferedImage.TYPE_BYTE_INDEXED,
+                                      new IndexColorModel(8, palSize, r, g, b, a));
         }
         return image;
     }
@@ -1486,7 +1486,7 @@ public class ProductUtils {
         final GeoCoding geoCoding = product.getGeoCoding();
         if (geoCoding != null) {
             final PixelPos centerPixelPos = new PixelPos(0.5f * product.getSceneRasterWidth() + 0.5f,
-                    0.5f * product.getSceneRasterHeight() + 0.5f);
+                                                         0.5f * product.getSceneRasterHeight() + 0.5f);
             return geoCoding.getGeoPos(centerPixelPos, null);
         }
         return null;
@@ -1554,6 +1554,7 @@ public class ProductUtils {
         return normalized;
     }
 
+    @Deprecated
     public static int normalizeGeoPolygon_old(GeoPos[] polygon) {
         boolean negNormalized = false;
         boolean posNormalized = false;
@@ -1612,6 +1613,7 @@ public class ProductUtils {
         geoPos.lon -= factor * 360.f;
     }
 
+    @Deprecated
     public static void denormalizeGeoPos_old(GeoPos geoPos) {
         if (geoPos.lon > 180.0f) {
             geoPos.lon -= 360.0f;
@@ -1814,7 +1816,7 @@ public class ProductUtils {
         final Dimension preferredTileSize = sourceProduct.getPreferredTileSize();
         if (preferredTileSize != null) {
             final Rectangle targetRect = new Rectangle(targetProduct.getSceneRasterWidth(),
-                    targetProduct.getSceneRasterHeight());
+                                                       targetProduct.getSceneRasterHeight());
             final Rectangle tileRect = new Rectangle(preferredTileSize).intersection(targetRect);
             targetProduct.setPreferredTileSize(tileRect.width, tileRect.height);
         }
@@ -2089,10 +2091,10 @@ public class ProductUtils {
                                                  final double defaultNoDataValue,
                                                  final Map<Band, RasterDataNode> addedRasterDataNodes) {
         copyBandsForGeomTransform(sourceProduct,
-                targetProduct,
-                false,
-                defaultNoDataValue,
-                addedRasterDataNodes);
+                                  targetProduct,
+                                  false,
+                                  defaultNoDataValue,
+                                  addedRasterDataNodes);
     }
 
     /**
@@ -2139,21 +2141,21 @@ public class ProductUtils {
                 final Band targetBand;
                 if (sourceBand instanceof VirtualBand) {
                     targetBand = new VirtualBand(sourceBand.getName(),
-                            sourceBand.getDataType(),
-                            targetProduct.getSceneRasterWidth(),
-                            targetProduct.getSceneRasterHeight(),
-                            ((VirtualBand) sourceBand).getExpression());
+                                                 sourceBand.getDataType(),
+                                                 targetProduct.getSceneRasterWidth(),
+                                                 targetProduct.getSceneRasterHeight(),
+                                                 ((VirtualBand) sourceBand).getExpression());
                 } else if (sourceBand.isScalingApplied()) {
                     targetBand = new Band(sourceBand.getName(),
-                            ProductData.TYPE_FLOAT32,
-                            targetProduct.getSceneRasterWidth(),
-                            targetProduct.getSceneRasterHeight());
+                                          ProductData.TYPE_FLOAT32,
+                                          targetProduct.getSceneRasterWidth(),
+                                          targetProduct.getSceneRasterHeight());
                     targetBand.setLog10Scaled(sourceBand.isLog10Scaled());
                 } else {
                     targetBand = new Band(sourceBand.getName(),
-                            sourceBand.getDataType(),
-                            targetProduct.getSceneRasterWidth(),
-                            targetProduct.getSceneRasterHeight());
+                                          sourceBand.getDataType(),
+                                          targetProduct.getSceneRasterWidth(),
+                                          targetProduct.getSceneRasterHeight());
                 }
                 targetBand.setUnit(sourceBand.getUnit());
                 if (sourceBand.getDescription() != null) {
@@ -2202,9 +2204,9 @@ public class ProductUtils {
             for (final TiePointGrid sourceGrid : sourceProduct.getTiePointGrids()) {
                 if (sourceGrid.getGeoCoding() != null) {
                     Band targetBand = new Band(sourceGrid.getName(),
-                            sourceGrid.getGeophysicalDataType(),
-                            targetProduct.getSceneRasterWidth(),
-                            targetProduct.getSceneRasterHeight());
+                                               sourceGrid.getGeophysicalDataType(),
+                                               targetProduct.getSceneRasterWidth(),
+                                               targetProduct.getSceneRasterHeight());
                     targetBand.setUnit(sourceGrid.getUnit());
                     if (sourceGrid.getDescription() != null) {
                         targetBand.setDescription(sourceGrid.getDescription());
