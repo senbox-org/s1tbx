@@ -17,9 +17,9 @@
 package org.esa.beam.csv.dataio.reader;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.csv.dataio.CsvProductFile;
-import org.esa.beam.csv.dataio.CsvProductSource;
-import org.esa.beam.csv.dataio.CsvProductSourceParser;
+import org.esa.beam.util.io.CsvFile;
+import org.esa.beam.util.io.CsvSource;
+import org.esa.beam.util.io.CsvSourceParser;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
@@ -41,8 +41,8 @@ import java.util.logging.Level;
  */
 public class CsvProductReader extends AbstractProductReader {
 
-    private CsvProductSource source;
-    private CsvProductSourceParser parser;
+    private CsvSource source;
+    private CsvSourceParser parser;
     private int offset = -1;
 
     /**
@@ -66,9 +66,9 @@ public class CsvProductReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         try {
-            parser = new CsvProductFile(getInput().toString());
-            source = parser.parse();
-        } catch (CsvProductSourceParser.ParseException e) {
+            parser = CsvFile.createCsvSourceParser(getInput().toString());
+            source = parser.parseMetadata();
+        } catch (CsvSourceParser.ParseException e) {
             throw new IOException(e);
         }
         final int sceneRasterWidth = source.getRecordCount();
@@ -100,7 +100,7 @@ public class CsvProductReader extends AbstractProductReader {
                 synchronized (parser) {
                     parser.parseRecords(sourceOffsetX, destWidth);
                 }
-            } catch (CsvProductSourceParser.ParseException e) {
+            } catch (CsvSourceParser.ParseException e) {
                 throw new IOException(e);
             }
         }

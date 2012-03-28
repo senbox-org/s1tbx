@@ -1769,6 +1769,14 @@
             <class>org.esa.beam.visat.actions.ImportTrackAction</class>
             <text>Import Track File (Experimental)...</text>
             <parent>import</parent>
+            <placeBefore>importPoints</placeBefore>
+        </action>
+
+        <action>
+            <id>importPoints</id>
+            <class>org.esa.beam.visat.actions.ImportPointAction</class>
+            <text>Import points from a CSV file... (experimental)</text>
+            <parent>import</parent>
             <placeBefore>importGeometry</placeBefore>
         </action>
 

@@ -16,9 +16,9 @@
 
 package org.esa.beam.csv.dataio.reader;
 
-import org.esa.beam.csv.dataio.Constants;
-import org.esa.beam.csv.dataio.CsvProductFile;
-import org.esa.beam.csv.dataio.CsvProductSourceParser;
+import org.esa.beam.util.io.Constants;
+import org.esa.beam.util.io.CsvFile;
+import org.esa.beam.util.io.CsvSourceParser;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -44,13 +44,13 @@ public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
 
-        final CsvProductSourceParser csvProductFile = new CsvProductFile(input.toString());
+        final CsvSourceParser csvFile = CsvFile.createCsvSourceParser(input.toString());
         try {
-            csvProductFile.parse();
-        } catch (CsvProductSourceParser.ParseException e) {
+            csvFile.parseMetadata();
+        } catch (CsvSourceParser.ParseException e) {
             return DecodeQualification.UNABLE;
         } finally {
-            csvProductFile.close();
+            csvFile.close();
         }
 
         return DecodeQualification.SUITABLE;

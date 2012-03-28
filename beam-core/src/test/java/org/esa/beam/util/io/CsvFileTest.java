@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.csv.dataio;
+package org.esa.beam.util.io;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -34,16 +34,16 @@ import static org.junit.Assert.*;
  * @author Olaf Danne
  * @author Thomas Storm
  */
-public class CsvProductFileTest {
+public class CsvFileTest {
 
     @Test
     public void testParseProperties() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
-        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
-        parser.parse();
+        final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
+        parser.parseMetadata();
 
-        final CsvProductSource productSource = parser.parse();
-        final Map<String,String> properties = productSource.getProperties();
+        final CsvSource source = parser.parseMetadata();
+        final Map<String,String> properties = source.getProperties();
         assertNotNull(properties);
         assertEquals(4, properties.size());
         assertEquals("POLYGON(0.0, 1.0, 1.1)", properties.get("geometry1"));
@@ -51,22 +51,22 @@ public class CsvProductFileTest {
         assertEquals(",", properties.get("separator"));
     }
 
-    @Test(expected = CsvProductSourceParser.ParseException.class)
+    @Test(expected = CsvSourceParser.ParseException.class)
     public void testParseProperties_Fail() throws Exception {
-        final CsvProductSourceParser parser = new CsvProductFile("invalid_path");
-        parser.parse();
+        final CsvSourceParser parser = CsvFile.createCsvSourceParser("invalid_path");
+        parser.parseMetadata();
     }
 
     @Test
     public void testParseRecords() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
-        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
-        final CsvProductSource csvProductSource = parser.parse();
+        final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
+        final CsvSource csvSource = parser.parseMetadata();
         parser.parseRecords(0, 3);
 
-        SimpleFeature[] features = csvProductSource.getSimpleFeatures();
+        SimpleFeature[] features = csvSource.getSimpleFeatures();
 
-        assertEquals(4, csvProductSource.getRecordCount());
+        assertEquals(4, csvSource.getRecordCount());
         assertEquals(3, features.length);
 
         SimpleFeature feature = features[0];
@@ -130,13 +130,13 @@ public class CsvProductFileTest {
     @Test
     public void testParseRecords_NoFeatureId() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_no_feature_id.txt").getFile();
-        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
-        final CsvProductSource csvProductSource = parser.parse();
+        final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
+        final CsvSource csvSource = parser.parseMetadata();
         parser.parseRecords(0, 3);
 
-        SimpleFeature[] features = csvProductSource.getSimpleFeatures();
+        SimpleFeature[] features = csvSource.getSimpleFeatures();
 
-        assertEquals(3, csvProductSource.getRecordCount());
+        assertEquals(3, csvSource.getRecordCount());
         assertEquals(3, features.length);
 
         SimpleFeature feature = features[0];
@@ -201,13 +201,13 @@ public class CsvProductFileTest {
     @Test
     public void testParseRecords_NotAllRecords() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
-        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
-        final CsvProductSource csvProductSource = parser.parse();
+        final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
+        final CsvSource csvSource = parser.parseMetadata();
         parser.parseRecords(1, 2);
 
-        SimpleFeature[] features = csvProductSource.getSimpleFeatures();
+        SimpleFeature[] features = csvSource.getSimpleFeatures();
 
-        assertEquals(4, csvProductSource.getRecordCount());
+        assertEquals(4, csvSource.getRecordCount());
         assertEquals(2, features.length);
 
         SimpleFeature feature = features[0];
@@ -251,13 +251,13 @@ public class CsvProductFileTest {
     @Test
     public void testParseRecords_LessRecordsThanExpected() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
-        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
-        final CsvProductSource csvProductSource = parser.parse();
+        final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
+        final CsvSource csvSource = parser.parseMetadata();
         parser.parseRecords(0, 10);
 
-        SimpleFeature[] features = csvProductSource.getSimpleFeatures();
+        SimpleFeature[] features = csvSource.getSimpleFeatures();
 
-        assertEquals(4, csvProductSource.getRecordCount());
+        assertEquals(4, csvSource.getRecordCount());
         assertEquals(4, features.length);
     }
 
@@ -275,11 +275,11 @@ public class CsvProductFileTest {
     @Test
     public void testParseHeader() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
-        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
-        parser.parse();
+        final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
+        parser.parseMetadata();
 
-        final CsvProductSource csvProductSource = parser.parse();
-        final FeatureType featureType = csvProductSource.getFeatureType();
+        final CsvSource csvSource = parser.parseMetadata();
+        final FeatureType featureType = csvSource.getFeatureType();
 
         assertNotNull(featureType);
 
@@ -306,11 +306,11 @@ public class CsvProductFileTest {
     @Test
     public void testParseHeader_NoFeatureId() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_no_feature_id.txt").getFile();
-        final CsvProductSourceParser parser = new CsvProductFile(simpleFormatExample);
-        parser.parse();
+        final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
+        parser.parseMetadata();
 
-        final CsvProductSource csvProductSource = parser.parse();
-        final FeatureType featureType = csvProductSource.getFeatureType();
+        final CsvSource csvSource = parser.parseMetadata();
+        final FeatureType featureType = csvSource.getFeatureType();
 
         assertNotNull(featureType);
 

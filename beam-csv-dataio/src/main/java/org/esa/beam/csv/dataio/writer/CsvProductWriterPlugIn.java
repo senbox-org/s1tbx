@@ -16,7 +16,7 @@
 
 package org.esa.beam.csv.dataio.writer;
 
-import org.esa.beam.csv.dataio.Constants;
+import org.esa.beam.util.io.Constants;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;

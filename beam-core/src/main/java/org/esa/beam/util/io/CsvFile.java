@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.csv.dataio;
+package org.esa.beam.util.io;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
@@ -48,13 +48,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A CsvProductFile is a view on a csv file allowing a) to parse it using the {@link CsvProductSourceParser} interface
- * and b) to receive its values using the {@link CsvProductSource} interface.
+ * A CsvFile is a view on a csv file allowing a) to parse it using the {@link CsvSourceParser} interface
+ * and b) to receive its values using the {@link CsvSource} interface.
  *
  * @author Olaf Danne
  * @author Thomas Storm
  */
-public class CsvProductFile implements CsvProductSourceParser, CsvProductSource {
+public class CsvFile implements CsvSourceParser, CsvSource {
 
     public static final String DEFAULT_HEADER_NAME = "Csv";
     private final Map<String, String> properties = new HashMap<String, String>();
@@ -66,17 +66,35 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
     private CoordinateReferenceSystem crs;
     private boolean hasFeatureId = false;
     private LineCountReader reader;
+    private boolean recordsParsed = false;
 
-    public CsvProductFile(String csv) {
+    private CsvFile(String csv) {
         this(new File(csv));
     }
 
-    public CsvProductFile(File csv) {
+    private CsvFile(File csv) {
+        this(csv, null);
+    }
+
+    private CsvFile(File csv, CoordinateReferenceSystem crs) {
         this.csv = csv;
         ConverterRegistry.getInstance().setConverter(ProductData.UTC.class, new UTCConverter());
         reader = null;
+        this.crs = crs;
     }
 
+    public static CsvSourceParser createCsvSourceParser(String csv) {
+        return new CsvFile(csv);
+    }
+
+    public static CsvSourceParser createCsvSourceParser(File csv) {
+        return new CsvFile(csv);
+    }
+
+    public static CsvSourceParser createCsvSourceParser(File csv, CoordinateReferenceSystem crs) {
+        return new CsvFile(csv, crs);
+    }
+    
     @Override
     public void parseRecords(int offset, int numRecords) throws ParseException {
         Converter<?>[] converters;
@@ -101,7 +119,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
             skipToOffset(offset, reader);
             String line;
             int featureCount = offset;
-            while (featureCount < offset + numRecords && (line = reader.readRecordLine()) != null) {
+            while ((numRecords == -1 || featureCount < offset + numRecords) && (line = reader.readRecordLine()) != null) {
                 String[] tokens = getTokens(line);
                 if (tokens == null) {
                     break;
@@ -138,10 +156,11 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         } catch (Exception e) {
             throw new ParseException(e);
         }
+        recordsParsed = true;
     }
 
     @Override
-    public CsvProductSource parse() throws ParseException {
+    public CsvSource parseMetadata() throws ParseException {
         parseProperties();
         parseHeader();
         return this;
@@ -185,6 +204,9 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
 
     @Override
     public SimpleFeature[] getSimpleFeatures() {
+        if(!recordsParsed) {
+            throw new IllegalStateException("The records have not been parsed yet.");
+        }
         final Object[] objects = featureCollection.toArray(new Object[featureCollection.size()]);
         final SimpleFeature[] simpleFeatures = new SimpleFeature[objects.length];
         for (int i = 0; i < simpleFeatures.length; i++) {
@@ -205,11 +227,11 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
     }
 
     private void parseProperties() throws ParseException {
-        BufferedReader reader = null;
+        BufferedReader bufferedReader = null;
         try {
-            reader = new BufferedReader(new FileReader(csv));
+            bufferedReader = new BufferedReader(new FileReader(csv));
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = bufferedReader.readLine()) != null) {
                 if (!line.startsWith("#")) {
                     break;
                 }
@@ -223,7 +245,7 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
                     throw new ParseException("Empty property name in '" + line + "'");
                 }
                 String value = line.substring(pos + 1).trim();
-                if (contains(Constants.CRS_IDENTIFIERS, name)) {
+                if (contains(Constants.CRS_IDENTIFIERS, name) && crs != null) {
                     crs = CRS.parseWKT(value);
                 }
                 properties.put(name, value);
@@ -234,9 +256,9 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
             throw new ParseException(e);
         } finally {
             propertiesParsed = true;
-            if (reader != null) {
+            if (bufferedReader != null) {
                 try {
-                    reader.close();
+                    bufferedReader.close();
                 } catch (IOException ignored) {
                 }
             }
@@ -299,11 +321,11 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
             throw new IllegalStateException("Properties need to be parsed before header.");
         }
 
-        BufferedReader reader = null;
+        BufferedReader bufferedReader = null;
         try {
             String line;
-            reader = new BufferedReader(new FileReader(csv));
-            while ((line = reader.readLine()) != null) {
+            bufferedReader = new BufferedReader(new FileReader(csv));
+            while ((line = bufferedReader.readLine()) != null) {
                 if (line.startsWith("#")) {
                     continue;
                 }
@@ -314,9 +336,9 @@ public class CsvProductFile implements CsvProductSourceParser, CsvProductSource 
         } catch (IOException e) {
             throw new ParseException(e);
         } finally {
-            if (reader != null) {
+            if (bufferedReader != null) {
                 try {
-                    reader.close();
+                    bufferedReader.close();
                 } catch (IOException ignore) {
                 }
             }

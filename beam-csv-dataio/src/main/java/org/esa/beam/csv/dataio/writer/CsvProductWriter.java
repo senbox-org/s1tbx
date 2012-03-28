@@ -17,7 +17,7 @@
 package org.esa.beam.csv.dataio.writer;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.csv.dataio.Constants;
+import org.esa.beam.util.io.Constants;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.Band;
