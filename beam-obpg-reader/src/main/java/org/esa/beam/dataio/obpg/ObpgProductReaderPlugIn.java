@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -63,7 +63,8 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
             if (file == null || !file.isFile()) {
                 return DecodeQualification.UNABLE;
             }
-            if (!StringUtils.contains(getDefaultFileExtensions(), FileUtils.getExtension(file))) {
+            String fileExtension = FileUtils.getExtension(file);
+            if (fileExtension == null || !StringUtils.contains(getDefaultFileExtensions(), fileExtension)) {
                 return DecodeQualification.UNABLE;
             }
             if (NetcdfFile.canOpen(file.getPath())) {

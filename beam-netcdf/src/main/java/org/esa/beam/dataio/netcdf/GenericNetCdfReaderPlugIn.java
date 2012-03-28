@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,13 +26,7 @@ import org.esa.beam.util.io.FileUtils;
 import ucar.nc2.NetcdfFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -65,7 +59,8 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
         try {
             final String inputPath = input.toString();
             final List<String> extensionList = Arrays.asList(getDefaultFileExtensions());
-            if (extensionList.contains(FileUtils.getExtension(inputPath))) {
+            String fileExtension = FileUtils.getExtension(inputPath);
+            if (fileExtension != null && extensionList.contains(fileExtension)) {
                 netcdfFile = NetcdfFile.open(inputPath);
             }
             if (netcdfFile == null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,6 +18,7 @@ package org.esa.beam.dataio.rgb;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 
@@ -50,10 +51,8 @@ public class ImageProductReaderPlugIn implements ProductReaderPlugIn {
     public DecodeQualification getDecodeQualification(Object object) {
         File file = getFile(object);
         String fileExt = FileUtils.getExtension(file);
-        for (String ext : getDefaultFileExtensions()) {
-            if (fileExt.equalsIgnoreCase(ext)) {
-                return DecodeQualification.SUITABLE;
-            }
+        if (fileExt != null && StringUtils.contains(getDefaultFileExtensions(), fileExt.toLowerCase())) {
+            return DecodeQualification.SUITABLE;
         }
         return DecodeQualification.UNABLE;
     }

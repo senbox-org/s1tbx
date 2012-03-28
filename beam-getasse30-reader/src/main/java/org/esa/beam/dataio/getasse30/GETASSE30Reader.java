@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -74,7 +74,7 @@ public class GETASSE30Reader extends AbstractProductReader {
         final String fileName;
         try {
             final String ext = FileUtils.getExtension(dataFile);
-            if (ext.equalsIgnoreCase(".zip")) {
+            if (".zip".equalsIgnoreCase(ext)) {
                 final String entryName = FileUtils.getFilenameWithoutExtension(dataFile.getName());
                 _zipFile = new ZipFile(dataFile);
                 final ZipEntry entry = getZipEntryIgnoreCase(entryName);

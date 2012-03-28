@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -628,7 +628,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 }
                 setIODir(file.getAbsoluteFile().getParentFile());
                 BeamFileFilter beamFileFilter = fileChooser.getBeamFileFilter();
-                if (!StringUtils.contains(beamFileFilter.getExtensions(), FileUtils.getExtension(file))) {
+                String fileExtension = FileUtils.getExtension(file);
+                if (fileExtension == null || !StringUtils.contains(beamFileFilter.getExtensions(), fileExtension)) {
                     file = FileUtils.ensureExtension(file, beamFileFilter.getDefaultExtension());
                 }
                 try {

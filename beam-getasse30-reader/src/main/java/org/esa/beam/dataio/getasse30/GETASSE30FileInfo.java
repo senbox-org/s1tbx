@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -107,7 +107,7 @@ public class GETASSE30FileInfo {
 
     private void setFromData(final File dataFile) throws IOException {
         final String ext = FileUtils.getExtension(dataFile.getName());
-        if (ext.equalsIgnoreCase(".zip")) {
+        if (".zip".equalsIgnoreCase(ext)) {
             final String baseName = FileUtils.getFilenameWithoutExtension(dataFile.getName());
             final ZipFile zipFile = new ZipFile(dataFile);
             try {

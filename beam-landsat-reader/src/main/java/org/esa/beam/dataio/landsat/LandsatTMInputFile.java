@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,12 +21,7 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.imageio.ImageIO;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -449,7 +444,7 @@ final class LandsatTMInputFile {
     }
 
     private static boolean isFASTFormat(final String FileName) {
-        return FileUtils.getExtension(FileName).equalsIgnoreCase(
-                LandsatConstants.LANDSAT_EXTENSIONS[LandsatConstants.FAST_L5]);
+        String fileExtension = FileUtils.getExtension(FileName);
+        return LandsatConstants.LANDSAT_EXTENSIONS[LandsatConstants.FAST_L5].equalsIgnoreCase(fileExtension);
     }
 }
