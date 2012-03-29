@@ -15,17 +15,11 @@
  */
 package org.esa.beam.framework.ui;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.LayoutManager;
-import java.util.StringTokenizer;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import org.esa.beam.util.Guardian;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.StringTokenizer;
 
 /**
  * A utility class providing helper methods for <code>JPanel</code>s with a <code>GridBagLayout</code> layout manager.
@@ -117,7 +111,6 @@ public class GridBagUtils {
      *              <code>null</code>
      * @param code  the code containing the constraints, can be <code>null</code> if <code>gbc</code> is not
      *              <code>null</code>
-     *
      * @see #setAttributes(GridBagConstraints, String)
      */
     public static void addToPanel(JPanel panel, Component comp, GridBagConstraints gbc, String code) {
@@ -271,6 +264,8 @@ public class GridBagUtils {
                     gbc.insets.right = Integer.parseInt(value);
                 } else if (key.equals("insets.top")) {
                     gbc.insets.top = Integer.parseInt(value);
+                } else if (key.equals("insets")) {
+                    gbc.insets.top = gbc.insets.left = gbc.insets.right = gbc.insets.bottom = Integer.parseInt(value);
                 } else if (key.equals("ipadx")) {
                     gbc.ipadx = Integer.parseInt(value);
                 } else if (key.equals("ipady")) {
