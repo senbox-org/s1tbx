@@ -194,7 +194,7 @@ class ProfilePlotPanel extends PagePanel {
         dataset = new XYSeriesCollection();
         chart = ChartFactory.createXYLineChart(
                 CHART_TITLE,
-                "Way (pixel)",
+                "Path (pixel)",
                 "Sample value",
                 dataset,
                 PlotOrientation.VERTICAL,
