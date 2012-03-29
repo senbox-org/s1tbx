@@ -59,12 +59,15 @@ import java.util.Set;
  */
 public class ImageManager {
 
+    /**
+     * The default BEAM image coordinate reference system.
+     */
+    public static final ImageCRS DEFAULT_IMAGE_CRS = new DefaultImageCRS("BEAM",
+                                                                         new DefaultImageDatum("BEAM", PixelInCell.CELL_CORNER),
+                                                                         DefaultCartesianCS.DISPLAY);
+
     private static final boolean CACHE_INTERMEDIATE_TILES = Boolean.getBoolean(
             "beam.imageManager.enableIntermediateTileCaching");
-
-    private static final ImageCRS DEFAULT_IMAGE_CRS = new DefaultImageCRS("BEAM",
-                                                                          new DefaultImageDatum("BEAM", PixelInCell.CELL_CORNER),
-                                                                          DefaultCartesianCS.DISPLAY);
 
     private final Map<MaskKey, MultiLevelImage> maskImageMap = new HashMap<MaskKey, MultiLevelImage>(101);
     private final ProductNodeListener rasterDataChangeListener;
