@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.stat;
 import org.junit.Test;
 
 import javax.swing.*;
+import java.awt.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -33,9 +34,14 @@ public class AxisRangeControlTest {
 
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, IllegalAccessException, InstantiationException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+        final JPanel axesPanel = new JPanel(new GridLayout(-1, 1));
+        axesPanel.add(new AxisRangeControl("X-Axis").getPanel());
+        axesPanel.add(new AxisRangeControl("Y-Axis").getPanel());
+
         final JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.add(new AxisRangeControl("X-Axis").getPanel());
+        frame.add(axesPanel);
         frame.pack();
         frame.setVisible(true);
     }
