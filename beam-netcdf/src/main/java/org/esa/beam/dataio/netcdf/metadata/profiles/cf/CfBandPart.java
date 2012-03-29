@@ -54,7 +54,7 @@ public class CfBandPart extends ProfilePartIO {
             final String bandBasename = variable.getName();
 
             if (rank == 2) {
-                addBand(ctx, p, variable, bandBasename);
+                addBand(ctx, p, variable, new int[]{}, bandBasename);
             } else {
                 final int[] sizeArray = new int[rank - 2];
                 System.arraycopy(variable.getShape(), 0, sizeArray, 0, sizeArray.length);
@@ -75,7 +75,7 @@ public class CfBandPart extends ProfilePartIO {
                             }
 
                         }
-                        addBand(ctx, p, variable, bandNameBuilder.toString());
+                        addBand(ctx, p, variable, indexes, bandNameBuilder.toString());
                     }
                 });
             }
@@ -83,7 +83,7 @@ public class CfBandPart extends ProfilePartIO {
         p.setAutoGrouping(getAutoGrouping(ctx));
     }
 
-    private static void addBand(ProfileReadContext ctx, Product p, Variable variable, String bandBasename) {
+    private static void addBand(ProfileReadContext ctx, Product p, Variable variable, int[] origin, String bandBasename) {
         final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
         if (variable.getDataType() == DataType.LONG) {
             final Band lowerBand = p.addBand(bandBasename + "_lsb", rasterDataType);
@@ -91,7 +91,7 @@ public class CfBandPart extends ProfilePartIO {
             if (lowerBand.getDescription() != null) {
                 lowerBand.setDescription(lowerBand.getDescription() + "(least significant bytes)");
             }
-            lowerBand.setSourceImage(new NetcdfMultiLevelImage(lowerBand, variable, ctx));
+            lowerBand.setSourceImage(new NetcdfMultiLevelImage(lowerBand, variable, origin, ctx));
             addFlagCodingIfApplicable(p, lowerBand, variable, variable.getName() + "_lsb", false);
 
             final Band upperBand = p.addBand(bandBasename + "_msb", rasterDataType);
@@ -99,12 +99,12 @@ public class CfBandPart extends ProfilePartIO {
             if (upperBand.getDescription() != null) {
                 upperBand.setDescription(upperBand.getDescription() + "(most significant bytes)");
             }
-            upperBand.setSourceImage(new NetcdfMultiLevelImage(upperBand, variable, ctx));
+            upperBand.setSourceImage(new NetcdfMultiLevelImage(upperBand, variable, origin, ctx));
             addFlagCodingIfApplicable(p, upperBand, variable, variable.getName() + "_msb", true);
         } else {
             final Band band = p.addBand(bandBasename, rasterDataType);
             readCfBandAttributes(variable, band);
-            band.setSourceImage(new NetcdfMultiLevelImage(band, variable, ctx));
+            band.setSourceImage(new NetcdfMultiLevelImage(band, variable, origin, ctx));
             addFlagCodingIfApplicable(p, band, variable, variable.getName(), false);
         }
     }
