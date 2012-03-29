@@ -1366,7 +1366,7 @@ public class ProductUtils {
     }
 
     /**
-     * Creates a scatter plot image from two raster data nodes.
+     * Creates a density plot image from two raster data nodes.
      *
      * @param raster1    the first raster data node
      * @param sampleMin1 the minimum sample value to be considered in the first raster
@@ -1380,10 +1380,10 @@ public class ProductUtils {
      * @param background the background color of the output image
      * @param image      an image to be used as output image, if <code>null</code> a new image is created
      * @param pm         the progress monitor
-     * @return the scatter plot image
+     * @return the density plot image
      * @throws java.io.IOException when an error occurred.
      */
-    public static BufferedImage createScatterPlotImage(final RasterDataNode raster1,
+    public static BufferedImage createDensityPlotImage(final RasterDataNode raster1,
                                                        final float sampleMin1,
                                                        final float sampleMax1,
                                                        final RasterDataNode raster2,
@@ -1404,14 +1404,14 @@ public class ProductUtils {
             throw new IllegalArgumentException("'raster1' has not the same size as 'raster2'");
         }
 
-        image = getCompatibleBufferedImageForScatterPlot(image, width, height, background);
+        image = getCompatibleBufferedImageForDensityPlot(image, width, height, background);
         final byte[] pixelValues = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-        ScatterPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roiMask, width,
-                               height, pixelValues, pm);
+        DensityPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roiMask, width,
+                height, pixelValues, pm);
         return image;
     }
 
-    private static BufferedImage getCompatibleBufferedImageForScatterPlot(BufferedImage image, int width, int height,
+    private static BufferedImage getCompatibleBufferedImageForDensityPlot(BufferedImage image, int width, int height,
                                                                           Color background) {
         if (image == null
                 || image.getWidth() != width

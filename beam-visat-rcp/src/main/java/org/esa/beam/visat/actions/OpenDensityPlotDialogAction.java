@@ -22,11 +22,11 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.stat.StatisticDialogHelper;
 import org.esa.beam.visat.toolviews.stat.StatisticsToolView;
 
-public class OpenScatterPlotDialogAction extends ExecCommand {
+public class OpenDensityPlotDialogAction extends ExecCommand {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        StatisticDialogHelper.openStatisticsDialog(StatisticsToolView.SCATTERPLOT_TAB_INDEX);
+        StatisticDialogHelper.openStatisticsDialog(StatisticsToolView.DENSITYPLOT_TAB_INDEX);
     }
 
     @Override

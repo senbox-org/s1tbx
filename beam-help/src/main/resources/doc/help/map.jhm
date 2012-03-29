@@ -81,6 +81,7 @@
     <mapID target="geoCodingInfoDialog" url="visat/GeoCodingInfo.html"/>
     <mapID target="statisticsDialog" url="visat/StatisticsDialog.html"/>
     <mapID target="histogramDialog" url="visat/HistogramDialog.html"/>
+    <mapID target="densityplotDialog" url="visat/DensityplotDialog.html"/>
     <mapID target="scatterplotDialog" url="visat/ScatterplotDialog.html"/>
     <mapID target="profilePlotDialog" url="visat/ProfilePlotDialog.html"/>
     <mapID target="coordinateListDialog" url="visat/CoordinateListDialog.html"/>

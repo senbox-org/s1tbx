@@ -33,16 +33,16 @@ import java.awt.image.SampleModel;
 import java.util.concurrent.CancellationException;
 
 /**
- * Creates an Scatterplot from two given bands.
+ * Creates an Densityplot from two given bands.
  *
  * @author Marco Zuehlke
  * @version $Revision$ $Date$
  * @since BEAM 4.5
  */
-public class ScatterPlot {
+public class DensityPlot {
 
     /**
-     * Creates a scatter plot image from two raster data nodes.
+     * Creates a density plot image from two raster data nodes.
      *
      * @param raster1     the first raster data node
      * @param sampleMin1  the minimum sample value to be considered in the first raster
@@ -64,7 +64,7 @@ public class ScatterPlot {
         Assert.notNull(raster2, "raster2");
         Assert.notNull(pm, "pm");
 
-        ScatterPlotOp scatterPlotOp = new ScatterPlotOp(raster1.scaleInverse(sampleMin1),
+        DensityPlotOp densityPlotOp = new DensityPlotOp(raster1.scaleInverse(sampleMin1),
                                                         raster1.scaleInverse(sampleMax1),
                                                         raster2.scaleInverse(sampleMin2),
                                                         raster2.scaleInverse(sampleMax2),
@@ -75,10 +75,10 @@ public class ScatterPlot {
             maskShape = roiMask.getValidShape();
             maskImage = roiMask.getSourceImage();
         }
-        scatterPlotOp.accumulate(raster1, raster2, maskImage, maskShape, pixelValues, pm);
+        densityPlotOp.accumulate(raster1, raster2, maskImage, maskShape, pixelValues, pm);
     }
 
-    private static class ScatterPlotOp {
+    private static class DensityPlotOp {
         private final double sampleMin1;
         private final double sampleMax1;
         private final double sampleMin2;
@@ -88,7 +88,7 @@ public class ScatterPlot {
         private final double xScale;
         private final double yScale;
 
-        public ScatterPlotOp(double sampleMin1, double sampleMax1, double sampleMin2, double sampleMax2, int width,
+        public DensityPlotOp(double sampleMin1, double sampleMax1, double sampleMin2, double sampleMax2, int width,
                              int height) {
             this.sampleMin1 = sampleMin1;
             this.sampleMax1 = sampleMax1;
@@ -199,7 +199,7 @@ public class ScatterPlot {
             Rectangle imageRect = new Rectangle(dataImage1.getMinX(), dataImage1.getMinY(),
                                                 dataImage1.getWidth(), dataImage1.getHeight());
             try {
-                pm.beginTask("Computing scatterplot", numXTiles * numYTiles);
+                pm.beginTask("Computing densityplot", numXTiles * numYTiles);
                 for (int tileY = tileY1; tileY <= tileY2; tileY++) {
                     for (int tileX = tileX1; tileX <= tileX2; tileX++) {
                         if (pm.isCanceled()) {

@@ -253,9 +253,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     }
 
     protected static JPanel createChartButtonPanel(final ChartPanel chartPanel) {
-        final TableLayout tableLayout = new TableLayout(2);
-        JPanel buttonPane = new JPanel(tableLayout);
-        buttonPane.setBorder(BorderFactory.createTitledBorder("Plot"));
+
         final AbstractButton zoomAllButton = ToolButtonFactory.createButton(
                 UIUtils.loadImageIcon("icons/ZoomAll24.gif"),
                 false);
@@ -298,6 +296,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
                 }
             }
         });
+
         final AbstractButton printButton = ToolButtonFactory.createButton(
                 UIUtils.loadImageIcon("icons/Print24.gif"),
                 false);
@@ -309,6 +308,11 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
                 chartPanel.createChartPrintJob();
             }
         });
+
+
+        final TableLayout tableLayout = new TableLayout(2);
+        JPanel buttonPane = new JPanel(tableLayout);
+        buttonPane.setBorder(BorderFactory.createTitledBorder("Plot"));
 
         buttonPane.add(zoomAllButton);
         buttonPane.add(propertiesButton);

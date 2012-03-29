@@ -1237,7 +1237,7 @@
         <action>
             <parent>data</parent>
             <id>openScatterPlotDialog</id>
-            <class>org.esa.beam.visat.actions.OpenScatterPlotDialogAction</class>
+            <class>org.esa.beam.visat.actions.OpenDensityPlotDialogAction</class>
             <placeAfter>openHistogramDialog</placeAfter>
             <text>Scatter Plot...</text>
             <mnemonic>L</mnemonic>

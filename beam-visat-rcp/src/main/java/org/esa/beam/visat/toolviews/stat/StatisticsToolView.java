@@ -59,15 +59,17 @@ public class StatisticsToolView extends AbstractToolView {
     public static final int GEOCODING_TAB_INDEX = 1;
     public static final int STATISTICS_TAB_INDEX = 2;
     public static final int HISTOGRAM_TAB_INDEX = 3;
-    public static final int SCATTERPLOT_TAB_INDEX = 4;
-    public static final int PROFILEPLOT_TAB_INDEX = 5;
-    public static final int COORDLIST_TAB_INDEX = 6;
+    public static final int DENSITYPLOT_TAB_INDEX = 4;
+    public static final int SCATTERPLOT_TAB_INDEX = 5;
+    public static final int PROFILEPLOT_TAB_INDEX = 6;
+    public static final int COORDLIST_TAB_INDEX = 7;
 
     private static final String[] helpIDs = {
             "informationDialog",
             "geoCodingInfoDialog",
             "statisticsDialog",
             "histogramDialog",
+            "densityplotDialog",
             "scatterplotDialog",
             "profilePlotDialog",
             "coordinateListDialog"
@@ -110,17 +112,19 @@ public class StatisticsToolView extends AbstractToolView {
         final StatisticsPanel statisticsPanel = new StatisticsPanel(this, helpIDs[2]);
         final HistogramPanel histogramPanel = new HistogramPanel(this, helpIDs[3]);
         final DensityPlotPanel densityPlotPanel = new DensityPlotPanel(this, helpIDs[4]);
-        final ProfilePlotPanel profilePlotPanel = new ProfilePlotPanel(this, helpIDs[5]);
-        final CoordListPanel coordListPanel = new CoordListPanel(this, helpIDs[6]);
+        final ScatterPlotPanel scatterPlotPanel = new ScatterPlotPanel(this, helpIDs[5]);
+        final ProfilePlotPanel profilePlotPanel = new ProfilePlotPanel(this, helpIDs[6]);
+        final CoordListPanel coordListPanel = new CoordListPanel(this, helpIDs[7]);
         pagePanels = new PagePanel[]{
-                informationPanel, codingPanel, statisticsPanel,
-                histogramPanel, densityPlotPanel, profilePlotPanel, coordListPanel
+                informationPanel, codingPanel, statisticsPanel, histogramPanel,
+                densityPlotPanel, scatterPlotPanel, profilePlotPanel, coordListPanel
         };
         tabbedPane.add("Information", informationPanel); /*I18N*/
         tabbedPane.add("Geo-Coding", codingPanel);/*I18N*/
         tabbedPane.add("Statistics", statisticsPanel); /*I18N*/
         tabbedPane.add("Histogram", histogramPanel);  /*I18N*/
         tabbedPane.add("Density Plot", densityPlotPanel); /*I18N*/
+        tabbedPane.add("Scatter Plot", scatterPlotPanel); /*I18N*/
         tabbedPane.add("Profile Plot", profilePlotPanel);  /*I18N*/
         tabbedPane.add("Coordinate List", coordListPanel);  /*I18N*/
 
@@ -221,6 +225,7 @@ public class StatisticsToolView extends AbstractToolView {
         return tabIndex == INFORMATION_TAB_INDEX ||
                tabIndex == STATISTICS_TAB_INDEX ||
                tabIndex == HISTOGRAM_TAB_INDEX ||
+               tabIndex == DENSITYPLOT_TAB_INDEX ||
                tabIndex == SCATTERPLOT_TAB_INDEX ||
                tabIndex == PROFILEPLOT_TAB_INDEX ||
                tabIndex == COORDLIST_TAB_INDEX ||

@@ -1847,7 +1847,7 @@ public class VisatApp extends BasicApp implements AppContext {
                 "openGeoCodingInfoDialog",
                 "openStatisticsDialog",
                 "openHistogramDialog",
-                "openScatterPlotDialog",
+                "openDensityPlotDialog",
         });
         return toolBar;
     }
