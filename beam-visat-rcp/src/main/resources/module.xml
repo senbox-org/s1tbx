@@ -1774,7 +1774,7 @@
 
         <action>
             <id>importPoints</id>
-            <class>org.esa.beam.visat.actions.ImportPointAction</class>
+            <class>org.esa.beam.visat.actions.ImportPointDataAction</class>
             <text>Import points from a CSV file... (experimental)</text>
             <parent>import</parent>
             <placeBefore>importGeometry</placeBefore>

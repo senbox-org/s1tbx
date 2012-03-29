@@ -16,34 +16,27 @@
 
 package org.esa.beam.visat.actions;
 
-import org.esa.beam.util.io.CsvFile;
-import org.esa.beam.util.io.CsvSource;
-import org.esa.beam.util.io.CsvSourceParser;
-import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.dataio.geometry.VectorDataNodeReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.visat.VisatApp;
-import org.geotools.data.collection.ListFeatureCollection;
-import org.geotools.feature.FeatureCollection;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 
 /**
  * Experimental action that lets a user load CSV files that contain points given by a geo-point, and which contains
  * arbitrary EO data.
  *
- * @author Thomas Storm
+ * @author BEAM Team
  * @since BEAM 4.10
  */
-public class ImportPointAction extends ExecCommand {
+public class ImportPointDataAction extends ExecCommand {
 
     public static final String TITLE = "Open CSV File";
     public static final String PROPERTY_KEY_LAST_DIR = "importCsv.lastDir";
@@ -60,22 +53,17 @@ public class ImportPointAction extends ExecCommand {
 
         Product product = visatApp.getSelectedProduct();
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+        // todo - always expect WGS-84 and convert all geometry coordinates into Model CRS of product. (nf,se 2012-03-29)
+
+        final VectorDataNode vectorDataNode;
         try {
-            featureCollection = readPoints(file, product.getGeoCoding());
+            CoordinateReferenceSystem modelCrs = product.getGeoCoding() != null ? ImageManager.getModelCrs(product.getGeoCoding()) : ImageManager.DEFAULT_IMAGE_CRS;
+            vectorDataNode = VectorDataNodeReader.read(file, modelCrs);
         } catch (IOException e) {
             visatApp.showErrorDialog(TITLE, "Failed to load csv file:\n" + e.getMessage());
             return;
         }
 
-        if (featureCollection.isEmpty()) {
-            visatApp.showErrorDialog(TITLE, "No records found.");
-            return;
-        }
-
-        String name = FileUtils.getFilenameWithoutExtension(file);
-        VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);
-        vectorDataNode.setDefaultStyleCss("symbol: square; stroke:#ffaaff; stroke-opacity:1.0; stroke-width:0.0");
         product.getVectorDataGroup().add(vectorDataNode);
     }
 
@@ -85,22 +73,4 @@ public class ImportPointAction extends ExecCommand {
                            && VisatApp.getApp().getSelectedProduct().getGeoCoding() != null);
     }
 
-    private static FeatureCollection<SimpleFeatureType, SimpleFeature> readPoints(File file, GeoCoding geoCoding) throws IOException {
-        CsvSourceParser csvFile = null;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = null;
-        try{
-            csvFile = CsvFile.createCsvSourceParser(file, geoCoding.getImageCRS());
-            final CsvSource csvSource = csvFile.parseMetadata();
-            csvFile.parseRecords(0, -1);
-            featureCollection = new ListFeatureCollection(csvSource.getFeatureType());
-            featureCollection.addAll(Arrays.asList(csvSource.getSimpleFeatures()));
-        } catch (CsvSourceParser.ParseException e) {
-            throw new IOException(e);
-        } finally {
-            if (csvFile != null) {
-                csvFile.close();
-            }
-        }
-        return featureCollection;
-    }
 }
