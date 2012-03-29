@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,11 +22,7 @@ import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
@@ -36,7 +32,7 @@ import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.util.io.FileUtils;
 import org.geotools.referencing.CRS;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -65,7 +61,7 @@ public class BandMathsOpTest extends TestCase {
     public void testSimplestCase() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
-        bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_FLOAT32);
+        bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_FLOAT32, "bigUnits");
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
@@ -74,6 +70,7 @@ public class BandMathsOpTest extends TestCase {
         Band band = targetProduct.getBand("aBandName");
         assertNotNull(band);
         assertEquals("aDescription", band.getDescription());
+        assertEquals("bigUnits", band.getUnit());
         assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
 
         float[] floatValues = new float[16];
@@ -86,7 +83,7 @@ public class BandMathsOpTest extends TestCase {
     public void testGeoCodingIsCopied() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
-        bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_UINT8);
+        bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_UINT8, "simpleUnits");
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
         final GeoCoding geoCoding = new CrsGeoCoding(CRS.decode("EPSG:32632"), new Rectangle(4, 4),
@@ -121,7 +118,7 @@ public class BandMathsOpTest extends TestCase {
     public void testScaledInputBand() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
-        bandDescriptors[0] = createBandDescription("aBandName", "band3", ProductData.TYPESTRING_FLOAT32);
+        bandDescriptors[0] = createBandDescription("aBandName", "band3", ProductData.TYPESTRING_FLOAT32, "milliUnits");
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
@@ -130,6 +127,7 @@ public class BandMathsOpTest extends TestCase {
         Band band = targetProduct.getBand("aBandName");
         assertNotNull(band);
         assertEquals("aDescription", band.getDescription());
+        assertEquals("milliUnits", band.getUnit());
         assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
 
         float[] floatValues = new float[16];
@@ -143,7 +141,7 @@ public class BandMathsOpTest extends TestCase {
         Product sourceProduct = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
-        bandDescriptors[0] = createBandDescription("aBandName", "band1 + band2", ProductData.TYPESTRING_FLOAT32);
+        bandDescriptors[0] = createBandDescription("aBandName", "band1 + band2", ProductData.TYPESTRING_FLOAT32, "");
         parameters.put("targetBands", bandDescriptors);
 
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
@@ -160,13 +158,14 @@ public class BandMathsOpTest extends TestCase {
         Product sourceProduct = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[2];
-        bandDescriptors[0] = createBandDescription("b1", "band1 + band2 < 3.0", ProductData.TYPESTRING_INT8);
-        bandDescriptors[1] = createBandDescription("b2", "band1 + band2 + 2.5", ProductData.TYPESTRING_INT32);
+        bandDescriptors[0] = createBandDescription("b1", "band1 + band2 < 3.0", ProductData.TYPESTRING_INT8, "milliUnit");
+        bandDescriptors[1] = createBandDescription("b2", "band1 + band2 + 2.5", ProductData.TYPESTRING_INT32, "maxiUnit");
         parameters.put("targetBands", bandDescriptors);
 
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
         Band b1 = targetProduct.getBand("b1");
 
+        assertEquals("milliUnit", b1.getUnit());
         b1.readRasterDataFully(ProgressMonitor.NULL);
         assertTrue(b1.getRasterData().getElems() instanceof byte[]);
         byte[] actualBooleanValues = (byte[]) b1.getRasterData().getElems();
@@ -176,6 +175,7 @@ public class BandMathsOpTest extends TestCase {
 
         Band b2 = targetProduct.getBand("b2");
 
+        assertEquals("maxiUnit", b2.getUnit());
         b2.readRasterDataFully(ProgressMonitor.NULL);
         assertTrue(b2.getRasterData().getElems() instanceof int[]);
         int[] actualIntValues = (int[]) b2.getRasterData().getElems();
@@ -190,7 +190,7 @@ public class BandMathsOpTest extends TestCase {
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "$sourceProduct.1.band1 + $sourceProduct.2.band2",
-                                                   ProductData.TYPESTRING_FLOAT32);
+                                                   ProductData.TYPESTRING_FLOAT32, "milliUnit");
         parameters.put("targetBands", bandDescriptors);
 
         Product targetProduct = GPF.createProduct("BandMaths", parameters,
@@ -248,12 +248,13 @@ public class BandMathsOpTest extends TestCase {
         assertEquals(expectedXML, bibo.toXml().trim());
     }
 
-    private static BandMathsOp.BandDescriptor createBandDescription(String bandName, String expression, String type) {
+    private static BandMathsOp.BandDescriptor createBandDescription(String bandName, String expression, String type, String unit) {
         BandMathsOp.BandDescriptor bandDescriptor = new BandMathsOp.BandDescriptor();
         bandDescriptor.name = bandName;
         bandDescriptor.description = "aDescription";
         bandDescriptor.expression = expression;
         bandDescriptor.type = type;
+        bandDescriptor.unit = unit;
         return bandDescriptor;
     }
 

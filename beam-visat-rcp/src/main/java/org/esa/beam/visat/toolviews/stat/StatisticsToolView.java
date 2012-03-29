@@ -109,18 +109,18 @@ public class StatisticsToolView extends AbstractToolView {
         final GeoCodingPanel codingPanel = new GeoCodingPanel(this, helpIDs[1]);
         final StatisticsPanel statisticsPanel = new StatisticsPanel(this, helpIDs[2]);
         final HistogramPanel histogramPanel = new HistogramPanel(this, helpIDs[3]);
-        final ScatterPlotPanel scatterPlotPanel = new ScatterPlotPanel(this, helpIDs[4]);
+        final DensityPlotPanel densityPlotPanel = new DensityPlotPanel(this, helpIDs[4]);
         final ProfilePlotPanel profilePlotPanel = new ProfilePlotPanel(this, helpIDs[5]);
         final CoordListPanel coordListPanel = new CoordListPanel(this, helpIDs[6]);
         pagePanels = new PagePanel[]{
                 informationPanel, codingPanel, statisticsPanel,
-                histogramPanel, scatterPlotPanel, profilePlotPanel, coordListPanel
+                histogramPanel, densityPlotPanel, profilePlotPanel, coordListPanel
         };
         tabbedPane.add("Information", informationPanel); /*I18N*/
         tabbedPane.add("Geo-Coding", codingPanel);/*I18N*/
         tabbedPane.add("Statistics", statisticsPanel); /*I18N*/
         tabbedPane.add("Histogram", histogramPanel);  /*I18N*/
-        tabbedPane.add("Scatter Plot", scatterPlotPanel); /*I18N*/
+        tabbedPane.add("Density Plot", densityPlotPanel); /*I18N*/
         tabbedPane.add("Profile Plot", profilePlotPanel);  /*I18N*/
         tabbedPane.add("Coordinate List", coordListPanel);  /*I18N*/
 

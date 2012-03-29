@@ -14,34 +14,34 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.csv.dataio;
+package org.esa.beam.util.io;
 
 /**
- * Interface providing methods for parsing a csv product source.
+ * Interface providing methods for parsing a csv source.
  *
  * @author Olaf Danne
  * @author Thomas Storm
  */
-public interface CsvProductSourceParser {
+public interface CsvSourceParser {
 
     /**
-     * Triggers parsing of the records. Before calling this method, {@link CsvProductSourceParser#parse()} must
+     * Triggers parsing of the records. Before calling this method, {@link CsvSourceParser#parseMetadata()} must
      * have been called.
      *
-     * @throws IllegalStateException         if this method is called before {@link CsvProductSourceParser#parse()} has
+     * @throws IllegalStateException         if this method is called before {@link CsvSourceParser#parseMetadata()} has
      *                                       been called.
      * @throws ParseException                if something goes wrong.
      * @param offset                         the offset from which to start parsing.
-     * @param numRecords                     the number of records to parse.
+     * @param numRecords                     the number of records to parse. If -1 is given, all records are parsed.
      */
     void parseRecords(int offset, int numRecords) throws ParseException;
 
     /**
-     * @return A view on the {@link CsvProductSource} parsed using this interface.
+     * @return A view on the {@link CsvSource} parsed using this interface.
      *
      * @throws ParseException if something goes wrong.
      */
-    CsvProductSource parse() throws ParseException;
+    CsvSource parseMetadata() throws ParseException;
 
     /**
      * Closes the parser and its associated data sources.

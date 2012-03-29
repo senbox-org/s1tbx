@@ -35,6 +35,7 @@
                     <expression>radiance_14 / (PI * SOLAR_FLUX_14)</expression>
                     <description>TOA reflectance in channel 14</description>
                     <type>float</type>
+                    <unit>myunits</unit>
                     <validExpression>reflec_14 >= 0</validExpression>
                     <noDataValue>-999</noDataValue>
                     <spectralBandIndex>14</spectralBandIndex>

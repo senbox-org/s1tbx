@@ -55,7 +55,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * The scatter plot pane within the statistcs window.
  */
-class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.ComputeMask {
+class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.ComputeMask {
 
     private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" +
             ZOOM_TIP_MESSAGE;
@@ -77,7 +77,7 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     private boolean adjustingAutoMinMax;
     private XYImagePlot plot;
 
-    ScatterPlotPanel(ToolView parentDialog, String helpId) {
+    DensityPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
     }
 

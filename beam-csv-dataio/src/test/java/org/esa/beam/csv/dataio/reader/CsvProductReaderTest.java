@@ -16,7 +16,7 @@
 
 package org.esa.beam.csv.dataio.reader;
 
-import org.esa.beam.csv.dataio.Constants;
+import org.esa.beam.util.io.Constants;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
@@ -88,7 +88,7 @@ public class CsvProductReaderTest {
     }
 
     private Product readTestProduct() throws IOException {
-        return reader.readProductNodes(getClass().getResource("../simple_format_example.txt").getFile(), null);
+        return reader.readProductNodes(getClass().getResource("simple_format_example.txt").getFile(), null);
     }
 
     @Test
@@ -109,6 +109,7 @@ public class CsvProductReaderTest {
         assertEquals(ProductData.TYPE_INT8, ((CsvProductReader)reader).getProductDataType(Byte.class));
     }
 
+    // Metadata support not yet implemented, therefore test is ignored
     @Test
     @Ignore
     public void testReadMetaData() throws Exception {

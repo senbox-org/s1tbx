@@ -40,7 +40,9 @@ import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -129,6 +131,8 @@ public class WriteOp extends Operator implements Output {
     private Dimension tileSize;
     private int tileCountX;
 
+    private boolean outputFileExists = false;
+
     public WriteOp() {
         setRequiresAllBands(true);
     }
@@ -214,7 +218,7 @@ public class WriteOp extends Operator implements Output {
 
             stopTileComputationObservation();
         } catch (OperatorException e) {
-            if (deleteOutputOnFailure) {
+            if (deleteOutputOnFailure && !outputFileExists) {
                 try {
                     productWriter.deleteOutput();
                 } catch (Exception e2) {
@@ -230,9 +234,7 @@ public class WriteOp extends Operator implements Output {
     @Override
     public void initialize() throws OperatorException {
         targetProduct = sourceProduct;
-        if(targetProduct.getFileLocation() != null && targetProduct.getFileLocation().exists()) {
-            deleteOutputOnFailure = false;
-        }
+        outputFileExists = targetProduct.getFileLocation() != null && targetProduct.getFileLocation().exists();
         productWriter = ProductIO.getProductWriter(formatName);
         if (productWriter == null) {
             throw new OperatorException("No data product writer for the '" + formatName + "' format available");
@@ -283,7 +285,7 @@ public class WriteOp extends Operator implements Output {
             }
             markTileDone(targetBand, targetTile);
         } catch (Exception e) {
-            if (deleteOutputOnFailure) {
+            if (deleteOutputOnFailure && !outputFileExists) {
                 try {
                     productWriter.deleteOutput();
                     productFileWritten = false;
