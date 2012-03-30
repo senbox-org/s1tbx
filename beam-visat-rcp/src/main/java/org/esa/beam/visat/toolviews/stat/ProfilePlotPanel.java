@@ -36,6 +36,7 @@ import org.jfree.chart.event.AxisChangeEvent;
 import org.jfree.chart.event.AxisChangeListener;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
@@ -45,6 +46,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Ellipse2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -76,7 +78,8 @@ class ProfilePlotPanel extends PagePanel {
     private boolean axisAdjusting = false;
     private Property pointDataSourceProperty;
     private Property dataFieldProperty;
-    private CorrelativeFieldSelector peter;
+    private CorrelativeFieldSelector correlativeFieldSelector;
+    private DataSourceConfig dataSourceConfig;
 
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
@@ -126,9 +129,19 @@ class ProfilePlotPanel extends PagePanel {
         );
         final XYPlot plot = chart.getXYPlot();
 
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setSeriesLinesVisible(1, false);
+        renderer.setSeriesShapesVisible(0, false);
+        renderer.setSeriesShapesVisible(1, true);
+        renderer.setSeriesFillPaint(1, Color.white);
+        renderer.setUseFillPaint(true);
+        renderer.setSeriesShape(1, new Ellipse2D.Float(-3, -3, 6, 6));
+        renderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
+
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
-        plot.getRenderer().setBaseToolTipGenerator(new XYPlotToolTipGenerator());
+        plot.setRenderer(renderer);
+
         profilePlotDisplay = new ChartPanel(chart);
         profilePlotDisplay.setInitialDelay(200);
         profilePlotDisplay.setDismissDelay(1500);
@@ -155,9 +168,10 @@ class ProfilePlotPanel extends PagePanel {
         final JCheckBox computeInBetweenPoints = new JCheckBox("Compute in-between points");
         final JCheckBox useCorrelativeData = new JCheckBox("Use correlative data");
 
-        final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(new DataSourceConfig()));
+        dataSourceConfig = new DataSourceConfig();
+        final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(dataSourceConfig));
 
-        peter = new CorrelativeFieldSelector(bindingContext);
+        correlativeFieldSelector = new CorrelativeFieldSelector(bindingContext);
 
         bindingContext.bind("boxSize", boxSizeSpinner);
         bindingContext.bind("roiMask", roiMaskList);
@@ -169,6 +183,14 @@ class ProfilePlotPanel extends PagePanel {
         bindingContext.bindEnabledState("pointDataSource", true, "useCorrelativeData", true);
         bindingContext.bindEnabledState("dataField", true, "useCorrelativeData", true);
 
+        bindingContext.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                updateDataSet();
+                updateUIState();
+            }
+        });
+
         final JPanel dataSourceOptionsPanel = GridBagUtils.createPanel();
         final GridBagConstraints dataSourceOptionsConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, boxSizeLabel, dataSourceOptionsConstraints, "gridwidth=1,gridy=0,gridx=0,weightx=0");
@@ -178,10 +200,10 @@ class ProfilePlotPanel extends PagePanel {
         GridBagUtils.addToPanel(dataSourceOptionsPanel, computeInBetweenPoints, dataSourceOptionsConstraints, "gridy=3");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, new JLabel(" "), dataSourceOptionsConstraints, "gridy=4");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, useCorrelativeData, dataSourceOptionsConstraints, "gridy=5");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, peter.pointDataSourceLabel, dataSourceOptionsConstraints, "gridy=6");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, peter.pointDataSourceList, dataSourceOptionsConstraints, "gridy=7");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, peter.dataFieldLabel, dataSourceOptionsConstraints, "gridy=8");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, peter.dataFieldList, dataSourceOptionsConstraints, "gridy=9");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.pointDataSourceLabel, dataSourceOptionsConstraints, "gridy=6");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.pointDataSourceList, dataSourceOptionsConstraints, "gridy=7");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.dataFieldLabel, dataSourceOptionsConstraints, "gridy=8");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.dataFieldList, dataSourceOptionsConstraints, "gridy=9");
 
         final JPanel displayOptionsPanel = GridBagUtils.createPanel();
 
@@ -309,7 +331,7 @@ class ProfilePlotPanel extends PagePanel {
         }
         chart.setTitle(getRaster() != null ? CHART_TITLE + " for " + getRaster().getName() : CHART_TITLE);
 
-        peter.updatePointDataSource(getProduct());
+        correlativeFieldSelector.updatePointDataSource(getProduct());
         updateDataSet();
         updateUIState();
     }
@@ -334,6 +356,24 @@ class ProfilePlotPanel extends PagePanel {
                     dataset.addSeries(series);
                 }
             }
+            if (dataSourceConfig.useCorrelativeData) {
+                final XYSeries corrSeries = new XYSeries("Correlative Values");
+
+                // todo - this is only test code: extend profileData by correlative data at tie-points (nf/ts)
+                final XYSeries series = dataset.getSeries(0);
+                final int nval = series.getItemCount();
+                final int npnt = 20;
+                final int m = nval >= npnt ? nval / npnt : 1;
+                final double a = 0.05 * (series.getMaxY() - series.getMinY());
+                for (int i = 0; i < nval; i++) {
+                    if (i % m == 0) {
+                        corrSeries.add(i, series.getY(i).doubleValue() + a * (2.0 * Math.random() - 1.0));
+                    }
+                }
+
+                dataset.addSeries(corrSeries);
+            }
+
             profilePlotDisplay.restoreAutoBounds();
             xAxisRangeControl.getBindingContext().setComponentsEnabled(PROPERTY_NAME_MARK_SEGMENTS,
                                                                        profileData.getShapeVertices().length > 2);
