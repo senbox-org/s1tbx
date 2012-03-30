@@ -494,10 +494,7 @@ public class BindingContext {
         final Enablement enablement = new Enablement(targetPropertyName, targetState, condition);
         final Binding binding = getBinding(targetPropertyName);
         if (binding != null) {
-            enablement.apply();
-
-            condition.addPropertyChangeListener(this, enablement);
-            enablement.setActive(true);
+            activateEnablement(enablement);
         }
         enablements.put(targetPropertyName, enablement);
     }
@@ -515,10 +512,8 @@ public class BindingContext {
     private void addBinding(BindingImpl binding) {
         bindings.put(binding.getPropertyName(), binding);
         Enablement enablement = enablements.get(binding.getPropertyName());
-        if (enablement != null) {
-            enablement.apply();
-            enablement.getCondition().addPropertyChangeListener(this, enablement);
-            enablement.setActive(true);
+        if (enablement != null && !enablement.isActive()) {
+            activateEnablement(enablement);
         }
     }
 
@@ -526,9 +521,19 @@ public class BindingContext {
         bindings.remove(propertyName);
         Enablement enablement = enablements.get(propertyName);
         if (enablement != null) {
-            enablement.getCondition().removePropertyChangeListener(this, enablement);
-            enablement.setActive(false);
+            deactivateEnablement(enablement);
         }
+    }
+
+    private void activateEnablement(Enablement enablement) {
+        enablement.setActive(true);
+        enablement.apply();
+        enablement.getCondition().addPropertyChangeListener(this, enablement);
+    }
+
+    private void deactivateEnablement(Enablement enablement) {
+        enablement.setActive(false);
+        enablement.getCondition().removePropertyChangeListener(this, enablement);
     }
 
     public static class VerbousProblemHandler implements BindingProblemListener {
