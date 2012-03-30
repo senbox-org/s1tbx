@@ -27,9 +27,9 @@ public class AxisRangeControlTest {
     public void testInitialValues() throws Exception {
         final AxisRangeControl axisRangeControl = new AxisRangeControl("");
         axisRangeControl.getPanel();
+        assertEquals(true, axisRangeControl.getBindingContext().getBinding("autoMinMax").getPropertyValue());
         assertEquals(0.0, axisRangeControl.getBindingContext().getBinding("min").getPropertyValue());
         assertEquals(100.0, axisRangeControl.getBindingContext().getBinding("max").getPropertyValue());
-        assertEquals(false, axisRangeControl.getBindingContext().getBinding("autoMinMax").getPropertyValue());
     }
 
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, IllegalAccessException, InstantiationException {
