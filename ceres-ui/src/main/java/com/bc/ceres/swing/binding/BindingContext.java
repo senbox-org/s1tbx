@@ -468,15 +468,15 @@ public class BindingContext {
      * of {@code enabled}. Neither the source property nor the target property need to have an active binding.
      *
      * @param targetPropertyName  The name of the target property.
-     * @param enabled             The enabled state.
+     * @param targetState         The enabled state.
      * @param sourcePropertyName  The name of the source property.
      * @param sourcePropertyValue The value of the source property.
      */
     public void bindEnabledState(final String targetPropertyName,
-                                 final boolean enabled,
+                                 final boolean targetState,
                                  final String sourcePropertyName,
                                  final Object sourcePropertyValue) {
-        bindEnabledState(targetPropertyName, enabled,
+        bindEnabledState(targetPropertyName, targetState,
                          new EqualValuesCondition(sourcePropertyName, sourcePropertyValue));
     }
 
@@ -490,7 +490,7 @@ public class BindingContext {
      */
     public void bindEnabledState(final String targetPropertyName,
                                  final boolean targetState,
-                                 Condition condition) {
+                                 final Condition condition) {
         final Enablement enablement = new Enablement(targetPropertyName, targetState, condition);
         final Binding binding = getBinding(targetPropertyName);
         if (binding != null) {
