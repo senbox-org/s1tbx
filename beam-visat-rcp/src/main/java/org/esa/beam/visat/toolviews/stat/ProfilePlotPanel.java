@@ -17,10 +17,15 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
 import org.esa.beam.framework.datamodel.TransectProfileData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -34,9 +39,12 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
+import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -66,6 +74,9 @@ class ProfilePlotPanel extends PagePanel {
     private TransectProfileData profileData;
 
     private boolean axisAdjusting = false;
+    private Property pointDataSourceProperty;
+    private Property dataFieldProperty;
+    private CorrelativeFieldSelector peter;
 
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
@@ -134,28 +145,71 @@ class ProfilePlotPanel extends PagePanel {
         domainAxis.addChangeListener(axisListener);
         rangeAxis.addChangeListener(axisListener);
 
-        final JPanel optionsPanel = GridBagUtils.createPanel();
+
+        final JLabel boxSizeLabel = new JLabel("Box size:");
+        final JSpinner boxSizeSpinner = new JSpinner();
+        boxSizeSpinner.setModel(new SpinnerNumberModel(1, 1, 101, 2));
+        final JLabel roiMaskLabel = new JLabel("ROI mask:");
+        final JComboBox roiMaskList = new JComboBox();
+        final JButton roiMaskButton = new JButton("..."); // todo - use action from mask manager
+        final JCheckBox computeInBetweenPoints = new JCheckBox("Compute in-between points");
+        final JCheckBox useCorrelativeData = new JCheckBox("Use correlative data");
+
+        final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(new DataSourceConfig()));
+
+        peter = new CorrelativeFieldSelector(bindingContext);
+
+        bindingContext.bind("boxSize", boxSizeSpinner);
+        bindingContext.bind("roiMask", roiMaskList);
+        bindingContext.getBinding("roiMask").addComponent(roiMaskLabel);
+        bindingContext.getBinding("roiMask").addComponent(roiMaskButton);
+        bindingContext.bind("computeInBetweenPoints", computeInBetweenPoints);
+        bindingContext.bind("useCorrelativeData", useCorrelativeData);
+        bindingContext.bindEnabledState("roiMask", true, new RoiMaskEnabledCondition());
+        bindingContext.bindEnabledState("pointDataSource", true, "useCorrelativeData", true);
+        bindingContext.bindEnabledState("dataField", true, "useCorrelativeData", true);
+
+        final JPanel dataSourceOptionsPanel = GridBagUtils.createPanel();
+        final GridBagConstraints dataSourceOptionsConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, boxSizeLabel, dataSourceOptionsConstraints, "gridwidth=1,gridy=0,gridx=0,weightx=0");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, boxSizeSpinner, dataSourceOptionsConstraints, "gridwidth=1,gridy=0,gridx=1,weightx=1");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, roiMaskLabel, dataSourceOptionsConstraints, "gridwidth=2,gridy=1,gridx=0");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, roiMaskList, dataSourceOptionsConstraints, "gridy=2");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, computeInBetweenPoints, dataSourceOptionsConstraints, "gridy=3");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, new JLabel(" "), dataSourceOptionsConstraints, "gridy=4");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, useCorrelativeData, dataSourceOptionsConstraints, "gridy=5");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, peter.pointDataSourceLabel, dataSourceOptionsConstraints, "gridy=6");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, peter.pointDataSourceList, dataSourceOptionsConstraints, "gridy=7");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, peter.dataFieldLabel, dataSourceOptionsConstraints, "gridy=8");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, peter.dataFieldList, dataSourceOptionsConstraints, "gridy=9");
+
+        final JPanel displayOptionsPanel = GridBagUtils.createPanel();
 
         xAxisRangeControl.getBindingContext().bind(PROPERTY_NAME_MARK_SEGMENTS, new JCheckBox("Mark segments"));
         yAxisRangeControl.getBindingContext().bind(PROPERTY_NAME_LOG_SCALED, new JCheckBox("Log scaled"));
 
-        final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=BOTH");
-        GridBagUtils.addToPanel(optionsPanel, xAxisRangeControl.getPanel(), gbc, "gridy=1");
-        GridBagUtils.addToPanel(optionsPanel, xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_MARK_SEGMENTS).getComponents()[0], gbc, "gridy=2,insets=2");
-        GridBagUtils.addToPanel(optionsPanel, yAxisRangeControl.getPanel(), gbc, "gridy=4");
-        GridBagUtils.addToPanel(optionsPanel, yAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getComponents()[0], gbc, "gridy=5");
+        final GridBagConstraints displayOptionsConstraints = GridBagUtils.createConstraints("anchor=SOUTH,fill=HORIZONTAL,weightx=1");
+        GridBagUtils.addToPanel(displayOptionsPanel, xAxisRangeControl.getPanel(), displayOptionsConstraints, "gridy=0");
+        GridBagUtils.addToPanel(displayOptionsPanel, xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_MARK_SEGMENTS).getComponents()[0], displayOptionsConstraints, "gridy=1");
+        GridBagUtils.addToPanel(displayOptionsPanel, yAxisRangeControl.getPanel(), displayOptionsConstraints, "gridy=2");
+        GridBagUtils.addToPanel(displayOptionsPanel, yAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getComponents()[0], displayOptionsConstraints, "gridy=3");
+
+
+        final JPanel helpPanel = new JPanel(new BorderLayout());
+        helpPanel.add(getHelpButton(), BorderLayout.EAST);
 
         final TableLayout rightPanelLayout = new TableLayout(1);
         final JPanel rightPanel = new JPanel(rightPanelLayout);
         rightPanelLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         rightPanelLayout.setRowWeightY(2, 1.0);
-        rightPanelLayout.setRowAnchor(3, TableLayout.Anchor.EAST);
-        rightPanel.add(optionsPanel);
-        rightPanel.add(createChartButtonPanel(profilePlotDisplay));
-        rightPanel.add(new JPanel());   // filler
-        final JPanel helpPanel = new JPanel(new BorderLayout());
-        helpPanel.add(getHelpButton(), BorderLayout.EAST);
-        rightPanel.add(helpPanel);
+        rightPanelLayout.setRowAnchor(0, TableLayout.Anchor.NORTH);
+        rightPanelLayout.setRowAnchor(1, TableLayout.Anchor.SOUTH);
+        rightPanelLayout.setRowAnchor(2, TableLayout.Anchor.SOUTH);
+        rightPanelLayout.setRowAnchor(3, TableLayout.Anchor.SOUTH);
+        rightPanel.add(dataSourceOptionsPanel);
+        rightPanel.add(displayOptionsPanel);
+        rightPanel.add(new JSeparator());
+        rightPanel.add(createChartButtonPanel2(profilePlotDisplay));
 
         add(profilePlotDisplay, BorderLayout.CENTER);
         add(rightPanel, BorderLayout.EAST);
@@ -164,10 +218,79 @@ class ProfilePlotPanel extends PagePanel {
         updateContent();
     }
 
+    protected JPanel createChartButtonPanel2(final ChartPanel chartPanel) {
+
+        final AbstractButton zoomAllButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/ZoomAll24.gif"),
+                false);
+        zoomAllButton.setToolTipText("Zoom all.");
+        zoomAllButton.setName("zoomAllButton.");
+        zoomAllButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chartPanel.restoreAutoBounds();
+            }
+        });
+
+        final AbstractButton propertiesButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/Edit24.gif"),
+                false);
+        propertiesButton.setToolTipText("Edit properties.");
+        propertiesButton.setName("propertiesButton.");
+        propertiesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chartPanel.doEditChartProperties();
+            }
+        });
+
+        final AbstractButton saveButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/Export24.gif"),
+                false);
+        saveButton.setToolTipText("Save chart as image.");
+        saveButton.setName("saveButton.");
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    chartPanel.doSaveAs();
+                } catch (IOException e1) {
+                    JOptionPane.showMessageDialog(chartPanel,
+                                                  "Could not save chart:\n" + e1.getMessage(),
+                                                  "Error",
+                                                  JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        final AbstractButton printButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/Print24.gif"),
+                false);
+        printButton.setToolTipText("Print chart.");
+        printButton.setName("printButton.");
+        printButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chartPanel.createChartPrintJob();
+            }
+        });
+
+        final TableLayout tableLayout = new TableLayout(5);
+        JPanel buttonPane = new JPanel(tableLayout);
+        buttonPane.add(zoomAllButton);
+        buttonPane.add(propertiesButton);
+        buttonPane.add(saveButton);
+        buttonPane.add(printButton);
+        buttonPane.add(getHelpButton());
+
+        return buttonPane;
+    }
+
     @Override
     protected boolean mustUpdateContent() {
         return super.mustUpdateContent() || isVectorDataNodeChanged();
     }
+
 
     @Override
     protected void updateContent() {
@@ -185,9 +308,12 @@ class ProfilePlotPanel extends PagePanel {
             return;
         }
         chart.setTitle(getRaster() != null ? CHART_TITLE + " for " + getRaster().getName() : CHART_TITLE);
+
+        peter.updatePointDataSource(getProduct());
         updateDataSet();
         updateUIState();
     }
+
 
     private void updateDataSet() {
         dataset.removeAllSeries();
@@ -292,4 +418,27 @@ class ProfilePlotPanel extends PagePanel {
         updateContent();
     }
 
+    private static class DataSourceConfig {
+        private int boxSize;
+        private String roiMask;
+        private boolean computeInBetweenPoints;
+        private boolean useCorrelativeData;
+        private VectorDataNode pointDataSource;
+        private AttributeDescriptor dataField;
+    }
+
+    private static class RoiMaskEnabledCondition extends BindingContext.Condition {
+        @Override
+        public boolean evaluate(BindingContext bindingContext) {
+            return true; // todo - be smarter
+        }
+
+        @Override
+        public void addPropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener) {
+        }
+
+        @Override
+        public void removePropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener) {
+        }
+    }
 }
