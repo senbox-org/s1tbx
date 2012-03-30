@@ -22,29 +22,11 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.swing.binding.internal.AbstractButtonAdapter;
-import com.bc.ceres.swing.binding.internal.BindingImpl;
-import com.bc.ceres.swing.binding.internal.ButtonGroupAdapter;
-import com.bc.ceres.swing.binding.internal.ComboBoxAdapter;
-import com.bc.ceres.swing.binding.internal.FormattedTextFieldAdapter;
-import com.bc.ceres.swing.binding.internal.ListSelectionAdapter;
-import com.bc.ceres.swing.binding.internal.SpinnerAdapter;
-import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
+import com.bc.ceres.swing.binding.internal.*;
 
-import javax.swing.AbstractButton;
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFormattedTextField;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
-import java.awt.Window;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -504,13 +486,14 @@ public class BindingContext {
         }
     }
 
-    private void setComponentsEnabled(final JComponent[] components,
+    private void setComponentsEnabled(final String targetPropertyName,
                                       final boolean enabled,
                                       final String sourcePropertyName,
                                       final Object sourcePropertyValue) {
         Object propertyValue = propertySet.getValue(sourcePropertyName);
         boolean conditionIsTrue = propertyValue == sourcePropertyValue
                 || (propertyValue != null && propertyValue.equals(sourcePropertyValue));
+        final JComponent[] components = getBinding(targetPropertyName).getComponents();
         for (JComponent component : components) {
             component.setEnabled(conditionIsTrue ? enabled : !enabled);
         }
@@ -565,7 +548,9 @@ public class BindingContext {
         private final String sourcePropertyName;
         private final Object sourcePropertyValue;
 
-        private EnablePCL(String targetPropertyName, boolean enabled, String sourcePropertyName,
+        private EnablePCL(String targetPropertyName,
+                          boolean enabled,
+                          String sourcePropertyName,
                           Object sourcePropertyValue) {
             this.targetPropertyName = targetPropertyName;
             this.enabled = enabled;
@@ -579,7 +564,7 @@ public class BindingContext {
         }
 
         public void apply() {
-            setComponentsEnabled(getBinding(targetPropertyName).getComponents(),
+            setComponentsEnabled(targetPropertyName,
                                  enabled,
                                  sourcePropertyName,
                                  sourcePropertyValue);
