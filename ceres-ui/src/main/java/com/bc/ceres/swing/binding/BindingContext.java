@@ -499,6 +499,13 @@ public class BindingContext {
         enablements.put(targetPropertyName, enablement);
     }
 
+    public void setComponentsEnabled(String propertyName, boolean enabled) {
+        final JComponent[] components = getBinding(propertyName).getComponents();
+        for (JComponent component : components) {
+            component.setEnabled(enabled);
+        }
+    }
+
     private void setComponentsEnabled(final String targetPropertyName,
                                       final boolean targetState,
                                       Condition condition) {
