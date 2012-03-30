@@ -77,18 +77,17 @@ class AxisRangeControl {
         return bindingContext;
     }
 
-    public void setEnabled(boolean enabled) {
+    public void setComponentsEnabled(boolean enabled) {
         if (!enabled) {
             for (Property property : bindingContext.getPropertySet().getProperties()) {
-                ProfilePlotPanel.setComponentsEnabled(bindingContext, property.getName(), enabled);
-
+                bindingContext.setComponentsEnabled(property.getName(), enabled);
             }
         } else {
             for (Property property : bindingContext.getPropertySet().getProperties()) {
                 if (property.getName().equals("min") || property.getName().equals("max")) {
-                    ProfilePlotPanel.setComponentsEnabled(bindingContext, property.getName(), !isAutoMinMax());
+                    bindingContext.setComponentsEnabled(property.getName(), !isAutoMinMax());
                 } else {
-                    ProfilePlotPanel.setComponentsEnabled(bindingContext, property.getName(), enabled);
+                    bindingContext.setComponentsEnabled(property.getName(), enabled);
                 }
             }
         }

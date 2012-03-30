@@ -18,7 +18,6 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.swing.TableLayout;
-import com.bc.ceres.swing.binding.BindingContext;
 import org.esa.beam.framework.datamodel.TransectProfileData;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
@@ -71,14 +70,6 @@ class ProfilePlotPanel extends PagePanel {
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
 
-    }
-
-    // move to BindingContext?
-    public static void setComponentsEnabled(BindingContext bindingContext, String propertyName, boolean enabled) {
-        final JComponent[] components = bindingContext.getBinding(propertyName).getComponents();
-        for (JComponent component : components) {
-            component.setEnabled(enabled);
-        }
     }
 
     @Override
@@ -218,8 +209,8 @@ class ProfilePlotPanel extends PagePanel {
                 }
             }
             profilePlotDisplay.restoreAutoBounds();
-            setComponentsEnabled(xAxisRangeControl.getBindingContext(),
-                                 PROPERTY_NAME_MARK_SEGMENTS, profileData.getShapeVertices().length > 2);
+            xAxisRangeControl.getBindingContext().setComponentsEnabled(PROPERTY_NAME_MARK_SEGMENTS,
+                                                                       profileData.getShapeVertices().length > 2);
         }
     }
 
@@ -227,11 +218,10 @@ class ProfilePlotPanel extends PagePanel {
         if (!isInitialized) {
             return;
         }
-        setComponentsEnabled(xAxisRangeControl.getBindingContext(),
-                             PROPERTY_NAME_MARK_SEGMENTS,
-                             profileData != null && profileData.getShapeVertices().length > 2);
-        xAxisRangeControl.setEnabled(profileData != null);
-        yAxisRangeControl.setEnabled(profileData != null);
+        xAxisRangeControl.getBindingContext().setComponentsEnabled(PROPERTY_NAME_MARK_SEGMENTS,
+                                                                   profileData != null && profileData.getShapeVertices().length > 2);
+        xAxisRangeControl.setComponentsEnabled(profileData != null);
+        yAxisRangeControl.setComponentsEnabled(profileData != null);
         adjustPlotAxes();
     }
 
