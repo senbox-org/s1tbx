@@ -43,8 +43,8 @@ import java.util.Map;
 public class BindingContext {
 
     private final PropertySet propertySet;
-    private Map<String, BindingImpl> bindingMap;
-    private Map<String, EnablePCL> enablePCLMap;
+    private Map<String, BindingImpl> bindings;
+    private Map<String, Enablement> enablements;
     private ArrayList<BindingProblemListener> bindingProblemListeners;
 
     /**
@@ -72,8 +72,8 @@ public class BindingContext {
      */
     public BindingContext(PropertySet propertySet, BindingProblemListener problemHandler) {
         this.propertySet = propertySet;
-        this.bindingMap = new HashMap<String, BindingImpl>(17);
-        this.enablePCLMap = new HashMap<String, EnablePCL>(11);
+        this.bindings = new HashMap<String, BindingImpl>(17);
+        this.enablements = new HashMap<String, Enablement>(11);
         if (problemHandler != null) {
             addProblemListener(problemHandler);
         }
@@ -91,7 +91,7 @@ public class BindingContext {
      * @since Ceres 0.10
      */
     public boolean hasProblems() {
-        for (Map.Entry<String, BindingImpl> entry : bindingMap.entrySet()) {
+        for (Map.Entry<String, BindingImpl> entry : bindings.entrySet()) {
             if (entry.getValue().getProblem() != null) {
                 return true;
             }
@@ -105,7 +105,7 @@ public class BindingContext {
      */
     public BindingProblem[] getProblems() {
         ArrayList<BindingProblem> list = new ArrayList<BindingProblem>();
-        for (Map.Entry<String, BindingImpl> entry : bindingMap.entrySet()) {
+        for (Map.Entry<String, BindingImpl> entry : bindings.entrySet()) {
             final BindingProblem problem = entry.getValue().getProblem();
             if (problem != null) {
                 list.add(problem);
@@ -159,7 +159,7 @@ public class BindingContext {
      * @see ComponentAdapter#adjustComponents()
      */
     public void adjustComponents() {
-        for (Map.Entry<String, BindingImpl> entry : bindingMap.entrySet()) {
+        for (Map.Entry<String, BindingImpl> entry : bindings.entrySet()) {
             entry.getValue().adjustComponents();
         }
     }
@@ -172,7 +172,7 @@ public class BindingContext {
      */
     public Binding getBinding(String propertyName) {
         Assert.notNull(propertyName, "propertyName");
-        return bindingMap.get(propertyName);
+        return bindings.get(propertyName);
     }
 
     /**
@@ -476,40 +476,59 @@ public class BindingContext {
                                  final boolean enabled,
                                  final String sourcePropertyName,
                                  final Object sourcePropertyValue) {
-        final EnablePCL enablePCL = new EnablePCL(targetPropertyName, enabled, sourcePropertyName, sourcePropertyValue);
+        bindEnabledState(targetPropertyName, enabled,
+                         new EqualValuesCondition(sourcePropertyName, sourcePropertyValue));
+    }
+
+    /**
+     * Sets the <i>enabled</i> state of the components associated with {@code targetProperty} to {@code targetState}
+     * if a certain {@code condition} is met.
+     *
+     * @param targetPropertyName The name of the target property.
+     * @param targetState        The target enabled state.
+     * @param condition          The condition.
+     */
+    public void bindEnabledState(final String targetPropertyName,
+                                 final boolean targetState,
+                                 Condition condition) {
+        final Enablement enablement = new Enablement(targetPropertyName, targetState, condition);
         final Binding binding = getBinding(targetPropertyName);
         if (binding != null) {
-            enablePCL.apply();
-            propertySet.addPropertyChangeListener(sourcePropertyName, enablePCL);
-        } else {
-            enablePCLMap.put(targetPropertyName, enablePCL);
+            enablement.apply();
+
+            condition.addPropertyChangeListener(this, enablement);
+            enablement.setActive(true);
         }
+        enablements.put(targetPropertyName, enablement);
     }
 
     private void setComponentsEnabled(final String targetPropertyName,
-                                      final boolean enabled,
-                                      final String sourcePropertyName,
-                                      final Object sourcePropertyValue) {
-        Object propertyValue = propertySet.getValue(sourcePropertyName);
-        boolean conditionIsTrue = propertyValue == sourcePropertyValue
-                || (propertyValue != null && propertyValue.equals(sourcePropertyValue));
+                                      final boolean targetState,
+                                      Condition condition) {
+        boolean conditionIsTrue = condition.evaluate(this);
         final JComponent[] components = getBinding(targetPropertyName).getComponents();
         for (JComponent component : components) {
-            component.setEnabled(conditionIsTrue ? enabled : !enabled);
+            component.setEnabled(conditionIsTrue ? targetState : !targetState);
         }
     }
 
     private void addBinding(BindingImpl binding) {
-        bindingMap.put(binding.getPropertyName(), binding);
-        if (enablePCLMap.containsKey(binding.getPropertyName())) {
-            EnablePCL enablePCL = enablePCLMap.remove(binding.getPropertyName());
-            enablePCL.apply();
-            propertySet.addPropertyChangeListener(enablePCL.sourcePropertyName, enablePCL);
+        bindings.put(binding.getPropertyName(), binding);
+        Enablement enablement = enablements.get(binding.getPropertyName());
+        if (enablement != null) {
+            enablement.apply();
+            enablement.getCondition().addPropertyChangeListener(this, enablement);
+            enablement.setActive(true);
         }
     }
 
     private void removeBinding(String propertyName) {
-        bindingMap.remove(propertyName);
+        bindings.remove(propertyName);
+        Enablement enablement = enablements.get(propertyName);
+        if (enablement != null) {
+            enablement.getCondition().removePropertyChangeListener(this, enablement);
+            enablement.setActive(false);
+        }
     }
 
     public static class VerbousProblemHandler implements BindingProblemListener {
@@ -541,33 +560,94 @@ public class BindingContext {
         }
     }
 
-    private class EnablePCL implements PropertyChangeListener {
+    /**
+     * A condition used to determine the new {@code enabled} state of components.
+     *
+     * @see BindingContext#bindEnabledState(String, boolean, com.bc.ceres.swing.binding.BindingContext.Condition)
+     */
+    public interface Condition {
+        /**
+         * @param bindingContext The binding context.
+         * @return {@code true}, if the condition is met.
+         */
+        boolean evaluate(BindingContext bindingContext);
+
+        /**
+         * @param bindingContext The binding context.
+         * @param listener       A property change listener to be added to any dependent bindings or components in the binding context.
+         */
+        void addPropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener);
+
+        /**
+         * @param bindingContext The binding context.
+         * @param listener       A property change listener to be removed from any dependent bindings or components in the binding context.
+         */
+        void removePropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener);
+    }
+
+    private class Enablement implements PropertyChangeListener {
 
         private final String targetPropertyName;
-        private final boolean enabled;
-        private final String sourcePropertyName;
-        private final Object sourcePropertyValue;
+        private final boolean targetState;
+        private final Condition condition;
+        private boolean active;
 
-        private EnablePCL(String targetPropertyName,
-                          boolean enabled,
-                          String sourcePropertyName,
-                          Object sourcePropertyValue) {
+        private Enablement(String targetPropertyName,
+                           boolean targetState,
+                           Condition condition) {
             this.targetPropertyName = targetPropertyName;
-            this.enabled = enabled;
-            this.sourcePropertyName = sourcePropertyName;
-            this.sourcePropertyValue = sourcePropertyValue;
+            this.targetState = targetState;
+            this.condition = condition;
+        }
+
+        public boolean isActive() {
+            return active;
+        }
+
+        public void setActive(boolean active) {
+            this.active = active;
+        }
+
+        public Condition getCondition() {
+            return condition;
         }
 
         @Override
-        public void propertyChange(PropertyChangeEvent evt) {
+        public final void propertyChange(PropertyChangeEvent evt) {
             apply();
         }
 
         public void apply() {
             setComponentsEnabled(targetPropertyName,
-                                 enabled,
-                                 sourcePropertyName,
-                                 sourcePropertyValue);
+                                 targetState,
+                                 condition);
+        }
+    }
+
+    private static class EqualValuesCondition implements Condition {
+        private final String sourcePropertyName;
+        private final Object sourcePropertyValue;
+
+        private EqualValuesCondition(String sourcePropertyName, Object sourcePropertyValue) {
+            this.sourcePropertyName = sourcePropertyName;
+            this.sourcePropertyValue = sourcePropertyValue;
+        }
+
+        @Override
+        public boolean evaluate(BindingContext bindingContext) {
+            Object propertyValue = bindingContext.getPropertySet().getValue(sourcePropertyName);
+            return propertyValue == sourcePropertyValue
+                    || (propertyValue != null && propertyValue.equals(sourcePropertyValue));
+        }
+
+        @Override
+        public void addPropertyChangeListener(BindingContext bindingContext, PropertyChangeListener pcl) {
+            bindingContext.addPropertyChangeListener(sourcePropertyName, pcl);
+        }
+
+        @Override
+        public void removePropertyChangeListener(BindingContext bindingContext, PropertyChangeListener pcl) {
+            bindingContext.removePropertyChangeListener(sourcePropertyName, pcl);
         }
     }
 }
