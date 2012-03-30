@@ -577,24 +577,34 @@ public class BindingContext {
      *
      * @see BindingContext#bindEnabledState(String, boolean, com.bc.ceres.swing.binding.BindingContext.Condition)
      */
-    public interface Condition {
+    public static abstract class Condition {
         /**
          * @param bindingContext The binding context.
          * @return {@code true}, if the condition is met.
          */
-        boolean evaluate(BindingContext bindingContext);
+        public abstract boolean evaluate(BindingContext bindingContext);
 
         /**
+         * Adds the given property change listener to any dependent bindings or components in the binding context.
+         * The default implementation does nothing.
+         *
          * @param bindingContext The binding context.
-         * @param listener       A property change listener to be added to any dependent bindings or components in the binding context.
+         * @param listener       A property change listener.
          */
-        void addPropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener);
+        public void addPropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener) {
+        }
 
         /**
+         * Removes the given property change listener from any dependent bindings or components in the binding context.
+         * The default implementation does nothing.
+         * <p/>
+         * The default implementation does nothing.
+         *
          * @param bindingContext The binding context.
-         * @param listener       A property change listener to be removed from any dependent bindings or components in the binding context.
+         * @param listener       A property change listener.
          */
-        void removePropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener);
+        public void removePropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener) {
+        }
     }
 
     private class Enablement implements PropertyChangeListener {
@@ -636,7 +646,7 @@ public class BindingContext {
         }
     }
 
-    private static class EqualValuesCondition implements Condition {
+    private static class EqualValuesCondition extends Condition {
         private final String sourcePropertyName;
         private final Object sourcePropertyValue;
 
@@ -653,13 +663,13 @@ public class BindingContext {
         }
 
         @Override
-        public void addPropertyChangeListener(BindingContext bindingContext, PropertyChangeListener pcl) {
-            bindingContext.addPropertyChangeListener(sourcePropertyName, pcl);
+        public void addPropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener) {
+            bindingContext.addPropertyChangeListener(sourcePropertyName, listener);
         }
 
         @Override
-        public void removePropertyChangeListener(BindingContext bindingContext, PropertyChangeListener pcl) {
-            bindingContext.removePropertyChangeListener(sourcePropertyName, pcl);
+        public void removePropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener) {
+            bindingContext.removePropertyChangeListener(sourcePropertyName, listener);
         }
     }
 }
