@@ -16,15 +16,14 @@
 
 package org.esa.beam.util;
 
-import java.awt.Point;
-import java.awt.Shape;
+import org.esa.beam.util.math.MathUtils;
+
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.esa.beam.util.math.MathUtils;
 
 /**
  * Instances of this class are used to rasterize the outline of a <code>java.awt.Shape</code>.
@@ -34,9 +33,9 @@ import org.esa.beam.util.math.MathUtils;
  */
 public class ShapeRasterizer {
 
-    private AffineTransform _transform;
-    private double _flatness;
-    private LineRasterizer _lineRasterizer;
+    private AffineTransform transform;
+    private double flatness;
+    private LineRasterizer lineRasterizer;
 
     /**
      * Constructs a new rasterizer with a no affine transformation, a flatness of <code>1.0</code> and a bresenham line
@@ -57,9 +56,9 @@ public class ShapeRasterizer {
      * @param lineRasterizer the rasterizing algorithm
      */
     public ShapeRasterizer(AffineTransform transform, double flatness, LineRasterizer lineRasterizer) {
-        _transform = transform;
-        _flatness = flatness;
-        _lineRasterizer = lineRasterizer;
+        this.transform = transform;
+        this.flatness = flatness;
+        this.lineRasterizer = lineRasterizer;
     }
 
     /**
@@ -68,7 +67,7 @@ public class ShapeRasterizer {
      * @return the affine transformation, can be <code>null</code>.
      */
     public AffineTransform getTransform() {
-        return _transform;
+        return transform;
     }
 
     /**
@@ -77,7 +76,7 @@ public class ShapeRasterizer {
      * @param transform the affine transformation to be applied before a shape is rasterized. Can be <code>null</code>.
      */
     public void setTransform(AffineTransform transform) {
-        _transform = transform;
+        this.transform = transform;
     }
 
     /**
@@ -86,7 +85,7 @@ public class ShapeRasterizer {
      * @return the flatness.
      */
     public double getFlatness() {
-        return _flatness;
+        return flatness;
     }
 
     /**
@@ -95,7 +94,7 @@ public class ShapeRasterizer {
      * @param flatness the flatness.
      */
     public void setFlatness(double flatness) {
-        _flatness = flatness;
+        this.flatness = flatness;
     }
 
     /**
@@ -104,7 +103,7 @@ public class ShapeRasterizer {
      * @return the rasterizing algorithm
      */
     public LineRasterizer getLineRasterizer() {
-        return _lineRasterizer;
+        return lineRasterizer;
     }
 
     /**
@@ -113,14 +112,13 @@ public class ShapeRasterizer {
      * @param lineRasterizer the rasterizing algorithm
      */
     public void setLineRasterizer(LineRasterizer lineRasterizer) {
-        _lineRasterizer = lineRasterizer;
+        this.lineRasterizer = lineRasterizer;
     }
 
     /**
      * Rasterizes the given shape.
      *
      * @param shape the shape to be rasterized
-     *
      * @return an array of points representing the rasterized shape outline
      */
     public Point2D[] rasterize(Shape shape) {
@@ -131,7 +129,6 @@ public class ShapeRasterizer {
      * Rasterizes the given shape given as a vertices array.
      *
      * @param vertices the shape to be rasterized given as vertices
-     *
      * @return an array of points representing the rasterized shape outline
      */
     public Point2D[] rasterize(final Point2D[] vertices) {
@@ -144,7 +141,6 @@ public class ShapeRasterizer {
      *
      * @param vertices      the shape to be rasterized given as vertices
      * @param vertexIndexes if not <code>null</code>, the method stores the original vertex indices in this array
-     *
      * @return an array of points representing the rasterized shape outline
      */
     public Point2D[] rasterize(final Point2D[] vertices, final int[] vertexIndexes) {
@@ -157,7 +153,7 @@ public class ShapeRasterizer {
             throw new IllegalArgumentException("size of 'vertexIndexes' less than 'vertices'");
         }
 
-        final List list = new LinkedList();
+        final List<Point> list = new LinkedList<Point>();
         final Point lastPoint = new Point();
 
         final LinePixelVisitor visitor = new LinePixelVisitor() {
@@ -179,7 +175,7 @@ public class ShapeRasterizer {
         for (int i = 1; i < vertices.length; i++) {
             int x1 = MathUtils.floorInt(vertices[i].getX());
             int y1 = MathUtils.floorInt(vertices[i].getY());
-            _lineRasterizer.rasterize(x0, y0, x1, y1, visitor);
+            lineRasterizer.rasterize(x0, y0, x1, y1, visitor);
             if (vertexIndexes != null) {
                 vertexIndexes[i] = (list.size() > 0) ? list.size() - 1 : 0;
             }
@@ -187,14 +183,13 @@ public class ShapeRasterizer {
             y0 = y1;
         }
 
-        return (Point[]) list.toArray(new Point[list.size()]);
+        return list.toArray(new Point[list.size()]);
     }
 
     /**
      * Converts the given shape into an array of vertices.
      *
      * @param shape the shape
-     *
      * @return the shape given as a vertices array
      */
     public Point2D[] getVertices(Shape shape) {
@@ -203,17 +198,17 @@ public class ShapeRasterizer {
             return null;
         }
 
-        final List list = new LinkedList();
-        final float[] coords = new float[6];
-        final PathIterator pathIterator = shape.getPathIterator(_transform, _flatness);
+        final List<Point2D.Float> list = new LinkedList<Point2D.Float>();
+        final float[] coordinates = new float[6];
+        final PathIterator pathIterator = shape.getPathIterator(transform, flatness);
 
         float x1 = Integer.MAX_VALUE;
         float y1 = Integer.MAX_VALUE;
         while (!pathIterator.isDone()) {
-            int type = pathIterator.currentSegment(coords);
+            int type = pathIterator.currentSegment(coordinates);
             if (type == PathIterator.SEG_MOVETO || type == PathIterator.SEG_LINETO) {
-                float x0 = coords[0];
-                float y0 = coords[1];
+                float x0 = coordinates[0];
+                float y0 = coordinates[1];
                 if (x0 != x1 || y0 != y1) {
                     list.add(new Point2D.Float(x0, y0));
                 }
@@ -223,11 +218,11 @@ public class ShapeRasterizer {
             pathIterator.next();
         }
 
-        return (Point2D[]) list.toArray(new Point2D[list.size()]);
+        return list.toArray(new Point2D[list.size()]);
     }
 
     /**
-     * Vistits each pixel of a rasterized line. This interface is used by the <code>{@link ShapeRasterizer.LineRasterizer}</code>
+     * Visits each pixel of a rasterized line. This interface is used by the <code>{@link ShapeRasterizer.LineRasterizer}</code>
      * interface.
      */
     public static interface LinePixelVisitor {
@@ -256,7 +251,7 @@ public class ShapeRasterizer {
     }
 
     /**
-     * The <i>Bresenham Algorthm</i> is the default algorithm used to rasterize lines.
+     * The <i>Bresenham Algorithm</i> is the default algorithm used to rasterize lines.
      */
     public static class BresenhamLineRasterizer implements LineRasterizer {
 
