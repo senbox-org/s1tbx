@@ -21,8 +21,7 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
 import javax.swing.*;
-import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
@@ -72,6 +71,7 @@ class MoreOptionsPane {
         headerButton = ToolButtonFactory.createButton(icons[0], false);
         headerButton.setName("MoreOptionsPane.headerButton");
         headerButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 setCollapsed(!isCollapsed());
             }

@@ -16,8 +16,8 @@
 
 package org.esa.beam.visat.toolviews.imageinfo;
 
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
@@ -25,14 +25,8 @@ import com.jidesoft.combobox.ColorComboBox;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.ui.ColorComboBoxAdapter;
 
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import javax.swing.*;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -77,7 +71,7 @@ class MoreOptionsForm {
         bindingContext = new BindingContext(propertyContainer);
 
         final PropertyChangeListener pcl = new PropertyChangeListener() {
-
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 updateModel();
             }
@@ -129,7 +123,7 @@ class MoreOptionsForm {
         constraints.gridx = 0;
         contentPanel.add(editor, constraints);
     }
-        
+
     public void updateForm() {
         setNoDataColor(getImageInfo().getNoDataColor());
         if (hasHistogramMatching) {

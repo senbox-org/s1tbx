@@ -282,7 +282,7 @@ class ColorManipulationForm {
         applyButton.setName("ApplyButton");
         applyButton.setMnemonic('A');
         applyButton.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 applyChanges();
             }
@@ -293,6 +293,7 @@ class ColorManipulationForm {
         resetButton.setToolTipText("Reset to defaults"); /*I18N*/
         resetButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 resetToDefaults();
             }
@@ -303,6 +304,7 @@ class ColorManipulationForm {
         multiApplyButton.setToolTipText("Apply to other bands"); /*I18N*/
         multiApplyButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 applyMultipleColorPaletteDef();
             }
@@ -312,7 +314,7 @@ class ColorManipulationForm {
         importButton.setName("ImportButton");
         importButton.setToolTipText("Import settings from text file."); /*I18N*/
         importButton.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 importColorPaletteDef();
             }
@@ -323,7 +325,7 @@ class ColorManipulationForm {
         exportButton.setName("ExportButton");
         exportButton.setToolTipText("Export settings to text file."); /*I18N*/
         exportButton.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 exportColorPaletteDef();
             }

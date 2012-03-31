@@ -17,8 +17,8 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
 import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
@@ -52,7 +52,7 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
         discreteColorsCheckBox = new JCheckBox("Discrete colors");
         discreteColorsCheckBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-              setDiscreteColorsMode();
+                setDiscreteColorsMode();
             }
         });
 
@@ -61,7 +61,7 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
         editorSwitcherPanel.add(graphicalButton);
         editorSwitcherPanel.add(tabularButton);
 
-        final JPanel northPanel = new JPanel(new BorderLayout(2,2));
+        final JPanel northPanel = new JPanel(new BorderLayout(2, 2));
         northPanel.add(editorSwitcherPanel, BorderLayout.WEST);
         northPanel.add(discreteColorsCheckBox, BorderLayout.EAST);
 
@@ -147,15 +147,18 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
         }
     }
 
+    @Override
     public AbstractButton[] getToolButtons() {
         return childForm.getToolButtons();
     }
 
+    @Override
     public Component getContentPanel() {
         return contentPanel;
     }
 
     private class SwitcherActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             switchForm(parentForm.getProductSceneView());
         }

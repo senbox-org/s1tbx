@@ -20,17 +20,14 @@ import com.jidesoft.grid.ColorCellEditor;
 import com.jidesoft.grid.ColorCellRenderer;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
-import javax.swing.AbstractButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
-import java.awt.Color;
-import java.awt.Component;
+import java.awt.*;
 
 class Continuous1BandTabularForm implements ColorManipulationChildForm {
     private static final String[] COLUMN_NAMES = new String[]{"Colour", "Value"};
@@ -131,6 +128,7 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
             return COLUMN_NAMES.length;
         }
 
+        @Override
         public int getRowCount() {
             if (getImageInfo() == null) {
                 return 0;
@@ -138,6 +136,7 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
             return getImageInfo().getColorPaletteDef().getNumPoints();
         }
 
+        @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             final ColorPaletteDef.Point point = getImageInfo().getColorPaletteDef().getPointAt(rowIndex);
             if (columnIndex == 0) {

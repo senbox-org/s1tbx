@@ -132,6 +132,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         imageInfoEditor.distributeSlidersEvenly();
     }
 
+    @Override
     public AbstractButton[] getToolButtons() {
         return new AbstractButton[]{
                 imageInfoEditorSupport.autoStretch95Button,

@@ -16,7 +16,7 @@
 
 package org.esa.beam.visat.toolviews.imageinfo;
 
-import javax.swing.AbstractButton;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -36,7 +36,7 @@ class ImageInfoEditorSupport {
         autoStretch95Button.setName("AutoStretch95Button");
         autoStretch95Button.setToolTipText("Auto-adjust to 95% of all pixels"); /*I18N*/
         autoStretch95Button.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 imageInfoEditor.compute95Percent();
             }
@@ -46,7 +46,7 @@ class ImageInfoEditorSupport {
         autoStretch100Button.setName("AutoStretch100Button");
         autoStretch100Button.setToolTipText("Auto-adjust to 100% of all pixels"); /*I18N*/
         autoStretch100Button.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 imageInfoEditor.compute100Percent();
             }
@@ -56,7 +56,7 @@ class ImageInfoEditorSupport {
         zoomInVButton.setName("zoomInVButton");
         zoomInVButton.setToolTipText("Stretch histogram vertically"); /*I18N*/
         zoomInVButton.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 imageInfoEditor.computeZoomInVertical();
             }
@@ -66,7 +66,7 @@ class ImageInfoEditorSupport {
         zoomOutVButton.setName("zoomOutVButton");
         zoomOutVButton.setToolTipText("Shrink histogram vertically"); /*I18N*/
         zoomOutVButton.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 imageInfoEditor.computeZoomOutVertical();
             }
@@ -76,7 +76,7 @@ class ImageInfoEditorSupport {
         zoomInHButton.setName("zoomInHButton");
         zoomInHButton.setToolTipText("Stretch histogram horizontally"); /*I18N*/
         zoomInHButton.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 imageInfoEditor.computeZoomInToSliderLimits();
             }
@@ -86,7 +86,7 @@ class ImageInfoEditorSupport {
         zoomOutHButton.setName("zoomOutHButton");
         zoomOutHButton.setToolTipText("Shrink histogram horizontally"); /*I18N*/
         zoomOutHButton.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 imageInfoEditor.computeZoomOutToFullHistogramm();
             }
@@ -97,7 +97,7 @@ class ImageInfoEditorSupport {
         showExtraInfoButton.setToolTipText("Show extra information");
         showExtraInfoButton.setSelected(imageInfoEditor.getShowExtraInfo());
         showExtraInfoButton.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(ActionEvent e) {
                 imageInfoEditor.setShowExtraInfo(showExtraInfoButton.isSelected());
             }

@@ -16,13 +16,12 @@
 
 package org.esa.beam.visat.toolviews.imageinfo;
 
-import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 
-import javax.swing.AbstractButton;
-import javax.swing.JLabel;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 
 class EmptyImageInfoForm implements ColorManipulationChildForm {
     public static final ColorManipulationChildForm INSTANCE = new EmptyImageInfoForm();
@@ -30,33 +29,42 @@ class EmptyImageInfoForm implements ColorManipulationChildForm {
     private EmptyImageInfoForm() {
     }
 
+    @Override
     public void handleFormShown(ProductSceneView productSceneView) {
     }
 
+    @Override
     public void handleFormHidden(ProductSceneView productSceneView) {
     }
 
+    @Override
     public void updateFormModel(ProductSceneView productSceneView) {
     }
 
+    @Override
     public void resetFormModel(ProductSceneView productSceneView) {
     }
 
+    @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
     }
 
+    @Override
     public AbstractButton[] getToolButtons() {
         return new AbstractButton[0];
     }
 
+    @Override
     public Component getContentPanel() {
         return new JLabel("No image view selected.");
     }
 
+    @Override
     public RasterDataNode[] getRasters() {
         return new RasterDataNode[0];
     }
 
+    @Override
     public MoreOptionsForm getMoreOptionsForm() {
         return null;
     }
