@@ -16,19 +16,16 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
+import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.ShapeFigure;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TransectProfileData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -85,13 +82,13 @@ public class StatisticsUtils {
             }
         }
 
-        private static Shape getTransectShape(Product product) {
+        public static Shape getTransectShape(Product product) {
             final VisatApp app = VisatApp.getApp();
             final ProductSceneView sceneView = app.getSelectedProductSceneView();
             if (sceneView != null) {
                 if (sceneView.getProduct() == product) {
                     final ShapeFigure currentShapeFigure = sceneView.getCurrentShapeFigure();
-                    if (currentShapeFigure != null) {
+                    if (currentShapeFigure != null && currentShapeFigure.getRank() != Figure.Rank.POINT) {
                         Shape shape = currentShapeFigure.getShape();
                         // shape is in model coordinates
                         return convertToImageCoordinates(shape, product.getGeoCoding());

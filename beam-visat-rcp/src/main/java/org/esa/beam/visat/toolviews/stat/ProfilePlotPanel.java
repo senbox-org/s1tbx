@@ -40,6 +40,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.swing.*;
@@ -186,6 +187,7 @@ class ProfilePlotPanel extends PagePanel {
         bindingContext.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
+                updateDataSource();
                 updateDataSet();
                 updateUIState();
             }
@@ -319,29 +321,60 @@ class ProfilePlotPanel extends PagePanel {
         if (!isInitialized) {
             return;
         }
-        try {
-            profileData = StatisticsUtils.TransectProfile.getTransectProfileData(getRaster());
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(getParent(),
-                                          "Failed to compute profile plot.\n" +
-                                                  "An I/O error occurred:" + e.getMessage(),
-                                          "I/O error",
-                                          JOptionPane.ERROR_MESSAGE);   /*I18N*/
-            return;
+
+        if (getRaster() != null) {
+            chart.setTitle(CHART_TITLE + " for " + getRaster().getName());
+        } else {
+            chart.setTitle(CHART_TITLE);
         }
-        chart.setTitle(getRaster() != null ? CHART_TITLE + " for " + getRaster().getName() : CHART_TITLE);
 
         correlativeFieldSelector.updatePointDataSource(getProduct());
+
+        updateDataSource();
         updateDataSet();
         updateUIState();
     }
 
+    private void updateDataSource() {
+
+        if (!isInitialized) {
+            return;
+        }
+
+        profileData = null;
+        if (getRaster() != null) {
+            try {
+                if (dataSourceConfig.useCorrelativeData
+                        && dataSourceConfig.pointDataSource != null) {
+                    profileData = TransectProfileData.create(getRaster(), dataSourceConfig.pointDataSource);
+                } else {
+                    Shape shape = StatisticsUtils.TransectProfile.getTransectShape(getRaster().getProduct());
+                    if (shape != null) {
+                        profileData = TransectProfileData.create(getRaster(), shape);
+                    }
+                }
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(getParent(),
+                                              "Failed to compute profile plot.\n" +
+                                                      "An I/O error occurred:" + e.getMessage(),
+                                              "I/O error",
+                                              JOptionPane.ERROR_MESSAGE);   /*I18N*/
+            }
+        }
+    }
+
 
     private void updateDataSet() {
+        if (!isInitialized) {
+            return;
+        }
+
         dataset.removeAllSeries();
-        if (profileData != null) {
+
+        if (profileData != null && profileData.getNumShapeVertices() >= 2) {
             final float[] sampleValues = profileData.getSampleValues();
-            if (profileData.getNumShapeVertices() <= 2 || !(Boolean) (xAxisRangeControl.getBindingContext().getPropertySet().getValue(PROPERTY_NAME_MARK_SEGMENTS))) {
+            boolean markSegments = (Boolean) (xAxisRangeControl.getBindingContext().getPropertySet().getValue(PROPERTY_NAME_MARK_SEGMENTS));
+            if (profileData.getNumShapeVertices() == 2 || !markSegments) {
                 XYSeries series = new XYSeries("Sample Values");
                 for (int i = 0; i < sampleValues.length; i++) {
                     series.add(i, sampleValues[i]);
@@ -356,10 +389,29 @@ class ProfilePlotPanel extends PagePanel {
                     dataset.addSeries(series);
                 }
             }
-            if (dataSourceConfig.useCorrelativeData) {
-                final XYSeries corrSeries = new XYSeries("Correlative Values");
 
-                // todo - this is only test code: extend profileData by correlative data at tie-points (nf/ts)
+            if (dataSourceConfig.useCorrelativeData
+                    && dataSourceConfig.pointDataSource != null
+                    && dataSourceConfig.dataField != null) {
+
+                XYSeries corrSeries = new XYSeries("Correlative Values");
+                int[] shapeVertexIndexes = profileData.getShapeVertexIndexes();
+                SimpleFeature[] simpleFeatures = dataSourceConfig.pointDataSource.getFeatureCollection().toArray(new SimpleFeature[0]);
+
+                if (shapeVertexIndexes.length == simpleFeatures.length) {
+                    String fieldName = dataSourceConfig.dataField.getLocalName();
+                    for (int i = 0; i < simpleFeatures.length; i++) {
+                        Number attribute = (Number) simpleFeatures[i].getAttribute(fieldName);
+                        corrSeries.add(shapeVertexIndexes[i], attribute.doubleValue());
+                    }
+                } else {
+                    System.out.println("Weird things happened:");
+                    System.out.println("  shapeVertexIndexes.length = " + shapeVertexIndexes.length);
+                    System.out.println("  simpleFeatures.length     = " + simpleFeatures.length);
+                }
+
+                // This is only test code:
+                /*
                 final XYSeries series = dataset.getSeries(0);
                 final int nval = series.getItemCount();
                 final int npnt = 20;
@@ -370,6 +422,7 @@ class ProfilePlotPanel extends PagePanel {
                         corrSeries.add(i, series.getY(i).doubleValue() + a * (2.0 * Math.random() - 1.0));
                     }
                 }
+                */
 
                 dataset.addSeries(corrSeries);
             }
@@ -384,6 +437,7 @@ class ProfilePlotPanel extends PagePanel {
         if (!isInitialized) {
             return;
         }
+
         xAxisRangeControl.getBindingContext().setComponentsEnabled(PROPERTY_NAME_MARK_SEGMENTS,
                                                                    profileData != null && profileData.getShapeVertices().length > 2);
         xAxisRangeControl.setComponentsEnabled(profileData != null);

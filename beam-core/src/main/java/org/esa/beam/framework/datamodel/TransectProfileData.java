@@ -49,6 +49,10 @@ public class TransectProfileData {
     }
 
     public static TransectProfileData create(RasterDataNode raster, VectorDataNode pointData) throws IOException {
+        return create(raster, createPath(pointData));
+    }
+
+    public static Path2D createPath(VectorDataNode pointData) {
         Path2D.Double path = new Path2D.Double();
         SimpleFeature[] simpleFeatures = pointData.getFeatureCollection().toArray(new SimpleFeature[0]);
         for (int i = 0; i < simpleFeatures.length; i++) {
@@ -60,9 +64,8 @@ public class TransectProfileData {
             } else {
                 path.lineTo(centroid.getX(), centroid.getY());
             }
-
         }
-        return create(raster, path);
+        return path;
     }
 
 
