@@ -27,19 +27,11 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Graphics;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -135,7 +127,7 @@ class ImageInfoEditor2 extends ImageInfoEditor {
     void askUser() {
         final int i = JOptionPane.showConfirmDialog(this,
                                                     "Compute accurate statistics?\n" +
-                                                    "Note that this action may take some time.",
+                                                            "Note that this action may take some time.",
                                                     "Question",
                                                     JOptionPane.YES_NO_OPTION);
         if (i == JOptionPane.YES_OPTION) {
@@ -143,7 +135,6 @@ class ImageInfoEditor2 extends ImageInfoEditor {
             sw.execute();
         }
     }
-
 
     private class ModelChangeHandler implements PropertyChangeListener, ChangeListener {
 

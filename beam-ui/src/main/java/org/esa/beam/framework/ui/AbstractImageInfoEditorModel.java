@@ -50,10 +50,12 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
         this.listenerList = new EventListenerList();
     }
 
+    @Override
     public ImageInfo getImageInfo() {
         return imageInfo;
     }
 
+    @Override
     public void setDisplayProperties(String name, String unit, Stx stx, Scaling scaling) {
         setParameterName(name);
         setParameterUnit(unit);
@@ -78,15 +80,18 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
         this.unit = unit;
     }
 
+    @Override
     public Scaling getSampleScaling() {
         return scaling;
     }
 
-    private void setSampleScaling(Scaling scaling) {
+    @Override
+    public void setSampleScaling(Scaling scaling) {
         Assert.notNull(scaling, "scaling");
         this.scaling = scaling;
     }
 
+    @Override
     public Stx getSampleStx() {
         return stx;
     }
@@ -96,14 +101,17 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
         this.stx = stx;
     }
 
+    @Override
     public double getMinSample() {
         return scaling == null ? 0 : stx.getMinimum();
     }
 
+    @Override
     public double getMaxSample() {
         return scaling == null ? 0 : stx.getMaximum();
     }
 
+    @Override
     public boolean isHistogramAvailable() {
         return getHistogramBins() != null && getHistogramBins().length > 0;
     }
@@ -112,6 +120,7 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
         return stx == null ? null : stx.getHistogramBins();
     }
 
+    @Override
     public double getMinHistogramViewSample() {
         if (minHistogramViewSample != null) {
             return minHistogramViewSample;
@@ -119,10 +128,12 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
         return getMinSample();
     }
 
+    @Override
     public void setMinHistogramViewSample(double minViewSample) {
         minHistogramViewSample = minViewSample;
     }
 
+    @Override
     public double getMaxHistogramViewSample() {
         if (maxHistogramViewSample != null) {
             return maxHistogramViewSample;
@@ -130,10 +141,12 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
         return getMaxSample();
     }
 
+    @Override
     public void setMaxHistogramViewSample(double maxViewSample) {
         maxHistogramViewSample = maxViewSample;
     }
 
+    @Override
     public double getHistogramViewGain() {
         if (histogramViewGain != null) {
             return histogramViewGain;
@@ -141,18 +154,22 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
         return 1.0;
     }
 
+    @Override
     public void setHistogramViewGain(double gain) {
         histogramViewGain = gain;
     }
 
+    @Override
     public void addChangeListener(ChangeListener l) {
         listenerList.add(ChangeListener.class, l);
     }
 
+    @Override
     public void removeChangeListener(ChangeListener l) {
         listenerList.remove(ChangeListener.class, l);
     }
 
+    @Override
     public void fireStateChanged() {
         final ChangeEvent event = new ChangeEvent(this);
         ChangeListener[] changeListeners = listenerList.getListeners(ChangeListener.class);
