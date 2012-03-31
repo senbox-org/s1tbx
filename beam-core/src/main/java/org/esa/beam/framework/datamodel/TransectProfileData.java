@@ -20,7 +20,7 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ShapeRasterizer;
 import org.esa.beam.util.math.MathUtils;
 
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 
@@ -29,7 +29,6 @@ import java.io.IOException;
  * A container for data which fully describes a transect profile.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  */
 public class TransectProfileData {
 
