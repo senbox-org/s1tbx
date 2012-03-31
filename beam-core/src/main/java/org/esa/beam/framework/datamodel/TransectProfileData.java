@@ -16,11 +16,15 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ShapeRasterizer;
 import org.esa.beam.util.math.MathUtils;
+import org.opengis.feature.simple.SimpleFeature;
 
 import java.awt.*;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 
@@ -40,19 +44,37 @@ public class TransectProfileData {
     private float sampleMin;
     private float sampleMax;
 
-    public static TransectProfileData create(RasterDataNode raster, Shape shape) throws IOException {
-        return new TransectProfileData(raster, shape);
+    public static TransectProfileData create(RasterDataNode raster, Shape path) throws IOException {
+        return new TransectProfileData(raster, path);
     }
 
-    private TransectProfileData(RasterDataNode raster, Shape shape) throws IOException {
+    public static TransectProfileData create(RasterDataNode raster, VectorDataNode pointData) throws IOException {
+        Path2D.Double path = new Path2D.Double();
+        SimpleFeature[] simpleFeatures = pointData.getFeatureCollection().toArray(new SimpleFeature[0]);
+        for (int i = 0; i < simpleFeatures.length; i++) {
+            SimpleFeature simpleFeature = simpleFeatures[i];
+            Geometry geometry = (Geometry) simpleFeature.getDefaultGeometry();
+            Point centroid = geometry.getCentroid();
+            if (i == 0) {
+                path.moveTo(centroid.getX(), centroid.getY());
+            } else {
+                path.lineTo(centroid.getX(), centroid.getY());
+            }
+
+        }
+        return create(raster, path);
+    }
+
+
+    private TransectProfileData(RasterDataNode raster, Shape path) throws IOException {
         Guardian.assertNotNull("raster", raster);
-        Guardian.assertNotNull("shape", shape);
+        Guardian.assertNotNull("path", path);
         if (raster.getProduct() == null) {
             throw new IllegalArgumentException("raster without product");
         }
 
         ShapeRasterizer rasterizer = new ShapeRasterizer();
-        shapeVertices = rasterizer.getVertices(shape);
+        shapeVertices = rasterizer.getVertices(path);
         shapeVertexIndexes = new int[shapeVertices.length];
         pixelPositions = rasterizer.rasterize(shapeVertices, shapeVertexIndexes);
         sampleValues = new float[pixelPositions.length];
@@ -137,4 +159,5 @@ public class TransectProfileData {
     public float getSampleMax() {
         return sampleMax;
     }
+
 }

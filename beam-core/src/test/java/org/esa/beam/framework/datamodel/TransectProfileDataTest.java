@@ -1,6 +1,13 @@
 package org.esa.beam.framework.datamodel;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.junit.Before;
 import org.junit.Test;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
@@ -12,21 +19,56 @@ import static org.junit.Assert.assertNotNull;
  * @author Norman Fomferra
  */
 public class TransectProfileDataTest {
-    @Test
-    public void testCreate() throws Exception {
 
-        Product product = new Product("p", "t", 4, 4);
-        Band band = product.addBand("b", "4 * (Y-0.5) + (X-0.5) + 0.1");
+    private Product product;
+    private Band band;
+    private Path2D.Double path;
 
-        Path2D.Double path = new Path2D.Double();
+    @Before
+    public void setUp() throws Exception {
+        product = new Product("p", "t", 4, 4);
+        band = product.addBand("b", "4 * (Y-0.5) + (X-0.5) + 0.1");
+
         // Draw a "Z"
+        path = new Path2D.Double();
         path.moveTo(0, 0);
         path.lineTo(3, 0);
         path.lineTo(0, 3);
         path.lineTo(3, 3);
+    }
 
+    @Test
+    public void testCreateWithDefaults() throws Exception {
         TransectProfileData profileData = TransectProfileData.create(band, path);
+        assertProfileDataIsAsExpected(profileData);
+    }
 
+    @Test
+    public void testCreateWithCorrelativeData() throws Exception {
+        SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
+        ftb.setName("Track");
+        ftb.add("point", Point.class);
+        ftb.add("data1", Double.class);
+        ftb.add("data2", Double.class);
+        ftb.setDefaultGeometry("point");
+        SimpleFeatureType ft = ftb.buildFeatureType();
+
+        GeometryFactory gf = new GeometryFactory();
+        SimpleFeatureBuilder sbb = new SimpleFeatureBuilder(ft);
+
+        VectorDataNode track = new VectorDataNode("Track", ft);
+        track.getFeatureCollection().add(sbb.buildFeature("id1", new Object[]{gf.createPoint(new Coordinate(0, 0)), 1.2, 2.3}));
+        track.getFeatureCollection().add(sbb.buildFeature("id2", new Object[]{gf.createPoint(new Coordinate(3, 0)), 3.4, 4.5}));
+        track.getFeatureCollection().add(sbb.buildFeature("id3", new Object[]{gf.createPoint(new Coordinate(0, 3)), 5.6, 6.7}));
+        track.getFeatureCollection().add(sbb.buildFeature("id4", new Object[]{gf.createPoint(new Coordinate(3, 3)), 7.8, 8.9}));
+
+        product.getVectorDataGroup().add(track);
+
+        TransectProfileData profileData = TransectProfileData.create(band, track);
+        assertProfileDataIsAsExpected(profileData);
+    }
+
+    private static void assertProfileDataIsAsExpected(TransectProfileData profileData) {
         int numPixels = profileData.getNumPixels();
         assertEquals(10, numPixels);
 
