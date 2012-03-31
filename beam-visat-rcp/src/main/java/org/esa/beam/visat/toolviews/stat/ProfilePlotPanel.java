@@ -18,14 +18,11 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import org.esa.beam.framework.datamodel.TransectProfileData;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -45,15 +42,13 @@ import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 
 /**
- * The profile plot pane within the statistcs window.
+ * The profile plot pane within the statistics window.
  */
 class ProfilePlotPanel extends PagePanel {
 
@@ -193,8 +188,8 @@ class ProfilePlotPanel extends PagePanel {
             }
         });
 
-        final JPanel dataSourceOptionsPanel = GridBagUtils.createPanel();
-        final GridBagConstraints dataSourceOptionsConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2");
+        JPanel dataSourceOptionsPanel = GridBagUtils.createPanel();
+        GridBagConstraints dataSourceOptionsConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, boxSizeLabel, dataSourceOptionsConstraints, "gridwidth=1,gridy=0,gridx=0,weightx=0");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, boxSizeSpinner, dataSourceOptionsConstraints, "gridwidth=1,gridy=0,gridx=1,weightx=1");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, roiMaskLabel, dataSourceOptionsConstraints, "gridwidth=2,gridy=1,gridx=0");
@@ -207,108 +202,31 @@ class ProfilePlotPanel extends PagePanel {
         GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.dataFieldLabel, dataSourceOptionsConstraints, "gridy=8");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.dataFieldList, dataSourceOptionsConstraints, "gridy=9");
 
-        final JPanel displayOptionsPanel = GridBagUtils.createPanel();
-
         xAxisRangeControl.getBindingContext().bind(PROPERTY_NAME_MARK_SEGMENTS, new JCheckBox("Mark segments"));
         yAxisRangeControl.getBindingContext().bind(PROPERTY_NAME_LOG_SCALED, new JCheckBox("Log scaled"));
 
-        final GridBagConstraints displayOptionsConstraints = GridBagUtils.createConstraints("anchor=SOUTH,fill=HORIZONTAL,weightx=1");
+        JPanel displayOptionsPanel = GridBagUtils.createPanel();
+        GridBagConstraints displayOptionsConstraints = GridBagUtils.createConstraints("anchor=SOUTH,fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(displayOptionsPanel, xAxisRangeControl.getPanel(), displayOptionsConstraints, "gridy=0");
         GridBagUtils.addToPanel(displayOptionsPanel, xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_MARK_SEGMENTS).getComponents()[0], displayOptionsConstraints, "gridy=1");
         GridBagUtils.addToPanel(displayOptionsPanel, yAxisRangeControl.getPanel(), displayOptionsConstraints, "gridy=2");
         GridBagUtils.addToPanel(displayOptionsPanel, yAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getComponents()[0], displayOptionsConstraints, "gridy=3");
 
-
-        final JPanel helpPanel = new JPanel(new BorderLayout());
-        helpPanel.add(getHelpButton(), BorderLayout.EAST);
-
-        final TableLayout rightPanelLayout = new TableLayout(1);
-        final JPanel rightPanel = new JPanel(rightPanelLayout);
-        rightPanelLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        rightPanelLayout.setRowWeightY(2, 1.0);
-        rightPanelLayout.setRowAnchor(0, TableLayout.Anchor.NORTH);
-        rightPanelLayout.setRowAnchor(1, TableLayout.Anchor.SOUTH);
-        rightPanelLayout.setRowAnchor(2, TableLayout.Anchor.SOUTH);
-        rightPanelLayout.setRowAnchor(3, TableLayout.Anchor.SOUTH);
-        rightPanel.add(dataSourceOptionsPanel);
-        rightPanel.add(displayOptionsPanel);
-        rightPanel.add(new JSeparator());
-        rightPanel.add(createChartButtonPanel2(profilePlotDisplay));
+        JPanel rightPanel = GridBagUtils.createPanel();
+        GridBagConstraints rightPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1");
+        GridBagUtils.addToPanel(rightPanel, dataSourceOptionsPanel, rightPanelConstraints, "gridy=0");
+        GridBagUtils.addToPanel(rightPanel, new JPanel(), rightPanelConstraints, "gridy=1,fill=VERTICAL,weighty=1");
+        GridBagUtils.addToPanel(rightPanel, displayOptionsPanel, rightPanelConstraints, "gridy=2,fill=HORIZONTAL,weighty=0");
+        GridBagUtils.addToPanel(rightPanel, new JSeparator(), rightPanelConstraints, "gridy=3");
+        GridBagUtils.addToPanel(rightPanel, createChartButtonPanel2(profilePlotDisplay), rightPanelConstraints, "gridy=4");
 
         add(profilePlotDisplay, BorderLayout.CENTER);
         add(rightPanel, BorderLayout.EAST);
-        isInitialized = true;
 
+        isInitialized = true;
         updateContent();
     }
 
-    protected JPanel createChartButtonPanel2(final ChartPanel chartPanel) {
-
-        final AbstractButton zoomAllButton = ToolButtonFactory.createButton(
-                UIUtils.loadImageIcon("icons/ZoomAll24.gif"),
-                false);
-        zoomAllButton.setToolTipText("Zoom all.");
-        zoomAllButton.setName("zoomAllButton.");
-        zoomAllButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                chartPanel.restoreAutoBounds();
-            }
-        });
-
-        final AbstractButton propertiesButton = ToolButtonFactory.createButton(
-                UIUtils.loadImageIcon("icons/Edit24.gif"),
-                false);
-        propertiesButton.setToolTipText("Edit properties.");
-        propertiesButton.setName("propertiesButton.");
-        propertiesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                chartPanel.doEditChartProperties();
-            }
-        });
-
-        final AbstractButton saveButton = ToolButtonFactory.createButton(
-                UIUtils.loadImageIcon("icons/Export24.gif"),
-                false);
-        saveButton.setToolTipText("Save chart as image.");
-        saveButton.setName("saveButton.");
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    chartPanel.doSaveAs();
-                } catch (IOException e1) {
-                    JOptionPane.showMessageDialog(chartPanel,
-                                                  "Could not save chart:\n" + e1.getMessage(),
-                                                  "Error",
-                                                  JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
-        final AbstractButton printButton = ToolButtonFactory.createButton(
-                UIUtils.loadImageIcon("icons/Print24.gif"),
-                false);
-        printButton.setToolTipText("Print chart.");
-        printButton.setName("printButton.");
-        printButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                chartPanel.createChartPrintJob();
-            }
-        });
-
-        final TableLayout tableLayout = new TableLayout(5);
-        JPanel buttonPane = new JPanel(tableLayout);
-        buttonPane.add(zoomAllButton);
-        buttonPane.add(propertiesButton);
-        buttonPane.add(saveButton);
-        buttonPane.add(printButton);
-        buttonPane.add(getHelpButton());
-
-        return buttonPane;
-    }
 
     @Override
     protected boolean mustUpdateContent() {

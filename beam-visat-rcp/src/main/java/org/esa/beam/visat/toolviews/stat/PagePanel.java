@@ -17,12 +17,7 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.swing.TableLayout;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
@@ -31,18 +26,8 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 import org.jfree.chart.ChartPanel;
 
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Point;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -57,7 +42,7 @@ import java.io.IOException;
 abstract class PagePanel extends JPanel implements ProductNodeListener {
 
     protected static final String ZOOM_TIP_MESSAGE = "TIP: To zoom within the chart, draw a rectangle\n" +
-                                                     "with the mouse or use the context menu.";
+            "with the mouse or use the context menu.";
 
     private Product product;
     private boolean productChanged;
@@ -252,6 +237,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         }
     }
 
+    @Deprecated
     protected static JPanel createChartButtonPanel(final ChartPanel chartPanel) {
 
         final AbstractButton zoomAllButton = ToolButtonFactory.createButton(
@@ -320,6 +306,78 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         buttonPane.add(printButton);
         return buttonPane;
     }
+
+    protected JPanel createChartButtonPanel2(final ChartPanel chartPanel) {
+
+        final AbstractButton zoomAllButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/ZoomAll24.gif"),
+                false);
+        zoomAllButton.setToolTipText("Zoom all.");
+        zoomAllButton.setName("zoomAllButton.");
+        zoomAllButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chartPanel.restoreAutoBounds();
+            }
+        });
+
+        final AbstractButton propertiesButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/Edit24.gif"),
+                false);
+        propertiesButton.setToolTipText("Edit properties.");
+        propertiesButton.setName("propertiesButton.");
+        propertiesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chartPanel.doEditChartProperties();
+            }
+        });
+
+        final AbstractButton saveButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/Export24.gif"),
+                false);
+        saveButton.setToolTipText("Save chart as image.");
+        saveButton.setName("saveButton.");
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    chartPanel.doSaveAs();
+                } catch (IOException e1) {
+                    JOptionPane.showMessageDialog(chartPanel,
+                                                  "Could not save chart:\n" + e1.getMessage(),
+                                                  "Error",
+                                                  JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        final AbstractButton printButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/Print24.gif"),
+                false);
+        printButton.setToolTipText("Print chart.");
+        printButton.setName("printButton.");
+        printButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chartPanel.createChartPrintJob();
+            }
+        });
+
+        final TableLayout tableLayout = new TableLayout(6);
+        tableLayout.setColumnFill(4, TableLayout.Fill.HORIZONTAL);
+        tableLayout.setColumnWeightX(4, 1.0);
+        JPanel buttonPanel = new JPanel(tableLayout);
+        buttonPanel.add(zoomAllButton);
+        buttonPanel.add(propertiesButton);
+        buttonPanel.add(saveButton);
+        buttonPanel.add(printButton);
+        buttonPanel.add(new JPanel());
+        buttonPanel.add(getHelpButton());
+
+        return buttonPanel;
+    }
+
 
     class PopupHandler extends MouseAdapter {
 
