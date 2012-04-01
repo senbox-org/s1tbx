@@ -44,6 +44,7 @@ import org.jfree.data.xy.XIntervalSeries;
 import org.jfree.data.xy.XIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
+import javax.media.jai.Histogram;
 import javax.swing.*;
 import java.awt.*;
 
@@ -335,9 +336,10 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
             final int[] binCounts = this.stx.getHistogramBins();
             final RasterDataNode raster = getRaster();
             final XIntervalSeries series = new XIntervalSeries(raster.getName());
+            final Histogram histogram = stx.getHistogram();
             for (int i = 0; i < binCounts.length; i++) {
-                final double xMin = stx.getHistogramBinMinimum(i);
-                final double xMax = stx.getHistogramBinMaximum(i);
+                final double xMin = histogram.getBinLowValue(0, i);
+                final double xMax = i < binCounts.length - 1 ? histogram.getBinLowValue(0, i + 1) : histogram.getHighValue(0);
                 series.add(xMin, xMin, xMax, binCounts[i]);
             }
             dataset.addSeries(series);
@@ -347,15 +349,28 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
     }
 
     private String getAxisLabel() {
+        boolean logScaled = (Boolean) logarithmicHistogram.getValue();
         RasterDataNode raster = getRaster();
         if (raster != null) {
             final String unit = raster.getUnit();
-            if (unit != null) {
-                return raster.getName() + " (" + unit + ")";
+            if (unit != null && !unit.isEmpty()) {
+                if (logScaled) {
+                    return raster.getName() + " (log(" + unit + "))";
+                } else {
+                    return raster.getName() + " (" + unit + ")";
+                }
             }
-            return raster.getName();
+            if (logScaled) {
+                return "log(" + raster.getName() + ")";
+            } else {
+                return raster.getName();
+            }
         } else {
-            return "Values";
+            if (logScaled) {
+                return "log(x)";
+            } else {
+                return "x";
+            }
         }
     }
 
@@ -424,6 +439,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
                 chart.getXYPlot().setDomainAxis(xAxis);
             }
         }
+
         chart.getXYPlot().getDomainAxis().setLabel(getAxisLabel());
     }
 
