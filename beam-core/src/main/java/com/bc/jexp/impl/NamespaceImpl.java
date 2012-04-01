@@ -16,18 +16,9 @@
 
 package com.bc.jexp.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import com.bc.jexp.*;
 
-import com.bc.jexp.Function;
-import com.bc.jexp.Namespace;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.Term;
-import com.bc.jexp.WritableNamespace;
+import java.util.*;
 
 /**
  * Provides an implementation of the <code>{@link com.bc.jexp.Namespace}</code> interface.
@@ -38,8 +29,8 @@ import com.bc.jexp.WritableNamespace;
 public class NamespaceImpl implements WritableNamespace {
 
     private final Namespace defaultNamespace;
-    private final Map symbols;
-    private final Map functions;
+    private final Map<String, Symbol> symbols;
+    private final Map<String, Function[]> functions;
 
     public NamespaceImpl() {
         this(null);
@@ -47,8 +38,8 @@ public class NamespaceImpl implements WritableNamespace {
 
     public NamespaceImpl(final Namespace defaultNamespace) {
         this.defaultNamespace = defaultNamespace;
-        symbols = new HashMap(32);
-        functions = new HashMap(16);
+        symbols = new HashMap<String, Symbol>(32);
+        functions = new HashMap<String, Function[]>(16);
     }
 
     public final Namespace getDefaultNamespace() {
@@ -64,7 +55,7 @@ public class NamespaceImpl implements WritableNamespace {
     }
 
     public final Symbol resolveSymbol(final String name) {
-        Symbol symbol = (Symbol) symbols.get(name);
+        Symbol symbol = symbols.get(name);
         if (symbol == null && defaultNamespace != null) {
             symbol = defaultNamespace.resolveSymbol(name);
         }
@@ -74,8 +65,8 @@ public class NamespaceImpl implements WritableNamespace {
     public final void registerFunction(final Function function) {
         Function[] array = getFunctions(function.getName());
         if (array != null) {
-            for (int i = 0; i < array.length; i++) {
-                if (array[i] == function) {
+            for (Function anArray : array) {
+                if (anArray == function) {
                     return;
                 }
             }
@@ -92,11 +83,11 @@ public class NamespaceImpl implements WritableNamespace {
     public final void deregisterFunction(final Function function) {
         Function[] array = getFunctions(function.getName());
         if (array != null) {
-            final ArrayList functionList = new ArrayList(Arrays.asList(array));
+            final ArrayList<Function> functionList = new ArrayList<Function>(Arrays.asList(array));
             if (!functionList.remove(function)) {
                 return;
             }
-            array = (Function[]) functionList.toArray(new Function[functionList.size()]);
+            array = functionList.toArray(new Function[functionList.size()]);
             functions.put(function.getName(), array);
         }
     }
@@ -106,14 +97,13 @@ public class NamespaceImpl implements WritableNamespace {
         if (functions != null) {
             Function bestFunction = null;
             int bestValidity = -1;
-            for (int i = 0; i < functions.length; i++) {
-                Function function = functions[i];
+            for (Function function : functions) {
                 int definedNumArgs = function.getNumArgs();
                 if (definedNumArgs == args.length || definedNumArgs == -1) {
                     int validity = definedNumArgs == args.length ? 10 : 0;
-                    for (int j = 0; j < args.length; j++) {
-                        Term arg = args[j];
-                        int argType = function.getArgType(j);
+                    for (int i = 0; i < args.length; i++) {
+                        Term arg = args[i];
+                        int argType = function.getArgType(i);
                         if (argType == arg.getRetType()) {
                             validity += 4;
                         } else if (argType == Term.TYPE_D && arg.isN()) {
@@ -144,20 +134,19 @@ public class NamespaceImpl implements WritableNamespace {
     }
 
     public Symbol[] getAllSymbols() {
-        final ArrayList symbolList = new ArrayList(symbols.values());
+        final ArrayList<Symbol> symbolList = new ArrayList<Symbol>(symbols.values());
         if (defaultNamespace instanceof WritableNamespace) {
             final WritableNamespace writableNamespace = (WritableNamespace) defaultNamespace;
             final Symbol[] defaultSymbols = writableNamespace.getAllSymbols();
             symbolList.addAll(Arrays.asList(defaultSymbols));
         }
-        return (Symbol[]) symbolList.toArray(new Symbol[0]);
+        return symbolList.toArray(new Symbol[symbolList.size()]);
     }
 
     public final Function[] getAllFunctions() {
-        final Collection collection = functions.values();
-        final ArrayList functionList = new ArrayList(32 + 2 * collection.size());
-        for (Iterator iterator = collection.iterator(); iterator.hasNext();) {
-            Function[] functions = (Function[]) iterator.next();
+        final Collection<Function[]> collection = functions.values();
+        final ArrayList<Function> functionList = new ArrayList<Function>(32 + 2 * collection.size());
+        for (Function[] functions : collection) {
             functionList.addAll(Arrays.asList(functions));
         }
         if (defaultNamespace instanceof WritableNamespace) {
@@ -165,10 +154,10 @@ public class NamespaceImpl implements WritableNamespace {
             final Function[] defaultFunctions = writableNamespace.getAllFunctions();
             functionList.addAll(Arrays.asList(defaultFunctions));
         }
-        return (Function[]) functionList.toArray(new Function[0]);
+        return functionList.toArray(new Function[functionList.size()]);
     }
 
     private Function[] getFunctions(final String name) {
-        return (Function[]) functions.get(name);
+        return functions.get(name);
     }
 }

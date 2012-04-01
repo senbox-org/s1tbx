@@ -31,11 +31,12 @@ public class ExtMath {
      * </ld>
      *
      * @param x number greater than 0.0.
-     *
      * @return the natural logarithm of a.
+     * @deprecated Use Java Math class
      */
+    @Deprecated
     public static double log10(final double x) {
-        return Math.log(x) * INV_LN_10;
+        return Math.log10(x);
     }
 
     /**
@@ -44,14 +45,10 @@ public class ExtMath {
      * @param x1  the first value
      * @param x2  the second value
      * @param eps the maximum deviation
-     *
      * @return true, if x1 and x2 are equal
      */
     public static boolean feq(final double x1, final double x2, final double eps) {
-        if (x1 == x2) { // allows to compare Double.NEGATIVE_INFINITY and Double.POSITIVE_INFINITY
-            return true;
-        }
-        return Math.abs(x1 - x2) <= eps;
+        return x1 == x2 || Math.abs(x1 - x2) <= eps;
     }
 
     /**
@@ -60,7 +57,6 @@ public class ExtMath {
      * @param x1  the first value
      * @param x2  the second value
      * @param eps the maximum deviation
-     *
      * @return true, if x1 and x2 are not equal
      */
     public static boolean fneq(final double x1, final double x2, final double eps) {
@@ -76,7 +72,6 @@ public class ExtMath {
      * </ld>
      *
      * @param a the number
-     *
      * @return the signum of a
      */
     public static int sign(int a) {
@@ -92,7 +87,6 @@ public class ExtMath {
      * </ld>
      *
      * @param a the number
-     *
      * @return the signum of a
      */
     public static long sign(long a) {
@@ -109,7 +103,6 @@ public class ExtMath {
      * </ld>
      *
      * @param a the number
-     *
      * @return the signum of a
      */
     public static float sign(float a) {
@@ -129,7 +122,6 @@ public class ExtMath {
      * </ld>
      *
      * @param a the number
-     *
      * @return the signum of a
      */
     public static double sign(double a) {

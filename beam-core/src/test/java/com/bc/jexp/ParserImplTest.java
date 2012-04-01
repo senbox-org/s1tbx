@@ -16,8 +16,7 @@
 
 package com.bc.jexp;
 
-import com.bc.jexp.impl.ParserImpl;
-import com.bc.jexp.impl.SymbolFactory;
+import com.bc.jexp.impl.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -171,4 +170,38 @@ public class ParserImplTest {
         double d3 = (0.1 + 0.2 + 0.3) - (1.4 + 1.3 + 1.1);
         assertEquals(Math.sqrt(d1 * d1 + d2 * d2 + d3 * d3), term.evalD(env), 1.e-10);
     }
+
+    int ix;
+    double dx;
+
+    @Test
+    public void testPow() throws ParseException {
+        NamespaceImpl namespace = new NamespaceImpl(new DefaultNamespace());
+        namespace.registerSymbol(new AbstractSymbol.I("ix") {
+            @Override
+            public int evalI(EvalEnv env) throws EvalException {
+                return ix;
+            }
+        });
+        namespace.registerSymbol(new AbstractSymbol.D("dx") {
+            @Override
+            public double evalD(EvalEnv env) throws EvalException {
+                return dx;
+            }
+        });
+        ParserImpl parser = new ParserImpl(namespace);
+        ix = 1;
+        dx = 1.0;
+        assertEquals(10.0, parser.parse("pow(10, ix)").evalD(null), 1E-10);
+        assertEquals(10.0, parser.parse("pow(10, ix)").evalD(null), 1E-10);
+        assertEquals(10.0, parser.parse("pow(10, dx)").evalD(null), 1E-10);
+        assertEquals(10.0, parser.parse("pow(10, dx)").evalD(null), 1E-10);
+        ix = 2;
+        dx = 2.0;
+        assertEquals(100.0, parser.parse("pow(10.0, ix)").evalD(null), 1E-10);
+        assertEquals(100.0, parser.parse("pow(10.0, ix)").evalD(null), 1E-10);
+        assertEquals(100.0, parser.parse("pow(10.0, dx)").evalD(null), 1E-10);
+        assertEquals(100.0, parser.parse("pow(10.0, dx)").evalD(null), 1E-10);
+    }
+
 }
