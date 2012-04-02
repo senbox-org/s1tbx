@@ -127,14 +127,15 @@ class ProfilePlotPanel extends PagePanel {
         renderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
 
         renderer.setSeriesShapesVisible(0, false);
-        renderer.setSeriesStroke(0, new BasicStroke(1.5f));
+        renderer.setSeriesStroke(0, new BasicStroke(1.0f));
         renderer.setSeriesPaint(0, new Color(0, 0, 200));
         renderer.setSeriesFillPaint(0, new Color(150, 150, 255));
 
         renderer.setSeriesShapesVisible(1, true);
+        renderer.setSeriesStroke(1, new BasicStroke(1.0f));
         renderer.setSeriesLinesVisible(1, false);
         renderer.setSeriesFillPaint(1, Color.white);
-        renderer.setSeriesShape(1, new Ellipse2D.Float(-3, -3, 6, 6));
+        renderer.setSeriesShape(1, new Ellipse2D.Float(-4, -4, 8, 8));
 
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
