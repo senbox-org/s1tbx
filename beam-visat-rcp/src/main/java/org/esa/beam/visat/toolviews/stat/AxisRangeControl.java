@@ -116,6 +116,5 @@ class AxisRangeControl {
         private boolean autoMinMax = true;
         private double min = 0.0;
         private double max = 100.0;
-
     }
 }
