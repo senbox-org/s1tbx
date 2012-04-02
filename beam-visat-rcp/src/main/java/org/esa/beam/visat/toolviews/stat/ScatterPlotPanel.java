@@ -49,10 +49,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -325,6 +330,16 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         xAxisOptionPanel.add(xAxisRangePanel);
         xAxisOptionPanel.add(xLogCheck, BorderLayout.SOUTH);
 
+        rasterDataSourceComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                final String value = (String) e.getItem();
+                if (value != null) {
+                    xAxisRangeControl.setTitleSuffix(value);
+                }
+            }
+        });
+
         final AxisRangeControl yAxisRangeControl = new AxisRangeControl("Y-Axis");
         final JPanel yAxisRangePanel = yAxisRangeControl.getPanel();
 
@@ -398,9 +413,7 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         gbc.gridy++;
         rightPanel.add(confidencePanel, gbc);
         gbc.gridy++;
-        rightPanel.add(createChartButtonPanel(scatterPlotDisplay), gbc);
-        gbc.gridy++;
-        rightPanel.add(helpPanel, gbc);
+        rightPanel.add(createChartButtonPanel2(scatterPlotDisplay), gbc);
 
         add(scatterPlotDisplay, BorderLayout.CENTER);
         add(rightPanel, BorderLayout.EAST);
@@ -662,6 +675,7 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
             }
         }
 
+        availableBandList.add(0, "");
         return availableBandList.toArray(new String[availableBandList.size()]);
     }
 
