@@ -17,14 +17,14 @@
 package org.esa.beam.csv.dataio.reader;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.util.io.CsvFile;
-import org.esa.beam.util.io.CsvSource;
-import org.esa.beam.util.io.CsvSourceParser;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.io.CsvFile;
+import org.esa.beam.util.io.CsvSource;
+import org.esa.beam.util.io.CsvSourceParser;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -65,12 +65,8 @@ public class CsvProductReader extends AbstractProductReader {
 
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        try {
-            parser = CsvFile.createCsvSourceParser(getInput().toString());
-            source = parser.parseMetadata();
-        } catch (CsvSourceParser.ParseException e) {
-            throw new IOException(e);
-        }
+        parser = CsvFile.createCsvSourceParser(getInput().toString());
+        source = parser.parseMetadata();
         final int sceneRasterWidth = source.getRecordCount();
         // todo - get name and type from properties, if existing
         final Product product = new Product(getInput().toString(), "CSV", sceneRasterWidth, 1);
@@ -91,17 +87,14 @@ public class CsvProductReader extends AbstractProductReader {
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-        BeamLogManager.getSystemLogger().log(Level.INFO, MessageFormat.format("reading band data (" + destBand.getName() + ") from {0} to {1}",
-                                                                              sourceOffsetX, sourceOffsetX + destWidth - 1));
+        BeamLogManager.getSystemLogger().log(Level.INFO, MessageFormat.format(
+                "reading band data (" + destBand.getName() + ") from {0} to {1}",
+                sourceOffsetX, sourceOffsetX + destWidth - 1));
         pm.beginTask("reading band data...", destWidth);
         if (sourceOffsetX > offset) {
             offset = sourceOffsetX;
-            try {
-                synchronized (parser) {
-                    parser.parseRecords(sourceOffsetX, destWidth);
-                }
-            } catch (CsvSourceParser.ParseException e) {
-                throw new IOException(e);
+            synchronized (parser) {
+                parser.parseRecords(sourceOffsetX, destWidth);
             }
         }
         final SimpleFeature[] simpleFeatures = source.getSimpleFeatures();
@@ -154,7 +147,8 @@ public class CsvProductReader extends AbstractProductReader {
                 break;
             }
             default: {
-                throw new IllegalArgumentException("Unsupported type '" + ProductData.getTypeString(destBuffer.getType()) + "'.");
+                throw new IllegalArgumentException(
+                        "Unsupported type '" + ProductData.getTypeString(destBuffer.getType()) + "'.");
             }
         }
     }
@@ -181,9 +175,9 @@ public class CsvProductReader extends AbstractProductReader {
     private boolean isAccessibleBandType(Class<?> type) {
         final String className = type.getSimpleName().toLowerCase();
         return className.equals("float") ||
-                className.equals("double") ||
-                className.equals("byte") ||
-                className.equals("short") ||
-                className.equals("integer");
+               className.equals("double") ||
+               className.equals("byte") ||
+               className.equals("short") ||
+               className.equals("integer");
     }
 }

@@ -16,17 +16,18 @@
 
 package org.esa.beam.csv.dataio.reader;
 
-import org.esa.beam.util.io.Constants;
-import org.esa.beam.util.io.CsvFile;
-import org.esa.beam.util.io.CsvSourceParser;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.io.Constants;
+import org.esa.beam.util.io.CsvFile;
+import org.esa.beam.util.io.CsvSourceParser;
 import org.esa.beam.util.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 
 /**
@@ -47,7 +48,7 @@ public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
         final CsvSourceParser csvFile = CsvFile.createCsvSourceParser(input.toString());
         try {
             csvFile.parseMetadata();
-        } catch (CsvSourceParser.ParseException e) {
+        } catch (IOException e) {
             return DecodeQualification.UNABLE;
         } finally {
             csvFile.close();

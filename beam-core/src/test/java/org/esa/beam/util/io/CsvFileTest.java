@@ -25,6 +25,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.PropertyDescriptor;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class CsvFileTest {
         assertEquals(",", properties.get("separator"));
     }
 
-    @Test(expected = CsvSourceParser.ParseException.class)
+    @Test(expected = IOException.class)
     public void testParseProperties_Fail() throws Exception {
         final CsvSourceParser parser = CsvFile.createCsvSourceParser("invalid_path");
         parser.parseMetadata();

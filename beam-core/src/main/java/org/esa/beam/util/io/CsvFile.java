@@ -87,80 +87,63 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         return new CsvFile(csv);
     }
 
-    public static CsvSourceParser createCsvSourceParser(File csv) {
-        return new CsvFile(csv);
-    }
-
-    public static CsvSourceParser createCsvSourceParser(File csv, CoordinateReferenceSystem crs) {
-        return new CsvFile(csv, crs);
-    }
-    
     @Override
-    public void parseRecords(int offset, int numRecords) throws ParseException {
-        Converter<?>[] converters;
-        try {
-            converters = VectorDataNodeIO.getConverters(simpleFeatureType);
-        } catch (IOException e) {
-            throw new ParseException(e);
-        }
+    public void parseRecords(int offset, int numRecords) throws IOException {
+        Converter<?>[] converters = VectorDataNodeIO.getConverters(simpleFeatureType);
 
         featureCollection = new ListFeatureCollection(simpleFeatureType);
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeatureType);
 
-        try {
-            if (reader == null) {
-                reader = new LineCountReader(new FileReader(csv));
-                skipNonRecordLines(reader);
-            } else if (reader.getRecordLine() > offset) {
-                reader.close();
-                reader = new LineCountReader(new FileReader(csv));
-                skipNonRecordLines(reader);
+        if (reader == null) {
+            reader = new LineCountReader(new FileReader(csv));
+            skipNonRecordLines(reader);
+        } else if (reader.getRecordLine() > offset) {
+            reader.close();
+            reader = new LineCountReader(new FileReader(csv));
+            skipNonRecordLines(reader);
+        }
+        skipToOffset(offset, reader);
+        String line;
+        int featureCount = offset;
+        while ((numRecords == -1 || featureCount < offset + numRecords) && (line = reader.readRecordLine()) != null) {
+            String[] tokens = getTokens(line);
+            if (tokens == null) {
+                break;
             }
-            skipToOffset(offset, reader);
-            String line;
-            int featureCount = offset;
-            while ((numRecords == -1 || featureCount < offset + numRecords) && (line = reader.readRecordLine()) != null) {
-                String[] tokens = getTokens(line);
-                if (tokens == null) {
-                    break;
-                }
-                int expectedTokenCount = simpleFeatureType.getAttributeCount();
-                expectedTokenCount += hasFeatureId ? 1 : 0;
-                if (tokens.length != expectedTokenCount) {
-                    continue;
-                }
-                builder.reset();
-                String featureId = "" + featureCount++;
-                for (int i = 0; i < tokens.length; i++) {
-                    String token = tokens[i];
-                    if (i == 0 && hasFeatureId) {
-                        featureId = token;
-                    } else {
-                        try {
-                            Object value = null;
-                            int currentIndex = i;
-                            currentIndex -= hasFeatureId ? 1 : 0;
-                            if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
-                                value = converters[currentIndex].parse(token);
-                            }
-                            builder.set(simpleFeatureType.getDescriptor(currentIndex).getLocalName(), value);
-                        } catch (ConversionException e) {
-                            BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': %s",
-                                                                                   csv.getPath(), e.getMessage()));
+            int expectedTokenCount = simpleFeatureType.getAttributeCount();
+            expectedTokenCount += hasFeatureId ? 1 : 0;
+            if (tokens.length != expectedTokenCount) {
+                continue;
+            }
+            builder.reset();
+            String featureId = "" + featureCount++;
+            for (int i = 0; i < tokens.length; i++) {
+                String token = tokens[i];
+                if (i == 0 && hasFeatureId) {
+                    featureId = token;
+                } else {
+                    try {
+                        Object value = null;
+                        int currentIndex = i;
+                        currentIndex -= hasFeatureId ? 1 : 0;
+                        if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
+                            value = converters[currentIndex].parse(token);
                         }
+                        builder.set(simpleFeatureType.getDescriptor(currentIndex).getLocalName(), value);
+                    } catch (ConversionException e) {
+                        BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': %s",
+                                                                               csv.getPath(), e.getMessage()));
                     }
                 }
-                SimpleFeature simpleFeature = builder.buildFeature(featureId);
-                featureCollection.add(simpleFeature);
             }
-        } catch (Exception e) {
-            throw new ParseException(e);
+            SimpleFeature simpleFeature = builder.buildFeature(featureId);
+            featureCollection.add(simpleFeature);
         }
         recordsParsed = true;
     }
 
     @Override
-    public CsvSource parseMetadata() throws ParseException {
+    public CsvSource parseMetadata() throws IOException {
         parseProperties();
         parseHeader();
         return this;
@@ -204,7 +187,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
 
     @Override
     public SimpleFeature[] getSimpleFeatures() {
-        if(!recordsParsed) {
+        if (!recordsParsed) {
             throw new IllegalStateException("The records have not been parsed yet.");
         }
         final Object[] objects = featureCollection.toArray(new Object[featureCollection.size()]);
@@ -226,11 +209,11 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         return properties;
     }
 
-    private void parseProperties() throws ParseException {
+    private void parseProperties() throws IOException {
         BufferedReader bufferedReader = null;
+        bufferedReader = new BufferedReader(new FileReader(csv));
+        String line;
         try {
-            bufferedReader = new BufferedReader(new FileReader(csv));
-            String line;
             while ((line = bufferedReader.readLine()) != null) {
                 if (!line.startsWith("#")) {
                     break;
@@ -238,22 +221,22 @@ public class CsvFile implements CsvSourceParser, CsvSource {
                 line = line.substring(1);
                 int pos = line.indexOf('=');
                 if (pos == -1) {
-                    throw new ParseException("Missing '=' in '" + line + "'");
+                    throw new IOException("Missing '=' in '" + line + "'");
                 }
                 String name = line.substring(0, pos).trim();
                 if (name.isEmpty()) {
-                    throw new ParseException("Empty property name in '" + line + "'");
+                    throw new IOException("Empty property name in '" + line + "'");
                 }
                 String value = line.substring(pos + 1).trim();
-                if (contains(Constants.CRS_IDENTIFIERS, name) && crs != null) {
-                    crs = CRS.parseWKT(value);
+                try {
+                    if (contains(Constants.CRS_IDENTIFIERS, name) && crs != null) {
+                        crs = CRS.parseWKT(value);
+                    }
+                } catch (FactoryException e) {
+                    throw new IOException(e);
                 }
                 properties.put(name, value);
             }
-        } catch (IOException e) {
-            throw new ParseException(e);
-        } catch (FactoryException e) {
-            throw new ParseException(e);
         } finally {
             propertiesParsed = true;
             if (bufferedReader != null) {
@@ -316,7 +299,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         simpleFeatureType = builder.buildFeatureType();
     }
 
-    private void parseHeader() throws ParseException {
+    private void parseHeader() throws IOException {
         if (!propertiesParsed) {
             throw new IllegalStateException("Properties need to be parsed before header.");
         }
@@ -329,12 +312,11 @@ public class CsvFile implements CsvSourceParser, CsvSource {
                 if (line.startsWith("#")) {
                     continue;
                 }
-                final String separator = properties.get("separator") != null ? properties.get("separator") : Constants.DEFAULT_SEPARATOR;
+                final String separator =
+                        properties.get("separator") != null ? properties.get("separator") : Constants.DEFAULT_SEPARATOR;
                 createFeatureType(line.split(separator));
                 break;
             }
-        } catch (IOException e) {
-            throw new ParseException(e);
         } finally {
             if (bufferedReader != null) {
                 try {
@@ -420,6 +402,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
     }
 
     private class LineCountReader extends BufferedReader {
+
         private int recordLine = 0;
 
         private LineCountReader(Reader in) {
