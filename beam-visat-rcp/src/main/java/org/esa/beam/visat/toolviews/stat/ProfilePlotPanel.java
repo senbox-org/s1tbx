@@ -16,8 +16,7 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.swing.binding.BindingContext;
 import org.esa.beam.framework.datamodel.TransectProfileData;
 import org.esa.beam.framework.datamodel.VectorDataNode;
@@ -72,8 +71,6 @@ class ProfilePlotPanel extends PagePanel {
     private TransectProfileData profileData;
 
     private boolean axisAdjusting = false;
-    private Property pointDataSourceProperty;
-    private Property dataFieldProperty;
     private CorrelativeFieldSelector correlativeFieldSelector;
     private DataSourceConfig dataSourceConfig;
 
@@ -155,10 +152,9 @@ class ProfilePlotPanel extends PagePanel {
         rangeAxis.addChangeListener(axisListener);
 
 
-        final JLabel boxSizeLabel = new JLabel("Box size:");
+        final JLabel boxSizeLabel = new JLabel("Box size: ");
         final JSpinner boxSizeSpinner = new JSpinner();
-        boxSizeSpinner.setModel(new SpinnerNumberModel(1, 1, 101, 2));
-        final JLabel roiMaskLabel = new JLabel("ROI mask:");
+        final JLabel roiMaskLabel = new JLabel("ROI mask: ");
         final JComboBox roiMaskList = new JComboBox();
         final JButton roiMaskButton = new JButton("..."); // todo - use action from mask manager
         final JCheckBox computeInBetweenPoints = new JCheckBox("Compute in-between points");
@@ -168,7 +164,17 @@ class ProfilePlotPanel extends PagePanel {
         final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(dataSourceConfig));
 
         correlativeFieldSelector = new CorrelativeFieldSelector(bindingContext);
-
+        final PropertyDescriptor boxSizeDescriptor = bindingContext.getPropertySet().getProperty("boxSize").getDescriptor();
+        boxSizeDescriptor.setValueRange(new ValueRange(1, 101));
+        boxSizeDescriptor.setAttribute("stepSize", 2);
+        boxSizeDescriptor.setValidator(new Validator() {
+            @Override
+            public void validateValue(Property property, Object value) throws ValidationException {
+                if (((Number) value).intValue() % 2 == 0) {
+                    throw new ValidationException("Only uneven values allowed as box size.");
+                }
+            }
+        });
         bindingContext.bind("boxSize", boxSizeSpinner);
         bindingContext.bind("roiMask", roiMaskList);
         bindingContext.getBinding("roiMask").addComponent(roiMaskLabel);
@@ -264,11 +270,11 @@ class ProfilePlotPanel extends PagePanel {
             try {
                 if (dataSourceConfig.useCorrelativeData
                         && dataSourceConfig.pointDataSource != null) {
-                    profileData = TransectProfileData.create(getRaster(), dataSourceConfig.pointDataSource);
+                    profileData = TransectProfileData.create(getRaster(), dataSourceConfig.pointDataSource, dataSourceConfig.boxSize, null);
                 } else {
                     Shape shape = StatisticsUtils.TransectProfile.getTransectShape(getRaster().getProduct());
                     if (shape != null) {
-                        profileData = TransectProfileData.create(getRaster(), shape);
+                        profileData = TransectProfileData.create(getRaster(), shape, dataSourceConfig.boxSize, null);
                     }
                 }
             } catch (IOException e) {
@@ -327,20 +333,6 @@ class ProfilePlotPanel extends PagePanel {
                     System.out.println("  shapeVertexIndexes.length = " + shapeVertexIndexes.length);
                     System.out.println("  simpleFeatures.length     = " + simpleFeatures.length);
                 }
-
-                // This is only test code:
-                /*
-                final XYSeries series = dataset.getSeries(0);
-                final int nval = series.getItemCount();
-                final int npnt = 20;
-                final int m = nval >= npnt ? nval / npnt : 1;
-                final double a = 0.05 * (series.getMaxY() - series.getMinY());
-                for (int i = 0; i < nval; i++) {
-                    if (i % m == 0) {
-                        corrSeries.add(i, series.getY(i).doubleValue() + a * (2.0 * Math.random() - 1.0));
-                    }
-                }
-                */
 
                 dataset.addSeries(corrSeries);
             }
@@ -431,9 +423,9 @@ class ProfilePlotPanel extends PagePanel {
     }
 
     private static class DataSourceConfig {
-        private int boxSize;
+        private int boxSize = 3;
         private String roiMask;
-        private boolean computeInBetweenPoints;
+        private boolean computeInBetweenPoints = true;
         private boolean useCorrelativeData;
         private VectorDataNode pointDataSource;
         private AttributeDescriptor dataField;
