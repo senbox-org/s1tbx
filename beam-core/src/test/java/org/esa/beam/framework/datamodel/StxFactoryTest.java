@@ -57,22 +57,46 @@ public class StxFactoryTest {
     public void testMinMaxBinsLogHistogram() throws Exception {
         StxFactory factory = new StxFactory();
         factory
-                .withMinimum(0)
-                .withMaximum(100)
+                .withMinimum(0.1)
+                .withMaximum(10)
                 .withLogHistogram(true)
                 .withHistogramBins(new int[]{1, 2, 3, 6, 6, 3, 2, 1});
         Stx stx = factory.create();
 
-        assertEquals(0, stx.getMinimum(), 1e-10);
-        assertEquals(100, stx.getMaximum(), 1e-10);
+        assertNotNull(stx.getHistogram());
+        assertEquals(1, stx.getHistogram().getNumBands());
+        assertEquals(8, stx.getHistogram().getNumBins()[0]);
+
+        assertEquals(0.1, stx.getMinimum(), 1e-10);
+        assertEquals(10, stx.getMaximum(), 1e-10);
+        assertEquals(Math.pow(10.0, stx.getHistogram().getMean()[0]), stx.getMean(), 1e-3);
+        assertEquals(Math.pow(10.0, 0), stx.getMedian(), 1e-3);
+
+        assertEquals(-1.0, stx.getHistogram().getLowValue(0), 1e-10);
+        assertEquals(1.0, stx.getHistogram().getHighValue(0), 1e-10);
+        assertArrayEquals(new int[]{1, 2, 3, 6, 6, 3, 2, 1}, stx.getHistogramBins());
+    }
+
+    @Test
+    public void testMinMaxBinsLogHistogramWithNegativeMinimum() throws Exception {
+        StxFactory factory = new StxFactory();
+        factory
+                .withMinimum(-10)
+                .withMaximum(+10)
+                .withLogHistogram(true)
+                .withHistogramBins(new int[]{1, 2, 3, 6, 6, 3, 2, 1});
+        Stx stx = factory.create();
+
+        assertEquals(-10, stx.getMinimum(), 1e-10);
+        assertEquals(+10, stx.getMaximum(), 1e-10);
         assertEquals(0.0, stx.getMean(), 1e-3);
         assertEquals(0.0, stx.getMedian(), 1e-3);
 
         assertNotNull(stx.getHistogram());
         assertEquals(1, stx.getHistogram().getNumBands());
         assertEquals(8, stx.getHistogram().getNumBins()[0]);
-        assertEquals(-9.0, stx.getHistogram().getLowValue(0), 1e-10);
-        assertEquals(2.0, stx.getHistogram().getHighValue(0), 1e-10);
+        assertEquals(-9.0, stx.getHistogram().getLowValue(0), 1e-10); // 1E-9 is the max value we handle
+        assertEquals(1.0, stx.getHistogram().getHighValue(0), 1e-10);
         assertArrayEquals(new int[]{1, 2, 3, 6, 6, 3, 2, 1}, stx.getHistogramBins());
     }
 
