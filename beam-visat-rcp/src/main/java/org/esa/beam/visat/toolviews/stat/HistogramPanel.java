@@ -353,19 +353,14 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         boolean logScaled = (Boolean) logarithmicHistogram.getValue();
         RasterDataNode raster = getRaster();
         if (raster != null) {
-            final String unit = raster.getUnit();
-            if (unit != null && !unit.isEmpty()) {
-                if (logScaled) {
-                    return raster.getName() + " (log(" + unit + "))";
-                } else {
-                    return raster.getName() + " (" + unit + ")";
-                }
-            }
             if (logScaled) {
                 return "log(" + raster.getName() + ")";
-            } else {
-                return raster.getName();
             }
+            final String unit = raster.getUnit();
+            if (unit != null && !unit.isEmpty()) {
+                return raster.getName() + " (" + unit + ")";
+            }
+            return raster.getName();
         } else {
             if (logScaled) {
                 return "log(x)";
