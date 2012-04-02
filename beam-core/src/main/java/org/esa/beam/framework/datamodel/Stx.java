@@ -260,15 +260,17 @@ public class Stx {
 
         @Override
         public double scale(double value) {
-            if (value <= 0.0) {
-                return 0.0;
+            // This is mathematically nonsense, but we want to consider every pixel in the distribution (nf)
+            if (value > 0.0) {
+                return Math.log10(value);
+            } else {
+                return Math.log10(-value);
             }
-            return Math.log(value);
         }
 
         @Override
         public double scaleInverse(double value) {
-            return Math.exp(value);
+            return Math.pow(10, value);
         }
 
     }
