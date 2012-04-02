@@ -166,15 +166,12 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
             updateContent();
             rasterChanged = false;
             productChanged = false;
-            // todo ... maybe a bug?
-            // vectorDataChanged = false
+            vectorDataChanged = false;
         }
 
     }
 
     protected boolean mustUpdateContent() {
-        // todo ... maybe a bug?
-//        return isRasterChanged() || isProductChanged() || isVectorDataNodeChanged();
         return isRasterChanged() || isProductChanged();
     }
 
@@ -194,7 +191,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     protected AbstractButton getHelpButton() {
         if (getHelpId() != null) {
             final AbstractButton helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"),
-                    false);
+                                                                             false);
             helpButton.setToolTipText("Help.");
             helpButton.setName("helpButton");
             HelpSys.enableHelpOnButton(helpButton, getHelpId());
@@ -280,9 +277,9 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
                     chartPanel.doSaveAs();
                 } catch (IOException e1) {
                     JOptionPane.showMessageDialog(chartPanel,
-                            "Could not save chart:\n" + e1.getMessage(),
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Could not save chart:\n" + e1.getMessage(),
+                                                  "Error",
+                                                  JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
