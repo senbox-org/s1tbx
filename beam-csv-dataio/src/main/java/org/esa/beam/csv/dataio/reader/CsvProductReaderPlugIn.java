@@ -45,13 +45,16 @@ public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
 
-        final CsvSourceParser csvFile = CsvFile.createCsvSourceParser(input.toString());
+        CsvSourceParser csvFile = null;
         try {
+            csvFile = CsvFile.createCsvSourceParser(input.toString());
             csvFile.parseMetadata();
         } catch (IOException e) {
             return DecodeQualification.UNABLE;
         } finally {
-            csvFile.close();
+            if (csvFile != null) {
+                csvFile.close();
+            }
         }
 
         return DecodeQualification.SUITABLE;
