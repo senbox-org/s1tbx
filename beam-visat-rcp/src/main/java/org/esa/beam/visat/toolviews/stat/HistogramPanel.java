@@ -144,8 +144,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         paramGroup.addParameter(logarithmicAxis);
 
         logarithmicHistogram = new Parameter("histo.logarithmicHistogram", false);
-        logarithmicHistogram.getProperties().setLabel("Logarithmic histogram");    /*I18N*/
-        logarithmicHistogram.getProperties().setDescription("Compute logarithmic histogram (for log-normal pixel distributions)");    /*I18N*/
+        logarithmicHistogram.getProperties().setLabel("Log-10 histogram");    /*I18N*/
+        logarithmicHistogram.getProperties().setDescription("Compute a log-10 histogram for log-normal pixel distributions");    /*I18N*/
         paramGroup.addParameter(logarithmicHistogram);
 
         paramGroup.addParamChangeListener(new ParamChangeListener() {
@@ -348,6 +348,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         chart.fireChartChanged();
     }
 
+    // Check how we can draw an axis label that uses a sub-scripted "10" in "log10". (ts,nf)
     private String getAxisLabel() {
         boolean logScaled = (Boolean) logarithmicHistogram.getValue();
         RasterDataNode raster = getRaster();
