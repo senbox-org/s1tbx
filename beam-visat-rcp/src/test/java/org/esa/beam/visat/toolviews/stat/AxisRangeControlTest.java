@@ -1,12 +1,12 @@
 package org.esa.beam.visat.toolviews.stat;
 
+import com.jidesoft.swing.TitledSeparator;
 import org.junit.Test;
 
 import javax.swing.*;
 import java.awt.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Norman Fomferra
@@ -30,6 +30,35 @@ public class AxisRangeControlTest {
         assertEquals(true, axisRangeControl.getBindingContext().getBinding("autoMinMax").getPropertyValue());
         assertEquals(0.0, axisRangeControl.getBindingContext().getBinding("min").getPropertyValue());
         assertEquals(100.0, axisRangeControl.getBindingContext().getBinding("max").getPropertyValue());
+    }
+
+    @Test
+    public void testSetTitle() {
+        final String axisName = "Titel";
+        final AxisRangeControl control = new AxisRangeControl(axisName);
+        final JPanel rangeControlPanel = control.getPanel();
+
+        final Component component = rangeControlPanel.getComponent(0);
+        assertTrue(component instanceof TitledSeparator);
+        final TitledSeparator titledSeparator = (TitledSeparator) component;
+        final JLabel titleLabel = (JLabel) titledSeparator.getLabelComponent();
+        assertEquals(axisName, titleLabel.getText());
+
+        control.setTitleSuffix("radiance_3");
+
+        assertEquals(axisName + " (radiance_3)", titleLabel.getText());
+
+        control.setTitleSuffix("");
+
+        assertEquals(axisName, titleLabel.getText());
+
+        control.setTitleSuffix("radiance_5");
+
+        assertEquals(axisName + " (radiance_5)", titleLabel.getText());
+
+        control.setTitleSuffix(null);
+
+        assertEquals(axisName, titleLabel.getText());
     }
 
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, IllegalAccessException, InstantiationException {

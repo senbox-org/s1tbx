@@ -20,6 +20,7 @@ class AxisRangeControl {
     private final BindingContext bindingContext;
     private final String axisName;
     private JPanel panel;
+    private TitledSeparator titledSeparator;
 
     AxisRangeControl(String axisName) {
         this.axisName = axisName;
@@ -46,7 +47,8 @@ class AxisRangeControl {
 
         GridBagUtils.setAttributes(gbc, "gridwidth=2,insets.top=2,weightx=1");
 
-        GridBagUtils.addToPanel(panel, new TitledSeparator(axisName, SwingConstants.CENTER), gbc, "gridy=0");
+        titledSeparator = new TitledSeparator(axisName, SwingConstants.CENTER);
+        GridBagUtils.addToPanel(panel, titledSeparator, gbc, "gridy=0");
         GridBagUtils.addToPanel(panel, autoMinMaxBox, gbc, "gridy=1");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=1");
@@ -71,6 +73,16 @@ class AxisRangeControl {
         bindingContext.bindEnabledState("max", true, "autoMinMax", false);
 
         return panel;
+    }
+
+    public void setTitleSuffix(String suffix) {
+        final JLabel label = (JLabel) titledSeparator.getLabelComponent();
+        if (suffix == null || suffix.trim().length() == 0) {
+            label.setText(axisName);
+        } else {
+            label.setText(axisName + " (" + suffix.trim() + ")");
+        }
+        titledSeparator.repaint();
     }
 
     public BindingContext getBindingContext() {
