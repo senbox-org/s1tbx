@@ -32,9 +32,9 @@ import org.jfree.chart.event.AxisChangeEvent;
 import org.jfree.chart.event.AxisChangeListener;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.chart.renderer.xy.DeviationRenderer;
+import org.jfree.data.xy.YIntervalSeries;
+import org.jfree.data.xy.YIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -67,7 +67,7 @@ class ProfilePlotPanel extends PagePanel {
 
     private ChartPanel profilePlotDisplay;
     private JFreeChart chart;
-    private XYSeriesCollection dataset;
+    private YIntervalSeriesCollection dataset;
     private TransectProfileData profileData;
 
     private boolean axisAdjusting = false;
@@ -109,7 +109,7 @@ class ProfilePlotPanel extends PagePanel {
         yAxisRangeControl.getBindingContext().getPropertySet().addProperty(Property.create(PROPERTY_NAME_LOG_SCALED, false));
         yAxisRangeControl.getBindingContext().getPropertySet().getDescriptor(PROPERTY_NAME_LOG_SCALED).setDescription("Toggle whether to use a logarithmic axis");
 
-        dataset = new XYSeriesCollection();
+        dataset = new YIntervalSeriesCollection();
         chart = ChartFactory.createXYLineChart(
                 CHART_TITLE,
                 "Path (pixel)",
@@ -122,14 +122,19 @@ class ProfilePlotPanel extends PagePanel {
         );
         final XYPlot plot = chart.getXYPlot();
 
-        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-        renderer.setSeriesLinesVisible(1, false);
-        renderer.setSeriesShapesVisible(0, false);
-        renderer.setSeriesShapesVisible(1, true);
-        renderer.setSeriesFillPaint(1, Color.white);
+        DeviationRenderer renderer = new DeviationRenderer();
         renderer.setUseFillPaint(true);
-        renderer.setSeriesShape(1, new Ellipse2D.Float(-3, -3, 6, 6));
         renderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
+
+        renderer.setSeriesShapesVisible(0, false);
+        renderer.setSeriesStroke(0, new BasicStroke(1.5f));
+        renderer.setSeriesPaint(0, new Color(0, 0, 200));
+        renderer.setSeriesFillPaint(0, new Color(150, 150, 255));
+
+        renderer.setSeriesShapesVisible(1, true);
+        renderer.setSeriesLinesVisible(1, false);
+        renderer.setSeriesFillPaint(1, Color.white);
+        renderer.setSeriesShape(1, new Ellipse2D.Float(-3, -3, 6, 6));
 
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
@@ -297,18 +302,19 @@ class ProfilePlotPanel extends PagePanel {
 
         if (profileData != null && profileData.getNumShapeVertices() >= 2) {
             final float[] sampleValues = profileData.getSampleValues();
+            final float[] sampleSigmas = profileData.getSampleSigmas();
             boolean markSegments = (Boolean) (xAxisRangeControl.getBindingContext().getPropertySet().getValue(PROPERTY_NAME_MARK_SEGMENTS));
             if (profileData.getNumShapeVertices() == 2 || !markSegments) {
-                XYSeries series = new XYSeries("Sample Values");
+                YIntervalSeries series = new YIntervalSeries("Sample Values");
                 for (int i = 0; i < sampleValues.length; i++) {
-                    series.add(i, sampleValues[i]);
+                    series.add(i, sampleValues[i], sampleValues[i] - sampleSigmas[i], sampleValues[i] + sampleSigmas[i]);
                 }
                 dataset.addSeries(series);
             } else {
                 for (int i = 0; i < profileData.getNumShapeVertices() - 1; i++) {
-                    final XYSeries series = new XYSeries(String.format("Sample Values Segment %d", i));
+                    final YIntervalSeries series = new YIntervalSeries(String.format("Sample Values Segment %d", i));
                     for (int x = profileData.getShapeVertexIndexes()[i]; x <= profileData.getShapeVertexIndexes()[i + 1]; x++) {
-                        series.add(x, sampleValues[x]);
+                        series.add(i, sampleValues[x], sampleValues[i] - sampleSigmas[i], sampleValues[i] + sampleSigmas[i]);
                     }
                     dataset.addSeries(series);
                 }
@@ -318,7 +324,7 @@ class ProfilePlotPanel extends PagePanel {
                     && dataSourceConfig.pointDataSource != null
                     && dataSourceConfig.dataField != null) {
 
-                XYSeries corrSeries = new XYSeries("Correlative Values");
+                YIntervalSeries corrSeries = new YIntervalSeries("Correlative Values");
                 int[] shapeVertexIndexes = profileData.getShapeVertexIndexes();
                 SimpleFeature[] simpleFeatures = dataSourceConfig.pointDataSource.getFeatureCollection().toArray(new SimpleFeature[0]);
 
@@ -326,7 +332,8 @@ class ProfilePlotPanel extends PagePanel {
                     String fieldName = dataSourceConfig.dataField.getLocalName();
                     for (int i = 0; i < simpleFeatures.length; i++) {
                         Number attribute = (Number) simpleFeatures[i].getAttribute(fieldName);
-                        corrSeries.add(shapeVertexIndexes[i], attribute.doubleValue());
+                        final double y0 = attribute.doubleValue();
+                        corrSeries.add(shapeVertexIndexes[i], y0, y0, y0);
                     }
                 } else {
                     System.out.println("Weird things happened:");

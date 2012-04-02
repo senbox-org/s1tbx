@@ -43,6 +43,7 @@ public class TransectProfileData {
     private final Point2D[] pixelPositions; // todo - ts02Apr2012 - better use integer point class
     private final GeoPos[] geoPositions;
     private final float[] sampleValues;
+    private final float[] sampleSigmas;
     private float sampleMin;
     private float sampleMax;
 
@@ -97,6 +98,8 @@ public class TransectProfileData {
         pixelPositions = rasterizer.rasterize(shapeVertices, shapeVertexIndexes);
         sampleValues = new float[pixelPositions.length];
         Arrays.fill(sampleValues, Float.NaN);
+        sampleSigmas = new float[pixelPositions.length];
+        Arrays.fill(sampleSigmas, Float.NaN);
 
         sampleMin = Float.MAX_VALUE;
         sampleMax = -Float.MAX_VALUE;
@@ -127,25 +130,30 @@ public class TransectProfileData {
             raster.readPixels(box.x, box.y, box.width, box.height, sampleBuffer, ProgressMonitor.NULL);
 
             float sum = 0;
+            float sumSqr = 0;
             int n = 0;
             for (int y = 0; y < box.height; y++) {
                 for (int x = 0; x < box.width; x++) {
                     if (raster.isPixelValid(box.x + x, box.y + y)) {
-                        sum += sampleBuffer[y * box.height + x];
+                        final float v = sampleBuffer[y * box.height + x];
+                        sum += v;
+                        sumSqr += v * v;
                         n++;
+
+                        if (v < sampleMin) {
+                            sampleMin = v;
+                        }
+                        if (v > sampleMax) {
+                            sampleMax = v;
+                        }
                     }
                 }
             }
 
             if (n > 0) {
-                float sampleValue = sum / n;
-                if (sampleValue < sampleMin) {
-                    sampleMin = sampleValue;
-                }
-                if (sampleValue > sampleMax) {
-                    sampleMax = sampleValue;
-                }
-                sampleValues[i] = sampleValue;
+                final float mean = sum / n;
+                sampleValues[i] = mean;
+                sampleSigmas[i] = n > 1 ? (float) Math.sqrt(1.0 / (n - 1.0) * (sumSqr - (sum * sum) / n)) : 0.0F;
             }
 
             if (geoPositions != null) {
@@ -182,6 +190,10 @@ public class TransectProfileData {
 
     public float[] getSampleValues() {
         return sampleValues;
+    }
+
+    public float[] getSampleSigmas() {
+        return sampleSigmas;
     }
 
     public float getSampleMin() {
