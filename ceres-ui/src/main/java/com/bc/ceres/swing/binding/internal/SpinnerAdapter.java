@@ -17,12 +17,10 @@
 package com.bc.ceres.swing.binding.internal;
 
 import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.swing.binding.ComponentAdapter;
 
-import javax.swing.JComponent;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerListModel;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -70,28 +68,25 @@ public class SpinnerAdapter extends ComponentAdapter implements ChangeListener {
 
     private void updateSpinnerModel() {
         PropertyDescriptor propertyDescriptor = getBinding().getContext().getPropertySet().getDescriptor(getBinding().getPropertyName());
-        if (propertyDescriptor.getValueRange() != null) {
-            Class<?> type = propertyDescriptor.getType();
-
-            if (Number.class.isAssignableFrom(type)) {
-                Number defaultValue = (Number) propertyDescriptor.getDefaultValue(); // todo - why not the current value? (mp,nf - 18.02.2008)
-                double min = propertyDescriptor.getValueRange().getMin();
-                double max = propertyDescriptor.getValueRange().getMax();
-                // todo - get step size from interval
-
-                if (type == Byte.class) {
-                    spinner.setModel(new SpinnerNumberModel(defaultValue, (byte) min, (byte) max, 1));
-                } else if (type == Short.class) {
-                    spinner.setModel(new SpinnerNumberModel(defaultValue, (short) min, (short) max, 1));
-                } else if (type == Integer.class) {
-                    spinner.setModel(new SpinnerNumberModel(defaultValue, (int) min, (int) max, 1));
-                } else if (type == Long.class) {
-                    spinner.setModel(new SpinnerNumberModel(defaultValue, (long) min, (long) max, 1));
-                } else if (type == Float.class) {
-                    spinner.setModel(new SpinnerNumberModel(defaultValue, (float) min, (float) max, 1));
-                } else {
-                    spinner.setModel(new SpinnerNumberModel(defaultValue, min, max, 1));
-                }
+        ValueRange valueRange = propertyDescriptor.getValueRange();
+        if (valueRange != null) {
+            Object propertyValue = getBinding().getPropertyValue();
+            if (propertyValue == null) {
+                propertyValue = propertyDescriptor.getDefaultValue();
+            }
+            final Object stepSizeValue = propertyDescriptor.getAttribute("stepSize");
+            if (propertyValue instanceof Float || propertyValue instanceof Double) {
+                double value = ((Number) propertyValue).doubleValue();
+                double min = valueRange.getMin();
+                double max = valueRange.getMax();
+                double stepSize = (stepSizeValue instanceof Number ? (Number) stepSizeValue : 1.0).doubleValue();
+                spinner.setModel(new SpinnerNumberModel(value, min, max, stepSize));
+            } else {
+                int value = ((Number) propertyValue).intValue();
+                int min = (int) valueRange.getMin();
+                int max = (int) valueRange.getMax();
+                int stepSize = (stepSizeValue instanceof Number ? (Number) stepSizeValue : 1).intValue();
+                spinner.setModel(new SpinnerNumberModel(value, min, max, stepSize));
             }
         } else if (propertyDescriptor.getValueSet() != null) {
             spinner.setModel(new SpinnerListModel(propertyDescriptor.getValueSet().getItems()));
