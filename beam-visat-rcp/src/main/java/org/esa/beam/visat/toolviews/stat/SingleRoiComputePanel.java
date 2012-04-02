@@ -43,17 +43,17 @@ import javax.swing.JPanel;
  * @author Marco Zuehlke
  */
 class SingleRoiComputePanel extends JPanel {
-    
+
     interface ComputeMask {
         void compute(Mask selectedMask);
     }
-    
+
     private final ProductNodeListener productNodeListener;
-    
+
     private final JButton computeButton;
     private final JCheckBox useRoiCheckBox;
     private final JComboBox maskNameComboBox;
-    
+
     private RasterDataNode raster;
     private Product product;
 
@@ -83,13 +83,13 @@ class SingleRoiComputePanel extends JPanel {
         maskNameComboBox = new JComboBox();
 
         useRoiCheckBox.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
               updateMaskListEnablement();
             }
         });
-        
+
         final TableLayout tableLayout = new TableLayout(1);
         tableLayout.setTableAnchor(TableLayout.Anchor.SOUTHWEST);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
@@ -139,13 +139,13 @@ class SingleRoiComputePanel extends JPanel {
         }
         updateMaskListEnablement();
     }
-    
+
     private void updateMaskListEnablement() {
         boolean hasRoiMasks = maskNameComboBox.getModel().getSize() > 0;
         boolean useRoi = useRoiCheckBox.isSelected();
         maskNameComboBox.setEnabled(hasRoiMasks && useRoi);
     }
-    
+
     private class PNL implements ProductNodeListener {
 
         @Override
@@ -167,7 +167,7 @@ class SingleRoiComputePanel extends JPanel {
         public void nodeRemoved(ProductNodeEvent event) {
             handleEvent(event);
         }
-        
+
         private void handleEvent(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
             if (sourceNode instanceof Mask) {

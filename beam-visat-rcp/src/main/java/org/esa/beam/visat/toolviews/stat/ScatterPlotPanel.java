@@ -16,17 +16,13 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.bc.ceres.swing.binding.PropertyEditorRegistry;
-import com.bc.ceres.swing.binding.internal.SingleSelectionEditor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.param.ParamChangeEvent;
@@ -46,6 +42,8 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.ui.RectangleInsets;
+import org.opengis.feature.type.*;
+import org.opengis.feature.type.GeometryDescriptor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -83,13 +81,23 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     private Parameter[] minParams;
     private Parameter[] maxParams;
 
-    private Property rasterDataSource;
-    private Property logScaled;
-
-    private SingleRoiComputePanel computePanel;
     private ChartPanel scatterPlotDisplay;
     private boolean adjustingAutoMinMax;
     private XYImagePlot plot;
+
+    private ScatterPlotModel scatterPlotModel;
+    private BindingContext bindingContext;
+
+    private Property logScaled;
+    private final String PARAM_RASTER_DATA_NODE_NAME = "rasterDataNodeName";
+    private final String PARAM_BOX_SIZE = "boxSize";
+    private final String PARAM_ROI_MASK_NAME = "roiMaskName";
+    private final String PARAM_POINT_DATA_NODE_NAME = "pointDataNodeName";
+    private final String PARAM_POINT_DATA_FIELD_NAME = "pointDataFieldName";
+    private final String PARAM_X_AXIS_LOG_SCALED = "xAxisLogScaled";
+    private final String PARAM_Y_AXIS_LOG_SCALED = "yAxisLogScaled";
+    private final String PARAM_SHOW_CONFIDENCE_INTERVAL = "showConfidenceInterval";
+    private final String PARAM_CONFIDENCE_INTERVAL = "confidenceInterval";
 
     ScatterPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
@@ -120,9 +128,40 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
             final String[] availableBands = createAvailableBandList();
             updateParameters(X_VAR, availableBands);
             updateParameters(Y_VAR, availableBands);
-            rasterDataSource.getDescriptor().setValueSet(new ValueSet(createAvailableBandList()));
+
+            final PropertySet propertySet = bindingContext.getPropertySet();
+            propertySet.getProperty(PARAM_RASTER_DATA_NODE_NAME).getDescriptor().setValueSet(new ValueSet(createAvailableBandList()));
+            propertySet.getProperty(PARAM_ROI_MASK_NAME).getDescriptor().setValueSet(new ValueSet(getAvailableMaskNames()));
+            propertySet.getProperty(PARAM_POINT_DATA_NODE_NAME).getDescriptor().setValueSet(new ValueSet(getAvailablePointDataNodeNames()));
+
             setChartTitle();
         }
+    }
+
+    private String[] getAvailablePointDataNodeNames() {
+        final Product product = getProduct();
+        if (product != null) {
+            final ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
+            final VectorDataNode[] vectorDataNodes = vectorDataGroup.toArray(new VectorDataNode[vectorDataGroup.getNodeCount()]);
+            final ArrayList<String> names = new ArrayList<String>();
+            for (VectorDataNode vectorDataNode : vectorDataNodes) {
+                final GeometryDescriptor geometryDescriptor = vectorDataNode.getFeatureType().getGeometryDescriptor();
+                final Class<?> geometryBinding = geometryDescriptor.getType().getBinding();
+                if (geometryBinding.isAssignableFrom(com.vividsolutions.jts.geom.Point.class)) {
+                    names.add(vectorDataNode.getName());
+                }
+            }
+            return names.toArray(new String[names.size()]);
+        }
+        return new String[0];
+    }
+
+    private String[] getAvailableMaskNames() {
+        final Product product = getProduct();
+        if (product != null) {
+            return product.getMaskGroup().getNodeNames();
+        }
+        return new String[0];
     }
 
     private void setChartTitle() {
@@ -157,17 +196,15 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     }
 
     private void initParameters() {
+        scatterPlotModel = new ScatterPlotModel();
+        bindingContext = new BindingContext(PropertyContainer.createObjectBacked(scatterPlotModel));
+
         rasterNameParams = new Parameter[2];
         autoMinMaxParams = new Parameter[2];
         minParams = new Parameter[2];
         maxParams = new Parameter[2];
 
         paramGroup = new ParamGroup();
-
-        final PropertyDescriptor rasterDataSourceDescriptor = new PropertyDescriptor("raster.data.source.selector", String[].class);
-        rasterDataSourceDescriptor.setValueSet(new ValueSet(createAvailableBandList()));
-
-        rasterDataSource = new Property(rasterDataSourceDescriptor, new DefaultPropertyAccessor());
 
         final PropertyDescriptor logScaleDescriptor = new PropertyDescriptor("scatter.plot.log.scale", Boolean.class);
         logScaleDescriptor.setDisplayName("Log scaled");
@@ -228,8 +265,6 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
 
     private void createUI() {
 
-        final Icon icon = UIUtils.loadImageIcon("icons/Gears20.gif");
-
         final JButton computeButton = new JButton("Compute");     /*I18N*/
         computeButton.setMnemonic('A');
         computeButton.setEnabled(getRaster() != null);
@@ -245,57 +280,127 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
                 }
             }
         });
-        computeButton.setIcon(icon);
+        computeButton.setIcon(UIUtils.loadImageIcon("icons/Gears20.gif"));
 
 
-        computePanel = new SingleRoiComputePanel(this, getRaster());
+        final JComboBox rasterDataSourceComboBox = new JComboBox();
+        bindingContext.bind(PARAM_RASTER_DATA_NODE_NAME, rasterDataSourceComboBox);
+        final JPanel rasterDataSourcePanel = new JPanel(new BorderLayout(5, 3));
+        rasterDataSourcePanel.add(new JLabel("Raster data source:"), BorderLayout.NORTH);
+        rasterDataSourcePanel.add(rasterDataSourceComboBox);
+
+
+        final JSpinner boxSizeSpinner = new JSpinner();
+        bindingContext.bind(PARAM_BOX_SIZE, boxSizeSpinner);
+        final JPanel boxSizePanel = new JPanel(new BorderLayout(5, 3));
+        boxSizePanel.add(new JLabel("Box size:"), BorderLayout.WEST);
+        boxSizePanel.add(boxSizeSpinner);
+
+
+        final JComboBox roiMaskComboBox = new JComboBox();
+        bindingContext.bind(PARAM_ROI_MASK_NAME, roiMaskComboBox);
+        final JPanel roiMaskPanel = new JPanel(new BorderLayout(5, 3));
+        roiMaskPanel.add(new JLabel("ROI mask:"), BorderLayout.NORTH);
+        roiMaskPanel.add(roiMaskComboBox);
+        roiMaskPanel.add(createShowMaskManagerButton(), BorderLayout.EAST);
+
+        final JComboBox pointDataSourceCombo = new JComboBox();
+        bindingContext.bind(PARAM_POINT_DATA_NODE_NAME, pointDataSourceCombo);
+        final JPanel pointDataSourcePanel = new JPanel(new BorderLayout(5, 3));
+        pointDataSourcePanel.add(new JLabel("Point data source:"), BorderLayout.NORTH);
+        pointDataSourcePanel.add(pointDataSourceCombo);
+
+        final JComboBox pointDataFieldCombo = new JComboBox();
+        bindingContext.bind(PARAM_POINT_DATA_FIELD_NAME, pointDataFieldCombo);
+        final JPanel pointDataFieldPanel = new JPanel(new BorderLayout(5, 3));
+        pointDataFieldPanel.add(new JLabel("Point data field:"), BorderLayout.NORTH);
+        pointDataFieldPanel.add(pointDataFieldCombo);
+
+        final AxisRangeControl xAxisRangeControl = new AxisRangeControl("X-Axis");
+        final JPanel xAxisRangePanel = xAxisRangeControl.getPanel();
+
+        final JCheckBox xLogCheck = new JCheckBox("Log scaled");
+        bindingContext.bind(PARAM_X_AXIS_LOG_SCALED, xLogCheck);
+        final JPanel xAxisOptionPanel = new JPanel(new BorderLayout());
+        xAxisOptionPanel.add(xAxisRangePanel);
+        xAxisOptionPanel.add(xLogCheck, BorderLayout.SOUTH);
+
+        final AxisRangeControl yAxisRangeControl = new AxisRangeControl("Y-Axis");
+        final JPanel yAxisRangePanel = yAxisRangeControl.getPanel();
+
+        final JCheckBox yLogCheck = new JCheckBox("Log scaled");
+        bindingContext.bind(PARAM_Y_AXIS_LOG_SCALED, yLogCheck);
+        final JPanel yAxisOptionPanel = new JPanel(new BorderLayout());
+        yAxisOptionPanel.add(yAxisRangePanel);
+        yAxisOptionPanel.add(yLogCheck, BorderLayout.SOUTH);
+
+        final JCheckBox confidenceCheck = new JCheckBox("Confidence interval");
+        final JTextField confidenceField = new JTextField();
+        confidenceField.setPreferredSize(new Dimension(40,confidenceField.getPreferredSize().height));
+        confidenceField.setHorizontalAlignment(JTextField.RIGHT);
+        bindingContext.bind(PARAM_SHOW_CONFIDENCE_INTERVAL, confidenceCheck);
+        bindingContext.bind(PARAM_CONFIDENCE_INTERVAL, confidenceField);
+        final JPanel confidencePanel = new JPanel(new BorderLayout(5, 3));
+        confidencePanel.add(confidenceCheck, BorderLayout.WEST);
+        confidencePanel.add(confidenceField);
+
+        // help
+
+        final JPanel helpPanel = new JPanel(new BorderLayout());
+        helpPanel.add(getHelpButton(), BorderLayout.EAST);
+
+
+        // Plot
+
         plot = new XYImagePlot();
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.getRenderer().setBaseToolTipGenerator(new XYPlotToolTipGenerator());
 
-//        NumberAxis scaleAxis = new NumberAxis("Scale");
-//        scaleAxis.setTickLabelFont(new Font("Dialog", Font.PLAIN, 7));
-//        PaintScaleLegend legend = new PaintScaleLegend(new GrayPaintScale(), scaleAxis);
-//        legend.setAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
-//        legend.setAxisOffset(5.0);
-//        legend.setMargin(new RectangleInsets(5, 5, 5, 5));
-//        legend.setPadding(new RectangleInsets(10, 10, 10, 10));
-//        legend.setStripWidth(10);
-//        legend.setPosition(RectangleEdge.RIGHT);
-
         JFreeChart chart = new JFreeChart(CHART_TITLE, plot);
         chart.removeLegend();
-//         chart.addSubtitle(legend);
 
         scatterPlotDisplay = new ChartPanel(chart);
         scatterPlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
 
-        final TableLayout rightPanelLayout = new TableLayout(1);
-        rightPanelLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        rightPanelLayout.setRowWeightY(3, 1.0);
-        rightPanelLayout.setCellFill(5, 1, TableLayout.Fill.NONE);
-        rightPanelLayout.setCellAnchor(5, 1, TableLayout.Anchor.EAST);
+        // UI arrangement
 
-        final JPanel rasterDataSourcePanel = new JPanel(new BorderLayout());
-        rasterDataSourcePanel.add(new JLabel("Raster data source:"), BorderLayout.NORTH);
-        final PropertyDescriptor descriptor = rasterDataSource.getDescriptor();
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets.top = 6;
+        gbc.weighty = 0;
+        gbc.gridy = 0;
 
-        final PropertyContainer propertySet = new PropertyContainer();
-        propertySet.addProperty(rasterDataSource);
-        rasterDataSourcePanel.add(new SingleSelectionEditor().createEditorComponent(descriptor, new BindingContext(propertySet)));
+        final JPanel rightPanel = new JPanel(new GridBagLayout());
+        rightPanel.add(computeButton, gbc);
+        gbc.gridy++;
+        rightPanel.add(rasterDataSourcePanel, gbc);
+        gbc.gridy++;
+        rightPanel.add(boxSizePanel, gbc);
+        gbc.gridy++;
+        rightPanel.add(roiMaskPanel, gbc);
+        gbc.gridy++;
+        rightPanel.add(pointDataSourcePanel, gbc);
+        gbc.gridy++;
+        rightPanel.add(pointDataFieldPanel, gbc);
 
+        gbc.weighty = 1;
+        gbc.gridy++;
+        rightPanel.add(new JPanel(), gbc);   // filler
 
-        final JPanel rightPanel = new JPanel(rightPanelLayout);
-        rightPanel.add(computeButton);
-        rightPanel.add(rasterDataSourcePanel);
-        rightPanel.add(computePanel);
-        rightPanel.add(createOptionsPane());
-        rightPanel.add(createChartButtonPanel(scatterPlotDisplay));
-        rightPanel.add(new JPanel());   // filler
-        final JPanel helpPanel = new JPanel(new BorderLayout());
-        helpPanel.add(getHelpButton(), BorderLayout.EAST);
-        rightPanel.add(helpPanel);
+        gbc.weighty = 0;
+        gbc.gridy++;
+        rightPanel.add(xAxisOptionPanel, gbc);
+        gbc.gridy++;
+        rightPanel.add(yAxisOptionPanel, gbc);
+        gbc.gridy++;
+        rightPanel.add(new JSeparator(JSeparator.HORIZONTAL), gbc);
+        gbc.gridy++;
+        rightPanel.add(confidencePanel, gbc);
+        gbc.gridy++;
+        rightPanel.add(createChartButtonPanel(scatterPlotDisplay), gbc);
+        gbc.gridy++;
+        rightPanel.add(helpPanel, gbc);
 
         add(scatterPlotDisplay, BorderLayout.CENTER);
         add(rightPanel, BorderLayout.EAST);
@@ -303,12 +408,27 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         updateUIState();
     }
 
+    private JButton createShowMaskManagerButton() {
+        final JButton showMaskManagerButton = new JButton("...");
+        showMaskManagerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openMaskManager();
+            }
+        });
+        return showMaskManagerButton;
+    }
+
+    private void openMaskManager() {
+        //Todo change body of created method. Use File | Settings | File Templates to change
+    }
+
     private String getSelectedMaskName() {
-        return ""; // Todo
+        return (String) bindingContext.getBinding(PARAM_ROI_MASK_NAME).getPropertyValue();
     }
 
     private boolean isMaskSelected() {
-        return false;  //Todo change body of created method. Use File | Settings | File Templates to change
+        return getSelectedMaskName() != null;
     }
 
     private RasterDataNode getRaster(int varIndex) {
@@ -319,7 +439,6 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         final String rasterName = rasterNameParams[varIndex].getValue().toString();
         RasterDataNode raster = product.getRasterDataNode(rasterName);
         if (raster == null) {
-            // todo - "if the product doesn't have the raster, take some other?" - this is stupid (nf - 18.12.2007)
             if (getRaster() != null && rasterName.equalsIgnoreCase(getRaster().getName())) {
                 raster = getRaster();
             }
@@ -329,14 +448,9 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     }
 
     private void updateUIState() {
-        updateComputePane();
         updateUIState(X_VAR);
         updateUIState(Y_VAR);
         setChartTitle();
-    }
-
-    private void updateComputePane() {
-        computePanel.setRaster(getRaster(X_VAR));
     }
 
     private void updateUIState(int varIndex) {
@@ -349,46 +463,6 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         final boolean autoMinMaxEnabled = (Boolean) autoMinMaxParams[varIndex].getValue();
         minParams[varIndex].setUIEnabled(!autoMinMaxEnabled);
         maxParams[varIndex].setUIEnabled(!autoMinMaxEnabled);
-    }
-
-
-    private JPanel createOptionsPane() {
-        final JPanel optionsPane = GridBagUtils.createPanel();
-        final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=BOTH");
-
-        GridBagUtils.setAttributes(gbc, "gridy=1,weightx=1");
-        GridBagUtils.addToPanel(optionsPane, createOptionsPane(X_VAR), gbc, "gridy=0,insets.top=0");
-        GridBagUtils.addToPanel(optionsPane, createOptionsPane(Y_VAR), gbc, "gridy=1,insets.top=7");
-
-        return optionsPane;
-    }
-
-    private JPanel createOptionsPane(int varIndex) {
-
-        final JPanel optionsPane = GridBagUtils.createPanel();
-        final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=WEST,fill=HORIZONTAL");
-
-        GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=0,insets.top=0");
-        GridBagUtils.addToPanel(optionsPane, rasterNameParams[varIndex].getEditor().getComponent(), gbc,
-                "gridx=0,weightx=1");
-
-        GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=1,insets.top=4");
-        GridBagUtils.addToPanel(optionsPane, autoMinMaxParams[varIndex].getEditor().getComponent(), gbc,
-                "gridx=0,weightx=1");
-
-        GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=2,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, minParams[varIndex].getEditor().getLabelComponent(), gbc,
-                "gridx=0,weightx=0");
-        GridBagUtils.addToPanel(optionsPane, minParams[varIndex].getEditor().getComponent(), gbc, "gridx=1,weightx=1");
-
-        GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=3,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, maxParams[varIndex].getEditor().getLabelComponent(), gbc,
-                "gridx=0,weightx=0");
-        GridBagUtils.addToPanel(optionsPane, maxParams[varIndex].getEditor().getComponent(), gbc, "gridx=1,weightx=1");
-
-        optionsPane.setBorder(BorderFactory.createTitledBorder((varIndex == 0 ? "X" : "Y") + "-Band"));
-
-        return optionsPane;
     }
 
     private static class ScatterPlot {
@@ -414,6 +488,21 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         public Range getRangeY() {
             return rangeY;
         }
+    }
+
+    private static class ScatterPlotModel {
+        private String rasterDataNodeName;
+        private int boxSize;
+        private String roiMaskName;
+        private String pointDataNodeName;
+        private String pointDataFieldName;
+        public AxisRangeControl xAxisRangeControl;
+        private boolean xAxisLogScaled;
+        public AxisRangeControl yAxisRangeControl;
+        private boolean yAxisLogScaled;
+        private boolean showConfidenceInterval;
+        private double confidenceInterval;
+
     }
 
     @Override
