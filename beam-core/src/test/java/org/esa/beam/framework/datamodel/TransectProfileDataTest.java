@@ -44,19 +44,8 @@ public class TransectProfileDataTest {
         int numPixels = profileData.getNumPixels();
         assertEquals(10, numPixels);
 
-        Point2D[] pixelPositions = profileData.getPixelPositions();
-        assertNotNull(pixelPositions);
-        assertEquals(numPixels, pixelPositions.length);
-        assertEquals(new Point2D.Float(0, 0), pixelPositions[0]);
-        assertEquals(new Point2D.Float(1, 0), pixelPositions[1]);
-        assertEquals(new Point2D.Float(2, 0), pixelPositions[2]);
-        assertEquals(new Point2D.Float(3, 0), pixelPositions[3]);
-        assertEquals(new Point2D.Float(2, 1), pixelPositions[4]);
-        assertEquals(new Point2D.Float(1, 2), pixelPositions[5]);
-        assertEquals(new Point2D.Float(0, 3), pixelPositions[6]);
-        assertEquals(new Point2D.Float(1, 3), pixelPositions[7]);
-        assertEquals(new Point2D.Float(2, 3), pixelPositions[8]);
-        assertEquals(new Point2D.Float(3, 3), pixelPositions[9]);
+        assertPixelPositions(profileData, numPixels);
+        assertShapeVertexIndices(profileData);
 
         float[] sampleValues = profileData.getSampleValues();
         assertNotNull(sampleValues);
@@ -72,16 +61,6 @@ public class TransectProfileDataTest {
         assertEquals(10.433333F, sampleValues[7], 1E-5F);
         assertEquals(11.433333F, sampleValues[8], 1E-5F);
         assertEquals(12.600000F, sampleValues[9], 1E-5F);
-
-        int numShapeVertices = profileData.getNumShapeVertices();
-        assertEquals(4, numShapeVertices);
-        int[] shapeVertexIndexes = profileData.getShapeVertexIndexes();
-        assertNotNull(shapeVertexIndexes);
-        assertEquals(4, shapeVertexIndexes.length);
-        assertEquals(0, shapeVertexIndexes[0]);
-        assertEquals(3, shapeVertexIndexes[1]);
-        assertEquals(6, shapeVertexIndexes[2]);
-        assertEquals(9, shapeVertexIndexes[3]);
 
     }
 
@@ -117,23 +96,33 @@ public class TransectProfileDataTest {
         assertProfileDataIsAsExpected(profileData);
     }
 
+    @Test
+    public void testProfileDataUsingRoiMask() throws Exception {
+        final Mask mask = product.addMask("name", Mask.BandMathsType.INSTANCE);
+        mask.getImageConfig().setValue(Mask.BandMathsType.PROPERTY_NAME_EXPRESSION, "Y <= 1.5");
+        final TransectProfileData profileData = TransectProfileData.create(band, path, 1, mask);
+        final float[] sampleValues = profileData.getSampleValues();
+
+        assertEquals(Float.NaN, Float.NaN, 1E-5F);
+
+        assertEquals(0.1F, sampleValues[0], 1E-5F);
+        assertEquals(1.1F, sampleValues[1], 1E-5F);
+        assertEquals(2.1F, sampleValues[2], 1E-5F);
+        assertEquals(3.1F, sampleValues[3], 1E-5F);
+        assertEquals(6.1F, sampleValues[4], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[5], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[6], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[7], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[8], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[9], 1E-5F);
+    }
+
     private static void assertProfileDataIsAsExpected(TransectProfileData profileData) {
         int numPixels = profileData.getNumPixels();
         assertEquals(10, numPixels);
 
-        Point2D[] pixelPositions = profileData.getPixelPositions();
-        assertNotNull(pixelPositions);
-        assertEquals(numPixels, pixelPositions.length);
-        assertEquals(new Point2D.Float(0, 0), pixelPositions[0]);
-        assertEquals(new Point2D.Float(1, 0), pixelPositions[1]);
-        assertEquals(new Point2D.Float(2, 0), pixelPositions[2]);
-        assertEquals(new Point2D.Float(3, 0), pixelPositions[3]);
-        assertEquals(new Point2D.Float(2, 1), pixelPositions[4]);
-        assertEquals(new Point2D.Float(1, 2), pixelPositions[5]);
-        assertEquals(new Point2D.Float(0, 3), pixelPositions[6]);
-        assertEquals(new Point2D.Float(1, 3), pixelPositions[7]);
-        assertEquals(new Point2D.Float(2, 3), pixelPositions[8]);
-        assertEquals(new Point2D.Float(3, 3), pixelPositions[9]);
+        assertPixelPositions(profileData, numPixels);
+        assertShapeVertexIndices(profileData);
 
         float[] sampleValues = profileData.getSampleValues();
         assertNotNull(sampleValues);
@@ -148,7 +137,9 @@ public class TransectProfileDataTest {
         assertEquals(13.1F, sampleValues[7], 1E-5F);
         assertEquals(14.1F, sampleValues[8], 1E-5F);
         assertEquals(15.1F, sampleValues[9], 1E-5F);
+    }
 
+    private static void assertShapeVertexIndices(TransectProfileData profileData) {
         int numShapeVertices = profileData.getNumShapeVertices();
         assertEquals(4, numShapeVertices);
         int[] shapeVertexIndexes = profileData.getShapeVertexIndexes();
@@ -159,4 +150,21 @@ public class TransectProfileDataTest {
         assertEquals(6, shapeVertexIndexes[2]);
         assertEquals(9, shapeVertexIndexes[3]);
     }
+
+    private static void assertPixelPositions(TransectProfileData profileData, int numPixels) {
+        Point2D[] pixelPositions = profileData.getPixelPositions();
+        assertNotNull(pixelPositions);
+        assertEquals(numPixels, pixelPositions.length);
+        assertEquals(new Point2D.Float(0, 0), pixelPositions[0]);
+        assertEquals(new Point2D.Float(1, 0), pixelPositions[1]);
+        assertEquals(new Point2D.Float(2, 0), pixelPositions[2]);
+        assertEquals(new Point2D.Float(3, 0), pixelPositions[3]);
+        assertEquals(new Point2D.Float(2, 1), pixelPositions[4]);
+        assertEquals(new Point2D.Float(1, 2), pixelPositions[5]);
+        assertEquals(new Point2D.Float(0, 3), pixelPositions[6]);
+        assertEquals(new Point2D.Float(1, 3), pixelPositions[7]);
+        assertEquals(new Point2D.Float(2, 3), pixelPositions[8]);
+        assertEquals(new Point2D.Float(3, 3), pixelPositions[9]);
+    }
+
 }

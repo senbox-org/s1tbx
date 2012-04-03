@@ -129,13 +129,21 @@ public class TransectProfileData {
             float[] sampleBuffer = new float[box.width * box.height];
             raster.readPixels(box.x, box.y, box.width, box.height, sampleBuffer, ProgressMonitor.NULL);
 
+            int[] maskBuffer = null;
+            if (roiMask != null) {
+                maskBuffer = new int[box.width * box.height];
+                roiMask.readPixels(box.x, box.y, box.width, box.height, maskBuffer, ProgressMonitor.NULL);
+            }
+
             float sum = 0;
             float sumSqr = 0;
             int n = 0;
             for (int y = 0; y < box.height; y++) {
                 for (int x = 0; x < box.width; x++) {
-                    if (raster.isPixelValid(box.x + x, box.y + y)) {
-                        final float v = sampleBuffer[y * box.height + x];
+                    final int index = y * box.height + x;
+                    if (raster.isPixelValid(box.x + x, box.y + y)
+                            && (maskBuffer == null || maskBuffer[index] != 0)) {
+                        final float v = sampleBuffer[index];
                         sum += v;
                         sumSqr += v * v;
                         n++;
