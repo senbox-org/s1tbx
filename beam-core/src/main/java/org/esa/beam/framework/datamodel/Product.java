@@ -2019,6 +2019,21 @@ public class Product extends ProductNode {
     }
 
     /**
+     * Creates a new mask with the given name and image type and adds it to this product and returns it.
+     * The new mask's samples are computed from the given image type.
+     *
+     * @param maskName  the new mask's name
+     * @param imageType the image data type used to compute the mask samples
+     * @return the new mask which has just been added
+     * @since BEAM 4.10
+     */
+    public Mask addMask(String maskName, Mask.ImageType imageType) {
+        final Mask mask = new Mask(maskName, sceneRasterWidth, sceneRasterHeight, imageType);
+        getMaskGroup().add(mask);
+        return mask;
+    }
+
+    /**
      * AutoGrouping can be used by an application to auto-group a long list of product nodes (e.g. bands)
      * as a tree of product nodes.
      *

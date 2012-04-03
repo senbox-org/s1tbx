@@ -18,16 +18,7 @@ package org.esa.beam.visat.toolviews.mask;
 
 import com.jidesoft.utils.Lm;
 import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GcpDescriptor;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkGroup;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.*;
 
 import javax.swing.table.TableModel;
 import java.awt.*;
@@ -114,14 +105,11 @@ public class MaskFormTest extends TestCase {
 
         for (int i = 0; i < product.getVectorDataGroup().getNodeCount(); i++) {
             VectorDataNode vectorDataNode = product.getVectorDataGroup().get(i);
-            Mask mask = new Mask(vectorDataNode.getName(),
-                                 product.getSceneRasterWidth(),
-                                 product.getSceneRasterHeight(),
-                                 Mask.VectorDataType.INSTANCE);
+            final Mask mask = product.addMask(vectorDataNode.getName(),
+                                              Mask.VectorDataType.INSTANCE);
             mask.getImageConfig().setValue("color", colors[i % colors.length].brighter());
             mask.getImageConfig().setValue("transparency", 0.1);
             mask.getImageConfig().setValue("vectorData", vectorDataNode);
-            product.getMaskGroup().add(mask);
         }
         return product;
     }
