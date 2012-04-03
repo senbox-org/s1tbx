@@ -130,13 +130,13 @@ class ProfilePlotPanel extends PagePanel {
         renderer.setSeriesShapesVisible(0, false);
         renderer.setSeriesStroke(0, new BasicStroke(1.0f));
         renderer.setSeriesPaint(0, new Color(0, 0, 200));
-        renderer.setSeriesFillPaint(0, new Color(200, 200, 255));
+        renderer.setSeriesFillPaint(0, new Color(150, 150, 255));
 
         renderer.setSeriesLinesVisible(1, false);
         renderer.setSeriesShapesVisible(1, true);
         renderer.setSeriesStroke(1, new BasicStroke(1.0f));
         renderer.setSeriesPaint(1, new Color(200, 0, 0));
-        renderer.setSeriesFillPaint(1, new Color(255, 200, 200));
+        renderer.setSeriesFillPaint(1, new Color(255, 150, 150));
         renderer.setSeriesShape(1, new Ellipse2D.Float(-4, -4, 8, 8));
 
         plot.setNoDataMessage(NO_DATA_MESSAGE);
