@@ -103,6 +103,7 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     private final String PARAM_Y_AXIS_LOG_SCALED = "yAxisLogScaled";
     private final String PARAM_SHOW_CONFIDENCE_INTERVAL = "showConfidenceInterval";
     private final String PARAM_CONFIDENCE_INTERVAL = "confidenceInterval";
+    private RoiMaskSelector roiMaskSelector;
 
     ScatterPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
@@ -136,8 +137,8 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
 
             final PropertySet propertySet = bindingContext.getPropertySet();
             propertySet.getProperty(PARAM_RASTER_DATA_NODE_NAME).getDescriptor().setValueSet(new ValueSet(createAvailableBandList()));
-            propertySet.getProperty(PARAM_ROI_MASK_NAME).getDescriptor().setValueSet(new ValueSet(getAvailableMaskNames()));
             propertySet.getProperty(PARAM_POINT_DATA_NODE_NAME).getDescriptor().setValueSet(new ValueSet(getAvailablePointDataNodeNames()));
+            roiMaskSelector.updateMaskSource(getProduct());
 
             setChartTitle();
         }
@@ -302,12 +303,25 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         boxSizePanel.add(boxSizeSpinner);
 
 
-        final JComboBox roiMaskComboBox = new JComboBox();
-        bindingContext.bind(PARAM_ROI_MASK_NAME, roiMaskComboBox);
-        final JPanel roiMaskPanel = new JPanel(new BorderLayout(5, 3));
-        roiMaskPanel.add(new JLabel("ROI mask:"), BorderLayout.NORTH);
-        roiMaskPanel.add(roiMaskComboBox);
-        roiMaskPanel.add(createShowMaskManagerButton(), BorderLayout.EAST);
+        roiMaskSelector = new RoiMaskSelector(bindingContext);
+        final JPanel roiMaskPanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints roiMaskGbc = new GridBagConstraints();
+        roiMaskGbc.anchor = GridBagConstraints.SOUTHWEST;
+        roiMaskGbc.fill = GridBagConstraints.HORIZONTAL;
+        roiMaskGbc.gridx = 0;
+        roiMaskGbc.gridy = 0;
+        roiMaskGbc.weightx = 1;
+        roiMaskPanel.add(roiMaskSelector.checkBoxUseRoiMask, roiMaskGbc);
+        roiMaskGbc.gridy++;
+        roiMaskPanel.add(roiMaskSelector.labelRoiMask, roiMaskGbc);
+        roiMaskGbc.gridy++;
+        roiMaskPanel.add(roiMaskSelector.comboRoiMask, roiMaskGbc);
+        roiMaskGbc.gridheight = 3;
+        roiMaskGbc.gridx = 1;
+        roiMaskGbc.gridy = 1;
+        roiMaskGbc.weightx = 0;
+        roiMaskGbc.ipadx = 5;
+        roiMaskPanel.add(roiMaskSelector.buttonMaskManager, roiMaskGbc);
 
         final JComboBox pointDataSourceCombo = new JComboBox();
         bindingContext.bind(PARAM_POINT_DATA_NODE_NAME, pointDataSourceCombo);
@@ -351,7 +365,7 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
 
         final JCheckBox confidenceCheck = new JCheckBox("Confidence interval");
         final JTextField confidenceField = new JTextField();
-        confidenceField.setPreferredSize(new Dimension(40,confidenceField.getPreferredSize().height));
+        confidenceField.setPreferredSize(new Dimension(40, confidenceField.getPreferredSize().height));
         confidenceField.setHorizontalAlignment(JTextField.RIGHT);
         bindingContext.bind(PARAM_SHOW_CONFIDENCE_INTERVAL, confidenceCheck);
         bindingContext.bind(PARAM_CONFIDENCE_INTERVAL, confidenceField);
@@ -506,7 +520,8 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     private static class ScatterPlotModel {
         private String rasterDataNodeName;
         private int boxSize;
-        private String roiMaskName;
+        private Boolean useRoiMask;
+        private Mask selectedRoiMask;
         private String pointDataNodeName;
         private String pointDataFieldName;
         public AxisRangeControl xAxisRangeControl;

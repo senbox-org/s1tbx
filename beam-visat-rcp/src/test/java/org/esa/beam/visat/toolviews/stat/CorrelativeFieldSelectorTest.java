@@ -6,11 +6,14 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+
+import javax.management.Descriptor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -29,7 +32,19 @@ public class CorrelativeFieldSelectorTest {
             fail();
         } catch (IllegalArgumentException expected) {
         }
+        bindingContext.getPropertySet().addProperties(Property.create("pointDataSource", ProductNode.class));
+        try {
+            new CorrelativeFieldSelector(bindingContext);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
         bindingContext.getPropertySet().addProperties(Property.create("pointDataSource", VectorDataNode.class));
+        try {
+            new CorrelativeFieldSelector(bindingContext);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+        bindingContext.getPropertySet().addProperties(Property.create("dataField", Descriptor.class));
         try {
             new CorrelativeFieldSelector(bindingContext);
             fail();
