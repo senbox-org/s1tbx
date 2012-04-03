@@ -33,8 +33,8 @@ import org.jfree.chart.event.AxisChangeListener;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
-import org.jfree.data.xy.YIntervalSeries;
-import org.jfree.data.xy.YIntervalSeriesCollection;
+import org.jfree.data.xy.XYIntervalSeries;
+import org.jfree.data.xy.XYIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -67,7 +67,7 @@ class ProfilePlotPanel extends PagePanel {
 
     private ChartPanel profilePlotDisplay;
     private JFreeChart chart;
-    private YIntervalSeriesCollection dataset;
+    private XYIntervalSeriesCollection dataset;
     private TransectProfileData profileData;
 
     private boolean axisAdjusting = false;
@@ -109,7 +109,7 @@ class ProfilePlotPanel extends PagePanel {
         yAxisRangeControl.getBindingContext().getPropertySet().addProperty(Property.create(PROPERTY_NAME_LOG_SCALED, false));
         yAxisRangeControl.getBindingContext().getPropertySet().getDescriptor(PROPERTY_NAME_LOG_SCALED).setDescription("Toggle whether to use a logarithmic axis");
 
-        dataset = new YIntervalSeriesCollection();
+        dataset = new XYIntervalSeriesCollection();
         chart = ChartFactory.createXYLineChart(
                 CHART_TITLE,
                 "Path (pixel)",
@@ -126,15 +126,17 @@ class ProfilePlotPanel extends PagePanel {
         renderer.setUseFillPaint(true);
         renderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
 
+        renderer.setSeriesLinesVisible(0, true);
         renderer.setSeriesShapesVisible(0, false);
         renderer.setSeriesStroke(0, new BasicStroke(1.0f));
         renderer.setSeriesPaint(0, new Color(0, 0, 200));
-        renderer.setSeriesFillPaint(0, new Color(150, 150, 255));
+        renderer.setSeriesFillPaint(0, new Color(200, 200, 255));
 
+        renderer.setSeriesLinesVisible(1, false);
         renderer.setSeriesShapesVisible(1, true);
         renderer.setSeriesStroke(1, new BasicStroke(1.0f));
-        renderer.setSeriesLinesVisible(1, false);
-        renderer.setSeriesFillPaint(1, Color.white);
+        renderer.setSeriesPaint(1, new Color(200, 0, 0));
+        renderer.setSeriesFillPaint(1, new Color(255, 200, 200));
         renderer.setSeriesShape(1, new Ellipse2D.Float(-4, -4, 8, 8));
 
         plot.setNoDataMessage(NO_DATA_MESSAGE);
@@ -301,21 +303,28 @@ class ProfilePlotPanel extends PagePanel {
 
         dataset.removeAllSeries();
 
+        double dx = 0.5 * dataSourceConfig.boxSize;
+
         if (profileData != null && profileData.getNumShapeVertices() >= 2) {
             final float[] sampleValues = profileData.getSampleValues();
             final float[] sampleSigmas = profileData.getSampleSigmas();
             boolean markSegments = (Boolean) (xAxisRangeControl.getBindingContext().getPropertySet().getValue(PROPERTY_NAME_MARK_SEGMENTS));
             if (profileData.getNumShapeVertices() == 2 || !markSegments) {
-                YIntervalSeries series = new YIntervalSeries("Sample Values");
-                for (int i = 0; i < sampleValues.length; i++) {
-                    series.add(i, sampleValues[i], sampleValues[i] - sampleSigmas[i], sampleValues[i] + sampleSigmas[i]);
+                XYIntervalSeries series = new XYIntervalSeries("Sample Values");
+                for (int x = 0; x < sampleValues.length; x++) {
+                    final float y = sampleValues[x];
+                    final float dy = sampleSigmas[x];
+                    series.add(x, x - dx, x + dx, y, y - dy, y + dy);
                 }
                 dataset.addSeries(series);
             } else {
-                for (int i = 0; i < profileData.getNumShapeVertices() - 1; i++) {
-                    final YIntervalSeries series = new YIntervalSeries(String.format("Sample Values Segment %d", i));
-                    for (int x = profileData.getShapeVertexIndexes()[i]; x <= profileData.getShapeVertexIndexes()[i + 1]; x++) {
-                        series.add(i, sampleValues[x], sampleValues[i] - sampleSigmas[i], sampleValues[i] + sampleSigmas[i]);
+                final int[] shapeVertexIndexes = profileData.getShapeVertexIndexes();
+                for (int i = 0; i < shapeVertexIndexes.length - 1; i++) {
+                    final XYIntervalSeries series = new XYIntervalSeries(String.format("Sample Values Segment %d", i));
+                    for (int x = shapeVertexIndexes[i]; x <= shapeVertexIndexes[i + 1]; x++) {
+                        final float y = sampleValues[x];
+                        final float dy = sampleSigmas[i];
+                        series.add(x, x - dx, x + dx, y, y - dy, y + dy);
                     }
                     dataset.addSeries(series);
                 }
@@ -325,7 +334,7 @@ class ProfilePlotPanel extends PagePanel {
                     && dataSourceConfig.pointDataSource != null
                     && dataSourceConfig.dataField != null) {
 
-                YIntervalSeries corrSeries = new YIntervalSeries("Correlative Values");
+                XYIntervalSeries corrSeries = new XYIntervalSeries("Correlative Values");
                 int[] shapeVertexIndexes = profileData.getShapeVertexIndexes();
                 SimpleFeature[] simpleFeatures = dataSourceConfig.pointDataSource.getFeatureCollection().toArray(new SimpleFeature[0]);
 
@@ -333,8 +342,9 @@ class ProfilePlotPanel extends PagePanel {
                     String fieldName = dataSourceConfig.dataField.getLocalName();
                     for (int i = 0; i < simpleFeatures.length; i++) {
                         Number attribute = (Number) simpleFeatures[i].getAttribute(fieldName);
-                        final double y0 = attribute.doubleValue();
-                        corrSeries.add(shapeVertexIndexes[i], y0, y0, y0);
+                        final double x = shapeVertexIndexes[i];
+                        final double y = attribute.doubleValue();
+                        corrSeries.add(x, x, y, y, y, y);
                     }
                 } else {
                     System.out.println("Weird things happened:");
