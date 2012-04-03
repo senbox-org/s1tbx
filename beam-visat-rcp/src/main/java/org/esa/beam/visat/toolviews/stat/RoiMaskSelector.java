@@ -7,10 +7,7 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.visat.VisatApp;
-import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,9 +31,10 @@ public class RoiMaskSelector {
     }
 
     public RoiMaskSelector(BindingContext bindingContext, AbstractButton showMaskManagerButton) {
-        Assert.argument(bindingContext.getPropertySet().getProperty(PROPERTY_NAME_USE_ROI_MASK) != null, "bindingContext");
+        final Property useRoiMaskProperty = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_USE_ROI_MASK);
+        Assert.argument(useRoiMaskProperty != null, "bindingContext");
+        Assert.argument(useRoiMaskProperty.getType().equals(Boolean.class) || useRoiMaskProperty.getType() == Boolean.TYPE, "bindingContext");
         Assert.argument(bindingContext.getPropertySet().getProperty(PROPERTY_NAME_ROI_MASK) != null, "bindingContext");
-        Assert.argument(bindingContext.getPropertySet().getProperty(PROPERTY_NAME_USE_ROI_MASK).getType().equals(Boolean.class), "bindingContext");
         Assert.argument(bindingContext.getPropertySet().getProperty(PROPERTY_NAME_ROI_MASK).getType().equals(Mask.class), "bindingContext");
 
         this.bindingContext = bindingContext;

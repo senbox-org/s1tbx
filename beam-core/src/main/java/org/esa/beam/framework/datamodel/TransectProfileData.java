@@ -51,21 +51,21 @@ public class TransectProfileData {
      * Since 4.5
      */
     public static TransectProfileData create(RasterDataNode raster, Shape path) throws IOException {
-        return create(raster, path, 1, null);
+        return create(raster, path, 1, null, true);
     }
 
     /*
      * Since 4.10
      */
-    public static TransectProfileData create(RasterDataNode raster, Shape path, int boxSize, Mask roiMask) throws IOException {
-        return new TransectProfileData(raster, path, boxSize, roiMask);
+    public static TransectProfileData create(RasterDataNode raster, Shape path, int boxSize, Mask roiMask, boolean connectVertices) throws IOException {
+        return new TransectProfileData(raster, path, boxSize, roiMask, connectVertices);
     }
 
     /*
     * Since 4.10
     */
     public static TransectProfileData create(RasterDataNode raster, VectorDataNode pointData, int boxSize, Mask roiMask) throws IOException {
-        return create(raster, createPath(pointData), boxSize, roiMask);
+        return create(raster, createPath(pointData), boxSize, roiMask, true);
     }
 
     private static Path2D createPath(VectorDataNode pointData) {
@@ -85,7 +85,7 @@ public class TransectProfileData {
     }
 
 
-    private TransectProfileData(RasterDataNode raster, Shape path, int boxSize, Mask roiMask) throws IOException {
+    private TransectProfileData(RasterDataNode raster, Shape path, int boxSize, Mask roiMask, boolean connectVertices) throws IOException {
         Guardian.assertNotNull("raster", raster);
         Guardian.assertNotNull("path", path);
         if (raster.getProduct() == null) {
@@ -95,7 +95,14 @@ public class TransectProfileData {
         ShapeRasterizer rasterizer = new ShapeRasterizer();
         shapeVertices = rasterizer.getVertices(path);
         shapeVertexIndexes = new int[shapeVertices.length];
-        pixelPositions = rasterizer.rasterize(shapeVertices, shapeVertexIndexes);
+        if (connectVertices) {
+            pixelPositions = rasterizer.rasterize(shapeVertices, shapeVertexIndexes);
+        } else {
+            pixelPositions = shapeVertices;
+            for (int i = 0; i < shapeVertexIndexes.length; i++) {
+                shapeVertexIndexes[i] = i;
+            }
+        }
         sampleValues = new float[pixelPositions.length];
         Arrays.fill(sampleValues, Float.NaN);
         sampleSigmas = new float[pixelPositions.length];

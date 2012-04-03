@@ -18,7 +18,6 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.binding.*;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.TransectProfileData;
 import org.esa.beam.framework.datamodel.VectorDataNode;
@@ -35,6 +34,7 @@ import org.jfree.chart.event.AxisChangeListener;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYIntervalSeries;
 import org.jfree.data.xy.XYIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
@@ -75,6 +75,7 @@ class ProfilePlotPanel extends PagePanel {
     private boolean axisAdjusting = false;
     private CorrelativeFieldSelector correlativeFieldSelector;
     private DataSourceConfig dataSourceConfig;
+    private RoiMaskSelector roiMaskSelector;
 
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
@@ -164,14 +165,13 @@ class ProfilePlotPanel extends PagePanel {
 
         final JLabel boxSizeLabel = new JLabel("Box size: ");
         final JSpinner boxSizeSpinner = new JSpinner();
-        final JLabel roiMaskLabel = new JLabel("ROI mask: ");
-        final JComboBox roiMaskList = new JComboBox();
-        final JButton roiMaskButton = new JButton("..."); // todo - use action from mask manager
         final JCheckBox computeInBetweenPoints = new JCheckBox("Compute in-between points");
         final JCheckBox useCorrelativeData = new JCheckBox("Use correlative data");
 
         dataSourceConfig = new DataSourceConfig();
         final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(dataSourceConfig));
+
+        roiMaskSelector = new RoiMaskSelector(bindingContext);
 
         correlativeFieldSelector = new CorrelativeFieldSelector(bindingContext);
         final PropertyDescriptor boxSizeDescriptor = bindingContext.getPropertySet().getProperty("boxSize").getDescriptor();
@@ -181,17 +181,13 @@ class ProfilePlotPanel extends PagePanel {
             @Override
             public void validateValue(Property property, Object value) throws ValidationException {
                 if (((Number) value).intValue() % 2 == 0) {
-                    throw new ValidationException("Only uneven values allowed as box size.");
+                    throw new ValidationException("Only odd values allowed as box size.");
                 }
             }
         });
         bindingContext.bind("boxSize", boxSizeSpinner);
-        bindingContext.bind("roiMask", roiMaskList);
-        bindingContext.getBinding("roiMask").addComponent(roiMaskLabel);
-        bindingContext.getBinding("roiMask").addComponent(roiMaskButton);
         bindingContext.bind("computeInBetweenPoints", computeInBetweenPoints);
         bindingContext.bind("useCorrelativeData", useCorrelativeData);
-        bindingContext.bindEnabledState("roiMask", true, new RoiMaskEnabledCondition());
         bindingContext.bindEnabledState("pointDataSource", true, "useCorrelativeData", true);
         bindingContext.bindEnabledState("dataField", true, "useCorrelativeData", true);
 
@@ -208,8 +204,7 @@ class ProfilePlotPanel extends PagePanel {
         GridBagConstraints dataSourceOptionsConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, boxSizeLabel, dataSourceOptionsConstraints, "gridwidth=1,gridy=0,gridx=0,weightx=0");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, boxSizeSpinner, dataSourceOptionsConstraints, "gridwidth=1,gridy=0,gridx=1,weightx=1");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, roiMaskLabel, dataSourceOptionsConstraints, "gridwidth=2,gridy=1,gridx=0");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, roiMaskList, dataSourceOptionsConstraints, "gridy=2");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, roiMaskSelector.createPanel(), dataSourceOptionsConstraints, "gridwidth=2,gridy=1,gridx=0");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, computeInBetweenPoints, dataSourceOptionsConstraints, "gridy=3");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, new JLabel(" "), dataSourceOptionsConstraints, "gridy=4");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, useCorrelativeData, dataSourceOptionsConstraints, "gridy=5");
@@ -267,17 +262,13 @@ class ProfilePlotPanel extends PagePanel {
         updateDataSource();
         updateDataSet();
         updateUIState();
+        roiMaskSelector.updateMaskSource(getProduct());
     }
 
     private void updateDataSource() {
 
         if (!isInitialized) {
             return;
-        }
-
-        // todo - remove !
-        if (getProduct() != null) {
-            dataSourceConfig.roiMask = getProduct().getMaskGroup().get("land");
         }
 
         profileData = null;
@@ -289,7 +280,7 @@ class ProfilePlotPanel extends PagePanel {
                 } else {
                     Shape shape = StatisticsUtils.TransectProfile.getTransectShape(getRaster().getProduct());
                     if (shape != null) {
-                        profileData = TransectProfileData.create(getRaster(), shape, dataSourceConfig.boxSize, dataSourceConfig.roiMask);
+                        profileData = TransectProfileData.create(getRaster(), shape, dataSourceConfig.boxSize, dataSourceConfig.roiMask, dataSourceConfig.computeInBetweenPoints);
                     }
                 }
             } catch (IOException e) {
@@ -378,6 +369,9 @@ class ProfilePlotPanel extends PagePanel {
         xAxisRangeControl.setComponentsEnabled(profileData != null);
         yAxisRangeControl.setComponentsEnabled(profileData != null);
         adjustPlotAxes();
+        final XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) chart.getXYPlot().getRenderer();
+        renderer.setSeriesLinesVisible(0, dataSourceConfig.computeInBetweenPoints);
+        renderer.setSeriesShapesVisible(0, !dataSourceConfig.computeInBetweenPoints);
     }
 
     private void adjustAxisControlComponents() {
@@ -449,17 +443,11 @@ class ProfilePlotPanel extends PagePanel {
 
     private static class DataSourceConfig {
         private int boxSize = 3;
+        public boolean useRoiMask;
         private Mask roiMask;
         private boolean computeInBetweenPoints = true;
         private boolean useCorrelativeData;
         private VectorDataNode pointDataSource;
         private AttributeDescriptor dataField;
-    }
-
-    private static class RoiMaskEnabledCondition extends Enablement.Condition {
-        @Override
-        public boolean evaluate(BindingContext bindingContext) {
-            return true; // todo - be smarter
-        }
     }
 }
