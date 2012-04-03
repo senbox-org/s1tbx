@@ -44,7 +44,7 @@ public class BindingContext {
 
     private final PropertySet propertySet;
     private Map<String, BindingImpl> bindings;
-    private Map<String, Enablement> enablements;
+    private Map<String, EnablementImpl> enablements;
     private ArrayList<BindingProblemListener> bindingProblemListeners;
 
     /**
@@ -73,7 +73,7 @@ public class BindingContext {
     public BindingContext(PropertySet propertySet, BindingProblemListener problemHandler) {
         this.propertySet = propertySet;
         this.bindings = new HashMap<String, BindingImpl>(17);
-        this.enablements = new HashMap<String, Enablement>(11);
+        this.enablements = new HashMap<String, EnablementImpl>(11);
         if (problemHandler != null) {
             addProblemListener(problemHandler);
         }
@@ -490,8 +490,8 @@ public class BindingContext {
      */
     public void bindEnabledState(final String targetPropertyName,
                                  final boolean targetState,
-                                 final Condition condition) {
-        final Enablement enablement = new Enablement(targetPropertyName, targetState, condition);
+                                 final Enablement.Condition condition) {
+        final EnablementImpl enablement = new EnablementImpl(targetPropertyName, targetState, condition);
         final Binding binding = getBinding(targetPropertyName);
         if (binding != null) {
             activateEnablement(enablement);
@@ -508,7 +508,7 @@ public class BindingContext {
 
     private void setComponentsEnabled(final String targetPropertyName,
                                       final boolean targetState,
-                                      Condition condition) {
+                                      Enablement.Condition condition) {
         boolean conditionIsTrue = condition.evaluate(this);
         final JComponent[] components = getBinding(targetPropertyName).getComponents();
         for (JComponent component : components) {
@@ -518,7 +518,7 @@ public class BindingContext {
 
     private void addBinding(BindingImpl binding) {
         bindings.put(binding.getPropertyName(), binding);
-        Enablement enablement = enablements.get(binding.getPropertyName());
+        EnablementImpl enablement = enablements.get(binding.getPropertyName());
         if (enablement != null && !enablement.isActive()) {
             activateEnablement(enablement);
         }
@@ -526,21 +526,21 @@ public class BindingContext {
 
     private void removeBinding(String propertyName) {
         bindings.remove(propertyName);
-        Enablement enablement = enablements.get(propertyName);
+        EnablementImpl enablement = enablements.get(propertyName);
         if (enablement != null) {
             deactivateEnablement(enablement);
         }
     }
 
-    private void activateEnablement(Enablement enablement) {
+    private void activateEnablement(EnablementImpl enablement) {
         enablement.setActive(true);
         enablement.apply();
-        enablement.getCondition().addPropertyChangeListener(this, enablement);
+        enablement.getCondition().install(this, enablement);
     }
 
-    private void deactivateEnablement(Enablement enablement) {
+    private void deactivateEnablement(EnablementImpl enablement) {
         enablement.setActive(false);
-        enablement.getCondition().removePropertyChangeListener(this, enablement);
+        enablement.getCondition().uninstall(this, enablement);
     }
 
     public static class VerbousProblemHandler implements BindingProblemListener {
@@ -572,51 +572,16 @@ public class BindingContext {
         }
     }
 
-    /**
-     * A condition used to determine the new {@code enabled} state of components.
-     *
-     * @see BindingContext#bindEnabledState(String, boolean, com.bc.ceres.swing.binding.BindingContext.Condition)
-     */
-    public static abstract class Condition {
-        /**
-         * @param bindingContext The binding context.
-         * @return {@code true}, if the condition is met.
-         */
-        public abstract boolean evaluate(BindingContext bindingContext);
-
-        /**
-         * Adds the given property change listener to any dependent bindings or components in the binding context.
-         * The default implementation does nothing.
-         *
-         * @param bindingContext The binding context.
-         * @param listener       A property change listener.
-         */
-        public void addPropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener) {
-        }
-
-        /**
-         * Removes the given property change listener from any dependent bindings or components in the binding context.
-         * The default implementation does nothing.
-         * <p/>
-         * The default implementation does nothing.
-         *
-         * @param bindingContext The binding context.
-         * @param listener       A property change listener.
-         */
-        public void removePropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener) {
-        }
-    }
-
-    private class Enablement implements PropertyChangeListener {
+    private class EnablementImpl implements Enablement {
 
         private final String targetPropertyName;
         private final boolean targetState;
         private final Condition condition;
         private boolean active;
 
-        private Enablement(String targetPropertyName,
-                           boolean targetState,
-                           Condition condition) {
+        private EnablementImpl(String targetPropertyName,
+                               boolean targetState,
+                               Condition condition) {
             this.targetPropertyName = targetPropertyName;
             this.targetState = targetState;
             this.condition = condition;
@@ -646,7 +611,7 @@ public class BindingContext {
         }
     }
 
-    private static class EqualValuesCondition extends Condition {
+    private static class EqualValuesCondition extends Enablement.Condition {
         private final String sourcePropertyName;
         private final Object sourcePropertyValue;
 
@@ -663,13 +628,13 @@ public class BindingContext {
         }
 
         @Override
-        public void addPropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener) {
-            bindingContext.addPropertyChangeListener(sourcePropertyName, listener);
+        public void install(BindingContext bindingContext, Enablement enablement) {
+            bindingContext.addPropertyChangeListener(sourcePropertyName, enablement);
         }
 
         @Override
-        public void removePropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener) {
-            bindingContext.removePropertyChangeListener(sourcePropertyName, listener);
+        public void uninstall(BindingContext bindingContext, Enablement enablement) {
+            bindingContext.removePropertyChangeListener(sourcePropertyName, enablement);
         }
     }
 }
