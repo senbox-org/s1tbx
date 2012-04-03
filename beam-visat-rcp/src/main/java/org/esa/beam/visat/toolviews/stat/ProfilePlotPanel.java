@@ -18,6 +18,8 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.binding.*;
 import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.Enablement;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.TransectProfileData;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -273,16 +275,21 @@ class ProfilePlotPanel extends PagePanel {
             return;
         }
 
+        // todo - remove !
+        if (getProduct() != null) {
+            dataSourceConfig.roiMask = getProduct().getMaskGroup().get("land");
+        }
+
         profileData = null;
         if (getRaster() != null) {
             try {
                 if (dataSourceConfig.useCorrelativeData
                         && dataSourceConfig.pointDataSource != null) {
-                    profileData = TransectProfileData.create(getRaster(), dataSourceConfig.pointDataSource, dataSourceConfig.boxSize, null);
+                    profileData = TransectProfileData.create(getRaster(), dataSourceConfig.pointDataSource, dataSourceConfig.boxSize, dataSourceConfig.roiMask);
                 } else {
                     Shape shape = StatisticsUtils.TransectProfile.getTransectShape(getRaster().getProduct());
                     if (shape != null) {
-                        profileData = TransectProfileData.create(getRaster(), shape, dataSourceConfig.boxSize, null);
+                        profileData = TransectProfileData.create(getRaster(), shape, dataSourceConfig.boxSize, dataSourceConfig.roiMask);
                     }
                 }
             } catch (IOException e) {
@@ -442,25 +449,17 @@ class ProfilePlotPanel extends PagePanel {
 
     private static class DataSourceConfig {
         private int boxSize = 3;
-        private String roiMask;
+        private Mask roiMask;
         private boolean computeInBetweenPoints = true;
         private boolean useCorrelativeData;
         private VectorDataNode pointDataSource;
         private AttributeDescriptor dataField;
     }
 
-    private static class RoiMaskEnabledCondition extends BindingContext.Condition {
+    private static class RoiMaskEnabledCondition extends Enablement.Condition {
         @Override
         public boolean evaluate(BindingContext bindingContext) {
             return true; // todo - be smarter
-        }
-
-        @Override
-        public void addPropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener) {
-        }
-
-        @Override
-        public void removePropertyChangeListener(BindingContext bindingContext, PropertyChangeListener listener) {
         }
     }
 }
