@@ -285,6 +285,11 @@ public class StatisticsToolView extends AbstractToolView {
             Product product = productNode.getProduct();
             selectionChanged(product, raster, vector);
         }
+
+        @Override
+        public void productRemoved(Product product) {
+            selectionChanged(null, null, null);
+        }
     }
 
     private class PagePanelIFL extends InternalFrameAdapter {

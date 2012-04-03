@@ -19,13 +19,13 @@ public class RoiMaskSelectorTest {
 
     private static class TestModelForBinding {
         private Boolean useRoiMask;
-        private Mask selectedRoiMask;
+        private Mask roiMask;
     }
 
     @Before
     public void setUp() throws Exception {
         bindingContext = new BindingContext(PropertyContainer.createObjectBacked(new TestModelForBinding()));
-        roiMaskSelector = new RoiMaskSelector(bindingContext);
+        roiMaskSelector = new RoiMaskSelector(bindingContext, new JButton("..."));
     }
 
     @After
@@ -34,40 +34,32 @@ public class RoiMaskSelectorTest {
 
     @Test
     public void testThatUIComponentsAreInitialized() {
-        assertNotNull(roiMaskSelector.checkBoxUseRoiMask);
-        assertEquals(JCheckBox.class, roiMaskSelector.checkBoxUseRoiMask.getClass());
-        assertEquals("Use ROI mask", roiMaskSelector.checkBoxUseRoiMask.getText());
-        assertFalse(roiMaskSelector.checkBoxUseRoiMask.isSelected());
+        assertNotNull(roiMaskSelector.useRoiMaskCheckBox);
+        assertEquals(JCheckBox.class, roiMaskSelector.useRoiMaskCheckBox.getClass());
+        assertEquals("Use ROI mask:", roiMaskSelector.useRoiMaskCheckBox.getText());
+        assertFalse(roiMaskSelector.useRoiMaskCheckBox.isSelected());
 
-        assertNotNull(roiMaskSelector.labelRoiMask);
-        assertEquals(JLabel.class, roiMaskSelector.labelRoiMask.getClass());
-        assertEquals("ROI mask:", roiMaskSelector.labelRoiMask.getText());
+        assertNotNull(roiMaskSelector.roiMaskComboBox);
+        assertEquals(JComboBox.class, roiMaskSelector.roiMaskComboBox.getClass());
 
-        assertNotNull(roiMaskSelector.comboRoiMask);
-        assertEquals(JComboBox.class, roiMaskSelector.comboRoiMask.getClass());
-
-        assertNotNull(roiMaskSelector.buttonMaskManager);
-        assertEquals(JButton.class, roiMaskSelector.buttonMaskManager.getClass());
-        assertNotNull(roiMaskSelector.buttonMaskManager.getIcon());
-
+        assertNotNull(roiMaskSelector.showMaskManagerButton);
+        assertEquals(JButton.class, roiMaskSelector.showMaskManagerButton.getClass());
     }
 
     @Test
     public void testEnabledStateOfUIComponentsAfterInitializing() {
-        assertFalse(roiMaskSelector.checkBoxUseRoiMask.isEnabled());
-        assertFalse(roiMaskSelector.labelRoiMask.isEnabled());
-        assertFalse(roiMaskSelector.comboRoiMask.isEnabled());
-        assertTrue(roiMaskSelector.buttonMaskManager.isEnabled());
+        assertFalse(roiMaskSelector.useRoiMaskCheckBox.isEnabled());
+        assertFalse(roiMaskSelector.roiMaskComboBox.isEnabled());
+        assertTrue(roiMaskSelector.showMaskManagerButton.isEnabled());
     }
 
     @Test
     public void testEnabledStateWhenProductContainsMasks() {
         roiMaskSelector.updateMaskSource(createProductWithMasks());
 
-        assertTrue(roiMaskSelector.checkBoxUseRoiMask.isEnabled());
-        assertFalse(roiMaskSelector.labelRoiMask.isEnabled());
-        assertFalse(roiMaskSelector.comboRoiMask.isEnabled());
-        assertTrue(roiMaskSelector.buttonMaskManager.isEnabled());
+        assertTrue(roiMaskSelector.useRoiMaskCheckBox.isEnabled());
+        assertFalse(roiMaskSelector.roiMaskComboBox.isEnabled());
+        assertTrue(roiMaskSelector.showMaskManagerButton.isEnabled());
     }
 
     @Test
@@ -76,29 +68,27 @@ public class RoiMaskSelectorTest {
 
         bindingContext.getPropertySet().getProperty(RoiMaskSelector.PROPERTY_NAME_USE_ROI_MASK).setValue(Boolean.TRUE);
 
-        assertTrue(roiMaskSelector.checkBoxUseRoiMask.isEnabled());
-        assertTrue(roiMaskSelector.labelRoiMask.isEnabled());
-        assertTrue(roiMaskSelector.comboRoiMask.isEnabled());
-        assertTrue(roiMaskSelector.buttonMaskManager.isEnabled());
+        assertTrue(roiMaskSelector.useRoiMaskCheckBox.isEnabled());
+        assertTrue(roiMaskSelector.roiMaskComboBox.isEnabled());
+        assertTrue(roiMaskSelector.showMaskManagerButton.isEnabled());
     }
 
     @Test
     public void testEnabledStateWhenProductContainsNoMasks() {
         roiMaskSelector.updateMaskSource(createProduct());
 
-        assertFalse(roiMaskSelector.checkBoxUseRoiMask.isEnabled());
-        assertFalse(roiMaskSelector.labelRoiMask.isEnabled());
-        assertFalse(roiMaskSelector.comboRoiMask.isEnabled());
-        assertTrue(roiMaskSelector.buttonMaskManager.isEnabled());
+        assertFalse(roiMaskSelector.useRoiMaskCheckBox.isEnabled());
+        assertFalse(roiMaskSelector.roiMaskComboBox.isEnabled());
+        assertTrue(roiMaskSelector.showMaskManagerButton.isEnabled());
     }
 
     @Test
     public void testThatUIComponentsAreBoundToProperties() {
         final Binding useRoiMaskBinding = bindingContext.getBinding(RoiMaskSelector.PROPERTY_NAME_USE_ROI_MASK);
-        assertSame(roiMaskSelector.checkBoxUseRoiMask, useRoiMaskBinding.getComponents()[0]);
+        assertSame(roiMaskSelector.useRoiMaskCheckBox, useRoiMaskBinding.getComponents()[0]);
 
         final Binding selectedRoiMaskBinding = bindingContext.getBinding(RoiMaskSelector.PROPERTY_NAME_SELECTED_ROI_MASK);
-        assertSame(roiMaskSelector.comboRoiMask, selectedRoiMaskBinding.getComponents()[0]);
+        assertSame(roiMaskSelector.roiMaskComboBox, selectedRoiMaskBinding.getComponents()[0]);
     }
 
     private Product createProductWithMasks() {

@@ -6,34 +6,31 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.visat.VisatApp;
-import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class RoiMaskSelector {
     public final static String PROPERTY_NAME_USE_ROI_MASK = "useRoiMask";
-    public final static String PROPERTY_NAME_SELECTED_ROI_MASK = "selectedRoiMask";
+    public final static String PROPERTY_NAME_SELECTED_ROI_MASK = "roiMask";
 
-    public final JCheckBox checkBoxUseRoiMask;
-    public final JLabel labelRoiMask;
-    public final JComboBox comboRoiMask;
-    public final AbstractButton buttonMaskManager;
+    final JCheckBox useRoiMaskCheckBox;
+    final JComboBox roiMaskComboBox;
+    final AbstractButton showMaskManagerButton;
 
     private final BindingContext bindingContext;
 
     private Product product;
     private Enablement useRoiEnablement;
+    private Enablement roiMaskEnablement;
 
-    public RoiMaskSelector(BindingContext bindingContext) {
+    public RoiMaskSelector(BindingContext bindingContext, AbstractButton showMaskManagerButton) {
         this.bindingContext = bindingContext;
-        checkBoxUseRoiMask = new JCheckBox("Use ROI mask");
-        labelRoiMask = new JLabel("ROI mask:");
-        comboRoiMask = new JComboBox();
-        comboRoiMask.setRenderer(new DefaultListCellRenderer() {
+        useRoiMaskCheckBox = new JCheckBox("Use ROI mask:");
+        roiMaskComboBox = new JComboBox();
+        roiMaskComboBox.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -44,14 +41,33 @@ public class RoiMaskSelector {
             }
         });
 
-        final Command command = VisatApp.getApp().getCommandManager().getCommand("org.esa.beam.visat.toolviews.mask.MaskManagerToolView.showCmd");
-        buttonMaskManager = command.createToolBarButton();
+        this.showMaskManagerButton = showMaskManagerButton;
 
-        bindingContext.bind(PROPERTY_NAME_USE_ROI_MASK, checkBoxUseRoiMask);
-        bindingContext.bind(PROPERTY_NAME_SELECTED_ROI_MASK, comboRoiMask).addComponent(labelRoiMask);
+        bindingContext.bind(PROPERTY_NAME_USE_ROI_MASK, useRoiMaskCheckBox);
+        bindingContext.bind(PROPERTY_NAME_SELECTED_ROI_MASK, roiMaskComboBox);
 
         bindingContext.bindEnabledState(PROPERTY_NAME_USE_ROI_MASK, true, newUseRoiCondition());
-        bindingContext.bindEnabledState(PROPERTY_NAME_SELECTED_ROI_MASK, true, PROPERTY_NAME_USE_ROI_MASK, true);
+        bindingContext.bindEnabledState(PROPERTY_NAME_SELECTED_ROI_MASK, true, newEnableMaskDropDownCondition());
+    }
+
+    public JPanel getUI() {
+        final JPanel roiMaskPanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints roiMaskGbc = new GridBagConstraints();
+        roiMaskGbc.anchor = GridBagConstraints.SOUTHWEST;
+        roiMaskGbc.fill = GridBagConstraints.HORIZONTAL;
+        roiMaskGbc.gridx = 0;
+        roiMaskGbc.gridy = 0;
+        roiMaskGbc.weightx = 1;
+        roiMaskPanel.add(useRoiMaskCheckBox, roiMaskGbc);
+        roiMaskGbc.gridy++;
+        roiMaskPanel.add(roiMaskComboBox, roiMaskGbc);
+        roiMaskGbc.gridheight = 2;
+        roiMaskGbc.gridx = 1;
+        roiMaskGbc.gridy = 0;
+        roiMaskGbc.weightx = 0;
+        roiMaskGbc.ipadx = 5;
+        roiMaskPanel.add(showMaskManagerButton, roiMaskGbc);
+        return roiMaskPanel;
     }
 
     public void updateMaskSource(Product product) {
@@ -59,9 +75,16 @@ public class RoiMaskSelector {
         if (useRoiEnablement != null) {
             useRoiEnablement.apply();
         }
+
+        if (roiMaskEnablement != null) {
+            roiMaskEnablement.apply();
+        }
+
+        final Property property = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_SELECTED_ROI_MASK);
         if (product != null) {
-            final Property property = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_SELECTED_ROI_MASK);
             property.getDescriptor().setValueSet(new ValueSet(product.getMaskGroup().toArray()));
+        } else {
+            property.getDescriptor().setValueSet(new ValueSet(new Mask[0]));
         }
     }
 
@@ -75,6 +98,36 @@ public class RoiMaskSelector {
             @Override
             public void install(BindingContext bindingContext, Enablement enablement) {
                 useRoiEnablement = enablement;
+            }
+
+            @Override
+            public void uninstall(BindingContext bindingContext, Enablement enablement) {
+                useRoiEnablement = null;
+            }
+        };
+    }
+
+    private Enablement.Condition newEnableMaskDropDownCondition() {
+        return new Enablement.Condition() {
+
+            @Override
+            public boolean evaluate(BindingContext bindingContext) {
+                Boolean propertyValue = bindingContext.getPropertySet().getValue(PROPERTY_NAME_USE_ROI_MASK);
+                return Boolean.TRUE.equals(propertyValue)
+                        && product != null
+                        && product.getMaskGroup().getNodeCount() > 0;
+            }
+
+            @Override
+            public void install(BindingContext bindingContext, Enablement enablement) {
+                bindingContext.addPropertyChangeListener(PROPERTY_NAME_USE_ROI_MASK, enablement);
+                roiMaskEnablement = enablement;
+            }
+
+            @Override
+            public void uninstall(BindingContext bindingContext, Enablement enablement) {
+                bindingContext.removePropertyChangeListener(PROPERTY_NAME_USE_ROI_MASK, enablement);
+                roiMaskEnablement = null;
             }
         };
     }
