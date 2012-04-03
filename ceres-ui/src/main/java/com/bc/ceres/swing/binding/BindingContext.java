@@ -472,12 +472,12 @@ public class BindingContext {
      * @param sourcePropertyName  The name of the source property.
      * @param sourcePropertyValue The value of the source property.
      */
-    public void bindEnabledState(final String targetPropertyName,
-                                 final boolean targetState,
-                                 final String sourcePropertyName,
-                                 final Object sourcePropertyValue) {
-        bindEnabledState(targetPropertyName, targetState,
-                         new EqualValuesCondition(sourcePropertyName, sourcePropertyValue));
+    public Enablement bindEnabledState(final String targetPropertyName,
+                                       final boolean targetState,
+                                       final String sourcePropertyName,
+                                       final Object sourcePropertyValue) {
+        return bindEnabledState(targetPropertyName, targetState,
+                                new EqualValuesCondition(sourcePropertyName, sourcePropertyValue));
     }
 
     /**
@@ -488,15 +488,16 @@ public class BindingContext {
      * @param targetState        The target enabled state.
      * @param condition          The condition.
      */
-    public void bindEnabledState(final String targetPropertyName,
-                                 final boolean targetState,
-                                 final Enablement.Condition condition) {
+    public Enablement bindEnabledState(final String targetPropertyName,
+                                       final boolean targetState,
+                                       final Enablement.Condition condition) {
         final EnablementImpl enablement = new EnablementImpl(targetPropertyName, targetState, condition);
         final Binding binding = getBinding(targetPropertyName);
         if (binding != null) {
             activateEnablement(enablement);
         }
         enablements.put(targetPropertyName, enablement);
+        return enablement;
     }
 
     public void setComponentsEnabled(String propertyName, boolean enabled) {
