@@ -50,7 +50,6 @@ public class TransectProfileDataTest {
         float[] sampleValues = profileData.getSampleValues();
         assertNotNull(sampleValues);
         assertEquals(numPixels, sampleValues.length);
-
         assertEquals(2.6000000F, sampleValues[0], 1E-5F);
         assertEquals(2.4333334F, sampleValues[1], 1E-5F);
         assertEquals(3.4333334F, sampleValues[2], 1E-5F);
@@ -62,6 +61,19 @@ public class TransectProfileDataTest {
         assertEquals(11.433333F, sampleValues[8], 1E-5F);
         assertEquals(12.600000F, sampleValues[9], 1E-5F);
 
+        final float[] sampleSigmas = profileData.getSampleSigmas();
+        assertNotNull(sampleSigmas);
+        assertEquals(numPixels, sampleSigmas.length);
+        assertEquals(2.3804762F, sampleSigmas[0], 1E-5F);
+        assertEquals(1.8618984F, sampleSigmas[1], 1E-5F);
+        assertEquals(1.8618984F, sampleSigmas[2], 1E-5F);
+        assertEquals(2.3804762F, sampleSigmas[3], 1E-5F);
+        assertEquals(3.5707142F, sampleSigmas[4], 1E-5F);
+        assertEquals(3.5707173F, sampleSigmas[5], 1E-5F);
+        assertEquals(2.3804762F, sampleSigmas[6], 1E-5F);
+        assertEquals(1.8619041F, sampleSigmas[7], 1E-5F);
+        assertEquals(1.8619041F, sampleSigmas[8], 1E-5F);
+        assertEquals(2.3804762F, sampleSigmas[9], 1E-5F);
     }
 
     @Test
@@ -101,10 +113,13 @@ public class TransectProfileDataTest {
         final Mask mask = product.addMask("name", Mask.BandMathsType.INSTANCE);
         mask.getImageConfig().setValue(Mask.BandMathsType.PROPERTY_NAME_EXPRESSION, "Y <= 1.5");
         final TransectProfileData profileData = TransectProfileData.create(band, path, 1, mask);
+
+        int numPixels = profileData.getNumPixels();
+        assertEquals(10, numPixels);
+
         final float[] sampleValues = profileData.getSampleValues();
-
-        assertEquals(Float.NaN, Float.NaN, 1E-5F);
-
+        assertNotNull(sampleValues);
+        assertEquals(numPixels, sampleValues.length);
         assertEquals(0.1F, sampleValues[0], 1E-5F);
         assertEquals(1.1F, sampleValues[1], 1E-5F);
         assertEquals(2.1F, sampleValues[2], 1E-5F);
@@ -115,6 +130,58 @@ public class TransectProfileDataTest {
         assertEquals(Float.NaN, sampleValues[7], 1E-5F);
         assertEquals(Float.NaN, sampleValues[8], 1E-5F);
         assertEquals(Float.NaN, sampleValues[9], 1E-5F);
+
+        final float[] sampleSigmas = profileData.getSampleSigmas();
+        assertNotNull(sampleSigmas);
+        assertEquals(numPixels, sampleSigmas.length);
+        assertEquals(0, sampleSigmas[0], 1E-5F);
+        assertEquals(0, sampleSigmas[1], 1E-5F);
+        assertEquals(0, sampleSigmas[2], 1E-5F);
+        assertEquals(0, sampleSigmas[3], 1E-5F);
+        assertEquals(0, sampleSigmas[4], 1E-5F);
+        assertEquals(Float.NaN, sampleSigmas[5], 1E-5F);
+        assertEquals(Float.NaN, sampleSigmas[6], 1E-5F);
+        assertEquals(Float.NaN, sampleSigmas[7], 1E-5F);
+        assertEquals(Float.NaN, sampleSigmas[8], 1E-5F);
+        assertEquals(Float.NaN, sampleSigmas[9], 1E-5F);
+    }
+
+    @Test
+    public void testProfileDataUsingRoiMaskAndBoxSize() throws Exception {
+        final Mask mask = product.addMask("name", Mask.BandMathsType.INSTANCE);
+        mask.getImageConfig().setValue(Mask.BandMathsType.PROPERTY_NAME_EXPRESSION, "Y <= 1.5");
+        final TransectProfileData profileData = TransectProfileData.create(band, path, 3, mask);
+
+        int numPixels = profileData.getNumPixels();
+        assertEquals(10, numPixels);
+
+        final float[] sampleValues = profileData.getSampleValues();
+        assertNotNull(sampleValues);
+        assertEquals(numPixels, sampleValues.length);
+        assertEquals(2.6000000F, sampleValues[0], 1E-5F);
+        assertEquals(2.4333334F, sampleValues[1], 1E-5F);
+        assertEquals(3.4333334F, sampleValues[2], 1E-5F);
+        assertEquals(4.6000000F, sampleValues[3], 1E-5F);
+        assertEquals(4.1000000F, sampleValues[4], 1E-5F);
+        assertEquals(5.1000000F, sampleValues[5], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[6], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[7], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[8], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[9], 1E-5F);
+
+        final float[] sampleSigmas = profileData.getSampleSigmas();
+        assertNotNull(sampleSigmas);
+        assertEquals(numPixels, sampleSigmas.length);
+        assertEquals(2.3804762F, sampleSigmas[0], 1E-5F);
+        assertEquals(1.8618984F, sampleSigmas[1], 1E-5F);
+        assertEquals(1.8618984F, sampleSigmas[2], 1E-5F);
+        assertEquals(2.3804762F, sampleSigmas[3], 1E-5F);
+        assertEquals(2.3664314F, sampleSigmas[4], 1E-5F);
+        assertEquals(1.0000000F, sampleSigmas[5], 1E-5F);
+        assertEquals(Float.NaN, sampleSigmas[6], 1E-5F);
+        assertEquals(Float.NaN, sampleSigmas[7], 1E-5F);
+        assertEquals(Float.NaN, sampleSigmas[8], 1E-5F);
+        assertEquals(Float.NaN, sampleSigmas[9], 1E-5F);
     }
 
     private static void assertProfileDataIsAsExpected(TransectProfileData profileData) {
