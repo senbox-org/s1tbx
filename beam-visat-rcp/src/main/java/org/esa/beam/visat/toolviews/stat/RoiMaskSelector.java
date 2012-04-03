@@ -56,8 +56,8 @@ public class RoiMaskSelector {
         bindingContext.bind(PROPERTY_NAME_USE_ROI_MASK, useRoiMaskCheckBox);
         bindingContext.bind(PROPERTY_NAME_ROI_MASK, roiMaskComboBox);
 
-        bindingContext.bindEnabledState(PROPERTY_NAME_USE_ROI_MASK, true, newUseRoiCondition());
-        bindingContext.bindEnabledState(PROPERTY_NAME_ROI_MASK, true, newEnableMaskDropDownCondition());
+        bindingContext.bindEnabledState(PROPERTY_NAME_USE_ROI_MASK, true, createUseRoiCondition());
+        bindingContext.bindEnabledState(PROPERTY_NAME_ROI_MASK, true, createEnableMaskDropDownCondition());
     }
 
     public JPanel createPanel() {
@@ -98,7 +98,7 @@ public class RoiMaskSelector {
         }
     }
 
-    private Enablement.Condition newUseRoiCondition() {
+    private Enablement.Condition createUseRoiCondition() {
         return new Enablement.Condition() {
             @Override
             public boolean evaluate(BindingContext bindingContext) {
@@ -117,7 +117,7 @@ public class RoiMaskSelector {
         };
     }
 
-    private Enablement.Condition newEnableMaskDropDownCondition() {
+    private Enablement.Condition createEnableMaskDropDownCondition() {
         return new Enablement.Condition() {
 
             @Override
