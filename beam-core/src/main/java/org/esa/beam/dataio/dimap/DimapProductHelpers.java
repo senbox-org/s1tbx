@@ -853,7 +853,7 @@ public class DimapProductHelpers {
                     if (band != null) {
                         ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
                         addMasksToGroup(maskGroup, band.getOverlayMaskGroup(), overlayNames);
-                        addMasksToGroup(maskGroup, band.getRoiMaskGroup(), roiNames);
+                        addMasksToGroup(maskGroup, band.getProduct().getMaskGroup(), roiNames);
                     }
                 }
             }
@@ -865,7 +865,7 @@ public class DimapProductHelpers {
                     if (tiePointGrid != null) {
                         ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
                         addMasksToGroup(maskGroup, tiePointGrid.getOverlayMaskGroup(), overlayNames);
-                        addMasksToGroup(maskGroup, tiePointGrid.getRoiMaskGroup(), roiNames);
+                        addMasksToGroup(maskGroup, tiePointGrid.getProduct().getMaskGroup(), roiNames);
                     }
                 }
             }

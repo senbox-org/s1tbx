@@ -127,10 +127,10 @@ class SingleRoiComputePanel extends JPanel {
     private void updateMaskListState() {
         boolean hasRaster = (raster != null);
         computeButton.setEnabled(hasRaster);
-        boolean hasRois = (hasRaster && raster.getRoiMaskGroup().getNodeCount() > 0);
+        boolean hasRois = (hasRaster && raster.getProduct().getMaskGroup().getNodeCount() > 0);
         useRoiCheckBox.setEnabled(hasRois);
         if (hasRois) {
-            String[] nodeNames = raster.getRoiMaskGroup().getNodeNames();
+            String[] nodeNames = raster.getProduct().getMaskGroup().getNodeNames();
             maskNameComboBox.setModel(new DefaultComboBoxModel(nodeNames));
             maskNameComboBox.setSelectedIndex(0);
         } else {

@@ -308,9 +308,8 @@ public final class DimapHeaderWriter extends XmlWriter {
         Guardian.assertNotNull("rasterDataNodes", rasterDataNodes);
         for (int i = 0; i < rasterDataNodes.length; i++) {
             final RasterDataNode rasterDataNode = rasterDataNodes[i];
-            ProductNodeGroup<Mask> roiMaskGroup = rasterDataNode.getRoiMaskGroup();
             ProductNodeGroup<Mask> overlayMaskGroup = rasterDataNode.getOverlayMaskGroup();
-            if (roiMaskGroup.getNodeCount() > 0 || overlayMaskGroup.getNodeCount() > 0) {
+            if (overlayMaskGroup.getNodeCount() > 0) {
                 final String[] boTags = createTags(indent, DimapProductConstants.TAG_MASK_USAGE);
                 pw.println(boTags[0]);
                 if (rasterDataNode instanceof Band) {
@@ -320,13 +319,6 @@ public final class DimapHeaderWriter extends XmlWriter {
                 }
 
                 final String[][] attributes = new String[1][];
-                if (roiMaskGroup.getNodeCount() > 0) {
-                    attributes[0] = new String[]{
-                            DimapProductConstants.ATTRIB_NAMES,
-                            StringUtils.arrayToCsv(roiMaskGroup.getNodeNames())
-                    };
-                    pw.printLine(indent + 1, DimapProductConstants.TAG_ROI, attributes, null);
-                }
                 if (overlayMaskGroup.getNodeCount() > 0) {
                     attributes[0] = new String[]{
                             DimapProductConstants.ATTRIB_NAMES,

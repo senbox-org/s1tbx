@@ -319,7 +319,6 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         ProductUtils.copyVectorData(sourceProduct, product);
         ProductUtils.copyMasks(sourceProduct, product);
         ProductUtils.copyOverlayMasks(sourceProduct, product);
-        ProductUtils.copyRoiMasks(sourceProduct, product);
         ProductUtils.copyPreferredTileSize(sourceProduct, product);
         setSceneRasterStartAndStopTime(product);
         addSubsetInfoMetadata(product);

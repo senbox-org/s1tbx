@@ -75,12 +75,12 @@ class MultipleRoiComputePanel extends JPanel {
                 Mask[] selectedMasks;
                 if (useRoi) {
                     if (iterateButton.isEnabled() && iterateButton.isSelected()) {
-                        ProductNodeGroup<Mask> roiMaskGroup = raster.getRoiMaskGroup();
-                        selectedMasks = roiMaskGroup.toArray(new Mask[roiMaskGroup.getNodeCount()]);
+                        ProductNodeGroup<Mask> maskGroup = raster.getProduct().getMaskGroup();
+                        selectedMasks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
                     } else {
                         String maskName = (String) maskNameComboBox.getSelectedItem();
-                        ProductNodeGroup<Mask> roiMaskGroup = raster.getRoiMaskGroup();
-                        Mask mask = roiMaskGroup.get(maskName);
+                        ProductNodeGroup<Mask> maskGroup = raster.getProduct().getMaskGroup();
+                        Mask mask = maskGroup.get(maskName);
                         selectedMasks = new Mask[] {mask};
                     }
                 } else {
@@ -176,12 +176,12 @@ class MultipleRoiComputePanel extends JPanel {
         computeButton.setEnabled(hasRaster);
         int roiCount = 0;
         if (hasRaster) {
-            roiCount = raster.getRoiMaskGroup().getNodeCount();
+            roiCount = raster.getProduct().getMaskGroup().getNodeCount();
         }
         boolean hasRois = (hasRaster && roiCount > 0);
         useRoiCheckBox.setEnabled(hasRois);
         if (hasRois) {
-            String[] nodeNames = raster.getRoiMaskGroup().getNodeNames();
+            String[] nodeNames = raster.getProduct().getMaskGroup().getNodeNames();
             maskNameComboBox.setModel(new DefaultComboBoxModel(nodeNames));
             maskNameComboBox.setSelectedIndex(0);
         } else {

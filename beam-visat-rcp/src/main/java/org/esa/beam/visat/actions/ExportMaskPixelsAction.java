@@ -102,12 +102,7 @@ public class ExportMaskPixelsAction extends ExecCommand {
         // Get the displayed raster data node (band or tie-point grid)
         final RasterDataNode raster = view.getRaster();
         
-        String[] maskNames;
-        if (raster.getRoiMaskGroup().getNodeCount() > 0) {
-            maskNames = raster.getRoiMaskGroup().getNodeNames();
-        } else {
-            maskNames = raster.getProduct().getMaskGroup().getNodeNames();
-        }
+        String[] maskNames = raster.getProduct().getMaskGroup().getNodeNames();
         String maskName;
         if (maskNames.length == 1) {
             maskName = maskNames[0];

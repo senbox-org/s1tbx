@@ -220,12 +220,12 @@ public class Product extends ProductNode {
                                 Mask.VectorDataType.getVectorData(mask) == vectorDataNode) {
                             getMaskGroup().remove(mask);
                             for (Band band : getBands()) {
-                                deleteMaskFromGroup(band.getRoiMaskGroup(), mask);
+                                deleteMaskFromGroup(band.getProduct().getMaskGroup(), mask);
                                 deleteMaskFromGroup(band.getOverlayMaskGroup(), mask);
                             }
                             TiePointGrid[] tiePointGrids = getTiePointGrids();
                             for (TiePointGrid tiePointGrid : tiePointGrids) {
-                                deleteMaskFromGroup(tiePointGrid.getRoiMaskGroup(), mask);
+                                deleteMaskFromGroup(tiePointGrid.getProduct().getMaskGroup(), mask);
                                 deleteMaskFromGroup(tiePointGrid.getOverlayMaskGroup(), mask);
                             }
                             break;

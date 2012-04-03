@@ -24,12 +24,11 @@ import java.awt.*;
 class MaskTableModel extends AbstractTableModel {
 
     private static final int IDX_VISIBILITY = 0;
-    private static final int IDX_ROI = 1;
-    private static final int IDX_NAME = 2;
-    private static final int IDX_TYPE = 3;
-    private static final int IDX_COLOR = 4;
-    private static final int IDX_TRANSPARENCY = 5;
-    private static final int IDX_DESCRIPTION = 6;
+    private static final int IDX_NAME = 1;
+    private static final int IDX_TYPE = 2;
+    private static final int IDX_COLOR = 3;
+    private static final int IDX_TRANSPARENCY = 4;
+    private static final int IDX_DESCRIPTION = 5;
 
     /**
      * Mask management mode, no visibility control.
@@ -47,7 +46,6 @@ class MaskTableModel extends AbstractTableModel {
      */
     private static final int[] IDXS_MODE_MANAG_BAND = {
             IDX_VISIBILITY,
-            IDX_ROI,
             IDX_NAME,
             IDX_TYPE,
             IDX_COLOR,
@@ -78,7 +76,6 @@ class MaskTableModel extends AbstractTableModel {
 
     private static final Class[] COLUMN_CLASSES = {
             Boolean.class,
-            Boolean.class,
             String.class,
             String.class,
             Color.class,
@@ -88,7 +85,6 @@ class MaskTableModel extends AbstractTableModel {
 
     private static final String[] COLUMN_NAMES = {
             "Visibility",
-            "ROI",
             "Name",
             "Type",
             "Colour",
@@ -99,7 +95,6 @@ class MaskTableModel extends AbstractTableModel {
     private static final boolean[] COLUMN_EDITABLE_STATES = {
             true,
             true,
-            true,
             false,
             true,
             true,
@@ -108,7 +103,6 @@ class MaskTableModel extends AbstractTableModel {
 
     static int[] COLUMN_WIDTHS = {
             24,
-            36,
             60,
             60,
             60,
@@ -250,12 +244,6 @@ class MaskTableModel extends AbstractTableModel {
             } else {
                 return Boolean.FALSE;
             }
-        } else if (column == IDX_ROI) {
-            if (visibleBand.getRoiMaskGroup().contains(mask)) {
-                return Boolean.TRUE;
-            } else {
-                return Boolean.FALSE;
-            }
         } else if (column == IDX_NAME) {
             return mask.getName();
         } else if (column == IDX_TYPE) {
@@ -286,18 +274,6 @@ class MaskTableModel extends AbstractTableModel {
                 }
             } else {
                 overlayMaskGroup.remove(mask);
-            }
-            visibleBand.fireImageInfoChanged();
-            fireTableCellUpdated(rowIndex, columnIndex);
-        } else if (column == IDX_ROI) {
-            boolean isRoi = (Boolean) aValue;
-            final ProductNodeGroup<Mask> roiMaskGroup = visibleBand.getRoiMaskGroup();
-            if (isRoi) {
-                if (!roiMaskGroup.contains(mask)) {
-                    roiMaskGroup.add(mask);
-                }
-            } else {
-                roiMaskGroup.remove(mask);
             }
             visibleBand.fireImageInfoChanged();
             fireTableCellUpdated(rowIndex, columnIndex);

@@ -1005,27 +1005,6 @@ public class ProductUtils {
         }
     }
 
-    /**
-     * Copies the ROI {@link Mask}s from the source product's raster data nodes to
-     * the target product's raster data nodes.
-     * <p/>
-     * IMPORTANT NOTE: This method should only be used, if it is known that all masks
-     * in the source product will also be valid in the target product. This method does
-     * <em>not</em> copy ROI masks, which are not contained in the target product's
-     * mask group.
-     *
-     * @param sourceProduct the source product
-     * @param targetProduct the target product
-     */
-    public static void copyRoiMasks(Product sourceProduct, Product targetProduct) {
-        for (RasterDataNode sourceNode : sourceProduct.getTiePointGrids()) {
-            copyRoiMasks(sourceNode, targetProduct);
-        }
-        for (RasterDataNode sourceNode : sourceProduct.getBands()) {
-            copyRoiMasks(sourceNode, targetProduct);
-        }
-    }
-
     private static void copyOverlayMasks(final RasterDataNode sourceNode, final Product targetProduct) {
         String[] maskNames = sourceNode.getOverlayMaskGroup().getNodeNames();
         RasterDataNode targetNode = targetProduct.getRasterDataNode(sourceNode.getName());
@@ -1035,17 +1014,6 @@ public class ProductUtils {
             addMasksToGroup(maskNames, maskGroup, overlayMaskGroup);
         }
     }
-
-    private static void copyRoiMasks(final RasterDataNode sourceNode, final Product targetProduct) {
-        String[] maskNames = sourceNode.getRoiMaskGroup().getNodeNames();
-        RasterDataNode targetNode = targetProduct.getRasterDataNode(sourceNode.getName());
-        if (targetNode != null) {
-            ProductNodeGroup<Mask> roiMaskGroup = targetNode.getRoiMaskGroup();
-            ProductNodeGroup<Mask> maskGroup = targetProduct.getMaskGroup();
-            addMasksToGroup(maskNames, maskGroup, roiMaskGroup);
-        }
-    }
-
 
     private static void addMasksToGroup(String[] maskNames, ProductNodeGroup<Mask> maskGroup,
                                         ProductNodeGroup<Mask> specialMaskGroup) {

@@ -1623,7 +1623,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * @return The roi mask group.
-     */
+     * @deprecated since BEAM 4.10
+     * /
     public ProductNodeGroup<Mask> getRoiMaskGroup() {
         return roiMasks;
     }

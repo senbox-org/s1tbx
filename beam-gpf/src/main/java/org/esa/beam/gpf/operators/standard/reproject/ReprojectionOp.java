@@ -259,7 +259,6 @@ public class ReprojectionOp extends Operator {
         ProductUtils.copyVectorData(sourceProduct, targetProduct);
         ProductUtils.copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
-        ProductUtils.copyRoiMasks(sourceProduct, targetProduct);
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
 
         if (addDeltaBands) {

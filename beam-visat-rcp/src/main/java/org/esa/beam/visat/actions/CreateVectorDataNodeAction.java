@@ -115,20 +115,13 @@ public class CreateVectorDataNodeAction extends ExecCommand {
                 vectorDataLayer.setVisible(true);
             }
             final Mask mask = product.getMaskGroup().get(vectorDataNode.getName());
-            final ProductNodeGroup<Mask> roiMaskGroup = sceneView.getRaster().getRoiMaskGroup();
-            setAsRoi(mask, roiMaskGroup);
+            final ProductNodeGroup<Mask> roiMaskGroup = sceneView.getRaster().getProduct().getMaskGroup();
         }
         return vectorDataNode;
     }
 
     public static String getDefaultVectorDataNodeName() {
         return VisatActivator.getInstance().getModuleContext().getRuntimeConfig().getContextProperty(KEY_VECTOR_DATA_INITIAL_NAME, "geometry");
-    }
-
-    private static void setAsRoi(Mask mask, ProductNodeGroup<Mask> roiMaskGroup) {
-        if (!roiMaskGroup.contains(mask)) {
-            roiMaskGroup.add(mask);
-        }
     }
 
     /**
