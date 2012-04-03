@@ -2,19 +2,22 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.visat.VisatApp;
+import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class RoiMaskSelector {
     public final static String PROPERTY_NAME_USE_ROI_MASK = "useRoiMask";
-    public final static String PROPERTY_NAME_SELECTED_ROI_MASK = "roiMask";
+    public final static String PROPERTY_NAME_ROI_MASK = "roiMask";
 
     final JCheckBox useRoiMaskCheckBox;
     final JComboBox roiMaskComboBox;
@@ -26,7 +29,16 @@ public class RoiMaskSelector {
     private Enablement useRoiEnablement;
     private Enablement roiMaskEnablement;
 
+    public RoiMaskSelector(BindingContext bindingContext) {
+        this(bindingContext, VisatApp.getApp().getCommandManager().getCommand("org.esa.beam.visat.toolviews.mask.MaskManagerToolView.showCmd").createToolBarButton());
+    }
+
     public RoiMaskSelector(BindingContext bindingContext, AbstractButton showMaskManagerButton) {
+        Assert.argument(bindingContext.getPropertySet().getProperty(PROPERTY_NAME_USE_ROI_MASK) != null, "bindingContext");
+        Assert.argument(bindingContext.getPropertySet().getProperty(PROPERTY_NAME_ROI_MASK) != null, "bindingContext");
+        Assert.argument(bindingContext.getPropertySet().getProperty(PROPERTY_NAME_USE_ROI_MASK).getType().equals(Boolean.class), "bindingContext");
+        Assert.argument(bindingContext.getPropertySet().getProperty(PROPERTY_NAME_ROI_MASK).getType().equals(Mask.class), "bindingContext");
+
         this.bindingContext = bindingContext;
         useRoiMaskCheckBox = new JCheckBox("Use ROI mask:");
         roiMaskComboBox = new JComboBox();
@@ -44,13 +56,13 @@ public class RoiMaskSelector {
         this.showMaskManagerButton = showMaskManagerButton;
 
         bindingContext.bind(PROPERTY_NAME_USE_ROI_MASK, useRoiMaskCheckBox);
-        bindingContext.bind(PROPERTY_NAME_SELECTED_ROI_MASK, roiMaskComboBox);
+        bindingContext.bind(PROPERTY_NAME_ROI_MASK, roiMaskComboBox);
 
         bindingContext.bindEnabledState(PROPERTY_NAME_USE_ROI_MASK, true, newUseRoiCondition());
-        bindingContext.bindEnabledState(PROPERTY_NAME_SELECTED_ROI_MASK, true, newEnableMaskDropDownCondition());
+        bindingContext.bindEnabledState(PROPERTY_NAME_ROI_MASK, true, newEnableMaskDropDownCondition());
     }
 
-    public JPanel getUI() {
+    public JPanel createPanel() {
         final JPanel roiMaskPanel = new JPanel(new GridBagLayout());
         final GridBagConstraints roiMaskGbc = new GridBagConstraints();
         roiMaskGbc.anchor = GridBagConstraints.SOUTHWEST;
@@ -80,7 +92,7 @@ public class RoiMaskSelector {
             roiMaskEnablement.apply();
         }
 
-        final Property property = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_SELECTED_ROI_MASK);
+        final Property property = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_ROI_MASK);
         if (product != null) {
             property.getDescriptor().setValueSet(new ValueSet(product.getMaskGroup().toArray()));
         } else {

@@ -31,12 +31,10 @@ import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.param.editors.ComboBoxEditor;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
-import org.esa.beam.visat.VisatApp;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.title.TextTitle;
@@ -298,10 +296,8 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         boxSizePanel.add(new JLabel("Box size:"), BorderLayout.WEST);
         boxSizePanel.add(boxSizeSpinner);
 
-
-        final Command command = VisatApp.getApp().getCommandManager().getCommand("org.esa.beam.visat.toolviews.mask.MaskManagerToolView.showCmd");
-        roiMaskSelector = new RoiMaskSelector(bindingContext, command.createToolBarButton());
-        final JPanel roiMaskPanel = roiMaskSelector.getUI();
+        roiMaskSelector = new RoiMaskSelector(bindingContext);
+        final JPanel roiMaskPanel = roiMaskSelector.createPanel();
 
         final JComboBox pointDataSourceCombo = new JComboBox();
         bindingContext.bind(PARAM_POINT_DATA_NODE_NAME, pointDataSourceCombo);

@@ -87,7 +87,7 @@ public class RoiMaskSelectorTest {
         final Binding useRoiMaskBinding = bindingContext.getBinding(RoiMaskSelector.PROPERTY_NAME_USE_ROI_MASK);
         assertSame(roiMaskSelector.useRoiMaskCheckBox, useRoiMaskBinding.getComponents()[0]);
 
-        final Binding selectedRoiMaskBinding = bindingContext.getBinding(RoiMaskSelector.PROPERTY_NAME_SELECTED_ROI_MASK);
+        final Binding selectedRoiMaskBinding = bindingContext.getBinding(RoiMaskSelector.PROPERTY_NAME_ROI_MASK);
         assertSame(roiMaskSelector.roiMaskComboBox, selectedRoiMaskBinding.getComponents()[0]);
     }
 
