@@ -139,12 +139,10 @@ public class RasterDataNodeDeleter {
                     Mask mask = (Mask) raster;
                     product.getMaskGroup().remove(mask);
                     for (Band band : product.getBands()) {
-                        deleteMaskFromGroup(band.getProduct().getMaskGroup(), mask);
                         deleteMaskFromGroup(band.getOverlayMaskGroup(), mask);
                     }
                     TiePointGrid[] tiePointGrids = product.getTiePointGrids();
                     for (TiePointGrid tiePointGrid : tiePointGrids) {
-                        deleteMaskFromGroup(tiePointGrid.getProduct().getMaskGroup(), mask);
                         deleteMaskFromGroup(tiePointGrid.getOverlayMaskGroup(), mask);
                     }
                     ImageType imageType = mask.getImageType();

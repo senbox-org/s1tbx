@@ -836,14 +836,6 @@ public class DimapProductHelpers {
                     overlayNames = StringUtils.csvToArray(overlayNamesCSV);
                 }
             }
-            final Element roiNamesElem = usageElem.getChild(DimapProductConstants.TAG_ROI);
-            String[] roiNames = null;
-            if (roiNamesElem != null) {
-                final String roiNamesCSV = roiNamesElem.getAttributeValue(DimapProductConstants.ATTRIB_NAMES);
-                if (roiNamesCSV != null && roiNamesCSV.length() != 0) {
-                    roiNames = StringUtils.csvToArray(roiNamesCSV);
-                }
-            }
 
             final Element bandIndexElem = usageElem.getChild(DimapProductConstants.TAG_BAND_INDEX);
             if (bandIndexElem != null) {
@@ -853,7 +845,6 @@ public class DimapProductHelpers {
                     if (band != null) {
                         ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
                         addMasksToGroup(maskGroup, band.getOverlayMaskGroup(), overlayNames);
-                        addMasksToGroup(maskGroup, band.getProduct().getMaskGroup(), roiNames);
                     }
                 }
             }
@@ -865,7 +856,6 @@ public class DimapProductHelpers {
                     if (tiePointGrid != null) {
                         ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
                         addMasksToGroup(maskGroup, tiePointGrid.getOverlayMaskGroup(), overlayNames);
-                        addMasksToGroup(maskGroup, tiePointGrid.getProduct().getMaskGroup(), roiNames);
                     }
                 }
             }
@@ -1129,22 +1119,6 @@ public class DimapProductHelpers {
                 final Element imageDisplayElem = (Element) child;
                 addBandStatistics(imageDisplayElem, product);
                 addBitmaskOverlays(imageDisplayElem, product);
-                addRoiDefinitions(imageDisplayElem, product);
-            }
-        }
-
-        private void addRoiDefinitions(Element imageDisplayElem, Product product) {
-            final List roiDefinitions = imageDisplayElem.getChildren(DimapProductConstants.TAG_ROI_DEFINITION);
-            for (Object child : roiDefinitions) {
-                final Element roiDefinitionElem = (Element) child;
-                final ROIDefinition roiDefinition = new ROIDefinition();
-                roiDefinition.initFromJDOMElem(roiDefinitionElem);
-                final String index = roiDefinitionElem.getChildTextTrim(DimapProductConstants.TAG_BAND_INDEX);
-                final String bandName = getBandName(getRootElement(), index);
-                final Band band = product.getBand(bandName);
-                if (band != null) {
-                    band.setROIDefinition(roiDefinition);
-                }
             }
         }
 

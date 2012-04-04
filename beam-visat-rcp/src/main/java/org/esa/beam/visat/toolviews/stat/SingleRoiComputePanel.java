@@ -18,12 +18,7 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.swing.TableLayout;
 
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.UIUtils;
 
 import java.awt.event.ActionEvent;
@@ -111,6 +106,7 @@ class SingleRoiComputePanel extends JPanel {
                     product.removeProductNodeListener(productNodeListener);
                 }
                 product = null;
+                updateMaskListState();
             } else if (product != newRaster.getProduct()) {
                 if (product != null) {
                     product.removeProductNodeListener(productNodeListener);
@@ -119,20 +115,25 @@ class SingleRoiComputePanel extends JPanel {
                 if (product != null) {
                     product.addProductNodeListener(productNodeListener);
                 }
+                updateMaskListState();
             }
-            updateMaskListState();
         }
     }
 
     private void updateMaskListState() {
-        boolean hasRaster = (raster != null);
+        final boolean hasRaster = (raster != null);
         computeButton.setEnabled(hasRaster);
-        boolean hasRois = (hasRaster && raster.getProduct().getMaskGroup().getNodeCount() > 0);
-        useRoiCheckBox.setEnabled(hasRois);
-        if (hasRois) {
-            String[] nodeNames = raster.getProduct().getMaskGroup().getNodeNames();
-            maskNameComboBox.setModel(new DefaultComboBoxModel(nodeNames));
-            maskNameComboBox.setSelectedIndex(0);
+        if (hasRaster) {
+            final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+            final boolean hasRois = (maskGroup.getNodeCount() > 0);
+            useRoiCheckBox.setEnabled(hasRois);
+            if (hasRois) {
+                maskNameComboBox.setModel(new DefaultComboBoxModel(maskGroup.getNodeNames()));
+                maskNameComboBox.setSelectedIndex(0);
+            } else {
+                maskNameComboBox.setModel(new DefaultComboBoxModel());
+                useRoiCheckBox.setSelected(false);
+            }
         } else {
             maskNameComboBox.setModel(new DefaultComboBoxModel());
             useRoiCheckBox.setSelected(false);

@@ -25,7 +25,6 @@ import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.swing.binding.PropertyPane;
 
-import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PlainFeatureFactory;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -114,8 +113,6 @@ public class CreateVectorDataNodeAction extends ExecCommand {
             if (vectorDataLayer != null) {
                 vectorDataLayer.setVisible(true);
             }
-            final Mask mask = product.getMaskGroup().get(vectorDataNode.getName());
-            final ProductNodeGroup<Mask> roiMaskGroup = sceneView.getRaster().getProduct().getMaskGroup();
         }
         return vectorDataNode;
     }

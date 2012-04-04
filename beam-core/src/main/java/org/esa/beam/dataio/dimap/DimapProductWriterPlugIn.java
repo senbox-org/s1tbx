@@ -388,6 +388,11 @@ import java.util.Locale;
  * The XML elements "Pin_Group" and "GCP_Group" with their "Placemark" children are not used anymore.
  * </td>
  * </tr>
+ * <tr>
+ * <td valign="top"></td>
+ * <td> Since BEAM 4.10, the XML elements "ROI", "ROI_Definition", and "ROI_ONE_DIMENSIONS" are not used anymore.
+ * </td>
+ * </tr>
  * </table>
  *
  * @author Sabine Embacher

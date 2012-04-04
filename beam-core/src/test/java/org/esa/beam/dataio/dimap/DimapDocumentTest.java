@@ -423,7 +423,6 @@ public class DimapDocumentTest extends TestCase {
         band1.setUnit("unit for " + band1.getName());
         band1.setDescription(band1.getName() + "-Description");
         band1.setImageInfo(createImageInfo());
-        band1.setROIDefinition(createROIDefinition());
         band1.setSolarFlux(0.12f);
         band1.setSpectralWavelength(23.45f);
         band1.setSpectralBandIndex(0);
@@ -471,18 +470,6 @@ public class DimapDocumentTest extends TestCase {
         virtualBand.setNoDataValueUsed(true);
         virtualBand.setDescription("VirtualBand-Description");
         product.addBand(virtualBand);
-    }
-
-    private org.esa.beam.framework.datamodel.ROIDefinition createROIDefinition() {
-        final org.esa.beam.framework.datamodel.ROIDefinition roiDefinition = new org.esa.beam.framework.datamodel.ROIDefinition();
-        roiDefinition.setBitmaskExpr("flags.LAND_OCEAN");
-        roiDefinition.setBitmaskEnabled(true);
-        roiDefinition.setValueRangeMax(3.4f);
-        roiDefinition.setValueRangeMin(1.2f);
-        roiDefinition.setValueRangeEnabled(true);
-        roiDefinition.setPinUseEnabled(true);
-        roiDefinition.setShapeFigure(ShapeFigure.createRectangleArea(1, 2, 3, 4, null));
-        return roiDefinition;
     }
 
     private Stx createStx() {
@@ -1031,95 +1018,6 @@ public class DimapDocumentTest extends TestCase {
         return new TestDOMBuilder(product, nameDataDirectory).createDOM();
     }
 
-    public static Element createJDOMElement(org.esa.beam.framework.datamodel.ROIDefinition roiDefinition) {
-        final Element roiDefElem = new Element(DimapProductConstants.TAG_ROI_DEFINITION);
-        JDomHelper.addElement(DimapProductConstants.TAG_BITMASK_EXPRESSION, roiDefinition.getBitmaskExpr(), roiDefElem);
-        JDomHelper.addElement(DimapProductConstants.TAG_VALUE_RANGE_MAX, roiDefinition.getValueRangeMax(), roiDefElem);
-        JDomHelper.addElement(DimapProductConstants.TAG_VALUE_RANGE_MIN, roiDefinition.getValueRangeMin(), roiDefElem);
-        JDomHelper.addElement(DimapProductConstants.TAG_BITMASK_ENABLED, roiDefinition.isBitmaskEnabled(), roiDefElem);
-        JDomHelper.addElement(DimapProductConstants.TAG_INVERTED, roiDefinition.isInverted(), roiDefElem);
-        JDomHelper.addElement(DimapProductConstants.TAG_OR_COMBINED, roiDefinition.isOrCombined(), roiDefElem);
-        JDomHelper.addElement(DimapProductConstants.TAG_SHAPE_ENABLED, roiDefinition.isShapeEnabled(), roiDefElem);
-        JDomHelper.addElement(DimapProductConstants.TAG_VALUE_RANGE_ENABLED, roiDefinition.isValueRangeEnabled(),
-                              roiDefElem);
-        JDomHelper.addElement(DimapProductConstants.TAG_PIN_USE_ENABLED, roiDefinition.isPinUseEnabled(), roiDefElem);
-
-        Shape shape = null;
-        if (roiDefinition.getShapeFigure() != null) {
-            shape = roiDefinition.getShapeFigure().getShape();
-            JDomHelper.addElement(DimapProductConstants.TAG_ROI_ONE_DIMENSIONS,
-                                  roiDefinition.getShapeFigure().isOneDimensional(), roiDefElem);
-        }
-        if (shape != null) {
-            final Element figureElem = new Element(DimapProductConstants.TAG_SHAPE_FIGURE);
-            String type;
-            String values = null;
-            if (shape instanceof Line2D.Float) {
-                Line2D.Float line = (Line2D.Float) shape;
-                type = "Line2D";
-                values = "" + line.getX1() + "," + line.getY1()
-                        + "," + line.getX2() + "," + line.getY2();
-            } else if (shape instanceof Rectangle2D.Float) {
-                final Rectangle2D.Float rectangle = (Rectangle2D.Float) shape;
-                type = "Rectangle2D";
-                values = "" + rectangle.getX() + "," + rectangle.getY()
-                        + "," + rectangle.getWidth() + "," + rectangle.getHeight();
-            } else if (shape instanceof Ellipse2D.Float) {
-                final Ellipse2D.Float ellipse = (Ellipse2D.Float) shape;
-                type = "Ellipse2D";
-                values = "" + ellipse.getX() + "," + ellipse.getY()
-                        + "," + ellipse.getWidth() + "," + ellipse.getHeight();
-            } else {
-                type = "Path";
-                final PathIterator iterator = shape.getPathIterator(null);
-                final float[] floats = new float[6];
-                while (!iterator.isDone()) {
-                    Element segElem = null;
-                    final int segType = iterator.currentSegment(floats);
-                    switch (segType) {
-                        case PathIterator.SEG_MOVETO:
-                            segElem = new Element(DimapProductConstants.TAG_PATH_SEG);
-                            segElem.setAttribute(DimapProductConstants.ATTRIB_TYPE, "moveTo");
-                            segElem.setAttribute(DimapProductConstants.ATTRIB_VALUE, "" + floats[0] + "," + floats[1]);
-                            break;
-                        case PathIterator.SEG_LINETO:
-                            segElem = new Element(DimapProductConstants.TAG_PATH_SEG);
-                            segElem.setAttribute(DimapProductConstants.ATTRIB_TYPE, "lineTo");
-                            segElem.setAttribute(DimapProductConstants.ATTRIB_VALUE, "" + floats[0] + "," + floats[1]);
-                            break;
-                        case PathIterator.SEG_QUADTO:
-                            segElem = new Element(DimapProductConstants.TAG_PATH_SEG);
-                            segElem.setAttribute(DimapProductConstants.ATTRIB_TYPE, "quadTo");
-                            segElem.setAttribute(DimapProductConstants.ATTRIB_VALUE,
-                                                 "" + floats[0] + "," + floats[1] + "," + floats[2] + "," + floats[3]);
-                            break;
-                        case PathIterator.SEG_CUBICTO:
-                            segElem = new Element(DimapProductConstants.TAG_PATH_SEG);
-                            segElem.setAttribute(DimapProductConstants.ATTRIB_TYPE, "cubicTo");
-                            segElem.setAttribute(DimapProductConstants.ATTRIB_VALUE,
-                                                 "" + floats[0] + "," + floats[1] + "," + floats[2] + "," + floats[3] + "," + floats[4] + "," + floats[5]);
-                            break;
-                        case PathIterator.SEG_CLOSE:
-                            segElem = new Element(DimapProductConstants.TAG_PATH_SEG);
-                            segElem.setAttribute(DimapProductConstants.ATTRIB_TYPE, "close");
-                    }
-                    if (segElem != null) {
-                        figureElem.addContent(segElem);
-                    }
-                    iterator.next();
-                }
-            }
-            if (type != null) {
-                figureElem.setAttribute(DimapProductConstants.ATTRIB_TYPE, type);
-                if (values != null) {
-                    figureElem.setAttribute(DimapProductConstants.ATTRIB_VALUE, values);
-                }
-                roiDefElem.addContent(figureElem);
-            }
-        }
-        return roiDefElem;
-    }
-
     /**
      * A class whose only purpose is to create a DOM from a given data product.
      */
@@ -1392,16 +1290,6 @@ public class DimapDocumentTest extends TestCase {
             }
             addBitmaskDefinitions(bands, imageDisplayElem);
             addBitmaskDefinitions(getProduct().getTiePointGrids(), imageDisplayElem);
-
-            for (int i = 0; i < bands.length; i++) {
-                final Band band = bands[i];
-                final org.esa.beam.framework.datamodel.ROIDefinition roiDefinition = band.getROIDefinition();
-                if (roiDefinition != null) {
-                    final Element roiDefElem = createJDOMElement(roiDefinition);
-                    JDomHelper.addElement(DimapProductConstants.TAG_BAND_INDEX, i, roiDefElem);
-                    imageDisplayElem.addContent(roiDefElem);
-                }
-            }
 
             final List children = imageDisplayElem.getChildren();
             if (children != null && children.size() > 0) {

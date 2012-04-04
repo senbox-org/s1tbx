@@ -158,6 +158,7 @@ class MultipleRoiComputePanel extends JPanel {
                     product.removeProductNodeListener(productNodeListener);
                 }
                 product = null;
+                updateMaskListState();
             } else if (product != newRaster.getProduct()) {
                 if (product != null) {
                     product.removeProductNodeListener(productNodeListener);
@@ -166,24 +167,25 @@ class MultipleRoiComputePanel extends JPanel {
                 if (product != null) {
                     product.addProductNodeListener(productNodeListener);
                 }
+                updateMaskListState();
             }
-            updateMaskListState();
         }
     }
 
     private void updateMaskListState() {
-        boolean hasRaster = (raster != null);
+        final boolean hasRaster = (raster != null);
         computeButton.setEnabled(hasRaster);
-        int roiCount = 0;
         if (hasRaster) {
-            roiCount = raster.getProduct().getMaskGroup().getNodeCount();
-        }
-        boolean hasRois = (hasRaster && roiCount > 0);
-        useRoiCheckBox.setEnabled(hasRois);
-        if (hasRois) {
-            String[] nodeNames = raster.getProduct().getMaskGroup().getNodeNames();
-            maskNameComboBox.setModel(new DefaultComboBoxModel(nodeNames));
-            maskNameComboBox.setSelectedIndex(0);
+            final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+            final boolean hasRois = (maskGroup.getNodeCount() > 0);
+            useRoiCheckBox.setEnabled(hasRois);
+            if (hasRois) {
+                maskNameComboBox.setModel(new DefaultComboBoxModel(maskGroup.getNodeNames()));
+                maskNameComboBox.setSelectedIndex(0);
+            } else {
+                maskNameComboBox.setModel(new DefaultComboBoxModel());
+                useRoiCheckBox.setSelected(false);
+            }
         } else {
             maskNameComboBox.setModel(new DefaultComboBoxModel());
             useRoiCheckBox.setSelected(false);

@@ -126,8 +126,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private final ProductNodeGroup<Mask> overlayMasks;
 
     @Deprecated
-    private ROIDefinition roiDefinition;
-
     private final ProductNodeGroup<Mask> roiMasks;
 
     /**
@@ -227,7 +225,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             if (!modified && overlayMasks != null) {
                 overlayMasks.setModified(false);
             }
-            if (!modified && roiMasks != null) {
+            if (!modified) {
                 roiMasks.setModified(false);
             }
             super.setModified(modified);
@@ -842,10 +840,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (bitmaskOverlayInfo != null) {
             bitmaskOverlayInfo.dispose();
             bitmaskOverlayInfo = null;
-        }
-        if (roiDefinition != null) {
-            roiDefinition.dispose();
-            roiDefinition = null;
         }
         if (sourceImage != null) {
             sourceImage.dispose();
@@ -1622,14 +1616,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @return The roi mask group.
-     * @deprecated since BEAM 4.10
-     * /
-    public ProductNodeGroup<Mask> getRoiMaskGroup() {
-        return roiMasks;
-    }
-
-    /**
      * Creates an image for this raster data node. The method simply returns <code>ProductUtils.createColorIndexedImage(this,
      * null)</code>.
      *
@@ -2236,39 +2222,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     // Deprecated API
 
     /**
-     * @return the ROI definition
-     * @deprecated since BEAM 4.7, use {@link #getRoiMaskGroup()}
+     * @return The roi mask group.
+     * @deprecated since BEAM 4.10 (no replacement)
      */
     @Deprecated
-    public ROIDefinition getROIDefinition() {
-        return roiDefinition;
+    public ProductNodeGroup<Mask> getRoiMaskGroup() {
+        return roiMasks;
     }
-
-    /**
-     * Sets the ROI definition for image display
-     *
-     * @param roiDefinition the ROI definition
-     * @deprecated since BEAM 4.7, use {@link #getRoiMaskGroup()}
-     */
-    @Deprecated
-    public void setROIDefinition(ROIDefinition roiDefinition) {
-        if (this.roiDefinition != roiDefinition) {
-            this.roiDefinition = roiDefinition;
-            fireProductNodeChanged(PROPERTY_NAME_ROI_DEFINITION);
-
-            if (getProduct() != null) {
-                if (roiDefinition.isUsable()) {
-                    final Mask mask = ROIDefinition.toMask(roiDefinition, this);
-                    if (mask != null) {
-                        getProduct().getMaskGroup().add(mask);
-                    }
-                }
-            }
-
-            setModified(true);
-        }
-    }
-
 
     /**
      * @return the bitmask overlay info for image display
