@@ -45,14 +45,13 @@ public class MaskTableModelTest extends TestCase {
 
         maskTableModel.setProduct(product, product.getBand("C"));
         assertEquals(true, maskTableModel.isInManagmentMode());
-        assertEquals(7, maskTableModel.getColumnCount());
+        assertEquals(6, maskTableModel.getColumnCount());
         assertEquals("Visibility", maskTableModel.getColumnName(0));
-        assertEquals("ROI", maskTableModel.getColumnName(1));
-        assertEquals("Name", maskTableModel.getColumnName(2));
-        assertEquals("Type", maskTableModel.getColumnName(3));
-        assertEquals("Colour", maskTableModel.getColumnName(4));
-        assertEquals("Transparency", maskTableModel.getColumnName(5));
-        assertEquals("Description", maskTableModel.getColumnName(6));
+        assertEquals("Name", maskTableModel.getColumnName(1));
+        assertEquals("Type", maskTableModel.getColumnName(2));
+        assertEquals("Colour", maskTableModel.getColumnName(3));
+        assertEquals("Transparency", maskTableModel.getColumnName(4));
+        assertEquals("Description", maskTableModel.getColumnName(5));
         assertEquals(10, maskTableModel.getRowCount());
     }
 
