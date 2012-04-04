@@ -124,6 +124,22 @@ class AxisRangeControl {
         return Math.pow(10.0, n);
     }
 
+    public Double getMin() {
+        return (Double)getBindingContext().getPropertySet().getValue("min");
+    }
+
+    public Double getMax() {
+        return (Double) getBindingContext().getPropertySet().getValue("max");
+    }
+
+    public void setMin(double min) {
+        getBindingContext().getPropertySet().setValue("min", min);
+    }
+
+    public void setMax(double max) {
+        getBindingContext().getPropertySet().setValue("max", max);
+    }
+
     private static class Model {
         private boolean autoMinMax = true;
         private double min = 0.0;

@@ -28,8 +28,17 @@ public class AxisRangeControlTest {
         final AxisRangeControl axisRangeControl = new AxisRangeControl("");
         axisRangeControl.getPanel();
         assertEquals(true, axisRangeControl.getBindingContext().getBinding("autoMinMax").getPropertyValue());
-        assertEquals(0.0, axisRangeControl.getBindingContext().getBinding("min").getPropertyValue());
-        assertEquals(100.0, axisRangeControl.getBindingContext().getBinding("max").getPropertyValue());
+        assertEquals((Double)0.0, axisRangeControl.getMin());
+        assertEquals((Double)100.0, axisRangeControl.getMax());
+    }
+
+    @Test
+    public void testMinMaxSetterAndGetter() {
+        final AxisRangeControl axisRangeControl = new AxisRangeControl("");
+        axisRangeControl.setMin(3.4);
+        axisRangeControl.setMax(13.8);
+        assertEquals((Double)3.4, axisRangeControl.getMin());
+        assertEquals((Double)13.8, axisRangeControl.getMax());
     }
 
     @Test
