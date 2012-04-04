@@ -26,9 +26,8 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.ui.diagram.DiagramGraph;
-import org.esa.beam.framework.ui.diagram.DiagramGraphIO;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.io.CsvReader;
 import org.esa.beam.util.math.ConstrainedLSU;
 import org.esa.beam.util.math.FullyConstrainedLSU;
 import org.esa.beam.util.math.SpectralUnmixing;
@@ -38,8 +37,10 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -388,34 +389,16 @@ public class SpectralUnmixingOp extends Operator {
         return bestIndex;
     }
 
-    public static Endmember[] convertGraphsToEndmembers(DiagramGraph[] diagramGraphs) {
-        Endmember[] endmembers = new Endmember[diagramGraphs.length];
-        for (int i = 0; i < diagramGraphs.length; i++) {
-            DiagramGraph diagramGraph = diagramGraphs[i];
-            int numValues = diagramGraph.getNumValues();
-            double[] wavelengths = new double[numValues];
-            double[] radiations = new double[numValues];
-            for (int j = 0; j < numValues; j++) {
-                wavelengths[j] = diagramGraph.getXValueAt(j);
-                radiations[j] = diagramGraph.getYValueAt(j);
-            }
-            endmembers[i] = new Endmember(diagramGraph.getYName(), wavelengths, radiations);
-        }
-        return endmembers;
-    }
-
-
     private void loadEndmemberFile() throws OperatorException {
         try {
             FileReader fileReader = new FileReader(endmemberFile);
             try {
-                DiagramGraph[] diagramGraphs = DiagramGraphIO.readGraphs(fileReader);
-                Endmember[] newEndmembers = convertGraphsToEndmembers(diagramGraphs);
+                List<Endmember> newEndmembers = readGraphs(fileReader);
                 ArrayList<Endmember> list = new ArrayList<Endmember>();
                 if (endmembers != null) {
                     list.addAll(Arrays.asList(endmembers));
                 }
-                list.addAll(Arrays.asList(newEndmembers));
+                list.addAll(newEndmembers);
                 endmembers = list.toArray(new Endmember[list.size()]);
             } finally {
                 fileReader.close();
@@ -423,6 +406,65 @@ public class SpectralUnmixingOp extends Operator {
         } catch (IOException e) {
             throw new OperatorException(e);
         }
+    }
+    private static List<Endmember> readGraphs(Reader reader) throws IOException {
+
+        CsvReader csvReader = new CsvReader(reader, new char[]{'\t'});
+        List<Endmember> endmemberList = new ArrayList<Endmember>(5);
+        List<double[]> dataRecords = new ArrayList<double[]>(20);
+
+        String[] headerRecord = csvReader.readRecord();
+        while (true) {
+            if (headerRecord.length < 2) {
+                throw new IOException("Invalid format.");
+            }
+            String[] record = csvReader.readRecord();
+            if (record == null) {
+                break;
+            }
+            double[] dataRecord = toDoubles(record);
+            if (dataRecord != null) {
+                if (dataRecord.length != headerRecord.length) {
+                    throw new IOException("Invalid format.");
+                }
+                dataRecords.add(dataRecord);
+            } else {
+                readGraphGroup(headerRecord, dataRecords, endmemberList);
+                headerRecord = record;
+            }
+        }
+        readGraphGroup(headerRecord, dataRecords, endmemberList);
+        return endmemberList;
+    }
+
+    public static double[] toDoubles(String[] textRecord) throws IOException {
+        double[] doubleRecord = new double[textRecord.length];
+        for (int i = 0; i < textRecord.length; i++) {
+            try {
+                doubleRecord[i] = Double.valueOf(textRecord[i]);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return doubleRecord;
+    }
+
+    private static void readGraphGroup(String[] headerRecord, List<double[]> dataRecords, List<Endmember> endmemberList) {
+        if (dataRecords.size() > 0) {
+            double[] xValues = new double[dataRecords.size()];
+            for (int j = 0; j < dataRecords.size(); j++) {
+                xValues[j] = dataRecords.get(j)[0];
+            }
+            double[] dataRecord0 = dataRecords.get(0);
+            for (int i = 1; i < dataRecord0.length; i++) {
+                double[] yValues = new double[dataRecords.size()];
+                for (int j = 0; j < dataRecords.size(); j++) {
+                    yValues[j] = dataRecords.get(j)[i];
+                }
+                endmemberList.add(new Endmember(headerRecord[i], xValues, yValues));
+            }
+        }
+        dataRecords.clear();
     }
 
     private void validateParameters() throws OperatorException {

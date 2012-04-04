@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,31 +17,19 @@
 package org.esa.beam.unmixing.ui;
 
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.diagram.DefaultDiagramGraphStyle;
-import org.esa.beam.framework.ui.diagram.Diagram;
-import org.esa.beam.framework.ui.diagram.DiagramAxis;
-import org.esa.beam.framework.ui.diagram.DiagramGraph;
-import org.esa.beam.framework.ui.diagram.DiagramGraphIO;
+import org.esa.beam.framework.ui.diagram.*;
 import org.esa.beam.unmixing.Endmember;
-import org.esa.beam.unmixing.SpectralUnmixingOp;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.ResourceInstaller;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileFilter;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.DefaultListModel;
-import javax.swing.DefaultListSelectionModel;
-import javax.swing.ImageIcon;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.BasicStroke;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -195,12 +183,27 @@ class EndmemberFormModel {
                                                                      "Add Endmembers",
                                                                      new BeamFileFilter[]{DiagramGraphIO.SPECTRA_CSV_FILE_FILTER},
                                                                      appContext.getPreferences());
-            Endmember[] endmembers = SpectralUnmixingOp.convertGraphsToEndmembers(diagramGraphs);
+            Endmember[] endmembers = convertGraphsToEndmembers(diagramGraphs);
             for (Endmember endmember : endmembers) {
                 addEndmember(endmember);
             }
         }
 
+        private Endmember[] convertGraphsToEndmembers(DiagramGraph[] diagramGraphs) {
+            Endmember[] endmembers = new Endmember[diagramGraphs.length];
+            for (int i = 0; i < diagramGraphs.length; i++) {
+                DiagramGraph diagramGraph = diagramGraphs[i];
+                int numValues = diagramGraph.getNumValues();
+                double[] wavelengths = new double[numValues];
+                double[] radiations = new double[numValues];
+                for (int j = 0; j < numValues; j++) {
+                    wavelengths[j] = diagramGraph.getXValueAt(j);
+                    radiations[j] = diagramGraph.getYValueAt(j);
+                }
+                endmembers[i] = new Endmember(diagramGraph.getYName(), wavelengths, radiations);
+            }
+            return endmembers;
+        }
     }
 
     private class RemoveAction extends AbstractAction {

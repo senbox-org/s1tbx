@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-unmix</symbolicName>
-    <version>1.1</version>
+    <version>1.2</version>
     <name>Spectral Unmixing</name>
 
     <description>
@@ -10,6 +10,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.2:<br/>
+        [BEAM-1391] Spectral unmixing should not require beam-ui to be present<br/>
         Changes in 1.1:<br/>
         [BEAM-1052] All processors should be able to store/reload their configuration<br/>
         Changes in 1.0.1:<br/>
