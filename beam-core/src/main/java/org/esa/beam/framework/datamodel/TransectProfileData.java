@@ -51,21 +51,21 @@ public class TransectProfileData {
      * Since 4.5
      */
     public static TransectProfileData create(RasterDataNode raster, Shape path) throws IOException {
-        return create(raster, path, 1, null, true);
+        return create(raster, path, 1, false, null, true);
     }
 
     /*
      * Since 4.10
      */
-    public static TransectProfileData create(RasterDataNode raster, Shape path, int boxSize, Mask roiMask, boolean connectVertices) throws IOException {
-        return new TransectProfileData(raster, path, boxSize, roiMask, connectVertices);
+    public static TransectProfileData create(RasterDataNode raster, Shape path, int boxSize, boolean useRoiMask, Mask roiMask, boolean connectVertices) throws IOException {
+        return new TransectProfileData(raster, path, boxSize, useRoiMask, roiMask, connectVertices);
     }
 
     /*
     * Since 4.10
     */
-    public static TransectProfileData create(RasterDataNode raster, VectorDataNode pointData, int boxSize, Mask roiMask) throws IOException {
-        return create(raster, createPath(pointData), boxSize, roiMask, true);
+    public static TransectProfileData create(RasterDataNode raster, VectorDataNode pointData, int boxSize, boolean useRoiMask, Mask roiMask) throws IOException {
+        return create(raster, createPath(pointData), boxSize, useRoiMask, roiMask, true);
     }
 
     private static Path2D createPath(VectorDataNode pointData) {
@@ -85,7 +85,7 @@ public class TransectProfileData {
     }
 
 
-    private TransectProfileData(RasterDataNode raster, Shape path, int boxSize, Mask roiMask, boolean connectVertices) throws IOException {
+    private TransectProfileData(RasterDataNode raster, Shape path, int boxSize, boolean useRoiMask, Mask roiMask, boolean connectVertices) throws IOException {
         Guardian.assertNotNull("raster", raster);
         Guardian.assertNotNull("path", path);
         if (raster.getProduct() == null) {
@@ -95,14 +95,7 @@ public class TransectProfileData {
         ShapeRasterizer rasterizer = new ShapeRasterizer();
         shapeVertices = rasterizer.getVertices(path);
         shapeVertexIndexes = new int[shapeVertices.length];
-        if (connectVertices) {
-            pixelPositions = rasterizer.rasterize(shapeVertices, shapeVertexIndexes);
-        } else {
-            pixelPositions = shapeVertices;
-            for (int i = 0; i < shapeVertexIndexes.length; i++) {
-                shapeVertexIndexes[i] = i;
-            }
-        }
+        pixelPositions = rasterizer.rasterize(shapeVertices, shapeVertexIndexes);
         sampleValues = new float[pixelPositions.length];
         Arrays.fill(sampleValues, Float.NaN);
         sampleSigmas = new float[pixelPositions.length];
@@ -121,9 +114,16 @@ public class TransectProfileData {
 
         final Rectangle sceneRect = new Rectangle(raster.getSceneRasterWidth(), raster.getSceneRasterHeight());
         PixelPos pixelPos = new PixelPos();
+        int k = 0;
         for (int i = 0; i < pixelPositions.length; i++) {
             final int xC = MathUtils.floorInt(pixelPositions[i].getX() + 0.5f);
             final int yC = MathUtils.floorInt(pixelPositions[i].getY() + 0.5f);
+            if (i == shapeVertexIndexes[k]) {
+                k++;
+            } else if (!connectVertices) {
+                continue;
+            }
+
             if (!sceneRect.contains(xC, yC)) {
                 continue;
             }
@@ -137,7 +137,7 @@ public class TransectProfileData {
             raster.readPixels(box.x, box.y, box.width, box.height, sampleBuffer, ProgressMonitor.NULL);
 
             int[] maskBuffer = null;
-            if (roiMask != null) {
+            if (useRoiMask && roiMask != null) {
                 maskBuffer = new int[box.width * box.height];
                 roiMask.readPixels(box.x, box.y, box.width, box.height, maskBuffer, ProgressMonitor.NULL);
             }

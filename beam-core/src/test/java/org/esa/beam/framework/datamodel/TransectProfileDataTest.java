@@ -39,7 +39,7 @@ public class TransectProfileDataTest {
 
     @Test
     public void testCreateWithBoxSize() throws Exception {
-        final TransectProfileData profileData = TransectProfileData.create(band, path, 3, null, true);
+        final TransectProfileData profileData = TransectProfileData.create(band, path, 3, false, null, true);
 
         int numPixels = profileData.getNumPixels();
         assertEquals(10, numPixels);
@@ -78,42 +78,33 @@ public class TransectProfileDataTest {
 
     @Test
     public void testCreateWithDefaults() throws Exception {
-        TransectProfileData profileData = TransectProfileData.create(band, path, 1, null, true);
+        TransectProfileData profileData = TransectProfileData.create(band, path, 1, false, null, true);
         assertProfileDataIsAsExpected(profileData);
     }
 
     @Test
     public void testCreateUnconnected() throws Exception {
-        TransectProfileData profileData = TransectProfileData.create(band, path, 1, null, false);
+        TransectProfileData profileData = TransectProfileData.create(band, path, 1, false, null, false);
 
         int numPixels = profileData.getNumPixels();
-        assertEquals(4, numPixels);
+        assertEquals(10, numPixels);
 
-        Point2D[] pixelPositions = profileData.getPixelPositions();
-        assertNotNull(pixelPositions);
-        assertEquals(numPixels, pixelPositions.length);
-        assertEquals(new Point2D.Float(0, 0), pixelPositions[0]);
-        assertEquals(new Point2D.Float(3, 0), pixelPositions[1]);
-        assertEquals(new Point2D.Float(0, 3), pixelPositions[2]);
-        assertEquals(new Point2D.Float(3, 3), pixelPositions[3]);
-
-        int numShapeVertices = profileData.getNumShapeVertices();
-        assertEquals(4, numShapeVertices);
-        int[] shapeVertexIndexes = profileData.getShapeVertexIndexes();
-        assertNotNull(shapeVertexIndexes);
-        assertEquals(4, shapeVertexIndexes.length);
-        assertEquals(0, shapeVertexIndexes[0]);
-        assertEquals(1, shapeVertexIndexes[1]);
-        assertEquals(2, shapeVertexIndexes[2]);
-        assertEquals(3, shapeVertexIndexes[3]);
+        assertPixelPositions(profileData, numPixels);
+        assertShapeVertexIndices(profileData);
 
         float[] sampleValues = profileData.getSampleValues();
         assertNotNull(sampleValues);
         assertEquals(numPixels, sampleValues.length);
         assertEquals(0.1F, sampleValues[0], 1E-5F);
-        assertEquals(3.1F, sampleValues[1], 1E-5F);
-        assertEquals(12.1F, sampleValues[2], 1E-5F);
-        assertEquals(15.1F, sampleValues[3], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[1], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[2], 1E-5F);
+        assertEquals(3.1F, sampleValues[3], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[4], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[5], 1E-5F);
+        assertEquals(12.1F, sampleValues[6], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[7], 1E-5F);
+        assertEquals(Float.NaN, sampleValues[8], 1E-5F);
+        assertEquals(15.1F, sampleValues[9], 1E-5F);
     }
 
     @Test
@@ -138,7 +129,7 @@ public class TransectProfileDataTest {
 
         product.getVectorDataGroup().add(track);
 
-        TransectProfileData profileData = TransectProfileData.create(band, track, 1, null);
+        TransectProfileData profileData = TransectProfileData.create(band, track, 1, false, null);
         assertProfileDataIsAsExpected(profileData);
     }
 
@@ -146,7 +137,7 @@ public class TransectProfileDataTest {
     public void testProfileDataUsingRoiMask() throws Exception {
         final Mask mask = product.addMask("name", Mask.BandMathsType.INSTANCE);
         mask.getImageConfig().setValue(Mask.BandMathsType.PROPERTY_NAME_EXPRESSION, "Y <= 1.5");
-        final TransectProfileData profileData = TransectProfileData.create(band, path, 1, mask, true);
+        final TransectProfileData profileData = TransectProfileData.create(band, path, 1, true, mask, true);
 
         int numPixels = profileData.getNumPixels();
         assertEquals(10, numPixels);
@@ -184,7 +175,7 @@ public class TransectProfileDataTest {
     public void testProfileDataUsingRoiMaskAndBoxSize() throws Exception {
         final Mask mask = product.addMask("name", Mask.BandMathsType.INSTANCE);
         mask.getImageConfig().setValue(Mask.BandMathsType.PROPERTY_NAME_EXPRESSION, "Y <= 1.5");
-        final TransectProfileData profileData = TransectProfileData.create(band, path, 3, mask, true);
+        final TransectProfileData profileData = TransectProfileData.create(band, path, 3, true, mask, true);
 
         int numPixels = profileData.getNumPixels();
         assertEquals(10, numPixels);
