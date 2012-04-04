@@ -70,6 +70,7 @@ public class CsvProductReader extends AbstractProductReader {
         final int sceneRasterWidth = source.getRecordCount();
         // todo - get name and type from properties, if existing
         final Product product = new Product(getInput().toString(), "CSV", sceneRasterWidth, 1);
+        product.setPreferredTileSize(8, 1);
         for (AttributeDescriptor descriptor : source.getFeatureType().getAttributeDescriptors()) {
             if (isAccessibleBandType(descriptor.getType().getBinding())) {
                 int type = getProductDataType(descriptor.getType().getBinding());

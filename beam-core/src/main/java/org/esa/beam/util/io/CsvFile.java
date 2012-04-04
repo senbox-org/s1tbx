@@ -65,6 +65,9 @@ public class CsvFile implements CsvSourceParser, CsvSource {
     private boolean hasFeatureId = false;
     private boolean recordsParsed = false;
     private ImageInputStream stream;
+    
+    private int headerByteSize;
+    private int propertiesByteSize;
 
     private CsvFile(String csv) throws IOException {
         this(new File(csv), null);
@@ -88,6 +91,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         featureCollection = new ListFeatureCollection(simpleFeatureType);
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeatureType);
 
+        stream.seek(headerByteSize + propertiesByteSize);
         skipToOffset(offset);
         String line;
         long featureCount = offset;
@@ -160,6 +164,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         count -= properties.size();
         final int headerLineCount = 1;
         count -= headerLineCount;
+//        stream.seek(0);
         return count;
     }
 
@@ -190,10 +195,15 @@ public class CsvFile implements CsvSourceParser, CsvSource {
     private void parseProperties() throws IOException {
         String line;
         stream.seek(0);
+        long posInStream = stream.getStreamPosition();
         while ((line = stream.readLine()) != null) {
             if (!line.startsWith("#")) {
+                stream.seek(posInStream);
                 break;
             }
+            propertiesByteSize += (stream.getStreamPosition() - posInStream);
+            posInStream = stream.getStreamPosition();
+            
             line = line.substring(1);
             int pos = line.indexOf('=');
             if (pos == -1) {
@@ -266,12 +276,16 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         if (!propertiesParsed) {
             throw new IllegalStateException("Properties need to be parsed before header.");
         }
-        stream.seek(0);
+        stream.seek(propertiesByteSize);
         String line;
+        long posInStream = stream.getStreamPosition();
         while ((line = stream.readLine()) != null) {
             if (line.startsWith("#")) {
+                propertiesByteSize += (stream.getStreamPosition() - posInStream);
+                posInStream = stream.getStreamPosition();
                 continue;
             }
+            headerByteSize += (stream.getStreamPosition() - posInStream);
             final String separator =
                     properties.get("separator") != null ? properties.get("separator") : Constants.DEFAULT_SEPARATOR;
             createFeatureType(line.split(separator));
