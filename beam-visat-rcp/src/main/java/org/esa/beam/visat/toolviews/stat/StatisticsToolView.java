@@ -258,6 +258,9 @@ public class StatisticsToolView extends AbstractToolView {
 
     private void selectionChanged(Product product, RasterDataNode raster, VectorDataNode vectorDataNode) {
         this.product = product;
+        if(pagePanels == null) {
+            return;
+        }
         final PagePanel[] panels = pagePanels;
         for (PagePanel panel : panels) {
             panel.selectionChanged(product, raster, vectorDataNode);
