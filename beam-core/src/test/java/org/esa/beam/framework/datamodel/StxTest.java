@@ -19,6 +19,7 @@ package org.esa.beam.framework.datamodel;
 import org.junit.Test;
 
 import javax.media.jai.Histogram;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -65,4 +66,32 @@ public class StxTest {
         assertSame(histogram, stx.getHistogram());
         assertSame(0, stx.getResolutionLevel());
     }
+
+    @Test
+    public void testPercentiles() throws Exception {
+        int[] samples = new int[]{0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 9};
+
+        Arrays.sort(samples);
+
+        double p0 = samples[0];
+        double p25 = samples[samples.length / 4 - 1];
+        double p50 = samples[samples.length / 2 - 1];
+        double p75 = samples[3 * samples.length / 4 - 1];
+        double p100 = samples[samples.length - 1];
+
+
+        int[] bins = new int[10];
+        for (int sample : samples) {
+            bins[sample]++;
+        }
+
+        Histogram histogram = new Histogram(new int[]{10}, new double[]{0.0}, new double[]{10.0});
+        System.arraycopy(bins, 0, histogram.getBins(0), 0, 10);
+        assertEquals(p0, histogram.getPTileThreshold(0.00001)[0], 1E-10);
+        assertEquals(p50, histogram.getPTileThreshold(0.50)[0], 1E-10);
+        assertEquals(p25, histogram.getPTileThreshold(0.25)[0], 1E-10);
+        assertEquals(p75, histogram.getPTileThreshold(0.75)[0], 1E-10);
+        assertEquals(p100, histogram.getPTileThreshold(0.99999)[0], 1E-10);
+    }
+
 }
