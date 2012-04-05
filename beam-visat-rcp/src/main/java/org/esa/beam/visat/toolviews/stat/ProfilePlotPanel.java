@@ -16,10 +16,17 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.TransectProfileData;
+import org.esa.beam.framework.datamodel.TransectProfileDataBuilder;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
@@ -36,6 +43,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYIntervalSeries;
 import org.jfree.data.xy.XYIntervalSeriesCollection;
 import org.jfree.ui.Layer;
@@ -43,8 +51,17 @@ import org.jfree.ui.RectangleInsets;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -60,8 +77,8 @@ class ProfilePlotPanel extends PagePanel {
     private static final String CHART_TITLE = "Profile Plot";
     private static final String TITLE_PREFIX = CHART_TITLE;
     private static final String NO_DATA_MESSAGE = "No profile plot computed yet. " +
-            "It will be computed if a geometry is selected within the image view.\n" +
-            ZOOM_TIP_MESSAGE;
+                                                  "It will be computed if a geometry is selected within the image view.\n" +
+                                                  ZOOM_TIP_MESSAGE;
 
     public static final String PROPERTY_NAME_MARK_SEGMENTS = "markSegments";
     public static final String PROPERTY_NAME_LOG_SCALED = "logScaled";
@@ -82,14 +99,13 @@ class ProfilePlotPanel extends PagePanel {
     private CorrelativeFieldSelector correlativeFieldSelector;
     private DataSourceConfig dataSourceConfig;
     private RoiMaskSelector roiMaskSelector;
-    private DeviationRenderer profileDeviationRenderer;
-    private XYErrorRenderer profilePointRenderer;
-
-    private XYErrorRenderer correlativeDataRenderer;
+    private DeviationRenderer deviationRenderer;
+    private XYErrorRenderer pointRenderer;
+    private Enablement pointDataSourceEnablement;
+    private Enablement dataFieldEnablement;
 
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
-
     }
 
     @Override
@@ -137,41 +153,31 @@ class ProfilePlotPanel extends PagePanel {
         );
         final XYPlot plot = chart.getXYPlot();
 
-        profileDeviationRenderer = new DeviationRenderer();
-        profileDeviationRenderer.setUseFillPaint(true);
-        profileDeviationRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
-        profileDeviationRenderer.setSeriesLinesVisible(0, true);
-        profileDeviationRenderer.setSeriesShapesVisible(0, false);
-        profileDeviationRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
-        profileDeviationRenderer.setSeriesPaint(0, new Color(0, 0, 200));
-        profileDeviationRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
+        deviationRenderer = new DeviationRenderer();
+        deviationRenderer.setUseFillPaint(true);
+        deviationRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
+        deviationRenderer.setSeriesLinesVisible(0, true);
+        deviationRenderer.setSeriesShapesVisible(0, false);
+        deviationRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
+        deviationRenderer.setSeriesPaint(0, new Color(0, 0, 200));
+        deviationRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
 
-        profilePointRenderer = new XYErrorRenderer();
-        profilePointRenderer.setUseFillPaint(true);
-        profilePointRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
-        profilePointRenderer.setSeriesLinesVisible(0, false);
-        profilePointRenderer.setSeriesShapesVisible(0, true);
-        profilePointRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
-        profilePointRenderer.setSeriesPaint(0, new Color(0, 0, 200));
-        profilePointRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
-        profilePointRenderer.setSeriesShape(0, new Ellipse2D.Float(-4, -4, 8, 8));
-        profilePointRenderer.setSeriesLinesVisible(0, false);
-        profilePointRenderer.setSeriesShapesVisible(0, true);
+        pointRenderer = new XYErrorRenderer();
+        pointRenderer.setUseFillPaint(true);
+        pointRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
+        pointRenderer.setSeriesLinesVisible(0, false);
+        pointRenderer.setSeriesShapesVisible(0, true);
+        pointRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
+        pointRenderer.setSeriesPaint(0, new Color(0, 0, 200));
+        pointRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
+        pointRenderer.setSeriesShape(0, new Ellipse2D.Float(-4, -4, 8, 8));
 
-        correlativeDataRenderer = new XYErrorRenderer();
-        correlativeDataRenderer.setUseFillPaint(true);
-        correlativeDataRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
-        correlativeDataRenderer.setSeriesLinesVisible(1, false);
-        correlativeDataRenderer.setSeriesShapesVisible(1, true);
-        correlativeDataRenderer.setSeriesStroke(1, new BasicStroke(1.0f));
-        correlativeDataRenderer.setSeriesPaint(1, new Color(200, 0, 0));
-        correlativeDataRenderer.setSeriesFillPaint(1, new Color(255, 150, 150));
-        correlativeDataRenderer.setSeriesShape(1, new Ellipse2D.Float(-4, -4, 8, 8));
+        configureRendererForCorrelativeData(deviationRenderer);
+        configureRendererForCorrelativeData(pointRenderer);
 
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
-        plot.setRenderer(0, profileDeviationRenderer);
-        plot.setRenderer(1, correlativeDataRenderer);
+        plot.setRenderer(deviationRenderer);
 
         profilePlotDisplay = new ChartPanel(chart);
         profilePlotDisplay.setInitialDelay(200);
@@ -215,8 +221,9 @@ class ProfilePlotPanel extends PagePanel {
         bindingContext.bind("boxSize", boxSizeSpinner);
         bindingContext.bind("computeInBetweenPoints", computeInBetweenPoints);
         bindingContext.bind("useCorrelativeData", useCorrelativeData);
-        bindingContext.bindEnabledState("pointDataSource", true, "useCorrelativeData", true);
-        bindingContext.bindEnabledState("dataField", true, "useCorrelativeData", true);
+        EnablePointDataCondition condition = new EnablePointDataCondition();
+        pointDataSourceEnablement = bindingContext.bindEnabledState("pointDataSource", true, condition);
+        dataFieldEnablement = bindingContext.bindEnabledState("dataField", true, condition);
 
         bindingContext.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -265,6 +272,15 @@ class ProfilePlotPanel extends PagePanel {
         updateContent();
     }
 
+    private void configureRendererForCorrelativeData(XYLineAndShapeRenderer renderer) {
+        renderer.setSeriesLinesVisible(1, false);
+        renderer.setSeriesShapesVisible(1, true);
+        renderer.setSeriesStroke(1, new BasicStroke(1.0f));
+        renderer.setSeriesPaint(1, new Color(200, 0, 0));
+        renderer.setSeriesFillPaint(1, new Color(255, 150, 150));
+        renderer.setSeriesShape(1, new Ellipse2D.Float(-4, -4, 8, 8));
+    }
+
 
     @Override
     protected boolean mustUpdateContent() {
@@ -301,18 +317,32 @@ class ProfilePlotPanel extends PagePanel {
         if (getRaster() != null) {
             try {
                 if (dataSourceConfig.useCorrelativeData
-                        && dataSourceConfig.pointDataSource != null) {
-                    profileData = TransectProfileData.create(getRaster(), dataSourceConfig.pointDataSource, dataSourceConfig.boxSize, dataSourceConfig.useRoiMask, dataSourceConfig.roiMask);
+                    && dataSourceConfig.pointDataSource != null) {
+                    profileData = new TransectProfileDataBuilder()
+                            .raster(getRaster())
+                            .pointData(dataSourceConfig.pointDataSource)
+                            .boxSize(dataSourceConfig.boxSize)
+                            .connectVertices(dataSourceConfig.computeInBetweenPoints)
+                            .useRoiMask(dataSourceConfig.useRoiMask)
+                            .roiMask(dataSourceConfig.roiMask)
+                            .build();
                 } else {
                     Shape shape = StatisticsUtils.TransectProfile.getTransectShape(getRaster().getProduct());
                     if (shape != null) {
-                        profileData = TransectProfileData.create(getRaster(), shape, dataSourceConfig.boxSize, dataSourceConfig.useRoiMask, dataSourceConfig.roiMask, dataSourceConfig.computeInBetweenPoints);
+                        profileData = new TransectProfileDataBuilder()
+                                .raster(getRaster())
+                                .path(shape)
+                                .boxSize(dataSourceConfig.boxSize)
+                                .connectVertices(dataSourceConfig.computeInBetweenPoints)
+                                .useRoiMask(dataSourceConfig.useRoiMask)
+                                .roiMask(dataSourceConfig.roiMask)
+                                .build();
                     }
                 }
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(getParent(),
                                               "Failed to compute profile plot.\n" +
-                                                      "An I/O error occurred:" + e.getMessage(),
+                                              "An I/O error occurred:" + e.getMessage(),
                                               "I/O error",
                                               JOptionPane.ERROR_MESSAGE);   /*I18N*/
             }
@@ -341,8 +371,8 @@ class ProfilePlotPanel extends PagePanel {
             dataset.addSeries(series);
 
             if (dataSourceConfig.useCorrelativeData
-                    && dataSourceConfig.pointDataSource != null
-                    && dataSourceConfig.dataField != null) {
+                && dataSourceConfig.pointDataSource != null
+                && dataSourceConfig.dataField != null) {
 
                 XYIntervalSeries corrSeries = new XYIntervalSeries("Correlative Values");
                 int[] shapeVertexIndexes = profileData.getShapeVertexIndexes();
@@ -377,15 +407,16 @@ class ProfilePlotPanel extends PagePanel {
         }
 
         xAxisRangeControl.getBindingContext().setComponentsEnabled(PROPERTY_NAME_MARK_SEGMENTS,
-                                                                   profileData != null && profileData.getShapeVertices().length > 2);
+                                                                   profileData != null &&
+                                                                   profileData.getShapeVertices().length > 2);
         xAxisRangeControl.setComponentsEnabled(profileData != null);
         yAxisRangeControl.setComponentsEnabled(profileData != null);
         adjustPlotAxes();
 
         if (dataSourceConfig.computeInBetweenPoints) {
-            chart.getXYPlot().setRenderer(0, profileDeviationRenderer);
+            chart.getXYPlot().setRenderer(deviationRenderer);
         } else {
-            chart.getXYPlot().setRenderer(0, profilePointRenderer);
+            chart.getXYPlot().setRenderer(pointRenderer);
         }
 
         boolean markSegments = (Boolean) (xAxisRangeControl.getBindingContext().getPropertySet().getValue(PROPERTY_NAME_MARK_SEGMENTS));
@@ -404,6 +435,10 @@ class ProfilePlotPanel extends PagePanel {
         } else {
             removeIntervalMarkers();
         }
+
+        pointDataSourceEnablement.apply();
+        dataFieldEnablement.apply();
+
     }
 
     private void removeIntervalMarkers() {
@@ -480,7 +515,9 @@ class ProfilePlotPanel extends PagePanel {
         updateContent();
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     private static class DataSourceConfig {
+
         private int boxSize = 3;
         public boolean useRoiMask;
         private Mask roiMask;
@@ -488,5 +525,13 @@ class ProfilePlotPanel extends PagePanel {
         private boolean useCorrelativeData;
         private VectorDataNode pointDataSource;
         private AttributeDescriptor dataField;
+    }
+
+    private class EnablePointDataCondition extends Enablement.Condition {
+
+        @Override
+        public boolean evaluate(BindingContext bindingContext) {
+            return dataSourceConfig.useCorrelativeData && getProduct() != null;
+        }
     }
 }
