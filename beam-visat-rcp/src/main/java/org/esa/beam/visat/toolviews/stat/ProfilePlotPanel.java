@@ -100,8 +100,8 @@ class ProfilePlotPanel extends PagePanel {
     private RoiMaskSelector roiMaskSelector;
     private DeviationRenderer deviationRenderer;
     private XYErrorRenderer pointRenderer;
-    private Enablement enablement1;
-    private Enablement enablement2;
+    private Enablement pointDataSourceEnablement;
+    private Enablement dataFieldEnablement;
 
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
@@ -222,8 +222,8 @@ class ProfilePlotPanel extends PagePanel {
         bindingContext.bind("computeInBetweenPoints", computeInBetweenPoints);
         bindingContext.bind("useCorrelativeData", useCorrelativeData);
         EnablePointDataCondition condition = new EnablePointDataCondition();
-        enablement1 = bindingContext.bindEnabledState("pointDataSource", true, condition);
-        enablement2 = bindingContext.bindEnabledState("dataField", true, condition);
+        pointDataSourceEnablement = bindingContext.bindEnabledState("pointDataSource", true, condition);
+        dataFieldEnablement = bindingContext.bindEnabledState("dataField", true, condition);
 
         bindingContext.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -422,8 +422,8 @@ class ProfilePlotPanel extends PagePanel {
             removeIntervalMarkers();
         }
 
-        enablement1.apply();
-        enablement2.apply();
+        pointDataSourceEnablement.apply();
+        dataFieldEnablement.apply();
 
     }
 
