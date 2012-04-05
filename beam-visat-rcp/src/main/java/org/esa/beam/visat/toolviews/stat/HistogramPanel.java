@@ -146,10 +146,13 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
 
         final XYBarRenderer renderer = (XYBarRenderer) xyPlot.getRenderer();
         renderer.setDrawBarOutline(false);
-        renderer.setShadowVisible(true);
+        renderer.setShadowVisible(false);
         renderer.setShadowYOffset(-4.0);
         renderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
         renderer.setBarPainter(new StandardXYBarPainter());
+        //I can't get this dammed bars blue!!! (nf)
+        renderer.setBasePaint(new Color(0, 0, 200));
+        renderer.setBaseFillPaint(new Color(0, 0, 200));
 
         computePanel = new SingleRoiComputePanel(this, getRaster());
 
@@ -259,7 +262,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
             min = (Double) xAxisRangeControl.getBindingContext().getBinding("min").getPropertyValue();
             max = (Double) xAxisRangeControl.getBindingContext().getBinding("max").getPropertyValue();
         }
-        final boolean logHistogram = (Boolean)  bindingContext.getBinding(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM).getPropertyValue();
+        final boolean logHistogram = (Boolean) bindingContext.getBinding(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM).getPropertyValue();
 
         ProgressMonitorSwingWorker<Stx, Object> swingWorker = new ProgressMonitorSwingWorker<Stx, Object>(this, "Computing Histogram") {
             @Override
@@ -297,18 +300,18 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
                         }
                     } else {
                         JOptionPane.showMessageDialog(getParentComponent(),
-                                "The ROI is empty or no pixels found between min/max.\n"
-                                        + "A valid histogram could not be computed.",
-                                CHART_TITLE,
-                                JOptionPane.WARNING_MESSAGE);
+                                                      "The ROI is empty or no pixels found between min/max.\n"
+                                                              + "A valid histogram could not be computed.",
+                                                      CHART_TITLE,
+                                                      JOptionPane.WARNING_MESSAGE);
                     }
                     setStx(stx);
                 } catch (Exception e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentComponent(),
-                            "Failed to compute histogram.\nAn internal error occurred:\n" + e.getMessage(),
-                            CHART_TITLE,
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute histogram.\nAn internal error occurred:\n" + e.getMessage(),
+                                                  CHART_TITLE,
+                                                  JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
