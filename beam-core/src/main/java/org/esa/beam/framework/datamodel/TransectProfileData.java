@@ -64,8 +64,8 @@ public class TransectProfileData {
     /*
     * Since 4.10
     */
-    public static TransectProfileData create(RasterDataNode raster, VectorDataNode pointData, int boxSize, boolean useRoiMask, Mask roiMask) throws IOException {
-        return create(raster, createPath(pointData), boxSize, useRoiMask, roiMask, true);
+    public static TransectProfileData create(RasterDataNode raster, VectorDataNode pointData, int boxSize, boolean useRoiMask, Mask roiMask, boolean computeInBetweenPoints) throws IOException {
+        return create(raster, createPath(pointData), boxSize, useRoiMask, roiMask, computeInBetweenPoints);
     }
 
     private static Path2D createPath(VectorDataNode pointData) {

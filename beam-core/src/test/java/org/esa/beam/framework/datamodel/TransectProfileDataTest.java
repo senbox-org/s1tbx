@@ -129,7 +129,7 @@ public class TransectProfileDataTest {
 
         product.getVectorDataGroup().add(track);
 
-        TransectProfileData profileData = TransectProfileData.create(band, track, 1, false, null);
+        TransectProfileData profileData = TransectProfileData.create(band, track, 1, false, null, true);
         assertProfileDataIsAsExpected(profileData);
     }
 

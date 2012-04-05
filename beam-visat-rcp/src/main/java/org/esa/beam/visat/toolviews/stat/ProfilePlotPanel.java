@@ -41,6 +41,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYIntervalSeries;
 import org.jfree.data.xy.XYIntervalSeriesCollection;
 import org.jfree.ui.Layer;
@@ -96,10 +97,8 @@ class ProfilePlotPanel extends PagePanel {
     private CorrelativeFieldSelector correlativeFieldSelector;
     private DataSourceConfig dataSourceConfig;
     private RoiMaskSelector roiMaskSelector;
-    private DeviationRenderer profileDeviationRenderer;
-    private XYErrorRenderer profilePointRenderer;
-
-    private XYErrorRenderer correlativeDataRenderer;
+    private DeviationRenderer deviationRenderer;
+    private XYErrorRenderer pointRenderer;
 
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
@@ -151,41 +150,31 @@ class ProfilePlotPanel extends PagePanel {
         );
         final XYPlot plot = chart.getXYPlot();
 
-        profileDeviationRenderer = new DeviationRenderer();
-        profileDeviationRenderer.setUseFillPaint(true);
-        profileDeviationRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
-        profileDeviationRenderer.setSeriesLinesVisible(0, true);
-        profileDeviationRenderer.setSeriesShapesVisible(0, false);
-        profileDeviationRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
-        profileDeviationRenderer.setSeriesPaint(0, new Color(0, 0, 200));
-        profileDeviationRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
+        deviationRenderer = new DeviationRenderer();
+        deviationRenderer.setUseFillPaint(true);
+        deviationRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
+        deviationRenderer.setSeriesLinesVisible(0, true);
+        deviationRenderer.setSeriesShapesVisible(0, false);
+        deviationRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
+        deviationRenderer.setSeriesPaint(0, new Color(0, 0, 200));
+        deviationRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
 
-        profilePointRenderer = new XYErrorRenderer();
-        profilePointRenderer.setUseFillPaint(true);
-        profilePointRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
-        profilePointRenderer.setSeriesLinesVisible(0, false);
-        profilePointRenderer.setSeriesShapesVisible(0, true);
-        profilePointRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
-        profilePointRenderer.setSeriesPaint(0, new Color(0, 0, 200));
-        profilePointRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
-        profilePointRenderer.setSeriesShape(0, new Ellipse2D.Float(-4, -4, 8, 8));
-        profilePointRenderer.setSeriesLinesVisible(0, false);
-        profilePointRenderer.setSeriesShapesVisible(0, true);
+        pointRenderer = new XYErrorRenderer();
+        pointRenderer.setUseFillPaint(true);
+        pointRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
+        pointRenderer.setSeriesLinesVisible(0, false);
+        pointRenderer.setSeriesShapesVisible(0, true);
+        pointRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
+        pointRenderer.setSeriesPaint(0, new Color(0, 0, 200));
+        pointRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
+        pointRenderer.setSeriesShape(0, new Ellipse2D.Float(-4, -4, 8, 8));
 
-        correlativeDataRenderer = new XYErrorRenderer();
-        correlativeDataRenderer.setUseFillPaint(true);
-        correlativeDataRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
-        correlativeDataRenderer.setSeriesLinesVisible(1, false);
-        correlativeDataRenderer.setSeriesShapesVisible(1, true);
-        correlativeDataRenderer.setSeriesStroke(1, new BasicStroke(1.0f));
-        correlativeDataRenderer.setSeriesPaint(1, new Color(200, 0, 0));
-        correlativeDataRenderer.setSeriesFillPaint(1, new Color(255, 150, 150));
-        correlativeDataRenderer.setSeriesShape(1, new Ellipse2D.Float(-4, -4, 8, 8));
+        configureRendererForCorrelativeData(deviationRenderer);
+        configureRendererForCorrelativeData(pointRenderer);
 
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
-        plot.setRenderer(0, profileDeviationRenderer);
-        plot.setRenderer(1, correlativeDataRenderer);
+        plot.setRenderer(deviationRenderer);
 
         profilePlotDisplay = new ChartPanel(chart);
         profilePlotDisplay.setInitialDelay(200);
@@ -279,6 +268,15 @@ class ProfilePlotPanel extends PagePanel {
         updateContent();
     }
 
+    private void configureRendererForCorrelativeData(XYLineAndShapeRenderer renderer) {
+        renderer.setSeriesLinesVisible(1, false);
+        renderer.setSeriesShapesVisible(1, true);
+        renderer.setSeriesStroke(1, new BasicStroke(1.0f));
+        renderer.setSeriesPaint(1, new Color(200, 0, 0));
+        renderer.setSeriesFillPaint(1, new Color(255, 150, 150));
+        renderer.setSeriesShape(1, new Ellipse2D.Float(-4, -4, 8, 8));
+    }
+
 
     @Override
     protected boolean mustUpdateContent() {
@@ -316,7 +314,7 @@ class ProfilePlotPanel extends PagePanel {
             try {
                 if (dataSourceConfig.useCorrelativeData
                     && dataSourceConfig.pointDataSource != null) {
-                    profileData = TransectProfileData.create(getRaster(), dataSourceConfig.pointDataSource, dataSourceConfig.boxSize, dataSourceConfig.useRoiMask, dataSourceConfig.roiMask);
+                    profileData = TransectProfileData.create(getRaster(), dataSourceConfig.pointDataSource, dataSourceConfig.boxSize, dataSourceConfig.useRoiMask, dataSourceConfig.roiMask, dataSourceConfig.computeInBetweenPoints);
                 } else {
                     Shape shape = StatisticsUtils.TransectProfile.getTransectShape(getRaster().getProduct());
                     if (shape != null) {
@@ -398,9 +396,9 @@ class ProfilePlotPanel extends PagePanel {
         adjustPlotAxes();
 
         if (dataSourceConfig.computeInBetweenPoints) {
-            chart.getXYPlot().setRenderer(0, profileDeviationRenderer);
+            chart.getXYPlot().setRenderer(deviationRenderer);
         } else {
-            chart.getXYPlot().setRenderer(0, profilePointRenderer);
+            chart.getXYPlot().setRenderer(pointRenderer);
         }
 
         boolean markSegments = (Boolean) (xAxisRangeControl.getBindingContext().getPropertySet().getValue(PROPERTY_NAME_MARK_SEGMENTS));
