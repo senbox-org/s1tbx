@@ -24,7 +24,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
-import org.esa.beam.util.ShapefileUtils;
+import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayer;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayerType;
 import org.geotools.factory.CommonFactoryFinder;
@@ -66,7 +66,7 @@ public class FeatureLayerConfigurationPersistencyTest extends AbstractLayerConfi
         configuration.setValue(FeatureLayerType.PROPERTY_NAME_SLD_STYLE, createStyle());
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
         try {
-            fc = ShapefileUtils.createFeatureCollection(
+            fc = FeatureUtils.createFeatureCollection(
                     shapefileUrl, DefaultGeographicCRS.WGS84, clipGeometry);
         } catch (IOException e) {
             throw new IllegalArgumentException(e);

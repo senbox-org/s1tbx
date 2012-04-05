@@ -21,6 +21,7 @@ import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -30,8 +31,7 @@ import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import org.esa.beam.util.FeatureCollectionClipper;
-import org.esa.beam.util.ShapefileUtils;
+import org.esa.beam.util.FeatureUtils;
 import org.geotools.data.FeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
@@ -83,7 +83,7 @@ public class FeatureLayerType extends LayerType {
         if (fc == null) {
             try {
                 final URL url = (URL) configuration.getValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_URL);
-                FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = ShapefileUtils.getFeatureSource(url);
+                FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = FeatureUtils.getFeatureSource(url);
                 fc = featureSource.getFeatures();
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
@@ -93,9 +93,15 @@ public class FeatureLayerType extends LayerType {
                 FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CRS);
         final Geometry clipGeometry = (Geometry) configuration.getValue(
                 FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY);
-        fc = FeatureCollectionClipper.doOperation(fc, featureCrs,
-                                                  clipGeometry, DefaultGeographicCRS.WGS84,
-                                                  null, targetCrs);
+
+        fc = FeatureUtils.clipCollection(fc,
+                                         featureCrs,
+                                         clipGeometry,
+                                         DefaultGeographicCRS.WGS84,
+                                         null,
+                                         targetCrs,
+                                         ProgressMonitor.NULL);
+
         return new FeatureLayer(this, fc, configuration);
     }
 

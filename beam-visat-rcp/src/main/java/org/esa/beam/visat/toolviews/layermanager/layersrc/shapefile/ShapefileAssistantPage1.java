@@ -19,8 +19,8 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 import org.esa.beam.framework.ui.FileHistory;
 import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
+import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.ShapefileUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.FilePathListCellRenderer;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.HistoryComboBoxModel;
 import org.geotools.data.FeatureSource;
@@ -122,7 +122,7 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
                 if (!path.equals(oldPath)) {
                     context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH, path);
                     final URL fileUrl = new File(path).toURI().toURL();
-                    final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = ShapefileUtils.getFeatureSource(fileUrl);
+                    final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = FeatureUtils.getFeatureSource(fileUrl);
                     context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION, featureSource.getFeatures());
                     // clear other properties they are not valid anymore
                     context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_SELECTED_STYLE, null);

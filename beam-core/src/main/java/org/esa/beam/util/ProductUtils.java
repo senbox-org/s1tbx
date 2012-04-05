@@ -1319,8 +1319,8 @@ public class ProductUtils {
             }
             Geometry clipGeometry;
             try {
-                Geometry sourceGeometryWGS84 = FeatureCollectionClipper.createGeoBoundaryPolygon(sourceProduct);
-                Geometry targetGeometryWGS84 = FeatureCollectionClipper.createGeoBoundaryPolygon(targetProduct);
+                Geometry sourceGeometryWGS84 = FeatureUtils.createGeoBoundaryPolygon(sourceProduct);
+                Geometry targetGeometryWGS84 = FeatureUtils.createGeoBoundaryPolygon(targetProduct);
                 if (!sourceGeometryWGS84.intersects(targetGeometryWGS84)) {
                     return;
                 }
@@ -1336,9 +1336,13 @@ public class ProductUtils {
                 VectorDataNode sourceVDN = vectorDataGroup.get(i);
                 String name = sourceVDN.getName();
                 FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
-                featureCollection = FeatureCollectionClipper.doOperation(featureCollection, srcModelCrs,
-                                                                         clipGeometry, DefaultGeographicCRS.WGS84,
-                                                                         null, targetModelCrs);
+                featureCollection = FeatureUtils.clipCollection(featureCollection,
+                                                                srcModelCrs,
+                                                                clipGeometry,
+                                                                DefaultGeographicCRS.WGS84,
+                                                                null,
+                                                                targetModelCrs,
+                                                                ProgressMonitor.NULL);
                 VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
                 targetVDN.setDefaultStyleCss(sourceVDN.getDefaultStyleCss());
                 targetVDN.setDescription(sourceVDN.getDescription());
@@ -1413,7 +1417,7 @@ public class ProductUtils {
         image = getCompatibleBufferedImageForDensityPlot(image, width, height, background);
         final byte[] pixelValues = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         DensityPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roiMask, width,
-                height, pixelValues, pm);
+                               height, pixelValues, pm);
         return image;
     }
 

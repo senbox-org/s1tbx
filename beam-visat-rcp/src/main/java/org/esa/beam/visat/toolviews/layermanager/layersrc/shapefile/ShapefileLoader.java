@@ -26,8 +26,7 @@ import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.util.FeatureCollectionClipper;
-import org.esa.beam.util.ShapefileUtils;
+import org.esa.beam.util.FeatureUtils;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.styling.*;
@@ -69,7 +68,7 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
         try {
             pm.beginTask("Reading shapes", ProgressMonitor.UNKNOWN);
             final ProductSceneView sceneView = context.getAppContext().getSelectedProductSceneView();
-            final Geometry clipGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(sceneView.getProduct());
+            final Geometry clipGeometry = FeatureUtils.createGeoBoundaryPolygon(sceneView.getProduct());
 
             File file = new File((String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH));
             FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = getFeatureCollection(file);
@@ -100,7 +99,7 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
         Object featureCollectionValue = context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION);
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
         if (featureCollectionValue == null) {
-            featureCollection = ShapefileUtils.getFeatureSource(file.toURI().toURL()).getFeatures();
+            featureCollection = FeatureUtils.getFeatureSource(file.toURI().toURL()).getFeatures();
         } else {
             featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) featureCollectionValue;
         }

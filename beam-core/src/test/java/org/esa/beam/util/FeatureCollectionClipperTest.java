@@ -16,6 +16,7 @@
 
 package org.esa.beam.util;
 
+import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -102,8 +103,13 @@ public class FeatureCollectionClipperTest extends TestCase {
         assertTrue(expectedEnvelope.boundsEquals2D(marcoSource.getBounds(), 1.0e-6));
         assertTrue(expectedEnvelope.boundsEquals2D(marcoSource.getBounds(Query.ALL), 1.0e-6));
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> normanSource = FeatureCollectionClipper.doOperation(
-                marcoSource.getFeatures(), null, clipGeometry, DefaultGeographicCRS.WGS84, null, DefaultGeographicCRS.WGS84);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> normanSource = FeatureUtils.clipCollection(marcoSource.getFeatures(),
+                                                                                                       null,
+                                                                                                       clipGeometry,
+                                                                                                       DefaultGeographicCRS.WGS84,
+                                                                                                       null,
+                                                                                                       DefaultGeographicCRS.WGS84,
+                                                                                                       ProgressMonitor.NULL);
 
         assertNotNull(normanSource);
         assertEquals(marcoSource.getFeatures().getID(), normanSource.getID());
