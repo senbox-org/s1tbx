@@ -75,8 +75,7 @@ class ProfilePlotPanel extends PagePanel {
     private static final String CHART_TITLE = "Profile Plot";
     private static final String TITLE_PREFIX = CHART_TITLE;
     private static final String NO_DATA_MESSAGE = "No profile plot computed yet. " +
-                                                  "It will be computed if a geometry is selected within the image view, " +
-                                                  "or if correlative data is selected.\n" +
+                                                  "It will be computed if a geometry is selected within the image view.\n" +
                                                   ZOOM_TIP_MESSAGE;
 
     public static final String PROPERTY_NAME_MARK_SEGMENTS = "markSegments";
