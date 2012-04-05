@@ -501,6 +501,7 @@ class ProfilePlotPanel extends PagePanel {
         updateContent();
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     private static class DataSourceConfig {
 
         private int boxSize = 3;
