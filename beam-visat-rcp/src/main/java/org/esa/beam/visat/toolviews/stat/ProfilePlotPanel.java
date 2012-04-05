@@ -23,6 +23,7 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.TransectProfileData;
 import org.esa.beam.framework.datamodel.VectorDataNode;
@@ -99,6 +100,8 @@ class ProfilePlotPanel extends PagePanel {
     private RoiMaskSelector roiMaskSelector;
     private DeviationRenderer deviationRenderer;
     private XYErrorRenderer pointRenderer;
+    private Enablement enablement1;
+    private Enablement enablement2;
 
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
@@ -218,8 +221,9 @@ class ProfilePlotPanel extends PagePanel {
         bindingContext.bind("boxSize", boxSizeSpinner);
         bindingContext.bind("computeInBetweenPoints", computeInBetweenPoints);
         bindingContext.bind("useCorrelativeData", useCorrelativeData);
-        bindingContext.bindEnabledState("pointDataSource", true, "useCorrelativeData", true);
-        bindingContext.bindEnabledState("dataField", true, "useCorrelativeData", true);
+        EnablePointDataCondition condition = new EnablePointDataCondition();
+        enablement1 = bindingContext.bindEnabledState("pointDataSource", true, condition);
+        enablement2 = bindingContext.bindEnabledState("dataField", true, condition);
 
         bindingContext.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -417,6 +421,10 @@ class ProfilePlotPanel extends PagePanel {
         } else {
             removeIntervalMarkers();
         }
+
+        enablement1.apply();
+        enablement2.apply();
+
     }
 
     private void removeIntervalMarkers() {
@@ -502,5 +510,13 @@ class ProfilePlotPanel extends PagePanel {
         private boolean useCorrelativeData;
         private VectorDataNode pointDataSource;
         private AttributeDescriptor dataField;
+    }
+
+    private class EnablePointDataCondition extends Enablement.Condition {
+
+        @Override
+        public boolean evaluate(BindingContext bindingContext) {
+            return dataSourceConfig.useCorrelativeData && getProduct() != null;
+        }
     }
 }
