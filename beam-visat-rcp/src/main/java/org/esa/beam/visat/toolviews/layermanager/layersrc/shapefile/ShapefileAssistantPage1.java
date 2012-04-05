@@ -20,6 +20,7 @@ import org.esa.beam.framework.ui.FileHistory;
 import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.ShapefileUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.FilePathListCellRenderer;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.HistoryComboBoxModel;
 import org.geotools.data.FeatureSource;
@@ -28,15 +29,9 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -127,7 +122,7 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
                 if (!path.equals(oldPath)) {
                     context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH, path);
                     final URL fileUrl = new File(path).toURI().toURL();
-                    final FeatureSource<SimpleFeatureType,SimpleFeature> featureSource = ShapefileUtils.getFeatureSource(fileUrl);
+                    final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = ShapefileUtils.getFeatureSource(fileUrl);
                     context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION, featureSource.getFeatures());
                     // clear other properties they are not valid anymore
                     context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_SELECTED_STYLE, null);
@@ -136,9 +131,9 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
                 }
                 FeatureCollection fc = (FeatureCollection) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION);
                 final CoordinateReferenceSystem featureCrs = fc.getSchema().getCoordinateReferenceSystem();
-                if(featureCrs == null) {
+                if (featureCrs == null) {
                     return new ShapefileAssistantPage2();
-                }else {
+                } else {
                     context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION_CRS, featureCrs);
                     return new ShapefileAssistantPage3();
                 }

@@ -31,6 +31,7 @@ import com.thoughtworks.xstream.io.xml.XppReader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.util.FeatureCollectionClipper;
+import org.esa.beam.util.ShapefileUtils;
 import org.geotools.data.FeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
