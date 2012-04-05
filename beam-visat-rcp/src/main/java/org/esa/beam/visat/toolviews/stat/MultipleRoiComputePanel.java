@@ -22,6 +22,7 @@ import com.jidesoft.list.QuickListFilterField;
 import com.jidesoft.swing.SearchableUtils;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.util.Debug;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -58,12 +59,12 @@ class MultipleRoiComputePanel extends JPanel {
 
     MultipleRoiComputePanel(final ComputeMasks method, final RasterDataNode rasterDataNode) {
         productNodeListener = new PNL();
-        final Icon icon = UIUtils.loadImageIcon("icons/Gears20.gif");
+        final Icon icon = UIUtils.loadImageIcon("icons/ViewRefresh16.png");
 
         DefaultListModel maskNameListModel = new DefaultListModel();
 
         maskNameSearchField = new QuickListFilterField(maskNameListModel);
-        maskNameSearchField.setHintText("Type mask name here");
+        maskNameSearchField.setHintText("Filter masks here");
         //quickSearchPanel.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), "QuickListFilterField", JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
 
         maskNameList = new FilterableCheckBoxList(maskNameSearchField.getDisplayListModel()) {
@@ -91,7 +92,7 @@ class MultipleRoiComputePanel extends JPanel {
         });
 
         computeButton = new JButton("Compute");     /*I18N*/
-        computeButton.setMnemonic('A');
+        computeButton.setMnemonic('C');
         computeButton.setEnabled(rasterDataNode != null);
         computeButton.addActionListener(new ActionListener() {
             @Override
@@ -147,6 +148,7 @@ class MultipleRoiComputePanel extends JPanel {
                     product.removeProductNodeListener(productNodeListener);
                 }
                 product = null;
+                updateMaskListState();
             } else if (product != newRaster.getProduct()) {
                 if (product != null) {
                     product.removeProductNodeListener(productNodeListener);
@@ -155,18 +157,16 @@ class MultipleRoiComputePanel extends JPanel {
                 if (product != null) {
                     product.addProductNodeListener(productNodeListener);
                 }
+                updateMaskListState();
             }
-            updateMaskListState();
         }
     }
 
     private void updateMaskListState() {
-        final boolean hasRaster = (raster != null);
-        computeButton.setEnabled(hasRaster);
 
         DefaultListModel maskNameListModel = new DefaultListModel();
 
-        if (hasRaster) {
+        if (product != null) {
             final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
             Mask[] masks = maskGroup.toArray(new Mask[0]);
             for (Mask mask : masks) {
@@ -174,16 +174,25 @@ class MultipleRoiComputePanel extends JPanel {
             }
         }
 
-        maskNameSearchField.setListModel(maskNameListModel);
-        maskNameList.setModel(maskNameSearchField.getDisplayListModel());
+        try {
+            maskNameSearchField.setListModel(maskNameListModel);
+            maskNameList.setModel(maskNameSearchField.getDisplayListModel());
+        } catch (Throwable e) {
+            Debug.trace(e);
+        }
 
         updateEnablement();
     }
 
     private void updateEnablement() {
-        boolean useRoi = useRoiCheckBox.isSelected() && useRoiCheckBox.isEnabled();
-        maskNameSearchField.setEnabled(useRoi);
-        maskNameList.setEnabled(useRoi);
+        boolean hasRaster = (raster != null);
+        boolean hasMasks = (product != null && product.getMaskGroup().getNodeCount() > 0);
+        boolean canSelectMasks = hasMasks && useRoiCheckBox.isSelected();
+
+        computeButton.setEnabled(hasRaster);
+        useRoiCheckBox.setEnabled(hasMasks);
+        maskNameSearchField.setEnabled(canSelectMasks);
+        maskNameList.setEnabled(canSelectMasks);
     }
 
     private class PNL implements ProductNodeListener {
@@ -211,7 +220,12 @@ class MultipleRoiComputePanel extends JPanel {
         private void handleEvent(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
             if (sourceNode instanceof Mask) {
-                updateMaskListState();
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateMaskListState();
+                    }
+                });
             }
         }
     }
