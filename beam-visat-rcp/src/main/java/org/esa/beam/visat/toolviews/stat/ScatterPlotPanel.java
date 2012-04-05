@@ -26,23 +26,23 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.util.math.Range;
 import org.geotools.feature.FeatureCollection;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.data.function.Function2D;
 import org.jfree.data.general.DatasetUtilities;
-import org.jfree.data.xy.*;
+import org.jfree.data.xy.XYDataItem;
+import org.jfree.data.xy.XYIntervalSeries;
+import org.jfree.data.xy.XYIntervalSeriesCollection;
+import org.jfree.data.xy.XYSeries;
 import org.jfree.ui.RectangleInsets;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -63,7 +63,10 @@ import java.util.concurrent.ExecutionException;
 
 
 /**
- * The scatter plot pane within the statistcs window.
+ * The scatter plot pane within the statistics window.
+ *
+ * @author Olaf Danne
+ * @author Sabine Embacher
  */
 class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.ComputeMask {
 
@@ -125,8 +128,8 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
                             continue;
                         }
                         final Rectangle box = sceneRect.intersection(new Rectangle(centerX - boxSize / 2,
-                                centerY - boxSize / 2,
-                                boxSize, boxSize));
+                                                                                   centerY - boxSize / 2,
+                                                                                   boxSize, boxSize));
                         if (box.isEmpty()) {
                             continue;
                         }
@@ -179,11 +182,11 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
 
                     if (xySeries.getItemCount() == 0) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                "Failed to compute scatter plot.\n" +
-                                        "No Pixels considered..",
-                                /*I18N*/
-                                CHART_TITLE, /*I18N*/
-                                JOptionPane.ERROR_MESSAGE);
+                                                      "Failed to compute scatter plot.\n" +
+                                                              "No Pixels considered..",
+                                                      /*I18N*/
+                                                      CHART_TITLE, /*I18N*/
+                                                      JOptionPane.ERROR_MESSAGE);
                         plot.setDataset(null);
                         return;
                     }
@@ -245,27 +248,27 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute scatter plot.\n" +
-                                    "Calculation canceled.",
-                            /*I18N*/
-                            CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "Calculation canceled.",
+                                                  /*I18N*/
+                                                  CHART_TITLE, /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 } catch (CancellationException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute scatter plot.\n" +
-                                    "Calculation canceled.",
-                            /*I18N*/
-                            CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "Calculation canceled.",
+                                                  /*I18N*/
+                                                  CHART_TITLE, /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute scatter plot.\n" +
-                                    "An error occured:\n" +
-                                    e.getCause().getMessage(),
-                            CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "An error occured:\n" +
+                                                          e.getCause().getMessage(),
+                                                  CHART_TITLE, /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
@@ -549,8 +552,8 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         final JFreeChart chart = scatterPlotDisplay.getChart();
         final List<Title> subtitles = new ArrayList<Title>(7);
         subtitles.add(new TextTitle(MessageFormat.format("{0}, {1}",
-                xAxisName,
-                yAxisName
+                                                         xAxisName,
+                                                         yAxisName
         )));
         chart.setSubtitles(subtitles);
     }
@@ -623,7 +626,7 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         private boolean xAxisLogScaled; // Don´t remove this field, it is be used via binding
         private boolean yAxisLogScaled; // Don´t remove this field, it is be used via binding
         private boolean showConfidenceInterval; // Don´t remove this field, it is be used via binding
-        private double confidenceInterval= 15; // Don´t remove this field, it is be used via binding
+        private double confidenceInterval = 15; // Don´t remove this field, it is be used via binding
     }
 }
 

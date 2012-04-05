@@ -16,12 +16,7 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.ValueRange;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.framework.datamodel.Mask;
@@ -51,17 +46,8 @@ import org.jfree.ui.RectangleInsets;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JSpinner;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.Shape;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -71,14 +57,17 @@ import java.util.Set;
 
 /**
  * The profile plot pane within the statistics window.
+ *
+ * @author Norman Fomferra
+ * @author Thomas Storm
  */
 class ProfilePlotPanel extends PagePanel {
 
     private static final String CHART_TITLE = "Profile Plot";
     private static final String TITLE_PREFIX = CHART_TITLE;
     private static final String NO_DATA_MESSAGE = "No profile plot computed yet. " +
-                                                  "It will be computed if a geometry is selected within the image view.\n" +
-                                                  ZOOM_TIP_MESSAGE;
+            "It will be computed if a geometry is selected within the image view.\n" +
+            ZOOM_TIP_MESSAGE;
 
     public static final String PROPERTY_NAME_MARK_SEGMENTS = "markSegments";
     public static final String PROPERTY_NAME_LOG_SCALED = "logScaled";
@@ -317,7 +306,7 @@ class ProfilePlotPanel extends PagePanel {
         if (getRaster() != null) {
             try {
                 if (dataSourceConfig.useCorrelativeData
-                    && dataSourceConfig.pointDataSource != null) {
+                        && dataSourceConfig.pointDataSource != null) {
                     profileData = new TransectProfileDataBuilder()
                             .raster(getRaster())
                             .pointData(dataSourceConfig.pointDataSource)
@@ -342,7 +331,7 @@ class ProfilePlotPanel extends PagePanel {
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(getParent(),
                                               "Failed to compute profile plot.\n" +
-                                              "An I/O error occurred:" + e.getMessage(),
+                                                      "An I/O error occurred:" + e.getMessage(),
                                               "I/O error",
                                               JOptionPane.ERROR_MESSAGE);   /*I18N*/
             }
@@ -371,8 +360,8 @@ class ProfilePlotPanel extends PagePanel {
             dataset.addSeries(series);
 
             if (dataSourceConfig.useCorrelativeData
-                && dataSourceConfig.pointDataSource != null
-                && dataSourceConfig.dataField != null) {
+                    && dataSourceConfig.pointDataSource != null
+                    && dataSourceConfig.dataField != null) {
 
                 XYIntervalSeries corrSeries = new XYIntervalSeries("Correlative Values");
                 int[] shapeVertexIndexes = profileData.getShapeVertexIndexes();
@@ -408,7 +397,7 @@ class ProfilePlotPanel extends PagePanel {
 
         xAxisRangeControl.getBindingContext().setComponentsEnabled(PROPERTY_NAME_MARK_SEGMENTS,
                                                                    profileData != null &&
-                                                                   profileData.getShapeVertices().length > 2);
+                                                                           profileData.getShapeVertices().length > 2);
         xAxisRangeControl.setComponentsEnabled(profileData != null);
         yAxisRangeControl.setComponentsEnabled(profileData != null);
         adjustPlotAxes();
