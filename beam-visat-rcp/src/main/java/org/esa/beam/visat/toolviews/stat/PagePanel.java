@@ -60,8 +60,8 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         this.helpId = helpId;
         setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         setPreferredSize(new Dimension(600, 320));
-        updateCurrentSelection();
         initContent();
+        updateCurrentSelection();
         transferProductNodeListener(null, product);
     }
 
