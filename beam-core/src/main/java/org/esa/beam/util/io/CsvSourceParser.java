@@ -16,6 +16,8 @@
 
 package org.esa.beam.util.io;
 
+import java.io.IOException;
+
 /**
  * Interface providing methods for parsing a csv source.
  *
@@ -30,32 +32,21 @@ public interface CsvSourceParser {
      *
      * @throws IllegalStateException         if this method is called before {@link CsvSourceParser#parseMetadata()} has
      *                                       been called.
-     * @throws ParseException                if something goes wrong.
+     * @throws IOException                   if something goes wrong.
      * @param offset                         the offset from which to start parsing.
      * @param numRecords                     the number of records to parse. If -1 is given, all records are parsed.
      */
-    void parseRecords(int offset, int numRecords) throws ParseException;
+    void parseRecords(int offset, int numRecords) throws IOException;
 
     /**
      * @return A view on the {@link CsvSource} parsed using this interface.
      *
-     * @throws ParseException if something goes wrong.
+     * @throws IOException if something goes wrong.
      */
-    CsvSource parseMetadata() throws ParseException;
+    CsvSource parseMetadata() throws IOException;
 
     /**
      * Closes the parser and its associated data sources.
      */
     void close();
-
-    class ParseException extends Exception {
-
-        ParseException(String message) {
-            super(message);
-        }
-
-        ParseException(Throwable cause) {
-            super(cause);
-        }
-    }
 }
