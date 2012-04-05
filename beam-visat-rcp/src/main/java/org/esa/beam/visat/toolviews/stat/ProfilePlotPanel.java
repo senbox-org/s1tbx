@@ -377,7 +377,8 @@ class ProfilePlotPanel extends PagePanel {
         }
 
         xAxisRangeControl.getBindingContext().setComponentsEnabled(PROPERTY_NAME_MARK_SEGMENTS,
-                                                                   profileData != null && profileData.getShapeVertices().length > 2);
+                                                                   profileData != null &&
+                                                                   profileData.getShapeVertices().length > 2);
         xAxisRangeControl.setComponentsEnabled(profileData != null);
         yAxisRangeControl.setComponentsEnabled(profileData != null);
         adjustPlotAxes();

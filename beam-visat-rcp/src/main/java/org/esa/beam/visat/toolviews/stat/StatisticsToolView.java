@@ -258,7 +258,7 @@ public class StatisticsToolView extends AbstractToolView {
 
     private void selectionChanged(Product product, RasterDataNode raster, VectorDataNode vectorDataNode) {
         this.product = product;
-        if(pagePanels == null) {
+        if (pagePanels == null) {
             return;
         }
         final PagePanel[] panels = pagePanels;
@@ -274,14 +274,14 @@ public class StatisticsToolView extends AbstractToolView {
         @Override
         public void productNodeSelected(ProductNode productNode, int clickCount) {
             RasterDataNode raster = null;
-            if(productNode instanceof RasterDataNode) {
+            if (productNode instanceof RasterDataNode) {
                 raster = (RasterDataNode) productNode;
             }
             VectorDataNode vector = null;
-            if(productNode instanceof VectorDataNode) {
+            if (productNode instanceof VectorDataNode) {
                 vector = (VectorDataNode) productNode;
                 final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
-                if(sceneView != null) {
+                if (sceneView != null) {
                     raster = sceneView.getRaster();
                 }
             }
