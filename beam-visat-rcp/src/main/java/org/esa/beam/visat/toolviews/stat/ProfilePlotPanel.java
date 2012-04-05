@@ -26,6 +26,7 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.TransectProfileData;
+import org.esa.beam.framework.datamodel.TransectProfileDataBuilder;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
@@ -105,7 +106,6 @@ class ProfilePlotPanel extends PagePanel {
 
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
-
     }
 
     @Override
@@ -318,11 +318,25 @@ class ProfilePlotPanel extends PagePanel {
             try {
                 if (dataSourceConfig.useCorrelativeData
                     && dataSourceConfig.pointDataSource != null) {
-                    profileData = TransectProfileData.create(getRaster(), dataSourceConfig.pointDataSource, dataSourceConfig.boxSize, dataSourceConfig.useRoiMask, dataSourceConfig.roiMask, dataSourceConfig.computeInBetweenPoints);
+                    profileData = new TransectProfileDataBuilder()
+                            .raster(getRaster())
+                            .pointData(dataSourceConfig.pointDataSource)
+                            .boxSize(dataSourceConfig.boxSize)
+                            .connectVertices(dataSourceConfig.computeInBetweenPoints)
+                            .useRoiMask(dataSourceConfig.useRoiMask)
+                            .roiMask(dataSourceConfig.roiMask)
+                            .build();
                 } else {
                     Shape shape = StatisticsUtils.TransectProfile.getTransectShape(getRaster().getProduct());
                     if (shape != null) {
-                        profileData = TransectProfileData.create(getRaster(), shape, dataSourceConfig.boxSize, dataSourceConfig.useRoiMask, dataSourceConfig.roiMask, dataSourceConfig.computeInBetweenPoints);
+                        profileData = new TransectProfileDataBuilder()
+                                .raster(getRaster())
+                                .path(shape)
+                                .boxSize(dataSourceConfig.boxSize)
+                                .connectVertices(dataSourceConfig.computeInBetweenPoints)
+                                .useRoiMask(dataSourceConfig.useRoiMask)
+                                .roiMask(dataSourceConfig.roiMask)
+                                .build();
                     }
                 }
             } catch (IOException e) {

@@ -1468,7 +1468,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IOException if an I/O error occurs
      */
     public TransectProfileData createTransectProfileData(Shape shape) throws IOException {
-        return TransectProfileData.create(this, shape);
+        return new TransectProfileDataBuilder().raster(this).path(shape).build();
     }
 
     /**

@@ -12,8 +12,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Norman Fomferra
@@ -39,7 +38,11 @@ public class TransectProfileDataTest {
 
     @Test
     public void testCreateWithBoxSize() throws Exception {
-        final TransectProfileData profileData = TransectProfileData.create(band, path, 3, false, null, true);
+        TransectProfileData profileData = new TransectProfileDataBuilder()
+                .raster(band)
+                .path(path)
+                .boxSize(3)
+                .build();
 
         int numPixels = profileData.getNumPixels();
         assertEquals(10, numPixels);
@@ -78,13 +81,13 @@ public class TransectProfileDataTest {
 
     @Test
     public void testCreateWithDefaults() throws Exception {
-        TransectProfileData profileData = TransectProfileData.create(band, path, 1, false, null, true);
+        TransectProfileData profileData = new TransectProfileDataBuilder().raster(band).path(path).build();
         assertProfileDataIsAsExpected(profileData);
     }
 
     @Test
     public void testCreateUnconnected() throws Exception {
-        TransectProfileData profileData = TransectProfileData.create(band, path, 1, false, null, false);
+        TransectProfileData profileData = new TransectProfileDataBuilder().raster(band).path(path).connectVertices(false).build();
 
         int numPixels = profileData.getNumPixels();
         assertEquals(10, numPixels);
@@ -122,14 +125,30 @@ public class TransectProfileDataTest {
 
         // Draw a "Z"
         VectorDataNode track = new VectorDataNode("Track", ft);
-        track.getFeatureCollection().add(sbb.buildFeature("id1", new Object[]{gf.createPoint(new Coordinate(0, 0)), 1.2, 2.3}));
-        track.getFeatureCollection().add(sbb.buildFeature("id2", new Object[]{gf.createPoint(new Coordinate(3, 0)), 3.4, 4.5}));
-        track.getFeatureCollection().add(sbb.buildFeature("id3", new Object[]{gf.createPoint(new Coordinate(0, 3)), 5.6, 6.7}));
-        track.getFeatureCollection().add(sbb.buildFeature("id4", new Object[]{gf.createPoint(new Coordinate(3, 3)), 7.8, 8.9}));
+        track.getFeatureCollection().add(sbb.buildFeature("id1", new Object[]{
+                gf.createPoint(new Coordinate(0, 0)),
+                1.2,
+                2.3
+        }));
+        track.getFeatureCollection().add(sbb.buildFeature("id2", new Object[]{
+                gf.createPoint(new Coordinate(3, 0)),
+                3.4,
+                4.5
+        }));
+        track.getFeatureCollection().add(sbb.buildFeature("id3", new Object[]{
+                gf.createPoint(new Coordinate(0, 3)),
+                5.6,
+                6.7
+        }));
+        track.getFeatureCollection().add(sbb.buildFeature("id4", new Object[]{
+                gf.createPoint(new Coordinate(3, 3)),
+                7.8,
+                8.9
+        }));
 
         product.getVectorDataGroup().add(track);
 
-        TransectProfileData profileData = TransectProfileData.create(band, track, 1, false, null, true);
+        TransectProfileData profileData = new TransectProfileDataBuilder().raster(band).pointData(track).build();
         assertProfileDataIsAsExpected(profileData);
     }
 
@@ -137,7 +156,7 @@ public class TransectProfileDataTest {
     public void testProfileDataUsingRoiMask() throws Exception {
         final Mask mask = product.addMask("name", Mask.BandMathsType.INSTANCE);
         mask.getImageConfig().setValue(Mask.BandMathsType.PROPERTY_NAME_EXPRESSION, "Y <= 1.5");
-        final TransectProfileData profileData = TransectProfileData.create(band, path, 1, true, mask, true);
+        TransectProfileData profileData = new TransectProfileDataBuilder().raster(band).path(path).useRoiMask(true).roiMask(mask).build();
 
         int numPixels = profileData.getNumPixels();
         assertEquals(10, numPixels);
@@ -175,7 +194,14 @@ public class TransectProfileDataTest {
     public void testProfileDataUsingRoiMaskAndBoxSize() throws Exception {
         final Mask mask = product.addMask("name", Mask.BandMathsType.INSTANCE);
         mask.getImageConfig().setValue(Mask.BandMathsType.PROPERTY_NAME_EXPRESSION, "Y <= 1.5");
-        final TransectProfileData profileData = TransectProfileData.create(band, path, 3, true, mask, true);
+        TransectProfileData profileData = new TransectProfileDataBuilder()
+                .raster(band)
+                .path(path)
+                .boxSize(3)
+                .useRoiMask(true)
+                .roiMask(mask)
+                .connectVertices(true)
+                .build();
 
         int numPixels = profileData.getNumPixels();
         assertEquals(10, numPixels);

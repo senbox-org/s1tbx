@@ -27,6 +27,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TransectProfileData;
+import org.esa.beam.framework.datamodel.TransectProfileDataBuilder;
 import org.esa.beam.framework.ui.SelectExportMethodDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
@@ -102,7 +103,10 @@ public class ExportTransectPixelsAction extends ExecCommand {
         final TransectProfileData transectProfileData;
         try {
             Shape shape = convertToImageCoordinates(transect.getShape(), raster.getGeoCoding());
-            transectProfileData = TransectProfileData.create(raster, shape);
+            transectProfileData = new TransectProfileDataBuilder()
+                    .raster(raster)
+                    .path(shape)
+                    .build();
         } catch (IOException e) {
             VisatApp.getApp().showErrorDialog(DLG_TITLE,
                                               ERR_MSG_BASE + "An I/O error occured:\n" + e.getMessage());   /*I18N*/
