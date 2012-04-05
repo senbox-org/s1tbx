@@ -17,26 +17,20 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.swing.TableLayout;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import com.jidesoft.list.FilterableCheckBoxList;
+import com.jidesoft.list.QuickListFilterField;
+import com.jidesoft.swing.SearchableUtils;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.UIUtils;
 
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import java.awt.Insets;
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.text.Position;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 
 /**
@@ -46,6 +40,9 @@ import java.awt.event.ActionListener;
  */
 class MultipleRoiComputePanel extends JPanel {
 
+
+    private final QuickListFilterField maskNameSearchField;
+
     interface ComputeMasks {
         void compute(Mask[] selectedMasks);
     }
@@ -54,9 +51,7 @@ class MultipleRoiComputePanel extends JPanel {
 
     private final JButton computeButton;
     private final JCheckBox useRoiCheckBox;
-    private final JComboBox maskNameComboBox;
-    private final JRadioButton iterateButton;
-    private final JRadioButton singleButton;
+    private final FilterableCheckBoxList maskNameList;
 
     private RasterDataNode raster;
     private Product product;
@@ -64,6 +59,36 @@ class MultipleRoiComputePanel extends JPanel {
     MultipleRoiComputePanel(final ComputeMasks method, final RasterDataNode rasterDataNode) {
         productNodeListener = new PNL();
         final Icon icon = UIUtils.loadImageIcon("icons/Gears20.gif");
+
+        DefaultListModel maskNameListModel = new DefaultListModel();
+
+        maskNameSearchField = new QuickListFilterField(maskNameListModel);
+        maskNameSearchField.setHintText("Type mask name here");
+        //quickSearchPanel.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), "QuickListFilterField", JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
+
+        maskNameList = new FilterableCheckBoxList(maskNameSearchField.getDisplayListModel()) {
+            @Override
+            public int getNextMatch(String prefix, int startIndex, Position.Bias bias) {
+                return -1;
+            }
+
+            @Override
+            public boolean isCheckBoxEnabled(int index) {
+                return true;
+            }
+        };
+        SearchableUtils.installSearchable(maskNameList);
+
+        maskNameList.getCheckBoxListSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        maskNameList.getCheckBoxListSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e) {
+
+                if (!e.getValueIsAdjusting()) {
+                    int[] indices = maskNameList.getCheckBoxListSelectedIndices();
+                    System.out.println("indices = " + Arrays.toString(indices));
+                }
+            }
+        });
 
         computeButton = new JButton("Compute");     /*I18N*/
         computeButton.setMnemonic('A');
@@ -74,24 +99,22 @@ class MultipleRoiComputePanel extends JPanel {
                 boolean useRoi = useRoiCheckBox.isSelected();
                 Mask[] selectedMasks;
                 if (useRoi) {
-                    if (iterateButton.isEnabled() && iterateButton.isSelected()) {
-                        ProductNodeGroup<Mask> maskGroup = raster.getProduct().getMaskGroup();
-                        selectedMasks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
-                    } else {
-                        String maskName = (String) maskNameComboBox.getSelectedItem();
-                        ProductNodeGroup<Mask> maskGroup = raster.getProduct().getMaskGroup();
-                        Mask mask = maskGroup.get(maskName);
-                        selectedMasks = new Mask[] {mask};
+                    int[] listIndexes = maskNameList.getCheckBoxListSelectedIndices();
+                    selectedMasks = new Mask[listIndexes.length];
+                    for (int i = 0; i < listIndexes.length; i++) {
+                        int listIndex = listIndexes[i];
+                        String maskName = maskNameList.getModel().getElementAt(listIndex).toString();
+                        selectedMasks[i] = raster.getProduct().getMaskGroup().get(maskName);
                     }
                 } else {
-                    selectedMasks = new Mask[] {null};
+                    selectedMasks = new Mask[]{null};
                 }
                 method.compute(selectedMasks);
             }
         });
         computeButton.setIcon(icon);
 
-        useRoiCheckBox = new JCheckBox("Use ROI-Mask");
+        useRoiCheckBox = new JCheckBox("Use ROI mask(s):");
         useRoiCheckBox.setMnemonic('R');
         useRoiCheckBox.addActionListener(new ActionListener() {
 
@@ -101,51 +124,17 @@ class MultipleRoiComputePanel extends JPanel {
             }
         });
 
-        maskNameComboBox = new JComboBox();
-        iterateButton = new JRadioButton("Iterate over all");
-        singleButton = new JRadioButton();
-        ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(iterateButton);
-        buttonGroup.add(singleButton);
-
-        final TableLayout tableLayoutSingle = new TableLayout(2);
-        tableLayoutSingle.setTableAnchor(TableLayout.Anchor.WEST);
-        tableLayoutSingle.setTableFill(TableLayout.Fill.HORIZONTAL);
-        tableLayoutSingle.setTableWeightX(1.0);
-
-        JPanel singlePanel = new JPanel(tableLayoutSingle);
-        singlePanel.add(singleButton);
-        singlePanel.add(maskNameComboBox);
-
-        final TableLayout tableLayoutRoi = new TableLayout(1);
-        tableLayoutRoi.setTableAnchor(TableLayout.Anchor.WEST);
-        tableLayoutRoi.setTableFill(TableLayout.Fill.HORIZONTAL);
-        tableLayoutRoi.setTableWeightX(1.0);
-
-        JPanel roiPanel = new JPanel(tableLayoutRoi);
-        roiPanel.add(singlePanel);
-        roiPanel.add(iterateButton);
-
-        ActionListener actionListener = new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateEnablement();
-            }
-        };
-        iterateButton.addActionListener(actionListener);
-        singleButton.addActionListener(actionListener);
-
         final TableLayout tableLayout = new TableLayout(1);
         tableLayout.setTableAnchor(TableLayout.Anchor.SOUTHWEST);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayout.setTableWeightX(1.0);
-        tableLayout.setCellPadding(2, 0, new Insets(4, 10, 4, 0));
+        tableLayout.setTablePadding(new Insets(2, 2, 2, 2));
         setLayout(tableLayout);
 
         add(computeButton);
         add(useRoiCheckBox);
-        add(roiPanel);
+        add(maskNameSearchField);
+        add(new JScrollPane(maskNameList));
 
         setRaster(rasterDataNode);
     }
@@ -158,7 +147,6 @@ class MultipleRoiComputePanel extends JPanel {
                     product.removeProductNodeListener(productNodeListener);
                 }
                 product = null;
-                updateMaskListState();
             } else if (product != newRaster.getProduct()) {
                 if (product != null) {
                     product.removeProductNodeListener(productNodeListener);
@@ -167,42 +155,35 @@ class MultipleRoiComputePanel extends JPanel {
                 if (product != null) {
                     product.addProductNodeListener(productNodeListener);
                 }
-                updateMaskListState();
             }
+            updateMaskListState();
         }
     }
 
     private void updateMaskListState() {
         final boolean hasRaster = (raster != null);
         computeButton.setEnabled(hasRaster);
+
+        DefaultListModel maskNameListModel = new DefaultListModel();
+
         if (hasRaster) {
             final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
-            final boolean hasRois = (maskGroup.getNodeCount() > 0);
-            useRoiCheckBox.setEnabled(hasRois);
-            if (hasRois) {
-                maskNameComboBox.setModel(new DefaultComboBoxModel(maskGroup.getNodeNames()));
-                maskNameComboBox.setSelectedIndex(0);
-            } else {
-                maskNameComboBox.setModel(new DefaultComboBoxModel());
-                useRoiCheckBox.setSelected(false);
+            Mask[] masks = maskGroup.toArray(new Mask[0]);
+            for (Mask mask : masks) {
+                maskNameListModel.addElement(mask.getName());
             }
-        } else {
-            maskNameComboBox.setModel(new DefaultComboBoxModel());
-            useRoiCheckBox.setSelected(false);
         }
+
+        maskNameSearchField.setListModel(maskNameListModel);
+        maskNameList.setModel(maskNameSearchField.getDisplayListModel());
+
         updateEnablement();
     }
 
     private void updateEnablement() {
         boolean useRoi = useRoiCheckBox.isSelected() && useRoiCheckBox.isEnabled();
-
-        singleButton.setEnabled(useRoi);
-        iterateButton.setEnabled(useRoi);
-        if (useRoi && !singleButton.isSelected() && !iterateButton.isSelected()) {
-            singleButton.setSelected(true);
-        }
-        boolean useSingleRoi = singleButton.isSelected();
-        maskNameComboBox.setEnabled(useRoi && useSingleRoi);
+        maskNameSearchField.setEnabled(useRoi);
+        maskNameList.setEnabled(useRoi);
     }
 
     private class PNL implements ProductNodeListener {
