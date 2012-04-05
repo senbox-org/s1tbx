@@ -17,19 +17,12 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.swing.TableLayout;
-
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.UIUtils;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
 
 
 /**
@@ -54,7 +47,7 @@ class SingleRoiComputePanel extends JPanel {
 
     SingleRoiComputePanel(final ComputeMask method, final RasterDataNode raster) {
         productNodeListener = new PNL();
-        final Icon icon = UIUtils.loadImageIcon("icons/Gears20.gif");
+        final Icon icon = UIUtils.loadImageIcon("icons/ViewRefresh16.png");
 
         computeButton = new JButton("Compute");     /*I18N*/
         computeButton.setMnemonic('A');
@@ -81,7 +74,7 @@ class SingleRoiComputePanel extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-              updateMaskListEnablement();
+                updateMaskListEnablement();
             }
         });
 
