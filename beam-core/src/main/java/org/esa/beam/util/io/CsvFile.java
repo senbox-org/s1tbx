@@ -55,15 +55,17 @@ public class CsvFile implements CsvSourceParser, CsvSource {
     public static final String DEFAULT_HEADER_NAME = "csv";
 
     private final Map<String, String> properties = new HashMap<String, String>();
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
     private final File csv;
     private final Map<Long, Long> positionForOffset = new HashMap<Long, Long>();
 
-    private boolean propertiesParsed = false;
     private SimpleFeatureType simpleFeatureType;
+    private FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
     private CoordinateReferenceSystem crs;
+
+    private boolean propertiesParsed = false;
     private boolean hasFeatureId = false;
     private boolean recordsParsed = false;
+
     private ImageInputStream stream;
     
     private int headerByteSize;
@@ -91,7 +93,6 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         featureCollection = new ListFeatureCollection(simpleFeatureType);
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeatureType);
 
-        stream.seek(headerByteSize + propertiesByteSize);
         skipToOffset(offset);
         String line;
         long featureCount = offset;
@@ -153,6 +154,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         int count = 1;
         byte[] buffer = new byte[100 * 1024];
         int readChars;
+        long currentPosInStream = stream.getStreamPosition();
         stream.seek(0);
         while ((readChars = stream.read(buffer)) != -1) {
             for (int i = 0; i < readChars - 1; ++i) {
@@ -164,7 +166,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         count -= properties.size();
         final int headerLineCount = 1;
         count -= headerLineCount;
-//        stream.seek(0);
+        stream.seek(currentPosInStream);
         return count;
     }
 
@@ -195,7 +197,8 @@ public class CsvFile implements CsvSourceParser, CsvSource {
     private void parseProperties() throws IOException {
         String line;
         stream.seek(0);
-        long posInStream = stream.getStreamPosition();
+        propertiesByteSize = 0;
+        long posInStream = 0l;
         while ((line = stream.readLine()) != null) {
             if (!line.startsWith("#")) {
                 stream.seek(posInStream);
@@ -231,7 +234,8 @@ public class CsvFile implements CsvSourceParser, CsvSource {
             stream.seek(positionForOffset.get(recordOffset));
             return;
         }
-        for (int i = getFirstRecordLineIndex(); i <= recordOffset; i++) {
+        stream.seek(propertiesByteSize + headerByteSize);
+        for (int i = 0; i < recordOffset; i++) {
             stream.readLine();
         }
         positionForOffset.put(recordOffset, stream.getStreamPosition());
@@ -314,13 +318,6 @@ public class CsvFile implements CsvSourceParser, CsvSource {
             }
         }
         return false;
-    }
-
-    public int getFirstRecordLineIndex() {
-        int firstRecordLineIndex = properties.size();
-        final int headerLineCount = 1;
-        firstRecordLineIndex += headerLineCount;
-        return firstRecordLineIndex;
     }
 
     private static class UTCConverter implements Converter<ProductData.UTC> {

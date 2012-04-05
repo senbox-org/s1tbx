@@ -262,23 +262,13 @@ public class CsvFileTest {
         assertEquals(4, features.length);
     }
 
-
-    private SimpleFeature[] toSimpleFeatureArray(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
-        final Object[] objects = featureCollection.toArray(new Object[featureCollection.size()]);
-        final SimpleFeature[] simpleFeatures = new SimpleFeature[objects.length];
-        for (int i = 0; i < simpleFeatures.length; i++) {
-            simpleFeatures[i] = (SimpleFeature)objects[i];
-
-        }
-        return simpleFeatures;
-    }
-
     @Test
     public void testParseHeader() throws Exception {
         final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
         final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
         parser.parseMetadata();
 
+        // we call parseMetadata twice to make sure that counters are properly reset
         final CsvSource csvSource = parser.parseMetadata();
         final FeatureType featureType = csvSource.getFeatureType();
 

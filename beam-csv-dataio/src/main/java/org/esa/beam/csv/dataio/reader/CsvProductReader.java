@@ -43,7 +43,6 @@ public class CsvProductReader extends AbstractProductReader {
 
     private CsvSource source;
     private CsvSourceParser parser;
-    private int offset = -1;
 
     /**
      * Constructs a new abstract product reader.
@@ -70,7 +69,6 @@ public class CsvProductReader extends AbstractProductReader {
         final int sceneRasterWidth = source.getRecordCount();
         // todo - get name and type from properties, if existing
         final Product product = new Product(getInput().toString(), "CSV", sceneRasterWidth, 1);
-        product.setPreferredTileSize(8, 1);
         for (AttributeDescriptor descriptor : source.getFeatureType().getAttributeDescriptors()) {
             if (isAccessibleBandType(descriptor.getType().getBinding())) {
                 int type = getProductDataType(descriptor.getType().getBinding());
@@ -88,15 +86,12 @@ public class CsvProductReader extends AbstractProductReader {
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-        BeamLogManager.getSystemLogger().log(Level.INFO, MessageFormat.format(
+        BeamLogManager.getSystemLogger().log(Level.FINEST, MessageFormat.format(
                 "reading band data (" + destBand.getName() + ") from {0} to {1}",
                 sourceOffsetX, sourceOffsetX + destWidth - 1));
         pm.beginTask("reading band data...", destWidth);
-        if (sourceOffsetX > offset) {
-            offset = sourceOffsetX;
-            synchronized (parser) {
-                parser.parseRecords(sourceOffsetX, destWidth);
-            }
+        synchronized (parser) {
+            parser.parseRecords(sourceOffsetX, destWidth);
         }
         final SimpleFeature[] simpleFeatures = source.getSimpleFeatures();
         final Object[] elems = new Object[simpleFeatures.length];
@@ -176,9 +171,9 @@ public class CsvProductReader extends AbstractProductReader {
     private boolean isAccessibleBandType(Class<?> type) {
         final String className = type.getSimpleName().toLowerCase();
         return className.equals("float") ||
-               className.equals("double") ||
-               className.equals("byte") ||
-               className.equals("short") ||
-               className.equals("integer");
+                className.equals("double") ||
+                className.equals("byte") ||
+                className.equals("short") ||
+                className.equals("integer");
     }
 }
