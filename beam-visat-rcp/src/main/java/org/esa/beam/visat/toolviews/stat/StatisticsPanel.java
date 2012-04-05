@@ -33,6 +33,7 @@ import java.util.List;
 /**
  * A general pane within the statistics window.
  *
+ * @author Norman Fomferra
  * @author Marco Peters
  */
 class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.ComputeMasks {
@@ -218,12 +219,6 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
         sb.append(unit);
         sb.append("\n");
 
-        sb.append("Median:  \t");
-        sb.append(stat.getMedian());
-        sb.append("\t ");
-        sb.append(unit);
-        sb.append("\n");
-
         sb.append("Standard deviation:  \t");
         sb.append(stat.getStandardDeviation());
         sb.append("\t ");
@@ -235,6 +230,21 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
         sb.append("\t ");
         sb.append("");
         sb.append("\n");
+
+        sb.append("Median:  \t");
+        sb.append(stat.getMedian());
+        sb.append("\t ");
+        sb.append(unit);
+        sb.append("\n");
+
+        int[] percentiles = new int[]{70, 75, 80, 85, 90, 95};
+        for (int percentile : percentiles) {
+            sb.append("P").append(percentile).append(" threshold:  \t");
+            sb.append(stat.getHistogram().getPTileThreshold(percentile / 100.0)[0]);
+            sb.append("\t ");
+            sb.append(unit);
+            sb.append("\n");
+        }
 
         return sb.toString();
     }
