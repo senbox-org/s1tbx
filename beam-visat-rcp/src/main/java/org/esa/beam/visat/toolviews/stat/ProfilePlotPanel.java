@@ -19,12 +19,11 @@ package org.esa.beam.visat.toolviews.stat;
 import com.bc.ceres.binding.*;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.TransectProfileData;
-import org.esa.beam.framework.datamodel.TransectProfileDataBuilder;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.visat.VisatApp;
+import org.esa.beam.visat.toolviews.nav.CursorSynchronizer;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -39,6 +38,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYIntervalSeries;
 import org.jfree.data.xy.XYIntervalSeriesCollection;
 import org.jfree.ui.Layer;
@@ -49,6 +49,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -92,6 +93,7 @@ class ProfilePlotPanel extends PagePanel {
     private XYErrorRenderer pointRenderer;
     private Enablement pointDataSourceEnablement;
     private Enablement dataFieldEnablement;
+    private CursorSynchronizer cursorSynchronizer;
 
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
@@ -168,10 +170,30 @@ class ProfilePlotPanel extends PagePanel {
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setRenderer(deviationRenderer);
 
-
         profilePlotDisplay = new ChartPanel(chart);
-        // TODO - if XYPlotMarker position changes update cursor positions in views, see org.esa.beam.visat.toolviews.nav.CursorSynchronizer (nf, 2012-04-09)
-        profilePlotDisplay.addChartMouseListener(new XYPlotMarker(profilePlotDisplay));
+        profilePlotDisplay.addChartMouseListener(new XYPlotMarker(profilePlotDisplay, new XYPlotMarker.Listener() {
+            @Override
+            public void pointSelected(XYDataset xyDataset, int seriesIndex, Point2D dataPoint) {
+                if (profileData != null) {
+                    GeoPos[] geoPositions = profileData.getGeoPositions();
+                    int index = (int) dataPoint.getX();
+                    if (index >= 0 && index < geoPositions.length) {
+                        if (cursorSynchronizer == null) {
+                            cursorSynchronizer = new CursorSynchronizer(VisatApp.getApp());
+                        }
+                        if (!cursorSynchronizer.isEnabled()) {
+                            cursorSynchronizer.setEnabled(true);
+                        }
+                        cursorSynchronizer.updateCursorOverlays(geoPositions[index]);
+                    }
+                }
+            }
+
+            @Override
+            public void pointDeselected() {
+                cursorSynchronizer.setEnabled(false);
+            }
+        }));
         profilePlotDisplay.setInitialDelay(200);
         profilePlotDisplay.setDismissDelay(1500);
         profilePlotDisplay.setReshowDelay(200);

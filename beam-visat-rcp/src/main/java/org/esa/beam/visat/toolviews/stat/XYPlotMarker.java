@@ -21,6 +21,7 @@ import java.awt.geom.Rectangle2D;
  */
 public class XYPlotMarker implements ChartMouseListener {
     private final ChartPanel chartPanel;
+    private final Listener listener;
     private XYDataset xyDataset;
     private int seriesIndex;
     private ShapeOverlay overlay;
@@ -29,8 +30,9 @@ public class XYPlotMarker implements ChartMouseListener {
     private Stroke outlineStroke;
     private double markerSize;
 
-    public XYPlotMarker(ChartPanel chartPanel) {
+    public XYPlotMarker(ChartPanel chartPanel, Listener listener) {
         this.chartPanel = chartPanel;
+        this.listener = listener;
         fillPaint = new Color(255, 255, 255, 127);
         outlinePaint = new Color(50, 50, 50, 200);
         outlineStroke = new BasicStroke(1.5F);
@@ -63,8 +65,10 @@ public class XYPlotMarker implements ChartMouseListener {
 
     @Override
     public void chartMouseClicked(ChartMouseEvent event) {
+        boolean overlayRemoved = false;
         if (overlay != null) {
             chartPanel.removeOverlay(overlay);
+            overlayRemoved = true;
         }
 
         xyDataset = null;
@@ -75,33 +79,32 @@ public class XYPlotMarker implements ChartMouseListener {
         Rectangle2D dataArea = chartPanel.getScreenDataArea();
         Point point = event.getTrigger().getPoint();
 
-        if (!dataArea.contains(point)) {
-             return;
-        }
-        PlotOrientation orientation = plot.getOrientation();
-        RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(
-                plot.getDomainAxisLocation(), orientation);
-        RectangleEdge rangeEdge = Plot.resolveRangeAxisLocation(
-                plot.getRangeAxisLocation(), orientation);
+        if (dataArea.contains(point)) {
+            PlotOrientation orientation = plot.getOrientation();
+            RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(
+                    plot.getDomainAxisLocation(), orientation);
+            RectangleEdge rangeEdge = Plot.resolveRangeAxisLocation(
+                    plot.getRangeAxisLocation(), orientation);
 
-        double mx = plot.getDomainAxis().java2DToValue(point.x, dataArea, domainEdge);
-        double my = plot.getRangeAxis().java2DToValue(point.y, dataArea, rangeEdge);
+            double mx = plot.getDomainAxis().java2DToValue(point.x, dataArea, domainEdge);
+            double my = plot.getRangeAxis().java2DToValue(point.y, dataArea, rangeEdge);
 
-        int datasetCount = chartPanel.getChart().getXYPlot().getDatasetCount();
-        double minDist = Double.POSITIVE_INFINITY;
-        for (int datasetIndex = 0; datasetIndex < datasetCount; datasetIndex++) {
-            XYDataset xyDataset = chartPanel.getChart().getXYPlot().getDataset(datasetIndex);
-            int seriesCount = xyDataset.getSeriesCount();
-            for (int seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
-                int itemCount = xyDataset.getItemCount(seriesIndex);
-                for (int itemIndex = 0; itemIndex < itemCount; itemIndex++) {
-                    double x = xyDataset.getXValue(seriesIndex, itemIndex);
-                    double y = xyDataset.getYValue(seriesIndex, itemIndex);
-                    double dist = (x - mx) * (x - mx) + (y - my) * (y - my);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        this.xyDataset = xyDataset;
-                        this.seriesIndex = seriesIndex;
+            int datasetCount = chartPanel.getChart().getXYPlot().getDatasetCount();
+            double minDist = Double.POSITIVE_INFINITY;
+            for (int datasetIndex = 0; datasetIndex < datasetCount; datasetIndex++) {
+                XYDataset xyDataset = chartPanel.getChart().getXYPlot().getDataset(datasetIndex);
+                int seriesCount = xyDataset.getSeriesCount();
+                for (int seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
+                    int itemCount = xyDataset.getItemCount(seriesIndex);
+                    for (int itemIndex = 0; itemIndex < itemCount; itemIndex++) {
+                        double x = xyDataset.getXValue(seriesIndex, itemIndex);
+                        double y = xyDataset.getYValue(seriesIndex, itemIndex);
+                        double dist = (x - mx) * (x - mx) + (y - my) * (y - my);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            this.xyDataset = xyDataset;
+                            this.seriesIndex = seriesIndex;
+                        }
                     }
                 }
             }
@@ -111,13 +114,22 @@ public class XYPlotMarker implements ChartMouseListener {
             overlay = new ShapeOverlay();
             chartPanel.addOverlay(overlay);
             updatePoint(event);
+        } else if (overlayRemoved) {
+            listener.pointDeselected();
         }
+
     }
 
     @Override
     public void chartMouseMoved(ChartMouseEvent event) {
         updatePoint(event);
 
+    }
+
+    public interface Listener {
+        void pointSelected(XYDataset xyDataset, int seriesIndex, Point2D dataPoint);
+
+        void pointDeselected();
     }
 
     private void updatePoint(ChartMouseEvent event) {
@@ -146,7 +158,10 @@ public class XYPlotMarker implements ChartMouseListener {
                 double y2 = xyDataset.getYValue(seriesIndex, i + 1);
                 double yData = y1 + (xData - x1) * (y2 - y1) / (x2 - x1);
                 double yView = plot.getRangeAxis().valueToJava2D(yData, dataArea, rangeEdge);
-                overlay.setPoint(new Point2D.Double(xView, yView), new Point2D.Double(xData, yData));
+                Point2D.Double viewPoint = new Point2D.Double(xView, yView);
+                Point2D.Double dataPoint = new Point2D.Double(xData, yData);
+                overlay.setPoint(viewPoint, dataPoint);
+                listener.pointSelected(xyDataset, seriesIndex, dataPoint);
                 break;
             }
         }
