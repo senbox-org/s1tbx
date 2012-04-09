@@ -134,19 +134,19 @@ public class XYPlotMarker implements ChartMouseListener {
         RectangleEdge rangeEdge = Plot.resolveRangeAxisLocation(
                 plot.getRangeAxisLocation(), orientation);
 
-        double x2d = event.getTrigger().getPoint().x;
-        double x = plot.getDomainAxis().java2DToValue(x2d, dataArea, domainEdge);
+        double xView = event.getTrigger().getPoint().x;
+        double xData = plot.getDomainAxis().java2DToValue(xView, dataArea, domainEdge);
 
         int itemCount = xyDataset.getItemCount(seriesIndex);
         for (int i = 0; i < itemCount - 1; i++) {
             double x1 = xyDataset.getXValue(seriesIndex, i);
             double x2 = xyDataset.getXValue(seriesIndex, i + 1);
-            if (x >= x1 && x <= x2) {
+            if (xData >= x1 && xData <= x2) {
                 double y1 = xyDataset.getYValue(seriesIndex, i);
                 double y2 = xyDataset.getYValue(seriesIndex, i + 1);
-                double y = y1 + (x - x1) * (y2 - y1) / (x2 - x1);
-                double y2d = plot.getRangeAxis().valueToJava2D(y, dataArea, rangeEdge);
-                overlay.setPoint(new Point2D.Double(x2d, y2d));
+                double yData = y1 + (xData - x1) * (y2 - y1) / (x2 - x1);
+                double yView = plot.getRangeAxis().valueToJava2D(yData, dataArea, rangeEdge);
+                overlay.setPoint(new Point2D.Double(xView, yView), new Point2D.Double(xData, yData));
                 break;
             }
         }
@@ -154,26 +154,28 @@ public class XYPlotMarker implements ChartMouseListener {
 
     private class ShapeOverlay extends AbstractOverlay implements Overlay {
 
-        Point2D point;
+        Point2D viewPoint;
+        Point2D dataPoint;
 
-        public void setPoint(Point2D point) {
-            if (this.point == null || !this.point.equals(point)) {
-                this.point = point;
+        public void setPoint(Point2D viewPoint, Point2D dataPoint) {
+            if (this.viewPoint == null || !this.viewPoint.equals(dataPoint)) {
+                this.viewPoint = viewPoint;
+                this.dataPoint = dataPoint;
                 fireOverlayChanged();
             }
         }
 
         @Override
         public void paintOverlay(Graphics2D g2, ChartPanel chartPanel) {
-            if (point != null) {
+            if (viewPoint != null) {
                 Shape oldClip = g2.getClip();
                 Rectangle2D dataArea = chartPanel.getScreenDataArea();
                 g2.setClip(dataArea);
 
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                Ellipse2D.Double ellipse = new Ellipse2D.Double(point.getX() - 0.5 * markerSize,
-                                                                point.getY() - 0.5 * markerSize,
+                Ellipse2D.Double ellipse = new Ellipse2D.Double(viewPoint.getX() - 0.5 * markerSize,
+                                                                viewPoint.getY() - 0.5 * markerSize,
                                                                 markerSize,
                                                                 markerSize);
                 g2.setPaint(fillPaint);
@@ -189,8 +191,8 @@ public class XYPlotMarker implements ChartMouseListener {
                 g2.setPaint(outlinePaint);
                 g2.draw(box);
 
-                g2.drawString(String.format("x = %.3f", point.getX()), (int) (dataArea.getX() + 5 + 5), (int) (dataArea.getY() + 5 + 20));
-                g2.drawString(String.format("y = %.3f", point.getY()), (int) (dataArea.getX() + 5 + 5), (int) (dataArea.getY() + 5 + 40));
+                g2.drawString(String.format("x = %.3f", dataPoint.getX()), (int) (dataArea.getX() + 5 + 5), (int) (dataArea.getY() + 5 + 20));
+                g2.drawString(String.format("y = %.3f", dataPoint.getY()), (int) (dataArea.getX() + 5 + 5), (int) (dataArea.getY() + 5 + 40));
 
                 g2.setClip(oldClip);
             }
