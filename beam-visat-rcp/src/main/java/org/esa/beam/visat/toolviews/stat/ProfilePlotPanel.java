@@ -169,9 +169,11 @@ class ProfilePlotPanel extends PagePanel {
         plot.setRenderer(deviationRenderer);
 
         profilePlotDisplay = new ChartPanel(chart);
+        profilePlotDisplay.addChartMouseListener(new XYPlotMarker(profilePlotDisplay));
         profilePlotDisplay.setInitialDelay(200);
         profilePlotDisplay.setDismissDelay(1500);
         profilePlotDisplay.setReshowDelay(200);
+        profilePlotDisplay.setZoomTriggerDistance(5);
         profilePlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
         final AxisChangeListener axisListener = new AxisChangeListener() {
             @Override
