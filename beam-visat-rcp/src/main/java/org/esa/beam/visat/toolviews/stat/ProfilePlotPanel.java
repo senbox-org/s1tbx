@@ -168,7 +168,9 @@ class ProfilePlotPanel extends PagePanel {
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setRenderer(deviationRenderer);
 
+
         profilePlotDisplay = new ChartPanel(chart);
+        // TODO - if XYPlotMarker position changes update cursor positions in views, see org.esa.beam.visat.toolviews.nav.CursorSynchronizer (nf, 2012-04-09)
         profilePlotDisplay.addChartMouseListener(new XYPlotMarker(profilePlotDisplay));
         profilePlotDisplay.setInitialDelay(200);
         profilePlotDisplay.setDismissDelay(1500);
