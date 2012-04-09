@@ -24,17 +24,17 @@ import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JInternalFrame;
+import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.awt.Container;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 
-class CursorSynchronizer {
+public class CursorSynchronizer {
 
     private static final GeoPos INVALID_GEO_POS = new GeoPos(Float.NaN, Float.NaN);
 
@@ -45,7 +45,7 @@ class CursorSynchronizer {
     private PsvListUpdater psvOverlayMapUpdater;
     private boolean enabled;
 
-    CursorSynchronizer(VisatApp visatApp) {
+    public CursorSynchronizer(VisatApp visatApp) {
         this.visatApp = visatApp;
         psvOverlayMap = new HashMap<ProductSceneView, CursorOverlay>();
         viewPplMap = new HashMap<ProductSceneView, ViewPPL>();
@@ -70,7 +70,14 @@ class CursorSynchronizer {
         }
     }
 
-    private void updateCursorOverlays(ProductSceneView sourceView, GeoPos geoPos) {
+    public void updateCursorOverlays(GeoPos geoPos) {
+        updateCursorOverlays(geoPos, null);
+    }
+
+    public void updateCursorOverlays(GeoPos geoPos, ProductSceneView sourceView) {
+        if (!isEnabled()) {
+            return;
+        }
         for (Map.Entry<ProductSceneView, CursorOverlay> entry : psvOverlayMap.entrySet()) {
             final ProductSceneView view = entry.getKey();
             CursorOverlay overlay = entry.getValue();
@@ -88,7 +95,6 @@ class CursorSynchronizer {
                     view.getLayerCanvas().removeOverlay(overlay);
                     psvOverlayMap.put(view, null);
                 }
-
             }
         }
     }
@@ -167,7 +173,7 @@ class CursorSynchronizer {
                                     boolean pixelPosValid, MouseEvent e) {
             PixelPos pixelPos = computeLevelZeroPixelPos(baseImageLayer, pixelX, pixelY, currentLevel);
             GeoPos geoPos = view.getRaster().getGeoCoding().getGeoPos(pixelPos, null);
-            updateCursorOverlays(view, geoPos);
+            updateCursorOverlays(geoPos, view);
         }
 
         private PixelPos computeLevelZeroPixelPos(ImageLayer imageLayer, int pixelX, int pixelY, int currentLevel) {
@@ -185,7 +191,7 @@ class CursorSynchronizer {
 
         @Override
         public void pixelPosNotAvailable() {
-            updateCursorOverlays(null, INVALID_GEO_POS);
+            updateCursorOverlays(INVALID_GEO_POS, null);
         }
     }
 }
