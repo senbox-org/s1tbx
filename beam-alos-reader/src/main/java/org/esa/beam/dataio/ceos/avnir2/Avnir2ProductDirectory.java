@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,22 +18,8 @@ package org.esa.beam.dataio.ceos.avnir2;
 
 import org.esa.beam.dataio.ceos.CeosHelper;
 import org.esa.beam.dataio.ceos.IllegalCeosFormatException;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FXYGeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.framework.dataop.maptransf.MapTransformFactory;
-import org.esa.beam.framework.dataop.maptransf.StereographicDescriptor;
-import org.esa.beam.framework.dataop.maptransf.UTM;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
@@ -45,13 +31,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * This class represents a product directory of an Avnir-2 product.
@@ -70,6 +50,7 @@ class Avnir2ProductDirectory {
     private final File _baseDir;
     private Avnir2VolumeDirectoryFile _volumeDirectoryFile;
     private Avnir2ImageFile[] _imageFiles;
+    private Map<Band, Avnir2ImageFile> _imageFileMap;
     private Avnir2LeaderFile _leaderFile;
     private Avnir2TrailerFile _trailerFile;
     private Avnir2SupplementalFile _supplementalFile = null;
@@ -104,16 +85,17 @@ class Avnir2ProductDirectory {
         assertSameWidthAndHeightForAllImages();
     }
 
-    Product createProduct() throws IOException,
-            IllegalCeosFormatException {
+    Product createProduct() throws IOException, IllegalCeosFormatException {
         final Product product = new Product(_volumeDirectoryFile.getProductName(),
                                             getProductType(),
                                             _sceneWidth, _sceneHeight);
         product.setFileLocation(_baseDir);
+        _imageFileMap = new HashMap<Band, Avnir2ImageFile>(_imageFiles.length);
+        for (final Avnir2ImageFile avnir2ImageFile : _imageFiles) {
+            Band band = createBand(avnir2ImageFile);
+            product.addBand(band);
+            _imageFileMap.put(band, avnir2ImageFile);
 
-        for (int i = 0; i < _imageFiles.length; i++) {
-            final Avnir2ImageFile avnir2ImageFile = _imageFiles[i];
-            product.addBand(createBand(avnir2ImageFile));
         }
         product.setStartTime(getUTCScanStartTime());
         product.setEndTime(getUTCScanStopTime());
@@ -268,13 +250,7 @@ class Avnir2ProductDirectory {
     }
 
     Avnir2ImageFile getImageFile(final Band band) throws IOException, IllegalCeosFormatException {
-        for (int i = 0; i < _imageFiles.length; i++) {
-            final Avnir2ImageFile imageFile = _imageFiles[i];
-            if (band.getName().equals(imageFile.getBandName())) {
-                return imageFile;
-            }
-        }
-        return null;
+        return _imageFileMap.get(band);
     }
 
     void close() throws IOException {
@@ -283,6 +259,7 @@ class Avnir2ProductDirectory {
             _imageFiles[i] = null;
         }
         _imageFiles = null;
+        _imageFileMap.clear();
         _volumeDirectoryFile.close();
         _volumeDirectoryFile = null;
         _leaderFile.close();
