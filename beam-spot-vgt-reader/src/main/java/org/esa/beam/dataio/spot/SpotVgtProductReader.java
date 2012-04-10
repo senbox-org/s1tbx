@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,30 +20,19 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.VirtualDir;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.ImageUtils;
+import org.esa.beam.util.jai.JAIUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import javax.media.jai.BorderExtender;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.RenderedOp;
+import javax.media.jai.*;
 import javax.media.jai.operator.CropDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +43,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.*;
+import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getBandName;
+import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
 
 /**
  * Reader for SPOT VGT products.
@@ -110,6 +100,8 @@ public class SpotVgtProductReader extends AbstractProductReader {
                                       physVolDescriptor.getFormatReference(),
                                       targetWidth,
                                       targetHeight, this);
+        Dimension tileSize = JAIUtils.computePreferredTileSize(targetWidth, targetHeight, 1);
+        product.setPreferredTileSize(tileSize);
         product.setFileLocation(new File(virtualDir.getBasePath()));
         addGeoCoding(product, logVolDescriptor);
         addTimeCoding(product, logVolDescriptor);
@@ -153,7 +145,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
                                 try {
                                     ProductData data = readData(variable, bandDataType, sourceWidth, sourceHeight);
                                     RenderedOp dstImg = createScaledImage(targetWidth, targetHeight, sourceWidth,
-                                                                          sourceHeight, sampling, data);
+                                                                          sourceHeight, sampling, data, tileSize);
                                     Band band = addBand(product, bandDataType, bandInfo, netcdfFile, variable);
                                     band.setSourceImage(dstImg);
                                 } catch (IOException e) {
@@ -204,7 +196,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
     }
 
     private static RenderedOp createScaledImage(int targetWidth, int targetHeight, int sourceWidth, int sourceHeight,
-                                                int sourceSampling, ProductData data) {
+                                                int sourceSampling, ProductData data, Dimension tileSize) {
         int tempW = sourceWidth * sourceSampling + 1;
         int tempH = sourceHeight * sourceSampling + 1;
         float xScale = (float) tempW / (float) sourceWidth;
@@ -212,6 +204,9 @@ public class SpotVgtProductReader extends AbstractProductReader {
         RenderingHints renderingHints = new RenderingHints(JAI.KEY_BORDER_EXTENDER,
                                                            BorderExtender.createInstance(BorderExtender.BORDER_COPY));
         RenderedImage srcImg = ImageUtils.createRenderedImage(sourceWidth, sourceHeight, data);
+        ImageLayout imageLayout = new ImageLayout(0, 0, targetWidth, targetHeight,
+                0, 0, tileSize.width, tileSize.height, null, null);
+        renderingHints.put(JAI.KEY_IMAGE_LAYOUT, imageLayout);
         RenderedOp tempImg = ScaleDescriptor.create(srcImg, xScale, yScale,
                                                     -0.5f * sourceSampling + 1,
                                                     -0.5f * sourceSampling + 1,

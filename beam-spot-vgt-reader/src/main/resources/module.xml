@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-spot-vgt-reader</symbolicName>
-    <version>1.1</version>
+    <version>1.2</version>
     <name>BEAM SPOT VGT Product Reader</name>
 
     <description>Enables BEAM to read SPOT VGT data products.</description>
@@ -14,6 +14,8 @@
 
     <changelog>
         <![CDATA[
+                Changes in 1.2:<br>
+                [BEAM-1392] SPOT-VGT product fails in scatter plot between B0 and SZA<br/>
                 Changes in 1.1:<br>
                 [BEAM-1211] SPOT VGT reader parses product time using a locale timezone<br/>
                 [BEAM-1205] SPOT VGT reader down not treat unsigned bands correctly<br/>
