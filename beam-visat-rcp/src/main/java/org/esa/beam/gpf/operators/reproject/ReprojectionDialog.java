@@ -59,7 +59,7 @@ class ReprojectionDialog extends SingleTargetProductDialog {
                                                      parameterSupport,
                                                      helpID);
 
-        setMenuBar(operatorMenu.createDefaultMenu());
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
     }
 
     @Override

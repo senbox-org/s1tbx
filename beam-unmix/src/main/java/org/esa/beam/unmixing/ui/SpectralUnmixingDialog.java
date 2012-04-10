@@ -60,7 +60,7 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
                                                      parameterSupport,
                                                      HELP_ID);
 
-        setMenuBar(operatorMenu.createDefaultMenu());
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
     }
 
     private void updateEndmemberFormModel(Map<String, Object> parameterMap) {

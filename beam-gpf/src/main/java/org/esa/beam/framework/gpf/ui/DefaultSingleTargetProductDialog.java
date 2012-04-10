@@ -107,9 +107,9 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         ioParametersPanel.initSourceProductSelectors();
         if (form == null) {
             initForm();
-            if (getMenuBar() == null) {
+            if (getJDialog().getJMenuBar() == null) {
                 final OperatorMenu operatorMenu = createDefaultMenuBar();
-                setMenuBar(operatorMenu.createDefaultMenu());
+                getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
             }
         }
         setContent(form);

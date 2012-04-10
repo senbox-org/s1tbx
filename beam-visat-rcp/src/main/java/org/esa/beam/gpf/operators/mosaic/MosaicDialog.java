@@ -60,7 +60,7 @@ class MosaicDialog extends SingleTargetProductDialog {
                                                      operatorClass,
                                                      parameterSupport,
                                                      helpID);
-        setMenuBar(operatorMenu.createDefaultMenu());
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
     }
 
     @Override
