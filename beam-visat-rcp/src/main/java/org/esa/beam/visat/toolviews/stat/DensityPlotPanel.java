@@ -220,7 +220,7 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
 //         chart.addSubtitle(legend);
 
         densityPlotDisplay = new ChartPanel(chart);
-        densityPlotDisplay.getPopupMenu().add(new JSeparator());
+        densityPlotDisplay.getPopupMenu().addSeparator();
         densityPlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
         densityPlotDisplay.getPopupMenu().add(createMaskSelectionToolMenuItem());
 
@@ -252,6 +252,7 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
                 if (maskSelectionMenuItem.isSelected()) {
                     if (plotAreaSelectionTool == null) {
                         plotAreaSelectionTool = new PlotAreaSelectionTool(densityPlotDisplay, new CreateMaskAction());
+                        plotAreaSelectionTool.setAreaType(PlotAreaSelectionTool.AreaType.ELLIPSE);
                         plotAreaSelectionTool.install();
                     }
                 } else {
@@ -518,7 +519,7 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
                 availableBandList.add(grid.getName());
             }
         }
-        // if raster is only binded to the product and does not belong to it
+        // if raster is only bound to the product and does not belong to it
         final RasterDataNode raster = getRaster();
         if (raster != null && raster.getProduct() == product) {
             final String rasterName = raster.getName();
@@ -660,13 +661,13 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
 
     private class CreateMaskAction implements PlotAreaSelectionTool.Action {
         @Override
-        public void ellipseSelected(double x0, double y0, double rx, double ry) {
+        public void areaSelected(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
             Product product = getProduct();
             if (product == null) {
                 return;
             }
 
-            double rr = Math.sqrt(rx * rx + ry * ry);
+            double rr = Math.sqrt(dx * dx + dy * dy);
             String expression = String.format("distance(%s, %s, %s, %s) < %s",
                                               rasterNameParams[0].getValue(),
                                               rasterNameParams[1].getValue(),
@@ -681,7 +682,7 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
                 final int width = product.getSceneRasterWidth();
                 final int height = product.getSceneRasterHeight();
                 product.getMaskGroup().add(Mask.BandMathsType.create("density_plot_area",
-                                                                     "Density plot mask",
+                                                                     "Mask generated from selected density plot area",
                                                                      width, height,
                                                                      expression,
                                                                      Color.RED, 0.5));
