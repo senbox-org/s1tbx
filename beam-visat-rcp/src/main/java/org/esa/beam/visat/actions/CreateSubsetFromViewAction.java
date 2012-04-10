@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,12 +20,11 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.ui.product.ProductSubsetDialog;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.product.ProductSubsetDialog;
 import org.esa.beam.visat.VisatApp;
 
 import java.awt.*;
-import java.io.IOException;
 
 public class CreateSubsetFromViewAction extends ExecCommand {
 
@@ -71,10 +70,11 @@ public class CreateSubsetFromViewAction extends ExecCommand {
                                                                   sourceProduct.getDescription());
                 visatApp.getProductManager().addProduct(subset);
                 subsetNumber++;
-            } catch (IOException e) {
+            } catch (Exception e) {
                 visatApp.showInfoDialog(DIALOG_TITLE,
                                         "Unable to create the product subset because\n" + /*I18N*/
-                                                "an I/O error occures at creating the subset.",
+                                        "an error occures at creating the subset.\n" +
+                                        e.getMessage(),
                                         propertyName); /*I18N*/
             }
         }
