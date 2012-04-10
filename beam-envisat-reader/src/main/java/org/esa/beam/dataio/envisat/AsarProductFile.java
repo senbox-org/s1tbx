@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,15 +17,15 @@ package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.Debug;
+import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -767,7 +767,7 @@ public class AsarProductFile extends ProductFile {
     }
 
     private void processWSSImageRecordMetadata(Product product) {
-
+        BandLineReader[] lineReaders = getBandLineReaders();
         for (Band band : product.getBands()) {
 
             MetadataElement imgRecElem = product.getMetadataRoot().getElement("Image Record");
@@ -787,27 +787,34 @@ public class AsarProductFile extends ProductFile {
             final Record lineRecord = Record.create(recInfo);
 
             try {
-                final BandLineReader bandLineReader = getBandLineReader(band);
-                final RecordReader recReader = bandLineReader.getPixelDataReader();
-                final ImageInputStream istream = getDataInputStream();
-
-                final long datasetOffset = recReader.getDSD().getDatasetOffset();
-                final long recordSize = recReader.getDSD().getRecordSize();
-
-                final int height = band.getRasterHeight();
-                final double[] timeData = new double[height];
-                for (int y = 0; y < height; ++y) {
-
-                    istream.seek(datasetOffset + (y * recordSize));
-                    lineRecord.readFrom(istream);
-
-                    timeData[y] = ((ProductData.UTC) lineRecord.getFieldAt(0).getData()).getMJD();
+                BandLineReader bandLineReader = null;
+                for (BandLineReader lineReader : lineReaders) {
+                    if (lineReader.getBandName().equals(band.getName())) {
+                        bandLineReader = lineReader;
+                        break;
+                    }
                 }
+                if (bandLineReader != null) {
+                    final RecordReader recReader = bandLineReader.getPixelDataReader();
+                    final ImageInputStream istream = getDataInputStream();
 
-                final MetadataAttribute attribute = new MetadataAttribute("t", ProductData.TYPE_FLOAT64, height);
-                attribute.setDataElems(timeData);
-                bandElem.addAttributeFast(attribute);
+                    final long datasetOffset = recReader.getDSD().getDatasetOffset();
+                    final long recordSize = recReader.getDSD().getRecordSize();
 
+                    final int height = band.getRasterHeight();
+                    final double[] timeData = new double[height];
+                    for (int y = 0; y < height; ++y) {
+
+                        istream.seek(datasetOffset + (y * recordSize));
+                        lineRecord.readFrom(istream);
+
+                        timeData[y] = ((ProductData.UTC) lineRecord.getFieldAt(0).getData()).getMJD();
+                    }
+
+                    final MetadataAttribute attribute = new MetadataAttribute("t", ProductData.TYPE_FLOAT64, height);
+                    attribute.setDataElems(timeData);
+                    bandElem.addAttributeFast(attribute);
+                }
             } catch (IOException e) {
                 System.out.print("processWSSImageRecordMetadata " + e.toString());
             }

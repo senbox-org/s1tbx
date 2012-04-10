@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,8 +15,8 @@
  */
 package org.esa.beam.dataio.envisat;
 
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
+import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -148,10 +148,6 @@ public abstract class ProductFile {
      */
     private BandLineReader[] bandLineReaders;
 
-    /**
-     * A bandName --> bandReader map for the geophysical bands contained in this product.
-     */
-    private Map<Band, BandLineReader> _bandLineReaderMap;
     private String _productDescription;
 
     private final boolean lineInterleaved;
@@ -742,29 +738,6 @@ public abstract class ProductFile {
 
     protected BandLineReader[] createBandLineReaders() {
         return DDDB.getInstance().getBandLineReaders(this);
-    }
-
-    /**
-     * Gets a reader for the geophysical band.
-     *
-     * @param band the band
-     * @return the geophysical band reader, or <code>null</code> if this product doesn't support reading band data or if
-     *         the a band with the given name was not found
-     */
-    public synchronized BandLineReader getBandLineReader(final Band band) {
-        if (_bandLineReaderMap == null) {
-            _bandLineReaderMap = new java.util.Hashtable<Band, BandLineReader>();
-            BandLineReader[] bandLineReaders = getBandLineReaders();
-            final Product product = band.getProduct();
-            for (BandLineReader bandLineReader : bandLineReaders) {
-                final String bandName = bandLineReader.getBandName();
-                final Band key = product.getBand(bandName);
-                if (key != null) {
-                    _bandLineReaderMap.put(key, bandLineReader);
-                }
-            }
-        }
-        return _bandLineReaderMap.get(band);
     }
 
     /**
