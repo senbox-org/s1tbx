@@ -419,7 +419,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         }
     }
 
-    void invokeUpdateUI() {
+    private void invokeUpdateUI() {
         if (SwingUtilities.isEventDispatchThread()) {
             updateUI();
         } else {
@@ -433,9 +433,6 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     }
 
     void handleLayerContentChanged() {
-    }
-
-    void handleViewSelectionChanged() {
     }
 
     /**

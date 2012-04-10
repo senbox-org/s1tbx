@@ -54,9 +54,11 @@ abstract class TextPagePanel extends PagePanel {
 
     @Override
     protected void updateContent() {
-        ensureValidData();
-        textArea.setText(createText());
-        textArea.setCaretPosition(0);
+        if(isVisible()) {
+            ensureValidData();
+            textArea.setText(createText());
+            textArea.setCaretPosition(0);
+        }
     }
 
     protected void ensureValidData() {

@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.10<br/>
+          [BEAM-1123] Opened StatisticsDialog slows down performance of geometrc objects<br/>
           [BEAM-1385] Import images as products (missing RGB product reader)<br/>
           [BEAM-1384] Synchronise image views via geographical center coordinates<br/>
           [BEAM-1379] Log-scaled data and log-scaled display shall be independent<br/>
