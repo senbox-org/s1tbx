@@ -65,11 +65,7 @@ public class XYPlotMarker implements ChartMouseListener {
 
     @Override
     public void chartMouseClicked(ChartMouseEvent event) {
-        boolean overlayRemoved = false;
-        if (overlay != null) {
-            chartPanel.removeOverlay(overlay);
-            overlayRemoved = true;
-        }
+        boolean overlayRemoved = removeOverlay();
 
         xyDataset = null;
         seriesIndex = -1;
@@ -123,7 +119,6 @@ public class XYPlotMarker implements ChartMouseListener {
     @Override
     public void chartMouseMoved(ChartMouseEvent event) {
         updatePoint(event);
-
     }
 
     public interface Listener {
@@ -133,7 +128,22 @@ public class XYPlotMarker implements ChartMouseListener {
     }
 
     private void updatePoint(ChartMouseEvent event) {
-        if (xyDataset == null) {
+        if (xyDataset == null || xyDataset.getSeriesCount() == 0) {
+            if (removeOverlay()) {
+                // FIXME - exception here:
+
+                // listener.pointDeselected();
+
+                /*
+               Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
+                   at org.esa.beam.framework.ui.product.ProductSceneView.getRaster(ProductSceneView.java:511)
+                   at org.esa.beam.framework.ui.product.ProductSceneView.getProduct(ProductSceneView.java:468)
+                   at org.esa.beam.visat.toolviews.nav.CursorSynchronizer.removePPL(CursorSynchronizer.java:133)
+                   at org.esa.beam.visat.toolviews.nav.CursorSynchronizer.clearPsvOverlayMap(CursorSynchronizer.java:116)
+                   at org.esa.beam.visat.toolviews.nav.CursorSynchronizer.setEnabled(CursorSynchronizer.java:67)
+                   at org.esa.beam.visat.toolviews.stat.ProfilePlotPanel$3.pointDeselected(ProfilePlotPanel.java:211)
+                */
+            }
             return;
         }
 
@@ -165,6 +175,15 @@ public class XYPlotMarker implements ChartMouseListener {
                 break;
             }
         }
+    }
+
+    private boolean removeOverlay() {
+        if (overlay != null) {
+            chartPanel.removeOverlay(overlay);
+            overlay = null;
+            return true;
+        }
+        return false;
     }
 
     private class ShapeOverlay extends AbstractOverlay implements Overlay {
