@@ -57,9 +57,7 @@ import java.awt.geom.Point2D;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -449,7 +447,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
 
         placemarkTable.setEnabled(productSelected);
-        buttonPane.updateUIState(productSelected, numSelectedPins);
+        buttonPane.updateUIState(productSelected, placemarkTable.getRowCount(), numSelectedPins);
     }
 
     private void updatePlacemarkTableSelectionFromView() {
@@ -609,9 +607,9 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         return Collections.emptyList();
     }
 
-    void exportSelectedPlacemarks() {
+    void exportPlacemarks() {
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        fileChooser.setDialogTitle(MessageFormat.format("Export Selected {0}(s)",
+        fileChooser.setDialogTitle(MessageFormat.format("Export {0}(s)",
                                                         firstLetterUp(placemarkDescriptor.getRoleLabel())));   /*I18N*/
         setComponentName(fileChooser, "Export_Selected");
         fileChooser.addChoosableFileFilter(PlacemarkIO.createTextFileFilter());
@@ -635,7 +633,15 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 try {
                     if (beamFileFilter.getFormatName().equals(
                             PlacemarkIO.createPlacemarkFileFilter().getFormatName())) {
-                        PlacemarkIO.writePlacemarksFile(new FileWriter(file), getSelectedPlacemarks());
+
+                        int[] sortedRowIndexes = placemarkTable.getSelectedRows();
+                        final List<Placemark> placemarkList;
+                        if (sortedRowIndexes != null) {
+                            placemarkList = getSelectedPlacemarks();
+                        } else {
+                            placemarkList = Arrays.asList(placemarkTableModel.getPlacemarks());
+                        }
+                        PlacemarkIO.writePlacemarksFile(new FileWriter(file), placemarkList);
                     } else {
                         Writer writer = new FileWriter(file);
                         try {
@@ -995,7 +1001,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             if (layer instanceof VectorDataLayer) {
                 VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
                 if (vectorDataLayer.getVectorDataNode() == getProduct().getPinGroup().getVectorDataNode() ||
-                    vectorDataLayer.getVectorDataNode() == getProduct().getGcpGroup().getVectorDataNode()) {
+                        vectorDataLayer.getVectorDataNode() == getProduct().getGcpGroup().getVectorDataNode()) {
                     updateUIState();
                 }
             }
