@@ -25,11 +25,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
@@ -45,10 +41,14 @@ class CursorOverlay implements LayerCanvas.Overlay {
 
     private final ProductSceneView sceneView;
     private GeoPos geoPosition;
+    private BasicStroke cursorStroke;
+    private Color cursorColor;
 
     CursorOverlay(ProductSceneView sceneView, GeoPos geoPos) {
         this.sceneView = sceneView;
         geoPosition = geoPos;
+        cursorStroke = new BasicStroke(1F);
+        cursorColor = Color.WHITE;
     }
 
     public void setGeoPosition(GeoPos geoPosition) {
@@ -86,7 +86,8 @@ class CursorOverlay implements LayerCanvas.Overlay {
         Rectangle pixelImageRect = new Rectangle(centerPixel, new Dimension(1, 1));
 
         Rectangle2D pixelViewRect = i2vTransform.createTransformedShape(pixelImageRect).getBounds2D();
-        graphics.setColor(Color.WHITE);
+        graphics.setStroke(cursorStroke);
+        graphics.setColor(cursorColor);
         graphics.setXORMode(Color.BLACK);
         graphics.draw(pixelViewRect);
 
