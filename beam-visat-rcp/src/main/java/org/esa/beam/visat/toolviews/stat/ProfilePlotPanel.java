@@ -513,8 +513,8 @@ class ProfilePlotPanel extends PagePanel {
     private void updateScalingOfYAxis() {
         if ((Boolean) yAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getPropertyValue()) {
             ValueAxis oldAxis = chart.getXYPlot().getRangeAxis();
-            if (!(oldAxis instanceof LogarithmicAxis)) {
-                LogarithmicAxis logAxisX = new LogarithmicAxis(oldAxis.getLabel());
+            if (!(oldAxis instanceof CustomLogarithmicAxis)) {
+                CustomLogarithmicAxis logAxisX = new CustomLogarithmicAxis(oldAxis.getLabel());
                 logAxisX.setAllowNegativesFlag(true);
                 logAxisX.setLog10TickLabelsFlag(true);
                 logAxisX.setMinorTickCount(10);
@@ -522,7 +522,7 @@ class ProfilePlotPanel extends PagePanel {
             }
         } else {
             ValueAxis oldAxis = chart.getXYPlot().getRangeAxis();
-            if (oldAxis instanceof LogarithmicAxis) {
+            if (oldAxis instanceof CustomLogarithmicAxis) {
                 NumberAxis xAxis = new NumberAxis(oldAxis.getLabel());
                 chart.getXYPlot().setRangeAxis(xAxis);
             }
