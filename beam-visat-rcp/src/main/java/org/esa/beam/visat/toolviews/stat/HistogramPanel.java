@@ -23,7 +23,10 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.math.MathUtils;
@@ -44,8 +47,6 @@ import org.jfree.ui.RectangleInsets;
 import javax.media.jai.Histogram;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -213,6 +214,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {
+
+
         XYPlot plot = chart.getXYPlot();
 
         plot.setForegroundAlpha(0.85f);
@@ -220,32 +223,26 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
 
         ChartPanel chartPanel = new ChartPanel(chart);
+
+        MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
+                                                                                         chartPanel,
+                                                                                         "histogram_plot_area",
+                                                                                         "Mask generated from selected histogram plot area",
+                                                                                         Color.RED) {
+            @Override
+            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
+                return String.format("%s >= %s && %s <= %s",
+                                     getRaster().getName(),
+                                     x0,
+                                     getRaster().getName(),
+                                     x0 + dx);
+            }
+        };
+
         chartPanel.getPopupMenu().addSeparator();
         chartPanel.getPopupMenu().add(createCopyDataToClipboardMenuItem());
-        chartPanel.getPopupMenu().add(createMaskSelectionToolMenuItem(chartPanel));
+        chartPanel.getPopupMenu().add(maskSelectionToolSupport.createMenuItem(PlotAreaSelectionTool.AreaType.X_RANGE));
         return chartPanel;
-    }
-
-    private JCheckBoxMenuItem createMaskSelectionToolMenuItem(final ChartPanel chartPanel) {
-        final JCheckBoxMenuItem maskSelectionMenuItem = new JCheckBoxMenuItem("Mask Selection Mode");
-        maskSelectionMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (maskSelectionMenuItem.isSelected()) {
-                    if (plotAreaSelectionTool == null) {
-                        plotAreaSelectionTool = new PlotAreaSelectionTool(chartPanel, new CreateMaskAction());
-                        plotAreaSelectionTool.setAreaType(PlotAreaSelectionTool.AreaType.X_RANGE);
-                        plotAreaSelectionTool.install();
-                    }
-                } else {
-                    if (plotAreaSelectionTool != null) {
-                        plotAreaSelectionTool.uninstall();
-                        plotAreaSelectionTool = null;
-                    }
-                }
-            }
-        });
-        return maskSelectionMenuItem;
     }
 
     private void updateUIState() {
@@ -452,35 +449,6 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         }
 
         chart.getXYPlot().getDomainAxis().setLabel(getAxisLabel());
-    }
-
-    private class CreateMaskAction implements PlotAreaSelectionTool.Action {
-        @Override
-        public void areaSelected(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
-            Product product = getProduct();
-            if (product == null) {
-                return;
-            }
-
-            String expression = String.format("%s >= %s && %s <= %s",
-                                              getRaster().getName(),
-                                              x0,
-                                              getRaster().getName(),
-                                              x0 + dx);
-
-            final Mask magicWandMask = product.getMaskGroup().get("histogram_plot_area");
-            if (magicWandMask != null) {
-                magicWandMask.getImageConfig().setValue("expression", expression);
-            } else {
-                final int width = product.getSceneRasterWidth();
-                final int height = product.getSceneRasterHeight();
-                product.getMaskGroup().add(Mask.BandMathsType.create("histogram_plot_area",
-                                                                     "Mask generated from selected histogram plot area",
-                                                                     width, height,
-                                                                     expression,
-                                                                     Color.RED, 0.5));
-            }
-        }
     }
 }
 

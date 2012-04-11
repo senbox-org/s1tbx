@@ -171,6 +171,23 @@ class ProfilePlotPanel extends PagePanel {
         plot.setRenderer(deviationRenderer);
 
         profilePlotDisplay = new ChartPanel(chart);
+
+        MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
+                                                                                         profilePlotDisplay,
+                                                                                         "profile_plot_area",
+                                                                                         "Mask generated from selected profile plot area",
+                                                                                         Color.RED) {
+            @Override
+            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
+                return String.format("%s >= %s && %s <= %s",
+                                     getRaster().getName(),
+                                     y0,
+                                     getRaster().getName(),
+                                     y0 + dy);
+            }
+        };
+
+
         profilePlotDisplay.addChartMouseListener(new XYPlotMarker(profilePlotDisplay, new XYPlotMarker.Listener() {
             @Override
             public void pointSelected(XYDataset xyDataset, int seriesIndex, Point2D dataPoint) {
@@ -198,7 +215,9 @@ class ProfilePlotPanel extends PagePanel {
         profilePlotDisplay.setDismissDelay(1500);
         profilePlotDisplay.setReshowDelay(200);
         profilePlotDisplay.setZoomTriggerDistance(5);
+        profilePlotDisplay.getPopupMenu().addSeparator();
         profilePlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
+        profilePlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createMenuItem(PlotAreaSelectionTool.AreaType.Y_RANGE));
         final AxisChangeListener axisListener = new AxisChangeListener() {
             @Override
             public void axisChanged(AxisChangeEvent event) {
@@ -422,8 +441,8 @@ class ProfilePlotPanel extends PagePanel {
         }
 
         xAxisRangeControl.getBindingContext().setComponentsEnabled(PROPERTY_NAME_MARK_SEGMENTS,
-                profileData != null &&
-                        profileData.getShapeVertices().length > 2);
+                                                                   profileData != null &&
+                                                                           profileData.getShapeVertices().length > 2);
         xAxisRangeControl.setComponentsEnabled(profileData != null);
         yAxisRangeControl.setComponentsEnabled(profileData != null);
         adjustPlotAxes();

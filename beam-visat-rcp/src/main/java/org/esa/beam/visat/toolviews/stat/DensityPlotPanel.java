@@ -40,8 +40,6 @@ import org.jfree.ui.RectangleInsets;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -220,9 +218,27 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
 //         chart.addSubtitle(legend);
 
         densityPlotDisplay = new ChartPanel(chart);
+
+        MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
+                                                                                         densityPlotDisplay,
+                                                                                         "densitity_plot_area",
+                                                                                         "Mask generated from selected density plot area",
+                                                                                         Color.RED) {
+            @Override
+            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
+                double rr = Math.sqrt(dx * dx + dy * dy);
+                return String.format("distance(%s, %s, %s, %s) < %s",
+                                     rasterNameParams[0].getValue(),
+                                     rasterNameParams[1].getValue(),
+                                     x0,
+                                     y0,
+                                     rr);
+            }
+        };
+
         densityPlotDisplay.getPopupMenu().addSeparator();
         densityPlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
-        densityPlotDisplay.getPopupMenu().add(createMaskSelectionToolMenuItem());
+        densityPlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createMenuItem(PlotAreaSelectionTool.AreaType.ELLIPSE));
 
         final TableLayout rightPanelLayout = new TableLayout(1);
         final JPanel rightPanel = new JPanel(rightPanelLayout);
@@ -242,28 +258,6 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         add(rightPanel, BorderLayout.EAST);
 
         updateUIState();
-    }
-
-    private JCheckBoxMenuItem createMaskSelectionToolMenuItem() {
-        final JCheckBoxMenuItem maskSelectionMenuItem = new JCheckBoxMenuItem("Mask Selection Mode");
-        maskSelectionMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (maskSelectionMenuItem.isSelected()) {
-                    if (plotAreaSelectionTool == null) {
-                        plotAreaSelectionTool = new PlotAreaSelectionTool(densityPlotDisplay, new CreateMaskAction());
-                        plotAreaSelectionTool.setAreaType(PlotAreaSelectionTool.AreaType.ELLIPSE);
-                        plotAreaSelectionTool.install();
-                    }
-                } else {
-                    if (plotAreaSelectionTool != null) {
-                        plotAreaSelectionTool.uninstall();
-                        plotAreaSelectionTool = null;
-                    }
-                }
-            }
-        });
-        return maskSelectionMenuItem;
     }
 
     private RasterDataNode getRaster(int varIndex) {
@@ -657,37 +651,6 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         }
 
         return sb.toString();
-    }
-
-    private class CreateMaskAction implements PlotAreaSelectionTool.Action {
-        @Override
-        public void areaSelected(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
-            Product product = getProduct();
-            if (product == null) {
-                return;
-            }
-
-            double rr = Math.sqrt(dx * dx + dy * dy);
-            String expression = String.format("distance(%s, %s, %s, %s) < %s",
-                                              rasterNameParams[0].getValue(),
-                                              rasterNameParams[1].getValue(),
-                                              x0,
-                                              y0,
-                                              rr);
-
-            final Mask magicWandMask = product.getMaskGroup().get("density_plot_area");
-            if (magicWandMask != null) {
-                magicWandMask.getImageConfig().setValue("expression", expression);
-            } else {
-                final int width = product.getSceneRasterWidth();
-                final int height = product.getSceneRasterHeight();
-                product.getMaskGroup().add(Mask.BandMathsType.create("density_plot_area",
-                                                                     "Mask generated from selected density plot area",
-                                                                     width, height,
-                                                                     expression,
-                                                                     Color.RED, 0.5));
-            }
-        }
     }
 }
 

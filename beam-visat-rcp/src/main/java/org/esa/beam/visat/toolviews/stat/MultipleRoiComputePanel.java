@@ -178,6 +178,18 @@ class MultipleRoiComputePanel extends JPanel {
             maskNameSearchField.setListModel(maskNameListModel);
             maskNameList.setModel(maskNameSearchField.getDisplayListModel());
         } catch (Throwable e) {
+
+            /*
+            We catch everything here, because there seems to be a bug in the combination of
+            JIDE QuickListFilterField and FilteredCheckBoxList:
+
+             java.lang.IndexOutOfBoundsException: bitIndex < 0: -1
+             	at java.util.BitSet.get(BitSet.java:441)
+             	at javax.swing.DefaultListSelectionModel.clear(DefaultListSelectionModel.java:257)
+             	at javax.swing.DefaultListSelectionModel.setState(DefaultListSelectionModel.java:567)
+             	at javax.swing.DefaultListSelectionModel.removeIndexInterval(DefaultListSelectionModel.java:635)
+             	at com.jidesoft.list.CheckBoxListSelectionModelWithWrapper.removeIndexInterval(Unknown Source)
+             */
             Debug.trace(e);
         }
 
