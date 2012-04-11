@@ -561,8 +561,9 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     private void updateScalingOfXAxis() {
         if (scatterPlotModel.xAxisLogScaled) {
             ValueAxis oldAxis = plot.getDomainAxis();
-            if (!(oldAxis instanceof LogarithmicAxis)) {
-                LogarithmicAxis logAxisX = new LogarithmicAxis(oldAxis.getLabel());
+            if (!(oldAxis instanceof CustomLogarithmicAxis)) {
+                CustomLogarithmicAxis logAxisX = new CustomLogarithmicAxis(oldAxis.getLabel());
+//                LogarithmicAxis logAxisX = new MyLogarithmicAxis(oldAxis.getLabel());
                 logAxisX.setAllowNegativesFlag(true);
                 logAxisX.setLog10TickLabelsFlag(true);
                 logAxisX.setMinorTickCount(10);
@@ -570,20 +571,21 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
             }
         } else {
             ValueAxis oldAxis = plot.getDomainAxis();
-            if (oldAxis instanceof LogarithmicAxis) {
+            if (oldAxis instanceof CustomLogarithmicAxis) {
                 final NumberAxis numberAxis = createNumberAxis();
                 numberAxis.setLabel(oldAxis.getLabel());
                 plot.setDomainAxis(numberAxis);
             }
+            setAxisRanges(xAxisRangeControl, plot.getDomainAxis());
         }
-        setAxisRanges(xAxisRangeControl, plot.getDomainAxis());
+//        setAxisRanges(xAxisRangeControl, plot.getDomainAxis());
     }
 
     private void updateScalingOfYAxis() {
         if (scatterPlotModel.yAxisLogScaled) {
             ValueAxis oldAxis = plot.getRangeAxis();
-            if (!(oldAxis instanceof LogarithmicAxis)) {
-                LogarithmicAxis logAxisX = new LogarithmicAxis(oldAxis.getLabel());
+            if (!(oldAxis instanceof CustomLogarithmicAxis)) {
+                CustomLogarithmicAxis logAxisX = new CustomLogarithmicAxis(oldAxis.getLabel());
                 logAxisX.setAllowNegativesFlag(true);
                 logAxisX.setLog10TickLabelsFlag(true);
                 logAxisX.setAutoRange(yAxisRangeControl.isAutoMinMax());
@@ -592,7 +594,7 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
             }
         } else {
             ValueAxis oldAxis = plot.getRangeAxis();
-            if (oldAxis instanceof LogarithmicAxis) {
+            if (oldAxis instanceof CustomLogarithmicAxis) {
                 final NumberAxis numberAxis = createNumberAxis();
                 numberAxis.setLabel(oldAxis.getLabel());
                 plot.setRangeAxis(numberAxis);

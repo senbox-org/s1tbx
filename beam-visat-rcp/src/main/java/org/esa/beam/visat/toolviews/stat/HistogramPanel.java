@@ -433,8 +433,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
     private void updateXAxis() {
         if ((Boolean) xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getPropertyValue()) {
             ValueAxis oldDomainAxis = chart.getXYPlot().getDomainAxis();
-            if (!(oldDomainAxis instanceof LogarithmicAxis)) {
-                LogarithmicAxis logAxisX = new LogarithmicAxis("Values");
+            if (!(oldDomainAxis instanceof CustomLogarithmicAxis)) {
+                CustomLogarithmicAxis logAxisX = new CustomLogarithmicAxis("Values");
                 logAxisX.setAllowNegativesFlag(true);
                 logAxisX.setLog10TickLabelsFlag(true);
                 logAxisX.setMinorTickCount(10);
@@ -442,7 +442,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
             }
         } else {
             ValueAxis oldDomainAxis = chart.getXYPlot().getDomainAxis();
-            if (oldDomainAxis instanceof LogarithmicAxis) {
+            if (oldDomainAxis instanceof CustomLogarithmicAxis) {
                 NumberAxis xAxis = new NumberAxis("Values");
                 chart.getXYPlot().setDomainAxis(xAxis);
             }
