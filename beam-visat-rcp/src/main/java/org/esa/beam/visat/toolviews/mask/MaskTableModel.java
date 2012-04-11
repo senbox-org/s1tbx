@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -157,13 +157,20 @@ class MaskTableModel extends AbstractTableModel {
 
     void addMask(Mask mask) {
         getProduct().getMaskGroup().add(mask);
+        makeMaskVisible(mask);
         fireTableDataChanged();
     }
 
     public void addMask(Mask mask, int index) {
-        ProductNodeGroup<Mask> maskGroup = getProduct().getMaskGroup();
-        maskGroup.add(index, mask);
+        getProduct().getMaskGroup().add(index, mask);
+        makeMaskVisible(mask);
         fireTableDataChanged();
+    }
+
+    private void makeMaskVisible(Mask mask) {
+        if (visibleBand != null) {
+            visibleBand.getOverlayMaskGroup().add(mask);
+        }
     }
 
     void removeMask(Mask mask) {
