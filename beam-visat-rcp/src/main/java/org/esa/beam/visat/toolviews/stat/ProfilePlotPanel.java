@@ -544,6 +544,12 @@ class ProfilePlotPanel extends PagePanel {
     }
 
     @Override
+    public void setVisible(boolean aFlag) {
+        super.setVisible(aFlag);
+        updateContent();
+    }
+
+    @Override
     protected String getDataAsText() {
         try {
             return StatisticsUtils.TransectProfile.createTransectProfileText(getRaster());
