@@ -441,7 +441,24 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
                 plot.setNotify(savedNotify);
             }
         };
+
+        MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
+                                                                                         scatterPlotDisplay,
+                                                                                         "scatter_plot_area",
+                                                                                         "Mask generated from selected scatter plot area",
+                                                                                         Color.RED) {
+            @Override
+            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
+                return String.format("%s >= %s && %s <= %s",
+                                     getRaster().getName(),
+                                     x0,
+                                     getRaster().getName(),
+                                     x0 + dx);
+            }
+        };
+        scatterPlotDisplay.getPopupMenu().addSeparator();
         scatterPlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
+        scatterPlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createMenuItem(PlotAreaSelectionTool.AreaType.X_RANGE));
 
         // UI arrangement
 
