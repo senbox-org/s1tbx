@@ -18,8 +18,8 @@ import java.util.List;
  *         Time: 21:06
  */
 public class CustomLogarithmicAxis extends LogarithmicAxis {
-    private static final int VERTICAL = 0;
-    private static final int HORIZONTAL = 1;
+    static final int VERTICAL = 0;
+    static final int HORIZONTAL = 1;
 
     /**
      * Creates a new axis.
@@ -40,7 +40,7 @@ public class CustomLogarithmicAxis extends LogarithmicAxis {
         return refreshTicks(edge, VERTICAL);
     }
 
-    private List refreshTicks(RectangleEdge edge, int mode) {
+    List refreshTicks(RectangleEdge edge, int mode) {
         // a much simpler approach compared to LogarithmicAxis...
 
         List ticks = new java.util.ArrayList();
@@ -66,7 +66,6 @@ public class CustomLogarithmicAxis extends LogarithmicAxis {
         //get log10 version of lower bound and round to integer:
         int iBegCount;
         if (lowerBoundVal == SMALL_LOG_VALUE) {
-//            iBegCount = iEndCount - 1;
             iBegCount = iEndCount - 3;
         } else {
             iBegCount = (int) Math.floor(Math.log10(lowerBoundVal));
@@ -74,13 +73,12 @@ public class CustomLogarithmicAxis extends LogarithmicAxis {
 
         String tickLabel;
         for (int i = iBegCount; i <= iEndCount; i++) {
-            //for each tick with a label to be displayed
-            int jEndCount = 10;
+            int jEndCount = 9;
             if (i == iEndCount) {
                 if (iEndCount == 0) {
-                    jEndCount = (int) Math.floor(upperBoundVal);
+                    jEndCount = (int) Math.abs(Math.floor(upperBoundVal));
                 } else {
-                    jEndCount = (int) Math.floor(upperBoundVal / (iEndCount * 10));
+                    jEndCount = (int) (upperBoundVal / Math.pow(10.0, iEndCount));
                 }
             }
 
@@ -98,31 +96,37 @@ public class CustomLogarithmicAxis extends LogarithmicAxis {
                     tickLabel = "";
                 }
 
-                if (tickVal > upperBoundVal) {
-                    return ticks;  //if past highest data value then exit method
-                }
-
-                switch (mode) {
-                    case VERTICAL:
-                        if (NEGATIVE) {
-                            addVerticalTicks(edge, ticks, -upperBoundVal, tickLabel, tickVal);
-                        } else {
-                            addVerticalTicks(edge, ticks, lowerBoundVal, tickLabel, tickVal);
-                        }
-                        break;
-                    case HORIZONTAL:
-                        if (NEGATIVE) {
-                            addHorizontalTicks(edge, ticks, -upperBoundVal, tickLabel, tickVal);
-                        } else {
-                            addHorizontalTicks(edge, ticks, lowerBoundVal, tickLabel, tickVal);
-                        }
-                        break;
-                    default:
-                        throw new IllegalStateException("Illegal axis orientation - cannot add ticks");
+                if (tickValInRange(lowerBoundVal, upperBoundVal, tickVal, NEGATIVE)) {
+                    switch (mode) {
+                        case VERTICAL:
+                            if (NEGATIVE) {
+                                addVerticalTicks(edge, ticks, -upperBoundVal, tickLabel, tickVal);
+                            } else {
+                                addVerticalTicks(edge, ticks, lowerBoundVal, tickLabel, tickVal);
+                            }
+                            break;
+                        case HORIZONTAL:
+                            if (NEGATIVE) {
+                                addHorizontalTicks(edge, ticks, -upperBoundVal, tickLabel, tickVal);
+                            } else {
+                                addHorizontalTicks(edge, ticks, lowerBoundVal, tickLabel, tickVal);
+                            }
+                            break;
+                        default:
+                            throw new IllegalStateException("Illegal axis orientation - cannot add ticks");
+                    }
                 }
             }
         }
         return ticks;
+    }
+
+    private boolean tickValInRange(double lowerBoundVal, double upperBoundVal, double tickVal, boolean negative) {
+        if (negative) {
+            return (-upperBoundVal <= tickVal && -lowerBoundVal >= tickVal);
+        } else {
+            return (lowerBoundVal <= tickVal && upperBoundVal >= tickVal);
+        }
     }
 
     private void addHorizontalTicks(RectangleEdge edge, List ticks, double lowerBoundVal, String tickLabel, double tickVal) {
@@ -149,8 +153,7 @@ public class CustomLogarithmicAxis extends LogarithmicAxis {
                 }
             }
 
-            ticks.add(new NumberTick(new Double(tickVal),
-                                     tickLabel, anchor, rotationAnchor, angle));
+            ticks.add(new NumberTick(new Double(tickVal), tickLabel, anchor, rotationAnchor, angle));
         }
     }
 
@@ -180,8 +183,7 @@ public class CustomLogarithmicAxis extends LogarithmicAxis {
                 }
             }
             //create tick object and add to list:
-            ticks.add(new NumberTick(new Double(tickVal), tickLabel,
-                                     anchor, rotationAnchor, angle));
+            ticks.add(new NumberTick(new Double(tickVal), tickLabel, anchor, rotationAnchor, angle));
         }
     }
 }

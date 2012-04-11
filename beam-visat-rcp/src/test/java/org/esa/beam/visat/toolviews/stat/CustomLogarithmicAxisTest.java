@@ -1,0 +1,129 @@
+package org.esa.beam.visat.toolviews.stat;
+
+import org.jfree.ui.RectangleEdge;
+import org.junit.Test;
+
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+/**
+ * Date: 11.04.12
+ * Time: 13:18
+ *
+ * @author olafd
+ */
+public class CustomLogarithmicAxisTest {
+
+    @Test
+    public void testRefreshTicks() throws Exception {
+        CustomLogarithmicAxis testAxis = new CustomLogarithmicAxis("testAxis");
+
+        // axis range includes 3 power of 10 values: 1, 10, 100
+        testAxis.setRange(0.3, 300.0);
+        List ticks = testAxis.refreshTicks(RectangleEdge.TOP, CustomLogarithmicAxis.HORIZONTAL);
+        assertNotNull(ticks);
+        assertEquals(28, ticks.size());
+        // we expect labels at the power of 10 values only
+        assertEquals("", ticks.get(0).toString());
+        assertEquals("", ticks.get(1).toString());
+        assertEquals("1", ticks.get(7).toString());
+        assertEquals("", ticks.get(9).toString());
+        assertEquals("10", ticks.get(16).toString());
+        assertEquals("", ticks.get(18).toString());
+        assertEquals("100", ticks.get(25).toString());
+        assertEquals("", ticks.get(26).toString());
+
+        // axis range includes 2 power of 10 values: 1, 10
+        testAxis.setRange(0.3, 30.0);
+        ticks = testAxis.refreshTicks(RectangleEdge.TOP, CustomLogarithmicAxis.HORIZONTAL);
+        assertNotNull(ticks);
+        assertEquals(19, ticks.size());
+        // we expect labels at the power of 10 values only
+        assertEquals("", ticks.get(0).toString());
+        assertEquals("", ticks.get(1).toString());
+        assertEquals("1", ticks.get(7).toString());
+        assertEquals("", ticks.get(9).toString());
+        assertEquals("10", ticks.get(16).toString());
+        assertEquals("", ticks.get(18).toString());
+
+        // axis range includes 1 power of 10 values: 1
+        testAxis.setRange(0.3, 3.0);
+        ticks = testAxis.refreshTicks(RectangleEdge.TOP, CustomLogarithmicAxis.HORIZONTAL);
+        assertNotNull(ticks);
+        assertEquals(10, ticks.size());
+        // we expect labels at every tick!
+        assertEquals("0,3", ticks.get(0).toString());
+        assertEquals("0,4", ticks.get(1).toString());
+        assertEquals("0,5", ticks.get(2).toString());
+        assertEquals("0,6", ticks.get(3).toString());
+        assertEquals("0,7", ticks.get(4).toString());
+        assertEquals("0,8", ticks.get(5).toString());
+        assertEquals("0,9", ticks.get(6).toString());
+        assertEquals("1", ticks.get(7).toString());
+        assertEquals("2", ticks.get(8).toString());
+        assertEquals("3", ticks.get(9).toString());
+
+        // axis range includes no power of 10 values
+        testAxis.setRange(0.3, 0.8);
+        ticks = testAxis.refreshTicks(RectangleEdge.TOP, CustomLogarithmicAxis.HORIZONTAL);
+        assertNotNull(ticks);
+        assertEquals(6, ticks.size());
+        // we expect labels at every tick!
+        assertEquals("0,3", ticks.get(0).toString());
+        assertEquals("0,4", ticks.get(1).toString());
+        assertEquals("0,5", ticks.get(2).toString());
+        assertEquals("0,6", ticks.get(3).toString());
+        assertEquals("0,7", ticks.get(4).toString());
+        assertEquals("0,8", ticks.get(5).toString());
+    }
+
+    @Test
+    public void testRefreshTicksForNegativeAxisRange() throws Exception {
+        CustomLogarithmicAxis testAxis = new CustomLogarithmicAxis("testAxis");
+        testAxis.setRange(-300, -3);
+        List ticks = testAxis.refreshTicks(RectangleEdge.TOP, CustomLogarithmicAxis.HORIZONTAL);
+        assertNotNull(ticks);
+        assertEquals(19, ticks.size());
+        // we expect labels at the power of 10 values only
+        assertEquals("", ticks.get(0).toString());
+        assertEquals("", ticks.get(1).toString());
+        assertEquals("-10", ticks.get(7).toString());
+        assertEquals("", ticks.get(9).toString());
+        assertEquals("-100", ticks.get(16).toString());
+        assertEquals("", ticks.get(18).toString());
+    }
+
+    @Test
+    public void testRefreshTicksForInvalidAxisRange() throws Exception {
+        CustomLogarithmicAxis testAxis = new CustomLogarithmicAxis("testAxis");
+        // axis range maximum/minimum switched
+        try {
+            testAxis.setRange(30, 3);
+        } catch (IllegalArgumentException expected) {
+            assertEquals("Range(double, double): require lower (30.0) <= upper (3.0).", expected.getMessage());
+        }
+
+        // axis range includes zero
+        testAxis.setRange(-30, 30);
+        List ticks = testAxis.refreshTicks(RectangleEdge.TOP, CustomLogarithmicAxis.HORIZONTAL);
+        assertNotNull(ticks);
+        assertEquals(0, ticks.size());
+    }
+
+    @Test
+    public void testRefreshTicksVerticalAxisOrientation() throws Exception {
+        CustomLogarithmicAxis testAxis = new CustomLogarithmicAxis("testAxis");
+        testAxis.setRange(-300, -3);
+        List ticks = testAxis.refreshTicks(RectangleEdge.LEFT, CustomLogarithmicAxis.VERTICAL);
+        assertNotNull(ticks);
+        assertEquals(19, ticks.size());
+        assertEquals("", ticks.get(0).toString());
+        assertEquals("", ticks.get(1).toString());
+        assertEquals("-10", ticks.get(7).toString());
+        assertEquals("", ticks.get(9).toString());
+        assertEquals("-100", ticks.get(16).toString());
+        assertEquals("", ticks.get(18).toString());
+    }
+}
