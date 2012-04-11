@@ -529,6 +529,19 @@ class ProfilePlotPanel extends PagePanel {
         }
     }
 
+    @Override
+    public void nodeAdded(ProductNodeEvent event) {
+        if (event.getSourceNode() instanceof VectorDataNode) {
+            updateContent();
+        }
+    }
+
+    @Override
+    public void nodeRemoved(ProductNodeEvent event) {
+        if (event.getSourceNode() instanceof VectorDataNode) {
+            updateContent();
+        }
+    }
 
     @Override
     protected String getDataAsText() {
