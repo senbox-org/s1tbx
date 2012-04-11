@@ -275,7 +275,28 @@ public class Product extends ProductNode {
         };
         this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "indexCodingGroup", true);
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
-        this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
+        this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true) {
+            @Override
+            public boolean add(Mask mask) {
+                updateDescription(mask);
+                return super.add(mask);
+            }
+
+            @Override
+            public void add(int index, Mask mask) {
+                updateDescription(mask);
+                super.add(index, mask);
+            }
+
+            private void updateDescription(Mask mask) {
+                if (StringUtils.isNullOrEmpty(mask.getDescription())) {
+                    if (mask.getImageType() == Mask.BandMathsType.INSTANCE) {
+                        String expression = Mask.BandMathsType.getExpression(mask);
+                        mask.setDescription(getSuitableBitmaskDefDescription(expression));
+                    }
+                }
+            }
+        };
 
         setModified(false);
 
@@ -1864,9 +1885,8 @@ public class Product extends ProductNode {
         return true;
     }
 
-    private String getSuitableBitmaskDefDescription(final BitmaskDef bitmaskDef) {
+    private String getSuitableBitmaskDefDescription(final String expr) {
 
-        final String expr = bitmaskDef.getExpr();
         if (StringUtils.isNullOrEmpty(expr)) {
             return null;
         }
@@ -2231,7 +2251,7 @@ public class Product extends ProductNode {
     @Deprecated
     public void addBitmaskDef(final BitmaskDef bitmaskDef) {
         if (StringUtils.isNullOrEmpty(bitmaskDef.getDescription())) {
-            final String defaultDescription = getSuitableBitmaskDefDescription(bitmaskDef);
+            final String defaultDescription = getSuitableBitmaskDefDescription(bitmaskDef.getExpr());
             bitmaskDef.setDescription(defaultDescription);
         }
         bitmaskDefGroup.add(bitmaskDef);
