@@ -19,7 +19,7 @@ import java.awt.geom.Rectangle2D;
 /**
  * @author Norman Fomferra
  */
-public class PlotAreaSelectionTool extends MouseAdapter {
+class PlotAreaSelectionTool extends MouseAdapter {
     public enum AreaType {
         /**
          * Shape is an instance of {@link Rectangle2D}, only X-coordinates are valid.
