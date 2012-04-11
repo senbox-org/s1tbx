@@ -307,8 +307,8 @@ public class PlacemarkDialog extends ModalDialog {
         // prevent that geoPos change updates pixelPos and vice versa during dialog creation
         dialog.adjusting = true;
         dialog.setPixelPos(placemark.getPixelPos());
-        final boolean hasGeoCoding = product.getGeoCoding() != null;
-        dialog.setGeoPos(hasGeoCoding ? placemark.getGeoPos() : new GeoPos(Float.NaN, Float.NaN));
+        GeoPos geoPos = placemark.getGeoPos();
+        dialog.setGeoPos(geoPos != null ? geoPos : new GeoPos(Float.NaN, Float.NaN));
         dialog.adjusting = false;
         dialog.setStyleCss(placemark.getStyleCss());
         boolean ok = (dialog.show() == ID_OK);
