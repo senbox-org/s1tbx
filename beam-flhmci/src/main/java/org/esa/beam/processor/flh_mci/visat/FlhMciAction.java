@@ -2,6 +2,7 @@ package org.esa.beam.processor.flh_mci.visat;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.binding.BindingContext;
 import org.esa.beam.framework.gpf.ui.DefaultSingleTargetProductDialog;
@@ -15,7 +16,7 @@ import java.beans.PropertyChangeListener;
 
 public class FlhMciAction extends AbstractVisatAction {
 
-    private Presets preset = Presets.NONE;
+    private Presets preset;
 
     @Override
     public void actionPerformed(CommandEvent event) {
@@ -28,6 +29,8 @@ public class FlhMciAction extends AbstractVisatAction {
                                                                                              title, helpID);
         final BindingContext bindingContext = dialog.getBindingContext();
         final PropertySet presetPropertySet = PropertyContainer.createObjectBacked(this);
+        PropertyDescriptor presetDescriptor = presetPropertySet.getDescriptor("preset");
+        presetDescriptor.setDefaultValue(Presets.NONE);
 
         // awkward - add 'preset' property at the first position of the binding context's property set
         final PropertySet propertySet = bindingContext.getPropertySet();
