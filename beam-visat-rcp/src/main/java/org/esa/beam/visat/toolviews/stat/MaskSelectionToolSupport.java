@@ -18,10 +18,12 @@ package org.esa.beam.visat.toolviews.stat;
 
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.jfree.chart.ChartPanel;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JCheckBoxMenuItem;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -77,20 +79,26 @@ abstract class MaskSelectionToolSupport implements PlotAreaSelectionTool.Action 
 
         String expression = createMaskExpression(areaType, x0, y0, dx, dy);
 
-        final Mask magicWandMask = product.getMaskGroup().get(maskName);
+        Mask magicWandMask = product.getMaskGroup().get(maskName);
         if (magicWandMask != null) {
             magicWandMask.getImageConfig().setValue("expression", expression);
         } else {
             final int width = product.getSceneRasterWidth();
             final int height = product.getSceneRasterHeight();
-            product.getMaskGroup().add(Mask.BandMathsType.create(maskName,
-                                                                 maskDescription,
-                                                                 width, height,
-                                                                 expression,
-                                                                 maskColor, 0.5));
+            magicWandMask = Mask.BandMathsType.create(maskName,
+                                                      maskDescription,
+                                                      width, height,
+                                                      expression,
+                                                      maskColor, 0.5);
+            product.getMaskGroup().add(magicWandMask);
         }
-
-
+        RasterDataNode raster = pagePanel.getRaster();
+        if (raster != null) {
+            ProductNodeGroup<Mask> overlayMaskGroup = raster.getOverlayMaskGroup();
+            if (!overlayMaskGroup.contains(magicWandMask)) {
+                overlayMaskGroup.add(magicWandMask);
+            }
+        }
     }
 
     protected abstract String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy);
