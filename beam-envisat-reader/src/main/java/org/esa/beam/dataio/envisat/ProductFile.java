@@ -29,6 +29,7 @@ import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -446,6 +447,9 @@ public abstract class ProductFile {
      */
     public abstract Mask[] createDefaultMasks(String flagDsName);
 
+    protected Mask mask(String name, String description, String expression, Color green, float transparency) {
+        return Mask.BandMathsType.create(name, description, getSceneRasterWidth(), getSceneRasterHeight(), expression, green, transparency);
+    }
 
     /**
      * Gets the seekable data input stream used to read data from the product file.

@@ -403,20 +403,12 @@ public class AatsrProductFile extends ProductFile {
 
         ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
         if (product.containsBand(nadirBand)) {
-            maskGroup.add(Mask.BandMathsType.create("fire_nadir_1", "ATSR active fire (ALGO1)",
-                                                    getSceneRasterWidth(), getSceneRasterHeight(), nadirBand + " > 312.0",
-                                                    Color.RED, 0.5f));
-            maskGroup.add(Mask.BandMathsType.create("fire_nadir_2", "ATSR active fire (ALGO2)",
-                                                    getSceneRasterWidth(), getSceneRasterHeight(), nadirBand + " > 308.0",
-                                                    Color.RED.darker(), 0.5f));
+            maskGroup.add(mask("fire_nadir_1", "ATSR active fire (ALGO1)", nadirBand + " > 312.0", Color.RED, 0.5f));
+            maskGroup.add(mask("fire_nadir_2", "ATSR active fire (ALGO2)", nadirBand + " > 308.0", Color.RED.darker(), 0.5f));
         }
         if (product.containsBand(fwardBand)) {
-            maskGroup.add(Mask.BandMathsType.create("fire_fward_1", "ATSR active fire (ALGO1)",
-                                                    getSceneRasterWidth(), getSceneRasterHeight(), fwardBand + " > 312.0",
-                                                    Color.RED, 0.5f));
-            maskGroup.add(Mask.BandMathsType.create("fire_fward_2", "ATSR active fire (ALGO2)",
-                                                    getSceneRasterWidth(), getSceneRasterHeight(), fwardBand + " > 308.0",
-                                                    Color.RED.darker(), 0.5f));
+            maskGroup.add(mask("fire_fward_1", "ATSR active fire (ALGO1)", fwardBand + " > 312.0", Color.RED, 0.5f));
+            maskGroup.add(mask("fire_fward_2", "ATSR active fire (ALGO2)", fwardBand + " > 308.0", Color.RED.darker(), 0.5f));
         }
     }
 
@@ -454,73 +446,55 @@ public class AatsrProductFile extends ProductFile {
 
     private Mask[] createL1bCloudBMDs(String prefix, String dsName) {
         return new Mask[]{
-                Mask.BandMathsType.create(mkBMDNm(prefix, "LAND"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".LAND", Color.green, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "CLOUDY"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".CLOUDY", Color.cyan, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "SUN_GLINT"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".SUN_GLINT", Color.yellow, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "CLOUDY_REFL_HIST"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".CLOUDY_REFL_HIST", Color.orange,
-                                          0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "CLOUDY_SPAT_COHER_16"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".CLOUDY_SPAT_COHER_16",
-                                          Color.red,
-                                          0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "CLOUDY_SPAT_COHER_11"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".CLOUDY_SPAT_COHER_11",
-                                          Color.blue,
-                                          0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "CLOUDY_GROSS_12"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".CLOUDY_GROSS_12", Color.magenta,
-                                          0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "CLOUDY_CIRRUS_11_12"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".CLOUDY_CIRRUS_11_12",
-                                          Color.pink,
-                                          0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "CLOUDY_MED_HI_LEVEL_37_12"), null,
-                                          getSceneRasterWidth(), getSceneRasterHeight(),
-                                          dsName + ".CLOUDY_MED_HI_LEVEL_37_12",
-                                          Color.yellow, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "CLOUDY_FOG_LOW_STRATUS_11_37"), null, getSceneRasterWidth(), getSceneRasterHeight(),
-                                          dsName + ".CLOUDY_FOG_LOW_STRATUS_11_37", Color.orange, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "CLOUDY_VW_DIFF_11_12"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".CLOUDY_VW_DIFF_11_12",
-                                          Color.red,
-                                          0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "CLOUDY_VW_DIFF_37_11"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".CLOUDY_VW_DIFF_37_11",
-                                          Color.green, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "CLOUDY_THERM_HIST_11_12"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".CLOUDY_THERM_HIST_11_12",
-                                          Color.blue, 0.5F)
+                mask(mkBMDNm(prefix, "LAND"), null, dsName + ".LAND", Color.green, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY"), null, dsName + ".CLOUDY", Color.cyan, 0.5F),
+                mask(mkBMDNm(prefix, "SUN_GLINT"), null, dsName + ".SUN_GLINT", Color.yellow, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_REFL_HIST"), null, dsName + ".CLOUDY_REFL_HIST", Color.orange, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_SPAT_COHER_16"), null, dsName + ".CLOUDY_SPAT_COHER_16", Color.red, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_SPAT_COHER_11"), null, dsName + ".CLOUDY_SPAT_COHER_11", Color.blue, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_GROSS_12"), null, dsName + ".CLOUDY_GROSS_12", Color.magenta, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_CIRRUS_11_12"), null, dsName + ".CLOUDY_CIRRUS_11_12", Color.pink, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_MED_HI_LEVEL_37_12"), null, dsName + ".CLOUDY_MED_HI_LEVEL_37_12", Color.yellow, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_FOG_LOW_STRATUS_11_37"), null, dsName + ".CLOUDY_FOG_LOW_STRATUS_11_37", Color.orange, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_VW_DIFF_11_12"), null, dsName + ".CLOUDY_VW_DIFF_11_12", Color.red, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_VW_DIFF_37_11"), null, dsName + ".CLOUDY_VW_DIFF_37_11", Color.green, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_THERM_HIST_11_12"), null, dsName + ".CLOUDY_THERM_HIST_11_12", Color.blue, 0.5F)
         };
     }
 
     private Mask[] createL1bConfidBMDs(String prefix, String dsName) {
         return new Mask[]{
-                Mask.BandMathsType.create(mkBMDNm(prefix, "BLANKING"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".BLANKING", Color.red, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "COSMETIC"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".COSMETIC", Color.yellow, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "SCAN_ABSENT"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".SCAN_ABSENT", Color.orange, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "ABSENT"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".ABSENT", Color.green, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "NOT_DECOMPR"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".NOT_DECOMPR", Color.blue, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "NO_SIGNAL"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".NO_SIGNAL", Color.magenta, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "SATURATION"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".SATURATION", Color.green, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "OUT_OF_RANGE"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".OUT_OF_RANGE", Color.red, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "NO_CALIB_PARAM"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".NO_CALIB_PARAM", Color.cyan, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm(prefix, "UNFILLED"), null, getSceneRasterWidth(), getSceneRasterHeight(), dsName + ".UNFILLED", Color.yellow, 0.5F)
+                mask(mkBMDNm(prefix, "BLANKING"), null, dsName + ".BLANKING", Color.red, 0.5F),
+                mask(mkBMDNm(prefix, "COSMETIC"), null, dsName + ".COSMETIC", Color.yellow, 0.5F),
+                mask(mkBMDNm(prefix, "SCAN_ABSENT"), null, dsName + ".SCAN_ABSENT", Color.orange, 0.5F),
+                mask(mkBMDNm(prefix, "ABSENT"), null, dsName + ".ABSENT", Color.green, 0.5F),
+                mask(mkBMDNm(prefix, "NOT_DECOMPR"), null, dsName + ".NOT_DECOMPR", Color.blue, 0.5F),
+                mask(mkBMDNm(prefix, "NO_SIGNAL"), null, dsName + ".NO_SIGNAL", Color.magenta, 0.5F),
+                mask(mkBMDNm(prefix, "SATURATION"), null, dsName + ".SATURATION", Color.green, 0.5F),
+                mask(mkBMDNm(prefix, "OUT_OF_RANGE"), null, dsName + ".OUT_OF_RANGE", Color.red, 0.5F),
+                mask(mkBMDNm(prefix, "NO_CALIB_PARAM"), null, dsName + ".NO_CALIB_PARAM", Color.cyan, 0.5F),
+                mask(mkBMDNm(prefix, "UNFILLED"), null, dsName + ".UNFILLED", Color.yellow, 0.5F)
         };
     }
 
     private Mask[] createL2BMDs() {
         return new Mask[]{
-                Mask.BandMathsType.create(mkBMDNm("LAND"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.LAND", Color.green, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("WATER"), null, getSceneRasterWidth(), getSceneRasterHeight(), "!flags.LAND AND !(flags.NADIR_CLOUD OR flags.FWARD_CLOUD)",
-                                          Color.blue, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("CLOUD"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.NADIR_CLOUD OR flags.FWARD_CLOUD", Color.cyan, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("NADIR_CLOUD"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.NADIR_CLOUD", Color.cyan, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("NADIR_BLANKING"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.NADIR_BLANKING", Color.orange, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("NADIR_COSMETIC"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.NADIR_COSMETIC", Color.red, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("FWARD_CLOUD"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.FWARD_CLOUD", Color.cyan, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("FWARD_BLANKING"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.FWARD_BLANKING", Color.orange, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("FWARD_COSMETIC"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.FWARD_COSMETIC", Color.red, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("CLOUDY_16_MY"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.CLOUDY_16_MY", Color.cyan, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("CLOUDY_11_12_MY"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.CLOUDY_11_12_MY", Color.cyan, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("CLOUDY_HISTO"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.CLOUDY_HISTO", Color.cyan, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("NADIR_SST_ONLY_VALID"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.NADIR_SST_ONLY_VALID", Color.red, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("NADIR_SST_ONLY_37_MY_VALID"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.NADIR_SST_ONLY_37_MY_VALID",
-                                          Color.orange, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("DUAL_SST_VALID"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.DUAL_SST_VALID", Color.red, 0.5F),
-                Mask.BandMathsType.create(mkBMDNm("DUAL_SST_VALID_37_MY"), null, getSceneRasterWidth(), getSceneRasterHeight(), "flags.DUAL_SST_VALID_37_MY", Color.orange, 0.5F)
+                mask(mkBMDNm("LAND"), null, "flags.LAND", Color.green, 0.5F),
+                mask(mkBMDNm("WATER"), null, "!flags.LAND AND !(flags.NADIR_CLOUD OR flags.FWARD_CLOUD)", Color.blue, 0.5F),
+                mask(mkBMDNm("CLOUD"), null, "flags.NADIR_CLOUD OR flags.FWARD_CLOUD", Color.cyan, 0.5F),
+                mask(mkBMDNm("NADIR_CLOUD"), null, "flags.NADIR_CLOUD", Color.cyan, 0.5F),
+                mask(mkBMDNm("NADIR_BLANKING"), null, "flags.NADIR_BLANKING", Color.orange, 0.5F),
+                mask(mkBMDNm("NADIR_COSMETIC"), null, "flags.NADIR_COSMETIC", Color.red, 0.5F),
+                mask(mkBMDNm("FWARD_CLOUD"), null, "flags.FWARD_CLOUD", Color.cyan, 0.5F),
+                mask(mkBMDNm("FWARD_BLANKING"), null, "flags.FWARD_BLANKING", Color.orange, 0.5F),
+                mask(mkBMDNm("FWARD_COSMETIC"), null, "flags.FWARD_COSMETIC", Color.red, 0.5F),
+                mask(mkBMDNm("CLOUDY_16_MY"), null, "flags.CLOUDY_16_MY", Color.cyan, 0.5F),
+                mask(mkBMDNm("CLOUDY_11_12_MY"), null, "flags.CLOUDY_11_12_MY", Color.cyan, 0.5F),
+                mask(mkBMDNm("CLOUDY_HISTO"), null, "flags.CLOUDY_HISTO", Color.cyan, 0.5F),
+                mask(mkBMDNm("NADIR_SST_ONLY_VALID"), null, "flags.NADIR_SST_ONLY_VALID", Color.red, 0.5F),
+                mask(mkBMDNm("NADIR_SST_ONLY_37_MY_VALID"), null, "flags.NADIR_SST_ONLY_37_MY_VALID", Color.orange, 0.5F),
+                mask(mkBMDNm("DUAL_SST_VALID"), null, "flags.DUAL_SST_VALID", Color.red, 0.5F),
+                mask(mkBMDNm("DUAL_SST_VALID_37_MY"), null, "flags.DUAL_SST_VALID_37_MY", Color.orange, 0.5F)
         };
     }
 
