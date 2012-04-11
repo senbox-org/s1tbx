@@ -17,7 +17,11 @@ package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
@@ -434,13 +438,13 @@ public abstract class ProductFile {
     public abstract boolean storesPixelsInChronologicalOrder();
 
     /**
-     * Returns a new default set of bitmask definitions for this product file.
+     * Returns a new default set of mask definitions for this product file.
      *
      * @param flagDsName the name of the flag dataset
      * @return a new default set, an empty array if no default set is given for this product type, never
      *         <code>null</code>.
      */
-    public abstract BitmaskDef[] createDefaultBitmaskDefs(String flagDsName);
+    public abstract Mask[] createDefaultMasks(String flagDsName);
 
 
     /**

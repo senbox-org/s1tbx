@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,11 @@
 
 package org.esa.beam.dataio.envisat;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
@@ -143,15 +147,15 @@ public class DorisOrbitProductFile extends ProductFile {
     }
 
     /**
-     * Returns a new default set of bitmask definitions for this product file.
+     * Returns a new default set of mask definitions for this product file.
      *
      * @param dsName the name of the flag dataset
      * @return a new default set, an empty array if no default set is given for this product type, never
      *         <code>null</code>.
      */
     @Override
-    public BitmaskDef[] createDefaultBitmaskDefs(String dsName) {
-        return new BitmaskDef[0];
+    public Mask[] createDefaultMasks(String dsName) {
+        return new Mask[0];
     }
 
     /**

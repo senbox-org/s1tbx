@@ -18,7 +18,19 @@ package org.esa.beam.dataio.envisat;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.PointingFactory;
+import org.esa.beam.framework.datamodel.PointingFactoryRegistry;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.ArrayUtils;
 import org.esa.beam.util.Debug;
@@ -26,7 +38,7 @@ import org.esa.beam.util.io.FileUtils;
 
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -225,8 +237,8 @@ public class EnvisatProductReader extends AbstractProductReader {
             addGeoCodingToProduct(product);
             initPointingFactory(product);
         }
-        addDefaultBitmaskDefsToProduct(product);
-        addDefaultBitmaskDefsToBands(product);
+        addDefaultMasksToProduct(product);
+        addDefaultMasksDefsToBands(product);
         productFile.addCustomMetadata(product);
 
         return product;
@@ -300,7 +312,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         setSpectralBandInfo(product);
     }
 
-    private void addDefaultBitmaskDefsToProduct(Product product) {
+    private void addDefaultMasksToProduct(Product product) {
         List<Band> flagDsList = new Vector<Band>();
         for (int i = 0; i < product.getNumBands(); i++) {
             Band band = product.getBandAt(i);
@@ -311,16 +323,17 @@ public class EnvisatProductReader extends AbstractProductReader {
         if (!flagDsList.isEmpty()) {
             for (Band flagDs : flagDsList) {
                 String flagDsName = flagDs.getName();
-                BitmaskDef[] bitmaskDefs = productFile.createDefaultBitmaskDefs(flagDsName);
-                for (BitmaskDef bitmaskDef : bitmaskDefs) {
-                    product.addBitmaskDef(bitmaskDef);
+                Mask[] masks = productFile.createDefaultMasks(flagDsName);
+                ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+                for (Mask mask : masks) {
+                    maskGroup.add(mask);
                 }
             }
         }
     }
 
 
-    private void addDefaultBitmaskDefsToBands(Product product) {
+    private void addDefaultMasksDefsToBands(Product product) {
         for (final Band band : product.getBands()) {
             final String[] maskNames = getDefaultBitmaskNames(band.getName());
             if (maskNames != null) {
