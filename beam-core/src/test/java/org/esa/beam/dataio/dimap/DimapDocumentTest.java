@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,21 +20,41 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.beam.GlobalTestTools;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.*;
-import org.esa.beam.framework.draw.ShapeFigure;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GcpGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.util.BeamConstants;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 
-import java.awt.*;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Rectangle2D;
-import java.io.*;
+import java.awt.Color;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -343,17 +363,13 @@ public class DimapDocumentTest extends TestCase {
     private void addTiePointGrids(Product product) {
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
-        final BitmaskDef def1 = product.getBitmaskDef("name2");
-        final BitmaskDef def2 = product.getBitmaskDef("name3");
         final TiePointGrid tiePointGrid = createTiePointGrid("tpg1", sceneRasterWidth, sceneRasterHeight, 21.1f, 14.2f,
                                                              16.3f, 32.004f,
                                                              false);
         product.addTiePointGrid(tiePointGrid);
 
-        final BitmaskOverlayInfo overlayInfo = new BitmaskOverlayInfo();
-        overlayInfo.addBitmaskDef(def1);
-        overlayInfo.addBitmaskDef(def2);
-        tiePointGrid.setBitmaskOverlayInfo(overlayInfo);
+        tiePointGrid.getOverlayMaskGroup().add(product.getMaskGroup().get("name2"));
+        tiePointGrid.getOverlayMaskGroup().add(product.getMaskGroup().get("name3"));
 
         product.addTiePointGrid(
                 createTiePointGrid("tpg2", sceneRasterWidth, sceneRasterHeight, 21.1f, 14.2f, 16.3f, 32.004f, true));
@@ -438,12 +454,8 @@ public class DimapDocumentTest extends TestCase {
         band2.setSpectralBandIndex(3);
         product.addBand(band2);
 
-        final BitmaskDef def1 = product.getBitmaskDef("name1");
-        final BitmaskDef def2 = product.getBitmaskDef("name3");
-        final BitmaskOverlayInfo overlayInfo = new BitmaskOverlayInfo();
-        overlayInfo.addBitmaskDef(def1);
-        overlayInfo.addBitmaskDef(def2);
-        band2.setBitmaskOverlayInfo(overlayInfo);
+        band2.getOverlayMaskGroup().add(product.getMaskGroup().get("name1"));
+        band2.getOverlayMaskGroup().add(product.getMaskGroup().get("name3"));
 
         Band flags1 = new Band("Flags1", ProductData.TYPE_INT8, sceneRasterWidth, sceneRasterHeight);
         flags1.setDescription(flags1.getName() + "-Description");
@@ -1288,41 +1300,11 @@ public class DimapDocumentTest extends TestCase {
                     }
                 }
             }
-            addBitmaskDefinitions(bands, imageDisplayElem);
-            addBitmaskDefinitions(getProduct().getTiePointGrids(), imageDisplayElem);
 
             final List children = imageDisplayElem.getChildren();
             if (children != null && children.size() > 0) {
 //            if (imageDisplayElem.hasChildren()) {
                 _root.addContent(imageDisplayElem);
-            }
-        }
-
-        private void addBitmaskDefinitions(RasterDataNode[] rasterDataNodes, Element imageDisplayElem) {  //Übernommen
-            for (int i = 0; i < rasterDataNodes.length; i++) {
-                RasterDataNode rasterDataNode = rasterDataNodes[i];
-                final BitmaskOverlayInfo bitmaskOverlayInfo = rasterDataNode.getBitmaskOverlayInfo();
-                if (bitmaskOverlayInfo != null) {
-                    final BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
-                    if (bitmaskDefs.length > 0) {
-                        final Element bitmaskOverlayElem = new Element(DimapProductConstants.TAG_BITMASK_OVERLAY);
-                        if (rasterDataNode instanceof Band) {
-                            JDomHelper.addElement(DimapProductConstants.TAG_BAND_INDEX, i, bitmaskOverlayElem);
-                        } else {
-                            JDomHelper.addElement(DimapProductConstants.TAG_TIE_POINT_GRID_INDEX, i,
-                                                  bitmaskOverlayElem);
-                        }
-                        final Element bitmasks = new Element(DimapProductConstants.TAG_BITMASK);
-                        final String[] bitmaskDefNames = new String[bitmaskDefs.length];
-                        for (int j = 0; j < bitmaskDefNames.length; j++) {
-                            bitmaskDefNames[j] = bitmaskDefs[j].getName();
-                        }
-                        bitmasks.setAttribute(DimapProductConstants.ATTRIB_NAMES,
-                                              StringUtils.arrayToCsv(bitmaskDefNames));
-                        bitmaskOverlayElem.addContent(bitmasks);
-                        imageDisplayElem.addContent(bitmaskOverlayElem);
-                    }
-                }
             }
         }
 
