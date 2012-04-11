@@ -19,7 +19,7 @@ import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.util.Guardian;
 
 /**
- * Implements a general baselin height algorithm with optional baseline slope calculation.
+ * Implements a general baseline height algorithm with optional baseline slope calculation.
  */
 public final class BaselineAlgorithm {
 
@@ -87,10 +87,10 @@ public final class BaselineAlgorithm {
     /**
      * Sets the value of the cloud correction factor to be used.
      *
-     * @param fFactor
+     * @param factor The cloud correction factor.
      */
-    public final void setCloudCorrectionFactor(float fFactor) {
-        cloudCorrectionFactor = fFactor;
+    public final void setCloudCorrectionFactor(float factor) {
+        cloudCorrectionFactor = factor;
     }
 
     /**
@@ -103,6 +103,8 @@ public final class BaselineAlgorithm {
      * @param recycle if not <code>null</code> and of correct size this array will be reused for the return values
      *
      * @return array of baseline height values
+     *
+     * @deprecated since BEAM 4.10 (no replacement).
      */
     @Deprecated
     public final float[] process(float[] low, float[] high, float[] signal, boolean[] process, float[] recycle) {
@@ -152,6 +154,8 @@ public final class BaselineAlgorithm {
      * @param recycle if not <code>null</code> and of correct size this array will be reused for the return values
      *
      * @return array of baseline height values
+     *
+     * @deprecated since BEAM 4.10 (no replacement).
      */
     @Deprecated
     public final float[] processSlope(float[] low, float[] high, boolean[] process, float[] recycle) {
