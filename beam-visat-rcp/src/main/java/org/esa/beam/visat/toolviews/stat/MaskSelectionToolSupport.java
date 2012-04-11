@@ -22,8 +22,8 @@ import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.jfree.chart.ChartPanel;
 
-import javax.swing.JCheckBoxMenuItem;
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -36,38 +36,60 @@ abstract class MaskSelectionToolSupport implements PlotAreaSelectionTool.Action 
     private final String maskName;
     private final String maskDescription;
     private final Color maskColor;
+    private final PlotAreaSelectionTool.AreaType areaType;
 
-    PlotAreaSelectionTool plotAreaSelectionTool;
+    private PlotAreaSelectionTool plotAreaSelectionTool;
 
-    protected MaskSelectionToolSupport(PagePanel pagePanel, ChartPanel chartPanel, String maskName, String maskDescription, Color maskColor) {
+    protected MaskSelectionToolSupport(PagePanel pagePanel, ChartPanel chartPanel, String maskName, String maskDescription, Color maskColor, PlotAreaSelectionTool.AreaType areaType) {
         this.pagePanel = pagePanel;
         this.chartPanel = chartPanel;
         this.maskName = maskName;
         this.maskDescription = maskDescription;
         this.maskColor = maskColor;
+        this.areaType = areaType;
     }
 
-    public JCheckBoxMenuItem createMenuItem(final PlotAreaSelectionTool.AreaType areaType) {
-        final JCheckBoxMenuItem maskSelectionMenuItem = new JCheckBoxMenuItem("Mask Selection Mode");
-        maskSelectionMenuItem.setName("maskSelectionMode");
-        maskSelectionMenuItem.addActionListener(new ActionListener() {
+    public JCheckBoxMenuItem createMaskSelectionModeMenuItem() {
+        final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(String.format("Selection Mode for Mask '%s'", maskName));
+        menuItem.setName("maskSelectionMode");
+        menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (maskSelectionMenuItem.isSelected()) {
+                if (menuItem.isSelected()) {
                     if (plotAreaSelectionTool == null) {
                         plotAreaSelectionTool = new PlotAreaSelectionTool(chartPanel, MaskSelectionToolSupport.this);
                         plotAreaSelectionTool.setAreaType(areaType);
-                        plotAreaSelectionTool.install();
                     }
+                    plotAreaSelectionTool.install();
                 } else {
                     if (plotAreaSelectionTool != null) {
                         plotAreaSelectionTool.uninstall();
-                        plotAreaSelectionTool = null;
                     }
                 }
             }
         });
-        return maskSelectionMenuItem;
+        return menuItem;
+    }
+
+    public JMenuItem createDeleteMaskMenuItem() {
+        final JMenuItem menuItem = new JMenuItem(String.format("Delete Mask '%s' ", maskName));
+        menuItem.setName("deleteMask");
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (plotAreaSelectionTool != null) {
+                    plotAreaSelectionTool.removeOverlay();
+                }
+                Product product = pagePanel.getProduct();
+                if (product != null) {
+                    Mask mask = product.getMaskGroup().get(maskName);
+                    if (mask != null) {
+                        product.getMaskGroup().remove(mask);
+                    }
+                }
+            }
+        });
+        return menuItem;
     }
 
     @Override
@@ -79,24 +101,25 @@ abstract class MaskSelectionToolSupport implements PlotAreaSelectionTool.Action 
 
         String expression = createMaskExpression(areaType, x0, y0, dx, dy);
 
-        Mask magicWandMask = product.getMaskGroup().get(maskName);
-        if (magicWandMask != null) {
-            magicWandMask.getImageConfig().setValue("expression", expression);
+        Mask mask = product.getMaskGroup().get(maskName);
+        if (mask != null) {
+            mask.getImageConfig().setValue("expression", expression);
         } else {
             final int width = product.getSceneRasterWidth();
             final int height = product.getSceneRasterHeight();
-            magicWandMask = Mask.BandMathsType.create(maskName,
-                                                      maskDescription,
-                                                      width, height,
-                                                      expression,
-                                                      maskColor, 0.5);
-            product.getMaskGroup().add(magicWandMask);
+            mask = Mask.BandMathsType.create(maskName,
+                                             maskDescription,
+                                             width, height,
+                                             expression,
+                                             maskColor, 0.5);
+            product.getMaskGroup().add(mask);
         }
+
         RasterDataNode raster = pagePanel.getRaster();
         if (raster != null) {
             ProductNodeGroup<Mask> overlayMaskGroup = raster.getOverlayMaskGroup();
-            if (!overlayMaskGroup.contains(magicWandMask)) {
-                overlayMaskGroup.add(magicWandMask);
+            if (!overlayMaskGroup.contains(mask)) {
+                overlayMaskGroup.add(mask);
             }
         }
     }

@@ -73,6 +73,13 @@ class PlotAreaSelectionTool extends MouseAdapter {
         chartPanel.setMouseZoomable(true);
     }
 
+    public void removeOverlay() {
+        if (overlay != null) {
+            chartPanel.removeOverlay(overlay);
+            overlay = null;
+        }
+    }
+
     public AreaType getAreaType() {
         return areaType;
     }
@@ -101,6 +108,7 @@ class PlotAreaSelectionTool extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent event) {
+        removeOverlay();
         point1 = getPoint1(event);
         point2 = getPoint2(event);
     }
@@ -108,16 +116,13 @@ class PlotAreaSelectionTool extends MouseAdapter {
     @Override
     public void mouseReleased(MouseEvent event) {
         if (overlay != null) {
-            chartPanel.removeOverlay(overlay);
 
             XYPlot plot = chartPanel.getChart().getXYPlot();
 
             Rectangle2D dataArea = chartPanel.getScreenDataArea();
             PlotOrientation orientation = plot.getOrientation();
-            RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(
-                    plot.getDomainAxisLocation(), orientation);
-            RectangleEdge rangeEdge = Plot.resolveRangeAxisLocation(
-                    plot.getRangeAxisLocation(), orientation);
+            RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(plot.getDomainAxisLocation(), orientation);
+            RectangleEdge rangeEdge = Plot.resolveRangeAxisLocation(plot.getRangeAxisLocation(), orientation);
 
             double x1 = plot.getDomainAxis().java2DToValue(point1.getX(), dataArea, domainEdge);
             double y1 = plot.getRangeAxis().java2DToValue(point1.getY(), dataArea, rangeEdge);
@@ -129,12 +134,8 @@ class PlotAreaSelectionTool extends MouseAdapter {
             double dx = Math.abs(x2 - x1);
             double dy = Math.abs(y2 - y1);
 
-            System.out.printf(String.format("x0 = %s, y0 = %s,\ndx = %s, dy = %s\n",
-                                            x1, y1, dx, dy));
-
             action.areaSelected(areaType, x0, y0, dx, dy);
 
-            overlay = null;
             point1 = null;
             point2 = null;
         }

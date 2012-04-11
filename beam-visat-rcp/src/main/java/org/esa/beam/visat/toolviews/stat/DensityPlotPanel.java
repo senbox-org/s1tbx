@@ -223,7 +223,8 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
                                                                                          densityPlotDisplay,
                                                                                          "densitity_plot_area",
                                                                                          "Mask generated from selected density plot area",
-                                                                                         Color.RED) {
+                                                                                         Color.RED,
+                                                                                         PlotAreaSelectionTool.AreaType.ELLIPSE) {
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
                 double rr = Math.sqrt(dx * dx + dy * dy);
@@ -237,8 +238,10 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         };
 
         densityPlotDisplay.getPopupMenu().addSeparator();
+        densityPlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createMaskSelectionModeMenuItem());
+        densityPlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createDeleteMaskMenuItem());
+        densityPlotDisplay.getPopupMenu().addSeparator();
         densityPlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
-        densityPlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createMenuItem(PlotAreaSelectionTool.AreaType.ELLIPSE));
 
         final TableLayout rightPanelLayout = new TableLayout(1);
         final JPanel rightPanel = new JPanel(rightPanelLayout);
@@ -268,7 +271,6 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         final String rasterName = rasterNameParams[varIndex].getValue().toString();
         RasterDataNode raster = product.getRasterDataNode(rasterName);
         if (raster == null) {
-            // todo - "if the product doesn't have the raster, take some other?" - this is stupid (nf - 18.12.2007)
             if (getRaster() != null && rasterName.equalsIgnoreCase(getRaster().getName())) {
                 raster = getRaster();
             }

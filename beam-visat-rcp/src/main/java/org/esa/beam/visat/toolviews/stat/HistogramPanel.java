@@ -33,7 +33,6 @@ import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
@@ -228,7 +227,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
                                                                                          chartPanel,
                                                                                          "histogram_plot_area",
                                                                                          "Mask generated from selected histogram plot area",
-                                                                                         Color.RED) {
+                                                                                         Color.RED,
+                                                                                         PlotAreaSelectionTool.AreaType.X_RANGE) {
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
                 return String.format("%s >= %s && %s <= %s",
@@ -240,8 +240,10 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         };
 
         chartPanel.getPopupMenu().addSeparator();
+        chartPanel.getPopupMenu().add(maskSelectionToolSupport.createMaskSelectionModeMenuItem());
+        chartPanel.getPopupMenu().add(maskSelectionToolSupport.createDeleteMaskMenuItem());
+        chartPanel.getPopupMenu().addSeparator();
         chartPanel.getPopupMenu().add(createCopyDataToClipboardMenuItem());
-        chartPanel.getPopupMenu().add(maskSelectionToolSupport.createMenuItem(PlotAreaSelectionTool.AreaType.X_RANGE));
         return chartPanel;
     }
 

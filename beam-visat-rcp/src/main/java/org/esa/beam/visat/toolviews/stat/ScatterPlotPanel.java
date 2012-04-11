@@ -29,7 +29,6 @@ import org.esa.beam.framework.ui.application.ToolView;
 import org.geotools.feature.FeatureCollection;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
@@ -446,7 +445,8 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
                                                                                          scatterPlotDisplay,
                                                                                          "scatter_plot_area",
                                                                                          "Mask generated from selected scatter plot area",
-                                                                                         Color.RED) {
+                                                                                         Color.RED,
+                                                                                         PlotAreaSelectionTool.AreaType.X_RANGE) {
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
                 return String.format("%s >= %s && %s <= %s",
@@ -457,8 +457,10 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
             }
         };
         scatterPlotDisplay.getPopupMenu().addSeparator();
+        scatterPlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createMaskSelectionModeMenuItem());
+        scatterPlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createDeleteMaskMenuItem());
+        scatterPlotDisplay.getPopupMenu().addSeparator();
         scatterPlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
-        scatterPlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createMenuItem(PlotAreaSelectionTool.AreaType.X_RANGE));
 
         // UI arrangement
 

@@ -27,7 +27,6 @@ import org.esa.beam.visat.toolviews.nav.CursorSynchronizer;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.AxisChangeEvent;
@@ -176,7 +175,8 @@ class ProfilePlotPanel extends PagePanel {
                                                                                          profilePlotDisplay,
                                                                                          "profile_plot_area",
                                                                                          "Mask generated from selected profile plot area",
-                                                                                         Color.RED) {
+                                                                                         Color.RED,
+                                                                                         PlotAreaSelectionTool.AreaType.Y_RANGE) {
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
                 return String.format("%s >= %s && %s <= %s",
@@ -216,8 +216,11 @@ class ProfilePlotPanel extends PagePanel {
         profilePlotDisplay.setReshowDelay(200);
         profilePlotDisplay.setZoomTriggerDistance(5);
         profilePlotDisplay.getPopupMenu().addSeparator();
+        profilePlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createMaskSelectionModeMenuItem());
+        profilePlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createDeleteMaskMenuItem());
+        profilePlotDisplay.getPopupMenu().addSeparator();
         profilePlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
-        profilePlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createMenuItem(PlotAreaSelectionTool.AreaType.Y_RANGE));
+
         final AxisChangeListener axisListener = new AxisChangeListener() {
             @Override
             public void axisChanged(AxisChangeEvent event) {
@@ -416,9 +419,11 @@ class ProfilePlotPanel extends PagePanel {
                     String fieldName = dataSourceConfig.dataField.getLocalName();
                     for (int i = 0; i < simpleFeatures.length; i++) {
                         Number attribute = (Number) simpleFeatures[i].getAttribute(fieldName);
-                        final double x = shapeVertexIndexes[i];
-                        final double y = attribute.doubleValue();
-                        corrSeries.add(x, x, x, y, y, y);
+                        if (attribute != null) {
+                            final double x = shapeVertexIndexes[i];
+                            final double y = attribute.doubleValue();
+                            corrSeries.add(x, x, x, y, y, y);
+                        }
                     }
                 } else {
                     System.out.println("Weird things happened:");
