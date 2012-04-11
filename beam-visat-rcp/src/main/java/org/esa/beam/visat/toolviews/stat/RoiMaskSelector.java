@@ -12,7 +12,7 @@ import org.esa.beam.visat.VisatApp;
 import javax.swing.*;
 import java.awt.*;
 
-public class RoiMaskSelector {
+class RoiMaskSelector {
     public final static String PROPERTY_NAME_USE_ROI_MASK = "useRoiMask";
     public final static String PROPERTY_NAME_ROI_MASK = "roiMask";
 
