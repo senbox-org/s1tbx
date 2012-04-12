@@ -19,18 +19,13 @@ package com.bc.ceres.swing.figure.support;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.swing.figure.*;
 
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 public class DefaultFigureCollection extends AbstractFigure implements FigureCollection {
 
@@ -40,7 +35,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     private ChangeDelegate changeDelegate;
 
     public DefaultFigureCollection() {
-        this(new Figure[0]);
+        this(NO_FIGURES);
     }
 
     public DefaultFigureCollection(Figure[] figures) {
@@ -62,7 +57,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
 
     @Override
     public boolean isSelectable() {
-        return true; 
+        return true;
     }
 
     @Override
