@@ -888,7 +888,6 @@
             <class>org.esa.beam.visat.actions.ImportTrackAction</class>
             <text>SeaDAS 6.x Track</text>
             <parent>importVectorData</parent>
-            <placeBefore>importCSV</placeBefore>
         </action>
 
         <action>
@@ -896,7 +895,6 @@
             <class>org.esa.beam.visat.actions.ImportPointDataAction</class>
             <text>CSV</text>
             <parent>importVectorData</parent>
-            <placeBefore>importShapefile</placeBefore>
         </action>
 
         <action>
