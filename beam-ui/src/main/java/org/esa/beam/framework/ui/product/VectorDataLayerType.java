@@ -69,6 +69,7 @@ public class VectorDataLayerType extends LayerType {
         final ProductLayerContext plc = (ProductLayerContext) ctx;
         final String vectorDataName = (String) configuration.getValue(PROPERTY_NAME_VECTOR_DATA);
         final VectorDataNode vectorDataNode = plc.getProduct().getVectorDataGroup().get(vectorDataName);
+        Assert.notNull(vectorDataNode, String.format("VectorDataNode '%s' does not exist", vectorDataName));
         return createLayer(vectorDataNode, configuration);
     }
 

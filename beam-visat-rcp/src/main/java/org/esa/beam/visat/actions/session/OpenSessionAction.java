@@ -130,7 +130,7 @@ public class OpenSessionAction extends ExecCommand {
                 if (e.getCause() instanceof CanceledException) {
                     return;
                 }
-                app.showErrorDialog(MessageFormat.format("An unexpected exception occured!\nMessage: {0}",
+                app.showErrorDialog(MessageFormat.format("An unexpected exception occurred!\nMessage: {0}",
                                                          e.getCause().getMessage()));
                 e.printStackTrace();
                 return;
@@ -138,7 +138,7 @@ public class OpenSessionAction extends ExecCommand {
             final Exception[] problems = restoredSession.getProblems();
             if (problems.length > 0) {
                 StringBuilder sb = new StringBuilder();
-                sb.append("The following problem(s) occured:\n");
+                sb.append("The following problem(s) occurred while opening a session:\n");
                 for (Exception problem : problems) {
                     problem.printStackTrace();
                     sb.append("  ");

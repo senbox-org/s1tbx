@@ -80,13 +80,6 @@ public abstract class AbstractRasterDataNodeTest extends AbstractDataNodeTest {
                 }
             }
 
-            protected void fireNodeChanged(ProductNode sourceNode, String propertyName, Object oldValue) {
-                if (isActive[0]
-                        && !RasterDataNode.PROPERTY_NAME_ROI_DEFINITION.equalsIgnoreCase(propertyName)) {
-                    fail("Event for property '" + propertyName + "' not expected.");
-                }
-            }
-
             @Override
             protected void fireNodeDataChanged(DataNode sourceNode) {
                 if (isActive[0]) {
