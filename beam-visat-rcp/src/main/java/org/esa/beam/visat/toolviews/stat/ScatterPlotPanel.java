@@ -275,11 +275,6 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     }
 
     @Override
-    public String getTitle() {
-        return getTitlePrefix();
-    }
-
-    @Override
     protected String getDataAsText() {
 //        todo
         return "Must be implemented";

@@ -84,11 +84,6 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     }
 
     @Override
-    public String getTitle() {
-        return getTitlePrefix();
-    }
-
-    @Override
     protected String getTitlePrefix() {
         return TITLE_PREFIX;
     }

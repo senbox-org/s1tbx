@@ -308,6 +308,56 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         return buttonPane;
     }
 
+    protected JPanel createTopPanel(){
+        final AbstractButton refreshButton = ToolButtonFactory.createButton(
+            UIUtils.loadImageIcon("icons/ZoomAll24.gif"),
+                    false);
+        refreshButton.setToolTipText("Refresh View");
+        refreshButton.setName("refreshButton");
+        refreshButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        final AbstractButton switchToTableButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/ZoomAll24.gif"),
+                false);
+        switchToTableButton.setToolTipText("Switch to Table View");
+        switchToTableButton.setName("switchToTableButton");
+        switchToTableButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        final AbstractButton switchToChartButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/ZoomAll24.gif"),
+                false);
+        switchToChartButton.setToolTipText("Switch to Chart View");
+        switchToChartButton.setName("switchToChartButton");
+        switchToChartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        final TableLayout tableLayout = new TableLayout(6);
+        tableLayout.setColumnFill(4, TableLayout.Fill.HORIZONTAL);
+        tableLayout.setColumnWeightX(4, 1.0);
+        JPanel buttonPanel = new JPanel(tableLayout);
+        buttonPanel.add(refreshButton);
+        buttonPanel.add(switchToTableButton);
+        buttonPanel.add(new JPanel());
+        buttonPanel.add(new JPanel());
+        buttonPanel.add(new JPanel());
+
+        return buttonPanel;
+    }
+
     protected JPanel createChartButtonPanel2(final ChartPanel chartPanel) {
 
         final AbstractButton zoomAllButton = ToolButtonFactory.createButton(

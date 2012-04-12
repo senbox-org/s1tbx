@@ -28,7 +28,9 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.StxFactory;
 import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -46,6 +48,8 @@ import org.jfree.ui.RectangleInsets;
 import javax.media.jai.Histogram;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -74,6 +78,10 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
     private JFreeChart chart;
     private Stx stx;
     private HistogramPlotConfig histogramPlotConfig;
+    private JPanel rightPanel;
+    private boolean rightPanelShown;
+    private JPanel backgroundPanel;
+    private AbstractButton hideAndShowButton;
 
     private static boolean isInitialized = false;
     private static final double HISTO_MIN_DEFAULT = 0.0;
@@ -196,20 +204,53 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         GridBagUtils.addToPanel(displayOptionsPanel, xAxisRangeControl.getPanel(), displayOptionsConstraints, "gridy=2");
         GridBagUtils.addToPanel(displayOptionsPanel, xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getComponents()[0], displayOptionsConstraints, "gridy=3");
 
-        JPanel rightPanel = GridBagUtils.createPanel();
+        rightPanel = GridBagUtils.createPanel();
         GridBagConstraints rightPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1");
-        GridBagUtils.addToPanel(rightPanel, dataSourceOptionsPanel, rightPanelConstraints, "gridy=0");
-        GridBagUtils.addToPanel(rightPanel, new JPanel(), rightPanelConstraints, "gridy=1,fill=VERTICAL,weighty=1");
-        GridBagUtils.addToPanel(rightPanel, displayOptionsPanel, rightPanelConstraints, "gridy=2,fill=HORIZONTAL,weighty=0");
-        GridBagUtils.addToPanel(rightPanel, new JSeparator(), rightPanelConstraints, "gridy=3");
-        GridBagUtils.addToPanel(rightPanel, createChartButtonPanel2(histogramDisplay), rightPanelConstraints, "gridy=4");
+        GridBagUtils.addToPanel(rightPanel, createTopPanel(), rightPanelConstraints, "gridy=0");
+        GridBagUtils.addToPanel(rightPanel, new JSeparator(), rightPanelConstraints, "gridy=1");
+        GridBagUtils.addToPanel(rightPanel, dataSourceOptionsPanel, rightPanelConstraints, "gridy=2");
+        GridBagUtils.addToPanel(rightPanel, new JPanel(), rightPanelConstraints, "gridy=3,fill=VERTICAL,weighty=1");
+        GridBagUtils.addToPanel(rightPanel, displayOptionsPanel, rightPanelConstraints, "gridy=4,fill=HORIZONTAL,weighty=0");
+        GridBagUtils.addToPanel(rightPanel, new JSeparator(), rightPanelConstraints, "gridy=5");
+        GridBagUtils.addToPanel(rightPanel, createChartButtonPanel2(histogramDisplay), rightPanelConstraints, "gridy=6");
 
-        add(histogramDisplay, BorderLayout.CENTER);
-        add(rightPanel, BorderLayout.EAST);
+        hideAndShowButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/PanelCollapseHorizontal24.png"),
+                false);
+        hideAndShowButton.setToolTipText("Collapse Options Panel");
+        hideAndShowButton.setName("switchToChartButton");
+        hideAndShowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                rightPanel.setVisible(rightPanelShown);
+                rightPanelShown = !rightPanelShown;
+                backgroundPanel.setBounds(0,0,500,700);
+                hideAndShowButton = ToolButtonFactory.createButton(
+                        UIUtils.loadImageIcon("icons/PanelExpandHorizontal24.png"),
+                        false);
+                hideAndShowButton.setToolTipText("Expand Options Panel");
+            }
+        });
+
+        backgroundPanel = new JPanel(new BorderLayout());
+        backgroundPanel.add(histogramDisplay, BorderLayout.CENTER);
+        backgroundPanel.add(rightPanel, BorderLayout.EAST);
+
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.add(backgroundPanel, new Integer(0));
+        layeredPane.add(hideAndShowButton, new Integer(1));
+        add(layeredPane);
 
         isInitialized = true;
 
         updateUIState();
+    }
+
+    @Override
+    public void doLayout() {
+        backgroundPanel.setBounds(0,0,getWidth()-8,getHeight()-8);
+        hideAndShowButton.setBounds(getWidth()-hideAndShowButton.getWidth()-12,4,24,24);
+        super.doLayout();
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {
