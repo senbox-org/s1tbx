@@ -22,7 +22,6 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
@@ -279,10 +278,10 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
                     avhrrFile.getProductHeight());
 
             final String cloudBandName = cloudReader.getBandName();
-            addMask("clear", "", cloudBandName + "==0", Color.LIGHT_GRAY);
-            addMask("probably_clear", "", cloudBandName + "==1", Color.YELLOW);
-            addMask("probably_cloudy", "", cloudBandName + "==2", Color.ORANGE);
-            addMask("cloudy", "", cloudBandName + "==3", Color.RED);
+            product.addMask("clear", "", cloudBandName + "==0", Color.LIGHT_GRAY, 0.4);
+            product.addMask("probably_clear", "", cloudBandName + "==1", Color.YELLOW, 0.4);
+            product.addMask("probably_cloudy", "", cloudBandName + "==2", Color.ORANGE, 0.4);
+            product.addMask("cloudy", "", cloudBandName + "==3", Color.RED, 0.4);
 
             product.addBand(cloudMaskBand);
             bandReaders.put(cloudMaskBand, cloudReader);
@@ -303,16 +302,8 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
         final Color color = new Color(r, g, b);
 
         fc.addFlag(flagName, 1 << shift, flagDesc);
-        addMask(flagName, flagDesc, fc.getName() + "." + flagName, color);
+        product.addMask(flagName, flagDesc, fc.getName() + "." + flagName, color, 0.4);
     }
-
-    private void addMask(String name, String description, String expresssion, Color color) {
-        int width = product.getSceneRasterWidth();
-        int height = product.getSceneRasterHeight();
-        Mask mask = Mask.BandMathsType.create(name, description, width, height, expresssion, color, 0.4f);
-        product.getMaskGroup().add(mask);
-    }
-
 
     protected void addTiePointGrids() throws IOException {
         int tpSubsampling = avhrrFile.getTiePointSupsampling();

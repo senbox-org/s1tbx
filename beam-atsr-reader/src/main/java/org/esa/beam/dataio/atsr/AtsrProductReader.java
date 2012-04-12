@@ -19,7 +19,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
@@ -154,20 +153,13 @@ public class AtsrProductReader extends AbstractProductReader {
         final String fwardBand = AtsrGBTConstants.FORWARD_370_BT_NAME;
 
         if (prodRet.containsBand(nadirBand)) {
-            addMask(prodRet, "fire_nadir_1", "ATSR active fire (ALGO1)", nadirBand + " > 312.0", Color.RED);
-            addMask(prodRet, "fire_nadir_2", "ATSR active fire (ALGO2)", nadirBand + " > 308.0", Color.RED.darker());
+            prodRet.addMask("fire_nadir_1", "ATSR active fire (ALGO1)", nadirBand + " > 312.0", Color.RED, 0.5f);
+            prodRet.addMask("fire_nadir_2", "ATSR active fire (ALGO2)", nadirBand + " > 308.0", Color.RED.darker(), 0.5f);
         }
         if (prodRet.containsBand(fwardBand)) {
-            addMask(prodRet, "fire_fward_1", "ATSR active fire (ALGO1)", fwardBand + " > 312.0", Color.RED);
-            addMask(prodRet, "fire_fward_2", "ATSR active fire (ALGO2)", fwardBand + " > 308.0", Color.RED.darker());
+            prodRet.addMask("fire_fward_1", "ATSR active fire (ALGO1)", fwardBand + " > 312.0", Color.RED, 0.5f);
+            prodRet.addMask("fire_fward_2", "ATSR active fire (ALGO2)", fwardBand + " > 308.0", Color.RED.darker(), 0.5f);
         }
-    }
-
-    private void addMask(Product product, String name, String description, String expresssion, Color color) {
-        int width = product.getSceneRasterWidth();
-        int height = product.getSceneRasterHeight();
-        Mask mask = Mask.BandMathsType.create(name, description, width, height, expresssion, color, 0.5f);
-        product.getMaskGroup().add(mask);
     }
 
     /**

@@ -491,16 +491,122 @@
         </toolView>
 
         <toolView>
+            <id>org.esa.beam.visat.toolviews.stat.InformationToolView</id>
+            <class>org.esa.beam.visat.toolviews.stat.InformationToolView</class>
+            <title>Information View</title>
+            <tabTitle>Information</tabTitle>
+            <mnemonic>t</mnemonic>
+            <accelerator>ctrl alt T</accelerator>
+            <description>Display information for a selected band.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/Information16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/Information24.gif</largeIcon>
+            <helpId>informationDialog</helpId>
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.stat.GeoCodingToolView</id>
+            <class>org.esa.beam.visat.toolviews.stat.GeoCodingToolView</class>
+            <title>Geo-Coding View</title>
+            <tabTitle>Geo-Coding</tabTitle>
+            <mnemonic>t</mnemonic>
+            <accelerator>ctrl alt T</accelerator>
+            <description>Display Geo-Coding for a selected band.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/PhiLam16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/PhiLam24.gif</largeIcon>
+            <helpId>geoCodingInfoDialog</helpId>
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+        <toolView>
             <id>org.esa.beam.visat.toolviews.stat.StatisticsToolView</id>
             <class>org.esa.beam.visat.toolviews.stat.StatisticsToolView</class>
             <title>Statistics View</title>
             <tabTitle>Statistics</tabTitle>
             <mnemonic>t</mnemonic>
             <accelerator>ctrl alt T</accelerator>
-            <description>Display statistics for a selected band.</description>
+            <description>Display Statistics for a selected band.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/Statistics16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/Statistics24.gif</largeIcon>
-            <helpId>statisticsToolView</helpId>
+            <helpId>statisticsDialog</helpId>
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.stat.HistogramToolView</id>
+            <class>org.esa.beam.visat.toolviews.stat.HistogramToolView</class>
+            <title>Histogram View</title>
+            <tabTitle>Histogram</tabTitle>
+            <mnemonic>t</mnemonic>
+            <accelerator>ctrl alt T</accelerator>
+            <description>Display Histogram for a selected band.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/Histogram16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/Histogram24.gif</largeIcon>
+            <helpId>histogramDialog</helpId>
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.stat.DensityToolView</id>
+            <class>org.esa.beam.visat.toolviews.stat.DensityToolView</class>
+            <title>Density Plot View</title>
+            <tabTitle>Density Plot</tabTitle>
+            <mnemonic>t</mnemonic>
+            <accelerator>ctrl alt T</accelerator>
+            <description>Display Density Plot for a selected band.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/ScatterPlot16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/ScatterPlot24.gif</largeIcon>
+            <helpId>densityplotDialog</helpId>
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.stat.ScatterPlotToolView</id>
+            <class>org.esa.beam.visat.toolviews.stat.ScatterPlotToolView</class>
+            <title>Scatter Plot View</title>
+            <tabTitle>Scatter Plot</tabTitle>
+            <mnemonic>t</mnemonic>
+            <accelerator>ctrl alt T</accelerator>
+            <description>Display Scatter Plot for a selected band.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/ScatterPlot16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/ScatterPlot24.gif</largeIcon>
+            <helpId>scatterplotDialog</helpId>
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.stat.ProfilePlotToolView</id>
+            <class>org.esa.beam.visat.toolviews.stat.ProfilePlotToolView</class>
+            <title>Profile Plot View</title>
+            <tabTitle>Profile Plot</tabTitle>
+            <mnemonic>t</mnemonic>
+            <accelerator>ctrl alt T</accelerator>
+            <description>Display Profile Plot for a selected band.</description>
+            <!--<smallIcon>/org/esa/beam/resources/images/icons/ScatterPlot16.gif</smallIcon>-->
+            <!--<largeIcon>/org/esa/beam/resources/images/icons/ScatterPlot24.gif</largeIcon>-->
+            <helpId>profilePlotDialog</helpId>
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.stat.CoordListToolView</id>
+            <class>org.esa.beam.visat.toolviews.stat.CoordListToolView</class>
+            <title>Coordinate List View</title>
+            <tabTitle>Coordinate List</tabTitle>
+            <mnemonic>t</mnemonic>
+            <accelerator>ctrl alt T</accelerator>
+            <description>Display Coordinate List for a selected band.</description>
+            <!--<smallIcon>/org/esa/beam/resources/images/icons/ScatterPlot16.gif</smallIcon>-->
+            <!--<largeIcon>/org/esa/beam/resources/images/icons/ScatterPlot24.gif</largeIcon>-->
+            <helpId>coordinateListDialog</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
@@ -1237,8 +1343,22 @@
 
         <action>
             <parent>data</parent>
-            <id>openScatterPlotDialog</id>
+            <id>openDensityPlotDialog</id>
             <class>org.esa.beam.visat.actions.OpenDensityPlotDialogAction</class>
+            <placeAfter>openHistogramDialog</placeAfter>
+            <text>Density Plot...</text>
+            <mnemonic>L</mnemonic>
+            <shortDescr>Open density plot dialog.</shortDescr>
+            <description>Open density plot dialog.</description>
+            <context>band,tiePointGrid</context>
+            <smallIcon>icons/ScatterPlot16.gif</smallIcon>
+            <largeIcon>icons/ScatterPlot24.gif</largeIcon>
+            <helpId>densityplotDialog</helpId>
+        </action>
+        <action>
+            <parent>data</parent>
+            <id>openScatterPlotDialog</id>
+            <class>org.esa.beam.visat.actions.OpenScatterPlotDialogAction</class>
             <placeAfter>openHistogramDialog</placeAfter>
             <text>Scatter Plot...</text>
             <mnemonic>L</mnemonic>
@@ -1249,6 +1369,7 @@
             <largeIcon>icons/ScatterPlot24.gif</largeIcon>
             <helpId>scatterplotDialog</helpId>
         </action>
+
 
         <action>
             <parent>data</parent>

@@ -416,13 +416,16 @@ class ProfilePlotPanel extends PagePanel {
                 SimpleFeature[] simpleFeatures = dataSourceConfig.pointDataSource.getFeatureCollection().toArray(new SimpleFeature[0]);
 
                 if (shapeVertexIndexes.length == simpleFeatures.length) {
-                    String fieldName = dataSourceConfig.dataField.getLocalName();
-                    for (int i = 0; i < simpleFeatures.length; i++) {
-                        Number attribute = (Number) simpleFeatures[i].getAttribute(fieldName);
-                        if (attribute != null) {
-                            final double x = shapeVertexIndexes[i];
-                            final double y = attribute.doubleValue();
-                            corrSeries.add(x, x, x, y, y, y);
+                    // todo - use this code also in ScatterPlotPanel (nf)
+                    int fieldIndex = getAttributeIndex(dataSourceConfig.pointDataSource, dataSourceConfig.dataField);
+                    if (fieldIndex != -1) {
+                        for (int i = 0; i < simpleFeatures.length; i++) {
+                            Number attribute = (Number) simpleFeatures[i].getAttribute(fieldIndex);
+                            if (attribute != null) {
+                                final double x = shapeVertexIndexes[i];
+                                final double y = attribute.doubleValue();
+                                corrSeries.add(x, x, x, y, y, y);
+                            }
                         }
                     }
                 } else {
@@ -438,6 +441,11 @@ class ProfilePlotPanel extends PagePanel {
             xAxisRangeControl.getBindingContext().setComponentsEnabled(PROPERTY_NAME_MARK_SEGMENTS,
                                                                        profileData.getShapeVertices().length > 2);
         }
+    }
+
+    private int getAttributeIndex(VectorDataNode pointDataSource, AttributeDescriptor dataField) {
+        String fieldName = dataField.getLocalName();
+        return pointDataSource.getFeatureType().indexOf(fieldName);
     }
 
     private void updateUIState() {

@@ -16,9 +16,18 @@
 
 package org.esa.beam.collocation;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.gpf.Operator;
@@ -32,7 +41,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -220,7 +229,7 @@ public class CollocateOp extends Operator {
                 band.setName(masterComponentPattern.replace(SOURCE_NAME_REFERENCE, band.getName()));
             }
         }
-        copyBitmaskDefs(masterProduct, renameMasterComponents, masterComponentPattern);
+        copyMasks(masterProduct, renameMasterComponents, masterComponentPattern);
 
         for (final Band sourceBand : slaveProduct.getBands()) {
             String targetBandName = sourceBand.getName();
@@ -257,7 +266,7 @@ public class CollocateOp extends Operator {
         }
 
         ProductUtils.copyGeoCoding(masterProduct, targetProduct);
-        copyBitmaskDefs(slaveProduct, renameSlaveComponents, slaveComponentPattern);
+        copyMasks(slaveProduct, renameSlaveComponents, slaveComponentPattern);
 
         // todo - slave metadata!?
     }
@@ -387,21 +396,29 @@ public class CollocateOp extends Operator {
         }
     }
 
-    private void copyBitmaskDefs(Product sourceProduct, boolean rename, String pattern) {
-        final BitmaskDef[] sourceDefs = sourceProduct.getBitmaskDefs();
-        if (sourceDefs != null) {
-            for (final BitmaskDef sourceDef : sourceDefs) {
-                final BitmaskDef targetDef = sourceDef.createCopy();
-                if (rename) {
-                    targetDef.setName(pattern.replace(SOURCE_NAME_REFERENCE, sourceDef.getName()));
-                    for (final Band targetBand : targetProduct.getBands()) {
-                        targetDef.updateExpression(
-                                BandArithmetic.createExternalName(sourceRasterMap.get(targetBand).getName()),
-                                BandArithmetic.createExternalName(targetBand.getName()));
-                    }
-                }
-                targetProduct.addBitmaskDef(targetDef);
+    private void copyMasks(Product sourceProduct, boolean rename, String pattern) {
+        ProductNodeGroup<Mask> maskGroup = sourceProduct.getMaskGroup();
+        final Mask[] masks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
+        for (Mask mask : masks) {
+            Mask.ImageType imageType = mask.getImageType();
+            final Mask newmask = new Mask(mask.getName(),
+                                       targetProduct.getSceneRasterWidth(),
+                                       targetProduct.getSceneRasterHeight(),
+                                       imageType);
+            newmask.setDescription(mask.getDescription());
+            for (Property property : mask.getImageConfig().getProperties()) {
+                newmask.getImageConfig().setValue(property.getDescriptor().getName(), property.getValue());
             }
+            if (rename) {
+                newmask.setName(pattern.replace(SOURCE_NAME_REFERENCE, mask.getName()));
+                for (final Band targetBand : targetProduct.getBands()) {
+                    newmask.updateExpression(
+                            BandArithmetic.createExternalName(sourceRasterMap.get(targetBand).getName()),
+                            BandArithmetic.createExternalName(targetBand.getName()));
+                }
+            }
+            targetProduct.getMaskGroup().add(newmask);
+
         }
     }
 

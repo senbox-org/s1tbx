@@ -12,7 +12,7 @@ import java.awt.geom.Line2D;
 
 /**
  * A special layer type that is used to create layers for {@link VectorDataNode}s that
- * have the {@code FeatureType} "TrackPoint".
+ * have the {@code FeatureType} "org.esa.beam.TrackPoint".
  * <p/>
  * <i>Note: this is experimental code.</i>
  *
@@ -50,10 +50,13 @@ public class TrackLayerType extends VectorDataLayerType {
         }
 
         private void drawTrackPointConnections0(Rendering rendering) {
-            rendering.getGraphics().setPaint(new Color(255, 128, 128, 128));
-            rendering.getGraphics().setStroke(new BasicStroke(0.5f));
+            // todo - get these styles from vector data node.
+            double strokeSize = 1.5;
+            rendering.getGraphics().setPaint(new Color(127, 127, 255, 200));
+            rendering.getGraphics().setStroke(new BasicStroke((float)(rendering.getViewport().getViewToModelTransform().getScaleX() * strokeSize)));
+
             // FeatureCollection.toArray() returns the feature in original order
-            // todo - must actually sort using 'timestamp' attribute (nf)
+            // todo - must actually sort using some (timestamp) attribute (nf)
             SimpleFeature[] features = getVectorDataNode().getFeatureCollection().toArray(new SimpleFeature[0]);
             double lastX = 0;
             double lastY = 0;
@@ -68,6 +71,5 @@ public class TrackLayerType extends VectorDataLayerType {
                 lastY = centroid.getY();
             }
         }
-
     }
 }

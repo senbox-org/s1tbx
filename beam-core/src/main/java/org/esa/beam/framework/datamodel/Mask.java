@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -311,13 +311,8 @@ public class Mask extends Band {
                 expression = translateExpression(translationMap, expression);
                 final String originalMaskName = mask.getName();
                 final String maskName = getAvailableMaskName(originalMaskName, product.getMaskGroup());
-                final int w = product.getSceneRasterWidth();
-                final int h = product.getSceneRasterHeight();
-                Mask newMask = create(maskName, mask.getDescription(), w, h,
-                                      expression, mask.getImageColor(), mask.getImageTransparency());
-                product.getMaskGroup().add(newMask);
-
-                return newMask;
+                return product.addMask(maskName, mask.getDescription(),
+                                expression, mask.getImageColor(), mask.getImageTransparency());
             }
 
             return null;

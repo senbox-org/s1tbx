@@ -30,7 +30,7 @@
     <name>BEAM MERIS Cloud Probability Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-meris-cloud</artifactId>
-    <version>1.5.203</version>
+    <version>1.6-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 

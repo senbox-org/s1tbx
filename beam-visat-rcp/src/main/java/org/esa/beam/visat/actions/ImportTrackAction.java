@@ -40,14 +40,17 @@ import java.io.Reader;
 
 
 /**
- * Experimental action that lets a user load text files that contain data associated with a geo-point (e.g. ship tracks).
+ * Action that lets a user load text files that contain data associated with a geographic position,
+ * e.g. some kind of track. The format is:
  * <pre>
- *     lat.1 TAB lon.1 TAB data.1 NEWLINE
- *     lat.2 TAB lon.2 TAB data.2 NEWLINE
- *     lat.3 TAB lon.3 TAB data.3 NEWLINE
+ *     lat-1 TAB lon-1 TAB data-1 NEWLINE
+ *     lat-2 TAB lon-2 TAB data-2 NEWLINE
+ *     lat-3 TAB lon-3 TAB data-3 NEWLINE
  *     ...
- *     lat.n TAB lon.n TAB data.n NEWLINE
+ *     lat-n TAB lon-n TAB data-n NEWLINE
  * </pre>
+ * <p/>
+ * This is the format that is also used by SeaDAS 6.x in order to import ship tracks.
  *
  * @author Norman Fomferra
  * @since BEAM 4.10
@@ -133,10 +136,11 @@ public class ImportTrackAction extends ExecCommand {
 
     private static SimpleFeatureType createTrackFeatureType(GeoCoding geoCoding) {
         SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
-        ftb.setName("TrackPoint");
+        ftb.setName("org.esa.beam.TrackPoint");
         ftb.add("timestamp", Long.class);
         ftb.add("pixelPos", Point.class, geoCoding.getImageCRS());
         ftb.add("geoPos", Point.class, DefaultGeographicCRS.WGS84);
+        ftb.add("styleCss", String.class);
         ftb.add("data", Double.class);
         ftb.setDefaultGeometry(geoCoding instanceof CrsGeoCoding ? "geoPos" : "pixelPos");
         return ftb.buildFeatureType();

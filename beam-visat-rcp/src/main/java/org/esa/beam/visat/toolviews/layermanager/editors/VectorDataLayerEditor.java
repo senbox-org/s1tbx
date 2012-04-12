@@ -23,7 +23,6 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureStyle;
-import com.bc.ceres.swing.figure.PointFigure;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.NamedSymbol;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
@@ -41,7 +40,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
+/**
+ * Customizable {@link org.esa.beam.framework.ui.layer.LayerEditor} for {@link VectorDataNode}s.
+ *
+ * @author Marco Peters
+ * @author Norman Fomferra
+ */
 public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
 
     private static final String FILL_COLOR_NAME = DefaultFigureStyle.FILL_COLOR.getName();
@@ -75,36 +79,32 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
         final Figure[] figures = getSelectedFigures();
 
         final PropertyDescriptor fillColor = new PropertyDescriptor(DefaultFigureStyle.FILL_COLOR);
-        fillColor.setDefaultValue(getCommonStyleValue(FILL_COLOR_NAME, figures));
+        fillColor.setDefaultValue(getCommonStylePropertyValue(figures, FILL_COLOR_NAME));
         addPropertyDescriptor(fillColor);
 
         final PropertyDescriptor fillOpacity = new PropertyDescriptor(DefaultFigureStyle.FILL_OPACITY);
-        fillOpacity.setDefaultValue(getCommonStyleValue(FILL_OPACITY_NAME, figures));
+        fillOpacity.setDefaultValue(getCommonStylePropertyValue(figures, FILL_OPACITY_NAME));
         addPropertyDescriptor(fillOpacity);
 
         final PropertyDescriptor strokeColor = new PropertyDescriptor(DefaultFigureStyle.STROKE_COLOR);
-        strokeColor.setDefaultValue(getCommonStyleValue(STROKE_COLOR_NAME, figures));
+        strokeColor.setDefaultValue(getCommonStylePropertyValue(figures, STROKE_COLOR_NAME));
         addPropertyDescriptor(strokeColor);
 
         final PropertyDescriptor strokeWidth = new PropertyDescriptor(DefaultFigureStyle.STROKE_WIDTH);
-        strokeWidth.setDefaultValue(getCommonStyleValue(STROKE_WIDTH_NAME, figures));
+        strokeWidth.setDefaultValue(getCommonStylePropertyValue(figures, STROKE_WIDTH_NAME));
         addPropertyDescriptor(strokeWidth);
 
         final PropertyDescriptor strokeOpacity = new PropertyDescriptor(DefaultFigureStyle.STROKE_OPACITY);
-        strokeOpacity.setDefaultValue(getCommonStyleValue(STROKE_OPACITY_NAME, figures));
+        strokeOpacity.setDefaultValue(getCommonStylePropertyValue(figures, STROKE_OPACITY_NAME));
         addPropertyDescriptor(strokeOpacity);
 
         final PropertyDescriptor symbolName = new PropertyDescriptor(DefaultFigureStyle.SYMBOL_NAME);
-        symbolName.setDefaultValue(getCommonStyleValue(SYMBOL_NAME_NAME, figures));
+        symbolName.setDefaultValue(getCommonStylePropertyValue(figures, SYMBOL_NAME_NAME));
         symbolName.setValueSet(SYMBOL_VALUE_SET);
         symbolName.setNotNull(false);
         addPropertyDescriptor(symbolName);
 
         getBindingContext().bindEnabledState(SYMBOL_NAME_NAME, false, SYMBOL_NAME_NAME, null);
-    }
-
-    private boolean offerSymbolProperty(Figure[] figures) {
-        return figures.length > 0 && figures[0] instanceof PointFigure;
     }
 
     @Override
@@ -114,7 +114,7 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
         if (isAdjusting.compareAndSet(false, true)) {
             try {
                 final SimpleFeatureFigure[] selectedFigures = getSelectedFigures();
-                updateBinding(selectedFigures, bindingContext);
+                updateProperties(selectedFigures, bindingContext);
             } finally {
                 isAdjusting.set(false);
             }
@@ -139,29 +139,39 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
         getBindingContext().removePropertyChangeListener(styleUpdater);
     }
 
-    private void updateBinding(SimpleFeatureFigure[] selectedFigures, BindingContext bindingContext) {
-        final PropertySet propertySet = bindingContext.getPropertySet();
-        setPropertyValue(FILL_COLOR_NAME, propertySet, getCommonStyleValue(FILL_COLOR_NAME, selectedFigures));
-        setPropertyValue(FILL_OPACITY_NAME, propertySet, getCommonStyleValue(FILL_OPACITY_NAME, selectedFigures));
-        setPropertyValue(STROKE_COLOR_NAME, propertySet, getCommonStyleValue(STROKE_COLOR_NAME, selectedFigures));
-        setPropertyValue(STROKE_WIDTH_NAME, propertySet, getCommonStyleValue(STROKE_WIDTH_NAME, selectedFigures));
-        setPropertyValue(STROKE_OPACITY_NAME, propertySet, getCommonStyleValue(STROKE_OPACITY_NAME, selectedFigures));
-        final Object styleProperty = getCommonStyleValue(SYMBOL_NAME_NAME, selectedFigures);
-        if (styleProperty != null) {
-            setPropertyValue(SYMBOL_NAME_NAME, propertySet, styleProperty);
+    protected VectorDataNode getVectorDataNode() {
+        final FigureEditor figureEditor = getAppContext().getSelectedProductSceneView().getFigureEditor();
+        if (figureEditor instanceof VectorDataFigureEditor) {
+            VectorDataFigureEditor editor = (VectorDataFigureEditor) figureEditor;
+            return editor.getVectorDataNode();
+        } else {
+            return null;
         }
     }
 
-    private void setPropertyValue(String propertyName, PropertySet propertySet, Object value) {
-        final Object oldValue = propertySet.getValue(propertyName);
-        if (!ObjectUtils.equalObjects(oldValue, value)) {
-            if (propertySet.isPropertyDefined(propertyName)) {
-                propertySet.setValue(propertyName, value);
+    protected void updateProperties(SimpleFeatureFigure[] selectedFigures, BindingContext bindingContext) {
+        updateProperty(bindingContext, FILL_COLOR_NAME, getCommonStylePropertyValue(selectedFigures, FILL_COLOR_NAME));
+        updateProperty(bindingContext, FILL_OPACITY_NAME, getCommonStylePropertyValue(selectedFigures, FILL_OPACITY_NAME));
+        updateProperty(bindingContext, STROKE_COLOR_NAME, getCommonStylePropertyValue(selectedFigures, STROKE_COLOR_NAME));
+        updateProperty(bindingContext, STROKE_WIDTH_NAME, getCommonStylePropertyValue(selectedFigures, STROKE_WIDTH_NAME));
+        updateProperty(bindingContext, STROKE_OPACITY_NAME, getCommonStylePropertyValue(selectedFigures, STROKE_OPACITY_NAME));
+        final Object styleProperty = getCommonStylePropertyValue(selectedFigures, SYMBOL_NAME_NAME);
+        if (styleProperty != null) {
+            updateProperty(bindingContext, SYMBOL_NAME_NAME, styleProperty);
+        }
+    }
+
+    protected void updateProperty(BindingContext bindingContext, String propertyName, Object newValue) {
+        PropertySet propertySet = bindingContext.getPropertySet();
+        if (propertySet.isPropertyDefined(propertyName)) {
+            final Object oldValue = propertySet.getValue(propertyName);
+            if (!ObjectUtils.equalObjects(oldValue, newValue)) {
+                propertySet.setValue(propertyName, newValue);
             }
         }
     }
 
-    private Object getCommonStyleValue(String propertyName, Figure[] figures) {
+    protected Object getCommonStylePropertyValue(Figure[] figures, String propertyName) {
         Object commonValue = null;
         for (Figure figure : figures) {
             final Object value = figure.getNormalStyle().getValue(propertyName);
@@ -240,11 +250,9 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
         }
 
         private void setFeatureStyleCss(SimpleFeatureFigure selectedFigure, DefaultFigureStyle style) {
-            // Transfer new style to associated placemark. Awful code :-(
-            final FigureEditor figureEditor = getAppContext().getSelectedProductSceneView().getFigureEditor();
-            if (figureEditor instanceof VectorDataFigureEditor) {
-                VectorDataFigureEditor editor = (VectorDataFigureEditor) figureEditor;
-                final VectorDataNode vectorDataNode = editor.getVectorDataNode();
+            final VectorDataNode vectorDataNode = getVectorDataNode();
+            if (vectorDataNode != null) {
+                // Transfer new style to associated placemark. Awful code :-(
                 final Placemark placemark = vectorDataNode.getPlacemarkGroup().getPlacemark(selectedFigure.getSimpleFeature());
                 if (placemark != null) {
                     placemark.setStyleCss(style.toCssString());
@@ -257,4 +265,5 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
             }
         }
     }
+
 }

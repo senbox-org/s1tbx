@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,7 +23,6 @@ import org.esa.beam.dataio.chris.internal.SunPositionCalculator;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -39,7 +38,8 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
-import static java.lang.Math.*;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * Reader for CHRIS/Proba products.
@@ -327,13 +327,11 @@ public class ChrisProductReader extends AbstractProductReader {
 
                 final String name = new StringBuilder(rciBands[i].getName()).append("_").append(flag).toString();
                 final String expr = new StringBuilder(maskBands[i].getName()).append(".").append(flag).toString();
-                product.getMaskGroup().add(Mask.BandMathsType.create(name,
-                                                                     flag.getDescription(),
-                                                                     sceneRasterWidth,
-                                                                     sceneRasterHeight,
-                                                                     expr,
-                                                                     flag.getColor(),
-                                                                     flag.getTransparency()));
+                product.addMask(name,
+                                flag.getDescription(),
+                                expr,
+                                flag.getColor(),
+                                flag.getTransparency());
             }
         }
     }
@@ -346,13 +344,11 @@ public class ChrisProductReader extends AbstractProductReader {
             }
             expression.append(maskBands[i].getName()).append(".").append(flag);
         }
-        product.getMaskGroup().add(Mask.BandMathsType.create(name,
-                                                             description,
-                                                             sceneRasterWidth,
-                                                             sceneRasterHeight,
-                                                             expression.toString(),
-                                                             flag.getColor(),
-                                                             flag.getTransparency()));
+        product.addMask(name,
+                        description,
+                        expression.toString(),
+                        flag.getColor(),
+                        flag.getTransparency());
     }
 
     private void readRciBandRasterData(int bandIndex,

@@ -30,7 +30,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-chris-reader</artifactId>
     <name>BEAM CHRIS/Proba Product Reader</name>
-    <version>1.6.101</version>
+    <version>1.7-SNAPSHOT</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>

@@ -28,7 +28,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-atsr-reader</artifactId>
     <name>BEAM ATSR Product Reader</name>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <packaging>jar</packaging>

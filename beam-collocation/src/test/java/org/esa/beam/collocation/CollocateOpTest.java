@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,10 +17,18 @@
 package org.esa.beam.collocation;
 
 import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
+
+import java.awt.Color;
 
 public class CollocateOpTest extends TestCase {
     public void testIt() {
@@ -66,6 +74,15 @@ public class CollocateOpTest extends TestCase {
 
         assertEquals("!l2_flags_S.INVALID && reflec_1_S > 0.1", targetProduct.getBandAt(15+1).getValidMaskExpression());
         assertEquals("!l2_flags_S.INVALID && reflec_1_S > 0.1", targetProduct.getBandAt(15+2).getValidMaskExpression());
+
+        assertEquals(1, targetProduct.getMaskGroup().getNodeCount());
+        Mask mask = targetProduct.getMaskGroup().get(0);
+        assertNotNull(mask);
+        assertEquals("bitmask_M", mask.getName());
+        assertEquals("radiance_1_M > 10", Mask.BandMathsType.getExpression(mask));
+        assertEquals(Color.RED, mask.getImageColor());
+        assertEquals(0.5, mask.getImageTransparency(), 0.00001);
+
     }
 
     static float[] wl = new float[]{
@@ -103,6 +120,7 @@ public class CollocateOpTest extends TestCase {
         mapInfo1.setSceneWidth(16);
         mapInfo1.setSceneHeight(16);
         product.setGeoCoding(new MapGeoCoding(mapInfo1));
+        product.addMask("bitmask", null, "radiance_1 > 10", Color.RED, 0.5f);
         return product;
     }
 

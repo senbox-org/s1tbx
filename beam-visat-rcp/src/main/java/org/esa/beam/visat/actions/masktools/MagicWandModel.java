@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.visat.actions.masktools;
 
 import com.thoughtworks.xstream.XStream;
@@ -9,7 +25,7 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StringUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -203,13 +219,10 @@ public class MagicWandModel implements Cloneable {
         if (magicWandMask != null) {
             magicWandMask.getImageConfig().setValue("expression", expression);
         } else {
-            final int width = product.getSceneRasterWidth();
-            final int height = product.getSceneRasterHeight();
-            product.getMaskGroup().add(Mask.BandMathsType.create(MAGIC_WAND_MASK_NAME,
-                                                                 "Magic wand mask",
-                                                                 width, height,
-                                                                 expression,
-                                                                 Color.RED, 0.5));
+            product.addMask(MAGIC_WAND_MASK_NAME,
+                            "Magic wand mask",
+                            expression,
+                            Color.RED, 0.5);
         }
     }
 

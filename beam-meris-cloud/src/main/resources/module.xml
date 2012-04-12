@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-cloud</symbolicName>
-    <version>1.5.203</version>
+    <version>1.6</version>
     <name>MERIS Cloud Probability Processor</name>
 
     <description>
@@ -9,6 +9,8 @@
     </description>
     <changelog>
         <![CDATA[
+        Changes in 1.6<br>
+        Remove usage of deprecated methods/classes<br/>
         Changes in 1.5.203<br>
         [BEAM-1006] MER_FSG pixel geocoding not used<br/>
         [BEAM-1036] Ensure temporarily loaded products are disposed in processors<br>
