@@ -20,7 +20,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.swing.figure.support.ScaleHandle;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -37,9 +37,11 @@ import java.util.List;
  */
 public abstract class AbstractFigure implements Figure {
 
+    protected static final Figure[] NO_FIGURES = new Figure[0];
+    protected static final Handle[] NO_HANDLES = new Handle[0];
+
     private List<FigureChangeListener> listenerList;
     private static final String OPERATION_NOT_SUPPORTED = "Operation not supported.";
-    protected static final Handle[] NO_HANDLES = new Handle[0];
 
     private boolean selectable;
     private boolean selected;
@@ -164,7 +166,7 @@ public abstract class AbstractFigure implements Figure {
      */
     @Override
     public Figure[] getFigures(Shape shape) {
-        return new Figure[0];
+        return NO_FIGURES;
     }
 
     /**
@@ -174,7 +176,7 @@ public abstract class AbstractFigure implements Figure {
      */
     @Override
     public Figure[] getFigures() {
-        return new Figure[0];
+        return NO_FIGURES;
     }
 
     @Override
@@ -219,7 +221,7 @@ public abstract class AbstractFigure implements Figure {
             fireFiguresRemoved(removed);
             return removed;
         }
-        return new Figure[0];
+        return NO_FIGURES;
     }
 
 
@@ -230,7 +232,7 @@ public abstract class AbstractFigure implements Figure {
             fireFiguresRemoved(figures);
             return figures;
         }
-        return new Figure[0];
+        return NO_FIGURES;
     }
 
     /**
