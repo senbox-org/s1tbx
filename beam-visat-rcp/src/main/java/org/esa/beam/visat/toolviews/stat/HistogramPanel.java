@@ -23,10 +23,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.framework.datamodel.StxFactory;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
@@ -56,7 +53,7 @@ import java.beans.PropertyChangeListener;
 /**
  * A pane within the statistcs window which displays a histogram.
  */
-class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeMask {
+class HistogramPanel extends ChartPagePanel implements SingleRoiComputePanel.ComputeMask {
 
     private static final String NO_DATA_MESSAGE = "No histogram computed yet.\n" +
             ZOOM_TIP_MESSAGE;
@@ -72,16 +69,12 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
     private AxisRangeControl xAxisRangeControl;
 
     private boolean histogramComputing;
-    private SingleRoiComputePanel computePanel;
+    private RoiMaskSelector roiMaskSelector;
 
     private XIntervalSeriesCollection dataset;
     private JFreeChart chart;
     private Stx stx;
     private HistogramPlotConfig histogramPlotConfig;
-    private JPanel rightPanel;
-    private boolean rightPanelShown;
-    private JPanel backgroundPanel;
-    private AbstractButton hideAndShowButton;
 
     private static boolean isInitialized = false;
     private static final double HISTO_MIN_DEFAULT = 0.0;
@@ -116,8 +109,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
             return;
         }
 
-        if (computePanel != null) {
-            computePanel.setRaster(getRaster());
+        if (roiMaskSelector != null) {
+            roiMaskSelector.updateMaskSource(getProduct());
             chart.setTitle(getRaster() != null ? CHART_TITLE + " for " + getRaster().getName() : CHART_TITLE);
             updateXAxis();
             if (xAxisRangeControl.isAutoMinMax()) {
@@ -136,6 +129,11 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         return isRasterChanged();
     }
 
+    @Override
+    protected void compute() {
+        compute();
+    }
+
     private void createUI() {
         dataset = new XIntervalSeriesCollection();
         chart = ChartFactory.createHistogram(
@@ -150,8 +148,6 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         );
         final XYPlot xyPlot = chart.getXYPlot();
 
-        final ChartPanel histogramDisplay = createChartPanel(chart);
-
         final XYBarRenderer renderer = (XYBarRenderer) xyPlot.getRenderer();
         renderer.setDrawBarOutline(false);
         renderer.setShadowVisible(false);
@@ -162,7 +158,16 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         renderer.setBasePaint(new Color(0, 0, 200));
         renderer.setBaseFillPaint(new Color(0, 0, 200));
 
-        computePanel = new SingleRoiComputePanel(this, getRaster());
+
+        createUI(createChartPanel(chart), createMiddlePanel(), bindingContext);
+
+        isInitialized = true;
+
+        updateUIState();
+    }
+
+    private JPanel createMiddlePanel() {
+        //computePanel = new SingleRoiComputePanel(this, getRaster());
 
         final JLabel numBinsLabel = new JLabel("#Bins:");
         JTextField numBinsField = new JTextField(Integer.toString(NUM_BINS_DEFAULT));
@@ -191,11 +196,10 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
 
         JPanel dataSourceOptionsPanel = GridBagUtils.createPanel();
         GridBagConstraints dataSourceOptionsConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, computePanel, dataSourceOptionsConstraints, "gridwidth=2,gridy=0,gridx=0,weightx=0");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, new JLabel(" "), dataSourceOptionsConstraints, "gridy=1");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, numBinsLabel, dataSourceOptionsConstraints, "gridwidth=1,gridy=2,gridx=0,weightx=1");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, numBinsField, dataSourceOptionsConstraints, "gridwidth=1,gridy=2,gridx=1");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, histoLogCheck, dataSourceOptionsConstraints, "gridy=3,gridx=0");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, new JLabel(" "), dataSourceOptionsConstraints, "gridwidth=2,gridy=0,gridx=0,weightx=0");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, numBinsLabel, dataSourceOptionsConstraints, "gridwidth=1,gridy=1,gridx=0,weightx=1");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, numBinsField, dataSourceOptionsConstraints, "gridwidth=1,gridy=1,gridx=1");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, histoLogCheck, dataSourceOptionsConstraints, "gridy=2,gridx=0");
 
         xAxisRangeControl.getBindingContext().bind(PROPERTY_NAME_LOG_SCALED, new JCheckBox("Logarithmic X-axis"));
 
@@ -204,58 +208,17 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         GridBagUtils.addToPanel(displayOptionsPanel, xAxisRangeControl.getPanel(), displayOptionsConstraints, "gridy=2");
         GridBagUtils.addToPanel(displayOptionsPanel, xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getComponents()[0], displayOptionsConstraints, "gridy=3");
 
-        rightPanel = GridBagUtils.createPanel();
+        JPanel middelPanel = GridBagUtils.createPanel();
         GridBagConstraints rightPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1");
-        GridBagUtils.addToPanel(rightPanel, createTopPanel(), rightPanelConstraints, "gridy=0");
-        GridBagUtils.addToPanel(rightPanel, new JSeparator(), rightPanelConstraints, "gridy=1");
-        GridBagUtils.addToPanel(rightPanel, dataSourceOptionsPanel, rightPanelConstraints, "gridy=2");
-        GridBagUtils.addToPanel(rightPanel, new JPanel(), rightPanelConstraints, "gridy=3,fill=VERTICAL,weighty=1");
-        GridBagUtils.addToPanel(rightPanel, displayOptionsPanel, rightPanelConstraints, "gridy=4,fill=HORIZONTAL,weighty=0");
-        GridBagUtils.addToPanel(rightPanel, new JSeparator(), rightPanelConstraints, "gridy=5");
-        GridBagUtils.addToPanel(rightPanel, createChartButtonPanel2(histogramDisplay), rightPanelConstraints, "gridy=6");
-
-        hideAndShowButton = ToolButtonFactory.createButton(
-                UIUtils.loadImageIcon("icons/PanelCollapseHorizontal24.png"),
-                false);
-        hideAndShowButton.setToolTipText("Collapse Options Panel");
-        hideAndShowButton.setName("switchToChartButton");
-        hideAndShowButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                rightPanel.setVisible(rightPanelShown);
-                rightPanelShown = !rightPanelShown;
-                backgroundPanel.setBounds(0,0,500,700);
-                hideAndShowButton = ToolButtonFactory.createButton(
-                        UIUtils.loadImageIcon("icons/PanelExpandHorizontal24.png"),
-                        false);
-                hideAndShowButton.setToolTipText("Expand Options Panel");
-            }
-        });
-
-        backgroundPanel = new JPanel(new BorderLayout());
-        backgroundPanel.add(histogramDisplay, BorderLayout.CENTER);
-        backgroundPanel.add(rightPanel, BorderLayout.EAST);
-
-        JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.add(backgroundPanel, new Integer(0));
-        layeredPane.add(hideAndShowButton, new Integer(1));
-        add(layeredPane);
-
-        isInitialized = true;
-
-        updateUIState();
-    }
-
-    @Override
-    public void doLayout() {
-        backgroundPanel.setBounds(0,0,getWidth()-8,getHeight()-8);
-        hideAndShowButton.setBounds(getWidth()-hideAndShowButton.getWidth()-12,4,24,24);
-        super.doLayout();
+        GridBagUtils.addToPanel(middelPanel, new JSeparator(), rightPanelConstraints, "gridy=0");
+        GridBagUtils.addToPanel(middelPanel, dataSourceOptionsPanel, rightPanelConstraints, "gridy=1");
+        GridBagUtils.addToPanel(middelPanel, new JPanel(), rightPanelConstraints, "gridy=2,fill=VERTICAL,weighty=1");
+        GridBagUtils.addToPanel(middelPanel, displayOptionsPanel, rightPanelConstraints, "gridy=3,fill=HORIZONTAL,weighty=0");
+        GridBagUtils.addToPanel(middelPanel, new JSeparator(), rightPanelConstraints, "gridy=4");
+        return middelPanel;
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {
-
-
         XYPlot plot = chart.getXYPlot();
 
         plot.setForegroundAlpha(0.85f);
@@ -311,6 +274,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         private boolean xAxisLogScaled;
         private boolean histogramLogScaled;
         private int numBins = NUM_BINS_DEFAULT;
+        private boolean useRoiMask;
+        private Mask roiMask;
     }
 
     @Override
