@@ -19,6 +19,7 @@ package org.esa.beam.framework.datamodel;
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.util.Debug;
+import org.esa.beam.util.ObjectUtils;
 import org.geotools.feature.*;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
@@ -40,6 +41,8 @@ import java.util.List;
 public class VectorDataNode extends ProductNode {
 
     public static final String PROPERTY_NAME_FEATURE_COLLECTION = "featureCollection";
+    public static final String PROPERTY_NAME_STYLE_CSS = "styleCss";
+    public static final String PROPERTY_NAME_DEFAULT_STYLE_CSS = "defaultStyleCss";
 
     private static final String DEFAULT_STYLE_FORMAT = "fill:%s; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0; symbol:cross";
     private static final String[] FILL_COLORS = {
@@ -58,10 +61,11 @@ public class VectorDataNode extends ProductNode {
 
     private final SimpleFeatureType featureType;
     private final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+    private final CollectionListener featureCollectionListener;
     private final PlacemarkDescriptor placemarkDescriptor;
     private PlacemarkGroup placemarkGroup;
-    private final CollectionListener featureCollectionListener;
     private String defaultStyleCss;
+    private String styleCss;
     private ReferencedEnvelope bounds;
 
     /**
@@ -253,8 +257,24 @@ public class VectorDataNode extends ProductNode {
     }
 
     public void setDefaultStyleCss(String defaultStyleCss) {
-        Assert.notNull(this.defaultStyleCss, "defaultStyleCss");
-        this.defaultStyleCss = defaultStyleCss;
+        Assert.notNull(this.defaultStyleCss, PROPERTY_NAME_DEFAULT_STYLE_CSS);
+        if (!ObjectUtils.equalObjects(this.defaultStyleCss, defaultStyleCss)) {
+            String oldValue = this.defaultStyleCss;
+            this.defaultStyleCss = defaultStyleCss;
+            fireProductNodeChanged(PROPERTY_NAME_DEFAULT_STYLE_CSS, oldValue, this.defaultStyleCss);
+        }
+    }
+
+    public String getStyleCss() {
+        return styleCss;
+    }
+
+    public void setStyleCss(String styleCss) {
+        if (!ObjectUtils.equalObjects(this.styleCss, styleCss)) {
+            String oldValue = this.styleCss;
+            this.styleCss = styleCss;
+            fireProductNodeChanged(PROPERTY_NAME_STYLE_CSS, oldValue, this.styleCss);
+        }
     }
 
     @Override

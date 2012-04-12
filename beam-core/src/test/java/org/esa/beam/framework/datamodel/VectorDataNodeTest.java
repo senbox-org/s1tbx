@@ -65,4 +65,74 @@ public class VectorDataNodeTest {
         assertSame(expectedType, vectorDataNode.getFeatureCollection().getSchema());
     }
 
+
+    @Test
+    public void testDefaultStyle()  {
+        SimpleFeatureType unknownType = PlacemarkDescriptorRegistryTest.createYetUnknownFeatureType();
+        Product p = new Product("p", "pt", 4, 4);
+        VectorDataNode vdn = new VectorDataNode("vdn", unknownType);
+        p.getVectorDataGroup().add(vdn);
+
+        MyProductNodeListenerAdapter pnl = new MyProductNodeListenerAdapter();
+        p.addProductNodeListener(pnl);
+
+        String styleCss = vdn.getStyleCss();
+
+        assertNotNull(vdn.getDefaultStyleCss());
+        vdn.setDefaultStyleCss("fill:#aabbcc");
+        assertEquals("fill:#aabbcc", vdn.getDefaultStyleCss());
+        assertNotNull(pnl.event);
+        assertEquals("defaultStyleCss", pnl.event.getPropertyName());
+        assertEquals("fill:#aabbcc", pnl.event.getNewValue());
+        pnl.event = null;
+        vdn.setDefaultStyleCss("fill:#aabbcc");
+        assertNull(pnl.event);
+        vdn.setDefaultStyleCss("fill:#000000");
+        assertNotNull(pnl.event);
+        assertEquals("defaultStyleCss", pnl.event.getPropertyName());
+        assertEquals("fill:#000000", pnl.event.getNewValue());
+
+        // test that styleCss is not affected
+        assertEquals(styleCss, vdn.getStyleCss());
+    }
+
+    @Test
+    public void testStyle()  {
+        SimpleFeatureType unknownType = PlacemarkDescriptorRegistryTest.createYetUnknownFeatureType();
+        Product p = new Product("p", "pt", 4, 4);
+        VectorDataNode vdn = new VectorDataNode("vdn", unknownType);
+        p.getVectorDataGroup().add(vdn);
+
+        MyProductNodeListenerAdapter pnl = new MyProductNodeListenerAdapter();
+        p.addProductNodeListener(pnl);
+
+        String defaultStyleCss = vdn.getDefaultStyleCss();
+
+        assertNull(vdn.getStyleCss());
+
+        vdn.setStyleCss("fill:#aabbcc");
+        assertEquals("fill:#aabbcc", vdn.getStyleCss());
+        assertNotNull(pnl.event);
+        assertEquals("styleCss", pnl.event.getPropertyName());
+        assertEquals("fill:#aabbcc", pnl.event.getNewValue());
+        pnl.event = null;
+        vdn.setStyleCss("fill:#aabbcc");
+        assertNull(pnl.event);
+        vdn.setStyleCss("fill:#000000");
+        assertNotNull(pnl.event);
+        assertEquals("styleCss", pnl.event.getPropertyName());
+        assertEquals("fill:#000000", pnl.event.getNewValue());
+
+        // test that defaultStyleCss is not affected
+        assertEquals(defaultStyleCss, vdn.getDefaultStyleCss());
+    }
+
+    private static class MyProductNodeListenerAdapter extends ProductNodeListenerAdapter {
+        ProductNodeEvent event;
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            this.event = event;
+        }
+    }
 }
