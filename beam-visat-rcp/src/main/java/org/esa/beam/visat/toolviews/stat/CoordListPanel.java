@@ -94,5 +94,11 @@ class CoordListPanel extends TextPagePanel {
     protected boolean mustUpdateContent() {
         return super.mustUpdateContent() || isVectorDataNodeChanged();
     }
-    
+
+    @Override
+    public void setVisible(boolean aFlag) {
+        super.setVisible(aFlag);
+        updateContent();
+    }
+
 }
