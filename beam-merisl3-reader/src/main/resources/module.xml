@@ -48,7 +48,7 @@
             <shortDescr>Import a MERIS Binned Level-3 (NetCDF) data product or product subset.</shortDescr>
             <description>Import a MERIS Binned Level-3 (NetCDF) data product or product subset.</description>
             <helpId>importMerisBinnedL3Product</helpId>
-            <placeAfter>importEnvisatProduct</placeAfter>
+            <!--<placeAfter>importEnvisatProduct</placeAfter>-->
         </action>
     </extension>
 
