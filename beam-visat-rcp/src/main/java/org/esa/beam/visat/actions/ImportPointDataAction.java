@@ -68,7 +68,7 @@ public class ImportPointDataAction extends ExecCommand {
             CoordinateReferenceSystem modelCrs =
                     product.getGeoCoding() != null ? ImageManager.getModelCrs(product.getGeoCoding()) :
                     ImageManager.DEFAULT_IMAGE_CRS;
-            vectorDataNode = VectorDataNodeReader2.read(type, file, modelCrs);
+            vectorDataNode = VectorDataNodeReader2.read(type, file, modelCrs, product.getGeoCoding());
         } catch (IOException e) {
             visatApp.showErrorDialog(TITLE, "Failed to load csv file:\n" + e.getMessage());
             return;

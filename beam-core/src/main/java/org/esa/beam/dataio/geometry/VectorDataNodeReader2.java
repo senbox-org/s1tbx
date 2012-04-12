@@ -25,6 +25,9 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.StringUtils;
@@ -51,18 +54,20 @@ public class VectorDataNodeReader2 {
 
     private final String location;
     private final CoordinateReferenceSystem modelCrs;
+    private final GeoCoding geoCoding;
     private CsvType type;
     private int latIndex;
     private int lonIndex;
 
-    public VectorDataNodeReader2(CsvType type, String path, CoordinateReferenceSystem modelCrs) {
+    public VectorDataNodeReader2(CsvType type, GeoCoding geoCoding, String path, CoordinateReferenceSystem modelCrs) {
+        this.geoCoding = geoCoding;
         this.location = path;
         this.modelCrs = modelCrs;
         this.type = type;
     }
 
-    public static VectorDataNode read(CsvType type, File file, CoordinateReferenceSystem modelCrs) throws IOException {
-        return new VectorDataNodeReader2(type, file.getPath(), modelCrs).read(file);
+    public static VectorDataNode read(CsvType type, File file, CoordinateReferenceSystem modelCrs, GeoCoding geoCoding) throws IOException {
+        return new VectorDataNodeReader2(type, geoCoding, file.getPath(), modelCrs).read(file);
     }
 
     public VectorDataNode read(File file) throws IOException {
@@ -138,16 +143,15 @@ public class VectorDataNodeReader2 {
 
 
     private FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures(CsvReader csvReader, SimpleFeatureType simpleFeatureType) throws IOException {
-        Converter<?>[] converters = VectorDataNodeIO.getConverters(simpleFeatureType);
-
         DefaultFeatureCollection fc = new DefaultFeatureCollection("?", simpleFeatureType);
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeatureType);
+        PixelPos pixelPos = new PixelPos();
         while (true) {
             String[] tokens = csvReader.readRecord();
             if (tokens == null) {
                 break;
             }
-            final int expectedTokenCount = 2 + simpleFeatureType.getAttributeCount();
+            final int expectedTokenCount = 1 + simpleFeatureType.getAttributeCount();
             if (tokens.length != expectedTokenCount) {
                 BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
                                                                        location, expectedTokenCount, tokens.length));
@@ -186,7 +190,9 @@ public class VectorDataNodeReader2 {
                     attributeIndex++;
                 }
             }
+            geoCoding.getPixelPos(new GeoPos((float) lat, (float) lon), pixelPos);
             builder.set("geoPos", new GeometryFactory().createPoint(new Coordinate(lon, lat)));
+            builder.set("pixelPos", new GeometryFactory().createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
             SimpleFeature simpleFeature = builder.buildFeature(fid);
             fc.add(simpleFeature);
         }
@@ -239,7 +245,8 @@ public class VectorDataNodeReader2 {
             }
         }
         builder.add("geoPos", type.getGeometry());
-        builder.setDefaultGeometry("geoPos");
+        builder.add("pixelPos", type.getGeometry());
+        builder.setDefaultGeometry("pixelPos");
         return builder.buildFeatureType();
     }
 
