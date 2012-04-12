@@ -16,8 +16,6 @@ import java.beans.PropertyChangeListener;
 
 public class FlhMciAction extends AbstractVisatAction {
 
-    private Presets preset;
-
     @Override
     public void actionPerformed(CommandEvent event) {
         final String operatorName = FlhMciOp.Spi.class.getName();
@@ -28,16 +26,8 @@ public class FlhMciAction extends AbstractVisatAction {
         final DefaultSingleTargetProductDialog dialog = new DefaultSingleTargetProductDialog(operatorName, appContext,
                                                                                              title, helpID);
         final BindingContext bindingContext = dialog.getBindingContext();
-        final PropertySet presetPropertySet = PropertyContainer.createObjectBacked(this);
-        PropertyDescriptor presetDescriptor = presetPropertySet.getDescriptor("preset");
-        presetDescriptor.setDefaultValue(Presets.NONE);
-
-        // awkward - add 'preset' property at the first position of the binding context's property set
         final PropertySet propertySet = bindingContext.getPropertySet();
-        final Property[] properties = propertySet.getProperties();
-        propertySet.removeProperties(properties);
-        propertySet.addProperty(presetPropertySet.getProperty("preset"));
-        propertySet.addProperties(properties);
+        configurePropertySet(propertySet);
 
         bindingContext.bindEnabledState("slopeBandName", true, "slope", true);
         bindingContext.addPropertyChangeListener("preset", new PropertyChangeListener() {
@@ -64,5 +54,20 @@ public class FlhMciAction extends AbstractVisatAction {
         dialog.setTargetProductNameSuffix("_flhmci");
         dialog.getJDialog().pack();
         dialog.show();
+    }
+
+    private void configurePropertySet(PropertySet propertySet) {
+        final PropertySet presetPropertySet = PropertyContainer.createObjectBacked(new PresetContainer());
+
+        // awkward - purpose is to insert 'preset' property at the first position of the binding context's property set
+        final Property[] properties = propertySet.getProperties();
+        propertySet.removeProperties(properties);
+        propertySet.addProperty(presetPropertySet.getProperty("preset"));
+        propertySet.addProperties(properties);
+    }
+
+    private static class PresetContainer {
+
+        private Presets preset = Presets.NONE;
     }
 }

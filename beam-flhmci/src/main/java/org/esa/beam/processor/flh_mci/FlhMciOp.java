@@ -67,7 +67,7 @@ public class FlhMciOp extends PixelOperator {
     private boolean slope;
     @Parameter(validator = NodeNameValidator.class)
     private String slopeBandName;
-    @Parameter(description = "Mask expression used to identify valid pixels") // todo - use ExpressionEditor
+    @Parameter(description = "A ROI-mask expression used to identify pixels of interest") // todo - use ExpressionEditor
     private String maskExpression;
     @Parameter(defaultValue = "1.005")
     private float cloudCorrectionFactor;

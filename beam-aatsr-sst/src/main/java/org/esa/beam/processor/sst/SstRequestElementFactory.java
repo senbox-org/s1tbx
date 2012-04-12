@@ -15,11 +15,6 @@
  */
 package org.esa.beam.processor.sst;
 
-import java.io.File;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.ParamValidateException;
 import org.esa.beam.framework.param.Parameter;
@@ -32,6 +27,10 @@ import org.esa.beam.framework.processor.RequestElementFactoryException;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.SystemUtils;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This class contains the core parameter creation and definition functionality. It defines: <ul> <li> all valid
  * parameter names <li> all parameter ranges defined (if any) <li> the UI editors for the parameters <li> and the
@@ -41,6 +40,8 @@ import org.esa.beam.util.SystemUtils;
  * to do this.
  * <p/>
  * It is implemented as a singleton
+ *
+ * @deprecated since BEAM 4.10 - no replacement.
  */
 @Deprecated
 public class SstRequestElementFactory implements RequestElementFactory {
@@ -58,7 +59,7 @@ public class SstRequestElementFactory implements RequestElementFactory {
     /**
      * Creates a new reference to an input product for the current processing request.
      *
-     * @param file        the input product's file, must not be <code>null</code>
+     * @param file       the input product's file, must not be <code>null</code>
      * @param fileFormat the file format, can be <code>null</code> if not known
      * @param typeId     the product type identifier, can be <code>null</code> if not known
      *
@@ -75,7 +76,7 @@ public class SstRequestElementFactory implements RequestElementFactory {
     /**
      * Creates a new reference to an output product for the current processing request.
      *
-     * @param file        the output product's file, must not be <code>null</code>
+     * @param file       the output product's file, must not be <code>null</code>
      * @param fileFormat the file format, can be <code>null</code> if not known
      * @param typeId     the product type identifier, can be <code>null</code> if not known
      *
@@ -142,9 +143,9 @@ public class SstRequestElementFactory implements RequestElementFactory {
      */
     public Parameter createParamWithDefaultValueSet(final String paramName) {
         final ParamProperties paramProps = getParamProperties(paramName);
-        if(SstConstants.DUAL_VIEW_BITMASK_PARAM_NAME.equalsIgnoreCase(paramName) ||
-           SstConstants.NADIR_VIEW_BITMASK_PARAM_NAME.equalsIgnoreCase(paramName)) {
-        paramProps.setPropertyValue(BooleanExpressionEditor.PROPERTY_KEY_SELECTED_PRODUCT, null);
+        if (SstConstants.DUAL_VIEW_BITMASK_PARAM_NAME.equalsIgnoreCase(paramName) ||
+            SstConstants.NADIR_VIEW_BITMASK_PARAM_NAME.equalsIgnoreCase(paramName)) {
+            paramProps.setPropertyValue(BooleanExpressionEditor.PROPERTY_KEY_SELECTED_PRODUCT, null);
         }
 
         final Parameter param = new Parameter(paramName, paramProps);
@@ -165,7 +166,7 @@ public class SstRequestElementFactory implements RequestElementFactory {
     public Parameter createDefaultOutputProductParameter() {
         final File defaultOutFile = new File(SystemUtils.getUserHomeDir(), SstConstants.DEFAULT_FILE_NAME);
         final ParamProperties paramProps = _defaultFactory.createFileParamProperties(ParamProperties.FSM_FILES_ONLY,
-                                                                               defaultOutFile);
+                                                                                     defaultOutFile);
         paramProps.setLabel(SstConstants.OUTPUT_PRODUCT_LABELTEXT);
         paramProps.setDescription(SstConstants.OUTPUT_PRODUCT_DESCRIPTION);
         final Parameter param = new Parameter(SstConstants.OUTPUT_PRODUCT_PARAM_NAME, paramProps);
@@ -334,9 +335,10 @@ public class SstRequestElementFactory implements RequestElementFactory {
         paramProps.setDefaultValue(SstConstants.DEFAULT_INVALID_PIXEL);
         return paramProps;
     }
-    
+
     // Initialization on demand holder idiom
     private static class Holder {
+
         private static final SstRequestElementFactory instance = new SstRequestElementFactory();
     }
 }

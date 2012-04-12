@@ -41,6 +41,8 @@ import java.util.logging.Logger;
 
 /**
  * The main class for the FLH_MCI processor.
+ *
+ * @deprecated since BEAM 4.10 - no replacement.
  */
 @Deprecated
 public final class FlhMciProcessor extends Processor {
@@ -235,6 +237,7 @@ public final class FlhMciProcessor extends Processor {
      * Retrieves a progress message for the request passed in. Override this method if you need custom messaging.
      *
      * @param request
+     *
      * @return the progress message for the request
      */
     @Override
@@ -257,7 +260,7 @@ public final class FlhMciProcessor extends Processor {
         Request.checkRequestType(request, FlhMciConstants.REQUEST_TYPE);
 
         ProcessorUtils.setProcessorLoggingHandler(FlhMciConstants.DEFAULT_LOG_PREFIX, request,
-                getName(), getVersion(), getCopyrightInformation());
+                                                  getName(), getVersion(), getCopyrightInformation());
 
         _logger.info(FlhMciConstants.LOG_MSG_LOAD_REQUEST);
 
@@ -388,7 +391,7 @@ public final class FlhMciProcessor extends Processor {
      * <code>RsBands</code> to be processed.
      */
     private void loadInputProduct() throws ProcessorException,
-            IOException {
+                                           IOException {
         // only the first product - there might be more but these will be ignored
         // ----------------------------------------------------------------------
         _inputProduct = loadInputProduct(0);
@@ -443,6 +446,7 @@ public final class FlhMciProcessor extends Processor {
      * Loads a specific band from the input product.
      *
      * @param parameterName the request parameter which holds this bands name
+     *
      * @return the band loaded
      */
     private Band loadBand(String parameterName) throws ProcessorException {
@@ -475,7 +479,7 @@ public final class FlhMciProcessor extends Processor {
      * Creates the output product for the given request
      */
     private void createOutputProduct(ProgressMonitor pm) throws ProcessorException,
-            IOException {
+                                                                IOException {
         // take only the first output product. There might be more but we will ignore
         // these in this processor.
         final ProductRef prodRef = getOutputProductSafe();
@@ -515,7 +519,7 @@ public final class FlhMciProcessor extends Processor {
         ProductUtils.copyTiePointGrids(_inputProduct, _outputProduct);
         copyRequestMetaData(_outputProduct);
         copyFlagBands(_inputProduct, _outputProduct);
-        
+
         copyGeoCoding(_inputProduct, _outputProduct);
 
         // initialize the disk represenation

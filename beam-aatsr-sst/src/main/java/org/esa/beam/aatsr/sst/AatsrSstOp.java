@@ -121,7 +121,7 @@ public class AatsrSstOp extends PixelOperator {
     private Files dualCoefficientsFile;
 
     @Parameter(defaultValue = SstConstants.DEFAULT_DUAL_VIEW_BITMASK, label = "Dual-view mask",
-               description = "Mask used for the dual-view SST")  // todo - use ExpressionEditor
+               description = "ROI-mask used for the dual-view SST")  // todo - use ExpressionEditor
     private String dualMaskExpression;
 
     @Parameter(defaultValue = "true", label = SstConstants.PROCESS_NADIR_VIEW_SST_LABELTEXT,
@@ -137,7 +137,7 @@ public class AatsrSstOp extends PixelOperator {
     private Files nadirCoefficientsFile;
 
     @Parameter(defaultValue = SstConstants.DEFAULT_NADIR_VIEW_BITMASK, label = "Nadir-view mask",
-               description = "Mask used for the nadir-view SST")  // todo - use ExpressionEditor
+               description = "ROI-mask used for the nadir-view SST")  // todo - use ExpressionEditor
     private String nadirMaskExpression;
 
     @Parameter(defaultValue = "-999.0f", label = "Invalid SST value",

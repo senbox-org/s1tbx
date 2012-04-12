@@ -46,10 +46,12 @@ public class FlhMciConstants implements ProcessorConstants {
     public static final String PRESET_PARAM_NAME = "preset_name";
     // The value set valid for this parameter type
     @Deprecated
-    public static final String[] PRESET_PARAM_VALUE_SET = {"MERIS L2 FLH",
-                                                           "MERIS L1b MCI",
-                                                           "MERIS L2 MCI",
-                                                           "General baseline height"};
+    public static final String[] PRESET_PARAM_VALUE_SET = {
+            "MERIS L2 FLH",
+            "MERIS L1b MCI",
+            "MERIS L2 MCI",
+            "General baseline height"
+    };
     // the default value to be set
     @Deprecated
     public static final String PRESET_PARAM_DEFAULT_VALUE = "General baseline height";
@@ -189,7 +191,7 @@ public class FlhMciConstants implements ProcessorConstants {
     public static final String CLOUD_CORRECTION_FACTOR_DESCRIPTION = "Cloud correction factor";
     // default value for the parameter cloud correction factor
     @Deprecated
-    public static final Float DEFAULT_CLOUD_CORRECTION_FACTOR = new Float(BaselineAlgorithm.DEFAULT_CLOUD_CORRECT);
+    public static final Float DEFAULT_CLOUD_CORRECTION_FACTOR = BaselineAlgorithm.DEFAULT_CLOUD_CORRECT;
 
     @Deprecated
     public static final String LOGGER_NAME = "beam.processor.flh_mci";

@@ -110,5 +110,4 @@ class RadiometryDialog extends SingleTargetProductDialog {
         form.prepareHide();
         super.hide();
     }
-
 }

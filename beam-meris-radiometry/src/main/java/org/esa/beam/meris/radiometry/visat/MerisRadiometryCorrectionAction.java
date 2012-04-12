@@ -31,8 +31,6 @@ public class MerisRadiometryCorrectionAction extends AbstractVisatAction {
                                                                      event.getCommand().getHelpId());
         operatorDialog.getJDialog().pack();
         operatorDialog.show();
-
-
     }
 
 }

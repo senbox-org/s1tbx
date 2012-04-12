@@ -15,10 +15,6 @@
  */
 package org.esa.beam.processor.flh_mci;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.ParamValidateException;
 import org.esa.beam.framework.param.Parameter;
@@ -31,6 +27,10 @@ import org.esa.beam.framework.processor.RequestElementFactoryException;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.SystemUtils;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This class contains the core parameter creation and definfition functionality. It defines: <ul> <li> all valid
  * parameter names <li> all parameter ranges defined (if any) <li> the UI editors for the parameters <li> and the
@@ -38,11 +38,13 @@ import org.esa.beam.util.SystemUtils;
  * <p/>
  * This class is responsible for checking any request file loaded for valid content. It is passed to the request loader
  * to do this.
+ *
+ * @deprecated since BEAM 4.10 - no replacement.
  */
 @Deprecated
 public class FlhMciRequestElementFactory implements RequestElementFactory {
 
-    private final Map<String,ParamProperties> _paramInfoMap = new HashMap<String, ParamProperties>();
+    private final Map<String, ParamProperties> _paramInfoMap = new HashMap<String, ParamProperties>();
     private final DefaultRequestElementFactory _defaultFactory = DefaultRequestElementFactory.getInstance();
 
 
@@ -56,14 +58,16 @@ public class FlhMciRequestElementFactory implements RequestElementFactory {
     /**
      * {@inheritDoc}
      */
-    public ProductRef createInputProductRef(File file, String fileFormat, String typeId) throws RequestElementFactoryException {
+    public ProductRef createInputProductRef(File file, String fileFormat, String typeId) throws
+                                                                                         RequestElementFactoryException {
         return _defaultFactory.createInputProductRef(file, fileFormat, typeId);
     }
 
     /**
      * {@inheritDoc}
      */
-    public ProductRef createOutputProductRef(File file, String fileFormat, String typeId) throws RequestElementFactoryException {
+    public ProductRef createOutputProductRef(File file, String fileFormat, String typeId) throws
+                                                                                          RequestElementFactoryException {
         return _defaultFactory.createOutputProductRef(file, fileFormat, typeId);
     }
 
@@ -347,9 +351,10 @@ public class FlhMciRequestElementFactory implements RequestElementFactory {
         paramProps.setValueSetBound(true);
         return paramProps;
     }
-    
+
     // Initialization on demand holder idiom
     private static class Holder {
+
         private static final FlhMciRequestElementFactory instance = new FlhMciRequestElementFactory();
     }
 }

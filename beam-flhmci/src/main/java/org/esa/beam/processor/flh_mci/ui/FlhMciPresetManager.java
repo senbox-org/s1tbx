@@ -15,17 +15,19 @@
  */
 package org.esa.beam.processor.flh_mci.ui;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.esa.beam.processor.flh_mci.FlhMciConstants;
 import org.esa.beam.util.Guardian;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class supports the FlhMciUI in terms of preset handling. It contains all default preset parameter and can
  * generate presets by a given name or return a preset name for a given FlhMciPreset object.
  * <p/>
  * The manager is implemented as a singleton.
+ *
+ * @deprecated since BEAM 4.10 - no replacement.
  */
 @Deprecated
 public class FlhMciPresetManager {
@@ -165,9 +167,10 @@ public class FlhMciPresetManager {
 
         return preset;
     }
-    
+
     // Initialization on demand holder idiom
     private static class Holder {
+
         private static final FlhMciPresetManager instance = new FlhMciPresetManager();
     }
 }

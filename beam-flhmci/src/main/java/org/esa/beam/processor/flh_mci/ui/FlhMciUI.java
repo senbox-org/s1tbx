@@ -58,6 +58,9 @@ import java.util.Vector;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+/**
+ * @deprecated since BEAM 4.10 - no replacement.
+ */
 @Deprecated
 public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener {
 
@@ -526,7 +529,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
                 _logger.warning(e.getMessage());
                 Debug.trace(e);
             } finally {
-                if(inProduct != null) {
+                if (inProduct != null) {
                     inProduct.dispose();
                 }
             }

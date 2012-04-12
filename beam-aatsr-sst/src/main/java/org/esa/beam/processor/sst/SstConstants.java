@@ -126,7 +126,7 @@ public class SstConstants implements ProcessorConstants {
     public static final String INVALID_PIXEL_DESCRIPTION = "Value for no-data output pixels";
     // default value for the parameter "invalid pixel value"
     @Deprecated
-    public static final Float DEFAULT_INVALID_PIXEL = new Float(-999f);
+    public static final Float DEFAULT_INVALID_PIXEL = -999f;
 
     // band name constants used in the processor
     // 3.7 u nadir

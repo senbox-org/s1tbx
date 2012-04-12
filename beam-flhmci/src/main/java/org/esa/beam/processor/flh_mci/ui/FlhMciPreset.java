@@ -20,6 +20,8 @@ import org.esa.beam.util.Guardian;
 
 /**
  * This class contains all the parameter needed to hold a complete preset parameter set.
+ *
+ * @deprecated since BEAM 4.10 - no replacement.
  */
 @Deprecated
 public final class FlhMciPreset {
