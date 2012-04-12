@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,7 +22,6 @@ import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -321,18 +320,12 @@ public class NdviProcessor extends Processor {
         ProductUtils.copyMasks(_inputProduct, _outputProduct);
         ProductUtils.copyOverlayMasks(_inputProduct, _outputProduct);
 
-        final Mask arithMask = Mask.BandMathsType.create(NDVI_ARITHMETIC_FLAG_NAME, "An arithmetic exception occured.",
-                                                        sceneWidth, sceneHeight, 
-                                                        (NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME), Color.red.brighter(), 0.7);
-        _outputProduct.getMaskGroup().add(arithMask);
-        final Mask lowMask = Mask.BandMathsType.create(NDVI_LOW_FLAG_NAME, "NDVI value is too low.",
-                                                      sceneWidth, sceneHeight, 
-                                                      (NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME), Color.red, 0.7);
-        _outputProduct.getMaskGroup().add(lowMask);
-        final Mask highMask = Mask.BandMathsType.create(NDVI_HIGH_FLAG_NAME, "NDVI value is too high.",
-                                                       sceneWidth, sceneHeight, 
-                                                       (NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME), Color.red.darker(), 0.7);
-        _outputProduct.getMaskGroup().add(highMask);
+        _outputProduct.addMask(NDVI_ARITHMETIC_FLAG_NAME, "An arithmetic exception occured.",
+                               (NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME), Color.red.brighter(), 0.7);
+        _outputProduct.addMask(NDVI_LOW_FLAG_NAME, "NDVI value is too low.",
+                               (NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME), Color.red, 0.7);
+        _outputProduct.addMask(NDVI_HIGH_FLAG_NAME, "NDVI value is too high.",
+                               (NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME), Color.red.darker(), 0.7);
 
 
         // retrieve the default disk writer from the ProductIO package

@@ -20,7 +20,13 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.VirtualDir;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import ucar.ma2.Array;
@@ -29,10 +35,17 @@ import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import javax.media.jai.*;
+import javax.media.jai.BorderExtender;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.CropDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
@@ -342,54 +355,39 @@ public class SpotVgtProductReader extends AbstractProductReader {
                 }
             }
 
-            product.getMaskGroup().add(Mask.BandMathsType.create("B0_BAD", "Radiometric quality for band B0 is bad.",
-                                                                 product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "!SM.B0_GOOD",
-                                                                 Color.RED, 0.2));
-            product.getMaskGroup().add(Mask.BandMathsType.create("B2_BAD", "Radiometric quality for band B2 is bad.",
-                                                                 product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "!SM.B2_GOOD",
-                                                                 Color.RED, 0.2));
-            product.getMaskGroup().add(Mask.BandMathsType.create("B3_BAD", "Radiometric quality for band B3 is bad.",
-                                                                 product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "!SM.B3_GOOD",
-                                                                 Color.RED, 0.2));
-            product.getMaskGroup().add(Mask.BandMathsType.create("MIR_BAD", "Radiometric quality for band MIR is bad.",
-                                                                 product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "!SM.MIR_GOOD",
-                                                                 Color.RED, 0.2));
-            product.getMaskGroup().add(Mask.BandMathsType.create("LAND", "Land mask.",
-                                                                 product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "SM.LAND",
-                                                                 Color.GREEN, 0.5));
-            product.getMaskGroup().add(Mask.BandMathsType.create("WATER", "Water mask.",
-                                                                 product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "!SM.LAND",
-                                                                 Color.BLUE, 0.5));
-            product.getMaskGroup().add(Mask.BandMathsType.create("ICE_SNOW", "Ice/snow mask.",
-                                                                 product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "SM.ICE_SNOW",
-                                                                 Color.MAGENTA, 0.5));
-            product.getMaskGroup().add(Mask.BandMathsType.create("CLEAR", "Clear sky.",
-                                                                 product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(),
-                                                                 "!SM.CLOUD_1 && !SM.CLOUD_2",
-                                                                 Color.ORANGE, 0.5));
-            product.getMaskGroup().add(Mask.BandMathsType.create("CLOUD_SHADOW", "Cloud shadow.",
-                                                                 product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(),
-                                                                 "SM.CLOUD_1 && !SM.CLOUD_2",
-                                                                 Color.CYAN, 0.5));
-            product.getMaskGroup().add(Mask.BandMathsType.create("CLOUD_UNCERTAIN", "Cloud uncertain.",
-                                                                 product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(),
-                                                                 "!SM.CLOUD_1 && SM.CLOUD_2",
-                                                                 Color.ORANGE, 0.5));
-            product.getMaskGroup().add(Mask.BandMathsType.create("CLOUD", "Cloud certain.",
-                                                                 product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(),
-                                                                 "SM.CLOUD_1 && SM.CLOUD_2",
-                                                                 Color.YELLOW, 0.5));
+            product.addMask("B0_BAD", "Radiometric quality for band B0 is bad.",
+                            "!SM.B0_GOOD",
+                            Color.RED, 0.2);
+            product.addMask("B2_BAD", "Radiometric quality for band B2 is bad.",
+                            "!SM.B2_GOOD",
+                            Color.RED, 0.2);
+            product.addMask("B3_BAD", "Radiometric quality for band B3 is bad.",
+                            "!SM.B3_GOOD",
+                            Color.RED, 0.2);
+            product.addMask("MIR_BAD", "Radiometric quality for band MIR is bad.",
+                            "!SM.MIR_GOOD",
+                            Color.RED, 0.2);
+            product.addMask("LAND", "Land mask.",
+                            "SM.LAND",
+                            Color.GREEN, 0.5);
+            product.addMask("WATER", "Water mask.",
+                            "!SM.LAND",
+                            Color.BLUE, 0.5);
+            product.addMask("ICE_SNOW", "Ice/snow mask.",
+                            "SM.ICE_SNOW",
+                            Color.MAGENTA, 0.5);
+            product.addMask("CLEAR", "Clear sky.",
+                            "!SM.CLOUD_1 && !SM.CLOUD_2",
+                            Color.ORANGE, 0.5);
+            product.addMask("CLOUD_SHADOW", "Cloud shadow.",
+                            "SM.CLOUD_1 && !SM.CLOUD_2",
+                            Color.CYAN, 0.5);
+            product.addMask("CLOUD_UNCERTAIN", "Cloud uncertain.",
+                            "!SM.CLOUD_1 && SM.CLOUD_2",
+                            Color.ORANGE, 0.5);
+            product.addMask("CLOUD", "Cloud certain.",
+                            "SM.CLOUD_1 && SM.CLOUD_2",
+                            Color.YELLOW, 0.5);
         }
     }
 

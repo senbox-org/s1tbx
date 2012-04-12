@@ -45,6 +45,7 @@ import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -2072,6 +2073,26 @@ public class Product extends ProductNode {
      */
     public Mask addMask(String maskName, Mask.ImageType imageType) {
         final Mask mask = new Mask(maskName, sceneRasterWidth, sceneRasterHeight, imageType);
+        getMaskGroup().add(mask);
+        return mask;
+    }
+
+    /**
+     * Creates a new mask using a band arithmetic expression
+     * and adds it to this product and returns it.
+     *
+     * @param maskName  the new mask's name
+     * @param description the mask's description
+     * @param expression the band arithmetic expression
+     * @param color the display color
+     * @param transparency the display transparency
+     * @return the new mask which has just been added
+     * @since BEAM 4.10
+     */
+    public Mask addMask(String maskName, String description, String expression, Color color, double transparency) {
+        final Mask mask = Mask.BandMathsType.create(maskName, description,
+                                                    sceneRasterWidth, sceneRasterHeight,
+                                                    expression, color, transparency);
         getMaskGroup().add(mask);
         return mask;
     }

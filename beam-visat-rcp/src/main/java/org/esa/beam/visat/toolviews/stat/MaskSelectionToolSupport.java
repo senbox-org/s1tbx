@@ -22,8 +22,9 @@ import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.jfree.chart.ChartPanel;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenuItem;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -105,14 +106,7 @@ abstract class MaskSelectionToolSupport implements PlotAreaSelectionTool.Action 
         if (mask != null) {
             mask.getImageConfig().setValue("expression", expression);
         } else {
-            final int width = product.getSceneRasterWidth();
-            final int height = product.getSceneRasterHeight();
-            mask = Mask.BandMathsType.create(maskName,
-                                             maskDescription,
-                                             width, height,
-                                             expression,
-                                             maskColor, 0.5);
-            product.getMaskGroup().add(mask);
+            mask = product.addMask(maskName, maskDescription, expression, maskColor, 0.5);
         }
 
         RasterDataNode raster = pagePanel.getRaster();

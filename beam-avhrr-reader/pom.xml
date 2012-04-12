@@ -28,7 +28,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-avhrr-reader</artifactId>
     <name>BEAM AVHRR Product Reader</name>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <packaging>jar</packaging>
