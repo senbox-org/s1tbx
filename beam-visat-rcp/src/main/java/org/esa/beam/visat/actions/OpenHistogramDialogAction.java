@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,14 +19,14 @@ package org.esa.beam.visat.actions;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
+import org.esa.beam.visat.toolviews.stat.HistogramToolView;
 import org.esa.beam.visat.toolviews.stat.StatisticDialogHelper;
-import org.esa.beam.visat.toolviews.stat.StatisticsToolView;
 
 public class OpenHistogramDialogAction extends ExecCommand {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        StatisticDialogHelper.openStatisticsDialog(StatisticsToolView.HISTOGRAM_TAB_INDEX);
+        VisatApp.getApp().getApplicationPage().showToolView(HistogramToolView.ID);
     }
 
     @Override

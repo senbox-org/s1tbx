@@ -14,23 +14,19 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.visat.actions;
+package org.esa.beam.visat.toolviews.stat;
 
-import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.visat.VisatApp;
-import org.esa.beam.visat.toolviews.stat.StatisticDialogHelper;
-import org.esa.beam.visat.toolviews.stat.Statistics2ToolView;
+/**
+ * The tool view containing geo-coding information
+ *
+ * @author Marco Zuehlke
+ */
+public class GeoCodingToolView extends AbstractStatisticsToolView {
 
-public class OpenStatisticsDialogAction extends ExecCommand {
-
-    @Override
-    public void actionPerformed(final CommandEvent event) {
-        VisatApp.getApp().getApplicationPage().showToolView(Statistics2ToolView.ID);
-    }
+    public static final String ID = GeoCodingToolView.class.getName();
 
     @Override
-    public void updateState(final CommandEvent event) {
-        StatisticDialogHelper.enableCommandIfRasterSelected(VisatApp.getApp(), event);
+    protected PagePanel createPagePanel() {
+        return new GeoCodingPanel(this, getDescriptor().getHelpId());
     }
 }

@@ -19,18 +19,18 @@ package org.esa.beam.visat.actions;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
+import org.esa.beam.visat.toolviews.stat.ScatterPlotToolView;
 import org.esa.beam.visat.toolviews.stat.StatisticDialogHelper;
-import org.esa.beam.visat.toolviews.stat.Statistics2ToolView;
 
-public class OpenStatisticsDialogAction extends ExecCommand {
+public class OpenScatterPlotDialogAction extends ExecCommand {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        VisatApp.getApp().getApplicationPage().showToolView(Statistics2ToolView.ID);
+        VisatApp.getApp().getApplicationPage().showToolView(ScatterPlotToolView.ID);
     }
 
     @Override
     public void updateState(final CommandEvent event) {
-        StatisticDialogHelper.enableCommandIfRasterSelected(VisatApp.getApp(), event);
+        StatisticDialogHelper.enableCommandIfProductSelected(VisatApp.getApp(), event);
     }
 }
