@@ -56,6 +56,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         logDisplayButton.setName("logDisplayButton");
         logDisplayButton.setToolTipText("Switch to logarithmic display"); /*I18N*/
         logDisplayButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 setLogarithmicDisplay(logDisplayButton.isSelected());
             }
@@ -65,6 +66,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         evenDistButton.setName("evenDistButton");
         evenDistButton.setToolTipText("Distribute sliders evenly between first and last slider"); /*I18N*/
         evenDistButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 distributeSlidersEvenly();
             }
@@ -75,6 +77,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     }
 
 
+    @Override
     public Component getContentPanel() {
         return contentPanel;
     }

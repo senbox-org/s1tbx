@@ -713,6 +713,7 @@ public class ImageInfoEditor extends JPanel {
         showPopup(evt, panel);
 
         panel.addItemListener(new ItemListener() {
+            @Override
             public void itemStateChanged(ItemEvent e) {
                 hidePopup();
                 if (panel.getSelectedColor() != null) {
@@ -751,6 +752,7 @@ public class ImageInfoEditor extends JPanel {
 
         ctx.addPropertyChangeListener("sample", new PropertyChangeListener() {
 
+            @Override
             public void propertyChange(PropertyChangeEvent pce) {
                 hidePopup();
                 setSliderSample(sliderIndex, (Double) ctx.getBinding("sample").getPropertyValue());
@@ -796,6 +798,7 @@ public class ImageInfoEditor extends JPanel {
             this.dragging = dragging;
         }
 
+        @Override
         public void mousePressed(MouseEvent mouseEvent) {
             hidePopup();
             resetState();
@@ -809,6 +812,7 @@ public class ImageInfoEditor extends JPanel {
             }
         }
 
+        @Override
         public void mouseReleased(MouseEvent evt) {
             if (isDragging()) {
                 doDragSlider(evt, false);
@@ -836,18 +840,22 @@ public class ImageInfoEditor extends JPanel {
             }
         }
 
+        @Override
         public void mouseClicked(MouseEvent evt) {
             maybeShowSliderActions(evt);
         }
 
+        @Override
         public void mouseEntered(MouseEvent mouseEvent) {
             resetState();
         }
 
+        @Override
         public void mouseExited(MouseEvent mouseEvent) {
             resetState();
         }
 
+        @Override
         public void mouseDragged(MouseEvent mouseEvent) {
             setDragging(true);
             doDragSlider(mouseEvent, true);
@@ -866,6 +874,7 @@ public class ImageInfoEditor extends JPanel {
             }
         }
 
+        @Override
         public void mouseMoved(MouseEvent mouseEvent) {
             if (isDragging()) {
                 mouseDragged(mouseEvent);
@@ -922,6 +931,7 @@ public class ImageInfoEditor extends JPanel {
             menuItem.setMnemonic('c');
             menuItem.addActionListener(new ActionListener() {
 
+                @Override
                 public void actionPerformed(ActionEvent actionEvent) {
                     final Color newColor = ColorPaletteDef.getCenterColor(getSliderColor(sliderIndex - 1),
                                                                           getSliderColor(sliderIndex + 1));
@@ -938,6 +948,7 @@ public class ImageInfoEditor extends JPanel {
             menuItem.setMnemonic('s');
             menuItem.addActionListener(new ActionListener() {
 
+                @Override
                 public void actionPerformed(ActionEvent actionEvent) {
                     final double center = scale(0.5 * (scaleInverse(getSliderSample(sliderIndex - 1)) + scaleInverse(
                             getSliderSample(sliderIndex + 1))));
@@ -953,6 +964,7 @@ public class ImageInfoEditor extends JPanel {
             menuItem.setMnemonic('D');
             menuItem.addActionListener(new ActionListener() {
 
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     getModel().removeSlider(removeIndex);
                     hidePopup();
@@ -982,6 +994,7 @@ public class ImageInfoEditor extends JPanel {
             menuItem.setMnemonic('A');
             menuItem.addActionListener(new ActionListener() {
 
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     assert getModel() != null : "getModel() != null";
                     if (index != INVALID_INDEX && index < getModel().getSliderCount() - 1) {
@@ -1098,6 +1111,7 @@ public class ImageInfoEditor extends JPanel {
 
     private class RepaintCL implements ChangeListener {
 
+        @Override
         public void stateChanged(ChangeEvent e) {
             palette = null;
             repaint();
@@ -1106,6 +1120,7 @@ public class ImageInfoEditor extends JPanel {
 
     private class ModelCL implements ChangeListener {
 
+        @Override
         public void stateChanged(ChangeEvent e) {
             fireStateChanged();
         }
