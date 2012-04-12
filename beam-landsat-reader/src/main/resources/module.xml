@@ -52,7 +52,6 @@
             <shortDescr>Import a Landsat TM (Fast) data product or product subset.</shortDescr>
             <description>Import a Landsat TM (in Fast format) data product or product subset.</description>
             <helpId>importLandsatTMProduct</helpId>
-            <placeAfter>importGeometry</placeAfter>
         </action>
         <action>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

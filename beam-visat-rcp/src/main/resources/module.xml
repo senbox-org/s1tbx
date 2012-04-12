@@ -872,31 +872,31 @@
         <!--####################-->
 
         <action>
-            <id>importGeometry</id>
+            <id>importShapefile</id>
             <class>org.esa.beam.visat.actions.ImportGeometryAction</class>
             <parent>importVectorData</parent>
-            <text>Import Geometry...</text>
+            <text>ESRI shapefile</text>
             <mnemonic>S</mnemonic>
-            <shortDescr>Import geometry from plain text or ESRI shapefile.</shortDescr>
-            <description>Import geometry from plain text or ESRI shapefile.</description>
-            <helpId>importGeometry</helpId>
+            <shortDescr>Import geometry from ESRI shapefile.</shortDescr>
+            <description>Import geometry from ESRI shapefile.</description>
+            <helpId>importShapefile</helpId>
             <separatorAfter>true</separatorAfter>
         </action>
 
         <action>
-            <id>importTrack</id>
+            <id>importSeaDASTrack</id>
             <class>org.esa.beam.visat.actions.ImportTrackAction</class>
-            <text>Import Track File</text>
+            <text>SeaDAS 6.x Track</text>
             <parent>importVectorData</parent>
-            <placeBefore>importPoints</placeBefore>
+            <placeBefore>importCSV</placeBefore>
         </action>
 
         <action>
-            <id>importPoints</id>
+            <id>importCSV</id>
             <class>org.esa.beam.visat.actions.ImportPointDataAction</class>
-            <text>Import points from a CSV file</text>
+            <text>CSV</text>
             <parent>importVectorData</parent>
-            <placeBefore>importGeometry</placeBefore>
+            <placeBefore>importShapefile</placeBefore>
         </action>
 
         <action>
@@ -909,7 +909,6 @@
             <shortDescr>Import a BEAM-DIMAP data product or product subset.</shortDescr>
             <description>Import a BEAM-DIMAP data product or product subset.</description>
             <helpId>importDimapProduct</helpId>
-            <placeAfter>importGeometry</placeAfter>
         </action>
 
         <!--####################-->

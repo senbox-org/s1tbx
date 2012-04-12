@@ -143,10 +143,6 @@ public class ProductImportAction extends ExecCommand {
             setParent("importRasterData");
         }
 
-        String placeAfter = getPlaceAfter();
-        if (placeAfter == null) {
-            setPlaceAfter("importGeometry");
-        }
     }
 
     private String getMessage(String msg) {
