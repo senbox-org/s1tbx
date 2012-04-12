@@ -17,7 +17,6 @@
 package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.Converter;
-
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.StringUtils;
@@ -34,6 +33,13 @@ import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
 
+// todo - use new CsvWriter here (nf, 2012-04-12)
+
+/**
+ * A writer for VectorDataNodes.
+ *
+ * @author Norman
+ */
 public class VectorDataNodeWriter {
 
     private static long id = System.nanoTime();
