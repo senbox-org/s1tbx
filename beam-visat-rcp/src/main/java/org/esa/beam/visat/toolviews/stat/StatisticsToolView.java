@@ -21,9 +21,9 @@ package org.esa.beam.visat.toolviews.stat;
  *
  * @author Marco Zuehlke
  */
-public class Statistics2ToolView extends AbstractStatisticsToolView {
+public class StatisticsToolView extends AbstractStatisticsToolView {
 
-    public static final String ID = Statistics2ToolView.class.getName();
+    public static final String ID = StatisticsToolView.class.getName();
 
     @Override
     protected PagePanel createPagePanel() {

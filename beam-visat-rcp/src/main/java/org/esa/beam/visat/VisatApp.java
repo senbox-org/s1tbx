@@ -104,7 +104,7 @@ import org.esa.beam.visat.toolviews.stat.HistogramToolView;
 import org.esa.beam.visat.toolviews.stat.InformationToolView;
 import org.esa.beam.visat.toolviews.stat.ProfilePlotToolView;
 import org.esa.beam.visat.toolviews.stat.ScatterPlotToolView;
-import org.esa.beam.visat.toolviews.stat.Statistics2ToolView;
+import org.esa.beam.visat.toolviews.stat.StatisticsToolView;
 
 import javax.media.jai.JAI;
 import javax.swing.AbstractButton;
@@ -1948,7 +1948,7 @@ public class VisatApp extends BasicApp implements AppContext {
         excludedIds.add(TileCacheDiagnosisToolView.ID);
         excludedIds.add(InformationToolView.ID);
         excludedIds.add(GeoCodingToolView.ID);
-        excludedIds.add(Statistics2ToolView.ID);
+        excludedIds.add(StatisticsToolView.ID);
         excludedIds.add(HistogramToolView.ID);
         excludedIds.add(ScatterPlotToolView.ID);
         excludedIds.add(DensityToolView.ID);

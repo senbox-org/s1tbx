@@ -20,13 +20,13 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.stat.StatisticDialogHelper;
-import org.esa.beam.visat.toolviews.stat.Statistics2ToolView;
+import org.esa.beam.visat.toolviews.stat.StatisticsToolView;
 
 public class OpenStatisticsDialogAction extends ExecCommand {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        VisatApp.getApp().getApplicationPage().showToolView(Statistics2ToolView.ID);
+        VisatApp.getApp().getApplicationPage().showToolView(StatisticsToolView.ID);
     }
 
     @Override

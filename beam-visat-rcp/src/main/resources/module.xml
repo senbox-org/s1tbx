@@ -521,8 +521,8 @@
             <initIndex>0</initIndex>
         </toolView>
         <toolView>
-            <id>org.esa.beam.visat.toolviews.stat.Statistics2ToolView</id>
-            <class>org.esa.beam.visat.toolviews.stat.Statistics2ToolView</class>
+            <id>org.esa.beam.visat.toolviews.stat.StatisticsToolView</id>
+            <class>org.esa.beam.visat.toolviews.stat.StatisticsToolView</class>
             <title>Statistics View</title>
             <tabTitle>Statistics</tabTitle>
             <mnemonic>t</mnemonic>
