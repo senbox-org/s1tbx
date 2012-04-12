@@ -27,10 +27,12 @@ public interface Scaling {
      * The identity scaling in=out.
      */
     Scaling IDENTITY = new Scaling() {
+        @Override
         public double scale(final double value) {
             return value;
         }
 
+        @Override
         public double scaleInverse(final double value) {
             return value;
         }
