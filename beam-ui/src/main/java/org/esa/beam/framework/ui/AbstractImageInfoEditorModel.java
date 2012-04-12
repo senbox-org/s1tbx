@@ -118,6 +118,7 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
         return getHistogramBins() != null && getHistogramBins().length > 0;
     }
 
+    @Override
     public int[] getHistogramBins() {
         return stx == null ? null : stx.getHistogramBins();
     }
