@@ -18,6 +18,7 @@ package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
+import com.thoughtworks.xstream.core.util.OrderRetainingMap;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.StringUtils;
@@ -34,7 +35,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Map;
 
 public class VectorDataNodeReader {
@@ -78,6 +78,7 @@ public class VectorDataNodeReader {
 
     /**
      * Collects comment lines of the form "# &lt;name&gt; = &lt;value&gt;" until the first non-empty and non-comment line is found.
+     * Always closes the reader finally.
      *
      * @param reader A reader
      * @return All the property assignments found.
@@ -85,28 +86,32 @@ public class VectorDataNodeReader {
      */
     Map<String, String> readProperties(Reader reader) throws IOException {
         LineNumberReader lineNumberReader = new LineNumberReader(reader);
-        Map<String, String> propertiesMap = new HashMap<String, String>();
-        String line;
-        while ((line = lineNumberReader.readLine()) != null) {
-            line = line.trim();
-            if (line.startsWith("#")) {
-                line = line.substring(1);
-                int index = line.indexOf('=');
-                if (index != -1) {
-                    String name = line.substring(0, index).trim();
-                    String value = line.substring(index + 1).trim();
-                    if (StringUtils.isNotNullAndNotEmpty(name) &&
-                            StringUtils.isNotNullAndNotEmpty(value)) {
-                        propertiesMap.put(name, value);
+        OrderRetainingMap properties = new OrderRetainingMap();
+        try {
+            String line;
+            while ((line = lineNumberReader.readLine()) != null) {
+                line = line.trim();
+                if (line.startsWith("#")) {
+                    line = line.substring(1);
+                    int index = line.indexOf('=');
+                    if (index != -1) {
+                        String name = line.substring(0, index).trim();
+                        String value = line.substring(index + 1).trim();
+                        if (StringUtils.isNotNullAndNotEmpty(name) &&
+                                StringUtils.isNotNullAndNotEmpty(value)) {
+                            properties.put(name, value);
+                        }
                     }
+                } else if (!line.isEmpty()) {
+                    // First non-comment line reached, no more property assignments expected
+                    break;
                 }
-            } else if (!line.isEmpty()) {
-                // First non-comment line reached, no more property assignments expected
-                break;
             }
+        } finally {
+            lineNumberReader.close();
         }
-        lineNumberReader.close();
-        return propertiesMap;
+        //noinspection unchecked
+        return (Map<String, String>) properties;
     }
 
     public FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures(Reader reader) throws IOException {

@@ -17,6 +17,7 @@
 package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.Converter;
+import com.thoughtworks.xstream.core.util.OrderRetainingMap;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.StringUtils;
@@ -32,6 +33,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 // todo - use new CsvWriter here (nf, 2012-04-12)
 
@@ -60,15 +63,24 @@ public class VectorDataNodeWriter {
         writeFeatures0(featureCollection, writer);
     }
 
-    private void writeNodeProperties(VectorDataNode vectorDataNode, Writer writer) throws IOException {
+    public void writeProperties(Map<String,String> properties, Writer writer) throws IOException {
+        Set<Map.Entry<String,String>> entries = properties.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            writer.write("#" + entry.getKey() + "=" + entry.getValue()+"\n");
+        }
+    }
+
+    void writeNodeProperties(VectorDataNode vectorDataNode, Writer writer) throws IOException {
+        OrderRetainingMap properties = new OrderRetainingMap();
         String description = vectorDataNode.getDescription();
         if (StringUtils.isNotNullAndNotEmpty(description)) {
-            writer.write("#" + ProductNode.PROPERTY_NAME_DESCRIPTION + "=" + description+"\n");
+            properties.put(ProductNode.PROPERTY_NAME_DESCRIPTION ,description);
         }
-        String defaultCSS = vectorDataNode.getDefaultCSS();
+        String defaultCSS = vectorDataNode.getDefaultStyleCss();
         if (StringUtils.isNotNullAndNotEmpty(defaultCSS)) {
-            writer.write("#" + VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS + "=" + defaultCSS+"\n");
+            properties.put(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS, defaultCSS);
         }
+        writeProperties(properties, writer);
     }
 
     private void writeFeatures0(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, Writer writer) throws IOException {
