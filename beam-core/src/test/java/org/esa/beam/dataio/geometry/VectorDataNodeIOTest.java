@@ -18,7 +18,6 @@ package org.esa.beam.dataio.geometry;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
-
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -32,12 +31,7 @@ import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 
 import static org.junit.Assert.*;
 
@@ -124,7 +118,7 @@ public class VectorDataNodeIOTest {
     public void testProperties() throws Exception {
         VectorDataNode vectorDataNode = new VectorDataNode("aName", Placemark.createGeometryFeatureType());
         vectorDataNode.setDescription("Contains a set of pins");
-        vectorDataNode.setDefaultCSS("stroke:#ff0000");
+        vectorDataNode.setDefaultStyleCss("stroke:#ff0000");
 
         VectorDataNodeWriter vectorDataNodeWriter = new VectorDataNodeWriter();
         File tempFile = File.createTempFile("VectorDataNodeWriterTest_testProperties", "csv");
@@ -147,6 +141,6 @@ public class VectorDataNodeIOTest {
         
         assertNotNull(vectorDataNode2);
         assertEquals(vectorDataNode.getDescription(), vectorDataNode2.getDescription());
-        assertEquals(vectorDataNode.getDefaultCSS(), vectorDataNode2.getDefaultCSS());
+        assertEquals(vectorDataNode.getDefaultStyleCss(), vectorDataNode2.getDefaultStyleCss());
     }
 }
