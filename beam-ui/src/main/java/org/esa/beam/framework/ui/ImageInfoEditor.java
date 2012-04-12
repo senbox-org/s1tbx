@@ -420,7 +420,6 @@ public class ImageInfoEditor extends JPanel {
     }
 
     private void drawHistogram(Graphics2D g2d) {
-
         if (getModel().isHistogramAvailable()) {
             final Paint oldPaint = g2d.getPaint();
             g2d.setColor(Color.black);
