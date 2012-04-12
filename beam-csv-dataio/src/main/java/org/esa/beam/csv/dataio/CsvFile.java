@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.util.io;
+package org.esa.beam.csv.dataio;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
@@ -22,6 +22,7 @@ import com.bc.ceres.binding.ConverterRegistry;
 import org.esa.beam.dataio.geometry.VectorDataNodeIO;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.converters.JavaTypeConverter;
+import org.esa.beam.util.io.Constants;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.FeatureCollection;

@@ -22,8 +22,8 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.Constants;
-import org.esa.beam.util.io.CsvFile;
-import org.esa.beam.util.io.CsvSourceParser;
+import org.esa.beam.csv.dataio.CsvFile;
+import org.esa.beam.csv.dataio.CsvSourceParser;
 import org.esa.beam.util.io.FileUtils;
 
 import java.io.File;

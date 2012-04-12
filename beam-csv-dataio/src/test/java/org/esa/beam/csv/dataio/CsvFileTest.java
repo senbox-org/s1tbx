@@ -14,14 +14,12 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.util.io;
+package org.esa.beam.csv.dataio;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.geotools.feature.FeatureCollection;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.PropertyDescriptor;
 
@@ -39,7 +37,7 @@ public class CsvFileTest {
 
     @Test
     public void testParseProperties() throws Exception {
-        final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
+        final String simpleFormatExample = getClass().getResource("reader/simple_format_example.txt").getFile();
         final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
         parser.parseMetadata();
 
@@ -60,7 +58,7 @@ public class CsvFileTest {
 
     @Test
     public void testParseRecords() throws Exception {
-        final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
+        final String simpleFormatExample = getClass().getResource("reader/simple_format_example.txt").getFile();
         final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
         final CsvSource csvSource = parser.parseMetadata();
         parser.parseRecords(0, 3);
@@ -130,7 +128,7 @@ public class CsvFileTest {
 
     @Test
     public void testParseRecords_NoFeatureId() throws Exception {
-        final String simpleFormatExample = getClass().getResource("simple_format_no_feature_id.txt").getFile();
+        final String simpleFormatExample = getClass().getResource("reader/simple_format_no_feature_id.txt").getFile();
         final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
         final CsvSource csvSource = parser.parseMetadata();
         parser.parseRecords(0, 3);
@@ -201,7 +199,7 @@ public class CsvFileTest {
 
     @Test
     public void testParseRecords_NotAllRecords() throws Exception {
-        final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
+        final String simpleFormatExample = getClass().getResource("reader/simple_format_example.txt").getFile();
         final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
         final CsvSource csvSource = parser.parseMetadata();
         parser.parseRecords(1, 2);
@@ -251,7 +249,7 @@ public class CsvFileTest {
 
     @Test
     public void testParseRecords_LessRecordsThanExpected() throws Exception {
-        final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
+        final String simpleFormatExample = getClass().getResource("reader/simple_format_example.txt").getFile();
         final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
         final CsvSource csvSource = parser.parseMetadata();
         parser.parseRecords(0, 10);
@@ -264,7 +262,7 @@ public class CsvFileTest {
 
     @Test
     public void testParseHeader() throws Exception {
-        final String simpleFormatExample = getClass().getResource("simple_format_example.txt").getFile();
+        final String simpleFormatExample = getClass().getResource("reader/simple_format_example.txt").getFile();
         final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
         parser.parseMetadata();
 
@@ -296,7 +294,7 @@ public class CsvFileTest {
 
     @Test
     public void testParseHeader_NoFeatureId() throws Exception {
-        final String simpleFormatExample = getClass().getResource("simple_format_no_feature_id.txt").getFile();
+        final String simpleFormatExample = getClass().getResource("reader/simple_format_no_feature_id.txt").getFile();
         final CsvSourceParser parser = CsvFile.createCsvSourceParser(simpleFormatExample);
         parser.parseMetadata();
 
