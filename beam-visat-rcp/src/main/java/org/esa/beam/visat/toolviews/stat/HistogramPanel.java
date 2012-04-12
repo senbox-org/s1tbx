@@ -33,7 +33,6 @@ import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
@@ -80,6 +79,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
     private static final double HISTO_MIN_DEFAULT = 0.0;
     private static final double HISTO_MAX_DEFAULT = 100.0;
     private static final int NUM_BINS_DEFAULT = 512;
+    private PlotAreaSelectionTool plotAreaSelectionTool;
 
 
     HistogramPanel(final ToolView parentDialog, String helpID) {
@@ -213,6 +213,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {
+
+
         XYPlot plot = chart.getXYPlot();
 
         plot.setForegroundAlpha(0.85f);
@@ -220,6 +222,27 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
 
         ChartPanel chartPanel = new ChartPanel(chart);
+
+        MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
+                                                                                         chartPanel,
+                                                                                         "histogram_plot_area",
+                                                                                         "Mask generated from selected histogram plot area",
+                                                                                         Color.RED,
+                                                                                         PlotAreaSelectionTool.AreaType.X_RANGE) {
+            @Override
+            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
+                return String.format("%s >= %s && %s <= %s",
+                                     getRaster().getName(),
+                                     x0,
+                                     getRaster().getName(),
+                                     x0 + dx);
+            }
+        };
+
+        chartPanel.getPopupMenu().addSeparator();
+        chartPanel.getPopupMenu().add(maskSelectionToolSupport.createMaskSelectionModeMenuItem());
+        chartPanel.getPopupMenu().add(maskSelectionToolSupport.createDeleteMaskMenuItem());
+        chartPanel.getPopupMenu().addSeparator();
         chartPanel.getPopupMenu().add(createCopyDataToClipboardMenuItem());
         return chartPanel;
     }
@@ -412,8 +435,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
     private void updateXAxis() {
         if ((Boolean) xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getPropertyValue()) {
             ValueAxis oldDomainAxis = chart.getXYPlot().getDomainAxis();
-            if (!(oldDomainAxis instanceof LogarithmicAxis)) {
-                LogarithmicAxis logAxisX = new LogarithmicAxis("Values");
+            if (!(oldDomainAxis instanceof CustomLogarithmicAxis)) {
+                CustomLogarithmicAxis logAxisX = new CustomLogarithmicAxis("Values");
                 logAxisX.setAllowNegativesFlag(true);
                 logAxisX.setLog10TickLabelsFlag(true);
                 logAxisX.setMinorTickCount(10);
@@ -421,7 +444,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
             }
         } else {
             ValueAxis oldDomainAxis = chart.getXYPlot().getDomainAxis();
-            if (oldDomainAxis instanceof LogarithmicAxis) {
+            if (oldDomainAxis instanceof CustomLogarithmicAxis) {
                 NumberAxis xAxis = new NumberAxis("Values");
                 chart.getXYPlot().setDomainAxis(xAxis);
             }
@@ -429,6 +452,5 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
 
         chart.getXYPlot().getDomainAxis().setLabel(getAxisLabel());
     }
-
 }
 

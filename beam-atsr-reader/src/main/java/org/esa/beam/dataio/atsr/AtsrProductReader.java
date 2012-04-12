@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,8 +18,8 @@ package org.esa.beam.dataio.atsr;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
@@ -154,17 +154,20 @@ public class AtsrProductReader extends AbstractProductReader {
         final String fwardBand = AtsrGBTConstants.FORWARD_370_BT_NAME;
 
         if (prodRet.containsBand(nadirBand)) {
-            prodRet.addBitmaskDef(new BitmaskDef("fire_nadir_1", "ATSR active fire (ALGO1)", nadirBand + " > 312.0",
-                                                 Color.RED, 0.5f));
-            prodRet.addBitmaskDef(new BitmaskDef("fire_nadir_2", "ATSR active fire (ALGO2)", nadirBand + " > 308.0",
-                                                 Color.RED.darker(), 0.5f));
+            addMask(prodRet, "fire_nadir_1", "ATSR active fire (ALGO1)", nadirBand + " > 312.0", Color.RED);
+            addMask(prodRet, "fire_nadir_2", "ATSR active fire (ALGO2)", nadirBand + " > 308.0", Color.RED.darker());
         }
         if (prodRet.containsBand(fwardBand)) {
-            prodRet.addBitmaskDef(new BitmaskDef("fire_fward_1", "ATSR active fire (ALGO1)", fwardBand + " > 312.0",
-                                                 Color.RED, 0.5f));
-            prodRet.addBitmaskDef(new BitmaskDef("fire_fward_2", "ATSR active fire (ALGO2)", fwardBand + " > 308.0",
-                                                 Color.RED.darker(), 0.5f));
+            addMask(prodRet, "fire_fward_1", "ATSR active fire (ALGO1)", fwardBand + " > 312.0", Color.RED);
+            addMask(prodRet, "fire_fward_2", "ATSR active fire (ALGO2)", fwardBand + " > 308.0", Color.RED.darker());
         }
+    }
+
+    private void addMask(Product product, String name, String description, String expresssion, Color color) {
+        int width = product.getSceneRasterWidth();
+        int height = product.getSceneRasterHeight();
+        Mask mask = Mask.BandMathsType.create(name, description, width, height, expresssion, color, 0.5f);
+        product.getMaskGroup().add(mask);
     }
 
     /**

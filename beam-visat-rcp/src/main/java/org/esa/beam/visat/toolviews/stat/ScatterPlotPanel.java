@@ -29,7 +29,6 @@ import org.esa.beam.framework.ui.application.ToolView;
 import org.geotools.feature.FeatureCollection;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
@@ -441,6 +440,26 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
                 plot.setNotify(savedNotify);
             }
         };
+
+        MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
+                                                                                         scatterPlotDisplay,
+                                                                                         "scatter_plot_area",
+                                                                                         "Mask generated from selected scatter plot area",
+                                                                                         Color.RED,
+                                                                                         PlotAreaSelectionTool.AreaType.X_RANGE) {
+            @Override
+            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
+                return String.format("%s >= %s && %s <= %s",
+                                     getRaster().getName(),
+                                     x0,
+                                     getRaster().getName(),
+                                     x0 + dx);
+            }
+        };
+        scatterPlotDisplay.getPopupMenu().addSeparator();
+        scatterPlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createMaskSelectionModeMenuItem());
+        scatterPlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createDeleteMaskMenuItem());
+        scatterPlotDisplay.getPopupMenu().addSeparator();
         scatterPlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
 
         // UI arrangement
@@ -561,8 +580,9 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     private void updateScalingOfXAxis() {
         if (scatterPlotModel.xAxisLogScaled) {
             ValueAxis oldAxis = plot.getDomainAxis();
-            if (!(oldAxis instanceof LogarithmicAxis)) {
-                LogarithmicAxis logAxisX = new LogarithmicAxis(oldAxis.getLabel());
+            if (!(oldAxis instanceof CustomLogarithmicAxis)) {
+                CustomLogarithmicAxis logAxisX = new CustomLogarithmicAxis(oldAxis.getLabel());
+//                LogarithmicAxis logAxisX = new MyLogarithmicAxis(oldAxis.getLabel());
                 logAxisX.setAllowNegativesFlag(true);
                 logAxisX.setLog10TickLabelsFlag(true);
                 logAxisX.setMinorTickCount(10);
@@ -570,20 +590,21 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
             }
         } else {
             ValueAxis oldAxis = plot.getDomainAxis();
-            if (oldAxis instanceof LogarithmicAxis) {
+            if (oldAxis instanceof CustomLogarithmicAxis) {
                 final NumberAxis numberAxis = createNumberAxis();
                 numberAxis.setLabel(oldAxis.getLabel());
                 plot.setDomainAxis(numberAxis);
             }
+            setAxisRanges(xAxisRangeControl, plot.getDomainAxis());
         }
-        setAxisRanges(xAxisRangeControl, plot.getDomainAxis());
+//        setAxisRanges(xAxisRangeControl, plot.getDomainAxis());
     }
 
     private void updateScalingOfYAxis() {
         if (scatterPlotModel.yAxisLogScaled) {
             ValueAxis oldAxis = plot.getRangeAxis();
-            if (!(oldAxis instanceof LogarithmicAxis)) {
-                LogarithmicAxis logAxisX = new LogarithmicAxis(oldAxis.getLabel());
+            if (!(oldAxis instanceof CustomLogarithmicAxis)) {
+                CustomLogarithmicAxis logAxisX = new CustomLogarithmicAxis(oldAxis.getLabel());
                 logAxisX.setAllowNegativesFlag(true);
                 logAxisX.setLog10TickLabelsFlag(true);
                 logAxisX.setAutoRange(yAxisRangeControl.isAutoMinMax());
@@ -592,7 +613,7 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
             }
         } else {
             ValueAxis oldAxis = plot.getRangeAxis();
-            if (oldAxis instanceof LogarithmicAxis) {
+            if (oldAxis instanceof CustomLogarithmicAxis) {
                 final NumberAxis numberAxis = createNumberAxis();
                 numberAxis.setLabel(oldAxis.getLabel());
                 plot.setRangeAxis(numberAxis);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,14 +17,7 @@ package org.esa.beam.framework.ui;
 
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeList;
-import org.esa.beam.framework.datamodel.ProductNodeNameValidator;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.Parameter;
@@ -32,20 +25,11 @@ import org.esa.beam.framework.ui.product.ProductSubsetDialog;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.io.FileUtils;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 //@todo 1 se/** - add (more) class documentation
 
@@ -170,7 +154,7 @@ public class NewProductDialog extends ModalDialog {
                 resultProduct = ProductSubsetBuilder.createProductSubset(sourceProduct, sourceProductOwner, null,
                                                                          prodName, prodDesc);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             exception = e;
         }
     }

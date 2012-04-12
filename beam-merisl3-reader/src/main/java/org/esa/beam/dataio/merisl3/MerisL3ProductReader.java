@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -32,10 +32,12 @@ import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.awt.Point;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The <code>MerisL3ProductReader</code> class is an implementation of the <code>ProductReader</code> interface
@@ -55,6 +57,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
     private int _sceneRasterWidth;
     private int _sceneRasterHeight;
     private RowInfo[] _rowInfos;
+    private Map<Band, VariableMetadata> bandMap;
 
     /**
      * Constructs a new MERIS Binned Level-3 product reader.
@@ -77,6 +80,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
         String path = getInput().toString();
         _netcdfFile = NetcdfFile.open(path);
+        bandMap = new HashMap<Band, VariableMetadata>(10);
         try {
             _grid = new ISINGrid(ISINGrid.detectRowCount(path));
             _sceneRasterWidth = _grid.getRowCount() * 2;
@@ -159,8 +163,8 @@ public class MerisL3ProductReader extends AbstractProductReader {
         if (_rowInfos == null) {
             _rowInfos = createRowInfos();
         }
-
-        boolean readColIndex = destBand.getName().equals(COL_INDEX_BAND_NAME);
+        VariableMetadata variableMetadata = bandMap.get(destBand);
+        boolean readColIndex = variableMetadata == null; // this band has no variables associated
 
         final int height = _sceneRasterHeight;
         final int width = _sceneRasterWidth;
@@ -184,7 +188,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
                     pm.worked(1);
                 }
             } else {
-                final Variable binVariable = _netcdfFile.getRootGroup().findVariable(destBand.getName());
+                final Variable binVariable = variableMetadata.variable;
                 final Number fillValueN = getAttributeNumericValue(binVariable, "_FillValue");
                 final short fillValue = fillValueN != null ? fillValueN.shortValue() : 0;
 
@@ -267,7 +271,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
             _netcdfFile.close();
             _netcdfFile = null;
         }
-
+        bandMap.clear();
         _product = null;
         _grid = null;
         _rowInfos = null;
@@ -369,6 +373,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
             band.setNoDataValue(variableMetadata.fillValue);
             band.setNoDataValueUsed(variableMetadata.fillValue != Double.NaN);
             _product.addBand(band);
+            bandMap.put(band, variableMetadata);
         }
     }
 
@@ -396,7 +401,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
         stringValue = getAttributeStringValue(variable, "scaling_equation");
         final boolean logScaled = (stringValue != null) && stringValue.equals("value=10**(offset+code*gain)");
 
-        return new VariableMetadata(varName, description, fillValue, scale, offset, logScaled);
+        return new VariableMetadata(variable, varName, description, fillValue, scale, offset, logScaled);
     }
 
     private static Number getAttributeNumericValue(Variable variable, String attributeName) {
@@ -410,7 +415,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
     }
 
     private static class VariableMetadata {
-
+        final Variable variable;
         final String name;
         final String description;
         final double fillValue;
@@ -418,8 +423,9 @@ public class MerisL3ProductReader extends AbstractProductReader {
         final double scalingOffset;
         final boolean log10Scaled;
 
-        public VariableMetadata(String name, String description, double fillValue, double scale, double offset,
+        public VariableMetadata(Variable variable, String name, String description, double fillValue, double scale, double offset,
                                 boolean logScaled) {
+            this.variable = variable;
             this.name = name;
             this.description = description;
             this.fillValue = fillValue;

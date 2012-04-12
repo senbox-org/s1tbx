@@ -50,7 +50,7 @@ class RadiometryDialog extends SingleTargetProductDialog {
                                                      operatorSpi.getOperatorClass(),
                                                      parameterSupport,
                                                      helpId);
-        setMenuBar(operatorMenu.createDefaultMenu());
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
     }
 
     @Override

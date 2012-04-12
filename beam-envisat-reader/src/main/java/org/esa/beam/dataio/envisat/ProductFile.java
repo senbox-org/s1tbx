@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,9 +15,13 @@
  */
 package org.esa.beam.dataio.envisat;
 
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
@@ -25,6 +29,7 @@ import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -148,10 +153,6 @@ public abstract class ProductFile {
      */
     private BandLineReader[] bandLineReaders;
 
-    /**
-     * A bandName --> bandReader map for the geophysical bands contained in this product.
-     */
-    private Map<Band, BandLineReader> _bandLineReaderMap;
     private String _productDescription;
 
     private final boolean lineInterleaved;
@@ -438,14 +439,17 @@ public abstract class ProductFile {
     public abstract boolean storesPixelsInChronologicalOrder();
 
     /**
-     * Returns a new default set of bitmask definitions for this product file.
+     * Returns a new default set of mask definitions for this product file.
      *
      * @param flagDsName the name of the flag dataset
      * @return a new default set, an empty array if no default set is given for this product type, never
      *         <code>null</code>.
      */
-    public abstract BitmaskDef[] createDefaultBitmaskDefs(String flagDsName);
+    public abstract Mask[] createDefaultMasks(String flagDsName);
 
+    protected Mask mask(String name, String description, String expression, Color green, float transparency) {
+        return Mask.BandMathsType.create(name, description, getSceneRasterWidth(), getSceneRasterHeight(), expression, green, transparency);
+    }
 
     /**
      * Gets the seekable data input stream used to read data from the product file.
@@ -742,29 +746,6 @@ public abstract class ProductFile {
 
     protected BandLineReader[] createBandLineReaders() {
         return DDDB.getInstance().getBandLineReaders(this);
-    }
-
-    /**
-     * Gets a reader for the geophysical band.
-     *
-     * @param band the band
-     * @return the geophysical band reader, or <code>null</code> if this product doesn't support reading band data or if
-     *         the a band with the given name was not found
-     */
-    public synchronized BandLineReader getBandLineReader(final Band band) {
-        if (_bandLineReaderMap == null) {
-            _bandLineReaderMap = new java.util.Hashtable<Band, BandLineReader>();
-            BandLineReader[] bandLineReaders = getBandLineReaders();
-            final Product product = band.getProduct();
-            for (BandLineReader bandLineReader : bandLineReaders) {
-                final String bandName = bandLineReader.getBandName();
-                final Band key = product.getBand(bandName);
-                if (key != null) {
-                    _bandLineReaderMap.put(key, bandLineReader);
-                }
-            }
-        }
-        return _bandLineReaderMap.get(band);
     }
 
     /**

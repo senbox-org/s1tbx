@@ -91,11 +91,6 @@ class CoordListPanel extends TextPagePanel {
     }
 
     @Override
-    public void handleViewSelectionChanged() {
-        updateContent();
-    }
-
-    @Override
     protected boolean mustUpdateContent() {
         return super.mustUpdateContent() || isVectorDataNodeChanged();
     }

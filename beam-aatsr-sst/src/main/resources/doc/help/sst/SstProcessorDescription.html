@@ -25,135 +25,124 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            (A)ATSR SST - Processor Description</td>
-        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a>
+            (A)ATSR SST - Processor Description
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a>
         </td>
     </tr>
 </table>
 
-<h3>The SST In- and Output Parameters tab</h3>
+<h3>User Interface</h3>
 
-<p class="inote">Please note: The chapter <i><a href="../general.html">BEAM Scientific Data Processors</a></i>
-    provides a general description for all BEAM data processors. It describes the common graphical user interface (GUI),
-    the command-line interface and the common processing request file format.</p>
+<p>
+    The SST processor can be invoked from the VISAT tool menu by selecting
+    the <b>SST Processor</b> command. On the command line the SST processor is
+    available by means of the Graph Processing Tool <code>gpt</code> which is located in the BEAM <code>bin</code>
+    directory. Typing <code>gpt Aatsr.SST -h</code> displays further information.
+</p>
+
+<p>
+    Selecting the <b>SST Processor</b> command from the VISAT tool menu pops up the
+    following dialog:
+</p>
 
 <p align="center"><img src="images/SstPaths.png"></p>
 
-<ol>
-    <li><b>Input product file</b>: Select the input product file by either typing
-        the product path into the text field or by pressing the file selection button
-        <img src="images/FileDialogButton.png"> to invoke a
-        standard file dialog. </li>
-    <li><b>Output product file</b>: Select the output product file by either typing
-        the product path into the text field or by pressing the file selection button
-        <img src="images/FileDialogButton.png"> to invoke a
-        standard file dialog. </li>
-    <li><b>Output product format</b>: Select one of the available output product
-        formats. </li>
-</ol>
+<h5>Source Product Group</h5>
 
-<h3>The SST Processing Parameters tab</h3>
-
-<p align="center"><img src="images/SstParams.png"></p>
-<ol>
-
-    <li><b>Generate dual-view SST</b>: Select whether to process the dual view SST
-        or not.</li>
-    <li><b>Dual-view coefficient file</b>:
-        Select one of the available coefficient sets for dual view processing.
-        The list shows the description strings of all coefficient files available.</li>
-
-    <li><b>Dual-view mask</b>: Specify a mask expression to be checked
-        during dual view processing. You can either type the expression manually to
-        the text field or use the bitmask expression editor by pressing the edit button
-        <img src="images/FileDialogButton.png"> to the right.</li>
-
-    <li><b>Generate nadir-view SST</b>: Select whether to process the nadir view
-        SST or not.</li>
-    <li><b>Nadir-view coefficient file</b>:
-        Select one of the available coefficient sets for nadir view processing.
-        The list shows the description strings of all coefficient files available.</li>
-
-    <li><b>Nadir-view mask</b>: Specify a mask expression to be checked
-        during nadir view processing. You can either type the expression manually
-        to the text field or use the bitmask expression editor by pressing the edit
-        button <img src="images/FileDialogButton.png"> to the
-        right.</li>
-    <li><b>Invalid SST value</b>:
-        Specify the value to be written to the output when the processor detects an
-        invalid condition (either by the pixel being masked out or by a processing
-        failure e.g division by zero).</li>
-</ol>
-
-<!-- the following text applies to the old SST processor only
-<h3>The SST processing request file</h3>
-
-<p>
-    The following table describes the SST specific processing request file parameter.
-    For a detailed description of the processing request file concept and file specification please
-    look at the <a href="../general.html#ProcessingRequestConcept">general description section</a>.
+<p class="i1">
+    <b>(A)ATSR source product:</b>
+    Here the user specifies the source product. The combo box presents
+    a list of all products open in VISAT. The user may select one of these
+    or, by clicking on the button next to the combo box, choose a product
+    from the file system.
 </p>
 
-<p>&nbsp;</p>
+<h5>Target Product Group</h5>
 
+<p class="i1">
+    <b>Name:</b>
+    Used to specify the name of the target product.
+</p>
 
-<table>
-    <tr>
-        <th>Parameter name</th>
-        <th>Description</th>
-        <th>Type</th>
-        <th>Valueset</th>
-    </tr>
-    <tr>
-        <td>type</td>
-        <td>Request type. Mandatory attribute of the <code>Request</code> element</td>
-        <td>String</td>
-        <td>"SST"</td>
-    </tr>
-    <tr>
-        <td>process_dual_view_sst</td>
-        <td>Whether to process the dual view sst or not.</td>
-        <td>Boolean</td>
-        <td>&quot;true&quot; or &quot;false&quot;</td>
-    </tr>
-    <tr>
-        <td>dual_view_coeff_file</td>
-        <td>Absolute path to the dual view coefficient file to be used.</td>
-        <td>Path</td>
-        <td>-</td>
-    </tr>
-    <tr>
-        <td>dual_view_bitmask</td>
-        <td>Bitmask expression to be evaluated during dual view SST processing.</td>
-        <td>Bitmask</td>
-        <td>-</td>
-    </tr>
-    <tr>
-        <td>process_nadir_view_sst</td>
-        <td>Whether to process the nadir view sst or not.</td>
-        <td>Boolean</td>
-        <td>&quot;true&quot; or &quot;false&quot;</td>
-    </tr>
-    <tr>
-        <td>nadir_view_coeff_file</td>
-        <td>Absolute path to the nadir view coefficient file to be used.</td>
-        <td>Path</td>
-        <td>-</td>
-    </tr>
-    <tr>
-        <td>nadir_view_bitmask</td>
-        <td>Bitmask expression to be evaluated during nadir view SST processing.</td>
-        <td>Bitmask</td>
-        <td>-</td>
-    </tr>
-    <tr>
-        <td>invalid</td>
-        <td>Invalid pixel value.</td>
-        <td>Float</td>
-        <td>&gt;= 0.0</td>
-    </tr>
-</table>
--->
+<p class="i1">
+    <b>Save as:</b>
+    Used to specify whether the target product should be saved to the file system. The
+    combo box presents a list of available file formats.
+    The text field or the button next to it allow to specify a target directory.
+</p>
+
+<p class="i1">
+    <b>Open in VISAT:</b>
+    Used to specify whether the target product should be opened in VISAT. When the
+    the target product is not saved, it is opened in VISAT automatically.
+</p>
+
+<p align="center"><img src="images/SstParams.png"></p>
+
+<h5>Processing Parameters Panel</h5>
+
+<p class="i1">
+    <b>Generate dual-view SST:</b> Here the processing of dual-view SST can be activated or deactivated.
+</p>
+
+<p class="i1">
+    <b>Dual-view coefficient file:</b>
+    Here one of the available coefficient sets for dual-view processing can be selected.
+</p>
+
+<p class="i1">
+    <b>Dual-view mask:</b> Here a ROI-mask expression can be defined that will be evaluated
+    during dual-view processing.
+</p>
+
+<p class="i1">
+    <b>Generate nadir-view SST:</b> Here the processing of nadir-view SST can be activated or deactivated.
+</p>
+
+<p class="i1">
+    <b>Nadir-view coefficient file:</b>
+    Here one of the available coefficient sets for nadir-view processing can be selected.
+</p>
+
+<p class="i1">
+    <b>Nadir-view mask:</b> Here a ROI-mask expression can be defined that will be evaluated
+    during nadir-view processing.
+</p>
+
+<p class="i1">
+    <b>Invalid SST value:</b>
+    Here the value to be written to a target pixel when the processor cannot calculate
+    the SST value because the pixel is excluded from the ROI or the processing failed.
+</p>
+
+<h5>Button Group</h5>
+
+<p class="i1">
+    <b>Run</b>
+    Creates the target product. The SST processing is actually deferred until its band data are accessed, either by
+    writing the product to a file or by viewing its band data. When the <b>Save as</b> option is checked, the SST
+    processing is triggered automatically.
+</p>
+
+<p class="i1">
+    <b>Close</b>
+    Closes the dialog.
+</p>
+
+<h5>Menu Group</h5>
+
+<p class="i1">
+    <b>File</b>
+    The entries found in this menu allow to save the current processing parameters to disk and to open a saved parameter
+    set from disk.
+</p>
+
+<p class="i1">
+    <b>Help</b>
+    Displays this help page.
+</p>
 
 <hr>
 </body>

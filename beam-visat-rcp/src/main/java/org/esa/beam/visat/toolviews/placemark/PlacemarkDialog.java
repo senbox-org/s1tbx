@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,14 +19,22 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.Guardian;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.*;
+import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -54,7 +62,7 @@ public class PlacemarkDialog extends ModalDialog {
     private boolean adjusting;
 
     public PlacemarkDialog(final Window parent, final Product product, final PlacemarkDescriptor placemarkDescriptor,
-                           boolean geoAndPixelPositionsEditable) {
+                           boolean switchGeoAndPixelPositionsEditable) {
         super(parent, "New " + placemarkDescriptor.getRoleLabel(), ModalDialog.ID_OK_CANCEL, null); /*I18N*/
         Guardian.assertNotNull("product", product);
         this.product = product;
@@ -65,7 +73,7 @@ public class PlacemarkDialog extends ModalDialog {
         canGetPixelPos = hasGeoCoding && geoCoding.canGetPixelPos();
         canGetGeoPos = hasGeoCoding && geoCoding.canGetGeoPos();
 
-        boolean usePixelPos = !hasGeoCoding;
+        boolean usePixelPos = !hasGeoCoding && switchGeoAndPixelPositionsEditable;
 
         PropertySet propertySet = bindingContext.getPropertySet();
         propertySet.addProperties(Property.create(PROPERTY_NAME_NAME, ""),
@@ -78,7 +86,7 @@ public class PlacemarkDialog extends ModalDialog {
                 Property.create(PROPERTY_NAME_PIXEL_Y, 0.0F),
                 Property.create(PROPERTY_NAME_USE_PIXEL_POS, usePixelPos)
         );
-        propertySet.getProperty(PROPERTY_NAME_USE_PIXEL_POS).getDescriptor().setAttribute("enabled", hasGeoCoding && geoAndPixelPositionsEditable);
+        propertySet.getProperty(PROPERTY_NAME_USE_PIXEL_POS).getDescriptor().setAttribute("enabled", hasGeoCoding && switchGeoAndPixelPositionsEditable);
         propertySet.getProperty(PROPERTY_NAME_LAT).getDescriptor().setDisplayName("Latitude");
         propertySet.getProperty(PROPERTY_NAME_LAT).getDescriptor().setUnit("deg");
         propertySet.getProperty(PROPERTY_NAME_LON).getDescriptor().setDisplayName("Longitude");
@@ -130,10 +138,12 @@ public class PlacemarkDialog extends ModalDialog {
         */
 
         setContent(new PropertyPane(bindingContext).createPanel());
-        bindingContext.bindEnabledState(PROPERTY_NAME_LAT, false, PROPERTY_NAME_USE_PIXEL_POS, true);
-        bindingContext.bindEnabledState(PROPERTY_NAME_LON, false, PROPERTY_NAME_USE_PIXEL_POS, true);
-        bindingContext.bindEnabledState(PROPERTY_NAME_PIXEL_X, true, PROPERTY_NAME_USE_PIXEL_POS, true);
-        bindingContext.bindEnabledState(PROPERTY_NAME_PIXEL_Y, true, PROPERTY_NAME_USE_PIXEL_POS, true);
+        if (switchGeoAndPixelPositionsEditable) {
+            bindingContext.bindEnabledState(PROPERTY_NAME_LAT, false, PROPERTY_NAME_USE_PIXEL_POS, true);
+            bindingContext.bindEnabledState(PROPERTY_NAME_LON, false, PROPERTY_NAME_USE_PIXEL_POS, true);
+            bindingContext.bindEnabledState(PROPERTY_NAME_PIXEL_X, true, PROPERTY_NAME_USE_PIXEL_POS, true);
+            bindingContext.bindEnabledState(PROPERTY_NAME_PIXEL_Y, true, PROPERTY_NAME_USE_PIXEL_POS, true);
+        }
     }
 
     public Product getProduct() {
@@ -297,8 +307,8 @@ public class PlacemarkDialog extends ModalDialog {
         // prevent that geoPos change updates pixelPos and vice versa during dialog creation
         dialog.adjusting = true;
         dialog.setPixelPos(placemark.getPixelPos());
-        final boolean hasGeoCoding = product.getGeoCoding() != null;
-        dialog.setGeoPos(hasGeoCoding ? placemark.getGeoPos() : new GeoPos(Float.NaN, Float.NaN));
+        GeoPos geoPos = placemark.getGeoPos();
+        dialog.setGeoPos(geoPos != null ? geoPos : new GeoPos(Float.NaN, Float.NaN));
         dialog.adjusting = false;
         dialog.setStyleCss(placemark.getStyleCss());
         boolean ok = (dialog.show() == ID_OK);

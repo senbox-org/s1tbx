@@ -27,18 +27,20 @@ import java.util.regex.Pattern;
 /**
  * A <code>CsvReader</code> instance is used read text files with CSV (comma separated values) format.
  * <p/>
- * <_p> This reader interpretes each line of a text file as record (also empty lines). The fields of the record are
+ * This reader interprets each line of a text file as record (also empty lines). The fields of the record are
  * delimited by a single separator character which must not necessarily be a comma.
  *
  * @author Norman Fomferra
- * @version 1.0
+ * @version 1.1
  */
 public class CsvReader extends LineNumberReader {
 
-    public static final String WHITESPACE_REGEX = "\\s+";
-    public static final String REGEX_TAB = "\\t";
-    public static final String REGEX_CHARS = "[\\^$.|?*+()";
-    public static final String[] EMPTY_RECORD = new String[0];
+    private static final String WHITESPACE_REGEX = "\\s+";
+    private static final String REGEX_TAB = "\\t";
+    private static final String REGEX_CHARS = "[\\^$.|?*+()";
+    private static final String[] EMPTY_RECORD = new String[0];
+
+    // todo - actually we only want a single character here, deprecate the array and its accessors (nf, 2012-04-12)
     /**
      * The column separator characters.
      */
@@ -114,7 +116,7 @@ public class CsvReader extends LineNumberReader {
      * Leading and trailing whitespaces removed from each column value. For empty lines, the method returns an
      * array of the length zero. The method returns <code>null</code> if the end of file has been reached.
      *
-     * @return a record containing the tokens delimitted by the separator character passed to the constructor
+     * @return a record containing the tokens delimited by the separator character passed to the constructor
      * @throws IOException if an I/O error occurs
      */
     public String[] readRecord() throws IOException {

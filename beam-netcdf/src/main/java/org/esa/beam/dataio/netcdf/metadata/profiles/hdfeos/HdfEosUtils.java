@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -34,7 +34,7 @@ public class HdfEosUtils {
     static final String CORE_METADATA = "CoreMetadata";
     static final String ARCHIVE_METADATA = "ArchiveMetadata";
 
-    static Element getEosElement(String name, Group eosGroup) throws IOException {
+    public static Element getEosElement(String name, Group eosGroup) throws IOException {
         String smeta = getEosMetadata(name, eosGroup);
         if (smeta == null) {
             return null;

@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.binding.Property;
@@ -7,12 +23,22 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractButton;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
-public class RoiMaskSelector {
+class RoiMaskSelector {
     public final static String PROPERTY_NAME_USE_ROI_MASK = "useRoiMask";
     public final static String PROPERTY_NAME_ROI_MASK = "roiMask";
 
@@ -21,6 +47,7 @@ public class RoiMaskSelector {
     final AbstractButton showMaskManagerButton;
 
     private final BindingContext bindingContext;
+    private final ProductNodeListener productNodeListener;
 
     private Product product;
     private Enablement useRoiEnablement;
@@ -37,6 +64,7 @@ public class RoiMaskSelector {
         Assert.argument(bindingContext.getPropertySet().getProperty(PROPERTY_NAME_ROI_MASK) != null, "bindingContext");
         Assert.argument(bindingContext.getPropertySet().getProperty(PROPERTY_NAME_ROI_MASK).getType().equals(Mask.class), "bindingContext");
 
+        this.productNodeListener = new PNL();
         this.bindingContext = bindingContext;
         useRoiMaskCheckBox = new JCheckBox("Use ROI mask:");
         roiMaskComboBox = new JComboBox();
@@ -80,16 +108,27 @@ public class RoiMaskSelector {
         return roiMaskPanel;
     }
 
-    public void updateMaskSource(Product product) {
-        this.product = product;
-        if (useRoiEnablement != null) {
-            useRoiEnablement.apply();
-        }
+    public void updateMaskSource(Product newProduct) {
+        if (product != newProduct) {
+            if (product != null) {
+                product.removeProductNodeListener(productNodeListener);
+            }
+            if (newProduct != null) {
+                newProduct.addProductNodeListener(productNodeListener);
+            }
+            this.product = newProduct;
+            if (useRoiEnablement != null) {
+                useRoiEnablement.apply();
+            }
 
-        if (roiMaskEnablement != null) {
-            roiMaskEnablement.apply();
+            if (roiMaskEnablement != null) {
+                roiMaskEnablement.apply();
+            }
+            updateRoiMasks();
         }
+    }
 
+    private void updateRoiMasks() {
         final Property property = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_ROI_MASK);
         if (product != null) {
             property.getDescriptor().setValueSet(new ValueSet(product.getMaskGroup().toArray()));
@@ -140,5 +179,35 @@ public class RoiMaskSelector {
                 roiMaskEnablement = null;
             }
         };
+    }
+
+    private class PNL implements ProductNodeListener {
+
+        @Override
+        public void nodeAdded(ProductNodeEvent event) {
+            handleEvent(event);
+        }
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            handleEvent(event);
+        }
+
+        @Override
+        public void nodeDataChanged(ProductNodeEvent event) {
+            handleEvent(event);
+        }
+
+        @Override
+        public void nodeRemoved(ProductNodeEvent event) {
+            handleEvent(event);
+        }
+
+        private void handleEvent(ProductNodeEvent event) {
+            ProductNode sourceNode = event.getSourceNode();
+            if (sourceNode instanceof Mask) {
+                updateRoiMasks();
+            }
+        }
     }
 }

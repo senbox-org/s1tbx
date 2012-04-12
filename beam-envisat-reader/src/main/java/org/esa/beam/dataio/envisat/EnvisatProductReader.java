@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,9 +18,7 @@ package org.esa.beam.dataio.envisat;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -29,6 +27,7 @@ import org.esa.beam.framework.datamodel.PointingFactory;
 import org.esa.beam.framework.datamodel.PointingFactoryRegistry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VirtualBand;
@@ -43,7 +42,9 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -76,6 +77,8 @@ public class EnvisatProductReader extends AbstractProductReader {
      */
     private int sceneRasterHeight;
 
+    private Map<Band, BandLineReader> bandlineReaderMap;
+
     /**
      * Constructs a new ENVISAT product reader.
      *
@@ -87,14 +90,6 @@ public class EnvisatProductReader extends AbstractProductReader {
 
     public ProductFile getProductFile() {
         return productFile;
-    }
-
-    public BandLineReader getBandLineReader(final Band band) throws IOException {
-        BandLineReader bandLineReader = getProductFile().getBandLineReader(band);
-        if (bandLineReader == null) {
-            throw new ProductIOException("nothing known about a band named '" + band.getName() + "'"); /*I18N*/
-        }
-        return bandLineReader;
     }
 
     public int getSceneRasterWidth() {
@@ -177,7 +172,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-        final BandLineReader bandLineReader = getBandLineReader(destBand);
+        final BandLineReader bandLineReader = bandlineReaderMap.get(destBand);
         final int sourceMinX = sourceOffsetX;
         final int sourceMinY = sourceOffsetY;
         final int sourceMaxX = Math.min(destBand.getRasterWidth() - 1, sourceMinX + sourceWidth - 1);
@@ -242,8 +237,8 @@ public class EnvisatProductReader extends AbstractProductReader {
             addGeoCodingToProduct(product);
             initPointingFactory(product);
         }
-        addDefaultBitmaskDefsToProduct(product);
-        addDefaultBitmaskDefsToBands(product);
+        addDefaultMasksToProduct(product);
+        addDefaultMasksDefsToBands(product);
         productFile.addCustomMetadata(product);
 
         return product;
@@ -254,6 +249,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         Debug.assertNotNull(product);
 
         BandLineReader[] bandLineReaders = productFile.getBandLineReaders();
+        bandlineReaderMap = new HashMap<Band, BandLineReader>(bandLineReaders.length);
         for (BandLineReader bandLineReader : bandLineReaders) {
             if (bandLineReader.isTiePointBased()) {
                 continue;
@@ -308,6 +304,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                 if (expression != null && expression.trim().length() > 0) {
                     band.setValidPixelExpression(expression.trim());
                 }
+                bandlineReaderMap.put(band, bandLineReader);
                 product.addBand(band);
             }
 
@@ -315,7 +312,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         setSpectralBandInfo(product);
     }
 
-    private void addDefaultBitmaskDefsToProduct(Product product) {
+    private void addDefaultMasksToProduct(Product product) {
         List<Band> flagDsList = new Vector<Band>();
         for (int i = 0; i < product.getNumBands(); i++) {
             Band band = product.getBandAt(i);
@@ -326,16 +323,17 @@ public class EnvisatProductReader extends AbstractProductReader {
         if (!flagDsList.isEmpty()) {
             for (Band flagDs : flagDsList) {
                 String flagDsName = flagDs.getName();
-                BitmaskDef[] bitmaskDefs = productFile.createDefaultBitmaskDefs(flagDsName);
-                for (BitmaskDef bitmaskDef : bitmaskDefs) {
-                    product.addBitmaskDef(bitmaskDef);
+                Mask[] masks = productFile.createDefaultMasks(flagDsName);
+                ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+                for (Mask mask : masks) {
+                    maskGroup.add(mask);
                 }
             }
         }
     }
 
 
-    private void addDefaultBitmaskDefsToBands(Product product) {
+    private void addDefaultMasksDefsToBands(Product product) {
         for (final Band band : product.getBands()) {
             final String[] maskNames = getDefaultBitmaskNames(band.getName());
             if (maskNames != null) {

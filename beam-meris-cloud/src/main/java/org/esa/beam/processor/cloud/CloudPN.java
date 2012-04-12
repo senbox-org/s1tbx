@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,8 +20,8 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.jexp.Term;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -196,33 +196,40 @@ public class CloudPN extends ProcessingNode {
         cloudAttr.getData().setElemInt(FLAG_CLOUDY);
         cloudAttr.setDescription("is with more than 80% cloudy");
         flagCoding.addAttribute(cloudAttr);
-        outputProduct.addBitmaskDef(new BitmaskDef(cloudAttr.getName(),
-                                                   cloudAttr.getDescription(),
-                                                   flagCoding.getName() + "." + cloudAttr.getName(),
-                                                   createBitmaskColor(1, 3),
-                                                   0.5F));
+        addMask(outputProduct,
+                cloudAttr.getName(),
+                cloudAttr.getDescription(),
+                flagCoding.getName() + "." + cloudAttr.getName(),
+                createBitmaskColor(1, 3));
 
         cloudAttr = new MetadataAttribute("cloudfree", ProductData.TYPE_UINT8);
         cloudAttr.getData().setElemInt(FLAG_CLOUDFREE);
         cloudAttr.setDescription("is with less than 20% cloudy");
         flagCoding.addAttribute(cloudAttr);
-        outputProduct.addBitmaskDef(new BitmaskDef(cloudAttr.getName(),
-                                                   cloudAttr.getDescription(),
-                                                   flagCoding.getName() + "." + cloudAttr.getName(),
-                                                   createBitmaskColor(2, 3),
-                                                   0.5F));
+        addMask(outputProduct,
+                cloudAttr.getName(),
+                cloudAttr.getDescription(),
+                flagCoding.getName() + "." + cloudAttr.getName(),
+                createBitmaskColor(2, 3));
 
         cloudAttr = new MetadataAttribute("cloud_uncertain", ProductData.TYPE_UINT8);
         cloudAttr.getData().setElemInt(FLAG_UNCERTAIN);
         cloudAttr.setDescription("is with between 20% and 80% cloudy");
         flagCoding.addAttribute(cloudAttr);
-        outputProduct.addBitmaskDef(new BitmaskDef(cloudAttr.getName(),
-                                                   cloudAttr.getDescription(),
-                                                   flagCoding.getName() + "." + cloudAttr.getName(),
-                                                   createBitmaskColor(3, 3),
-                                                   0.5F));
+        addMask(outputProduct,
+                cloudAttr.getName(),
+                cloudAttr.getDescription(),
+                flagCoding.getName() + "." + cloudAttr.getName(),
+                createBitmaskColor(3, 3));
 
         return flagCoding;
+    }
+
+    private static void addMask(Product product, String name, String description, String expresssion, Color color) {
+        int width = product.getSceneRasterWidth();
+        int height = product.getSceneRasterHeight();
+        Mask mask = Mask.BandMathsType.create(name, description, width, height, expresssion, color, 0.5f);
+        product.getMaskGroup().add(mask);
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,9 +17,10 @@ package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
@@ -98,7 +99,6 @@ public class AatsrProductFile extends ProductFile {
      *
      * @param file            the abstract file path representation.
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     protected AatsrProductFile(File file, ImageInputStream dataInputStream) throws IOException {
@@ -181,7 +181,6 @@ public class AatsrProductFile extends ProductFile {
      * Overrides the base class method.
      *
      * @param gridWidth for AATSR products, this is the number of tie points in a tie point ADSR
-     *
      * @see org.esa.beam.dataio.envisat.ProductFile#getTiePointSubSamplingX(int)
      */
     @Override
@@ -193,7 +192,6 @@ public class AatsrProductFile extends ProductFile {
      * Overrides the base class method.
      *
      * @param gridWidth for AATSR products, this is the number of tie points in a tie point ADSR
-     *
      * @see org.esa.beam.dataio.envisat.ProductFile#getTiePointSubSamplingY(int)
      */
     @Override
@@ -219,8 +217,8 @@ public class AatsrProductFile extends ProductFile {
     @Override
     public String getGADSName() {
         return getProductType().equalsIgnoreCase(EnvisatConstants.AATSR_L1B_TOA_PRODUCT_TYPE_NAME)
-               ? EnvisatConstants.AATSR_L1B_GADS_NAME
-               : null;
+                ? EnvisatConstants.AATSR_L1B_GADS_NAME
+                : null;
     }
 
     /**
@@ -350,7 +348,6 @@ public class AatsrProductFile extends ProductFile {
      * attachment_flag is rised for the whole (subset) product.
      *
      * @param datasetType the desired dataset type
-     *
      * @return all valis dsds conforming to the dataset type
      */
     @Override
@@ -403,31 +400,27 @@ public class AatsrProductFile extends ProductFile {
         // add bitmasks for ATSR active fires, see http://dup.esrin.esa.it/ionia/wfa/algorithm.asp
         final String nadirBand = EnvisatConstants.AATSR_L1B_BTEMP_NADIR_0370_BAND_NAME;
         final String fwardBand = EnvisatConstants.AATSR_L1B_BTEMP_FWARD_0370_BAND_NAME;
-        
+
+        ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
         if (product.containsBand(nadirBand)) {
-            product.addBitmaskDef(new BitmaskDef("fire_nadir_1", "ATSR active fire (ALGO1)", nadirBand + " > 312.0",
-                                                 Color.RED, 0.5f));
-            product.addBitmaskDef(new BitmaskDef("fire_nadir_2", "ATSR active fire (ALGO2)", nadirBand + " > 308.0",
-                                                 Color.RED.darker(), 0.5f));
+            maskGroup.add(mask("fire_nadir_1", "ATSR active fire (ALGO1)", nadirBand + " > 312.0", Color.RED, 0.5f));
+            maskGroup.add(mask("fire_nadir_2", "ATSR active fire (ALGO2)", nadirBand + " > 308.0", Color.RED.darker(), 0.5f));
         }
         if (product.containsBand(fwardBand)) {
-            product.addBitmaskDef(new BitmaskDef("fire_fward_1", "ATSR active fire (ALGO1)", fwardBand + " > 312.0",
-                                                 Color.RED, 0.5f));
-            product.addBitmaskDef(new BitmaskDef("fire_fward_2", "ATSR active fire (ALGO2)", fwardBand + " > 308.0",
-                                                 Color.RED.darker(), 0.5f));
+            maskGroup.add(mask("fire_fward_1", "ATSR active fire (ALGO1)", fwardBand + " > 312.0", Color.RED, 0.5f));
+            maskGroup.add(mask("fire_fward_2", "ATSR active fire (ALGO2)", fwardBand + " > 308.0", Color.RED.darker(), 0.5f));
         }
     }
 
     /**
-     * Returns a new default set of bitmask definitions for this product file.
+     * Returns a new default set of masks definitions for this product file.
      *
      * @param dsName the name of the flag dataset
-     *
      * @return a new default set, an empty array if no default set is given for this product type, never
      *         <code>null</code>.
      */
     @Override
-    public BitmaskDef[] createDefaultBitmaskDefs(String dsName) {
+    public Mask[] createDefaultMasks(String dsName) {
         if (getProductType().endsWith("1P")) {
             if ("confid_flags_nadir".equalsIgnoreCase(dsName) || "confid_flags_fward".equalsIgnoreCase(dsName)) {
                 String prefix = "qln_";
@@ -447,78 +440,61 @@ public class AatsrProductFile extends ProductFile {
                 return createL2BMDs();
             }
         }
-        return new BitmaskDef[0];
+        return new Mask[0];
     }
 
 
-    private BitmaskDef[] createL1bCloudBMDs(String prefix, String dsName) {
-        return new BitmaskDef[]{
-                new BitmaskDef(mkBMDNm(prefix, "LAND"), null, dsName + ".LAND", Color.green, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "CLOUDY"), null, dsName + ".CLOUDY", Color.cyan, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "SUN_GLINT"), null, dsName + ".SUN_GLINT", Color.yellow, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "CLOUDY_REFL_HIST"), null, dsName + ".CLOUDY_REFL_HIST", Color.orange,
-                               0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "CLOUDY_SPAT_COHER_16"), null, dsName + ".CLOUDY_SPAT_COHER_16",
-                               Color.red,
-                               0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "CLOUDY_SPAT_COHER_11"), null, dsName + ".CLOUDY_SPAT_COHER_11",
-                               Color.blue,
-                               0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "CLOUDY_GROSS_12"), null, dsName + ".CLOUDY_GROSS_12", Color.magenta,
-                               0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "CLOUDY_CIRRUS_11_12"), null, dsName + ".CLOUDY_CIRRUS_11_12",
-                               Color.pink,
-                               0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "CLOUDY_MED_HI_LEVEL_37_12"), null,
-                               dsName + ".CLOUDY_MED_HI_LEVEL_37_12",
-                               Color.yellow, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "CLOUDY_FOG_LOW_STRATUS_11_37"), null,
-                               dsName + ".CLOUDY_FOG_LOW_STRATUS_11_37", Color.orange, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "CLOUDY_VW_DIFF_11_12"), null, dsName + ".CLOUDY_VW_DIFF_11_12",
-                               Color.red,
-                               0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "CLOUDY_VW_DIFF_37_11"), null, dsName + ".CLOUDY_VW_DIFF_37_11",
-                               Color.green, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "CLOUDY_THERM_HIST_11_12"), null, dsName + ".CLOUDY_THERM_HIST_11_12",
-                               Color.blue, 0.5F)
+    private Mask[] createL1bCloudBMDs(String prefix, String dsName) {
+        return new Mask[]{
+                mask(mkBMDNm(prefix, "LAND"), null, dsName + ".LAND", Color.green, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY"), null, dsName + ".CLOUDY", Color.cyan, 0.5F),
+                mask(mkBMDNm(prefix, "SUN_GLINT"), null, dsName + ".SUN_GLINT", Color.yellow, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_REFL_HIST"), null, dsName + ".CLOUDY_REFL_HIST", Color.orange, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_SPAT_COHER_16"), null, dsName + ".CLOUDY_SPAT_COHER_16", Color.red, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_SPAT_COHER_11"), null, dsName + ".CLOUDY_SPAT_COHER_11", Color.blue, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_GROSS_12"), null, dsName + ".CLOUDY_GROSS_12", Color.magenta, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_CIRRUS_11_12"), null, dsName + ".CLOUDY_CIRRUS_11_12", Color.pink, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_MED_HI_LEVEL_37_12"), null, dsName + ".CLOUDY_MED_HI_LEVEL_37_12", Color.yellow, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_FOG_LOW_STRATUS_11_37"), null, dsName + ".CLOUDY_FOG_LOW_STRATUS_11_37", Color.orange, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_VW_DIFF_11_12"), null, dsName + ".CLOUDY_VW_DIFF_11_12", Color.red, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_VW_DIFF_37_11"), null, dsName + ".CLOUDY_VW_DIFF_37_11", Color.green, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_THERM_HIST_11_12"), null, dsName + ".CLOUDY_THERM_HIST_11_12", Color.blue, 0.5F)
         };
     }
 
-    private BitmaskDef[] createL1bConfidBMDs (String prefix, String dsName) {
-        return new BitmaskDef[]{
-                new BitmaskDef(mkBMDNm(prefix, "BLANKING"), null, dsName + ".BLANKING", Color.red, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "COSMETIC"), null, dsName + ".COSMETIC", Color.yellow, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "SCAN_ABSENT"), null, dsName + ".SCAN_ABSENT", Color.orange, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "ABSENT"), null, dsName + ".ABSENT", Color.green, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "NOT_DECOMPR"), null, dsName + ".NOT_DECOMPR", Color.blue, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "NO_SIGNAL"), null, dsName + ".NO_SIGNAL", Color.magenta, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "SATURATION"), null, dsName + ".SATURATION", Color.green, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "OUT_OF_RANGE"), null, dsName + ".OUT_OF_RANGE", Color.red, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "NO_CALIB_PARAM"), null, dsName + ".NO_CALIB_PARAM", Color.cyan, 0.5F),
-                new BitmaskDef(mkBMDNm(prefix, "UNFILLED"), null, dsName + ".UNFILLED", Color.yellow, 0.5F)
+    private Mask[] createL1bConfidBMDs(String prefix, String dsName) {
+        return new Mask[]{
+                mask(mkBMDNm(prefix, "BLANKING"), null, dsName + ".BLANKING", Color.red, 0.5F),
+                mask(mkBMDNm(prefix, "COSMETIC"), null, dsName + ".COSMETIC", Color.yellow, 0.5F),
+                mask(mkBMDNm(prefix, "SCAN_ABSENT"), null, dsName + ".SCAN_ABSENT", Color.orange, 0.5F),
+                mask(mkBMDNm(prefix, "ABSENT"), null, dsName + ".ABSENT", Color.green, 0.5F),
+                mask(mkBMDNm(prefix, "NOT_DECOMPR"), null, dsName + ".NOT_DECOMPR", Color.blue, 0.5F),
+                mask(mkBMDNm(prefix, "NO_SIGNAL"), null, dsName + ".NO_SIGNAL", Color.magenta, 0.5F),
+                mask(mkBMDNm(prefix, "SATURATION"), null, dsName + ".SATURATION", Color.green, 0.5F),
+                mask(mkBMDNm(prefix, "OUT_OF_RANGE"), null, dsName + ".OUT_OF_RANGE", Color.red, 0.5F),
+                mask(mkBMDNm(prefix, "NO_CALIB_PARAM"), null, dsName + ".NO_CALIB_PARAM", Color.cyan, 0.5F),
+                mask(mkBMDNm(prefix, "UNFILLED"), null, dsName + ".UNFILLED", Color.yellow, 0.5F)
         };
     }
 
-    private BitmaskDef[] createL2BMDs() {
-        return new BitmaskDef[]{
-                new BitmaskDef(mkBMDNm("LAND"), null, "flags.LAND", Color.green, 0.5F),
-                new BitmaskDef(mkBMDNm("WATER"), null, "!flags.LAND AND !(flags.NADIR_CLOUD OR flags.FWARD_CLOUD)",
-                               Color.blue, 0.5F),
-                new BitmaskDef(mkBMDNm("CLOUD"), null, "flags.NADIR_CLOUD OR flags.FWARD_CLOUD", Color.cyan, 0.5F),
-                new BitmaskDef(mkBMDNm("NADIR_CLOUD"), null, "flags.NADIR_CLOUD", Color.cyan, 0.5F),
-                new BitmaskDef(mkBMDNm("NADIR_BLANKING"), null, "flags.NADIR_BLANKING", Color.orange, 0.5F),
-                new BitmaskDef(mkBMDNm("NADIR_COSMETIC"), null, "flags.NADIR_COSMETIC", Color.red, 0.5F),
-                new BitmaskDef(mkBMDNm("FWARD_CLOUD"), null, "flags.FWARD_CLOUD", Color.cyan, 0.5F),
-                new BitmaskDef(mkBMDNm("FWARD_BLANKING"), null, "flags.FWARD_BLANKING", Color.orange, 0.5F),
-                new BitmaskDef(mkBMDNm("FWARD_COSMETIC"), null, "flags.FWARD_COSMETIC", Color.red, 0.5F),
-                new BitmaskDef(mkBMDNm("CLOUDY_16_MY"), null, "flags.CLOUDY_16_MY", Color.cyan, 0.5F),
-                new BitmaskDef(mkBMDNm("CLOUDY_11_12_MY"), null, "flags.CLOUDY_11_12_MY", Color.cyan, 0.5F),
-                new BitmaskDef(mkBMDNm("CLOUDY_HISTO"), null, "flags.CLOUDY_HISTO", Color.cyan, 0.5F),
-                new BitmaskDef(mkBMDNm("NADIR_SST_ONLY_VALID"), null, "flags.NADIR_SST_ONLY_VALID", Color.red, 0.5F),
-                new BitmaskDef(mkBMDNm("NADIR_SST_ONLY_37_MY_VALID"), null, "flags.NADIR_SST_ONLY_37_MY_VALID",
-                               Color.orange, 0.5F),
-                new BitmaskDef(mkBMDNm("DUAL_SST_VALID"), null, "flags.DUAL_SST_VALID", Color.red, 0.5F),
-                new BitmaskDef(mkBMDNm("DUAL_SST_VALID_37_MY"), null, "flags.DUAL_SST_VALID_37_MY", Color.orange, 0.5F)
+    private Mask[] createL2BMDs() {
+        return new Mask[]{
+                mask(mkBMDNm("LAND"), null, "flags.LAND", Color.green, 0.5F),
+                mask(mkBMDNm("WATER"), null, "!flags.LAND AND !(flags.NADIR_CLOUD OR flags.FWARD_CLOUD)", Color.blue, 0.5F),
+                mask(mkBMDNm("CLOUD"), null, "flags.NADIR_CLOUD OR flags.FWARD_CLOUD", Color.cyan, 0.5F),
+                mask(mkBMDNm("NADIR_CLOUD"), null, "flags.NADIR_CLOUD", Color.cyan, 0.5F),
+                mask(mkBMDNm("NADIR_BLANKING"), null, "flags.NADIR_BLANKING", Color.orange, 0.5F),
+                mask(mkBMDNm("NADIR_COSMETIC"), null, "flags.NADIR_COSMETIC", Color.red, 0.5F),
+                mask(mkBMDNm("FWARD_CLOUD"), null, "flags.FWARD_CLOUD", Color.cyan, 0.5F),
+                mask(mkBMDNm("FWARD_BLANKING"), null, "flags.FWARD_BLANKING", Color.orange, 0.5F),
+                mask(mkBMDNm("FWARD_COSMETIC"), null, "flags.FWARD_COSMETIC", Color.red, 0.5F),
+                mask(mkBMDNm("CLOUDY_16_MY"), null, "flags.CLOUDY_16_MY", Color.cyan, 0.5F),
+                mask(mkBMDNm("CLOUDY_11_12_MY"), null, "flags.CLOUDY_11_12_MY", Color.cyan, 0.5F),
+                mask(mkBMDNm("CLOUDY_HISTO"), null, "flags.CLOUDY_HISTO", Color.cyan, 0.5F),
+                mask(mkBMDNm("NADIR_SST_ONLY_VALID"), null, "flags.NADIR_SST_ONLY_VALID", Color.red, 0.5F),
+                mask(mkBMDNm("NADIR_SST_ONLY_37_MY_VALID"), null, "flags.NADIR_SST_ONLY_37_MY_VALID", Color.orange, 0.5F),
+                mask(mkBMDNm("DUAL_SST_VALID"), null, "flags.DUAL_SST_VALID", Color.red, 0.5F),
+                mask(mkBMDNm("DUAL_SST_VALID_37_MY"), null, "flags.DUAL_SST_VALID_37_MY", Color.orange, 0.5F)
         };
     }
 

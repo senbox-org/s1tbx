@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -124,7 +124,7 @@ public class FullyConstrainedLSU implements SpectralUnmixing {
                 }
                 if (foundlegal) {
                     int mbest = -1;
-                    double errbest = 1.e20;
+                    double errbest = Double.POSITIVE_INFINITY;
                     for (int m = 0; m < nmods; m++) {
                         if (allabupos[m]) {
                             if (err[m] < errbest) {
@@ -133,18 +133,20 @@ public class FullyConstrainedLSU implements SpectralUnmixing {
                             }
                         }
                     }
-                    final double[][] abucd = abuc[mbest];
-                    final double[][] abu = new double[nmemb][1];
-                    int take = 0;
-                    for (int k = 0; k < nmemb; k++) {
-                        if (sortedemcombs[nc][mbest][k]) {
-                            abu[k][0] = abucd[take][0];
-                            take++;
+                    if (mbest != -1) {
+                        final double[][] abucd = abuc[mbest];
+                        final double[][] abu = new double[nmemb][1];
+                        int take = 0;
+                        for (int k = 0; k < nmemb; k++) {
+                            if (sortedemcombs[nc][mbest][k]) {
+                                abu[k][0] = abucd[take][0];
+                                take++;
+                            }
                         }
-                    }
-                    if( errbest< totalerrbest) {
-                        res.setMatrix(0, nmemb-1, nspek, nspek, new Matrix(abu));
-                        totalerrbest=errbest;
+                        if( errbest< totalerrbest) {
+                            res.setMatrix(0, nmemb-1, nspek, nspek, new Matrix(abu));
+                            totalerrbest=errbest;
+                        }
                     }
                 }
             }

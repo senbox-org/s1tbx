@@ -28,14 +28,15 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.10<br/>
+          [BEAM-1123] Opened StatisticsDialog slows down performance of geometrc objects<br/>
           [BEAM-1385] Import images as products (missing RGB product reader)<br/>
           [BEAM-1384] Synchronise image views via geographical center coordinates<br/>
           [BEAM-1379] Log-scaled data and log-scaled display shall be independent<br/>
-          [BEAM-1374] On Mac OS X, processor windows don't have menu bars<br/>
           [BEAM-1373] Use latest JIDE libraries<br/>
           [BEAM-1372] Use latest XStream library<br/>
           [BEAM-1352] When exporting a product a SubsetInfo is always added to metadata tree<br/>
           [BEAM-1323] Add "magic stick" to VISAT that lets users create masks of similar pixels<br/>
+          [BEAM-1314] Processor menus are not visible on Mac<br/>
           [BEAM-1247] Masks can not be displayed over RGB-images<br/>
         <p>Changes in 4.9<br/>
           [BEAM-1297] Add DEM-corrected latitude/longitude bands in satellite coordinates<br/>

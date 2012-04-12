@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,9 +15,9 @@
  */
 package org.esa.beam.processor.binning.ui;
 
+import com.bc.jexp.ParseException;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
@@ -49,7 +49,18 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
@@ -973,10 +984,11 @@ public abstract class L3UI extends AbstractProcessorUI {
                 final Parameter bitmaskParam =
                         request.getParameter(L3Constants.BITMASK_PARAMETER_NAME + postfix);
                 final String expression = bitmaskParam.getValueAsText();
-                final BitmaskDef bitmaskDef = new BitmaskDef("n", "d", expression, null, 0);
-                if (!exampleProduct.isCompatibleBitmaskDef(bitmaskDef)) {
-                    getApp().showInfoDialog("The valid expression of the band" +
-                            "named '" + bandName + "' is not applicable.", null);
+                try {
+                    exampleProduct.parseExpression(expression);
+                } catch (ParseException e) {
+                    String message = String.format("The valid expression of the band named '%s' is not applicable.", bandName);
+                    getApp().showInfoDialog(message, null);
                     return false;
                 }
             }

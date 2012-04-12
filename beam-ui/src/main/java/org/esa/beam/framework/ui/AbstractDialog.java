@@ -164,51 +164,6 @@ public abstract class AbstractDialog {
         updateHelpID();
     }
 
-    /**
-     * Gets this dialog's menu bar.
-     * <p/>
-     * The method main use it to avoid calling {@link #getJDialog()}{@code .getJMenuBar()} directly,
-     * because it doesn't work correctly on Mac OS X (the menu is not displayed).
-     *
-     * @return The menu bar, or {@code null}.
-     * @see #setMenuBar(javax.swing.JMenuBar)
-     * @since BEAM 4.10
-     */
-    public JMenuBar getMenuBar() {
-        if (SystemUtils.isRunningOnMacOS()) {
-            final Component[] components = getJDialog().getContentPane().getComponents();
-            for (Component component : components) {
-                if (component instanceof JMenuBar) {
-                    return (JMenuBar) component;
-                }
-            }
-            return null;
-        } else {
-            return getJDialog().getJMenuBar();
-        }
-    }
-
-    /**
-     * Sets this dialog's menu bar.
-     * <p/>
-     * The method main use it to avoid calling {@link #getJDialog()}{@code .setJMenuBar()} directly,
-     * because it doesn't work correctly on Mac OS X (the menu is not displayed).
-     *
-     * @param menuBar The menu bar
-     * @since BEAM 4.10
-     */
-    public void setMenuBar(JMenuBar menuBar) {
-        if (SystemUtils.isRunningOnMacOS()) {
-            final JMenuBar oldMenuBar = getMenuBar();
-            if (oldMenuBar != null) {
-                getJDialog().getContentPane().remove(oldMenuBar);
-            }
-            getJDialog().getContentPane().add(menuBar, BorderLayout.NORTH);
-        } else {
-            getJDialog().setJMenuBar(menuBar);
-        }
-    }
-
 
     /**
      * Gets the dialog's content component.
