@@ -44,7 +44,6 @@
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <formatName>NOAA_AVHRR_3_L1B</formatName>
             <useAllFileFilter>true</useAllFileFilter>
-            <text>Import NOAA-AVHRR/3 Level-1b Product...</text>
             <mnemonic>V</mnemonic>
             <shortDescr>Import a NOAA-AVHRR/3 Level-1b data product or product subset.</shortDescr>
             <description>Import a NOAA-AVHRR/3 Level-1b data product or product subset.</description>

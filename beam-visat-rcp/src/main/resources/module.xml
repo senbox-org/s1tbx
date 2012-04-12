@@ -819,6 +819,26 @@
         </action>
 
         <action>
+            <parent>import</parent>
+            <id>importVectorData</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Vector Data</text>
+            <shortDescr>Import vector data</shortDescr>
+            <description>Import vector data</description>
+            <helpId>importVectorData</helpId>
+        </action>
+
+        <action>
+            <parent>import</parent>
+            <id>importRasterData</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Raster Data</text>
+            <shortDescr>Import raster data</shortDescr>
+            <description>Import raster data</description>
+            <helpId>importRasterData</helpId>
+        </action>
+
+        <action>
             <parent>file</parent>
             <placeAfter>import</placeAfter>
             <id>export</id>
@@ -854,7 +874,7 @@
         <action>
             <id>importGeometry</id>
             <class>org.esa.beam.visat.actions.ImportGeometryAction</class>
-            <parent>import</parent>
+            <parent>importVectorData</parent>
             <text>Import Geometry...</text>
             <mnemonic>S</mnemonic>
             <shortDescr>Import geometry from plain text or ESRI shapefile.</shortDescr>
@@ -864,7 +884,23 @@
         </action>
 
         <action>
-            <parent>import</parent>
+            <id>importTrack</id>
+            <class>org.esa.beam.visat.actions.ImportTrackAction</class>
+            <text>Import Track File</text>
+            <parent>importVectorData</parent>
+            <placeBefore>importPoints</placeBefore>
+        </action>
+
+        <action>
+            <id>importPoints</id>
+            <class>org.esa.beam.visat.actions.ImportPointDataAction</class>
+            <text>Import points from a CSV file</text>
+            <parent>importVectorData</parent>
+            <placeBefore>importGeometry</placeBefore>
+        </action>
+
+        <action>
+            <parent>importRasterData</parent>
             <id>importDimapProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <formatName>BEAM-DIMAP</formatName>
@@ -1870,7 +1906,6 @@
             <shortDescr>Reset to initial layout.</shortDescr>
         </action>
 
-
         <!--
                 <action>
                     <id>createXYDisplacementBandsAction</id>
@@ -1885,24 +1920,6 @@
                 </action>
 
         -->
-
-        <action>
-            <id>importTrack</id>
-            <class>org.esa.beam.visat.actions.ImportTrackAction</class>
-            <text>Import Track File (Experimental)...</text>
-            <parent>import</parent>
-            <placeBefore>importPoints</placeBefore>
-        </action>
-
-        <action>
-            <id>importPoints</id>
-            <class>org.esa.beam.visat.actions.ImportPointDataAction</class>
-            <text>Import points from a CSV file... (experimental)</text>
-            <parent>import</parent>
-            <placeBefore>importGeometry</placeBefore>
-        </action>
-
-
     </extension>
 
 </module>

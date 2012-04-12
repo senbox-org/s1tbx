@@ -88,8 +88,6 @@
             <formatName>ENVISAT</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>E</mnemonic>
-            <accelerator>control E</accelerator>
-            <text>Import ENVISAT (MERIS,AATSR,ASAR) Product...</text>
             <shortDescr>Import an ENVISAT (MERIS,AATSR,ASAR) data product or product subset.</shortDescr>
             <description>Import an ENVISAT MERIS, AATSR or ASAR data product or product subset.</description>
             <largeIcon>icons/Import24.gif</largeIcon>
@@ -100,7 +98,6 @@
             <formatName>ERS1/2</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>E</mnemonic>
-            <text>Import ERS1/2 (ATSR,SAR) Product...</text>
             <shortDescr>Import an ERS1/2 (ATSR,SAR) data product or product subset.</shortDescr>
             <description>Import an ERS1/2 ATSR or SAR data product or product subset.</description>
             <largeIcon>icons/Import24.gif</largeIcon>

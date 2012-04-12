@@ -43,7 +43,7 @@
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <formatName>L3_ENV_MER</formatName>
             <useAllFileFilter>true</useAllFileFilter>
-            <text>Import MERIS Binned Level-3 Product...</text>
+            <text>MERIS Binned Level-3</text>
             <mnemonic>B</mnemonic>
             <shortDescr>Import a MERIS Binned Level-3 (NetCDF) data product or product subset.</shortDescr>
             <description>Import a MERIS Binned Level-3 (NetCDF) data product or product subset.</description>

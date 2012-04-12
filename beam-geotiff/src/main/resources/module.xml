@@ -60,7 +60,6 @@
             <formatName>GeoTIFF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>O</mnemonic>
-            <text>Import GeoTIFF Product...</text>
             <shortDescr>Import a GeoTIFF data product or subset.</shortDescr>
             <description>Import a GeoTIFF data product or product subset.</description>
             <helpId>importGeoTIFFProduct</helpId>
