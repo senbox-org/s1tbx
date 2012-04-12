@@ -64,7 +64,7 @@ public class VectorDataNodeReader {
     }
 
     private VectorDataNode read(String name, Reader headerReader, Reader featureReader) throws IOException {
-        Map<String, String> properties = readNodeProperties(headerReader);
+        Map<String, String> properties = readProperties(headerReader);
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures(featureReader);
         VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);
         if (properties.containsKey(ProductNode.PROPERTY_NAME_DESCRIPTION)) {
@@ -76,11 +76,19 @@ public class VectorDataNodeReader {
         return vectorDataNode;
     }
 
-    private Map<String, String> readNodeProperties(Reader reader) throws IOException {
+    /**
+     * Collects comment lines of the form "# &lt;name&gt; = &lt;value&gt;" until the first non-empty and non-comment line is found.
+     *
+     * @param reader A reader
+     * @return All the property assignments found.
+     * @throws IOException
+     */
+    Map<String, String> readProperties(Reader reader) throws IOException {
         LineNumberReader lineNumberReader = new LineNumberReader(reader);
         Map<String, String> propertiesMap = new HashMap<String, String>();
-        String line = lineNumberReader.readLine();
-        while (line != null) {
+        String line;
+        while ((line = lineNumberReader.readLine()) != null) {
+            line = line.trim();
             if (line.startsWith("#")) {
                 line = line.substring(1);
                 int index = line.indexOf('=');
@@ -92,8 +100,10 @@ public class VectorDataNodeReader {
                         propertiesMap.put(name, value);
                     }
                 }
+            } else if (!line.isEmpty()) {
+                // First non-comment line reached, no more property assignments expected
+                break;
             }
-            line = lineNumberReader.readLine();
         }
         lineNumberReader.close();
         return propertiesMap;
