@@ -130,8 +130,9 @@ public class Placemark extends ProductNode {
      * @param attributeValue The feature's attribute value, may be {@code null}.
      */
     public void setAttributeValue(String attributeName, Object attributeValue) {
-        if (!ObjectUtils.equalObjects(attributeValue, getAttributeValue(attributeName))) {
-            feature.setAttribute(attributeName, attributeValue);
+        final int index = feature.getFeatureType().indexOf(attributeName);
+        if (index != -1 && !ObjectUtils.equalObjects(attributeValue, getAttributeValue(attributeName))) {
+            feature.setAttribute(index, attributeValue);
             fireProductNodeChanged(attributeName);
         }
     }
