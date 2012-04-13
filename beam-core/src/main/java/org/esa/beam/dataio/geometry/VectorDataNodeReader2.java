@@ -202,7 +202,7 @@ public class VectorDataNodeReader2 {
                 builder.set("pixelPos", new GeometryFactory().createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
             }
             // todo - clarify
-            if(!hasFeatureTypeName) {
+            if (!hasFeatureTypeName) {
                 fid = "feature" + count++;
             }
             SimpleFeature simpleFeature = builder.buildFeature(fid);
@@ -279,8 +279,11 @@ public class VectorDataNodeReader2 {
             builder.setDefaultGeometry("pixelPos");
         } else if (hasGeometry()) {
             builder.setDefaultGeometry(geometryName);
+        } else {
+            throw new IOException("Unable to create feature type: " +
+                                  "either a geometry or lat/lon fields are needed.");
         }
-        if(!hasFeatureTypeName) {
+        if (!hasFeatureTypeName) {
             // todo - clarify
             builder.setName("DefaultFeatureType");
         }
