@@ -53,6 +53,7 @@ public class VectorDataNodeReader {
 
     public VectorDataNode read(File file) throws IOException {
         final String name = FileUtils.getFilenameWithoutExtension(file);
+        // todo - bad technique: use a LineNumberReader that supports mark/reset and let the header reader only read up to the first data line (nf)
         FileReader headerReader = new FileReader(file);
         FileReader featureReader = new FileReader(file);
         try {
