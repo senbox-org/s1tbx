@@ -18,7 +18,6 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.jidesoft.swing.JideScrollPane;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
@@ -26,8 +25,7 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.jfree.chart.ChartPanel;
 
 import javax.swing.*;
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -71,7 +69,7 @@ abstract class ChartPagePanel extends PagePanel {
         });
 
         final AbstractButton switchToTableButton = ToolButtonFactory.createButton(
-                UIUtils.loadImageIcon("icons/ZoomAll24.gif"),
+                UIUtils.loadImageIcon("icons/Table24.png"),
                 false);
         switchToTableButton.setToolTipText("Switch to Table View");
         switchToTableButton.setName("switchToTableButton");
@@ -98,7 +96,7 @@ abstract class ChartPagePanel extends PagePanel {
     private JPanel createChartBottomPanel(final ChartPanel chartPanel) {
 
         final AbstractButton zoomAllButton = ToolButtonFactory.createButton(
-                UIUtils.loadImageIcon("icons/ZoomAll24.gif"),
+                UIUtils.loadImageIcon("/com/bc/ceres/swing/actions/icons_22x22/view-fullscreen.png"),
                 false);
         zoomAllButton.setToolTipText("Zoom all.");
         zoomAllButton.setName("zoomAllButton.");
@@ -179,9 +177,9 @@ abstract class ChartPagePanel extends PagePanel {
         GridBagUtils.addToPanel(rightPanel, new JSeparator(), rightPanelConstraints, "gridy=4,fill=HORIZONTAL,weighty=0");
         GridBagUtils.addToPanel(rightPanel, createChartBottomPanel(chartPanel), rightPanelConstraints, "gridy=5,");
 
-        final ImageIcon collapseIcon = UIUtils.loadImageIcon("icons/PanelCollapseHorizontal24.png");
+        final ImageIcon collapseIcon = UIUtils.loadImageIcon("icons/PanelRight12.png");
         final ImageIcon collapseRolloverIcon = ToolButtonFactory.createRolloverIcon(collapseIcon);
-        final ImageIcon expandIcon = UIUtils.loadImageIcon("icons/PanelExpandHorizontal24.png");
+        final ImageIcon expandIcon = UIUtils.loadImageIcon("icons/PanelLeft12.png");
         final ImageIcon expandRolloverIcon = ToolButtonFactory.createRolloverIcon(expandIcon);
 
         hideAndShowButton = ToolButtonFactory.createButton(collapseIcon, false);

@@ -44,8 +44,8 @@ class MoreOptionsPane {
 
         if (icons == null) {
             icons = new ImageIcon[]{
-                    UIUtils.loadImageIcon("icons/PanelCollapse12.png"),
-                    UIUtils.loadImageIcon("icons/PanelExpand12.png"),
+                    UIUtils.loadImageIcon("icons/PanelUp12.png"),
+                    UIUtils.loadImageIcon("icons/PanelDown12.png"),
             };
             rolloverIcons = new ImageIcon[]{
                     ToolButtonFactory.createRolloverIcon(icons[0]),

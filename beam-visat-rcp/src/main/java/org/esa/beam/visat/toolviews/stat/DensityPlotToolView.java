@@ -21,9 +21,9 @@ package org.esa.beam.visat.toolviews.stat;
  *
  * @author Marco Zuehlke
  */
-public class DensityToolView extends AbstractStatisticsToolView {
+public class DensityPlotToolView extends AbstractStatisticsToolView {
 
-    public static final String ID = DensityToolView.class.getName();
+    public static final String ID = DensityPlotToolView.class.getName();
 
     @Override
     protected PagePanel createPagePanel() {

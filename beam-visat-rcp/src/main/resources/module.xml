@@ -536,8 +536,8 @@
             <initIndex>0</initIndex>
         </toolView>
         <toolView>
-            <id>org.esa.beam.visat.toolviews.stat.HistogramToolView</id>
-            <class>org.esa.beam.visat.toolviews.stat.HistogramToolView</class>
+            <id>org.esa.beam.visat.toolviews.stat.HistogramPlotToolView</id>
+            <class>org.esa.beam.visat.toolviews.stat.HistogramPlotToolView</class>
             <title>Histogram View</title>
             <tabTitle>Histogram</tabTitle>
             <mnemonic>t</mnemonic>
@@ -551,15 +551,15 @@
             <initIndex>0</initIndex>
         </toolView>
         <toolView>
-            <id>org.esa.beam.visat.toolviews.stat.DensityToolView</id>
-            <class>org.esa.beam.visat.toolviews.stat.DensityToolView</class>
+            <id>org.esa.beam.visat.toolviews.stat.DensityPlotToolView</id>
+            <class>org.esa.beam.visat.toolviews.stat.DensityPlotToolView</class>
             <title>Density Plot View</title>
             <tabTitle>Density Plot</tabTitle>
             <mnemonic>t</mnemonic>
             <accelerator>ctrl alt T</accelerator>
             <description>Display Density Plot for a selected band.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/ScatterPlot16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/ScatterPlot24.gif</largeIcon>
+            <smallIcon>/org/esa/beam/resources/images/icons/DensityPlot16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/DensityPlot24.gif</largeIcon>
             <helpId>densityplotDialog</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
@@ -589,8 +589,8 @@
             <mnemonic>t</mnemonic>
             <accelerator>ctrl alt T</accelerator>
             <description>Display Profile Plot for a selected band.</description>
-            <!--<smallIcon>/org/esa/beam/resources/images/icons/ScatterPlot16.gif</smallIcon>-->
-            <!--<largeIcon>/org/esa/beam/resources/images/icons/ScatterPlot24.gif</largeIcon>-->
+            <smallIcon>/org/esa/beam/resources/images/icons/ProfilePlot16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/ProfilePlot24.gif</largeIcon>
             <helpId>profilePlotDialog</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
