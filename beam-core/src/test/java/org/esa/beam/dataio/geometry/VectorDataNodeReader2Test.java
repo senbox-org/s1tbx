@@ -72,8 +72,23 @@ public class VectorDataNodeReader2Test {
                                         "4\tpin_5\t665.5\t263.5\t46.88921 \tPin 5\tp5\t6.9614143\t80.520226\n" +
                                         "5\tpin_6\t532.5\t313.5\t46.710358\tPin 6\tp6\t5.0080223\t75.52739\n";
 
+
+    private static final String INPUT3 = "# BEAM pin export table\n" +
+                                         "#\n" +
+                                         "# Product:\tsubset_1_MER_RR__1PQBCM20030809_101416_000002002018_00466_07534_0168\n" +
+                                         "# Created on:\tThu Apr 12 14:48:36 CEST 2012\n" +
+                                         "\n" +
+                                         "# Wavelength:\t\t\t\t\t\t\t884.94403\n" +
+                                         "Name:String\tX:Double\tY:Double\tLat:Double\tLabel:String\tDesc:String\tLon:Double\tradiance_14:Double\n" +
+                                         "pin_1\t689.5\t151.5 \t47.96903\tPin 1\tp1\t7.777766 \t59.383057\n" +
+                                         "pin_2\t317.5\t488.5\t45.38434 \tPin 2\tp2\t1.5681322\t93.759186\n" +
+                                         "pin_3\t241.5\t475.5\t45.669746\tPin 3\tp3\t0.6210307\t90.469284\n" +
+                                         "pin_4\t831.5\t534.5\t43.675922\tPin 4\tp4\t7.8942046\t7.208489\n" +
+                                         "pin_5\t665.5\t263.5\t46.88921 \tPin 5\tp5\t6.9614143\t80.520226\n" +
+                                         "pin_6\t532.5\t313.5\t46.710358\tPin 6\tp6\t5.0080223\t75.52739\n";
+
     @Test
-    public void testTrackFeatureTypeWithInput1() throws Exception {
+    public void testFeatureTypeWithInput1() throws Exception {
         List<AttributeDescriptor> attributeDescriptors = getAttributeDescriptors(INPUT1);
 
         assertEquals("Name", attributeDescriptors.get(0).getLocalName());
@@ -100,9 +115,12 @@ public class VectorDataNodeReader2Test {
     }
 
     @Test
-    public void testTrackFeatureTypeWithInput2() throws Exception {
-        List<AttributeDescriptor> attributeDescriptors = getAttributeDescriptors(INPUT2);
+    public void testFeatureTypeWithInputs2And3() throws Exception {
+        testFeatureType(getAttributeDescriptors(INPUT2));
+        testFeatureType(getAttributeDescriptors(INPUT3));
+    }
 
+    private void testFeatureType(List<AttributeDescriptor> attributeDescriptors) {
         assertEquals("Name", attributeDescriptors.get(0).getLocalName());
         assertEquals("X", attributeDescriptors.get(1).getLocalName());
         assertEquals("Y", attributeDescriptors.get(2).getLocalName());
@@ -130,6 +148,7 @@ public class VectorDataNodeReader2Test {
     public void testTrackFeatureClassesWithMultipleInputs() throws Exception {
         testTrackFeatureClasses(INPUT1);
         testTrackFeatureClasses(INPUT2);
+        testTrackFeatureClasses(INPUT3);
     }
 
     private void testTrackFeatureClasses(String input) throws IOException {

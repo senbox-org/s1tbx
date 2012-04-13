@@ -59,6 +59,7 @@ public class VectorDataNodeReader2 {
     private int latIndex = -1;
     private int lonIndex = -1;
     private int geometryIndex = -1;
+    private boolean hasFeatureTypeName = false;
 
     private static final String[] LONGITUDE_IDENTIFIERS = new String[]{"lon", "long", "longitude"};
     private static final String[] LATITUDE_IDENTIFIERS = new String[]{"lat", "latitude"};
@@ -150,15 +151,13 @@ public class VectorDataNodeReader2 {
         DefaultFeatureCollection fc = new DefaultFeatureCollection("?", simpleFeatureType);
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeatureType);
         PixelPos pixelPos = new PixelPos();
+        int count = 0;
         while (true) {
             String[] tokens = csvReader.readRecord();
             if (tokens == null) {
                 break;
             }
-            final int expectedTokenCount = 1 + simpleFeatureType.getAttributeCount() - (hasLatLon() ? 2 : 0);
-            if (tokens.length != expectedTokenCount) {
-                BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
-                                                                       location, expectedTokenCount, tokens.length));
+            if (!isLineValid(simpleFeatureType, tokens)) {
                 continue;
             }
             builder.reset();
@@ -168,7 +167,7 @@ public class VectorDataNodeReader2 {
             int attributeIndex = 0;
             for (int columnIndex = 0; columnIndex < tokens.length; columnIndex++) {
                 String token = tokens[columnIndex];
-                if (columnIndex == 0) {
+                if (columnIndex == 0 && hasFeatureTypeName) {
                     fid = token;
                 } else if (columnIndex == latIndex) {
                     lat = Double.parseDouble(token);
@@ -202,6 +201,10 @@ public class VectorDataNodeReader2 {
                 geoCoding.getPixelPos(new GeoPos((float) lat, (float) lon), pixelPos);
                 builder.set("pixelPos", new GeometryFactory().createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
             }
+            // todo - clarify
+            if(!hasFeatureTypeName) {
+                fid = "feature" + count++;
+            }
             SimpleFeature simpleFeature = builder.buildFeature(fid);
             if (hasGeometry()) {
                 Geometry defaultGeometry = (Geometry) simpleFeature.getDefaultGeometry();
@@ -210,6 +213,18 @@ public class VectorDataNodeReader2 {
             fc.add(simpleFeature);
         }
         return fc;
+    }
+
+    private boolean isLineValid(SimpleFeatureType simpleFeatureType, String[] tokens) {
+        int expectedTokenCount = simpleFeatureType.getAttributeCount();
+        expectedTokenCount -= (hasLatLon() ? 2 : 0);
+        expectedTokenCount += hasFeatureTypeName ? 1 : 0;
+        if (tokens.length != expectedTokenCount) {
+            BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
+                                                                   location, expectedTokenCount, tokens.length));
+            return false;
+        }
+        return true;
     }
 
     SimpleFeatureType readFeatureType(CsvReader csvReader) throws IOException {
@@ -226,7 +241,8 @@ public class VectorDataNodeReader2 {
         builder.setCRS(modelCrs);
         JavaTypeConverter jtc = new JavaTypeConverter();
         for (int i = 0; i < tokens.length; i++) {
-            if (i == 0) {
+            if (i == 0 && tokens[0].startsWith("org.esa.beam")) {
+                hasFeatureTypeName = true;
                 builder.setName(tokens[0]);
             } else {
                 String token = tokens[i];
@@ -263,6 +279,10 @@ public class VectorDataNodeReader2 {
             builder.setDefaultGeometry("pixelPos");
         } else if (hasGeometry()) {
             builder.setDefaultGeometry(geometryName);
+        }
+        if(!hasFeatureTypeName) {
+            // todo - clarify
+            builder.setName("DefaultFeatureType");
         }
         return builder.buildFeatureType();
     }
