@@ -438,16 +438,12 @@ class ColorManipulationForm {
         if (productSceneView != null) {
             try {
                 getToolViewPaneControl().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                if (!isRgbMode()) {
-                    productSceneView.getRaster().setImageInfo(imageInfo);
-                    productSceneView.setImageInfo(imageInfo);
-                } else {
+                if (isRgbMode()) {
                     productSceneView.setRasters(childForm.getRasters());
-                    productSceneView.setImageInfo(imageInfo);
+                } else {
+                    productSceneView.getRaster().setImageInfo(imageInfo);
                 }
-                setImageInfoCopy(imageInfo);
-                childForm.updateFormModel(productSceneView);
-                visatApp.updateImage(productSceneView);
+                productSceneView.setImageInfo(imageInfo);
             } finally {
                 getToolViewPaneControl().setCursor(Cursor.getDefaultCursor());
             }

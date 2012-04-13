@@ -20,6 +20,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.ActionLabel;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Scaling;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.ui.ImageInfoEditor;
 import org.esa.beam.framework.ui.ImageInfoEditorModel;
@@ -102,7 +103,7 @@ class ImageInfoEditor2 extends ImageInfoEditor {
 
         labels.add(new JLabel("Min: " + getValueForDisplay(model.getMinSample())));
         labels.add(new JLabel("Max: " + getValueForDisplay(model.getMaxSample())));
-        if (stx.getResolutionLevel() > 0) {
+        if (stx.getResolutionLevel() > 0 && model.getSampleScaling() == Scaling.IDENTITY) {
             final ActionLabel label = new ActionLabel("Rough statistics!");
             label.setToolTipText("Click to compute accurate statistics.");
             label.addActionListener(new ActionListener() {

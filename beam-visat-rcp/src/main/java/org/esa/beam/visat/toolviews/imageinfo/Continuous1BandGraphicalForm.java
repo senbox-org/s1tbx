@@ -16,16 +16,21 @@
 
 package org.esa.beam.visat.toolviews.imageinfo;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Scaling;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
 import org.esa.beam.framework.ui.ImageInfoEditor;
 import org.esa.beam.framework.ui.ImageInfoEditorModel;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.JPanel;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -58,7 +63,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         logDisplayButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setLogarithmicDisplay(logDisplayButton.isSelected());
+                setLogarithmicDisplay(parentForm.getProductSceneView().getRaster(), logDisplayButton.isSelected());
             }
         });
 
@@ -71,7 +76,6 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
                 distributeSlidersEvenly();
             }
         });
-
 
         applyEnablerCL = parentForm.createApplyEnablerChangeListener();
     }
@@ -101,22 +105,23 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
 
     @Override
     public void updateFormModel(ProductSceneView productSceneView) {
-        ImageInfoEditorModel1B model = new ImageInfoEditorModel1B(parentForm.getImageInfo());
-        model.addChangeListener(applyEnablerCL);
-        ImageInfoEditorModel oldModel = imageInfoEditor.getModel();
-        setDisplayProperties(model, productSceneView.getRaster());
-        imageInfoEditor.setModel(model);
+        final ImageInfoEditorModel oldModel = imageInfoEditor.getModel();
+        final ImageInfoEditorModel newModel = new ImageInfoEditorModel1B(parentForm.getImageInfo());
+        newModel.addChangeListener(applyEnablerCL);
+        //setDisplayProperties(model, productSceneView.getRaster());
+        imageInfoEditor.setModel(newModel);
+        setLogarithmicDisplay(productSceneView.getRaster(), logDisplayButton.isSelected());
         if (oldModel != null) {
-            model.setHistogramViewGain(oldModel.getHistogramViewGain());
-            model.setMinHistogramViewSample(oldModel.getMinHistogramViewSample());
-            model.setMaxHistogramViewSample(oldModel.getMaxHistogramViewSample());
+            newModel.setHistogramViewGain(oldModel.getHistogramViewGain());
+            newModel.setMinHistogramViewSample(oldModel.getMinHistogramViewSample());
+            newModel.setMaxHistogramViewSample(oldModel.getMaxHistogramViewSample());
         }
-        if (model.getSliderSample(0) < model.getMinHistogramViewSample() ||
-                model.getSliderSample(model.getSliderCount() - 1) > model.getMaxHistogramViewSample()) {
+        if (newModel.getSliderSample(0) < newModel.getMinHistogramViewSample() ||
+            newModel.getSliderSample(newModel.getSliderCount() - 1) > newModel.getMaxHistogramViewSample()) {
             imageInfoEditor.computeZoomInToSliderLimits();
         }
 
-        logDisplayButton.setSelected(model.getSampleScaling() != Scaling.IDENTITY);
+        //logDisplayButton.setSelected(model.getSampleScaling() != Scaling.IDENTITY);
         parentForm.revalidateToolViewPaneControl();
     }
 
@@ -130,9 +135,10 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
         if (imageInfoEditor.getModel() != null) {
-            setDisplayProperties(imageInfoEditor.getModel(), raster);
             if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STX)) {
                 updateFormModel(parentForm.getProductSceneView());
+            } else {
+                setLogarithmicDisplay(raster, logDisplayButton.isSelected());
             }
         }
     }
@@ -147,9 +153,19 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         return moreOptionsForm;
     }
 
-    private void setLogarithmicDisplay(boolean logarithmicDisplay) {
-        imageInfoEditor.getModel().setSampleScaling(logarithmicDisplay ? POW10_SCALING : Scaling.IDENTITY);
-        imageInfoEditor.getModel().fireStateChanged();
+    private void setLogarithmicDisplay(final RasterDataNode raster, final boolean logarithmicDisplay) {
+        final ImageInfoEditorModel model = imageInfoEditor.getModel();
+        if (logarithmicDisplay) {
+            final StxFactory stxFactory = new StxFactory();
+            final Stx stx = stxFactory
+                    .withHistogramBinCount(raster.getStx().getHistogramBinCount())
+                    .withLogHistogram(logarithmicDisplay)
+                    .withResolutionLevel(raster.getSourceImage().getModel().getLevelCount() - 1)
+                    .create(raster, ProgressMonitor.NULL);
+            model.setDisplayProperties(raster.getName(), raster.getUnit(), stx, POW10_SCALING);
+        } else {
+            model.setDisplayProperties(raster.getName(), raster.getUnit(), raster.getStx(), Scaling.IDENTITY);
+        }
     }
 
     private void distributeSlidersEvenly() {
@@ -172,13 +188,13 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     }
 
     static void setDisplayProperties(ImageInfoEditorModel model, RasterDataNode raster) {
-        // In BEAM 4.10, Stx is geo-pyhsical, scaling not required, possibly only for log-scaled
-        // model.setDisplayProperties(raster.getName(), raster.getUnit(), raster.getStx(), raster);
-        model.setDisplayProperties(raster.getName(), raster.getUnit(), raster.getStx(), raster.isLog10Scaled() ? POW10_SCALING : Scaling.IDENTITY);
+        model.setDisplayProperties(raster.getName(), raster.getUnit(), raster.getStx(),
+                                   raster.isLog10Scaled() ? POW10_SCALING : Scaling.IDENTITY);
     }
 
 
     private static class Log10Scaling implements Scaling {
+
         @Override
         public double scale(double value) {
             return value > 1.0E-10 ? Math.log10(value) : -10.0;
@@ -194,6 +210,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     }
 
     private static class Pow10Scaling implements Scaling {
+
         @Override
         public double scale(double value) {
             if (value < -10.0) {

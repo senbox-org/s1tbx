@@ -477,6 +477,7 @@ public class ProductSceneView extends BasicView
     public void setImageInfo(ImageInfo imageInfo) {
         final ImageInfo oldImageInfo = getImageInfo();
         getSceneImage().setImageInfo(imageInfo);
+        updateImage();
         firePropertyChange(PROPERTY_NAME_IMAGE_INFO, oldImageInfo, imageInfo);
     }
 
