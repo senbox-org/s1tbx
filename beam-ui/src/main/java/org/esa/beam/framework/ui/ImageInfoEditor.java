@@ -421,8 +421,7 @@ public class ImageInfoEditor extends JPanel {
     private void drawHistogram(Graphics2D g2d) {
         if (getModel().isHistogramAvailable()) {
             final Paint oldPaint = g2d.getPaint();
-            g2d.setColor(Color.black);
-            g2d.setPaint(Color.black);
+            g2d.setPaint(Color.DARK_GRAY);
 
             final int[] histogramBins = getModel().getHistogramBins();
             final double maxBinCounts = getMaxVisibleHistogramCounts(histogramBins, 1.0 / 16.0);
