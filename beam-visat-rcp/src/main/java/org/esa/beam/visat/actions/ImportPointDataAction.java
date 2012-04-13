@@ -73,7 +73,6 @@ public class ImportPointDataAction extends ExecCommand {
         }
 
         vectorDataNode.getFeatureType().getUserData().put(dialog.getFeatureTypeName(), true);
-
         product.getVectorDataGroup().add(vectorDataNode);
     }
 
