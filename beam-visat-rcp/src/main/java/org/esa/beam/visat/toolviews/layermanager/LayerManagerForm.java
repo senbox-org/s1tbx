@@ -35,15 +35,7 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
 
-import javax.swing.AbstractButton;
-import javax.swing.DropMode;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JTree;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -52,11 +44,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -135,7 +123,7 @@ class LayerManagerForm extends AbstractLayerForm {
         moveLayerRightAction = new MoveLayerRightAction(getAppContext());
         AbstractButton rightButton = ToolButtonFactory.createButton(moveLayerRightAction, false);
 
-        AbstractButton helpButton = createToolButton("icons/Help24.gif");
+        AbstractButton helpButton = createToolButton("icons/Help22.png");
         helpButton.setToolTipText("Help."); /*I18N*/
         helpButton.setName("helpButton");
 

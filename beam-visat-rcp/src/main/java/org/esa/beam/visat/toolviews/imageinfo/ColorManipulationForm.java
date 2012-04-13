@@ -332,7 +332,7 @@ class ColorManipulationForm {
         });
         exportButton.setEnabled(true);
 
-        helpButton = createButton("icons/Help24.gif");
+        helpButton = createButton("icons/Help22.png");
         helpButton.setToolTipText("Help."); /*I18N*/
         helpButton.setName("helpButton");
 

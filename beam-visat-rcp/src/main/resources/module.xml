@@ -1474,8 +1474,8 @@
             <separatorBefore>false</separatorBefore>
             <shortDescr>VISAT help</shortDescr>
             <description>Opens the VISAT help browser.</description>
-            <smallIcon>icons/Help16.gif</smallIcon>
-            <largeIcon>icons/Help24.gif</largeIcon>
+            <smallIcon>icons/Help16.png</smallIcon>
+            <largeIcon>icons/Help22.png</largeIcon>
             <helpId>visat</helpId>
         </action>
 
