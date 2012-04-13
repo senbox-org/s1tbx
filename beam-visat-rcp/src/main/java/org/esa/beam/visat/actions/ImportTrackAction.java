@@ -137,6 +137,7 @@ public class ImportTrackAction extends ExecCommand {
     private static SimpleFeatureType createTrackFeatureType(GeoCoding geoCoding) {
         SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
         ftb.setName("org.esa.beam.TrackPoint");
+        ftb.userData("trackPoints", true);
         ftb.add("timestamp", Long.class);
         ftb.add("pixelPos", Point.class, geoCoding.getImageCRS());
         ftb.add("geoPos", Point.class, DefaultGeographicCRS.WGS84);

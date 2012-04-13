@@ -13,7 +13,7 @@ import java.awt.geom.Line2D;
 
 /**
  * A special layer type that is used to create layers for {@link VectorDataNode}s that
- * have the {@code FeatureType} "org.esa.beam.TrackPoint".
+ * have a special feature type. In this case "org.esa.beam.TrackPoint".
  * <p/>
  * <i>Note: this is experimental code.</i>
  *
@@ -21,6 +21,11 @@ import java.awt.geom.Line2D;
  * @since BEAM 4.10
  */
 public class TrackLayerType extends VectorDataLayerType {
+
+    public static boolean isTrackPointNode(VectorDataNode node) {
+        final Object trackPoints = node.getFeatureType().getUserData().get("trackPoints");
+        return trackPoints != null && trackPoints.toString().equals("true");
+    }
 
     @Override
     protected VectorDataLayer createLayer(VectorDataNode vectorDataNode, PropertySet configuration) {

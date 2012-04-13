@@ -212,7 +212,7 @@
 
     <!--
         Experimental code added by Norman.
-        Demonstrates how we create layers for new feature types, e.g. "org.esa.beam.TrackPoint".
+        Demonstrates how we create layers for special feature types, e.g. "org.esa.beam.TrackPoint".
         See class org.esa.beam.framework.ui.product.TrackLayerTypeFactory.
     -->
     <extension point="ceres-core:adapters">

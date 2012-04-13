@@ -18,7 +18,7 @@ public class VectorDataLayerEditorFactory implements ExtensionFactory {
             /*
             VectorDataLayer vectorDataLayer = (VectorDataLayer) object;
             String featureTypeName = vectorDataLayer.getVectorDataNode().getFeatureType().getTypeName();
-            if (featureTypeName.equals("org.esa.beam.TrackPoint")) {
+            if (TrackLayerType.isTrackPointNode(vectorDataLayer.getVectorDataNode())) {
                 return new TrackLayerEditor();
             } else {
                 return new VectorDataLayerEditor();

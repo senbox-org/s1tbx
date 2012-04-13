@@ -17,7 +17,7 @@ public class TrackLayerTypeFactory implements ExtensionFactory {
     @Override
     public Object getExtension(Object object, Class<?> extensionType) {
         VectorDataNode node = (VectorDataNode) object;
-        if (node.getFeatureType().getTypeName().equals("org.esa.beam.TrackPoint")) {
+        if (TrackLayerType.isTrackPointNode(node)) {
             return LayerTypeRegistry.getLayerType(TrackLayerType.class);
         }
         return null;
