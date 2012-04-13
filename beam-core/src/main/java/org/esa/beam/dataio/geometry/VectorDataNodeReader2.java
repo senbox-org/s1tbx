@@ -21,10 +21,8 @@ import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
 import com.thoughtworks.xstream.core.util.OrderRetainingMap;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -55,19 +53,17 @@ public class VectorDataNodeReader2 {
     private final String location;
     private final CoordinateReferenceSystem modelCrs;
     private final GeoCoding geoCoding;
-    private CsvType type;
-    private int latIndex;
-    private int lonIndex;
+    private int latIndex = -1;
+    private int lonIndex = -1;
 
-    public VectorDataNodeReader2(CsvType type, GeoCoding geoCoding, String path, CoordinateReferenceSystem modelCrs) {
+    public VectorDataNodeReader2(GeoCoding geoCoding, String path, CoordinateReferenceSystem modelCrs) {
         this.geoCoding = geoCoding;
         this.location = path;
         this.modelCrs = modelCrs;
-        this.type = type;
     }
 
-    public static VectorDataNode read(CsvType type, File file, CoordinateReferenceSystem modelCrs, GeoCoding geoCoding) throws IOException {
-        return new VectorDataNodeReader2(type, geoCoding, file.getPath(), modelCrs).read(file);
+    public static VectorDataNode read(File file, CoordinateReferenceSystem modelCrs, GeoCoding geoCoding) throws IOException {
+        return new VectorDataNodeReader2(geoCoding, file.getPath(), modelCrs).read(file);
     }
 
     public VectorDataNode read(File file) throws IOException {
@@ -151,7 +147,7 @@ public class VectorDataNodeReader2 {
             if (tokens == null) {
                 break;
             }
-            final int expectedTokenCount = 1 + simpleFeatureType.getAttributeCount();
+            final int expectedTokenCount = 1 + simpleFeatureType.getAttributeCount() - 2;
             if (tokens.length != expectedTokenCount) {
                 BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
                                                                        location, expectedTokenCount, tokens.length));
@@ -166,17 +162,20 @@ public class VectorDataNodeReader2 {
                 String token = tokens[columnIndex];
                 if (columnIndex == 0) {
                     fid = token;
-                } else if(columnIndex == latIndex) {
+                } else if (columnIndex == latIndex) {
                     lat = Double.parseDouble(token);
-                } else if(columnIndex == lonIndex) {
+                    attributeIndex++;
+                } else if (columnIndex == lonIndex) {
                     lon = Double.parseDouble(token);
+                    attributeIndex++;
                 } else {
                     token = VectorDataNodeIO.decodeTabString(token);
                     try {
                         Object value = null;
                         if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
                             Class<?> attributeType = simpleFeatureType.getType(attributeIndex).getBinding();
-                            Converter converter = ConverterRegistry.getInstance().getConverter(attributeType);
+                            ConverterRegistry converterRegistry = ConverterRegistry.getInstance();
+                            Converter<?> converter = converterRegistry.getConverter(attributeType);
                             if (converter == null) {
                                 throw new IOException(String.format("No converter for type %s found.", attributeType));
                             }
@@ -190,8 +189,8 @@ public class VectorDataNodeReader2 {
                     attributeIndex++;
                 }
             }
-            geoCoding.getPixelPos(new GeoPos((float) lat, (float) lon), pixelPos);
             builder.set("geoPos", new GeometryFactory().createPoint(new Coordinate(lon, lat)));
+            geoCoding.getPixelPos(new GeoPos((float) lat, (float) lon), pixelPos);
             builder.set("pixelPos", new GeometryFactory().createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
             SimpleFeature simpleFeature = builder.buildFeature(fid);
             fc.add(simpleFeature);
@@ -212,82 +211,39 @@ public class VectorDataNodeReader2 {
         builder.setCRS(modelCrs);
         JavaTypeConverter jtc = new JavaTypeConverter();
         for (int i = 0; i < tokens.length; i++) {
-            if (type != null) {
-                builder.setName(type.getFeatureTypeName());
-            } else if (i == 0) {
+            if (i == 0) {
                 builder.setName(tokens[0]);
-                continue;
-            }
-            String token = tokens[i];
-            final int colonPos = token.indexOf(':');
-            if (colonPos == -1) {
-                throw new IOException(String.format("Missing type specifier in attribute descriptor '%s'", token));
-            } else if (colonPos == 0) {
-                throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
-            }
-            String attributeName = token.substring(0, colonPos);
-            String attributeTypeName = token.substring(colonPos + 1);
-            Class<?> attributeType;
-            try {
-                attributeType = jtc.parse(attributeTypeName);
-            } catch (ConversionException e) {
-                throw new IOException(
-                        String.format("Unknown type in attribute descriptor '%s'", token), e);
-            }
-
-            if (attributeName.toLowerCase().equals("lon") || attributeName.toLowerCase().equals("long") ||
-                attributeName.toLowerCase().equals("longitude")) {
-                lonIndex = i + 1;
-            } else if (attributeName.toLowerCase().equals("lat") || attributeName.toLowerCase().equals("latitude")) {
-                latIndex = i + 1;
             } else {
+                String token = tokens[i];
+                final int colonPos = token.indexOf(':');
+                if (colonPos == -1) {
+                    throw new IOException(String.format("Missing type specifier in attribute descriptor '%s'", token));
+                } else if (colonPos == 0) {
+                    throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
+                }
+                String attributeName = token.substring(0, colonPos);
+                String attributeTypeName = token.substring(colonPos + 1);
+                Class<?> attributeType;
+                try {
+                    attributeType = jtc.parse(attributeTypeName);
+                } catch (ConversionException e) {
+                    throw new IOException(
+                            String.format("Unknown type in attribute descriptor '%s'", token), e);
+                }
+
+                if (attributeName.toLowerCase().equals("lon") || attributeName.toLowerCase().equals("long") ||
+                    attributeName.toLowerCase().equals("longitude")) {
+                    lonIndex = i;
+                } else if (attributeName.toLowerCase().equals("lat") ||
+                           attributeName.toLowerCase().equals("latitude")) {
+                    latIndex = i;
+                }
                 builder.add(attributeName, attributeType);
             }
         }
-        builder.add("geoPos", type.getGeometry());
-        builder.add("pixelPos", type.getGeometry());
+        builder.add("geoPos", Point.class);
+        builder.add("pixelPos", Point.class);
         builder.setDefaultGeometry("pixelPos");
         return builder.buildFeatureType();
-    }
-
-    public static enum CsvType {
-
-        TRACK {
-            @Override
-            String getFeatureTypeName() {
-                return "org.esa.beam.TrackPoint";
-            }
-
-            @Override
-            Class<? extends Geometry> getGeometry() {
-                return Point.class;
-            }
-        },
-        SHAPE {
-            @Override
-            String getFeatureTypeName() {
-                return "org.esa.beam.Shape";
-            }
-
-            @Override
-            Class<? extends Geometry> getGeometry() {
-                return Polygon.class;
-            }
-        },
-        POINTS {
-            @Override
-            String getFeatureTypeName() {
-                return "org.esa.beam.Points";
-            }
-
-            @Override
-            Class<? extends Geometry> getGeometry() {
-                return Point.class;
-            }
-        };
-
-        abstract String getFeatureTypeName();
-
-        abstract Class<? extends Geometry> getGeometry();
     }
 }

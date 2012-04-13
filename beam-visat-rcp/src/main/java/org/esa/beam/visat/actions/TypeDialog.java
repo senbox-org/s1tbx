@@ -16,8 +16,12 @@
 
 package org.esa.beam.visat.actions;
 
-import org.esa.beam.dataio.geometry.VectorDataNodeReader2;
+import org.esa.beam.framework.datamodel.GeometryDescriptor;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.TrackPlacemarkDescriptor;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -34,10 +38,11 @@ import java.awt.event.ActionListener;
  */
 class TypeDialog extends ModalDialog {
 
-    private VectorDataNodeReader2.CsvType type = VectorDataNodeReader2.CsvType.TRACK;
+    private PlacemarkDescriptor placemarkDescriptor;
 
-    TypeDialog(Window parent) {
+    TypeDialog(Window parent, CoordinateReferenceSystem modelCrs) {
         super(parent, "Interpret data as...", ModalDialog.ID_OK, "csvTypeDialog");
+        placemarkDescriptor = new TrackPlacemarkDescriptor(modelCrs);
         createUI();
     }
 
@@ -48,9 +53,9 @@ class TypeDialog extends ModalDialog {
         BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
         panel.setLayout(layout);
 
-        JRadioButton trackButton = createButton("track data", VectorDataNodeReader2.CsvType.TRACK);
-        JRadioButton shapeButton = createButton("shape (ignores attributes)", VectorDataNodeReader2.CsvType.SHAPE);
-        JRadioButton pointButton = createButton("point data", VectorDataNodeReader2.CsvType.POINTS);
+        JRadioButton trackButton = createButton("track data", placemarkDescriptor);
+        JRadioButton shapeButton = createButton("shape (ignores attributes)", new GeometryDescriptor());
+        JRadioButton pointButton = createButton("point data", new PinDescriptor());
 
         trackButton.setSelected(true);
 
@@ -66,19 +71,18 @@ class TypeDialog extends ModalDialog {
         setContent(panel);
     }
 
-    private JRadioButton createButton(String text, final VectorDataNodeReader2.CsvType type) {
+    private JRadioButton createButton(String text, final PlacemarkDescriptor pd) {
         JRadioButton button = new JRadioButton(text);
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                TypeDialog.this.type = type;
+                TypeDialog.this.placemarkDescriptor = pd;
             }
         });
         return button;
     }
 
-
-    VectorDataNodeReader2.CsvType getType() {
-        return type;
+    public String getFeatureTypeName() {
+        return placemarkDescriptor.getBaseFeatureType().getName().getLocalPart();
     }
 }
