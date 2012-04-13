@@ -14,6 +14,8 @@ public class VectorDataLayerEditorFactory implements ExtensionFactory {
     @Override
     public LayerEditor getExtension(Object object, Class<?> extensionType) {
         if (object instanceof VectorDataLayer) {
+            // todo - special TrackPointEditor: work on this after 4.10 (nf)
+            /*
             VectorDataLayer vectorDataLayer = (VectorDataLayer) object;
             String featureTypeName = vectorDataLayer.getVectorDataNode().getFeatureType().getTypeName();
             if (featureTypeName.equals("org.esa.beam.TrackPoint")) {
@@ -21,6 +23,8 @@ public class VectorDataLayerEditorFactory implements ExtensionFactory {
             } else {
                 return new VectorDataLayerEditor();
             }
+            */
+            return new VectorDataLayerEditor();
         }
         return null;
     }
