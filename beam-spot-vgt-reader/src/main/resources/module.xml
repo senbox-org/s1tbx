@@ -44,7 +44,6 @@
             <helpId>importSpotVgtProduct</helpId>
             <formatName>SPOT-VGT</formatName>
             <useAllFileFilter>true</useAllFileFilter>
-            <text>Import SPOT VGT Product...</text>
             <mnemonic>M</mnemonic>
             <shortDescr>Import a SPOT VGT data product or product subset.</shortDescr>
             <description>Import a SPOT VGT data product or product subset.</description>

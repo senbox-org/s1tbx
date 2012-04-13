@@ -24,6 +24,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +47,8 @@ public class CommandMenuUtils {
      * Inserts the given <code>command</command> at the end of the <code>popupMenu</code>.
      *
      * @param popupMenu The popup menu to add the given <code>command</code> to.
-     * @param command The command to insert.
-     * @param manager The command manager.
+     * @param command   The command to insert.
+     * @param manager   The command manager.
      */
     public static void insertCommandMenuItem(final JPopupMenu popupMenu, final Command command,
                                              final CommandManager manager) {
@@ -84,8 +86,8 @@ public class CommandMenuUtils {
      * Finds the insert position of the given <code>command</command> within the <code>popupMenu</code>.
      *
      * @param popupMenu The popup menu.
-     * @param command The command to insert.
-     * @param manager The command manager.
+     * @param command   The command to insert.
+     * @param manager   The command manager.
      */
     public static int findMenuInsertPosition(final JPopupMenu popupMenu, final Command command,
                                              final CommandManager manager) {
@@ -138,8 +140,8 @@ public class CommandMenuUtils {
      * Inserts the given <code>command</command> to the <code>popupMenu</code> at the given <code>position</code>.
      *
      * @param popupMenu The popup menu to add the given <code>command</code> to.
-     * @param command The command to insert.
-     * @param pos the position where to insert the <code>command</code>.
+     * @param command   The command to insert.
+     * @param pos       the position where to insert the <code>command</code>.
      */
     public static void insertCommandMenuItem(final JPopupMenu popupMenu, final Command command, final int pos) {
         final JMenuItem menuItem = command.createMenuItem();
@@ -185,53 +187,73 @@ public class CommandMenuUtils {
     }
 
     static Command[] sort(final Command[] commands) {
+
+        // todo - ts/od - 12Apr12 - review
+        if (shallSortAlphabetically(commands)) {
+            final List<Command> sortedCommandsList = new ArrayList<Command>();
+            Collections.addAll(sortedCommandsList, commands);
+            Collections.sort(sortedCommandsList, new Comparator<Command>() {
+                @Override
+                public int compare(Command o1, Command o2) {
+                    return o1.getCommandID().compareTo(o2.getCommandID());
+                }
+            });
+            return sortedCommandsList.toArray(new Command[sortedCommandsList.size()]);
+        }
+
         final List<Command> sortedCommandsList = new ArrayList<Command>();
-        if (commands != null) {
-            final Map<String, CommandWrapper> wrappersMap = new HashMap<String, CommandWrapper>();
-            for (final Command command : commands) {
-                final CommandWrapper wrapper = new CommandWrapper(command);
-                wrappersMap.put(wrapper.getName(), wrapper);
-            }
-            for (final Command command : commands) {
-                final String placeBefore = command.getPlaceBefore();
-                final String placeAfter = command.getPlaceAfter();
-                if (placeAfter != null || placeBefore != null) {
-                    final CommandWrapper commandWrapper = wrappersMap.get(command.getCommandID());
-                    if (placeAfter != null) {
-                        final CommandWrapper beforeCommand = wrappersMap.get(placeAfter);
-                        if (beforeCommand != null) {
-                            commandWrapper.addBefore(beforeCommand);
-                            beforeCommand.addAfter(commandWrapper);
-                        }
-                    }
-                    if (placeBefore != null) {
-                        final CommandWrapper afterCommand = wrappersMap.get(placeBefore);
-                        if (afterCommand != null) {
-                            commandWrapper.addAfter(afterCommand);
-                            afterCommand.addBefore(commandWrapper);
-                        }
+        final Map<String, CommandWrapper> wrappersMap = new HashMap<String, CommandWrapper>();
+        for (final Command command : commands) {
+            final CommandWrapper wrapper = new CommandWrapper(command);
+            wrappersMap.put(wrapper.getName(), wrapper);
+        }
+        for (final Command command : commands) {
+            final String placeBefore = command.getPlaceBefore();
+            final String placeAfter = command.getPlaceAfter();
+            if (placeAfter != null || placeBefore != null) {
+                final CommandWrapper commandWrapper = wrappersMap.get(command.getCommandID());
+                if (placeAfter != null) {
+                    final CommandWrapper beforeCommand = wrappersMap.get(placeAfter);
+                    if (beforeCommand != null) {
+                        commandWrapper.addBefore(beforeCommand);
+                        beforeCommand.addAfter(commandWrapper);
                     }
                 }
-            }
-            while (!wrappersMap.isEmpty()) {
-                CommandWrapper wrapper = wrappersMap.values().iterator().next();
-                while (!wrapper.beforeWrappers.isEmpty()) {
-                    final List linksBefore = wrapper.beforeWrappers;
-                    for (Object aLinksBefore : linksBefore) {
-                        final CommandWrapper cw = (CommandWrapper) aLinksBefore;
-                        final Object o = wrappersMap.get(cw.getName());
-                        if (o != null) {
-                            wrapper = (CommandWrapper) o;
-                            break;
-                        }
+                if (placeBefore != null) {
+                    final CommandWrapper afterCommand = wrappersMap.get(placeBefore);
+                    if (afterCommand != null) {
+                        commandWrapper.addAfter(afterCommand);
+                        afterCommand.addBefore(commandWrapper);
                     }
                 }
-                sortedCommandsList.add(wrapper.command);
-                wrappersMap.remove(wrapper.getName());
-                appendSorted(sortedCommandsList, wrapper, wrappersMap);
             }
         }
+        while (!wrappersMap.isEmpty()) {
+            CommandWrapper wrapper = wrappersMap.values().iterator().next();
+            while (!wrapper.beforeWrappers.isEmpty()) {
+                final List linksBefore = wrapper.beforeWrappers;
+                for (Object aLinksBefore : linksBefore) {
+                    final CommandWrapper cw = (CommandWrapper) aLinksBefore;
+                    final Object o = wrappersMap.get(cw.getName());
+                    if (o != null) {
+                        wrapper = (CommandWrapper) o;
+                        break;
+                    }
+                }
+            }
+            sortedCommandsList.add(wrapper.command);
+            wrappersMap.remove(wrapper.getName());
+            appendSorted(sortedCommandsList, wrapper, wrappersMap);
+        }
         return sortedCommandsList.toArray(new Command[sortedCommandsList.size()]);
+    }
+
+    private static boolean shallSortAlphabetically(Command[] commands) {
+        boolean sortAlphabetically = true;
+        for (Command command : commands) {
+            sortAlphabetically &= command.getPlaceAfter() == null && command.getPlaceBefore() == null;
+        }
+        return sortAlphabetically;
     }
 
     private static void appendSorted(final List<Command> commandsList,

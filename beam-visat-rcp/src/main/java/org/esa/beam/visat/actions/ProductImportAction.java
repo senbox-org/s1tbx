@@ -135,18 +135,14 @@ public class ProductImportAction extends ExecCommand {
 
         String text = getText();
         if (text == null) {
-            setText("Import " + getFormatName() + " Product...");
+            setText(getFormatName());
         }
 
         String parent = getParent();
         if (parent == null) {
-            setParent("import");
+            setParent("importRasterData");
         }
 
-        String placeAfter = getPlaceAfter();
-        if (placeAfter == null) {
-            setPlaceAfter("importGeometry");
-        }
     }
 
     private String getMessage(String msg) {

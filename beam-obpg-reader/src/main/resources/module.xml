@@ -46,7 +46,7 @@
             <formatName>NASA-OBPG</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>O</mnemonic>
-            <text>Import NASA Ocean Color (MODIS, OCTS, CZCS, SeaWiFS) Product...</text>
+            <text>NASA Ocean Color (MODIS, OCTS, CZCS, SeaWiFS)</text>
             <shortDescr>Import a NASA Ocean Color data product or subset.</shortDescr>
             <description>Import a NASA Ocean Color (MODIS, OCTS, CZCS, SeaWiFS) data product or product subset.
             </description>

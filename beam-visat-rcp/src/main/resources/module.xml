@@ -819,6 +819,26 @@
         </action>
 
         <action>
+            <parent>import</parent>
+            <id>importVectorData</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Vector Data</text>
+            <shortDescr>Import vector data</shortDescr>
+            <description>Import vector data</description>
+            <helpId>importVectorData</helpId>
+        </action>
+
+        <action>
+            <parent>import</parent>
+            <id>importRasterData</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Raster Data</text>
+            <shortDescr>Import raster data</shortDescr>
+            <description>Import raster data</description>
+            <helpId>importRasterData</helpId>
+        </action>
+
+        <action>
             <parent>file</parent>
             <placeAfter>import</placeAfter>
             <id>export</id>
@@ -852,19 +872,33 @@
         <!--####################-->
 
         <action>
-            <id>importGeometry</id>
+            <id>importShapefile</id>
             <class>org.esa.beam.visat.actions.ImportGeometryAction</class>
-            <parent>import</parent>
-            <text>Import Geometry...</text>
+            <parent>importVectorData</parent>
+            <text>ESRI shapefile</text>
             <mnemonic>S</mnemonic>
-            <shortDescr>Import geometry from plain text or ESRI shapefile.</shortDescr>
-            <description>Import geometry from plain text or ESRI shapefile.</description>
-            <helpId>importGeometry</helpId>
+            <shortDescr>Import geometry from ESRI shapefile.</shortDescr>
+            <description>Import geometry from ESRI shapefile.</description>
+            <helpId>importShapefile</helpId>
             <separatorAfter>true</separatorAfter>
         </action>
 
         <action>
-            <parent>import</parent>
+            <id>importSeaDASTrack</id>
+            <class>org.esa.beam.visat.actions.ImportTrackAction</class>
+            <text>SeaDAS 6.x Track</text>
+            <parent>importVectorData</parent>
+        </action>
+
+        <action>
+            <id>importCSV</id>
+            <class>org.esa.beam.visat.actions.ImportPointDataAction</class>
+            <text>CSV</text>
+            <parent>importVectorData</parent>
+        </action>
+
+        <action>
+            <parent>importRasterData</parent>
             <id>importDimapProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <formatName>BEAM-DIMAP</formatName>
@@ -873,7 +907,6 @@
             <shortDescr>Import a BEAM-DIMAP data product or product subset.</shortDescr>
             <description>Import a BEAM-DIMAP data product or product subset.</description>
             <helpId>importDimapProduct</helpId>
-            <placeAfter>importGeometry</placeAfter>
         </action>
 
         <!--####################-->
@@ -1870,7 +1903,6 @@
             <shortDescr>Reset to initial layout.</shortDescr>
         </action>
 
-
         <!--
                 <action>
                     <id>createXYDisplacementBandsAction</id>
@@ -1885,24 +1917,6 @@
                 </action>
 
         -->
-
-        <action>
-            <id>importTrack</id>
-            <class>org.esa.beam.visat.actions.ImportTrackAction</class>
-            <text>Import Track File (Experimental)...</text>
-            <parent>import</parent>
-            <placeBefore>importPoints</placeBefore>
-        </action>
-
-        <action>
-            <id>importPoints</id>
-            <class>org.esa.beam.visat.actions.ImportPointDataAction</class>
-            <text>Import points from a CSV file... (experimental)</text>
-            <parent>import</parent>
-            <placeBefore>importGeometry</placeBefore>
-        </action>
-
-
     </extension>
 
 </module>

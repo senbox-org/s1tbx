@@ -44,15 +44,14 @@
         <action>
             <id>importLandsatTMProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <parent>import</parent>
-            <text>Import Landsat 5 TM (FAST) Product...</text>
+            <parent>importRasterData</parent>
+            <text>Landsat 5 TM (FAST)</text>
             <formatName>FAST L5</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>L</mnemonic>
             <shortDescr>Import a Landsat TM (Fast) data product or product subset.</shortDescr>
             <description>Import a Landsat TM (in Fast format) data product or product subset.</description>
             <helpId>importLandsatTMProduct</helpId>
-            <placeAfter>importGeometry</placeAfter>
         </action>
         <action>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -60,7 +59,7 @@
             <helpId>importLandsatTMProduct</helpId>
             <formatName>LandsatGeoTIFF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
-            <text>Import Landsat 5 TM (GeoTIFF) Product...</text>
+            <text>Landsat 5 TM (GeoTIFF)</text>
             <mnemonic>G</mnemonic>
             <shortDescr>Import a Landsat TM (GeoTIFF) data product or product subset.</shortDescr>
             <description>Import a Landsat TM (in GeoTIFF format) data product or product subset.</description>

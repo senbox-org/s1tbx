@@ -64,7 +64,7 @@
         <action>
             <id>importNetCdfGenericProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <text>Import Generic NetCDF Product...</text>
+            <text>Generic NetCDF</text>
             <formatName>NetCDF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>N</mnemonic>
@@ -75,7 +75,6 @@
         <action>
             <id>importNetCdfCFProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <text>Import NetCDF/CF Product...</text>
             <formatName>NetCDF-CF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>H</mnemonic>
@@ -86,7 +85,6 @@
         <action>
             <id>importNetCdfBEAMProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <text>Import NetCDF/BEAM Product...</text>
             <formatName>NetCDF-BEAM</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>H</mnemonic>
@@ -97,7 +95,7 @@
         <action>
             <id>importHdfEosProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <text>Import HDF-EOS Gridded Product...</text>
+            <text>HDF-EOS Gridded</text>
             <formatName>HDF-EOS</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>H</mnemonic>

@@ -49,7 +49,7 @@
             <description>Import an ALOS/AVNIR-2 data product or product subset.</description>
             <largeIcon>icons/Import24.gif</largeIcon>
             <helpId>importAvnir2Product</helpId>
-            <placeAfter>importNetcdfProduct</placeAfter>
+            <!--<placeAfter>importNetcdfProduct</placeAfter>-->
         </action>
         <action>
             <id>importPrismProduct</id>
@@ -61,7 +61,7 @@
             <shortDescr>Import an ALOS/PRISM data product or product subset.</shortDescr>
             <description>Import an ALOS/PRISM data product or product subset.</description>
             <helpId>importPrismProduct</helpId>
-            <placeAfter>importAvnir2Product</placeAfter>
+            <!--<placeAfter>importAvnir2Product</placeAfter>-->
         </action>
     </extension>
 

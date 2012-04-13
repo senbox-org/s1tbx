@@ -30,7 +30,7 @@
             <id>importGETASSE30Product</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <formatName>GETASSE30</formatName>
-            <text>Import GETASSE30 DEM Tile...</text>
+            <text>GETASSE30 DEM Tile</text>
             <mnemonic>G</mnemonic>
             <shortDescr>Import a GETASSE30 DEM tile or tile subset.</shortDescr>
             <description>Import a GETASSE30 DEM tile or tile subset.</description>

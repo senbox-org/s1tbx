@@ -44,7 +44,7 @@
     <mapID target="importModisProduct" url="visat/ImportModis.html"/>
     <mapID target="importAtsrProduct" url="visat/ImportATSR.html"/>
     <mapID target="importGETASSE30" url="visat/ImportGETASSE30.html"/>
-    <mapID target="importGeometry" url="visat/ImportGeometry.html"/>
+    <mapID target="importShapefile" url="visat/ImportShapefile.html"/>
     <mapID target="importLandsatTMProduct" url="visat/ImportLandsatTM.html"/>
     <mapID target="importAVHRR" url="visat/ImportAVHRR.html"/>
     <mapID target="importAvnir2Product" url="visat/ImportAVNIR2.html"/>
