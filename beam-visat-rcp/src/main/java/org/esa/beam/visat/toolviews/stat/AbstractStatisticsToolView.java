@@ -65,6 +65,7 @@ abstract class AbstractStatisticsToolView extends AbstractToolView {
     @Override
     public JComponent createControl() {
         pagePanel = createPagePanel();
+        pagePanel.initContent();
         updateTitle();
         return pagePanel;
     }
@@ -85,9 +86,8 @@ abstract class AbstractStatisticsToolView extends AbstractToolView {
                 addViewListener(view);
             }
         }
-        pagePanel.updateCurrentSelection();
-        transferProductNodeListener(null, product);
-        pagePanel.updateUI();
+        pagePanel.setCurrentSelection();
+        pagePanel.updateContent();
     }
 
     private void addViewListener(ProductSceneView view) {

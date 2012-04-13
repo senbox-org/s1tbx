@@ -77,25 +77,18 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         this.titlePrefix = titlePrefix;
         setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         setPreferredSize(new Dimension(600, 320));
-        initContent();
-        updateCurrentSelection();
-        transferProductNodeListener(null, product);
+        setCurrentSelection();
     }
 
     protected Container getParentDialogContentPane() {
         return getParentDialog().getContext().getPane().getControl();
     }
 
-    public String getHelpId() {
-        return helpId;
-    }
-
-    void updateCurrentSelection() {
+    void setCurrentSelection() {
         final ProductNode selectedNode = VisatApp.getApp().getSelectedProductNode();
-        if (selectedNode != null) {
+        if (selectedNode != null && selectedNode.getProduct() != null) {
             setProduct(selectedNode.getProduct());
         }
-
         if (selectedNode instanceof RasterDataNode) {
             setRaster((RasterDataNode) selectedNode);
         } else if (selectedNode instanceof VectorDataNode) {
@@ -208,13 +201,13 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     }
 
     protected AbstractButton getHelpButton() {
-        if (getHelpId() != null) {
+        if (helpId != null) {
             final AbstractButton helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"),
                                                                              false);
             helpButton.setToolTipText("Help.");
             helpButton.setName("helpButton");
-            HelpSys.enableHelpOnButton(helpButton, getHelpId());
-            HelpSys.enableHelpKey(getParentDialogContentPane(), getHelpId());
+            HelpSys.enableHelpOnButton(helpButton, helpId);
+            HelpSys.enableHelpKey(getParentDialogContentPane(), helpId);
             return helpButton;
         }
 

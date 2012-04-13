@@ -81,7 +81,7 @@ class HistogramPanel extends ChartPagePanel {
     private HistogramPlotConfig histogramPlotConfig;
     private BindingContext bindingContext;
 
-    private boolean isInitialized = false;
+    private boolean isInitialized;
     private boolean histogramComputing;
 
     HistogramPanel(final ToolView parentDialog, String helpID) {
@@ -101,7 +101,7 @@ class HistogramPanel extends ChartPagePanel {
 
     @Override
     protected void updateContent() {
-        if (!isInitialized) {
+        if (!isInitialized || !isVisible()) {
             return;
         }
 

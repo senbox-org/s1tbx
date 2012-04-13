@@ -47,6 +47,7 @@ abstract class ChartPagePanel extends PagePanel {
     private AbstractButton hideAndShowButton;
     private JPanel backgroundPanel;
     private RoiMaskSelector roiMaskSelector;
+    private AbstractButton refreshButton;
 
     ChartPagePanel(ToolView parentDialog, String helpId, String titlePrefix) {
         super(parentDialog, helpId, titlePrefix);
@@ -55,10 +56,11 @@ abstract class ChartPagePanel extends PagePanel {
     @Override
     protected void updateContent() {
         roiMaskSelector.updateMaskSource(getProduct());
+        refreshButton.setEnabled((getRaster() != null));
     }
 
     protected JPanel createTopPanel() {
-        final AbstractButton refreshButton = ToolButtonFactory.createButton(
+        refreshButton = ToolButtonFactory.createButton(
                 UIUtils.loadImageIcon("icons/ViewRefresh22.png"),
                 false);
         refreshButton.setToolTipText("Refresh View");
