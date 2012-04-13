@@ -83,7 +83,6 @@ import java.util.Set;
 class ProfilePlotPanel extends PagePanel {
 
     private static final String CHART_TITLE = "Profile Plot";
-    private static final String TITLE_PREFIX = CHART_TITLE;
     private static final String NO_DATA_MESSAGE = "No profile plot computed yet. " +
             "It will be computed if a geometry is selected within the image view.\n" +
             ZOOM_TIP_MESSAGE;
@@ -114,12 +113,7 @@ class ProfilePlotPanel extends PagePanel {
     private CursorSynchronizer cursorSynchronizer;
 
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
-        super(parentDialog, helpId, titlePrefix);
-    }
-
-    @Override
-    protected String getTitlePrefix() {
-        return TITLE_PREFIX;
+        super(parentDialog, helpId, CHART_TITLE);
     }
 
     @Override

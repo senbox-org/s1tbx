@@ -70,7 +70,6 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     private static final String NO_DATA_MESSAGE = "No density plot computed yet.\n" +
             ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Density Plot";
-    private static final String TITLE_PREFIX = CHART_TITLE;
 
     private static final int X_VAR = 0;
     private static final int Y_VAR = 1;
@@ -89,13 +88,8 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     private PlotAreaSelectionTool plotAreaSelectionTool;
 
     DensityPlotPanel(ToolView parentDialog, String helpId) {
-        super(parentDialog, helpId, titlePrefix);
+        super(parentDialog, helpId, CHART_TITLE);
 
-    }
-
-    @Override
-    protected String getTitlePrefix() {
-        return TITLE_PREFIX;
     }
 
     @Override
