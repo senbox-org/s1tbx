@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,10 +16,20 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.TransectProfileData;
+import org.esa.beam.framework.datamodel.TransectProfileDataBuilder;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.visat.VisatApp;
@@ -45,8 +55,17 @@ import org.jfree.ui.RectangleInsets;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
@@ -95,7 +114,7 @@ class ProfilePlotPanel extends PagePanel {
     private CursorSynchronizer cursorSynchronizer;
 
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
-        super(parentDialog, helpId);
+        super(parentDialog, helpId, titlePrefix);
     }
 
     @Override

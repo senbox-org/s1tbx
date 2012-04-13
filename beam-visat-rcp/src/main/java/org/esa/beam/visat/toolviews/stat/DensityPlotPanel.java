@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,7 +20,13 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -38,8 +44,12 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.ui.RectangleInsets;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -79,7 +89,7 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     private PlotAreaSelectionTool plotAreaSelectionTool;
 
     DensityPlotPanel(ToolView parentDialog, String helpId) {
-        super(parentDialog, helpId);
+        super(parentDialog, helpId, titlePrefix);
 
     }
 

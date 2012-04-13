@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,8 +26,10 @@ import org.esa.beam.framework.datamodel.StxFactory;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingWorker;
+import java.awt.BorderLayout;
 import java.util.List;
 
 /**
@@ -44,12 +46,7 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
     private MultipleRoiComputePanel computePanel;
 
     public StatisticsPanel(final ToolView parentDialog, String helpID) {
-        super(parentDialog, DEFAULT_STATISTICS_TEXT, helpID);
-    }
-
-    @Override
-    protected String getTitlePrefix() {
-        return TITLE_PREFIX;
+        super(parentDialog, DEFAULT_STATISTICS_TEXT, helpID, TITLE_PREFIX);
     }
 
     @Override

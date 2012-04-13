@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,9 +23,9 @@ import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -44,17 +44,12 @@ import java.awt.Rectangle;
  */
 class GeoCodingPanel extends TextPagePanel {
 
-    private static final String _DEFAULT_GEOCODING_TEXT = "No geo-coding information available."; /*I18N*/
-    private static final String _TITLE_PREFIX = "Geo-Coding";   /*I18N*/
+    private static final String DEFAULT_GEOCODING_TEXT = "No geo-coding information available."; /*I18N*/
+    private static final String TITLE_PREFIX = "Geo-Coding";   /*I18N*/
     private GeoCoding _geoCoding;
 
     GeoCodingPanel(final ToolView parentDialog, String helpID) {
-        super(parentDialog, _DEFAULT_GEOCODING_TEXT, helpID);
-    }
-
-    @Override
-    protected String getTitlePrefix() {
-        return _TITLE_PREFIX;
+        super(parentDialog, DEFAULT_GEOCODING_TEXT, helpID, TITLE_PREFIX);
     }
 
     @Override
@@ -106,7 +101,7 @@ class GeoCodingPanel extends TextPagePanel {
                                    product.getSceneRasterHeight() - 1 + 0.5f);
         } else {
             if (raster == null) {
-                return _DEFAULT_GEOCODING_TEXT;
+                return DEFAULT_GEOCODING_TEXT;
             }
             assert product != null;
 

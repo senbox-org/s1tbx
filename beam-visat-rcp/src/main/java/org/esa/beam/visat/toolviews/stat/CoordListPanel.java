@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -29,19 +29,12 @@ import java.io.IOException;
  */
 class CoordListPanel extends TextPagePanel {
 
-    private static final String _TITLE_PREFIX = "Co-ordinate List";     /*I18N*/
-    private static final String _DEFAULT_COORDLIST_TEXT = "Co-ordinate list not available.\n" +
+    private static final String TITLE_PREFIX = "Co-ordinate List";     /*I18N*/
+    private static final String DEFAULT_COORDLIST_TEXT = "Co-ordinate list not available.\n" +
             "No geometry (line, polyline or polygon) selected in the image view.";  /*I18N*/
 
-
-
     CoordListPanel(final ToolView parentDialog, String helpID) {
-        super(parentDialog, _DEFAULT_COORDLIST_TEXT, helpID);
-    }
-
-    @Override
-    protected String getTitlePrefix() {
-        return _TITLE_PREFIX;
+        super(parentDialog, DEFAULT_COORDLIST_TEXT, helpID, TITLE_PREFIX);
     }
 
     @Override
@@ -65,13 +58,13 @@ class CoordListPanel extends TextPagePanel {
         final Cursor oldCursor = UIUtils.setRootFrameWaitCursor(getParentDialog().getControl());
         try {
             if (getRaster() == null) {
-                return _DEFAULT_COORDLIST_TEXT;
+                return DEFAULT_COORDLIST_TEXT;
             }
             final String transectProfileText = StatisticsUtils.TransectProfile.createTransectProfileText(getRaster());
             if (transectProfileText != null) {
                 return transectProfileText;
             } else {
-                return _DEFAULT_COORDLIST_TEXT;
+                return DEFAULT_COORDLIST_TEXT;
             }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getParent(),
@@ -79,7 +72,7 @@ class CoordListPanel extends TextPagePanel {
                                                   "An I/O error occurred:" + e.getMessage(),
                                           "I/O error",
                                           JOptionPane.ERROR_MESSAGE);   /*I18N*/
-            return _DEFAULT_COORDLIST_TEXT;
+            return DEFAULT_COORDLIST_TEXT;
         } finally {
             UIUtils.setRootFrameCursor(getParentDialogContentPane(), oldCursor);
         }

@@ -37,11 +37,10 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Tonio
- * Date: 12.04.12
- * Time: 16:02
- * To change this template use File | Settings | File Templates.
+ * A common class for chart based panels
+ *
+ * @author Marcoz
+ * @author Tonio
  */
 abstract class ChartPagePanel extends PagePanel {
 
@@ -49,8 +48,8 @@ abstract class ChartPagePanel extends PagePanel {
     private JPanel backgroundPanel;
     private RoiMaskSelector roiMaskSelector;
 
-    ChartPagePanel(ToolView parentDialog, String helpId) {
-        super(parentDialog, helpId);
+    ChartPagePanel(ToolView parentDialog, String helpId, String titlePrefix) {
+        super(parentDialog, helpId, titlePrefix);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -35,8 +35,8 @@ abstract class TextPagePanel extends PagePanel {
 
     private JTextArea textArea;
 
-    protected TextPagePanel(final ToolView parentDialog, final String defaultText, String helpId) {
-        super(parentDialog, helpId);
+    protected TextPagePanel(final ToolView parentDialog, final String defaultText, String helpId, String titlePrefix) {
+        super(parentDialog, helpId, titlePrefix);
         textArea.setText(defaultText);
     }
 

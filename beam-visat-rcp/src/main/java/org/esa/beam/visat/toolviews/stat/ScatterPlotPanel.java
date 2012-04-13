@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,12 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
@@ -47,8 +52,22 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -71,7 +90,6 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
 
     private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" + ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Scatter Plot";
-    private static final String TITLE_PREFIX = CHART_TITLE;
 
     private ChartPanel scatterPlotDisplay;
     private XYPlot plot;
@@ -89,7 +107,7 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     private JButton recomputeButton;
 
     ScatterPlotPanel(ToolView parentDialog, String helpId) {
-        super(parentDialog, helpId);
+        super(parentDialog, helpId, CHART_TITLE);
     }
 
     @Override
@@ -278,11 +296,6 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     protected String getDataAsText() {
 //        todo
         return "Must be implemented";
-    }
-
-    @Override
-    protected String getTitlePrefix() {
-        return TITLE_PREFIX;
     }
 
     @Override

@@ -64,7 +64,6 @@ class HistogramPanel extends ChartPagePanel {
 
     private static final String NO_DATA_MESSAGE = "No histogram computed yet.\n" + ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Histogram";
-    private static final String TITLE_PREFIX = CHART_TITLE;
 
     public static final String PROPERTY_NAME_NUM_BINS = "numBins";
     public static final String PROPERTY_NAME_LOGARITHMIC_HISTOGRAM = "histogramLogScaled";
@@ -75,23 +74,18 @@ class HistogramPanel extends ChartPagePanel {
     private static final int NUM_BINS_DEFAULT = 512;
 
     private AxisRangeControl xAxisRangeControl;
-
-    private boolean histogramComputing;
     private XIntervalSeriesCollection dataset;
     private JFreeChart chart;
+
     private Stx stx;
     private HistogramPlotConfig histogramPlotConfig;
-
     private BindingContext bindingContext;
+
     private boolean isInitialized = false;
+    private boolean histogramComputing;
 
     HistogramPanel(final ToolView parentDialog, String helpID) {
-        super(parentDialog, helpID);
-    }
-
-    @Override
-    protected String getTitlePrefix() {
-        return TITLE_PREFIX;
+        super(parentDialog, helpID, CHART_TITLE);
     }
 
     @Override

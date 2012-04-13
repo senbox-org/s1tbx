@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -33,16 +33,11 @@ import org.esa.beam.util.StringUtils;
  */
 class InformationPanel extends TextPagePanel {
 
-    private static final String _DEFAULT_INFORMATION_TEXT = "No information available."; /*I18N*/
-    private static final String _TITLE_PREFIX = "Information";  /*I18N*/
+    private static final String DEFAULT_INFORMATION_TEXT = "No information available."; /*I18N*/
+    private static final String TITLE_PREFIX = "Information";  /*I18N*/
 
     InformationPanel(final ToolView parentDialog, String helpID) {
-        super(parentDialog, _DEFAULT_INFORMATION_TEXT, helpID);
-    }
-
-    @Override
-    protected String getTitlePrefix() {
-        return _TITLE_PREFIX;
+        super(parentDialog, DEFAULT_INFORMATION_TEXT, helpID, TITLE_PREFIX);
     }
 
     @Override
@@ -94,7 +89,7 @@ class InformationPanel extends TextPagePanel {
         final Product product = getProduct();
 
         if (product == null) {
-            return _DEFAULT_INFORMATION_TEXT;
+            return DEFAULT_INFORMATION_TEXT;
         }
         sb.append('\n');
 
