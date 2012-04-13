@@ -17,9 +17,6 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerFilter;
-import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -36,7 +33,6 @@ import org.esa.beam.framework.ui.crs.CustomCrsForm;
 import org.esa.beam.framework.ui.crs.PredefinedCrsForm;
 import org.esa.beam.framework.ui.crs.ProductCrsForm;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.product.VectorDataLayerFilterFactory;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.*;
 import org.esa.beam.util.io.BeamFileChooser;
@@ -202,15 +198,7 @@ public class ImportGeometryAction extends ExecCommand {
     private void setLayersVisible(VectorDataNode[] vectorDataNodes) {
         final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
         if (sceneView != null) {
-            for (VectorDataNode vectorDataNode1 : vectorDataNodes) {
-                final LayerFilter nodeFilter = VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode1);
-                Layer vectorDataLayer = LayerUtils.getChildLayer(sceneView.getRootLayer(),
-                                                                 LayerUtils.SEARCH_DEEP,
-                                                                 nodeFilter);
-                if (vectorDataLayer != null) {
-                    vectorDataLayer.setVisible(true);
-                }
-            }
+            sceneView.setLayersVisible(vectorDataNodes);
         }
     }
 

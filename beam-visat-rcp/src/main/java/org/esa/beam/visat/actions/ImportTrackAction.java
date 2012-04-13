@@ -22,6 +22,7 @@ import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.io.CsvReader;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
@@ -85,8 +86,13 @@ public class ImportTrackAction extends ExecCommand {
 
         String name = FileUtils.getFilenameWithoutExtension(file);
         VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);
-        vectorDataNode.setDefaultStyleCss("symbol: cross; stroke:#ffaaaa; stroke-opacity:1.0; stroke-width:1.0");
+
         product.getVectorDataGroup().add(vectorDataNode);
+
+        final ProductSceneView view = visatApp.getSelectedProductSceneView();
+        if (view != null) {
+            view.setLayersVisible(vectorDataNode);
+        }
     }
 
     @Override
@@ -112,7 +118,8 @@ public class ImportTrackAction extends ExecCommand {
         int pointIndex = 0;
         while ((record = csvReader.readDoubleRecord()) != null) {
             if (record.length < 3) {
-                throw new IOException("Illegal track file format.");
+                throw new IOException("Illegal track file format.\n" +
+                                              "Expecting tab-separated lines containing 3 values: lat, lon, data.");
             }
 
             float lat = (float) record[0];
@@ -138,14 +145,10 @@ public class ImportTrackAction extends ExecCommand {
         SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
         ftb.setName("org.esa.beam.TrackPoint");
         /*0*/
-        ftb.add("timestamp", Long.class);
-        /*1*/
         ftb.add("pixelPos", Point.class, geoCoding.getImageCRS());
-        /*2*/
+        /*1*/
         ftb.add("geoPos", Point.class, DefaultGeographicCRS.WGS84);
-        /*3*/
-        ftb.add("styleCss", String.class);
-        /*4*/
+        /*2*/
         ftb.add("data", Double.class);
         ftb.setDefaultGeometry(geoCoding instanceof CrsGeoCoding ? "geoPos" : "pixelPos");
         // GeoTools Bug: this doesn't work
@@ -155,7 +158,7 @@ public class ImportTrackAction extends ExecCommand {
         return ft;
     }
 
-    private static SimpleFeature createFeature(SimpleFeatureType type, GeoCoding geoCoding, long pointIndex, float lat, float lon, double data) {
+    private static SimpleFeature createFeature(SimpleFeatureType type, GeoCoding geoCoding, int pointIndex, float lat, float lon, double data) {
         PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos(lat, lon), null);
         if (!pixelPos.isValid()) {
             return null;
@@ -163,16 +166,12 @@ public class ImportTrackAction extends ExecCommand {
         SimpleFeatureBuilder fb = new SimpleFeatureBuilder(type);
         GeometryFactory gf = new GeometryFactory();
         /*0*/
-        fb.add(pointIndex);
-        /*1*/
         fb.add(gf.createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
-        /*2*/
+        /*1*/
         fb.add(gf.createPoint(new Coordinate(lon, lat)));
-        /*3*/
-        fb.add(null);
-        /*4*/
+        /*2*/
         fb.add(data);
-        return fb.buildFeature(Long.toHexString(System.nanoTime()));
+        return fb.buildFeature("P" + (pointIndex + 1));
     }
 
 

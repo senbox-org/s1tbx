@@ -589,6 +589,22 @@ public class ProductSceneView extends BasicView
         }
     }
 
+    /**
+     * @param vectorDataNodes The vector data nodes whose layer shall be made visible.
+     * @since BEAM 4.10
+     */
+    public void setLayersVisible(VectorDataNode... vectorDataNodes) {
+        for (VectorDataNode vectorDataNode : vectorDataNodes) {
+            final LayerFilter nodeFilter = VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode);
+            Layer vectorDataLayer = LayerUtils.getChildLayer(getRootLayer(),
+                                                             LayerUtils.SEARCH_DEEP,
+                                                             nodeFilter);
+            if (vectorDataLayer != null) {
+                vectorDataLayer.setVisible(true);
+            }
+        }
+    }
+
     public ShapeFigure getCurrentShapeFigure() {
         FigureSelection figureSelection = getFigureEditor().getFigureSelection();
         if (figureSelection.getFigureCount() > 0) {
