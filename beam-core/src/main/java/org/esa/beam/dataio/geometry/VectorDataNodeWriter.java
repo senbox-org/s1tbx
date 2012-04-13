@@ -23,6 +23,7 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.converters.JavaTypeConverter;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -31,7 +32,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,18 +63,25 @@ public class VectorDataNodeWriter {
         writeFeatures0(featureCollection, writer);
     }
 
-    public void writeProperties(Map<String,String> properties, Writer writer) throws IOException {
-        Set<Map.Entry<String,String>> entries = properties.entrySet();
+    public void writeProperties(Map<String, String> properties, Writer writer) throws IOException {
+        Set<Map.Entry<String, String>> entries = properties.entrySet();
         for (Map.Entry<String, String> entry : entries) {
-            writer.write("#" + entry.getKey() + "=" + entry.getValue()+"\n");
+            writer.write("#" + entry.getKey() + "=" + entry.getValue() + "\n");
         }
     }
 
     void writeNodeProperties(VectorDataNode vectorDataNode, Writer writer) throws IOException {
         OrderRetainingMap properties = new OrderRetainingMap();
+        final Map<Object, Object> userData = vectorDataNode.getFeatureType().getUserData();
+        final Set<Map.Entry<Object, Object>> entries = userData.entrySet();
+        for (Map.Entry<Object, Object> entry : entries) {
+            if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
+                properties.put(entry.getKey().toString(), entry.getValue().toString());
+            }
+        }
         String description = vectorDataNode.getDescription();
         if (StringUtils.isNotNullAndNotEmpty(description)) {
-            properties.put(ProductNode.PROPERTY_NAME_DESCRIPTION ,description);
+            properties.put(ProductNode.PROPERTY_NAME_DESCRIPTION, description);
         }
         String defaultCSS = vectorDataNode.getDefaultStyleCss();
         if (StringUtils.isNotNullAndNotEmpty(defaultCSS)) {
@@ -85,30 +92,33 @@ public class VectorDataNodeWriter {
 
     private void writeFeatures0(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, Writer writer) throws IOException {
         Converter[] converters = VectorDataNodeIO.getConverters(featureCollection.getSchema());
-        Iterator<SimpleFeature> featureIterator = featureCollection.iterator();
+        final FeatureIterator<SimpleFeature> features = featureCollection.features();
+        try {
+            while (features.hasNext()) {
+                SimpleFeature simpleFeature = features.next();
 
-        while (featureIterator.hasNext()) {
-            SimpleFeature simpleFeature = featureIterator.next();
-
-            String fid = simpleFeature.getID();
-            if (fid == null || fid.isEmpty()) {
-                fid = String.format("FID%s", Long.toHexString(id++));
-            }
-            writer.write(fid);
-
-            List<Object> attributes = simpleFeature.getAttributes();
-            for (int i = 0; i < attributes.size(); i++) {
-                Object value = attributes.get(i);
-                String text = VectorDataNodeIO.NULL_TEXT;
-                if (value != null) {
-                    Converter converter = converters[i];
-                    text = converter.format(value);
-                    text = VectorDataNodeIO.encodeTabString(text);
+                String fid = simpleFeature.getID();
+                if (fid == null || fid.isEmpty()) {
+                    fid = String.format("FID%s", Long.toHexString(id++));
                 }
-                writer.write(VectorDataNodeIO.DELIMITER_CHAR);
-                writer.write(text);
+                writer.write(fid);
+
+                List<Object> attributes = simpleFeature.getAttributes();
+                for (int i = 0; i < attributes.size(); i++) {
+                    Object value = attributes.get(i);
+                    String text = VectorDataNodeIO.NULL_TEXT;
+                    if (value != null) {
+                        Converter converter = converters[i];
+                        text = converter.format(value);
+                        text = VectorDataNodeIO.encodeTabString(text);
+                    }
+                    writer.write(VectorDataNodeIO.DELIMITER_CHAR);
+                    writer.write(text);
+                }
+                writer.write('\n');
             }
-            writer.write('\n');
+        } finally {
+            features.close();
         }
     }
 

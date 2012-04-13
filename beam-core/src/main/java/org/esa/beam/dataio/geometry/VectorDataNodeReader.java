@@ -74,6 +74,7 @@ public class VectorDataNodeReader {
         if (properties.containsKey(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS)) {
             vectorDataNode.setDefaultStyleCss(properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
         }
+        featureCollection.getSchema().getUserData().putAll(properties);
         return vectorDataNode;
     }
 
