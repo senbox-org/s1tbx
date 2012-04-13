@@ -2,6 +2,7 @@ package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.opengis.feature.simple.SimpleFeature;
@@ -27,8 +28,28 @@ public class TrackLayerType extends VectorDataLayerType {
     }
 
     public static class TrackLayer extends VectorDataLayer {
+
+        public static final Color STROKE_COLOR = Color.ORANGE;
+        public static final double STROKE_OPACITY = 0.8;
+        public static final double STROKE_WIDTH = 2.0;
+        public static final double FILL_OPACITY = 0.5;
+        public static final Color FILL_COLOR = Color.WHITE;
+
+        private final Paint strokePaint;
+
         public TrackLayer(VectorDataLayerType vectorDataLayerType, VectorDataNode vectorDataNode, PropertySet configuration) {
             super(vectorDataLayerType, vectorDataNode, configuration);
+            String styleCss = vectorDataNode.getDefaultStyleCss();
+            DefaultFigureStyle style = new DefaultFigureStyle(styleCss);
+            style.fromCssString(styleCss);
+            style.setSymbolName("circle");
+            style.setStrokeColor(STROKE_COLOR);
+            style.setStrokeWidth(STROKE_WIDTH);
+            style.setStrokeOpacity(STROKE_OPACITY);
+            style.setFillColor(FILL_COLOR);
+            style.setFillOpacity(FILL_OPACITY);
+            strokePaint = style.getStrokePaint();
+            vectorDataNode.setDefaultStyleCss(style.toCssString());
         }
 
         @Override
@@ -50,10 +71,21 @@ public class TrackLayerType extends VectorDataLayerType {
         }
 
         private void drawTrackPointConnections0(Rendering rendering) {
-            // todo - get these styles from vector data node.
-            double strokeSize = 1.5;
-            rendering.getGraphics().setPaint(new Color(127, 127, 255, 200));
-            rendering.getGraphics().setStroke(new BasicStroke((float)(rendering.getViewport().getViewToModelTransform().getScaleX() * strokeSize)));
+            // todo - get these styles from vector data node.  (nf)
+            rendering.getGraphics().setPaint(strokePaint);
+            float scalingFactor = (float) rendering.getViewport().getViewToModelTransform().getScaleX();
+            float effectiveStrokeWidth = (float) (scalingFactor * STROKE_WIDTH);
+            float effectiveDash = Math.max(1.0F, scalingFactor * 5.0F);
+            float effectiveMeterLimit = Math.max(1.0F, scalingFactor * 10.0F);
+            BasicStroke basicStroke = new BasicStroke(effectiveStrokeWidth,
+                                                      BasicStroke.CAP_SQUARE,
+                                                      BasicStroke.JOIN_MITER,
+                                                      effectiveMeterLimit,
+                                                      new float[]{
+                                                              effectiveDash,
+                                                              effectiveDash},
+                                                      0.0f);
+            rendering.getGraphics().setStroke(basicStroke);
 
             // FeatureCollection.toArray() returns the feature in original order
             // todo - must actually sort using some (timestamp) attribute (nf)
