@@ -64,7 +64,7 @@
         <action>
             <id>importNetCdfGenericProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <text>Generic NetCDF</text>
+            <text>NetCDF (Generic)</text>
             <formatName>NetCDF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>N</mnemonic>

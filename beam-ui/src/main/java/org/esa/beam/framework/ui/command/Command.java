@@ -65,6 +65,7 @@ public abstract class Command implements ConfigurableExtension {
     public static final String ACTION_KEY_LOCATION = "_location";
     public static final String ACTION_KEY_CONTEXT = "_context";
     public static final String ACTION_KEY_POPUP_TEXT = "popupText";
+    public static final String ACTION_KEY_SORT_CHILDREN = "_sortChildren";
     public static final String HELP_ID_KEY = "_helpId";
 
     protected Command() {
@@ -145,6 +146,13 @@ public abstract class Command implements ConfigurableExtension {
 
     public void setPopupText(String value) {
         setProperty(ACTION_KEY_POPUP_TEXT, value);
+    }
+
+    public Boolean getSortChildren() {
+        if(getProperty(ACTION_KEY_SORT_CHILDREN) == null) {
+            return false;
+        }
+        return (Boolean) getProperty(ACTION_KEY_SORT_CHILDREN);
     }
 
     /**
@@ -361,6 +369,11 @@ public abstract class Command implements ConfigurableExtension {
         resStrings = getResourceStrings(resourceBundle, "context");
         if (resStrings != null) {
             setProperty(ACTION_KEY_CONTEXT, resStrings);
+        }
+
+        resBoolean = getResourceBoolean(resourceBundle, "sortChildren");
+        if (resString != null) {
+            setProperty(ACTION_KEY_SORT_CHILDREN, resBoolean);
         }
 
         resString = getResourceString(resourceBundle, "helpId");
@@ -719,6 +732,11 @@ public abstract class Command implements ConfigurableExtension {
         resStrings = getConfigStrings(config, "context");
         if (resStrings != null) {
             setProperty(ACTION_KEY_CONTEXT, resStrings);
+        }
+
+        resBoolean = getConfigBoolean(config, "sortChildren");
+        if (resBoolean != null) {
+            setProperty(ACTION_KEY_SORT_CHILDREN, resBoolean);
         }
 
         resString = getConfigString(config, "helpId");

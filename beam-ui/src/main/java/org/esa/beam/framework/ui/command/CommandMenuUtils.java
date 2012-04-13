@@ -49,11 +49,29 @@ public class CommandMenuUtils {
      * @param popupMenu The popup menu to add the given <code>command</code> to.
      * @param command   The command to insert.
      * @param manager   The command manager.
+     *
+     * @deprecated since BEAM 4.10. Use {@link CommandMenuUtils#insertCommandMenuItem(Boolean, JPopupMenu, Command, CommandManager)} instead.
      */
-    public static void insertCommandMenuItem(final JPopupMenu popupMenu, final Command command,
+    public static void insertCommandMenuItem0(final JPopupMenu popupMenu, final Command command,
+                                              final CommandManager manager) {
+    }
+
+    /**
+     * Inserts the given <code>command</command> at the end of the <code>popupMenu</code>.
+     *
+     * @param sortChildren Whether to sort the children alphabetically.
+     * @param popupMenu    The popup menu to add the given <code>command</code> to.
+     * @param command      The command to insert.
+     * @param manager      The command manager.
+     */
+    public static void insertCommandMenuItem(Boolean sortChildren, final JPopupMenu popupMenu, final Command command,
                                              final CommandManager manager) {
         Command[] commands = getCommands(popupMenu, manager, command);
-        commands = sort(commands);
+        if (sortChildren || mustSortAlphabetically(commands)) {
+            commands = sortChildrenAlphabetically(commands);
+        } else {
+            commands = sortAccordingToPlaceBeforeAndPlaceAfter(commands);
+        }
 
         final Map<String, Component> popupMenues = new HashMap<String, Component>();
         int count = popupMenu.getComponentCount();
@@ -80,6 +98,22 @@ public class CommandMenuUtils {
                 }
             }
         }
+    }
+
+    static Command[] sortChildrenAlphabetically(Command[] commands) {
+        final List<Command> sortedCommandsList = new ArrayList<Command>();
+        Collections.addAll(sortedCommandsList, commands);
+        Collections.sort(sortedCommandsList, new Comparator<Command>() {
+            @Override
+            public int compare(Command o1, Command o2) {
+                if(o1.getText() == null || o2.getText() == null) {
+                    return o1.getCommandID().compareTo(o2.getCommandID());
+                }
+                return o1.getText().compareTo(o2.getText());
+            }
+        });
+        commands = sortedCommandsList.toArray(new Command[sortedCommandsList.size()]);
+        return commands;
     }
 
     /**
@@ -186,20 +220,7 @@ public class CommandMenuUtils {
         }
     }
 
-    static Command[] sort(final Command[] commands) {
-
-        // todo - ts/od - 12Apr12 - review
-        if (shallSortAlphabetically(commands)) {
-            final List<Command> sortedCommandsList = new ArrayList<Command>();
-            Collections.addAll(sortedCommandsList, commands);
-            Collections.sort(sortedCommandsList, new Comparator<Command>() {
-                @Override
-                public int compare(Command o1, Command o2) {
-                    return o1.getCommandID().compareTo(o2.getCommandID());
-                }
-            });
-            return sortedCommandsList.toArray(new Command[sortedCommandsList.size()]);
-        }
+    static Command[] sortAccordingToPlaceBeforeAndPlaceAfter(final Command[] commands) {
 
         final List<Command> sortedCommandsList = new ArrayList<Command>();
         final Map<String, CommandWrapper> wrappersMap = new HashMap<String, CommandWrapper>();
@@ -248,7 +269,7 @@ public class CommandMenuUtils {
         return sortedCommandsList.toArray(new Command[sortedCommandsList.size()]);
     }
 
-    private static boolean shallSortAlphabetically(Command[] commands) {
+    private static boolean mustSortAlphabetically(Command[] commands) {
         boolean sortAlphabetically = true;
         for (Command command : commands) {
             sortAlphabetically &= command.getPlaceAfter() == null && command.getPlaceBefore() == null;
@@ -292,18 +313,34 @@ public class CommandMenuUtils {
         final int count = popupMenu.getComponentCount();
         for (int i = 0; i < count; i++) {
             final Component component = popupMenu.getComponent(i);
-            if (!(component instanceof JMenuItem)) {
-                continue;
-            }
-            final JMenuItem item = (JMenuItem) component;
-            final String name = item.getName();
-            final Command menuCommand = manager.getCommand(name);
+            Command menuCommand = getCommandForComponent(manager, component);
             if (menuCommand != null) {
                 commands.add(menuCommand);
             }
         }
         commands.add(command);
         return commands.toArray(new Command[commands.size()]);
+    }
+
+    private static Command getCommandForComponent(CommandManager manager, Component component) {
+        Command menuCommand = null;
+        if (component instanceof JMenuItem) {
+            final JMenuItem item = (JMenuItem) component;
+            final String name = item.getName();
+            menuCommand = manager.getCommand(name);
+        }
+        return menuCommand;
+    }
+
+    public static void insertCommandMenuItem(JMenu menu, Command command, CommandManager commandManager) {
+        Command commandGroup = getCommandForComponent(commandManager, menu);
+        Boolean sortChildren;
+        if(commandGroup == null) {
+            sortChildren = false;
+        } else {
+            sortChildren = commandGroup.getSortChildren();
+        }
+        insertCommandMenuItem(sortChildren, menu.getPopupMenu(), command, commandManager);
     }
 
     private static final class CommandWrapper {

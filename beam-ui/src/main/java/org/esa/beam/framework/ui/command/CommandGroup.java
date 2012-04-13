@@ -15,17 +15,14 @@
  */
 package org.esa.beam.framework.ui.command;
 
-import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
-
-// @todo 1 nf/nf - place class API docu here
+import java.awt.event.ActionEvent;
 
 /**
- * The <code>CommandGroup</code> is a ...
+ * The <code>CommandGroup</code> is a group of commands represented by a menu item group.
  *
  * @author Norman Fomferra
  * @version $Revision$  $Date$

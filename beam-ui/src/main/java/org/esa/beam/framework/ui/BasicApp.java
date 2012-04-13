@@ -901,7 +901,7 @@ public class BasicApp {
             menu = findMainMenu("tools"); // @todo 3 nf/nf - "tools" = getDefaultMenuName()
         }
         if (menu != null) {
-            CommandMenuUtils.insertCommandMenuItem(menu.getPopupMenu(), command, getCommandManager());
+            CommandMenuUtils.insertCommandMenuItem(menu, command, getCommandManager());
         }
     }
 

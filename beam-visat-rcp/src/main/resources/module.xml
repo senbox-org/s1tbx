@@ -826,6 +826,7 @@
             <shortDescr>Import vector data</shortDescr>
             <description>Import vector data</description>
             <helpId>importVectorData</helpId>
+            <sortChildren>true</sortChildren>
         </action>
 
         <action>
@@ -836,6 +837,7 @@
             <shortDescr>Import raster data</shortDescr>
             <description>Import raster data</description>
             <helpId>importRasterData</helpId>
+            <sortChildren>true</sortChildren>
         </action>
 
         <action>
@@ -880,7 +882,6 @@
             <shortDescr>Import geometry from ESRI shapefile.</shortDescr>
             <description>Import geometry from ESRI shapefile.</description>
             <helpId>importShapefile</helpId>
-            <separatorAfter>true</separatorAfter>
         </action>
 
         <action>

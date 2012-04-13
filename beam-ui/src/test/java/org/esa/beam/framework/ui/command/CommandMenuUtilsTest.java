@@ -135,7 +135,7 @@ public class CommandMenuUtilsTest extends TestCase {
             commands[i] = commandAt;
         }
 
-        commands = CommandMenuUtils.sort(commands);
+        commands = CommandMenuUtils.sortAccordingToPlaceBeforeAndPlaceAfter(commands);
         assertEquals(11, commands.length);
         int sequenceStart = 0;
         for (int i = 0; i < commands.length; i++) {
@@ -170,7 +170,7 @@ public class CommandMenuUtilsTest extends TestCase {
             commands[i] = commandAt;
         }
 
-        commands = CommandMenuUtils.sort(commands);
+        commands = CommandMenuUtils.sortChildrenAlphabetically(commands);
         assertEquals(6, commands.length);
         int index = 0;
 
@@ -207,7 +207,7 @@ public class CommandMenuUtilsTest extends TestCase {
                 beforeCommand,
                 betweenCommand,
         };
-        final Command[] sortedCommands = CommandMenuUtils.sort(commands);
+        final Command[] sortedCommands = CommandMenuUtils.sortAccordingToPlaceBeforeAndPlaceAfter(commands);
 
         final Command[] expectedOrder = new Command[]{
                 beforeCommand, openCommand, betweenCommand, reopenCommand, afterCommand
