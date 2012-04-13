@@ -28,33 +28,12 @@ import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
 
-import javax.swing.JComponent;
-import javax.swing.JFormattedTextField;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Paint;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
@@ -89,7 +68,7 @@ public class ImageInfoEditor extends JPanel {
     public static final Dimension PREF_COMPONENT_SIZE
             = new Dimension(PREF_HISTO_WIDTH + 2 * HOR_BORDER_SIZE,
                             PREF_HISTO_HEIGHT + PALETTE_HEIGHT + SLIDER_HEIGHT / 2
-                            + 2 * HOR_BORDER_SIZE + FONT_SIZE);
+                                    + 2 * HOR_BORDER_SIZE + FONT_SIZE);
     public static final BasicStroke STROKE_1 = new BasicStroke(1.0f);
     public static final BasicStroke STROKE_2 = new BasicStroke(2.0f);
     public static final BasicStroke DASHED_STROKE = new BasicStroke(0.75F, BasicStroke.CAP_SQUARE,
@@ -287,7 +266,7 @@ public class ImageInfoEditor extends JPanel {
             return false;
         }
         return model.getMinSample() <= model.getMaxSample()
-               && model.getSampleScaling() != null && model.getSampleStx() != null;
+                && model.getSampleScaling() != null && model.getSampleStx() != null;
     }
 
     public void computeZoomOutVertical() {
@@ -456,7 +435,10 @@ public class ImageInfoEditor extends JPanel {
                 final Rectangle2D rectangle = new Rectangle2D.Double();
                 for (int i = 0; i < histoRect.width; i++) {
                     final int b = (int) Math.round(i * histogramBins.length / histoRect.getWidth());
-                    double binHeight = gain * histogramBins[b] * effectiveHeight / maxBinCounts;
+                    double binHeight = 0;
+                    if (b >= 0 && b < histogramBins.length) {
+                        binHeight = gain * histogramBins[b] * effectiveHeight / maxBinCounts;
+                    }
                     if (binHeight >= histoRect.height) {
                         // must crop here because on highly centered histograms this value is far beyond the rectangle,
                         // which causes an exception when trying to draw it
@@ -693,8 +675,8 @@ public class ImageInfoEditor extends JPanel {
         }
         if (getMinSample() != getModel().getMinHistogramViewSample() || getMaxSample() != getModel().getMaxHistogramViewSample()) {
             return getModel().getHistogramBins().length
-                   / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
-                   * (scaleInverse(maxSample) - scaleInverse(minSample));
+                    / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
+                    * (scaleInverse(maxSample) - scaleInverse(minSample));
         }
         return getModel().getHistogramBins().length;
     }
@@ -705,8 +687,8 @@ public class ImageInfoEditor extends JPanel {
         }
         if (getMinSample() != getModel().getMinHistogramViewSample()) {
             return (getModel().getHistogramBins().length - 1)
-                   / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
-                   * (scaleInverse(getModel().getMinHistogramViewSample()) - scaleInverse(getMinSample()));
+                    / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
+                    * (scaleInverse(getModel().getMinHistogramViewSample()) - scaleInverse(getMinSample()));
         }
         return 0;
     }
