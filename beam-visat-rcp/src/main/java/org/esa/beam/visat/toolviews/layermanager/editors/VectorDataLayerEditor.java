@@ -122,7 +122,7 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
 
     @Override
     public void handleEditorAttached() {
-        FigureEditor figureEditor = getAppContext().getSelectedProductSceneView().getFigureEditor();
+        FigureEditor figureEditor = getFigureEditor();
         if (figureEditor != null) {
             figureEditor.addSelectionChangeListener(selectionChangeHandler);
         }
@@ -131,27 +131,18 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
 
     @Override
     public void handleEditorDetached() {
-        FigureEditor figureEditor = getAppContext().getSelectedProductSceneView().getFigureEditor();
+        FigureEditor figureEditor = getFigureEditor();
         if (figureEditor != null) {
             figureEditor.removeSelectionChangeListener(selectionChangeHandler);
         }
         getBindingContext().removePropertyChangeListener(styleUpdater);
     }
 
-    protected VectorDataNode getVectorDataNode() {
-        final FigureEditor figureEditor = getAppContext().getSelectedProductSceneView().getFigureEditor();
+    private VectorDataNode getVectorDataNode() {
+        final FigureEditor figureEditor = getFigureEditor();
         if (figureEditor instanceof VectorDataFigureEditor) {
             VectorDataFigureEditor editor = (VectorDataFigureEditor) figureEditor;
             return editor.getVectorDataNode();
-        } else {
-            return null;
-        }
-    }
-
-    protected VectorDataLayer getVectorDataLayer() {
-        Layer selectedLayer = getAppContext().getSelectedProductSceneView().getSelectedLayer();
-        if (selectedLayer instanceof VectorDataLayer) {
-            return (VectorDataLayer) selectedLayer;
         } else {
             return null;
         }
@@ -186,7 +177,7 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
         }
     }
 
-    protected Object getCommonStylePropertyValue(Figure[] figures, String propertyName) {
+    private Object getCommonStylePropertyValue(Figure[] figures, String propertyName) {
         Object commonValue = null;
         for (Figure figure : figures) {
             final Object value = figure.getNormalStyle().getValue(propertyName);
@@ -199,6 +190,25 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
             }
         }
         return commonValue;
+    }
+
+    private VectorDataLayer getVectorDataLayer() {
+        Layer selectedLayer = getSelectedLayer();
+        if (selectedLayer instanceof VectorDataLayer) {
+            return (VectorDataLayer) selectedLayer;
+        } else {
+            return null;
+        }
+    }
+
+    private FigureEditor getFigureEditor() {
+        final ProductSceneView view = getAppContext().getSelectedProductSceneView();
+        return view != null ? view.getFigureEditor() : null;
+    }
+
+    private Layer getSelectedLayer() {
+        final ProductSceneView view = getAppContext().getSelectedProductSceneView();
+        return view != null ? view.getSelectedLayer() : null;
     }
 
     private SimpleFeatureFigure[] getFigures(boolean selectedOnly) {
@@ -241,17 +251,20 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
                         figures = getFigures(false);
 
                         // todo - implement the following (nf)
-                        DefaultFigureStyle figureStyle = new DefaultFigureStyle("");
+                        // DefaultFigureStyle figureStyle = new DefaultFigureStyle("");
                         // default values are the common style values of all features
                         // figureStyle.setValue(FILL_COLOR_NAME, getCommonStylePropertyValue(figures, FILL_COLOR_NAME));
                         // figureStyle.setValue(FILL_OPACITY_NAME, getCommonStylePropertyValue(figures, FILL_OPACITY_NAME));
                         // figureStyle.setValue(STROKE_COLOR_NAME, getCommonStylePropertyValue(figures, STROKE_COLOR_NAME));
                         // ...
-                        figureStyle.setValue(evt.getPropertyName(), evt.getNewValue());
-                        String styleCss = figureStyle.toCssString();
+                        // figureStyle.setValue(evt.getPropertyName(), evt.getNewValue());
+                        // String styleCss = figureStyle.toCssString();
                         // this will fire a "styleCss" product node change, which VectorDataLayer will receive
                         // in order to set the layer style.
-                        getVectorDataNode().setStyleCss(styleCss);
+                        // final VectorDataNode vectorDataNode = getVectorDataNode();
+                        // if (vectorDataNode != null) {
+                        //     vectorDataNode.setStyleCss(styleCss);
+                        // }
                     }
 
                     for (SimpleFeatureFigure figure : figures) {
