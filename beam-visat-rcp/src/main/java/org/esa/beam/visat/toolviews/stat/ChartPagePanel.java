@@ -18,18 +18,14 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
+import com.jidesoft.swing.JideScrollPane;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.jfree.chart.ChartPanel;
 
-import javax.swing.AbstractButton;
-import javax.swing.ImageIcon;
-import javax.swing.JLayeredPane;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
+import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
@@ -48,18 +44,20 @@ abstract class ChartPagePanel extends PagePanel {
     private JPanel backgroundPanel;
     private RoiMaskSelector roiMaskSelector;
     private AbstractButton refreshButton;
+    private final boolean refreshButtonEnabled;
 
-    ChartPagePanel(ToolView parentDialog, String helpId, String titlePrefix) {
+    ChartPagePanel(ToolView parentDialog, String helpId, String titlePrefix, boolean refreshButtonEnabled) {
         super(parentDialog, helpId, titlePrefix);
+        this.refreshButtonEnabled = refreshButtonEnabled;
     }
 
     @Override
     protected void updateContent() {
         roiMaskSelector.updateMaskSource(getProduct());
-        refreshButton.setEnabled((getRaster() != null));
+        refreshButton.setEnabled(refreshButtonEnabled && (getRaster() != null));
     }
 
-    protected JPanel createTopPanel() {
+    private JPanel createTopPanel() {
         refreshButton = ToolButtonFactory.createButton(
                 UIUtils.loadImageIcon("icons/ViewRefresh22.png"),
                 false);
@@ -80,18 +78,16 @@ abstract class ChartPagePanel extends PagePanel {
         switchToTableButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                // Todo Switching between table and chart view be implemented (or delegated) here!
             }
         });
 
         final TableLayout tableLayout = new TableLayout(6);
-        tableLayout.setColumnFill(4, TableLayout.Fill.HORIZONTAL);
-        tableLayout.setColumnWeightX(4, 1.0);
+        tableLayout.setColumnFill(2, TableLayout.Fill.HORIZONTAL);
+        tableLayout.setColumnWeightX(2, 1.0);
         JPanel buttonPanel = new JPanel(tableLayout);
         buttonPanel.add(refreshButton);
         buttonPanel.add(switchToTableButton);
-        buttonPanel.add(new JPanel());
-        buttonPanel.add(new JPanel());
         buttonPanel.add(new JPanel());
 
         return buttonPanel;
@@ -99,7 +95,7 @@ abstract class ChartPagePanel extends PagePanel {
 
     protected abstract void compute();
 
-    protected JPanel createChartBottomPanel(final ChartPanel chartPanel) {
+    private JPanel createChartBottomPanel(final ChartPanel chartPanel) {
 
         final AbstractButton zoomAllButton = ToolButtonFactory.createButton(
                 UIUtils.loadImageIcon("icons/ZoomAll24.gif"),
@@ -170,7 +166,7 @@ abstract class ChartPagePanel extends PagePanel {
         return buttonPanel;
     }
 
-    void createUI(final ChartPanel chartPanel, final JPanel middelPanel, BindingContext bindingContext) {
+    void createUI(final ChartPanel chartPanel, final JPanel optionsPanel, BindingContext bindingContext) {
         roiMaskSelector = new RoiMaskSelector(bindingContext);
         final JPanel roiMaskPanel = roiMaskSelector.createPanel();
 
@@ -179,8 +175,9 @@ abstract class ChartPagePanel extends PagePanel {
         GridBagUtils.addToPanel(rightPanel, createTopPanel(), rightPanelConstraints, "gridy=0");
         GridBagUtils.addToPanel(rightPanel, new JSeparator(), rightPanelConstraints, "gridy=1");
         GridBagUtils.addToPanel(rightPanel, roiMaskPanel, rightPanelConstraints, "gridy=2");
-        GridBagUtils.addToPanel(rightPanel, middelPanel, rightPanelConstraints, "gridy=3,fill=VERTICAL,weighty=1");
-        GridBagUtils.addToPanel(rightPanel, createChartBottomPanel(chartPanel), rightPanelConstraints, "gridy=4,fill=HORIZONTAL,weighty=0");
+        GridBagUtils.addToPanel(rightPanel, optionsPanel, rightPanelConstraints, "gridy=3,fill=VERTICAL,fill=HORIZONTAL,weighty=1");
+        GridBagUtils.addToPanel(rightPanel, new JSeparator(), rightPanelConstraints, "gridy=4,fill=HORIZONTAL,weighty=0");
+        GridBagUtils.addToPanel(rightPanel, createChartBottomPanel(chartPanel), rightPanelConstraints, "gridy=5,");
 
         final ImageIcon collapseIcon = UIUtils.loadImageIcon("icons/PanelCollapseHorizontal24.png");
         final ImageIcon collapseRolloverIcon = ToolButtonFactory.createRolloverIcon(collapseIcon);

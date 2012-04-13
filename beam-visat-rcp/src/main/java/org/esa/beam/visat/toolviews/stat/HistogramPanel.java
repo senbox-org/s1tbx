@@ -85,7 +85,7 @@ class HistogramPanel extends ChartPagePanel {
     private boolean histogramComputing;
 
     HistogramPanel(final ToolView parentDialog, String helpID) {
-        super(parentDialog, helpID, CHART_TITLE);
+        super(parentDialog, helpID, CHART_TITLE, true);
     }
 
     @Override
@@ -147,14 +147,14 @@ class HistogramPanel extends ChartPagePanel {
         renderer.setBasePaint(new Color(0, 0, 200));
         renderer.setBaseFillPaint(new Color(0, 0, 200));
 
-        createUI(createChartPanel(chart), createMiddlePanel(), bindingContext);
+        createUI(createChartPanel(chart), createOptionsPanel(), bindingContext);
 
         isInitialized = true;
 
         updateUIState();
     }
 
-    private JPanel createMiddlePanel() {
+    private JPanel createOptionsPanel() {
         final JLabel numBinsLabel = new JLabel("#Bins:");
         JTextField numBinsField = new JTextField(Integer.toString(NUM_BINS_DEFAULT));
         numBinsField.setPreferredSize(new Dimension(50, numBinsField.getPreferredSize().height));
@@ -194,14 +194,12 @@ class HistogramPanel extends ChartPagePanel {
         GridBagUtils.addToPanel(displayOptionsPanel, xAxisRangeControl.getPanel(), displayOptionsConstraints, "gridy=2");
         GridBagUtils.addToPanel(displayOptionsPanel, xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getComponents()[0], displayOptionsConstraints, "gridy=3");
 
-        JPanel middelPanel = GridBagUtils.createPanel();
-        GridBagConstraints rightPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1");
-        GridBagUtils.addToPanel(middelPanel, new JSeparator(), rightPanelConstraints, "gridy=0");
-        GridBagUtils.addToPanel(middelPanel, dataSourceOptionsPanel, rightPanelConstraints, "gridy=1");
-        GridBagUtils.addToPanel(middelPanel, new JPanel(), rightPanelConstraints, "gridy=2,fill=VERTICAL,weighty=1");
-        GridBagUtils.addToPanel(middelPanel, displayOptionsPanel, rightPanelConstraints, "gridy=3,fill=HORIZONTAL,weighty=0");
-        GridBagUtils.addToPanel(middelPanel, new JSeparator(), rightPanelConstraints, "gridy=4");
-        return middelPanel;
+        JPanel optionsPanel = GridBagUtils.createPanel();
+        GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1");
+        GridBagUtils.addToPanel(optionsPanel, dataSourceOptionsPanel, gbc, "gridy=0");
+        GridBagUtils.addToPanel(optionsPanel, new JPanel(), gbc, "gridy=1,fill=VERTICAL,weighty=1");
+        GridBagUtils.addToPanel(optionsPanel, displayOptionsPanel, gbc, "gridy=2,fill=HORIZONTAL,weighty=0");
+        return optionsPanel;
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {

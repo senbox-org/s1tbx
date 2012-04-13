@@ -16,17 +16,13 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.framework.datamodel.StxFactory;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -65,7 +61,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * The density plot pane within the statistcs window.
  */
-class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.ComputeMask {
+class DensityPlotPanel extends ChartPagePanel{
 
     private static final String NO_DATA_MESSAGE = "No density plot computed yet.\n" +
             ZOOM_TIP_MESSAGE;
@@ -74,6 +70,7 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     private static final int X_VAR = 0;
     private static final int Y_VAR = 1;
 
+    private DataSourceConfig dataSourceConfig;
     private ParamGroup paramGroup;
 
     private static Parameter[] rasterNameParams = new Parameter[2];
@@ -81,14 +78,13 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     private static Parameter[] minParams = new Parameter[2];
     private static Parameter[] maxParams = new Parameter[2];
 
-    private SingleRoiComputePanel computePanel;
     private ChartPanel densityPlotDisplay;
     private boolean adjustingAutoMinMax;
     private XYImagePlot plot;
     private PlotAreaSelectionTool plotAreaSelectionTool;
 
     DensityPlotPanel(ToolView parentDialog, String helpId) {
-        super(parentDialog, helpId, CHART_TITLE);
+        super(parentDialog, helpId, CHART_TITLE, true);
 
     }
 
@@ -196,43 +192,48 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     }
 
     private void createUI() {
-        computePanel = new SingleRoiComputePanel(this, getRaster());
         plot = new XYImagePlot();
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.getRenderer().setBaseToolTipGenerator(new XYPlotToolTipGenerator());
 
-//        NumberAxis scaleAxis = new NumberAxis("Scale");
-//        scaleAxis.setTickLabelFont(new Font("Dialog", Font.PLAIN, 7));
-//        PaintScaleLegend legend = new PaintScaleLegend(new GrayPaintScale(), scaleAxis);
-//        legend.setAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
-//        legend.setAxisOffset(5.0);
-//        legend.setMargin(new RectangleInsets(5, 5, 5, 5));
-//        legend.setPadding(new RectangleInsets(10, 10, 10, 10));
-//        legend.setStripWidth(10);
-//        legend.setPosition(RectangleEdge.RIGHT);
-
         JFreeChart chart = new JFreeChart(CHART_TITLE, plot);
         chart.removeLegend();
-//         chart.addSubtitle(legend);
 
+        dataSourceConfig = new DataSourceConfig();
+        final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(dataSourceConfig));
+        createUI(createChartPanel(chart), createMiddlePanel(), bindingContext);
+
+        updateUIState();
+    }
+
+    private JPanel createMiddlePanel(){
+        final JPanel middlePanel = GridBagUtils.createPanel();
+        final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=BOTH");
+        GridBagUtils.setAttributes(gbc, "gridy=1,weightx=1");
+        GridBagUtils.addToPanel(middlePanel, createOptionsPane(X_VAR), gbc, "gridy=0,insets.top=0");
+        GridBagUtils.addToPanel(middlePanel, createOptionsPane(Y_VAR), gbc, "gridy=1,insets.top=7");
+        return middlePanel;
+    }
+
+    private ChartPanel createChartPanel(JFreeChart chart){
         densityPlotDisplay = new ChartPanel(chart);
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
-                                                                                         densityPlotDisplay,
-                                                                                         "densitity_plot_area",
-                                                                                         "Mask generated from selected density plot area",
-                                                                                         Color.RED,
-                                                                                         PlotAreaSelectionTool.AreaType.ELLIPSE) {
+                densityPlotDisplay,
+                "densitity_plot_area",
+                "Mask generated from selected density plot area",
+                Color.RED,
+                PlotAreaSelectionTool.AreaType.ELLIPSE) {
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
                 double rr = Math.sqrt(dx * dx + dy * dy);
                 return String.format("distance(%s, %s, %s, %s) < %s",
-                                     rasterNameParams[0].getValue(),
-                                     rasterNameParams[1].getValue(),
-                                     x0,
-                                     y0,
-                                     rr);
+                        rasterNameParams[0].getValue(),
+                        rasterNameParams[1].getValue(),
+                        x0,
+                        y0,
+                        rr);
             }
         };
 
@@ -241,25 +242,7 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         densityPlotDisplay.getPopupMenu().add(maskSelectionToolSupport.createDeleteMaskMenuItem());
         densityPlotDisplay.getPopupMenu().addSeparator();
         densityPlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
-
-        final TableLayout rightPanelLayout = new TableLayout(1);
-        final JPanel rightPanel = new JPanel(rightPanelLayout);
-        rightPanelLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        rightPanelLayout.setRowWeightY(3, 1.0);
-        rightPanelLayout.setCellFill(5, 1, TableLayout.Fill.NONE);
-        rightPanelLayout.setCellAnchor(5, 1, TableLayout.Anchor.EAST);
-        rightPanel.add(computePanel);
-        rightPanel.add(createOptionsPane());
-        rightPanel.add(createChartButtonPanel(densityPlotDisplay));
-        rightPanel.add(new JPanel());   // filler
-        final JPanel helpPanel = new JPanel(new BorderLayout());
-        helpPanel.add(getHelpButton(), BorderLayout.EAST);
-        rightPanel.add(helpPanel);
-
-        add(densityPlotDisplay, BorderLayout.CENTER);
-        add(rightPanel, BorderLayout.EAST);
-
-        updateUIState();
+        return densityPlotDisplay;
     }
 
     private RasterDataNode getRaster(int varIndex) {
@@ -279,14 +262,10 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     }
 
     private void updateUIState() {
-        updateComputePane();
+        super.updateContent();
         updateUIState(X_VAR);
         updateUIState(Y_VAR);
         setChartTitle();
-    }
-
-    private void updateComputePane() {
-        computePanel.setRaster(getRaster(X_VAR));
     }
 
     private void updateUIState(int varIndex) {
@@ -299,18 +278,6 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         final boolean autoMinMaxEnabled = (Boolean) autoMinMaxParams[varIndex].getValue();
         minParams[varIndex].setUIEnabled(!autoMinMaxEnabled);
         maxParams[varIndex].setUIEnabled(!autoMinMaxEnabled);
-    }
-
-
-    private JPanel createOptionsPane() {
-        final JPanel optionsPane = GridBagUtils.createPanel();
-        final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=BOTH");
-
-        GridBagUtils.setAttributes(gbc, "gridy=1,weightx=1");
-        GridBagUtils.addToPanel(optionsPane, createOptionsPane(X_VAR), gbc, "gridy=0,insets.top=0");
-        GridBagUtils.addToPanel(optionsPane, createOptionsPane(Y_VAR), gbc, "gridy=1,insets.top=7");
-
-        return optionsPane;
     }
 
     private JPanel createOptionsPane(int varIndex) {
@@ -367,7 +334,7 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     }
 
     @Override
-    public void compute(final Mask selectedMask) {
+    protected void compute() {
 
         final RasterDataNode rasterX = getRaster(X_VAR);
         final RasterDataNode rasterY = getRaster(Y_VAR);
@@ -383,15 +350,15 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
             protected DensityPlot doInBackground(ProgressMonitor pm) throws Exception {
                 pm.beginTask("Computing density plot...", 100);
                 try {
-                    final Range rangeX = getRange(X_VAR, rasterX, selectedMask, SubProgressMonitor.create(pm, 15));
-                    final Range rangeY = getRange(Y_VAR, rasterY, selectedMask, SubProgressMonitor.create(pm, 15));
+                    final Range rangeX = getRange(X_VAR, rasterX, dataSourceConfig.roiMask, SubProgressMonitor.create(pm, 15));
+                    final Range rangeY = getRange(Y_VAR, rasterY, dataSourceConfig.roiMask, SubProgressMonitor.create(pm, 15));
                     final BufferedImage image = ProductUtils.createDensityPlotImage(rasterX,
                                                                                     (float) rangeX.getMin(),
                                                                                     (float) rangeX.getMax(),
                                                                                     rasterY,
                                                                                     (float) rangeY.getMin(),
                                                                                     (float) rangeY.getMax(),
-                                                                                    selectedMask,
+                                                                                    dataSourceConfig.roiMask,
                                                                                     512,
                                                                                     512,
                                                                                     new Color(255, 255, 255, 0),
@@ -653,5 +620,13 @@ class DensityPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
 
         return sb.toString();
     }
+
+    private static class DataSourceConfig {
+
+        public boolean useRoiMask;
+        private Mask roiMask;
+
+    }
+
 }
 
