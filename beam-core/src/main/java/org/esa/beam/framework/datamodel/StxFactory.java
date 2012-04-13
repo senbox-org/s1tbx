@@ -127,7 +127,6 @@ public class StxFactory {
      * @return The statistics.
      */
     public Stx create(RasterDataNode raster, ProgressMonitor pm) {
-
         double minimum = this.minimum != null ? this.minimum.doubleValue() : Double.NaN;
         double maximum = this.maximum != null ? this.maximum.doubleValue() : Double.NaN;
         double mean = this.mean != null ? this.mean.doubleValue() : Double.NaN;

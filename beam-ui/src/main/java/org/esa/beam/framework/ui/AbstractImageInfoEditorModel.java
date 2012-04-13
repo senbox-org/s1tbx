@@ -64,6 +64,7 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
         fireStateChanged();
     }
 
+    @Override
     public String getParameterName() {
         return name;
     }
@@ -72,6 +73,7 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
         this.name = name;
     }
 
+    @Override
     public String getParameterUnit() {
         return unit;
     }
@@ -116,6 +118,7 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
         return getHistogramBins() != null && getHistogramBins().length > 0;
     }
 
+    @Override
     public int[] getHistogramBins() {
         return stx == null ? null : stx.getHistogramBins();
     }
