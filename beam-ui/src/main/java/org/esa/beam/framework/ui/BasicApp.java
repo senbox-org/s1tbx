@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,7 +18,11 @@ package org.esa.beam.framework.ui;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.jidesoft.action.*;
+import com.jidesoft.action.CommandBar;
+import com.jidesoft.action.DefaultDockableBarDockableHolder;
+import com.jidesoft.action.DockableBar;
+import com.jidesoft.action.DockableBarContext;
+import com.jidesoft.action.DockableBarManager;
 import com.jidesoft.action.event.DockableBarAdapter;
 import com.jidesoft.action.event.DockableBarEvent;
 import com.jidesoft.docking.DefaultDockingManager;
@@ -31,8 +35,19 @@ import com.jidesoft.swing.LayoutPersistence;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor;
-import org.esa.beam.framework.ui.command.*;
-import org.esa.beam.util.*;
+import org.esa.beam.framework.ui.command.Command;
+import org.esa.beam.framework.ui.command.CommandGroup;
+import org.esa.beam.framework.ui.command.CommandManager;
+import org.esa.beam.framework.ui.command.CommandMenuUtils;
+import org.esa.beam.framework.ui.command.CommandUIFactory;
+import org.esa.beam.framework.ui.command.DefaultCommandManager;
+import org.esa.beam.framework.ui.command.DefaultCommandUIFactory;
+import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.FileChooserFactory;
 import org.esa.beam.util.io.FileUtils;
@@ -40,17 +55,54 @@ import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JToolBar;
+import javax.swing.RepaintManager;
+import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
+import java.awt.Rectangle;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -861,12 +913,19 @@ public class BasicApp {
         return UIUtils.findMenu(menuBar, name, deepSearch);
     }
 
-    protected final JMenu createJMenu(String name, String text, char mnemonic) {
+    protected final JMenu createJMenu(String name, String text, char mnemonic, String ... cmdIds) {
         JideMenu menu = new JideMenu();
         menu.setName(name); /*I18N*/
         menu.setText(text);
         menu.setMnemonic(mnemonic);
         menu.getPopupMenu().addContainerListener(getOrCreatePopupMenuListener());
+        //TODO make this configurable (mz,nf) 2012-04
+        for (String cmdId : cmdIds) {
+            Command command = commandManager.getCommand(cmdId);
+            if (command != null) {
+                menu.getPopupMenu().add(command.createMenuItem());
+            }
+        }
         return menu;
     }
 

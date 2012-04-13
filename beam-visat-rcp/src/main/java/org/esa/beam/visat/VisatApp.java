@@ -275,6 +275,7 @@ public class VisatApp extends BasicApp implements AppContext {
      * The one and only visat instance
      */
     private static VisatApp instance;
+    private static final String SHOW_TOOLVIEW_CMD_POSTFIX = ".showCmd";
 
     /**
      * VISAT's plug-in manager
@@ -1909,11 +1910,11 @@ public class VisatApp extends BasicApp implements AppContext {
     private CommandBar createAnalysisToolBar() {
         final CommandBar toolBar = createToolBar(ANALYSIS_TOOL_BAR_ID, "Analysis");
         addCommandsToToolBar(toolBar, new String[]{
-                "openInformationDialog",
-                "openGeoCodingInfoDialog",
-                "openStatisticsDialog",
-                "openHistogramDialog",
-                "openDensityPlotDialog",
+                InformationToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                GeoCodingToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                StatisticsToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                HistogramToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                DensityToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
         });
         return toolBar;
     }
@@ -1962,7 +1963,7 @@ public class VisatApp extends BasicApp implements AppContext {
         Map<String, List<String>> toolBar2commandIds = new HashMap<String, List<String>>();
         for (ToolViewDescriptor toolViewDescriptor : toolViewDescriptors) {
             if (!excludedIds.contains(toolViewDescriptor.getId())) {
-                final String commandId = toolViewDescriptor.getId() + ".showCmd";
+                final String commandId = toolViewDescriptor.getId() + SHOW_TOOLVIEW_CMD_POSTFIX;
 
                 String toolBarId = toolViewDescriptor.getToolBarId();
                 if (toolBarId == null || toolBarId.isEmpty()) {
@@ -2129,7 +2130,16 @@ public class VisatApp extends BasicApp implements AppContext {
         menuBar.add(createJMenu("file", "File", 'F'));
         menuBar.add(createJMenu("edit", "Edit", 'E'));
         menuBar.add(createJMenu("view", "View", 'V'));
-        menuBar.add(createJMenu("data", "Analysis", 'A'));
+        menuBar.add(createJMenu("data", "Analysis", 'A',
+                                InformationToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                GeoCodingToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                StatisticsToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                HistogramToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                ScatterPlotToolView.ID +SHOW_TOOLVIEW_CMD_POSTFIX,
+                                DensityToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                CoordListToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX
+        ));
         menuBar.add(createJMenu("tools", "Tools", 'T'));
         menuBar.add(createJMenu("window", "Window", 'W'));
         menuBar.add(createJMenu("help", "Help", 'H'));
