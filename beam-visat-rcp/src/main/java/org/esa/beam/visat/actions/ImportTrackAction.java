@@ -137,14 +137,22 @@ public class ImportTrackAction extends ExecCommand {
     private static SimpleFeatureType createTrackFeatureType(GeoCoding geoCoding) {
         SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
         ftb.setName("org.esa.beam.TrackPoint");
-        ftb.userData("trackPoints", true);
+        /*0*/
         ftb.add("timestamp", Long.class);
+        /*1*/
         ftb.add("pixelPos", Point.class, geoCoding.getImageCRS());
+        /*2*/
         ftb.add("geoPos", Point.class, DefaultGeographicCRS.WGS84);
+        /*3*/
         ftb.add("styleCss", String.class);
+        /*4*/
         ftb.add("data", Double.class);
         ftb.setDefaultGeometry(geoCoding instanceof CrsGeoCoding ? "geoPos" : "pixelPos");
-        return ftb.buildFeatureType();
+        // GeoTools Bug: this doesn't work
+        // ftb.userData("trackPoints", "true");
+        final SimpleFeatureType ft = ftb.buildFeatureType();
+        ft.getUserData().put("trackPoints", "true");
+        return ft;
     }
 
     private static SimpleFeature createFeature(SimpleFeatureType type, GeoCoding geoCoding, long pointIndex, float lat, float lon, double data) {
@@ -154,9 +162,15 @@ public class ImportTrackAction extends ExecCommand {
         }
         SimpleFeatureBuilder fb = new SimpleFeatureBuilder(type);
         GeometryFactory gf = new GeometryFactory();
+        /*0*/
         fb.add(pointIndex);
+        /*1*/
         fb.add(gf.createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
+        /*2*/
         fb.add(gf.createPoint(new Coordinate(lon, lat)));
+        /*3*/
+        fb.add(null);
+        /*4*/
         fb.add(data);
         return fb.buildFeature(Long.toHexString(System.nanoTime()));
     }
