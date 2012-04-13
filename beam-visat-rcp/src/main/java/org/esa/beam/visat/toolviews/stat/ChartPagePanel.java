@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.swing.TableLayout;
@@ -8,8 +24,14 @@ import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.jfree.chart.ChartPanel;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractButton;
+import javax.swing.ImageIcon;
+import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -27,12 +49,16 @@ abstract class ChartPagePanel extends PagePanel {
     private JPanel backgroundPanel;
     private RoiMaskSelector roiMaskSelector;
 
-
     ChartPagePanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
     }
 
-    protected JPanel createTopPanel(){
+    @Override
+    protected void updateContent() {
+        roiMaskSelector.updateMaskSource(getProduct());
+    }
+
+    protected JPanel createTopPanel() {
         final AbstractButton refreshButton = ToolButtonFactory.createButton(
                 UIUtils.loadImageIcon("icons/ViewRefresh22.png"),
                 false);
@@ -110,9 +136,9 @@ abstract class ChartPagePanel extends PagePanel {
                     chartPanel.doSaveAs();
                 } catch (IOException e1) {
                     JOptionPane.showMessageDialog(chartPanel,
-                            "Could not save chart:\n" + e1.getMessage(),
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Could not save chart:\n" + e1.getMessage(),
+                                                  "Error",
+                                                  JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -170,11 +196,11 @@ abstract class ChartPagePanel extends PagePanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 rightPanel.setVisible(rightPanelShown);
-                if(rightPanelShown){
+                if (rightPanelShown) {
                     hideAndShowButton.setIcon(collapseIcon);
                     hideAndShowButton.setRolloverIcon(collapseRolloverIcon);
                     hideAndShowButton.setToolTipText("Collapse Options Panel");
-                } else{
+                } else {
                     hideAndShowButton.setIcon(expandIcon);
                     hideAndShowButton.setRolloverIcon(expandRolloverIcon);
                     hideAndShowButton.setToolTipText("Expand Options Panel");
@@ -195,8 +221,8 @@ abstract class ChartPagePanel extends PagePanel {
 
     @Override
     public void doLayout() {
-        backgroundPanel.setBounds(0,0,getWidth()-8,getHeight()-8);
-        hideAndShowButton.setBounds(getWidth()-hideAndShowButton.getWidth()-12,4,24,24);
+        backgroundPanel.setBounds(0, 0, getWidth() - 8, getHeight() - 8);
+        hideAndShowButton.setBounds(getWidth() - hideAndShowButton.getWidth() - 12, 4, 24, 24);
         super.doLayout();
     }
 
