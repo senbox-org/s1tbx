@@ -58,10 +58,8 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Vector;
+import java.util.*;
+import java.util.List;
 
 /**
  * The class <code>ProductSceneView</code> is a high-level image display component for color index/RGB images created
@@ -814,17 +812,40 @@ public class ProductSceneView extends BasicView
     /**
      * @return The selected feature figures.
      * @since BEAM 4.7
+     * @deprecated since BEAM 4.10, use {@link #getFeatureFigures(boolean)} instead
      */
     public SimpleFeatureFigure[] getSelectedFeatureFigures() {
-        Figure[] figures = figureEditor.getFigureSelection().getFigures();
-        ArrayList<SimpleFeatureFigure> selectedFigures = new ArrayList<SimpleFeatureFigure>(figures.length);
-        for (Figure figure : figures) {
-            if (figure instanceof SimpleFeatureFigure) {
-                SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
-                selectedFigures.add(featureFigure);
-            }
+        ArrayList<SimpleFeatureFigure> selectedFigures = new ArrayList<SimpleFeatureFigure>();
+        collectFeatureFigures(figureEditor.getFigureSelection(), selectedFigures);
+        return selectedFigures.toArray(new SimpleFeatureFigure[selectedFigures.size()]);
+    }
+
+    /**
+     * Gets either the selected figures, or all the figures of the currently selected layer.
+     *
+     * @param selectedOnly If {@code true}, only selected figures are returned.
+     * @return The feature figures or an empty array.
+     * @since BEAM 4.10
+     */
+    public SimpleFeatureFigure[] getFeatureFigures(boolean selectedOnly) {
+        ArrayList<SimpleFeatureFigure> selectedFigures = new ArrayList<SimpleFeatureFigure>();
+        collectFeatureFigures(figureEditor.getFigureSelection(), selectedFigures);
+        if (selectedFigures.isEmpty()
+                && !selectedOnly
+                && getSelectedLayer() instanceof VectorDataLayer) {
+            VectorDataLayer vectorDataLayer = (VectorDataLayer) getSelectedLayer();
+            collectFeatureFigures(vectorDataLayer.getFigureCollection(), selectedFigures);
         }
         return selectedFigures.toArray(new SimpleFeatureFigure[selectedFigures.size()]);
+    }
+
+    private void collectFeatureFigures(FigureCollection figureCollection, List<SimpleFeatureFigure> selectedFigures) {
+        Figure[] figures = figureCollection.getFigures();
+        for (Figure figure : figures) {
+            if (figure instanceof SimpleFeatureFigure) {
+                selectedFigures.add((SimpleFeatureFigure) figure);
+            }
+        }
     }
 
     public boolean selectPlacemarks(PlacemarkGroup placemarkGroup, Placemark[] placemarks) {

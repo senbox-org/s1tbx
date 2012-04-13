@@ -154,10 +154,10 @@ public class PlacemarkEditorToolView extends AbstractToolView {
 
     private void updateEditor() {
         if (vectorDataNode != null) {
-            int selectedFigureCount = 0;
+            int figureCount = 0;
             if (view != null) {
-                SimpleFeatureFigure[] selectedFeatureFigures = view.getSelectedFeatureFigures();
-                selectedFigureCount = selectedFeatureFigures.length;
+                SimpleFeatureFigure[] featureFigures = view.getFeatureFigures(true);
+                figureCount = featureFigures.length;
             }
 
             editor.setText(String.format("<html>" +
@@ -171,7 +171,7 @@ public class PlacemarkEditorToolView extends AbstractToolView {
                                          vectorDataNode.getFeatureType().getTypeName(),
                                          vectorDataNode.getPlacemarkGroup().getNodeCount(),
                                          vectorDataNode.getFeatureCollection().size(),
-                                         selectedFigureCount));
+                                         figureCount));
         } else {
             editor.setText("No selection.");
         }

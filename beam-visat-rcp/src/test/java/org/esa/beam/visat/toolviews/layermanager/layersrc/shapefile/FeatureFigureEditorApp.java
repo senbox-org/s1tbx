@@ -32,31 +32,24 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
-import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class FeatureFigureEditorApp extends FigureEditorApp {
 
-    private FeatureCollection featureCollection;
+    private final SimpleFeatureType featureType;
 
     public FeatureFigureEditorApp() {
-        SimpleFeatureType ft = createSimpleFeatureType("X", Geometry.class, null);
-        this.featureCollection = new DefaultFeatureCollection("X", ft);
+        featureType = createSimpleFeatureType("X", Geometry.class, null);
     }
 
     static class XYZ {
@@ -85,7 +78,7 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
 
     @Override
     protected FigureFactory getFigureFactory() {
-        return new SimpleFeatureFigureFactory(featureCollection);
+        return new SimpleFeatureFigureFactory(featureType);
     }
 
     @Override

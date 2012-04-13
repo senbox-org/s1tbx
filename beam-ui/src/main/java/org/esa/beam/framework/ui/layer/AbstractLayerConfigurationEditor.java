@@ -53,7 +53,6 @@ public abstract class AbstractLayerConfigurationEditor extends AbstractLayerEdit
         PropertySet propertySet = bindingContext.getPropertySet();
         propertySet.addPropertyChangeListener(new PropertyChangeHandler());
         addEditablePropertyDescriptors();
-
         PropertyPane propertyPane = new PropertyPane(bindingContext);
         return propertyPane.createPanel();
     }
@@ -62,12 +61,10 @@ public abstract class AbstractLayerConfigurationEditor extends AbstractLayerEdit
     public void handleLayerContentChanged() {
         final Property[] editorProperties = bindingContext.getPropertySet().getProperties();
         for (Property editorProperty : editorProperties) {
-            final PropertyDescriptor propertyDescriptor = editorProperty.getDescriptor();
-            final String propertyName = propertyDescriptor.getName();
-            final Binding binding = bindingContext.getBinding(propertyName);
-            final PropertySet layerConfiguration = getCurrentLayer().getConfiguration();
-            final Property layerProperty = layerConfiguration.getProperty(propertyName);
+            final String propertyName = editorProperty.getDescriptor().getName();
+            final Property layerProperty = getCurrentLayer().getConfiguration().getProperty(propertyName);
             if (layerProperty != null) {
+                final Binding binding = bindingContext.getBinding(propertyName);
                 final Object layerValue = layerProperty.getValue();
                 final Object editorValue = binding.getPropertyValue();
                 if (editorValue != layerValue && (editorValue == null || !editorValue.equals(layerValue))) {

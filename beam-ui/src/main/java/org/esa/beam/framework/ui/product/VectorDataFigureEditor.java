@@ -58,7 +58,7 @@ public class VectorDataFigureEditor extends DefaultFigureEditor {
         setFigureFactory(vectorDataLayer.getFigureFactory());
 
         final DefaultFigureStyle style = new DefaultFigureStyle();
-        style.fromCssString(vectorDataLayer.getVectorDataNode().getDefaultCSS());
+        style.fromCssString(vectorDataLayer.getVectorDataNode().getDefaultStyleCss());
         setDefaultLineStyle(style);
         setDefaultPolygonStyle(style);
     }

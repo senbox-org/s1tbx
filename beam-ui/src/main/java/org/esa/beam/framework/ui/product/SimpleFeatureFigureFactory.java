@@ -27,7 +27,6 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.framework.datamodel.PlainFeatureFactory;
 import org.esa.beam.util.AwtGeomToJtsGeomConverter;
-import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -36,19 +35,16 @@ import java.awt.geom.Point2D;
 
 public class SimpleFeatureFigureFactory implements FigureFactory {
 
-    private final FeatureCollection featureCollection;
+    private final SimpleFeatureType simpleFeatureType;
     private final AwtGeomToJtsGeomConverter toJtsGeom;
     private long currentFeatureId;
 
-    public SimpleFeatureFigureFactory(FeatureCollection featureCollection) {
-        this.featureCollection = featureCollection;
+    public SimpleFeatureFigureFactory(SimpleFeatureType simpleFeatureType) {
+        this.simpleFeatureType = simpleFeatureType;
         this.toJtsGeom = new AwtGeomToJtsGeomConverter();
         this.currentFeatureId = System.nanoTime();
     }
 
-    public FeatureCollection getFeatureCollection() {
-        return featureCollection;
-    }
 
     @Override
     public PointFigure createPointFigure(Point2D point, FigureStyle style) {
@@ -104,7 +100,7 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
     }
 
     public SimpleFeature createSimpleFeature(Geometry geometry) {
-        return PlainFeatureFactory.createPlainFeature((SimpleFeatureType) featureCollection.getSchema(),
+        return PlainFeatureFactory.createPlainFeature(simpleFeatureType,
                                                       "ID" + Long.toHexString(currentFeatureId++),
                                                       geometry,
                                                       null);
