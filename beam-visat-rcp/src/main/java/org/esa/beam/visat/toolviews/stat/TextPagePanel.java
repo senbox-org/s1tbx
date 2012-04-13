@@ -18,11 +18,8 @@ package org.esa.beam.visat.toolviews.stat;
 
 import org.esa.beam.framework.ui.application.ToolView;
 
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -34,10 +31,11 @@ import java.awt.event.ActionListener;
 abstract class TextPagePanel extends PagePanel {
 
     private JTextArea textArea;
+    private final String defaultText;
 
     protected TextPagePanel(final ToolView parentDialog, final String defaultText, String helpId, String titlePrefix) {
         super(parentDialog, helpId, titlePrefix);
-        textArea.setText(defaultText);
+        this.defaultText = defaultText;
     }
 
     public JTextArea getTextArea() {
@@ -47,6 +45,7 @@ abstract class TextPagePanel extends PagePanel {
     @Override
     protected void initContent() {
         textArea = new JTextArea();
+        textArea.setText(defaultText);
         textArea.setEditable(false);
         textArea.addMouseListener(new PopupHandler());
         add(new JScrollPane(textArea), BorderLayout.CENTER);
@@ -54,7 +53,7 @@ abstract class TextPagePanel extends PagePanel {
 
     @Override
     protected void updateContent() {
-        if(isVisible()) {
+        if (isVisible()) {
             ensureValidData();
             textArea.setText(createText());
             textArea.setCaretPosition(0);
