@@ -265,10 +265,12 @@ public class VectorDataNode extends ProductNode {
         }
     }
 
+    // preliminary API, better use Map<String, Object> getStyleProperties() ?
     public String getStyleCss() {
         return styleCss;
     }
 
+    // preliminary API, better use setStyleProperties(Map<String, Object> props) ?
     public void setStyleCss(String styleCss) {
         if (!ObjectUtils.equalObjects(this.styleCss, styleCss)) {
             String oldValue = this.styleCss;
