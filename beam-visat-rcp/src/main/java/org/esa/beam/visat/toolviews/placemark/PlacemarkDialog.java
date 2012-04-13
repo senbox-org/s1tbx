@@ -19,22 +19,14 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.Guardian;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.Window;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -77,14 +69,14 @@ public class PlacemarkDialog extends ModalDialog {
 
         PropertySet propertySet = bindingContext.getPropertySet();
         propertySet.addProperties(Property.create(PROPERTY_NAME_NAME, ""),
-                Property.create(PROPERTY_NAME_LABEL, ""),
-                Property.create(PROPERTY_NAME_DESCRIPTION, ""),
-                Property.create(PROPERTY_NAME_STYLE_CSS, ""),
-                Property.create(PROPERTY_NAME_LAT, 0.0F),
-                Property.create(PROPERTY_NAME_LON, 0.0F),
-                Property.create(PROPERTY_NAME_PIXEL_X, 0.0F),
-                Property.create(PROPERTY_NAME_PIXEL_Y, 0.0F),
-                Property.create(PROPERTY_NAME_USE_PIXEL_POS, usePixelPos)
+                                  Property.create(PROPERTY_NAME_LABEL, ""),
+                                  Property.create(PROPERTY_NAME_DESCRIPTION, ""),
+                                  Property.create(PROPERTY_NAME_STYLE_CSS, ""),
+                                  Property.create(PROPERTY_NAME_LAT, 0.0F),
+                                  Property.create(PROPERTY_NAME_LON, 0.0F),
+                                  Property.create(PROPERTY_NAME_PIXEL_X, 0.0F),
+                                  Property.create(PROPERTY_NAME_PIXEL_Y, 0.0F),
+                                  Property.create(PROPERTY_NAME_USE_PIXEL_POS, usePixelPos)
         );
         propertySet.getProperty(PROPERTY_NAME_USE_PIXEL_POS).getDescriptor().setAttribute("enabled", hasGeoCoding && switchGeoAndPixelPositionsEditable);
         propertySet.getProperty(PROPERTY_NAME_LAT).getDescriptor().setDisplayName("Latitude");
@@ -294,7 +286,7 @@ public class PlacemarkDialog extends ModalDialog {
     public static boolean showEditPlacemarkDialog(Window parent, Product product, Placemark placemark,
                                                   PlacemarkDescriptor placemarkDescriptor) {
         final PlacemarkDialog dialog = new PlacemarkDialog(parent, product, placemarkDescriptor,
-                placemarkDescriptor instanceof PinDescriptor);
+                                                           placemarkDescriptor instanceof PinDescriptor);
         boolean belongsToProduct = placemark.getProduct() != null;
         String titlePrefix = belongsToProduct ? "Edit" : "New";
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
@@ -323,7 +315,6 @@ public class PlacemarkDialog extends ModalDialog {
             placemark.setGeoPos(dialog.getGeoPos());
             placemark.setPixelPos(dialog.getPixelPos());
             placemark.setStyleCss(dialog.getStyleCss());
-
         }
         return ok;
     }
