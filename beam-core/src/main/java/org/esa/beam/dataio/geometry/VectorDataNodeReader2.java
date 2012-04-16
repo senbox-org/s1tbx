@@ -295,7 +295,8 @@ public class VectorDataNodeReader2 {
         }
         if (!hasFeatureTypeName) {
             builder.setName(
-                    builder.getDefaultGeometry() + "_" + new SimpleDateFormat("dd-MMM-yyyy").format(Calendar.getInstance().getTime()));
+                    builder.getDefaultGeometry() + "_" +
+                    new SimpleDateFormat("dd-MMM-yyyy'T'HH:mm:ss").format(Calendar.getInstance().getTime()));
         }
         return builder.buildFeatureType();
     }
