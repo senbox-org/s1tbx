@@ -150,7 +150,7 @@ public abstract class Command implements ConfigurableExtension {
 
     public Boolean getSortChildren() {
         if(getProperty(ACTION_KEY_SORT_CHILDREN) == null) {
-            return false;
+            return null;
         }
         return (Boolean) getProperty(ACTION_KEY_SORT_CHILDREN);
     }

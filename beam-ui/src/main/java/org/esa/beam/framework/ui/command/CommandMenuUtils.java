@@ -67,7 +67,7 @@ public class CommandMenuUtils {
     public static void insertCommandMenuItem(Boolean sortChildren, final JPopupMenu popupMenu, final Command command,
                                              final CommandManager manager) {
         Command[] commands = getCommands(popupMenu, manager, command);
-        if (sortChildren || mustSortAlphabetically(commands)) {
+        if (sortChildren != null && sortChildren) {
             commands = sortChildrenAlphabetically(commands);
         } else {
             commands = sortAccordingToPlaceBeforeAndPlaceAfter(commands);
@@ -267,14 +267,6 @@ public class CommandMenuUtils {
             appendSorted(sortedCommandsList, wrapper, wrappersMap);
         }
         return sortedCommandsList.toArray(new Command[sortedCommandsList.size()]);
-    }
-
-    private static boolean mustSortAlphabetically(Command[] commands) {
-        boolean sortAlphabetically = true;
-        for (Command command : commands) {
-            sortAlphabetically &= command.getPlaceAfter() == null && command.getPlaceBefore() == null;
-        }
-        return sortAlphabetically;
     }
 
     private static void appendSorted(final List<Command> commandsList,

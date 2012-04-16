@@ -853,6 +853,7 @@
             <smallIcon>icons/Export16.gif</smallIcon>
             <largeIcon>icons/Export24.gif</largeIcon>
             <helpId>export</helpId>
+            <sortChildren>true</sortChildren>
         </action>
 
         <action>
