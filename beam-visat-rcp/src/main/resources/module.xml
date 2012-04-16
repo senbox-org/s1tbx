@@ -917,7 +917,7 @@
             <parent>export</parent>
             <id>exportImageFile</id>
             <class>org.esa.beam.visat.actions.ExportImageAction</class>
-            <text>Export View as Image...</text>
+            <text>View as Image...</text>
             <mnemonic>I</mnemonic>
             <shortDescr>Export the current view as an image.</shortDescr>
             <description>Export the current view as an image.</description>
@@ -929,7 +929,7 @@
             <parent>export</parent>
             <id>exportKmzFile</id>
             <class>org.esa.beam.visat.actions.ExportKmzFileAction</class>
-            <text>Export View as Google Earth KMZ...</text>
+            <text>View as Google Earth KMZ...</text>
             <mnemonic>K</mnemonic>
             <shortDescr>Export the current view as Google Earth KMZ file.</shortDescr>
             <description>Export the current view as Google Earth KMZ file.</description>
@@ -941,7 +941,7 @@
             <parent>export</parent>
             <id>exportLegendImageFile</id>
             <class>org.esa.beam.visat.actions.ExportLegendImageAction</class>
-            <text>Export Colour Legend as Image...</text>
+            <text>Colour Legend as Image...</text>
             <mnemonic>C</mnemonic>
             <shortDescr>Export the colour legend as an image.</shortDescr>
             <description>Export the colour legend of the current view as an image.</description>
@@ -953,7 +953,7 @@
             <parent>export</parent>
             <id>exportColorPalette</id>
             <class>org.esa.beam.visat.actions.ExportColorPaletteAction</class>
-            <text>Export Colour Palette as File...</text>
+            <text>Colour Palette as File...</text>
             <mnemonic>a</mnemonic>
             <shortDescr>Export the colour palette to plain text.</shortDescr>
             <description>Export the colour palette of the current view to a plain text file.</description>
@@ -965,7 +965,7 @@
             <parent>export</parent>
             <id>exportMaskPixels</id>
             <class>org.esa.beam.visat.actions.ExportMaskPixelsAction</class>
-            <text>Export Mask Pixels...</text>
+            <text>Mask Pixels...</text>
             <mnemonic>R</mnemonic>
             <shortDescr>Export the pixels of a Mask.</shortDescr>
             <description>Export the pixels of a mask as tab-separated text.</description>
@@ -977,7 +977,7 @@
             <parent>export</parent>
             <id>exportTransectPixels</id>
             <class>org.esa.beam.visat.actions.ExportTransectPixelsAction</class>
-            <text>Export Transect Pixels...</text>
+            <text>Transect Pixels...</text>
             <mnemonic>T</mnemonic>
             <shortDescr>Export transect pixels.</shortDescr>
             <description>Export transect pixels as tab-separated text.</description>
@@ -989,7 +989,7 @@
             <parent>export</parent>
             <id>exportMetadata</id>
             <class>org.esa.beam.visat.actions.ExportMetadataAction</class>
-            <text>Export Product Metadata...</text>
+            <text>Product Metadata...</text>
             <mnemonic>M</mnemonic>
             <shortDescr>Export the currently displayed metadata.</shortDescr>
             <description>Export the currently displayed metadata as tab-separated text.</description>
@@ -1001,7 +1001,7 @@
             <parent>export</parent>
             <id>exportGeometry</id>
             <class>org.esa.beam.visat.actions.ExportGeometryAction</class>
-            <text>Export Geometry as Shapefile...</text>
+            <text>Geometry as Shapefile...</text>
             <mnemonic>M</mnemonic>
             <shortDescr>Exports the currently selected geometry.</shortDescr>
             <description>Exports the currently selected geometry as ESRI Shapefile.</description>
@@ -1013,7 +1013,7 @@
             <parent>export</parent>
             <id>exportEnviGcpFile</id>
             <class>org.esa.beam.visat.actions.ExportEnviGcpFileAction</class>
-            <text>Export Geo-Coding as ENVI GCP File...</text>
+            <text>Geo-Coding as ENVI GCP File...</text>
             <mnemonic>G</mnemonic>
             <shortDescr>Export an ENVI GCP (ground control points) file.</shortDescr>
             <description>Export an ENVI GCP (ground control points) file for image registration.</description>

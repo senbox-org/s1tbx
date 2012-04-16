@@ -106,7 +106,6 @@
         <action>
             <id>exportNetCdfCFProduct</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
-            <text>Export NetCDF/CF Product...</text>
             <formatName>NetCDF-CF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Writes a product in NetCDF/CF format</shortDescr>
@@ -116,7 +115,6 @@
         <action>
             <id>exportNetCdfBEAMProduct</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
-            <text>Export NetCDF/BEAM Product...</text>
             <formatName>NetCDF-BEAM</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Writes a product in NetCDF/BEAM format</shortDescr>
@@ -126,7 +124,6 @@
         <action>
             <id>exportNetCdf4BEAMProduct</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
-            <text>Export NetCDF-4/BEAM Product...</text>
             <formatName>NetCDF4-BEAM</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Writes a product in NetCDF-4/BEAM format</shortDescr>

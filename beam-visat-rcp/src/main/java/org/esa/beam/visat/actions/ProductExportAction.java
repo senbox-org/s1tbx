@@ -83,7 +83,7 @@ public class ProductExportAction extends ExecCommand {
 
         String text = getText();
         if (text == null) {
-            setText("Export " + getFormatName() + " Product...");
+            setText(getFormatName() + " Product...");
         }
 
         String parent = getParent();

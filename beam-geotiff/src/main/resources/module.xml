@@ -70,7 +70,7 @@
             <formatName>GeoTIFF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>O</mnemonic>
-            <text>Export GeoTIFF Product...</text>
+            <text>GeoTIFF Product...</text>
             <shortDescr>Export a GeoTIFF data product or subset.</shortDescr>
             <description>Export a GeoTIFF data product or product subset.</description>
             <helpId>exportGeoTIFFProduct</helpId>
