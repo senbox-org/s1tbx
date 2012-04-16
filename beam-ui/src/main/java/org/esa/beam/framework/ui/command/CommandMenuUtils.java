@@ -250,21 +250,25 @@ public class CommandMenuUtils {
             }
         }
         while (!wrappersMap.isEmpty()) {
-            CommandWrapper wrapper = wrappersMap.values().iterator().next();
-            while (!wrapper.beforeWrappers.isEmpty()) {
-                final List linksBefore = wrapper.beforeWrappers;
-                for (Object aLinksBefore : linksBefore) {
-                    final CommandWrapper cw = (CommandWrapper) aLinksBefore;
-                    final Object o = wrappersMap.get(cw.getName());
-                    if (o != null) {
-                        wrapper = (CommandWrapper) o;
-                        break;
+            for (final Command command : commands) {
+                CommandWrapper wrapper = wrappersMap.get(command.getCommandID());
+                if (wrapper != null) {
+                    while (!wrapper.beforeWrappers.isEmpty()) {
+                        final List linksBefore = wrapper.beforeWrappers;
+                        for (Object aLinksBefore : linksBefore) {
+                            final CommandWrapper cw = (CommandWrapper) aLinksBefore;
+                            final Object o = wrappersMap.get(cw.getName());
+                            if (o != null) {
+                                wrapper = (CommandWrapper) o;
+                                break;
+                            }
+                        }
                     }
+                    sortedCommandsList.add(wrapper.command);
+                    wrappersMap.remove(wrapper.getName());
+                    appendSorted(sortedCommandsList, wrapper, wrappersMap);
                 }
             }
-            sortedCommandsList.add(wrapper.command);
-            wrappersMap.remove(wrapper.getName());
-            appendSorted(sortedCommandsList, wrapper, wrappersMap);
         }
         return sortedCommandsList.toArray(new Command[sortedCommandsList.size()]);
     }
