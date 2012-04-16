@@ -171,7 +171,7 @@ public class ImportTrackAction extends ExecCommand {
         fb.add(gf.createPoint(new Coordinate(lon, lat)));
         /*2*/
         fb.add(data);
-        return fb.buildFeature("P" + (pointIndex + 1));
+        return fb.buildFeature(String.format("ID%08d", pointIndex));
     }
 
 
