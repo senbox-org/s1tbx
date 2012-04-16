@@ -27,6 +27,7 @@ import org.esa.beam.visat.VisatApp;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 
@@ -61,7 +62,7 @@ public class ImportPointDataAction extends ExecCommand {
         try {
             modelCrs = product.getGeoCoding() != null ? ImageManager.getModelCrs(product.getGeoCoding()) :
                        ImageManager.DEFAULT_IMAGE_CRS;
-            vectorDataNode = VectorDataNodeReader2.read(file, modelCrs, product.getGeoCoding());
+            vectorDataNode = VectorDataNodeReader2.read(file.getPath(), new FileReader(file), product.getGeoCoding(), modelCrs);
         } catch (IOException e) {
             visatApp.showErrorDialog(TITLE, "Failed to load csv file:\n" + e.getMessage());
             return;

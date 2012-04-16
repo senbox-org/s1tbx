@@ -17,7 +17,6 @@
 package org.esa.beam.dataio.geometry;
 
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.AbstractGeoCoding;
@@ -39,6 +38,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -134,18 +134,15 @@ public class VectorDataNodeReader2Test {
 
     @Test(expected = IOException.class)
     public void testMissingGeometry() throws IOException {
-        CsvReader csvReader = new CsvReader(new StringReader(getClass().getResource("exported_pin_input_without_geometry.csv").getFile()), new char[]{
-                '\t'
-        }, true, "#");
-        new VectorDataNodeReader2(new DummyGeoCoding(), null, null).readFeatureType(csvReader);
+        InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("exported_pin_input_without_geometry.csv"));
+        new VectorDataNodeReader2("blah", new DummyGeoCoding(), reader, null).readFeatureType();
     }
 
     @Test
     public void testReadPropertiesInInput1() throws IOException {
-        StringReader reader = new StringReader(readStringFromFile("input_with_properties.csv"));
-
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2(new DummyGeoCoding(), "mem", null);
-        Map<String, String> properties = vectorDataNodeReader.readProperties(reader);
+        InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_properties.csv"));
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", new DummyGeoCoding(), reader, null);
+        Map<String, String> properties = vectorDataNodeReader.readProperties();
 
         assertNotNull(properties);
         assertEquals(2, properties.size());
@@ -155,10 +152,10 @@ public class VectorDataNodeReader2Test {
 
     @Test
     public void testReadFeaturesInInput1() throws IOException {
-        StringReader reader = new StringReader(readStringFromFile("input_with_properties.csv"));
+        InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_properties.csv"));
 
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2(new DummyGeoCoding(), "mem", null);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(reader);
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", new DummyGeoCoding(), reader, null);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
         assertNotNull(simpleFeatureType);
@@ -187,8 +184,6 @@ public class VectorDataNodeReader2Test {
         GeometryDescriptor geometryDescriptor = simpleFeatureType.getGeometryDescriptor();
         assertEquals("geom", geometryDescriptor.getType().getName().getLocalPart());
 
-        GeometryFactory gf = new GeometryFactory();
-
         assertEquals(3, fc.size());
         FeatureIterator<SimpleFeature> featureIterator = fc.features();
 
@@ -216,10 +211,10 @@ public class VectorDataNodeReader2Test {
 
     @Test
     public void testReadFeaturesInInput2() throws IOException {
-        StringReader reader = new StringReader(readStringFromFile("input_with_only_one_point.csv"));
+        InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_only_one_point.csv"));
 
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2(new DummyGeoCoding(), "mem", null);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(reader);
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", new DummyGeoCoding(), reader, null);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
         assertNotNull(simpleFeatureType);
@@ -243,10 +238,9 @@ public class VectorDataNodeReader2Test {
 
     @Test
     public void testCRS() throws Exception {
-        StringReader reader = new StringReader(readStringFromFile("input_with_only_one_point.csv"));
-
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2(new DummyGeoCoding(), "mem", DefaultGeographicCRS.WGS84);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(reader);
+        InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_only_one_point.csv"));
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", new DummyGeoCoding(), reader, DefaultGeographicCRS.WGS84);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
         assertNotNull(simpleFeatureType);
@@ -286,7 +280,7 @@ public class VectorDataNodeReader2Test {
         try {
             String source = "org.esa.beam.FT\ta\tlat\tlon\n" +
                             "ID1\t10\t0.0\t0.0\n";
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new VectorDataNodeReader2(new DummyGeoCoding(), "mem", null).readFeatures(new StringReader(source));
+            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new VectorDataNodeReader2("", new DummyGeoCoding(), new StringReader(source), null).readFeatures();
             assertEquals(1, fc.size());
             assertEquals(Double.class, fc.getSchema().getType(0).getBinding());
             assertEquals(10.0, fc.features().next().getAttribute("a"));
@@ -296,14 +290,13 @@ public class VectorDataNodeReader2Test {
     }
 
     private void expectException(String contents) throws IOException {
-        new VectorDataNodeReader2(new DummyGeoCoding(), "mem", null).readFeatures(new StringReader(contents));
+        new VectorDataNodeReader2("", new DummyGeoCoding(), new StringReader(contents), null).readFeatures();
         fail("IOException expected");
     }
 
     private void testTrackFeatureClasses(String input) throws IOException {
-        CsvReader csvReader = new CsvReader(new StringReader(input), new char[]{'\t'}, true, "#");
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2(new DummyGeoCoding(), null, null);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNodeReader.readFeatures(csvReader);
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", new DummyGeoCoding(), new StringReader(input), null);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNodeReader.readFeatures();
 
         FeatureIterator<SimpleFeature> features = featureCollection.features();
         assertEquals(6, featureCollection.size());
@@ -340,7 +333,7 @@ public class VectorDataNodeReader2Test {
 
     private static List<AttributeDescriptor> getAttributeDescriptors(String input) throws IOException {
         CsvReader csvReader = new CsvReader(new StringReader(input), new char[]{'\t'}, true, "#");
-        SimpleFeatureType simpleFeatureType = new VectorDataNodeReader2(new DummyGeoCoding(), null, null).readFeatureType(csvReader);
+        SimpleFeatureType simpleFeatureType = new VectorDataNodeReader2("", new DummyGeoCoding(), csvReader, null).readFeatureType();
 
         assertNotNull(simpleFeatureType);
         assertEquals(10, simpleFeatureType.getAttributeCount());

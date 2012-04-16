@@ -17,18 +17,8 @@
 package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.ConverterRegistry;
 import com.thoughtworks.xstream.core.util.OrderRetainingMap;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.StringUtils;
@@ -44,13 +34,9 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Map;
 
 public class VectorDataNodeReader2 {
@@ -58,41 +44,30 @@ public class VectorDataNodeReader2 {
     private final String location;
     private final CoordinateReferenceSystem modelCrs;
     private final GeoCoding geoCoding;
-    private int latIndex = -1;
-    private int lonIndex = -1;
-    private int geometryIndex = -1;
-    private boolean hasFeatureTypeName = false;
 
     private static final String[] LONGITUDE_IDENTIFIERS = new String[]{"lon", "long", "longitude"};
     private static final String[] LATITUDE_IDENTIFIERS = new String[]{"lat", "latitude"};
     public static final String[] GEOMETRY_IDENTIFIERS = new String[]{"geometry", "geom"};
+    private GeometryStrategy geometryStrategy;
+    private CsvReader reader;
 
-    public VectorDataNodeReader2(GeoCoding geoCoding, String path, CoordinateReferenceSystem modelCrs) {
+    public VectorDataNodeReader2(String fileName, GeoCoding geoCoding, Reader reader, CoordinateReferenceSystem modelCrs) throws IOException {
         this.geoCoding = geoCoding;
-        this.location = path;
+        this.location = fileName;
         this.modelCrs = modelCrs;
+        this.reader = new CsvReader(reader, new char[]{VectorDataNodeIO.DELIMITER_CHAR}, true, "#");
+        this.geometryStrategy = createGeometryStrategy();
     }
 
-    public static VectorDataNode read(File file, CoordinateReferenceSystem modelCrs, GeoCoding geoCoding) throws IOException {
-        return new VectorDataNodeReader2(geoCoding, file.getPath(), modelCrs).read(file);
+    public static VectorDataNode read(String fileName, Reader reader, GeoCoding geoCoding, CoordinateReferenceSystem modelCrs) throws IOException {
+        return new VectorDataNodeReader2(fileName, geoCoding, reader, modelCrs).read();
     }
 
-    public VectorDataNode read(File file) throws IOException {
-        final String name = FileUtils.getFilenameWithoutExtension(file);
-        // todo - bad technique: use a LineNumberReader that supports mark/reset and let the header reader only read up to the first data line (nf)
-        Reader headerReader = new FileReader(file);
-        Reader featureReader = new FileReader(file);
-        try {
-            return read(name, headerReader, featureReader);
-        } finally {
-            headerReader.close();
-            featureReader.close();
-        }
-    }
-
-    private VectorDataNode read(String name, Reader headerReader, Reader featureReader) throws IOException {
-        Map<String, String> properties = readProperties(headerReader);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures(featureReader);
+    VectorDataNode read() throws IOException {
+        final String name = FileUtils.getFilenameWithoutExtension(location);
+        Map<String, String> properties = readProperties();
+        reader.reset();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures();
         VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);
         if (properties.containsKey(ProductNode.PROPERTY_NAME_DESCRIPTION)) {
             vectorDataNode.setDescription(properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
@@ -106,167 +81,73 @@ public class VectorDataNodeReader2 {
 
     /**
      * Collects comment lines of the form "# &lt;name&gt; = &lt;value&gt;" until the first non-empty and non-comment line is found.
-     * Always closes the reader finally.
-     *
-     * @param reader A reader
      *
      * @return All the property assignments found.
      *
      * @throws java.io.IOException
      */
-    Map<String, String> readProperties(Reader reader) throws IOException {
+    Map<String, String> readProperties() throws IOException {
         LineNumberReader lineNumberReader = new LineNumberReader(reader);
         OrderRetainingMap properties = new OrderRetainingMap();
-        try {
-            String line;
-            while ((line = lineNumberReader.readLine()) != null) {
-                line = line.trim();
-                if (line.startsWith("#")) {
-                    line = line.substring(1);
-                    int index = line.indexOf('=');
-                    if (index != -1) {
-                        String name = line.substring(0, index).trim();
-                        String value = line.substring(index + 1).trim();
-                        if (StringUtils.isNotNullAndNotEmpty(name) &&
-                            StringUtils.isNotNullAndNotEmpty(value)) {
-                            properties.put(name, value);
-                        }
+        String line;
+        while ((line = lineNumberReader.readLine()) != null) {
+            line = line.trim();
+            if (line.startsWith("#")) {
+                line = line.substring(1);
+                int index = line.indexOf('=');
+                if (index != -1) {
+                    String name = line.substring(0, index).trim();
+                    String value = line.substring(index + 1).trim();
+                    if (StringUtils.isNotNullAndNotEmpty(name) &&
+                        StringUtils.isNotNullAndNotEmpty(value)) {
+                        properties.put(name, value);
                     }
-                } else if (!line.isEmpty()) {
-                    // First non-comment line reached, no more property assignments expected
-                    break;
                 }
+            } else if (!line.isEmpty()) {
+                // First non-comment line reached, no more property assignments expected
+                break;
             }
-        } finally {
-            lineNumberReader.close();
         }
         //noinspection unchecked
         return (Map<String, String>) properties;
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures(Reader reader) throws IOException {
-        CsvReader csvReader = new CsvReader(reader, new char[]{VectorDataNodeIO.DELIMITER_CHAR}, true, "#");
-        SimpleFeatureType featureType = readFeatureType(csvReader);
-        return readFeatures(csvReader, featureType);
+    public FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures() throws IOException {
+        SimpleFeatureType featureType = readFeatureType();
+        return readFeatures(featureType);
     }
 
+    private GeometryStrategy createGeometryStrategy() throws IOException {
+        reader.mark(1024 * 1024 * 10);
+        String[] tokens = reader.readRecord();
+        reader.reset();
 
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures(CsvReader csvReader, SimpleFeatureType simpleFeatureType) throws IOException {
-        DefaultFeatureCollection fc = new DefaultFeatureCollection("?", simpleFeatureType);
-        SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeatureType);
-        PixelPos pixelPos = new PixelPos();
-        FeatureIdCreator idCreator = new FeatureIdCreator();
-        while (true) {
-            String[] tokens = csvReader.readRecord();
-            if (tokens == null) {
-                break;
-            }
-            if (!isLineValid(simpleFeatureType, tokens)) {
-                continue;
-            }
-            builder.reset();
-            String fid = null;
-            double lat = 0;
-            double lon = 0;
-            int attributeIndex = 0;
-            for (int columnIndex = 0; columnIndex < tokens.length; columnIndex++) {
-                String token = tokens[columnIndex];
-                if (columnIndex == 0 && hasFeatureTypeName) {
-                    fid = token;
-                } else if (columnIndex == latIndex) {
-                    lat = Double.parseDouble(token);
-                    attributeIndex++;
-                } else if (columnIndex == lonIndex) {
-                    lon = Double.parseDouble(token);
-                    attributeIndex++;
-                } else {
-                    token = VectorDataNodeIO.decodeTabString(token);
-                    try {
-                        Object value = null;
-                        if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
-                            Class<?> attributeType = simpleFeatureType.getType(attributeIndex).getBinding();
-                            ConverterRegistry converterRegistry = ConverterRegistry.getInstance();
-                            Converter<?> converter = converterRegistry.getConverter(attributeType);
-                            if (converter == null) {
-                                throw new IOException(String.format("No converter for type %s found.", attributeType));
-                            }
-                            value = converter.parse(token);
-                        }
-                        builder.set(simpleFeatureType.getDescriptor(attributeIndex).getLocalName(), value);
-                    } catch (ConversionException e) {
-                        BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': %s",
-                                                                               location, e.getMessage()));
-                    }
-                    attributeIndex++;
-                }
-            }
-            if (hasLatLon()) {
-                builder.set("geoPos", new GeometryFactory().createPoint(new Coordinate(lon, lat)));
-                geoCoding.getPixelPos(new GeoPos((float) lat, (float) lon), pixelPos);
-                builder.set("pixelPos", new GeometryFactory().createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
-            }
-            if (!hasFeatureTypeName) {
-                fid = idCreator.createFeatureId();
-            }
-            SimpleFeature simpleFeature = builder.buildFeature(fid);
-            if (hasGeometry()) {
-                Geometry defaultGeometry = (Geometry) simpleFeature.getDefaultGeometry();
-                defaultGeometry.apply(new GeoPosToPixelPosFilter(defaultGeometry.getCoordinates().length));
-            }
-            fc.add(simpleFeature);
+        if(tokens == null) {
+            throw new IOException(String.format("Invalid header in file '%s'", location));
         }
-        return fc;
-    }
 
-    private boolean isLineValid(SimpleFeatureType simpleFeatureType, String[] tokens) {
-        int expectedTokenCount = simpleFeatureType.getAttributeCount();
-        expectedTokenCount -= (hasLatLon() ? 2 : 0);
-        expectedTokenCount += hasFeatureTypeName ? 1 : 0;
-        if (tokens.length != expectedTokenCount) {
-            BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
-                                                                   location, expectedTokenCount, tokens.length));
-            return false;
-        }
-        return true;
-    }
+        int latIndex = -1;
+        int lonIndex = -1;
+        int geometryIndex = -1;
 
-    SimpleFeatureType readFeatureType(CsvReader csvReader) throws IOException {
-        String[] tokens = csvReader.readRecord();
-        if (tokens == null || tokens.length <= 1) {
-            throw new IOException("Missing feature type definition in first line.");
-        }
-        csvReader.mark(1024*1024*10);
-        return createFeatureType(tokens, csvReader);
-    }
+        boolean hasFeatureTypeName = false;
+        boolean hasLatLon;
 
-    private SimpleFeatureType createFeatureType(String[] tokens, CsvReader csvReader) throws IOException {
-        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+        String featureTypeName = null;
         String geometryName = null;
-        builder.setCRS(modelCrs);
-        JavaTypeConverter jtc = new JavaTypeConverter();
-
-        String[] firstRecord = csvReader.readRecord();
-        if(firstRecord != null && firstRecord.length != tokens.length) {
-            throw new IOException("First record and header have different column count.");
-        }
-        csvReader.reset();
-
         for (int i = 0; i < tokens.length; i++) {
             if (i == 0 && tokens[0].startsWith("org.esa.beam")) {
                 hasFeatureTypeName = true;
-                builder.setName(tokens[0]);
+                featureTypeName = tokens[0];
             } else {
                 String token = tokens[i];
                 final int colonPos = token.indexOf(':');
-                String attributeTypeName;
                 String attributeName;
                 if (colonPos == -1) {
                     attributeName = token;
-                    attributeTypeName = findAttributeTypeName(firstRecord[i]);
                 } else if (colonPos == 0) {
                     throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
                 } else {
-                    attributeTypeName = token.substring(colonPos + 1);
                     attributeName = token.substring(0, colonPos);
                 }
 
@@ -278,26 +159,108 @@ public class VectorDataNodeReader2 {
                     geometryIndex = i;
                     geometryName = attributeName;
                 }
+            }
+        }
+
+        hasLatLon = latIndex != -1 && lonIndex != -1;
+        if (geometryIndex == -1 && (latIndex == -1 || lonIndex == -1)) {
+            throw new IOException("Neither lat/lon nor geometry colum provided.");
+        }
+
+        if (hasLatLon && hasFeatureTypeName) {
+            return new LatLonAndFeatureTypeStrategy(geoCoding, featureTypeName, latIndex, lonIndex);
+        } else if (hasLatLon && !hasFeatureTypeName) {
+            return new LatLonNoFeatureTypeStrategy(geoCoding, latIndex, lonIndex);
+        } else if (!hasLatLon && hasFeatureTypeName) {
+            return new GeometryAndFeatureTypeStrategy(geoCoding, geometryName, featureTypeName);
+        } else if (!hasLatLon && !hasFeatureTypeName) {
+            return new GeometryNoFeatureTypeStrategy(geoCoding, geometryName);
+        }
+        throw new IllegalStateException("Cannot come here");
+    }
+
+
+    private FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures(SimpleFeatureType simpleFeatureType) throws IOException {
+        DefaultFeatureCollection fc = new DefaultFeatureCollection("?", simpleFeatureType);
+        SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeatureType);
+        while (true) {
+            String[] tokens = reader.readRecord();
+            if (tokens == null) {
+                break;
+            }
+            if (!isLineValid(simpleFeatureType, tokens)) {
+                continue;
+            }
+            try {
+                geometryStrategy.interpretLine(tokens, builder, simpleFeatureType);
+            } catch (ConversionException e) {
+                BeamLogManager.getSystemLogger().warning(String.format("Unable to parse %s: %s", location, e.getMessage()));
+            }
+
+            String featureId = geometryStrategy.getFeatureId(tokens);
+            SimpleFeature simpleFeature = builder.buildFeature(featureId);
+
+            geometryStrategy.transformGeoPosToPixelPos(simpleFeature);
+
+            fc.add(simpleFeature);
+        }
+        return fc;
+    }
+
+    private boolean isLineValid(SimpleFeatureType simpleFeatureType, String[] tokens) {
+        int expectedTokenCount = geometryStrategy.computeExpectedTokenCount(simpleFeatureType.getAttributeCount());
+        if (tokens.length != expectedTokenCount) {
+            BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
+                                                                   location, expectedTokenCount, tokens.length));
+            return false;
+        }
+        return true;
+    }
+
+    SimpleFeatureType readFeatureType() throws IOException {
+        String[] tokens = reader.readRecord();
+        if (tokens == null || tokens.length <= 1) {
+            throw new IOException("Missing feature type definition in first line.");
+        }
+        reader.mark(1024 * 1024 * 10);
+        return createFeatureType(tokens);
+    }
+
+    private SimpleFeatureType createFeatureType(String[] tokens) throws IOException {
+        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+        builder.setCRS(modelCrs);
+        JavaTypeConverter jtc = new JavaTypeConverter();
+
+        String[] firstRecord = reader.readRecord();
+        if (firstRecord != null && firstRecord.length != tokens.length) {
+            throw new IOException("First record and header have different column count.");
+        }
+        reader.reset();
+
+        for (int i = 0; i < tokens.length; i++) {
+            if (i != 0 || !tokens[0].startsWith("org.esa.beam")) {
+                String token = tokens[i];
+                final int colonPos = token.indexOf(':');
+                String attributeTypeName;
+                String attributeName;
+                if (colonPos == -1) {
+                    attributeName = token;
+                    attributeTypeName = findAttributeTypeName(firstRecord == null ? "" : firstRecord[i]);
+                } else if (colonPos == 0) {
+                    throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
+                } else {
+                    attributeTypeName = token.substring(colonPos + 1);
+                    attributeName = token.substring(0, colonPos);
+                }
 
                 Class<?> attributeType = getAttributeType(jtc, token, attributeTypeName);
                 builder.add(attributeName, attributeType);
             }
         }
-        if (hasLatLon()) {
-            builder.add("geoPos", Point.class);
-            builder.add("pixelPos", Point.class);
-            builder.setDefaultGeometry("pixelPos");
-        } else if (hasGeometry()) {
-            builder.setDefaultGeometry(geometryName);
-        } else {
-            throw new IOException("Unable to create feature type: " +
-                                  "either a geometry or lat/lon fields are needed.");
-        }
-        if (!hasFeatureTypeName) {
-            builder.setName(
-                    builder.getDefaultGeometry() + "_" +
-                    new SimpleDateFormat("dd-MMM-yyyy'T'HH:mm:ss").format(Calendar.getInstance().getTime()));
-        }
+
+        geometryStrategy.setDefaultGeometry(builder);
+        geometryStrategy.setName(builder);
+
         return builder.buildFeatureType();
     }
 
@@ -322,14 +285,6 @@ public class VectorDataNodeReader2 {
         return attributeType;
     }
 
-    private boolean hasGeometry() {
-        return geometryIndex != -1;
-    }
-
-    private boolean hasLatLon() {
-        return latIndex != -1 && lonIndex != -1;
-    }
-
     private static boolean contains(String[] possibleStrings, String s) {
         for (String possibleString : possibleStrings) {
             if (possibleString.toLowerCase().equals(s.toLowerCase())) {
@@ -339,43 +294,4 @@ public class VectorDataNodeReader2 {
         return false;
     }
 
-    private class GeoPosToPixelPosFilter implements CoordinateSequenceFilter {
-
-        public int count = 0;
-        private int numCoordinates;
-
-        public GeoPosToPixelPosFilter(int numCoordinates) {
-            this.numCoordinates = numCoordinates;
-        }
-
-        @Override
-        public void filter(CoordinateSequence seq, int i) {
-            Coordinate coord = seq.getCoordinate(i);
-            PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos((float) coord.y, (float) coord.x), null);
-            // rounding needed because closed geometries yield errors if their first and last coordinate
-            // do not exactly match
-            double x = Math.round(pixelPos.x * 10000) / 10000;
-            double y = Math.round(pixelPos.y * 10000) / 10000;
-            coord.setCoordinate(new Coordinate(x, y));
-            count++;
-        }
-
-        @Override
-        public boolean isDone() {
-            return numCoordinates == count;
-        }
-
-        @Override
-        public boolean isGeometryChanged() {
-            return numCoordinates == count;
-        }
-    }
-
-    private static class FeatureIdCreator {
-        private static int count = 0;
-
-        private String createFeatureId() {
-            return "ID"+String.format("%08d", count++);
-        }
-    }
 }
