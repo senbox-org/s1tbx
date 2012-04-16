@@ -21,7 +21,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.beam.GlobalTestTools;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GcpGeoCoding;
@@ -253,7 +252,7 @@ public class DimapDocumentTest extends TestCase {
         product.setDescription("description");
         product.setStartTime(new ProductData.UTC(1234, 2045, 34));
         product.setEndTime(new ProductData.UTC(1234, 3045, 34));
-        addBitmaskDefs(product);
+        addMasks(product);
         addBands(product);
         addVirtualBands(product);
         addSampleCodings(product);
@@ -263,27 +262,27 @@ public class DimapDocumentTest extends TestCase {
         return product;
     }
 
-    private void addBitmaskDefs(Product product) {
+    private void addMasks(Product product) {
         String name = "name1";
         String desc = "bitmask.description1";
         String expr = "bitmask.expression1";
         Color color = Color.black;
         float trans = 1.0F;
-        product.addBitmaskDef(new BitmaskDef(name, desc, expr, color, trans));
+        product.addMask(name, desc, expr, color, trans);
 
         name = "name2";
         desc = "bitmask.description2";
         expr = "bitmask.expression2";
         color = Color.blue;
         trans = 0.75F;
-        product.addBitmaskDef(new BitmaskDef(name, desc, expr, color, trans));
+        product.addMask(name, desc, expr, color, trans);
 
         name = "name3";
         desc = "bitmask.description3";
         expr = "bitmask.expression3";
         color = Color.green;
         trans = 0.2341F;
-        product.addBitmaskDef(new BitmaskDef(name, desc, expr, color, trans));
+        product.addMask(name, desc, expr, color, trans);
     }
 
     private void addMetadata(Product product) {
@@ -1059,42 +1058,11 @@ public class DimapDocumentTest extends TestCase {
             addDataAccessElements();
             addTiePointGridElements();
             addImageDisplayElements();
-            addBitmaskDefinitions();
             addImageInterpretationElements();
             addAnnotatonDataSet();
             final Document document = new Document();
             document.setRootElement(_root);
             return document;
-        }
-
-        private void addBitmaskDefinitions() { //Übernommen
-            final String[] defNames = _product.getBitmaskDefNames();
-            for (String defName : defNames) {
-                final BitmaskDef bitmaskDef = _product.getBitmaskDef(defName);
-                final Element bitmaskDefElem = new Element(DimapProductConstants.TAG_BITMASK_DEFINITION);
-                bitmaskDefElem.setAttribute(DimapProductConstants.ATTRIB_NAME, bitmaskDef.getName());
-
-                Element descElem = new Element(DimapProductConstants.TAG_BITMASK_DESCRIPTION);
-                bitmaskDefElem.addContent(descElem);
-                if (bitmaskDef.getDescription() != null) {
-                    descElem.setAttribute(DimapProductConstants.ATTRIB_VALUE, bitmaskDef.getDescription());
-                } else {
-                    descElem.setAttribute(DimapProductConstants.ATTRIB_VALUE, "");
-                }
-
-                final Element exprElem = new Element(DimapProductConstants.TAG_BITMASK_EXPRESSION);
-                exprElem.setAttribute(DimapProductConstants.ATTRIB_VALUE, bitmaskDef.getExpr());
-                bitmaskDefElem.addContent(exprElem);
-
-                bitmaskDefElem.addContent(createColorElement(bitmaskDef.getColor()));
-
-                final Element transparency = new Element(DimapProductConstants.TAG_BITMASK_TRANSPARENCY);
-                transparency.setAttribute(DimapProductConstants.ATTRIB_VALUE,
-                                          String.valueOf(bitmaskDef.getTransparency()));
-                bitmaskDefElem.addContent(transparency);
-
-                _root.addContent(bitmaskDefElem);
-            }
         }
 
         private void addAnnotatonDataSet() { //Übernommen

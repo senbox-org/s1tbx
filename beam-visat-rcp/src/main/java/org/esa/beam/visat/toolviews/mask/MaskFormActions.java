@@ -25,7 +25,6 @@ import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Mask.ImageType;
 import org.esa.beam.framework.datamodel.Product;
@@ -475,10 +474,8 @@ class MaskFormActions {
                 final String expression = propertyMap.getPropertyString("bitmaskExpr", "");
                 final Color color = propertyMap.getPropertyColor("bitmaskColor", Color.yellow);
                 final float transparency = (float) propertyMap.getPropertyDouble("bitmaskTransparency", 0.5);
-                final BitmaskDef def = new BitmaskDef(name, description, expression, color, transparency);
                 final Product product = getMaskForm().getProduct();
-                final Mask mask = def.createMask(product.getSceneRasterWidth(), product.getSceneRasterHeight());
-                addMaskToProductIfPossible(mask, product);
+                product.addMask(name, description, expression, color, transparency);
             } catch (Exception e) {
                 showErrorDialog(String.format("Failed to import mask(s): %s", e.getMessage()));
             }
@@ -493,11 +490,10 @@ class MaskFormActions {
                 final List<Element> children = rootElement.getChildren(DimapProductConstants.TAG_BITMASK_DEFINITION);
                 final Product product = getMaskForm().getProduct();
                 for (Element element : children) {
-                    final BitmaskDef def = BitmaskDef.createBitmaskDef(element);
-                    if (def != null) {
-                        final Mask mask = def.createMask(product.getSceneRasterWidth(), product.getSceneRasterHeight());
-                        addMaskToProductIfPossible(mask, product);
-                    }
+                    Mask mask = Mask.BandMathsType.createFromBitmaskDef(element,
+                            product.getSceneRasterWidth(),
+                            product.getSceneRasterHeight());
+                    product.getMaskGroup().add(mask);
                 }
             } catch (Exception e) {
                 showErrorDialog(String.format("Failed to import mask(s): %s", e.getMessage()));

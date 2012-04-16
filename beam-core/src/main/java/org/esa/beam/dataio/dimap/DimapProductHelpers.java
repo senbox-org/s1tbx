@@ -19,7 +19,6 @@ import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
 import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FXYGeoCoding;
@@ -1421,7 +1420,6 @@ public class DimapProductHelpers {
         }
 
         // needed for backward compatibility
-
         private void addBitmaskDefinitions(Product product) {
             final Element bitmaskDefs = getRootElement().getChild(DimapProductConstants.TAG_BITMASK_DEFINITIONS);
             List bitmaskDefList;
@@ -1432,10 +1430,10 @@ public class DimapProductHelpers {
             }
             for (Object child : bitmaskDefList) {
                 final Element bitmaskDefElem = (Element) child;
-                final BitmaskDef bitmaskDef = BitmaskDef.createBitmaskDef(bitmaskDefElem);
-                if (bitmaskDef != null) {
-                    product.addBitmaskDef(bitmaskDef);
-                }
+                Mask mask = Mask.BandMathsType.createFromBitmaskDef(bitmaskDefElem,
+                        product.getSceneRasterWidth(), 
+                        product.getSceneRasterHeight());
+                product.getMaskGroup().add(mask);
             }
         }
 

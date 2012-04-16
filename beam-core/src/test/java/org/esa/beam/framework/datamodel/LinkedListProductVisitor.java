@@ -62,11 +62,6 @@ public class LinkedListProductVisitor extends ProductVisitorAdapter {
     }
 
     @Override
-    public void visit(BitmaskDef bitmaskDef) {
-        visitedList.add(bitmaskDef.getName());
-    }
-
-    @Override
     public void visit(ProductNodeGroup group) {
         visitedList.add(group.getName());
     }

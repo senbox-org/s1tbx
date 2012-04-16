@@ -29,11 +29,15 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.impl.Tokenizer;
+import org.esa.beam.dataio.dimap.DimapProductConstants;
+import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
+import org.jdom.Element;
 
 import java.awt.Color;
 import java.awt.Shape;
@@ -392,6 +396,35 @@ public class Mask extends Band {
             BandMathsType.setExpression(mask, expression);
             return mask;
         }
+
+        /**
+         * Used to read in Mask from legacy "BitmaskDef" format
+         * @param element A DOM element
+         * @param width The width of the mask
+         * @param height The height of the mask
+         * @return a mask
+         */
+        public static Mask createFromBitmaskDef(Element element, int width, int height) {
+            final String name = element.getAttributeValue(DimapProductConstants.ATTRIB_NAME);
+            String description = null;
+            Element descElem = element.getChild(DimapProductConstants.TAG_BITMASK_DESCRIPTION);
+            if (descElem != null) {
+                description = descElem.getAttributeValue(DimapProductConstants.ATTRIB_VALUE).trim();
+            }
+            final String expression = element.getChild(DimapProductConstants.TAG_BITMASK_EXPRESSION).getAttributeValue(
+                    DimapProductConstants.ATTRIB_VALUE).trim();
+            final Color color = DimapProductHelpers.createColor(element.getChild(DimapProductConstants.TAG_BITMASK_COLOR));
+            final String value = element.getChild(DimapProductConstants.TAG_BITMASK_TRANSPARENCY).getAttributeValue(
+                    DimapProductConstants.ATTRIB_VALUE);
+            float transparency = 0.5F;
+            try {
+                transparency = Float.parseFloat(value);
+            } catch (NumberFormatException e) {
+                Debug.trace(e);
+            }
+            return BandMathsType.create(name, description, width, height, expression, color, transparency);
+        }
+
     }
 
     /**

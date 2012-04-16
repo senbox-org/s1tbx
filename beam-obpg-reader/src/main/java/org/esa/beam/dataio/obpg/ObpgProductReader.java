@@ -19,26 +19,19 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.io.CsvReader;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.DOMBuilder;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.Section;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,8 +59,7 @@ public class ObpgProductReader extends AbstractProductReader {
         try {
             final HashMap<String, String> l2BandInfoMap = getL2BandInfoMap();
             final HashMap<String, String> l2FlagsInfoMap = getL2FlagsInfoMap();
-            final BitmaskDef[] defs = getDefaultBitmaskDefs(l2FlagsInfoMap);
-            
+
             final File inFile = ObpgUtils.getInputFile(getInput());
             final String path = inFile.getPath();
             ncfile = NetcdfFile.open(path);
@@ -79,7 +71,7 @@ public class ObpgProductReader extends AbstractProductReader {
             variableMap = obpgUtils.addBands(product, ncfile, l2BandInfoMap, l2FlagsInfoMap);
             product.setProductReader(this);
             obpgUtils.addGeocoding(product, ncfile, mustFlip);
-            obpgUtils.addBitmaskDefinitions(product, defs);
+            obpgUtils.addBitmaskDefinitions(product, l2FlagsInfoMap);
             product.setFileLocation(inFile);
             return product;
         } catch (IOException e) {
@@ -172,36 +164,6 @@ public class ObpgProductReader extends AbstractProductReader {
             data[i1] = data[i2];
             data[i2] = temp;
         }
-    }
-
-    private static BitmaskDef[] getDefaultBitmaskDefs(HashMap<String, String> l2FlagsInfoMap) {
-        final InputStream stream = ObpgProductReader.class.getResourceAsStream("l2-bitmask-definitions.xml");
-        if (stream != null) {
-            try {
-                final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                final DocumentBuilder builder = factory.newDocumentBuilder();
-                final org.w3c.dom.Document w3cDocument = builder.parse(stream);
-                final Document document = new DOMBuilder().build(w3cDocument);
-                final List<Element> children = document.getRootElement().getChildren("Bitmask_Definition");
-                final ArrayList<BitmaskDef> bitmaskDefList = new ArrayList<BitmaskDef>(children.size());
-                for (Element element : children) {
-                    final BitmaskDef bitmaskDef = BitmaskDef.createBitmaskDef(element);
-                    final String description = l2FlagsInfoMap.get(bitmaskDef.getName());
-                    bitmaskDef.setDescription(description);
-                    bitmaskDefList.add(bitmaskDef);
-                }
-                return bitmaskDefList.toArray(new BitmaskDef[bitmaskDefList.size()]);
-            } catch (Exception e) {
-                // ?
-            } finally {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    // ?
-                }
-            }
-        }
-        return new BitmaskDef[0];
     }
 
     private synchronized static HashMap<String, String> getL2BandInfoMap() {

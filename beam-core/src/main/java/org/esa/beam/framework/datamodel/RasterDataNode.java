@@ -2233,18 +2233,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Gets all associated bitmask definitions. An empty arry is returned if no bitmask defintions are associated.
-     *
-     * @return Associated bitmask definitions.
-     * @deprecated since BEAM 4.7, use {@link #getOverlayMaskGroup()}
-     */
-    @Deprecated
-    public BitmaskDef[] getBitmaskDefs() {
-        return new BitmaskDef[0];
-    }
-
-
-    /**
      * @deprecated since BEAM 4.5. No direct replacement, implement a GPF operator or a {@link org.esa.beam.jai.SingleBandedOpImage} instead.
      */
     @Deprecated

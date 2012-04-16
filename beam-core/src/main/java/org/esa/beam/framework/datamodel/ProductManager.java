@@ -394,11 +394,6 @@ public class ProductManager {
         }
 
         @Override
-        public void visit(BitmaskDef bitmaskDef) {
-            bitmaskDef.updateExpression(oldExternName, newExternName);
-        }
-
-        @Override
         public void visit(Mask mask) {
             mask.updateExpression(oldExternName, newExternName);
         }

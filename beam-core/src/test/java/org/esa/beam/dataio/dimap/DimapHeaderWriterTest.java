@@ -195,7 +195,7 @@ public class DimapHeaderWriterTest extends TestCase {
     // ##  W r i t e   B i t m a s k D e f s  ##
     // #########################################
     public void testWriteBitmaskDefs() {
-        addBitmaskDefsToProduct();
+        addMasksToProduct();
 
         dimapHeaderWriter.writeHeader();
 
@@ -355,12 +355,9 @@ public class DimapHeaderWriterTest extends TestCase {
                         footer;
     }
 
-    private void addBitmaskDefsToProduct() {
-        BitmaskDef bitmaskDef1 = new BitmaskDef("bitmaskDef1", "description1", "!l1_flags.INVALID", Color.BLUE, 0.75f);
-        product.addBitmaskDef(bitmaskDef1);
-
-        BitmaskDef bitmaskDef2 = new BitmaskDef("bitmaskDef2", "description2", "l1_flags.LAND", Color.GREEN, 0.5f);
-        product.addBitmaskDef(bitmaskDef2);
+    private void addMasksToProduct() {
+        product.addMask("bitmaskDef1", "description1", "!l1_flags.INVALID", Color.BLUE, 0.75f);
+        product.addMask("bitmaskDef2", "description2", "l1_flags.LAND", Color.GREEN, 0.5f);
     }
 
     private String getExpectedForWriteMasks() {

@@ -17,14 +17,10 @@ package org.esa.beam.dataio.obpg;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.DOMBuilder;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
@@ -32,14 +28,14 @@ import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ObpgUtils {
 
@@ -341,9 +337,32 @@ public class ObpgUtils {
         }
     }
 
-    public void addBitmaskDefinitions(Product product, BitmaskDef[] defaultBitmaskDefs) {
-        for (BitmaskDef defaultBitmaskDef : defaultBitmaskDefs) {
-            product.addBitmaskDef(defaultBitmaskDef);
+    public void addBitmaskDefinitions(Product product, HashMap<String, String> l2FlagsInfoMap ) {
+        final InputStream stream = ObpgProductReader.class.getResourceAsStream("l2-bitmask-definitions.xml");
+        if (stream != null) {
+            try {
+                final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                final DocumentBuilder builder = factory.newDocumentBuilder();
+                final org.w3c.dom.Document w3cDocument = builder.parse(stream);
+                final Document document = new DOMBuilder().build(w3cDocument);
+                final List<Element> children = document.getRootElement().getChildren("Bitmask_Definition");
+                for (Element element : children) {
+                    Mask mask = Mask.BandMathsType.createFromBitmaskDef(element,
+                                            product.getSceneRasterWidth(),
+                                            product.getSceneRasterHeight());
+                    final String description = l2FlagsInfoMap.get(mask.getName());
+                    mask.setDescription(description);
+                    product.getMaskGroup().add(mask);
+                }
+            } catch (Exception e) {
+                // ?
+            } finally {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    // ?
+                }
+            }
         }
     }
 
