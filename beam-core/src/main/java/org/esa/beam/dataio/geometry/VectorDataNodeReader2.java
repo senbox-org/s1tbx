@@ -49,6 +49,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Map;
 
 public class VectorDataNodeReader2 {
@@ -292,8 +294,8 @@ public class VectorDataNodeReader2 {
                                   "either a geometry or lat/lon fields are needed.");
         }
         if (!hasFeatureTypeName) {
-            // todo - get name based on geometry + timestamp
-            builder.setName("DefaultFeatureType");
+            builder.setName(
+                    builder.getDefaultGeometry() + "_" + new SimpleDateFormat("dd-MMM-yyyy").format(Calendar.getInstance().getTime()));
         }
         return builder.buildFeatureType();
     }
