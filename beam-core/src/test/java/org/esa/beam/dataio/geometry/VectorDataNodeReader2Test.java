@@ -16,6 +16,8 @@
 
 package org.esa.beam.dataio.geometry;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.AbstractGeoCoding;
@@ -26,15 +28,21 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.io.CsvReader;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -44,70 +52,9 @@ import static org.junit.Assert.*;
  */
 public class VectorDataNodeReader2Test {
 
-    private static final String INPUT1 =
-            "# BEAM pin export table\n" +
-            "#\n" +
-            "# Product:\tsubset_1_MER_RR__1PQBCM20030809_101416_000002002018_00466_07534_0168\n" +
-            "# Created on:\tThu Apr 12 14:48:36 CEST 2012\n" +
-            "\n" +
-            "# Wavelength:\t\t\t\t\t\t\t884.94403\n" +
-            "org.esa.beam.TrackPoint\tName:String\tX:Double\tY:Double\tLon:Double\tLat:Double\tLabel:String\tDesc:String\tradiance_14:Double\n" +
-            "0\tpin_1\t689.5\t151.5\t7.777766\t47.96903\tPin 1\tp1\t59.383057\n" +
-            "1\tpin_2\t317.5\t488.5\t1.5681322\t45.38434\tPin 2\tp2\t93.759186\n" +
-            "2\tpin_3\t241.5\t475.5\t0.6210307\t45.669746\tPin 3\tp3\t90.469284\n" +
-            "3\tpin_4\t831.5\t534.5\t7.8942046\t43.675922\tPin 4\tp4\t7.208489\n" +
-            "4\tpin_5\t665.5\t263.5\t6.9614143\t46.88921\tPin 5\tp5\t80.520226\n" +
-            "5\tpin_6\t532.5\t313.5\t5.0080223\t46.710358\tPin 6\tp6\t75.52739\n";
-
-    private static final String INPUT_WILDLY_SORTED =
-            "# BEAM pin export table\n" +
-            "#\n" +
-            "# Product:\tsubset_1_MER_RR__1PQBCM20030809_101416_000002002018_00466_07534_0168\n" +
-            "# Created on:\tThu Apr 12 14:48:36 CEST 2012\n" +
-            "\n" +
-            "# Wavelength:\t\t\t\t\t\t\t884.94403\n" +
-            "org.esa.beam.TrackPoint\tName:String\tX:Double\tY:Double\tLat:Double\tLabel:String\tDesc:String\tLon:Double\tradiance_14:Double\n" +
-            "0\tpin_1\t689.5\t151.5 \t47.96903\tPin 1\tp1\t7.777766 \t59.383057\n" +
-            "1\tpin_2\t317.5\t488.5\t45.38434 \tPin 2\tp2\t1.5681322\t93.759186\n" +
-            "2\tpin_3\t241.5\t475.5\t45.669746\tPin 3\tp3\t0.6210307\t90.469284\n" +
-            "3\tpin_4\t831.5\t534.5\t43.675922\tPin 4\tp4\t7.8942046\t7.208489\n" +
-            "4\tpin_5\t665.5\t263.5\t46.88921 \tPin 5\tp5\t6.9614143\t80.520226\n" +
-            "5\tpin_6\t532.5\t313.5\t46.710358\tPin 6\tp6\t5.0080223\t75.52739\n";
-
-
-    private static final String INPUT_WITHOUT_FEATURE_TYPE_NAME =
-            "# BEAM pin export table\n" +
-            "#\n" +
-            "# Product:\tsubset_1_MER_RR__1PQBCM20030809_101416_000002002018_00466_07534_0168\n" +
-            "# Created on:\tThu Apr 12 14:48:36 CEST 2012\n" +
-            "\n" +
-            "# Wavelength:\t\t\t\t\t\t\t884.94403\n" +
-            "Name:String\tX:Double\tY:Double\tLat:Double\tLabel:String\tDesc:String\tLon:Double\tradiance_14:Double\n" +
-            "pin_1\t689.5\t151.5 \t47.96903\tPin 1\tp1\t7.777766 \t59.383057\n" +
-            "pin_2\t317.5\t488.5\t45.38434 \tPin 2\tp2\t1.5681322\t93.759186\n" +
-            "pin_3\t241.5\t475.5\t45.669746\tPin 3\tp3\t0.6210307\t90.469284\n" +
-            "pin_4\t831.5\t534.5\t43.675922\tPin 4\tp4\t7.8942046\t7.208489\n" +
-            "pin_5\t665.5\t263.5\t46.88921 \tPin 5\tp5\t6.9614143\t80.520226\n" +
-            "pin_6\t532.5\t313.5\t46.710358\tPin 6\tp6\t5.0080223\t75.52739\n";
-
-    private static final String INPUT_WITHOUT_GEOMETRY =
-            "# BEAM pin export table\n" +
-            "#\n" +
-            "# Product:\tsubset_1_MER_RR__1PQBCM20030809_101416_000002002018_00466_07534_0168\n" +
-            "# Created on:\tThu Apr 12 14:48:36 CEST 2012\n" +
-            "\n" +
-            "# Wavelength:\t\t\t\t\t\t\t884.94403\n" +
-            "Name:String\tX:Double\tY:Double\tLabel:String\tDesc:String\tradiance_14:Double\n" +
-            "pin_1\t689.5\t151.5\tPin 1\tp1\t59.383057\n" +
-            "pin_2\t317.5\t488.5\tPin 2\tp2\t93.759186\n" +
-            "pin_3\t241.5\t475.5\tPin 3\tp3\t90.469284\n" +
-            "pin_4\t831.5\t534.5\tPin 4\tp4\t7.208489\n" +
-            "pin_5\t665.5\t263.5\tPin 5\tp5\t80.520226\n" +
-            "pin_6\t532.5\t313.5\tPin 6\tp6\t75.52739\n";
-
     @Test
     public void testFeatureTypeWithInput1() throws Exception {
-        List<AttributeDescriptor> attributeDescriptors = getAttributeDescriptors(INPUT1);
+        List<AttributeDescriptor> attributeDescriptors = getAttributeDescriptors(readStringFromFile("exported_pin_input1.csv"));
 
         assertEquals("Name", attributeDescriptors.get(0).getLocalName());
         assertEquals("X", attributeDescriptors.get(1).getLocalName());
@@ -132,10 +79,26 @@ public class VectorDataNodeReader2Test {
         assertEquals(Point.class, attributeDescriptors.get(9).getType().getBinding());
     }
 
+    private String readStringFromFile(String name) throws IOException {
+        String file = getClass().getResource(name).getFile();
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+        StringBuilder b = new StringBuilder();
+        while (true) {
+            String s = bufferedReader.readLine();
+            if (s == null) {
+                break;
+            }
+            b.append(s);
+            b.append("\n");
+        }
+        bufferedReader.close();
+        return b.toString();
+    }
+
     @Test
     public void testFeatureTypeWithInputs2And3() throws Exception {
-        testFeatureType(getAttributeDescriptors(INPUT_WILDLY_SORTED));
-        testFeatureType(getAttributeDescriptors(INPUT_WITHOUT_FEATURE_TYPE_NAME));
+        testFeatureType(getAttributeDescriptors(readStringFromFile("exported_pin_input_wildly_sorted.csv")));
+        testFeatureType(getAttributeDescriptors(readStringFromFile("exported_pin_input_without_feature_type_name.csv")));
     }
 
     private void testFeatureType(List<AttributeDescriptor> attributeDescriptors) {
@@ -164,15 +127,177 @@ public class VectorDataNodeReader2Test {
 
     @Test
     public void testTrackFeatureClassesWithMultipleInputs() throws Exception {
-        testTrackFeatureClasses(INPUT1);
-        testTrackFeatureClasses(INPUT_WILDLY_SORTED);
-        testTrackFeatureClasses(INPUT_WITHOUT_FEATURE_TYPE_NAME);
+        testTrackFeatureClasses(readStringFromFile("exported_pin_input1.csv"));
+        testTrackFeatureClasses(readStringFromFile("exported_pin_input_wildly_sorted.csv"));
+        testTrackFeatureClasses(readStringFromFile("exported_pin_input_without_feature_type_name.csv"));
     }
 
     @Test(expected = IOException.class)
     public void testMissingGeometry() throws IOException {
-        CsvReader csvReader = new CsvReader(new StringReader(INPUT_WITHOUT_GEOMETRY), new char[]{'\t'}, true, "#");
+        CsvReader csvReader = new CsvReader(new StringReader(getClass().getResource("exported_pin_input_without_geometry.csv").getFile()), new char[]{
+                '\t'
+        }, true, "#");
         new VectorDataNodeReader2(new DummyGeoCoding(), null, null).readFeatureType(csvReader);
+    }
+
+    @Test
+    public void testReadPropertiesInInput1() throws IOException {
+        StringReader reader = new StringReader(readStringFromFile("input_with_properties.csv"));
+
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2(new DummyGeoCoding(), "mem", null);
+        Map<String, String> properties = vectorDataNodeReader.readProperties(reader);
+
+        assertNotNull(properties);
+        assertEquals(2, properties.size());
+        assertEquals("color:0,0,255", properties.get("styleCss"));
+        assertEquals("TAB", properties.get("separator"));
+    }
+
+    @Test
+    public void testReadFeaturesInInput1() throws IOException {
+        StringReader reader = new StringReader(readStringFromFile("input_with_properties.csv"));
+
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2(new DummyGeoCoding(), "mem", null);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(reader);
+        SimpleFeatureType simpleFeatureType = fc.getSchema();
+
+        assertNotNull(simpleFeatureType);
+        assertNull(simpleFeatureType.getCoordinateReferenceSystem());
+        assertEquals("org.esa.beam.FT1", simpleFeatureType.getTypeName());
+        assertEquals(4, simpleFeatureType.getAttributeCount());
+
+        List<AttributeDescriptor> list = simpleFeatureType.getAttributeDescriptors();
+        AttributeDescriptor ad0 = list.get(0);
+        AttributeDescriptor ad1 = list.get(1);
+        AttributeDescriptor ad2 = list.get(2);
+        AttributeDescriptor ad3 = list.get(3);
+
+        assertEquals("name", ad0.getType().getName().getLocalPart());
+        assertEquals(String.class, ad0.getType().getBinding());
+
+        assertEquals("geom", ad1.getType().getName().getLocalPart());
+        assertEquals(Geometry.class, ad1.getType().getBinding());
+
+        assertEquals("pixel", ad2.getType().getName().getLocalPart());
+        assertEquals(Integer.class, ad2.getType().getBinding());
+
+        assertEquals("description", ad3.getType().getName().getLocalPart());
+        assertEquals(String.class, ad3.getType().getBinding());
+
+        GeometryDescriptor geometryDescriptor = simpleFeatureType.getGeometryDescriptor();
+        assertEquals("geom", geometryDescriptor.getType().getName().getLocalPart());
+
+        GeometryFactory gf = new GeometryFactory();
+
+        assertEquals(3, fc.size());
+        FeatureIterator<SimpleFeature> featureIterator = fc.features();
+
+        SimpleFeature f1 = featureIterator.next();
+        assertEquals("ID65", f1.getID());
+        assertEquals("mark1", f1.getAttribute(0));
+        //assertEquals(gf.createPoint(new Coordinate(12.3, 45.6)), f1.getAttribute(1));
+        assertEquals(0, f1.getAttribute(2));
+        assertEquals("This is mark1.", f1.getAttribute(3));
+
+        SimpleFeature f2 = featureIterator.next();
+        assertEquals("ID66", f2.getID());
+        assertEquals("mark2", f2.getAttribute(0));
+        //assertEquals(gf.createPoint(new Coordinate(78.9,  10.1)), f2.getAttribute(1));
+        assertEquals(1, f2.getAttribute(2));
+        assertEquals(null, f2.getAttribute(3));
+
+        SimpleFeature f3 = featureIterator.next();
+        assertEquals("ID67", f3.getID());
+        assertEquals("mark3", f3.getAttribute(0));
+        //assertEquals(gf.createPoint(new Coordinate(23.4, 56.7)), f3.getAttribute(1));
+        assertEquals(2, f3.getAttribute(2));
+        assertEquals("This is mark3.", f3.getAttribute(3));
+    }
+
+    @Test
+    public void testReadFeaturesInInput2() throws IOException {
+        StringReader reader = new StringReader(readStringFromFile("input_with_only_one_point.csv"));
+
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2(new DummyGeoCoding(), "mem", null);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(reader);
+        SimpleFeatureType simpleFeatureType = fc.getSchema();
+
+        assertNotNull(simpleFeatureType);
+        assertEquals("org.esa.beam.FT2", simpleFeatureType.getTypeName());
+        assertEquals(3, simpleFeatureType.getAttributeCount());
+
+        List<AttributeDescriptor> list = simpleFeatureType.getAttributeDescriptors();
+        AttributeDescriptor ad0 = list.get(0);
+        AttributeDescriptor ad1 = list.get(1);
+        AttributeDescriptor ad2 = list.get(2);
+
+        assertEquals("name", ad0.getType().getName().getLocalPart());
+        assertEquals(String.class, ad0.getType().getBinding());
+
+        assertEquals("geom", ad1.getType().getName().getLocalPart());
+        assertEquals(Point.class, ad1.getType().getBinding());
+
+        assertEquals("weight", ad2.getType().getName().getLocalPart());
+        assertEquals(Float.class, ad2.getType().getBinding());
+    }
+
+    @Test
+    public void testCRS() throws Exception {
+        StringReader reader = new StringReader(readStringFromFile("input_with_only_one_point.csv"));
+
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2(new DummyGeoCoding(), "mem", DefaultGeographicCRS.WGS84);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(reader);
+        SimpleFeatureType simpleFeatureType = fc.getSchema();
+
+        assertNotNull(simpleFeatureType);
+        CoordinateReferenceSystem crs = simpleFeatureType.getCoordinateReferenceSystem();
+        assertNotNull(crs);
+        assertSame(DefaultGeographicCRS.WGS84, crs);
+    }
+
+    @Test
+    public void testWrongUsages() {
+
+        try {
+            expectException("");
+        } catch (IOException e) {
+            // ok
+        }
+
+        try {
+            expectException("org.esa.beam.FT\ta:\n");
+        } catch (IOException e) {
+            // ok
+        }
+
+        try {
+            expectException("org.esa.beam.FT\t:Integer\n");
+        } catch (IOException e) {
+            // ok
+        }
+
+        try {
+            expectException("org.esa.beam.FT\ta:Integer\tlat\tlon\n" +
+                            "ID1\t1234\tABC\n");
+        } catch (IOException e) {
+            // ok
+        }
+
+        try {
+            String source = "org.esa.beam.FT\ta\tlat\tlon\n" +
+                            "ID1\t10\t0.0\t0.0\n";
+            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new VectorDataNodeReader2(new DummyGeoCoding(), "mem", null).readFeatures(new StringReader(source));
+            assertEquals(1, fc.size());
+            assertEquals(Double.class, fc.getSchema().getType(0).getBinding());
+            assertEquals(10.0, fc.features().next().getAttribute("a"));
+        } catch (IOException e) {
+            fail("Not expected: IOException: " + e.getMessage());
+        }
+    }
+
+    private void expectException(String contents) throws IOException {
+        new VectorDataNodeReader2(new DummyGeoCoding(), "mem", null).readFeatures(new StringReader(contents));
+        fail("IOException expected");
     }
 
     private void testTrackFeatureClasses(String input) throws IOException {
@@ -247,9 +372,12 @@ public class VectorDataNodeReader2Test {
 
         @Override
         public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
+            if (pixelPos == null) {
+                pixelPos = new PixelPos();
+            }
             pixelPos.x = geoPos.lon;
             pixelPos.y = geoPos.lat;
-            return null;
+            return pixelPos;
         }
 
         @Override

@@ -1,0 +1,13 @@
+# BEAM pin export table
+#
+# Product:	subset_1_MER_RR__1PQBCM20030809_101416_000002002018_00466_07534_0168
+# Created on:	Thu Apr 12 14:48:36 CEST 2012
+
+# Wavelength:							884.94403
+Name:String	X:Double	Y:Double	Lat:Double	Label:String	Desc:String	Lon:Double	radiance_14:Double
+pin_1	689.5	151.5 	47.96903	Pin 1	p1	7.777766 	59.383057
+pin_2	317.5	488.5	45.38434 	Pin 2	p2	1.5681322	93.759186
+pin_3	241.5	475.5	45.669746	Pin 3	p3	0.6210307	90.469284
+pin_4	831.5	534.5	43.675922	Pin 4	p4	7.8942046	7.208489
+pin_5	665.5	263.5	46.88921 	Pin 5	p5	6.9614143	80.520226
+pin_6	532.5	313.5	46.710358	Pin 6	p6	5.0080223	75.52739

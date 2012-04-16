@@ -77,6 +77,7 @@ public class VectorDataNodeReader2 {
 
     public VectorDataNode read(File file) throws IOException {
         final String name = FileUtils.getFilenameWithoutExtension(file);
+        // todo - bad technique: use a LineNumberReader that supports mark/reset and let the header reader only read up to the first data line (nf)
         Reader headerReader = new FileReader(file);
         Reader featureReader = new FileReader(file);
         try {
@@ -97,6 +98,7 @@ public class VectorDataNodeReader2 {
         if (properties.containsKey(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS)) {
             vectorDataNode.setDefaultStyleCss(properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
         }
+        featureCollection.getSchema().getUserData().putAll(properties);
         return vectorDataNode;
     }
 
@@ -151,7 +153,7 @@ public class VectorDataNodeReader2 {
         DefaultFeatureCollection fc = new DefaultFeatureCollection("?", simpleFeatureType);
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeatureType);
         PixelPos pixelPos = new PixelPos();
-        int count = 0;
+        FeatureIdCreator idCreator = new FeatureIdCreator();
         while (true) {
             String[] tokens = csvReader.readRecord();
             if (tokens == null) {
@@ -201,9 +203,8 @@ public class VectorDataNodeReader2 {
                 geoCoding.getPixelPos(new GeoPos((float) lat, (float) lon), pixelPos);
                 builder.set("pixelPos", new GeometryFactory().createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
             }
-            // todo - clarify
             if (!hasFeatureTypeName) {
-                fid = "feature" + count++;
+                fid = idCreator.createFeatureId();
             }
             SimpleFeature simpleFeature = builder.buildFeature(fid);
             if (hasGeometry()) {
@@ -232,14 +233,22 @@ public class VectorDataNodeReader2 {
         if (tokens == null || tokens.length <= 1) {
             throw new IOException("Missing feature type definition in first line.");
         }
-        return createFeatureType(tokens);
+        csvReader.mark(1024*1024*10);
+        return createFeatureType(tokens, csvReader);
     }
 
-    private SimpleFeatureType createFeatureType(String[] tokens) throws IOException {
+    private SimpleFeatureType createFeatureType(String[] tokens, CsvReader csvReader) throws IOException {
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
         String geometryName = null;
         builder.setCRS(modelCrs);
         JavaTypeConverter jtc = new JavaTypeConverter();
+
+        String[] firstRecord = csvReader.readRecord();
+        if(firstRecord != null && firstRecord.length != tokens.length) {
+            throw new IOException("First record and header have different column count.");
+        }
+        csvReader.reset();
+
         for (int i = 0; i < tokens.length; i++) {
             if (i == 0 && tokens[0].startsWith("org.esa.beam")) {
                 hasFeatureTypeName = true;
@@ -247,19 +256,16 @@ public class VectorDataNodeReader2 {
             } else {
                 String token = tokens[i];
                 final int colonPos = token.indexOf(':');
+                String attributeTypeName;
+                String attributeName;
                 if (colonPos == -1) {
-                    throw new IOException(String.format("Missing type specifier in attribute descriptor '%s'", token));
+                    attributeName = token;
+                    attributeTypeName = findAttributeTypeName(firstRecord[i]);
                 } else if (colonPos == 0) {
                     throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
-                }
-                String attributeName = token.substring(0, colonPos);
-                String attributeTypeName = token.substring(colonPos + 1);
-                Class<?> attributeType;
-                try {
-                    attributeType = jtc.parse(attributeTypeName);
-                } catch (ConversionException e) {
-                    throw new IOException(
-                            String.format("Unknown type in attribute descriptor '%s'", token), e);
+                } else {
+                    attributeTypeName = token.substring(colonPos + 1);
+                    attributeName = token.substring(0, colonPos);
                 }
 
                 if (contains(LONGITUDE_IDENTIFIERS, attributeName)) {
@@ -270,6 +276,8 @@ public class VectorDataNodeReader2 {
                     geometryIndex = i;
                     geometryName = attributeName;
                 }
+
+                Class<?> attributeType = getAttributeType(jtc, token, attributeTypeName);
                 builder.add(attributeName, attributeType);
             }
         }
@@ -284,10 +292,31 @@ public class VectorDataNodeReader2 {
                                   "either a geometry or lat/lon fields are needed.");
         }
         if (!hasFeatureTypeName) {
-            // todo - clarify
+            // todo - get name based on geometry + timestamp
             builder.setName("DefaultFeatureType");
         }
         return builder.buildFeatureType();
+    }
+
+    private String findAttributeTypeName(String entry) throws IOException {
+        try {
+            Double.parseDouble(entry);
+            return "Double";
+        } catch (NumberFormatException e) {
+            // ok
+        }
+        return "String";
+    }
+
+    private Class<?> getAttributeType(JavaTypeConverter jtc, String token, String attributeTypeName) throws IOException {
+        Class<?> attributeType;
+        try {
+            attributeType = jtc.parse(attributeTypeName);
+        } catch (ConversionException e) {
+            throw new IOException(
+                    String.format("Unknown type in attribute descriptor '%s'", token), e);
+        }
+        return attributeType;
     }
 
     private boolean hasGeometry() {
@@ -320,6 +349,8 @@ public class VectorDataNodeReader2 {
         public void filter(CoordinateSequence seq, int i) {
             Coordinate coord = seq.getCoordinate(i);
             PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos((float) coord.y, (float) coord.x), null);
+            // rounding needed because closed geometries yield errors if their first and last coordinate
+            // do not exactly match
             double x = Math.round(pixelPos.x * 10000) / 10000;
             double y = Math.round(pixelPos.y * 10000) / 10000;
             coord.setCoordinate(new Coordinate(x, y));
@@ -334,6 +365,14 @@ public class VectorDataNodeReader2 {
         @Override
         public boolean isGeometryChanged() {
             return numCoordinates == count;
+        }
+    }
+
+    private static class FeatureIdCreator {
+        private static int count = 0;
+
+        private String createFeatureId() {
+            return "ID"+String.format("%08d", count++);
         }
     }
 }
