@@ -181,7 +181,6 @@ public class StxFactory {
                     accumulate(raster, level, roiImage, roiShape, histogramOp, SubProgressMonitor.create(pm, 50));
                     histogram = histogramOp.getHistogram();
                 }
-
             } finally {
                 pm.done();
             }

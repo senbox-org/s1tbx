@@ -536,8 +536,8 @@
             <initIndex>0</initIndex>
         </toolView>
         <toolView>
-            <id>org.esa.beam.visat.toolviews.stat.HistogramToolView</id>
-            <class>org.esa.beam.visat.toolviews.stat.HistogramToolView</class>
+            <id>org.esa.beam.visat.toolviews.stat.HistogramPlotToolView</id>
+            <class>org.esa.beam.visat.toolviews.stat.HistogramPlotToolView</class>
             <title>Histogram View</title>
             <tabTitle>Histogram</tabTitle>
             <mnemonic>t</mnemonic>
@@ -551,15 +551,15 @@
             <initIndex>0</initIndex>
         </toolView>
         <toolView>
-            <id>org.esa.beam.visat.toolviews.stat.DensityToolView</id>
-            <class>org.esa.beam.visat.toolviews.stat.DensityToolView</class>
+            <id>org.esa.beam.visat.toolviews.stat.DensityPlotToolView</id>
+            <class>org.esa.beam.visat.toolviews.stat.DensityPlotToolView</class>
             <title>Density Plot View</title>
             <tabTitle>Density Plot</tabTitle>
             <mnemonic>t</mnemonic>
             <accelerator>ctrl alt T</accelerator>
             <description>Display Density Plot for a selected band.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/ScatterPlot16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/ScatterPlot24.gif</largeIcon>
+            <smallIcon>/org/esa/beam/resources/images/icons/DensityPlot16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/DensityPlot24.gif</largeIcon>
             <helpId>densityplotDialog</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
@@ -589,8 +589,8 @@
             <mnemonic>t</mnemonic>
             <accelerator>ctrl alt T</accelerator>
             <description>Display Profile Plot for a selected band.</description>
-            <!--<smallIcon>/org/esa/beam/resources/images/icons/ScatterPlot16.gif</smallIcon>-->
-            <!--<largeIcon>/org/esa/beam/resources/images/icons/ScatterPlot24.gif</largeIcon>-->
+            <smallIcon>/org/esa/beam/resources/images/icons/ProfilePlot16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/ProfilePlot24.gif</largeIcon>
             <helpId>profilePlotDialog</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
@@ -805,44 +805,31 @@
 
         <action>
             <parent>file</parent>
-            <placeAfter>saveSessionAs</placeAfter>
-            <id>import</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Import</text>
-            <mnemonic>I</mnemonic>
-            <separatorBefore>true</separatorBefore>
-            <shortDescr>Import</shortDescr>
-            <description>Import</description>
-            <smallIcon>icons/Import16.gif</smallIcon>
-            <largeIcon>icons/Import24.gif</largeIcon>
-            <helpId>import</helpId>
-        </action>
-
-        <action>
-            <parent>import</parent>
-            <id>importVectorData</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Vector Data</text>
-            <shortDescr>Import vector data</shortDescr>
-            <description>Import vector data</description>
-            <helpId>importVectorData</helpId>
-            <sortChildren>true</sortChildren>
-        </action>
-
-        <action>
-            <parent>import</parent>
             <id>importRasterData</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Raster Data</text>
+            <text>Import Raster Data</text>
             <shortDescr>Import raster data</shortDescr>
             <description>Import raster data</description>
             <helpId>importRasterData</helpId>
+            <placeAfter>saveSessionAs</placeAfter>
             <sortChildren>true</sortChildren>
         </action>
 
         <action>
             <parent>file</parent>
-            <placeAfter>import</placeAfter>
+            <id>importVectorData</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Import Vector Data</text>
+            <shortDescr>Import vector data</shortDescr>
+            <description>Import vector data</description>
+            <helpId>importVectorData</helpId>
+            <placeAfter>importRasterData</placeAfter>
+            <sortChildren>true</sortChildren>
+        </action>
+
+        <action>
+            <parent>file</parent>
+            <placeAfter>importVectorData</placeAfter>
             <id>export</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Export</text>
@@ -853,6 +840,7 @@
             <smallIcon>icons/Export16.gif</smallIcon>
             <largeIcon>icons/Export24.gif</largeIcon>
             <helpId>export</helpId>
+            <sortChildren>true</sortChildren>
         </action>
 
         <action>
@@ -877,10 +865,10 @@
             <id>importShapefile</id>
             <class>org.esa.beam.visat.actions.ImportGeometryAction</class>
             <parent>importVectorData</parent>
-            <text>ESRI shapefile</text>
+            <text>ESRI Shapefile</text>
             <mnemonic>S</mnemonic>
-            <shortDescr>Import geometry from ESRI shapefile.</shortDescr>
-            <description>Import geometry from ESRI shapefile.</description>
+            <shortDescr>Import geometry from ESRI Shapefile.</shortDescr>
+            <description>Import geometry from ESRI Shapefile.</description>
             <helpId>importShapefile</helpId>
         </action>
 
@@ -929,7 +917,7 @@
             <parent>export</parent>
             <id>exportImageFile</id>
             <class>org.esa.beam.visat.actions.ExportImageAction</class>
-            <text>Export View as Image...</text>
+            <text>View as Image...</text>
             <mnemonic>I</mnemonic>
             <shortDescr>Export the current view as an image.</shortDescr>
             <description>Export the current view as an image.</description>
@@ -941,7 +929,7 @@
             <parent>export</parent>
             <id>exportKmzFile</id>
             <class>org.esa.beam.visat.actions.ExportKmzFileAction</class>
-            <text>Export View as Google Earth KMZ...</text>
+            <text>View as Google Earth KMZ...</text>
             <mnemonic>K</mnemonic>
             <shortDescr>Export the current view as Google Earth KMZ file.</shortDescr>
             <description>Export the current view as Google Earth KMZ file.</description>
@@ -953,7 +941,7 @@
             <parent>export</parent>
             <id>exportLegendImageFile</id>
             <class>org.esa.beam.visat.actions.ExportLegendImageAction</class>
-            <text>Export Colour Legend as Image...</text>
+            <text>Colour Legend as Image...</text>
             <mnemonic>C</mnemonic>
             <shortDescr>Export the colour legend as an image.</shortDescr>
             <description>Export the colour legend of the current view as an image.</description>
@@ -965,7 +953,7 @@
             <parent>export</parent>
             <id>exportColorPalette</id>
             <class>org.esa.beam.visat.actions.ExportColorPaletteAction</class>
-            <text>Export Colour Palette as File...</text>
+            <text>Colour Palette as File...</text>
             <mnemonic>a</mnemonic>
             <shortDescr>Export the colour palette to plain text.</shortDescr>
             <description>Export the colour palette of the current view to a plain text file.</description>
@@ -977,7 +965,7 @@
             <parent>export</parent>
             <id>exportMaskPixels</id>
             <class>org.esa.beam.visat.actions.ExportMaskPixelsAction</class>
-            <text>Export Mask Pixels...</text>
+            <text>Mask Pixels...</text>
             <mnemonic>R</mnemonic>
             <shortDescr>Export the pixels of a Mask.</shortDescr>
             <description>Export the pixels of a mask as tab-separated text.</description>
@@ -989,7 +977,7 @@
             <parent>export</parent>
             <id>exportTransectPixels</id>
             <class>org.esa.beam.visat.actions.ExportTransectPixelsAction</class>
-            <text>Export Transect Pixels...</text>
+            <text>Transect Pixels...</text>
             <mnemonic>T</mnemonic>
             <shortDescr>Export transect pixels.</shortDescr>
             <description>Export transect pixels as tab-separated text.</description>
@@ -1001,7 +989,7 @@
             <parent>export</parent>
             <id>exportMetadata</id>
             <class>org.esa.beam.visat.actions.ExportMetadataAction</class>
-            <text>Export Product Metadata...</text>
+            <text>Product Metadata...</text>
             <mnemonic>M</mnemonic>
             <shortDescr>Export the currently displayed metadata.</shortDescr>
             <description>Export the currently displayed metadata as tab-separated text.</description>
@@ -1013,7 +1001,7 @@
             <parent>export</parent>
             <id>exportGeometry</id>
             <class>org.esa.beam.visat.actions.ExportGeometryAction</class>
-            <text>Export Geometry as Shapefile...</text>
+            <text>Geometry as Shapefile...</text>
             <mnemonic>M</mnemonic>
             <shortDescr>Exports the currently selected geometry.</shortDescr>
             <description>Exports the currently selected geometry as ESRI Shapefile.</description>
@@ -1025,7 +1013,7 @@
             <parent>export</parent>
             <id>exportEnviGcpFile</id>
             <class>org.esa.beam.visat.actions.ExportEnviGcpFileAction</class>
-            <text>Export Geo-Coding as ENVI GCP File...</text>
+            <text>Geo-Coding as ENVI GCP File...</text>
             <mnemonic>G</mnemonic>
             <shortDescr>Export an ENVI GCP (ground control points) file.</shortDescr>
             <description>Export an ENVI GCP (ground control points) file for image registration.</description>
@@ -1474,8 +1462,8 @@
             <separatorBefore>false</separatorBefore>
             <shortDescr>VISAT help</shortDescr>
             <description>Opens the VISAT help browser.</description>
-            <smallIcon>icons/Help16.gif</smallIcon>
-            <largeIcon>icons/Help24.gif</largeIcon>
+            <smallIcon>icons/Help16.png</smallIcon>
+            <largeIcon>icons/Help22.png</largeIcon>
             <helpId>visat</helpId>
         </action>
 

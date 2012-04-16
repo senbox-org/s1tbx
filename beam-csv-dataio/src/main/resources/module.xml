@@ -36,7 +36,7 @@
         <action>
             <id>exportCsvProduct</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
-            <text>Export CSV Product...</text>
+            <text>CSV Product...</text>
             <formatName>CSV</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Writes a product in CSV format</shortDescr>

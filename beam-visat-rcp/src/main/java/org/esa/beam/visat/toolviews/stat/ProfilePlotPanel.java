@@ -80,7 +80,7 @@ import java.util.Set;
  * @author Norman Fomferra
  * @author Thomas Storm
  */
-class ProfilePlotPanel extends PagePanel {
+class ProfilePlotPanel extends ChartPagePanel {
 
     private static final String CHART_TITLE = "Profile Plot";
     private static final String NO_DATA_MESSAGE = "No profile plot computed yet. " +
@@ -93,7 +93,7 @@ class ProfilePlotPanel extends PagePanel {
     private AxisRangeControl xAxisRangeControl;
     private AxisRangeControl yAxisRangeControl;
 
-    private static boolean isInitialized = false;
+    private boolean isInitialized;
 
     private ChartPanel profilePlotDisplay;
     private JFreeChart chart;
@@ -105,7 +105,6 @@ class ProfilePlotPanel extends PagePanel {
     private Set<IntervalMarker> intervalMarkers;
     private CorrelativeFieldSelector correlativeFieldSelector;
     private DataSourceConfig dataSourceConfig;
-    private RoiMaskSelector roiMaskSelector;
     private DeviationRenderer deviationRenderer;
     private XYErrorRenderer pointRenderer;
     private Enablement pointDataSourceEnablement;
@@ -113,90 +112,25 @@ class ProfilePlotPanel extends PagePanel {
     private CursorSynchronizer cursorSynchronizer;
 
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
-        super(parentDialog, helpId, CHART_TITLE);
+        super(parentDialog, helpId, CHART_TITLE, false);
     }
 
-    @Override
-    protected void initContent() {
-        intervalMarkers = new HashSet<IntervalMarker>();
-
-        xAxisRangeControl = new AxisRangeControl("X-Axis");
-        yAxisRangeControl = new AxisRangeControl("Y-Axis");
-
-        final PropertyChangeListener changeListener = new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (evt.getPropertyName().equals(PROPERTY_NAME_MARK_SEGMENTS)) {
-                    updateDataSet();
-                }
-                if (evt.getPropertyName().equals(PROPERTY_NAME_LOG_SCALED)) {
-                    updateScalingOfYAxis();
-                }
-                updateUIState();
-            }
-        };
-        xAxisRangeControl.getBindingContext().addPropertyChangeListener(changeListener);
-        xAxisRangeControl.getBindingContext().getPropertySet().addProperty(Property.create(PROPERTY_NAME_MARK_SEGMENTS, false));
-        xAxisRangeControl.getBindingContext().getPropertySet().getDescriptor(PROPERTY_NAME_MARK_SEGMENTS).setDescription("Toggle whether to mark segments");
-
-        yAxisRangeControl.getBindingContext().addPropertyChangeListener(changeListener);
-        yAxisRangeControl.getBindingContext().getPropertySet().addProperty(Property.create(PROPERTY_NAME_LOG_SCALED, false));
-        yAxisRangeControl.getBindingContext().getPropertySet().getDescriptor(PROPERTY_NAME_LOG_SCALED).setDescription("Toggle whether to use a logarithmic axis");
-
-        dataset = new XYIntervalSeriesCollection();
-        chart = ChartFactory.createXYLineChart(
-                CHART_TITLE,
-                "Path (pixel)",
-                "Sample value",
-                dataset,
-                PlotOrientation.VERTICAL,
-                false, // Legend?
-                true,
-                false
-        );
-        final XYPlot plot = chart.getXYPlot();
-
-        deviationRenderer = new DeviationRenderer();
-        deviationRenderer.setUseFillPaint(true);
-        deviationRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
-        deviationRenderer.setSeriesLinesVisible(0, true);
-        deviationRenderer.setSeriesShapesVisible(0, false);
-        deviationRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
-        deviationRenderer.setSeriesPaint(0, new Color(0, 0, 200));
-        deviationRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
-
-        pointRenderer = new XYErrorRenderer();
-        pointRenderer.setUseFillPaint(true);
-        pointRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
-        pointRenderer.setSeriesLinesVisible(0, false);
-        pointRenderer.setSeriesShapesVisible(0, true);
-        pointRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
-        pointRenderer.setSeriesPaint(0, new Color(0, 0, 200));
-        pointRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
-        pointRenderer.setSeriesShape(0, new Ellipse2D.Float(-4, -4, 8, 8));
-
-        configureRendererForCorrelativeData(deviationRenderer);
-        configureRendererForCorrelativeData(pointRenderer);
-
-        plot.setNoDataMessage(NO_DATA_MESSAGE);
-        plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
-        plot.setRenderer(deviationRenderer);
-
+    private ChartPanel createChartPanel(JFreeChart chart) {
         profilePlotDisplay = new ChartPanel(chart);
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
-                                                                                         profilePlotDisplay,
-                                                                                         "profile_plot_area",
-                                                                                         "Mask generated from selected profile plot area",
-                                                                                         Color.RED,
-                                                                                         PlotAreaSelectionTool.AreaType.Y_RANGE) {
+                profilePlotDisplay,
+                "profile_plot_area",
+                "Mask generated from selected profile plot area",
+                Color.RED,
+                PlotAreaSelectionTool.AreaType.Y_RANGE) {
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
                 return String.format("%s >= %s && %s <= %s",
-                                     getRaster().getName(),
-                                     y0,
-                                     getRaster().getName(),
-                                     y0 + dy);
+                        getRaster().getName(),
+                        y0,
+                        getRaster().getName(),
+                        y0 + dy);
             }
         };
 
@@ -234,6 +168,50 @@ class ProfilePlotPanel extends PagePanel {
         profilePlotDisplay.getPopupMenu().addSeparator();
         profilePlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
 
+        return profilePlotDisplay;
+    }
+
+    @Override
+    protected void initContent() {
+        dataset = new XYIntervalSeriesCollection();
+        this.chart = ChartFactory.createXYLineChart(
+                CHART_TITLE,
+                "Path (pixel)",
+                "Sample value",
+                dataset,
+                PlotOrientation.VERTICAL,
+                false, // Legend?
+                true,
+                false
+        );
+        final XYPlot plot = chart.getXYPlot();
+
+        deviationRenderer = new DeviationRenderer();
+        deviationRenderer.setUseFillPaint(true);
+        deviationRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
+        deviationRenderer.setSeriesLinesVisible(0, true);
+        deviationRenderer.setSeriesShapesVisible(0, false);
+        deviationRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
+        deviationRenderer.setSeriesPaint(0, new Color(0, 0, 200));
+        deviationRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
+
+        pointRenderer = new XYErrorRenderer();
+        pointRenderer.setUseFillPaint(true);
+        pointRenderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
+        pointRenderer.setSeriesLinesVisible(0, false);
+        pointRenderer.setSeriesShapesVisible(0, true);
+        pointRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
+        pointRenderer.setSeriesPaint(0, new Color(0, 0, 200));
+        pointRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
+        pointRenderer.setSeriesShape(0, new Ellipse2D.Float(-4, -4, 8, 8));
+
+        configureRendererForCorrelativeData(deviationRenderer);
+        configureRendererForCorrelativeData(pointRenderer);
+
+        plot.setNoDataMessage(NO_DATA_MESSAGE);
+        plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
+        plot.setRenderer(deviationRenderer);
+
         final AxisChangeListener axisListener = new AxisChangeListener() {
             @Override
             public void axisChanged(AxisChangeEvent event) {
@@ -245,16 +223,47 @@ class ProfilePlotPanel extends PagePanel {
         domainAxis.addChangeListener(axisListener);
         rangeAxis.addChangeListener(axisListener);
 
+        intervalMarkers = new HashSet<IntervalMarker>();
 
-        final JLabel boxSizeLabel = new JLabel("Box size: ");
-        final JSpinner boxSizeSpinner = new JSpinner();
-        final JCheckBox computeInBetweenPoints = new JCheckBox("Compute in-between points");
-        final JCheckBox useCorrelativeData = new JCheckBox("Use correlative data");
+        xAxisRangeControl = new AxisRangeControl("X-Axis");
+        yAxisRangeControl = new AxisRangeControl("Y-Axis");
+
+        final PropertyChangeListener changeListener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals(PROPERTY_NAME_MARK_SEGMENTS)) {
+                    updateDataSet();
+                }
+                if (evt.getPropertyName().equals(PROPERTY_NAME_LOG_SCALED)) {
+                    updateScalingOfYAxis();
+                }
+                updateUIState();
+            }
+        };
+        xAxisRangeControl.getBindingContext().addPropertyChangeListener(changeListener);
+        xAxisRangeControl.getBindingContext().getPropertySet().addProperty(Property.create(PROPERTY_NAME_MARK_SEGMENTS, false));
+        xAxisRangeControl.getBindingContext().getPropertySet().getDescriptor(PROPERTY_NAME_MARK_SEGMENTS).setDescription("Toggle whether to mark segments");
+
+        yAxisRangeControl.getBindingContext().addPropertyChangeListener(changeListener);
+        yAxisRangeControl.getBindingContext().getPropertySet().addProperty(Property.create(PROPERTY_NAME_LOG_SCALED, false));
+        yAxisRangeControl.getBindingContext().getPropertySet().getDescriptor(PROPERTY_NAME_LOG_SCALED).setDescription("Toggle whether to use a logarithmic axis");
 
         dataSourceConfig = new DataSourceConfig();
         final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(dataSourceConfig));
 
-        roiMaskSelector = new RoiMaskSelector(bindingContext);
+        JPanel middlePanel = createMiddlePanel(bindingContext);
+        createUI(createChartPanel(chart), middlePanel, bindingContext);
+
+        isInitialized = true;
+
+        updateContent();
+    }
+
+    protected JPanel createMiddlePanel(BindingContext bindingContext) {
+        final JLabel boxSizeLabel = new JLabel("Box size: ");
+        final JSpinner boxSizeSpinner = new JSpinner();
+        final JCheckBox computeInBetweenPoints = new JCheckBox("Compute in-between points");
+        final JCheckBox useCorrelativeData = new JCheckBox("Use correlative data");
 
         correlativeFieldSelector = new CorrelativeFieldSelector(bindingContext);
         final PropertyDescriptor boxSizeDescriptor = bindingContext.getPropertySet().getProperty("boxSize").getDescriptor();
@@ -288,14 +297,13 @@ class ProfilePlotPanel extends PagePanel {
         GridBagConstraints dataSourceOptionsConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, boxSizeLabel, dataSourceOptionsConstraints, "gridwidth=1,gridy=0,gridx=0,weightx=0");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, boxSizeSpinner, dataSourceOptionsConstraints, "gridwidth=1,gridy=0,gridx=1,weightx=1");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, roiMaskSelector.createPanel(), dataSourceOptionsConstraints, "gridwidth=2,gridy=1,gridx=0");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, computeInBetweenPoints, dataSourceOptionsConstraints, "gridy=3");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, new JLabel(" "), dataSourceOptionsConstraints, "gridy=4");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, useCorrelativeData, dataSourceOptionsConstraints, "gridy=5");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.pointDataSourceLabel, dataSourceOptionsConstraints, "gridy=6");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.pointDataSourceList, dataSourceOptionsConstraints, "gridy=7");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.dataFieldLabel, dataSourceOptionsConstraints, "gridy=8");
-        GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.dataFieldList, dataSourceOptionsConstraints, "gridy=9");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, computeInBetweenPoints, dataSourceOptionsConstraints, "gridwidth=2,gridy=1,gridx=0,weightx=2");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, new JLabel(" "), dataSourceOptionsConstraints, "gridy=2");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, useCorrelativeData, dataSourceOptionsConstraints, "gridy=3");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.pointDataSourceLabel, dataSourceOptionsConstraints, "gridy=4");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.pointDataSourceList, dataSourceOptionsConstraints, "gridy=5");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.dataFieldLabel, dataSourceOptionsConstraints, "gridy=6");
+        GridBagUtils.addToPanel(dataSourceOptionsPanel, correlativeFieldSelector.dataFieldList, dataSourceOptionsConstraints, "gridy=7");
 
         xAxisRangeControl.getBindingContext().bind(PROPERTY_NAME_MARK_SEGMENTS, new JCheckBox("Mark segments"));
         yAxisRangeControl.getBindingContext().bind(PROPERTY_NAME_LOG_SCALED, new JCheckBox("Log scaled"));
@@ -307,19 +315,18 @@ class ProfilePlotPanel extends PagePanel {
         GridBagUtils.addToPanel(displayOptionsPanel, yAxisRangeControl.getPanel(), displayOptionsConstraints, "gridy=2");
         GridBagUtils.addToPanel(displayOptionsPanel, yAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getComponents()[0], displayOptionsConstraints, "gridy=3");
 
-        JPanel rightPanel = GridBagUtils.createPanel();
-        GridBagConstraints rightPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1");
-        GridBagUtils.addToPanel(rightPanel, dataSourceOptionsPanel, rightPanelConstraints, "gridy=0");
-        GridBagUtils.addToPanel(rightPanel, new JPanel(), rightPanelConstraints, "gridy=1,fill=VERTICAL,weighty=1");
-        GridBagUtils.addToPanel(rightPanel, displayOptionsPanel, rightPanelConstraints, "gridy=2,fill=HORIZONTAL,weighty=0");
-        GridBagUtils.addToPanel(rightPanel, new JSeparator(), rightPanelConstraints, "gridy=3");
-        GridBagUtils.addToPanel(rightPanel, createChartButtonPanel2(profilePlotDisplay), rightPanelConstraints, "gridy=4");
+        JPanel middlePanel = GridBagUtils.createPanel();
+        GridBagConstraints middlePanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1");
+        GridBagUtils.addToPanel(middlePanel, dataSourceOptionsPanel, middlePanelConstraints, "gridy=0");
+        GridBagUtils.addToPanel(middlePanel, new JPanel(), middlePanelConstraints, "gridy=1,fill=VERTICAL,weighty=1");
+        GridBagUtils.addToPanel(middlePanel, displayOptionsPanel, middlePanelConstraints, "gridy=2,fill=HORIZONTAL,weighty=0");
 
-        add(profilePlotDisplay, BorderLayout.CENTER);
-        add(rightPanel, BorderLayout.EAST);
+        return middlePanel;
+    }
 
-        isInitialized = true;
-        updateContent();
+    @Override
+    protected void compute() {
+        //Left empty for Profile Plot Panel
     }
 
     private void configureRendererForCorrelativeData(XYLineAndShapeRenderer renderer) {
@@ -355,7 +362,7 @@ class ProfilePlotPanel extends PagePanel {
         updateDataSource();
         updateDataSet();
         updateUIState();
-        roiMaskSelector.updateMaskSource(getProduct());
+        super.updateContent();
     }
 
     private void updateDataSource() {

@@ -143,7 +143,7 @@ public class PlacemarkManagerButtons extends JPanel {
             }
         });
 
-        final AbstractButton helpButton = createButton("icons/Help24.gif");
+        final AbstractButton helpButton = createButton("icons/Help22.png");
         helpButton.setName("helpButton");
         final String helpId = view.getDescriptor().getHelpId();
         if (helpId != null) {

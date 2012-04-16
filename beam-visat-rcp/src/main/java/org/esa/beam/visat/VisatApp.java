@@ -17,11 +17,7 @@ package org.esa.beam.visat;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.actions.CopyAction;
-import com.bc.ceres.swing.actions.CutAction;
-import com.bc.ceres.swing.actions.DeleteAction;
-import com.bc.ceres.swing.actions.PasteAction;
-import com.bc.ceres.swing.actions.SelectAllAction;
+import com.bc.ceres.swing.actions.*;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorAware;
 import com.bc.ceres.swing.figure.Interactor;
@@ -45,50 +41,21 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeList;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.ProductVisitorAdapter;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamException;
 import org.esa.beam.framework.param.ParamExceptionHandler;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.BasicApp;
-import org.esa.beam.framework.ui.FileHistory;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.NewProductDialog;
-import org.esa.beam.framework.ui.SuppressibleOptionPane;
-import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.*;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.command.CommandManager;
 import org.esa.beam.framework.ui.command.ToolCommand;
-import org.esa.beam.framework.ui.product.ProductMetadataView;
-import org.esa.beam.framework.ui.product.ProductNodeView;
-import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.product.ProductTree;
-import org.esa.beam.framework.ui.product.ProductTreeListener;
+import org.esa.beam.framework.ui.product.*;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.jai.BandOpImage;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.PropertyMapChangeListener;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.*;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
@@ -97,38 +64,14 @@ import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowImageViewRGBAction;
 import org.esa.beam.visat.actions.ShowToolBarAction;
 import org.esa.beam.visat.toolviews.diag.TileCacheDiagnosisToolView;
-import org.esa.beam.visat.toolviews.stat.CoordListToolView;
-import org.esa.beam.visat.toolviews.stat.DensityToolView;
-import org.esa.beam.visat.toolviews.stat.GeoCodingToolView;
-import org.esa.beam.visat.toolviews.stat.HistogramToolView;
-import org.esa.beam.visat.toolviews.stat.InformationToolView;
-import org.esa.beam.visat.toolviews.stat.ProfilePlotToolView;
-import org.esa.beam.visat.toolviews.stat.ScatterPlotToolView;
-import org.esa.beam.visat.toolviews.stat.StatisticsToolView;
+import org.esa.beam.visat.toolviews.stat.*;
 
 import javax.media.jai.JAI;
-import javax.swing.AbstractButton;
-import javax.swing.Action;
-import javax.swing.Box;
-import javax.swing.Icon;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 import javax.swing.filechooser.FileFilter;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Dialog;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -136,15 +79,8 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -1913,8 +1849,10 @@ public class VisatApp extends BasicApp implements AppContext {
                 InformationToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                 GeoCodingToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                 StatisticsToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                HistogramToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                DensityToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                HistogramPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                DensityPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                ScatterPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
         });
         return toolBar;
     }
@@ -1950,9 +1888,9 @@ public class VisatApp extends BasicApp implements AppContext {
         excludedIds.add(InformationToolView.ID);
         excludedIds.add(GeoCodingToolView.ID);
         excludedIds.add(StatisticsToolView.ID);
-        excludedIds.add(HistogramToolView.ID);
+        excludedIds.add(HistogramPlotToolView.ID);
         excludedIds.add(ScatterPlotToolView.ID);
-        excludedIds.add(DensityToolView.ID);
+        excludedIds.add(DensityPlotToolView.ID);
         excludedIds.add(ProfilePlotToolView.ID);
         excludedIds.add(CoordListToolView.ID);
         excludedIds.add("org.esa.beam.scripting.visat.ScriptConsoleToolView");
@@ -2134,9 +2072,9 @@ public class VisatApp extends BasicApp implements AppContext {
                                 InformationToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                                 GeoCodingToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                                 StatisticsToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                                HistogramToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                HistogramPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                                 ScatterPlotToolView.ID +SHOW_TOOLVIEW_CMD_POSTFIX,
-                                DensityToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                DensityPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                                 ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                                 CoordListToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX
         ));

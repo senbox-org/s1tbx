@@ -18,13 +18,13 @@
 package org.esa.beam.dataio.modis.bandreader;
 
 import com.bc.ceres.core.ProgressMonitor;
+import ncsa.hdf.hdflib.HDFConstants;
+import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.modis.ModisConstants;
+import org.esa.beam.dataio.modis.hdf.lib.HDF;
+import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.math.Range;
-import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Variable;
-
-import java.io.IOException;
 
 abstract public class ModisBandReader {
 
@@ -34,7 +34,7 @@ abstract public class ModisBandReader {
     public static final int SCALE_POW_10 = 3;
     public static final int SCALE_SLOPE_INTERCEPT = 4;
 
-    protected Variable variable;
+    protected int _sdsId;
     protected int _layer;
     protected float _scale;
     protected float _offset;
@@ -50,11 +50,12 @@ abstract public class ModisBandReader {
     /**
      * Creates a band reader with given scientific dataset identifier
      *
+     * @param sdsId the dataset ID
      * @param layer the layer
      * @param is3d  true if the dataset is a 3d dataset
      */
-    public ModisBandReader(Variable variable, final int layer, final boolean is3d) {
-        this.variable = variable;
+    public ModisBandReader(final int sdsId, final int layer, final boolean is3d) {
+        _sdsId = sdsId;
         _layer = layer;
         _count = new int[3];
         _stride = new int[3];
@@ -71,6 +72,16 @@ abstract public class ModisBandReader {
             _xCoord = 1;
             _yCoord = 0;
         }
+    }
+
+    /**
+     * Closes the band reader.
+     *
+     * @throws ncsa.hdf.hdflib.HDFException
+     */
+    public void close() throws HDFException {
+        HDF.getWrap().SDendaccess(_sdsId);
+        _sdsId = HDFConstants.FAIL;
     }
 
     /**
@@ -95,6 +106,7 @@ abstract public class ModisBandReader {
      * Converts a string to a scaling method enum value.
      *
      * @param scaleMethod the scale method as string
+     *
      * @return the enum value either {@link #SCALE_LINEAR}, {@link #SCALE_EXPONENTIAL},
      *         {@link #SCALE_POW_10}, {@link #SCALE_SLOPE_INTERCEPT} or {@link #SCALE_UNKNOWN} if the given string
      *         can not be converted.
@@ -139,7 +151,7 @@ abstract public class ModisBandReader {
                                               final int sourceStepX, final int sourceStepY,
                                               final ProductData destBuffer);
 
-    abstract protected void readLine() throws InvalidRangeException, IOException;
+    abstract protected void readLine() throws HDFException;
 
     abstract protected void validate(final int x);
 
@@ -176,13 +188,14 @@ abstract public class ModisBandReader {
      * @param sourceStepY   the sub-sampling in Y direction within the region providing samples to be read
      * @param destBuffer    the destination buffer which receives the sample values to be read
      * @param pm            a monitor to inform the user about progress
-     * @throws IOException on disk access failures
+     *
+     * @throws ncsa.hdf.hdflib.HDFException -
      * @throws org.esa.beam.framework.dataio.ProductIOException
-     *                     -
+     *                                      -
      */
     public void readBandData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                              int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm)
-            throws IOException, InvalidRangeException {
+                throws HDFException, ProductIOException {
         _start[_yCoord] = sourceOffsetY;
         _start[_xCoord] = sourceOffsetX;
         _count[_yCoord] = 1;

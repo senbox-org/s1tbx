@@ -78,7 +78,7 @@ public class ModisConstantsTest extends TestCase {
      * Tests constants concerning general modis file constants
      */
     public void testFilePropertyConstants() {
-        assertEquals(".hdf", ModisConstants.DEFAULT_FILE_EXTENSION);
+        assertEquals("hdf", ModisConstants.DEFAULT_FILE_EXTENSION);
         assertEquals("MODIS HDF4 Data Products", ModisConstants.READER_DESCRIPTION);
         assertEquals("MODIS", ModisConstants.FORMAT_NAME);
     }

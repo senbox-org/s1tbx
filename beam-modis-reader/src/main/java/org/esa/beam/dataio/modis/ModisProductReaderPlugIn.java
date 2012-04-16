@@ -15,26 +15,48 @@
  */
 package org.esa.beam.dataio.modis;
 
+import ncsa.hdf.hdflib.HDFConstants;
+import ncsa.hdf.hdflib.HDFException;
+import org.esa.beam.dataio.modis.hdf.HdfAttributes;
+import org.esa.beam.dataio.modis.hdf.HdfUtils;
+import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.DecodeQualification;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileFilter;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Locale;
 
 public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
+
+    // This is here just to keep the property name
+//    private static final String HDF4_PROPERTY_KEY = "ncsa.hdf.hdflib.HDFLibrary.hdflib";
+
+    private static boolean hdfLibAvailable = false;
+
+    static {
+        hdfLibAvailable = SystemUtils.loadHdf4Lib(ModisProductReaderPlugIn.class) != null;
+    }
+
+    /**
+     * @return whether or not the HDF4 library is available.
+     */
+    public static boolean isHdf4LibAvailable() {
+        return hdfLibAvailable;
+    }
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
      */
     public DecodeQualification getDecodeQualification(Object input) {
+        if (!isHdf4LibAvailable()) {
+            return DecodeQualification.UNABLE;
+        }
+
         File file = null;
         if (input instanceof String) {
             file = new File((String) input);
@@ -42,37 +64,41 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
             file = (File) input;
         }
 
-        if (file == null || !file.isFile()) {
-            return DecodeQualification.UNABLE;
-        }
+        if (file != null && file.exists() &&  file.isFile() && file.getPath().toLowerCase().endsWith(ModisConstants.DEFAULT_FILE_EXTENSION)) {
+            try {
+                String path = file.getPath();
+                if (HDF.getWrap().Hishdf(path)) {
+                    int fileId = HDFConstants.FAIL;
+                    int sdStart = HDFConstants.FAIL;
+                    try {
+                        fileId = HDF.getWrap().Hopen(path, HDFConstants.DFACC_RDONLY);
+                        sdStart = HDF.getWrap().SDstart(path, HDFConstants.DFACC_RDONLY);
+                        HdfAttributes globalAttrs = HdfUtils.readAttributes(sdStart);
 
-        final String filePath = file.getPath();
-        if (!filePath.toLowerCase().endsWith(ModisConstants.DEFAULT_FILE_EXTENSION)) {
-            return DecodeQualification.UNABLE;
-        }
-
-        NetcdfFile ncfile = null;
-        try {
-            if (NetcdfFile.canOpen(filePath)) {
-                ncfile = NetcdfFile.open(filePath);
-
-                final ModisGlobalAttributes modisAttributes = readGlobalMetadata(ncfile, file);
-
-                final String productType = modisAttributes.getProductType();
-                if (ModisProductDb.getInstance().isSupportedProduct(productType)) {
-                    return DecodeQualification.INTENDED;
+                        // check wheter daac or imapp
+                        ModisGlobalAttributes modisAttributes;
+                        if (globalAttrs.getStringAttributeValue(ModisConstants.STRUCT_META_KEY) == null) {
+                            modisAttributes = new ModisImappAttributes(file, sdStart, globalAttrs);
+                        } else {
+                            modisAttributes = new ModisDaacAttributes(globalAttrs);
+                        }
+                        final String productType = modisAttributes.getProductType();
+                        if (ModisProductDb.getInstance().isSupportedProduct(productType)) {
+                            return DecodeQualification.INTENDED;
+                        }
+                    } catch (HDFException ignore) {
+                    } finally {
+                        if (sdStart != HDFConstants.FAIL) {
+                            HDF.getWrap().Hclose(sdStart);
+                        }
+                        if (fileId != HDFConstants.FAIL) {
+                            HDF.getWrap().Hclose(fileId);
+                        }
+                    }
                 }
-            }
-        } catch (IOException ignore) {
-        } finally {
-            if (ncfile != null) {
-                try {
-                    ncfile.close();
-                } catch (IOException ignore) {
-                }
+            } catch (Exception ignore) {
             }
         }
-
         return DecodeQualification.UNABLE;
     }
 
@@ -86,6 +112,10 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
      * @return an array containing valid input types, never <code>null</code>
      */
     public Class[] getInputTypes() {
+        if (!isHdf4LibAvailable()) {
+            return new Class[0];
+        }
+
         return new Class[]{String.class, File.class};
     }
 
@@ -95,13 +125,20 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
      * @return a new reader instance, never <code>null</code>
      */
     public ProductReader createReaderInstance() {
+        if (!isHdf4LibAvailable()) {
+            return null;
+        }
+
         return new ModisProductReader(this);
     }
 
     public BeamFileFilter getProductFileFilter() {
-        final String[] formatNames = getFormatNames();
-
-        return new BeamFileFilter(formatNames[0], getDefaultFileExtensions(), getDescription(null));
+        String[] formatNames = getFormatNames();
+        String formatName = "";
+        if (formatNames.length > 0) {
+            formatName = formatNames[0];
+        }
+        return new BeamFileFilter(formatName, getDefaultFileExtensions(), getDescription(null));
     }
 
     /**
@@ -113,6 +150,10 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
+        if (!isHdf4LibAvailable()) {
+            return new String[0];
+        }
+
         return new String[]{ModisConstants.DEFAULT_FILE_EXTENSION};
     }
 
@@ -123,6 +164,7 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
+     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale locale) {
@@ -135,21 +177,10 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
     public String[] getFormatNames() {
-        return new String[]{ModisConstants.FORMAT_NAME};
-    }
-
-    static boolean isImappFormat(NetcdfFile ncfile) {
-        final Variable structMeta = ncfile.findTopVariable(ModisConstants.STRUCT_META_KEY);
-        return structMeta == null;
-    }
-
-    private ModisGlobalAttributes readGlobalMetadata(NetcdfFile ncfile, File file) throws ProductIOException {
-        ModisGlobalAttributes modisAttributes;
-        if (isImappFormat(ncfile)) {
-            modisAttributes = new ModisImappAttributes(file, ncfile);
-        } else {
-            modisAttributes = new ModisDaacAttributes(ncfile);
+        if (!isHdf4LibAvailable()) {
+            return new String[0];
         }
-        return modisAttributes;
+
+        return new String[]{ModisConstants.FORMAT_NAME};
     }
 }

@@ -20,15 +20,9 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
-import javax.swing.AbstractButton;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
+import java.awt.*;
 
 class MaskManagerForm extends MaskForm {
 
@@ -38,7 +32,7 @@ class MaskManagerForm extends MaskForm {
     MaskManagerForm(AbstractToolView maskToolView, ListSelectionListener selectionListener) {
         super(true, selectionListener);
 
-        helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"), false);
+        helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help22.png"), false);
         helpButton.setName("helpButton");
         actions = new MaskFormActions(maskToolView, this);
 

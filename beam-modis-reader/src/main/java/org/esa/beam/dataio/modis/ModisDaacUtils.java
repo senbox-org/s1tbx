@@ -15,6 +15,8 @@
  */
 package org.esa.beam.dataio.modis;
 
+import org.esa.beam.dataio.modis.hdf.HdfAttributeContainer;
+import org.esa.beam.dataio.modis.hdf.HdfAttributes;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.ProductIOException;
 
@@ -22,9 +24,31 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 class ModisDaacUtils {
+
+    public static String extractCoreString(HdfAttributes hdfGlobalAttributes) {
+        final String coreKey = ModisConstants.CORE_META_KEY;
+        final String coreString = coreKey.substring(0, coreKey.length() - 2);
+
+        final Map<String, HdfAttributeContainer> resultMap = new TreeMap<String, HdfAttributeContainer>();
+        for (int i = 0; i < hdfGlobalAttributes.getNumAttributes(); i++) {
+            final HdfAttributeContainer attributeAt = hdfGlobalAttributes.getAttributeAt(i);
+            final String name = attributeAt.getName();
+            if (name.startsWith(coreString) && name.length() == coreKey.length()) {
+                resultMap.put(name, attributeAt);
+            }
+        }
+
+        final StringBuffer buffer = new StringBuffer();
+        for (HdfAttributeContainer hdfAttributeContainer : resultMap.values()) {
+            buffer.append(hdfAttributeContainer.getStringValue());
+        }
+        return correctAmpersandWrap(buffer.toString());
+    }
 
     public static String correctAmpersandWrap(final String input) {
         final StringReader reader = new StringReader(input);
@@ -86,7 +110,7 @@ class ModisDaacUtils {
             if (db.isSupportedProduct(token)) {
                 prodType.add(token);
             }
-        }
+        } 
         return prodType;
     }
 }

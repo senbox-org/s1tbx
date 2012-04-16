@@ -240,10 +240,9 @@ public class ImageInfoEditor extends JPanel {
     public void computeZoomInToSliderLimits() {
         final double firstSliderValue = scaleInverse(getFirstSliderSample());
         final double lastSliderValue = scaleInverse(getLastSliderSample());
-        // TODO - check if zero is OK
-        final double tenPercentOffset = 0.0;
-        final double minViewSample = scale(firstSliderValue - tenPercentOffset);
-        final double maxViewSample = scale(lastSliderValue + tenPercentOffset);
+        final double percentOffset = 0.0;
+        final double minViewSample = scale(firstSliderValue - percentOffset);
+        final double maxViewSample = scale(lastSliderValue + percentOffset);
 
         getModel().setMinHistogramViewSample(minViewSample);
         getModel().setMaxHistogramViewSample(maxViewSample);
@@ -443,8 +442,7 @@ public class ImageInfoEditor extends JPanel {
     private void drawHistogram(Graphics2D g2d) {
         if (model.isHistogramAvailable()) {
             final Paint oldPaint = g2d.getPaint();
-            g2d.setColor(Color.black);
-            g2d.setPaint(Color.black);
+            g2d.setPaint(Color.DARK_GRAY);
 
             final int[] histogramBins = model.getHistogramBins();
             final double maxHistogramCounts = getMaxVisibleHistogramCounts(histogramBins, 1.0 / 16.0);
@@ -462,8 +460,11 @@ public class ImageInfoEditor extends JPanel {
 
                 for (int i = 0; i < histoRect.width; i++) {
                     final int binIndex = (int) Math.floor(minViewBinIndex + i * binsPerPixel);
-                    final double counts = histogramBins[binIndex];
-                    double binHeight = countsScale * counts;
+                    double binHeight = 0.0;
+                    if (binIndex >= 0 && binIndex < histogramBins.length) {
+                        final double counts = histogramBins[binIndex];
+                        binHeight = countsScale * counts;
+                    }
                     if (binHeight >= histoRect.height) {
                         // must crop here because on highly centered histograms this value is FAR beyond the rectangle
                         // and then triggers an exception when trying to draw it.
