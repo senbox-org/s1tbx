@@ -805,44 +805,31 @@
 
         <action>
             <parent>file</parent>
-            <placeAfter>saveSessionAs</placeAfter>
-            <id>import</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Import</text>
-            <mnemonic>I</mnemonic>
-            <separatorBefore>true</separatorBefore>
-            <shortDescr>Import</shortDescr>
-            <description>Import</description>
-            <smallIcon>icons/Import16.gif</smallIcon>
-            <largeIcon>icons/Import24.gif</largeIcon>
-            <helpId>import</helpId>
-        </action>
-
-        <action>
-            <parent>import</parent>
-            <id>importVectorData</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Vector Data</text>
-            <shortDescr>Import vector data</shortDescr>
-            <description>Import vector data</description>
-            <helpId>importVectorData</helpId>
-            <sortChildren>true</sortChildren>
-        </action>
-
-        <action>
-            <parent>import</parent>
             <id>importRasterData</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Raster Data</text>
+            <text>Import Raster Data</text>
             <shortDescr>Import raster data</shortDescr>
             <description>Import raster data</description>
             <helpId>importRasterData</helpId>
+            <placeAfter>saveSessionAs</placeAfter>
             <sortChildren>true</sortChildren>
         </action>
 
         <action>
             <parent>file</parent>
-            <placeAfter>import</placeAfter>
+            <id>importVectorData</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Import Vector Data</text>
+            <shortDescr>Import vector data</shortDescr>
+            <description>Import vector data</description>
+            <helpId>importVectorData</helpId>
+            <placeAfter>importRasterData</placeAfter>
+            <sortChildren>true</sortChildren>
+        </action>
+
+        <action>
+            <parent>file</parent>
+            <placeAfter>importVectorData</placeAfter>
             <id>export</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Export</text>
@@ -878,10 +865,10 @@
             <id>importShapefile</id>
             <class>org.esa.beam.visat.actions.ImportGeometryAction</class>
             <parent>importVectorData</parent>
-            <text>ESRI shapefile</text>
+            <text>ESRI Shapefile</text>
             <mnemonic>S</mnemonic>
-            <shortDescr>Import geometry from ESRI shapefile.</shortDescr>
-            <description>Import geometry from ESRI shapefile.</description>
+            <shortDescr>Import geometry from ESRI Shapefile.</shortDescr>
+            <description>Import geometry from ESRI Shapefile.</description>
             <helpId>importShapefile</helpId>
         </action>
 
