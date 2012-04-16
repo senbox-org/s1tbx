@@ -28,12 +28,33 @@ import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
@@ -68,7 +89,7 @@ public class ImageInfoEditor extends JPanel {
     public static final Dimension PREF_COMPONENT_SIZE
             = new Dimension(PREF_HISTO_WIDTH + 2 * HOR_BORDER_SIZE,
                             PREF_HISTO_HEIGHT + PALETTE_HEIGHT + SLIDER_HEIGHT / 2
-                                    + 2 * HOR_BORDER_SIZE + FONT_SIZE);
+                            + 2 * HOR_BORDER_SIZE + FONT_SIZE);
     public static final BasicStroke STROKE_1 = new BasicStroke(1.0f);
     public static final BasicStroke STROKE_2 = new BasicStroke(2.0f);
     public static final BasicStroke DASHED_STROKE = new BasicStroke(0.75F, BasicStroke.CAP_SQUARE,
@@ -101,11 +122,11 @@ public class ImageInfoEditor extends JPanel {
         addChangeListener(new RepaintCL());
     }
 
-    public ImageInfoEditorModel getModel() {
+    public final ImageInfoEditorModel getModel() {
         return model;
     }
 
-    public void setModel(final ImageInfoEditorModel model) {
+    public final void setModel(final ImageInfoEditorModel model) {
         final ImageInfoEditorModel oldModel = this.model;
         if (oldModel != model) {
             this.model = model;
@@ -219,9 +240,9 @@ public class ImageInfoEditor extends JPanel {
     public void computeZoomInToSliderLimits() {
         final double firstSliderValue = scaleInverse(getFirstSliderSample());
         final double lastSliderValue = scaleInverse(getLastSliderSample());
-        final double tenPercentOffset = (lastSliderValue - firstSliderValue) / 80 * 10;
-        final double minViewSample = scale(firstSliderValue - tenPercentOffset);
-        final double maxViewSample = scale(lastSliderValue + tenPercentOffset);
+        final double percentOffset = 0.0;
+        final double minViewSample = scale(firstSliderValue - percentOffset);
+        final double maxViewSample = scale(lastSliderValue + percentOffset);
 
         getModel().setMinHistogramViewSample(minViewSample);
         getModel().setMaxHistogramViewSample(maxViewSample);
@@ -266,7 +287,7 @@ public class ImageInfoEditor extends JPanel {
             return false;
         }
         return model.getMinSample() <= model.getMaxSample()
-                && model.getSampleScaling() != null && model.getSampleStx() != null;
+               && model.getSampleScaling() != null && model.getSampleStx() != null;
     }
 
     public void computeZoomOutVertical() {
@@ -419,58 +440,42 @@ public class ImageInfoEditor extends JPanel {
     }
 
     private void drawHistogram(Graphics2D g2d) {
-        if (getModel().isHistogramAvailable()) {
+        if (model.isHistogramAvailable()) {
             final Paint oldPaint = g2d.getPaint();
             g2d.setPaint(Color.DARK_GRAY);
 
-            final int[] histogramBins = getModel().getHistogramBins();
-            final double maxBinCounts = getMaxVisibleHistogramCounts(histogramBins, 1.0 / 16.0);
-            final double gain = getModel().getHistogramViewGain();
-            final double binCount = getHistogramViewBinCount();
-            if (binCount > 1.0 && maxBinCounts > 0.0) {
+            final int[] histogramBins = model.getHistogramBins();
+            final double maxHistogramCounts = getMaxVisibleHistogramCounts(histogramBins, 1.0 / 16.0);
+            final double viewBinCount = getHistogramViewBinCount();
+
+            if (viewBinCount > 0.0 && maxHistogramCounts > 0.0) {
                 g2d.setStroke(new BasicStroke(1.0f));
 
-                final double effectiveHeight = 0.9 * histoRect.height;
-                final Rectangle2D rectangle = new Rectangle2D.Double();
-                for (int i = 0; i < histoRect.width; i++) {
-                    final int b = (int) Math.round(i * histogramBins.length / histoRect.getWidth());
-                    double binHeight = 0;
-                    if (b >= 0 && b < histogramBins.length) {
-                        binHeight = gain * histogramBins[b] * effectiveHeight / maxBinCounts;
-                    }
-                    if (binHeight >= histoRect.height) {
-                        // must crop here because on highly centered histograms this value is far beyond the rectangle,
-                        // which causes an exception when trying to draw it
-                        binHeight = histoRect.height - 1.0;
-                    }
-                    rectangle.setRect(histoRect.getMinX() + i, histoRect.getMaxY() - binHeight, 1.0, binHeight);
-                    g2d.fill(rectangle);
-                }
+                final double minViewBinIndex = getMinHistogramViewBinIndex();
+                final double binsPerPixel = viewBinCount / histoRect.width;
+                final double maxBarHeight = 0.9 * histoRect.height;
+                final double gain = model.getHistogramViewGain();
+                final double countsScale = (gain * maxBarHeight) / maxHistogramCounts;
+                final Rectangle2D.Double r = new Rectangle2D.Double();
 
-                /*
-                for (int i = 0; i < (int) binCount; i++) {
-                    final double counts = histogramBins[i + firstVisibleBinIndex];
-                    double binHeight = countsScale * counts;
+                for (int i = 0; i < histoRect.width; i++) {
+                    final int binIndex = (int) Math.floor(minViewBinIndex + i * binsPerPixel);
+                    double binHeight = 0.0;
+                    if (binIndex >= 0 && binIndex < histogramBins.length) {
+                        final double counts = histogramBins[binIndex];
+                        binHeight = countsScale * counts;
+                    }
                     if (binHeight >= histoRect.height) {
                         // must crop here because on highly centered histograms this value is FAR beyond the rectangle
                         // and then triggers an exception when trying to draw it.
                         binHeight = histoRect.height - 1;
                     }
-                    final double y1 = histoRect.y + histoRect.height - 1 - binHeight;
-                    final double x1 = histoRect.x + binWidth * i - pixelOffs - 0.5 * binWidth;
-                    rectangle.setRect(x1, y1, binWidth, binHeight);
-                    g2d.fill(rectangle);
+                    r.setRect(histoRect.x + i, histoRect.y + histoRect.height - 1 - binHeight, 1.0, binHeight);
+                    g2d.fill(r);
                 }
-                */
             }
             g2d.setPaint(oldPaint);
         }
-    }
-
-    private double getBinWidth(int width) {
-        final double min = getModel().getMinHistogramViewSample();
-        final double max = getModel().getMaxHistogramViewSample();
-        return width / getBinsInRange(min, max);
     }
 
     private static double getMaxVisibleHistogramCounts(final int[] histogramBins, double ratio) {
@@ -654,46 +659,49 @@ public class ImageInfoEditor extends JPanel {
         histoRect.height = paletteRect.y - histoRect.y - 3;
     }
 
-    public double getHistogramViewBinCount() {
-        return Math.min(getDisplayableBinCount(), getModel().getHistogramBins().length);
+    private double getHistogramViewBinCount() {
+        return Math.min(getDisplayableBinCount(), model.getHistogramBins().length);
     }
 
-    // Gets the possible displayable bin count
     private double getDisplayableBinCount() {
         final double max = Math.min(getMaxSample(), getModel().getMaxHistogramViewSample());
         final double min = Math.max(getMinSample(), getModel().getMinHistogramViewSample());
-        return getBinsInRange(min, max);
+        return getBinCountInRange(min, max);
     }
 
-    private double getBinsInRange(double minSample, double maxSample) {
+    private double getBinCountInRange(double minSample, double maxSample) {
         if (!isHistogramAvailable()) {
-            return -1;
+            return -1.0;
         }
-        if (getModel().getMinHistogramViewSample() >= getMaxSample() || getModel().getMaxHistogramViewSample() <= getMinSample()) {
-            return 0;
+        final double minHistogramSample = model.getMinSample();
+        final double maxHistogramSample = model.getMaxSample();
+        if (minSample >= maxHistogramSample || maxSample <= minHistogramSample) {
+            return 0.0;
         }
-        if (getMinSample() != getModel().getMinHistogramViewSample() || getMaxSample() != getModel().getMaxHistogramViewSample()) {
-            return getModel().getHistogramBins().length
-                    / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
-                    * (scaleInverse(maxSample) - scaleInverse(minSample));
-        }
-        return getModel().getHistogramBins().length;
+        minSample = Math.max(minSample, minHistogramSample);
+        maxSample = Math.min(maxSample, maxHistogramSample);
+
+        final double a = scaleInverse(maxSample) - scaleInverse(minSample);
+        final double b = scaleInverse(maxHistogramSample) - scaleInverse(minHistogramSample);
+
+        return (a / b) * model.getHistogramBins().length;
     }
 
-    public double getFirstHistogramViewBinIndex() {
+    private double getMinHistogramViewBinIndex() {
         if (!isHistogramAvailable()) {
-            return -1;
+            return -1.0;
         }
-        if (getMinSample() != getModel().getMinHistogramViewSample()) {
-            return (getModel().getHistogramBins().length - 1)
-                    / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
-                    * (scaleInverse(getModel().getMinHistogramViewSample()) - scaleInverse(getMinSample()));
+        final double minHistogramSample = model.getMinSample();
+        final double minHistogramViewSample = model.getMinHistogramViewSample();
+        if (minHistogramSample != minHistogramViewSample) {
+            final double a = scaleInverse(minHistogramViewSample) - scaleInverse(minHistogramSample);
+            final double b = scaleInverse(model.getMaxSample()) - scaleInverse(minHistogramSample);
+            return (a / b) * model.getHistogramBins().length;
         }
-        return 0;
+        return 0.0;
     }
 
-
-    public double getNormalizedHistogramViewSampleValue(double sample) {
+    private double getNormalizedHistogramViewSampleValue(double sample) {
         final double minVisibleSample = scaleInverse(getModel().getMinHistogramViewSample());
         final double maxVisibleSample = scaleInverse(getModel().getMaxHistogramViewSample());
         sample = scaleInverse(sample);
