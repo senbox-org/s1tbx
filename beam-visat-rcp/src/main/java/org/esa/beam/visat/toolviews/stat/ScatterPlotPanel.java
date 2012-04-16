@@ -319,6 +319,7 @@ class ScatterPlotPanel extends ChartPagePanel{
         }
         plot.setDataset(0, null);
         plot.setDataset(1, null);
+        compute();
 
         super.updateContent();
         correlativeFieldSelector.updatePointDataSource(getProduct());
@@ -331,7 +332,6 @@ class ScatterPlotPanel extends ChartPagePanel{
         if (scatterPlotModel.dataField != null && getRaster() != null) {
             compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
         }
-        updateUIState();
     }
 
     private NumberAxis createNumberAxis() {
@@ -602,7 +602,7 @@ class ScatterPlotPanel extends ChartPagePanel{
         setChartTitle();
         final AttributeDescriptor dataField = scatterPlotModel.dataField;
         yAxisRangeControl.setTitleSuffix(dataField != null ? dataField.getLocalName() : null);
-        super.updateContent();
+        updateContent();
     }
 
     private static class ScatterPlotModel {
