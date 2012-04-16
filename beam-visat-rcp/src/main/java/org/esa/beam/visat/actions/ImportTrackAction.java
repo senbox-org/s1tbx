@@ -26,8 +26,8 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.io.CsvReader;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
+import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -112,8 +112,8 @@ public class ImportTrackAction extends ExecCommand {
 
     static FeatureCollection<SimpleFeatureType, SimpleFeature> readTrack(Reader reader, GeoCoding geoCoding) throws IOException {
         CsvReader csvReader = new CsvReader(reader, new char[]{'\t', ' '}, true, "#");
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = FeatureCollections.newCollection();
         SimpleFeatureType trackFeatureType = createTrackFeatureType(geoCoding);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = new ListFeatureCollection(trackFeatureType);
         double[] record;
         int pointIndex = 0;
         while ((record = csvReader.readDoubleRecord()) != null) {
@@ -171,7 +171,7 @@ public class ImportTrackAction extends ExecCommand {
         fb.add(gf.createPoint(new Coordinate(lon, lat)));
         /*2*/
         fb.add(data);
-        return fb.buildFeature("P" + (pointIndex + 1));
+        return fb.buildFeature(String.format("ID%08d", pointIndex));
     }
 
 
