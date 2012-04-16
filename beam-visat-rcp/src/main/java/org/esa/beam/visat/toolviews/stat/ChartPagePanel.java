@@ -175,9 +175,9 @@ abstract class ChartPagePanel extends PagePanel {
         GridBagUtils.addToPanel(extendedOptionsPanel, optionsPanel, extendedOptionsPanelConstraints, "gridy=2, fill=VERTICAL,fill=HORIZONTAL,weighty=1");
         GridBagUtils.addToPanel(extendedOptionsPanel, new JSeparator(), extendedOptionsPanelConstraints, "gridy=4,fill=HORIZONTAL,weighty=0");
 
-        final JScrollPane optionsScrollPane = new JScrollPane(extendedOptionsPanel,
+        final JScrollPane optionsScrollPane = new SimpleScrollPane(extendedOptionsPanel,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         optionsScrollPane.setBorder(null);
 
         final JPanel rightPanel = new JPanel(new BorderLayout());
