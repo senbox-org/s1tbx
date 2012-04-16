@@ -19,54 +19,35 @@ package org.esa.beam.dataio.modis;
 import org.esa.beam.dataio.modis.hdf.HdfAttributes;
 import org.esa.beam.dataio.modis.hdf.HdfDataField;
 import org.esa.beam.dataio.modis.hdf.HdfEosStructMetadata;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.util.io.FileUtils;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 
 class ModisDaacAttributes implements ModisGlobalAttributes {
 
-    private String productName;
-    private String productType;
-    private Date sensingStart;
-    private Date sensingStop;
-    private NetcdfFile ncfile;
+    private String _productName;
+    private String _productType;
+    private Date _sensingStart;
+    private Date _sensingStop;
     private HdfEosStructMetadata hdfEosStructMetadata;
 
-    public ModisDaacAttributes(NetcdfFile ncfile) throws ProductIOException {
-        this.ncfile = ncfile;
-        final List<Variable> variables = ncfile.getVariables();
-        try {
-            decode(variables);
-        } catch (IOException e) {
-            throw new ProductIOException(e.getMessage());
-        }
-    }
-
-    @Deprecated
-    public ModisDaacAttributes(HdfAttributes globalHdfAttrs) {
-        // @todo 1 tb/tb just to satisfy the compiler - delete when finished with porting
+    public ModisDaacAttributes(final HdfAttributes hdfAttributes) throws ProductIOException {
+        decode(hdfAttributes);
     }
 
     public String getProductName() {
-        return productName;
+        return _productName;
     }
 
     public String getProductType() {
-        return productType;
+        return _productType;
     }
 
     public boolean isImappFormat() {
@@ -94,88 +75,43 @@ class ModisDaacAttributes implements ModisGlobalAttributes {
     }
 
     public Date getSensingStart() {
-        return sensingStart;
+        return _sensingStart;
     }
 
     public Date getSensingStop() {
-        return sensingStop;
-    }
-
-    @Override
-    public int getNumGlobalAttributes() {
-        return ncfile.getGlobalAttributes().size();
-    }
-
-    @Override
-    public MetadataAttribute getMetadataAttributeAt(int index) {
-        throw new NotImplementedException();
+        return _sensingStop;
     }
 
     ///////////////////////////////////////////////////////////////////////////
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    private void decode(List<Variable> variables) throws IOException {
-        decodeECSCore(variables);
+    private void decode(final HdfAttributes hdfAttributes) throws ProductIOException {
+        decodeECSCore(hdfAttributes);
 
-        decodeStructMeta(variables);
-    }
-
-    private void decodeStructMeta(List<Variable> variables) throws IOException {
-        Variable structMetaVariable = null;
-        for (int i = 0; i < variables.size(); i++) {
-            final Variable variable = variables.get(i);
-            final String variableName = variable.getName();
-            if (variableName.startsWith(ModisConstants.STRUCT_META_KEY)) {
-                structMetaVariable = variable;
-                break;
-            }
-        }
-
-        if (structMetaVariable == null) {
-            throw new ProductIOException("Unknown MODIS format: ECSCore metadata field '" + ModisConstants.STRUCT_META_KEY + "' missing");
-        }
-
-        final String structMetaString = structMetaVariable.readScalarString();
+        final String structMetaString = hdfAttributes.getStringAttributeValue(ModisConstants.STRUCT_META_KEY);
         if (structMetaString == null) {
             throw new ProductIOException("Unknown MODIS format: no StructMetadata available");
         }
         hdfEosStructMetadata = new HdfEosStructMetadata(structMetaString);
     }
 
-    private void decodeECSCore(List<Variable> variables) throws IOException {
-        final String coreKey = ModisConstants.CORE_META_KEY;
-        final String coreString = coreKey.substring(0, coreKey.length() - 2);
-
-        final ArrayList<Variable> resultList = new ArrayList<Variable>();
-        for (int i = 0; i < variables.size(); i++) {
-            final Variable variable = variables.get(i);
-            final String variableName = variable.getName();
-            if (variableName.startsWith(coreString) && variableName.length() == coreKey.length()) {
-                resultList.add(variable);
-            }
-        }
-
-        final StringBuilder buffer = new StringBuilder();
-        for (int i = 0; i < resultList.size(); i++) {
-            final Variable variable = resultList.get(i);
-            buffer.append(variable.readScalarString());
-        }
-
-        final String ecsCore = ModisDaacUtils.correctAmpersandWrap(buffer.toString());
-        if (ecsCore == null) {
+    private void decodeECSCore(HdfAttributes hdfAttributes) throws ProductIOException {
+        final String coreString = ModisDaacUtils.extractCoreString(hdfAttributes);
+        if (coreString == null) {
             throw new ProductIOException("Unknown MODIS format: no ECSCore metadata available");
         }
 
-        final String productNameMeta = ModisUtils.extractValueForKey(ecsCore, ModisConstants.LOCAL_GRANULEID_KEY);
-        if (productNameMeta == null) {
-            throw new ProductIOException("Unknown MODIS format: ECSCore metadata field '" + ModisConstants.LOCAL_GRANULEID_KEY + "' missing");
+        final String productName = ModisUtils.extractValueForKey(coreString, ModisConstants.LOCAL_GRANULEID_KEY);
+        if (productName == null) {
+            throw new ProductIOException(
+                    "Unknown MODIS format: ECSCore metadata field '" + ModisConstants.LOCAL_GRANULEID_KEY + "' missing");
         }
+        _productName = FileUtils.getFilenameWithoutExtension(new File(productName));
 
-        productName = FileUtils.getFilenameWithoutExtension(new File(productNameMeta));
-        productType = ModisDaacUtils.extractProductType(this.productName);
+        _productType = ModisDaacUtils.extractProductType(_productName);
 
-        extractStartAndStopTimes(ecsCore);
+        extractStartAndStopTimes(coreString);
     }
 
     private void extractStartAndStopTimes(String coreString) throws ProductIOException {
@@ -188,12 +124,12 @@ class ModisDaacAttributes implements ModisGlobalAttributes {
             if (startDate == null || startTime == null) {
                 throw new IllegalFileFormatException("Unable to retrieve sensing start time from metadata");
             }
-            sensingStart = ModisUtils.createDateFromStrings(startDate, startTime);
+            _sensingStart = ModisUtils.createDateFromStrings(startDate, startTime);
 
             if (endDate == null || endTime == null) {
                 throw new IllegalFileFormatException("Unable to retrieve sensing stop time from metadata");
             }
-            sensingStop = ModisUtils.createDateFromStrings(endDate, endTime);
+            _sensingStop = ModisUtils.createDateFromStrings(endDate, endTime);
         } catch (ParseException e) {
             throw new ProductIOException(e.getMessage());
         }

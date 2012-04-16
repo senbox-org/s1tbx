@@ -15,13 +15,9 @@
  */
 package org.esa.beam.dataio.modis.bandreader;
 
+import ncsa.hdf.hdflib.HDFException;
+import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.datamodel.ProductData;
-import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.Section;
-import ucar.nc2.Variable;
-
-import java.io.IOException;
 
 public class ModisUint8BandReader extends ModisBandReader {
 
@@ -32,8 +28,8 @@ public class ModisUint8BandReader extends ModisBandReader {
     private byte[] targetData;
     private int targetIdx;
 
-    public ModisUint8BandReader(Variable variable, final int layer, final boolean is3d) {
-        super(variable, layer, is3d);
+    public ModisUint8BandReader(final int sdsId, final int layer, final boolean is3d) {
+        super(sdsId, layer, is3d);
     }
 
     /**
@@ -64,11 +60,8 @@ public class ModisUint8BandReader extends ModisBandReader {
     }
 
     @Override
-    protected void readLine() throws InvalidRangeException, IOException {
-        final Section section = new Section(_start, _count, _stride);
-        final Array array = variable.read(section);
-        final Object storage = array.getStorage();
-        System.arraycopy(storage, 0, _line, 0, _count[0]);
+    protected void readLine() throws HDFException {
+        HDF.getWrap().SDreaddata(_sdsId, _start, _stride, _count, _line);
     }
 
     @Override
