@@ -107,8 +107,6 @@ public class XYPlotMarker implements ChartMouseListener {
         }
 
         if (xyDataset != null) {
-            overlay = new ShapeOverlay();
-            chartPanel.addOverlay(overlay);
             updatePoint(event);
         } else if (overlayRemoved) {
             listener.pointDeselected();
@@ -147,6 +145,8 @@ public class XYPlotMarker implements ChartMouseListener {
             return;
         }
 
+        addOverlay();
+
         XYPlot plot = chartPanel.getChart().getXYPlot();
 
         Rectangle2D dataArea = chartPanel.getScreenDataArea();
@@ -175,6 +175,15 @@ public class XYPlotMarker implements ChartMouseListener {
                 break;
             }
         }
+    }
+
+    private boolean addOverlay() {
+        if (overlay == null) {
+            overlay = new ShapeOverlay();
+            chartPanel.addOverlay(overlay);
+            return true;
+        }
+        return false;
     }
 
     private boolean removeOverlay() {
