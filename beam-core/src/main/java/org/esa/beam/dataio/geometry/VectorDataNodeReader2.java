@@ -56,7 +56,7 @@ public class VectorDataNodeReader2 {
         this.location = fileName;
         this.modelCrs = modelCrs;
         this.reader = new CsvReader(reader, new char[]{VectorDataNodeIO.DELIMITER_CHAR}, true, "#");
-        this.interpretationStrategy = createGeometryStrategy();
+        this.interpretationStrategy = createInterpretationStrategy();
     }
 
     public static VectorDataNode read(String fileName, Reader reader, GeoCoding geoCoding, CoordinateReferenceSystem modelCrs) throws IOException {
@@ -117,7 +117,7 @@ public class VectorDataNodeReader2 {
         return readFeatures(featureType);
     }
 
-    private InterpretationStrategy createGeometryStrategy() throws IOException {
+    private InterpretationStrategy createInterpretationStrategy() throws IOException {
         reader.mark(1024 * 1024 * 10);
         String[] tokens = reader.readRecord();
         reader.reset();
