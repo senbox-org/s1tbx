@@ -249,15 +249,15 @@ public class ProductManagerTest extends TestCase {
         final VirtualBand p1v1 = new VirtualBand("P1V1", ProductData.TYPE_FLOAT32, 1, 1, "42");
         product1.addBand(p1v1);
         final Product product2 = new Product("P2", "t", 1, 1);
-        product2.addMask("P2BD", "P2-Bitmask", "$1.P1V1 == 42.0", Color.RED, 0.5f);
+        final BitmaskDef p2bd = new BitmaskDef("P2BD", "P2-Bitmask", "$1.P1V1 == 42.0", Color.RED, 0.5f);
+        product2.addBitmaskDef(p2bd);
 
         _productManager.addProduct(product1);
         _productManager.addProduct(product2);
 
         p1v1.setName("TheAnswer");
 
-        Mask p2BD = product2.getMaskGroup().get("P2BD");
-        assertEquals("$1.TheAnswer == 42.0", Mask.BandMathsType.getExpression(p2BD));
+        assertEquals("$1.TheAnswer == 42.0", p2bd.getExpr());
     }
 
 

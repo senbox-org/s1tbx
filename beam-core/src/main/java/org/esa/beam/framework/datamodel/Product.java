@@ -193,6 +193,7 @@ public class Product extends ProductNode {
 
         this.bandGroup = new ProductNodeGroup<Band>(this, "bandGroup", true);
         this.tiePointGridGroup = new ProductNodeGroup<TiePointGrid>(this, "tiePointGridGroup", true);
+        this.bitmaskDefGroup = new ProductNodeGroup<BitmaskDef>(this, "bitmaskDefGroup", true);
         this.vectorDataGroup = new ProductNodeGroup<VectorDataNode>(this, "vectorDataGroup", true) {
             @Override
             public boolean add(VectorDataNode vectorDataNode) {
@@ -336,6 +337,11 @@ public class Product extends ProductNode {
             @Override
             public void visit(VirtualBand virtualBand) {
                 virtualBand.updateExpression(oldExternName, newExternName);
+            }
+
+            @Override
+            public void visit(BitmaskDef bitmaskDef) {
+                bitmaskDef.updateExpression(oldExternName, newExternName);
             }
 
             @Override
@@ -546,6 +552,7 @@ public class Product extends ProductNode {
         metadataRoot.dispose();
         bandGroup.dispose();
         tiePointGridGroup.dispose();
+        bitmaskDefGroup.dispose();
         flagCodingGroup.dispose();
         indexCodingGroup.dispose();
         maskGroup.dispose();
@@ -1291,6 +1298,7 @@ public class Product extends ProductNode {
         flagCodingGroup.acceptVisitor(visitor);
         indexCodingGroup.acceptVisitor(visitor);
         vectorDataGroup.acceptVisitor(visitor);
+        bitmaskDefGroup.acceptVisitor(visitor);
         maskGroup.acceptVisitor(visitor);
         metadataRoot.acceptVisitor(visitor);
         visitor.visit(this);
@@ -1585,6 +1593,7 @@ public class Product extends ProductNode {
             if (!modified) {
                 bandGroup.setModified(false);
                 tiePointGridGroup.setModified(false);
+                bitmaskDefGroup.setModified(false);
                 maskGroup.setModified(false);
                 vectorDataGroup.setModified(false);
                 flagCodingGroup.setModified(false);
@@ -1611,6 +1620,9 @@ public class Product extends ProductNode {
         }
         for (int i = 0; i < getFlagCodingGroup().getNodeCount(); i++) {
             size += getFlagCodingGroup().get(i).getRawStorageSize(subsetDef);
+        }
+        for (int i = 0; i < getNumBitmaskDefs(); i++) {
+            size += getBitmaskDefAt(i).getRawStorageSize(subsetDef);
         }
         size += getMetadataRoot().getRawStorageSize(subsetDef);
         return size;
@@ -1810,6 +1822,7 @@ public class Product extends ProductNode {
     public ProductNode[] getRemovedChildNodes() {
         final ArrayList<ProductNode> removedNodes = new ArrayList<ProductNode>();
         removedNodes.addAll(bandGroup.getRemovedNodes());
+        removedNodes.addAll(bitmaskDefGroup.getRemovedNodes());
         removedNodes.addAll(flagCodingGroup.getRemovedNodes());
         removedNodes.addAll(indexCodingGroup.getRemovedNodes());
         removedNodes.addAll(tiePointGridGroup.getRemovedNodes());
@@ -2219,7 +2232,162 @@ public class Product extends ProductNode {
     // Deprecated API
 
     @Deprecated
+    private final ProductNodeGroup<BitmaskDef> bitmaskDefGroup;
+
+    @Deprecated
     private Map<String, BitRaster> validMasks;
+
+    /**
+     * Adds the given bitmask definition to this product.
+     *
+     * @param bitmaskDef the bitmask definition to added, ignored if <code>null</code>
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public void addBitmaskDef(final BitmaskDef bitmaskDef) {
+        if (StringUtils.isNullOrEmpty(bitmaskDef.getDescription())) {
+            final String defaultDescription = getSuitableBitmaskDefDescription(bitmaskDef.getExpr());
+            bitmaskDef.setDescription(defaultDescription);
+        }
+        bitmaskDefGroup.add(bitmaskDef);
+        maskGroup.add(bitmaskDef.createMask(sceneRasterWidth, sceneRasterHeight));
+    }
+
+    /**
+     * Moves the given bitmask definition to the given index.
+     *
+     * @param bitmaskDef the bitmask definition which is to move
+     * @param index      the destination index for the given bitmask definition
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public void moveBitmaskDef(final BitmaskDef bitmaskDef, final int index) {
+        Mask mask = getMaskGroup().get(bitmaskDef.getName());
+        if (bitmaskDefGroup.remove(bitmaskDef)) {
+            fireNodeRemoved(bitmaskDef, bitmaskDefGroup);
+            getMaskGroup().remove(mask);
+        }
+        bitmaskDefGroup.add(index, bitmaskDef);
+        fireNodeAdded(bitmaskDef, bitmaskDefGroup);
+        getMaskGroup().add(index, mask);
+    }
+
+    /**
+     * Removes the given bitmask definition from this product.
+     *
+     * @param bitmaskDef the bitmask definition to be removed, ignored if <code>null</code>
+     * @return <code>true</code> on success
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public boolean removeBitmaskDef(final BitmaskDef bitmaskDef) {
+        final boolean result = bitmaskDefGroup.remove(bitmaskDef);
+
+        Mask mask = getMaskGroup().get(bitmaskDef.getName());
+        getMaskGroup().remove(mask);
+
+        return result;
+    }
+
+    /**
+     * Gets the number of bitmask definitions contained in this product.
+     *
+     * @return the number of bitmask definitions
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public int getNumBitmaskDefs() {
+        return bitmaskDefGroup.getNodeCount();
+    }
+
+    /**
+     * Returns the bitmask definition at the given index.
+     *
+     * @param index the bitmask definition index
+     * @return the bitmask definition at the given index
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public BitmaskDef getBitmaskDefAt(final int index) {
+        return bitmaskDefGroup.get(index);
+    }
+
+    /**
+     * Returns a string array containing the names of the bitmask definitions contained in this product.
+     *
+     * @return a string array containing the names of the bitmask definitions contained in this product. If this product
+     *         has no bitmask definitions a zero-length-array is returned.
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public String[] getBitmaskDefNames() {
+        return bitmaskDefGroup.getNodeNames();
+    }
+
+    /**
+     * Returns the bitmask definition with the given name.
+     *
+     * @param name the bitmask definition name
+     * @return the bitmask definition with the given name or <code>null</code> if a bitmask definition with the given
+     *         name is not contained in this product.
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public BitmaskDef getBitmaskDef(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return bitmaskDefGroup.get(name);
+    }
+
+    /**
+     * Returns an array of bitmask definitions contained in this product
+     *
+     * @return an array of bitmask definition contained in this product. If this product has no bitmask definitions a
+     *         zero-length-array is returned.
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public BitmaskDef[] getBitmaskDefs() {
+        final BitmaskDef[] bitmaskDefs = new BitmaskDef[getNumBitmaskDefs()];
+        for (int i = 0; i < bitmaskDefs.length; i++) {
+            bitmaskDefs[i] = getBitmaskDefAt(i);
+        }
+        return bitmaskDefs;
+    }
+
+    /**
+     * Tests if the given bitmask definition is contained in this container.
+     *
+     * @param def the bitmask definition, must not be <code>null</code>
+     * @return <code>true</code> if the bitmask definition is contained in this cotainer, <code>false</code> otherwise
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public boolean containsBitmaskDef(final BitmaskDef def) {
+        if (def != null) {
+            final BitmaskDef containedDef = getBitmaskDef(def.getName());
+            return def == containedDef;
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether or not the given bitmask definition is compatible with this product.
+     *
+     * @param bitmaskDef The bitmask definition.
+     * @return <code>false</code> if the bitmask has a valid expression and(!) the flag name is not contained in this
+     *         data product, <code>true</code> otherwise.
+     * @deprecated since BEAM 4.7
+     */
+    @Deprecated
+    public boolean isCompatibleBitmaskDef(final BitmaskDef bitmaskDef) {
+        try {
+            parseExpression(bitmaskDef.getExpr());
+        } catch (ParseException e) {
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Gets a valid-mask for the given ID.

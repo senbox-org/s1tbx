@@ -20,6 +20,7 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
+import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
@@ -37,6 +38,7 @@ public class SessionDomConverter extends DefaultDomConverter {
 
         setDomConverter(Product.class, new ProductDomConverter(productManager));
         setDomConverter(RasterDataNode.class, new RasterDataNodeDomConverter(productManager));
+        setDomConverter(BitmaskDef.class, new BitmaskDefDomConverter(productManager));
         setDomConverter(PlacemarkDescriptor.class, new PlacemarkDescriptorDomConverter());
     }
 

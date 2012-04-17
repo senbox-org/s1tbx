@@ -64,6 +64,7 @@ public class ProductTest {
 
         assertEquals(true, visitedList.contains("bandGroup"));
         assertEquals(true, visitedList.contains("tiePointGridGroup"));
+        assertEquals(true, visitedList.contains("bitmaskDefGroup"));
         assertEquals(true, visitedList.contains("maskGroup"));
         assertEquals(true, visitedList.contains("indexCodingGroup"));
         assertEquals(true, visitedList.contains("flagCodingGroup"));

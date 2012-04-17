@@ -40,12 +40,12 @@ public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
         return vectorDataNode;
     }
 
-    public final Placemark getPlacemark(SimpleFeature feature) {
+    public synchronized final Placemark getPlacemark(SimpleFeature feature) {
         return placemarkMap.get(feature);
     }
 
     @Override
-    public boolean add(Placemark placemark) {
+    public synchronized boolean add(Placemark placemark) {
         final boolean added = _add(placemark);
         if (added) {
             addToVectorData(placemark);
@@ -54,13 +54,13 @@ public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
     }
 
     @Override
-    public void add(int index, Placemark placemark) {
+    public synchronized void add(int index, Placemark placemark) {
         _add(index, placemark);
         addToVectorData(placemark);
     }
 
     @Override
-    public boolean remove(Placemark placemark) {
+    public synchronized boolean remove(Placemark placemark) {
         final boolean removed = _remove(placemark);
         if (removed) {
             removeFromVectorData(placemark);
@@ -69,7 +69,7 @@ public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
     }
 
     @Override
-    public void dispose() {
+    public synchronized void dispose() {
         if (getProduct() != null) {
             getProduct().removeProductNodeListener(listener);
         }
@@ -78,34 +78,44 @@ public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
     }
 
     private boolean _add(Placemark placemark) {
-        final boolean added = super.add(placemark);
-        if (added) {
-            placemarkMap.put(placemark.getFeature(), placemark);
+        synchronized (placemarkMap) {
+            final boolean added = super.add(placemark);
+            if (added) {
+                placemarkMap.put(placemark.getFeature(), placemark);
+            }
+            return added;
         }
-        return added;
     }
 
     private void _add(int index, Placemark placemark) {
-        super.add(index, placemark);
-        placemarkMap.put(placemark.getFeature(), placemark);
+        synchronized (placemarkMap) {
+            super.add(index, placemark);
+            placemarkMap.put(placemark.getFeature(), placemark);
+        }
     }
 
     private boolean _remove(Placemark placemark) {
-        final boolean removed = super.remove(placemark);
-        if (removed) {
-            placemarkMap.remove(placemark.getFeature());
+        synchronized (placemarkMap) {
+            final boolean removed = super.remove(placemark);
+            if (removed) {
+                placemarkMap.remove(placemark.getFeature());
+            }
+            return removed;
         }
-        return removed;
     }
 
     private void addToVectorData(final Placemark placemark) {
-        if (!vectorDataNode.getFeatureCollection().contains(placemark.getFeature())) {
-            vectorDataNode.getFeatureCollection().add(placemark.getFeature());
+        synchronized (vectorDataNode) {
+            if (!vectorDataNode.getFeatureCollection().contains(placemark.getFeature())) {
+                vectorDataNode.getFeatureCollection().add(placemark.getFeature());
+            }
         }
     }
 
     private void removeFromVectorData(Placemark placemark) {
-        vectorDataNode.getFeatureCollection().remove(placemark.getFeature());
+        synchronized (vectorDataNode) {
+            vectorDataNode.getFeatureCollection().remove(placemark.getFeature());
+        }
     }
 
     private class VectorDataNodeListener extends ProductNodeListenerAdapter {

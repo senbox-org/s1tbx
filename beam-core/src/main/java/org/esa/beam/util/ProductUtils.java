@@ -1904,6 +1904,13 @@ public class ProductUtils {
         final ArrayList<String> messages = new ArrayList<String>(10);
 
         product.acceptVisitor(new ProductVisitorAdapter() {
+            @Override
+            public void visit(BitmaskDef bitmaskDef) {
+                if (!product.isCompatibleBandArithmeticExpression(bitmaskDef.getExpr())) {
+                    String pattern = "Bitmask definition ''{0}'' removed from output product because it is not applicable."; /*I18N*/
+                    messages.add(MessageFormat.format(pattern, bitmaskDef.getName()));
+                }
+            }
 
             @Override
             public void visit(TiePointGrid grid) {

@@ -1,12 +1,14 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.swing.binding.BindingContext;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.util.Debug;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 
@@ -95,6 +97,12 @@ class CorrelativeFieldSelector {
             pointDataSourceProperty.getDescriptor().setValueSet(valueSet);
         } else {
             pointDataSourceProperty.getDescriptor().setValueSet(null);
+            dataFieldProperty.getDescriptor().setValueSet(null);
+            try {
+                pointDataSourceProperty.setValue(null);
+                dataFieldProperty.setValue(null);
+            } catch (ValidationException ignore) {
+            }
         }
     }
 
@@ -110,6 +118,10 @@ class CorrelativeFieldSelector {
             dataFieldProperty.getDescriptor().setValueSet(new ValueSet(result.toArray()));
         } else {
             dataFieldProperty.getDescriptor().setValueSet(null);
+            try {
+                dataFieldProperty.setValue(null);
+            } catch (ValidationException ignore) {
+            }
         }
     }
 

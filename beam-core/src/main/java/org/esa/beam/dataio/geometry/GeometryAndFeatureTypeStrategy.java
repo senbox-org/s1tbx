@@ -17,8 +17,6 @@
 package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.ConverterRegistry;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -32,7 +30,7 @@ import java.io.IOException;
  * @author Olaf Danne
  * @author Thomas Storm
  */
-class GeometryAndFeatureTypeStrategy implements GeometryStrategy {
+class GeometryAndFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
     private GeoCoding geoCoding;
     private String geometryName;
@@ -55,7 +53,7 @@ class GeometryAndFeatureTypeStrategy implements GeometryStrategy {
     }
 
     @Override
-    public int computeExpectedTokenCount(int attributeCount) {
+    public int getExpectedTokenCount(int attributeCount) {
         return attributeCount + 1;  // (has feature type name);
     }
 
@@ -63,18 +61,7 @@ class GeometryAndFeatureTypeStrategy implements GeometryStrategy {
     public void interpretLine(String[] tokens, SimpleFeatureBuilder builder, SimpleFeatureType simpleFeatureType) throws IOException, ConversionException {
         for (int columnIndex = 1; columnIndex < tokens.length; columnIndex++) {
             String token = tokens[columnIndex];
-            token = VectorDataNodeIO.decodeTabString(token);
-            Object value = null;
-            if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
-                Class<?> attributeType = simpleFeatureType.getType(columnIndex - 1).getBinding();
-                ConverterRegistry converterRegistry = ConverterRegistry.getInstance();
-                Converter<?> converter = converterRegistry.getConverter(attributeType);
-                if (converter == null) {
-                    throw new IOException(String.format("No converter for type %s found.", attributeType));
-                }
-                value = converter.parse(token);
-            }
-            builder.set(simpleFeatureType.getDescriptor(columnIndex - 1).getLocalName(), value);
+            setAttributeValue(builder, simpleFeatureType, columnIndex - 1, token);
         }
     }
 
@@ -87,5 +74,10 @@ class GeometryAndFeatureTypeStrategy implements GeometryStrategy {
     @Override
     public String getFeatureId(String[] tokens) {
         return tokens[0];
+    }
+
+    @Override
+    public int getStartColumn() {
+        return 1;
     }
 }

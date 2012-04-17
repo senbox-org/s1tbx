@@ -23,7 +23,14 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygonal;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.dataio.geometry.VectorDataNodeIO;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlainFeatureFactory;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
@@ -34,13 +41,16 @@ import org.esa.beam.framework.ui.crs.PredefinedCrsForm;
 import org.esa.beam.framework.ui.crs.ProductCrsForm;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.*;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.FeatureUtils;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.SLDUtils;
-import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
@@ -49,20 +59,25 @@ import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.styling.Style;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import java.awt.Insets;
 import java.awt.geom.AffineTransform;
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.StreamTokenizer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 // todo - test with shapefile that has no CRS (nf, 2012-04-05)
@@ -119,7 +134,8 @@ public class ImportGeometryAction extends ExecCommand {
         final GeoCoding geoCoding = product.getGeoCoding();
         if (isShapefile(file) && (geoCoding == null || !geoCoding.canGetPixelPos())) {
             visatApp.showErrorDialog(DLG_TITLE, "Failed to import geometry.\n"
-                    + "Current geo-coding cannot convert from geographic to pixel coordinates."); /* I18N */
+                                                +
+                                                "Current geo-coding cannot convert from geographic to pixel coordinates."); /* I18N */
             return;
         }
 
@@ -135,14 +151,14 @@ public class ImportGeometryAction extends ExecCommand {
             vectorDataNode = readGeometry(visatApp, file, product, reader);
         } catch (Exception e) {
             visatApp.showErrorDialog(DLG_TITLE, "Failed to import geometry.\n" + "An I/O Error occurred:\n"
-                    + e.getMessage()); /* I18N */
+                                                + e.getMessage()); /* I18N */
             Debug.trace(e);
             return;
         }
 
         if (vectorDataNode.getFeatureCollection().isEmpty()) {
             visatApp.showErrorDialog(DLG_TITLE, "The geometry was loaded successfully,\n"
-                    + "but no part is located within the scene boundaries."); /* I18N */
+                                                + "but no part is located within the scene boundaries."); /* I18N */
             return;
         }
 
@@ -151,43 +167,29 @@ public class ImportGeometryAction extends ExecCommand {
         GeometryDescriptor geometryDescriptor = vectorDataNode.getFeatureType().getGeometryDescriptor();
         int featureCount = vectorDataNode.getFeatureCollection().size();
         if (featureCount > 1
-                && geometryDescriptor != null
-                && Polygonal.class.isAssignableFrom(geometryDescriptor.getType().getBinding())) {
+            && geometryDescriptor != null
+            && Polygonal.class.isAssignableFrom(geometryDescriptor.getType().getBinding())) {
 
-            ModalDialog dialog = new ModalDialog(visatApp.getMainFrame(), DLG_TITLE, ModalDialog.ID_YES_NO_HELP, getHelpId());
-            JPanel content = new JPanel(new BorderLayout());
-            content.add(new JLabel("<html>" +
-                                           "The Shapefile contains <b>" + featureCount + "</b> polygonal shapes.<br>" +
-                                           "Shall they be imported separately?<br>" +
-                                           "<br>" +
-                                           "If you select <b>Yes</b>, the shapes can be used as individual masks<br>" +
-                                           "and they will be displayed on individual layers.</i>"), BorderLayout.NORTH);
+            String text = "<html>" +
+                          "The Shapefile contains <b>" +
+                          featureCount + "</b> polygonal shapes.<br>" +
+                          "Shall they be imported separately?<br>" +
+                          "<br>" +
+                          "If you select <b>Yes</b>, the shapes can be used as individual masks<br>" +
+                          "and they will be displayed on individual layers.</i>";
+            SeparateGeometriesDialog dialog = new SeparateGeometriesDialog(visatApp.getMainFrame(), vectorDataNode, getHelpId(),
+                                                                           text);
 
-            List<AttributeType> types = vectorDataNode.getFeatureType().getTypes();
-            ArrayList<String> names = new ArrayList<String>();
-            for (AttributeType type : types) {
-                if (type.getBinding().equals(String.class)) {
-                    names.add(type.getName().getLocalPart());
-                }
-            }
-            JComboBox comboBox = new JComboBox(names.toArray(new String[names.size()]));
-            if (names.size() > 0) {
-                JPanel content2 = new JPanel(new BorderLayout());
-                content2.add(new JLabel("Attribute for mask/layer naming: "), BorderLayout.WEST);
-                content2.add(comboBox, BorderLayout.CENTER);
-                content.add(content2, BorderLayout.SOUTH);
-            }
-            dialog.setContent(content);
             int response = dialog.show();
             if (response == ModalDialog.ID_CANCEL) {
                 return;
             }
 
             individualShapes = response == ModalDialog.ID_YES;
-            attributeName = (String) comboBox.getSelectedItem();
+            attributeName = dialog.getSelectedAttributeName();
         }
 
-        VectorDataNode[] vectorDataNodes = getVectorDataNodes(vectorDataNode, individualShapes, attributeName);
+        VectorDataNode[] vectorDataNodes = VectorDataNodeIO.getVectorDataNodes(vectorDataNode, individualShapes, attributeName);
         for (VectorDataNode vectorDataNode1 : vectorDataNodes) {
             product.getVectorDataGroup().add(vectorDataNode1);
         }
@@ -200,29 +202,6 @@ public class ImportGeometryAction extends ExecCommand {
         if (sceneView != null) {
             sceneView.setLayersVisible(vectorDataNodes);
         }
-    }
-
-    private VectorDataNode[] getVectorDataNodes(VectorDataNode vectorDataNode, boolean individualShapes, String attributeName) {
-        VectorDataNode[] vectorDataNodes;
-        if (individualShapes) {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
-            SimpleFeature[] features = featureCollection.toArray(new SimpleFeature[0]);
-            vectorDataNodes = new VectorDataNode[features.length];
-            for (int i = 0; i < features.length; i++) {
-                SimpleFeature feature = features[i];
-                String newName;
-                if (attributeName != null && feature.getAttribute(attributeName) != null) {
-                    newName = feature.getAttribute(attributeName).toString().replace(" ", "_").replace("-", "_");
-                } else {
-                    newName = vectorDataNode.getName() + "_" + (i + 1);
-                }
-                vectorDataNodes[i] = new VectorDataNode(newName,
-                                                        new ListFeatureCollection(vectorDataNode.getFeatureType(), Arrays.asList(feature)));
-            }
-        } else {
-            vectorDataNodes = new VectorDataNode[]{vectorDataNode};
-        }
-        return vectorDataNodes;
     }
 
     private static String findUniqueVectorDataNodeName(String suggestedName,
@@ -246,10 +225,12 @@ public class ImportGeometryAction extends ExecCommand {
     }
 
     interface VectorDataNodeReader {
+
         VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException;
     }
 
     static class VdnShapefileReader implements VectorDataNodeReader {
+
         @Override
         public VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException {
 
@@ -274,6 +255,7 @@ public class ImportGeometryAction extends ExecCommand {
         }
 
         private class MyFeatureCrsProvider implements FeatureUtils.FeatureCrsProvider {
+
             private final VisatApp visatApp;
             private final String helpId;
 
@@ -325,8 +307,8 @@ public class ImportGeometryAction extends ExecCommand {
                 final JPanel contentPanel = new JPanel(tableLayout);
                 final JLabel label = new JLabel();
                 label.setText("<html><b>" +
-                                      "This Shapefile does not define a coordinate reference system (CRS).<br/>" +
-                                      "Please specify a CRS so that coordinates can interpreted correctly.</b>");
+                              "This Shapefile does not define a coordinate reference system (CRS).<br/>" +
+                              "Please specify a CRS so that coordinates can interpreted correctly.</b>");
 
                 contentPanel.add(label);
                 contentPanel.add(crsSelectionPanel);
@@ -335,7 +317,8 @@ public class ImportGeometryAction extends ExecCommand {
                     try {
                         return crsSelectionPanel.getCrs(ProductUtils.getCenterGeoPos(product));
                     } catch (FactoryException e) {
-                        visatApp.showErrorDialog(DLG_TITLE, "Can not create Coordinate Reference System.\n" + e.getMessage());
+                        visatApp.showErrorDialog(DLG_TITLE,
+                                                 "Can not create Coordinate Reference System.\n" + e.getMessage());
                     }
                 }
                 return null;
@@ -372,6 +355,7 @@ public class ImportGeometryAction extends ExecCommand {
     }
 
     static class VdnTextReader implements VectorDataNodeReader {
+
         @Override
         public VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException {
             final ArrayList<PixelPos> pixelPositions = new ArrayList<PixelPos>(256);
@@ -394,9 +378,10 @@ public class ImportGeometryAction extends ExecCommand {
                     final int tt = st.nextToken();
 
                     if (tt == StreamTokenizer.TT_EOF
-                            || tt == StreamTokenizer.TT_EOL) {
+                        || tt == StreamTokenizer.TT_EOL) {
                         final boolean xyAvailable = valid[0] && valid[1];
-                        final boolean latLonAvailable = valid[2] && valid[3] && geoCoding != null && geoCoding.canGetPixelPos();
+                        final boolean latLonAvailable =
+                                valid[2] && valid[3] && geoCoding != null && geoCoding.canGetPixelPos();
                         if (xyAvailable || latLonAvailable) {
                             PixelPos pixelPos;
                             if (latLonAvailable) {
@@ -423,22 +408,22 @@ public class ImportGeometryAction extends ExecCommand {
                         final String token = st.sval;
                         int headerText = -1;
                         if ("x".equalsIgnoreCase(token)
-                                || "pixel-x".equalsIgnoreCase(token)
-                                || "pixel_x".equalsIgnoreCase(token)) {
+                            || "pixel-x".equalsIgnoreCase(token)
+                            || "pixel_x".equalsIgnoreCase(token)) {
                             indices[0] = column;
                             headerText = 0;
                         } else if ("y".equalsIgnoreCase(token)
-                                || "pixel-y".equalsIgnoreCase(token)
-                                || "pixel_y".equalsIgnoreCase(token)) {
+                                   || "pixel-y".equalsIgnoreCase(token)
+                                   || "pixel_y".equalsIgnoreCase(token)) {
                             indices[1] = column;
                             headerText = 1;
                         } else if ("lat".equalsIgnoreCase(token)
-                                || "latitude".equalsIgnoreCase(token)) {
+                                   || "latitude".equalsIgnoreCase(token)) {
                             indices[2] = column;
                             headerText = 2;
                         } else if ("lon".equalsIgnoreCase(token)
-                                || "long".equalsIgnoreCase(token)
-                                || "longitude".equalsIgnoreCase(token)) {
+                                   || "long".equalsIgnoreCase(token)
+                                   || "longitude".equalsIgnoreCase(token)) {
                             indices[3] = column;
                             headerText = 3;
                         } else {

@@ -44,19 +44,19 @@ public class VectorDataNodeReader2 {
     private final String location;
     private final CoordinateReferenceSystem modelCrs;
     private final GeoCoding geoCoding;
+    private final InterpretationStrategy interpretationStrategy;
+    private final CsvReader reader;
 
     private static final String[] LONGITUDE_IDENTIFIERS = new String[]{"lon", "long", "longitude"};
     private static final String[] LATITUDE_IDENTIFIERS = new String[]{"lat", "latitude"};
-    public static final String[] GEOMETRY_IDENTIFIERS = new String[]{"geometry", "geom"};
-    private GeometryStrategy geometryStrategy;
-    private CsvReader reader;
+    private static final String[] GEOMETRY_IDENTIFIERS = new String[]{"geometry", "geom", "the_geom"};
 
     public VectorDataNodeReader2(String fileName, GeoCoding geoCoding, Reader reader, CoordinateReferenceSystem modelCrs) throws IOException {
         this.geoCoding = geoCoding;
         this.location = fileName;
         this.modelCrs = modelCrs;
         this.reader = new CsvReader(reader, new char[]{VectorDataNodeIO.DELIMITER_CHAR}, true, "#");
-        this.geometryStrategy = createGeometryStrategy();
+        this.interpretationStrategy = createInterpretationStrategy();
     }
 
     public static VectorDataNode read(String fileName, Reader reader, GeoCoding geoCoding, CoordinateReferenceSystem modelCrs) throws IOException {
@@ -83,7 +83,6 @@ public class VectorDataNodeReader2 {
      * Collects comment lines of the form "# &lt;name&gt; = &lt;value&gt;" until the first non-empty and non-comment line is found.
      *
      * @return All the property assignments found.
-     *
      * @throws java.io.IOException
      */
     Map<String, String> readProperties() throws IOException {
@@ -99,7 +98,7 @@ public class VectorDataNodeReader2 {
                     String name = line.substring(0, index).trim();
                     String value = line.substring(index + 1).trim();
                     if (StringUtils.isNotNullAndNotEmpty(name) &&
-                        StringUtils.isNotNullAndNotEmpty(value)) {
+                            StringUtils.isNotNullAndNotEmpty(value)) {
                         properties.put(name, value);
                     }
                 }
@@ -117,12 +116,12 @@ public class VectorDataNodeReader2 {
         return readFeatures(featureType);
     }
 
-    private GeometryStrategy createGeometryStrategy() throws IOException {
+    private InterpretationStrategy createInterpretationStrategy() throws IOException {
         reader.mark(1024 * 1024 * 10);
         String[] tokens = reader.readRecord();
         reader.reset();
 
-        if(tokens == null) {
+        if (tokens == null) {
             throw new IOException(String.format("Invalid header in file '%s'", location));
         }
 
@@ -164,7 +163,7 @@ public class VectorDataNodeReader2 {
 
         hasLatLon = latIndex != -1 && lonIndex != -1;
         if (geometryIndex == -1 && (latIndex == -1 || lonIndex == -1)) {
-            throw new IOException("Neither lat/lon nor geometry colum provided.");
+            throw new IOException("Neither lat/lon nor geometry column provided.");
         }
 
         if (hasLatLon && hasFeatureTypeName) {
@@ -192,15 +191,15 @@ public class VectorDataNodeReader2 {
                 continue;
             }
             try {
-                geometryStrategy.interpretLine(tokens, builder, simpleFeatureType);
+                interpretationStrategy.interpretLine(tokens, builder, simpleFeatureType);
             } catch (ConversionException e) {
                 BeamLogManager.getSystemLogger().warning(String.format("Unable to parse %s: %s", location, e.getMessage()));
             }
 
-            String featureId = geometryStrategy.getFeatureId(tokens);
+            String featureId = interpretationStrategy.getFeatureId(tokens);
             SimpleFeature simpleFeature = builder.buildFeature(featureId);
 
-            geometryStrategy.transformGeoPosToPixelPos(simpleFeature);
+            interpretationStrategy.transformGeoPosToPixelPos(simpleFeature);
 
             fc.add(simpleFeature);
         }
@@ -208,7 +207,7 @@ public class VectorDataNodeReader2 {
     }
 
     private boolean isLineValid(SimpleFeatureType simpleFeatureType, String[] tokens) {
-        int expectedTokenCount = geometryStrategy.computeExpectedTokenCount(simpleFeatureType.getAttributeCount());
+        int expectedTokenCount = interpretationStrategy.getExpectedTokenCount(simpleFeatureType.getAttributeCount());
         if (tokens.length != expectedTokenCount) {
             BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
                                                                    location, expectedTokenCount, tokens.length));
@@ -237,29 +236,27 @@ public class VectorDataNodeReader2 {
         }
         reader.reset();
 
-        for (int i = 0; i < tokens.length; i++) {
-            if (i != 0 || !tokens[0].startsWith("org.esa.beam")) {
-                String token = tokens[i];
-                final int colonPos = token.indexOf(':');
-                String attributeTypeName;
-                String attributeName;
-                if (colonPos == -1) {
-                    attributeName = token;
-                    attributeTypeName = findAttributeTypeName(firstRecord == null ? "" : firstRecord[i]);
-                } else if (colonPos == 0) {
-                    throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
-                } else {
-                    attributeTypeName = token.substring(colonPos + 1);
-                    attributeName = token.substring(0, colonPos);
-                }
-
-                Class<?> attributeType = getAttributeType(jtc, token, attributeTypeName);
-                builder.add(attributeName, attributeType);
+        for (int i = interpretationStrategy.getStartColumn(); i < tokens.length; i++) {
+            String token = tokens[i];
+            final int colonPos = token.indexOf(':');
+            String attributeTypeName;
+            String attributeName;
+            if (colonPos == 0) {
+                throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
+            } else if (colonPos == -1) {
+                attributeName = token;
+                attributeTypeName = findAttributeTypeName(firstRecord == null ? "" : firstRecord[i]);
+            } else {
+                attributeTypeName = token.substring(colonPos + 1);
+                attributeName = token.substring(0, colonPos);
             }
+
+            Class<?> attributeType = getAttributeType(jtc, token, attributeTypeName);
+            builder.add(attributeName, attributeType);
         }
 
-        geometryStrategy.setDefaultGeometry(builder);
-        geometryStrategy.setName(builder);
+        interpretationStrategy.setDefaultGeometry(builder);
+        interpretationStrategy.setName(builder);
 
         return builder.buildFeatureType();
     }

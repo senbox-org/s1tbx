@@ -16,6 +16,7 @@
 
 package org.esa.beam.visat.actions;
 
+import org.esa.beam.dataio.geometry.VectorDataNodeIO;
 import org.esa.beam.dataio.geometry.VectorDataNodeReader2;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.VectorDataNode;
@@ -68,13 +69,39 @@ public class ImportPointDataAction extends ExecCommand {
             return;
         }
 
-        TypeDialog dialog = new TypeDialog(visatApp.getApplicationWindow(), modelCrs);
-        if (dialog.show() != ModalDialog.ID_OK) {
+        TypeDialog typeDialog = new TypeDialog(visatApp.getApplicationWindow(), modelCrs);
+        if (typeDialog.show() != ModalDialog.ID_OK) {
             return;
         }
 
-        vectorDataNode.getFeatureType().getUserData().put(dialog.getFeatureTypeName(), true);
-        product.getVectorDataGroup().add(vectorDataNode);
+        vectorDataNode.getFeatureType().getUserData().put(typeDialog.getFeatureTypeName(), true);
+
+        int featureCount = vectorDataNode.getFeatureCollection().size();
+        boolean individualShapes = false;
+        String attributeName = null;
+        if (featureCount > 1) {
+            String text = "<html>" +
+                          "The data contains <b>" +
+                          vectorDataNode.getFeatureCollection().size() + " </b>features.<br>" +
+                          "Shall they be imported separately?<br>" +
+                          "<br>" +
+                          "If you select <b>Yes</b>, the features can be used as individual masks<br>" +
+                          "and they will be displayed on individual layers.</i>";
+            SeparateGeometriesDialog separateGeometriesDialog = new SeparateGeometriesDialog(visatApp.getMainFrame(), vectorDataNode, getHelpId(), text);
+
+            int response = separateGeometriesDialog.show();
+            if (response == ModalDialog.ID_CANCEL) {
+                return;
+            }
+
+            individualShapes = response == ModalDialog.ID_YES;
+            attributeName = separateGeometriesDialog.getSelectedAttributeName();
+
+        }
+        VectorDataNode[] vectorDataNodes = VectorDataNodeIO.getVectorDataNodes(vectorDataNode, individualShapes, attributeName);
+        for (VectorDataNode vectorDataNode1 : vectorDataNodes) {
+            product.getVectorDataGroup().add(vectorDataNode1);
+        }
     }
 
     @Override
