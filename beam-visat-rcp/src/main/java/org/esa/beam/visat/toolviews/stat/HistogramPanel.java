@@ -143,9 +143,7 @@ class HistogramPanel extends ChartPagePanel {
         renderer.setShadowYOffset(-4.0);
         renderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
         renderer.setBarPainter(new StandardXYBarPainter());
-        //I can't get this dammed bars blue!!! (nf)
-        renderer.setBasePaint(new Color(0, 0, 200));
-        renderer.setBaseFillPaint(new Color(0, 0, 200));
+        renderer.setSeriesPaint(0, new Color(0, 0, 200));
 
         createUI(createChartPanel(chart), createOptionsPanel(), bindingContext);
 
@@ -221,9 +219,9 @@ class HistogramPanel extends ChartPagePanel {
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
                 return String.format("%s >= %s && %s <= %s",
                                      getRaster().getName(),
-                                     x0,
+                                     stx != null ? stx.getHistogramScaling().scaleInverse(x0) : x0,
                                      getRaster().getName(),
-                                     x0 + dx);
+                                     stx != null ? stx.getHistogramScaling().scaleInverse(x0 + dx) : x0 + dx);
             }
         };
 
@@ -265,8 +263,8 @@ class HistogramPanel extends ChartPagePanel {
     @Override
     public void compute() {
         final boolean autoMinMaxEnabled = getAutoMinMaxEnabled();
-        final Number min;
-        final Number max;
+        final Double min;
+        final Double max;
         if (autoMinMaxEnabled) {
             min = null;
             max = null;
@@ -305,8 +303,8 @@ class HistogramPanel extends ChartPagePanel {
                     Stx stx = get();
                     if (stx.getSampleCount() > 0) {
                         if (autoMinMaxEnabled) {
-                            final double min = stx.getMinimum();
-                            final double max = stx.getMaximum();
+                            final double min = stx.getHistogramScaling().scale(stx.getMinimum());
+                            final double max = stx.getHistogramScaling().scale(stx.getMaximum());
                             final double v = MathUtils.computeRoundFactor(min, max, 4);
                             histogramComputing = true;
                             xAxisRangeControl.getBindingContext().getBinding("min").setPropertyValue(StatisticsUtils.round(min, v));
