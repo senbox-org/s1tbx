@@ -69,7 +69,7 @@ class LatLonNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
     @Override
     public int getExpectedTokenCount(int attributeCount) {
-        return attributeCount - 2;  // (lat/lon not used as attributes)
+        return attributeCount - 2; // pixelPos and geoPos added as attributes
     }
 
     @Override
@@ -79,14 +79,11 @@ class LatLonNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
             String token = tokens[columnIndex];
             if (columnIndex == latIndex) {
                 lat = Double.parseDouble(token);
-                attributeIndex++;
             } else if (columnIndex == lonIndex) {
                 lon = Double.parseDouble(token);
-                attributeIndex++;
-            } else {
-                setAttributeValue(builder, simpleFeatureType, attributeIndex, token);
-                attributeIndex++;
             }
+            setAttributeValue(builder, simpleFeatureType, attributeIndex, token);
+            attributeIndex++;
         }
         builder.set("geoPos", new GeometryFactory().createPoint(new Coordinate(lon, lat)));
         PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos((float) lat, (float) lon), null);
