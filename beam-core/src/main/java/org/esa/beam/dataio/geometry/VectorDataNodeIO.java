@@ -18,10 +18,15 @@ package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
+import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.geotools.data.collection.ListFeatureCollection;
+import org.geotools.feature.FeatureCollection;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.esa.beam.util.converters.JtsGeometryConverter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class VectorDataNodeIO {
     public static final char DELIMITER_CHAR = '\t';
@@ -93,5 +98,28 @@ public class VectorDataNodeIO {
             }
         }
         return sb.toString();
+    }
+
+    public static VectorDataNode[] getVectorDataNodes(VectorDataNode vectorDataNode, boolean individualShapes, String attributeName) {
+        VectorDataNode[] vectorDataNodes;
+        if (individualShapes) {
+            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
+            SimpleFeature[] features = featureCollection.toArray(new SimpleFeature[0]);
+            vectorDataNodes = new VectorDataNode[features.length];
+            for (int i = 0; i < features.length; i++) {
+                SimpleFeature feature = features[i];
+                String newName;
+                if (attributeName != null && feature.getAttribute(attributeName) != null && !feature.getAttribute(attributeName).toString().isEmpty()) {
+                    newName = feature.getAttribute(attributeName).toString().replace(" ", "_").replace("-", "_");
+                } else {
+                    newName = vectorDataNode.getName() + "_" + (i + 1);
+                }
+                vectorDataNodes[i] = new VectorDataNode(newName,
+                                                        new ListFeatureCollection(vectorDataNode.getFeatureType(), Arrays.asList(feature)));
+            }
+        } else {
+            vectorDataNodes = new VectorDataNode[]{vectorDataNode};
+        }
+        return vectorDataNodes;
     }
 }

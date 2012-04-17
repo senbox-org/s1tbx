@@ -23,7 +23,9 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureImpl;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Before;
@@ -142,5 +144,53 @@ public class VectorDataNodeIOTest {
         assertNotNull(vectorDataNode2);
         assertEquals(vectorDataNode.getDescription(), vectorDataNode2.getDescription());
         assertEquals(vectorDataNode.getDefaultStyleCss(), vectorDataNode2.getDefaultStyleCss());
+    }
+
+    @Test
+    public void testGetVectorDataNodes() throws Exception {
+        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+        builder.setName("sft");
+        builder.add("CAPITAL", String.class);
+        SimpleFeatureType featureType = builder.buildFeatureType();
+        VectorDataNode vectorDataNode = new VectorDataNode("originalName", featureType);
+        SimpleFeatureBuilder simpleFeatureBuilder = new SimpleFeatureBuilder(featureType);
+        simpleFeatureBuilder.set("CAPITAL", "Moscow");
+
+        vectorDataNode.getFeatureCollection().add(simpleFeatureBuilder.buildFeature("0"));
+
+        simpleFeatureBuilder.set("CAPITAL", "Coruscant");
+
+        vectorDataNode.getFeatureCollection().add(simpleFeatureBuilder.buildFeature("1"));
+
+        VectorDataNode[] vectorDataNodes = VectorDataNodeIO.getVectorDataNodes(vectorDataNode, true, "CAPITAL");
+        assertEquals(2, vectorDataNodes.length);
+        assertEquals("Moscow", vectorDataNodes[0].getName());
+        assertEquals("Coruscant", vectorDataNodes[1].getName());
+
+        vectorDataNodes = VectorDataNodeIO.getVectorDataNodes(vectorDataNode, false, "CAPITAL");
+        assertEquals(1, vectorDataNodes.length);
+        assertEquals("originalName", vectorDataNodes[0].getName());
+    }
+
+    @Test
+    public void testGetVectorDataNodesWithEmptyAttribute() throws Exception {
+        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+        builder.setName("sft");
+        builder.add("CAPITAL", String.class);
+        SimpleFeatureType featureType = builder.buildFeatureType();
+        VectorDataNode vectorDataNode = new VectorDataNode("originalName", featureType);
+        SimpleFeatureBuilder simpleFeatureBuilder = new SimpleFeatureBuilder(featureType);
+        simpleFeatureBuilder.set("CAPITAL", "");
+
+        vectorDataNode.getFeatureCollection().add(simpleFeatureBuilder.buildFeature("0"));
+
+        simpleFeatureBuilder.set("CAPITAL", "Coruscant");
+
+        vectorDataNode.getFeatureCollection().add(simpleFeatureBuilder.buildFeature("1"));
+
+        VectorDataNode[] vectorDataNodes = VectorDataNodeIO.getVectorDataNodes(vectorDataNode, true, "CAPITAL");
+        assertEquals(2, vectorDataNodes.length);
+        assertEquals("originalName_1", vectorDataNodes[0].getName());
+        assertEquals("Coruscant", vectorDataNodes[1].getName());
     }
 }
