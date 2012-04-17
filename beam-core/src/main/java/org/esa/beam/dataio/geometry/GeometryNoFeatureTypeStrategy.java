@@ -17,8 +17,6 @@
 package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.ConverterRegistry;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -34,7 +32,7 @@ import java.util.Calendar;
  * @author Olaf Danne
  * @author Thomas Storm
  */
-public class GeometryNoFeatureTypeStrategy implements GeometryStrategy {
+class GeometryNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
     private FeatureIdCreator idCreator = new FeatureIdCreator();
     private GeoCoding geoCoding;
@@ -64,7 +62,7 @@ public class GeometryNoFeatureTypeStrategy implements GeometryStrategy {
     }
 
     @Override
-    public int computeExpectedTokenCount(int attributeCount) {
+    public int getExpectedTokenCount(int attributeCount) {
         return attributeCount;
     }
 
@@ -75,21 +73,15 @@ public class GeometryNoFeatureTypeStrategy implements GeometryStrategy {
 
     @Override
     public void interpretLine(String[] tokens, SimpleFeatureBuilder builder, SimpleFeatureType simpleFeatureType) throws IOException, ConversionException {
-        for (int columnIndex = 0; columnIndex < tokens.length; columnIndex++) {
-            String token = tokens[columnIndex];
-            token = VectorDataNodeIO.decodeTabString(token);
-            Object value = null;
-            if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
-                Class<?> attributeType = simpleFeatureType.getType(columnIndex).getBinding();
-                ConverterRegistry converterRegistry = ConverterRegistry.getInstance();
-                Converter<?> converter = converterRegistry.getConverter(attributeType);
-                if (converter == null) {
-                    throw new IOException(String.format("No converter for type %s found.", attributeType));
-                }
-                value = converter.parse(token);
-            }
-            builder.set(simpleFeatureType.getDescriptor(columnIndex).getLocalName(), value);
+        for (int attributeIndex = 0; attributeIndex < tokens.length; attributeIndex++) {
+            String token = tokens[attributeIndex];
+            setAttributeValue(builder, simpleFeatureType, attributeIndex, token);
         }
+    }
+
+    @Override
+    public int getStartColumn() {
+        return 0;
     }
 
     private static class FeatureIdCreator {

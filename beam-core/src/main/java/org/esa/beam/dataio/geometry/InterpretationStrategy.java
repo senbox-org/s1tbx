@@ -28,17 +28,19 @@ import java.io.IOException;
  * @author Olaf Danne
  * @author Thomas Storm
  */
-interface GeometryStrategy {
+interface InterpretationStrategy {
 
     void setDefaultGeometry(SimpleFeatureTypeBuilder builder);
 
     void setName(SimpleFeatureTypeBuilder builder);
 
-    int computeExpectedTokenCount(int attributeCount);
+    int getExpectedTokenCount(int attributeCount);
 
     String getFeatureId(String[] tokens);
 
     void interpretLine(String[] tokens, SimpleFeatureBuilder builder, SimpleFeatureType simpleFeatureType) throws IOException, ConversionException;
 
     void transformGeoPosToPixelPos(SimpleFeature simpleFeature);
+
+    int getStartColumn();
 }

@@ -17,8 +17,6 @@
 package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.ConverterRegistry;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -38,7 +36,7 @@ import java.util.Calendar;
  * @author Olaf Danne
  * @author Thomas Storm
  */
-class LatLonNoFeatureTypeStrategy implements GeometryStrategy {
+class LatLonNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
     private FeatureIdCreator idCreator;
 
@@ -70,8 +68,8 @@ class LatLonNoFeatureTypeStrategy implements GeometryStrategy {
     }
 
     @Override
-    public int computeExpectedTokenCount(int attributeCount) {
-        return attributeCount - 2;  // (lat/lon not used as attributes, no feature type name)
+    public int getExpectedTokenCount(int attributeCount) {
+        return attributeCount - 2;  // (lat/lon not used as attributes)
     }
 
     @Override
@@ -86,18 +84,7 @@ class LatLonNoFeatureTypeStrategy implements GeometryStrategy {
                 lon = Double.parseDouble(token);
                 attributeIndex++;
             } else {
-                token = VectorDataNodeIO.decodeTabString(token);
-                Object value = null;
-                if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
-                    Class<?> attributeType = simpleFeatureType.getType(attributeIndex).getBinding();
-                    ConverterRegistry converterRegistry = ConverterRegistry.getInstance();
-                    Converter<?> converter = converterRegistry.getConverter(attributeType);
-                    if (converter == null) {
-                        throw new IOException(String.format("No converter for type %s found.", attributeType));
-                    }
-                    value = converter.parse(token);
-                }
-                builder.set(simpleFeatureType.getDescriptor(attributeIndex).getLocalName(), value);
+                setAttributeValue(builder, simpleFeatureType, attributeIndex, token);
                 attributeIndex++;
             }
         }
@@ -113,6 +100,12 @@ class LatLonNoFeatureTypeStrategy implements GeometryStrategy {
 
     @Override
     public void transformGeoPosToPixelPos(SimpleFeature simpleFeature) {
+        // not needed
+    }
+
+    @Override
+    public int getStartColumn() {
+        return 0;
     }
 
     private static class FeatureIdCreator {
