@@ -398,10 +398,10 @@ class ProfilePlotPanel extends ChartPagePanel {
                 }
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(getParent(),
-                                              "Failed to compute profile plot.\n" +
-                                                      "An I/O error occurred:" + e.getMessage(),
-                                              "I/O error",
-                                              JOptionPane.ERROR_MESSAGE);   /*I18N*/
+                        "Failed to compute profile plot.\n" +
+                                "An I/O error occurred:" + e.getMessage(),
+                        "I/O error",
+                        JOptionPane.ERROR_MESSAGE);   /*I18N*/
             }
         }
     }
@@ -459,7 +459,7 @@ class ProfilePlotPanel extends ChartPagePanel {
 
             profilePlotDisplay.restoreAutoBounds();
             xAxisRangeControl.getBindingContext().setComponentsEnabled(PROPERTY_NAME_MARK_SEGMENTS,
-                                                                       profileData.getShapeVertices().length > 2);
+                    profileData.getShapeVertices().length > 2);
         }
     }
 
@@ -474,8 +474,8 @@ class ProfilePlotPanel extends ChartPagePanel {
         }
 
         xAxisRangeControl.getBindingContext().setComponentsEnabled(PROPERTY_NAME_MARK_SEGMENTS,
-                                                                   profileData != null &&
-                                                                           profileData.getShapeVertices().length > 2);
+                profileData != null &&
+                        profileData.getShapeVertices().length > 2);
         xAxisRangeControl.setComponentsEnabled(profileData != null);
         yAxisRangeControl.setComponentsEnabled(profileData != null);
         adjustPlotAxes();

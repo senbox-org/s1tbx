@@ -61,10 +61,10 @@ import javax.swing.JTextField;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
+import java.awt.geom.Ellipse2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
@@ -81,7 +81,7 @@ import java.util.concurrent.ExecutionException;
  * @author Olaf Danne
  * @author Sabine Embacher
  */
-class ScatterPlotPanel extends ChartPagePanel{
+class ScatterPlotPanel extends ChartPagePanel {
 
     private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" + ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Scatter Plot";
@@ -119,12 +119,12 @@ class ScatterPlotPanel extends ChartPagePanel{
 
             @Override
             protected XYIntervalSeries doInBackground(ProgressMonitor pm) throws Exception {
-                pm.beginTask("Computing scatter plot...", 100);
+//                pm.beginTask("Computing scatter plot...", 100);
+                final XYIntervalSeries scatterValues = new XYIntervalSeries("scatter values");
                 try {
                     final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = scatterPlotModel.pointDataSource.getFeatureCollection();
                     final SimpleFeature[] features = collection.toArray(new SimpleFeature[collection.size()]);
 
-                    final XYIntervalSeries scatterValues = new XYIntervalSeries("scatter values");
                     final int boxSize = scatterPlotModel.boxSize;
 
                     final Rectangle sceneRect = new Rectangle(raster.getSceneRasterWidth(), raster.getSceneRasterHeight());
@@ -180,16 +180,16 @@ class ScatterPlotPanel extends ChartPagePanel{
                         final double y = insituValue;
                         scatterValues.add(x, x - dx, x + dx, y, y, y);
                     }
-
-                    return scatterValues;
                 } finally {
-                    pm.done();
+//                    pm.done();
+                    return scatterValues;
                 }
             }
 
             @Override
             public void done() {
                 try {
+                    plot.setDataset(0, null);
                     plot.setDataset(1, null);
                     final XYIntervalSeries xySeries = get();
 
@@ -200,8 +200,6 @@ class ScatterPlotPanel extends ChartPagePanel{
                                 /*I18N*/
                                 CHART_TITLE, /*I18N*/
                                 JOptionPane.ERROR_MESSAGE);
-                        plot.setDataset(0, null);
-                        plot.setDataset(1, null);
                         return;
                     }
 
@@ -216,12 +214,12 @@ class ScatterPlotPanel extends ChartPagePanel{
                     plot.setDataset(0, dataset);
 
                     if (xAxisRangeControl.isAutoMinMax()) {
-                        xAxisRangeControl.setMin(rasterAxis.getLowerBound());
-                        xAxisRangeControl.setMax(rasterAxis.getUpperBound());
+                        xAxisRangeControl.setMin(cropToDecimals(rasterAxis.getLowerBound(), 3));
+                        xAxisRangeControl.setMax(cropToDecimals(rasterAxis.getUpperBound(), 3));
                     }
                     if (yAxisRangeControl.isAutoMinMax()) {
-                        yAxisRangeControl.setMin(insituAxis.getLowerBound());
-                        yAxisRangeControl.setMax(insituAxis.getUpperBound());
+                        yAxisRangeControl.setMin(cropToDecimals(insituAxis.getLowerBound(), 3));
+                        yAxisRangeControl.setMax(cropToDecimals(insituAxis.getUpperBound(), 3));
                     }
 
                     rasterAxis.setAutoRange(false);
@@ -289,6 +287,12 @@ class ScatterPlotPanel extends ChartPagePanel{
         swingWorker.execute();
     }
 
+    private double cropToDecimals(double value, final int numDecimals) {
+        final double pow = Math.pow(10, numDecimals);
+        final double reverse = 1 / pow;
+        return Math.round(value * pow) * reverse;
+    }
+
     @Override
     protected String getDataAsText() {
 //        todo
@@ -323,13 +327,14 @@ class ScatterPlotPanel extends ChartPagePanel{
 
         super.updateContent();
         correlativeFieldSelector.updatePointDataSource(getProduct());
+        correlativeFieldSelector.updateDataField();
 
         setChartTitle();
     }
 
     @Override
     protected void compute() {
-        if (scatterPlotModel.dataField != null && getRaster() != null) {
+        if (scatterPlotModel.pointDataSource != null && scatterPlotModel.dataField != null && getRaster() != null) {
             compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
         }
     }
@@ -392,12 +397,7 @@ class ScatterPlotPanel extends ChartPagePanel{
         });
         final JSpinner boxSizeSpinner = new JSpinner();
         bindingContext.bind("boxSize", boxSizeSpinner);
-        final Component[] components = boxSizeSpinner.getEditor().getComponents();
-        for (Component component : components) {
-            if (component instanceof JTextField) {
-                component.setEnabled(false);
-            }
-        }
+
         final JPanel boxSizePanel = new JPanel(new BorderLayout(5, 3));
         boxSizePanel.add(new JLabel("Box size:"), BorderLayout.WEST);
         boxSizePanel.add(boxSizeSpinner);
@@ -461,11 +461,22 @@ class ScatterPlotPanel extends ChartPagePanel{
         final XYErrorRenderer xyErrorRenderer = new XYErrorRenderer();
         xyErrorRenderer.setDrawXError(true);
         xyErrorRenderer.setErrorStroke(new BasicStroke(1));
-        plot.setRenderer(xyErrorRenderer);
-        plot.getRenderer().setBaseToolTipGenerator(new XYPlotToolTipGenerator());
+        xyErrorRenderer.setErrorPaint(new Color(255, 150, 150));
+
+        xyErrorRenderer.setSeriesShape(0, new Ellipse2D.Float(-4, -4, 8, 8));
+        xyErrorRenderer.setSeriesLinesVisible(0, false);
+        xyErrorRenderer.setSeriesShapesVisible(0, true);
+        xyErrorRenderer.setSeriesPaint(0, null);
+        xyErrorRenderer.setSeriesOutlineStroke(0, new BasicStroke(1.0f));
+        xyErrorRenderer.setSeriesOutlinePaint(0, new Color(200, 0, 0));
+        xyErrorRenderer.setSeriesFillPaint(0, new Color(255, 150, 150));
+        xyErrorRenderer.setSeriesShapesFilled(0, true);
+        xyErrorRenderer.setSeriesToolTipGenerator(0, new XYPlotToolTipGenerator());
+        plot.setRenderer(0, xyErrorRenderer);
+
         final DeviationRenderer deviationRenderer = new DeviationRenderer(true, false);
-        deviationRenderer.setBasePaint(Color.black);
-        deviationRenderer.setBaseFillPaint(Color.lightGray);
+        deviationRenderer.setSeriesPaint(0, Color.black);
+        deviationRenderer.setSeriesFillPaint(0, Color.lightGray);
         plot.setRenderer(1, deviationRenderer);
         plot.setDomainAxis(createNumberAxis());
         plot.setRangeAxis(createNumberAxis());
