@@ -37,6 +37,13 @@ import java.awt.*;
 public interface PlacemarkDescriptor {
 
     /**
+     * Asks the descriptor to set any application specific information in the feature type's user data.
+     *
+     * @param featureType The feature type whose user data may or may not be altered.
+     */
+    void setUserData(SimpleFeatureType featureType);
+
+    /**
      * Creates a new placemark by wrapping the given feature.
      *
      * @param feature The feature to be wrapped.
