@@ -31,6 +31,8 @@ public class GcpDescriptor extends AbstractPlacemarkDescriptor {
     @Override
     public boolean isCompatibleWith(SimpleFeatureType featureType) {
         return featureType.getTypeName().equals("org.esa.beam.GroundControlPoint");
+        // todo - comment in next line
+//        return featureType.getGeometryDescriptor().getType().getBinding().isAssignableFrom(com.vividsolutions.jts.geom.Point.class);
     }
 
     @Override

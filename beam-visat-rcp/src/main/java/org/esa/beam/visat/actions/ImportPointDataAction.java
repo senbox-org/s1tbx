@@ -63,18 +63,18 @@ public class ImportPointDataAction extends ExecCommand {
         try {
             modelCrs = product.getGeoCoding() != null ? ImageManager.getModelCrs(product.getGeoCoding()) :
                        ImageManager.DEFAULT_IMAGE_CRS;
-            vectorDataNode = VectorDataNodeReader2.read(file.getPath(), new FileReader(file), product.getGeoCoding(), modelCrs);
+            vectorDataNode = VectorDataNodeReader2.read(file.getName(), new FileReader(file), product.getGeoCoding(), modelCrs);
         } catch (IOException e) {
             visatApp.showErrorDialog(TITLE, "Failed to load csv file:\n" + e.getMessage());
             return;
         }
 
-        TypeDialog typeDialog = new TypeDialog(visatApp.getApplicationWindow(), modelCrs);
+        TypeDialog typeDialog = new TypeDialog(visatApp.getApplicationWindow(), vectorDataNode.getFeatureType());
         if (typeDialog.show() != ModalDialog.ID_OK) {
             return;
         }
 
-        vectorDataNode.getFeatureType().getUserData().put(typeDialog.getFeatureTypeName(), true);
+        vectorDataNode.setName(typeDialog.getVectorDataNodeName());
 
         int featureCount = vectorDataNode.getFeatureCollection().size();
         boolean individualShapes = false;

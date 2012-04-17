@@ -41,7 +41,7 @@ import java.util.Map;
 
 public class VectorDataNodeReader2 {
 
-    private final String location;
+    private final String vectorDataNodeName;
     private final CoordinateReferenceSystem modelCrs;
     private final GeoCoding geoCoding;
     private final InterpretationStrategy interpretationStrategy;
@@ -51,20 +51,20 @@ public class VectorDataNodeReader2 {
     private static final String[] LATITUDE_IDENTIFIERS = new String[]{"lat", "latitude"};
     private static final String[] GEOMETRY_IDENTIFIERS = new String[]{"geometry", "geom", "the_geom"};
 
-    public VectorDataNodeReader2(String fileName, GeoCoding geoCoding, Reader reader, CoordinateReferenceSystem modelCrs) throws IOException {
+    public VectorDataNodeReader2(String vectorDataNodeName, GeoCoding geoCoding, Reader reader, CoordinateReferenceSystem modelCrs) throws IOException {
         this.geoCoding = geoCoding;
-        this.location = fileName;
+        this.vectorDataNodeName = vectorDataNodeName;
         this.modelCrs = modelCrs;
         this.reader = new CsvReader(reader, new char[]{VectorDataNodeIO.DELIMITER_CHAR}, true, "#");
         this.interpretationStrategy = createInterpretationStrategy();
     }
 
-    public static VectorDataNode read(String fileName, Reader reader, GeoCoding geoCoding, CoordinateReferenceSystem modelCrs) throws IOException {
-        return new VectorDataNodeReader2(fileName, geoCoding, reader, modelCrs).read();
+    public static VectorDataNode read(String name, Reader reader, GeoCoding geoCoding, CoordinateReferenceSystem modelCrs) throws IOException {
+        return new VectorDataNodeReader2(name, geoCoding, reader, modelCrs).read();
     }
 
     VectorDataNode read() throws IOException {
-        final String name = FileUtils.getFilenameWithoutExtension(location);
+        final String name = FileUtils.getFilenameWithoutExtension(vectorDataNodeName);
         Map<String, String> properties = readProperties();
         reader.reset();
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures();
@@ -122,7 +122,7 @@ public class VectorDataNodeReader2 {
         reader.reset();
 
         if (tokens == null) {
-            throw new IOException(String.format("Invalid header in file '%s'", location));
+            throw new IOException(String.format("Invalid header in file '%s'", vectorDataNodeName));
         }
 
         int latIndex = -1;
@@ -193,7 +193,7 @@ public class VectorDataNodeReader2 {
             try {
                 interpretationStrategy.interpretLine(tokens, builder, simpleFeatureType);
             } catch (ConversionException e) {
-                BeamLogManager.getSystemLogger().warning(String.format("Unable to parse %s: %s", location, e.getMessage()));
+                BeamLogManager.getSystemLogger().warning(String.format("Unable to parse %s: %s", vectorDataNodeName, e.getMessage()));
             }
 
             String featureId = interpretationStrategy.getFeatureId(tokens);
@@ -210,7 +210,7 @@ public class VectorDataNodeReader2 {
         int expectedTokenCount = interpretationStrategy.getExpectedTokenCount(simpleFeatureType.getAttributeCount());
         if (tokens.length != expectedTokenCount) {
             BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
-                                                                   location, expectedTokenCount, tokens.length));
+                                                                   vectorDataNodeName, expectedTokenCount, tokens.length));
             return false;
         }
         return true;

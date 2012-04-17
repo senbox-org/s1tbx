@@ -1,3 +1,5 @@
 org.esa.beam.framework.datamodel.PinDescriptor
 org.esa.beam.framework.datamodel.GcpDescriptor
 org.esa.beam.framework.datamodel.GeometryDescriptor
+org.esa.beam.framework.datamodel.TrackDescriptor
+

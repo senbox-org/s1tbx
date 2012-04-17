@@ -18,7 +18,8 @@ package org.esa.beam.framework.datamodel;
 
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.awt.*;
+import java.awt.Image;
+import java.awt.Point;
 
 public class PinDescriptor extends AbstractPlacemarkDescriptor {
 

@@ -18,7 +18,6 @@ package org.esa.beam.framework.datamodel;
 
 import com.vividsolutions.jts.geom.Point;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Image;
 
@@ -28,22 +27,25 @@ import java.awt.Image;
  * @author Olaf Danne
  * @author Thomas Storm
  */
-public class TrackPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
+public class TrackDescriptor extends AbstractPlacemarkDescriptor {
 
-    private final SimpleFeatureType featureType;
-
-    public TrackPlacemarkDescriptor(CoordinateReferenceSystem crs) {
-        featureType = PlainFeatureFactory.createPlainFeatureType("trackPoints", Point.class, crs);
+    public static TrackDescriptor getInstance() {
+        return (TrackDescriptor) PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(TrackDescriptor.class.getName());
     }
 
     @Override
     public boolean isCompatibleWith(SimpleFeatureType featureType) {
-        return featureType.getTypeName().equals(featureType.getTypeName());
+        return featureType.getGeometryDescriptor().getType().getBinding().isAssignableFrom(Point.class);
+    }
+
+    @Override
+    public void setUserData(SimpleFeatureType featureType) {
+        featureType.getUserData().put("trackPoints", "true");
     }
 
     @Override
     public SimpleFeatureType getBaseFeatureType() {
-        return featureType;
+        return null;
     }
 
     @Override
@@ -53,7 +55,7 @@ public class TrackPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
 
     @Override
     public String getRoleLabel() {
-        return null;
+        return "Track Points";
     }
 
     @Override

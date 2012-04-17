@@ -16,13 +16,12 @@
 
 package org.esa.beam.visat.actions;
 
-import org.esa.beam.framework.datamodel.GeometryDescriptor;
-import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
-import org.esa.beam.framework.datamodel.TrackPlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.feature.simple.SimpleFeatureType;
 
+import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
@@ -31,6 +30,10 @@ import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author Olaf Danne
@@ -40,49 +43,53 @@ class TypeDialog extends ModalDialog {
 
     private PlacemarkDescriptor placemarkDescriptor;
 
-    TypeDialog(Window parent, CoordinateReferenceSystem modelCrs) {
+    TypeDialog(Window parent, SimpleFeatureType featureType) {
         super(parent, "Interpret data as...", ModalDialog.ID_OK, "csvTypeDialog");
-        placemarkDescriptor = new TrackPlacemarkDescriptor(modelCrs);
-        createUI();
+        createUI(featureType);
     }
 
-    private void createUI() {
+    private void createUI(SimpleFeatureType featureType) {
         getJDialog().setPreferredSize(new Dimension(255, 170));
 
         JPanel panel = new JPanel();
         BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
         panel.setLayout(layout);
 
-        JRadioButton trackButton = createButton("track data", placemarkDescriptor);
-        JRadioButton shapeButton = createButton("shape (ignores attributes)", new GeometryDescriptor());
-        JRadioButton pointButton = createButton("point data", new PinDescriptor());
+        List<AbstractButton> buttons = new ArrayList<AbstractButton>();
+        List<PlacemarkDescriptor> placemarkDescriptors = new ArrayList<PlacemarkDescriptor>();
+        placemarkDescriptors.addAll(PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptors(featureType));
+        Collections.sort(placemarkDescriptors, new Comparator<PlacemarkDescriptor>() {
+            @Override
+            public int compare(PlacemarkDescriptor o1, PlacemarkDescriptor o2) {
+                return o1.getRoleLabel().compareTo(o2.getRoleLabel());
+            }
+        });
 
-        trackButton.setSelected(true);
-
+        for (PlacemarkDescriptor descriptor : placemarkDescriptors) {
+            buttons.add(createButton(descriptor.getRoleLabel(), descriptor, featureType));
+        }
         ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(trackButton);
-        buttonGroup.add(shapeButton);
-        buttonGroup.add(pointButton);
-
-        panel.add(trackButton);
-        panel.add(shapeButton);
-        panel.add(pointButton);
+        for (AbstractButton button : buttons) {
+            buttonGroup.add(button);
+            panel.add(button);
+        }
 
         setContent(panel);
     }
 
-    private JRadioButton createButton(String text, final PlacemarkDescriptor pd) {
+    private JRadioButton createButton(String text, final PlacemarkDescriptor pd, final SimpleFeatureType featureType) {
         JRadioButton button = new JRadioButton(text);
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                TypeDialog.this.placemarkDescriptor = pd;
+                placemarkDescriptor = pd;
+                placemarkDescriptor.setUserData(featureType);
             }
         });
         return button;
     }
 
-    public String getFeatureTypeName() {
-        return placemarkDescriptor.getBaseFeatureType().getName().getLocalPart();
+    public String getVectorDataNodeName() {
+        return placemarkDescriptor.getRoleLabel();
     }
 }
