@@ -49,7 +49,7 @@ public class VectorDataNodeReader2 {
 
     private static final String[] LONGITUDE_IDENTIFIERS = new String[]{"lon", "long", "longitude"};
     private static final String[] LATITUDE_IDENTIFIERS = new String[]{"lat", "latitude"};
-    private static final String[] GEOMETRY_IDENTIFIERS = new String[]{"geometry", "geom"};
+    private static final String[] GEOMETRY_IDENTIFIERS = new String[]{"geometry", "geom", "the_geom"};
 
     public VectorDataNodeReader2(String fileName, GeoCoding geoCoding, Reader reader, CoordinateReferenceSystem modelCrs) throws IOException {
         this.geoCoding = geoCoding;
@@ -83,7 +83,6 @@ public class VectorDataNodeReader2 {
      * Collects comment lines of the form "# &lt;name&gt; = &lt;value&gt;" until the first non-empty and non-comment line is found.
      *
      * @return All the property assignments found.
-     *
      * @throws java.io.IOException
      */
     Map<String, String> readProperties() throws IOException {
@@ -99,7 +98,7 @@ public class VectorDataNodeReader2 {
                     String name = line.substring(0, index).trim();
                     String value = line.substring(index + 1).trim();
                     if (StringUtils.isNotNullAndNotEmpty(name) &&
-                        StringUtils.isNotNullAndNotEmpty(value)) {
+                            StringUtils.isNotNullAndNotEmpty(value)) {
                         properties.put(name, value);
                     }
                 }
@@ -164,7 +163,7 @@ public class VectorDataNodeReader2 {
 
         hasLatLon = latIndex != -1 && lonIndex != -1;
         if (geometryIndex == -1 && (latIndex == -1 || lonIndex == -1)) {
-            throw new IOException("Neither lat/lon nor geometry colum provided.");
+            throw new IOException("Neither lat/lon nor geometry column provided.");
         }
 
         if (hasLatLon && hasFeatureTypeName) {
