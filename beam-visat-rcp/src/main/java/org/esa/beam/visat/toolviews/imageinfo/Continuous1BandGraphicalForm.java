@@ -108,9 +108,10 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         final ImageInfoEditorModel oldModel = imageInfoEditor.getModel();
         final ImageInfoEditorModel newModel = new ImageInfoEditorModel1B(parentForm.getImageInfo());
         newModel.addChangeListener(applyEnablerCL);
-        //setDisplayProperties(model, productSceneView.getRaster());
         imageInfoEditor.setModel(newModel);
-        setLogarithmicDisplay(productSceneView.getRaster(), logDisplayButton.isSelected());
+
+        final RasterDataNode raster = productSceneView.getRaster();
+        setLogarithmicDisplay(raster, newModel.getImageInfo().isLogScaled());
         if (oldModel != null) {
             newModel.setHistogramViewGain(oldModel.getHistogramViewGain());
             newModel.setMinHistogramViewSample(oldModel.getMinHistogramViewSample());
@@ -121,7 +122,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
             imageInfoEditor.computeZoomInToSliderLimits();
         }
 
-        //logDisplayButton.setSelected(model.getSampleScaling() != Scaling.IDENTITY);
+        logDisplayButton.setSelected(newModel.getImageInfo().isLogScaled());
         parentForm.revalidateToolViewPaneControl();
     }
 
@@ -134,11 +135,12 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
 
     @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
-        if (imageInfoEditor.getModel() != null) {
+        final ImageInfoEditorModel model = imageInfoEditor.getModel();
+        if (model != null) {
             if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STX)) {
                 updateFormModel(parentForm.getProductSceneView());
             } else {
-                setLogarithmicDisplay(raster, logDisplayButton.isSelected());
+                setLogarithmicDisplay(raster, model.getImageInfo().isLogScaled());
             }
         }
     }
@@ -166,6 +168,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         } else {
             model.setDisplayProperties(raster.getName(), raster.getUnit(), raster.getStx(), Scaling.IDENTITY);
         }
+        model.getImageInfo().setLogScaled(logarithmicDisplay);
     }
 
     private void distributeSlidersEvenly() {
