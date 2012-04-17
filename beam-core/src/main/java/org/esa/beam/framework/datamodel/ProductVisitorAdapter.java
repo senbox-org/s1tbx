@@ -76,6 +76,10 @@ public class ProductVisitorAdapter implements ProductVisitor {
     }
 
     @Override
+    public void visit(BitmaskDef bitmaskDef) {
+    }
+
+    @Override
     public void visit(ProductNodeGroup group) {
     }
 
