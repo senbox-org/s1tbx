@@ -64,9 +64,10 @@ class GeometryAndFeatureTypeStrategy implements GeometryStrategy {
         for (int columnIndex = 1; columnIndex < tokens.length; columnIndex++) {
             String token = tokens[columnIndex];
             token = VectorDataNodeIO.decodeTabString(token);
+            int attributeIndex = columnIndex - 1;
             Object value = null;
             if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
-                Class<?> attributeType = simpleFeatureType.getType(columnIndex - 1).getBinding();
+                Class<?> attributeType = simpleFeatureType.getType(attributeIndex).getBinding();
                 ConverterRegistry converterRegistry = ConverterRegistry.getInstance();
                 Converter<?> converter = converterRegistry.getConverter(attributeType);
                 if (converter == null) {
@@ -74,7 +75,7 @@ class GeometryAndFeatureTypeStrategy implements GeometryStrategy {
                 }
                 value = converter.parse(token);
             }
-            builder.set(simpleFeatureType.getDescriptor(columnIndex - 1).getLocalName(), value);
+            builder.set(simpleFeatureType.getDescriptor(attributeIndex).getLocalName(), value);
         }
     }
 
