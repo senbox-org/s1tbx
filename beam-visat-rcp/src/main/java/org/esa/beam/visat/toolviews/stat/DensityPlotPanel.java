@@ -19,7 +19,6 @@ package org.esa.beam.visat.toolviews.stat;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.*;
@@ -40,10 +39,8 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.ui.RectangleInsets;
 
-import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.geom.Rectangle2D;
@@ -59,7 +56,7 @@ import java.util.concurrent.ExecutionException;
 
 
 /**
- * The density plot pane within the statistcs window.
+ * The density plot pane within the statistics window.
  */
 class DensityPlotPanel extends ChartPagePanel{
 
@@ -74,12 +71,9 @@ class DensityPlotPanel extends ChartPagePanel{
     private ParamGroup paramGroup;
 
     private static Parameter[] rasterNameParams = new Parameter[2];
-    private static Parameter[] autoMinMaxParams = new Parameter[2];
-    private static Parameter[] minParams = new Parameter[2];
-    private static Parameter[] maxParams = new Parameter[2];
+    private static AxisRangeControl[] axisRangeControls = new AxisRangeControl[2];
 
     private ChartPanel densityPlotDisplay;
-    private boolean adjustingAutoMinMax;
     private XYImagePlot plot;
     private PlotAreaSelectionTool plotAreaSelectionTool;
 
@@ -132,15 +126,12 @@ class DensityPlotPanel extends ChartPagePanel{
             rasterNameParams[varIndex].getProperties().setValueSet(new String[0]);
         }
 
-        if ((Boolean) autoMinMaxParams[varIndex].getValue()) {
-            minParams[varIndex].setDefaultValue();
-            maxParams[varIndex].setDefaultValue();
-        }
     }
 
     private void initParameters() {
+        axisRangeControls[X_VAR] = new AxisRangeControl("X-Axis");
+        axisRangeControls[Y_VAR] = new AxisRangeControl("Y-Axis");
         paramGroup = new ParamGroup();
-
         final String[] availableBands = createAvailableBandList();
         initParameters(X_VAR, availableBands);
         initParameters(Y_VAR, availableBands);
@@ -172,23 +163,6 @@ class DensityPlotPanel extends ChartPagePanel{
         rasterNameParams[varIndex].getProperties().setDescription("Band name"); /*I18N*/
         rasterNameParams[varIndex].getProperties().setEditorClass(ComboBoxEditor.class);
         paramGroup.addParameter(rasterNameParams[varIndex]);
-
-        autoMinMaxParams[varIndex] = new Parameter(paramPrefix + "autoMinMax", Boolean.TRUE);
-        autoMinMaxParams[varIndex].getProperties().setLabel("Auto min/max");
-        autoMinMaxParams[varIndex].getProperties().setDescription("Automatically detect min/max");  /*I18N*/
-        paramGroup.addParameter(autoMinMaxParams[varIndex]);
-
-        minParams[varIndex] = new Parameter(paramPrefix + "min", 0.0);
-        minParams[varIndex].getProperties().setLabel("Min:");
-        minParams[varIndex].getProperties().setDescription("Minimum display value");    /*I18N*/
-        minParams[varIndex].getProperties().setNumCols(7);
-        paramGroup.addParameter(minParams[varIndex]);
-
-        maxParams[varIndex] = new Parameter(paramPrefix + "max", 100.0);
-        maxParams[varIndex].getProperties().setLabel("Max:");
-        maxParams[varIndex].getProperties().setDescription("Maximum display value");    /*I18N*/
-        maxParams[varIndex].getProperties().setNumCols(7);
-        paramGroup.addParameter(maxParams[varIndex]);
     }
 
     private void createUI() {
@@ -211,8 +185,10 @@ class DensityPlotPanel extends ChartPagePanel{
         final JPanel middlePanel = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=BOTH");
         GridBagUtils.setAttributes(gbc, "gridy=1,weightx=1");
-        GridBagUtils.addToPanel(middlePanel, createOptionsPane(X_VAR), gbc, "gridy=0,insets.top=0");
-        GridBagUtils.addToPanel(middlePanel, createOptionsPane(Y_VAR), gbc, "gridy=1,insets.top=7");
+        GridBagUtils.addToPanel(middlePanel, axisRangeControls[X_VAR].getPanel(), gbc, "gridy=0,insets.top=0");
+        GridBagUtils.addToPanel(middlePanel, rasterNameParams[X_VAR].getEditor().getComponent(), gbc, "gridy=1");
+        GridBagUtils.addToPanel(middlePanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=2");
+        GridBagUtils.addToPanel(middlePanel, rasterNameParams[Y_VAR].getEditor().getComponent(), gbc, "gridy=3,insets.top=7");
         return middlePanel;
     }
 
@@ -263,49 +239,7 @@ class DensityPlotPanel extends ChartPagePanel{
 
     private void updateUIState() {
         super.updateContent();
-        updateUIState(X_VAR);
-        updateUIState(Y_VAR);
         setChartTitle();
-    }
-
-    private void updateUIState(int varIndex) {
-        final double min = ((Number) minParams[varIndex].getValue()).doubleValue();
-        final double max = ((Number) maxParams[varIndex].getValue()).doubleValue();
-        if (!adjustingAutoMinMax && min > max) {
-            minParams[varIndex].setValue(max, null);
-            maxParams[varIndex].setValue(min, null);
-        }
-        final boolean autoMinMaxEnabled = (Boolean) autoMinMaxParams[varIndex].getValue();
-        minParams[varIndex].setUIEnabled(!autoMinMaxEnabled);
-        maxParams[varIndex].setUIEnabled(!autoMinMaxEnabled);
-    }
-
-    private JPanel createOptionsPane(int varIndex) {
-
-        final JPanel optionsPane = GridBagUtils.createPanel();
-        final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=WEST,fill=HORIZONTAL");
-
-        GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=0,insets.top=0");
-        GridBagUtils.addToPanel(optionsPane, rasterNameParams[varIndex].getEditor().getComponent(), gbc,
-                                "gridx=0,weightx=1");
-
-        GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=1,insets.top=4");
-        GridBagUtils.addToPanel(optionsPane, autoMinMaxParams[varIndex].getEditor().getComponent(), gbc,
-                                "gridx=0,weightx=1");
-
-        GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=2,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, minParams[varIndex].getEditor().getLabelComponent(), gbc,
-                                "gridx=0,weightx=0");
-        GridBagUtils.addToPanel(optionsPane, minParams[varIndex].getEditor().getComponent(), gbc, "gridx=1,weightx=1");
-
-        GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=3,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, maxParams[varIndex].getEditor().getLabelComponent(), gbc,
-                                "gridx=0,weightx=0");
-        GridBagUtils.addToPanel(optionsPane, maxParams[varIndex].getEditor().getComponent(), gbc, "gridx=1,weightx=1");
-
-        optionsPane.setBorder(BorderFactory.createTitledBorder((varIndex == 0 ? "X" : "Y") + "-Band"));
-
-        return optionsPane;
     }
 
     private static class DensityPlot {
@@ -313,6 +247,12 @@ class DensityPlotPanel extends ChartPagePanel{
         private final BufferedImage image;
         private final Range rangeX;
         private final Range rangeY;
+
+        private DensityPlot(BufferedImage image){
+            this.image = image;
+            this.rangeX = null;
+            this.rangeY = null;
+        }
 
         private DensityPlot(BufferedImage image, Range rangeX, Range rangeY) {
             this.image = image;
@@ -350,21 +290,21 @@ class DensityPlotPanel extends ChartPagePanel{
             protected DensityPlot doInBackground(ProgressMonitor pm) throws Exception {
                 pm.beginTask("Computing density plot...", 100);
                 try {
-                    final Range rangeX = getRange(X_VAR, rasterX, dataSourceConfig.roiMask, SubProgressMonitor.create(pm, 15));
-                    final Range rangeY = getRange(Y_VAR, rasterY, dataSourceConfig.roiMask, SubProgressMonitor.create(pm, 15));
+                    setRange(X_VAR, rasterX, dataSourceConfig.roiMask, SubProgressMonitor.create(pm, 15));
+                    setRange(Y_VAR, rasterY, dataSourceConfig.roiMask, SubProgressMonitor.create(pm, 15));
                     final BufferedImage image = ProductUtils.createDensityPlotImage(rasterX,
-                                                                                    (float) rangeX.getMin(),
-                                                                                    (float) rangeX.getMax(),
-                                                                                    rasterY,
-                                                                                    (float) rangeY.getMin(),
-                                                                                    (float) rangeY.getMax(),
-                                                                                    dataSourceConfig.roiMask,
-                                                                                    512,
-                                                                                    512,
-                                                                                    new Color(255, 255, 255, 0),
-                                                                                    null,
-                                                                                    SubProgressMonitor.create(pm, 70));
-                    return new DensityPlot(image, rangeX, rangeY);
+                            axisRangeControls[X_VAR].getMin().floatValue(),
+                            axisRangeControls[X_VAR].getMax().floatValue(),
+                            rasterY,
+                            axisRangeControls[Y_VAR].getMin().floatValue(),
+                            axisRangeControls[Y_VAR].getMax().floatValue(),
+                            dataSourceConfig.roiMask,
+                            512,
+                            512,
+                            new Color(255, 255, 255, 0),
+                            null,
+                            SubProgressMonitor.create(pm, 70));
+                    return new DensityPlot(image);
                 } finally {
                     pm.done();
                 }
@@ -374,10 +314,10 @@ class DensityPlotPanel extends ChartPagePanel{
             public void done() {
                 try {
                     final DensityPlot densityPlot = get();
-                    double minX = densityPlot.getRangeX().getMin();
-                    double maxX = densityPlot.getRangeX().getMax();
-                    double minY = densityPlot.getRangeY().getMin();
-                    double maxY = densityPlot.getRangeY().getMax();
+                    double minX = axisRangeControls[X_VAR].getMin();
+                    double maxX = axisRangeControls[X_VAR].getMax();
+                    double minY = axisRangeControls[Y_VAR].getMin();
+                    double maxY = axisRangeControls[Y_VAR].getMax();
                     if (minX > maxX || minY > maxY) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                       "Failed to compute density plot.\n" +
@@ -400,8 +340,10 @@ class DensityPlotPanel extends ChartPagePanel{
                     }
                     plot.setImage(densityPlot.getImage());
                     plot.setImageDataBounds(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY));
-                    setAutoRange(X_VAR, new Range(minX, maxX));
-                    setAutoRange(Y_VAR, new Range(minY, maxY));
+                    axisRangeControls[X_VAR].setMin(minX);
+                    axisRangeControls[X_VAR].setMax(maxX);
+                    axisRangeControls[Y_VAR].setMin(minY);
+                    axisRangeControls[Y_VAR].setMax(maxY);
                     plot.getDomainAxis().setLabel(getAxisLabel(getRaster(X_VAR)));
                     plot.getRangeAxis().setLabel(getAxisLabel(getRaster(Y_VAR)));
                 } catch (InterruptedException e) {
@@ -442,29 +384,16 @@ class DensityPlotPanel extends ChartPagePanel{
         return raster.getName();
     }
 
-    private Range getRange(int varIndex, RasterDataNode raster, Mask mask, ProgressMonitor pm) throws
-            IOException {
-        final boolean autoMinMax = (Boolean) autoMinMaxParams[varIndex].getValue();
-        if (autoMinMax) {
+    private void setRange(int varIndex,RasterDataNode raster, Mask mask, ProgressMonitor pm) throws IOException {
+        if(axisRangeControls[varIndex].isAutoMinMax()){
             Stx stx;
             if (mask == null) {
                 stx = raster.getStx(false, pm);
             } else {
                 stx = new StxFactory().withRoiMask(mask).create(raster, pm);
             }
-            return new Range(stx.getMinimum(), stx.getMaximum());
-        } else {
-            return new Range((Double) minParams[varIndex].getValue(), (Double) maxParams[varIndex].getValue());
-        }
-    }
-
-    private void setAutoRange(int varIndex, Range range) {
-        final boolean autoMinMax = (Boolean) autoMinMaxParams[varIndex].getValue();
-        if (autoMinMax) {
-            adjustingAutoMinMax = true;
-            minParams[varIndex].setValueAsText(String.format("%7.2f", range.getMin()), null);
-            maxParams[varIndex].setValueAsText(String.format("%7.2f", range.getMax()), null);
-            adjustingAutoMinMax = false;
+            axisRangeControls[varIndex].setMin(stx.getMinimum());
+            axisRangeControls[varIndex].setMax(stx.getMaximum());
         }
     }
 
