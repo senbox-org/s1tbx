@@ -30,6 +30,7 @@
         [BEAM-1379] Log-scaled data and log-scaled display shall be independent<br/>
         [BEAM-1377] Spatial Subset From View fails without error message<br/>
         [BEAM-1314] Processor menus are not visible on Mac<br/>
+        [BEAM-1286] Link images shall use currently displayed image setting when a new band is opened<br/>
         <p>Changes in 4.9<br/>
         [BEAM-1292] Reprojection dialog shifts image if pixel size is changed<br/>
         [BEAM-1184] Reprojection dialog does not remember values<br/>

@@ -338,6 +338,11 @@ public class NavigationToolView extends AbstractToolView {
                 }
             }
             canvas.handleViewChanged(oldView, newView);
+            if (syncViewsButton.isSelected() && oldView != null && newView != null) {
+                newView.getLayerCanvas().setInitiallyZoomingAll(false);
+                oldView.synchronizeViewport(newView);
+            }
+
             updateState();
         }
     }

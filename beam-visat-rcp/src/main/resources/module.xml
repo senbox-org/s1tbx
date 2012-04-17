@@ -37,6 +37,7 @@
           [BEAM-1352] When exporting a product a SubsetInfo is always added to metadata tree<br/>
           [BEAM-1323] Add "magic stick" to VISAT that lets users create masks of similar pixels<br/>
           [BEAM-1314] Processor menus are not visible on Mac<br/>
+          [BEAM-1286] Link images shall use currently displayed image setting when a new band is opened<br/>
           [BEAM-1247] Masks can not be displayed over RGB-images<br/>
         <p>Changes in 4.9<br/>
           [BEAM-1297] Add DEM-corrected latitude/longitude bands in satellite coordinates<br/>
