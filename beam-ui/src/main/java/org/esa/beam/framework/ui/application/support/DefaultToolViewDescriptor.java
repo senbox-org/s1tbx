@@ -97,7 +97,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
         propertyContainer = PropertyContainer.createObjectBacked(this);
         initState = State.HIDDEN;
         preferredSize = new Dimension(320, 200);
-        floatingBounds = new Rectangle(100, 100, 960, 600);
+        floatingBounds = new Rectangle(100, 100, 640, 400);
         initSide = DockSide.WEST;
         initIndex = 0;
     }
