@@ -39,10 +39,8 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.ui.RectangleInsets;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -58,7 +56,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * The density plot pane within the statistics window.
  */
-class DensityPlotPanel extends ChartPagePanel{
+class DensityPlotPanel extends ChartPagePanel {
 
     private static final String NO_DATA_MESSAGE = "No density plot computed yet.\n" +
             ZOOM_TIP_MESSAGE;
@@ -75,30 +73,27 @@ class DensityPlotPanel extends ChartPagePanel{
 
     private ChartPanel densityPlotDisplay;
     private XYImagePlot plot;
-    private PlotAreaSelectionTool plotAreaSelectionTool;
 
     DensityPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId, CHART_TITLE, true);
-
     }
 
     @Override
-    protected void initContent() {
+    protected void initComponents() {
         initParameters();
         createUI();
-        updateContent();
+        updateComponents();
     }
 
     @Override
-    protected void updateContent() {
-        if (densityPlotDisplay != null) {
-            plot.setImage(null);
-            plot.setDataset(null);
-            final String[] availableBands = createAvailableBandList();
-            updateParameters(X_VAR, availableBands);
-            updateParameters(Y_VAR, availableBands);
-            setChartTitle();
-        }
+    protected void updateComponents() {
+        super.updateComponents();
+        plot.setImage(null);
+        plot.setDataset(null);
+        final String[] availableBands = createAvailableBandList();
+        updateParameters(X_VAR, availableBands);
+        updateParameters(Y_VAR, availableBands);
+        setChartTitle();
     }
 
     private void setChartTitle() {
@@ -181,7 +176,7 @@ class DensityPlotPanel extends ChartPagePanel{
         updateUIState();
     }
 
-    private JPanel createMiddlePanel(){
+    private JPanel createMiddlePanel() {
         final JPanel middlePanel = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=BOTH");
         GridBagUtils.setAttributes(gbc, "gridy=1,weightx=1");
@@ -192,24 +187,24 @@ class DensityPlotPanel extends ChartPagePanel{
         return middlePanel;
     }
 
-    private ChartPanel createChartPanel(JFreeChart chart){
+    private ChartPanel createChartPanel(JFreeChart chart) {
         densityPlotDisplay = new ChartPanel(chart);
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
-                densityPlotDisplay,
-                "densitity_plot_area",
-                "Mask generated from selected density plot area",
-                Color.RED,
-                PlotAreaSelectionTool.AreaType.ELLIPSE) {
+                                                                                         densityPlotDisplay,
+                                                                                         "densitity_plot_area",
+                                                                                         "Mask generated from selected density plot area",
+                                                                                         Color.RED,
+                                                                                         PlotAreaSelectionTool.AreaType.ELLIPSE) {
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
                 double rr = Math.sqrt(dx * dx + dy * dy);
                 return String.format("distance(%s, %s, %s, %s) < %s",
-                        rasterNameParams[0].getValue(),
-                        rasterNameParams[1].getValue(),
-                        x0,
-                        y0,
-                        rr);
+                                     rasterNameParams[0].getValue(),
+                                     rasterNameParams[1].getValue(),
+                                     x0,
+                                     y0,
+                                     rr);
             }
         };
 
@@ -238,7 +233,7 @@ class DensityPlotPanel extends ChartPagePanel{
     }
 
     private void updateUIState() {
-        super.updateContent();
+        super.updateComponents();
         setChartTitle();
     }
 
@@ -248,7 +243,7 @@ class DensityPlotPanel extends ChartPagePanel{
         private final Range rangeX;
         private final Range rangeY;
 
-        private DensityPlot(BufferedImage image){
+        private DensityPlot(BufferedImage image) {
             this.image = image;
             this.rangeX = null;
             this.rangeY = null;
@@ -274,7 +269,7 @@ class DensityPlotPanel extends ChartPagePanel{
     }
 
     @Override
-    protected void compute() {
+    protected void updateChartData() {
 
         final RasterDataNode rasterX = getRaster(X_VAR);
         final RasterDataNode rasterY = getRaster(Y_VAR);
@@ -293,17 +288,17 @@ class DensityPlotPanel extends ChartPagePanel{
                     setRange(X_VAR, rasterX, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
                     setRange(Y_VAR, rasterY, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
                     final BufferedImage image = ProductUtils.createDensityPlotImage(rasterX,
-                            axisRangeControls[X_VAR].getMin().floatValue(),
-                            axisRangeControls[X_VAR].getMax().floatValue(),
-                            rasterY,
-                            axisRangeControls[Y_VAR].getMin().floatValue(),
-                            axisRangeControls[Y_VAR].getMax().floatValue(),
-                            dataSourceConfig.roiMask,
-                            512,
-                            512,
-                            new Color(255, 255, 255, 0),
-                            null,
-                            SubProgressMonitor.create(pm, 70));
+                                                                                    axisRangeControls[X_VAR].getMin().floatValue(),
+                                                                                    axisRangeControls[X_VAR].getMax().floatValue(),
+                                                                                    rasterY,
+                                                                                    axisRangeControls[Y_VAR].getMin().floatValue(),
+                                                                                    axisRangeControls[Y_VAR].getMax().floatValue(),
+                                                                                    dataSourceConfig.roiMask,
+                                                                                    512,
+                                                                                    512,
+                                                                                    new Color(255, 255, 255, 0),
+                                                                                    null,
+                                                                                    SubProgressMonitor.create(pm, 70));
                     return new DensityPlot(image);
                 } finally {
                     pm.done();
@@ -384,8 +379,8 @@ class DensityPlotPanel extends ChartPagePanel{
         return raster.getName();
     }
 
-    private void setRange(int varIndex,RasterDataNode raster, Mask mask, ProgressMonitor pm) throws IOException {
-        if(axisRangeControls[varIndex].isAutoMinMax()){
+    private void setRange(int varIndex, RasterDataNode raster, Mask mask, ProgressMonitor pm) throws IOException {
+        if (axisRangeControls[varIndex].isAutoMinMax()) {
             Stx stx;
             if (mask == null) {
                 stx = raster.getStx(false, pm);

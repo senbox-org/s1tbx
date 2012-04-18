@@ -16,20 +16,10 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.ValueRange;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.TransectProfileData;
-import org.esa.beam.framework.datamodel.TransectProfileDataBuilder;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.visat.VisatApp;
@@ -37,7 +27,6 @@ import org.esa.beam.visat.toolviews.nav.CursorSynchronizer;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.AxisChangeEvent;
 import org.jfree.chart.event.AxisChangeListener;
@@ -55,18 +44,8 @@ import org.jfree.ui.RectangleInsets;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JSpinner;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -119,18 +98,18 @@ class ProfilePlotPanel extends ChartPagePanel {
         profilePlotDisplay = new ChartPanel(chart);
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
-                profilePlotDisplay,
-                "profile_plot_area",
-                "Mask generated from selected profile plot area",
-                Color.RED,
-                PlotAreaSelectionTool.AreaType.Y_RANGE) {
+                                                                                         profilePlotDisplay,
+                                                                                         "profile_plot_area",
+                                                                                         "Mask generated from selected profile plot area",
+                                                                                         Color.RED,
+                                                                                         PlotAreaSelectionTool.AreaType.Y_RANGE) {
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
                 return String.format("%s >= %s && %s <= %s",
-                        getRaster().getName(),
-                        y0,
-                        getRaster().getName(),
-                        y0 + dy);
+                                     getRaster().getName(),
+                                     y0,
+                                     getRaster().getName(),
+                                     y0 + dy);
             }
         };
 
@@ -172,7 +151,7 @@ class ProfilePlotPanel extends ChartPagePanel {
     }
 
     @Override
-    protected void initContent() {
+    protected void initComponents() {
         dataset = new XYIntervalSeriesCollection();
         this.chart = ChartFactory.createXYLineChart(
                 CHART_TITLE,
@@ -203,7 +182,7 @@ class ProfilePlotPanel extends ChartPagePanel {
         pointRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
         pointRenderer.setSeriesPaint(0, StatisticChartStyling.DATA_PAINT);
         pointRenderer.setSeriesFillPaint(0, StatisticChartStyling.DATA_FILL_PAINT);
-        pointRenderer.setSeriesShape(0, StatisticChartStyling.DATA_POINT_SHAPE );
+        pointRenderer.setSeriesShape(0, StatisticChartStyling.DATA_POINT_SHAPE);
 
         configureRendererForCorrelativeData(deviationRenderer);
         configureRendererForCorrelativeData(pointRenderer);
@@ -218,8 +197,13 @@ class ProfilePlotPanel extends ChartPagePanel {
                 adjustAxisControlComponents();
             }
         };
+
         final ValueAxis domainAxis = plot.getDomainAxis();
         final ValueAxis rangeAxis = plot.getRangeAxis();
+        // allow transfer from bounds into min/max fields, if auto min/maxis enabled
+        domainAxis.setAutoRange(true);
+        rangeAxis.setAutoRange(true);
+
         domainAxis.addChangeListener(axisListener);
         rangeAxis.addChangeListener(axisListener);
 
@@ -256,7 +240,7 @@ class ProfilePlotPanel extends ChartPagePanel {
 
         isInitialized = true;
 
-        updateContent();
+        updateComponents();
     }
 
     protected JPanel createMiddlePanel(BindingContext bindingContext) {
@@ -325,7 +309,7 @@ class ProfilePlotPanel extends ChartPagePanel {
     }
 
     @Override
-    protected void compute() {
+    protected void updateChartData() {
         //Left empty for Profile Plot Panel
     }
 
@@ -340,19 +324,20 @@ class ProfilePlotPanel extends ChartPagePanel {
 
 
     @Override
-    protected boolean mustUpdateContent() {
-        return super.mustUpdateContent() || isVectorDataNodeChanged();
+    protected boolean mustHandleSelectionChange() {
+        return super.mustHandleSelectionChange() || isVectorDataNodeChanged();
     }
 
 
     @Override
-    protected void updateContent() {
+    protected void updateComponents() {
         if (!isInitialized || !isVisible()) {
             return;
         }
 
-        if (getRaster() != null) {
-            chart.setTitle(CHART_TITLE + " for " + getRaster().getName());
+        final RasterDataNode raster = getRaster();
+        if (raster != null) {
+            chart.setTitle(CHART_TITLE + " for " + raster.getName());
         } else {
             chart.setTitle(CHART_TITLE);
         }
@@ -362,7 +347,7 @@ class ProfilePlotPanel extends ChartPagePanel {
         updateDataSource();
         updateDataSet();
         updateUIState();
-        super.updateContent();
+        super.updateComponents();
     }
 
     private void updateDataSource() {
@@ -398,10 +383,10 @@ class ProfilePlotPanel extends ChartPagePanel {
                 }
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(getParent(),
-                        "Failed to compute profile plot.\n" +
-                                "An I/O error occurred:" + e.getMessage(),
-                        "I/O error",
-                        JOptionPane.ERROR_MESSAGE);   /*I18N*/
+                                              "Failed to compute profile plot.\n" +
+                                                      "An I/O error occurred:" + e.getMessage(),
+                                              "I/O error",
+                                              JOptionPane.ERROR_MESSAGE);   /*I18N*/
             }
         }
     }
@@ -459,7 +444,7 @@ class ProfilePlotPanel extends ChartPagePanel {
 
             profilePlotDisplay.restoreAutoBounds();
             xAxisRangeControl.getBindingContext().setComponentsEnabled(PROPERTY_NAME_MARK_SEGMENTS,
-                    profileData.getShapeVertices().length > 2);
+                                                                       profileData.getShapeVertices().length > 2);
         }
     }
 
@@ -474,8 +459,8 @@ class ProfilePlotPanel extends ChartPagePanel {
         }
 
         xAxisRangeControl.getBindingContext().setComponentsEnabled(PROPERTY_NAME_MARK_SEGMENTS,
-                profileData != null &&
-                        profileData.getShapeVertices().length > 2);
+                                                                   profileData != null &&
+                                                                           profileData.getShapeVertices().length > 2);
         xAxisRangeControl.setComponentsEnabled(profileData != null);
         yAxisRangeControl.setComponentsEnabled(profileData != null);
         adjustPlotAxes();
@@ -552,21 +537,21 @@ class ProfilePlotPanel extends ChartPagePanel {
     @Override
     public void nodeAdded(ProductNodeEvent event) {
         if (event.getSourceNode() instanceof VectorDataNode) {
-            updateContent();
+            updateComponents();
         }
     }
 
     @Override
     public void nodeRemoved(ProductNodeEvent event) {
         if (event.getSourceNode() instanceof VectorDataNode) {
-            updateContent();
+            updateComponents();
         }
     }
 
     @Override
     public void setVisible(boolean aFlag) {
         super.setVisible(aFlag);
-        updateContent();
+        updateComponents();
     }
 
     @Override
@@ -580,7 +565,7 @@ class ProfilePlotPanel extends ChartPagePanel {
 
     @Override
     public void handleLayerContentChanged() {
-        updateContent();
+        updateComponents();
     }
 
     @SuppressWarnings("UnusedDeclaration")

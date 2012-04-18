@@ -42,15 +42,8 @@ import org.jfree.data.xy.XIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import javax.media.jai.Histogram;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
+import javax.swing.*;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -86,23 +79,23 @@ class HistogramPanel extends ChartPagePanel {
     }
 
     @Override
-    protected void initContent() {
+    protected void initComponents() {
         xAxisRangeControl = new AxisRangeControl("X-Axis");
 
         histogramPlotConfig = new HistogramPlotConfig();
         bindingContext = new BindingContext(PropertyContainer.createObjectBacked(histogramPlotConfig));
 
         createUI();
-        updateContent();
+        updateComponents();
     }
 
     @Override
-    protected void updateContent() {
+    protected void updateComponents() {
         if (!isInitialized || !isVisible()) {
             return;
         }
 
-        super.updateContent();
+        super.updateComponents();
         chart.setTitle(getRaster() != null ? CHART_TITLE + " for " + getRaster().getName() : CHART_TITLE);
         updateXAxis();
         if (xAxisRangeControl.isAutoMinMax()) {
@@ -118,7 +111,7 @@ class HistogramPanel extends ChartPagePanel {
 
 
     @Override
-    protected boolean mustUpdateContent() {
+    protected boolean mustHandleSelectionChange() {
         return isRasterChanged();
     }
 
@@ -276,7 +269,7 @@ class HistogramPanel extends ChartPagePanel {
     }
 
     @Override
-    public void compute() {
+    public void updateChartData() {
         final boolean autoMinMaxEnabled = getAutoMinMaxEnabled();
         final Double min;
         final Double max;
@@ -332,7 +325,7 @@ class HistogramPanel extends ChartPagePanel {
                     } else {
                         JOptionPane.showMessageDialog(getParentComponent(),
                                                       "The ROI is empty or no pixels found between min/max.\n"
-                                                      + "A valid histogram could not be computed.",
+                                                              + "A valid histogram could not be computed.",
                                                       CHART_TITLE,
                                                       JOptionPane.WARNING_MESSAGE);
                     }
@@ -423,7 +416,7 @@ class HistogramPanel extends ChartPagePanel {
         sb.append("Histogram maximum:\t").append(max).append("\t").append(getRaster().getUnit()).append("\n");
         sb.append("Histogram bin size:\t").append(
                 getRaster().isLog10Scaled() ? ("NA\t") : ((max - min) / numBins + "\t") +
-                                                         getRaster().getUnit() + "\n");
+                        getRaster().getUnit() + "\n");
         sb.append("Histogram #bins:\t").append(numBins).append("\n");
         sb.append('\n');
 

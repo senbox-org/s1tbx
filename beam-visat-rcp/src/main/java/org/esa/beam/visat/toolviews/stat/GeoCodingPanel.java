@@ -16,31 +16,16 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import org.esa.beam.framework.datamodel.CombinedFXYGeoCoding;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.FXYGeoCoding;
-import org.esa.beam.framework.datamodel.GcpGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.math.FXYSum;
 
-import java.awt.Rectangle;
+import java.awt.*;
 
 /**
  * A pane within the statistcs window which displays geo-coding information.
- *
  */
 class GeoCodingPanel extends TextPagePanel {
 
@@ -53,9 +38,9 @@ class GeoCodingPanel extends TextPagePanel {
     }
 
     @Override
-    protected boolean mustUpdateContent() {
+    protected boolean mustHandleSelectionChange() {
         final RasterDataNode raster = getRaster();
-        return super.mustUpdateContent() || (raster != null && _geoCoding != raster.getGeoCoding());
+        return super.mustHandleSelectionChange() || (raster != null && _geoCoding != raster.getGeoCoding());
     }
 
     @Override
@@ -66,7 +51,7 @@ class GeoCodingPanel extends TextPagePanel {
             } else {
                 _geoCoding = getRaster().getGeoCoding();
             }
-            updateContent();
+            updateComponents();
         }
     }
 
@@ -263,12 +248,12 @@ class GeoCodingPanel extends TextPagePanel {
 
             final FXYGeoCoding fxyGeoCoding = codingWrapper.getGeoGoding();
             sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
-                    "by using following polynomial equations: \n\n");
+                              "by using following polynomial equations: \n\n");
             sb.append(fxyGeoCoding.getLatFunction().createCFunctionCode("latitude", "x", "y")).append("\n");
             sb.append(fxyGeoCoding.getLonFunction().createCFunctionCode("longitude", "x", "y")).append("\n");
             sb.append("\n");
             sb.append("Pixels (x,y) are computed from geographic coordinates (lat,lon)\n" +
-                    "by using the following polynomial equations: \n\n");
+                              "by using the following polynomial equations: \n\n");
             sb.append(fxyGeoCoding.getPixelXFunction().createCFunctionCode("x", "lat", "lon")).append("\n");
             sb.append(fxyGeoCoding.getPixelYFunction().createCFunctionCode("y", "lat", "lon")).append("\n");
             sb.append("\n");
@@ -282,12 +267,12 @@ class GeoCodingPanel extends TextPagePanel {
         sb.append("\n");
 
         sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
-                "by using following polynomial equations: \n\n");
+                          "by using following polynomial equations: \n\n");
         sb.append(fxyGeoCoding.getLatFunction().createCFunctionCode("latitude", "x", "y")).append("\n");
         sb.append(fxyGeoCoding.getLonFunction().createCFunctionCode("longitude", "x", "y")).append("\n");
         sb.append("\n");
         sb.append("Pixels (x,y) are computed from geographic coordinates (lat,lon)\n" +
-                "by using the following polynomial equations: \n\n");
+                          "by using the following polynomial equations: \n\n");
         sb.append(fxyGeoCoding.getPixelXFunction().createCFunctionCode("x", "lat", "lon")).append("\n");
         sb.append(fxyGeoCoding.getPixelYFunction().createCFunctionCode("y", "lat", "lon")).append("\n");
         sb.append("\n");
@@ -387,11 +372,11 @@ class GeoCodingPanel extends TextPagePanel {
 
         sb.append("\n");
         sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
-                "by linear interpolation between pixels.\n");
+                          "by linear interpolation between pixels.\n");
 
         sb.append("\n");
         sb.append("Pixel coordinates (x,y) are computed from geographic coordinates (lat,lon)\n" +
-                "by a search algorithm.\n");
+                          "by a search algorithm.\n");
         sb.append("\n");
     }
 
@@ -411,13 +396,13 @@ class GeoCodingPanel extends TextPagePanel {
 
         sb.append("\n");
         sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
-                "by linear interpolation between tie points.\n");
+                          "by linear interpolation between tie points.\n");
 
         final int numApproximations = tgc.getNumApproximations();
         if (numApproximations > 0) {
             sb.append("\n");
             sb.append("Pixel coordinates (x,y) are computed from geographic coordinates (lat,lon)\n" +
-                    "by polynomial approximations for ").append(numApproximations).append(" tile(s).\n");
+                              "by polynomial approximations for ").append(numApproximations).append(" tile(s).\n");
             sb.append("\n");
 
             for (int i = 0; i < numApproximations; i++) {

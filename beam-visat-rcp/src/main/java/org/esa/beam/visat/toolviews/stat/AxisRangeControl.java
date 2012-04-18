@@ -31,6 +31,7 @@ class AxisRangeControl {
     JPanel getPanel() {
         if (panel == null) {
             panel = createPanel();
+            panel.setName(axisName);
         }
         return panel;
     }
@@ -110,8 +111,12 @@ class AxisRangeControl {
     }
 
     public void adjustComponents(ValueAxis axis, int numDecimalPlaces) {
-        getBindingContext().getBinding("min").setPropertyValue(MathUtils.round(axis.getLowerBound(), roundFactor(numDecimalPlaces)));
-        getBindingContext().getBinding("max").setPropertyValue(MathUtils.round(axis.getUpperBound(), roundFactor(numDecimalPlaces)));
+        adjustComponents(axis.getLowerBound(), axis.getUpperBound(), numDecimalPlaces);
+    }
+
+    public void adjustComponents(double min, double max, int numDecimalPlaces) {
+        setMin(MathUtils.round(min, roundFactor(numDecimalPlaces)));
+        setMax(MathUtils.round(max, roundFactor(numDecimalPlaces)));
     }
 
     public void adjustAxis(ValueAxis axis, int numDecimalPlaces) {

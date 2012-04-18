@@ -16,12 +16,7 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.ValueRange;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
@@ -35,8 +30,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.plot.DatasetRenderingOrder;
-import org.jfree.chart.plot.SeriesRenderingOrder;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
@@ -53,19 +46,8 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
+import javax.swing.*;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
@@ -145,8 +127,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                             continue;
                         }
                         final Rectangle box = sceneRect.intersection(new Rectangle(centerX - boxSize / 2,
-                                centerY - boxSize / 2,
-                                boxSize, boxSize));
+                                                                                   centerY - boxSize / 2,
+                                                                                   boxSize, boxSize));
                         if (box.isEmpty()) {
                             continue;
                         }
@@ -199,11 +181,11 @@ class ScatterPlotPanel extends ChartPagePanel {
 
                     if (xySeries.getItemCount() == 0) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                "Failed to compute scatter plot.\n" +
-                                        "No Pixels considered..",
-                                /*I18N*/
-                                CHART_TITLE, /*I18N*/
-                                JOptionPane.ERROR_MESSAGE);
+                                                      "Failed to compute scatter plot.\n" +
+                                                              "No Pixels considered..",
+                                                      /*I18N*/
+                                                      CHART_TITLE, /*I18N*/
+                                                      JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
@@ -260,27 +242,27 @@ class ScatterPlotPanel extends ChartPagePanel {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute scatter plot.\n" +
-                                    "Calculation canceled.",
-                            /*I18N*/
-                            CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "Calculation canceled.",
+                                                  /*I18N*/
+                                                  CHART_TITLE, /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 } catch (CancellationException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute scatter plot.\n" +
-                                    "Calculation canceled.",
-                            /*I18N*/
-                            CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "Calculation canceled.",
+                                                  /*I18N*/
+                                                  CHART_TITLE, /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute scatter plot.\n" +
-                                    "An error occured:\n" +
-                                    e.getCause().getMessage(),
-                            CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "An error occured:\n" +
+                                                          e.getCause().getMessage(),
+                                                  CHART_TITLE, /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
@@ -300,11 +282,11 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     @Override
-    protected void initContent() {
+    protected void initComponents() {
         initParameters();
         createUI();
         isInitialized = true;
-        updateContent();
+        updateComponents();
     }
 
     @Override
@@ -317,13 +299,13 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     @Override
-    protected void updateContent() {
+    protected void updateComponents() {
         if (!isInitialized || !isVisible()) {
             return;
         }
-        compute();
+        updateChartData();
 
-        super.updateContent();
+        super.updateComponents();
         correlativeFieldSelector.updatePointDataSource(getProduct());
         correlativeFieldSelector.updateDataField();
 
@@ -331,7 +313,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     @Override
-    protected void compute() {
+    protected void updateChartData() {
         if (scatterPlotModel.pointDataSource != null && scatterPlotModel.dataField != null && getRaster() != null) {
             compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
         }
@@ -353,18 +335,18 @@ class ScatterPlotPanel extends ChartPagePanel {
         };
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
-                scatterPlotDisplay,
-                "scatter_plot_area",
-                "Mask generated from selected scatter plot area",
-                Color.RED,
-                PlotAreaSelectionTool.AreaType.X_RANGE) {
+                                                                                         scatterPlotDisplay,
+                                                                                         "scatter_plot_area",
+                                                                                         "Mask generated from selected scatter plot area",
+                                                                                         Color.RED,
+                                                                                         PlotAreaSelectionTool.AreaType.X_RANGE) {
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
                 return String.format("%s >= %s && %s <= %s",
-                        getRaster().getName(),
-                        x0,
-                        getRaster().getName(),
-                        x0 + dx);
+                                     getRaster().getName(),
+                                     x0,
+                                     getRaster().getName(),
+                                     x0 + dx);
             }
         };
         scatterPlotDisplay.getPopupMenu().addSeparator();
@@ -566,8 +548,8 @@ class ScatterPlotPanel extends ChartPagePanel {
         final JFreeChart chart = scatterPlotDisplay.getChart();
         final List<Title> subtitles = new ArrayList<Title>(7);
         subtitles.add(new TextTitle(MessageFormat.format("{0}, {1}",
-                xAxisName,
-                yAxisName
+                                                         xAxisName,
+                                                         yAxisName
         )));
         chart.setSubtitles(subtitles);
     }
@@ -593,7 +575,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         setChartTitle();
         final AttributeDescriptor dataField = scatterPlotModel.dataField;
         yAxisRangeControl.setTitleSuffix(dataField != null ? dataField.getLocalName() : null);
-        updateContent();
+        updateComponents();
     }
 
     private static class ScatterPlotModel {

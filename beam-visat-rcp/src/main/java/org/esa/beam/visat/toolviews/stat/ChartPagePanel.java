@@ -51,7 +51,7 @@ abstract class ChartPagePanel extends PagePanel {
     }
 
     @Override
-    protected void updateContent() {
+    protected void updateComponents() {
         roiMaskSelector.updateMaskSource(getProduct());
         refreshButton.setEnabled(refreshButtonEnabled && (getRaster() != null));
     }
@@ -65,7 +65,7 @@ abstract class ChartPagePanel extends PagePanel {
         refreshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                compute();
+                updateChartData();
             }
         });
 
@@ -92,7 +92,10 @@ abstract class ChartPagePanel extends PagePanel {
         return buttonPanel;
     }
 
-    protected abstract void compute();
+    /**
+     * Asks the chart panel to update its chart data. This involve a (re-)computation of all datasets.
+     */
+    protected abstract void updateChartData();
 
     private JPanel createChartBottomPanel(final ChartPanel chartPanel) {
 
@@ -176,8 +179,8 @@ abstract class ChartPagePanel extends PagePanel {
         GridBagUtils.addToPanel(extendedOptionsPanel, new JSeparator(), extendedOptionsPanelConstraints, "gridy=4,fill=HORIZONTAL,weighty=0");
 
         final JScrollPane optionsScrollPane = new SimpleScrollPane(extendedOptionsPanel,
-                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                                                                   ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                                                                   ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         optionsScrollPane.setBorder(null);
 
         final JPanel rightPanel = new JPanel(new BorderLayout());

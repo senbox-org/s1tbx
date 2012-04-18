@@ -26,10 +26,8 @@ import org.esa.beam.framework.datamodel.StxFactory;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingWorker;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -50,8 +48,8 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
     }
 
     @Override
-    protected void initContent() {
-        super.initContent();
+    protected void initComponents() {
+        super.initComponents();
         computePanel = new MultipleRoiComputePanel(this, getRaster());
         final JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.add(computePanel, BorderLayout.NORTH);
@@ -63,8 +61,8 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
     }
 
     @Override
-    protected void updateContent() {
-        super.updateContent();
+    protected void updateComponents() {
+        super.updateComponents();
         if (computePanel != null) {
             final RasterDataNode raster = getRaster();
             computePanel.setRaster(raster);
