@@ -235,7 +235,8 @@
 
     <extension point="beam-ui:layerEditors">
         <layerEditor>
-            <editorFactory>org.esa.beam.visat.toolviews.layermanager.editors.VectorDataLayerEditorFactory</editorFactory>
+            <editorFactory>org.esa.beam.visat.toolviews.layermanager.editors.VectorDataLayerEditorFactory
+            </editorFactory>
             <layer>org.esa.beam.framework.ui.product.VectorDataLayer</layer>
         </layerEditor>
         <layerEditor>
@@ -1357,9 +1358,9 @@
         <action>
             <id>createVectorDataNode</id>
             <class>org.esa.beam.visat.actions.CreateVectorDataNodeAction</class>
-            <text>Create Geometry Container...</text>
-            <shortDescr>Create a new geometry container</shortDescr>
-            <description>Create a new geometry container for drawing line strings and polygons.</description>
+            <text>Create Vector Data Container...</text>
+            <shortDescr>Create a new vector data container</shortDescr>
+            <description>Create a new vector data container for drawing line and polygons.</description>
             <smallIcon>icons/NewVectorDataNode16.gif</smallIcon>
             <largeIcon>icons/NewVectorDataNode24.gif</largeIcon>
             <helpId>createVectorDataNode</helpId>

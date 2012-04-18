@@ -22,19 +22,10 @@ import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.LayerUtils;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.*;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class VectorDataCollectionLayer extends CollectionLayer {
 
@@ -46,7 +37,7 @@ public class VectorDataCollectionLayer extends CollectionLayer {
     public VectorDataCollectionLayer(VectorDataCollectionLayerType layerType,
                                      ProductNodeGroup<VectorDataNode> vectorDataGroup,
                                      PropertySet configuration) {
-        super(layerType, configuration, "Geometries");
+        super(layerType, configuration, "Vector data");
         Assert.notNull(vectorDataGroup, "vectorDataGroup");
 
         reference = new WeakReference<ProductNodeGroup<VectorDataNode>>(vectorDataGroup);
