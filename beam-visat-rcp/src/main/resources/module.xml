@@ -864,20 +864,9 @@
 
         <action>
             <id>importShapefile</id>
-            <class>org.esa.beam.visat.actions.ImportGeometryAction</class>
-            <parent>importVectorData</parent>
-            <text>ESRI Shapefile</text>
-            <mnemonic>S</mnemonic>
-            <shortDescr>Import geometry from ESRI Shapefile.</shortDescr>
-            <description>Import geometry from ESRI Shapefile.</description>
-            <helpId>importShapefile</helpId>
-        </action>
-
-        <action>
-            <id>importShapefileExperimental</id>
             <class>org.esa.beam.visat.actions.ImportVectorDataNodeFromShapefileAction</class>
             <parent>importVectorData</parent>
-            <text>ESRI Shapefile (experimental)</text>
+            <text>ESRI Shapefile</text>
             <mnemonic>S</mnemonic>
             <shortDescr>Import geometry from ESRI Shapefile.</shortDescr>
             <description>Import geometry from ESRI Shapefile.</description>
@@ -893,15 +882,8 @@
 
         <action>
             <id>importCSV</id>
-            <class>org.esa.beam.visat.actions.ImportPointDataAction</class>
-            <text>CSV</text>
-            <parent>importVectorData</parent>
-        </action>
-
-        <action>
-            <id>importCSVExperimental</id>
             <class>org.esa.beam.visat.actions.ImportVectorDataNodeFromCsvAction</class>
-            <text>CSV (experimental)</text>
+            <text>CSV</text>
             <parent>importVectorData</parent>
         </action>
 

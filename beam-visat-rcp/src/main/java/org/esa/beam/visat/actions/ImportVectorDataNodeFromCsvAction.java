@@ -29,14 +29,17 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class ImportVectorDataNodeFromCsvAction extends ExecCommand {
+public class ImportVectorDataNodeFromCsvAction extends AbstractImportVectorDataNodeAction {
+
+    private VectorDataNodeImporter importer;
+
 
     @Override
     public void actionPerformed(final CommandEvent event) {
         final BeamFileFilter filter = new BeamFileFilter("CSV",
                                                          new String[]{".txt", ".dat", ".csv"},
                                                          "Plain text");
-        VectorDataNodeImporter importer = new VectorDataNodeImporter(getHelpId(), filter, new MyVectorDataNodeReader(), "Import CSV file", "csv.io.dir");
+        importer = new VectorDataNodeImporter(getHelpId(), filter, new MyVectorDataNodeReader(), "Import CSV file", "csv.io.dir");
         importer.importGeometry(VisatApp.getApp());
         VisatApp.getApp().updateState();
     }
@@ -48,12 +51,17 @@ public class ImportVectorDataNodeFromCsvAction extends ExecCommand {
         setEnabled(product != null);
     }
 
-    private static class MyVectorDataNodeReader implements ImportGeometryAction.VectorDataNodeReader {
+    @Override
+    protected String getDialogTitle() {
+        return importer.getDialogTitle();
+    }
+
+    private class MyVectorDataNodeReader implements VectorDataNodeImporter.VectorDataNodeReader {
 
         @Override
         public VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException {
             // todo - clarify usage of getMapCRS()
-            return VectorDataNodeReader2.read(file.getName(), new FileReader(file), product.getGeoCoding(), product.getGeoCoding().getMapCRS());
+            return VectorDataNodeReader2.read(file.getName(), new FileReader(file), product, crsProvider, pm);
         }
     }
 }

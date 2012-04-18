@@ -18,16 +18,24 @@ package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.jai.ImageManager;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
+import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -55,8 +63,8 @@ class LatLonNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
     @Override
     public void setDefaultGeometry(SimpleFeatureTypeBuilder builder) {
-        builder.add("geoPos", Point.class);
-        builder.add("pixelPos", Point.class);
+        builder.add("geoPos", Point.class, DefaultGeographicCRS.WGS84);
+        builder.add("pixelPos", Point.class, geoCoding.getImageCRS());
         builder.setDefaultGeometry("pixelPos");
     }
 
@@ -64,7 +72,7 @@ class LatLonNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
     public void setName(SimpleFeatureTypeBuilder builder) {
         builder.setName(
                 builder.getDefaultGeometry() + "_" +
-                new SimpleDateFormat("dd-MMM-yyyy'T'HH:mm:ss").format(Calendar.getInstance().getTime()));
+                        new SimpleDateFormat("dd-MMM-yyyy'T'HH:mm:ss").format(Calendar.getInstance().getTime()));
     }
 
     @Override
@@ -73,7 +81,7 @@ class LatLonNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
     }
 
     @Override
-    public void interpretLine(String[] tokens, SimpleFeatureBuilder builder, SimpleFeatureType simpleFeatureType) throws IOException, ConversionException {
+    public SimpleFeature interpretLine(String[] tokens, SimpleFeatureBuilder builder, SimpleFeatureType simpleFeatureType) throws IOException, ConversionException, TransformException {
         int attributeIndex = 0;
         for (int columnIndex = 0; columnIndex < tokens.length; columnIndex++) {
             String token = tokens[columnIndex];
@@ -87,8 +95,22 @@ class LatLonNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
         }
         builder.set("geoPos", new GeometryFactory().createPoint(new Coordinate(lon, lat)));
         PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos((float) lat, (float) lon), null);
-        builder.set("pixelPos", new GeometryFactory().createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
+
+        if (pixelPos.isValid()) {
+            Geometry geometry = createPointGeometry(pixelPos);
+            CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(geoCoding);
+            AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(geoCoding);
+            GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
+            transformer.setMathTransform(new AffineTransform2D(imageToModelTransform));
+            transformer.setCoordinateReferenceSystem(modelCrs);
+            geometry = transformer.transform(geometry);
+            builder.set("pixelPos", geometry);
+            String featureId = getFeatureId(tokens);
+            return builder.buildFeature(featureId);
+        }
+        return null;
     }
+
 
     @Override
     public String getFeatureId(String[] tokens) {

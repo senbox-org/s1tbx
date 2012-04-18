@@ -68,20 +68,15 @@ class VectorDataNodeImporter {
     private final String shapeIoDirPreferencesKey;
     private String helpId;
     private BeamFileFilter filter;
-    private final ImportGeometryAction.VectorDataNodeReader reader;
+    private final VectorDataNodeReader reader;
 
-    VectorDataNodeImporter(String helpId, BeamFileFilter filter, ImportGeometryAction.VectorDataNodeReader reader, String dialogTitle, String shapeIoDirPreferencesKey) {
+    VectorDataNodeImporter(String helpId, BeamFileFilter filter, VectorDataNodeReader reader, String dialogTitle, String shapeIoDirPreferencesKey) {
         this.helpId = helpId;
         this.filter = filter;
         this.reader = reader;
         this.dialogTitle = dialogTitle;
         this.shapeIoDirPreferencesKey = shapeIoDirPreferencesKey;
     }
-
-//    public void updateState(final CommandEvent event) {
-//        final Product product = VisatApp.getApp().getSelectedProduct();
-//        setEnabled(product != null);
-//    }
 
     void importGeometry(final VisatApp visatApp) {
         final PropertyMap propertyMap = visatApp.getPreferences();
@@ -109,7 +104,7 @@ class VectorDataNodeImporter {
         }
 
         final GeoCoding geoCoding = product.getGeoCoding();
-        if (isShapefile(file) && (geoCoding == null || !geoCoding.canGetPixelPos())) {
+        if (geoCoding == null || !geoCoding.canGetPixelPos()) {
             visatApp.showErrorDialog(dialogTitle, "Failed to import vector data.\n"
                                                 +
                                                 "Current geo-coding cannot convert from geographic to pixel coordinates."); /* I18N */
@@ -184,10 +179,6 @@ class VectorDataNodeImporter {
         return name;
     }
 
-    private boolean isShapefile(File file) {
-        return file.getName().toLowerCase().endsWith(".shp");
-    }
-
     private File getIODir(final PropertyMap propertyMap) {
         final File dir = SystemUtils.getUserHomeDir();
         return new File(propertyMap.getPropertyString(shapeIoDirPreferencesKey, dir.getPath()));
@@ -202,110 +193,6 @@ class VectorDataNodeImporter {
         VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException;
     }
 
-    static class VdnShapefileReader implements VectorDataNodeReader {
-
-        private String dialogTitle;
-
-        VdnShapefileReader(String dialogTitle) {
-            this.dialogTitle = dialogTitle;
-        }
-
-        @Override
-        public VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException {
-
-            MyFeatureCrsProvider crsProvider = new MyFeatureCrsProvider(visatApp, helpId, dialogTitle);
-            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = FeatureUtils.loadShapefileForProduct(file,
-                                                                                                                         product,
-                                                                                                                         crsProvider, pm);
-            Style[] styles = SLDUtils.loadSLD(file);
-            ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
-            String name = findUniqueVectorDataNodeName(featureCollection.getSchema().getName().getLocalPart(),
-                                                       vectorDataGroup);
-            if (styles.length > 0) {
-                SimpleFeatureType featureType = SLDUtils.createStyledFeatureType(featureCollection.getSchema());
-                VectorDataNode vectorDataNode = new VectorDataNode(name, featureType);
-                FeatureCollection<SimpleFeatureType, SimpleFeature> styledCollection = vectorDataNode.getFeatureCollection();
-                String defaultCSS = vectorDataNode.getDefaultStyleCss();
-                SLDUtils.applyStyle(styles[0], defaultCSS, featureCollection, styledCollection);
-                return vectorDataNode;
-            } else {
-                return new VectorDataNode(name, featureCollection);
-            }
-        }
-
-        private class MyFeatureCrsProvider implements FeatureUtils.FeatureCrsProvider {
-
-            private final VisatApp visatApp;
-            private final String helpId;
-            private String dialogTitle;
-
-            public MyFeatureCrsProvider(VisatApp visatApp, String helpId, String dialogTitle) {
-                this.visatApp = visatApp;
-                this.helpId = helpId;
-                this.dialogTitle = dialogTitle;
-            }
-
-            @Override
-            public CoordinateReferenceSystem getCrs(final Product product, final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
-                final CoordinateReferenceSystem[] featureCrsBuffer = new CoordinateReferenceSystem[1];
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        featureCrsBuffer[0] = promptForFeatureCrs(visatApp, product);
-                    }
-                };
-                if (!SwingUtilities.isEventDispatchThread()) {
-                    try {
-                        SwingUtilities.invokeAndWait(runnable);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    } catch (InvocationTargetException e) {
-                        throw new RuntimeException(e);
-                    }
-                } else {
-                    runnable.run();
-                }
-                CoordinateReferenceSystem featureCrs = featureCrsBuffer[0];
-                return featureCrs != null ? featureCrs : DefaultGeographicCRS.WGS84;
-            }
-
-            private CoordinateReferenceSystem promptForFeatureCrs(VisatApp visatApp, Product product) {
-                final ProductCrsForm productCrsForm = new ProductCrsForm(visatApp, product);
-                final CustomCrsForm customCrsForm = new CustomCrsForm(visatApp);
-                final PredefinedCrsForm predefinedCrsForm = new PredefinedCrsForm(visatApp);
-
-                final CrsSelectionPanel crsSelectionPanel = new CrsSelectionPanel(productCrsForm,
-                                                                                  customCrsForm,
-                                                                                  predefinedCrsForm);
-                final ModalDialog dialog = new ModalDialog(visatApp.getApplicationWindow(), dialogTitle,
-                                                           ModalDialog.ID_OK_CANCEL_HELP, helpId);
-
-                final TableLayout tableLayout = new TableLayout(1);
-                tableLayout.setTableWeightX(1.0);
-                tableLayout.setTableFill(TableLayout.Fill.BOTH);
-                tableLayout.setTablePadding(4, 4);
-                tableLayout.setCellPadding(0, 0, new Insets(4, 10, 4, 4));
-                final JPanel contentPanel = new JPanel(tableLayout);
-                final JLabel label = new JLabel();
-                label.setText("<html><b>" +
-                              "This vector data set does not define a coordinate reference system (CRS).<br/>" +
-                              "Please specify a CRS so that coordinates can interpreted correctly.</b>");
-
-                contentPanel.add(label);
-                contentPanel.add(crsSelectionPanel);
-                dialog.setContent(contentPanel);
-                if (dialog.show() == ModalDialog.ID_OK) {
-                    try {
-                        return crsSelectionPanel.getCrs(ProductUtils.getCenterGeoPos(product));
-                    } catch (FactoryException e) {
-                        visatApp.showErrorDialog(dialogTitle,
-                                                 "Can not create Coordinate Reference System.\n" + e.getMessage());
-                    }
-                }
-                return null;
-            }
-        }
-    }
 
     private VectorDataNode readGeometry(final VisatApp visatApp,
                                         final File file,
