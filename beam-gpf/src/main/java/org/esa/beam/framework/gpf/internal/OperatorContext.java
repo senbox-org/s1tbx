@@ -1008,7 +1008,8 @@ public class OperatorContext {
                         }
                         Object object = descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
                         Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
-                        String[] names = RasterDataNodeValues.getNames(sourceProduct, rasterDataNodeType);
+                        final boolean includeEmptyValue = !descriptor.isNotNull() && !descriptor.isNotEmpty() && !descriptor.getType().isArray();
+                        String[] names = RasterDataNodeValues.getNames(sourceProduct, rasterDataNodeType, includeEmptyValue);
                         ValueSet valueSet = new ValueSet(names);
                         descriptor.setValueSet(valueSet);
                     }
