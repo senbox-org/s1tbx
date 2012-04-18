@@ -22,7 +22,6 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.thoughtworks.xstream.core.util.OrderRetainingMap;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.converters.JavaTypeConverter;
@@ -50,6 +49,7 @@ public class VectorDataNodeReader2 {
     private final String vectorDataNodeName;
     private final GeoCoding geoCoding;
     private final Product product;
+    private final FeatureUtils.FeatureCrsProvider crsProvider;
     private final InterpretationStrategy interpretationStrategy;
     private final CsvReader reader;
 
@@ -57,43 +57,34 @@ public class VectorDataNodeReader2 {
     private static final String[] LATITUDE_IDENTIFIERS = new String[]{"lat", "latitude"};
     private static final String[] GEOMETRY_IDENTIFIERS = new String[]{"geometry", "geom", "the_geom"};
     private SimpleFeatureType featureType;
-    private final CoordinateReferenceSystem modelCrs;
 
-    VectorDataNodeReader2(String vectorDataNodeName, Product product, Reader reader) throws IOException {
+    VectorDataNodeReader2(String vectorDataNodeName, Product product, Reader reader, FeatureUtils.FeatureCrsProvider crsProvider) throws IOException {
         this.product = product;
+        this.crsProvider = crsProvider;
         this.geoCoding = product.getGeoCoding();
         this.vectorDataNodeName = vectorDataNodeName;
         this.reader = new CsvReader(reader, new char[]{VectorDataNodeIO.DELIMITER_CHAR}, true, "#");
         this.interpretationStrategy = createInterpretationStrategy();
-        modelCrs = DefaultGeographicCRS.WGS84;
     }
 
-    public static VectorDataNode read(String name, Reader reader, Product product, FeatureUtils.FeatureCrsProvider crsProvider, ProgressMonitor pm) throws IOException {
-        return new VectorDataNodeReader2(name, product, reader).read(crsProvider, pm);
+    public static VectorDataNode read(String name, Reader reader, Product product, FeatureUtils.FeatureCrsProvider crsProvider, CoordinateReferenceSystem modelCrs, ProgressMonitor pm) throws IOException {
+        return new VectorDataNodeReader2(name, product, reader, crsProvider).read(modelCrs, pm);
     }
 
-    VectorDataNode read(FeatureUtils.FeatureCrsProvider crsProvider, ProgressMonitor pm) throws IOException {
+    VectorDataNode read(CoordinateReferenceSystem modelCrs, ProgressMonitor pm) throws IOException {
         final String name = FileUtils.getFilenameWithoutExtension(vectorDataNodeName);
         Map<String, String> properties = readProperties();
-        reader.reset();
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures();
 
         CoordinateReferenceSystem featureCrs = featureCollection.getSchema().getCoordinateReferenceSystem();
-        if (featureCrs == null) {
-            featureCrs = crsProvider.getCrs(product, featureCollection);
-            if (featureCrs == null) {
-                featureCrs = DefaultGeographicCRS.WGS84;
-            }
-        }
         final Geometry clipGeometry = FeatureUtils.createGeoBoundaryPolygon(product);
-        final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(geoCoding);
         FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection
                 = FeatureUtils.clipCollection(featureCollection,
                                               featureCrs,
                                               clipGeometry,
                                               DefaultGeographicCRS.WGS84,
                                               null,
-                                              targetCrs,
+                                              modelCrs,
                                               SubProgressMonitor.create(pm, 80));
 
         final List<PlacemarkDescriptor> placemarkDescriptors = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptors(featureType);
@@ -109,6 +100,7 @@ public class VectorDataNodeReader2 {
         }
         if (properties.containsKey(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS)) {
             vectorDataNode.setDefaultStyleCss(properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
+
         }
         clippedCollection.getSchema().getUserData().putAll(properties);
         return vectorDataNode;
@@ -142,6 +134,7 @@ public class VectorDataNodeReader2 {
                 break;
             }
         }
+        reader.reset();
         //noinspection unchecked
         return (Map<String, String>) properties;
     }
@@ -267,7 +260,11 @@ public class VectorDataNodeReader2 {
 
     private SimpleFeatureType createFeatureType(String[] tokens) throws IOException {
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-        builder.setCRS(modelCrs);
+        CoordinateReferenceSystem featureCrs = crsProvider.getFeatureCrs(product);
+        if (featureCrs == null) {
+            featureCrs = DefaultGeographicCRS.WGS84;
+        }
+        builder.setCRS(featureCrs);
         JavaTypeConverter jtc = new JavaTypeConverter();
 
         String[] firstRecord = reader.readRecord();

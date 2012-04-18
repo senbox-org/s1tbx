@@ -40,13 +40,13 @@ public class VectorDataNodeReaderTest extends TestCase {
                     "# separator=TAB\n" +
                     "# styleCss=color:0,0,255\n" +
                     "\n" +
-                    "FT1\tname:String\tgeom:Geometry\tpixel:Integer\tdescription:String\n"
+                    "org.esa.beam.FT1\tname:String\tgeom:Geometry\tpixel:Integer\tdescription:String\n"
                     + "ID65\tmark1\tPOINT (12.3 45.6)\t0\tThis is mark1.\n"
                     + "ID66\tmark2\tPOINT (78.9 10.1)\t1\t[null]\n"
                     + "ID67\tmark3\tPOINT (23.4 56.7)\t2\tThis is mark3.\n";
 
     static final String INPUT_2 =
-            "FT2\tname:String\tgeom:Point\tweight:Float\n"
+            "org.esa.beam.FT2\tname:String\tgeom:Point\tweight:Float\n"
                     + "ID65\tmark1\tPOINT (12.3 45.6)\t0.4\n";
 
     public void testReadPropertiesInInput1() throws IOException {
@@ -70,7 +70,7 @@ public class VectorDataNodeReaderTest extends TestCase {
 
         assertNotNull(simpleFeatureType);
         assertNull(simpleFeatureType.getCoordinateReferenceSystem());
-        assertEquals("FT1", simpleFeatureType.getTypeName());
+        assertEquals("org.esa.beam.FT1", simpleFeatureType.getTypeName());
         assertEquals(4, simpleFeatureType.getAttributeCount());
 
         List<AttributeDescriptor> list = simpleFeatureType.getAttributeDescriptors();
@@ -129,7 +129,7 @@ public class VectorDataNodeReaderTest extends TestCase {
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
         assertNotNull(simpleFeatureType);
-        assertEquals("FT2", simpleFeatureType.getTypeName());
+        assertEquals("org.esa.beam.FT2", simpleFeatureType.getTypeName());
         assertEquals(3, simpleFeatureType.getAttributeCount());
 
         List<AttributeDescriptor> list = simpleFeatureType.getAttributeDescriptors();

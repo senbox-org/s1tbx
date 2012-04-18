@@ -22,8 +22,10 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.File;
 import java.io.FileReader;
@@ -60,8 +62,9 @@ public class ImportVectorDataNodeFromCsvAction extends AbstractImportVectorDataN
 
         @Override
         public VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException {
-            // todo - clarify usage of getMapCRS()
-            return VectorDataNodeReader2.read(file.getName(), new FileReader(file), product, crsProvider, pm);
+            final CoordinateReferenceSystem modelCrs = product.getGeoCoding() != null ? ImageManager.getModelCrs(product.getGeoCoding()) :
+                    ImageManager.DEFAULT_IMAGE_CRS;
+            return VectorDataNodeReader2.read(file.getName(), new FileReader(file), product, crsProvider, modelCrs, pm);
         }
     }
 }

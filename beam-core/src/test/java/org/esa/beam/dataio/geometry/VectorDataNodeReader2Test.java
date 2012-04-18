@@ -21,10 +21,12 @@ import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.io.CsvReader;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.junit.Before;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -48,6 +50,18 @@ import static org.junit.Assert.*;
  * @author Thomas Storm
  */
 public class VectorDataNodeReader2Test {
+
+    private FeatureUtils.FeatureCrsProvider crsProvider;
+
+    @Before
+    public void setUp() throws Exception {
+        crsProvider = new FeatureUtils.FeatureCrsProvider() {
+            @Override
+            public CoordinateReferenceSystem getFeatureCrs(Product product) {
+                return DefaultGeographicCRS.WGS84;
+            }
+        };
+    }
 
     @Test
     public void testFeatureTypeWithInput1() throws Exception {
@@ -133,13 +147,13 @@ public class VectorDataNodeReader2Test {
     public void testMissingGeometry() throws IOException {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("exported_pin_input_without_geometry.csv"));
         Product dummyProduct = createDummyProduct();
-        new VectorDataNodeReader2("blah", dummyProduct, reader).readFeatureType();
+        new VectorDataNodeReader2("blah", dummyProduct, reader, crsProvider).readFeatureType();
     }
 
     @Test
     public void testReadPropertiesInInput1() throws IOException {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_properties.csv"));
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader);
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader, crsProvider);
         Map<String, String> properties = vectorDataNodeReader.readProperties();
 
         assertNotNull(properties);
@@ -152,7 +166,7 @@ public class VectorDataNodeReader2Test {
     public void testReadFeaturesInInput1() throws IOException {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_properties.csv"));
 
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader);
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader, crsProvider);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
@@ -211,7 +225,7 @@ public class VectorDataNodeReader2Test {
     public void testReadFeaturesInInput2() throws IOException {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_only_one_point.csv"));
 
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader);
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader, crsProvider);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
@@ -237,7 +251,7 @@ public class VectorDataNodeReader2Test {
     @Test
     public void testCRS() throws Exception {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_only_one_point.csv"));
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader);
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader, crsProvider);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
@@ -277,7 +291,7 @@ public class VectorDataNodeReader2Test {
         try {
             String source = "org.esa.beam.FT\ta\tlat\tlon\n" +
                             "ID1\t10\t0.0\t0.0\n";
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new VectorDataNodeReader2("", createDummyProduct(), new StringReader(source)).readFeatures();
+            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new VectorDataNodeReader2("", createDummyProduct(), new StringReader(source), crsProvider).readFeatures();
             assertEquals(1, fc.size());
             assertEquals(Double.class, fc.getSchema().getType(0).getBinding());
             assertEquals(10.0, fc.features().next().getAttribute("a"));
@@ -287,12 +301,12 @@ public class VectorDataNodeReader2Test {
     }
 
     private void expectException(String contents) throws IOException {
-        new VectorDataNodeReader2("", createDummyProduct(), new StringReader(contents)).readFeatures();
+        new VectorDataNodeReader2("", createDummyProduct(), new StringReader(contents), crsProvider).readFeatures();
         fail("IOException expected");
     }
 
     private void testTrackFeatureClasses(String input) throws IOException {
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), new StringReader(input));
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), new StringReader(input), crsProvider);
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNodeReader.readFeatures();
 
         FeatureIterator<SimpleFeature> features = featureCollection.features();
@@ -330,7 +344,7 @@ public class VectorDataNodeReader2Test {
 
     private List<AttributeDescriptor> getAttributeDescriptors(String input) throws IOException {
         CsvReader csvReader = new CsvReader(new StringReader(input), new char[]{'\t'}, true, "#");
-        SimpleFeatureType simpleFeatureType = new VectorDataNodeReader2("", createDummyProduct(), csvReader).readFeatureType();
+        SimpleFeatureType simpleFeatureType = new VectorDataNodeReader2("", createDummyProduct(), csvReader, crsProvider).readFeatureType();
 
         assertNotNull(simpleFeatureType);
         assertEquals(10, simpleFeatureType.getAttributeCount());
@@ -345,7 +359,7 @@ public class VectorDataNodeReader2Test {
     }
 
 
-    private static class DummyGeoCoding extends AbstractGeoCoding {
+    static class DummyGeoCoding extends AbstractGeoCoding {
 
         @Override
         public boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef) {
@@ -379,7 +393,12 @@ public class VectorDataNodeReader2Test {
 
         @Override
         public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
-            return null;
+            if (geoPos == null) {
+                geoPos = new GeoPos();
+            }
+            geoPos.lon = pixelPos.x;
+            geoPos.lat = pixelPos.y;
+            return geoPos;
         }
 
         @Override

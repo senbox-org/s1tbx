@@ -28,10 +28,17 @@ import java.lang.reflect.InvocationTargetException;
  * @author Thomas Storm
  */
 abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
-    protected MyFeatureCrsProvider crsProvider;
+    protected FeatureUtils.FeatureCrsProvider crsProvider;
 
     protected AbstractImportVectorDataNodeAction() {
-        crsProvider = new MyFeatureCrsProvider(VisatApp.getApp(), getHelpId());
+        crsProvider = new FeatureUtils.FeatureCrsProvider() {
+
+            @Override
+            public CoordinateReferenceSystem getFeatureCrs(Product product) {
+                return DefaultGeographicCRS.WGS84;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+        };
+//        crsProvider = new MyFeatureCrsProvider(VisatApp.getApp(), getHelpId());
     }
 
     private class MyFeatureCrsProvider implements FeatureUtils.FeatureCrsProvider {
@@ -45,7 +52,7 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
         }
 
         @Override
-        public CoordinateReferenceSystem getCrs(final Product product, final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
+        public CoordinateReferenceSystem getFeatureCrs(final Product product) {
             final CoordinateReferenceSystem[] featureCrsBuffer = new CoordinateReferenceSystem[1];
             Runnable runnable = new Runnable() {
                 @Override

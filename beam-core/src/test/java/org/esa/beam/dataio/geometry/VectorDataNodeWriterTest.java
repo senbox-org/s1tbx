@@ -17,9 +17,12 @@
 package org.esa.beam.dataio.geometry;
 
 import junit.framework.TestCase;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.util.FeatureUtils;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -31,7 +34,7 @@ public class VectorDataNodeWriterTest extends TestCase {
     static final String OUTPUT_1 =
                     "#separator=TAB\n" +
                     "#styleCss=color:0,0,255\n" +
-                    "FT1\tname:String\tgeom:Geometry\tpixel:Integer\tdescription:String\n"
+                    "org.esa.beam.FT1\tname:String\tgeom:Geometry\tpixel:Integer\tdescription:String\n"
                     + "ID65\tmark1\tPOINT (12.3 45.6)\t0\tThis is mark1.\n"
                     + "ID66\tmark2\tPOINT (78.9 10.1)\t1\t[null]\n"
                     + "ID67\tmark3\tPOINT (23.4 56.7)\t2\tThis is mark3.\n";
@@ -47,9 +50,14 @@ public class VectorDataNodeWriterTest extends TestCase {
     }
 
     private void testInputOutput(String input, String output) throws IOException {
-        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader("mem", null);
-        Map<String,String> properties = vectorDataNodeReader.readProperties(new StringReader(input));
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(new StringReader(input));
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("mem", createDummyProduct(), new StringReader(input), new FeatureUtils.FeatureCrsProvider() {
+            @Override
+            public CoordinateReferenceSystem getFeatureCrs(Product product) {
+                return null;
+            }
+        });
+        Map<String,String> properties = vectorDataNodeReader.readProperties();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
 
         StringWriter writer = new StringWriter();
         VectorDataNodeWriter vectorDataNodeWriter = new VectorDataNodeWriter();
@@ -57,6 +65,12 @@ public class VectorDataNodeWriterTest extends TestCase {
         vectorDataNodeWriter.writeFeatures(fc, writer);
 
         assertEquals(output, writer.toString());
+    }
+
+    private static Product createDummyProduct() {
+        Product dummyProduct = new Product("blah", "blahType", 10, 10);
+        dummyProduct.setGeoCoding(new VectorDataNodeReader2Test.DummyGeoCoding());
+        return dummyProduct;
     }
 
 

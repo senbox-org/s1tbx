@@ -28,6 +28,7 @@ import org.esa.beam.jai.ImageManager;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -59,8 +60,8 @@ class LatLonAndFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
     @Override
     public void setDefaultGeometry(SimpleFeatureTypeBuilder builder) {
-        builder.add("geoPos", Point.class);
-        builder.add("pixelPos", Point.class);
+        builder.add("geoPos", Point.class, DefaultGeographicCRS.WGS84);
+        builder.add("pixelPos", Point.class, geoCoding.getImageCRS());
         builder.setDefaultGeometry("pixelPos");
     }
 
