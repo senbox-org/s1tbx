@@ -192,8 +192,8 @@ class ProfilePlotPanel extends ChartPagePanel {
         deviationRenderer.setSeriesLinesVisible(0, true);
         deviationRenderer.setSeriesShapesVisible(0, false);
         deviationRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
-        deviationRenderer.setSeriesPaint(0, new Color(0, 0, 200));
-        deviationRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
+        deviationRenderer.setSeriesPaint(0, StatisticChartStyling.DATA_PAINT);
+        deviationRenderer.setSeriesFillPaint(0, StatisticChartStyling.DATA_FILL_PAINT);
 
         pointRenderer = new XYErrorRenderer();
         pointRenderer.setUseFillPaint(true);
@@ -201,9 +201,9 @@ class ProfilePlotPanel extends ChartPagePanel {
         pointRenderer.setSeriesLinesVisible(0, false);
         pointRenderer.setSeriesShapesVisible(0, true);
         pointRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
-        pointRenderer.setSeriesPaint(0, new Color(0, 0, 200));
-        pointRenderer.setSeriesFillPaint(0, new Color(150, 150, 255));
-        pointRenderer.setSeriesShape(0, new Ellipse2D.Float(-4, -4, 8, 8));
+        pointRenderer.setSeriesPaint(0, StatisticChartStyling.DATA_PAINT);
+        pointRenderer.setSeriesFillPaint(0, StatisticChartStyling.DATA_FILL_PAINT);
+        pointRenderer.setSeriesShape(0, StatisticChartStyling.DATA_POINT_SHAPE );
 
         configureRendererForCorrelativeData(deviationRenderer);
         configureRendererForCorrelativeData(pointRenderer);
@@ -333,9 +333,9 @@ class ProfilePlotPanel extends ChartPagePanel {
         renderer.setSeriesLinesVisible(1, false);
         renderer.setSeriesShapesVisible(1, true);
         renderer.setSeriesStroke(1, new BasicStroke(1.0f));
-        renderer.setSeriesPaint(1, new Color(200, 0, 0));
-        renderer.setSeriesFillPaint(1, new Color(255, 150, 150));
-        renderer.setSeriesShape(1, new Ellipse2D.Float(-4, -4, 8, 8));
+        renderer.setSeriesPaint(1, StatisticChartStyling.INSITU_PAINT);
+        renderer.setSeriesFillPaint(1, StatisticChartStyling.INSITU_FILL_PAINT);
+        renderer.setSeriesShape(1, StatisticChartStyling.INSITU_SHAPE);
     }
 
 
@@ -544,22 +544,9 @@ class ProfilePlotPanel extends ChartPagePanel {
     }
 
     private void updateScalingOfYAxis() {
-        if ((Boolean) yAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getPropertyValue()) {
-            ValueAxis oldAxis = chart.getXYPlot().getRangeAxis();
-            if (!(oldAxis instanceof CustomLogarithmicAxis)) {
-                CustomLogarithmicAxis logAxisX = new CustomLogarithmicAxis(oldAxis.getLabel());
-                logAxisX.setAllowNegativesFlag(true);
-                logAxisX.setLog10TickLabelsFlag(true);
-                logAxisX.setMinorTickCount(10);
-                chart.getXYPlot().setRangeAxis(logAxisX);
-            }
-        } else {
-            ValueAxis oldAxis = chart.getXYPlot().getRangeAxis();
-            if (oldAxis instanceof CustomLogarithmicAxis) {
-                NumberAxis xAxis = new NumberAxis(oldAxis.getLabel());
-                chart.getXYPlot().setRangeAxis(xAxis);
-            }
-        }
+        final boolean logScaled = (Boolean) yAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getPropertyValue();
+        final XYPlot plot = chart.getXYPlot();
+        plot.setRangeAxis(StatisticChartStyling.updateScalingOfAxis(logScaled, plot.getRangeAxis(), true));
     }
 
     @Override
