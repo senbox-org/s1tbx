@@ -17,47 +17,25 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.vividsolutions.jts.geom.Polygonal;
 import org.esa.beam.dataio.geometry.VectorDataNodeIO;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.crs.CrsSelectionPanel;
-import org.esa.beam.framework.ui.crs.CustomCrsForm;
-import org.esa.beam.framework.ui.crs.PredefinedCrsForm;
-import org.esa.beam.framework.ui.crs.ProductCrsForm;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.Debug;
-import org.esa.beam.util.FeatureUtils;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.SLDUtils;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.styling.Style;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import java.awt.Insets;
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutionException;
 
 // todo - test with shapefile that has no CRS (nf, 2012-04-05)
@@ -193,6 +171,10 @@ class VectorDataNodeImporter {
         VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException;
     }
 
+    interface PlacemarkDescriptorProvider {
+
+        PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType);
+    }
 
     private VectorDataNode readGeometry(final VisatApp visatApp,
                                         final File file,
