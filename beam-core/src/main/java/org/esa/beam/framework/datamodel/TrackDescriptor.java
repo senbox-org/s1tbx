@@ -35,7 +35,11 @@ public class TrackDescriptor extends AbstractPlacemarkDescriptor {
 
     @Override
     public boolean isCompatibleWith(SimpleFeatureType featureType) {
-        return featureType.getGeometryDescriptor().getType().getBinding().isAssignableFrom(Point.class);
+        if (featureType.getGeometryDescriptor() == null) {
+            return false;
+        } else {
+            return featureType.getGeometryDescriptor().getType().getBinding().isAssignableFrom(Point.class);
+        }
     }
 
     @Override

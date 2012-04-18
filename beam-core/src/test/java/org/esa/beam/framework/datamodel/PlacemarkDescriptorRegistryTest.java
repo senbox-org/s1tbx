@@ -1,6 +1,7 @@
 package org.esa.beam.framework.datamodel;
 
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.junit.Test;
@@ -70,17 +71,16 @@ public class PlacemarkDescriptorRegistryTest {
 
         List<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(ft);
         assertNotNull(descriptors);
-        assertEquals(1, descriptors.size());
+        assertEquals(2, descriptors.size());
 
-        assertSame(registry.getPlacemarkDescriptor(className),
-                   descriptors.get(0));
+        assertTrue(descriptors.contains(registry.getPlacemarkDescriptor(className)));
     }
 
     public static SimpleFeatureType createYetUnknownFeatureType() {
         SimpleFeatureTypeBuilder sftb = new SimpleFeatureTypeBuilder();
         AttributeTypeBuilder atb = new AttributeTypeBuilder();
 
-        atb.setBinding(Point.class);
+        atb.setBinding(Polygon.class);
         atb.nillable(false);
         sftb.add(atb.buildDescriptor("PT"));
         sftb.setDefaultGeometry("PT");
