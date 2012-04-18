@@ -46,9 +46,9 @@ class PlotAreaSelectionTool extends MouseAdapter {
     private final ChartPanel chartPanel;
     private final Action action;
 
-    private ShapeOverlay overlay;
     private Point2D point1;
     private Point2D point2;
+    private ShapeOverlay overlay;
     private double triggerDistance;
     private Color fillPaint;
     private AreaType areaType;
@@ -77,6 +77,8 @@ class PlotAreaSelectionTool extends MouseAdapter {
         if (overlay != null) {
             chartPanel.removeOverlay(overlay);
             overlay = null;
+            System.out.println("PlotAreaSelectionTool.removeOverlay");
+
         }
     }
 
@@ -109,14 +111,13 @@ class PlotAreaSelectionTool extends MouseAdapter {
     @Override
     public void mousePressed(MouseEvent event) {
         removeOverlay();
-        point1 = getPoint1(event);
-        point2 = getPoint2(event);
+        point1 = createPoint1(event);
+        point2 = createPoint2(event);
     }
 
     @Override
     public void mouseReleased(MouseEvent event) {
         if (overlay != null) {
-
             XYPlot plot = chartPanel.getChart().getXYPlot();
 
             Rectangle2D dataArea = chartPanel.getScreenDataArea();
@@ -135,27 +136,26 @@ class PlotAreaSelectionTool extends MouseAdapter {
             double dy = Math.abs(y2 - y1);
 
             action.areaSelected(areaType, x0, y0, dx, dy);
-
-            point1 = null;
-            point2 = null;
         }
     }
 
     @Override
     public void mouseDragged(MouseEvent event) {
-        point2 = getPoint2(event);
-        if (overlay == null && point1 != null) {
+        if (point1 == null) {
+            return;
+        }
+        point2 = createPoint2(event);
+        if (overlay == null) {
             if (Point.distanceSq(point1.getX(), point1.getY(), point2.getX(), point2.getY()) >= triggerDistance * triggerDistance) {
-                overlay = new ShapeOverlay();
+                overlay = new ShapeOverlay(createOverlayShape(), fillPaint);
                 chartPanel.addOverlay(overlay);
             }
-        }
-        if (overlay != null) {
-            overlay.fireOverlayChanged();
+        } else {
+            overlay.setShape(createOverlayShape());
         }
     }
 
-    private Point2D.Double getPoint1(MouseEvent event) {
+    private Point2D.Double createPoint1(MouseEvent event) {
         final Point point = event.getPoint();
         final Rectangle2D dataArea = chartPanel.getScreenDataArea();
         final double x = areaType == AreaType.Y_RANGE ? dataArea.getX() : point.x;
@@ -163,7 +163,7 @@ class PlotAreaSelectionTool extends MouseAdapter {
         return new Point2D.Double(x, y);
     }
 
-    private Point2D.Double getPoint2(MouseEvent event) {
+    private Point2D.Double createPoint2(MouseEvent event) {
         final Point point = event.getPoint();
         final Rectangle2D dataArea = chartPanel.getScreenDataArea();
         final double x = areaType == AreaType.Y_RANGE ? dataArea.getX() + dataArea.getWidth() : point.x;
@@ -171,31 +171,46 @@ class PlotAreaSelectionTool extends MouseAdapter {
         return new Point2D.Double(x, y);
     }
 
-    private class ShapeOverlay extends AbstractOverlay implements Overlay {
+    private Shape createOverlayShape() {
+        double x0 = Math.min(point2.getX(), point1.getX());
+        double y0 = Math.min(point2.getY(), point1.getY());
+        double dx = Math.abs(point2.getX() - point1.getX());
+        double dy = Math.abs(point2.getY() - point1.getY());
+        final Shape shape;
+        if (areaType == AreaType.ELLIPSE) {
+            shape = new Ellipse2D.Double(x0 - dx, y0 - dy, 2 * dx, 2 * dy);
+        } else if (areaType == AreaType.RECTANGLE) {
+            shape = new Rectangle2D.Double(x0 - dx, y0 - dy, 2 * dx, 2 * dy);
+        } else if (areaType == AreaType.X_RANGE || areaType == AreaType.Y_RANGE) {
+            shape = new Rectangle2D.Double(x0, y0, dx, dy);
+        } else {
+            throw new IllegalStateException("areaType = " + areaType);
+        }
+        return shape;
+    }
+
+    private static class ShapeOverlay extends AbstractOverlay implements Overlay {
+
+        Paint fillPaint;
+        Shape shape;
+
+        private ShapeOverlay(Shape shape, Paint fillPaint) {
+            this.shape = shape;
+            this.fillPaint = fillPaint;
+        }
+
+        public final void setShape(Shape shape) {
+            this.shape = shape;
+            fireOverlayChanged();
+        }
+
         @Override
         public void paintOverlay(Graphics2D g2, ChartPanel chartPanel) {
-            if (point1 != null && point2 != null) {
-                double x0 = Math.min(point2.getX(), point1.getX());
-                double y0 = Math.min(point2.getY(), point1.getY());
-                double dx = Math.abs(point2.getX() - point1.getX());
-                double dy = Math.abs(point2.getY() - point1.getY());
-                final Shape shape;
-                if (areaType == AreaType.ELLIPSE) {
-                    shape = new Ellipse2D.Double(x0 - dx, y0 - dy, 2 * dx, 2 * dy);
-                } else if (areaType == AreaType.RECTANGLE) {
-                    shape = new Rectangle2D.Double(x0 - dx, y0 - dy, 2 * dx, 2 * dy);
-                } else if (areaType == AreaType.X_RANGE || areaType == AreaType.Y_RANGE) {
-                    shape = new Rectangle2D.Double(x0, y0, dx, dy);
-                } else {
-                    throw new IllegalStateException("areaType = " + areaType);
-                }
-
-                Shape oldClip = g2.getClip();
-                g2.setClip(chartPanel.getScreenDataArea());
-                g2.setPaint(fillPaint);
-                g2.fill(shape);
-                g2.setClip(oldClip);
-            }
+            Shape oldClip = g2.getClip();
+            g2.setClip(chartPanel.getScreenDataArea());
+            g2.setPaint(fillPaint);
+            g2.fill(shape);
+            g2.setClip(oldClip);
         }
     }
 }

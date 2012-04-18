@@ -22,9 +22,8 @@ import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.jfree.chart.ChartPanel;
 
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenuItem;
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -51,7 +50,7 @@ abstract class MaskSelectionToolSupport implements PlotAreaSelectionTool.Action 
     }
 
     public JCheckBoxMenuItem createMaskSelectionModeMenuItem() {
-        final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(String.format("Selection Mode for Mask '%s'", maskName));
+        final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(String.format("Select Mask '%s'", maskName));
         menuItem.setName("maskSelectionMode");
         menuItem.addActionListener(new ActionListener() {
             @Override
@@ -60,6 +59,7 @@ abstract class MaskSelectionToolSupport implements PlotAreaSelectionTool.Action 
                     if (plotAreaSelectionTool == null) {
                         plotAreaSelectionTool = new PlotAreaSelectionTool(chartPanel, MaskSelectionToolSupport.this);
                         plotAreaSelectionTool.setAreaType(areaType);
+                        plotAreaSelectionTool.setFillPaint(createAlphaColor(maskColor, 50));
                     }
                     plotAreaSelectionTool.install();
                 } else {
@@ -119,4 +119,8 @@ abstract class MaskSelectionToolSupport implements PlotAreaSelectionTool.Action 
     }
 
     protected abstract String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy);
+
+    private static Color createAlphaColor(Color color, int alpha) {
+        return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+    }
 }
