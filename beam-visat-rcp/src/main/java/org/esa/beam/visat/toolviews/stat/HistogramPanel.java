@@ -289,8 +289,8 @@ class HistogramPanel extends ChartPagePanel {
                             .withRoiMask(histogramPlotConfig.roiMask)
                             .withHistogramBinCount(histogramPlotConfig.numBins)
                             .withLogHistogram(histogramPlotConfig.histogramLogScaled)
-                            .withMinimum(min)
-                            .withMaximum(max)
+                            .withMinimum(Stx.LOG_TRANSFORM.scaleInverse(min))
+                            .withMaximum(Stx.LOG_TRANSFORM.scaleInverse(max))
                             .create(getRaster(), pm);
                 }
                 return stx;
