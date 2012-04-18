@@ -33,8 +33,6 @@ import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
@@ -303,10 +301,10 @@ class HistogramPanel extends ChartPagePanel {
                     factory.withHistogramBinCount(histogramPlotConfig.numBins);
                     factory.withLogHistogram(histogramPlotConfig.histogramLogScaled);
                     if (min != null) {
-                        factory.withMinimum(Stx.LOG_TRANSFORM.scaleInverse(min));
+                        factory.withMinimum(Stx.LOG10_SCALING.scaleInverse(min));
                     }
                     if (max != null) {
-                        factory.withMaximum(Stx.LOG_TRANSFORM.scaleInverse(max));
+                        factory.withMaximum(Stx.LOG10_SCALING.scaleInverse(max));
                     }
                     stx = factory.create(getRaster(), pm);
                 } else {
