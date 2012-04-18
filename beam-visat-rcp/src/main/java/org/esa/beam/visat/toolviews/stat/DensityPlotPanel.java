@@ -16,7 +16,11 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
@@ -37,16 +41,18 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.ui.RectangleInsets;
+import org.opengis.feature.type.*;
 
 import javax.swing.*;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -67,10 +73,15 @@ class DensityPlotPanel extends ChartPagePanel {
     private static final int X_VAR = 0;
     private static final int Y_VAR = 1;
 
+    private BindingContext bindingContext;
     private DataSourceConfig dataSourceConfig;
-    private ParamGroup paramGroup;
+    private Property xBandProperty;
+    private Property yBandProperty;
+    //private ParamGroup paramGroup;
+    private JComboBox xBandList;
+    private JComboBox yBandList;
 
-    private static Parameter[] rasterNameParams = new Parameter[2];
+    //private static Parameter[] rasterNameParams = new Parameter[2];
     private static AxisRangeControl[] axisRangeControls = new AxisRangeControl[2];
     private IndexColorModel toggledColorModel;
     private IndexColorModel untoggledColorModel;
@@ -99,23 +110,53 @@ class DensityPlotPanel extends ChartPagePanel {
             plot.setImage(null);
             plot.setDataset(null);
             final String[] availableBands = createAvailableBandList();
-            updateParameters(X_VAR, availableBands);
-            updateParameters(Y_VAR, availableBands);
+            final RasterDataNode raster = getRaster();
+            String rasterName = null;
+            if (raster != null) {
+                rasterName = raster.getName();
+            } else if (availableBands.length > 0) {
+                rasterName = availableBands[0];
+            }
+            /*if (rasterName != null) {
+                dataSourceConfig.xBand
+                rasterNameParams[varIndex].getProperties().setValueSet(availableBands);
+                rasterNameParams[varIndex].setValue(rasterName, null);
+            } else {
+                rasterNameParams[varIndex].getProperties().setValueSet(new String[0]);
+            }*/
+            //updateXBand();
+            //updateYBand();
+            //updateParameters(X_VAR, availableBands);
+            //updateParameters(Y_VAR, availableBands);
             toggleColorButton.setEnabled(false);
             setChartTitle();
+            super.updateContent();
         }
     }
 
     private void setChartTitle() {
         final JFreeChart chart = densityPlotDisplay.getChart();
         final List<Title> subtitles = new ArrayList<Title>(7);
+        String xName = "";
+        String yName = "";
+        if(dataSourceConfig.xBand!=null){
+             xName = dataSourceConfig.xBand.getName();
+        }
+        if(dataSourceConfig.yBand!=null){
+            yName = dataSourceConfig.xBand.getName();
+        }
         subtitles.add(new TextTitle(MessageFormat.format("{0}, {1}",
-                rasterNameParams[X_VAR].getValueAsText(),
-                rasterNameParams[Y_VAR].getValueAsText())));
+                xName,
+                yName
+                //dataSourceConfig.xBand.getName(),
+                //dataSourceConfig.yBand.getName()
+                //rasterNameParams[X_VAR].getValueAsText(),
+                //rasterNameParams[Y_VAR].getValueAsText()
+        )));
         chart.setSubtitles(subtitles);
     }
 
-    private void updateParameters(int varIndex, String[] availableBands) {
+    /*private void updateParameters(int varIndex, String[] availableBands) {
 
         final RasterDataNode raster = getRaster();
         String rasterName = null;
@@ -131,29 +172,73 @@ class DensityPlotPanel extends ChartPagePanel {
             rasterNameParams[varIndex].getProperties().setValueSet(new String[0]);
         }
 
-    }
+    }*/
 
     private void initParameters() {
         axisRangeControls[X_VAR] = new AxisRangeControl("X-Axis");
         axisRangeControls[Y_VAR] = new AxisRangeControl("Y-Axis");
-        paramGroup = new ParamGroup();
+        //paramGroup = new ParamGroup();
         final String[] availableBands = createAvailableBandList();
         initParameters(X_VAR, availableBands);
         initParameters(Y_VAR, availableBands);
         initColorModels();
         plotColorsInverted = false;
-        paramGroup.addParamChangeListener(new ParamChangeListener() {
+        /*paramGroup.addParamChangeListener(new ParamChangeListener() {
 
             public void parameterValueChanged(ParamChangeEvent event) {
                 updateUIState();
             }
+        });*/
+        dataSourceConfig = new DataSourceConfig();
+        bindingContext = new BindingContext(PropertyContainer.createObjectBacked(dataSourceConfig));
+
+        xBandList = new JComboBox();
+        xBandList.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value != null) {
+                    this.setText(((RasterDataNode) value).getName());
+                }
+                return this;
+            }
         });
+        bindingContext.bind("xBand", xBandList);
+        xBandProperty = bindingContext.getPropertySet().getProperty("xBand");
+        /*xBandProperty.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                System.out.println("I want to update xBands!");
+                updateXBand();
+            }
+        });*/
+        xBandProperty.getDescriptor().setValueSet(new ValueSet(createAvailableBandList2()));
+
+        yBandList = new JComboBox();
+        yBandList.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value != null) {
+                    this.setText(((RasterDataNode) value).getName());
+                }
+                return this;
+            }
+        });
+        bindingContext.bind("yBand", yBandList);
+        yBandProperty = bindingContext.getPropertySet().getProperty("yBand");
+        /*yBandProperty.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                System.out.println("I want to update yBands!");
+                updateYBand();
+            }
+        });*/
+        yBandProperty.getDescriptor().setValueSet(new ValueSet(createAvailableBandList2()));
     }
 
     private void initParameters(int varIndex, String[] availableBands) {
-
         final String paramPrefix = "var" + varIndex + ".";
-
         final RasterDataNode raster = getRaster();
         final String rasterName;
         if (raster != null) {
@@ -163,13 +248,71 @@ class DensityPlotPanel extends ChartPagePanel {
         } else {
             rasterName = "";
         }
-        rasterNameParams[varIndex] = new Parameter(paramPrefix + "rasterName", rasterName);
+        /*rasterNameParams[varIndex] = new Parameter(paramPrefix + "rasterName", rasterName);
         rasterNameParams[varIndex].getProperties().setValueSet(availableBands);
         rasterNameParams[varIndex].getProperties().setValueSetBound(true);
         rasterNameParams[varIndex].getProperties().setDescription("Band name"); /*I18N*/
-        rasterNameParams[varIndex].getProperties().setEditorClass(ComboBoxEditor.class);
-        paramGroup.addParameter(rasterNameParams[varIndex]);
+        /*rasterNameParams[varIndex].getProperties().setEditorClass(ComboBoxEditor.class);
+        paramGroup.addParameter(rasterNameParams[varIndex]);*/
     }
+
+    /*private void updateXBand(){
+        if (xBandProperty.getValue() != null) {
+            final List<RasterDataNode> rasterDataNodes = xBandProperty.getValue();
+            final List<RasterDataNode> result = new ArrayList<RasterDataNode>();
+            for (RasterDataNode rasterDataNode : rasterDataNodes) {
+                //if (Number.class.isAssignableFrom(RasterDataNode.getBinding())) {
+                result.add(rasterDataNode);
+                //}
+            }
+            xBandProperty.getDescriptor().setValueSet(new ValueSet(rasterDataNodes.toArray()));
+        } else {
+            xBandProperty.getDescriptor().setValueSet(null);
+            try {
+                xBandProperty.setValue(null);
+            } catch (ValidationException ignore) {
+            }
+        }*/
+        /*xBandList.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value != null) {
+                    this.setText(((RasterDataNode) value).getName());
+                }
+                return this;
+            }
+        });
+    }*/
+
+    /*private void updateYBand(){
+        if (yBandProperty.getValue() != null) {
+            final List<RasterDataNode> rasterDataNodes = yBandProperty.getValue();
+            final List<RasterDataNode> result = new ArrayList<RasterDataNode>();
+            for (RasterDataNode rasterDataNode : rasterDataNodes) {
+                //if (Number.class.isAssignableFrom(RasterDataNode.getBinding())) {
+                result.add(rasterDataNode);
+                //}
+            }
+            yBandProperty.getDescriptor().setValueSet(new ValueSet(rasterDataNodes.toArray()));
+        } else {
+            yBandProperty.getDescriptor().setValueSet(null);
+            try {
+                yBandProperty.setValue(null);
+            } catch (ValidationException ignore) {
+            }
+        }*/
+        /*yBandList.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value != null) {
+                    this.setText(((RasterDataNode) value).getName());
+                }
+                return this;
+            }
+        });
+    }*/
 
     private void initColorModels() {
         for (int j = 0; j <= 1; j++) {
@@ -218,12 +361,8 @@ class DensityPlotPanel extends ChartPagePanel {
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.getRenderer().setBaseToolTipGenerator(new XYPlotToolTipGenerator());
-
         JFreeChart chart = new JFreeChart(CHART_TITLE, plot);
         chart.removeLegend();
-
-        dataSourceConfig = new DataSourceConfig();
-        final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(dataSourceConfig));
         createUI(createChartPanel(chart), createMiddlePanel(), bindingContext);
 
         updateUIState();
@@ -259,11 +398,15 @@ class DensityPlotPanel extends ChartPagePanel {
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL");
         GridBagUtils.setAttributes(gbc, "gridx=0,weightx=1,weighty=0");
         GridBagUtils.addToPanel(middlePanel, axisRangeControls[X_VAR].getPanel(), gbc, "gridy=0,insets.top=0");
-        GridBagUtils.addToPanel(middlePanel, rasterNameParams[X_VAR].getEditor().getComponent(), gbc, "gridy=1");
+        //GridBagUtils.addToPanel(middlePanel, rasterNameParams[X_VAR].getEditor().getComponent(), gbc, "gridy=1");
+        GridBagUtils.addToPanel(middlePanel, xBandList, gbc, "gridy=1");
         GridBagUtils.addToPanel(middlePanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=2");
-        GridBagUtils.addToPanel(middlePanel, rasterNameParams[Y_VAR].getEditor().getComponent(), gbc, "gridy=3");
+        //GridBagUtils.addToPanel(middlePanel, rasterNameParams[Y_VAR].getEditor().getComponent(), gbc, "gridy=3");
+        GridBagUtils.addToPanel(middlePanel, yBandList, gbc, "gridy=3");
         GridBagUtils.addToPanel(middlePanel, new JPanel(), gbc, "gridy=4,weighty=1");
         GridBagUtils.addToPanel(middlePanel, toggleColorButton, gbc, "gridy=5,weighty=1");
+        //GridBagUtils.addToPanel(middlePanel, xBandList, gbc, "gridy=6,weighty=1");
+        //GridBagUtils.addToPanel(middlePanel, yBandList, gbc, "gridy=7,weighty=1");
         return middlePanel;
     }
 
@@ -280,8 +423,10 @@ class DensityPlotPanel extends ChartPagePanel {
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
                 double rr = Math.sqrt(dx * dx + dy * dy);
                 return String.format("distance(%s, %s, %s, %s) < %s",
-                        rasterNameParams[0].getValue(),
-                        rasterNameParams[1].getValue(),
+                        //rasterNameParams[0].getValue(),
+                        //rasterNameParams[1].getValue(),
+                        dataSourceConfig.xBand.getName(),
+                        dataSourceConfig.yBand.getName(),
                         x0,
                         y0,
                         rr);
@@ -301,7 +446,13 @@ class DensityPlotPanel extends ChartPagePanel {
         if (product == null) {
             return null;
         }
-        final String rasterName = rasterNameParams[varIndex].getValue().toString();
+        final String rasterName;// = rasterNameParams[varIndex].getValue().toString();
+        if(varIndex==X_VAR){
+            rasterName = dataSourceConfig.xBand.getName();
+        }
+        else{
+            rasterName = dataSourceConfig.yBand.getName();
+        }
         RasterDataNode raster = product.getRasterDataNode(rasterName);
         if (raster == null) {
             if (getRaster() != null && rasterName.equalsIgnoreCase(getRaster().getName())) {
@@ -443,6 +594,27 @@ class DensityPlotPanel extends ChartPagePanel {
             axisRangeControls[varIndex].setMin(stx.getMinimum());
             axisRangeControls[varIndex].setMax(stx.getMaximum());
         }
+    }
+
+    private RasterDataNode[] createAvailableBandList2(){
+        final Product product = getProduct();
+        final List<RasterDataNode> availableBandList = new ArrayList<RasterDataNode>(17);
+        if (product != null) {
+            for (int i = 0; i < product.getNumBands(); i++) {
+                availableBandList.add(product.getBandAt(i));
+            }
+            for (int i = 0; i < product.getNumTiePointGrids(); i++) {
+                availableBandList.add(product.getTiePointGridAt(i));
+            }
+        }
+        // if raster is only bound to the product and does not belong to it
+        final RasterDataNode raster = getRaster();
+        if (raster != null && raster.getProduct() == product) {
+            if (!availableBandList.contains(raster)) {
+                availableBandList.add(raster);
+            }
+        }
+        return availableBandList.toArray(new RasterDataNode[availableBandList.size()]);
     }
 
     private String[] createAvailableBandList() {
@@ -602,6 +774,8 @@ class DensityPlotPanel extends ChartPagePanel {
 
         public boolean useRoiMask;
         private Mask roiMask;
+        private RasterDataNode xBand;
+        private RasterDataNode yBand;
 
     }
 
