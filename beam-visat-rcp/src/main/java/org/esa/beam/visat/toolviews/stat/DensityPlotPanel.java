@@ -290,8 +290,8 @@ class DensityPlotPanel extends ChartPagePanel{
             protected DensityPlot doInBackground(ProgressMonitor pm) throws Exception {
                 pm.beginTask("Computing density plot...", 100);
                 try {
-                    setRange(X_VAR, rasterX, dataSourceConfig.roiMask, SubProgressMonitor.create(pm, 15));
-                    setRange(Y_VAR, rasterY, dataSourceConfig.roiMask, SubProgressMonitor.create(pm, 15));
+                    setRange(X_VAR, rasterX, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
+                    setRange(Y_VAR, rasterY, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
                     final BufferedImage image = ProductUtils.createDensityPlotImage(rasterX,
                             axisRangeControls[X_VAR].getMin().floatValue(),
                             axisRangeControls[X_VAR].getMax().floatValue(),
@@ -484,7 +484,7 @@ class DensityPlotPanel extends ChartPagePanel{
             return null;
         }
 
-        final StringBuffer sb = new StringBuffer(64000);
+        final StringBuilder sb = new StringBuilder(64000);
         final int w = image.getWidth();
         final int h = image.getHeight();
 
@@ -553,9 +553,7 @@ class DensityPlotPanel extends ChartPagePanel{
     private static class DataSourceConfig {
 
         public boolean useRoiMask;
-        private Mask roiMask;
-
+        public Mask roiMask;
     }
-
 }
 

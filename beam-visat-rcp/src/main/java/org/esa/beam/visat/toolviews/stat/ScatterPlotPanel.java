@@ -125,7 +125,7 @@ class ScatterPlotPanel extends ChartPagePanel {
 
             @Override
             protected XYIntervalSeries doInBackground(ProgressMonitor pm) throws Exception {
-//                pm.beginTask("Computing scatter plot...", 100);
+                pm.beginTask("Computing scatter plot...", 100);
                 final XYIntervalSeries scatterValues = new XYIntervalSeries("scatter values");
                 try {
                     final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = scatterPlotModel.pointDataSource.getFeatureCollection();
@@ -176,20 +176,17 @@ class ScatterPlotPanel extends ChartPagePanel {
                         }
 
                         double rasterMean = sum / n;
-                        double rasterSigma = n > 1 ? (float) Math.sqrt(1.0 / (n - 1.0) * (sumSqr - (sum * sum) / n)) : 0.0F;
-                        final double x = rasterMean;
-                        final double dx = rasterSigma;
+                        double rasterSigma = n > 1 ? Math.sqrt((sumSqr - (sum * sum) / n) / (n - 1)) : 0.0;
 
                         String localName = dataField.getLocalName();
                         Number attribute = (Number) feature.getAttribute(localName);
-                        final double insituValue = attribute.doubleValue();
-                        final double y = insituValue;
-                        scatterValues.add(x, x - dx, x + dx, y, y, y);
+                        scatterValues.add(rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma,
+                                          attribute.doubleValue(), attribute.doubleValue(), attribute.doubleValue());
                     }
                 } finally {
-//                    pm.done();
-                    return scatterValues;
+                    pm.done();
                 }
+                return scatterValues;
             }
 
             @Override
