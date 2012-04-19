@@ -42,8 +42,15 @@ import org.jfree.data.xy.XIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import javax.media.jai.Histogram;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -165,15 +172,24 @@ class HistogramPanel extends ChartPagePanel {
         PropertyChangeListener changeListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM)) {
+                    if (evt.getNewValue().equals(Boolean.TRUE)) {
+                        xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).setPropertyValue(Boolean.FALSE);
+                    }
+                }
                 updateUIState();
             }
         };
 
         xAxisRangeControl.getBindingContext().addPropertyChangeListener(changeListener);
         xAxisRangeControl.getBindingContext().getPropertySet().addProperty(
-                Property.create(PROPERTY_NAME_LOG_SCALED, false));
+                bindingContext.getPropertySet().getProperty(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM));
+        xAxisRangeControl.getBindingContext().getPropertySet().addProperty(
+                bindingContext.getPropertySet().getProperty(PROPERTY_NAME_LOG_SCALED));
         xAxisRangeControl.getBindingContext().getPropertySet().getDescriptor(PROPERTY_NAME_LOG_SCALED).setDescription(
                 "Toggle whether to use a logarithmic X-axis");
+        xAxisRangeControl.getBindingContext().bindEnabledState(PROPERTY_NAME_LOG_SCALED, false,
+                                                               PROPERTY_NAME_LOGARITHMIC_HISTOGRAM, true);
 
         JPanel dataSourceOptionsPanel = GridBagUtils.createPanel();
         GridBagConstraints dataSourceOptionsConstraints = GridBagUtils.createConstraints(
@@ -325,7 +341,7 @@ class HistogramPanel extends ChartPagePanel {
                     } else {
                         JOptionPane.showMessageDialog(getParentComponent(),
                                                       "The ROI is empty or no pixels found between min/max.\n"
-                                                              + "A valid histogram could not be computed.",
+                                                      + "A valid histogram could not be computed.",
                                                       CHART_TITLE,
                                                       JOptionPane.WARNING_MESSAGE);
                     }
@@ -416,7 +432,7 @@ class HistogramPanel extends ChartPagePanel {
         sb.append("Histogram maximum:\t").append(max).append("\t").append(getRaster().getUnit()).append("\n");
         sb.append("Histogram bin size:\t").append(
                 getRaster().isLog10Scaled() ? ("NA\t") : ((max - min) / numBins + "\t") +
-                        getRaster().getUnit() + "\n");
+                                                         getRaster().getUnit() + "\n");
         sb.append("Histogram #bins:\t").append(numBins).append("\n");
         sb.append('\n');
 
@@ -436,7 +452,8 @@ class HistogramPanel extends ChartPagePanel {
     }
 
     private void updateXAxis() {
-        final boolean logScaled = (Boolean) xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getPropertyValue();
+        final boolean logScaled = (Boolean) xAxisRangeControl.getBindingContext().getBinding(
+                PROPERTY_NAME_LOG_SCALED).getPropertyValue();
         final XYPlot plot = chart.getXYPlot();
         plot.setDomainAxis(StatisticChartStyling.updateScalingOfAxis(logScaled, plot.getDomainAxis(), true));
         plot.getDomainAxis().setLabel(getAxisLabel());
