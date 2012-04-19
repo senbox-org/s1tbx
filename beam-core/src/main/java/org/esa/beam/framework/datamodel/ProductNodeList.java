@@ -215,8 +215,11 @@ public final class ProductNodeList<T extends ProductNode> {
     public final boolean remove(T node) {
         if (node != null) {
             synchronized (this) {
-                removedNodes.add(node);
-                return nodes.remove(node);
+                if (nodes.remove(node)) {
+                    removedNodes.add(node);
+                    return true;
+                }
+                return false;
             }
         }
         return false;
