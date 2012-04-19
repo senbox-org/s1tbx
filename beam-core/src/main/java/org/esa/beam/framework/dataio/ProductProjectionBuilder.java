@@ -422,11 +422,11 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         addBandsToProduct(product);
         ProductUtils.copyMasks(getSourceProduct(), product);
         ProductUtils.copyOverlayMasks(getSourceProduct(), product);
-        if (getSourceProduct().getPinGroup(false) != null) {
+        if (getSourceProduct().getPinGroup().getNodeCount() > 0) {
             copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(),
                            PinDescriptor.getInstance());
         }
-        if (getSourceProduct().getGcpGroup(false) != null) {
+        if (getSourceProduct().getGcpGroup().getNodeCount() > 0) {
             copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(),
                            GcpDescriptor.getInstance());
         }

@@ -143,6 +143,8 @@ public class Product extends ProductNode {
 
     private Dimension preferredTileSize;
     private AutoGrouping autoGrouping;
+    private final PlacemarkGroup pinGroup;
+    private final PlacemarkGroup gcpGroup;
 
     /**
      * Creates a new product without any reader (in-memory product)
@@ -197,6 +199,12 @@ public class Product extends ProductNode {
         this.vectorDataGroup = new ProductNodeGroup<VectorDataNode>(this, "vectorDataGroup", true) {
             @Override
             public boolean add(VectorDataNode vectorDataNode) {
+                if (pinGroup != null && pinGroup.getVectorDataNode() == vectorDataNode) {
+                    return false;
+                }
+                if (gcpGroup != null && gcpGroup.getVectorDataNode() == vectorDataNode) {
+                    return false;
+                }
                 final boolean added = super.add(vectorDataNode);
                 if (added) {
                     getMaskGroup().add(createMask(vectorDataNode));
@@ -206,12 +214,24 @@ public class Product extends ProductNode {
 
             @Override
             public void add(int index, VectorDataNode vectorDataNode) {
+                if (pinGroup != null && pinGroup.getVectorDataNode() == vectorDataNode) {
+                    return;
+                }
+                if (gcpGroup != null && gcpGroup.getVectorDataNode() == vectorDataNode) {
+                    return;
+                }
                 super.add(index, vectorDataNode);
                 getMaskGroup().add(createMask(vectorDataNode));
             }
 
             @Override
             public boolean remove(VectorDataNode vectorDataNode) {
+                if (pinGroup != null && pinGroup.getVectorDataNode() == vectorDataNode) {
+                    return false;
+                }
+                if (gcpGroup != null && gcpGroup.getVectorDataNode() == vectorDataNode) {
+                    return false;
+                }
                 final boolean removed = super.remove(vectorDataNode);
                 if (removed) {
                     final Mask[] masks = getMaskGroup().toArray(new Mask[getMaskGroup().getNodeCount()]);
@@ -273,6 +293,9 @@ public class Product extends ProductNode {
             }
         };
 
+        pinGroup = getPinGroup(true);
+        gcpGroup = getGcpGroup(true);
+
         setModified(false);
 
         addProductNodeListener(new ProductNodeListenerAdapter() {
@@ -288,7 +311,6 @@ public class Product extends ProductNode {
     }
 
     private void handleGeoCodingChange() {
-        final ProductNodeGroup<Placemark> pinGroup = getPinGroup(false);
         if (pinGroup == null) {
             return;
         }
@@ -1128,25 +1150,14 @@ public class Product extends ProductNode {
     //////////////////////////////////////////////////////////////////////////
     // GCP support
 
-    /**
-     * Gets the group of ground-control points (GCPs).
-     *
-     * @param create If {@code true}, a new group will be created, in case none exists already.
-     * @return the GCP group, or {@code null} if none was found or created.
-     * @since BEAM 4.10
-     */
-    public synchronized PlacemarkGroup getGcpGroup(boolean create) {
-        VectorDataNode vectorDataNode = vectorDataGroup.get(GCP_GROUP_NAME);
-        if (vectorDataNode != null) {
-            return vectorDataNode.getPlacemarkGroup();
-        }
-        if (create) {
-            vectorDataNode = new VectorDataNode(GCP_GROUP_NAME, Placemark.createGcpFeatureType());
+    private synchronized PlacemarkGroup getGcpGroup(boolean create) {
+        if (create && gcpGroup == null) {
+            final VectorDataNode vectorDataNode = new VectorDataNode(GCP_GROUP_NAME, Placemark.createGcpFeatureType());
             vectorDataNode.setDefaultStyleCss("symbol:plus; stroke:#ff8800; stroke-opacity:0.8; stroke-width:1.0");
             this.vectorDataGroup.add(vectorDataNode);
             return vectorDataNode.getPlacemarkGroup();
         }
-        return null;
+        return gcpGroup;
     }
 
     /**
@@ -1156,31 +1167,20 @@ public class Product extends ProductNode {
      * @return the GCP group.
      */
     public PlacemarkGroup getGcpGroup() {
-        return getGcpGroup(true);
+        return gcpGroup;
     }
 
     //////////////////////////////////////////////////////////////////////////
     // Pin support
 
-    /**
-     * Gets the group of pins.
-     *
-     * @param create If {@code true}, a new group will be created, in case none exists already.
-     * @return the pin group.
-     * @since BEAM 4.10
-     */
-    public synchronized PlacemarkGroup getPinGroup(boolean create) {
-        VectorDataNode vectorDataNode = vectorDataGroup.get(PIN_GROUP_NAME);
-        if (vectorDataNode != null) {
-            return vectorDataNode.getPlacemarkGroup();
-        }
-        if (create) {
-            vectorDataNode = new VectorDataNode(PIN_GROUP_NAME, Placemark.createPinFeatureType());
+    private synchronized PlacemarkGroup getPinGroup(boolean create) {
+        if (create && pinGroup == null) {
+            final VectorDataNode vectorDataNode = new VectorDataNode(PIN_GROUP_NAME, Placemark.createPinFeatureType());
             vectorDataNode.setDefaultStyleCss("symbol:pin; fill:#0000ff; fill-opacity:0.7; stroke:#ffffff; stroke-opacity:1.0; stroke-width:0.5");
             this.vectorDataGroup.add(vectorDataNode);
             return vectorDataNode.getPlacemarkGroup();
         }
-        return null;
+        return pinGroup;
     }
 
     /**
@@ -1190,7 +1190,7 @@ public class Product extends ProductNode {
      * @return the pin group.
      */
     public synchronized PlacemarkGroup getPinGroup() {
-        return getPinGroup(true);
+        return pinGroup;
     }
 
     //
