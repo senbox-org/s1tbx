@@ -93,9 +93,6 @@ public class FeatureUtils {
             CoordinateReferenceSystem featureCrs = featureCollection.getSchema().getCoordinateReferenceSystem();
             if (featureCrs == null) {
                 featureCrs = crsProvider.getFeatureCrs(product);
-                if (featureCrs == null) {
-                    featureCrs = DefaultGeographicCRS.WGS84;
-                }
             }
             FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection
                     = FeatureUtils.clipCollection(featureCollection,
@@ -268,5 +265,15 @@ public class FeatureUtils {
         return gf.createPolygon(gf.createLinearRing(coordinates), null);
     }
 
+    /**
+     * Turns the first letter of the given string to upper case.
+     *
+     * @param string the string to change
+     * @return a changed string
+     */
+    public static String firstLetterUp(String string) {
+        String firstChar = string.substring(0, 1).toUpperCase();
+        return firstChar + string.substring(1);
+    }
 
 }

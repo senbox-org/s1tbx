@@ -19,10 +19,7 @@ package org.esa.beam.dataio.geometry;
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.FeatureUtils;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
@@ -48,7 +45,8 @@ public class VectorDataNodeIOTest {
     
     private StringWriter stringWriter;
     private DefaultFeatureCollection testCollection;
-    
+    private VectorDataNodeReader2.PlacemarkDescriptorProvider placemarkDescriptorProvider;
+
     @Before
     public void setUp() throws IOException {
         testCollection = createTestCollection();
@@ -56,6 +54,12 @@ public class VectorDataNodeIOTest {
         stringWriter = new StringWriter(300);
         final VectorDataNodeWriter writer = new VectorDataNodeWriter();
         writer.writeFeatures(testCollection, stringWriter);
+        placemarkDescriptorProvider = new VectorDataNodeReader2.PlacemarkDescriptorProvider() {
+            @Override
+            public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
+                return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(org.esa.beam.framework.datamodel.GeometryDescriptor.class);
+            }
+        };
     }
 
     @Test
@@ -74,7 +78,7 @@ public class VectorDataNodeIOTest {
             public CoordinateReferenceSystem getFeatureCrs(Product product) {
                 return DefaultGeographicCRS.WGS84;
             }
-        });
+        }, placemarkDescriptorProvider);
         final FeatureCollection<SimpleFeatureType,SimpleFeature> readCollection = reader.readFeatures();
 
         assertEquals(testCollection.size(), readCollection.size());
@@ -150,9 +154,9 @@ public class VectorDataNodeIOTest {
         VectorDataNode vectorDataNode2 = VectorDataNodeReader2.read("mem", new FileReader(tempFile), createDummyProduct(), new FeatureUtils.FeatureCrsProvider() {
             @Override
             public CoordinateReferenceSystem getFeatureCrs(Product product) {
-                return null;
+                return DefaultGeographicCRS.WGS84;
             }
-        }, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL);
+        }, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL);
 
         assertNotNull(vectorDataNode2);
         assertEquals(vectorDataNode.getDescription(), vectorDataNode2.getDescription());

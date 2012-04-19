@@ -21,6 +21,7 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.Guardian;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
@@ -263,17 +264,6 @@ public class PlacemarkDialog extends ModalDialog {
     }
 
     /**
-     * Turns the first letter of the given string to upper case.
-     *
-     * @param string the string to change
-     * @return a changed string
-     */
-    private static String firstLetterUp(String string) {
-        String firstChar = string.substring(0, 1).toUpperCase();
-        return firstChar + string.substring(1);
-    }
-
-    /**
      * Shows a dialog to edit the properties of an placemark.
      * If the placemark does not belong to a product it will be added after editing.
      *
@@ -289,7 +279,7 @@ public class PlacemarkDialog extends ModalDialog {
                                                            placemarkDescriptor instanceof PinDescriptor);
         boolean belongsToProduct = placemark.getProduct() != null;
         String titlePrefix = belongsToProduct ? "Edit" : "New";
-        String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
+        String roleLabel = FeatureUtils.firstLetterUp(placemarkDescriptor.getRoleLabel());
 
         dialog.getJDialog().setTitle(titlePrefix + " " + roleLabel);
         dialog.getJDialog().setName(titlePrefix + "_" + roleLabel);

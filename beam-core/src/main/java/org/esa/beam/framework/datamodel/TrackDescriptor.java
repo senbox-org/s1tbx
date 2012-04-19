@@ -17,6 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import com.vividsolutions.jts.geom.Point;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.Image;
@@ -34,12 +35,20 @@ public class TrackDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
-    public boolean isCompatibleWith(SimpleFeatureType featureType) {
+    public DecodeQualification isCompatibleWith(SimpleFeatureType featureType) {
         if (featureType.getGeometryDescriptor() == null) {
-            return false;
+            return DecodeQualification.UNABLE;
+        } else if (featureType.getName().getLocalPart().equals("org.esa.beam.TrackPoint")) {
+            return DecodeQualification.INTENDED;
+        } else if (featureType.getGeometryDescriptor().getType().getBinding().isAssignableFrom(Point.class)) {
+            return DecodeQualification.SUITABLE;
         } else {
-            return featureType.getGeometryDescriptor().getType().getBinding().isAssignableFrom(Point.class);
+            final Object trackPoints = featureType.getUserData().get("trackPoints");
+            if (trackPoints != null && Boolean.parseBoolean(trackPoints.toString())) {
+                return DecodeQualification.INTENDED;
+            }
         }
+        return DecodeQualification.UNABLE;
     }
 
     @Override

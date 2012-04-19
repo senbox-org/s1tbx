@@ -16,6 +16,7 @@
 
 package org.esa.beam.framework.datamodel;
 
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -56,10 +57,11 @@ public interface PlacemarkDescriptor {
      * The method shall only return {@code true}, if the {@link #createPlacemark(org.opengis.feature.simple.SimpleFeature)}
      * method can successfully create a new placemark from a feature having the compatible {@code featureType}.
      *
+     *
      * @param featureType The feature type to be tested.
      * @return {@code true}, if the {@code featureType} is compatible.
      */
-    boolean isCompatibleWith(SimpleFeatureType featureType);
+    DecodeQualification isCompatibleWith(SimpleFeatureType featureType);
 
     /**
      * Gets the feature type that provides the minimum set of attributes

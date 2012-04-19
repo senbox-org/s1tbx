@@ -16,9 +16,11 @@
 
 package org.esa.beam.visat.actions;
 
+import org.esa.beam.framework.datamodel.GeometryDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.util.FeatureUtils;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import javax.swing.AbstractButton;
@@ -30,10 +32,7 @@ import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Olaf Danne
@@ -56,17 +55,23 @@ class TypeDialog extends ModalDialog {
         panel.setLayout(layout);
 
         List<AbstractButton> buttons = new ArrayList<AbstractButton>();
-        List<PlacemarkDescriptor> placemarkDescriptors = new ArrayList<PlacemarkDescriptor>();
-        placemarkDescriptors.addAll(PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptors(featureType));
-        Collections.sort(placemarkDescriptors, new Comparator<PlacemarkDescriptor>() {
+        SortedSet<PlacemarkDescriptor> placemarkDescriptors = new TreeSet<PlacemarkDescriptor>(new Comparator<PlacemarkDescriptor>() {
             @Override
             public int compare(PlacemarkDescriptor o1, PlacemarkDescriptor o2) {
                 return o1.getRoleLabel().compareTo(o2.getRoleLabel());
             }
         });
+        placemarkDescriptors.addAll(PlacemarkDescriptorRegistry.getInstance().getValidPlacemarkDescriptors(featureType));
+        placemarkDescriptors.add(PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GeometryDescriptor.class));
 
-        for (PlacemarkDescriptor descriptor : placemarkDescriptors) {
-            buttons.add(createButton(descriptor.getRoleLabel(), descriptor, featureType));
+        boolean first = true;
+        for (PlacemarkDescriptor descriptor:placemarkDescriptors) {
+            buttons.add(createButton(FeatureUtils.firstLetterUp(descriptor.getRoleLabel()), descriptor));
+            if (first) {
+                buttons.get(0).setSelected(true);
+                placemarkDescriptor = descriptor;
+                first = false;
+            }
         }
         ButtonGroup buttonGroup = new ButtonGroup();
         for (AbstractButton button : buttons) {
@@ -77,19 +82,18 @@ class TypeDialog extends ModalDialog {
         setContent(panel);
     }
 
-    private JRadioButton createButton(String text, final PlacemarkDescriptor pd, final SimpleFeatureType featureType) {
+    private JRadioButton createButton(String text, final PlacemarkDescriptor pd) {
         JRadioButton button = new JRadioButton(text);
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 placemarkDescriptor = pd;
-                placemarkDescriptor.setUserData(featureType);
             }
         });
         return button;
     }
 
-    public String getVectorDataNodeName() {
-        return placemarkDescriptor.getRoleLabel();
+    public PlacemarkDescriptor getPlacemarkDescriptor() {
+        return placemarkDescriptor;
     }
 }

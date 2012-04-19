@@ -323,7 +323,7 @@ public class VectorDataNode extends ProductNode {
 
     // Note: This is a temporary method. Soon, VectorDataNodes will be able to support all suitable PlacemarkDescriptors
     private static PlacemarkDescriptor getPlacemarkDescriptor(final SimpleFeatureType featureType) {
-        List<PlacemarkDescriptor> placemarkDescriptors = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptors(featureType);
+        List<PlacemarkDescriptor> placemarkDescriptors = PlacemarkDescriptorRegistry.getInstance().getValidPlacemarkDescriptors(featureType);
         if (!placemarkDescriptors.isEmpty()) {
             return placemarkDescriptors.get(0);
         }

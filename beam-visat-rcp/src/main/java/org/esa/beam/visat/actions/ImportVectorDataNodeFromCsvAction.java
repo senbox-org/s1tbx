@@ -64,7 +64,7 @@ public class ImportVectorDataNodeFromCsvAction extends AbstractImportVectorDataN
         public VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException {
             final CoordinateReferenceSystem modelCrs = product.getGeoCoding() != null ? ImageManager.getModelCrs(product.getGeoCoding()) :
                     ImageManager.DEFAULT_IMAGE_CRS;
-            return VectorDataNodeReader2.read(file.getName(), new FileReader(file), product, crsProvider, modelCrs, pm);
+            return VectorDataNodeReader2.read(file.getName(), new FileReader(file), product, crsProvider, placemarkDescriptorProvider, modelCrs, pm);
         }
     }
 }

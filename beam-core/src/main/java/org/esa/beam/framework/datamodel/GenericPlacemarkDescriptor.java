@@ -1,5 +1,6 @@
 package org.esa.beam.framework.datamodel;
 
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.Image;
@@ -21,8 +22,11 @@ public class GenericPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
-    public boolean isCompatibleWith(SimpleFeatureType ft) {
-        return featureType.equals(ft);
+    public DecodeQualification isCompatibleWith(SimpleFeatureType ft) {
+        if (featureType.equals(ft)) {
+            return DecodeQualification.INTENDED;
+        }
+        return DecodeQualification.UNABLE;
     }
 
     @Override

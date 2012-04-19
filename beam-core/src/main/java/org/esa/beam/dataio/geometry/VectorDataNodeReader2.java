@@ -50,6 +50,7 @@ public class VectorDataNodeReader2 {
     private final GeoCoding geoCoding;
     private final Product product;
     private final FeatureUtils.FeatureCrsProvider crsProvider;
+    private final PlacemarkDescriptorProvider placemarkDescriptorProvider;
     private final InterpretationStrategy interpretationStrategy;
     private final CsvReader reader;
 
@@ -58,17 +59,18 @@ public class VectorDataNodeReader2 {
     private static final String[] GEOMETRY_IDENTIFIERS = new String[]{"geometry", "geom", "the_geom"};
     private SimpleFeatureType featureType;
 
-    VectorDataNodeReader2(String vectorDataNodeName, Product product, Reader reader, FeatureUtils.FeatureCrsProvider crsProvider) throws IOException {
+    VectorDataNodeReader2(String vectorDataNodeName, Product product, Reader reader, FeatureUtils.FeatureCrsProvider crsProvider, PlacemarkDescriptorProvider placemarkDescriptorProvider) throws IOException {
         this.product = product;
         this.crsProvider = crsProvider;
+        this.placemarkDescriptorProvider = placemarkDescriptorProvider;
         this.geoCoding = product.getGeoCoding();
         this.vectorDataNodeName = vectorDataNodeName;
         this.reader = new CsvReader(reader, new char[]{VectorDataNodeIO.DELIMITER_CHAR}, true, "#");
         this.interpretationStrategy = createInterpretationStrategy();
     }
 
-    public static VectorDataNode read(String name, Reader reader, Product product, FeatureUtils.FeatureCrsProvider crsProvider, CoordinateReferenceSystem modelCrs, ProgressMonitor pm) throws IOException {
-        return new VectorDataNodeReader2(name, product, reader, crsProvider).read(modelCrs, pm);
+    public static VectorDataNode read(String name, Reader reader, Product product, FeatureUtils.FeatureCrsProvider crsProvider, PlacemarkDescriptorProvider placemarkDescriptorProvider, CoordinateReferenceSystem modelCrs, ProgressMonitor pm) throws IOException {
+        return new VectorDataNodeReader2(name, product, reader, crsProvider, placemarkDescriptorProvider).read(modelCrs, pm);
     }
 
     VectorDataNode read(CoordinateReferenceSystem modelCrs, ProgressMonitor pm) throws IOException {
@@ -91,13 +93,9 @@ public class VectorDataNodeReader2 {
             clippedCollection = featureCollection;
         }
 
-        final List<PlacemarkDescriptor> placemarkDescriptors = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptors(featureType);
-        final PlacemarkDescriptor placemarkDescriptor;
-        if (placemarkDescriptors.isEmpty()) {
-            placemarkDescriptor = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GeometryDescriptor.class);
-        } else {
-            placemarkDescriptor = placemarkDescriptors.get(0);
-        }
+        final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorProvider.getPlacemarkDescriptor(featureType);
+        placemarkDescriptor.setUserData(clippedCollection.getSchema());
+
         VectorDataNode vectorDataNode = new VectorDataNode(name, clippedCollection, placemarkDescriptor);
         if (properties.containsKey(ProductNode.PROPERTY_NAME_DESCRIPTION)) {
             vectorDataNode.setDescription(properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
@@ -265,9 +263,6 @@ public class VectorDataNodeReader2 {
     private SimpleFeatureType createFeatureType(String[] tokens) throws IOException {
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
         CoordinateReferenceSystem featureCrs = crsProvider.getFeatureCrs(product);
-        if (featureCrs == null) {
-            featureCrs = DefaultGeographicCRS.WGS84;
-        }
         builder.setCRS(featureCrs);
         JavaTypeConverter jtc = new JavaTypeConverter();
 
@@ -330,6 +325,10 @@ public class VectorDataNodeReader2 {
             }
         }
         return false;
+    }
+
+    public interface PlacemarkDescriptorProvider {
+        PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType);
     }
 
 }

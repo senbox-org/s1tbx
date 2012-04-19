@@ -19,6 +19,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.beam.BeamCoreActivator;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.util.ArrayList;
@@ -59,14 +60,30 @@ public class PlacemarkDescriptorRegistry {
         return serviceRegistry.getServices();
     }
 
-    public List<PlacemarkDescriptor> getPlacemarkDescriptors(SimpleFeatureType featureType) {
+    public List<PlacemarkDescriptor> getValidPlacemarkDescriptors(SimpleFeatureType featureType) {
         ArrayList<PlacemarkDescriptor> list = new ArrayList<PlacemarkDescriptor>();
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
-            if (placemarkDescriptor.isCompatibleWith(featureType)) {
+            if (placemarkDescriptor.isCompatibleWith(featureType) != DecodeQualification.UNABLE) {
                 list.add(placemarkDescriptor);
             }
         }
         return list;
+    }
+
+    public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType featureType) {
+        ArrayList<PlacemarkDescriptor> list = new ArrayList<PlacemarkDescriptor>();
+        for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
+            if (placemarkDescriptor.isCompatibleWith(featureType) == DecodeQualification.INTENDED) {
+                return placemarkDescriptor;
+            }  else if (placemarkDescriptor.isCompatibleWith(featureType) == DecodeQualification.SUITABLE) {
+                list.add(placemarkDescriptor);
+            }
+        }
+        if (!list.isEmpty()) {
+            return list.get(0);
+        } else {
+            return null;
+        }
     }
 
 }

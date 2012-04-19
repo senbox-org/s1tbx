@@ -17,6 +17,8 @@
 package org.esa.beam.dataio.geometry;
 
 import junit.framework.TestCase;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.FeatureUtils;
 import org.geotools.feature.FeatureCollection;
@@ -41,6 +43,18 @@ public class VectorDataNodeWriterTest extends TestCase {
 
     static final String OUTPUT_2 = VectorDataNodeReaderTest.INPUT_2;
 
+    private VectorDataNodeReader2.PlacemarkDescriptorProvider placemarkDescriptorProvider;
+
+    @Override
+    public void setUp() throws Exception {
+        placemarkDescriptorProvider = new VectorDataNodeReader2.PlacemarkDescriptorProvider() {
+            @Override
+            public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
+                return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(org.esa.beam.framework.datamodel.GeometryDescriptor.class);
+            }
+        };
+    }
+
     public void testOutput1() throws IOException {
         testInputOutput(VectorDataNodeReaderTest.INPUT_1, OUTPUT_1);
     }
@@ -55,7 +69,7 @@ public class VectorDataNodeWriterTest extends TestCase {
             public CoordinateReferenceSystem getFeatureCrs(Product product) {
                 return null;
             }
-        });
+        }, placemarkDescriptorProvider);
         Map<String,String> properties = vectorDataNodeReader.readProperties();
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
 

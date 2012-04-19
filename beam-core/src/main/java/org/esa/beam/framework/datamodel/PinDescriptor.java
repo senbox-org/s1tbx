@@ -16,6 +16,7 @@
 
 package org.esa.beam.framework.datamodel;
 
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.Image;
@@ -30,8 +31,11 @@ public class PinDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
-    public boolean isCompatibleWith(SimpleFeatureType featureType) {
-        return featureType.getTypeName().equals("org.esa.beam.Pin");
+    public DecodeQualification isCompatibleWith(SimpleFeatureType featureType) {
+        if (featureType.getTypeName().equals("org.esa.beam.Pin")) {
+            return DecodeQualification.INTENDED;
+        }
+        return DecodeQualification.UNABLE;
     }
 
     @Override

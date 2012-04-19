@@ -171,11 +171,6 @@ class VectorDataNodeImporter {
         VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException;
     }
 
-    interface PlacemarkDescriptorProvider {
-
-        PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType);
-    }
-
     private VectorDataNode readGeometry(final VisatApp visatApp,
                                         final File file,
                                         final Product product)

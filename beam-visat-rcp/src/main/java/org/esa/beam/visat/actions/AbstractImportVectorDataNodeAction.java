@@ -1,6 +1,11 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.swing.TableLayout;
+import org.esa.beam.dataio.geometry.VectorDataNodeReader2;
+import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.datamodel.GeometryDescriptor;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -11,9 +16,7 @@ import org.esa.beam.framework.ui.crs.ProductCrsForm;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -29,9 +32,28 @@ import java.lang.reflect.InvocationTargetException;
  */
 abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
     protected FeatureUtils.FeatureCrsProvider crsProvider;
+    protected VectorDataNodeReader2.PlacemarkDescriptorProvider placemarkDescriptorProvider;
 
     protected AbstractImportVectorDataNodeAction() {
         crsProvider = new MyFeatureCrsProvider(getHelpId());
+        placemarkDescriptorProvider = new MyPlacemarkDescriptorProvider();
+    }
+
+    private static class MyPlacemarkDescriptorProvider implements VectorDataNodeReader2.PlacemarkDescriptorProvider {
+        @Override
+        public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
+            final PlacemarkDescriptor placemarkDescriptor = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(simpleFeatureType);
+            if (placemarkDescriptor != null && placemarkDescriptor.isCompatibleWith(simpleFeatureType) == DecodeQualification.INTENDED) {
+                return placemarkDescriptor;
+            }
+
+            TypeDialog typeDialog = new TypeDialog(VisatApp.getApp().getApplicationWindow(), simpleFeatureType);
+            if (typeDialog.show() != ModalDialog.ID_OK) {
+                return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GeometryDescriptor.class);
+            }
+
+            return typeDialog.getPlacemarkDescriptor();
+        }
     }
 
     private class MyFeatureCrsProvider implements FeatureUtils.FeatureCrsProvider {
@@ -99,7 +121,7 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
                                              "Can not create Coordinate Reference System.\n" + e.getMessage());
                 }
             }
-            return null;
+            return DefaultGeographicCRS.WGS84;
         }
     }
 

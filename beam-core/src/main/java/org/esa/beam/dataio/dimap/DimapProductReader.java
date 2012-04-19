@@ -18,7 +18,6 @@ package org.esa.beam.dataio.dimap;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.geometry.VectorDataNodeIO;
-import org.esa.beam.dataio.geometry.VectorDataNodeReader;
 import org.esa.beam.dataio.geometry.VectorDataNodeReader2;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
@@ -29,11 +28,10 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.referencing.crs.DefaultGeocentricCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -44,6 +42,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.text.MessageFormat;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -138,10 +137,13 @@ public class DimapProductReader extends AbstractProductReader {
         bindBandsToFiles(dom);
         if (existingProduct == null) {
             final CoordinateReferenceSystem crs = DimapProductHelpers.getCRS(dom);
-            initGeoCodings(dom);
             readVectorData(crs);
+
+            // read GCPs and pins from DOM (old-style)
             DimapProductHelpers.addGcps(dom, this.product);
             DimapProductHelpers.addPins(dom, this.product);
+
+            initGeoCodings(dom);
             DimapProductHelpers.addMaskUsages(dom, this.product);
         }
         this.product.setProductReader(this);
@@ -393,9 +395,9 @@ public class DimapProductReader extends AbstractProductReader {
                     VectorDataNode vectorDataNode = VectorDataNodeReader2.read(vectorFile.getName(), new FileReader(vectorFile), product, new FeatureUtils.FeatureCrsProvider() {
                         @Override
                         public CoordinateReferenceSystem getFeatureCrs(Product product) {
-                            return modelCrs;
+                            return modelCrs != null ? modelCrs : DefaultGeographicCRS.WGS84;
                         }
-                    }, modelCrs, ProgressMonitor.NULL);
+                    }, new MyPlacemarkDescriptorProvider(), modelCrs, ProgressMonitor.NULL);
                     final ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
                     final VectorDataNode existing = vectorDataGroup.get(vectorDataNode.getName());
                     if (existing != null) {
@@ -405,6 +407,18 @@ public class DimapProductReader extends AbstractProductReader {
                 } catch (IOException e) {
                     BeamLogManager.getSystemLogger().log(Level.SEVERE, "Error reading '" + vectorFile + "'", e);
                 }
+            }
+        }
+    }
+
+    private static class MyPlacemarkDescriptorProvider implements VectorDataNodeReader2.PlacemarkDescriptorProvider {
+        @Override
+        public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
+            final PlacemarkDescriptor placemarkDescriptor = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(simpleFeatureType);
+            if (placemarkDescriptor != null) {
+                return placemarkDescriptor;
+            } else {
+                return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GeometryDescriptor.class);
             }
         }
     }

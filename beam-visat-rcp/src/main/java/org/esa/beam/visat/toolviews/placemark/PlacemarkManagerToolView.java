@@ -34,10 +34,7 @@ import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.framework.ui.product.VectorDataLayer;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.*;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
@@ -418,21 +415,10 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         if (makePlacemarkNameUnique0(newPlacemark)) {
             showWarningDialog(MessageFormat.format("{0} has been renamed to ''{1}'',\n" +
                                                            "because a {2} with the former name already exists.",
-                                                   firstLetterUp(placemarkDescriptor.getRoleLabel()),
+                                                   FeatureUtils.firstLetterUp(placemarkDescriptor.getRoleLabel()),
                                                    newPlacemark.getName(),
                                                    placemarkDescriptor.getRoleLabel()));
         }
-    }
-
-    /**
-     * Turns the first letter of the given string to upper case.
-     *
-     * @param string the string to change
-     * @return a changed string
-     */
-    private String firstLetterUp(String string) {
-        String firstChar = string.substring(0, 1).toUpperCase();
-        return firstChar + string.substring(1);
     }
 
     protected void updateUIState() {
@@ -586,7 +572,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private List<Placemark> loadPlacemarksFromFile() throws IOException {
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
+        String roleLabel = FeatureUtils.firstLetterUp(placemarkDescriptor.getRoleLabel());
         fileChooser.setDialogTitle("Import " + roleLabel + "s"); /*I18N*/
         setComponentName(fileChooser, "Import");
         fileChooser.addChoosableFileFilter(PlacemarkIO.createTextFileFilter());
@@ -610,7 +596,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     void exportPlacemarks() {
         final BeamFileChooser fileChooser = new BeamFileChooser();
         fileChooser.setDialogTitle(MessageFormat.format("Export {0}(s)",
-                                                        firstLetterUp(placemarkDescriptor.getRoleLabel())));   /*I18N*/
+                                                        FeatureUtils.firstLetterUp(placemarkDescriptor.getRoleLabel())));   /*I18N*/
         setComponentName(fileChooser, "Export_Selected");
         fileChooser.addChoosableFileFilter(PlacemarkIO.createTextFileFilter());
         fileChooser.setFileFilter(PlacemarkIO.createPlacemarkFileFilter());
@@ -667,7 +653,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     void exportPlacemarkDataTable() {
         final BeamFileChooser fileChooser = new BeamFileChooser();
         fileChooser.setDialogTitle(MessageFormat.format("Export {0} Data Table",  /*I18N*/
-                                                        firstLetterUp(placemarkDescriptor.getRoleLabel())));
+                                                        FeatureUtils.firstLetterUp(placemarkDescriptor.getRoleLabel())));
         setComponentName(fileChooser, "Export_Data_Table");
         fileChooser.setFileFilter(PlacemarkIO.createTextFileFilter());
         final File ioDir = getIODir();
