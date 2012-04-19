@@ -26,8 +26,10 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.Locale;
 
 public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
@@ -35,10 +37,11 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
     // This is here just to keep the property name
 //    private static final String HDF4_PROPERTY_KEY = "ncsa.hdf.hdflib.HDFLibrary.hdflib";
 
+    private static final String _H4_CLASS_NAME = "ncsa.hdf.hdflib.HDFLibrary";
     private static boolean hdfLibAvailable = false;
 
     static {
-        hdfLibAvailable = SystemUtils.loadHdf4Lib(ModisProductReaderPlugIn.class) != null;
+        hdfLibAvailable = loadHdf4Lib(ModisProductReaderPlugIn.class) != null;
     }
 
     /**
@@ -181,5 +184,28 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
         }
 
         return new String[]{ModisConstants.FORMAT_NAME};
+    }
+
+    private static Class<?> loadHdf4Lib(Class<?> callerClass) {
+        return loadClassWithNativeDependencies(callerClass,
+                _H4_CLASS_NAME,
+                "{0}: HDF-4 library not available: {1}: {2}");
+    }
+
+    private static Class<?> loadClassWithNativeDependencies(Class<?> callerClass, String className, String warningPattern) {
+        ClassLoader classLoader = callerClass.getClassLoader();
+
+        String classResourceName = "/" + className.replace('.', '/') + ".class";
+        SystemUtils.class.getResource(classResourceName);
+        if (callerClass.getResource(classResourceName) != null) {
+            try {
+                return Class.forName(className, true, classLoader);
+            } catch (Throwable error) {
+                BeamLogManager.getSystemLogger().warning(MessageFormat.format(warningPattern, callerClass, error.getClass(), error.getMessage()));
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 }

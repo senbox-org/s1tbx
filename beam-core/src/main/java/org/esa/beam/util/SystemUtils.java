@@ -466,22 +466,33 @@ public class SystemUtils {
         return logLevel;
     }
 
+    /**
+     @deprecated since BEAM 4.10 only used by {@link org.esa.beam.dataio.modis.ModisProductReaderPlugIn} - moved there as private method
+     */
+    @Deprecated
     public static Class<?> loadHdf4Lib(Class<?> callerClass) {
         return loadClassWithNativeDependencies(callerClass,
                                                _H4_CLASS_NAME,
                                                "{0}: HDF-4 library not available: {1}: {2}");
     }
 
+    /**
+     @deprecated since BEAM 4.10 only used by {@link org.esa.beam.dataio.hdf5.HDF5ProductWriterPlugin} - moved there as private method
+     */
+    @Deprecated
     public static Class<?> loadHdf5Lib(Class<?> callerClass) {
         return loadClassWithNativeDependencies(callerClass,
                                                _H5_CLASS_NAME,
                                                "{0}: HDF-5 library not available: {1}: {2}");
     }
 
+    @Deprecated
     private static Class<?> loadClassWithNativeDependencies(Class<?> callerClass, String className, String warningPattern) {
         ClassLoader classLoader = callerClass.getClassLoader();
+
         String classResourceName = "/" + className.replace('.', '/') + ".class";
-        if (classLoader.getResource(classResourceName) != null) {
+        SystemUtils.class.getResource(classResourceName);
+        if (callerClass.getResource(classResourceName) != null) {
             try {
                 return Class.forName(className, true, classLoader);
             } catch (Throwable error) {
