@@ -17,10 +17,12 @@
 package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import com.thoughtworks.xstream.core.util.OrderRetainingMap;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import com.vividsolutions.jts.geom.Geometry;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.converters.JavaTypeConverter;
 import org.esa.beam.util.io.CsvReader;
@@ -30,52 +32,77 @@ import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
+import java.util.List;
 import java.util.Map;
 
 public class VectorDataNodeReader2 {
 
     private final String vectorDataNodeName;
-    private final CoordinateReferenceSystem modelCrs;
     private final GeoCoding geoCoding;
+    private final Product product;
+    private final FeatureUtils.FeatureCrsProvider crsProvider;
     private final InterpretationStrategy interpretationStrategy;
     private final CsvReader reader;
 
     private static final String[] LONGITUDE_IDENTIFIERS = new String[]{"lon", "long", "longitude"};
     private static final String[] LATITUDE_IDENTIFIERS = new String[]{"lat", "latitude"};
     private static final String[] GEOMETRY_IDENTIFIERS = new String[]{"geometry", "geom", "the_geom"};
+    private SimpleFeatureType featureType;
 
-    public VectorDataNodeReader2(String vectorDataNodeName, GeoCoding geoCoding, Reader reader, CoordinateReferenceSystem modelCrs) throws IOException {
-        this.geoCoding = geoCoding;
+    VectorDataNodeReader2(String vectorDataNodeName, Product product, Reader reader, FeatureUtils.FeatureCrsProvider crsProvider) throws IOException {
+        this.product = product;
+        this.crsProvider = crsProvider;
+        this.geoCoding = product.getGeoCoding();
         this.vectorDataNodeName = vectorDataNodeName;
-        this.modelCrs = modelCrs;
         this.reader = new CsvReader(reader, new char[]{VectorDataNodeIO.DELIMITER_CHAR}, true, "#");
         this.interpretationStrategy = createInterpretationStrategy();
     }
 
-    public static VectorDataNode read(String name, Reader reader, GeoCoding geoCoding, CoordinateReferenceSystem modelCrs) throws IOException {
-        return new VectorDataNodeReader2(name, geoCoding, reader, modelCrs).read();
+    public static VectorDataNode read(String name, Reader reader, Product product, FeatureUtils.FeatureCrsProvider crsProvider, CoordinateReferenceSystem modelCrs, ProgressMonitor pm) throws IOException {
+        return new VectorDataNodeReader2(name, product, reader, crsProvider).read(modelCrs, pm);
     }
 
-    VectorDataNode read() throws IOException {
+    VectorDataNode read(CoordinateReferenceSystem modelCrs, ProgressMonitor pm) throws IOException {
         final String name = FileUtils.getFilenameWithoutExtension(vectorDataNodeName);
         Map<String, String> properties = readProperties();
-        reader.reset();
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures();
-        VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);
+
+        CoordinateReferenceSystem featureCrs = featureCollection.getSchema().getCoordinateReferenceSystem();
+        final Geometry clipGeometry = FeatureUtils.createGeoBoundaryPolygon(product);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection
+                = FeatureUtils.clipCollection(featureCollection,
+                                              featureCrs,
+                                              clipGeometry,
+                                              DefaultGeographicCRS.WGS84,
+                                              null,
+                                              modelCrs,
+                                              SubProgressMonitor.create(pm, 80));
+
+        final List<PlacemarkDescriptor> placemarkDescriptors = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptors(featureType);
+        final PlacemarkDescriptor placemarkDescriptor;
+        if (placemarkDescriptors.isEmpty()) {
+            placemarkDescriptor = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GeometryDescriptor.class);
+        } else {
+            placemarkDescriptor = placemarkDescriptors.get(0);
+        }
+        VectorDataNode vectorDataNode = new VectorDataNode(name, clippedCollection, placemarkDescriptor);
         if (properties.containsKey(ProductNode.PROPERTY_NAME_DESCRIPTION)) {
             vectorDataNode.setDescription(properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
         }
         if (properties.containsKey(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS)) {
             vectorDataNode.setDefaultStyleCss(properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
+
         }
-        featureCollection.getSchema().getUserData().putAll(properties);
+        clippedCollection.getSchema().getUserData().putAll(properties);
         return vectorDataNode;
     }
 
@@ -107,12 +134,13 @@ public class VectorDataNodeReader2 {
                 break;
             }
         }
+        reader.reset();
         //noinspection unchecked
         return (Map<String, String>) properties;
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures() throws IOException {
-        SimpleFeatureType featureType = readFeatureType();
+    FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures() throws IOException {
+        featureType = readFeatureType();
         return readFeatures(featureType);
     }
 
@@ -190,18 +218,23 @@ public class VectorDataNodeReader2 {
             if (!isLineValid(simpleFeatureType, tokens)) {
                 continue;
             }
+            SimpleFeature simpleFeature = null;
             try {
-                interpretationStrategy.interpretLine(tokens, builder, simpleFeatureType);
+                simpleFeature = interpretationStrategy.interpretLine(tokens, builder, simpleFeatureType);
             } catch (ConversionException e) {
                 BeamLogManager.getSystemLogger().warning(String.format("Unable to parse %s: %s", vectorDataNodeName, e.getMessage()));
+            } catch (TransformException e) {
+                throw new IOException(e);
             }
 
-            String featureId = interpretationStrategy.getFeatureId(tokens);
-            SimpleFeature simpleFeature = builder.buildFeature(featureId);
-
-            interpretationStrategy.transformGeoPosToPixelPos(simpleFeature);
-
-            fc.add(simpleFeature);
+            if (simpleFeature != null) {
+                try {
+                    interpretationStrategy.transformGeoPosToPixelPos(simpleFeature);
+                } catch (TransformException e) {
+                    throw new IOException(e);
+                }
+                fc.add(simpleFeature);
+            }
         }
         return fc;
     }
@@ -227,7 +260,11 @@ public class VectorDataNodeReader2 {
 
     private SimpleFeatureType createFeatureType(String[] tokens) throws IOException {
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-        builder.setCRS(modelCrs);
+        CoordinateReferenceSystem featureCrs = crsProvider.getFeatureCrs(product);
+        if (featureCrs == null) {
+            featureCrs = DefaultGeographicCRS.WGS84;
+        }
+        builder.setCRS(featureCrs);
         JavaTypeConverter jtc = new JavaTypeConverter();
 
         String[] firstRecord = reader.readRecord();

@@ -19,15 +19,14 @@ package org.esa.beam.dataio.geometry;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.AbstractGeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Scene;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.io.CsvReader;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.junit.Before;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -51,6 +50,18 @@ import static org.junit.Assert.*;
  * @author Thomas Storm
  */
 public class VectorDataNodeReader2Test {
+
+    private FeatureUtils.FeatureCrsProvider crsProvider;
+
+    @Before
+    public void setUp() throws Exception {
+        crsProvider = new FeatureUtils.FeatureCrsProvider() {
+            @Override
+            public CoordinateReferenceSystem getFeatureCrs(Product product) {
+                return DefaultGeographicCRS.WGS84;
+            }
+        };
+    }
 
     @Test
     public void testFeatureTypeWithInput1() throws Exception {
@@ -135,13 +146,14 @@ public class VectorDataNodeReader2Test {
     @Test(expected = IOException.class)
     public void testMissingGeometry() throws IOException {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("exported_pin_input_without_geometry.csv"));
-        new VectorDataNodeReader2("blah", new DummyGeoCoding(), reader, null).readFeatureType();
+        Product dummyProduct = createDummyProduct();
+        new VectorDataNodeReader2("blah", dummyProduct, reader, crsProvider).readFeatureType();
     }
 
     @Test
     public void testReadPropertiesInInput1() throws IOException {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_properties.csv"));
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", new DummyGeoCoding(), reader, null);
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader, crsProvider);
         Map<String, String> properties = vectorDataNodeReader.readProperties();
 
         assertNotNull(properties);
@@ -154,12 +166,12 @@ public class VectorDataNodeReader2Test {
     public void testReadFeaturesInInput1() throws IOException {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_properties.csv"));
 
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", new DummyGeoCoding(), reader, null);
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader, crsProvider);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
         assertNotNull(simpleFeatureType);
-        assertNull(simpleFeatureType.getCoordinateReferenceSystem());
+        assertNotNull(simpleFeatureType.getCoordinateReferenceSystem());
         assertEquals("org.esa.beam.FT1", simpleFeatureType.getTypeName());
         assertEquals(4, simpleFeatureType.getAttributeCount());
 
@@ -213,7 +225,7 @@ public class VectorDataNodeReader2Test {
     public void testReadFeaturesInInput2() throws IOException {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_only_one_point.csv"));
 
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", new DummyGeoCoding(), reader, null);
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader, crsProvider);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
@@ -239,14 +251,13 @@ public class VectorDataNodeReader2Test {
     @Test
     public void testCRS() throws Exception {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_only_one_point.csv"));
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", new DummyGeoCoding(), reader, DefaultGeographicCRS.WGS84);
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader, crsProvider);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
         assertNotNull(simpleFeatureType);
         CoordinateReferenceSystem crs = simpleFeatureType.getCoordinateReferenceSystem();
         assertNotNull(crs);
-        assertSame(DefaultGeographicCRS.WGS84, crs);
     }
 
     @Test
@@ -280,7 +291,7 @@ public class VectorDataNodeReader2Test {
         try {
             String source = "org.esa.beam.FT\ta\tlat\tlon\n" +
                             "ID1\t10\t0.0\t0.0\n";
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new VectorDataNodeReader2("", new DummyGeoCoding(), new StringReader(source), null).readFeatures();
+            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new VectorDataNodeReader2("", createDummyProduct(), new StringReader(source), crsProvider).readFeatures();
             assertEquals(1, fc.size());
             assertEquals(Double.class, fc.getSchema().getType(0).getBinding());
             assertEquals(10.0, fc.features().next().getAttribute("a"));
@@ -290,12 +301,12 @@ public class VectorDataNodeReader2Test {
     }
 
     private void expectException(String contents) throws IOException {
-        new VectorDataNodeReader2("", new DummyGeoCoding(), new StringReader(contents), null).readFeatures();
+        new VectorDataNodeReader2("", createDummyProduct(), new StringReader(contents), crsProvider).readFeatures();
         fail("IOException expected");
     }
 
     private void testTrackFeatureClasses(String input) throws IOException {
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", new DummyGeoCoding(), new StringReader(input), null);
+        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), new StringReader(input), crsProvider);
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNodeReader.readFeatures();
 
         FeatureIterator<SimpleFeature> features = featureCollection.features();
@@ -331,9 +342,9 @@ public class VectorDataNodeReader2Test {
 
     }
 
-    private static List<AttributeDescriptor> getAttributeDescriptors(String input) throws IOException {
+    private List<AttributeDescriptor> getAttributeDescriptors(String input) throws IOException {
         CsvReader csvReader = new CsvReader(new StringReader(input), new char[]{'\t'}, true, "#");
-        SimpleFeatureType simpleFeatureType = new VectorDataNodeReader2("", new DummyGeoCoding(), csvReader, null).readFeatureType();
+        SimpleFeatureType simpleFeatureType = new VectorDataNodeReader2("", createDummyProduct(), csvReader, crsProvider).readFeatureType();
 
         assertNotNull(simpleFeatureType);
         assertEquals(10, simpleFeatureType.getAttributeCount());
@@ -341,7 +352,14 @@ public class VectorDataNodeReader2Test {
         return simpleFeatureType.getAttributeDescriptors();
     }
 
-    private static class DummyGeoCoding extends AbstractGeoCoding {
+    private static Product createDummyProduct() {
+        Product dummyProduct = new Product("blah", "blahType", 10, 10);
+        dummyProduct.setGeoCoding(new DummyGeoCoding());
+        return dummyProduct;
+    }
+
+
+    static class DummyGeoCoding extends AbstractGeoCoding {
 
         @Override
         public boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef) {
@@ -375,7 +393,12 @@ public class VectorDataNodeReader2Test {
 
         @Override
         public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
-            return null;
+            if (geoPos == null) {
+                geoPos = new GeoPos();
+            }
+            geoPos.lon = pixelPos.x;
+            geoPos.lat = pixelPos.y;
+            return geoPos;
         }
 
         @Override

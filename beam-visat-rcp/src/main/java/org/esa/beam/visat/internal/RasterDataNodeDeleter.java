@@ -16,30 +16,15 @@
 package org.esa.beam.visat.internal;
 
 import com.bc.ceres.core.Assert;
-
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.datamodel.Mask.ImageType;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
+import javax.swing.*;
 import java.beans.PropertyVetoException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
+import java.util.*;
 
 /**
  * Confirms Raster Data Node deletion by the user and performs them.
@@ -49,9 +34,9 @@ import javax.swing.JOptionPane;
  * @since BEAM 4.7
  */
 public class RasterDataNodeDeleter {
-    
+
     private static final String INDENT = "    ";
-    
+
     public static void deleteVectorDataNode(VectorDataNode vectorDataNode) {
         Assert.notNull(vectorDataNode);
         Product product = vectorDataNode.getProduct();
@@ -59,10 +44,10 @@ public class RasterDataNodeDeleter {
         Mask vectorMask = null;
         for (int i = 0; i < maskGroup.getNodeCount(); i++) {
             Mask mask = maskGroup.get(i);
-            if (mask.getImageType() == Mask.VectorDataType.INSTANCE && 
+            if (mask.getImageType() == Mask.VectorDataType.INSTANCE &&
                     Mask.VectorDataType.getVectorData(mask) == vectorDataNode) {
-                    vectorMask = mask;
-                    break;
+                vectorMask = mask;
+                break;
             }
         }
         String message;
@@ -70,17 +55,17 @@ public class RasterDataNodeDeleter {
             List<RasterDataNode> virtualBands = getReferencedVirtualBands(vectorMask);
             List<RasterDataNode> validMaskNodes = getReferencedValidMasks(vectorMask);
             List<RasterDataNode> masks = getReferencedMasks(vectorMask);
-            VectorDataNode[] nodes = new VectorDataNode[] {vectorDataNode};
+            VectorDataNode[] nodes = new VectorDataNode[]{vectorDataNode};
             message = formatPromptMessage("Geometry", nodes, virtualBands, validMaskNodes, masks);
         } else {
             message = MessageFormat.format("Do you really want to delete the geometry ''{0}''?\nThis action cannot be undone.\n\n", vectorDataNode.getName());
         }
-        int status = VisatApp.getApp().showQuestionDialog("Delete Geometry", message, null);
+        int status = VisatApp.getApp().showQuestionDialog("Delete Vector Data", message, null);
         if (status == JOptionPane.YES_OPTION) {
             product.getVectorDataGroup().remove(vectorDataNode);
         }
     }
-    
+
     public static void deleteRasterDataNodes(RasterDataNode[] rasterNodes) {
         Assert.notNull(rasterNodes);
         if (rasterNodes.length == 0) {
@@ -89,7 +74,7 @@ public class RasterDataNodeDeleter {
         Set<RasterDataNode> virtualBandsSet = new HashSet<RasterDataNode>();
         Set<RasterDataNode> validMaskNodesSet = new HashSet<RasterDataNode>();
         Set<RasterDataNode> masksSet = new HashSet<RasterDataNode>();
-        
+
         for (RasterDataNode raster : rasterNodes) {
             virtualBandsSet.addAll(getReferencedVirtualBands(raster));
             validMaskNodesSet.addAll(getReferencedValidMasks(raster));
@@ -104,14 +89,14 @@ public class RasterDataNodeDeleter {
         String message = formatPromptMessage(typeName, rasterNodes, virtualBandsSet, validMaskNodesSet, masksSet);
         deleteRasterDataNodesImpl(rasterNodes, message);
     }
-    
+
     public static void deleteRasterDataNode(RasterDataNode raster) {
         Assert.notNull(raster);
         List<RasterDataNode> virtualBands = getReferencedVirtualBands(raster);
         List<RasterDataNode> validMaskNodes = getReferencedValidMasks(raster);
         List<RasterDataNode> masks = getReferencedMasks(raster);
-        
-        RasterDataNode[] rasters = new RasterDataNode[] {raster};
+
+        RasterDataNode[] rasters = new RasterDataNode[]{raster};
         String typeName = getTypeName(rasters);
         String message = formatPromptMessage(typeName, rasters, virtualBands, validMaskNodes, masks);
         deleteRasterDataNodesImpl(rasters, message);
@@ -146,7 +131,7 @@ public class RasterDataNodeDeleter {
                         deleteMaskFromGroup(tiePointGrid.getOverlayMaskGroup(), mask);
                     }
                     ImageType imageType = mask.getImageType();
-                    if (imageType  == Mask.VectorDataType.INSTANCE) {
+                    if (imageType == Mask.VectorDataType.INSTANCE) {
                         VectorDataNode vectorDataNode = Mask.VectorDataType.getVectorData(mask);
                         product.getVectorDataGroup().remove(vectorDataNode);
                     }
@@ -158,15 +143,15 @@ public class RasterDataNodeDeleter {
             }
         }
     }
-    
-    private static String formatPromptMessage(String description, ProductNode[] nodes, 
+
+    private static String formatPromptMessage(String description, ProductNode[] nodes,
                                               Collection<RasterDataNode> virtualBands, Collection<RasterDataNode> validMaskNodes,
                                               Collection<RasterDataNode> masks) {
-        
-        
+
+
         String name;
         StringBuilder message = new StringBuilder();
-        if ((nodes.length>1)) {
+        if ((nodes.length > 1)) {
             message.append(MessageFormat.format("Do you really want to delete the following {0}:\n", description));
             for (ProductNode node : nodes) {
                 message.append(INDENT);
@@ -178,11 +163,11 @@ public class RasterDataNodeDeleter {
             message.append(MessageFormat.format("Do you really want to delete the {0} ''{1}''?\n", description, name));
         }
         message.append("This action cannot be undone.\n\n");
-        
+
         if (!virtualBands.isEmpty()
                 || !validMaskNodes.isEmpty()
                 || !masks.isEmpty()) {
-            if ((nodes.length>1)) {
+            if ((nodes.length > 1)) {
                 message.append(MessageFormat.format("The {0} to be deleted are referenced by\n", description));
             } else {
                 message.append(MessageFormat.format("The {0} to be deleted is referenced by\n", description));
@@ -214,7 +199,7 @@ public class RasterDataNodeDeleter {
         }
         return message.toString();
     }
-    
+
     private static String getTypeName(RasterDataNode[] rasters) {
         String description = "";
         if (rasters[0] instanceof Mask) {
@@ -224,12 +209,12 @@ public class RasterDataNodeDeleter {
         } else if (rasters[0] instanceof TiePointGrid) {
             description = "tie-point grid";
         }
-        if (rasters.length>1) {
+        if (rasters.length > 1) {
             description += "s";
         }
         return description;
     }
-    
+
     private static void deleteMaskFromGroup(ProductNodeGroup<Mask> group, Mask mask) {
         if (group.contains(mask)) {
             group.remove(mask);

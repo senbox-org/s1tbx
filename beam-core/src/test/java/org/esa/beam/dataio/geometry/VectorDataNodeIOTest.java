@@ -16,10 +16,14 @@
 
 package org.esa.beam.dataio.geometry;
 
+import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.util.FeatureUtils;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -32,6 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.*;
 
@@ -64,9 +69,13 @@ public class VectorDataNodeIOTest {
     
     @Test
     public void testDecodingDelimiter() throws IOException {        
-        final VectorDataNodeReader reader = new VectorDataNodeReader("mem", DefaultGeographicCRS.WGS84);
-        final FeatureCollection<SimpleFeatureType,SimpleFeature> readCollection = reader.readFeatures(
-                new StringReader(stringWriter.toString()));
+        final VectorDataNodeReader2 reader = new VectorDataNodeReader2("mem", createDummyProduct(), new StringReader(stringWriter.toString()), new FeatureUtils.FeatureCrsProvider() {
+            @Override
+            public CoordinateReferenceSystem getFeatureCrs(Product product) {
+                return DefaultGeographicCRS.WGS84;
+            }
+        });
+        final FeatureCollection<SimpleFeatureType,SimpleFeature> readCollection = reader.readFeatures();
 
         assertEquals(testCollection.size(), readCollection.size());
         final FeatureIterator<SimpleFeature> expectedIterator = testCollection.features();
@@ -137,10 +146,14 @@ public class VectorDataNodeIOTest {
         String secondLine = lineNumberReader.readLine();
         assertNotNull(secondLine);
         assertEquals("#defaultCSS=stroke:#ff0000", secondLine);
-        
-        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader("mem", null);
-        VectorDataNode vectorDataNode2 = vectorDataNodeReader.read(tempFile);
-        
+
+        VectorDataNode vectorDataNode2 = VectorDataNodeReader2.read("mem", new FileReader(tempFile), createDummyProduct(), new FeatureUtils.FeatureCrsProvider() {
+            @Override
+            public CoordinateReferenceSystem getFeatureCrs(Product product) {
+                return null;
+            }
+        }, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL);
+
         assertNotNull(vectorDataNode2);
         assertEquals(vectorDataNode.getDescription(), vectorDataNode2.getDescription());
         assertEquals(vectorDataNode.getDefaultStyleCss(), vectorDataNode2.getDefaultStyleCss());
@@ -193,4 +206,11 @@ public class VectorDataNodeIOTest {
         assertEquals("originalName_1", vectorDataNodes[0].getName());
         assertEquals("Coruscant", vectorDataNodes[1].getName());
     }
+
+    private static Product createDummyProduct() {
+        Product dummyProduct = new Product("blah", "blahType", 10, 10);
+        dummyProduct.setGeoCoding(new VectorDataNodeReader2Test.DummyGeoCoding());
+        return dummyProduct;
+    }
+
 }

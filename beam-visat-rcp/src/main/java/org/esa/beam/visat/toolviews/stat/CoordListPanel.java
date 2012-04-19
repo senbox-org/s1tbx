@@ -19,13 +19,12 @@ package org.esa.beam.visat.toolviews.stat;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 
-import javax.swing.JOptionPane;
-import java.awt.Cursor;
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 
 /**
  * A pane within the statistics window which displays a co-oordinate list as a text table.
- *
  */
 class CoordListPanel extends TextPagePanel {
 
@@ -45,7 +44,7 @@ class CoordListPanel extends TextPagePanel {
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getParent(),
                                           "Failed to compute profile plot.\n" +
-                                          "An I/O error occurred:" + e.getMessage(),
+                                                  "An I/O error occurred:" + e.getMessage(),
                                           "I/O error",
                                           JOptionPane.ERROR_MESSAGE);       /*I18N*/
         } finally {
@@ -80,18 +79,18 @@ class CoordListPanel extends TextPagePanel {
 
     @Override
     public void handleLayerContentChanged() {
-        updateContent();
+        updateComponents();
     }
 
     @Override
-    protected boolean mustUpdateContent() {
-        return super.mustUpdateContent() || isVectorDataNodeChanged();
+    protected boolean mustHandleSelectionChange() {
+        return super.mustHandleSelectionChange() || isVectorDataNodeChanged();
     }
 
     @Override
     public void setVisible(boolean aFlag) {
         super.setVisible(aFlag);
-        updateContent();
+        updateComponents();
     }
 
 }

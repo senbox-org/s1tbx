@@ -21,6 +21,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.operation.TransformException;
 
 import java.io.IOException;
 
@@ -38,9 +39,9 @@ interface InterpretationStrategy {
 
     String getFeatureId(String[] tokens);
 
-    void interpretLine(String[] tokens, SimpleFeatureBuilder builder, SimpleFeatureType simpleFeatureType) throws IOException, ConversionException;
+    SimpleFeature interpretLine(String[] tokens, SimpleFeatureBuilder builder, SimpleFeatureType simpleFeatureType) throws IOException, ConversionException, TransformException;
 
-    void transformGeoPosToPixelPos(SimpleFeature simpleFeature);
+    void transformGeoPosToPixelPos(SimpleFeature simpleFeature) throws TransformException;
 
     int getStartColumn();
 }

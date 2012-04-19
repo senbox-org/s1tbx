@@ -19,11 +19,17 @@ package org.esa.beam.dataio.geometry;
 import com.bc.ceres.binding.ConversionException;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.jai.ImageManager;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
+import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -44,9 +50,15 @@ class GeometryNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
     }
 
     @Override
-    public void transformGeoPosToPixelPos(SimpleFeature simpleFeature) {
-        Geometry defaultGeometry = (Geometry) simpleFeature.getDefaultGeometry();
-        defaultGeometry.apply(new GeoPosToPixelPosFilter(defaultGeometry.getCoordinates().length, geoCoding));
+    public void transformGeoPosToPixelPos(SimpleFeature simpleFeature) throws TransformException {
+        Geometry geometry = (Geometry) simpleFeature.getDefaultGeometry();
+        CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(geoCoding);
+        AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(geoCoding);
+        GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
+        transformer.setMathTransform(new AffineTransform2D(imageToModelTransform));
+        transformer.setCoordinateReferenceSystem(modelCrs);
+        geometry = transformer.transform(geometry);
+        simpleFeature.setDefaultGeometry(geometry);
     }
 
     @Override
@@ -72,11 +84,14 @@ class GeometryNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
     }
 
     @Override
-    public void interpretLine(String[] tokens, SimpleFeatureBuilder builder, SimpleFeatureType simpleFeatureType) throws IOException, ConversionException {
+    public SimpleFeature interpretLine(String[] tokens, SimpleFeatureBuilder builder, SimpleFeatureType simpleFeatureType) throws IOException, ConversionException {
         for (int attributeIndex = 0; attributeIndex < tokens.length; attributeIndex++) {
             String token = tokens[attributeIndex];
             setAttributeValue(builder, simpleFeatureType, attributeIndex, token);
         }
+
+        String featureId = getFeatureId(tokens);
+        return builder.buildFeature(featureId);
     }
 
     @Override

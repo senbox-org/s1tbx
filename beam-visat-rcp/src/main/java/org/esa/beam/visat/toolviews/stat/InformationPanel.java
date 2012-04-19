@@ -18,12 +18,7 @@ package org.esa.beam.visat.toolviews.stat;
 
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.AbstractBand;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
 
@@ -111,11 +106,11 @@ class InformationPanel extends TextPagePanel {
         appendEntry(sb, "Product scene height:", String.valueOf(product.getSceneRasterHeight()), "pixels");
 
         final String startTimeString = product.getStartTime() != null ?
-                                       product.getStartTime().getElemString() : "Not available";
+                product.getStartTime().getElemString() : "Not available";
         appendEntry(sb, "Product start time (UTC):", startTimeString, null);
 
         final String stopTimeString = product.getEndTime() != null ?
-                                      product.getEndTime().getElemString() : "Not available";
+                product.getEndTime().getElemString() : "Not available";
         appendEntry(sb, "Product end time (UTC):", stopTimeString, null);
 
         return sb.toString();
@@ -172,7 +167,7 @@ class InformationPanel extends TextPagePanel {
     @Override
     public void nodeChanged(final ProductNodeEvent event) {
         if (event.getSourceNode() == getRaster() || event.getSourceNode() == getProduct()) {
-            updateContent();
+            updateComponents();
         }
     }
 }

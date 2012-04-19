@@ -17,7 +17,6 @@ package org.esa.beam.cluster;
 
 import org.esa.beam.framework.gpf.Tile;
 
-import javax.media.jai.ROI;
 import java.util.Iterator;
 
 /**
@@ -31,9 +30,9 @@ class PixelIter {
 
     private final Tile[] tiles;
     private final Iterator<Tile.Pos> iterator;
-    private final ROI roi;
+    private final Roi roi;
 
-    PixelIter(Tile[] tiles, ROI roi) {
+    PixelIter(Tile[] tiles, Roi roi) {
         this.tiles = tiles.clone();
         this.roi = roi;
         iterator = tiles[0].iterator();

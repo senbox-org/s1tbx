@@ -238,7 +238,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             Object object = propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
             if (object != null) {
                 Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
-                boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.getType().isArray();
+                boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.isNotEmpty() && !propertyDescriptor.getType().isArray();
                 values = RasterDataNodeValues.getNames(product, rasterDataNodeType, includeEmptyValue);
             }
         }

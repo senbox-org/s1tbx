@@ -39,7 +39,7 @@ import javax.media.jai.Histogram;
 public class Stx {
 
     public static final int DEFAULT_BIN_COUNT = 512;
-    public static final Scaling LOG_TRANSFORM = new LogTransform();
+    public static final Scaling LOG10_SCALING = new Log10Scaling();
 
     private final long sampleCount;
     private final double minimum;
@@ -253,10 +253,10 @@ public class Stx {
     }
 
     static Scaling getHistogramScaling(boolean logHistogram) {
-        return logHistogram ? LOG_TRANSFORM : Scaling.IDENTITY;
+        return logHistogram ? LOG10_SCALING : Scaling.IDENTITY;
     }
 
-    static final class LogTransform implements Scaling {
+    static final class Log10Scaling implements Scaling {
 
         @Override
         public double scale(double value) {
@@ -271,7 +271,6 @@ public class Stx {
         public double scaleInverse(double value) {
             return Math.pow(10, value);
         }
-
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

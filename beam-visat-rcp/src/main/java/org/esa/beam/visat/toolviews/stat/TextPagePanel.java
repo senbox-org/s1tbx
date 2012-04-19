@@ -43,7 +43,7 @@ abstract class TextPagePanel extends PagePanel {
     }
 
     @Override
-    protected void initContent() {
+    protected void initComponents() {
         textArea = new JTextArea();
         textArea.setText(defaultText);
         textArea.setEditable(false);
@@ -52,7 +52,7 @@ abstract class TextPagePanel extends PagePanel {
     }
 
     @Override
-    protected void updateContent() {
+    protected void updateComponents() {
         if (isVisible()) {
             ensureValidData();
             textArea.setText(createText());

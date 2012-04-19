@@ -19,6 +19,10 @@ package org.esa.beam.dataio.geometry;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -28,6 +32,12 @@ import java.io.IOException;
  * @author Thomas Storm
  */
 abstract class AbstractInterpretationStrategy implements InterpretationStrategy {
+
+    static Geometry createPointGeometry(PixelPos pixelPos) {
+        GeometryFactory geometryFactory = new GeometryFactory();
+        final Coordinate coordinate = new Coordinate(pixelPos.x, pixelPos.y);
+        return geometryFactory.createPoint(coordinate);
+    }
 
     protected void setAttributeValue(SimpleFeatureBuilder builder, SimpleFeatureType simpleFeatureType, int attributeIndex, String token) throws IOException, ConversionException {
         token = VectorDataNodeIO.decodeTabString(token);

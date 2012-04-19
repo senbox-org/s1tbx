@@ -98,7 +98,7 @@ public class VectorDataNode extends ProductNode {
      * @param placemarkDescriptor The placemark descriptor
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
-    private VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, PlacemarkDescriptor placemarkDescriptor) {
+    public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, PlacemarkDescriptor placemarkDescriptor) {
         super(name, "");
         this.featureType = featureCollection.getSchema();
         this.featureCollection = featureCollection;

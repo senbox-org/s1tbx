@@ -26,18 +26,13 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
-import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.product.ProductTree;
-import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
-import org.esa.beam.framework.ui.product.VectorDataLayer;
-import org.esa.beam.framework.ui.product.VectorDataLayerFilterFactory;
+import org.esa.beam.framework.ui.product.*;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
+import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.awt.Container;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -53,7 +48,7 @@ abstract class AbstractStatisticsToolView extends AbstractToolView {
     private final PagePanelPTL pagePanelPTL;
     private final PagePanelIFL pagePanelIFL;
     private final PagePanelLL pagePanelLL;
-    private SelectionChangeListener pagePanelSCL;
+    private final SelectionChangeListener pagePanelSCL;
 
     protected AbstractStatisticsToolView() {
         pagePanelPTL = new PagePanelPTL();
@@ -65,8 +60,8 @@ abstract class AbstractStatisticsToolView extends AbstractToolView {
     @Override
     public JComponent createControl() {
         pagePanel = createPagePanel();
-        pagePanel.initContent();
-        updateTitle();
+        pagePanel.initComponents();
+        setCurrentSelection();
         return pagePanel;
     }
 
@@ -86,8 +81,23 @@ abstract class AbstractStatisticsToolView extends AbstractToolView {
                 addViewListener(view);
             }
         }
-        pagePanel.setCurrentSelection();
-        pagePanel.updateContent();
+        setCurrentSelection();
+    }
+
+    @Override
+    public void componentHidden() {
+        final ProductTree productTree = VisatApp.getApp().getProductTree();
+        productTree.removeProductTreeListener(pagePanelPTL);
+        transferProductNodeListener(product, null);
+        VisatApp.getApp().removeInternalFrameListener(pagePanelIFL);
+        final JInternalFrame[] internalFrames = VisatApp.getApp().getAllInternalFrames();
+        for (JInternalFrame internalFrame : internalFrames) {
+            final Container contentPane = internalFrame.getContentPane();
+            if (contentPane instanceof ProductSceneView) {
+                final ProductSceneView view = (ProductSceneView) contentPane;
+                removeViewListener(view);
+            }
+        }
     }
 
     private void addViewListener(ProductSceneView view) {
@@ -111,33 +121,48 @@ abstract class AbstractStatisticsToolView extends AbstractToolView {
         }
     }
 
-    @Override
-    public void componentHidden() {
-        final ProductTree productTree = VisatApp.getApp().getProductTree();
-        productTree.removeProductTreeListener(pagePanelPTL);
-        transferProductNodeListener(product, null);
-        VisatApp.getApp().removeInternalFrameListener(pagePanelIFL);
-        final JInternalFrame[] internalFrames = VisatApp.getApp().getAllInternalFrames();
-        for (JInternalFrame internalFrame : internalFrames) {
-            final Container contentPane = internalFrame.getContentPane();
-            if (contentPane instanceof ProductSceneView) {
-                final ProductSceneView view = (ProductSceneView) contentPane;
-                removeViewListener(view);
-            }
-        }
-    }
-
     private void updateTitle() {
-        pagePanel.getParentDialog().getDescriptor().setTitle(pagePanel.getTitle());
+        getDescriptor().setTitle(pagePanel.getTitle());
     }
 
-    private void selectionChanged(Product product, RasterDataNode raster, VectorDataNode vectorDataNode) {
-        this.product = product;
-        if (pagePanel == null) {
-            return;
+    void setCurrentSelection() {
+
+        Product product = null;
+        RasterDataNode raster = null;
+        VectorDataNode vectorDataNode = null;
+
+        final ProductNode selectedNode = VisatApp.getApp().getSelectedProductNode();
+        if (selectedNode != null && selectedNode.getProduct() != null) {
+            product = selectedNode.getProduct();
         }
-        pagePanel.selectionChanged(product, raster, vectorDataNode);
-        updateTitle();
+        if (selectedNode instanceof RasterDataNode) {
+            raster = (RasterDataNode) selectedNode;
+        } else if (selectedNode instanceof VectorDataNode) {
+            vectorDataNode = (VectorDataNode) selectedNode;
+        }
+
+        selectionChanged(product, raster, vectorDataNode);
+    }
+
+
+    private void selectionChanged(final Product product, final RasterDataNode raster, final VectorDataNode vectorDataNode) {
+        this.product = product;
+
+        runInEDT(new Runnable() {
+            @Override
+            public void run() {
+                pagePanel.selectionChanged(product, raster, vectorDataNode);
+                updateTitle();
+            }
+        });
+    }
+
+    private void runInEDT(Runnable runnable) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnable.run();
+        } else {
+            SwingUtilities.invokeLater(runnable);
+        }
     }
 
     private class PagePanelPTL extends ProductTreeListenerAdapter {
@@ -157,7 +182,9 @@ abstract class AbstractStatisticsToolView extends AbstractToolView {
                 }
             }
             Product product = productNode.getProduct();
-            selectionChanged(product, raster, vector);
+            if (product != null) {
+                selectionChanged(product, raster, vector);
+            }
         }
 
         @Override
@@ -197,7 +224,6 @@ abstract class AbstractStatisticsToolView extends AbstractToolView {
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
                 removeViewListener(view);
-                selectionChanged(null, null, null);
             }
         }
     }

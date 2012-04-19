@@ -20,70 +20,70 @@ import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.StringUtils;
 
+import javax.media.jai.PlanarImage;
+import javax.media.jai.operator.MinDescriptor;
+import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.media.jai.ROI;
-import javax.media.jai.operator.MinDescriptor;
 
+class Roi {
 
-class RoiCombiner {
+    private final Set<RenderedImage> maskImageSet = new HashSet<RenderedImage>();
+    private final RenderedImage combinedMaskImage;
 
-    private final Set<RenderedImage> maskImages = new HashSet<RenderedImage>();
-    private final ROI roi;
-
-    RoiCombiner(Product sourceProduct, Band[] sourceBands, String roiMaskName) {
+    Roi(Product sourceProduct, Band[] sourceBands, String roiMaskName) {
         handleRoiMask(sourceProduct, roiMaskName);
         handleValidMasks(sourceBands);
-        if (maskImages.size() > 0) {
-            RenderedImage combinedMaskImage = createCombinedMaskImage();
-            if (combinedMaskImage != null) {
-                roi = new ROI(combinedMaskImage, 1);
-            } else {
-                roi = null;
-            }
+        if (maskImageSet.size() > 0) {
+            combinedMaskImage = createCombinedMaskImage();
         } else {
-            roi = null;
+            combinedMaskImage = null;
         }
     }
 
+    boolean contains(final int x, final int y) {
+        if (combinedMaskImage == null) {
+            return true;
+        }
 
-    public ROI getROI() {
-        return roi;
+        final int tileW = combinedMaskImage.getTileWidth();
+        final int tileH = combinedMaskImage.getTileHeight();
+        final int tileX = PlanarImage.XToTileX(x, combinedMaskImage.getTileGridXOffset(), tileW);
+        final int tileY = PlanarImage.YToTileY(y, combinedMaskImage.getTileGridYOffset(), tileH);
+        final Raster tile = combinedMaskImage.getTile(tileX, tileY);
+
+        return tile.getSample(x, y, 0) != 0;
     }
 
     private void handleRoiMask(Product product, String roiMaskName) {
-        Mask roiMask = null;
         if (StringUtils.isNotNullAndNotEmpty(roiMaskName)) {
-            roiMask = product.getMaskGroup().get(roiMaskName);
-        }
-        if (roiMask != null) {
-            maskImages.add(roiMask.getSourceImage());
+            final Mask mask = product.getMaskGroup().get(roiMaskName);
+            if (mask != null) {
+                maskImageSet.add(mask.getSourceImage());
+            }
         }
     }
 
     private void handleValidMasks(Band[] sourceBands) {
         for (Band band : sourceBands) {
             if (StringUtils.isNotNullAndNotEmpty(band.getValidMaskExpression())) {
-                maskImages.add(band.getValidMaskImage());
+                maskImageSet.add(band.getValidMaskImage());
             }
         }
     }
 
     private RenderedImage createCombinedMaskImage() {
-        if (maskImages.size() <= 0) {
-            return null;
-        }
-        List<RenderedImage> imageList = new ArrayList<RenderedImage>(maskImages);
+        final List<RenderedImage> imageList = new ArrayList<RenderedImage>(maskImageSet);
         RenderedImage combinedImage = imageList.get(0);
 
         for (int i = 1; i < imageList.size(); i++) {
-            RenderedImage roiImage2 = imageList.get(i);
-            combinedImage = MinDescriptor.create(combinedImage, roiImage2, null);
+            combinedImage = MinDescriptor.create(combinedImage, imageList.get(i), null);
         }
+
         return combinedImage;
     }
 }

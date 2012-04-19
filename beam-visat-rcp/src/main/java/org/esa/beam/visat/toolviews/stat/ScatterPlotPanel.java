@@ -16,12 +16,7 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.ValueRange;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
@@ -31,9 +26,9 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.geotools.feature.FeatureCollection;
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
@@ -51,20 +46,8 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
-import java.awt.geom.Ellipse2D;
+import javax.swing.*;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
@@ -86,6 +69,9 @@ class ScatterPlotPanel extends ChartPagePanel {
     private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" + ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Scatter Plot";
 
+    private final int CONFIDENCE_DSINDEX = 0;
+    private final int SCATTERPOINTS_DSINDEX = 1;
+
     private ChartPanel scatterPlotDisplay;
     private XYPlot plot;
 
@@ -100,6 +86,8 @@ class ScatterPlotPanel extends ChartPagePanel {
     private AxisRangeControl yAxisRangeControl;
 
     private boolean isInitialized;
+    private XYIntervalSeriesCollection scatterpointsDataset;
+    private XYIntervalSeriesCollection confidenceDataset;
 
     ScatterPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId, CHART_TITLE, true);
@@ -119,7 +107,7 @@ class ScatterPlotPanel extends ChartPagePanel {
 
             @Override
             protected XYIntervalSeries doInBackground(ProgressMonitor pm) throws Exception {
-//                pm.beginTask("Computing scatter plot...", 100);
+                pm.beginTask("Computing scatter plot...", 100);
                 final XYIntervalSeries scatterValues = new XYIntervalSeries("scatter values");
                 try {
                     final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = scatterPlotModel.pointDataSource.getFeatureCollection();
@@ -139,8 +127,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                             continue;
                         }
                         final Rectangle box = sceneRect.intersection(new Rectangle(centerX - boxSize / 2,
-                                centerY - boxSize / 2,
-                                boxSize, boxSize));
+                                                                                   centerY - boxSize / 2,
+                                                                                   boxSize, boxSize));
                         if (box.isEmpty()) {
                             continue;
                         }
@@ -170,36 +158,34 @@ class ScatterPlotPanel extends ChartPagePanel {
                         }
 
                         double rasterMean = sum / n;
-                        double rasterSigma = n > 1 ? (float) Math.sqrt(1.0 / (n - 1.0) * (sumSqr - (sum * sum) / n)) : 0.0F;
-                        final double x = rasterMean;
-                        final double dx = rasterSigma;
+                        double rasterSigma = n > 1 ? Math.sqrt((sumSqr - (sum * sum) / n) / (n - 1)) : 0.0;
 
                         String localName = dataField.getLocalName();
                         Number attribute = (Number) feature.getAttribute(localName);
-                        final double insituValue = attribute.doubleValue();
-                        final double y = insituValue;
-                        scatterValues.add(x, x - dx, x + dx, y, y, y);
+                        scatterValues.add(rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma,
+                                          attribute.doubleValue(), attribute.doubleValue(), attribute.doubleValue());
                     }
                 } finally {
-//                    pm.done();
-                    return scatterValues;
+                    pm.done();
                 }
+                return scatterValues;
             }
 
             @Override
             public void done() {
                 try {
-                    plot.setDataset(0, null);
-                    plot.setDataset(1, null);
+                    scatterpointsDataset.removeAllSeries();
+                    confidenceDataset.removeAllSeries();
+
                     final XYIntervalSeries xySeries = get();
 
                     if (xySeries.getItemCount() == 0) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                "Failed to compute scatter plot.\n" +
-                                        "No Pixels considered..",
-                                /*I18N*/
-                                CHART_TITLE, /*I18N*/
-                                JOptionPane.ERROR_MESSAGE);
+                                                      "Failed to compute scatter plot.\n" +
+                                                              "No Pixels considered..",
+                                                      /*I18N*/
+                                                      CHART_TITLE, /*I18N*/
+                                                      JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
@@ -209,9 +195,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                     setAxisRanges(xAxisRangeControl, rasterAxis);
                     setAxisRanges(yAxisRangeControl, insituAxis);
 
-                    final XYIntervalSeriesCollection dataset = new XYIntervalSeriesCollection();
-                    dataset.addSeries(xySeries);
-                    plot.setDataset(0, dataset);
+                    scatterpointsDataset.addSeries(xySeries);
 
                     if (xAxisRangeControl.isAutoMinMax()) {
                         xAxisRangeControl.setMin(cropToDecimals(rasterAxis.getLowerBound(), 3));
@@ -232,24 +216,22 @@ class ScatterPlotPanel extends ChartPagePanel {
                         }
                     };
 
-                    if (scatterPlotModel.showConfidenceInterval) {
-                        final XYSeries identity = DatasetUtilities.sampleFunction2DToSeries(identityFunction, rasterAxis.getLowerBound(), rasterAxis.getUpperBound(), 100, "identity");
-                        final XYIntervalSeries xyIntervalSeries = new XYIntervalSeries(identity.getKey());
-                        final List<XYDataItem> items = identity.getItems();
-                        for (XYDataItem item : items) {
-                            final double x = item.getXValue();
-                            final double y = item.getYValue();
+                    final XYSeries identity = DatasetUtilities.sampleFunction2DToSeries(identityFunction, rasterAxis.getLowerBound(), rasterAxis.getUpperBound(), 100, "identity");
+                    final XYIntervalSeries xyIntervalSeries = new XYIntervalSeries(identity.getKey());
+                    final List<XYDataItem> items = identity.getItems();
+                    for (XYDataItem item : items) {
+                        final double x = item.getXValue();
+                        final double y = item.getYValue();
+                        if (scatterPlotModel.showConfidenceInterval) {
                             final double confidenceInterval = scatterPlotModel.confidenceInterval;
                             final double xOff = confidenceInterval * x / 100;
                             final double yOff = confidenceInterval * y / 100;
                             xyIntervalSeries.add(x, x - xOff, x + xOff, y, y - yOff, y + yOff);
+                        } else {
+                            xyIntervalSeries.add(x, x, x, y, y, y);
                         }
-                        final XYIntervalSeriesCollection identityDataset = new XYIntervalSeriesCollection();
-                        identityDataset.addSeries(xyIntervalSeries);
-                        plot.setDataset(1, identityDataset);
-                    } else {
-                        plot.setDataset(1, DatasetUtilities.sampleFunction2D(identityFunction, rasterAxis.getLowerBound(), rasterAxis.getUpperBound(), 100, "identity"));
                     }
+                    confidenceDataset.addSeries(xyIntervalSeries);
 
                     rasterAxis.setLabel(getAxisLabel(raster));
 
@@ -260,27 +242,27 @@ class ScatterPlotPanel extends ChartPagePanel {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute scatter plot.\n" +
-                                    "Calculation canceled.",
-                            /*I18N*/
-                            CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "Calculation canceled.",
+                                                  /*I18N*/
+                                                  CHART_TITLE, /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 } catch (CancellationException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute scatter plot.\n" +
-                                    "Calculation canceled.",
-                            /*I18N*/
-                            CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "Calculation canceled.",
+                                                  /*I18N*/
+                                                  CHART_TITLE, /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute scatter plot.\n" +
-                                    "An error occured:\n" +
-                                    e.getCause().getMessage(),
-                            CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "An error occured:\n" +
+                                                          e.getCause().getMessage(),
+                                                  CHART_TITLE, /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
@@ -300,11 +282,11 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     @Override
-    protected void initContent() {
+    protected void initComponents() {
         initParameters();
         createUI();
         isInitialized = true;
-        updateContent();
+        updateComponents();
     }
 
     @Override
@@ -317,15 +299,13 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     @Override
-    protected void updateContent() {
+    protected void updateComponents() {
         if (!isInitialized || !isVisible()) {
             return;
         }
-        plot.setDataset(0, null);
-        plot.setDataset(1, null);
-        compute();
+        updateChartData();
 
-        super.updateContent();
+        super.updateComponents();
         correlativeFieldSelector.updatePointDataSource(getProduct());
         correlativeFieldSelector.updateDataField();
 
@@ -333,16 +313,10 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     @Override
-    protected void compute() {
+    protected void updateChartData() {
         if (scatterPlotModel.pointDataSource != null && scatterPlotModel.dataField != null && getRaster() != null) {
             compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
         }
-    }
-
-    private NumberAxis createNumberAxis() {
-        final NumberAxis rangeAxis = new NumberAxis();
-        rangeAxis.setAutoRangeIncludesZero(false);
-        return rangeAxis;
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {
@@ -361,18 +335,18 @@ class ScatterPlotPanel extends ChartPagePanel {
         };
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
-                scatterPlotDisplay,
-                "scatter_plot_area",
-                "Mask generated from selected scatter plot area",
-                Color.RED,
-                PlotAreaSelectionTool.AreaType.X_RANGE) {
+                                                                                         scatterPlotDisplay,
+                                                                                         "scatter_plot_area",
+                                                                                         "Mask generated from selected scatter plot area",
+                                                                                         Color.RED,
+                                                                                         PlotAreaSelectionTool.AreaType.X_RANGE) {
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
                 return String.format("%s >= %s && %s <= %s",
-                        getRaster().getName(),
-                        x0,
-                        getRaster().getName(),
-                        x0 + dx);
+                                     getRaster().getName(),
+                                     x0,
+                                     getRaster().getName(),
+                                     x0 + dx);
             }
         };
         scatterPlotDisplay.getPopupMenu().addSeparator();
@@ -454,34 +428,40 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     private void createUI() {
-        // Plot
+        scatterpointsDataset = new XYIntervalSeriesCollection();
+        confidenceDataset = new XYIntervalSeriesCollection();
+
         plot = new XYPlot();
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setNoDataMessage(NO_DATA_MESSAGE);
+        plot.setDataset(CONFIDENCE_DSINDEX, confidenceDataset);
+        plot.setDataset(SCATTERPOINTS_DSINDEX, scatterpointsDataset);
+
+        final DeviationRenderer deviationRenderer = new DeviationRenderer(true, false);
+        deviationRenderer.setSeriesPaint(0, StatisticChartStyling.DATA_PAINT);
+        deviationRenderer.setSeriesFillPaint(0, StatisticChartStyling.DATA_FILL_PAINT);
+        plot.setRenderer(CONFIDENCE_DSINDEX, deviationRenderer);
+
         final XYErrorRenderer xyErrorRenderer = new XYErrorRenderer();
         xyErrorRenderer.setDrawXError(true);
         xyErrorRenderer.setErrorStroke(new BasicStroke(1));
-        xyErrorRenderer.setErrorPaint(new Color(255, 150, 150));
-
-        xyErrorRenderer.setSeriesShape(0, new Ellipse2D.Float(-4, -4, 8, 8));
+        xyErrorRenderer.setErrorPaint(StatisticChartStyling.INSITU_FILL_PAINT);
+        xyErrorRenderer.setSeriesShape(0, StatisticChartStyling.INSITU_SHAPE);
+        xyErrorRenderer.setSeriesOutlinePaint(0, StatisticChartStyling.INSITU_OUTLINE_PAINT);
+        xyErrorRenderer.setSeriesFillPaint(0, StatisticChartStyling.INSITU_FILL_PAINT);
+        xyErrorRenderer.setSeriesShapesFilled(0, StatisticChartStyling.INSITU_SHAPES_FILLED);
         xyErrorRenderer.setSeriesLinesVisible(0, false);
         xyErrorRenderer.setSeriesShapesVisible(0, true);
-        xyErrorRenderer.setSeriesPaint(0, null);
         xyErrorRenderer.setSeriesOutlineStroke(0, new BasicStroke(1.0f));
-        xyErrorRenderer.setSeriesOutlinePaint(0, new Color(200, 0, 0));
-        xyErrorRenderer.setSeriesFillPaint(0, new Color(255, 150, 150));
-        xyErrorRenderer.setSeriesShapesFilled(0, true);
         xyErrorRenderer.setSeriesToolTipGenerator(0, new XYPlotToolTipGenerator());
-        plot.setRenderer(0, xyErrorRenderer);
+        plot.setRenderer(SCATTERPOINTS_DSINDEX, xyErrorRenderer);
 
-        final DeviationRenderer deviationRenderer = new DeviationRenderer(true, false);
-        deviationRenderer.setSeriesPaint(0, Color.black);
-        deviationRenderer.setSeriesFillPaint(0, Color.lightGray);
-        plot.setRenderer(1, deviationRenderer);
-        plot.setDomainAxis(createNumberAxis());
-        plot.setRangeAxis(createNumberAxis());
+        final boolean autoRangeIncludesZero = false;
+        plot.setDomainAxis(StatisticChartStyling.createNumberAxis(null, autoRangeIncludesZero));
+        plot.setRangeAxis(StatisticChartStyling.createNumberAxis(null, autoRangeIncludesZero));
 
         JFreeChart chart = new JFreeChart(CHART_TITLE, plot);
+        ChartFactory.getChartTheme().apply(chart);
         chart.removeLegend();
 
         createUI(createChartPanel(chart), createMiddlePanel(), bindingContext);
@@ -522,6 +502,19 @@ class ScatterPlotPanel extends ChartPagePanel {
                 updateScalingOfYAxis();
             }
         });
+
+        xAxisRangeControl.getBindingContext().addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                setAxisRanges(xAxisRangeControl, plot.getDomainAxis());
+            }
+        });
+        yAxisRangeControl.getBindingContext().addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                setAxisRanges(xAxisRangeControl, plot.getDomainAxis());
+            }
+        });
     }
 
     private void setAxisRanges(AxisRangeControl axisRangeControl, ValueAxis axis) {
@@ -555,55 +548,24 @@ class ScatterPlotPanel extends ChartPagePanel {
         final JFreeChart chart = scatterPlotDisplay.getChart();
         final List<Title> subtitles = new ArrayList<Title>(7);
         subtitles.add(new TextTitle(MessageFormat.format("{0}, {1}",
-                xAxisName,
-                yAxisName
+                                                         xAxisName,
+                                                         yAxisName
         )));
         chart.setSubtitles(subtitles);
     }
 
     private void updateScalingOfXAxis() {
-        if (scatterPlotModel.xAxisLogScaled) {
-            ValueAxis oldAxis = plot.getDomainAxis();
-            if (!(oldAxis instanceof CustomLogarithmicAxis)) {
-                CustomLogarithmicAxis logAxisX = new CustomLogarithmicAxis(oldAxis.getLabel());
-//                LogarithmicAxis logAxisX = new MyLogarithmicAxis(oldAxis.getLabel());
-                logAxisX.setAllowNegativesFlag(true);
-                logAxisX.setLog10TickLabelsFlag(true);
-                logAxisX.setMinorTickCount(10);
-                plot.setDomainAxis(logAxisX);
-            }
-        } else {
-            ValueAxis oldAxis = plot.getDomainAxis();
-            if (oldAxis instanceof CustomLogarithmicAxis) {
-                final NumberAxis numberAxis = createNumberAxis();
-                numberAxis.setLabel(oldAxis.getLabel());
-                plot.setDomainAxis(numberAxis);
-            }
-            setAxisRanges(xAxisRangeControl, plot.getDomainAxis());
-        }
-//        setAxisRanges(xAxisRangeControl, plot.getDomainAxis());
+        final boolean logScaled = scatterPlotModel.xAxisLogScaled;
+        ValueAxis newAxis = StatisticChartStyling.updateScalingOfAxis(logScaled, plot.getDomainAxis(), false);
+        setAxisRanges(xAxisRangeControl, newAxis);
+        plot.setDomainAxis(newAxis);
     }
 
     private void updateScalingOfYAxis() {
-        if (scatterPlotModel.yAxisLogScaled) {
-            ValueAxis oldAxis = plot.getRangeAxis();
-            if (!(oldAxis instanceof CustomLogarithmicAxis)) {
-                CustomLogarithmicAxis logAxisX = new CustomLogarithmicAxis(oldAxis.getLabel());
-                logAxisX.setAllowNegativesFlag(true);
-                logAxisX.setLog10TickLabelsFlag(true);
-                logAxisX.setAutoRange(yAxisRangeControl.isAutoMinMax());
-                logAxisX.setMinorTickCount(10);
-                plot.setRangeAxis(logAxisX);
-            }
-        } else {
-            ValueAxis oldAxis = plot.getRangeAxis();
-            if (oldAxis instanceof CustomLogarithmicAxis) {
-                final NumberAxis numberAxis = createNumberAxis();
-                numberAxis.setLabel(oldAxis.getLabel());
-                plot.setRangeAxis(numberAxis);
-            }
-        }
-        setAxisRanges(yAxisRangeControl, plot.getRangeAxis());
+        final boolean logScaled = scatterPlotModel.yAxisLogScaled;
+        ValueAxis newAxis = StatisticChartStyling.updateScalingOfAxis(logScaled, plot.getRangeAxis(), false);
+        setAxisRanges(yAxisRangeControl, newAxis);
+        plot.setRangeAxis(newAxis);
     }
 
     private void updateUIState() {
@@ -613,7 +575,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         setChartTitle();
         final AttributeDescriptor dataField = scatterPlotModel.dataField;
         yAxisRangeControl.setTitleSuffix(dataField != null ? dataField.getLocalName() : null);
-        updateContent();
+        updateComponents();
     }
 
     private static class ScatterPlotModel {

@@ -140,7 +140,7 @@ public class TransectProfileData {
             if (n > 0) {
                 final float mean = sum / n;
                 sampleValues[i] = mean;
-                sampleSigmas[i] = n > 1 ? (float) Math.sqrt(1.0 / (n - 1.0) * (sumSqr - (sum * sum) / n)) : 0.0F;
+                sampleSigmas[i] = n > 1 ? (float) Math.sqrt((sumSqr - (sum * sum) / n) / (n - 1)) : 0.0F;
             }
 
             if (geoPositions != null) {

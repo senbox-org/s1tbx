@@ -235,7 +235,8 @@
 
     <extension point="beam-ui:layerEditors">
         <layerEditor>
-            <editorFactory>org.esa.beam.visat.toolviews.layermanager.editors.VectorDataLayerEditorFactory</editorFactory>
+            <editorFactory>org.esa.beam.visat.toolviews.layermanager.editors.VectorDataLayerEditorFactory
+            </editorFactory>
             <layer>org.esa.beam.framework.ui.product.VectorDataLayer</layer>
         </layerEditor>
         <layerEditor>
@@ -864,20 +865,9 @@
 
         <action>
             <id>importShapefile</id>
-            <class>org.esa.beam.visat.actions.ImportGeometryAction</class>
-            <parent>importVectorData</parent>
-            <text>ESRI Shapefile</text>
-            <mnemonic>S</mnemonic>
-            <shortDescr>Import geometry from ESRI Shapefile.</shortDescr>
-            <description>Import geometry from ESRI Shapefile.</description>
-            <helpId>importShapefile</helpId>
-        </action>
-
-        <action>
-            <id>importShapefileExperimental</id>
             <class>org.esa.beam.visat.actions.ImportVectorDataNodeFromShapefileAction</class>
             <parent>importVectorData</parent>
-            <text>ESRI Shapefile (experimental)</text>
+            <text>ESRI Shapefile</text>
             <mnemonic>S</mnemonic>
             <shortDescr>Import geometry from ESRI Shapefile.</shortDescr>
             <description>Import geometry from ESRI Shapefile.</description>
@@ -893,15 +883,8 @@
 
         <action>
             <id>importCSV</id>
-            <class>org.esa.beam.visat.actions.ImportPointDataAction</class>
-            <text>CSV</text>
-            <parent>importVectorData</parent>
-        </action>
-
-        <action>
-            <id>importCSVExperimental</id>
             <class>org.esa.beam.visat.actions.ImportVectorDataNodeFromCsvAction</class>
-            <text>CSV (experimental)</text>
+            <text>CSV</text>
             <parent>importVectorData</parent>
         </action>
 
@@ -1375,9 +1358,9 @@
         <action>
             <id>createVectorDataNode</id>
             <class>org.esa.beam.visat.actions.CreateVectorDataNodeAction</class>
-            <text>Create Geometry Container...</text>
-            <shortDescr>Create a new geometry container</shortDescr>
-            <description>Create a new geometry container for drawing line strings and polygons.</description>
+            <text>Create Vector Data Container...</text>
+            <shortDescr>Create a new vector data container</shortDescr>
+            <description>Create a new vector data container for drawing line and polygons.</description>
             <smallIcon>icons/NewVectorDataNode16.gif</smallIcon>
             <largeIcon>icons/NewVectorDataNode24.gif</largeIcon>
             <helpId>createVectorDataNode</helpId>

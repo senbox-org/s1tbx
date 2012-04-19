@@ -92,7 +92,7 @@ public class FeatureUtils {
             pm.worked(10);
             CoordinateReferenceSystem featureCrs = featureCollection.getSchema().getCoordinateReferenceSystem();
             if (featureCrs == null) {
-                featureCrs = crsProvider.getCrs(product, featureCollection);
+                featureCrs = crsProvider.getFeatureCrs(product);
                 if (featureCrs == null) {
                     featureCrs = DefaultGeographicCRS.WGS84;
                 }
@@ -112,7 +112,7 @@ public class FeatureUtils {
     }
 
     public static interface FeatureCrsProvider {
-        CoordinateReferenceSystem getCrs(Product product, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection);
+        CoordinateReferenceSystem getFeatureCrs(Product product);
     }
 
     /**

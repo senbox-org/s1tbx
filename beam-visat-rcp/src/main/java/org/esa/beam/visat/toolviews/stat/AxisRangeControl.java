@@ -31,6 +31,7 @@ class AxisRangeControl {
     JPanel getPanel() {
         if (panel == null) {
             panel = createPanel();
+            panel.setName(axisName);
         }
         return panel;
     }
@@ -109,14 +110,18 @@ class AxisRangeControl {
         return (Boolean) bindingContext.getBinding("autoMinMax").getPropertyValue();
     }
 
-    public void adjustComponents(ValueAxis axis, int n) {
-        getBindingContext().getBinding("min").setPropertyValue(MathUtils.round(axis.getLowerBound(), roundFactor(n)));
-        getBindingContext().getBinding("max").setPropertyValue(MathUtils.round(axis.getUpperBound(), roundFactor(n)));
+    public void adjustComponents(ValueAxis axis, int numDecimalPlaces) {
+        adjustComponents(axis.getLowerBound(), axis.getUpperBound(), numDecimalPlaces);
     }
 
-    public void adjustAxis(ValueAxis axis, int n) {
-        final double lowerRange = MathUtils.round((Double) getBindingContext().getBinding("min").getPropertyValue(), roundFactor(n));
-        final double upperRange = MathUtils.round((Double) getBindingContext().getBinding("max").getPropertyValue(), roundFactor(n));
+    public void adjustComponents(double min, double max, int numDecimalPlaces) {
+        setMin(MathUtils.round(min, roundFactor(numDecimalPlaces)));
+        setMax(MathUtils.round(max, roundFactor(numDecimalPlaces)));
+    }
+
+    public void adjustAxis(ValueAxis axis, int numDecimalPlaces) {
+        final double lowerRange = MathUtils.round((Double) getBindingContext().getBinding("min").getPropertyValue(), roundFactor(numDecimalPlaces));
+        final double upperRange = MathUtils.round((Double) getBindingContext().getBinding("max").getPropertyValue(), roundFactor(numDecimalPlaces));
         axis.setRange(lowerRange, upperRange);
     }
 
@@ -125,7 +130,7 @@ class AxisRangeControl {
     }
 
     public Double getMin() {
-        return (Double)getBindingContext().getPropertySet().getValue("min");
+        return (Double) getBindingContext().getPropertySet().getValue("min");
     }
 
     public Double getMax() {

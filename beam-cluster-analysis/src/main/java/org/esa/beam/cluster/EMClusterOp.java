@@ -17,7 +17,12 @@ package org.esa.beam.cluster;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -28,8 +33,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 
-import javax.media.jai.ROI;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.Comparator;
 import java.util.Map;
 
@@ -48,7 +52,7 @@ public class EMClusterOp extends Operator {
 
     private static final int NO_DATA_VALUE = 0xFF;
 
-    @SourceProduct(alias = "source")
+    @SourceProduct(alias = "source", label = "Source product")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
@@ -64,7 +68,7 @@ public class EMClusterOp extends Operator {
                description = "The names of the bands being used for the cluster analysis.",
                rasterDataNodeType = Band.class)
     private String[] sourceBandNames;
-    @Parameter(label = "ROI-Mask",
+    @Parameter(label = "ROI-mask",
                description = "The name of the ROI-Mask that should be used.",
                rasterDataNodeType = Mask.class)
     private String roiMaskName;
@@ -76,9 +80,9 @@ public class EMClusterOp extends Operator {
     private transient Band[] sourceBands;
     private transient Band clusterMapBand;
     private transient Band[] probabilityBands;
-    private transient ROI roi;
+    private transient Roi roi;
     private transient MetadataElement clusterAnalysis;
-    private transient volatile  ProbabilityCalculator probabilityCalculator;
+    private transient volatile ProbabilityCalculator probabilityCalculator;
 
     public EMClusterOp() {
     }
@@ -257,9 +261,8 @@ public class EMClusterOp extends Operator {
         try {
             pm.beginTask("Extracting data points...", iterationCount + 100);
 
-            RoiCombiner roiCombiner = new RoiCombiner(sourceProduct, sourceBands, roiMaskName);
-            roi = roiCombiner.getROI();
-            
+            roi = new Roi(sourceProduct, sourceBands, roiMaskName);
+
             final EMClusterer clusterer = createClusterer(SubProgressMonitor.create(pm, 100));
 
             for (int i = 0; i < iterationCount; ++i) {
@@ -319,7 +322,7 @@ public class EMClusterOp extends Operator {
 
         if (roiSize < clusterCount) {
             throw new OperatorException("The combination of ROI and valid pixel masks contain " +
-                    roiSize + " pixel. These are too few to initialize the clustering.");
+                                        roiSize + " pixel. These are too few to initialize the clustering.");
         }
 
         final double[][] points = new double[roiSize][sourceBands.length];

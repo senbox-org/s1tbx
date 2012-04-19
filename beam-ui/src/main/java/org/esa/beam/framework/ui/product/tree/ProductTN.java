@@ -16,18 +16,14 @@
 
 package org.esa.beam.framework.ui.product.tree;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.*;
 
 import java.util.HashMap;
 
 class ProductTN extends AbstractTN {
     private static final String METADATA = "Metadata";
     private static final String BANDS = "Bands";
-    private static final String VECTOR_DATA = "Geometries";
+    private static final String VECTOR_DATA = "Vector data";
     private static final String TIE_POINT_GRIDS = "Tie-point grids";
     private static final String FLAG_CODINGS = "Flag codings";
     private static final String INDEX_CODINGS = "Index codings";

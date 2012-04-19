@@ -35,7 +35,6 @@ import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.media.jai.ROI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 
@@ -54,7 +53,7 @@ public class KMeansClusterOp extends Operator {
 
     private static final int NO_DATA_VALUE = 0xFF;
 
-    @SourceProduct(alias = "source")
+    @SourceProduct(alias = "source", label = "Source product")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
@@ -70,12 +69,12 @@ public class KMeansClusterOp extends Operator {
                description = "The names of the bands being used for the cluster analysis.",
                rasterDataNodeType = Band.class)
     private String[] sourceBandNames;
-    @Parameter(label = "ROI-Mask",
-               description = "The name of the ROI-Mask that should be used.",
+    @Parameter(label = "ROI-mask",
+               description = "The name of the ROI-Mask that should be used.", defaultValue = "",
                rasterDataNodeType = Mask.class)
     private String roiMaskName;
 
-    private transient ROI roi;
+    private transient Roi roi;
     private transient Band[] sourceBands;
     private transient Band clusterMapBand;
     private transient KMeansClusterSet clusterSet;
@@ -150,7 +149,7 @@ public class KMeansClusterOp extends Operator {
             for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; y++) {
                 for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; x++) {
                     try {
-                        if (roi == null || roi.contains(x, y)) {
+                        if (roi.contains(x, y)) {
                             for (int i = 0; i < sourceTiles.length; i++) {
                                 point[i] = sourceTiles[i].getSampleDouble(x, y);
                             }
@@ -174,8 +173,7 @@ public class KMeansClusterOp extends Operator {
             Rectangle[] tileRectangles = getAllTileRectangles();
             pm.beginTask("Extracting data points...", tileRectangles.length * iterationCount * 2 + 2);
             try {
-                RoiCombiner roiCombiner = new RoiCombiner(sourceProduct, sourceBands, roiMaskName);
-                roi = roiCombiner.getROI();
+                roi = new Roi(sourceProduct, sourceBands, roiMaskName);
                 pm.worked(1);
                 final KMeansClusterer clusterer = createClusterer();
                 pm.worked(1);
@@ -209,7 +207,7 @@ public class KMeansClusterOp extends Operator {
         RandomSceneIter randomSceneIter = new RandomSceneIter(this, sourceBands, roi, randomSeed);
         if (randomSceneIter.getRoiMemberCount() < clusterCount) {
             throw new OperatorException("The combination of ROI and valid pixel masks contain " +
-                    randomSceneIter.getRoiMemberCount() + " pixel. These are too few to initialize the clustering.");
+                                        randomSceneIter.getRoiMemberCount() + " pixel. These are too few to initialize the clustering.");
         }
         clusterer.initialize(randomSceneIter);
         return clusterer;

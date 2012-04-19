@@ -98,40 +98,42 @@ class DensityPlotPanel extends ChartPagePanel {
     }
 
     @Override
-    protected void initContent() {
+    protected void initComponents() {
         initParameters();
         createUI();
-        updateContent();
+        updateComponents();
     }
 
     @Override
-    protected void updateContent() {
-        if (densityPlotDisplay != null) {
-            plot.setImage(null);
-            plot.setDataset(null);
-            final String[] availableBands = createAvailableBandList();
-            final RasterDataNode raster = getRaster();
-            String rasterName = null;
-            if (raster != null) {
-                rasterName = raster.getName();
-            } else if (availableBands.length > 0) {
-                rasterName = availableBands[0];
-            }
-            /*if (rasterName != null) {
+    protected void updateComponents() {
+        //if (densityPlotDisplay != null) {
+        super.updateComponents();
+        plot.setImage(null);
+        plot.setDataset(null);
+        final String[] availableBands = createAvailableBandList();
+        final RasterDataNode raster = getRaster();
+        String rasterName = null;
+        if (raster != null) {
+            rasterName = raster.getName();
+        } else if (availableBands.length > 0) {
+            rasterName = availableBands[0];
+        }
+        /*if (rasterName != null) {
                 dataSourceConfig.xBand
                 rasterNameParams[varIndex].getProperties().setValueSet(availableBands);
                 rasterNameParams[varIndex].setValue(rasterName, null);
             } else {
                 rasterNameParams[varIndex].getProperties().setValueSet(new String[0]);
             }*/
-            //updateXBand();
-            //updateYBand();
-            //updateParameters(X_VAR, availableBands);
-            //updateParameters(Y_VAR, availableBands);
-            toggleColorButton.setEnabled(false);
-            setChartTitle();
-            super.updateContent();
-        }
+        //updateXBand();
+        //updateYBand();
+        //updateParameters(X_VAR, availableBands);
+        //updateParameters(Y_VAR, availableBands);
+        toggleColorButton.setEnabled(false);
+        //updateParameters(X_VAR, availableBands);
+        //updateParameters(Y_VAR, availableBands);
+        setChartTitle();
+        //}
     }
 
     private void setChartTitle() {
@@ -368,31 +370,29 @@ class DensityPlotPanel extends ChartPagePanel {
         updateUIState();
     }
 
-    private void toggleColor() {
+    private void toggleColor(){
         BufferedImage image = plot.getImage();
-        if (image != null) {
-            if (!plotColorsInverted) {
+        if(image != null) {
+            if(!plotColorsInverted) {
                 image = new BufferedImage(untoggledColorModel, image.getRaster(), image.isAlphaPremultiplied(), null);
             } else {
-                image = new BufferedImage(toggledColorModel, image.getRaster(), image.isAlphaPremultiplied(), null);
+                image = new BufferedImage(toggledColorModel, image.getRaster(), image.isAlphaPremultiplied(), null);                      
             }
             plot.setImage(image);
             updateUIState();
             plotColorsInverted = !plotColorsInverted;
         }
-    }
+    } 
 
-    private JPanel createMiddlePanel() {
+    
+    private JPanel createMiddlePanel(){
         toggleColorButton = new JButton("Invert Plot Colors");
         toggleColorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (plot != null) {
-                    toggleColor();
-                }
+                toggleColor();
             }
-        }
-        );
+        });
         toggleColorButton.setEnabled(false);
         final JPanel middlePanel = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL");
@@ -410,7 +410,7 @@ class DensityPlotPanel extends ChartPagePanel {
         return middlePanel;
     }
 
-    private ChartPanel createChartPanel(JFreeChart chart) {
+    private ChartPanel createChartPanel(JFreeChart chart){
         densityPlotDisplay = new ChartPanel(chart);
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
@@ -464,12 +464,12 @@ class DensityPlotPanel extends ChartPagePanel {
     }
 
     private void updateUIState() {
-        super.updateContent();
+        super.updateComponents();
         setChartTitle();
     }
 
     @Override
-    protected void compute() {
+    protected void updateChartData() {
 
         final RasterDataNode rasterX = getRaster(X_VAR);
         final RasterDataNode rasterY = getRaster(Y_VAR);
@@ -485,8 +485,8 @@ class DensityPlotPanel extends ChartPagePanel {
             protected BufferedImage doInBackground(ProgressMonitor pm) throws Exception {
                 pm.beginTask("Computing density plot...", 100);
                 try {
-                    setRange(X_VAR, rasterX, dataSourceConfig.roiMask, SubProgressMonitor.create(pm, 15));
-                    setRange(Y_VAR, rasterY, dataSourceConfig.roiMask, SubProgressMonitor.create(pm, 15));
+                    setRange(X_VAR, rasterX, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask:null, SubProgressMonitor.create(pm, 15));
+                    setRange(Y_VAR, rasterY, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask:null, SubProgressMonitor.create(pm, 15));
                     final BufferedImage densityPlotImage = ProductUtils.createDensityPlotImage(rasterX,
                             axisRangeControls[X_VAR].getMin().floatValue(),
                             axisRangeControls[X_VAR].getMax().floatValue(),
@@ -583,8 +583,8 @@ class DensityPlotPanel extends ChartPagePanel {
         return raster.getName();
     }
 
-    private void setRange(int varIndex, RasterDataNode raster, Mask mask, ProgressMonitor pm) throws IOException {
-        if (axisRangeControls[varIndex].isAutoMinMax()) {
+    private void setRange(int varIndex,RasterDataNode raster, Mask mask, ProgressMonitor pm) throws IOException {
+        if(axisRangeControls[varIndex].isAutoMinMax()){
             Stx stx;
             if (mask == null) {
                 stx = raster.getStx(false, pm);
@@ -704,7 +704,7 @@ class DensityPlotPanel extends ChartPagePanel {
             return null;
         }
 
-        final StringBuffer sb = new StringBuffer(64000);
+        final StringBuilder sb = new StringBuilder(64000);
         final int w = image.getWidth();
         final int h = image.getHeight();
 
@@ -773,7 +773,7 @@ class DensityPlotPanel extends ChartPagePanel {
     private static class DataSourceConfig {
 
         public boolean useRoiMask;
-        private Mask roiMask;
+        public Mask roiMask;
         private RasterDataNode xBand;
         private RasterDataNode yBand;
 

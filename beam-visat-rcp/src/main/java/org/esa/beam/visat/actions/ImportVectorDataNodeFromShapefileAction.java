@@ -49,7 +49,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-public class ImportVectorDataNodeFromShapefileAction extends ExecCommand {
+public class ImportVectorDataNodeFromShapefileAction extends AbstractImportVectorDataNodeAction {
 
     private VectorDataNodeImporter importer;
 
@@ -70,15 +70,20 @@ public class ImportVectorDataNodeFromShapefileAction extends ExecCommand {
         setEnabled(product != null);
     }
 
-    class VdnShapefileReader implements ImportGeometryAction.VectorDataNodeReader {
+    @Override
+    protected String getDialogTitle() {
+        return importer.getDialogTitle();
+    }
+
+    class VdnShapefileReader implements VectorDataNodeImporter.VectorDataNodeReader {
 
         @Override
         public VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException {
 
-            MyFeatureCrsProvider crsProvider = new MyFeatureCrsProvider(visatApp, helpId);
             FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = FeatureUtils.loadShapefileForProduct(file,
                                                                                                                          product,
-                                                                                                                         crsProvider, pm);
+                                                                                                                         crsProvider,
+                                                                                                                         pm);
             Style[] styles = SLDUtils.loadSLD(file);
             ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
             String name = VectorDataNodeImporter.findUniqueVectorDataNodeName(featureCollection.getSchema().getName().getLocalPart(),
@@ -97,76 +102,7 @@ public class ImportVectorDataNodeFromShapefileAction extends ExecCommand {
             }
         }
 
-        private class MyFeatureCrsProvider implements FeatureUtils.FeatureCrsProvider {
 
-            private final VisatApp visatApp;
-            private final String helpId;
-
-            public MyFeatureCrsProvider(VisatApp visatApp, String helpId) {
-                this.visatApp = visatApp;
-                this.helpId = helpId;
-            }
-
-            @Override
-            public CoordinateReferenceSystem getCrs(final Product product, final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
-                final CoordinateReferenceSystem[] featureCrsBuffer = new CoordinateReferenceSystem[1];
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        featureCrsBuffer[0] = promptForFeatureCrs(visatApp, product);
-                    }
-                };
-                if (!SwingUtilities.isEventDispatchThread()) {
-                    try {
-                        SwingUtilities.invokeAndWait(runnable);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    } catch (InvocationTargetException e) {
-                        throw new RuntimeException(e);
-                    }
-                } else {
-                    runnable.run();
-                }
-                CoordinateReferenceSystem featureCrs = featureCrsBuffer[0];
-                return featureCrs != null ? featureCrs : DefaultGeographicCRS.WGS84;
-            }
-
-            private CoordinateReferenceSystem promptForFeatureCrs(VisatApp visatApp, Product product) {
-                final ProductCrsForm productCrsForm = new ProductCrsForm(visatApp, product);
-                final CustomCrsForm customCrsForm = new CustomCrsForm(visatApp);
-                final PredefinedCrsForm predefinedCrsForm = new PredefinedCrsForm(visatApp);
-
-                final CrsSelectionPanel crsSelectionPanel = new CrsSelectionPanel(productCrsForm,
-                                                                                  customCrsForm,
-                                                                                  predefinedCrsForm);
-                final ModalDialog dialog = new ModalDialog(visatApp.getApplicationWindow(), importer.getDialogTitle(),
-                                                           ModalDialog.ID_OK_CANCEL_HELP, helpId);
-
-                final TableLayout tableLayout = new TableLayout(1);
-                tableLayout.setTableWeightX(1.0);
-                tableLayout.setTableFill(TableLayout.Fill.BOTH);
-                tableLayout.setTablePadding(4, 4);
-                tableLayout.setCellPadding(0, 0, new Insets(4, 10, 4, 4));
-                final JPanel contentPanel = new JPanel(tableLayout);
-                final JLabel label = new JLabel();
-                label.setText("<html><b>" +
-                              "This Shapefile does not define a coordinate reference system (CRS).<br/>" +
-                              "Please specify a CRS so that coordinates can interpreted correctly.</b>");
-
-                contentPanel.add(label);
-                contentPanel.add(crsSelectionPanel);
-                dialog.setContent(contentPanel);
-                if (dialog.show() == ModalDialog.ID_OK) {
-                    try {
-                        return crsSelectionPanel.getCrs(ProductUtils.getCenterGeoPos(product));
-                    } catch (FactoryException e) {
-                        visatApp.showErrorDialog(importer.getDialogTitle(),
-                                                 "Can not create Coordinate Reference System.\n" + e.getMessage());
-                    }
-                }
-                return null;
-            }
-        }
     }
 
 

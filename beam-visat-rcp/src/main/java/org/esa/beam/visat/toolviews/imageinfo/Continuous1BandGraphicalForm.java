@@ -36,7 +36,6 @@ import java.awt.event.ActionListener;
 
 class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
 
-    public static final Scaling LOG10_SCALING = new Log10Scaling();
     public static final Scaling POW10_SCALING = new Pow10Scaling();
 
     private final ColorManipulationForm parentForm;
@@ -199,32 +198,27 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     private static class Log10Scaling implements Scaling {
 
         @Override
-        public double scale(double value) {
-            return value > 1.0E-10 ? Math.log10(value) : -10.0;
+        public final double scale(double value) {
+            return value > 1.0E-9 ? Math.log10(value) : -9.0;
         }
 
         @Override
-        public double scaleInverse(double value) {
-            if (value < -10.0) {
-                return 1.0E-10;
-            }
-            return Math.pow(10.0, value);
+        public final double scaleInverse(double value) {
+            return value < -9.0 ? 1.0E-9 : Math.pow(10.0, value);
         }
     }
 
     private static class Pow10Scaling implements Scaling {
+        private final Scaling log10Scaling = new Log10Scaling();
 
         @Override
         public double scale(double value) {
-            if (value < -10.0) {
-                return 1.0E-10;
-            }
-            return Math.pow(10.0, value);
+            return log10Scaling.scaleInverse(value);
         }
 
         @Override
         public double scaleInverse(double value) {
-            return value > 1.0E-10 ? Math.log10(value) : -10.0;
+            return log10Scaling.scale(value);
         }
     }
 }
