@@ -16,9 +16,9 @@
 package org.esa.beam.dataio.modis;
 
 import ncsa.hdf.hdflib.HDFConstants;
-import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.modis.hdf.HdfAttributes;
 import org.esa.beam.dataio.modis.hdf.HdfUtils;
+import org.esa.beam.dataio.modis.hdf.IHDF;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.DecodeQualification;
@@ -64,15 +64,16 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
             file = (File) input;
         }
 
-        if (file != null && file.exists() &&  file.isFile() && file.getPath().toLowerCase().endsWith(ModisConstants.DEFAULT_FILE_EXTENSION)) {
+        if (file != null && file.exists() && file.isFile() && file.getPath().toLowerCase().endsWith(ModisConstants.DEFAULT_FILE_EXTENSION)) {
             try {
                 String path = file.getPath();
-                if (HDF.getWrap().Hishdf(path)) {
+                final IHDF ihdf = HDF.getWrap();
+                if (ihdf.Hishdf(path)) {
                     int fileId = HDFConstants.FAIL;
                     int sdStart = HDFConstants.FAIL;
                     try {
-                        fileId = HDF.getWrap().Hopen(path, HDFConstants.DFACC_RDONLY);
-                        sdStart = HDF.getWrap().SDstart(path, HDFConstants.DFACC_RDONLY);
+                        fileId = ihdf.Hopen(path, HDFConstants.DFACC_RDONLY);
+                        sdStart = ihdf.SDstart(path, HDFConstants.DFACC_RDONLY);
                         HdfAttributes globalAttrs = HdfUtils.readAttributes(sdStart);
 
                         // check wheter daac or imapp
@@ -86,13 +87,12 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
                         if (ModisProductDb.getInstance().isSupportedProduct(productType)) {
                             return DecodeQualification.INTENDED;
                         }
-                    } catch (HDFException ignore) {
                     } finally {
                         if (sdStart != HDFConstants.FAIL) {
-                            HDF.getWrap().Hclose(sdStart);
+                            ihdf.Hclose(sdStart);
                         }
                         if (fileId != HDFConstants.FAIL) {
-                            HDF.getWrap().Hclose(fileId);
+                            ihdf.Hclose(fileId);
                         }
                     }
                 }
@@ -164,7 +164,6 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale locale) {

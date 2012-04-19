@@ -16,9 +16,9 @@
 package org.esa.beam.dataio.modis.hdf;
 
 import ncsa.hdf.hdflib.HDFConstants;
-import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,43 +32,43 @@ public class HdfVGroup {
      * Retrieves a vector of all HDF vgroups contained in the file.
      *
      * @param fileId the file identifier as returned by Hopen().
-     *
      * @return a vector of groups
      */
-    public static HdfVGroup[] getGroups(int fileId) throws HDFException {
-        if (!HDF.getWrap().Vstart(fileId)) {
-            throw new HDFException("Unable to access HDF file.");
+    public static HdfVGroup[] getGroups(int fileId) throws IOException {
+        final IHDF ihdf = HDF.getWrap();
+        if (!ihdf.Vstart(fileId)) {
+            throw new IOException("Unable to access HDF file.");
         }
 
         final List<HdfVGroup> groupList = new ArrayList<HdfVGroup>();
 
         // get the total number of lone vgroups
-        final int numGroups = HDF.getWrap().Vlone(fileId, new int[1], 0);
+        final int numGroups = ihdf.Vlone(fileId, new int[1], 0);
         if (numGroups > 0) {
             final int[] refArray = new int[numGroups];
-            HDF.getWrap().Vlone(fileId, refArray, refArray.length);
+            ihdf.Vlone(fileId, refArray, refArray.length);
 
             // now loop over groups
             for (int n = 0; n < refArray.length; n++) {
-                final int groupId = HDF.getWrap().Vattach(fileId, refArray[n], "r");
+                final int groupId = ihdf.Vattach(fileId, refArray[n], "r");
 
                 if (groupId == HDFConstants.FAIL) {
-                    HDF.getWrap().Vdetach(groupId);
+                    ihdf.Vdetach(groupId);
                     continue;
                 }
 
                 String[] s = {""};
-                HDF.getWrap().Vgetname(groupId, s);
+                ihdf.Vgetname(groupId, s);
                 final String groupName = s[0].trim();
 
-                HDF.getWrap().Vgetclass(groupId, s);
+                ihdf.Vgetclass(groupId, s);
                 final String groupClass = s[0].trim();
 
                 groupList.add(new HdfVGroup(groupId, groupName, groupClass));
             }
         }
 
-        HDF.getWrap().Vend(fileId);
+        ihdf.Vend(fileId);
 
         return groupList.toArray(new HdfVGroup[groupList.size()]);
     }

@@ -16,98 +16,98 @@
 
 package org.esa.beam.dataio.modis.hdf;
 
-import ncsa.hdf.hdflib.HDFException;
+import java.io.IOException;
 
 public class IHDFAdapterForMocking implements IHDF {
 
-    public boolean Hishdf(String path) throws HDFException {
+    public boolean Hishdf(String path) throws IOException {
         return false;
     }
 
-    public int Hopen(String path, int dfacc_roule) throws HDFException {
+    public int Hopen(String path, int dfacc_roule) throws IOException {
         return 0;
     }
 
-    public boolean Hclose(int fileId) throws HDFException {
+    public boolean Hclose(int fileId) throws IOException {
         return false;
     }
 
-    public int DFKNTsize(int i) throws HDFException {
+    public int DFKNTsize(int i) throws IOException {
         return 0;
     }
 
-    public int SDstart(String path, int dfacc_roule) throws HDFException {
+    public int SDstart(String path, int dfacc_roule) throws IOException {
         return 0;
     }
 
-    public boolean SDend(int sdsId) throws HDFException {
+    public boolean SDend(int sdsId) throws IOException {
         return false;
     }
 
-    public boolean SDendaccess(int sdsId) throws HDFException {
+    public boolean SDendaccess(int sdsId) throws IOException {
         return false;
     }
 
-    public int SDfindattr(int sdsId, String s) throws HDFException {
+    public int SDfindattr(int sdsId, String s) throws IOException {
         return 0;
     }
 
-    public boolean SDattrinfo(int sdsId, int i, String[] strings, int[] ints) throws HDFException {
+    public boolean SDattrinfo(int sdsId, int i, String[] strings, int[] ints) throws IOException {
         return false;
     }
 
-    public boolean SDreadattr(int sdsId, int i, byte[] buf) throws HDFException {
+    public boolean SDreadattr(int sdsId, int i, byte[] buf) throws IOException {
         return false;
     }
 
-    public boolean SDgetinfo(int sdsId, String[] strings, int[] ints1, int[] ints2) throws HDFException {
+    public boolean SDgetinfo(int sdsId, String[] strings, int[] ints1, int[] ints2) throws IOException {
         return false;
     }
 
-    public int SDgetdimid(int sdsId, int i) throws HDFException {
+    public int SDgetdimid(int sdsId, int i) throws IOException {
         return 0;
     }
 
-    public boolean SDdiminfo(int dimId, String[] dimName, int[] dimInfo) throws HDFException {
+    public boolean SDdiminfo(int dimId, String[] dimName, int[] dimInfo) throws IOException {
         return false;
     }
 
-    public void SDreaddata(int sdsId, int[] start, int[] stride, int[] count, Object buffer) throws HDFException {
+    public void SDreaddata(int sdsId, int[] start, int[] stride, int[] count, Object buffer) throws IOException {
     }
 
-    public int SDnametoindex(int sdId, String name) throws HDFException {
+    public int SDnametoindex(int sdId, String name) throws IOException {
         return 0;
     }
 
-    public int SDselect(int sdId, int sdsIdx) throws HDFException {
+    public int SDselect(int sdId, int sdsIdx) throws IOException {
         return 0;
     }
 
-    public boolean SDfileinfo(int sdId, int[] ints) throws HDFException {
+    public boolean SDfileinfo(int sdId, int[] ints) throws IOException {
         return false;
     }
 
-    public boolean Vstart(int fileId) throws HDFException {
+    public boolean Vstart(int fileId) throws IOException {
         return false;
     }
 
-    public void Vend(int fileId) throws HDFException {
+    public void Vend(int fileId) throws IOException {
     }
 
-    public int Vattach(int fileId, int i, String s) throws HDFException {
+    public int Vattach(int fileId, int i, String s) throws IOException {
         return 0;
     }
 
-    public void Vdetach(int groupId) throws HDFException {
+    public void Vdetach(int groupId) throws IOException {
     }
 
-    public int Vlone(int fileId, int[] ints, int i) throws HDFException {
+    public int Vlone(int fileId, int[] ints, int i) throws IOException {
         return 0;
     }
 
-    public void Vgetname(int groupId, String[] s) throws HDFException {
+    public void Vgetname(int groupId, String[] s) throws IOException {
     }
 
-    public void Vgetclass(int groupId, String[] s) throws HDFException {
+    public void Vgetclass(int groupId, String[] s) throws IOException {
     }
 }

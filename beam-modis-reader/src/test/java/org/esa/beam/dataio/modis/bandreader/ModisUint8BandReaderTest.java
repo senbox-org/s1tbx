@@ -17,22 +17,22 @@
 package org.esa.beam.dataio.modis.bandreader;
 
 import com.bc.ceres.core.ProgressMonitor;
-import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.modis.hdf.IHDFAdapterForMocking;
 import org.esa.beam.dataio.modis.hdf.lib.HDFTestCase;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.math.Range;
 
+import java.io.IOException;
+
 public class ModisUint8BandReaderTest extends HDFTestCase {
 
-    public void testRead() throws ProductIOException, HDFException {
+    public void testRead() throws IOException {
         setHdfMock(new IHDFAdapterForMocking() {
             byte value = -7;
 
             @Override
-            public void SDreaddata(int sdsId, int[] start, int[] stride, int[] count, Object buffer)
-                    throws HDFException {
+            public void SDreaddata(int sdsId, int[] start, int[] stride, int[] count, Object buffer) throws IOException {
                 final byte[] bytes = (byte[]) buffer;
                 for (int i = 0; i < bytes.length; i++) {
                     bytes[i] = value;
@@ -55,12 +55,11 @@ public class ModisUint8BandReaderTest extends HDFTestCase {
         }
     }
 
-    public void testHDFException() throws ProductIOException, HDFException {
+    public void testHDFException() throws ProductIOException {
         setHdfMock(new IHDFAdapterForMocking() {
             @Override
-            public void SDreaddata(int sdsId, int[] start, int[] stride, int[] count, Object buffer)
-                    throws HDFException {
-                throw new HDFException("TestMessage");
+            public void SDreaddata(int sdsId, int[] start, int[] stride, int[] count, Object buffer) throws IOException {
+                throw new IOException("TestMessage");
             }
         });
 
@@ -72,10 +71,8 @@ public class ModisUint8BandReaderTest extends HDFTestCase {
             // Method under test
             reader.readBandData(0, 0, 4, 3, 1, 1, buffer, ProgressMonitor.NULL);
             fail();
-        } catch (HDFException e) {
+        } catch (IOException e) {
             assertEquals("TestMessage", e.getMessage());
-        } catch (Exception e) {
-            fail();
         }
     }
 }

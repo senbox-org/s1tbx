@@ -19,12 +19,12 @@ package org.esa.beam.dataio.modis.bandreader;
 
 import com.bc.ceres.core.ProgressMonitor;
 import ncsa.hdf.hdflib.HDFConstants;
-import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.modis.ModisConstants;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.math.Range;
+
+import java.io.IOException;
 
 abstract public class ModisBandReader {
 
@@ -77,9 +77,9 @@ abstract public class ModisBandReader {
     /**
      * Closes the band reader.
      *
-     * @throws ncsa.hdf.hdflib.HDFException
+     * @throws IOException
      */
-    public void close() throws HDFException {
+    public void close() throws IOException {
         HDF.getWrap().SDendaccess(_sdsId);
         _sdsId = HDFConstants.FAIL;
     }
@@ -106,7 +106,6 @@ abstract public class ModisBandReader {
      * Converts a string to a scaling method enum value.
      *
      * @param scaleMethod the scale method as string
-     *
      * @return the enum value either {@link #SCALE_LINEAR}, {@link #SCALE_EXPONENTIAL},
      *         {@link #SCALE_POW_10}, {@link #SCALE_SLOPE_INTERCEPT} or {@link #SCALE_UNKNOWN} if the given string
      *         can not be converted.
@@ -151,7 +150,7 @@ abstract public class ModisBandReader {
                                               final int sourceStepX, final int sourceStepY,
                                               final ProductData destBuffer);
 
-    abstract protected void readLine() throws HDFException;
+    abstract protected void readLine() throws IOException;
 
     abstract protected void validate(final int x);
 
@@ -188,14 +187,10 @@ abstract public class ModisBandReader {
      * @param sourceStepY   the sub-sampling in Y direction within the region providing samples to be read
      * @param destBuffer    the destination buffer which receives the sample values to be read
      * @param pm            a monitor to inform the user about progress
-     *
-     * @throws ncsa.hdf.hdflib.HDFException -
-     * @throws org.esa.beam.framework.dataio.ProductIOException
-     *                                      -
+     * @throws IOException -
      */
     public void readBandData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                             int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm)
-                throws HDFException, ProductIOException {
+                             int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm) throws IOException {
         _start[_yCoord] = sourceOffsetY;
         _start[_xCoord] = sourceOffsetX;
         _count[_yCoord] = 1;
@@ -204,7 +199,7 @@ abstract public class ModisBandReader {
         _stride[_xCoord] = sourceStepX;
 
         prepareForReading(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
-                          sourceStepX, sourceStepY, destBuffer);
+                sourceStepX, sourceStepY, destBuffer);
 
         pm.beginTask("Reading band '" + getName() + "'...", sourceHeight);
         // loop over lines

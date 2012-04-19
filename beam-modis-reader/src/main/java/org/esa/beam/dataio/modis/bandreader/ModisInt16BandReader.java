@@ -16,9 +16,10 @@
 
 package org.esa.beam.dataio.modis.bandreader;
 
-import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.datamodel.ProductData;
+
+import java.io.IOException;
 
 public class ModisInt16BandReader extends ModisBandReader {
 
@@ -61,7 +62,7 @@ public class ModisInt16BandReader extends ModisBandReader {
     }
 
     @Override
-    protected void readLine() throws HDFException {
+    protected void readLine() throws IOException {
         HDF.getWrap().SDreaddata(_sdsId, _start, _stride, _count, _line);
     }
 

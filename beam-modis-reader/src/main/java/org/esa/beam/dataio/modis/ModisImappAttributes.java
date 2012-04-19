@@ -16,10 +16,10 @@
 
 package org.esa.beam.dataio.modis;
 
-import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.modis.hdf.HdfAttributes;
 import org.esa.beam.dataio.modis.hdf.HdfDataField;
 import org.esa.beam.dataio.modis.hdf.HdfUtils;
+import org.esa.beam.dataio.modis.hdf.IHDF;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -27,8 +27,9 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
@@ -50,7 +51,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
     private Date _sensingStop;
 
 
-    public ModisImappAttributes(File inFile, int sdId, final HdfAttributes hdfAttributes) throws ProductIOException {
+    public ModisImappAttributes(File inFile, int sdId, final HdfAttributes hdfAttributes) throws IOException {
         _logger = BeamLogManager.getSystemLogger();
         _inFile = inFile;
         this._sdId = sdId;
@@ -144,7 +145,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
         }
     }
 
-    private void parseProductDimensions() throws ProductIOException {
+    private void parseProductDimensions() throws IOException {
         // @todo 1 tb/tb this is a rather crude method to retrieve the product dimension: scan all datasets.
         // Find out if there is a clever and more performant way to do this
         int[] numDatasets = new int[1];
@@ -153,18 +154,19 @@ class ModisImappAttributes implements ModisGlobalAttributes {
         _dimensionMap = new HashMap<String, Integer>();
         _subsamplingMap = new HashMap<String, IncrementOffset>();
         try {
-            HDF.getWrap().SDfileinfo(_sdId, numDatasets);
+            final IHDF ihdf = HDF.getWrap();
+            ihdf.SDfileinfo(_sdId, numDatasets);
 
             int[] dimSize = new int[3];
             int[] dimInfo = new int[3];
             String[] dimName = {""};
             for (int n = 0; n < numDatasets[0]; n++) {
-                final int sdsId = HDF.getWrap().SDselect(_sdId, n);
+                final int sdsId = ihdf.SDselect(_sdId, n);
 
-                if (!HDF.getWrap().SDgetinfo(sdsId, dimName, dimSize, dimInfo)) {
+                if (!ihdf.SDgetinfo(sdsId, dimName, dimSize, dimInfo)) {
                     final String msg = "Unable to retrieve meta information for dataset '" + dimName[0] + '\'';
                     _logger.severe(msg);
-                    throw new HDFException(msg);
+                    throw new IOException(msg);
                 }
 
                 final String widthName = dimName[0] + "_width";
@@ -187,16 +189,14 @@ class ModisImappAttributes implements ModisGlobalAttributes {
                 ModisUtils.clearDimensionArrays(dimInfo, dimSize);
                 addTiePointOffsetAndSubsampling(sdsId, widthName, heightName);
 
-                HDF.getWrap().SDendaccess(sdsId);
+                ihdf.SDendaccess(sdsId);
             }
-        } catch (HDFException e) {
-            throw new ProductIOException(e.getMessage());
         } finally {
             _productDimension = new Dimension(maxWidth, maxHeight);
         }
     }
 
-    private void addTiePointOffsetAndSubsampling(int sdsId, String widthName, String heightName) throws HDFException {
+    private void addTiePointOffsetAndSubsampling(int sdsId, String widthName, String heightName) throws IOException {
         final String lineNumbers = HdfUtils.getNamedStringAttribute(sdsId, "line_numbers");
         if (StringUtils.isNotNullAndNotEmpty(lineNumbers)) {
             _subsamplingMap.put(heightName, ModisUtils.getIncrementOffset(lineNumbers));

@@ -17,15 +17,14 @@ package org.esa.beam.dataio.modis;
 
 import com.bc.ceres.core.ProgressMonitor;
 import ncsa.hdf.hdflib.HDFConstants;
-import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.modis.bandreader.ModisBandReader;
 import org.esa.beam.dataio.modis.hdf.HdfAttributeContainer;
 import org.esa.beam.dataio.modis.hdf.HdfAttributes;
 import org.esa.beam.dataio.modis.hdf.HdfUtils;
+import org.esa.beam.dataio.modis.hdf.IHDF;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -76,30 +75,26 @@ public class ModisProductReader extends AbstractProductReader {
     @Override
     public void close() throws IOException {
         if (_fileId != HDFConstants.FAIL) {
-            try {
-                // close all band readers
-                // ----------------------
-                Collection readers = _bandReader.values();
-                Iterator it = readers.iterator();
-                ModisBandReader reader;
-                while (it.hasNext()) {
-                    reader = (ModisBandReader) it.next();
-                    reader.close();
-                }
-                _bandReader.clear();
 
-                _fileReader.close();
-
-                // and finish file access
-                // ----------------------
-                HDF.getWrap().SDend(_sdStart);
-                _sdStart = HDFConstants.FAIL;
-                HDF.getWrap().Hclose(_fileId);
-                _fileId = HDFConstants.FAIL;
-
-            } catch (HDFException e) {
-                throw new ProductIOException(e.getMessage());
+            // close all band readers
+            // ----------------------
+            Collection readers = _bandReader.values();
+            Iterator it = readers.iterator();
+            ModisBandReader reader;
+            while (it.hasNext()) {
+                reader = (ModisBandReader) it.next();
+                reader.close();
             }
+            _bandReader.clear();
+
+            _fileReader.close();
+
+            // and finish file access
+            // ----------------------
+            HDF.getWrap().SDend(_sdStart);
+            _sdStart = HDFConstants.FAIL;
+            HDF.getWrap().Hclose(_fileId);
+            _fileId = HDFConstants.FAIL;
         }
 
         super.close();
@@ -149,16 +144,10 @@ public class ModisProductReader extends AbstractProductReader {
             throw new IOException("No band reader for band '" + destBand.getName() + "' available!");
         }
 
-        try {
-            reader.readBandData(sourceOffsetX, sourceOffsetY,
-                    sourceWidth, sourceHeight,
-                    sourceStepX, sourceStepY,
-                    destBuffer, pm);
-        } catch (HDFException e) {
-            final IOException ioException = new IOException(e.getMessage());
-            ioException.initCause(e);
-            throw ioException;
-        }
+        reader.readBandData(sourceOffsetX, sourceOffsetY,
+                sourceWidth, sourceHeight,
+                sourceStepX, sourceStepY,
+                destBuffer, pm);
     }
 
     /**
@@ -170,34 +159,34 @@ public class ModisProductReader extends AbstractProductReader {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected Product readProductNodesImpl() throws IOException, IllegalFileFormatException {
+    protected Product readProductNodesImpl() throws IOException {
+        final IHDF ihdf = HDF.getWrap();
         try {
-            try {
-                final File inFile = getInputFile();
-                final String path = inFile.getPath();
-                _fileId = HDF.getWrap().Hopen(path, HDFConstants.DFACC_RDONLY);
-                _sdStart = HDF.getWrap().SDstart(path, HDFConstants.DFACC_RDONLY);
+            final File inFile = getInputFile();
+            final String path = inFile.getPath();
+            _fileId = ihdf.Hopen(path, HDFConstants.DFACC_RDONLY);
+            _sdStart = ihdf.SDstart(path, HDFConstants.DFACC_RDONLY);
 
-                readGlobalMetaData(inFile);
-                checkProductType();
-                //checkDayNightMode();
-                _fileReader = createFileReader();
+            readGlobalMetaData(inFile);
+            checkProductType();
+            //checkDayNightMode();
+            _fileReader = createFileReader();
 
-                final Dimension productDim = _globalAttributes.getProductDimensions();
-                final Product product;
-                product = new Product(_globalAttributes.getProductName(), _globalAttributes.getProductType(),
-                        productDim.width, productDim.height, this);
-                product.setFileLocation(inFile);
-                _fileReader.addRastersAndGeocoding(_sdStart, _globalAttributes, product);
+            final Dimension productDim = _globalAttributes.getProductDimensions();
+            final Product product;
+            product = new Product(_globalAttributes.getProductName(), _globalAttributes.getProductType(),
+                    productDim.width, productDim.height, this);
+            product.setFileLocation(inFile);
+            _fileReader.addRastersAndGeocoding(_sdStart, _globalAttributes, product);
 
-                // add all metadata if required
-                // ----------------------------
-                if (!isMetadataIgnored()) {
-                    // add the metadata
-                    addMetadata(product);
-                }
+            // add all metadata if required
+            // ----------------------------
+            if (!isMetadataIgnored()) {
+                // add the metadata
+                addMetadata(product);
+            }
 
-                // ModisProductDb db = ModisProductDb.getInstance();
+            // ModisProductDb db = ModisProductDb.getInstance();
 // Remarked by sabine because the product flipper uses a TiePointGeoCcoding
 // and makes not an instance of ModisTiePointGeoCoding
 //                if (!(_dayMode ^ db.mustFlip(prod.getProductType()))) {
@@ -205,20 +194,17 @@ public class ModisProductReader extends AbstractProductReader {
 //                            prod.getDescription());
 //                    prod.setFileLocation(inFile);
 //                }
-                final Date sensingStart = _globalAttributes.getSensingStart();
-                if (sensingStart != null) {
-                    product.setStartTime(ProductData.UTC.create(sensingStart, 0));
-                }
-                final Date sensingStop = _globalAttributes.getSensingStop();
-                if (sensingStop != null) {
-                    product.setEndTime(ProductData.UTC.create(sensingStop, 0));
-                }
-                return product;
-            } finally {
-                HDF.getWrap().Hclose(_fileId);
+            final Date sensingStart = _globalAttributes.getSensingStart();
+            if (sensingStart != null) {
+                product.setStartTime(ProductData.UTC.create(sensingStart, 0));
             }
-        } catch (HDFException e) {
-            throw new ProductIOException(e.getMessage());
+            final Date sensingStop = _globalAttributes.getSensingStop();
+            if (sensingStop != null) {
+                product.setEndTime(ProductData.UTC.create(sensingStop, 0));
+            }
+            return product;
+        } finally {
+            ihdf.Hclose(_fileId);
         }
     }
 
@@ -246,9 +232,9 @@ public class ModisProductReader extends AbstractProductReader {
     /**
      * Reads the global metadata and extracts some basic constants (width, height etc ...)
      *
-     * @throws HDFException
+     * @throws IOException
      */
-    private void readGlobalMetaData(File inFile) throws HDFException, ProductIOException {
+    private void readGlobalMetaData(File inFile) throws IOException {
         _globalHdfAttrs = HdfUtils.readAttributes(_sdStart);
 
         // check wheter daac or imapp
