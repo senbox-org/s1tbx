@@ -77,15 +77,19 @@ public class VectorDataNodeReader2 {
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures();
 
         CoordinateReferenceSystem featureCrs = featureCollection.getSchema().getCoordinateReferenceSystem();
-        final Geometry clipGeometry = FeatureUtils.createGeoBoundaryPolygon(product);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection
-                = FeatureUtils.clipCollection(featureCollection,
-                                              featureCrs,
-                                              clipGeometry,
-                                              DefaultGeographicCRS.WGS84,
-                                              null,
-                                              modelCrs,
-                                              SubProgressMonitor.create(pm, 80));
+        FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection;
+        if (product.getGeoCoding() != null) {
+            final Geometry clipGeometry = FeatureUtils.createGeoBoundaryPolygon(product);
+            clippedCollection = FeatureUtils.clipCollection(featureCollection,
+                                                            featureCrs,
+                                                            clipGeometry,
+                                                            DefaultGeographicCRS.WGS84,
+                                                            null,
+                                                            modelCrs,
+                                                            SubProgressMonitor.create(pm, 80));
+        } else {
+            clippedCollection = featureCollection;
+        }
 
         final List<PlacemarkDescriptor> placemarkDescriptors = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptors(featureType);
         final PlacemarkDescriptor placemarkDescriptor;

@@ -73,49 +73,48 @@ public class WriteOpTest extends TestCase {
     }
 
     public void testWrite() throws Exception {
-        // todo: this test fails after changes in VectorDataNodeReader - clarify and reactivate!
-//        String graphOpXml = "<graph id=\"myOneNodeGraph\">\n"
-//                + "  <version>1.0</version>\n"
-//                + "  <node id=\"node1\">\n"
-//                + "    <operator>Algo</operator>\n"
-//                + "  </node>\n"
-//                + "  <node id=\"node2\">\n"
-//                + "    <operator>Write</operator>\n"
-//                + "    <sources>\n"
-//                + "      <source refid=\"node1\"/>\n"
-//                + "    </sources>\n"
-//                + "    <parameters>\n"
-//                + "       <file>" + outputFile.getAbsolutePath() + "</file>\n"
-//                + "       <deleteOutputOnFailure>false</deleteOutputOnFailure>\n"
-//                + "    </parameters>\n"
-//                + "  </node>\n"
-//                + "</graph>";
-//        StringReader reader = new StringReader(graphOpXml);
-//        Graph graph = GraphIO.read(reader);
-//
-//        GraphProcessor processor = new GraphProcessor();
-//        processor.executeGraph(graph, ProgressMonitor.NULL);
-//
-//        Product productOnDisk = ProductIO.readProduct(outputFile);
-//        assertNotNull(productOnDisk);
-//
-//        assertEquals("writtenProduct", productOnDisk.getName());
-//        assertEquals(3, productOnDisk.getNumBands());
-//        assertEquals("OperatorBand", productOnDisk.getBandAt(0).getName());
-//        assertEquals("ConstantBand", productOnDisk.getBandAt(1).getName());
-//        assertEquals("VirtualBand", productOnDisk.getBandAt(2).getName());
-//
-//        Band operatorBand = productOnDisk.getBandAt(0);
-//        operatorBand.loadRasterData();
-//        //assertEquals(12345, operatorBand.getPixelInt(0, 0));
-//
-//        // Test that header has been rewritten due to data model changes in AlgoOp.computeTile()
-//        final ProductNodeGroup<Placemark> placemarkProductNodeGroup = productOnDisk.getPinGroup();
-//        // 40 pins expected --> one for each tile, we have 40 tiles
-//        // This test fails sometimes and sometimes not. Probably due to some tiling-issues. Therefore commented out.
-//        // assertEquals(40, placemarkProductNodeGroup.getNodeCount());
-//
-//        productOnDisk.dispose();
+        String graphOpXml = "<graph id=\"myOneNodeGraph\">\n"
+                + "  <version>1.0</version>\n"
+                + "  <node id=\"node1\">\n"
+                + "    <operator>Algo</operator>\n"
+                + "  </node>\n"
+                + "  <node id=\"node2\">\n"
+                + "    <operator>Write</operator>\n"
+                + "    <sources>\n"
+                + "      <source refid=\"node1\"/>\n"
+                + "    </sources>\n"
+                + "    <parameters>\n"
+                + "       <file>" + outputFile.getAbsolutePath() + "</file>\n"
+                + "       <deleteOutputOnFailure>false</deleteOutputOnFailure>\n"
+                + "    </parameters>\n"
+                + "  </node>\n"
+                + "</graph>";
+        StringReader reader = new StringReader(graphOpXml);
+        Graph graph = GraphIO.read(reader);
+
+        GraphProcessor processor = new GraphProcessor();
+        processor.executeGraph(graph, ProgressMonitor.NULL);
+
+        Product productOnDisk = ProductIO.readProduct(outputFile);
+        assertNotNull(productOnDisk);
+
+        assertEquals("writtenProduct", productOnDisk.getName());
+        assertEquals(3, productOnDisk.getNumBands());
+        assertEquals("OperatorBand", productOnDisk.getBandAt(0).getName());
+        assertEquals("ConstantBand", productOnDisk.getBandAt(1).getName());
+        assertEquals("VirtualBand", productOnDisk.getBandAt(2).getName());
+
+        Band operatorBand = productOnDisk.getBandAt(0);
+        operatorBand.loadRasterData();
+        //assertEquals(12345, operatorBand.getPixelInt(0, 0));
+
+        // Test that header has been rewritten due to data model changes in AlgoOp.computeTile()
+        final ProductNodeGroup<Placemark> placemarkProductNodeGroup = productOnDisk.getPinGroup();
+        // 40 pins expected --> one for each tile, we have 40 tiles
+        // This test fails sometimes and sometimes not. Probably due to some tiling-issues. Therefore commented out.
+        // assertEquals(40, placemarkProductNodeGroup.getNodeCount());
+
+        productOnDisk.dispose();
     }
 
     /**

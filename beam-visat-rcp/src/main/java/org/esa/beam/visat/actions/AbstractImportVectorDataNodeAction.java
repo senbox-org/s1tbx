@@ -31,23 +31,14 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
     protected FeatureUtils.FeatureCrsProvider crsProvider;
 
     protected AbstractImportVectorDataNodeAction() {
-        crsProvider = new FeatureUtils.FeatureCrsProvider() {
-
-            @Override
-            public CoordinateReferenceSystem getFeatureCrs(Product product) {
-                return DefaultGeographicCRS.WGS84;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-        };
-//        crsProvider = new MyFeatureCrsProvider(VisatApp.getApp(), getHelpId());
+        crsProvider = new MyFeatureCrsProvider(getHelpId());
     }
 
     private class MyFeatureCrsProvider implements FeatureUtils.FeatureCrsProvider {
 
-        private final VisatApp visatApp;
         private final String helpId;
 
-        public MyFeatureCrsProvider(VisatApp visatApp, String helpId) {
-            this.visatApp = visatApp;
+        public MyFeatureCrsProvider(String helpId) {
             this.helpId = helpId;
         }
 
@@ -57,7 +48,7 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    featureCrsBuffer[0] = promptForFeatureCrs(visatApp, product);
+                    featureCrsBuffer[0] = promptForFeatureCrs(VisatApp.getApp(), product);
                 }
             };
             if (!SwingUtilities.isEventDispatchThread()) {
@@ -94,7 +85,7 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
             final JPanel contentPanel = new JPanel(tableLayout);
             final JLabel label = new JLabel();
             label.setText("<html><b>" +
-                                  "This Shapefile does not define a coordinate reference system (CRS).<br/>" +
+                                  "These vector data does not define a coordinate reference system (CRS).<br/>" +
                                   "Please specify a CRS so that coordinates can interpreted correctly.</b>");
 
             contentPanel.add(label);
@@ -112,6 +103,6 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
         }
     }
 
-    protected abstract String getDialogTitle();
+        protected abstract String getDialogTitle();
 
-}
+    }
