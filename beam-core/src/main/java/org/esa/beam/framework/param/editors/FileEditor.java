@@ -21,8 +21,8 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.FileChooserFactory;
 
-import javax.swing.filechooser.FileFilter;
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.io.File;
 
 /**
@@ -113,7 +113,7 @@ public class FileEditor extends TextFieldXEditor {
             }
         }
         return (File) getParameter().getProperties().getPropertyValue(ParamProperties.LAST_DIR_KEY,
-                                                                      SystemUtils.getBeamHomeDir());
+                                                                      SystemUtils.getApplicationHomeDir());
     }
 
     private void setLastDir(final File lastDir) {

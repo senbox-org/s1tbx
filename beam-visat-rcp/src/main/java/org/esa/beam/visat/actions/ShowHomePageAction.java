@@ -18,20 +18,19 @@ package org.esa.beam.visat.actions;
 
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.util.SystemUtils;
 
 import java.awt.*;
-import java.net.URI;
 import java.io.IOException;
+import java.net.URI;
 
 /**
- * This action lauchches the default browser to display the BEAM Wiki
- * web page.
+ * This action launches the default browser to display the BEAM home page.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
 public class ShowHomePageAction extends ExecCommand {
-    private static final String HOME_PAGE_URL_DEFAULT = "http://www.brockmann-consult.de/beam/";
 
     @Override
     public void updateState(final CommandEvent event) {
@@ -46,7 +45,7 @@ public class ShowHomePageAction extends ExecCommand {
      */
     @Override
     public void actionPerformed(CommandEvent event) {
-        final String homePageUrl = System.getProperty("beam.homePageUrl", HOME_PAGE_URL_DEFAULT);
+        final String homePageUrl = SystemUtils.getApplicationHomepageUrl();
 
         try {
             final Desktop desktop = Desktop.getDesktop();

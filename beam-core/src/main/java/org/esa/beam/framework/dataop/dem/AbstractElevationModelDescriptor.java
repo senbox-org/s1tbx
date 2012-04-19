@@ -19,9 +19,8 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileChooserFactory;
 
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -97,8 +96,8 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
         final Component parent = uiComponent instanceof Component ? (Component) uiComponent : null;
         final String title = "Missing DEM"; /*I18N*/
         String message = "The DEM '" + getName() + "' is not installed yet.\n" +
-                         "Please visit the BEAM home page at " + SystemUtils.BEAM_HOME_PAGE + "\n" +
-                         "in order to download and install it.\n";  /*I18N*/
+                "Please visit the project home page at " + SystemUtils.getApplicationHomepageUrl() + "\n" +
+                "in order to download and install it.\n";  /*I18N*/
         if (getDemInstallDir() == null || getDemArchiveUrl() == null) {
             JOptionPane.showMessageDialog(parent, message, title, JOptionPane.ERROR_MESSAGE);
             return false;
@@ -116,12 +115,14 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
 
         double archiveSizeMB = Math.round(10.0 * archiveSizeB / (1024 * 1024)) / 10.0;
 
-        message += "\n" +
-                   "BEAM can also download and install the DEM for you now.\n" +
-                   "The size of the DEM archive to be downloaded is " + archiveSizeMB + " MB,\n" +
-                   "total disk space for the DEM will be around 8x the archive size.\n" +
-                   "You can continue using BEAM while the DEM is installed.\n\n" +
-                   "Do you wish to install the DEM now?";   /*I18N*/
+        message += String.format("\n%s can also download and install the DEM for you now.\n" +
+                                         "The size of the DEM archive to be downloaded is %s MB,\n" +
+                                         "total disk space for the DEM will be around 8x the archive size.\n" +
+                                         "You can continue using %s while the DEM is installed.\n\n" +
+                                         "Do you wish to install the DEM now?",
+                                 SystemUtils.getApplicationName(),
+                                 archiveSizeMB,
+                                 SystemUtils.getApplicationName());   /*I18N*/
         final int answer = JOptionPane.showConfirmDialog(parent,
                                                          message,
                                                          title,
@@ -209,7 +210,6 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
      * Prompts the user for the installation directory.
      *
      * @param parent the parent UI component
-     *
      * @return the installation directory or null if the user canceled the directory selection
      */
     protected File promptForDemInstallDir(final Component parent) {
@@ -228,8 +228,8 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
             if (!selectedDir.exists()) {
                 final int createAnswer = JOptionPane.showConfirmDialog(parent,
                                                                        "The selected directory\n" +
-                                                                       selectedDir.getPath() + "\n" +
-                                                                       "does not exists. Shall it be created?",
+                                                                               selectedDir.getPath() + "\n" +
+                                                                               "does not exists. Shall it be created?",
                                                                        dialogTitle,
                                                                        JOptionPane.YES_NO_OPTION,
                                                                        JOptionPane.QUESTION_MESSAGE);

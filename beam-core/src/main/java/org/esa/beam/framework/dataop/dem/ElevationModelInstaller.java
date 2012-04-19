@@ -15,19 +15,17 @@
  */
 package org.esa.beam.framework.dataop.dem;
 
-import java.awt.Component;
+import com.bc.io.FileDownloader;
+import com.bc.io.FileUnpacker;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.logging.BeamLogManager;
+
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Level;
-
-import javax.swing.*;
-
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.logging.BeamLogManager;
-
-import com.bc.io.FileDownloader;
-import com.bc.io.FileUnpacker;
 
 class ElevationModelInstaller extends SwingWorker {
 
@@ -112,23 +110,23 @@ class ElevationModelInstaller extends SwingWorker {
             if (_descriptor.isDemInstalled()) {
                 JOptionPane.showMessageDialog(_parent,
                                               "The DEM '" + _descriptor.getName() + "' has successfully been installed in directory\n" +
-                                              _descriptor.getDemInstallDir(),
+                                                      _descriptor.getDemInstallDir(),
                                               "DEM Installed",
                                               JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(_parent,
                                               "Failed to install DEM '" + _descriptor.getName() + "' in directory\n" +
-                                              _descriptor.getDemInstallDir() + "\n" +
-                                              "An unknown error occured.\n",
+                                                      _descriptor.getDemInstallDir() + "\n" +
+                                                      "An unknown error occured.\n",
                                               "DEM Installation Error",
                                               JOptionPane.ERROR_MESSAGE);
             }
         } else {
             JOptionPane.showMessageDialog(_parent,
                                           "Failed to install DEM '" + _descriptor.getName() + "' in directory\n" +
-                                          _descriptor.getDemInstallDir() + "\n" +
-                                          "An I/O error occured:\n"
-                                          + _ioException.getMessage(),
+                                                  _descriptor.getDemInstallDir() + "\n" +
+                                                  "An I/O error occured:\n"
+                                                  + _ioException.getMessage(),
                                           "DEM Installation Error",
                                           JOptionPane.ERROR_MESSAGE);
         }
@@ -138,8 +136,8 @@ class ElevationModelInstaller extends SwingWorker {
         if (_archiveFile != null && _archiveFile.exists()) {
             final int answer = JOptionPane.showConfirmDialog(_parent,
                                                              "Delete the zipped DEM archive file\n" +
-                                                             "'" + _archiveFile.getPath() + "'?\n\n" +
-                                                             "(Not required by BEAM anymore.)",
+                                                                     "'" + _archiveFile.getPath() + "'?\n\n" +
+                                                                     "(Not required anymore.)",
                                                              "Delete File",
                                                              JOptionPane.YES_NO_OPTION,
                                                              JOptionPane.QUESTION_MESSAGE);

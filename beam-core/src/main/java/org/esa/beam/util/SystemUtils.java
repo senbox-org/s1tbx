@@ -50,12 +50,30 @@ public class SystemUtils {
 
     /**
      * The URL string to the BEAM home page.
+     *
+     * @deprecated since 4.10, use {@link #getApplicationHomepageUrl()} instead
      */
-    public static final String BEAM_HOME_PAGE = "http://envisat.esa.int/beam/";
+    @Deprecated
+    public static final String BEAM_HOME_PAGE = getApplicationHomepageUrl();
+    // public static final String BEAM_HOME_PAGE = "http://envisat.esa.int/beam/";
 
-    public static final String BEAM_HOME_PROPERTY_NAME = "beam.home";
+    /**
+     * The name of the system property that specifies the application home (= installation) directory.
+     *
+     * @deprecated since 4.10, use {@link #getApplicationHomePropertyName()} instead
+     */
+    @Deprecated
+    public static final String BEAM_HOME_PROPERTY_NAME = getApplicationHomePropertyName();
+    // public static final String BEAM_HOME_PROPERTY_NAME = "beam.home";
+
+    /**
+     * @deprecated since 4.10, not in use.
+     */
+    @Deprecated
     public static final String BEAM_PLUGIN_PATH_PROPERTY_NAME = "beam.plugin.path";
+
     public static final String BEAM_PARALLELISM_PROPERTY_NAME = "beam.parallelism";
+
     public static final String LAX_INSTALL_DIR_PROPERTY_NAME = "lax.root.install.dir";
 
     /**
@@ -111,6 +129,17 @@ public class SystemUtils {
     }
 
     /**
+     * Gets the application home page URL as set by the system property "${ceres.context}.homepage.url". Default is
+     * "http://www.brockmann-consult.de/beam/".
+     *
+     * @return the current user's application data directory
+     * @since BEAM 4.10
+     */
+    public static String getApplicationHomepageUrl() {
+        return System.getProperty(getApplicationContextId() + ".homepage.url", "http://www.brockmann-consult.de/beam/");
+    }
+
+    /**
      * Gets the current user's application data directory.
      *
      * @return the current user's application data directory
@@ -136,7 +165,15 @@ public class SystemUtils {
         return dir;
     }
 
-    private static String getApplicationContextId() {
+    /**
+     * Gets the application context ID uses as prefix in a number of application configuration settings.
+     * The context ID is configured using the system property "ceres.context". If this property is not set,
+     * the string "beam" is used.
+     *
+     * @return The application context ID.
+     * @since BEAM 4.10
+     */
+    public static String getApplicationContextId() {
         String contextId = null;
         if (RuntimeContext.getModuleContext() != null) {
             contextId = RuntimeContext.getModuleContext().getRuntimeConfig().getContextId();
@@ -145,6 +182,20 @@ public class SystemUtils {
             contextId = System.getProperty("ceres.context", "beam");
         }
         return contextId;
+    }
+
+    /**
+     * Gets the application name used in logger output and information messages.
+     * The context ID is configured using the system property
+     * "${ceres.context}.application.name". If this property is not set,
+     * the string "BEAM" is used.
+     *
+     * @return The application name.
+     * @see #getApplicationContextId()
+     * @since BEAM 4.10
+     */
+    public static String getApplicationName() {
+        return System.getProperty(getApplicationContextId() + ".application.name", "BEAM");
     }
 
     /**
@@ -184,20 +235,25 @@ public class SystemUtils {
     }
 
     /**
-     * Gets an application's home directory. The method determines the home directory by retrieving the URL of this
+     * Gets the application's home directory as set by the system property "${ceres.context}.home".
+     * If not set, the method determines the home directory by retrieving the URL of this
      * class using the method {@link #getApplicationHomeDir(java.net.URL)}.
      *
      * @return an assumption of an application's home directory, never <code>null</code>
      */
     public static File getApplicationHomeDir() {
-        final String id = getApplicationContextId();
-        final String homeDirPath = System.getProperty(id + ".home");
-        if (homeDirPath != null) {
-            return new File(homeDirPath);
+        final String homeKey = getApplicationHomePropertyName();
+        final String homeValue = System.getProperty(homeKey);
+        if (homeValue != null) {
+            return new File(homeValue);
         }
         // Use fallback
         final URL url = SystemUtils.class.getResource(getClassFileName(SystemUtils.class));
         return getApplicationHomeDir(url);
+    }
+
+    public static String getApplicationHomePropertyName() {
+        return getApplicationContextId() + ".home";
     }
 
     /**
@@ -276,10 +332,14 @@ public class SystemUtils {
      * is given, it is returned, otherwise <code>getApplicationHomeDir()</code> is returned.
      *
      * @return the BEAM home directory
+     * @deprecated since BEAM 4.10, use {@link #getApplicationHomeDir()} instead
      */
+    @Deprecated
     public static File getBeamHomeDir() {
 
-        String homeDir = System.getProperty(BEAM_HOME_PROPERTY_NAME);
+        String homeKey = getApplicationHomePropertyName();
+
+        String homeDir = System.getProperty(homeKey);
         if (homeDir != null && homeDir.length() > 0) {
             return new File(homeDir);
         }
@@ -449,7 +509,7 @@ public class SystemUtils {
     public static String getBuildNumber() {
         // todo - in BEAM 3.x org.esa.beam.resources.bundles.build resource has been used. 
         // todo - use application.properties with version ID set by Maven (resource Filter!)
-        return "1";
+        return System.getProperty(getApplicationContextId() + ".build.id", "1");
     }
 
     public static int getLogLevel(String logLevelStr) {
@@ -467,7 +527,7 @@ public class SystemUtils {
     }
 
     /**
-     @deprecated since BEAM 4.10 only used by {@link org.esa.beam.dataio.modis.ModisProductReaderPlugIn} - moved there as private method
+     * @deprecated since BEAM 4.10 only used by {@link org.esa.beam.dataio.modis.ModisProductReaderPlugIn} - moved there as private method
      */
     @Deprecated
     public static Class<?> loadHdf4Lib(Class<?> callerClass) {
@@ -477,7 +537,7 @@ public class SystemUtils {
     }
 
     /**
-     @deprecated since BEAM 4.10 only used by {@link org.esa.beam.dataio.hdf5.HDF5ProductWriterPlugin} - moved there as private method
+     * @deprecated since BEAM 4.10 only used by {@link org.esa.beam.dataio.hdf5.HDF5ProductWriterPlugin} - moved there as private method
      */
     @Deprecated
     public static Class<?> loadHdf5Lib(Class<?> callerClass) {
@@ -539,6 +599,11 @@ public class SystemUtils {
         Integer parallelism = Integer.getInteger(BEAM_PARALLELISM_PROPERTY_NAME, Runtime.getRuntime().availableProcessors());
         JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
         BeamLogManager.getSystemLogger().info(MessageFormat.format("JAI tile scheduler parallelism set to {0}", parallelism));
+    }
+
+    public static String getApplicationRemoteVersionUrl() {
+        final String key = getApplicationContextId() + ".remoteVersion.url";
+        return System.getProperty(key, getApplicationHomepageUrl() + "software/version.txt");
     }
 
     /**

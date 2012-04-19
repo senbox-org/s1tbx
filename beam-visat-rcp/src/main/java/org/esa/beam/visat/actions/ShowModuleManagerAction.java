@@ -23,9 +23,10 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JButton;
+import javax.swing.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -38,7 +39,8 @@ import java.net.URL;
 public class ShowModuleManagerAction extends ExecCommand {
 
     // System keys
-    private static final String SYS_KEY_BEAM_REPOSITORY_URL = "beam.repository.url";
+    private static final String SYS_KEY_BEAM_REPOSITORY_URL = SystemUtils.getApplicationContextId() + ".repository.url";
+
     // Preferences keys
     private static final String KEY_BEAM_REPOSITORY_PROXY_USED = "beam.repository.proxyUsed";
     private static final String KEY_BEAM_REPOSITORY_PROXY_HOST = "beam.repository.proxy.host";
@@ -46,6 +48,8 @@ public class ShowModuleManagerAction extends ExecCommand {
     private static final String KEY_BEAM_REPOSITORY_PROXY_AUTH_USED = "beam.repository.proxy.authUsed";
     private static final String KEY_BEAM_REPOSITORY_PROXY_USERNAME = "beam.repository.proxy.username";
     private static final String KEY_BEAM_REPOSITORY_PROXY_PASSWORD = "beam.repository.proxy.password";
+
+
     private static final String RTSM = "Please check the module repository settings in the preferences dialog.";
 
     @Override

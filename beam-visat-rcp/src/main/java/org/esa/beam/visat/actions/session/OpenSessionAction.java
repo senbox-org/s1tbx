@@ -26,17 +26,15 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowImageViewRGBAction;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
 
-import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-import java.awt.Rectangle;
+import javax.swing.*;
+import java.awt.*;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
@@ -54,11 +52,19 @@ import java.util.concurrent.ExecutionException;
  */
 public class OpenSessionAction extends ExecCommand {
 
+    @Deprecated
+    public static final BeamFileFilter SESSION_FILE_FILTER = getSessionFileFilter();
+
     public static final String ID = "openSession";
-    public static final BeamFileFilter SESSION_FILE_FILTER = new BeamFileFilter("BEAM-SESSION", ".beam",
-                                                                                "BEAM session");
+
     public static final String LAST_SESSION_DIR_KEY = "beam.lastSessionDir";
     private static final String TITLE = "Open Session";
+
+    public static BeamFileFilter getSessionFileFilter() {
+        return new BeamFileFilter("BEAM-SESSION",
+                                  String.format(".%s", SystemUtils.getApplicationContextId()),
+                                  String.format("%s session", SystemUtils.getApplicationName()));
+    }
 
     @Override
     public void actionPerformed(final CommandEvent event) {
@@ -75,7 +81,7 @@ public class OpenSessionAction extends ExecCommand {
         }
 
         final File sessionFile = app.showFileOpenDialog(TITLE, false,
-                                                        SESSION_FILE_FILTER,
+                                                        getSessionFileFilter(),
                                                         LAST_SESSION_DIR_KEY);
         if (sessionFile == null) {
             return;

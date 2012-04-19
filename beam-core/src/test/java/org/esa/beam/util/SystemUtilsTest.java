@@ -16,32 +16,33 @@
 
 package org.esa.beam.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
+
+import static org.junit.Assert.*;
 
 /**
  * A collection of system level functions.
  */
-public class SystemUtilsTest extends TestCase {
+public class SystemUtilsTest {
 
-    public SystemUtilsTest(String testName) {
-        super(testName);
+    @Test
+    public void testApplicationProperties() {
+        assertNotNull(SystemUtils.getApplicationContextId());
+        assertFalse(SystemUtils.getApplicationContextId().isEmpty());
+
+        assertNotNull(SystemUtils.getApplicationName());
+        assertFalse(SystemUtils.getApplicationName().isEmpty());
+
+        assertNotNull(SystemUtils.getApplicationHomepageUrl());
+        assertFalse(SystemUtils.getApplicationHomepageUrl().isEmpty());
+
+        assertNotNull(SystemUtils.getApplicationHomeDir());
     }
 
-    public static Test suite() {
-        return new TestSuite(SystemUtilsTest.class);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        System.setProperty(SystemUtils.BEAM_PLUGIN_PATH_PROPERTY_NAME, "");
-    }
-
+    @Test
     public void testClassFileName() {
         assertEquals("Date.class", SystemUtils.getClassFileName(java.util.Date.class));
         assertEquals("InputStream.class", SystemUtils.getClassFileName(java.io.InputStream.class));
@@ -52,22 +53,27 @@ public class SystemUtilsTest extends TestCase {
         assertTrue("url = " + url.getPath(), url.getPath().endsWith("/org/esa/beam/util/SystemUtils.class"));
     }
 
+    @Test
     public void testGetUserName() {
         assertNotNull(SystemUtils.getUserName());
     }
 
+    @Test
     public void testGetUserHomeDir() {
         assertNotNull(SystemUtils.getUserHomeDir());
     }
 
+    @Test
     public void testGetCurrentWorkingDir() {
         assertNotNull(SystemUtils.getCurrentWorkingDir());
     }
 
+    @Test
     public void testGetClassPathFiles() {
         assertNotNull(SystemUtils.getClassPathFiles());
     }
 
+    @Test
     public void testGetApplicationHomeDir() {
         final File applicationHomeDir = SystemUtils.getApplicationHomeDir();
         assertNotNull(applicationHomeDir);
@@ -77,6 +83,7 @@ public class SystemUtilsTest extends TestCase {
         assertTrue(!applicationHomeDir.getPath().contains(".jar"));
     }
 
+    @Test
     public void testGetApplicationDataDir() {
         final File applicationDataDir = SystemUtils.getApplicationDataDir();
         assertNotNull(applicationDataDir);
@@ -84,6 +91,7 @@ public class SystemUtilsTest extends TestCase {
         assertTrue(applicationDataDir.getPath().startsWith(prefix));
     }
 
+    @Test
     public void testCreateHumanReadableExceptionMessage() {
         assertNull(SystemUtils.createHumanReadableExceptionMessage(null));
 
@@ -100,25 +108,17 @@ public class SystemUtilsTest extends TestCase {
                      SystemUtils.createHumanReadableExceptionMessage(new Exception("heidewitzka, herr kapitän!")));
     }
 
+    @Test
     public void testConvertPath() {
         String s = File.separator;
         String expected = s + "a" + s + "b" + s + "cdef" + s + "g";
         assertEquals(expected, SystemUtils.convertToLocalPath("/a/b/cdef/g"));
     }
 
+    @Test
     public void testGetBuildNumber() {
         String buildNumber = SystemUtils.getBuildNumber();
         assertNotNull("build number must be not null", buildNumber);
     }
 
-    private static String getActualApplicationHomePath(final String spec) {
-        final URL url;
-        try {
-            url = new URL(spec);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            throw new IllegalStateException();
-        }
-        return SystemUtils.getApplicationHomeDir(url).getPath();
-    }
 }

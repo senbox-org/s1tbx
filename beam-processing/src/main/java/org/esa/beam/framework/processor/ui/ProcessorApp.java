@@ -36,10 +36,7 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.swing.*;
-import java.awt.BorderLayout;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -128,7 +125,6 @@ public class ProcessorApp extends BasicApp {
      * Gets the associated processor.
      *
      * @return the processor
-     *
      * @since 4.1
      */
     public Processor getProcessor() {
@@ -353,7 +349,6 @@ public class ProcessorApp extends BasicApp {
      * Retrieves the requests currently used by the processor
      *
      * @return The requests processsed by the processor.
-     *
      * @throws org.esa.beam.framework.processor.ProcessorException
      *          If an error occurs.
      */
@@ -366,7 +361,6 @@ public class ProcessorApp extends BasicApp {
      *
      * @param requests Sets the {@link org.esa.beam.framework.processor.Request requests} to be
      *                 processed by the processor
-     *
      * @throws org.esa.beam.framework.processor.ProcessorException
      *          If an error occurs.
      */
@@ -537,7 +531,7 @@ public class ProcessorApp extends BasicApp {
     }
 
     private void processMultipleRequests(final List requestList, com.bc.ceres.core.ProgressMonitor pm) throws
-                                                                                                       ProcessorException {
+            ProcessorException {
         String message = _processor.getProgressMessage((Request) requestList.get(0));
         pm.beginTask(message, requestList.size());
         try {
@@ -718,7 +712,7 @@ public class ProcessorApp extends BasicApp {
 
     private File getRequestDir() {
         return new File(getPreferences().getPropertyString(REQUEST_DIR_PREFERENCES_KEY,
-                                                           SystemUtils.getBeamHomeDir().getPath()));
+                                                           SystemUtils.getApplicationHomeDir().getPath()));
     }
 
     private void setRequestDir(File dir) {
@@ -853,7 +847,7 @@ public class ProcessorApp extends BasicApp {
 
         public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName().equals(ParamProperties.LAST_DIR_KEY) &&
-                evt.getNewValue() instanceof File) {
+                    evt.getNewValue() instanceof File) {
                 File file = (File) evt.getNewValue();
                 getPreferences().setPropertyString(_preferencesKey, file.getPath());
                 Debug.trace(getAppName() + ": " + _preferencesKey + " = " + file);
@@ -869,7 +863,7 @@ public class ProcessorApp extends BasicApp {
                 File outputFile = product.getFile();
                 if (outputFile != null && outputFile.exists()) {
                     String message = "The specified output file\n\"{0}\"\n already exists.\n\n" +
-                                     "Do you want to overwrite the existing file?";
+                            "Do you want to overwrite the existing file?";
                     int answer = showQuestionDialog("Overwrite?",
                                                     MessageFormat.format(message, outputFile.getAbsolutePath()),
                                                     null);

@@ -64,7 +64,6 @@ public class ModisProductDb {
      * Checks whether the given product type is suported by the reader - or not.
      *
      * @param typeString the product type
-     *
      * @return <code>true</code> if the given product type is suported, otherwise <code>false</code>.
      */
     public boolean isSupportedProduct(final String typeString) throws ProductIOException {
@@ -83,7 +82,6 @@ public class ModisProductDb {
      * Retrieves the names of the bands for the given product type.
      *
      * @param prodType
-     *
      * @return the names of the bands.
      */
     public String[] getBandNames(final String prodType) {
@@ -104,7 +102,6 @@ public class ModisProductDb {
      *
      * @param prodType
      * @param bandName
-     *
      * @return the band description
      */
     public ModisBandDescription getBandDescription(final String prodType, final String bandName) {
@@ -115,7 +112,7 @@ public class ModisProductDb {
             bandDesc = prod.getBandDescription(bandName);
         } catch (IOException e) {
             _logger.severe(
-                        "Unable to retrieve information for band '" + bandName + "' of product type '" + prodType + "'.");
+                    "Unable to retrieve information for band '" + bandName + "' of product type '" + prodType + "'.");
         }
 
         return bandDesc;
@@ -125,7 +122,6 @@ public class ModisProductDb {
      * Retrieves the names of the tie point grids for the given product type
      *
      * @param prodType
-     *
      * @return the names of the tie point grids
      */
     public String[] getTiePointNames(final String prodType) {
@@ -146,7 +142,6 @@ public class ModisProductDb {
      *
      * @param prodType the product type
      * @param tpName   the name of the tie point grid
-     *
      * @return the tie point description
      */
     public ModisTiePointDescription getTiePointDescription(final String prodType, final String tpName) {
@@ -157,7 +152,7 @@ public class ModisProductDb {
             tpDesc = prod.getTiePointDescription(tpName);
         } catch (IOException e) {
             _logger.severe(
-                        "Unable to retrieve description for tie point grid '" + tpName + "' of product type '" + prodType + "'.");
+                    "Unable to retrieve description for tie point grid '" + tpName + "' of product type '" + prodType + "'.");
         }
 
         return tpDesc;
@@ -167,7 +162,6 @@ public class ModisProductDb {
      * Retrieves the geolocation information for the given product type
      *
      * @param prodType
-     *
      * @return the geolocation information
      */
     public String[] getGeolocationInformation(final String prodType) {
@@ -187,7 +181,6 @@ public class ModisProductDb {
      * Retrieves whether the product must be flipped top down or not
      *
      * @param prodType
-     *
      * @return <code>true</code> if the product must be flipped top down, otherwise <code>false</code>.
      */
     public boolean mustFlip(final String prodType) {
@@ -241,7 +234,7 @@ public class ModisProductDb {
                 _productTypes.put(records[0], records[1]);
             } else {
                 _logger.severe(
-                            "Invalid number of records in MODISDB - please check the BEAM resources for correctness.");
+                        "Invalid number of records in MODISDB - please check the resources for correctness.");
             }
         }
 
@@ -252,11 +245,10 @@ public class ModisProductDb {
      * Retrieves the product description fo the given product type
      *
      * @param prodType the product type
-     *
      * @return the product description, never null
      */
     public ModisProductDescription getProductDescription(final String prodType) throws MalformedURLException,
-                                                                                       IOException {
+            IOException {
         Guardian.assertNotNull("prodType", prodType);
         ModisProductDescription description = (ModisProductDescription) _productDescriptions.get(prodType);
         if (description == null) {
@@ -269,11 +261,10 @@ public class ModisProductDb {
      * Loads the product description from the associated disc file - if it exists
      *
      * @param prodType
-     *
      * @return never null
      */
     private ModisProductDescription loadProductDescription(final String prodType) throws MalformedURLException,
-                                                                                         IOException {
+            IOException {
         ensureSupportedProductTypes();
 
         final ModisProductDescription description = new ModisProductDescription();
@@ -293,13 +284,13 @@ public class ModisProductDb {
             } else if (records[0].equalsIgnoreCase(SDS_KEY)) {
                 if (records.length == ModisProductDb.EXP_NUM_SDS_SPECTRAL_RECORD) {
                     description.addBand(
-                                records[1], records[2], records[3], records[4],
-                                records[5], records[6], records[7], records[8],
-                                records[9], records[10], records[11]);
+                            records[1], records[2], records[3], records[4],
+                            records[5], records[6], records[7], records[8],
+                            records[9], records[10], records[11]);
                 } else if (records.length == ModisProductDb.EXP_NUM_SDS_DEFAULT_RECORD) {
                     description.addBand(
-                                records[1], records[2], records[3], records[4],
-                                records[5], records[6], records[7], records[8]);
+                            records[1], records[2], records[3], records[4],
+                            records[5], records[6], records[7], records[8]);
                 } else {
                     _logger.severe("Invalid number of records in SDS description for product type '" + prodType + "'.");
                 }
@@ -318,15 +309,15 @@ public class ModisProductDb {
                     description.setTopDownFlip(Boolean.valueOf(records[1]));
                 } else {
                     _logger.severe(
-                                "Invalid number of records in FLIP description for product type '" + prodType + "'.");
+                            "Invalid number of records in FLIP description for product type '" + prodType + "'.");
                 }
             } else if (records[0].equalsIgnoreCase(TIEPOINT_KEY)) {
                 if (records.length == EXP_NUM_TIEP_RECORDS) {
                     description.addTiePointGrid(new ModisTiePointDescription(
-                                records[1], records[2], records[3], records[4]));
+                            records[1], records[2], records[3], records[4]));
                 } else {
                     _logger.severe(
-                                "Invalid number of records in TIEP description for product type '" + prodType + "'.");
+                            "Invalid number of records in TIEP description for product type '" + prodType + "'.");
                 }
             }
         }
@@ -342,9 +333,7 @@ public class ModisProductDb {
      * Retrieves a csv reader opened at the first line of the file pased in
      *
      * @param filename
-     *
      * @return
-     *
      * @throws java.io.IOException
      */
     private CsvReader getCsvReader(final String filename) throws IOException {
@@ -365,9 +354,7 @@ public class ModisProductDb {
      * Retrievs a resource file from the modis db
      *
      * @param resourcePath
-     *
      * @return
-     *
      * @throws IOException
      */
     private URL getDatabaseResource(final String resourcePath) throws IOException {

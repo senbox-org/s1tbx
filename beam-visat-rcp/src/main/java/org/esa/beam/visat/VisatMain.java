@@ -19,20 +19,18 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeRunnable;
 import com.jidesoft.utils.Lm;
 import com.jidesoft.utils.SystemInfo;
+import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.util.Debug;
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.actions.session.OpenSessionAction;
-import org.esa.beam.BeamUiActivator;
 
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import javax.media.jai.JAI;
 import javax.media.jai.util.ImagingListener;
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -82,8 +80,8 @@ public class VisatMain implements RuntimeRunnable {
 
         final ApplicationDescriptor applicationDescriptor = BeamUiActivator.getInstance().getApplicationDescriptor();
         if (applicationDescriptor == null) {
-             throw new IllegalStateException(String.format("Application descriptor not found for applicationId='%s'.",
-                                                           BeamUiActivator.getInstance().getApplicationId()));
+            throw new IllegalStateException(String.format("Application descriptor not found for applicationId='%s'.",
+                                                          BeamUiActivator.getInstance().getApplicationId()));
         }
 
         boolean debugEnabled = false;
@@ -97,7 +95,7 @@ public class VisatMain implements RuntimeRunnable {
                     System.err.printf("%s error: illegal option '" + arg + "'", applicationDescriptor.getDisplayName());
                     return;
                 }
-            } else if (arg.endsWith(OpenSessionAction.SESSION_FILE_FILTER.getDefaultExtension())) {
+            } else if (arg.endsWith(OpenSessionAction.getSessionFileFilter().getDefaultExtension())) {
                 sessionFile = arg;
             } else {
                 productFilepathList.add(arg);
@@ -115,7 +113,7 @@ public class VisatMain implements RuntimeRunnable {
                 }
             });
         }
-        
+
         VisatApp app = createApplication(applicationDescriptor);
         app.startUp(progressMonitor);
         openSession(app, sessionFile);
@@ -125,7 +123,7 @@ public class VisatMain implements RuntimeRunnable {
     protected VisatApp createApplication(ApplicationDescriptor applicationDescriptor) {
         return new VisatApp(applicationDescriptor);
     }
-    
+
     private void openSession(VisatApp app, String sessionFile) {
         if (sessionFile != null && !(sessionFile.trim().isEmpty())) {
             final OpenSessionAction action = (OpenSessionAction) app.getCommandManager().getCommand(OpenSessionAction.ID);

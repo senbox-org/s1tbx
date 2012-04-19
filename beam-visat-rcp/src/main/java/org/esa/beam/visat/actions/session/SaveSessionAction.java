@@ -21,9 +21,8 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
-import java.awt.Container;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -57,8 +56,8 @@ public class SaveSessionAction extends ExecCommand {
         File sessionFile = app.getSessionFile();
         if (sessionFile == null || saveAs) {
             sessionFile = app.showFileSaveDialog(TITLE, false,
-                                                 OpenSessionAction.SESSION_FILE_FILTER,
-                                                 OpenSessionAction.SESSION_FILE_FILTER.getDefaultExtension(),
+                                                 OpenSessionAction.getSessionFileFilter(),
+                                                 OpenSessionAction.getSessionFileFilter().getDefaultExtension(),
                                                  sessionFile != null ? sessionFile.getName() : System.getProperty(
                                                          "user.name", "noname"),
                                                  OpenSessionAction.LAST_SESSION_DIR_KEY);
@@ -91,9 +90,9 @@ public class SaveSessionAction extends ExecCommand {
             if (product.getFileLocation() == null) {
                 String message = MessageFormat.format(
                         "The following product has not been saved yet:\n" +
-                        "{0}.\n" +
-                        "Do you want to save it now?\n\n" +
-                        "Note: If you select 'No', the session cannot be saved.",
+                                "{0}.\n" +
+                                "Do you want to save it now?\n\n" +
+                                "Note: If you select 'No', the session cannot be saved.",
                         product.getDisplayName());
                 // Here: No == Cancel, its because we need a file location in the session XML
                 int i = app.showQuestionDialog(TITLE, message, false, null);
@@ -111,10 +110,10 @@ public class SaveSessionAction extends ExecCommand {
             if (product.isModified()) {
                 String message = MessageFormat.format(
                         "The following product has been modified:\n" +
-                        "{0}.\n" +
-                        "Do you want to save it now?\n\n" +
-                        "Note: It is recommended to save the product in order to \n" +
-                        "fully restore the session later.",
+                                "{0}.\n" +
+                                "Do you want to save it now?\n\n" +
+                                "Note: It is recommended to save the product in order to \n" +
+                                "fully restore the session later.",
                         product.getDisplayName());
                 // Here: Yes, No + Cancel, its because we have file location for the session XML
                 int i = app.showQuestionDialog(TITLE, message, true, null);

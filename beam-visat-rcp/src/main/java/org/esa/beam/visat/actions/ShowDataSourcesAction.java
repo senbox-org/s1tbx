@@ -16,11 +16,12 @@
 
 package org.esa.beam.visat.actions;
 
+import com.bc.ceres.core.runtime.Module;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.VisatActivator;
+import org.esa.beam.visat.VisatApp;
 
 import java.awt.*;
 import java.io.IOException;
@@ -28,20 +29,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import com.bc.ceres.core.runtime.Module;
-
 /**
  * This action opens the default browser to display the BEAM data sources
  * web page.
  *
  * @author Ralf Quast
- * @version $Revision$ $Date$
+ * @author Norman Fomferra
  */
 public class ShowDataSourcesAction extends ExecCommand {
-    // todo - convert to properties for NEST (nf - 11.07.2008)
-    private static final String BEAM_HELP_MODULE_NAME = "beam-help";
-    private static final String DATASOURCES_RESOURCE_PATH = "doc/help/general/BeamDataSources.html";
-    private static final String DATASOURCES_PROPERTY_NAME = "beam.datasources.url";
 
     @Override
     public void updateState(final CommandEvent event) {
@@ -57,32 +52,60 @@ public class ShowDataSourcesAction extends ExecCommand {
     @Override
     public void actionPerformed(CommandEvent event) {
         try {
-            URI resourceUri = getDataSourcesUri();
-            Desktop desktop = Desktop.getDesktop();
-            desktop.browse(resourceUri);
+            tryUri();
         } catch (URISyntaxException e) {
             VisatApp.getApp().showErrorDialog("Illegal resource URI:\n" + e.getMessage());
         } catch (IOException e) {
-            VisatApp.getApp().showErrorDialog("An I/O error occured:\n" + e.getMessage());
+            VisatApp.getApp().showErrorDialog("An I/O error occurred:\n" + e.getMessage());
         } catch (UnsupportedOperationException e) {
             VisatApp.getApp().showErrorDialog("The desktop command 'browse' is not supported.:\n" + e.getMessage());
         }
     }
 
-    private URI getDataSourcesUri() throws URISyntaxException {
-        URI resourceUri;
-        URL resourceUrl = null;
-        Module helpModule = getModule(BEAM_HELP_MODULE_NAME);
-        if (helpModule != null) {
-            resourceUrl = helpModule.getResource(DATASOURCES_RESOURCE_PATH);
+    private void tryUri() throws URISyntaxException, IOException {
+        try {
+            tryRemoteUri();
+        } catch (Exception e) {
+            tryLocalUri();
         }
-        if (resourceUrl != null) {
-            resourceUri = resourceUrl.toURI();
+    }
+
+    private void tryRemoteUri() throws URISyntaxException, IOException {
+        final URI uri = getRemoteDataSourcesUri();
+        if (uri != null) {
+            Desktop.getDesktop().browse(uri);
         } else {
-            String defaultUriString = System.getProperty(DATASOURCES_PROPERTY_NAME, SystemUtils.BEAM_HOME_PAGE);
-            resourceUri = new URI(defaultUriString);
+            tryLocalUri();
         }
-        return resourceUri;
+    }
+
+    private void tryLocalUri() throws URISyntaxException, IOException {
+        final URI uri = getLocalDataSourcesUri();
+        if (uri != null) {
+            Desktop.getDesktop().browse(uri);
+        }
+    }
+
+    private URI getRemoteDataSourcesUri() throws URISyntaxException {
+        String uri = System.getProperty(SystemUtils.getApplicationContextId() + ".datasources.url");
+        if (uri != null) {
+            return new URI(uri);
+        } else {
+            return null;
+        }
+    }
+
+    private URI getLocalDataSourcesUri() throws URISyntaxException {
+        URL url = null;
+        Module helpModule = getModule("beam-help");
+        if (helpModule != null) {
+            url = helpModule.getResource("doc/help/general/BeamDataSources.html");
+        }
+        if (url != null) {
+            return url.toURI();
+        } else {
+            return null;
+        }
     }
 
     private static Module getModule(String symbolicName) {

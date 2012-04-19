@@ -26,11 +26,8 @@ import org.esa.beam.util.VersionChecker;
 import org.esa.beam.visat.AbstractVisatPlugIn;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
-import javax.swing.Timer;
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -41,7 +38,6 @@ import java.util.concurrent.ExecutionException;
 
 public class VersionCheckerVPI extends AbstractVisatPlugIn {
 
-    private static final String MESSAGE_BOX_TITLE = "BEAM Version Check";  /*I18N*/
     private static final int DELAY_MILLIS = 5 * 1000;  // 5 seconds delay
 
     private static final String DISABLE_HINT = "Please note that you can disable the on-line version check\n" +
@@ -63,16 +59,16 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
             timer.start();
         }
 
-        CommandAdapter versinoCheckerAction = new CommandAdapter() {
+        CommandAdapter versionCheckerAction = new CommandAdapter() {
             @Override
             public void actionPerformed(CommandEvent event) {
                 runManual();
             }
         };
         CommandManager commandManager = visatApp.getCommandManager();
-        ExecCommand versionCheckerCommand = commandManager.createExecCommand("checkForUpdate", versinoCheckerAction);
+        ExecCommand versionCheckerCommand = commandManager.createExecCommand("checkForUpdate", versionCheckerAction);
         versionCheckerCommand.setText("Check for New Release...");
-        versionCheckerCommand.setShortDescription("Checks for a new BEAM release");
+        versionCheckerCommand.setShortDescription("Checks for a new release");
         versionCheckerCommand.setParent("help");
         versionCheckerCommand.setPlaceAfter("showUpdateDialog");
         versionCheckerCommand.setPlaceBefore("about");
@@ -106,13 +102,13 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
         final SwingWorker swingWorker = new SwingWorker<Integer, Integer>() {
             @Override
             protected Integer doInBackground() throws Exception {
-                return new Integer(getVersionStatus());
+                return getVersionStatus();
             }
 
             @Override
             public void done() {
                 try {
-                    showVersionStatus(auto, prompt, get().intValue());
+                    showVersionStatus(auto, prompt, get());
                 } catch (InterruptedException e) {
                     showVersionCheckFailedMessage(auto, prompt, e);
                 } catch (ExecutionException e) {
@@ -141,8 +137,8 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
 
     private static void showVersionCheckPrompt() {
         final String message = MessageFormat.format("{0} is about to check for a new software version.\n" +
-                "Do you want {0} to perform the on-line version check now?", /*I18N*/
-                                                                             VisatApp.getApp().getAppName());
+                                                            "Do you want {0} to perform the on-line version check now?", /*I18N*/
+                                                    VisatApp.getApp().getAppName());
         VisatApp.getApp().showQuestionDialog(message, VisatApp.PROPERTY_KEY_VERSION_CHECK_ENABLED);
     }
 
@@ -150,31 +146,35 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
         VisatApp.getApp().getLogger().info("version check performed, application is antiquated");
         JLabel beamHomeLabel;
         try {
-            beamHomeLabel = new UriLabel(new URI(SystemUtils.BEAM_HOME_PAGE));
+            beamHomeLabel = new UriLabel(new URI(SystemUtils.getApplicationHomepageUrl()));
         } catch (URISyntaxException e) {
-            beamHomeLabel = new JLabel(SystemUtils.BEAM_HOME_PAGE);
+            beamHomeLabel = new JLabel(SystemUtils.getApplicationHomepageUrl());
             beamHomeLabel.setForeground(Color.BLUE.darker());
         }
         Object[] message = new Object[]{
                 "A new software version is available.\n" +
-                        "Please visit the BEAM homepage at\n", /*I18N*/
+                        "Please visit the project's homepage at\n", /*I18N*/
                 beamHomeLabel,
                 "for detailed information.\n" + /*I18N*/
                         (auto ? "\n" + DISABLE_HINT : "")
         };
         JOptionPane.showMessageDialog(VisatApp.getApp().getMainFrame(),
                                       message,
-                                      MESSAGE_BOX_TITLE,
+                                      getDialogTitle(),
                                       JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private static String getDialogTitle() {
+        return SystemUtils.getApplicationName() + " Version Check";
     }
 
     private static void showUpToDateMessage(boolean auto, boolean prompt) {
         VisatApp.getApp().getLogger().info("version check performed, application is up-to-date");
         if (prompt) {
             JOptionPane.showMessageDialog(VisatApp.getApp().getMainFrame(),
-                                          "Your BEAM software is up-to-date.\n" +  /*I18N*/
+                                          "The software is up-to-date.\n" +  /*I18N*/
                                                   (auto ? "\n" + DISABLE_HINT : ""),
-                                          MESSAGE_BOX_TITLE,
+                                          getDialogTitle(),
                                           JOptionPane.INFORMATION_MESSAGE);
         }
     }
@@ -184,9 +184,9 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
         if (prompt) {
             JOptionPane.showMessageDialog(VisatApp.getApp().getMainFrame(),
                                           "The on-line version check failed,\n" +
-                                                  "an I/O error occured.\n" + /*I18N*/
+                                                  "an I/O error occurred.\n" + /*I18N*/
                                                   (auto ? "\n" + DISABLE_HINT : ""),
-                                          MESSAGE_BOX_TITLE,
+                                          getDialogTitle(),
                                           JOptionPane.ERROR_MESSAGE);
         }
     }

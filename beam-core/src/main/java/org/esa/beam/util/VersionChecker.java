@@ -32,7 +32,8 @@ public class VersionChecker {
 
     // todo - use application.properties with version ID set by Maven (resource Filter!)
     public VersionChecker() {
-        this(new File(SystemUtils.getBeamHomeDir(), "VERSION.txt"), SystemUtils.BEAM_HOME_PAGE + "software/version.txt");
+        this(new File(SystemUtils.getApplicationHomeDir(), "VERSION.txt"),
+             SystemUtils.getApplicationRemoteVersionUrl());
     }
 
     public VersionChecker(File localVersionFile, String remoteVersionUrlString) {

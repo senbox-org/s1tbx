@@ -19,7 +19,6 @@ import org.esa.beam.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.resamp.Resampling;
-import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +29,7 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
 
     public static final String NAME = "GETASSE30";
     public static final String DB_FILE_SUFFIX = ".GETASSE30";
-    public static final String ARCHIVE_URL_PATH = SystemUtils.BEAM_HOME_PAGE + "data/GETASSE30.zip";
+    public static final String ARCHIVE_URL_PATH = "http://envisat.esa.int/beam/data/GETASSE30.zip";
     public static final int NUM_X_TILES = 24;
     public static final int NUM_Y_TILES = 12;
     public static final int DEGREE_RES = 15;

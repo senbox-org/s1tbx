@@ -18,11 +18,7 @@ package org.esa.beam.framework.ui;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.jidesoft.action.CommandBar;
-import com.jidesoft.action.DefaultDockableBarDockableHolder;
-import com.jidesoft.action.DockableBar;
-import com.jidesoft.action.DockableBarContext;
-import com.jidesoft.action.DockableBarManager;
+import com.jidesoft.action.*;
 import com.jidesoft.action.event.DockableBarAdapter;
 import com.jidesoft.action.event.DockableBarEvent;
 import com.jidesoft.docking.DefaultDockingManager;
@@ -35,19 +31,8 @@ import com.jidesoft.swing.LayoutPersistence;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor;
-import org.esa.beam.framework.ui.command.Command;
-import org.esa.beam.framework.ui.command.CommandGroup;
-import org.esa.beam.framework.ui.command.CommandManager;
-import org.esa.beam.framework.ui.command.CommandMenuUtils;
-import org.esa.beam.framework.ui.command.CommandUIFactory;
-import org.esa.beam.framework.ui.command.DefaultCommandManager;
-import org.esa.beam.framework.ui.command.DefaultCommandUIFactory;
-import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.framework.ui.command.*;
+import org.esa.beam.util.*;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.FileChooserFactory;
 import org.esa.beam.util.io.FileUtils;
@@ -55,54 +40,17 @@ import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
-import javax.swing.AbstractButton;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JToolBar;
-import javax.swing.RepaintManager;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.UIDefaults;
-import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
-import java.awt.Rectangle;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -226,11 +174,11 @@ public class BasicApp {
                        String appResource,
                        String appLoggerName) {
         this(createApplicationDescriptor(appName,
-                appSymbolicName,
-                appVersion,
-                appCopyrightInfo,
-                appResource,
-                appLoggerName));
+                                         appSymbolicName,
+                                         appVersion,
+                                         appCopyrightInfo,
+                                         appResource,
+                                         appLoggerName));
     }
 
     public ApplicationDescriptor getApplicationDescriptor() {
@@ -364,7 +312,7 @@ public class BasicApp {
     }
 
     private void logStartUpInfo() {
-        logger.info("BEAM user directory is '" + beamUserDir + "'");    /*I18N*/
+        logger.info(getApplicationDescriptor().getDisplayName() + " user directory is '" + beamUserDir + "'");    /*I18N*/
         if (resourceBundle != null) {
             logger.info(
                     "Resource bundle loaded from '" + applicationDescriptor.getResourceBundleName() + "'"); /*I18N*/
@@ -913,7 +861,7 @@ public class BasicApp {
         return UIUtils.findMenu(menuBar, name, deepSearch);
     }
 
-    protected final JMenu createJMenu(String name, String text, char mnemonic, String ... cmdIds) {
+    protected final JMenu createJMenu(String name, String text, char mnemonic, String... cmdIds) {
         JideMenu menu = new JideMenu();
         menu.setName(name); /*I18N*/
         menu.setText(text);
@@ -1012,7 +960,7 @@ public class BasicApp {
         getPreferences().setPropertyInt("frame.size.height", getMainFrame().getSize().height);
 
         getPreferences().setPropertyBool("frame.ui.dblbuf",
-                RepaintManager.currentManager(getMainFrame()).isDoubleBufferingEnabled());
+                                         RepaintManager.currentManager(getMainFrame()).isDoubleBufferingEnabled());
 
         //////////////////////////////////////////////////////////////
 
@@ -1113,9 +1061,9 @@ public class BasicApp {
         if (!useSystemFontSettings) {
             final Font currentMenuFont = uiDefaults.getFont("Menu.font");
             final String fontName = getPreferences().getPropertyString(PROPERTY_KEY_APP_UI_FONT_NAME,
-                    currentMenuFont.getName());
+                                                                       currentMenuFont.getName());
             final int fontSize = getPreferences().getPropertyInt(PROPERTY_KEY_APP_UI_FONT_SIZE,
-                    currentMenuFont.getSize());
+                                                                 currentMenuFont.getSize());
             if (!currentMenuFont.getName().equalsIgnoreCase(fontName) || currentMenuFont.getSize() != fontSize) {
                 changeUIDefaultsFonts(uiDefaults, fontName, fontSize);
                 mustUpdateComponentTreeUI = true;
@@ -1263,7 +1211,7 @@ public class BasicApp {
         Assert.argument(!lastDirPropertyKey.isEmpty(), "!lastDirPropertyKey.isEmpty()");
 
         String lastDir = getPreferences().getPropertyString(lastDirPropertyKey,
-                SystemUtils.getUserHomeDir().getPath());
+                                                            SystemUtils.getUserHomeDir().getPath());
         File currentDir = new File(lastDir);
 
         BeamFileChooser fileChooser = new BeamFileChooser();
@@ -1309,11 +1257,11 @@ public class BasicApp {
                                          String defaultExtension,
                                          final String fileName) {
         return showFileSaveDialog(title,
-                dirsOnly,
-                fileFilter,
-                defaultExtension,
-                fileName,
-                PROPERTY_KEY_APP_LAST_SAVE_DIR);
+                                  dirsOnly,
+                                  fileFilter,
+                                  defaultExtension,
+                                  fileName,
+                                  PROPERTY_KEY_APP_LAST_SAVE_DIR);
     }
 
     /**
@@ -1340,21 +1288,21 @@ public class BasicApp {
         File file = null;
         while (file == null) {
             file = showFileSaveDialogImpl(title,
-                    dirsOnly,
-                    fileFilter,
-                    defaultExtension,
-                    fileName,
-                    lastDirPropertyKey);
+                                          dirsOnly,
+                                          fileFilter,
+                                          defaultExtension,
+                                          fileName,
+                                          lastDirPropertyKey);
             if (file == null) {
                 return null; // Cancel
             } else if (file.exists()) {
                 int status = JOptionPane.showConfirmDialog(getMainFrame(),
-                        MessageFormat.format(
-                                "The file ''{0}'' already exists.\nOverwrite it?",
-                                file),
-                        MessageFormat.format("{0} - {1}", getAppName(), title),
-                        JOptionPane.YES_NO_CANCEL_OPTION,
-                        JOptionPane.WARNING_MESSAGE);
+                                                           MessageFormat.format(
+                                                                   "The file ''{0}'' already exists.\nOverwrite it?",
+                                                                   file),
+                                                           MessageFormat.format("{0} - {1}", getAppName(), title),
+                                                           JOptionPane.YES_NO_CANCEL_OPTION,
+                                                           JOptionPane.WARNING_MESSAGE);
                 if (status == JOptionPane.CANCEL_OPTION) {
                     return null; // Cancel
                 } else if (status == JOptionPane.NO_OPTION) {
@@ -1375,7 +1323,7 @@ public class BasicApp {
         Assert.argument(!lastDirPropertyKey.isEmpty(), "!lastDirPropertyKey.isEmpty()");
 
         String lastDir = getPreferences().getPropertyString(lastDirPropertyKey,
-                SystemUtils.getUserHomeDir().getPath());
+                                                            SystemUtils.getUserHomeDir().getPath());
         File currentDir = new File(lastDir);
 
         final BeamFileChooser fileChooser = new BeamFileChooser();
@@ -1503,25 +1451,24 @@ public class BasicApp {
 
     public final void showOutOfMemoryErrorDialog(String message) {
         showErrorDialog("Out of Memory",
-                getAppName() + " is out of memory.\n" +
-                        message + "\n\n" +
-                        "You can try to release memory by closing products or image views which\n" +
-                        "you currently not really need.\n" +
-                        "If this does not help, you can increase the amount of virtual memory\n" +
-                        "as described on the BEAM website at http://envisat.esa.int/services/beam/.");
+                        String.format("%s is out of memory.\n%s\n\n" +
+                                              "You can try to release memory by closing products or image views which\n" +
+                                              "you currently not really need.\n" +
+                                              "If this does not help, you can increase the amount of virtual memory\n" +
+                                              "as described on the BEAM website at http://envisat.esa.int/services/beam/.", getAppName(), message));
     }
 
     public final void showMessageDialog(String title, String message, int messageType, String preferencesKey) {
         if (suppressibleOptionPane != null && !StringUtils.isNullOrEmpty(preferencesKey)) {
             suppressibleOptionPane.showMessageDialog(preferencesKey, getMainFrame(),
-                    message,
-                    getAppName() + " - " + title,
-                    messageType);
+                                                     message,
+                                                     getAppName() + " - " + title,
+                                                     messageType);
         } else {
             JOptionPane.showMessageDialog(getMainFrame(),
-                    message,
-                    getAppName() + " - " + title,
-                    messageType);
+                                          message,
+                                          getAppName() + " - " + title,
+                                          messageType);
         }
     }
 
@@ -1536,21 +1483,21 @@ public class BasicApp {
     public final int showQuestionDialog(String title, String message, boolean allowCancel, String preferencesKey) {
         if (suppressibleOptionPane != null && !StringUtils.isNullOrEmpty(preferencesKey)) {
             return suppressibleOptionPane.showConfirmDialog(preferencesKey,
-                    getMainFrame(),
-                    message,
-                    getAppName() + " - " + title,
-                    allowCancel
-                            ? JOptionPane.YES_NO_CANCEL_OPTION
-                            : JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
+                                                            getMainFrame(),
+                                                            message,
+                                                            getAppName() + " - " + title,
+                                                            allowCancel
+                                                                    ? JOptionPane.YES_NO_CANCEL_OPTION
+                                                                    : JOptionPane.YES_NO_OPTION,
+                                                            JOptionPane.QUESTION_MESSAGE);
         } else {
             return JOptionPane.showConfirmDialog(getMainFrame(),
-                    message,
-                    getAppName() + " - " + title,
-                    allowCancel
-                            ? JOptionPane.YES_NO_CANCEL_OPTION
-                            : JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
+                                                 message,
+                                                 getAppName() + " - " + title,
+                                                 allowCancel
+                                                         ? JOptionPane.YES_NO_CANCEL_OPTION
+                                                         : JOptionPane.YES_NO_OPTION,
+                                                 JOptionPane.QUESTION_MESSAGE);
         }
     }
 
@@ -1622,10 +1569,10 @@ public class BasicApp {
             return true;
         }
         int answer = showQuestionDialog("File Exists",
-                "The file\n"
-                        + "'" + file.getPath() + "'\n"
-                        + "already exists.\n\n"
-                        + "Do you really want to overwrite it?\n", null);
+                                        "The file\n"
+                                                + "'" + file.getPath() + "'\n"
+                                                + "already exists.\n\n"
+                                                + "Do you really want to overwrite it?\n", null);
         return answer == JOptionPane.YES_OPTION;
     }
 
@@ -1715,7 +1662,7 @@ public class BasicApp {
     private void initResources() throws MissingResourceException {
         if (applicationDescriptor.getResourceBundleName() != null) {
             resourceBundle = ResourceBundle.getBundle(applicationDescriptor.getResourceBundleName(),
-                    Locale.getDefault(), getClass().getClassLoader());
+                                                      Locale.getDefault(), getClass().getClassLoader());
         } else {
             resourceBundle = null;
         }
