@@ -1,7 +1,10 @@
 package org.esa.beam.visat.toolviews.stat;
 
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.opengis.feature.type.AttributeDescriptor;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -43,5 +46,42 @@ class StatisticChartStyling {
         logAxis.setLog10TickLabelsFlag(true);
         logAxis.setMinorTickCount(10);
         return logAxis;
+    }
+
+    // todo - Check how we can draw an axis label that uses a sub-scripted "10" in "log10". (ts, nf)
+    public static String getAxisLabel(RasterDataNode raster, String defaultVariableName, boolean log10Scaled) {
+        if (raster != null) {
+            if (log10Scaled) {
+                return "log10(" + raster.getName() + ")";
+            }
+            final String unit = raster.getUnit();
+            if (unit != null && !unit.isEmpty()) {
+                return raster.getName() + " (" + unit + ")";
+            }
+            return raster.getName();
+        } else {
+            if (log10Scaled) {
+                return "log10(" + defaultVariableName + ")";
+            } else {
+                return defaultVariableName;
+            }
+        }
+    }
+
+    private static String getAxisLabel0(boolean logScaled, RasterDataNode raster) {
+        if (logScaled) {
+            return "log10(" + raster.getName() + ")";
+        }
+        final String unit = raster.getUnit();
+        if (unit != null && !unit.isEmpty()) {
+            return raster.getName() + " (" + unit + ")";
+        }
+        return raster.getName();
+    }
+
+    public static String getCorrelativeDataLabel(VectorDataNode pointDataSource, AttributeDescriptor dataField1) {
+        final String vdsName = pointDataSource.getName();
+        final String dataFieldName = dataField1.getLocalName();
+        return vdsName + "/" + dataFieldName;
     }
 }

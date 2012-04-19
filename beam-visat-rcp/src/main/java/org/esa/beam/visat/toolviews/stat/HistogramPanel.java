@@ -42,15 +42,8 @@ import org.jfree.data.xy.XIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import javax.media.jai.Histogram;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
+import javax.swing.*;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -341,7 +334,7 @@ class HistogramPanel extends ChartPagePanel {
                     } else {
                         JOptionPane.showMessageDialog(getParentComponent(),
                                                       "The ROI is empty or no pixels found between min/max.\n"
-                                                      + "A valid histogram could not be computed.",
+                                                              + "A valid histogram could not be computed.",
                                                       CHART_TITLE,
                                                       JOptionPane.WARNING_MESSAGE);
                     }
@@ -381,26 +374,9 @@ class HistogramPanel extends ChartPagePanel {
         chart.fireChartChanged();
     }
 
-    // Check how we can draw an axis label that uses a sub-scripted "10" in "log10". (ts,nf)
     private String getAxisLabel() {
         boolean logScaled = (Boolean) bindingContext.getBinding(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM).getPropertyValue();
-        RasterDataNode raster = getRaster();
-        if (raster != null) {
-            if (logScaled) {
-                return "log(" + raster.getName() + ")";
-            }
-            final String unit = raster.getUnit();
-            if (unit != null && !unit.isEmpty()) {
-                return raster.getName() + " (" + unit + ")";
-            }
-            return raster.getName();
-        } else {
-            if (logScaled) {
-                return "log(x)";
-            } else {
-                return "x";
-            }
-        }
+        return StatisticChartStyling.getAxisLabel(getRaster(), "X", logScaled);
     }
 
     private Container getParentComponent() {
@@ -432,7 +408,7 @@ class HistogramPanel extends ChartPagePanel {
         sb.append("Histogram maximum:\t").append(max).append("\t").append(getRaster().getUnit()).append("\n");
         sb.append("Histogram bin size:\t").append(
                 getRaster().isLog10Scaled() ? ("NA\t") : ((max - min) / numBins + "\t") +
-                                                         getRaster().getUnit() + "\n");
+                        getRaster().getUnit() + "\n");
         sb.append("Histogram #bins:\t").append(numBins).append("\n");
         sb.append('\n');
 

@@ -33,8 +33,6 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
-import org.jfree.chart.title.TextTitle;
-import org.jfree.chart.title.Title;
 import org.jfree.data.function.Function2D;
 import org.jfree.data.general.DatasetUtilities;
 import org.jfree.data.xy.XYDataItem;
@@ -50,12 +48,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+
+import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.getAxisLabel;
+import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.getCorrelativeDataLabel;
 
 
 /**
@@ -108,7 +107,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             @Override
             protected XYIntervalSeries doInBackground(ProgressMonitor pm) throws Exception {
                 pm.beginTask("Computing scatter plot...", 100);
-                final XYIntervalSeries scatterValues = new XYIntervalSeries("scatter values");
+                final XYIntervalSeries scatterValues = new XYIntervalSeries(getRaster().getName());
                 try {
                     final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = scatterPlotModel.pointDataSource.getFeatureCollection();
                     final SimpleFeature[] features = collection.toArray(new SimpleFeature[collection.size()]);
@@ -233,11 +232,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                     }
                     confidenceDataset.addSeries(xyIntervalSeries);
 
-                    rasterAxis.setLabel(getAxisLabel(raster));
-
-                    final String vdsName = scatterPlotModel.pointDataSource.getName();
-                    final String dataFieldName = scatterPlotModel.dataField.getLocalName();
-                    insituAxis.setLabel(vdsName + " - " + dataFieldName);
+                    rasterAxis.setLabel(getAxisLabel(raster, "X", false));
+                    insituAxis.setLabel(getCorrelativeDataLabel(scatterPlotModel.pointDataSource, scatterPlotModel.dataField));
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -309,7 +305,8 @@ class ScatterPlotPanel extends ChartPagePanel {
         correlativeFieldSelector.updatePointDataSource(getProduct());
         correlativeFieldSelector.updateDataField();
 
-        setChartTitle();
+        // todo - discuss (nf)
+        // setChartTitle();
     }
 
     @Override
@@ -469,14 +466,6 @@ class ScatterPlotPanel extends ChartPagePanel {
         updateUIState();
     }
 
-    private String getAxisLabel(RasterDataNode raster) {
-        final String unit = raster.getUnit();
-        if (unit != null) {
-            return raster.getName() + " (" + unit + ")";
-        }
-        return raster.getName();
-    }
-
     private void initParameters() {
         xAxisRangeControl = new AxisRangeControl("X-Axis");
         yAxisRangeControl = new AxisRangeControl("Y-Axis");
@@ -529,6 +518,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         axis.setRange(axisRangeControl.getMin(), axisRangeControl.getMax());
     }
 
+    /*
     private void setChartTitle() {
         final String xAxisName;
         if (getRaster() != null) {
@@ -553,6 +543,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         )));
         chart.setSubtitles(subtitles);
     }
+    */
 
     private void updateScalingOfXAxis() {
         final boolean logScaled = scatterPlotModel.xAxisLogScaled;
@@ -572,7 +563,8 @@ class ScatterPlotPanel extends ChartPagePanel {
         if (!isInitialized || !isVisible()) {
             return;
         }
-        setChartTitle();
+        // todo - discuss (nf)
+        // setChartTitle();
         final AttributeDescriptor dataField = scatterPlotModel.dataField;
         yAxisRangeControl.setTitleSuffix(dataField != null ? dataField.getLocalName() : null);
         updateComponents();

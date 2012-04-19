@@ -53,6 +53,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.getCorrelativeDataLabel;
+
 /**
  * The profile plot pane within the statistics window.
  *
@@ -68,6 +70,7 @@ class ProfilePlotPanel extends ChartPagePanel {
 
     public static final String PROPERTY_NAME_MARK_SEGMENTS = "markSegments";
     public static final String PROPERTY_NAME_LOG_SCALED = "logScaled";
+    public static final String DEFAULT_SAMPLE_DATASET_NAME = "Sample";
 
     private AxisRangeControl xAxisRangeControl;
     private AxisRangeControl yAxisRangeControl;
@@ -155,11 +158,11 @@ class ProfilePlotPanel extends ChartPagePanel {
         dataset = new XYIntervalSeriesCollection();
         this.chart = ChartFactory.createXYLineChart(
                 CHART_TITLE,
-                "Path (pixel)",
-                "Sample value",
+                "Path (pixel#)",
+                DEFAULT_SAMPLE_DATASET_NAME,
                 dataset,
                 PlotOrientation.VERTICAL,
-                false, // Legend?
+                true, // Legend?
                 true,
                 false
         );
@@ -404,7 +407,7 @@ class ProfilePlotPanel extends ChartPagePanel {
         if (profileData != null) {
             final float[] sampleValues = profileData.getSampleValues();
             final float[] sampleSigmas = profileData.getSampleSigmas();
-            XYIntervalSeries series = new XYIntervalSeries("Sample Values");
+            XYIntervalSeries series = new XYIntervalSeries(getRaster() != null ? getRaster().getName() : DEFAULT_SAMPLE_DATASET_NAME);
             for (int x = 0; x < sampleValues.length; x++) {
                 final float y = sampleValues[x];
                 final float dy = sampleSigmas[x];
@@ -416,7 +419,7 @@ class ProfilePlotPanel extends ChartPagePanel {
                     && dataSourceConfig.pointDataSource != null
                     && dataSourceConfig.dataField != null) {
 
-                XYIntervalSeries corrSeries = new XYIntervalSeries("Correlative Values");
+                XYIntervalSeries corrSeries = new XYIntervalSeries(getCorrelativeDataLabel(dataSourceConfig.pointDataSource, dataSourceConfig.dataField));
                 int[] shapeVertexIndexes = profileData.getShapeVertexIndexes();
                 SimpleFeature[] simpleFeatures = dataSourceConfig.pointDataSource.getFeatureCollection().toArray(new SimpleFeature[0]);
 
@@ -471,6 +474,8 @@ class ProfilePlotPanel extends ChartPagePanel {
             chart.getXYPlot().setRenderer(pointRenderer);
         }
 
+        chart.getXYPlot().getRangeAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(), DEFAULT_SAMPLE_DATASET_NAME, false));
+
         boolean markSegments = (Boolean) (xAxisRangeControl.getBindingContext().getPropertySet().getValue(PROPERTY_NAME_MARK_SEGMENTS));
         if (markSegments && profileData != null && profileData.getNumShapeVertices() > 1) {
             final int[] shapeVertexIndexes = profileData.getShapeVertexIndexes();
@@ -487,6 +492,7 @@ class ProfilePlotPanel extends ChartPagePanel {
         } else {
             removeIntervalMarkers();
         }
+
 
         pointDataSourceEnablement.apply();
         dataFieldEnablement.apply();
