@@ -20,6 +20,7 @@ import com.bc.ceres.binding.*;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.visat.VisatApp;
@@ -47,6 +48,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -106,13 +108,16 @@ class ProfilePlotPanel extends ChartPagePanel {
                                                                                          "Mask generated from selected profile plot area",
                                                                                          Color.RED,
                                                                                          PlotAreaSelectionTool.AreaType.Y_RANGE) {
+
             @Override
-            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
-                return String.format("%s >= %s && %s <= %s",
-                                     getRaster().getName(),
-                                     y0,
-                                     getRaster().getName(),
-                                     y0 + dy);
+            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, Shape shape) {
+                Rectangle2D bounds = shape.getBounds2D();
+                return createMaskExpression(bounds.getMinY(), bounds.getMaxY());
+            }
+
+            protected String createMaskExpression(double x1, double x2) {
+                String bandName = BandArithmetic.createExternalName(getRaster().getName());
+                return String.format("%s >= %s && %s <= %s", bandName, x1, bandName, x2);
             }
         };
 

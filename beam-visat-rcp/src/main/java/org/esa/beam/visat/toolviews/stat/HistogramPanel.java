@@ -27,6 +27,7 @@ import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.StxFactory;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.math.MathUtils;
@@ -44,6 +45,7 @@ import org.jfree.ui.RectangleInsets;
 import javax.media.jai.Histogram;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -230,14 +232,20 @@ class HistogramPanel extends ChartPagePanel {
                                                                                          "Mask generated from selected histogram plot area",
                                                                                          Color.RED,
                                                                                          PlotAreaSelectionTool.AreaType.X_RANGE) {
+
             @Override
-            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0,
-                                                  double dx, double dy) {
+            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, Shape shape) {
+                Rectangle2D bounds = shape.getBounds2D();
+                return createMaskExpression(bounds.getMinX(), bounds.getMaxX());
+            }
+
+            protected String createMaskExpression(double x1, double x2) {
+                String bandName = BandArithmetic.createExternalName(getRaster().getName());
                 return String.format("%s >= %s && %s <= %s",
-                                     getRaster().getName(),
-                                     stx != null ? stx.getHistogramScaling().scaleInverse(x0) : x0,
-                                     getRaster().getName(),
-                                     stx != null ? stx.getHistogramScaling().scaleInverse(x0 + dx) : x0 + dx);
+                                     bandName,
+                                     stx != null ? stx.getHistogramScaling().scaleInverse(x1) : x1,
+                                     bandName,
+                                     stx != null ? stx.getHistogramScaling().scaleInverse(x2) : x2);
             }
         };
 

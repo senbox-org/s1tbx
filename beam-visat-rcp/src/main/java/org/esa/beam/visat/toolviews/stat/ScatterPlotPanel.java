@@ -23,6 +23,7 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.geotools.feature.FeatureCollection;
@@ -46,6 +47,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
@@ -338,12 +340,14 @@ class ScatterPlotPanel extends ChartPagePanel {
                                                                                          Color.RED,
                                                                                          PlotAreaSelectionTool.AreaType.X_RANGE) {
             @Override
-            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
-                return String.format("%s >= %s && %s <= %s",
-                                     getRaster().getName(),
-                                     x0,
-                                     getRaster().getName(),
-                                     x0 + dx);
+            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, Shape shape) {
+                Rectangle2D bounds = shape.getBounds2D();
+                return createMaskExpression(bounds.getMinX(), bounds.getMaxX());
+            }
+
+            protected String createMaskExpression(double x1, double x2) {
+                String bandName = BandArithmetic.createExternalName(getRaster().getName());
+                return String.format("%s >= %s && %s <= %s", bandName, x1, bandName, x2);
             }
         };
         scatterPlotDisplay.getPopupMenu().addSeparator();

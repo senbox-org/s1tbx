@@ -24,6 +24,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.Debug;
@@ -253,19 +254,24 @@ class DensityPlotPanel extends ChartPagePanel {
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
                                                                                          densityPlotDisplay,
-                                                                                         "densitity_plot_area",
+                                                                                         "density_plot_area",
                                                                                          "Mask generated from selected density plot area",
                                                                                          Color.RED,
                                                                                          PlotAreaSelectionTool.AreaType.ELLIPSE) {
-            @Override
-            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
-                double rr = Math.sqrt(dx * dx + dy * dy);
-                return String.format("distance(%s, %s, %s, %s) < %s",
-                                     dataSourceConfig.xBand.getName(),
-                                     dataSourceConfig.yBand.getName(),
+             @Override
+            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, Shape shape) {
+                Rectangle2D bounds = shape.getBounds2D();
+                return createMaskExpression(bounds.getCenterX(), bounds.getCenterY(), 0.5 * bounds.getWidth(), 0.5 * bounds.getHeight());
+            }
+
+            protected String createMaskExpression(double x0, double y0, double dx, double dy) {
+                return String.format("sqrt(sqr((%s - %s)/%s) + sqr((%s - %s)/%s)) < 1.0",
+                                     BandArithmetic.createExternalName(dataSourceConfig.xBand.getName()),
                                      x0,
+                                     dx,
+                                     BandArithmetic.createExternalName(dataSourceConfig.yBand.getName()),
                                      y0,
-                                     rr);
+                                     dy);
             }
         };
 
