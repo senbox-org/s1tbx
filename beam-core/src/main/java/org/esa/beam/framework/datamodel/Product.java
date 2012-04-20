@@ -244,6 +244,12 @@ public class Product extends ProductNode {
                             addMask(sourceNode);
                         }
                     }
+                } else if (event.getGroup() == maskGroup) {
+                    final Mask mask = (Mask) event.getSourceNode();
+                    if (StringUtils.isNullOrEmpty(mask.getDescription()) && mask.getImageType() == Mask.BandMathsType.INSTANCE) {
+                        String expression = Mask.BandMathsType.getExpression(mask);
+                        mask.setDescription(getSuitableBitmaskDefDescription(expression));
+                    }
                 }
             }
 
