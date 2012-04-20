@@ -440,7 +440,7 @@ public class NavigationToolView extends AbstractToolView {
 
     public void zoom(final double zoomFactor) {
         final ProductSceneView view = getCurrentView();
-        if (view != null) {
+        if (view != null && zoomFactor > 0) {
             view.getLayerCanvas().getViewport().setZoomFactor(zoomFactor);
             maybeSynchronizeCompatibleProductViews();
         }
@@ -486,7 +486,6 @@ public class NavigationToolView extends AbstractToolView {
 
     /**
      * @param sv a value between MIN_SLIDER_VALUE and MAX_SLIDER_VALUE
-     *
      * @return a value between min and max zoom factor of the AdjustableView
      */
     private double sliderValueToZoomFactor(final int sv) {
@@ -514,7 +513,6 @@ public class NavigationToolView extends AbstractToolView {
 
     /**
      * @param zf a value between min and max zoom factor of the AdjustableView
-     *
      * @return a value between MIN_SLIDER_VALUE and MAX_SLIDER_VALUE
      */
     private int zoomFactorToSliderValue(final double zf) {
@@ -658,7 +656,7 @@ public class NavigationToolView extends AbstractToolView {
                 if (event.getPropertyName().equalsIgnoreCase(Product.PROPERTY_NAME_NAME)) {
                     final ProductNode sourceNode = event.getSourceNode();
                     if ((currentView.isRGB() && sourceNode == currentView.getProduct())
-                        || sourceNode == currentView.getRaster()) {
+                            || sourceNode == currentView.getRaster()) {
                         updateTitle();
                     }
                 }
