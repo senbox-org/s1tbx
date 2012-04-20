@@ -179,8 +179,8 @@ class ProfilePlotPanel extends ChartPagePanel {
         deviationRenderer.setSeriesLinesVisible(0, true);
         deviationRenderer.setSeriesShapesVisible(0, false);
         deviationRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
-        deviationRenderer.setSeriesPaint(0, StatisticChartStyling.DATA_PAINT);
-        deviationRenderer.setSeriesFillPaint(0, StatisticChartStyling.DATA_FILL_PAINT);
+        deviationRenderer.setSeriesPaint(0, StatisticChartStyling.SAMPLE_DATA_PAINT);
+        deviationRenderer.setSeriesFillPaint(0, StatisticChartStyling.SAMPLE_DATA_FILL_PAINT);
 
         pointRenderer = new XYErrorRenderer();
         pointRenderer.setUseFillPaint(true);
@@ -188,9 +188,9 @@ class ProfilePlotPanel extends ChartPagePanel {
         pointRenderer.setSeriesLinesVisible(0, false);
         pointRenderer.setSeriesShapesVisible(0, true);
         pointRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
-        pointRenderer.setSeriesPaint(0, StatisticChartStyling.DATA_PAINT);
-        pointRenderer.setSeriesFillPaint(0, StatisticChartStyling.DATA_FILL_PAINT);
-        pointRenderer.setSeriesShape(0, StatisticChartStyling.DATA_POINT_SHAPE);
+        pointRenderer.setSeriesPaint(0, StatisticChartStyling.SAMPLE_DATA_PAINT);
+        pointRenderer.setSeriesFillPaint(0, StatisticChartStyling.SAMPLE_DATA_FILL_PAINT);
+        pointRenderer.setSeriesShape(0, StatisticChartStyling.SAMPLE_DATA_POINT_SHAPE);
 
         configureRendererForCorrelativeData(deviationRenderer);
         configureRendererForCorrelativeData(pointRenderer);
@@ -325,9 +325,9 @@ class ProfilePlotPanel extends ChartPagePanel {
         renderer.setSeriesLinesVisible(1, false);
         renderer.setSeriesShapesVisible(1, true);
         renderer.setSeriesStroke(1, new BasicStroke(1.0f));
-        renderer.setSeriesPaint(1, StatisticChartStyling.INSITU_PAINT);
-        renderer.setSeriesFillPaint(1, StatisticChartStyling.INSITU_FILL_PAINT);
-        renderer.setSeriesShape(1, StatisticChartStyling.INSITU_SHAPE);
+        renderer.setSeriesPaint(1, StatisticChartStyling.CORRELATIVE_POINT_PAINT);
+        renderer.setSeriesFillPaint(1, StatisticChartStyling.CORRELATIVE_POINT_FILL_PAINT);
+        renderer.setSeriesShape(1, StatisticChartStyling.CORRELATIVE_POINT_SHAPE);
     }
 
 

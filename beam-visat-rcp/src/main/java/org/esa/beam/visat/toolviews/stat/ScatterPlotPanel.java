@@ -35,8 +35,6 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
-import org.jfree.chart.title.TextTitle;
-import org.jfree.chart.title.Title;
 import org.jfree.data.Range;
 import org.jfree.data.function.Function2D;
 import org.jfree.data.general.DatasetUtilities;
@@ -54,15 +52,12 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.getAxisLabel;
-import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.getCorrelativeDataLabel;
 
 /**
  * The scatter plot pane within the statistics window.
@@ -214,18 +209,18 @@ class ScatterPlotPanel extends ChartPagePanel {
         plot.setDataset(SCATTERPOINTS_DSINDEX, scatterpointsDataset);
 
         final DeviationRenderer deviationRenderer = new DeviationRenderer(true, false);
-        deviationRenderer.setSeriesPaint(0, StatisticChartStyling.DATA_PAINT);
-        deviationRenderer.setSeriesFillPaint(0, StatisticChartStyling.DATA_FILL_PAINT);
+        deviationRenderer.setSeriesPaint(0, StatisticChartStyling.SAMPLE_DATA_PAINT);
+        deviationRenderer.setSeriesFillPaint(0, StatisticChartStyling.SAMPLE_DATA_FILL_PAINT);
         plot.setRenderer(CONFIDENCE_DSINDEX, deviationRenderer);
 
         final XYErrorRenderer xyErrorRenderer = new XYErrorRenderer();
         xyErrorRenderer.setDrawXError(true);
         xyErrorRenderer.setErrorStroke(new BasicStroke(1));
-        xyErrorRenderer.setErrorPaint(StatisticChartStyling.INSITU_FILL_PAINT);
-        xyErrorRenderer.setSeriesShape(0, StatisticChartStyling.INSITU_SHAPE);
-        xyErrorRenderer.setSeriesOutlinePaint(0, StatisticChartStyling.INSITU_OUTLINE_PAINT);
-        xyErrorRenderer.setSeriesFillPaint(0, StatisticChartStyling.INSITU_FILL_PAINT);
-        xyErrorRenderer.setSeriesShapesFilled(0, StatisticChartStyling.INSITU_SHAPES_FILLED);
+        xyErrorRenderer.setErrorPaint(StatisticChartStyling.CORRELATIVE_POINT_FILL_PAINT);
+        xyErrorRenderer.setSeriesShape(0, StatisticChartStyling.CORRELATIVE_POINT_SHAPE);
+        xyErrorRenderer.setSeriesOutlinePaint(0, StatisticChartStyling.CORRELATIVE_POINT_OUTLINE_PAINT);
+        xyErrorRenderer.setSeriesFillPaint(0, StatisticChartStyling.CORRELATIVE_POINT_FILL_PAINT);
+        xyErrorRenderer.setSeriesShapesFilled(0, StatisticChartStyling.CORRELATIVE_POINT_SHAPES_FILLED);
         xyErrorRenderer.setSeriesLinesVisible(0, false);
         xyErrorRenderer.setSeriesShapesVisible(0, true);
         xyErrorRenderer.setSeriesOutlineStroke(0, new BasicStroke(1.0f));
@@ -259,11 +254,11 @@ class ScatterPlotPanel extends ChartPagePanel {
         };
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
-                scatterPlotDisplay,
-                "scatter_plot_area",
-                "Mask generated from selected scatter plot area",
-                Color.RED,
-                PlotAreaSelectionTool.AreaType.X_RANGE) {
+                                                                                         scatterPlotDisplay,
+                                                                                         "scatter_plot_area",
+                                                                                         "Mask generated from selected scatter plot area",
+                                                                                         Color.RED,
+                                                                                         PlotAreaSelectionTool.AreaType.X_RANGE) {
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, Shape shape) {
                 Rectangle2D bounds = shape.getBounds2D();
@@ -476,8 +471,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                             continue;
                         }
                         final Rectangle box = sceneRect.intersection(new Rectangle(centerX - boxSize / 2,
-                                centerY - boxSize / 2,
-                                boxSize, boxSize));
+                                                                                   centerY - boxSize / 2,
+                                                                                   boxSize, boxSize));
                         if (box.isEmpty()) {
                             continue;
                         }
@@ -517,7 +512,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                         String localName = dataField.getLocalName();
                         Number attribute = (Number) feature.getAttribute(localName);
                         scatterValues.add(rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma,
-                                attribute.doubleValue(), attribute.doubleValue(), attribute.doubleValue());
+                                          attribute.doubleValue(), attribute.doubleValue(), attribute.doubleValue());
                     }
                 } finally {
                     pm.done();
@@ -535,11 +530,11 @@ class ScatterPlotPanel extends ChartPagePanel {
 
                     if (xySeries.getItemCount() == 0) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                "Failed to compute scatter plot.\n" +
-                                        "No Pixels considered..",
-                                /*I18N*/
-                                CHART_TITLE, /*I18N*/
-                                JOptionPane.ERROR_MESSAGE);
+                                                      "Failed to compute scatter plot.\n" +
+                                                              "No Pixels considered..",
+                                                      /*I18N*/
+                                                      CHART_TITLE, /*I18N*/
+                                                      JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
@@ -576,27 +571,27 @@ class ScatterPlotPanel extends ChartPagePanel {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute scatter plot.\n" +
-                                    "Calculation canceled.",
-                            /*I18N*/
-                            CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "Calculation canceled.",
+                                                  /*I18N*/
+                                                  CHART_TITLE, /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 } catch (CancellationException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute scatter plot.\n" +
-                                    "Calculation canceled.",
-                            /*I18N*/
-                            CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "Calculation canceled.",
+                                                  /*I18N*/
+                                                  CHART_TITLE, /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute scatter plot.\n" +
-                                    "An error occured:\n" +
-                                    e.getCause().getMessage(),
-                            CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "An error occured:\n" +
+                                                          e.getCause().getMessage(),
+                                                  CHART_TITLE, /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
