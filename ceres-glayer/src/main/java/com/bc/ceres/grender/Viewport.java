@@ -16,9 +16,8 @@
 
 package com.bc.ceres.grender;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 
@@ -37,6 +36,7 @@ import java.awt.geom.Rectangle2D;
  * to the right and the Y-axis pointing either upwards or downwards.
  * See method {@link #isModelYAxisDown()}.
  * </p>
+ *
  * @author Norman Fomferra
  */
 public interface Viewport extends Cloneable {
@@ -82,6 +82,7 @@ public interface Viewport extends Cloneable {
 
     /**
      * Sets the viewport's absolute offset in model coordinates.
+     *
      * @param offsetX The X-offset in model coordinates.
      * @param offsetY The Y-offset in model coordinates.
      */
@@ -97,6 +98,7 @@ public interface Viewport extends Cloneable {
     void moveViewDelta(double viewDeltaX, double viewDeltaY);
 
     // todo - use term "scale"
+
     /**
      * Gets the zoom factor.
      * The zoom factor is equal to the number of model units per view unit.
@@ -106,21 +108,23 @@ public interface Viewport extends Cloneable {
     double getZoomFactor();
 
     // todo - use term "scale"
+
     /**
      * Sets the zoom factor relative to the viewport bound's center point.
      *
-     * @param zoomFactor The zoom factor.
+     * @param zoomFactor The new zoom factor, must be greater than zero.
+     * @throws IllegalArgumentException if zoomFactor is less than or equal to zero
      * @see #getZoomFactor()
      */
     void setZoomFactor(double zoomFactor);
 
-    // todo - use term "scale"
     /**
      * Zooms to the given point given in model coordinates.
      *
-     * @param zoomFactor   The new zoom factor.
+     * @param zoomFactor   The new zoom factor, must be greater than zero.
      * @param modelCenterX New X of the view's center point in model coordinates.
      * @param modelCenterY New Y of the view's center point in model coordinates.
+     * @throws IllegalArgumentException if zoomFactor is less than or equal to zero
      */
     void setZoomFactor(double zoomFactor, double modelCenterX, double modelCenterY);
 
@@ -137,6 +141,7 @@ public interface Viewport extends Cloneable {
     double getOrientation();
 
     // todo - add method setOrientation(mx, my, ang) (nf - 21.10.2008)
+
     /**
      * Sets the orientation angle relative to the viewport bound's center point.
      *
@@ -146,11 +151,11 @@ public interface Viewport extends Cloneable {
 
     /**
      * Modifies this viewport so that it matches the given one.
-     * 
+     *
      * @param otherViewport The view port to synchronize with.
      */
     void setTransform(Viewport otherViewport);
-    
+
     /**
      * Adds a change listener to this viewport.
      *
@@ -175,6 +180,7 @@ public interface Viewport extends Cloneable {
     /**
      * Creates a clone of this viewport.
      * The clone is a deep copy of this viewport but doesn't copy its listeners.
+     *
      * @return The clone.
      */
     @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException"})

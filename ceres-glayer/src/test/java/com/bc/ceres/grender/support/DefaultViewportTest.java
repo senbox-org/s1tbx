@@ -16,17 +16,16 @@
 
 package com.bc.ceres.grender.support;
 
-import static com.bc.ceres.glayer.Assert2D.assertEquals;
 import com.bc.ceres.grender.Viewport;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 import org.junit.Test;
 
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+
+import static com.bc.ceres.glayer.Assert2D.assertEquals;
+import static org.junit.Assert.*;
 
 public class DefaultViewportTest {
 
@@ -224,7 +223,7 @@ public class DefaultViewportTest {
         assertEquals(1.0, v2m.getScaleX(), 1.0e-10);
         assertEquals(1.0, v2m.getScaleY(), 1.0e-10);
         assertEquals(p(10, 10), u0);
-        
+
         /////////////////////////////
         // view center 1
 
@@ -242,32 +241,32 @@ public class DefaultViewportTest {
 
         viewport.setZoomFactor(2.0, vc);
         v2m = viewport.getViewToModelTransform();
-        
+
         assertEquals(2.0, viewport.getZoomFactor(), 1.0e-10);
         assertEquals(p(25.0, 20.0), t(v2m, vc));
         assertEquals(0.5, v2m.getScaleX(), 1.0e-10);
         assertEquals(0.5, v2m.getScaleY(), 1.0e-10);
         assertEquals(p(17.5, 15.0), t(v2m, v0));
-        
+
         /////////////////////////////
         // view center 2
 
         vc = p(50, 25);
         assertEquals(p(42.5, 27.5), t(v2m, vc));
 
-        viewport.setZoomFactor(1/1.2, vc);
+        viewport.setZoomFactor(1 / 1.2, vc);
         v2m = viewport.getViewToModelTransform();
-        
-        assertEquals(1/1.2, viewport.getZoomFactor(), 1.0e-10);
+
+        assertEquals(1 / 1.2, viewport.getZoomFactor(), 1.0e-10);
         assertEquals(p(42.5, 27.5), t(v2m, vc));
         assertEquals(1.2, v2m.getScaleX(), 1.0e-10);
         assertEquals(1.2, v2m.getScaleY(), 1.0e-10);
         assertEquals(p(-17.5, -2.5), t(v2m, v0));
 
-        viewport.setZoomFactor(1/0.8, vc);
+        viewport.setZoomFactor(1 / 0.8, vc);
         v2m = viewport.getViewToModelTransform();
-        
-        assertEquals(1/0.8, viewport.getZoomFactor(), 1.0e-10);
+
+        assertEquals(1 / 0.8, viewport.getZoomFactor(), 1.0e-10);
         assertEquals(p(42.5, 27.5), t(v2m, vc));
         assertEquals(0.8, v2m.getScaleX(), 1.0e-10);
         assertEquals(0.8, v2m.getScaleY(), 1.0e-10);
@@ -280,10 +279,10 @@ public class DefaultViewportTest {
         final Point2D m0 = p(3, 3);
         final Point2D m1 = p(1, 1);
         Rectangle viewBounds = viewport.getViewBounds();
-        
+
         viewport.setZoomFactor(2.0, 3.0, 3.0);
         AffineTransform m2v = viewport.getModelToViewTransform();
-        
+
         assertEquals(2.0, viewport.getZoomFactor(), 1.0e-10);
         assertEquals(2.0, viewport.getZoomFactor(), 1.0e-10);
         assertEquals(2.0, m2v.getScaleX(), 1.0e-10);
@@ -296,26 +295,60 @@ public class DefaultViewportTest {
         double centerY = modelBounds.getCenterY();
         assertEquals(3.0, centerY, 1.0e-10);
         assertEquals(new Rectangle2D.Double(-7.0, -9.5, 20.0, 25.0), modelBounds);
-        
+
         viewport.setZoomFactor(2.0, 9.0, 9.0);
         m2v = viewport.getModelToViewTransform();
-        
+
         assertEquals(2.0, viewport.getZoomFactor(), 1.0e-10);
         assertEquals(2.0, m2v.getScaleX(), 1.0e-10);
         assertEquals(2.0, m2v.getScaleY(), 1.0e-10);
         assertEquals(p(8.0, 13.0), t(m2v, m0));
         assertEquals(p(4.0, 9.0), t(m2v, m1));
-        
+
         viewport.setZoomFactor(3.0, 3.0, 3.0);
         m2v = viewport.getModelToViewTransform();
-        
+
         assertEquals(3.0, viewport.getZoomFactor(), 1.0e-10);
         assertEquals(3.0, m2v.getScaleX(), 1.0e-10);
         assertEquals(3.0, m2v.getScaleY(), 1.0e-10);
         assertEquals(p(20.0, 25.0), t(m2v, m0));
         assertEquals(p(14.0, 19.0), t(m2v, m1));
     }
-    
+
+    @Test
+    public void testIllegalZoomFactor() {
+        final DefaultViewport viewport = new DefaultViewport();
+
+        try {
+            viewport.setZoomFactor(0.0);
+            fail("IAE expected");
+        } catch (Exception e) {
+            // ok
+        }
+
+        try {
+            viewport.setZoomFactor(-4.0);
+            fail("IAE expected");
+        } catch (Exception e) {
+            // ok
+        }
+
+        try {
+            viewport.setZoomFactor(0.0, 3.0, 3.0);
+            fail("IAE expected");
+        } catch (IllegalArgumentException e) {
+            // ok
+        }
+
+        try {
+            viewport.setZoomFactor(-0.01, 3.0, 3.0);
+            fail("IAE expected");
+        } catch (IllegalArgumentException e) {
+            // ok
+        }
+
+    }
+
     // V0 = {0,0}
     // U0 = T x V0
     // Uc = T x Vc

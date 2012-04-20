@@ -20,7 +20,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -146,6 +146,7 @@ public class DefaultViewport implements Viewport {
 
     @Override
     public void setZoomFactor(double zoomFactor) {
+        Assert.argument(zoomFactor > 0.0, "zoomFactor > 0.0");
         setZoomFactor(zoomFactor, getViewportCenterPoint());
     }
 
@@ -155,17 +156,20 @@ public class DefaultViewport implements Viewport {
         final double viewportHeight = viewBounds.height;
         final double zoomFactor = Math.min(viewportWidth / modelBounds.getWidth(),
                                            viewportHeight / modelBounds.getHeight());
-        setZoomFactor(zoomFactor, modelBounds.getCenterX(), modelBounds.getCenterY());
+        if (zoomFactor > 0.0) {
+            setZoomFactor(zoomFactor, modelBounds.getCenterX(), modelBounds.getCenterY());
 //        // useful for debugging - don't delete
 //        System.out.println(this.getClass() + " ===============================================");
 //        System.out.println("  modelBounds         = " + modelBounds);
 //        System.out.println("  computedModelBounds = " + getViewToModelTransform().createTransformedShape(viewBounds).getBounds2D());
 //        System.out.println("  viewBounds          = " + viewBounds);
 //        System.out.println("  computedViewBounds  = " + getModelToViewTransform().createTransformedShape(modelBounds).getBounds2D());
+        }
     }
 
     @Override
     public void setZoomFactor(double zoomFactor, double modelCenterX, double modelCenterY) {
+        Assert.argument(zoomFactor > 0.0, "zoomFactor > 0.0");
         final double sx = 1.0;
         final double sy = modelYAxisDown ? 1.0 : -1.0;
         final double viewportWidth = viewBounds.width;
@@ -186,6 +190,7 @@ public class DefaultViewport implements Viewport {
     }
 
     void setZoomFactor(double zoomFactor, Point2D vc) {
+        Assert.argument(zoomFactor > 0.0, "zoomFactor > 0.0");
         double oldZoomFactor = getZoomFactor();
         if (oldZoomFactor != zoomFactor) {
             AffineTransform v2m = viewToModelTransform;
