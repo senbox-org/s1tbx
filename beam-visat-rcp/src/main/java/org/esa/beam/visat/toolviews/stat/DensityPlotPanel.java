@@ -39,7 +39,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.ui.RectangleInsets;
 
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -90,7 +90,7 @@ class DensityPlotPanel extends ChartPagePanel {
     private PlotAreaSelectionTool plotAreaSelectionTool;
     private static final Color backgroundColor = new Color(255, 255, 255, 0);
     private boolean plotColorsInverted;
-    private JButton toggleColorButton;
+    private JCheckBox toggleColorCheckBox;
 
     DensityPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId, CHART_TITLE, true);
@@ -110,28 +110,8 @@ class DensityPlotPanel extends ChartPagePanel {
         plot.setDataset(null);
         xBandProperty.getDescriptor().setValueSet(new ValueSet(createAvailableBandList()));
         yBandProperty.getDescriptor().setValueSet(new ValueSet(createAvailableBandList()));
-        toggleColorButton.setEnabled(false);
+        toggleColorCheckBox.setEnabled(false);
     }
-
-    /*
-    private void setChartTitle() {
-        final JFreeChart chart = densityPlotDisplay.getChart();
-        final List<Title> subtitles = new ArrayList<Title>(7);
-        String xName = "";
-        String yName = "";
-        if (dataSourceConfig.xBand != null) {
-            xName = dataSourceConfig.xBand.getName();
-        }
-        if (dataSourceConfig.yBand != null) {
-            yName = dataSourceConfig.yBand.getName();
-        }
-        subtitles.add(new TextTitle(MessageFormat.format("{0}, {1}",
-                                                         xName,
-                                                         yName
-        )));
-        chart.setSubtitles(subtitles);
-    }
-    */
 
     private void initParameters() {
         axisRangeControls[X_VAR] = new AxisRangeControl("X-Axis");
@@ -234,21 +214,21 @@ class DensityPlotPanel extends ChartPagePanel {
                 image = new BufferedImage(toggledColorModel, image.getRaster(), image.isAlphaPremultiplied(), null);
             }
             plot.setImage(image);
-            updateUIState();
+            densityPlotDisplay.getChart().setNotify(true);
             plotColorsInverted = !plotColorsInverted;
         }
     }
 
 
     private JPanel createMiddlePanel() {
-        toggleColorButton = new JButton("Invert Plot Colors");
-        toggleColorButton.addActionListener(new ActionListener() {
+        toggleColorCheckBox = new JCheckBox("Invert Plot Colors");
+        toggleColorCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 toggleColor();
             }
         });
-        toggleColorButton.setEnabled(false);
+        toggleColorCheckBox.setEnabled(false);
         final JPanel middlePanel = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL");
         GridBagUtils.setAttributes(gbc, "gridx=0,weightx=1,weighty=0");
@@ -257,7 +237,7 @@ class DensityPlotPanel extends ChartPagePanel {
         GridBagUtils.addToPanel(middlePanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=2");
         GridBagUtils.addToPanel(middlePanel, yBandList, gbc, "gridy=3");
         GridBagUtils.addToPanel(middlePanel, new JPanel(), gbc, "gridy=4,weighty=1");
-        GridBagUtils.addToPanel(middlePanel, toggleColorButton, gbc, "gridy=5,weighty=1");
+        GridBagUtils.addToPanel(middlePanel, toggleColorCheckBox, gbc, "gridy=5,weighty=1");
         return middlePanel;
     }
 
@@ -318,7 +298,6 @@ class DensityPlotPanel extends ChartPagePanel {
 
     private void updateUIState() {
         super.updateComponents();
-        // setChartTitle();
     }
 
     @Override
@@ -352,6 +331,8 @@ class DensityPlotPanel extends ChartPagePanel {
                                                                                                backgroundColor,
                                                                                                null,
                                                                                                SubProgressMonitor.create(pm, 70));
+                    toggleColorCheckBox.setSelected(false);
+                    plotColorsInverted = false;
                     return densityPlotImage;
                 } finally {
                     pm.done();
@@ -368,11 +349,11 @@ class DensityPlotPanel extends ChartPagePanel {
                     double maxY = axisRangeControls[Y_VAR].getMax();
                     if (minX > maxX || minY > maxY) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                      "Failed to compute density plot.\n" +
-                                                              "No Pixels considered..",
-                                                      /*I18N*/
-                                                      CHART_TITLE, /*I18N*/
-                                                      JOptionPane.ERROR_MESSAGE);
+                                "Failed to compute density plot.\n" +
+                                        "No Pixels considered..",
+                                /*I18N*/
+                                CHART_TITLE, /*I18N*/
+                                JOptionPane.ERROR_MESSAGE);
                         plot.setDataset(null);
                         return;
 
@@ -394,10 +375,7 @@ class DensityPlotPanel extends ChartPagePanel {
                     axisRangeControls[Y_VAR].setMax(MathUtils.round(maxY, Math.pow(10.0, 2)));
                     plot.getDomainAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(X_VAR), "X", false));
                     plot.getRangeAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(Y_VAR), "Y", false));
-                    toggleColorButton.setEnabled(true);
-                    if (plotColorsInverted) {
-                        toggleColor();
-                    }
+                    toggleColorCheckBox.setEnabled(true);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
