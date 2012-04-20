@@ -23,7 +23,11 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
@@ -32,12 +36,18 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.title.TextTitle;
-import org.jfree.chart.title.Title;
 import org.jfree.ui.RectangleInsets;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
@@ -103,6 +113,7 @@ class DensityPlotPanel extends ChartPagePanel {
         toggleColorButton.setEnabled(false);
     }
 
+    /*
     private void setChartTitle() {
         final JFreeChart chart = densityPlotDisplay.getChart();
         final List<Title> subtitles = new ArrayList<Title>(7);
@@ -120,6 +131,7 @@ class DensityPlotPanel extends ChartPagePanel {
         )));
         chart.setSubtitles(subtitles);
     }
+    */
 
     private void initParameters() {
         axisRangeControls[X_VAR] = new AxisRangeControl("X-Axis");
@@ -306,7 +318,7 @@ class DensityPlotPanel extends ChartPagePanel {
 
     private void updateUIState() {
         super.updateComponents();
-        setChartTitle();
+        // setChartTitle();
     }
 
     @Override
