@@ -41,7 +41,7 @@ public class Hdf5ProductWriterPlugIn implements ProductWriterPlugIn {
     private static boolean hdf5LibAvailable = false;
 
     static {
-        hdf5LibAvailable = SystemUtils.loadHdf5Lib(Hdf5ProductWriterPlugIn.class) != null;
+        hdf5LibAvailable = loadHdf5Lib(Hdf5ProductWriterPlugIn.class) != null;
     }
 
     /**
