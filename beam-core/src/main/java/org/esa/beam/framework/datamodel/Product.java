@@ -226,7 +226,7 @@ public class Product extends ProductNode {
         this.vectorDataGroup = new VectorDataNodeProductNodeGroup();
         this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "indexCodingGroup", true);
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
-        this.maskGroup = new MaskProductNodeGroup();
+        this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
 
         pinGroup = createPinGroup();
         gcpGroup = createGcpGroup();
@@ -237,23 +237,16 @@ public class Product extends ProductNode {
             @Override
             public void nodeAdded(ProductNodeEvent event) {
                 if (event.getGroup() == vectorDataGroup) {
-                    final VectorDataNode sourceNode = (VectorDataNode) event.getSourceNode();
-                    if (sourceNode.getFeatureCollection().size() > 0) {
-                        final Mask mask = getMask(sourceNode);
-                        if (mask == null) {
-                            addMask(sourceNode);
-                        }
-                    }
+                    handleVectorDataNodeAdded(event);
                 }
             }
 
             @Override
             public void nodeRemoved(ProductNodeEvent event) {
                 if (event.getGroup() == vectorDataGroup) {
-                    final Mask mask = getMask((VectorDataNode) event.getSourceNode());
-                    if (mask != null) {
-                        getMaskGroup().remove(mask);
-                    }
+                    handleVectorDataNodeRemoved(event);
+                } else if (event.getGroup() == maskGroup) {
+                    handleMaskRemoved(event);
                 }
             }
 
@@ -268,6 +261,35 @@ public class Product extends ProductNode {
                 }
             }
         });
+    }
+
+    private void handleVectorDataNodeAdded(ProductNodeEvent event) {
+        final VectorDataNode sourceNode = (VectorDataNode) event.getSourceNode();
+        if (sourceNode.getFeatureCollection().size() > 0) {
+            final Mask mask = getMask(sourceNode);
+            if (mask == null) {
+                addMask(sourceNode);
+            }
+        }
+    }
+
+    private void handleVectorDataNodeRemoved(ProductNodeEvent event) {
+        final Mask mask = getMask((VectorDataNode) event.getSourceNode());
+        if (mask != null) {
+            getMaskGroup().remove(mask);
+        }
+    }
+
+    private void handleMaskRemoved(ProductNodeEvent event) {
+        final Mask mask = (Mask) event.getSourceNode();
+        final Band[] bands = getBands();
+        for (Band band : bands) {
+            band.getOverlayMaskGroup().remove(mask);
+        }
+        final TiePointGrid[] tiePointGrids = getTiePointGrids();
+        for (TiePointGrid tiePointGrid : tiePointGrids) {
+            tiePointGrid.getOverlayMaskGroup().remove(mask);
+        }
     }
 
     private void addMask(VectorDataNode node) {
@@ -2821,28 +2843,6 @@ public class Product extends ProductNode {
                 return false;
             }
             return super.remove(vectorDataNode);
-        }
-    }
-
-    private class MaskProductNodeGroup extends ProductNodeGroup<Mask> {
-
-        public MaskProductNodeGroup() {
-            super(Product.this, "maskGroup", true);
-        }
-
-        @Override
-        public boolean remove(Mask node) {
-            final boolean removed = super.remove(node);
-            if (removed) {
-                for (Band band : getBands()) {
-                    band.getOverlayMaskGroup().remove(node);
-                }
-                TiePointGrid[] tiePointGrids = getTiePointGrids();
-                for (TiePointGrid tiePointGrid : tiePointGrids) {
-                    tiePointGrid.getOverlayMaskGroup().remove(node);
-                }
-            }
-            return removed;
         }
     }
 }
