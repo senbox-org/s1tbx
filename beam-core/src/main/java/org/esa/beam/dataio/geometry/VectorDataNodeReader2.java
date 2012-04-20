@@ -83,12 +83,12 @@ public class VectorDataNodeReader2 {
         if (product.getGeoCoding() != null) {
             final Geometry clipGeometry = FeatureUtils.createGeoBoundaryPolygon(product);
             clippedCollection = FeatureUtils.clipCollection(featureCollection,
-                                                            featureCrs,
-                                                            clipGeometry,
-                                                            DefaultGeographicCRS.WGS84,
-                                                            null,
-                                                            modelCrs,
-                                                            SubProgressMonitor.create(pm, 80));
+                    featureCrs,
+                    clipGeometry,
+                    DefaultGeographicCRS.WGS84,
+                    null,
+                    modelCrs,
+                    SubProgressMonitor.create(pm, 80));
         } else {
             clippedCollection = featureCollection;
         }
@@ -245,7 +245,7 @@ public class VectorDataNodeReader2 {
         int expectedTokenCount = interpretationStrategy.getExpectedTokenCount(simpleFeatureType.getAttributeCount());
         if (tokens.length != expectedTokenCount) {
             BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
-                                                                   vectorDataNodeName, expectedTokenCount, tokens.length));
+                    vectorDataNodeName, expectedTokenCount, tokens.length));
             return false;
         }
         return true;
