@@ -28,16 +28,9 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.ProductUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
-import javax.swing.AbstractAction;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -110,7 +103,7 @@ public final class WorldMapPane extends JPanel {
     }
 
     public void setScale(final float scale) {
-        if (getScale() != scale) {
+        if (getScale() != scale && scale > 0) {
             final float oldValue = getScale();
             layerCanvas.getViewport().setZoomFactor(scale);
             firePropertyChange("scale", oldValue, scale);

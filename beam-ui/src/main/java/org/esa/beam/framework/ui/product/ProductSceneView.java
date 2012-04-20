@@ -1002,7 +1002,9 @@ public class ProductSceneView extends BasicView
     }
 
     public void zoom(double x, double y, double viewScale) {
-        layerCanvas.getViewport().setZoomFactor(viewScale, x, y);
+        if (viewScale > 0) {
+            layerCanvas.getViewport().setZoomFactor(viewScale, x, y);
+        }
     }
 
     public void synchronizeViewport(ProductSceneView otherView) {
