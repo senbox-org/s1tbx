@@ -19,13 +19,16 @@ package com.bc.ceres.grender.support;
 import com.bc.ceres.grender.Viewport;
 import org.junit.Test;
 
-import java.awt.*;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import static com.bc.ceres.glayer.Assert2D.assertEquals;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.fail;
 
 public class DefaultViewportTest {
 
