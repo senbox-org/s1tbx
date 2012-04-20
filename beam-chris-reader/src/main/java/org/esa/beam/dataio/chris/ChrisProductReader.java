@@ -328,8 +328,7 @@ public class ChrisProductReader extends AbstractProductReader {
                 final String name = new StringBuilder(rciBands[i].getName()).append("_").append(flag).toString();
                 final String expr = new StringBuilder(maskBands[i].getName()).append(".").append(flag).toString();
                 product.addMask(name,
-                                flag.getDescription(),
-                                expr,
+                                expr, flag.getDescription(),
                                 flag.getColor(),
                                 flag.getTransparency());
             }
@@ -345,8 +344,7 @@ public class ChrisProductReader extends AbstractProductReader {
             expression.append(maskBands[i].getName()).append(".").append(flag);
         }
         product.addMask(name,
-                        description,
-                        expression.toString(),
+                        expression.toString(), description,
                         flag.getColor(),
                         flag.getTransparency());
     }

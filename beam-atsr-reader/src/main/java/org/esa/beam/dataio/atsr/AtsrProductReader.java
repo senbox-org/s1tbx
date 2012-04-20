@@ -153,12 +153,12 @@ public class AtsrProductReader extends AbstractProductReader {
         final String fwardBand = AtsrGBTConstants.FORWARD_370_BT_NAME;
 
         if (prodRet.containsBand(nadirBand)) {
-            prodRet.addMask("fire_nadir_1", "ATSR active fire (ALGO1)", nadirBand + " > 312.0", Color.RED, 0.5f);
-            prodRet.addMask("fire_nadir_2", "ATSR active fire (ALGO2)", nadirBand + " > 308.0", Color.RED.darker(), 0.5f);
+            prodRet.addMask("fire_nadir_1", nadirBand + " > 312.0", "ATSR active fire (ALGO1)", Color.RED, 0.5f);
+            prodRet.addMask("fire_nadir_2", nadirBand + " > 308.0", "ATSR active fire (ALGO2)", Color.RED.darker(), 0.5f);
         }
         if (prodRet.containsBand(fwardBand)) {
-            prodRet.addMask("fire_fward_1", "ATSR active fire (ALGO1)", fwardBand + " > 312.0", Color.RED, 0.5f);
-            prodRet.addMask("fire_fward_2", "ATSR active fire (ALGO2)", fwardBand + " > 308.0", Color.RED.darker(), 0.5f);
+            prodRet.addMask("fire_fward_1", fwardBand + " > 312.0", "ATSR active fire (ALGO1)", Color.RED, 0.5f);
+            prodRet.addMask("fire_fward_2", fwardBand + " > 308.0", "ATSR active fire (ALGO2)", Color.RED.darker(), 0.5f);
         }
     }
 

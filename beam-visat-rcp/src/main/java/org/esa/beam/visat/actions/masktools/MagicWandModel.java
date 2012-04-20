@@ -220,8 +220,7 @@ public class MagicWandModel implements Cloneable {
             magicWandMask.getImageConfig().setValue("expression", expression);
         } else {
             product.addMask(MAGIC_WAND_MASK_NAME,
-                            "Magic wand mask",
-                            expression,
+                            expression, "Magic wand mask",
                             Color.RED, 0.5);
         }
     }

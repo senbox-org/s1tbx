@@ -35,40 +35,40 @@ public class VectorDataGroupTest {
 
     @Test
     public void initialState() {
-        assertEquals(0, vectorDataGroup.getNodeCount());
+        assertEquals(2, vectorDataGroup.getNodeCount());
         assertEquals(0, maskGroup.getNodeCount());
     }
 
     @Test
-    public void maskGroupIsCoupledWithVectorDataGroup() {
+    public void maskGroupIsNotCoupledWithEmptyVectorDataGroups() {
 
         final VectorDataNode v = new VectorDataNode("V", Placemark.createGeometryFeatureType());
 
         vectorDataGroup.add(v);
-        assertEquals(1, vectorDataGroup.getNodeCount());
-        assertEquals(1, maskGroup.getNodeCount());
-        assertSame(v, vectorDataGroup.get(0));
-        assertTrue(maskGroup.contains(v.getName()));
+        assertEquals(3, vectorDataGroup.getNodeCount());
+        assertEquals(0, maskGroup.getNodeCount());
+        assertSame(v, vectorDataGroup.get(2));
+        assertFalse(maskGroup.contains(v.getName()));
 
         final VectorDataNode u = new VectorDataNode("U", Placemark.createGeometryFeatureType());
         vectorDataGroup.add(0, u);
-        assertEquals(2, vectorDataGroup.getNodeCount());
-        assertEquals(2, maskGroup.getNodeCount());
+        assertEquals(4, vectorDataGroup.getNodeCount());
+        assertEquals(0, maskGroup.getNodeCount());
         assertSame(u, vectorDataGroup.get(0));
-        assertSame(v, vectorDataGroup.get(1));
-        assertTrue(maskGroup.contains(u.getName()));
-        assertTrue(maskGroup.contains(v.getName()));
+        assertSame(v, vectorDataGroup.get(3));
+        assertFalse(maskGroup.contains(u.getName()));
+        assertFalse(maskGroup.contains(v.getName()));
 
         vectorDataGroup.remove(u);
-        assertEquals(1, vectorDataGroup.getNodeCount());
-        assertEquals(1, maskGroup.getNodeCount());
+        assertEquals(3, vectorDataGroup.getNodeCount());
+        assertEquals(0, maskGroup.getNodeCount());
         assertFalse(vectorDataGroup.contains(u));
-        assertSame(v, vectorDataGroup.get(0));
+        assertSame(v, vectorDataGroup.get(2));
         assertFalse(maskGroup.contains(u.getName()));
-        assertTrue(maskGroup.contains(v.getName()));
+        assertFalse(maskGroup.contains(v.getName()));
 
         vectorDataGroup.removeAll();
-        assertEquals(0, vectorDataGroup.getNodeCount());
+        assertEquals(2, vectorDataGroup.getNodeCount());
         assertEquals(0, maskGroup.getNodeCount());
     }
 
@@ -80,7 +80,7 @@ public class VectorDataGroupTest {
         } catch (NullPointerException expected) {
         }
 
-        assertEquals(0, vectorDataGroup.getNodeCount());
+        assertEquals(2, vectorDataGroup.getNodeCount());
         assertEquals(0, maskGroup.getNodeCount());
     }
 }

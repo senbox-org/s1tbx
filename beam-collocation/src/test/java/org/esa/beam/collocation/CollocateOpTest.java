@@ -120,7 +120,7 @@ public class CollocateOpTest extends TestCase {
         mapInfo1.setSceneWidth(16);
         mapInfo1.setSceneHeight(16);
         product.setGeoCoding(new MapGeoCoding(mapInfo1));
-        product.addMask("bitmask", null, "radiance_1 > 10", Color.RED, 0.5f);
+        product.addMask("bitmask", "radiance_1 > 10", null, Color.RED, 0.5f);
         return product;
     }
 

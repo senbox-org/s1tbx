@@ -315,8 +315,8 @@ public class Mask extends Band {
                 expression = translateExpression(translationMap, expression);
                 final String originalMaskName = mask.getName();
                 final String maskName = getAvailableMaskName(originalMaskName, product.getMaskGroup());
-                return product.addMask(maskName, mask.getDescription(),
-                                expression, mask.getImageColor(), mask.getImageTransparency());
+                return product.addMask(maskName, expression, mask.getDescription(),
+                                       mask.getImageColor(), mask.getImageTransparency());
             }
 
             return null;

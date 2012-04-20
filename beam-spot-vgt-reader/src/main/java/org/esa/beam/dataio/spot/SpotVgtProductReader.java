@@ -355,38 +355,27 @@ public class SpotVgtProductReader extends AbstractProductReader {
                 }
             }
 
-            product.addMask("B0_BAD", "Radiometric quality for band B0 is bad.",
-                            "!SM.B0_GOOD",
+            product.addMask("B0_BAD", "!SM.B0_GOOD", "Radiometric quality for band B0 is bad.",
                             Color.RED, 0.2);
-            product.addMask("B2_BAD", "Radiometric quality for band B2 is bad.",
-                            "!SM.B2_GOOD",
+            product.addMask("B2_BAD", "!SM.B2_GOOD", "Radiometric quality for band B2 is bad.",
                             Color.RED, 0.2);
-            product.addMask("B3_BAD", "Radiometric quality for band B3 is bad.",
-                            "!SM.B3_GOOD",
+            product.addMask("B3_BAD", "!SM.B3_GOOD", "Radiometric quality for band B3 is bad.",
                             Color.RED, 0.2);
-            product.addMask("MIR_BAD", "Radiometric quality for band MIR is bad.",
-                            "!SM.MIR_GOOD",
+            product.addMask("MIR_BAD", "!SM.MIR_GOOD", "Radiometric quality for band MIR is bad.",
                             Color.RED, 0.2);
-            product.addMask("LAND", "Land mask.",
-                            "SM.LAND",
+            product.addMask("LAND", "SM.LAND", "Land mask.",
                             Color.GREEN, 0.5);
-            product.addMask("WATER", "Water mask.",
-                            "!SM.LAND",
+            product.addMask("WATER", "!SM.LAND", "Water mask.",
                             Color.BLUE, 0.5);
-            product.addMask("ICE_SNOW", "Ice/snow mask.",
-                            "SM.ICE_SNOW",
+            product.addMask("ICE_SNOW", "SM.ICE_SNOW", "Ice/snow mask.",
                             Color.MAGENTA, 0.5);
-            product.addMask("CLEAR", "Clear sky.",
-                            "!SM.CLOUD_1 && !SM.CLOUD_2",
+            product.addMask("CLEAR", "!SM.CLOUD_1 && !SM.CLOUD_2", "Clear sky.",
                             Color.ORANGE, 0.5);
-            product.addMask("CLOUD_SHADOW", "Cloud shadow.",
-                            "SM.CLOUD_1 && !SM.CLOUD_2",
+            product.addMask("CLOUD_SHADOW", "SM.CLOUD_1 && !SM.CLOUD_2", "Cloud shadow.",
                             Color.CYAN, 0.5);
-            product.addMask("CLOUD_UNCERTAIN", "Cloud uncertain.",
-                            "!SM.CLOUD_1 && SM.CLOUD_2",
+            product.addMask("CLOUD_UNCERTAIN", "!SM.CLOUD_1 && SM.CLOUD_2", "Cloud uncertain.",
                             Color.ORANGE, 0.5);
-            product.addMask("CLOUD", "Cloud certain.",
-                            "SM.CLOUD_1 && SM.CLOUD_2",
+            product.addMask("CLOUD", "SM.CLOUD_1 && SM.CLOUD_2", "Cloud certain.",
                             Color.YELLOW, 0.5);
         }
     }

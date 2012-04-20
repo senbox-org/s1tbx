@@ -45,6 +45,8 @@ public class MaskFormTest extends TestCase {
     }
 
     public void testMaskManagerForm() {
+        assertEquals(10, product.getMaskGroup().getNodeCount());
+
         assertSame(product, maskManagerForm.getProduct());
         assertNotNull(maskManagerForm.getHelpButton());
         assertEquals("helpButton", maskManagerForm.getHelpButton().getName());
@@ -53,16 +55,18 @@ public class MaskFormTest extends TestCase {
 
         final TableModel tableModel = maskManagerForm.getMaskTable().getModel();
 
-        assertEquals("M_1", tableModel.getValueAt(0, 0));
-
-        product.getPinGroup(); // Force addition of "pin" group
-
-        assertEquals(11, maskManagerForm.getRowCount());
+        assertEquals(10, maskManagerForm.getRowCount());
 
         assertEquals("M_1", tableModel.getValueAt(0, 0));
         assertEquals("M_2", tableModel.getValueAt(1, 0));
+        assertEquals("M_3", tableModel.getValueAt(2, 0));
+        assertEquals("M_4", tableModel.getValueAt(3, 0));
+        assertEquals("M_5", tableModel.getValueAt(4, 0));
+        assertEquals("M_6", tableModel.getValueAt(5, 0));
+        assertEquals("M_7", tableModel.getValueAt(6, 0));
+        assertEquals("M_8", tableModel.getValueAt(7, 0));
+        assertEquals("M_9", tableModel.getValueAt(8, 0));
         assertEquals("M_10", tableModel.getValueAt(9, 0));
-        assertEquals("pins", tableModel.getValueAt(10, 0));
     }
 
     public void testMaskViewerForm() {
@@ -86,6 +90,7 @@ public class MaskFormTest extends TestCase {
                 Color.RED,
         };
         Product product = new Product("P", "T", 256, 256);
+
         Band a = product.addBand("A", ProductData.TYPE_UINT8);
         Band b = product.addBand("B", ProductData.TYPE_UINT8);
         Band c = product.addBand("C", ProductData.TYPE_UINT8);
@@ -103,14 +108,6 @@ public class MaskFormTest extends TestCase {
             product.getMaskGroup().add(mask);
         }
 
-        for (int i = 0; i < product.getVectorDataGroup().getNodeCount(); i++) {
-            VectorDataNode vectorDataNode = product.getVectorDataGroup().get(i);
-            final Mask mask = product.addMask(vectorDataNode.getName(),
-                                              Mask.VectorDataType.INSTANCE);
-            mask.getImageConfig().setValue("color", colors[i % colors.length].brighter());
-            mask.getImageConfig().setValue("transparency", 0.1);
-            mask.getImageConfig().setValue("vectorData", vectorDataNode);
-        }
         return product;
     }
 }

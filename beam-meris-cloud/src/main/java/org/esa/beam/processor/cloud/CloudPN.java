@@ -196,8 +196,7 @@ public class CloudPN extends ProcessingNode {
         cloudAttr.setDescription("is with more than 80% cloudy");
         flagCoding.addAttribute(cloudAttr);
         outputProduct.addMask(cloudAttr.getName(),
-                              cloudAttr.getDescription(),
-                              flagCoding.getName() + "." + cloudAttr.getName(),
+                              flagCoding.getName() + "." + cloudAttr.getName(), cloudAttr.getDescription(),
                               createBitmaskColor(1, 3), 0.5);
 
         cloudAttr = new MetadataAttribute("cloudfree", ProductData.TYPE_UINT8);
@@ -205,8 +204,7 @@ public class CloudPN extends ProcessingNode {
         cloudAttr.setDescription("is with less than 20% cloudy");
         flagCoding.addAttribute(cloudAttr);
         outputProduct.addMask(cloudAttr.getName(),
-                              cloudAttr.getDescription(),
-                              flagCoding.getName() + "." + cloudAttr.getName(),
+                              flagCoding.getName() + "." + cloudAttr.getName(), cloudAttr.getDescription(),
                               createBitmaskColor(2, 3), 0.5);
 
         cloudAttr = new MetadataAttribute("cloud_uncertain", ProductData.TYPE_UINT8);
@@ -214,8 +212,7 @@ public class CloudPN extends ProcessingNode {
         cloudAttr.setDescription("is with between 20% and 80% cloudy");
         flagCoding.addAttribute(cloudAttr);
         outputProduct.addMask(cloudAttr.getName(),
-                              cloudAttr.getDescription(),
-                              flagCoding.getName() + "." + cloudAttr.getName(),
+                              flagCoding.getName() + "." + cloudAttr.getName(), cloudAttr.getDescription(),
                               createBitmaskColor(3, 3), 0.5);
 
         return flagCoding;

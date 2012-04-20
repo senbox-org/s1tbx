@@ -1308,10 +1308,13 @@ public class ProductUtils {
 
                 FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
                 featureCollection = new DefaultFeatureCollection(featureCollection);
-                VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
+                if (!targetProduct.getVectorDataGroup().contains(name)) {
+                    targetProduct.getVectorDataGroup().add(new VectorDataNode(name, featureCollection.getSchema()));
+                }
+                VectorDataNode targetVDN = targetProduct.getVectorDataGroup().get(name);
+                targetVDN.getFeatureCollection().addAll(featureCollection);
                 targetVDN.setDefaultStyleCss(sourceVDN.getDefaultStyleCss());
                 targetVDN.setDescription(sourceVDN.getDescription());
-                targetProduct.getVectorDataGroup().add(targetVDN);
             }
         } else {
             if (sourceProduct.getGeoCoding() == null || targetProduct.getGeoCoding() == null) {
@@ -1343,10 +1346,13 @@ public class ProductUtils {
                                                                 null,
                                                                 targetModelCrs,
                                                                 ProgressMonitor.NULL);
-                VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
+                if (!targetProduct.getVectorDataGroup().contains(name)) {
+                    targetProduct.getVectorDataGroup().add(new VectorDataNode(name, featureCollection.getSchema()));
+                }
+                VectorDataNode targetVDN = targetProduct.getVectorDataGroup().get(name);
+                targetVDN.getFeatureCollection().addAll(featureCollection);
                 targetVDN.setDefaultStyleCss(sourceVDN.getDefaultStyleCss());
                 targetVDN.setDescription(sourceVDN.getDescription());
-                targetProduct.getVectorDataGroup().add(targetVDN);
             }
         }
     }

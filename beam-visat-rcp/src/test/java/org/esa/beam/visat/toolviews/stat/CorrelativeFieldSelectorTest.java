@@ -70,7 +70,7 @@ public class CorrelativeFieldSelectorTest {
 
         correlativeFieldSelector.updatePointDataSource(product);
 
-        assertEquals(1, correlativeFieldSelector.pointDataSourceList.getItemCount());
+        assertEquals(3, correlativeFieldSelector.pointDataSourceList.getItemCount());
         assertEquals(0, correlativeFieldSelector.dataFieldList.getItemCount());
 
         correlativeFieldSelector.pointDataSourceProperty.setValue(product.getVectorDataGroup().get("b"));

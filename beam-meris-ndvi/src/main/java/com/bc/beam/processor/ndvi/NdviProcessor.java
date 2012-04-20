@@ -320,12 +320,15 @@ public class NdviProcessor extends Processor {
         ProductUtils.copyMasks(_inputProduct, _outputProduct);
         ProductUtils.copyOverlayMasks(_inputProduct, _outputProduct);
 
-        _outputProduct.addMask(NDVI_ARITHMETIC_FLAG_NAME, "An arithmetic exception occured.",
-                               (NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME), Color.red.brighter(), 0.7);
-        _outputProduct.addMask(NDVI_LOW_FLAG_NAME, "NDVI value is too low.",
-                               (NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME), Color.red, 0.7);
-        _outputProduct.addMask(NDVI_HIGH_FLAG_NAME, "NDVI value is too high.",
-                               (NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME), Color.red.darker(), 0.7);
+        _outputProduct.addMask(NDVI_ARITHMETIC_FLAG_NAME, (NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME),
+                               "An arithmetic exception occured.",
+                               Color.red.brighter(), 0.7);
+        _outputProduct.addMask(NDVI_LOW_FLAG_NAME, (NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME),
+                               "NDVI value is too low.",
+                               Color.red, 0.7);
+        _outputProduct.addMask(NDVI_HIGH_FLAG_NAME, (NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME),
+                               "NDVI value is too high.",
+                               Color.red.darker(), 0.7);
 
 
         // retrieve the default disk writer from the ProductIO package

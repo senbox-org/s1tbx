@@ -475,7 +475,7 @@ class MaskFormActions {
                 final Color color = propertyMap.getPropertyColor("bitmaskColor", Color.yellow);
                 final float transparency = (float) propertyMap.getPropertyDouble("bitmaskTransparency", 0.5);
                 final Product product = getMaskForm().getProduct();
-                product.addMask(name, description, expression, color, transparency);
+                product.addMask(name, expression, description, color, transparency);
             } catch (Exception e) {
                 showErrorDialog(String.format("Failed to import mask(s): %s", e.getMessage()));
             }
@@ -834,7 +834,7 @@ class MaskFormActions {
             int dataType = mask.getDataType();
             Band band = targetProduct.addBand(bandName, dataType);
             String description = mask.getDescription() + " (from " + mask.getProduct().getDisplayName() + ")";
-            targetProduct.addMask(maskName, description, bandName, mask.getImageColor(), mask.getImageTransparency());
+            targetProduct.addMask(maskName, bandName, description, mask.getImageColor(), mask.getImageTransparency());
             return band;
         }
 

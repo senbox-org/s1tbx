@@ -278,10 +278,10 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
                     avhrrFile.getProductHeight());
 
             final String cloudBandName = cloudReader.getBandName();
-            product.addMask("clear", "", cloudBandName + "==0", Color.LIGHT_GRAY, 0.4);
-            product.addMask("probably_clear", "", cloudBandName + "==1", Color.YELLOW, 0.4);
-            product.addMask("probably_cloudy", "", cloudBandName + "==2", Color.ORANGE, 0.4);
-            product.addMask("cloudy", "", cloudBandName + "==3", Color.RED, 0.4);
+            product.addMask("clear", cloudBandName + "==0", "", Color.LIGHT_GRAY, 0.4);
+            product.addMask("probably_clear", cloudBandName + "==1", "", Color.YELLOW, 0.4);
+            product.addMask("probably_cloudy", cloudBandName + "==2", "", Color.ORANGE, 0.4);
+            product.addMask("cloudy", cloudBandName + "==3", "", Color.RED, 0.4);
 
             product.addBand(cloudMaskBand);
             bandReaders.put(cloudMaskBand, cloudReader);
@@ -302,7 +302,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
         final Color color = new Color(r, g, b);
 
         fc.addFlag(flagName, 1 << shift, flagDesc);
-        product.addMask(flagName, flagDesc, fc.getName() + "." + flagName, color, 0.4);
+        product.addMask(flagName, fc.getName() + "." + flagName, flagDesc, color, 0.4);
     }
 
     protected void addTiePointGrids() throws IOException {

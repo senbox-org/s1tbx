@@ -106,7 +106,7 @@ abstract class MaskSelectionToolSupport implements PlotAreaSelectionTool.Action 
         if (mask != null) {
             mask.getImageConfig().setValue("expression", expression);
         } else {
-            mask = product.addMask(maskName, maskDescription, expression, maskColor, 0.5);
+            mask = product.addMask(maskName, expression, maskDescription, maskColor, 0.5);
         }
 
         RasterDataNode raster = pagePanel.getRaster();

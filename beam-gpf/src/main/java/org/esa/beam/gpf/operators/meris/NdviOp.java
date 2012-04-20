@@ -102,12 +102,15 @@ public class NdviOp extends Operator {
         ProductUtils.copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
 
-        targetProduct.addMask(NDVI_ARITHMETIC_FLAG_NAME, "An arithmetic exception occured.",
-                              (NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME), Color.red.brighter(), 0.7);
-        targetProduct.addMask(NDVI_LOW_FLAG_NAME, "NDVI value is too low.",
-                              (NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME), Color.red, 0.7);
-        targetProduct.addMask(NDVI_HIGH_FLAG_NAME, "NDVI value is too high.",
-                              (NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME), Color.red.darker(), 0.7);
+        targetProduct.addMask(NDVI_ARITHMETIC_FLAG_NAME, (NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME),
+                              "An arithmetic exception occured.",
+                              Color.red.brighter(), 0.7);
+        targetProduct.addMask(NDVI_LOW_FLAG_NAME, (NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME),
+                              "NDVI value is too low.",
+                              Color.red, 0.7);
+        targetProduct.addMask(NDVI_HIGH_FLAG_NAME, (NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME),
+                              "NDVI value is too high.",
+                              Color.red.darker(), 0.7);
     }
 
     @Override
