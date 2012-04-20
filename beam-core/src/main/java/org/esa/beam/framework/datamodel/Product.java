@@ -238,6 +238,8 @@ public class Product extends ProductNode {
             public void nodeAdded(ProductNodeEvent event) {
                 if (event.getGroup() == vectorDataGroup) {
                     handleVectorDataNodeAdded(event);
+                } else if (event.getGroup() == maskGroup) {
+                    handleMaskAdded(event);
                 }
             }
 
@@ -261,6 +263,15 @@ public class Product extends ProductNode {
                 }
             }
         });
+    }
+
+    private void handleMaskAdded(ProductNodeEvent event) {
+        // TODO - move code to where masks are created
+        final Mask mask = (Mask) event.getSourceNode();
+        if (StringUtils.isNullOrEmpty(mask.getDescription()) && mask.getImageType() == Mask.BandMathsType.INSTANCE) {
+            String expression = Mask.BandMathsType.getExpression(mask);
+            mask.setDescription(getSuitableBitmaskDefDescription(expression));
+        }
     }
 
     private void handleVectorDataNodeAdded(ProductNodeEvent event) {
