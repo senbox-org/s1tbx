@@ -197,6 +197,7 @@ public class Product extends ProductNode {
         this.tiePointGridGroup = new ProductNodeGroup<TiePointGrid>(this, "tiePointGridGroup", true);
         this.bitmaskDefGroup = new ProductNodeGroup<BitmaskDef>(this, "bitmaskDefGroup", true);
         this.vectorDataGroup = new ProductNodeGroup<VectorDataNode>(this, "vectorDataGroup", true) {
+
             @Override
             public boolean add(VectorDataNode vectorDataNode) {
                 if (pinGroup != null && pinGroup.getVectorDataNode() == vectorDataNode) {
@@ -271,6 +272,7 @@ public class Product extends ProductNode {
         this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "indexCodingGroup", true);
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
         this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true) {
+
             @Override
             public boolean add(Mask mask) {
                 updateDescription(mask);
@@ -293,8 +295,8 @@ public class Product extends ProductNode {
             }
         };
 
-        pinGroup = getPinGroup(true);
-        gcpGroup = getGcpGroup(true);
+        pinGroup = createPinGroup();
+        gcpGroup = createGcpGroup();
 
         setModified(false);
 
@@ -1150,14 +1152,11 @@ public class Product extends ProductNode {
     //////////////////////////////////////////////////////////////////////////
     // GCP support
 
-    private synchronized PlacemarkGroup getGcpGroup(boolean create) {
-        if (create && gcpGroup == null) {
-            final VectorDataNode vectorDataNode = new VectorDataNode(GCP_GROUP_NAME, Placemark.createGcpFeatureType());
-            vectorDataNode.setDefaultStyleCss("symbol:plus; stroke:#ff8800; stroke-opacity:0.8; stroke-width:1.0");
-            this.vectorDataGroup.add(vectorDataNode);
-            return vectorDataNode.getPlacemarkGroup();
-        }
-        return gcpGroup;
+    private synchronized PlacemarkGroup createGcpGroup() {
+        final VectorDataNode vectorDataNode = new VectorDataNode(GCP_GROUP_NAME, Placemark.createGcpFeatureType());
+        vectorDataNode.setDefaultStyleCss("symbol:plus; stroke:#ff8800; stroke-opacity:0.8; stroke-width:1.0");
+        this.vectorDataGroup.add(vectorDataNode);
+        return vectorDataNode.getPlacemarkGroup();
     }
 
     /**
@@ -1173,14 +1172,11 @@ public class Product extends ProductNode {
     //////////////////////////////////////////////////////////////////////////
     // Pin support
 
-    private synchronized PlacemarkGroup getPinGroup(boolean create) {
-        if (create && pinGroup == null) {
-            final VectorDataNode vectorDataNode = new VectorDataNode(PIN_GROUP_NAME, Placemark.createPinFeatureType());
-            vectorDataNode.setDefaultStyleCss("symbol:pin; fill:#0000ff; fill-opacity:0.7; stroke:#ffffff; stroke-opacity:1.0; stroke-width:0.5");
-            this.vectorDataGroup.add(vectorDataNode);
-            return vectorDataNode.getPlacemarkGroup();
-        }
-        return pinGroup;
+    private synchronized PlacemarkGroup createPinGroup() {
+        final VectorDataNode vectorDataNode = new VectorDataNode(PIN_GROUP_NAME, Placemark.createPinFeatureType());
+        vectorDataNode.setDefaultStyleCss("symbol:pin; fill:#0000ff; fill-opacity:0.7; stroke:#ffffff; stroke-opacity:1.0; stroke-width:0.5");
+        this.vectorDataGroup.add(vectorDataNode);
+        return vectorDataNode.getPlacemarkGroup();
     }
 
     /**
