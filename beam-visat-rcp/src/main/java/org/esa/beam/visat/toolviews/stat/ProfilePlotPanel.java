@@ -163,7 +163,7 @@ class ProfilePlotPanel extends ChartPagePanel {
         dataset = new XYIntervalSeriesCollection();
         this.chart = ChartFactory.createXYLineChart(
                 CHART_TITLE,
-                "Path (pixel#)",
+                "Path in pixels",
                 DEFAULT_SAMPLE_DATASET_NAME,
                 dataset,
                 PlotOrientation.VERTICAL,
@@ -567,9 +567,10 @@ class ProfilePlotPanel extends ChartPagePanel {
 
     @Override
     protected String getDataAsText() {
-        try {
-            return StatisticsUtils.TransectProfile.createTransectProfileText(getRaster());
-        } catch (IOException ignore) {
+        if (profileData != null) {
+            ProfileDataTableModel model = new ProfileDataTableModel(getRaster().getName(), profileData, dataSourceConfig);
+            return model.toCsv();
+        } else {
             return "";
         }
     }
@@ -580,15 +581,14 @@ class ProfilePlotPanel extends ChartPagePanel {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    private static class DataSourceConfig {
-
-        private int boxSize = 3;
-        public boolean useRoiMask;
-        private Mask roiMask;
-        private boolean computeInBetweenPoints = true;
-        private boolean useCorrelativeData;
-        private VectorDataNode pointDataSource;
-        private AttributeDescriptor dataField;
+    static class DataSourceConfig {
+        int boxSize = 3;
+        boolean useRoiMask;
+        Mask roiMask;
+        boolean computeInBetweenPoints = true;
+        boolean useCorrelativeData;
+        VectorDataNode pointDataSource;
+        AttributeDescriptor dataField;
     }
 
     private class EnablePointDataCondition extends Enablement.Condition {
