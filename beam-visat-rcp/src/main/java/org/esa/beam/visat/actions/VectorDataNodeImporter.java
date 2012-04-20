@@ -84,8 +84,8 @@ class VectorDataNodeImporter {
         final GeoCoding geoCoding = product.getGeoCoding();
         if (geoCoding == null || !geoCoding.canGetPixelPos()) {
             visatApp.showErrorDialog(dialogTitle, "Failed to import vector data.\n"
-                                                +
-                                                "Current geo-coding cannot convert from geographic to pixel coordinates."); /* I18N */
+                    +
+                    "Current geo-coding cannot convert from geographic to pixel coordinates."); /* I18N */
             return;
         }
 
@@ -94,14 +94,14 @@ class VectorDataNodeImporter {
             vectorDataNode = readGeometry(visatApp, file, product);
         } catch (Exception e) {
             visatApp.showErrorDialog(dialogTitle, "Failed to import vector data.\n" + "An I/O Error occurred:\n"
-                                                + e.getMessage()); /* I18N */
+                    + e.getMessage()); /* I18N */
             Debug.trace(e);
             return;
         }
 
         if (vectorDataNode.getFeatureCollection().isEmpty()) {
             visatApp.showErrorDialog(dialogTitle, "The vector data was loaded successfully,\n"
-                                                + "but no part is located within the scene boundaries."); /* I18N */
+                    + "but no part is located within the scene boundaries."); /* I18N */
             return;
         }
 
@@ -110,18 +110,18 @@ class VectorDataNodeImporter {
         GeometryDescriptor geometryDescriptor = vectorDataNode.getFeatureType().getGeometryDescriptor();
         int featureCount = vectorDataNode.getFeatureCollection().size();
         if (featureCount > 1
-            && geometryDescriptor != null
-            && Polygonal.class.isAssignableFrom(geometryDescriptor.getType().getBinding())) {
+                && geometryDescriptor != null
+                && Polygonal.class.isAssignableFrom(geometryDescriptor.getType().getBinding())) {
 
             String text = "<html>" +
-                          "The vector data set contains <b>" +
-                          featureCount + "</b> polygonal shapes.<br>" +
-                          "Shall they be imported separately?<br>" +
-                          "<br>" +
-                          "If you select <b>Yes</b>, the polygons can be used as individual masks<br>" +
-                          "and they will be displayed on individual layers.</i>";
+                    "The vector data set contains <b>" +
+                    featureCount + "</b> polygonal shapes.<br>" +
+                    "Shall they be imported separately?<br>" +
+                    "<br>" +
+                    "If you select <b>Yes</b>, the polygons can be used as individual masks<br>" +
+                    "and they will be displayed on individual layers.</i>";
             SeparateGeometriesDialog dialog = new SeparateGeometriesDialog(visatApp.getMainFrame(), vectorDataNode, helpId,
-                                                                           text);
+                    text);
 
             int response = dialog.show();
             if (response == ModalDialog.ID_CANCEL) {

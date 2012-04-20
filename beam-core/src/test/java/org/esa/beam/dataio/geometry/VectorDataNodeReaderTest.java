@@ -35,25 +35,28 @@ import java.util.List;
 import java.util.Map;
 
 public class VectorDataNodeReaderTest extends TestCase {
+
     static final String INPUT_1 =
             "# This is a test comment\n" +
-                    "# separator=TAB\n" +
-                    "# styleCss=color:0,0,255\n" +
-                    "\n" +
-                    "org.esa.beam.FT1\tname:String\tgeom:Geometry\tpixel:Integer\tdescription:String\n"
-                    + "ID65\tmark1\tPOINT (12.3 45.6)\t0\tThis is mark1.\n"
-                    + "ID66\tmark2\tPOINT (78.9 10.1)\t1\t[null]\n"
-                    + "ID67\tmark3\tPOINT (23.4 56.7)\t2\tThis is mark3.\n";
+            "# separator=TAB\n" +
+            "# styleCss=color:0,0,255\n" +
+            "\n" +
+            "org.esa.beam.FT1\tname:String\tgeom:Geometry\tpixel:Integer\tdescription:String\n"
+            + "ID65\tmark1\tPOINT (12.3 45.6)\t0\tThis is mark1.\n"
+            + "ID66\tmark2\tPOINT (78.9 10.1)\t1\t[null]\n"
+            + "ID67\tmark3\tPOINT (23.4 56.7)\t2\tThis is mark3.\n";
 
     static final String INPUT_2 =
-            "org.esa.beam.FT2\tname:String\tgeom:Point\tweight:Float\n"
-                    + "ID65\tmark1\tPOINT (12.3 45.6)\t0.4\n";
+            "#beam.placemarkDescriptor.class=GeometryDescriptor\n"
+            + "#defaultGeometry=geom\n"
+            + "org.esa.beam.FT2\tname:String\tgeom:Point\tweight:Float\n"
+            + "ID65\tmark1\tPOINT (12.3 45.6)\t0.4\n";
 
     public void testReadPropertiesInInput1() throws IOException {
         StringReader reader = new StringReader(INPUT_1);
 
         VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader("mem", null);
-        Map<String,String> properties = vectorDataNodeReader.readProperties(reader);
+        Map<String, String> properties = vectorDataNodeReader.readProperties(reader);
 
         assertNotNull(properties);
         assertEquals(2, properties.size());
@@ -188,7 +191,7 @@ public class VectorDataNodeReaderTest extends TestCase {
 
         try {
             String source = "FT\ta:Integer\n" +
-                    "ID1\tX\n";
+                            "ID1\tX\n";
             FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new VectorDataNodeReader("mem", null).readFeatures(new StringReader(source));
             assertEquals(1, fc.size());
             assertEquals(null, fc.features().next().getAttribute("a"));
@@ -198,7 +201,7 @@ public class VectorDataNodeReaderTest extends TestCase {
 
         try {
             String source = "FT\ta:Integer\n" +
-                    "ID1\t1234\tABC\n";
+                            "ID1\t1234\tABC\n";
             FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new VectorDataNodeReader("mem", null).readFeatures(new StringReader(source));
             assertEquals(0, fc.size());
         } catch (IOException e) {

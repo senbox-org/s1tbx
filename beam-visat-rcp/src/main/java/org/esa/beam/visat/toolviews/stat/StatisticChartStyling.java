@@ -11,24 +11,29 @@ import java.awt.geom.Ellipse2D;
 
 class StatisticChartStyling {
 
-    static final Paint INSITU_PAINT = new Color(200, 0, 0);
-    static final Paint INSITU_OUTLINE_PAINT = INSITU_PAINT;
-    static final Paint INSITU_FILL_PAINT = new Color(255, 150, 150);
-    static final Shape INSITU_SHAPE = new Ellipse2D.Float(-4, -4, 8, 8);
-    static final boolean INSITU_SHAPES_FILLED = true;
-    static final Paint DATA_PAINT = new Color(0, 0, 200);
-    static final Paint DATA_FILL_PAINT = new Color(150, 150, 255);
-    static final Shape DATA_POINT_SHAPE = new Ellipse2D.Float(-4, -4, 8, 8);
+    static final Paint CORRELATIVE_POINT_PAINT = new Color(200, 0, 0);
+    static final Paint CORRELATIVE_POINT_OUTLINE_PAINT = CORRELATIVE_POINT_PAINT;
+    static final Paint CORRELATIVE_POINT_FILL_PAINT = new Color(255, 150, 150);
+    static final Shape CORRELATIVE_POINT_SHAPE = new Ellipse2D.Float(-4, -4, 8, 8);
+    static final boolean CORRELATIVE_POINT_SHAPES_FILLED = true;
+
+    static final Paint SAMPLE_DATA_PAINT = new Color(0, 0, 200);
+    static final Paint SAMPLE_DATA_FILL_PAINT = new Color(150, 150, 255);
+    static final Shape SAMPLE_DATA_POINT_SHAPE = new Ellipse2D.Float(-4, -4, 8, 8);
 
     static ValueAxis updateScalingOfAxis(boolean logScaled, ValueAxis oldAxis, final boolean autoRangeIncludesZero) {
         ValueAxis newAxis = oldAxis;
         if (logScaled) {
             if (!(oldAxis instanceof CustomLogarithmicAxis)) {
-                newAxis = createLogarithmicAxis(oldAxis.getLabel());
+                final CustomLogarithmicAxis logarithmicAxis = createLogarithmicAxis(oldAxis.getLabel());
+                logarithmicAxis.setAutoRange(oldAxis.isAutoRange());
+                newAxis = logarithmicAxis;
             }
         } else {
             if (oldAxis instanceof CustomLogarithmicAxis) {
-                newAxis = createNumberAxis(oldAxis.getLabel(), autoRangeIncludesZero);
+                final NumberAxis numberAxis = createNumberAxis(oldAxis.getLabel(), autoRangeIncludesZero);
+                numberAxis.setAutoRange(oldAxis.isAutoRange());
+                newAxis = numberAxis;
             }
         }
         return newAxis;
@@ -52,16 +57,16 @@ class StatisticChartStyling {
     public static String getAxisLabel(RasterDataNode raster, String defaultVariableName, boolean log10Scaled) {
         if (raster != null) {
             if (log10Scaled) {
-                return "log10(" + raster.getName() + ")";
+                return "log10 of " + raster.getName();
             }
             final String unit = raster.getUnit();
             if (unit != null && !unit.isEmpty()) {
-                return raster.getName() + " (" + unit + ")";
+                return raster.getName() + " in " + unit;
             }
             return raster.getName();
         } else {
             if (log10Scaled) {
-                return "log10(" + defaultVariableName + ")";
+                return "log10 of " + defaultVariableName;
             } else {
                 return defaultVariableName;
             }

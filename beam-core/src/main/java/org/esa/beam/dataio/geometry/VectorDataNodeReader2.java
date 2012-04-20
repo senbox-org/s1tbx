@@ -21,7 +21,11 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.thoughtworks.xstream.core.util.OrderRetainingMap;
 import com.vividsolutions.jts.geom.Geometry;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.converters.JavaTypeConverter;
@@ -32,16 +36,13 @@ import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
 import java.io.IOException;
-import java.io.LineNumberReader;
 import java.io.Reader;
-import java.util.List;
 import java.util.Map;
 
 public class VectorDataNodeReader2 {
@@ -51,22 +52,22 @@ public class VectorDataNodeReader2 {
     private final Product product;
     private final FeatureUtils.FeatureCrsProvider crsProvider;
     private final PlacemarkDescriptorProvider placemarkDescriptorProvider;
-    private final InterpretationStrategy interpretationStrategy;
+    private InterpretationStrategy interpretationStrategy;
     private final CsvReader reader;
 
     private static final String[] LONGITUDE_IDENTIFIERS = new String[]{"lon", "long", "longitude"};
     private static final String[] LATITUDE_IDENTIFIERS = new String[]{"lat", "latitude"};
     private static final String[] GEOMETRY_IDENTIFIERS = new String[]{"geometry", "geom", "the_geom"};
     private SimpleFeatureType featureType;
+    private Map<String, String> properties;
 
-    VectorDataNodeReader2(String vectorDataNodeName, Product product, Reader reader, FeatureUtils.FeatureCrsProvider crsProvider, PlacemarkDescriptorProvider placemarkDescriptorProvider) throws IOException {
+    private VectorDataNodeReader2(String vectorDataNodeName, Product product, Reader reader, FeatureUtils.FeatureCrsProvider crsProvider, PlacemarkDescriptorProvider placemarkDescriptorProvider) throws IOException {
         this.product = product;
         this.crsProvider = crsProvider;
         this.placemarkDescriptorProvider = placemarkDescriptorProvider;
         this.geoCoding = product.getGeoCoding();
         this.vectorDataNodeName = vectorDataNodeName;
         this.reader = new CsvReader(reader, new char[]{VectorDataNodeIO.DELIMITER_CHAR}, true, "#");
-        this.interpretationStrategy = createInterpretationStrategy();
     }
 
     public static VectorDataNode read(String name, Reader reader, Product product, FeatureUtils.FeatureCrsProvider crsProvider, PlacemarkDescriptorProvider placemarkDescriptorProvider, CoordinateReferenceSystem modelCrs, ProgressMonitor pm) throws IOException {
@@ -74,18 +75,18 @@ public class VectorDataNodeReader2 {
     }
 
     VectorDataNode read(CoordinateReferenceSystem modelCrs, ProgressMonitor pm) throws IOException {
-        final String name = FileUtils.getFilenameWithoutExtension(vectorDataNodeName);
-        Map<String, String> properties = readProperties();
+        reader.mark(1024 * 1024 * 10);
+        properties = readProperties();
+        interpretationStrategy = createInterpretationStrategy();
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures();
 
-        CoordinateReferenceSystem featureCrs = featureCollection.getSchema().getCoordinateReferenceSystem();
         FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection;
         if (product.getGeoCoding() != null) {
             final Geometry clipGeometry = FeatureUtils.createGeoBoundaryPolygon(product);
             clippedCollection = FeatureUtils.clipCollection(featureCollection,
-                                                            featureCrs,
+                                                            null,
                                                             clipGeometry,
-                                                            DefaultGeographicCRS.WGS84,
+                                                            featureCollection.getSchema().getCoordinateReferenceSystem(),
                                                             null,
                                                             modelCrs,
                                                             SubProgressMonitor.create(pm, 80));
@@ -96,6 +97,7 @@ public class VectorDataNodeReader2 {
         final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorProvider.getPlacemarkDescriptor(featureType);
         placemarkDescriptor.setUserData(clippedCollection.getSchema());
 
+        final String name = FileUtils.getFilenameWithoutExtension(vectorDataNodeName);
         VectorDataNode vectorDataNode = new VectorDataNode(name, clippedCollection, placemarkDescriptor);
         if (properties.containsKey(ProductNode.PROPERTY_NAME_DESCRIPTION)) {
             vectorDataNode.setDescription(properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
@@ -112,13 +114,13 @@ public class VectorDataNodeReader2 {
      * Collects comment lines of the form "# &lt;name&gt; = &lt;value&gt;" until the first non-empty and non-comment line is found.
      *
      * @return All the property assignments found.
+     *
      * @throws java.io.IOException
      */
     Map<String, String> readProperties() throws IOException {
-        LineNumberReader lineNumberReader = new LineNumberReader(reader);
         OrderRetainingMap properties = new OrderRetainingMap();
         String line;
-        while ((line = lineNumberReader.readLine()) != null) {
+        while ((line = reader.readLine()) != null) {
             line = line.trim();
             if (line.startsWith("#")) {
                 line = line.substring(1);
@@ -127,16 +129,18 @@ public class VectorDataNodeReader2 {
                     String name = line.substring(0, index).trim();
                     String value = line.substring(index + 1).trim();
                     if (StringUtils.isNotNullAndNotEmpty(name) &&
-                            StringUtils.isNotNullAndNotEmpty(value)) {
+                        StringUtils.isNotNullAndNotEmpty(value)) {
                         properties.put(name, value);
                     }
                 }
-            } else if (!line.isEmpty()) {
+                reader.mark(1024 * 1024 * 10);
+            } else if (line.isEmpty()) {
+                reader.mark(1024 * 1024 * 10);
+            } else {
                 // First non-comment line reached, no more property assignments expected
                 break;
             }
         }
-        reader.reset();
         //noinspection unchecked
         return (Map<String, String>) properties;
     }
@@ -147,7 +151,7 @@ public class VectorDataNodeReader2 {
     }
 
     private InterpretationStrategy createInterpretationStrategy() throws IOException {
-        reader.mark(1024 * 1024 * 10);
+        reader.reset();
         String[] tokens = reader.readRecord();
         reader.reset();
 
@@ -164,6 +168,7 @@ public class VectorDataNodeReader2 {
 
         String featureTypeName = null;
         String geometryName = null;
+        final String defaultGeometry = properties.get("defaultGeometry");
         for (int i = 0; i < tokens.length; i++) {
             if (i == 0 && tokens[0].startsWith("org.esa.beam")) {
                 hasFeatureTypeName = true;
@@ -180,6 +185,11 @@ public class VectorDataNodeReader2 {
                     attributeName = token.substring(0, colonPos);
                 }
 
+                if (defaultGeometry != null && attributeName.equals(defaultGeometry)) {
+                    geometryIndex = i;
+                    geometryName = attributeName;
+                    break;
+                }
                 if (contains(LONGITUDE_IDENTIFIERS, attributeName)) {
                     lonIndex = i;
                 } else if (contains(LATITUDE_IDENTIFIERS, attributeName)) {
@@ -191,19 +201,24 @@ public class VectorDataNodeReader2 {
             }
         }
 
+        boolean hasGeometry = geometryIndex != -1;
         hasLatLon = latIndex != -1 && lonIndex != -1;
-        if (geometryIndex == -1 && (latIndex == -1 || lonIndex == -1)) {
+        if (!hasGeometry && (latIndex == -1 || lonIndex == -1)) {
             throw new IOException("Neither lat/lon nor geometry column provided.");
         }
 
-        if (hasLatLon && hasFeatureTypeName) {
-            return new LatLonAndFeatureTypeStrategy(geoCoding, featureTypeName, latIndex, lonIndex);
+        if(!hasGeometry && geoCoding == null) {
+            throw new IOException("No geometry provided in product without geo-coding.");
+        }
+
+        if (hasGeometry && !hasFeatureTypeName) {
+            return new GeometryNoFeatureTypeStrategy(geoCoding, geometryName);
+        } else if (hasGeometry && hasFeatureTypeName) {
+            return new GeometryAndFeatureTypeStrategy(geoCoding, geometryName, featureTypeName);
         } else if (hasLatLon && !hasFeatureTypeName) {
             return new LatLonNoFeatureTypeStrategy(geoCoding, latIndex, lonIndex);
-        } else if (!hasLatLon && hasFeatureTypeName) {
-            return new GeometryAndFeatureTypeStrategy(geoCoding, geometryName, featureTypeName);
-        } else if (!hasLatLon && !hasFeatureTypeName) {
-            return new GeometryNoFeatureTypeStrategy(geoCoding, geometryName);
+        } else if (hasLatLon && hasFeatureTypeName) {
+            return new LatLonAndFeatureTypeStrategy(geoCoding, featureTypeName, latIndex, lonIndex);
         }
         throw new IllegalStateException("Cannot come here");
     }
@@ -245,7 +260,7 @@ public class VectorDataNodeReader2 {
         int expectedTokenCount = interpretationStrategy.getExpectedTokenCount(simpleFeatureType.getAttributeCount());
         if (tokens.length != expectedTokenCount) {
             BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
-                                                                   vectorDataNodeName, expectedTokenCount, tokens.length));
+                    vectorDataNodeName, expectedTokenCount, tokens.length));
             return false;
         }
         return true;
@@ -262,7 +277,7 @@ public class VectorDataNodeReader2 {
 
     private SimpleFeatureType createFeatureType(String[] tokens) throws IOException {
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-        CoordinateReferenceSystem featureCrs = crsProvider.getFeatureCrs(product);
+        final CoordinateReferenceSystem featureCrs = crsProvider.getFeatureCrs(product);
         builder.setCRS(featureCrs);
         JavaTypeConverter jtc = new JavaTypeConverter();
 
@@ -291,7 +306,7 @@ public class VectorDataNodeReader2 {
             builder.add(attributeName, attributeType);
         }
 
-        interpretationStrategy.setDefaultGeometry(builder);
+        interpretationStrategy.setDefaultGeometry(properties.get("defaultGeometry"), featureCrs, builder);
         interpretationStrategy.setName(builder);
 
         return builder.buildFeatureType();
@@ -328,6 +343,7 @@ public class VectorDataNodeReader2 {
     }
 
     public interface PlacemarkDescriptorProvider {
+
         PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType);
     }
 

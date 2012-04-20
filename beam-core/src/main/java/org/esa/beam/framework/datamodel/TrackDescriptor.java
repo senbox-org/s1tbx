@@ -35,12 +35,12 @@ public class TrackDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
-    public DecodeQualification isCompatibleWith(SimpleFeatureType featureType) {
+    public DecodeQualification getQualification(SimpleFeatureType featureType) {
         if (featureType.getGeometryDescriptor() == null) {
             return DecodeQualification.UNABLE;
         } else if (featureType.getName().getLocalPart().equals("org.esa.beam.TrackPoint")) {
             return DecodeQualification.INTENDED;
-        } else if (featureType.getGeometryDescriptor().getType().getBinding().isAssignableFrom(Point.class)) {
+        } else if (featureType.getGeometryDescriptor().getType().getBinding().equals(Point.class)) {
             return DecodeQualification.SUITABLE;
         } else {
             final Object trackPoints = featureType.getUserData().get("trackPoints");
@@ -53,7 +53,9 @@ public class TrackDescriptor extends AbstractPlacemarkDescriptor {
 
     @Override
     public void setUserData(SimpleFeatureType featureType) {
+        super.setUserData(featureType);
         featureType.getUserData().put("trackPoints", "true");
+        featureType.getUserData().put("defaultGeometry", featureType.getGeometryDescriptor().getLocalName());
     }
 
     @Override

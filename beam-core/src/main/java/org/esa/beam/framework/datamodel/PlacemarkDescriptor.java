@@ -61,7 +61,7 @@ public interface PlacemarkDescriptor {
      * @param featureType The feature type to be tested.
      * @return {@code true}, if the {@code featureType} is compatible.
      */
-    DecodeQualification isCompatibleWith(SimpleFeatureType featureType);
+    DecodeQualification getQualification(SimpleFeatureType featureType);
 
     /**
      * Gets the feature type that provides the minimum set of attributes

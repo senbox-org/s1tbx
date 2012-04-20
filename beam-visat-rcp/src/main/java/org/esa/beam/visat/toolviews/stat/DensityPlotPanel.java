@@ -23,7 +23,12 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.Debug;
@@ -31,12 +36,18 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.title.TextTitle;
-import org.jfree.chart.title.Title;
 import org.jfree.ui.RectangleInsets;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
@@ -79,7 +90,7 @@ class DensityPlotPanel extends ChartPagePanel {
     private PlotAreaSelectionTool plotAreaSelectionTool;
     private static final Color backgroundColor = new Color(255, 255, 255, 0);
     private boolean plotColorsInverted;
-    private JButton toggleColorButton;
+    private JCheckBox toggleColorCheckBox;
 
     DensityPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId, CHART_TITLE, true);
@@ -99,25 +110,7 @@ class DensityPlotPanel extends ChartPagePanel {
         plot.setDataset(null);
         xBandProperty.getDescriptor().setValueSet(new ValueSet(createAvailableBandList()));
         yBandProperty.getDescriptor().setValueSet(new ValueSet(createAvailableBandList()));
-        toggleColorButton.setEnabled(false);
-    }
-
-    private void setChartTitle() {
-        final JFreeChart chart = densityPlotDisplay.getChart();
-        final List<Title> subtitles = new ArrayList<Title>(7);
-        String xName = "";
-        String yName = "";
-        if (dataSourceConfig.xBand != null) {
-            xName = dataSourceConfig.xBand.getName();
-        }
-        if (dataSourceConfig.yBand != null) {
-            yName = dataSourceConfig.yBand.getName();
-        }
-        subtitles.add(new TextTitle(MessageFormat.format("{0}, {1}",
-                                                         xName,
-                                                         yName
-        )));
-        chart.setSubtitles(subtitles);
+        toggleColorCheckBox.setEnabled(false);
     }
 
     private void initParameters() {
@@ -221,21 +214,21 @@ class DensityPlotPanel extends ChartPagePanel {
                 image = new BufferedImage(toggledColorModel, image.getRaster(), image.isAlphaPremultiplied(), null);
             }
             plot.setImage(image);
-            updateUIState();
+            densityPlotDisplay.getChart().setNotify(true);
             plotColorsInverted = !plotColorsInverted;
         }
     }
 
 
     private JPanel createMiddlePanel() {
-        toggleColorButton = new JButton("Invert Plot Colors");
-        toggleColorButton.addActionListener(new ActionListener() {
+        toggleColorCheckBox = new JCheckBox("Invert Plot Colors");
+        toggleColorCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 toggleColor();
             }
         });
-        toggleColorButton.setEnabled(false);
+        toggleColorCheckBox.setEnabled(false);
         final JPanel middlePanel = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL");
         GridBagUtils.setAttributes(gbc, "gridx=0,weightx=1,weighty=0");
@@ -244,7 +237,7 @@ class DensityPlotPanel extends ChartPagePanel {
         GridBagUtils.addToPanel(middlePanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=2");
         GridBagUtils.addToPanel(middlePanel, yBandList, gbc, "gridy=3");
         GridBagUtils.addToPanel(middlePanel, new JPanel(), gbc, "gridy=4,weighty=1");
-        GridBagUtils.addToPanel(middlePanel, toggleColorButton, gbc, "gridy=5,weighty=1");
+        GridBagUtils.addToPanel(middlePanel, toggleColorCheckBox, gbc, "gridy=5,weighty=1");
         return middlePanel;
     }
 
@@ -252,20 +245,25 @@ class DensityPlotPanel extends ChartPagePanel {
         densityPlotDisplay = new ChartPanel(chart);
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
-                                                                                         densityPlotDisplay,
-                                                                                         "densitity_plot_area",
-                                                                                         "Mask generated from selected density plot area",
-                                                                                         Color.RED,
-                                                                                         PlotAreaSelectionTool.AreaType.ELLIPSE) {
+                densityPlotDisplay,
+                "density_plot_area",
+                "Mask generated from selected density plot area",
+                Color.RED,
+                PlotAreaSelectionTool.AreaType.ELLIPSE) {
             @Override
-            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
-                double rr = Math.sqrt(dx * dx + dy * dy);
-                return String.format("distance(%s, %s, %s, %s) < %s",
-                                     dataSourceConfig.xBand.getName(),
-                                     dataSourceConfig.yBand.getName(),
-                                     x0,
-                                     y0,
-                                     rr);
+            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, Shape shape) {
+                Rectangle2D bounds = shape.getBounds2D();
+                return createMaskExpression(bounds.getCenterX(), bounds.getCenterY(), 0.5 * bounds.getWidth(), 0.5 * bounds.getHeight());
+            }
+
+            protected String createMaskExpression(double x0, double y0, double dx, double dy) {
+                return String.format("sqrt(sqr((%s - %s)/%s) + sqr((%s - %s)/%s)) < 1.0",
+                        BandArithmetic.createExternalName(dataSourceConfig.xBand.getName()),
+                        x0,
+                        dx,
+                        BandArithmetic.createExternalName(dataSourceConfig.yBand.getName()),
+                        y0,
+                        dy);
             }
         };
 
@@ -300,7 +298,6 @@ class DensityPlotPanel extends ChartPagePanel {
 
     private void updateUIState() {
         super.updateComponents();
-        setChartTitle();
     }
 
     @Override
@@ -323,17 +320,19 @@ class DensityPlotPanel extends ChartPagePanel {
                     setRange(X_VAR, rasterX, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
                     setRange(Y_VAR, rasterY, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
                     final BufferedImage densityPlotImage = ProductUtils.createDensityPlotImage(rasterX,
-                                                                                               axisRangeControls[X_VAR].getMin().floatValue(),
-                                                                                               axisRangeControls[X_VAR].getMax().floatValue(),
-                                                                                               rasterY,
-                                                                                               axisRangeControls[Y_VAR].getMin().floatValue(),
-                                                                                               axisRangeControls[Y_VAR].getMax().floatValue(),
-                                                                                               dataSourceConfig.roiMask,
-                                                                                               512,
-                                                                                               512,
-                                                                                               backgroundColor,
-                                                                                               null,
-                                                                                               SubProgressMonitor.create(pm, 70));
+                            axisRangeControls[X_VAR].getMin().floatValue(),
+                            axisRangeControls[X_VAR].getMax().floatValue(),
+                            rasterY,
+                            axisRangeControls[Y_VAR].getMin().floatValue(),
+                            axisRangeControls[Y_VAR].getMax().floatValue(),
+                            dataSourceConfig.roiMask,
+                            512,
+                            512,
+                            backgroundColor,
+                            null,
+                            SubProgressMonitor.create(pm, 70));
+                    toggleColorCheckBox.setSelected(false);
+                    plotColorsInverted = false;
                     return densityPlotImage;
                 } finally {
                     pm.done();
@@ -350,11 +349,11 @@ class DensityPlotPanel extends ChartPagePanel {
                     double maxY = axisRangeControls[Y_VAR].getMax();
                     if (minX > maxX || minY > maxY) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                      "Failed to compute density plot.\n" +
-                                                              "No Pixels considered..",
-                                                      /*I18N*/
-                                                      CHART_TITLE, /*I18N*/
-                                                      JOptionPane.ERROR_MESSAGE);
+                                "Failed to compute density plot.\n" +
+                                        "No Pixels considered..",
+                                /*I18N*/
+                                CHART_TITLE, /*I18N*/
+                                JOptionPane.ERROR_MESSAGE);
                         plot.setDataset(null);
                         return;
 
@@ -376,34 +375,31 @@ class DensityPlotPanel extends ChartPagePanel {
                     axisRangeControls[Y_VAR].setMax(MathUtils.round(maxY, Math.pow(10.0, 2)));
                     plot.getDomainAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(X_VAR), "X", false));
                     plot.getRangeAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(Y_VAR), "Y", false));
-                    toggleColorButton.setEnabled(true);
-                    if (plotColorsInverted) {
-                        toggleColor();
-                    }
+                    toggleColorCheckBox.setEnabled(true);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute density plot.\n" +
-                                                          "Calculation canceled.",
-                                                  /*I18N*/
-                                                  CHART_TITLE, /*I18N*/
-                                                  JOptionPane.ERROR_MESSAGE);
+                            "Failed to compute density plot.\n" +
+                                    "Calculation canceled.",
+                            /*I18N*/
+                            CHART_TITLE, /*I18N*/
+                            JOptionPane.ERROR_MESSAGE);
                 } catch (CancellationException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute density plot.\n" +
-                                                          "Calculation canceled.",
-                                                  /*I18N*/
-                                                  CHART_TITLE, /*I18N*/
-                                                  JOptionPane.ERROR_MESSAGE);
+                            "Failed to compute density plot.\n" +
+                                    "Calculation canceled.",
+                            /*I18N*/
+                            CHART_TITLE, /*I18N*/
+                            JOptionPane.ERROR_MESSAGE);
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute density plot.\n" +
-                                                          "An error occurred:\n" +
-                                                          e.getCause().getMessage(),
-                                                  CHART_TITLE, /*I18N*/
-                                                  JOptionPane.ERROR_MESSAGE);
+                            "Failed to compute density plot.\n" +
+                                    "An error occurred:\n" +
+                                    e.getCause().getMessage(),
+                            CHART_TITLE, /*I18N*/
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
@@ -461,10 +457,10 @@ class DensityPlotPanel extends ChartPagePanel {
                             "{1}\nPress ''Yes'' if you really want to copy this amount of data to the system clipboard.\n",
                     numNonEmptyBins, excelNote);
             final int status = JOptionPane.showConfirmDialog(this,
-                                                             message, /*I18N*/
-                                                             "Copy Data to Clipboard", /*I18N*/
-                                                             JOptionPane.YES_NO_OPTION,
-                                                             JOptionPane.WARNING_MESSAGE);
+                    message, /*I18N*/
+                    "Copy Data to Clipboard", /*I18N*/
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
             if (status != JOptionPane.YES_OPTION) {
                 return false;
             }

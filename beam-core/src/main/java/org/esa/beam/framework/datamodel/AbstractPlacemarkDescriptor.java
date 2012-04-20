@@ -14,13 +14,14 @@ public abstract class AbstractPlacemarkDescriptor implements PlacemarkDescriptor
     /**
      * {@inheritDoc}
      * <p/>
-     * The default implementation does nothing.
+     * The default implementation sets the property 'beam.placemarkDescriptor.class'.
      *
      * @param featureType The feature type whose user data may or may not be altered.
      * @see org.opengis.feature.simple.SimpleFeatureType#getUserData()
      */
     @Override
     public void setUserData(SimpleFeatureType featureType) {
+        featureType.getUserData().put("beam.placemarkDescriptor.class", getClass().getSimpleName());
     }
 
     /**

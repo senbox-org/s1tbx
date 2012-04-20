@@ -20,6 +20,7 @@ import com.bc.ceres.binding.ConversionException;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.FeatureUtils;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
@@ -31,8 +32,6 @@ import org.opengis.referencing.operation.TransformException;
 
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 /**
  * @author Olaf Danne
@@ -62,15 +61,16 @@ class GeometryNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
     }
 
     @Override
-    public void setDefaultGeometry(SimpleFeatureTypeBuilder builder) {
+    public void setDefaultGeometry(String defaultGeometry, CoordinateReferenceSystem featureCrs, SimpleFeatureTypeBuilder builder) {
+        if (defaultGeometry != null) {
+            builder.setDefaultGeometry(defaultGeometry);
+        }
         builder.setDefaultGeometry(geometryName);
     }
 
     @Override
     public void setName(SimpleFeatureTypeBuilder builder) {
-        builder.setName(
-                builder.getDefaultGeometry() + "_" +
-                new SimpleDateFormat("dd-MMM-yyyy'T'HH:mm:ss").format(Calendar.getInstance().getTime()));
+        builder.setName(FeatureUtils.createFeatureTypeName(builder.getDefaultGeometry()));
     }
 
     @Override

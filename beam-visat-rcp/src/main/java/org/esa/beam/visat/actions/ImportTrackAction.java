@@ -85,7 +85,9 @@ public class ImportTrackAction extends ExecCommand {
         }
 
         String name = FileUtils.getFilenameWithoutExtension(file);
-        VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);
+        final PlacemarkDescriptor placemarkDescriptor = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(featureCollection.getSchema());
+        placemarkDescriptor.setUserData(featureCollection.getSchema());
+        VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection, placemarkDescriptor);
 
         product.getVectorDataGroup().add(vectorDataNode);
 

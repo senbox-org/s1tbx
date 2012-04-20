@@ -20,6 +20,7 @@ import com.bc.ceres.binding.*;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.visat.VisatApp;
@@ -47,6 +48,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -106,13 +108,16 @@ class ProfilePlotPanel extends ChartPagePanel {
                                                                                          "Mask generated from selected profile plot area",
                                                                                          Color.RED,
                                                                                          PlotAreaSelectionTool.AreaType.Y_RANGE) {
+
             @Override
-            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
-                return String.format("%s >= %s && %s <= %s",
-                                     getRaster().getName(),
-                                     y0,
-                                     getRaster().getName(),
-                                     y0 + dy);
+            protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, Shape shape) {
+                Rectangle2D bounds = shape.getBounds2D();
+                return createMaskExpression(bounds.getMinY(), bounds.getMaxY());
+            }
+
+            protected String createMaskExpression(double x1, double x2) {
+                String bandName = BandArithmetic.createExternalName(getRaster().getName());
+                return String.format("%s >= %s && %s <= %s", bandName, x1, bandName, x2);
             }
         };
 
@@ -174,8 +179,8 @@ class ProfilePlotPanel extends ChartPagePanel {
         deviationRenderer.setSeriesLinesVisible(0, true);
         deviationRenderer.setSeriesShapesVisible(0, false);
         deviationRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
-        deviationRenderer.setSeriesPaint(0, StatisticChartStyling.DATA_PAINT);
-        deviationRenderer.setSeriesFillPaint(0, StatisticChartStyling.DATA_FILL_PAINT);
+        deviationRenderer.setSeriesPaint(0, StatisticChartStyling.SAMPLE_DATA_PAINT);
+        deviationRenderer.setSeriesFillPaint(0, StatisticChartStyling.SAMPLE_DATA_FILL_PAINT);
 
         pointRenderer = new XYErrorRenderer();
         pointRenderer.setUseFillPaint(true);
@@ -183,9 +188,9 @@ class ProfilePlotPanel extends ChartPagePanel {
         pointRenderer.setSeriesLinesVisible(0, false);
         pointRenderer.setSeriesShapesVisible(0, true);
         pointRenderer.setSeriesStroke(0, new BasicStroke(1.0f));
-        pointRenderer.setSeriesPaint(0, StatisticChartStyling.DATA_PAINT);
-        pointRenderer.setSeriesFillPaint(0, StatisticChartStyling.DATA_FILL_PAINT);
-        pointRenderer.setSeriesShape(0, StatisticChartStyling.DATA_POINT_SHAPE);
+        pointRenderer.setSeriesPaint(0, StatisticChartStyling.SAMPLE_DATA_PAINT);
+        pointRenderer.setSeriesFillPaint(0, StatisticChartStyling.SAMPLE_DATA_FILL_PAINT);
+        pointRenderer.setSeriesShape(0, StatisticChartStyling.SAMPLE_DATA_POINT_SHAPE);
 
         configureRendererForCorrelativeData(deviationRenderer);
         configureRendererForCorrelativeData(pointRenderer);
@@ -320,9 +325,9 @@ class ProfilePlotPanel extends ChartPagePanel {
         renderer.setSeriesLinesVisible(1, false);
         renderer.setSeriesShapesVisible(1, true);
         renderer.setSeriesStroke(1, new BasicStroke(1.0f));
-        renderer.setSeriesPaint(1, StatisticChartStyling.INSITU_PAINT);
-        renderer.setSeriesFillPaint(1, StatisticChartStyling.INSITU_FILL_PAINT);
-        renderer.setSeriesShape(1, StatisticChartStyling.INSITU_SHAPE);
+        renderer.setSeriesPaint(1, StatisticChartStyling.CORRELATIVE_POINT_PAINT);
+        renderer.setSeriesFillPaint(1, StatisticChartStyling.CORRELATIVE_POINT_FILL_PAINT);
+        renderer.setSeriesShape(1, StatisticChartStyling.CORRELATIVE_POINT_SHAPE);
     }
 
 

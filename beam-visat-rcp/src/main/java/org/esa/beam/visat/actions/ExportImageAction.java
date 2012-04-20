@@ -32,17 +32,8 @@ import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JComponent;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.Rectangle;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
@@ -146,7 +137,7 @@ public class ExportImageAction extends AbstractExportImageAction {
     private static BufferedImageRendering createRendering(ProductSceneView view, boolean fullScene,
                                                           boolean geoReferenced, BufferedImage bufferedImage) {
         final Viewport vp1 = view.getLayerCanvas().getViewport();
-        final Viewport vp2 = new DefaultViewport(new Rectangle(bufferedImage.getWidth(),bufferedImage.getHeight()),
+        final Viewport vp2 = new DefaultViewport(new Rectangle(bufferedImage.getWidth(), bufferedImage.getHeight()),
                                                  vp1.isModelYAxisDown());
         if (fullScene) {
             vp2.zoom(view.getBaseImageLayer().getModelBounds());
@@ -155,7 +146,7 @@ public class ExportImageAction extends AbstractExportImageAction {
         }
 
         final BufferedImageRendering imageRendering = new BufferedImageRendering(bufferedImage, vp2);
-        if(geoReferenced) {
+        if (geoReferenced) {
             // because image to model transform is stored with the exported image we have to invert
             // image to view transformation
             final AffineTransform m2iTransform = view.getBaseImageLayer().getModelToImageTransform(0);
@@ -193,7 +184,10 @@ public class ExportImageAction extends AbstractExportImageAction {
         }
 
         final Point2D modelCenter = vp1.getViewToModelTransform().transform(new Point2D.Double(cx, cy), null);
-        vp2.setZoomFactor(vp1.getZoomFactor() * magnification, modelCenter.getX(), modelCenter.getY());
+        final double zoomFactor = vp1.getZoomFactor() * magnification;
+        if (zoomFactor > 0.0) {
+            vp2.setZoomFactor(zoomFactor, modelCenter.getX(), modelCenter.getY());
+        }
     }
 
     @Override
@@ -280,8 +274,8 @@ public class ExportImageAction extends AbstractExportImageAction {
         private int showQuestionDialog() {
             return VisatApp.getApp().showQuestionDialog(
                     "There may not be enough memory to export the image because\n" +
-                    "the image dimension is too large.\n\n" +
-                    "Do you really want to keep the image dimension?", null);
+                            "the image dimension is too large.\n\n" +
+                            "Do you really want to keep the image dimension?", null);
         }
 
         private long getFreeMemory() {

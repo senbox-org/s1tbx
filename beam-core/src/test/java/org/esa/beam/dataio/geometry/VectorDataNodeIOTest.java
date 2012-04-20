@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
 public class VectorDataNodeIOTest {
 
     private static final String ATTRIBUTE_NAME_LABEL = "LABEL";
-    
+
     private StringWriter stringWriter;
     private DefaultFeatureCollection testCollection;
     private VectorDataNodeReader2.PlacemarkDescriptorProvider placemarkDescriptorProvider;
@@ -70,21 +70,22 @@ public class VectorDataNodeIOTest {
         assertTrue(linesOut[2].endsWith("with     spaces"));
         assertTrue(linesOut[3].endsWith("with \\\\t escaped tab"));
     }
-    
+
     @Test
-    public void testDecodingDelimiter() throws IOException {        
-        final VectorDataNodeReader2 reader = new VectorDataNodeReader2("mem", createDummyProduct(), new StringReader(stringWriter.toString()), new FeatureUtils.FeatureCrsProvider() {
-            @Override
-            public CoordinateReferenceSystem getFeatureCrs(Product product) {
-                return DefaultGeographicCRS.WGS84;
-            }
-        }, placemarkDescriptorProvider);
-        final FeatureCollection<SimpleFeatureType,SimpleFeature> readCollection = reader.readFeatures();
+    public void testDecodingDelimiter() throws IOException {
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> readCollection =
+                VectorDataNodeReader2.read("mem", new StringReader(stringWriter.toString()),
+                                           createDummyProduct(), new FeatureUtils.FeatureCrsProvider() {
+                    @Override
+                    public CoordinateReferenceSystem getFeatureCrs(Product product) {
+                        return DefaultGeographicCRS.WGS84;
+                    }
+                }, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL).getFeatureCollection();
 
         assertEquals(testCollection.size(), readCollection.size());
         final FeatureIterator<SimpleFeature> expectedIterator = testCollection.features();
         final FeatureIterator<SimpleFeature> actualIterator = readCollection.features();
-        while(expectedIterator.hasNext()) {
+        while (expectedIterator.hasNext()) {
             final SimpleFeature expectedFeature = expectedIterator.next();
             final SimpleFeature actualFeature = actualIterator.next();
             final Object expectedAttribute = expectedFeature.getAttribute(ATTRIBUTE_NAME_LABEL);
@@ -108,7 +109,7 @@ public class VectorDataNodeIOTest {
         collection.add(f3);
         return collection;
     }
-    
+
     @Test
     public void testEncodeTabString() {
         assertEquals("with\\tTab", VectorDataNodeIO.encodeTabString("with\tTab"));
@@ -118,7 +119,7 @@ public class VectorDataNodeIOTest {
         assertEquals("with \\d other char", VectorDataNodeIO.encodeTabString("with \\d other char"));
         assertEquals("with \\\\d other char", VectorDataNodeIO.encodeTabString("with \\\\d other char"));
     }
-    
+
     @Test
     public void testDecodeTabString() {
         assertEquals("with\tTab", VectorDataNodeIO.decodeTabString("with\\tTab"));
@@ -128,7 +129,7 @@ public class VectorDataNodeIOTest {
         assertEquals("with \\d other char", VectorDataNodeIO.encodeTabString("with \\d other char"));
         assertEquals("with \\\\d other char", VectorDataNodeIO.encodeTabString("with \\\\d other char"));
     }
-    
+
     @Test
     public void testProperties() throws Exception {
         VectorDataNode vectorDataNode = new VectorDataNode("aName", Placemark.createGeometryFeatureType());
@@ -139,14 +140,14 @@ public class VectorDataNodeIOTest {
         File tempFile = File.createTempFile("VectorDataNodeWriterTest_testProperties", "csv");
         tempFile.deleteOnExit();
         vectorDataNodeWriter.write(vectorDataNode, tempFile);
-        
+
         FileReader fileReader = new FileReader(tempFile);
         LineNumberReader lineNumberReader = new LineNumberReader(fileReader);
-        
+
         String firstLine = lineNumberReader.readLine();
         assertNotNull(firstLine);
         assertEquals("#description=Contains a set of pins", firstLine);
-        
+
         String secondLine = lineNumberReader.readLine();
         assertNotNull(secondLine);
         assertEquals("#defaultCSS=stroke:#ff0000", secondLine);
@@ -212,7 +213,7 @@ public class VectorDataNodeIOTest {
     }
 
     private static Product createDummyProduct() {
-        Product dummyProduct = new Product("blah", "blahType", 10, 10);
+        Product dummyProduct = new Product("blah", "blahType", 360, 180);
         dummyProduct.setGeoCoding(new VectorDataNodeReader2Test.DummyGeoCoding());
         return dummyProduct;
     }

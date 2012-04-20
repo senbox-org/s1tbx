@@ -49,7 +49,10 @@ class GeometryAndFeatureTypeStrategy extends AbstractInterpretationStrategy {
     }
 
     @Override
-    public void setDefaultGeometry(SimpleFeatureTypeBuilder builder) {
+    public void setDefaultGeometry(String defaultGeometry, CoordinateReferenceSystem featureCrs, SimpleFeatureTypeBuilder builder) {
+        if (defaultGeometry != null) {
+            builder.setDefaultGeometry(defaultGeometry);
+        }
         builder.setDefaultGeometry(geometryName);
     }
 

@@ -79,7 +79,7 @@ abstract class MaskSelectionToolSupport implements PlotAreaSelectionTool.Action 
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (plotAreaSelectionTool != null) {
-                    plotAreaSelectionTool.removeOverlay();
+                    plotAreaSelectionTool.removeAnnotation();
                 }
                 Product product = pagePanel.getProduct();
                 if (product != null) {
@@ -94,13 +94,14 @@ abstract class MaskSelectionToolSupport implements PlotAreaSelectionTool.Action 
     }
 
     @Override
-    public void areaSelected(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy) {
+    public void areaSelected(PlotAreaSelectionTool.AreaType areaType, Shape shape) {
+
         Product product = pagePanel.getProduct();
         if (product == null) {
             return;
         }
 
-        String expression = createMaskExpression(areaType, x0, y0, dx, dy);
+        String expression = createMaskExpression(areaType, shape);
 
         Mask mask = product.getMaskGroup().get(maskName);
         if (mask != null) {
@@ -118,7 +119,7 @@ abstract class MaskSelectionToolSupport implements PlotAreaSelectionTool.Action 
         }
     }
 
-    protected abstract String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, double x0, double y0, double dx, double dy);
+    protected abstract String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, Shape shape);
 
     private static Color createAlphaColor(Color color, int alpha) {
         return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);

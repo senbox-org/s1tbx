@@ -16,6 +16,7 @@
 
 package org.esa.beam.dataio.geometry;
 
+import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
@@ -154,27 +155,29 @@ public class VectorDataNodeReader2Test {
     public void testMissingGeometry() throws IOException {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("exported_pin_input_without_geometry.csv"));
         Product dummyProduct = createDummyProduct();
-        new VectorDataNodeReader2("blah", dummyProduct, reader, crsProvider, placemarkDescriptorProvider).readFeatureType();
+        VectorDataNodeReader2.read("blah", reader, dummyProduct, crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL);
     }
 
     @Test
     public void testReadPropertiesInInput1() throws IOException {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_properties.csv"));
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader, crsProvider, placemarkDescriptorProvider);
-        Map<String, String> properties = vectorDataNodeReader.readProperties();
+        final VectorDataNode dataNode = VectorDataNodeReader2.read("non-empty", reader, createDummyProduct(), crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL);
+        final Map<Object, Object> properties = dataNode.getFeatureType().getUserData();
 
         assertNotNull(properties);
-        assertEquals(2, properties.size());
+        assertEquals(4, properties.size());
         assertEquals("color:0,0,255", properties.get("styleCss"));
         assertEquals("TAB", properties.get("separator"));
+        assertEquals("GeometryDescriptor", properties.get("beam.placemarkDescriptor.class"));
+        assertEquals("geom", properties.get("defaultGeometry"));
     }
 
     @Test
     public void testReadFeaturesInInput1() throws IOException {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_properties.csv"));
 
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader, crsProvider, placemarkDescriptorProvider);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
+        final VectorDataNode dataNode = VectorDataNodeReader2.read("blah", reader, createDummyProduct(), crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = dataNode.getFeatureCollection();
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
         assertNotNull(simpleFeatureType);
@@ -232,8 +235,8 @@ public class VectorDataNodeReader2Test {
     public void testReadFeaturesInInput2() throws IOException {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_only_one_point.csv"));
 
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader, crsProvider, placemarkDescriptorProvider);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
+        final VectorDataNode dataNode = VectorDataNodeReader2.read("blah", reader, createDummyProduct(), crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = dataNode.getFeatureCollection();
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
         assertNotNull(simpleFeatureType);
@@ -258,8 +261,8 @@ public class VectorDataNodeReader2Test {
     @Test
     public void testCRS() throws Exception {
         InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("input_with_only_one_point.csv"));
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), reader, crsProvider, placemarkDescriptorProvider);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures();
+        final VectorDataNode dataNode = VectorDataNodeReader2.read("blah", reader, createDummyProduct(), crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = dataNode.getFeatureCollection();
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
         assertNotNull(simpleFeatureType);
@@ -272,33 +275,40 @@ public class VectorDataNodeReader2Test {
 
         try {
             expectException("");
-        } catch (IOException e) {
+        } catch (IOException expected) {
             // ok
         }
 
         try {
             expectException("org.esa.beam.FT\ta:\n");
-        } catch (IOException e) {
+        } catch (IOException expected) {
             // ok
         }
 
         try {
             expectException("org.esa.beam.FT\t:Integer\n");
-        } catch (IOException e) {
+        } catch (IOException expected) {
             // ok
         }
 
         try {
             expectException("org.esa.beam.FT\ta:Integer\tlat\tlon\n" +
                             "ID1\t1234\tABC\n");
-        } catch (IOException e) {
+        } catch (IOException expected) {
+            // ok
+        }
+
+        try {
+            VectorDataNodeReader2.read("blah", new StringReader("org.esa.beam.FT\ta:Integer\tno_lat\tlon\n" +
+                                                                "ID1\t1234\tABC\n"), new Product("name", "type", 360, 90), crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL).getFeatureCollection();
+        } catch (IOException expected) {
             // ok
         }
 
         try {
             String source = "org.esa.beam.FT\ta\tlat\tlon\n" +
-                            "ID1\t10\t0.0\t0.0\n";
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new VectorDataNodeReader2("", createDummyProduct(), new StringReader(source), crsProvider, placemarkDescriptorProvider).readFeatures();
+                            "ID1\t10\t5.0\t50.0\n";
+            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = VectorDataNodeReader2.read("blah", new StringReader(source), createDummyProduct(), crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL).getFeatureCollection();
             assertEquals(1, fc.size());
             assertEquals(Double.class, fc.getSchema().getType(0).getBinding());
             assertEquals(10.0, fc.features().next().getAttribute("a"));
@@ -308,13 +318,13 @@ public class VectorDataNodeReader2Test {
     }
 
     private void expectException(String contents) throws IOException {
-        new VectorDataNodeReader2("", createDummyProduct(), new StringReader(contents), crsProvider, placemarkDescriptorProvider).readFeatures();
+        VectorDataNodeReader2.read("blah", new StringReader(contents), createDummyProduct(), crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL);
         fail("IOException expected");
     }
 
     private void testTrackFeatureClasses(String input) throws IOException {
-        VectorDataNodeReader2 vectorDataNodeReader = new VectorDataNodeReader2("", createDummyProduct(), new StringReader(input), crsProvider, placemarkDescriptorProvider);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNodeReader.readFeatures();
+        final VectorDataNode node = VectorDataNodeReader2.read("blah", new StringReader(input), createDummyProduct(), crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = node.getFeatureCollection();
 
         FeatureIterator<SimpleFeature> features = featureCollection.features();
         assertEquals(6, featureCollection.size());
@@ -351,7 +361,7 @@ public class VectorDataNodeReader2Test {
 
     private List<AttributeDescriptor> getAttributeDescriptors(String input) throws IOException {
         CsvReader csvReader = new CsvReader(new StringReader(input), new char[]{'\t'}, true, "#");
-        SimpleFeatureType simpleFeatureType = new VectorDataNodeReader2("", createDummyProduct(), csvReader, crsProvider, placemarkDescriptorProvider).readFeatureType();
+        SimpleFeatureType simpleFeatureType = VectorDataNodeReader2.read("blah", csvReader, createDummyProduct(), crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL).getFeatureType();
 
         assertNotNull(simpleFeatureType);
         assertEquals(10, simpleFeatureType.getAttributeCount());
@@ -360,7 +370,7 @@ public class VectorDataNodeReader2Test {
     }
 
     private static Product createDummyProduct() {
-        Product dummyProduct = new Product("blah", "blahType", 10, 10);
+        Product dummyProduct = new Product("blah", "blahType", 360, 180);
         dummyProduct.setGeoCoding(new DummyGeoCoding());
         return dummyProduct;
     }

@@ -22,7 +22,7 @@ public class GenericPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
-    public DecodeQualification isCompatibleWith(SimpleFeatureType ft) {
+    public DecodeQualification getQualification(SimpleFeatureType ft) {
         if (featureType.equals(ft)) {
             return DecodeQualification.INTENDED;
         }
