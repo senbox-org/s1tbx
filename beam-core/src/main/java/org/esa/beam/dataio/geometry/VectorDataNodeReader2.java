@@ -84,21 +84,12 @@ public class VectorDataNodeReader2 {
         if (product.getGeoCoding() != null) {
             final Geometry clipGeometry = FeatureUtils.createGeoBoundaryPolygon(product);
             clippedCollection = FeatureUtils.clipCollection(featureCollection,
-<<<<<<< HEAD
-                    featureCrs,
-                    clipGeometry,
-                    DefaultGeographicCRS.WGS84,
-                    null,
-                    modelCrs,
-                    SubProgressMonitor.create(pm, 80));
-=======
                                                             null,
                                                             clipGeometry,
                                                             featureCollection.getSchema().getCoordinateReferenceSystem(),
                                                             null,
                                                             modelCrs,
                                                             SubProgressMonitor.create(pm, 80));
->>>>>>> csv insanity
         } else {
             clippedCollection = featureCollection;
         }
