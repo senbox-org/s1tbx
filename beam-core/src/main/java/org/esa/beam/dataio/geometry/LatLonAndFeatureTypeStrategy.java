@@ -59,10 +59,10 @@ class LatLonAndFeatureTypeStrategy extends AbstractInterpretationStrategy {
     }
 
     @Override
-    public void setDefaultGeometry(SimpleFeatureTypeBuilder builder) {
+    public void setDefaultGeometry(String defaultGeometry, CoordinateReferenceSystem featureCrs, SimpleFeatureTypeBuilder builder) throws IOException {
         builder.add("geoPos", Point.class, DefaultGeographicCRS.WGS84);
-        builder.add("pixelPos", Point.class, geoCoding.getImageCRS());
-        builder.setDefaultGeometry("pixelPos");
+        builder.add("pixelPos", Point.class, featureCrs);
+        builder.setDefaultGeometry("geoPos");
     }
 
     @Override
@@ -88,6 +88,7 @@ class LatLonAndFeatureTypeStrategy extends AbstractInterpretationStrategy {
             setAttributeValue(builder, simpleFeatureType, attributeIndex, token);
             attributeIndex++;
         }
+
         builder.set("geoPos", new GeometryFactory().createPoint(new Coordinate(lon, lat)));
         PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos((float) lat, (float) lon), null);
         builder.set("pixelPos", new GeometryFactory().createPoint(new Coordinate(pixelPos.x, pixelPos.y)));

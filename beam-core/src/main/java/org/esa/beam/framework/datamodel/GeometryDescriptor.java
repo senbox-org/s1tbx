@@ -17,7 +17,7 @@ public class GeometryDescriptor extends AbstractPlacemarkDescriptor {
     private static final SimpleFeatureType DEFAULT_FEATURE_TYPE = PlainFeatureFactory.createDefaultFeatureType();
 
     @Override
-    public DecodeQualification isCompatibleWith(SimpleFeatureType featureType) {
+    public DecodeQualification getQualification(SimpleFeatureType featureType) {
         if (featureType.getTypeName().equals("org.esa.beam.Geometry")) {
             return DecodeQualification.INTENDED;
         } else if (featureType.getGeometryDescriptor() != null) {
@@ -29,6 +29,12 @@ public class GeometryDescriptor extends AbstractPlacemarkDescriptor {
     @Override
     public SimpleFeatureType getBaseFeatureType() {
         return DEFAULT_FEATURE_TYPE;
+    }
+
+    @Override
+    public void setUserData(SimpleFeatureType featureType) {
+        super.setUserData(featureType);
+        featureType.getUserData().put("defaultGeometry", featureType.getGeometryDescriptor().getLocalName());
     }
 
     @Override

@@ -43,7 +43,7 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
         @Override
         public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
             final PlacemarkDescriptor placemarkDescriptor = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(simpleFeatureType);
-            if (placemarkDescriptor != null && placemarkDescriptor.isCompatibleWith(simpleFeatureType) == DecodeQualification.INTENDED) {
+            if (placemarkDescriptor != null && placemarkDescriptor.getQualification(simpleFeatureType) == DecodeQualification.INTENDED) {
                 return placemarkDescriptor;
             }
 

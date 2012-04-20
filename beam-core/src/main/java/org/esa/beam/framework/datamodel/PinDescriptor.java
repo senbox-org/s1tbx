@@ -31,11 +31,17 @@ public class PinDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
-    public DecodeQualification isCompatibleWith(SimpleFeatureType featureType) {
+    public DecodeQualification getQualification(SimpleFeatureType featureType) {
         if (featureType.getTypeName().equals("org.esa.beam.Pin")) {
             return DecodeQualification.INTENDED;
         }
         return DecodeQualification.UNABLE;
+    }
+
+    @Override
+    public void setUserData(SimpleFeatureType featureType) {
+        super.setUserData(featureType);
+        featureType.getUserData().put("defaultGeometry", DEFAULT_FEATURE_TYPE.getGeometryDescriptor().getLocalName());
     }
 
     @Override

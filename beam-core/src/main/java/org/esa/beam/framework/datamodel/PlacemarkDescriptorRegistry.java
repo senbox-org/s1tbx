@@ -63,7 +63,7 @@ public class PlacemarkDescriptorRegistry {
     public List<PlacemarkDescriptor> getValidPlacemarkDescriptors(SimpleFeatureType featureType) {
         ArrayList<PlacemarkDescriptor> list = new ArrayList<PlacemarkDescriptor>();
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
-            if (placemarkDescriptor.isCompatibleWith(featureType) != DecodeQualification.UNABLE) {
+            if (placemarkDescriptor.getQualification(featureType) != DecodeQualification.UNABLE) {
                 list.add(placemarkDescriptor);
             }
         }
@@ -73,9 +73,10 @@ public class PlacemarkDescriptorRegistry {
     public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType featureType) {
         ArrayList<PlacemarkDescriptor> list = new ArrayList<PlacemarkDescriptor>();
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
-            if (placemarkDescriptor.isCompatibleWith(featureType) == DecodeQualification.INTENDED) {
+            DecodeQualification qualification = placemarkDescriptor.getQualification(featureType);
+            if (qualification == DecodeQualification.INTENDED) {
                 return placemarkDescriptor;
-            }  else if (placemarkDescriptor.isCompatibleWith(featureType) == DecodeQualification.SUITABLE) {
+            }  else if (qualification == DecodeQualification.SUITABLE) {
                 list.add(placemarkDescriptor);
             }
         }

@@ -21,6 +21,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
 import java.io.IOException;
@@ -31,7 +32,7 @@ import java.io.IOException;
  */
 interface InterpretationStrategy {
 
-    void setDefaultGeometry(SimpleFeatureTypeBuilder builder);
+    void setDefaultGeometry(String defaultGeometry, CoordinateReferenceSystem featureCrs, SimpleFeatureTypeBuilder builder) throws IOException;
 
     void setName(SimpleFeatureTypeBuilder builder);
 
