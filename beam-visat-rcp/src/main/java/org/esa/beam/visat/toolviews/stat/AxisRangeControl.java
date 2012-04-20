@@ -5,17 +5,24 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.jidesoft.swing.TitledSeparator;
+import java.awt.GridBagConstraints;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.axis.ValueAxis;
-
-import javax.swing.*;
-import java.awt.*;
 
 /**
  * @author Norman Fomferra
  */
 class AxisRangeControl {
+
+    public final static String PROPERTY_NAME_AUTO_MIN_MAX = "autoMinMax";
+    public final static String PROPERTY_NAME_MIN = "min";
+    public final static String PROPERTY_NAME_MAX = "max";
 
     private final BindingContext bindingContext;
     private final String axisName;
