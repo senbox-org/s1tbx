@@ -25,11 +25,15 @@ class StatisticChartStyling {
         ValueAxis newAxis = oldAxis;
         if (logScaled) {
             if (!(oldAxis instanceof CustomLogarithmicAxis)) {
-                newAxis = createLogarithmicAxis(oldAxis.getLabel());
+                final CustomLogarithmicAxis logarithmicAxis = createLogarithmicAxis(oldAxis.getLabel());
+                logarithmicAxis.setAutoRange(oldAxis.isAutoRange());
+                newAxis = logarithmicAxis;
             }
         } else {
             if (oldAxis instanceof CustomLogarithmicAxis) {
-                newAxis = createNumberAxis(oldAxis.getLabel(), autoRangeIncludesZero);
+                final NumberAxis numberAxis = createNumberAxis(oldAxis.getLabel(), autoRangeIncludesZero);
+                numberAxis.setAutoRange(oldAxis.isAutoRange());
+                newAxis = numberAxis;
             }
         }
         return newAxis;
