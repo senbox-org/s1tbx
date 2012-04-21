@@ -23,9 +23,7 @@ import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueRange;
-import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -168,9 +166,6 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     @Override
     protected void updateChartData() {
-        // todo ... remove ?
-        // Do not remove, because location changes on a trac point causes a recomputation.
-        computeChartDataIfPossible();
     }
 
     @Override
@@ -459,79 +454,70 @@ class ScatterPlotPanel extends ChartPagePanel {
             return;
         }
 
-        SwingWorker<XYIntervalSeries, Object> swingWorker;
-//        ProgressMonitorSwingWorker<XYIntervalSeries, Object> swingWorker;
-        swingWorker = new SwingWorker<XYIntervalSeries, Object>() {
-//        swingWorker = new ProgressMonitorSwingWorker<XYIntervalSeries, Object>(this,"Computing scatter plot") {
+        SwingWorker<XYIntervalSeries, Object> swingWorker = new SwingWorker<XYIntervalSeries, Object>() {
 
             @Override
             protected XYIntervalSeries doInBackground() throws Exception {
-//    protected XYIntervalSeries doInBackground(ProgressMonitor pm) throws Exception {
-//        pm.beginTask("Computing scatter plot...", 100);
                 final XYIntervalSeries scatterValues = new XYIntervalSeries("scatter values");
-                try {
-                    final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = scatterPlotModel.pointDataSource.getFeatureCollection();
-                    final SimpleFeature[] features = collection.toArray(new SimpleFeature[collection.size()]);
+                final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = scatterPlotModel.pointDataSource.getFeatureCollection();
+                final SimpleFeature[] features = collection.toArray(new SimpleFeature[collection.size()]);
 
-                    final int boxSize = scatterPlotModel.boxSize;
+                final int boxSize = scatterPlotModel.boxSize;
 
-                    final Rectangle sceneRect = new Rectangle(raster.getSceneRasterWidth(), raster.getSceneRasterHeight());
+                final Rectangle sceneRect = new Rectangle(raster.getSceneRasterWidth(), raster.getSceneRasterHeight());
 
-                    for (SimpleFeature feature : features) {
-                        final com.vividsolutions.jts.geom.Point point;
-                        point = (com.vividsolutions.jts.geom.Point) feature.getDefaultGeometryProperty().getValue();
-                        final int centerX = (int) point.getX();
-                        final int centerY = (int) point.getY();
+                for (SimpleFeature feature : features) {
+                    final com.vividsolutions.jts.geom.Point point;
+                    point = (com.vividsolutions.jts.geom.Point) feature.getDefaultGeometryProperty().getValue();
+                    final int centerX = (int) point.getX();
+                    final int centerY = (int) point.getY();
 
-                        if (!sceneRect.contains(centerX, centerY)) {
-                            continue;
-                        }
-                        final Rectangle box = sceneRect.intersection(new Rectangle(centerX - boxSize / 2,
-                                                                                   centerY - boxSize / 2,
-                                                                                   boxSize, boxSize));
-                        if (box.isEmpty()) {
-                            continue;
-                        }
-                        final double[] rasterValues = new double[box.width * box.height];
-                        raster.readPixels(box.x, box.y, box.width, box.height, rasterValues);
+                    if (!sceneRect.contains(centerX, centerY)) {
+                        continue;
+                    }
+                    final Rectangle box = sceneRect.intersection(new Rectangle(centerX - boxSize / 2,
+                                                                               centerY - boxSize / 2,
+                                                                               boxSize, boxSize));
+                    if (box.isEmpty()) {
+                        continue;
+                    }
+                    final double[] rasterValues = new double[box.width * box.height];
+                    raster.readPixels(box.x, box.y, box.width, box.height, rasterValues);
 
-                        final int[] maskBuffer = new int[box.width * box.height];
-                        Arrays.fill(maskBuffer, 1);
-                        if (selectedMask != null) {
-                            selectedMask.readPixels(box.x, box.y, box.width, box.height, maskBuffer);
-                        }
+                    final int[] maskBuffer = new int[box.width * box.height];
+                    Arrays.fill(maskBuffer, 1);
+                    if (selectedMask != null) {
+                        selectedMask.readPixels(box.x, box.y, box.width, box.height, maskBuffer);
+                    }
 
-                        final int centerIndex = box.width * (box.height / 2) + (box.width / 2);
-                        if (maskBuffer[centerIndex] == 0) {
-                            continue;
-                        }
+                    final int centerIndex = box.width * (box.height / 2) + (box.width / 2);
+                    if (maskBuffer[centerIndex] == 0) {
+                        continue;
+                    }
 
-                        double sum = 0;
-                        double sumSqr = 0;
-                        int n = 0;
+                    double sum = 0;
+                    double sumSqr = 0;
+                    int n = 0;
 
-                        for (int y = 0; y < box.height; y++) {
-                            for (int x = 0; x < box.width; x++) {
-                                final int index = y * box.height + x;
-                                if (raster.isPixelValid(x + box.x, y + box.y) && maskBuffer[index] != 0) {
-                                    final double rasterValue = rasterValues[index];
-                                    sum += rasterValue;
-                                    sumSqr += rasterValue * rasterValue;
-                                    n++;
-                                }
+                    for (int y = 0; y < box.height; y++) {
+                        for (int x = 0; x < box.width; x++) {
+                            final int index = y * box.height + x;
+                            if (raster.isPixelValid(x + box.x, y + box.y) && maskBuffer[index] != 0) {
+                                final double rasterValue = rasterValues[index];
+                                sum += rasterValue;
+                                sumSqr += rasterValue * rasterValue;
+                                n++;
                             }
                         }
-
-                        double rasterMean = sum / n;
-                        double rasterSigma = n > 1 ? Math.sqrt((sumSqr - (sum * sum) / n) / (n - 1)) : 0.0;
-
-                        String localName = dataField.getLocalName();
-                        Number attribute = (Number) feature.getAttribute(localName);
-                        scatterValues.add(rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma,
-                                          attribute.doubleValue(), attribute.doubleValue(), attribute.doubleValue());
                     }
-                } finally {
-//            pm.done();
+
+                    double rasterMean = sum / n;
+                    double rasterSigma = n > 1 ? Math.sqrt((sumSqr - (sum * sum) / n) / (n - 1)) : 0.0;
+
+                    String localName = dataField.getLocalName();
+                    Number attribute = (Number) feature.getAttribute(localName);
+                    scatterValues.add(rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma,
+                                      attribute.doubleValue(), attribute.doubleValue(), attribute.doubleValue());
                 }
                 return scatterValues;
             }
@@ -637,12 +623,6 @@ class ScatterPlotPanel extends ChartPagePanel {
             }
         }
         return xyIntervalSeries;
-    }
-
-    private double cropToDecimals(double value, final int numDecimals) {
-        final double pow = Math.pow(10, numDecimals);
-        final double reverse = 1 / pow;
-        return Math.round(value * pow) * reverse;
     }
 
     private static class ScatterPlotModel {
