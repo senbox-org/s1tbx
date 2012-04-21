@@ -24,6 +24,7 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.swing.binding.BindingContext;
+import com.vividsolutions.jts.geom.Point;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -34,6 +35,7 @@ import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -106,9 +108,9 @@ class ScatterPlotPanel extends ChartPagePanel {
     private final XYPlot plot;
 
     private ChartPanel scatterPlotDisplay;
+    private ScatterPlotTableModel.Location[] locations;
 
     private CorrelativeFieldSelector correlativeFieldSelector;
-
     private Range xAutoRangeAxisRange;
     private Range yAutoRangeAxisRange;
 
@@ -130,8 +132,15 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     @Override
     protected String getDataAsText() {
-//        todo
-        return "Must be implemented";
+        if (scatterpointsDataset.getItemCount(0) > 0) {
+            final String rasterName = getRaster().getName();
+            final String trackDataName = scatterPlotModel.dataField.getLocalName();
+            final int boxSize = scatterPlotModel.boxSize;
+            final ScatterPlotTableModel scatterPlotTableModel;
+            scatterPlotTableModel = new ScatterPlotTableModel(rasterName, trackDataName, locations, boxSize);
+            return scatterPlotTableModel.toCVS();
+        }
+        return "";
     }
 
     @Override
@@ -454,11 +463,13 @@ class ScatterPlotPanel extends ChartPagePanel {
             return;
         }
 
-        SwingWorker<XYIntervalSeries, Object> swingWorker = new SwingWorker<XYIntervalSeries, Object>() {
+        SwingWorker<ScatterPoints, Object> swingWorker = new SwingWorker<ScatterPoints, Object>() {
 
             @Override
-            protected XYIntervalSeries doInBackground() throws Exception {
+            protected ScatterPoints doInBackground() throws Exception {
                 final XYIntervalSeries scatterValues = new XYIntervalSeries("scatter values");
+                final ArrayList<ScatterPlotTableModel.Location> locationList = new ArrayList<ScatterPlotTableModel.Location>();
+
                 final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = scatterPlotModel.pointDataSource.getFeatureCollection();
                 final SimpleFeature[] features = collection.toArray(new SimpleFeature[collection.size()]);
 
@@ -467,8 +478,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                 final Rectangle sceneRect = new Rectangle(raster.getSceneRasterWidth(), raster.getSceneRasterHeight());
 
                 for (SimpleFeature feature : features) {
-                    final com.vividsolutions.jts.geom.Point point;
-                    point = (com.vividsolutions.jts.geom.Point) feature.getDefaultGeometryProperty().getValue();
+                    final Point point;
+                    point = (Point) feature.getDefaultGeometryProperty().getValue();
                     final int centerX = (int) point.getX();
                     final int centerY = (int) point.getY();
 
@@ -516,10 +527,17 @@ class ScatterPlotPanel extends ChartPagePanel {
 
                     String localName = dataField.getLocalName();
                     Number attribute = (Number) feature.getAttribute(localName);
+                    final double trackDataValue = attribute.doubleValue();
                     scatterValues.add(rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma,
-                                      attribute.doubleValue(), attribute.doubleValue(), attribute.doubleValue());
+                                      trackDataValue, trackDataValue, trackDataValue);
+                    final Point geoPos = (Point) feature.getAttribute("geoPos");
+                    final float lat = (float) geoPos.getY();
+                    final float lon = (float) geoPos.getX();
+                    locationList.add(new ScatterPlotTableModel.Location(centerX, centerY, lat, lon, (float)rasterMean, (float) rasterSigma, attribute.floatValue(), 0));
                 }
-                return scatterValues;
+                final ScatterPlotTableModel.Location[] locations;
+                locations = locationList.toArray(new ScatterPlotTableModel.Location[locationList.size()]);
+                return new ScatterPoints(scatterValues, locations);
             }
 
             @Override
@@ -534,7 +552,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                     scatterpointsDataset.removeAllSeries();
                     confidenceDataset.removeAllSeries();
 
-                    final XYIntervalSeries xySeries = get();
+                    final ScatterPoints scatterPoints = get();
+                    final XYIntervalSeries xySeries = scatterPoints.series;
 
                     if (xySeries.getItemCount() == 0) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
@@ -547,6 +566,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                     }
 
                     scatterpointsDataset.addSeries(xySeries);
+                    locations = scatterPoints.locations;
 
                     xAxis.setAutoRange(true);
                     yAxis.setAutoRange(true);
@@ -625,7 +645,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         return xyIntervalSeries;
     }
 
-    private static class ScatterPlotModel {
+    static class ScatterPlotModel {
         private int boxSize = 1; // Don´t remove this field, it is be used via binding
         private boolean useRoiMask; // Don´t remove this field, it is be used via binding
         private Mask roiMask; // Don´t remove this field, it is be used via binding
@@ -635,6 +655,16 @@ class ScatterPlotPanel extends ChartPagePanel {
         private boolean yAxisLogScaled; // Don´t remove this field, it is be used via binding
         private boolean showConfidenceInterval; // Don´t remove this field, it is be used via binding
         private double confidenceInterval = 15; // Don´t remove this field, it is be used via binding
+    }
+
+    static class ScatterPoints {
+        XYIntervalSeries series;
+        ScatterPlotTableModel.Location[] locations;
+
+        ScatterPoints(XYIntervalSeries series, ScatterPlotTableModel.Location[] locations) {
+            this.locations = locations;
+            this.series = series;
+        }
     }
 }
 
