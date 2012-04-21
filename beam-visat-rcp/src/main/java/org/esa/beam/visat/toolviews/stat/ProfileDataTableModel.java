@@ -2,7 +2,6 @@ package org.esa.beam.visat.toolviews.stat;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.TransectProfileData;
-import org.esa.beam.util.io.CsvWriter;
 import org.opengis.feature.simple.SimpleFeature;
 
 import javax.swing.table.AbstractTableModel;
@@ -148,17 +147,6 @@ public class ProfileDataTableModel extends AbstractTableModel implements CsvEnco
 
     @Override
     public void encodeCsv(Writer writer) throws IOException {
-        CsvWriter csv = new CsvWriter(writer, "\t");
-        csv.writeRecord(columnNames);
-        int columnCount = getColumnCount();
-        int rowCount = getRowCount();
-        for (int row = 0; row < rowCount; row++) {
-            String[] record = new String[columnCount];
-            for (int column = 0; column < columnCount; column++) {
-                Object value = getValueAt(row, column);
-                record[column] = value != null ? value.toString() : "";
-            }
-            csv.writeRecord(record);
-        }
+        new TableModelCsvEncoder(this).encodeCsv(writer);
     }
 }
