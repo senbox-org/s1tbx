@@ -16,10 +16,38 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.binding.*;
+import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.getAxisLabel;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -31,7 +59,6 @@ import org.geotools.feature.FeatureCollection;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
@@ -47,18 +74,6 @@ import org.jfree.ui.RectangleInsets;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-
-import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.getAxisLabel;
 
 /**
  * The scatter plot pane within the statistics window.
@@ -100,7 +115,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     private Range yAutoRangeAxisRange;
 
     ScatterPlotPanel(ToolView parentDialog, String helpId) {
-        super(parentDialog, helpId, CHART_TITLE, true);
+        super(parentDialog, helpId, CHART_TITLE, false);
         xAxisRangeControl = new AxisRangeControl("X-Axis");
         yAxisRangeControl = new AxisRangeControl("Y-Axis");
         scatterPlotModel = new ScatterPlotModel();
@@ -110,6 +125,10 @@ class ScatterPlotPanel extends ChartPagePanel {
         plot = new XYPlot();
     }
 
+    @Override
+    protected void handleLayerContentChanged() {
+        computeChartDataIfPossible();
+    }
 
     @Override
     protected String getDataAsText() {
@@ -150,6 +169,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     @Override
     protected void updateChartData() {
         // todo ... remove ?
+        // Do not remove, because location changes on a trac point causes a recomputation.
         computeChartDataIfPossible();
     }
 
@@ -439,12 +459,15 @@ class ScatterPlotPanel extends ChartPagePanel {
             return;
         }
 
-        ProgressMonitorSwingWorker<XYIntervalSeries, Object> swingWorker = new ProgressMonitorSwingWorker<XYIntervalSeries, Object>(
-                this, "Computing scatter plot") {
+        SwingWorker<XYIntervalSeries, Object> swingWorker;
+//        ProgressMonitorSwingWorker<XYIntervalSeries, Object> swingWorker;
+        swingWorker = new SwingWorker<XYIntervalSeries, Object>() {
+//        swingWorker = new ProgressMonitorSwingWorker<XYIntervalSeries, Object>(this,"Computing scatter plot") {
 
             @Override
-            protected XYIntervalSeries doInBackground(ProgressMonitor pm) throws Exception {
-                pm.beginTask("Computing scatter plot...", 100);
+            protected XYIntervalSeries doInBackground() throws Exception {
+//    protected XYIntervalSeries doInBackground(ProgressMonitor pm) throws Exception {
+//        pm.beginTask("Computing scatter plot...", 100);
                 final XYIntervalSeries scatterValues = new XYIntervalSeries("scatter values");
                 try {
                     final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = scatterPlotModel.pointDataSource.getFeatureCollection();
@@ -508,7 +531,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                                           attribute.doubleValue(), attribute.doubleValue(), attribute.doubleValue());
                     }
                 } finally {
-                    pm.done();
+//            pm.done();
                 }
                 return scatterValues;
             }
