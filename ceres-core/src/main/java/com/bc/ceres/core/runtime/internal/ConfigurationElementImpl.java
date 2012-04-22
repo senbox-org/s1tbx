@@ -19,7 +19,11 @@ package com.bc.ceres.core.runtime.internal;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.*;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.extended.JavaClassConverter;
+import com.thoughtworks.xstream.core.util.ClassLoaderReference;
+import com.thoughtworks.xstream.core.util.CompositeClassLoader;
 import com.thoughtworks.xstream.io.xml.XppDomReader;
+import com.thoughtworks.xstream.io.xml.XppDriver;
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 
 import java.text.MessageFormat;
@@ -238,7 +242,8 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
     }
 
     private <T> XStream createXStream(Class<T> extensionType, Class<T> extensionClass) {
-        XStream xStream = new XStream();
+        ClassLoaderReference classLoaderReference = new ClassLoaderReference(new CompositeClassLoader());
+        XStream xStream = new XStream(null, new XppDriver(), classLoaderReference);
         xStream.aliasType(getName(), extensionType);
         ConfigurationSchemaElement[] children = schemaElement.getChildren();
         for (ConfigurationSchemaElement child : children) {
@@ -247,6 +252,8 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
                 xStream.aliasField(child.getName(), extensionClass, fieldName);
             }
         }
+        JavaClassConverter classConverter = new WhitespaceIgnoringJavaClassConverter(classLoaderReference);
+        xStream.registerConverter(classConverter, XStream.PRIORITY_VERY_HIGH);
         return xStream;
     }
 
@@ -275,5 +282,16 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
 
     void setSchemaElement(ConfigurationSchemaElementImpl schemaElement) {
         this.schemaElement = schemaElement;
+    }
+
+    private static class WhitespaceIgnoringJavaClassConverter extends JavaClassConverter {
+        public WhitespaceIgnoringJavaClassConverter(ClassLoader classLoader) {
+            super(classLoader);
+        }
+
+        @Override
+        public Object fromString(String str) {
+            return super.fromString(str.trim());
+        }
     }
 }
