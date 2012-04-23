@@ -63,8 +63,13 @@ public class PlacemarkDescriptorRegistry {
     public List<PlacemarkDescriptor> getValidPlacemarkDescriptors(SimpleFeatureType featureType) {
         ArrayList<PlacemarkDescriptor> list = new ArrayList<PlacemarkDescriptor>();
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
-            if (placemarkDescriptor.getQualification(featureType) != DecodeQualification.UNABLE) {
-                list.add(placemarkDescriptor);
+            DecodeQualification qualification = placemarkDescriptor.getQualification(featureType);
+            if (qualification != DecodeQualification.UNABLE) {
+                if (qualification == DecodeQualification.INTENDED) {
+                    list.add(0, placemarkDescriptor);
+                } else {
+                    list.add(placemarkDescriptor);
+                }
             }
         }
         return list;
