@@ -2,7 +2,6 @@ package org.esa.beam.visat.actions;
 
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.dataio.geometry.VectorDataNodeReader;
-import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.GeometryDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
@@ -55,14 +54,9 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
                 }
             }
 
-            final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getBestPlacemarkDescriptor(simpleFeatureType);
-            if (placemarkDescriptor != null && placemarkDescriptor.getCompatibilityFor(simpleFeatureType) == DecodeQualification.INTENDED) {
-                return placemarkDescriptor;
-            }
-
             List<PlacemarkDescriptor> validPlacemarkDescriptors = placemarkDescriptorRegistry.getValidPlacemarkDescriptors(simpleFeatureType);
 
-            if (validPlacemarkDescriptors.size() == 1) {
+            if (!validPlacemarkDescriptors.isEmpty()) {
                 return validPlacemarkDescriptors.get(0);
             }
 

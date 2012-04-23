@@ -23,6 +23,8 @@ import org.esa.beam.framework.dataio.DecodeQualification;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -30,10 +32,13 @@ public class PlacemarkDescriptorRegistry {
 
     public final static String PROPERTY_NAME_PLACEMARK_DESCRIPTOR = AbstractPlacemarkDescriptor.PROPERTY_NAME_PLACEMARK_DESCRIPTOR;
 
-    private static PlacemarkDescriptorRegistry instance = new PlacemarkDescriptorRegistry();
     private ServiceRegistry<PlacemarkDescriptor> serviceRegistry;
 
-    PlacemarkDescriptorRegistry() {
+    public PlacemarkDescriptorRegistry(ServiceRegistry<PlacemarkDescriptor> serviceRegistry) {
+        this.serviceRegistry = serviceRegistry;
+    }
+
+    private PlacemarkDescriptorRegistry() {
         ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         serviceRegistry = serviceRegistryManager.getServiceRegistry(PlacemarkDescriptor.class);
         if (!BeamCoreActivator.isStarted()) {
@@ -42,12 +47,12 @@ public class PlacemarkDescriptorRegistry {
     }
 
     public static PlacemarkDescriptorRegistry getInstance() {
-        return instance;
+        return Holder.instance;
     }
 
     public static void setInstance(PlacemarkDescriptorRegistry instance) {
         Assert.notNull(instance, "instance");
-        PlacemarkDescriptorRegistry.instance = instance;
+        Holder.instance = instance;
     }
 
     public PlacemarkDescriptor getPlacemarkDescriptor(Class<? extends PlacemarkDescriptor> clazz) {
@@ -62,18 +67,39 @@ public class PlacemarkDescriptorRegistry {
         return serviceRegistry.getServices();
     }
 
-    public List<PlacemarkDescriptor> getValidPlacemarkDescriptors(SimpleFeatureType featureType) {
+    public List<PlacemarkDescriptor> getValidPlacemarkDescriptors(final SimpleFeatureType featureType) {
         ArrayList<PlacemarkDescriptor> list = new ArrayList<PlacemarkDescriptor>();
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
             DecodeQualification qualification = placemarkDescriptor.getCompatibilityFor(featureType);
             if (qualification != DecodeQualification.UNABLE) {
                 if (qualification == DecodeQualification.INTENDED) {
-                    list.add(0, placemarkDescriptor);
+                    list.add(placemarkDescriptor);
                 } else {
                     list.add(placemarkDescriptor);
                 }
             }
         }
+        Collections.sort(list, new Comparator<PlacemarkDescriptor>() {
+            @Override
+            public int compare(PlacemarkDescriptor o1, PlacemarkDescriptor o2) {
+                boolean isO1Intended = o1.getCompatibilityFor(featureType) == DecodeQualification.INTENDED;
+                boolean isO2Intended = o2.getCompatibilityFor(featureType) == DecodeQualification.INTENDED;
+                if (isO1Intended && !isO2Intended) {
+                    return -1;
+                } else if (!isO1Intended && isO2Intended) {
+                    return 1;
+                } else if (isO1Intended && isO2Intended) {
+                    boolean hasO1PlacemarkDescriptor = o1.getBaseFeatureType().getUserData().containsKey(PROPERTY_NAME_PLACEMARK_DESCRIPTOR);
+                    boolean hasO2PlacemarkDescriptor = o2.getBaseFeatureType().getUserData().containsKey(PROPERTY_NAME_PLACEMARK_DESCRIPTOR);
+                    if (hasO1PlacemarkDescriptor && !hasO2PlacemarkDescriptor) {
+                        return -1;
+                    } else if (!hasO1PlacemarkDescriptor && hasO2PlacemarkDescriptor) {
+                        return 1;
+                    }
+                }
+                return 0;
+            }
+        });
         return list;
     }
 
@@ -88,6 +114,11 @@ public class PlacemarkDescriptorRegistry {
             }
         }
         return suitablePlacemarkDescriptor;
+    }
+
+    private static class Holder {
+
+        private static PlacemarkDescriptorRegistry instance = new PlacemarkDescriptorRegistry();
     }
 
 }
