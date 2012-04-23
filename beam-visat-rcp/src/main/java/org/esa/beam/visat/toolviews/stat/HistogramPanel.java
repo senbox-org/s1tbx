@@ -139,14 +139,14 @@ class HistogramPanel extends ChartPagePanel {
         renderer.setBarPainter(new StandardXYBarPainter());
         renderer.setSeriesPaint(0, new Color(0, 0, 200));
 
-        createUI(createChartPanel(chart), createOptionsPanel(), bindingContext);
+        createUI(createChartPanel(chart), createComputationComponentsPanel(), createDisplayComponentsPanel(), bindingContext);
 
         isInitialized = true;
 
         updateUIState();
     }
 
-    private JPanel createOptionsPanel() {
+    private JPanel createComputationComponentsPanel() {
         final JLabel numBinsLabel = new JLabel("#Bins:");
         JTextField numBinsField = new JTextField(Integer.toString(NUM_BINS_DEFAULT));
         numBinsField.setPreferredSize(new Dimension(50, numBinsField.getPreferredSize().height));
@@ -205,8 +205,6 @@ class HistogramPanel extends ChartPagePanel {
                 "anchor=SOUTH,fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(displayOptionsPanel, xAxisRangeControl.getPanel(), displayOptionsConstraints,
                                 "gridy=2");
-        GridBagUtils.addToPanel(displayOptionsPanel, xAxisRangeControl.getBindingContext().getBinding(
-                PROPERTY_NAME_LOG_SCALED).getComponents()[0], displayOptionsConstraints, "gridy=3");
 
         JPanel optionsPanel = GridBagUtils.createPanel();
         GridBagConstraints gbc = GridBagUtils.createConstraints(
@@ -215,6 +213,15 @@ class HistogramPanel extends ChartPagePanel {
         GridBagUtils.addToPanel(optionsPanel, new JPanel(), gbc, "gridy=1,fill=VERTICAL,weighty=1");
         GridBagUtils.addToPanel(optionsPanel, displayOptionsPanel, gbc, "gridy=2,fill=HORIZONTAL,weighty=0");
         return optionsPanel;
+    }
+
+    private JPanel createDisplayComponentsPanel() {
+        JPanel displayComponentsPanel = GridBagUtils.createPanel();
+        GridBagConstraints displayComponentsConstraints = GridBagUtils.createConstraints(
+                "anchor=SOUTH,fill=HORIZONTAL,weightx=1");
+        GridBagUtils.addToPanel(displayComponentsPanel, xAxisRangeControl.getBindingContext().getBinding(
+                PROPERTY_NAME_LOG_SCALED).getComponents()[0], displayComponentsConstraints, "gridy=0");
+        return displayComponentsPanel;
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {
@@ -257,7 +264,7 @@ class HistogramPanel extends ChartPagePanel {
         return chartPanel;
     }
 
-    private void updateUIState() {
+        private void updateUIState() {
         final Binding minBinding = xAxisRangeControl.getBindingContext().getBinding("min");
         final double min = (Double) minBinding.getPropertyValue();
         final Binding maxBinding = xAxisRangeControl.getBindingContext().getBinding("max");

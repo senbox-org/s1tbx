@@ -201,7 +201,7 @@ class DensityPlotPanel extends ChartPagePanel {
         plot.getRenderer().setBaseToolTipGenerator(new XYPlotToolTipGenerator());
         JFreeChart chart = new JFreeChart(CHART_TITLE, plot);
         chart.removeLegend();
-        createUI(createChartPanel(chart), createMiddlePanel(), bindingContext);
+        createUI(createChartPanel(chart), createComputationComponentsPanel(), createDisplayComponentsPanel(), bindingContext);
         updateUIState();
     }
 
@@ -219,8 +219,17 @@ class DensityPlotPanel extends ChartPagePanel {
         }
     }
 
+    private JPanel createComputationComponentsPanel() {
+        final JPanel optionsPanel = GridBagUtils.createPanel();
+        final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=0,weightx=1,gridx=0");
+        GridBagUtils.addToPanel(optionsPanel, axisRangeControls[X_VAR].getPanel(), gbc, "gridy=0");
+        GridBagUtils.addToPanel(optionsPanel, xBandList, gbc, "gridy=1");
+        GridBagUtils.addToPanel(optionsPanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=2");
+        GridBagUtils.addToPanel(optionsPanel, yBandList, gbc, "gridy=3");
+        return optionsPanel;
+    }
 
-    private JPanel createMiddlePanel() {
+    private JPanel createDisplayComponentsPanel(){
         toggleColorCheckBox = new JCheckBox("Invert Plot Colors");
         toggleColorCheckBox.addActionListener(new ActionListener() {
             @Override
@@ -229,16 +238,10 @@ class DensityPlotPanel extends ChartPagePanel {
             }
         });
         toggleColorCheckBox.setEnabled(false);
-        final JPanel middlePanel = GridBagUtils.createPanel();
-        final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL");
-        GridBagUtils.setAttributes(gbc, "gridx=0,weightx=1,weighty=0");
-        GridBagUtils.addToPanel(middlePanel, axisRangeControls[X_VAR].getPanel(), gbc, "gridy=0,insets.top=0");
-        GridBagUtils.addToPanel(middlePanel, xBandList, gbc, "gridy=1");
-        GridBagUtils.addToPanel(middlePanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=2");
-        GridBagUtils.addToPanel(middlePanel, yBandList, gbc, "gridy=3");
-        GridBagUtils.addToPanel(middlePanel, new JPanel(), gbc, "gridy=4,weighty=1");
-        GridBagUtils.addToPanel(middlePanel, toggleColorCheckBox, gbc, "gridy=5,weighty=1");
-        return middlePanel;
+        final JPanel displayComponentsPanel = GridBagUtils.createPanel();
+        final GridBagConstraints gbc = GridBagUtils.createConstraints("fill=HORIZONTAL,insets.top=0,weightx=1");
+        GridBagUtils.addToPanel(displayComponentsPanel, toggleColorCheckBox, gbc, "gridy=0");
+        return displayComponentsPanel;
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {

@@ -168,19 +168,20 @@ abstract class ChartPagePanel extends PagePanel {
         return buttonPanel;
     }
 
-    void createUI(final ChartPanel chartPanel, final JPanel optionsPanel, BindingContext bindingContext) {
+    void createUI(final ChartPanel chartPanel, final JPanel computeComponentsPanel, final JPanel displayComponentsPanel, BindingContext bindingContext) {
         roiMaskSelector = new RoiMaskSelector(bindingContext);
 
         final JPanel extendedOptionsPanel = GridBagUtils.createPanel();
         GridBagConstraints extendedOptionsPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1");
         GridBagUtils.addToPanel(extendedOptionsPanel, new JSeparator(), extendedOptionsPanelConstraints, "gridy=0");
         GridBagUtils.addToPanel(extendedOptionsPanel, roiMaskSelector.createPanel(), extendedOptionsPanelConstraints, "gridy=1");
-        GridBagUtils.addToPanel(extendedOptionsPanel, optionsPanel, extendedOptionsPanelConstraints, "gridy=2, fill=VERTICAL,fill=HORIZONTAL,weighty=1");
-        GridBagUtils.addToPanel(extendedOptionsPanel, new JSeparator(), extendedOptionsPanelConstraints, "gridy=4,fill=HORIZONTAL,weighty=0");
+        GridBagUtils.addToPanel(extendedOptionsPanel, computeComponentsPanel, extendedOptionsPanelConstraints, "gridy=2,fill=VERTICAL,fill=HORIZONTAL,weighty=1");
+        GridBagUtils.addToPanel(extendedOptionsPanel, displayComponentsPanel, extendedOptionsPanelConstraints, "gridy=4,fill=HORIZONTAL,weighty=0,anchor=SOUTHWEST");
+        GridBagUtils.addToPanel(extendedOptionsPanel, new JSeparator(), extendedOptionsPanelConstraints, "gridy=5");
 
         final JScrollPane optionsScrollPane = new SimpleScrollPane(extendedOptionsPanel,
-                                                                   ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                                                                   ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         optionsScrollPane.setBorder(null);
 
         final JPanel rightPanel = new JPanel(new BorderLayout());
@@ -224,6 +225,10 @@ abstract class ChartPagePanel extends PagePanel {
         layeredPane.add(backgroundPanel, new Integer(0));
         layeredPane.add(hideAndShowButton, new Integer(1));
         add(layeredPane);
+    }
+
+    void createUI(final ChartPanel chartPanel, final JPanel optionsPanel, BindingContext bindingContext) {
+        createUI(chartPanel, optionsPanel, new JPanel(), bindingContext);
     }
 
     @Override
