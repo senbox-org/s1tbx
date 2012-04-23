@@ -70,7 +70,7 @@ public class PlacemarkDescriptorRegistry {
         return list;
     }
 
-    public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType featureType) {
+    public PlacemarkDescriptor getBestPlacemarkDescriptor(SimpleFeatureType featureType) {
         ArrayList<PlacemarkDescriptor> list = new ArrayList<PlacemarkDescriptor>();
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
             DecodeQualification qualification = placemarkDescriptor.getQualification(featureType);

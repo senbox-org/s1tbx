@@ -20,13 +20,15 @@ import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ObjectUtils;
-import org.geotools.feature.*;
+import org.geotools.feature.CollectionEvent;
+import org.geotools.feature.CollectionListener;
+import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.BoundingBox;
-
-import java.util.List;
 
 /**
  * A container which allows to store vector data in the BEAM product model.
@@ -320,14 +322,13 @@ public class VectorDataNode extends ProductNode {
         }
     }
 
-
-    // Note: This is a temporary method. Soon, VectorDataNodes will be able to support all suitable PlacemarkDescriptors
     private static PlacemarkDescriptor getPlacemarkDescriptor(final SimpleFeatureType featureType) {
-        List<PlacemarkDescriptor> placemarkDescriptors = PlacemarkDescriptorRegistry.getInstance().getValidPlacemarkDescriptors(featureType);
-        if (!placemarkDescriptors.isEmpty()) {
-            return placemarkDescriptors.get(0);
+        PlacemarkDescriptorRegistry registry = PlacemarkDescriptorRegistry.getInstance();
+        PlacemarkDescriptor placemarkDescriptor = registry.getBestPlacemarkDescriptor(featureType);
+        if (placemarkDescriptor == null) {
+            return new GenericPlacemarkDescriptor(featureType);
         }
-        return new GenericPlacemarkDescriptor(featureType);
+        return placemarkDescriptor;
     }
 
     /////////////////////////////////////////////////////////////////////////

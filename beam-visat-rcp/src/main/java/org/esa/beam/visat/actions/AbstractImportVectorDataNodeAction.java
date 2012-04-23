@@ -42,7 +42,7 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
     private static class MyPlacemarkDescriptorProvider implements VectorDataNodeReader2.PlacemarkDescriptorProvider {
         @Override
         public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
-            final PlacemarkDescriptor placemarkDescriptor = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(simpleFeatureType);
+            final PlacemarkDescriptor placemarkDescriptor = PlacemarkDescriptorRegistry.getInstance().getBestPlacemarkDescriptor(simpleFeatureType);
             if (placemarkDescriptor != null && placemarkDescriptor.getQualification(simpleFeatureType) == DecodeQualification.INTENDED) {
                 return placemarkDescriptor;
             }
