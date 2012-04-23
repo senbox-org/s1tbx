@@ -13,7 +13,7 @@ public class ScatterPlotTableModel extends AbstractTableModel implements CsvEnco
     private final String[] colNames;
     private final ScatterPlotPanel.ComputedData[] computedDatas;
 
-    public ScatterPlotTableModel(String rasterName, String trackDataName, ScatterPlotPanel.ComputedData[] computedDatas) {
+    public ScatterPlotTableModel(String rasterName, String correlativDataName, ScatterPlotPanel.ComputedData[] computedDatas) {
 
         colNames = new String[]{
                 "pixel_no",
@@ -23,8 +23,7 @@ public class ScatterPlotTableModel extends AbstractTableModel implements CsvEnco
                 "longitude",
                 rasterName + "_mean",
                 rasterName + "_sigma",
-                trackDataName + "_mean",
-                trackDataName + "_sigma"};
+                correlativDataName};
 
         this.computedDatas = computedDatas;
     }
@@ -66,9 +65,7 @@ public class ScatterPlotTableModel extends AbstractTableModel implements CsvEnco
         } else if (columnIndex == 6) {
             return computedDatas[rowIndex].rasterSigma;
         } else if (columnIndex == 7) {
-            return computedDatas[rowIndex].trackDataMean;
-        } else if (columnIndex == 8) {
-            return computedDatas[rowIndex].trackDataSigma;
+            return computedDatas[rowIndex].correlativData;
         }
         return null;
     }

@@ -31,7 +31,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
@@ -87,7 +86,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 class ScatterPlotPanel extends ChartPagePanel {
 
     private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" + ZOOM_TIP_MESSAGE;
-    private static final String CHART_TITLE = "Scatter Plot";
+    private static final String CHART_TITLE = "Correlativ Plot";
 
     private final String PROPERTY_NAME_X_AXIS_LOG_SCALED = "xAxisLogScaled";
     private final String PROPERTY_NAME_Y_AXIS_LOG_SCALED = "yAxisLogScaled";
@@ -138,9 +137,9 @@ class ScatterPlotPanel extends ChartPagePanel {
     protected String getDataAsText() {
         if (scatterpointsDataset.getItemCount(0) > 0) {
             final String rasterName = getRaster().getName();
-            final String trackDataName = scatterPlotModel.dataField.getLocalName();
+            final String correlativDataName = scatterPlotModel.dataField.getLocalName();
             final ScatterPlotTableModel scatterPlotTableModel;
-            scatterPlotTableModel = new ScatterPlotTableModel(rasterName, trackDataName, computedDatas);
+            scatterPlotTableModel = new ScatterPlotTableModel(rasterName, correlativDataName, computedDatas);
             return scatterPlotTableModel.toCVS();
         }
         return "";
@@ -534,9 +533,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                     final Point geoPos = (Point) feature.getAttribute("geoPos");
                     final float lat = (float) geoPos.getY();
                     final float lon = (float) geoPos.getX();
-                    final float trackDataMean = attribute.floatValue();
-                    final float trackDataSigma = 0;
-                    computedDataList.add(new ComputedData(centerX, centerY, lat, lon, (float) rasterMean, (float) rasterSigma, trackDataMean, trackDataSigma));
+                    final float correlativData = attribute.floatValue();
+                    computedDataList.add(new ComputedData(centerX, centerY, lat, lon, (float) rasterMean, (float) rasterSigma, correlativData));
                 }
 
                 return computedDataList.toArray(new ComputedData[computedDataList.size()]);
@@ -558,15 +556,15 @@ class ScatterPlotPanel extends ChartPagePanel {
                     if (computedDatas.length == 0) {
                         return;
                     }
-                    final XYIntervalSeries scatterValues = new XYIntervalSeries("scatter values");
+                    final String correlativDataName = scatterPlotModel.dataField.getLocalName();
+                    final XYIntervalSeries scatterValues = new XYIntervalSeries(correlativDataName);
                     for (int i = 0; i < computedDatas.length; i++) {
                         ComputedData computedData = computedDatas[i];
                         final float rasterMean = computedData.rasterMean;
                         final float rasterSigma = computedData.rasterSigma;
-                        final float trackDataMean = computedData.trackDataMean;
-                        final float trackDataSigma = computedData.trackDataSigma;
+                        final float correlativData = computedData.correlativData;
                         scatterValues.add(rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma,
-                                          trackDataMean, trackDataMean - trackDataSigma, trackDataMean + trackDataSigma);
+                                          correlativData, correlativData, correlativData);
                     }
 
                     scatterpointsDataset.addSeries(scatterValues);
@@ -667,18 +665,16 @@ class ScatterPlotPanel extends ChartPagePanel {
         final float lon;
         final float rasterMean;
         final float rasterSigma;
-        final float trackDataMean;
-        final float trackDataSigma;
+        final float correlativData;
 
-        ComputedData(float x, float y, float lat, float lon, float rasterMean, float rasterSigma, float trackDataMean, float trackDataSigma) {
+        ComputedData(float x, float y, float lat, float lon, float rasterMean, float rasterSigma, float correlativData) {
             this.x = x;
             this.y = y;
             this.lat = lat;
             this.lon = lon;
             this.rasterMean = rasterMean;
             this.rasterSigma = rasterSigma;
-            this.trackDataMean = trackDataMean;
-            this.trackDataSigma = trackDataSigma;
+            this.correlativData = correlativData;
         }
     }
 }
