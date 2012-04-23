@@ -155,6 +155,7 @@ public class FeatureUtils {
             pm.beginTask("Clipping features", sourceCollection.size());
 
             SimpleFeatureType sourceSchema = sourceCollection.getSchema();
+            Map<Object, Object> userData = sourceSchema.getUserData();
             CoordinateReferenceSystem sourceCrs = sourceSchema.getCoordinateReferenceSystem();
             if (targetID == null || targetID.isEmpty()) {
                 targetID = sourceCollection.getID();
@@ -187,6 +188,7 @@ public class FeatureUtils {
 
             try {
                 targetSchema = FeatureTypes.transform(sourceSchema, targetCrs);
+                targetSchema.getUserData().putAll(userData);
                 source2TargetTransformer = getTransform(sourceCrs, targetCrs);
             } catch (SchemaException e) {
                 throw new IllegalStateException(e);
