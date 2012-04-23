@@ -85,7 +85,7 @@ import org.opengis.feature.type.AttributeDescriptor;
  */
 class ScatterPlotPanel extends ChartPagePanel {
 
-    private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" + ZOOM_TIP_MESSAGE;
+    private static final String NO_DATA_MESSAGE = "No correlativ plot computed yet.\n" + ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Correlativ Plot";
 
     private final String PROPERTY_NAME_X_AXIS_LOG_SCALED = "xAxisLogScaled";
@@ -317,7 +317,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
                                                                                          scatterPlotDisplay,
                                                                                          "scatter_plot_area",
-                                                                                         "Mask generated from selected scatter plot area",
+                                                                                         "Mask generated from selected correlativ plot area",
                                                                                          Color.RED,
                                                                                          PlotAreaSelectionTool.AreaType.X_RANGE) {
             @Override
@@ -596,7 +596,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute scatter plot.\n" +
+                                                  "Failed to compute correlativ plot.\n" +
                                                           "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
@@ -604,7 +604,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                 } catch (CancellationException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute scatter plot.\n" +
+                                                  "Failed to compute correlativ plot.\n" +
                                                           "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
@@ -612,7 +612,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute scatter plot.\n" +
+                                                  "Failed to compute correlativ plot.\n" +
                                                           "An error occured:\n" +
                                                           e.getCause().getMessage(),
                                                   CHART_TITLE, /*I18N*/

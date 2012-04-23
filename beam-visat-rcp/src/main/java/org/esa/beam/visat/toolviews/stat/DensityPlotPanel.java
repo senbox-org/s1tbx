@@ -68,7 +68,7 @@ import java.util.concurrent.ExecutionException;
  */
 class DensityPlotPanel extends ChartPagePanel {
 
-    private static final String NO_DATA_MESSAGE = "No density plot computed yet.\n" +
+    private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" +
             ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Scatter Plot";
 
@@ -250,7 +250,7 @@ class DensityPlotPanel extends ChartPagePanel {
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
                 densityPlotDisplay,
                 "density_plot_area",
-                "Mask generated from selected density plot area",
+                "Mask generated from selected scatter plot area",
                 Color.RED,
                 PlotAreaSelectionTool.AreaType.ELLIPSE) {
             @Override
@@ -314,11 +314,11 @@ class DensityPlotPanel extends ChartPagePanel {
         }
 
         ProgressMonitorSwingWorker<BufferedImage, Object> swingWorker = new ProgressMonitorSwingWorker<BufferedImage, Object>(
-                this, "Computing density plot") {
+                this, "Computing scatter plot") {
 
             @Override
             protected BufferedImage doInBackground(ProgressMonitor pm) throws Exception {
-                pm.beginTask("Computing density plot...", 100);
+                pm.beginTask("Computing scatter plot...", 100);
                 try {
                     setRange(X_VAR, rasterX, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
                     setRange(Y_VAR, rasterY, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
@@ -352,7 +352,7 @@ class DensityPlotPanel extends ChartPagePanel {
                     double maxY = axisRangeControls[Y_VAR].getMax();
                     if (minX > maxX || minY > maxY) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                "Failed to compute density plot.\n" +
+                                "Failed to compute scatter plot.\n" +
                                         "No Pixels considered..",
                                 /*I18N*/
                                 CHART_TITLE, /*I18N*/
@@ -382,7 +382,7 @@ class DensityPlotPanel extends ChartPagePanel {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute density plot.\n" +
+                            "Failed to compute scatter plot.\n" +
                                     "Calculation canceled.",
                             /*I18N*/
                             CHART_TITLE, /*I18N*/
@@ -390,7 +390,7 @@ class DensityPlotPanel extends ChartPagePanel {
                 } catch (CancellationException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute density plot.\n" +
+                            "Failed to compute scatter plot.\n" +
                                     "Calculation canceled.",
                             /*I18N*/
                             CHART_TITLE, /*I18N*/
@@ -398,7 +398,7 @@ class DensityPlotPanel extends ChartPagePanel {
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute density plot.\n" +
+                            "Failed to compute scatter plot.\n" +
                                     "An error occurred:\n" +
                                     e.getCause().getMessage(),
                             CHART_TITLE, /*I18N*/
@@ -455,7 +455,7 @@ class DensityPlotPanel extends ChartPagePanel {
                         + excelLimit + " rows in a sheet.\n";   /*I18N*/
             }
             final String message = MessageFormat.format(
-                    "This density plot contains {0} non-empty bins.\n" +
+                    "This scatter plot contains {0} non-empty bins.\n" +
                             "For each bin, a text data row containing an x, y and z value will be created.\n" +
                             "{1}\nPress ''Yes'' if you really want to copy this amount of data to the system clipboard.\n",
                     numNonEmptyBins, excelNote);
