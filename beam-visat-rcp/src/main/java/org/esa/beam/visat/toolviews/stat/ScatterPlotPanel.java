@@ -60,6 +60,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -69,6 +70,7 @@ import org.jfree.data.Range;
 import org.jfree.data.function.Function2D;
 import org.jfree.data.general.DatasetUtilities;
 import org.jfree.data.xy.XYDataItem;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYIntervalSeries;
 import org.jfree.data.xy.XYIntervalSeriesCollection;
 import org.jfree.data.xy.XYSeries;
@@ -86,7 +88,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 class ScatterPlotPanel extends ChartPagePanel {
 
     private static final String NO_DATA_MESSAGE = "No correlativ plot computed yet.\n" + ZOOM_TIP_MESSAGE;
-    private static final String CHART_TITLE = "Correlativ Plot";
+    private static final String CHART_TITLE = "Correlative Plot";
 
     private final String PROPERTY_NAME_X_AXIS_LOG_SCALED = "xAxisLogScaled";
     private final String PROPERTY_NAME_Y_AXIS_LOG_SCALED = "yAxisLogScaled";
@@ -286,7 +288,20 @@ class ScatterPlotPanel extends ChartPagePanel {
         scatterPointsRenderer.setSeriesLinesVisible(0, false);
         scatterPointsRenderer.setSeriesShapesVisible(0, true);
         scatterPointsRenderer.setSeriesOutlineStroke(0, new BasicStroke(1.0f));
-        scatterPointsRenderer.setSeriesToolTipGenerator(0, new XYPlotToolTipGenerator());
+        scatterPointsRenderer.setSeriesToolTipGenerator(0, new XYToolTipGenerator() {
+            @Override
+            public String generateToolTip(XYDataset dataset, int series, int item) {
+                final XYIntervalSeriesCollection collection = (XYIntervalSeriesCollection) dataset;
+                final Comparable key = collection.getSeriesKey(series);
+                final double xValue = collection.getXValue(series, item);
+                final double endXValue = collection.getEndXValue(series, item);
+                final double yValue = collection.getYValue(series, item);
+                final String rasterName = getRaster().getName();
+                return String.format("%s: mean = %6.2f, sigma = %6.2f | %s: value = %6.2f",
+                                     rasterName, xValue, endXValue - xValue,
+                                     key, yValue);
+            }
+        });
         plot.setRenderer(SCATTERPOINTS_DSINDEX, scatterPointsRenderer);
 
         final boolean autoRangeIncludesZero = false;
