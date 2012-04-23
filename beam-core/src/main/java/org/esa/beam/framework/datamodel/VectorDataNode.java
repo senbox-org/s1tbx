@@ -69,6 +69,7 @@ public class VectorDataNode extends ProductNode {
     private String defaultStyleCss;
     private String styleCss;
     private ReferencedEnvelope bounds;
+    private boolean permanent;
 
     /**
      * Constructs a new vector data node for the given feature collection.
@@ -362,5 +363,12 @@ public class VectorDataNode extends ProductNode {
         setDefaultStyleCss(defaultCSS);
     }
 
+    final boolean isPermanent() {
+        return permanent;
+    }
+
+    final  void setPermanent(boolean permanent) {
+        this.permanent = permanent;
+    }
 }
 

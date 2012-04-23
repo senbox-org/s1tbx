@@ -1208,6 +1208,7 @@ public class Product extends ProductNode {
     private synchronized PlacemarkGroup createGcpGroup() {
         final VectorDataNode vectorDataNode = new VectorDataNode(GCP_GROUP_NAME, Placemark.createGcpFeatureType());
         vectorDataNode.setDefaultStyleCss("symbol:plus; stroke:#ff8800; stroke-opacity:0.8; stroke-width:1.0");
+        vectorDataNode.setPermanent(true);
         this.vectorDataGroup.add(vectorDataNode);
         return vectorDataNode.getPlacemarkGroup();
     }
@@ -1229,6 +1230,7 @@ public class Product extends ProductNode {
         final VectorDataNode vectorDataNode = new VectorDataNode(PIN_GROUP_NAME, Placemark.createPinFeatureType());
         vectorDataNode.setDefaultStyleCss(
                 "symbol:pin; fill:#0000ff; fill-opacity:0.7; stroke:#ffffff; stroke-opacity:1.0; stroke-width:0.5");
+        vectorDataNode.setPermanent(true);
         this.vectorDataGroup.add(vectorDataNode);
         return vectorDataNode.getPlacemarkGroup();
     }
@@ -2825,10 +2827,10 @@ public class Product extends ProductNode {
 
         @Override
         public boolean add(VectorDataNode vectorDataNode) {
-            if (pinGroup != null && pinGroup.getVectorDataNode() == vectorDataNode) {
-                return false;
-            }
-            if (gcpGroup != null && gcpGroup.getVectorDataNode() == vectorDataNode) {
+            Assert.notNull(vectorDataNode, "node");
+            VectorDataNode permanentNode = getPermanentNode(vectorDataNode.getName());
+            if (permanentNode != null) {
+                permanentNode.getFeatureCollection().addAll(vectorDataNode.getFeatureCollection());
                 return false;
             }
             return super.add(vectorDataNode);
@@ -2836,10 +2838,10 @@ public class Product extends ProductNode {
 
         @Override
         public void add(int index, VectorDataNode vectorDataNode) {
-            if (pinGroup != null && pinGroup.getVectorDataNode() == vectorDataNode) {
-                return;
-            }
-            if (gcpGroup != null && gcpGroup.getVectorDataNode() == vectorDataNode) {
+            Assert.notNull(vectorDataNode, "node");
+            VectorDataNode permanentNode = getPermanentNode(vectorDataNode.getName());
+            if (permanentNode != null) {
+                permanentNode.getFeatureCollection().addAll(vectorDataNode.getFeatureCollection());
                 return;
             }
             super.add(index, vectorDataNode);
@@ -2847,13 +2849,19 @@ public class Product extends ProductNode {
 
         @Override
         public boolean remove(VectorDataNode vectorDataNode) {
-            if (pinGroup != null && pinGroup.getVectorDataNode() == vectorDataNode) {
-                return false;
-            }
-            if (gcpGroup != null && gcpGroup.getVectorDataNode() == vectorDataNode) {
+            Assert.notNull(vectorDataNode, "node");
+            if (vectorDataNode.isPermanent()) {
                 return false;
             }
             return super.remove(vectorDataNode);
+        }
+
+        private VectorDataNode getPermanentNode(String nodeName) {
+            VectorDataNode node = get(nodeName);
+            if (node != null && node.isPermanent()) {
+                return node;
+            }
+            return null;
         }
     }
 }

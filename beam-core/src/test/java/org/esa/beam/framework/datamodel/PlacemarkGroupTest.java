@@ -39,10 +39,9 @@ public class PlacemarkGroupTest {
     @Before()
     public void setup() {
         Product product = new Product("PinGroup Test", "TestType", 10, 10);
-        VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Placemark.createPointFeatureType("org.esa.beam.Pin"));
-        product.getVectorDataGroup().add(pinVectorDataNode);
+        VectorDataNode pinVectorDataNode = product.getVectorDataGroup().get("pins");
         pinBuilder = new SimpleFeatureBuilder(pinVectorDataNode.getFeatureType());
-        placemarkGroup = new PlacemarkGroup(product, "pins", pinVectorDataNode);
+        placemarkGroup = pinVectorDataNode.getPlacemarkGroup();
         pinFeatureCollection = pinVectorDataNode.getFeatureCollection();
     }
 
