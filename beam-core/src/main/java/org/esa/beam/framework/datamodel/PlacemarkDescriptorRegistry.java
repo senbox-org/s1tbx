@@ -28,10 +28,12 @@ import java.util.Set;
 
 public class PlacemarkDescriptorRegistry {
 
+    public final static String PROPERTY_NAME_PLACEMARK_DESCRIPTOR  = AbstractPlacemarkDescriptor.PROPERTY_NAME_PLACEMARK_DESCRIPTOR;
+
     private static PlacemarkDescriptorRegistry instance = new PlacemarkDescriptorRegistry();
     private ServiceRegistry<PlacemarkDescriptor> serviceRegistry;
 
-    public PlacemarkDescriptorRegistry() {
+    PlacemarkDescriptorRegistry() {
         ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         serviceRegistry = serviceRegistryManager.getServiceRegistry(PlacemarkDescriptor.class);
         if (!BeamCoreActivator.isStarted()) {
@@ -63,7 +65,7 @@ public class PlacemarkDescriptorRegistry {
     public List<PlacemarkDescriptor> getValidPlacemarkDescriptors(SimpleFeatureType featureType) {
         ArrayList<PlacemarkDescriptor> list = new ArrayList<PlacemarkDescriptor>();
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
-            DecodeQualification qualification = placemarkDescriptor.getQualification(featureType);
+            DecodeQualification qualification = placemarkDescriptor.getCompatibilityFor(featureType);
             if (qualification != DecodeQualification.UNABLE) {
                 if (qualification == DecodeQualification.INTENDED) {
                     list.add(0, placemarkDescriptor);
@@ -78,7 +80,7 @@ public class PlacemarkDescriptorRegistry {
     public PlacemarkDescriptor getBestPlacemarkDescriptor(SimpleFeatureType featureType) {
         ArrayList<PlacemarkDescriptor> list = new ArrayList<PlacemarkDescriptor>();
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
-            DecodeQualification qualification = placemarkDescriptor.getQualification(featureType);
+            DecodeQualification qualification = placemarkDescriptor.getCompatibilityFor(featureType);
             if (qualification == DecodeQualification.INTENDED) {
                 return placemarkDescriptor;
             }  else if (qualification == DecodeQualification.SUITABLE) {

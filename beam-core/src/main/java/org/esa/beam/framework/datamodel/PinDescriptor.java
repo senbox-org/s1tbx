@@ -16,37 +16,14 @@
 
 package org.esa.beam.framework.datamodel;
 
-import org.esa.beam.framework.dataio.DecodeQualification;
-import org.opengis.feature.simple.SimpleFeatureType;
-
-import java.awt.Image;
-import java.awt.Point;
-
-public class PinDescriptor extends AbstractPlacemarkDescriptor {
-
-    private static final SimpleFeatureType DEFAULT_FEATURE_TYPE = Placemark.createPointFeatureType("org.esa.beam.Pin");
+public class PinDescriptor extends PointPlacemarkDescriptor {
 
     public static PinDescriptor getInstance() {
         return (PinDescriptor) PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(PinDescriptor.class.getName());
     }
 
-    @Override
-    public DecodeQualification getQualification(SimpleFeatureType featureType) {
-        if (featureType.getTypeName().equals("org.esa.beam.Pin")) {
-            return DecodeQualification.INTENDED;
-        }
-        return DecodeQualification.UNABLE;
-    }
-
-    @Override
-    public void setUserData(SimpleFeatureType featureType) {
-        super.setUserData(featureType);
-        featureType.getUserData().put("defaultGeometry", DEFAULT_FEATURE_TYPE.getGeometryDescriptor().getLocalName());
-    }
-
-    @Override
-    public SimpleFeatureType getBaseFeatureType() {
-        return DEFAULT_FEATURE_TYPE;
+    public PinDescriptor() {
+        super("org.esa.beam.Pin");
     }
 
     @Override
@@ -66,19 +43,6 @@ public class PinDescriptor extends AbstractPlacemarkDescriptor {
     public String getRoleLabel() {
         return "pin";
     }
-
-    @Override
-    @Deprecated
-    public Image getCursorImage() {
-        return null;
-    }
-
-    @Override
-    @Deprecated
-    public Point getCursorHotSpot() {
-        return new Point();
-    }
-
 
     @Override
     @Deprecated
@@ -102,6 +66,5 @@ public class PinDescriptor extends AbstractPlacemarkDescriptor {
             return geoPos;
         }
         return geoCoding.getGeoPos(pixelPos, geoPos);
-
     }
 }

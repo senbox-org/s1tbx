@@ -20,7 +20,14 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.AbstractGeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.Scene;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.io.CsvReader;
@@ -44,7 +51,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Olaf Danne
@@ -168,7 +178,7 @@ public class VectorDataNodeReaderTest {
         assertEquals(4, properties.size());
         assertEquals("color:0,0,255", properties.get("styleCss"));
         assertEquals("TAB", properties.get("separator"));
-        assertEquals("GeometryDescriptor", properties.get("beam.placemarkDescriptor.class"));
+        assertEquals("org.esa.beam.framework.datamodel.GeometryDescriptor", properties.get("placemarkDescriptor"));
         assertEquals("geom", properties.get("defaultGeometry"));
     }
 

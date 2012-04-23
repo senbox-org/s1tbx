@@ -19,7 +19,14 @@ package org.esa.beam.visat.actions;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -86,7 +93,7 @@ public class ImportTrackAction extends ExecCommand {
 
         String name = FileUtils.getFilenameWithoutExtension(file);
         final PlacemarkDescriptor placemarkDescriptor = PlacemarkDescriptorRegistry.getInstance().getBestPlacemarkDescriptor(featureCollection.getSchema());
-        placemarkDescriptor.setUserData(featureCollection.getSchema());
+        placemarkDescriptor.setUserDataOf(featureCollection.getSchema());
         VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection, placemarkDescriptor);
 
         product.getVectorDataGroup().add(vectorDataNode);

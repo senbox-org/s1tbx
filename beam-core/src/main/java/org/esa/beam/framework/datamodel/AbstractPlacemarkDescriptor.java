@@ -1,7 +1,11 @@
 package org.esa.beam.framework.datamodel;
 
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+
+import java.awt.Image;
+import java.awt.Point;
 
 /**
  * The base class for {@link PlacemarkDescriptor} implementations.
@@ -11,18 +15,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  */
 public abstract class AbstractPlacemarkDescriptor implements PlacemarkDescriptor {
 
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * The default implementation sets the property 'beam.placemarkDescriptor.class'.
-     *
-     * @param featureType The feature type whose user data may or may not be altered.
-     * @see org.opengis.feature.simple.SimpleFeatureType#getUserData()
-     */
-    @Override
-    public void setUserData(SimpleFeatureType featureType) {
-        featureType.getUserData().put(PLACEMARK_DESCRIPTOR_KEY, getClass().getName());
-    }
+    public final static String PROPERTY_NAME_PLACEMARK_DESCRIPTOR = "placemarkDescriptor";
+    public final static String PROPERTY_NAME_DEFAULT_GEOMETRY = "defaultGeometry";
 
     /**
      * {@inheritDoc}
@@ -37,5 +31,64 @@ public abstract class AbstractPlacemarkDescriptor implements PlacemarkDescriptor
     @Override
     public Placemark createPlacemark(SimpleFeature feature) {
         return new Placemark(this, feature);
+    }
+
+    // todo - add API doc describing what the method does (nf,ts - 2012-04-23)
+    @Override
+    public DecodeQualification getCompatibilityFor(SimpleFeatureType featureType) {
+        // todo - this is not sufficient: in order to return INTENDED, the given featureType must be equal-to or derived-from baseFeatureType (nf - 2012-04-23)
+        if (getBaseFeatureType().getTypeName().equals(featureType.getTypeName())) {
+            return DecodeQualification.INTENDED;
+        }
+        return DecodeQualification.UNABLE;
+    }
+
+    // todo - add API doc describing what the method does (nf,ts - 2012-04-23)
+    @Override
+    public void setUserDataOf(SimpleFeatureType compatibleFeatureType) {
+
+        compatibleFeatureType.getUserData().put(PROPERTY_NAME_PLACEMARK_DESCRIPTOR, getClass().getName());
+
+        final org.opengis.feature.type.GeometryDescriptor geometryDescriptor = compatibleFeatureType.getGeometryDescriptor();
+        if (geometryDescriptor != null) {
+            compatibleFeatureType.getUserData().put(PROPERTY_NAME_DEFAULT_GEOMETRY, geometryDescriptor.getLocalName());
+        }
+    }
+
+
+    @Override
+    public PlacemarkGroup getPlacemarkGroup(Product product) {
+        final VectorDataNode[] nodes = product.getVectorDataGroup().toArray(new VectorDataNode[0]);
+        for (VectorDataNode node : nodes) {
+            if (node.getPlacemarkDescriptor() == this) {
+                return node.getPlacemarkGroup();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {
+        return pixelPos;
+    }
+
+    @Override
+    public GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos) {
+        return geoPos;
+    }
+
+    @Override
+    public String getShowLayerCommandId() {
+        return null;
+    }
+
+    @Override
+    public Image getCursorImage() {
+        return null;
+    }
+
+    @Override
+    public Point getCursorHotSpot() {
+        return new Point();
     }
 }

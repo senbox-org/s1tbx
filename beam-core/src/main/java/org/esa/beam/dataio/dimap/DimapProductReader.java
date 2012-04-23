@@ -26,7 +26,6 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FilterBand;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeometryDescriptor;
-import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
@@ -438,8 +437,8 @@ public class DimapProductReader extends AbstractProductReader {
         @Override
         public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
             PlacemarkDescriptorRegistry placemarkDescriptorRegistry = PlacemarkDescriptorRegistry.getInstance();
-            if (simpleFeatureType.getUserData().containsKey(PinDescriptor.PLACEMARK_DESCRIPTOR_KEY)) {
-                String placemarkDescriptorClass = simpleFeatureType.getUserData().get(PinDescriptor.PLACEMARK_DESCRIPTOR_KEY).toString();
+            if (simpleFeatureType.getUserData().containsKey(PlacemarkDescriptorRegistry.PROPERTY_NAME_PLACEMARK_DESCRIPTOR)) {
+                String placemarkDescriptorClass = simpleFeatureType.getUserData().get(PlacemarkDescriptorRegistry.PROPERTY_NAME_PLACEMARK_DESCRIPTOR).toString();
                 PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getPlacemarkDescriptor(placemarkDescriptorClass);
                 if (placemarkDescriptor != null) {
                     return placemarkDescriptor;
