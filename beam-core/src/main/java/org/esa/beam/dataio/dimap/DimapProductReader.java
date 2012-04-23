@@ -26,6 +26,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FilterBand;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeometryDescriptor;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
@@ -436,11 +437,19 @@ public class DimapProductReader extends AbstractProductReader {
     private static class MyPlacemarkDescriptorProvider implements VectorDataNodeReader.PlacemarkDescriptorProvider {
         @Override
         public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
-            final PlacemarkDescriptor placemarkDescriptor = PlacemarkDescriptorRegistry.getInstance().getBestPlacemarkDescriptor(simpleFeatureType);
+            PlacemarkDescriptorRegistry placemarkDescriptorRegistry = PlacemarkDescriptorRegistry.getInstance();
+            if (simpleFeatureType.getUserData().containsKey(PinDescriptor.PLACEMARK_DESCRIPTOR_KEY)) {
+                String placemarkDescriptorClass = simpleFeatureType.getUserData().get(PinDescriptor.PLACEMARK_DESCRIPTOR_KEY).toString();
+                PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getPlacemarkDescriptor(placemarkDescriptorClass);
+                if (placemarkDescriptor != null) {
+                    return placemarkDescriptor;
+                }
+            }
+            final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getBestPlacemarkDescriptor(simpleFeatureType);
             if (placemarkDescriptor != null) {
                 return placemarkDescriptor;
             } else {
-                return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GeometryDescriptor.class);
+                return placemarkDescriptorRegistry.getPlacemarkDescriptor(GeometryDescriptor.class);
             }
         }
     }

@@ -38,7 +38,7 @@ import java.util.Map;
 public class VectorDataNodeWriterTest extends TestCase {
 
     private static final String OUTPUT_1 =
-            "#beam.placemarkDescriptor.class=GeometryDescriptor\n"
+            "#beam.placemarkDescriptor.class=org.esa.beam.framework.datamodel.GeometryDescriptor\n"
             + "#defaultGeometry=geom\n"
             + "#styleCss=color:0,0,255\n"
             + "#separator=TAB\n"
@@ -59,7 +59,7 @@ public class VectorDataNodeWriterTest extends TestCase {
             + "ID67\tmark3\tPOINT (23.4 56.7)\t2\tThis is mark3.\n";
 
     private static final String INPUT_2 =
-            "#beam.placemarkDescriptor.class=GeometryDescriptor\n"
+            "#beam.placemarkDescriptor.class=org.esa.beam.framework.datamodel.GeometryDescriptor\n"
             + "#defaultGeometry=geom\n"
             + "org.esa.beam.FT2\tname:String\tgeom:Point\tweight:Float\n"
             + "ID65\tmark1\tPOINT (12.3 45.6)\t0.4\n";
