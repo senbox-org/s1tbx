@@ -108,7 +108,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     private final XYPlot plot;
 
     private ChartPanel scatterPlotDisplay;
-    private ScatterPlotTableModel.Location[] locations;
+    private ComputedData[] computedDatas;
 
     private CorrelativeFieldSelector correlativeFieldSelector;
     private Range xAutoRangeAxisRange;
@@ -135,9 +135,8 @@ class ScatterPlotPanel extends ChartPagePanel {
         if (scatterpointsDataset.getItemCount(0) > 0) {
             final String rasterName = getRaster().getName();
             final String trackDataName = scatterPlotModel.dataField.getLocalName();
-            final int boxSize = scatterPlotModel.boxSize;
             final ScatterPlotTableModel scatterPlotTableModel;
-            scatterPlotTableModel = new ScatterPlotTableModel(rasterName, trackDataName, locations, boxSize);
+            scatterPlotTableModel = new ScatterPlotTableModel(rasterName, trackDataName, computedDatas);
             return scatterPlotTableModel.toCVS();
         }
         return "";
@@ -463,12 +462,11 @@ class ScatterPlotPanel extends ChartPagePanel {
             return;
         }
 
-        SwingWorker<ScatterPoints, Object> swingWorker = new SwingWorker<ScatterPoints, Object>() {
+        SwingWorker<ComputedData[], Object> swingWorker = new SwingWorker<ComputedData[], Object>() {
 
             @Override
-            protected ScatterPoints doInBackground() throws Exception {
-                final XYIntervalSeries scatterValues = new XYIntervalSeries("scatter values");
-                final ArrayList<ScatterPlotTableModel.Location> locationList = new ArrayList<ScatterPlotTableModel.Location>();
+            protected ComputedData[] doInBackground() throws Exception {
+                final ArrayList<ComputedData> computedDataList = new ArrayList<ComputedData>();
 
                 final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = scatterPlotModel.pointDataSource.getFeatureCollection();
                 final SimpleFeature[] features = collection.toArray(new SimpleFeature[collection.size()]);
@@ -527,17 +525,15 @@ class ScatterPlotPanel extends ChartPagePanel {
 
                     String localName = dataField.getLocalName();
                     Number attribute = (Number) feature.getAttribute(localName);
-                    final double trackDataValue = attribute.doubleValue();
-                    scatterValues.add(rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma,
-                                      trackDataValue, trackDataValue, trackDataValue);
                     final Point geoPos = (Point) feature.getAttribute("geoPos");
                     final float lat = (float) geoPos.getY();
                     final float lon = (float) geoPos.getX();
-                    locationList.add(new ScatterPlotTableModel.Location(centerX, centerY, lat, lon, (float)rasterMean, (float) rasterSigma, attribute.floatValue(), 0));
+                    final float trackDataMean = attribute.floatValue();
+                    final float trackDataSigma = 0;
+                    computedDataList.add(new ComputedData(centerX, centerY, lat, lon, (float)rasterMean, (float) rasterSigma, trackDataMean, trackDataSigma));
                 }
-                final ScatterPlotTableModel.Location[] locations;
-                locations = locationList.toArray(new ScatterPlotTableModel.Location[locationList.size()]);
-                return new ScatterPoints(scatterValues, locations);
+
+                return computedDataList.toArray(new ComputedData[computedDataList.size()]);
             }
 
             @Override
@@ -552,21 +548,22 @@ class ScatterPlotPanel extends ChartPagePanel {
                     scatterpointsDataset.removeAllSeries();
                     confidenceDataset.removeAllSeries();
 
-                    final ScatterPoints scatterPoints = get();
-                    final XYIntervalSeries xySeries = scatterPoints.series;
-
-                    if (xySeries.getItemCount() == 0) {
-                        JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                      "Failed to compute scatter plot.\n" +
-                                                              "No Pixels considered..",
-                                                      /*I18N*/
-                                                      CHART_TITLE, /*I18N*/
-                                                      JOptionPane.ERROR_MESSAGE);
+                    computedDatas = get();
+                    if (computedDatas.length == 0) {
                         return;
                     }
+                    final XYIntervalSeries scatterValues = new XYIntervalSeries("scatter values");
+                    for (int i = 0; i < computedDatas.length; i++) {
+                        ComputedData computedData = computedDatas[i];
+                        final float rasterMean = computedData.rasterMean;
+                        final float rasterSigma = computedData.rasterSigma;
+                        final float trackDataMean = computedData.trackDataMean;
+                        final float trackDataSigma = computedData.trackDataSigma;
+                        scatterValues.add(rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma,
+                                          trackDataMean, trackDataMean - trackDataSigma, trackDataMean + trackDataSigma);
+                    }
 
-                    scatterpointsDataset.addSeries(xySeries);
-                    locations = scatterPoints.locations;
+                    scatterpointsDataset.addSeries(scatterValues);
 
                     xAxis.setAutoRange(true);
                     yAxis.setAutoRange(true);
@@ -657,13 +654,25 @@ class ScatterPlotPanel extends ChartPagePanel {
         private double confidenceInterval = 15; // Don´t remove this field, it is be used via binding
     }
 
-    static class ScatterPoints {
-        XYIntervalSeries series;
-        ScatterPlotTableModel.Location[] locations;
+    static class ComputedData {
+        final float x;
+        final float y;
+        final float lat;
+        final float lon;
+        final float rasterMean;
+        final float rasterSigma;
+        final float trackDataMean;
+        final float trackDataSigma;
 
-        ScatterPoints(XYIntervalSeries series, ScatterPlotTableModel.Location[] locations) {
-            this.locations = locations;
-            this.series = series;
+        ComputedData(float x, float y, float lat, float lon, float rasterMean, float rasterSigma, float trackDataMean, float trackDataSigma) {
+            this.x = x;
+            this.y = y;
+            this.lat = lat;
+            this.lon = lon;
+            this.rasterMean = rasterMean;
+            this.rasterSigma = rasterSigma;
+            this.trackDataMean = trackDataMean;
+            this.trackDataSigma = trackDataSigma;
         }
     }
 }

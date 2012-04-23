@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import javax.swing.table.AbstractTableModel;
-import org.jfree.data.xy.XYIntervalSeries;
 
 /**
  * @author Sabine Embacher
@@ -12,11 +11,9 @@ import org.jfree.data.xy.XYIntervalSeries;
 public class ScatterPlotTableModel extends AbstractTableModel implements CsvEncoder {
 
     private final String[] colNames;
-    private final int boxSize;
-    private final Location[] locations;
+    private final ScatterPlotPanel.ComputedData[] computedDatas;
 
-    public ScatterPlotTableModel(String rasterName, String trackDataName,
-                                 Location[] locations, int boxSize) {
+    public ScatterPlotTableModel(String rasterName, String trackDataName, ScatterPlotPanel.ComputedData[] computedDatas) {
 
         colNames = new String[]{
                 "pixel_no",
@@ -24,14 +21,12 @@ public class ScatterPlotTableModel extends AbstractTableModel implements CsvEnco
                 "pixel_y",
                 "latitude",
                 "longitude",
-                "box_size",
                 rasterName + "_mean",
                 rasterName + "_sigma",
                 trackDataName + "_mean",
                 trackDataName + "_sigma"};
 
-        this.boxSize = boxSize;
-        this.locations = locations;
+        this.computedDatas = computedDatas;
     }
 
     @Override
@@ -41,7 +36,7 @@ public class ScatterPlotTableModel extends AbstractTableModel implements CsvEnco
 
     @Override
     public int getRowCount() {
-        return locations.length;
+        return computedDatas.length;
     }
 
     @Override
@@ -59,23 +54,21 @@ public class ScatterPlotTableModel extends AbstractTableModel implements CsvEnco
         if (columnIndex == 0) {
             return rowIndex + 1;
         } else if (columnIndex == 1) {
-            return locations[rowIndex].x;
+            return computedDatas[rowIndex].x;
         } else if (columnIndex == 2) {
-            return locations[rowIndex].y;
+            return computedDatas[rowIndex].y;
         } else if (columnIndex == 3) {
-            return locations[rowIndex].lat;
+            return computedDatas[rowIndex].lat;
         } else if (columnIndex == 4) {
-            return locations[rowIndex].lon;
+            return computedDatas[rowIndex].lon;
         } else if (columnIndex == 5) {
-            return boxSize;
+            return computedDatas[rowIndex].rasterMean;
         } else if (columnIndex == 6) {
-            return locations[rowIndex].rasterValue;
+            return computedDatas[rowIndex].rasterSigma;
         } else if (columnIndex == 7) {
-            return locations[rowIndex].rasterSigma;
+            return computedDatas[rowIndex].trackDataMean;
         } else if (columnIndex == 8) {
-            return locations[rowIndex].trackDataValue;
-        } else if (columnIndex == 9) {
-            return locations[rowIndex].trackDataSigma;
+            return computedDatas[rowIndex].trackDataSigma;
         }
         return null;
     }
@@ -89,27 +82,5 @@ public class ScatterPlotTableModel extends AbstractTableModel implements CsvEnco
             throw new IllegalStateException(e);
         }
         return sw.toString();
-    }
-
-    static class Location {
-        final float rasterValue;
-        final float rasterSigma;
-        final float trackDataValue;
-        final float trackDataSigma;
-        final float x;
-        final float y;
-        final float lat;
-        final float lon;
-
-        Location(float x, float y, float lat, float lon, float rasterValue, float rasterSigma, float trackDataValue, float trackDataSigma) {
-            this.x = x;
-            this.y = y;
-            this.lat = lat;
-            this.lon = lon;
-            this.rasterValue = rasterValue;
-            this.rasterSigma = rasterSigma;
-            this.trackDataValue = trackDataValue;
-            this.trackDataSigma = trackDataSigma;
-        }
     }
 }
