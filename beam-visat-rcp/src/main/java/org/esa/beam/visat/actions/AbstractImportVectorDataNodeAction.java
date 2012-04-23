@@ -1,7 +1,7 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.swing.TableLayout;
-import org.esa.beam.dataio.geometry.VectorDataNodeReader2;
+import org.esa.beam.dataio.geometry.VectorDataNodeReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.GeometryDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
@@ -32,14 +32,14 @@ import java.lang.reflect.InvocationTargetException;
  */
 abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
     protected FeatureUtils.FeatureCrsProvider crsProvider;
-    protected VectorDataNodeReader2.PlacemarkDescriptorProvider placemarkDescriptorProvider;
+    protected VectorDataNodeReader.PlacemarkDescriptorProvider placemarkDescriptorProvider;
 
     protected AbstractImportVectorDataNodeAction() {
         crsProvider = new MyFeatureCrsProvider(getHelpId());
         placemarkDescriptorProvider = new MyPlacemarkDescriptorProvider();
     }
 
-    private static class MyPlacemarkDescriptorProvider implements VectorDataNodeReader2.PlacemarkDescriptorProvider {
+    private static class MyPlacemarkDescriptorProvider implements VectorDataNodeReader.PlacemarkDescriptorProvider {
         @Override
         public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
             final PlacemarkDescriptor placemarkDescriptor = PlacemarkDescriptorRegistry.getInstance().getBestPlacemarkDescriptor(simpleFeatureType);

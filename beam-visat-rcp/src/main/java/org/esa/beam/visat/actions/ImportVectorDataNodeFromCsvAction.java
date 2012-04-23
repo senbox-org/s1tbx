@@ -17,11 +17,10 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.dataio.geometry.VectorDataNodeReader2;
+import org.esa.beam.dataio.geometry.VectorDataNodeReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
@@ -64,7 +63,7 @@ public class ImportVectorDataNodeFromCsvAction extends AbstractImportVectorDataN
         public VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException {
             final CoordinateReferenceSystem modelCrs = product.getGeoCoding() != null ? ImageManager.getModelCrs(product.getGeoCoding()) :
                     ImageManager.DEFAULT_IMAGE_CRS;
-            return VectorDataNodeReader2.read(file.getName(), new FileReader(file), product, crsProvider, placemarkDescriptorProvider, modelCrs, pm);
+            return VectorDataNodeReader.read(file.getName(), new FileReader(file), product, crsProvider, placemarkDescriptorProvider, modelCrs, pm);
         }
     }
 }
