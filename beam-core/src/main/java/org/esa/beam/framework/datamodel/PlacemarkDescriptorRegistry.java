@@ -28,7 +28,7 @@ import java.util.Set;
 
 public class PlacemarkDescriptorRegistry {
 
-    public final static String PROPERTY_NAME_PLACEMARK_DESCRIPTOR  = AbstractPlacemarkDescriptor.PROPERTY_NAME_PLACEMARK_DESCRIPTOR;
+    public final static String PROPERTY_NAME_PLACEMARK_DESCRIPTOR = AbstractPlacemarkDescriptor.PROPERTY_NAME_PLACEMARK_DESCRIPTOR;
 
     private static PlacemarkDescriptorRegistry instance = new PlacemarkDescriptorRegistry();
     private ServiceRegistry<PlacemarkDescriptor> serviceRegistry;
@@ -78,20 +78,16 @@ public class PlacemarkDescriptorRegistry {
     }
 
     public PlacemarkDescriptor getBestPlacemarkDescriptor(SimpleFeatureType featureType) {
-        ArrayList<PlacemarkDescriptor> list = new ArrayList<PlacemarkDescriptor>();
+        PlacemarkDescriptor suitablePlacemarkDescriptor = null;
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
             DecodeQualification qualification = placemarkDescriptor.getCompatibilityFor(featureType);
             if (qualification == DecodeQualification.INTENDED) {
                 return placemarkDescriptor;
-            }  else if (qualification == DecodeQualification.SUITABLE) {
-                list.add(placemarkDescriptor);
+            } else if (qualification == DecodeQualification.SUITABLE) {
+                suitablePlacemarkDescriptor = placemarkDescriptor;
             }
         }
-        if (!list.isEmpty()) {
-            return list.get(0);
-        } else {
-            return null;
-        }
+        return suitablePlacemarkDescriptor;
     }
 
 }
