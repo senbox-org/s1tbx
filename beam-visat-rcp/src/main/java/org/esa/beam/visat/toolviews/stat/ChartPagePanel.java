@@ -42,7 +42,7 @@ abstract class ChartPagePanel extends PagePanel {
     private AbstractButton hideAndShowButton;
     private JPanel backgroundPanel;
     private RoiMaskSelector roiMaskSelector;
-    private AbstractButton refreshButton;
+    protected AbstractButton refreshButton;
     private final boolean refreshButtonEnabled;
 
     ChartPagePanel(ToolView parentDialog, String helpId, String titlePrefix, boolean refreshButtonEnabled) {
@@ -66,6 +66,7 @@ abstract class ChartPagePanel extends PagePanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateChartData();
+                refreshButton.setEnabled(false);
             }
         });
 

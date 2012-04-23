@@ -43,8 +43,16 @@ import org.jfree.data.xy.XIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import javax.media.jai.Histogram;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -57,9 +65,14 @@ class HistogramPanel extends ChartPagePanel {
     private static final String NO_DATA_MESSAGE = "No histogram computed yet.\n" + ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Histogram";
 
+    public final static String PROPERTY_NAME_AUTO_MIN_MAX = "autoMinMax";
+    public final static String PROPERTY_NAME_MIN = "min";
+    public final static String PROPERTY_NAME_MAX = "max";
     public static final String PROPERTY_NAME_NUM_BINS = "numBins";
     public static final String PROPERTY_NAME_LOGARITHMIC_HISTOGRAM = "histogramLogScaled";
     public static final String PROPERTY_NAME_LOG_SCALED = "xAxisLogScaled";
+    public final static String PROPERTY_NAME_USE_ROI_MASK = "useRoiMask";
+    public final static String PROPERTY_NAME_ROI_MASK = "roiMask";
 
     private static final double HISTO_MIN_DEFAULT = 0.0;
     private static final double HISTO_MAX_DEFAULT = 100.0;
@@ -141,6 +154,13 @@ class HistogramPanel extends ChartPagePanel {
 
         createUI(createChartPanel(chart), createComputationComponentsPanel(), createDisplayComponentsPanel(), bindingContext);
 
+        RefreshActionEnabler rangeControlActionEnabler = new RefreshActionEnabler(refreshButton,PROPERTY_NAME_MIN,PROPERTY_NAME_AUTO_MIN_MAX,
+                PROPERTY_NAME_MAX,PROPERTY_NAME_LOGARITHMIC_HISTOGRAM);
+        xAxisRangeControl.getBindingContext().addPropertyChangeListener(rangeControlActionEnabler);
+        RefreshActionEnabler componentsActionEnabler = new RefreshActionEnabler(refreshButton,PROPERTY_NAME_NUM_BINS,
+                PROPERTY_NAME_USE_ROI_MASK,PROPERTY_NAME_ROI_MASK);
+        bindingContext.addPropertyChangeListener(componentsActionEnabler);
+
         isInitialized = true;
 
         updateUIState();
@@ -164,7 +184,7 @@ class HistogramPanel extends ChartPagePanel {
         bindingContext.getPropertySet().getDescriptor(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM).setDefaultValue(false);
         bindingContext.bind(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM, histoLogCheck);
 
-        PropertyChangeListener changeListener = new PropertyChangeListener() {
+        PropertyChangeListener logChangeListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM)) {
@@ -176,7 +196,7 @@ class HistogramPanel extends ChartPagePanel {
             }
         };
 
-        xAxisRangeControl.getBindingContext().addPropertyChangeListener(changeListener);
+        xAxisRangeControl.getBindingContext().addPropertyChangeListener(logChangeListener);
         xAxisRangeControl.getBindingContext().getPropertySet().addProperty(
                 bindingContext.getPropertySet().getProperty(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM));
         xAxisRangeControl.getBindingContext().getPropertySet().addProperty(
@@ -449,5 +469,6 @@ class HistogramPanel extends ChartPagePanel {
         plot.setDomainAxis(StatisticChartStyling.updateScalingOfAxis(logScaled, plot.getDomainAxis(), true));
         plot.getDomainAxis().setLabel(getAxisLabel());
     }
+
 }
 
