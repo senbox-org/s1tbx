@@ -22,6 +22,8 @@ class RefreshActionEnabler implements PropertyChangeListener {
     public static final String PROPERTY_NAME_NUM_BINS = "numBins";
     public final static String PROPERTY_NAME_USE_ROI_MASK = "useRoiMask";
     public final static String PROPERTY_NAME_ROI_MASK = "roiMask";
+    public final static String PROPERTY_NAME_X_BAND = "xBand";
+    public final static String PROPERTY_NAME_Y_BAND = "yBand";
 
     HashSet<String> names = new HashSet<String>();
     AbstractButton refreshButton;
@@ -52,6 +54,14 @@ class RefreshActionEnabler implements PropertyChangeListener {
             }
             else if(evt.getPropertyName().equals(PROPERTY_NAME_MAX) && (evt.getOldValue().equals(evt.getNewValue()) ||
                     ((PropertyContainer)evt.getSource()).getProperty(PROPERTY_NAME_AUTO_MIN_MAX).getValue().equals(true))){
+                return;
+            }
+            else if(evt.getPropertyName().equals(PROPERTY_NAME_X_BAND) &&
+                    ((PropertyContainer)evt.getSource()).getProperty(PROPERTY_NAME_Y_BAND).getValue()==null){
+                return;
+            }
+            else if(evt.getPropertyName().equals(PROPERTY_NAME_Y_BAND) &&
+                    ((PropertyContainer)evt.getSource()).getProperty(PROPERTY_NAME_X_BAND).getValue()==null){
                 return;
             }
             refreshButton.setEnabled(true);

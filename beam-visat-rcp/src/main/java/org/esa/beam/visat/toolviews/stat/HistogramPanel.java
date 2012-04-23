@@ -101,6 +101,7 @@ class HistogramPanel extends ChartPagePanel {
         bindingContext = new BindingContext(PropertyContainer.createObjectBacked(histogramPlotConfig));
 
         createUI();
+        initActionEnablers();
         updateComponents();
     }
 
@@ -154,16 +155,18 @@ class HistogramPanel extends ChartPagePanel {
 
         createUI(createChartPanel(chart), createComputationComponentsPanel(), createDisplayComponentsPanel(), bindingContext);
 
+        isInitialized = true;
+
+        updateUIState();
+    }
+
+    private void initActionEnablers(){
         RefreshActionEnabler rangeControlActionEnabler = new RefreshActionEnabler(refreshButton,PROPERTY_NAME_MIN,PROPERTY_NAME_AUTO_MIN_MAX,
                 PROPERTY_NAME_MAX,PROPERTY_NAME_LOGARITHMIC_HISTOGRAM);
         xAxisRangeControl.getBindingContext().addPropertyChangeListener(rangeControlActionEnabler);
         RefreshActionEnabler componentsActionEnabler = new RefreshActionEnabler(refreshButton,PROPERTY_NAME_NUM_BINS,
                 PROPERTY_NAME_USE_ROI_MASK,PROPERTY_NAME_ROI_MASK);
         bindingContext.addPropertyChangeListener(componentsActionEnabler);
-
-        isInitialized = true;
-
-        updateUIState();
     }
 
     private JPanel createComputationComponentsPanel() {

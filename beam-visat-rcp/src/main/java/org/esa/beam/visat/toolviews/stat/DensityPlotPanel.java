@@ -72,6 +72,14 @@ class DensityPlotPanel extends ChartPagePanel {
             ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Scatter Plot";
 
+    public final static String PROPERTY_NAME_AUTO_MIN_MAX = "autoMinMax";
+    public final static String PROPERTY_NAME_MIN = "min";
+    public final static String PROPERTY_NAME_MAX = "max";
+    public final static String PROPERTY_NAME_USE_ROI_MASK = "useRoiMask";
+    public final static String PROPERTY_NAME_ROI_MASK = "roiMask";
+    public final static String PROPERTY_NAME_X_BAND = "xBand";
+    public final static String PROPERTY_NAME_Y_BAND = "yBand";
+
     private static final int X_VAR = 0;
     private static final int Y_VAR = 1;
 
@@ -101,8 +109,20 @@ class DensityPlotPanel extends ChartPagePanel {
     protected void initComponents() {
         initParameters();
         createUI();
+        initActionEnablers();
         updateComponents();
     }
+
+    private void initActionEnablers(){
+        RefreshActionEnabler roiMaskActionEnabler = new RefreshActionEnabler(refreshButton,PROPERTY_NAME_USE_ROI_MASK,
+                PROPERTY_NAME_ROI_MASK,PROPERTY_NAME_X_BAND,PROPERTY_NAME_Y_BAND);
+        bindingContext.addPropertyChangeListener(roiMaskActionEnabler);
+        RefreshActionEnabler rangeControlActionEnabler = new RefreshActionEnabler(refreshButton,PROPERTY_NAME_MIN,PROPERTY_NAME_AUTO_MIN_MAX,
+                PROPERTY_NAME_MAX);
+        axisRangeControls[X_VAR].getBindingContext().addPropertyChangeListener(rangeControlActionEnabler);
+        axisRangeControls[Y_VAR].getBindingContext().addPropertyChangeListener(rangeControlActionEnabler);
+    }
+
 
     @Override
     protected void updateComponents() {
@@ -112,6 +132,7 @@ class DensityPlotPanel extends ChartPagePanel {
         xBandProperty.getDescriptor().setValueSet(new ValueSet(createAvailableBandList()));
         yBandProperty.getDescriptor().setValueSet(new ValueSet(createAvailableBandList()));
         toggleColorCheckBox.setEnabled(false);
+        refreshButton.setEnabled(xBandProperty.getValue()!=null && yBandProperty.getValue()!=null);
     }
 
     private void initParameters() {
@@ -133,8 +154,8 @@ class DensityPlotPanel extends ChartPagePanel {
                 return this;
             }
         });
-        bindingContext.bind("xBand", xBandList);
-        xBandProperty = bindingContext.getPropertySet().getProperty("xBand");
+        bindingContext.bind(PROPERTY_NAME_X_BAND, xBandList);
+        xBandProperty = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_X_BAND);
         xBandProperty.getDescriptor().setValueSet(new ValueSet(createAvailableBandList()));
 
         yBandList = new JComboBox();
@@ -148,8 +169,8 @@ class DensityPlotPanel extends ChartPagePanel {
                 return this;
             }
         });
-        bindingContext.bind("yBand", yBandList);
-        yBandProperty = bindingContext.getPropertySet().getProperty("yBand");
+        bindingContext.bind(PROPERTY_NAME_Y_BAND, yBandList);
+        yBandProperty = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_Y_BAND);
         yBandProperty.getDescriptor().setValueSet(new ValueSet(createAvailableBandList()));
     }
 
@@ -331,7 +352,7 @@ class DensityPlotPanel extends ChartPagePanel {
                             rasterY,
                             axisRangeControls[Y_VAR].getMin().floatValue(),
                             axisRangeControls[Y_VAR].getMax().floatValue(),
-                            dataSourceConfig.roiMask,
+                            dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null,
                             512,
                             512,
                             backgroundColor,
