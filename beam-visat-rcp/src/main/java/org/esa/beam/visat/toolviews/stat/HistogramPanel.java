@@ -287,7 +287,7 @@ class HistogramPanel extends ChartPagePanel {
         return chartPanel;
     }
 
-        private void updateUIState() {
+    private void updateUIState() {
         final Binding minBinding = xAxisRangeControl.getBindingContext().getBinding("min");
         final double min = (Double) minBinding.getPropertyValue();
         final Binding maxBinding = xAxisRangeControl.getBindingContext().getBinding("max");
