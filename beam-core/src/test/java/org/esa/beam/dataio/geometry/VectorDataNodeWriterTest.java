@@ -38,31 +38,31 @@ import java.util.Map;
 public class VectorDataNodeWriterTest extends TestCase {
 
     private static final String OUTPUT_1 =
-            "#beam.placemarkDescriptor.class=org.esa.beam.framework.datamodel.GeometryDescriptor\n"
-            + "#defaultGeometry=geom\n"
-            + "#styleCss=color:0,0,255\n"
-            + "#separator=TAB\n"
-            + "org.esa.beam.FT1\tname:String\tgeom:Geometry\tpixel:Integer\tdescription:String\n"
-            + "ID65\tmark1\tPOINT (12.3 45.6)\t0\tThis is mark1.\n"
-            + "ID66\tmark2\tPOINT (78.9 10.1)\t1\t[null]\n"
-            + "ID67\tmark3\tPOINT (23.4 56.7)\t2\tThis is mark3.\n";
+            "#defaultGeometry=geom\n"
+                    + "#styleCss=color:0,0,255\n"
+                    + "#placemarkDescriptor=org.esa.beam.framework.datamodel.GeometryDescriptor\n"
+                    + "#separator=TAB\n"
+                    + "org.esa.beam.FT1\tname:String\tgeom:Geometry\tpixel:Integer\tdescription:String\n"
+                    + "ID65\tmark1\tPOINT (12.3 45.6)\t0\tThis is mark1.\n"
+                    + "ID66\tmark2\tPOINT (78.9 10.1)\t1\t[null]\n"
+                    + "ID67\tmark3\tPOINT (23.4 56.7)\t2\tThis is mark3.\n";
 
 
     private static final String INPUT_1 =
             "# This is a test comment\n" +
-            "# separator=TAB\n" +
-            "# styleCss=color:0,0,255\n" +
-            "\n" +
-            "org.esa.beam.FT1\tname:String\tgeom:Geometry\tpixel:Integer\tdescription:String\n"
-            + "ID65\tmark1\tPOINT (12.3 45.6)\t0\tThis is mark1.\n"
-            + "ID66\tmark2\tPOINT (78.9 10.1)\t1\t[null]\n"
-            + "ID67\tmark3\tPOINT (23.4 56.7)\t2\tThis is mark3.\n";
+                    "# separator=TAB\n" +
+                    "# styleCss=color:0,0,255\n" +
+                    "\n" +
+                    "org.esa.beam.FT1\tname:String\tgeom:Geometry\tpixel:Integer\tdescription:String\n"
+                    + "ID65\tmark1\tPOINT (12.3 45.6)\t0\tThis is mark1.\n"
+                    + "ID66\tmark2\tPOINT (78.9 10.1)\t1\t[null]\n"
+                    + "ID67\tmark3\tPOINT (23.4 56.7)\t2\tThis is mark3.\n";
 
     private static final String INPUT_2 =
-            "#beam.placemarkDescriptor.class=org.esa.beam.framework.datamodel.GeometryDescriptor\n"
-            + "#defaultGeometry=geom\n"
-            + "org.esa.beam.FT2\tname:String\tgeom:Point\tweight:Float\n"
-            + "ID65\tmark1\tPOINT (12.3 45.6)\t0.4\n";
+            "#defaultGeometry=geom\n"
+                    + "#placemarkDescriptor=org.esa.beam.framework.datamodel.GeometryDescriptor\n"
+                    + "org.esa.beam.FT2\tname:String\tgeom:Point\tweight:Float\n"
+                    + "ID65\tmark1\tPOINT (12.3 45.6)\t0.4\n";
 
     private static final String OUTPUT_2 = INPUT_2;
 

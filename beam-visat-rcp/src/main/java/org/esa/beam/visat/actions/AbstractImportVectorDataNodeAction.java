@@ -4,7 +4,6 @@ import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.dataio.geometry.VectorDataNodeReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.GeometryDescriptor;
-import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
 import org.esa.beam.framework.datamodel.Product;
@@ -48,8 +47,8 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
         @Override
         public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
             PlacemarkDescriptorRegistry placemarkDescriptorRegistry = PlacemarkDescriptorRegistry.getInstance();
-            if (simpleFeatureType.getUserData().containsKey(PinDescriptor.PLACEMARK_DESCRIPTOR_KEY)) {
-                String placemarkDescriptorClass = simpleFeatureType.getUserData().get(PinDescriptor.PLACEMARK_DESCRIPTOR_KEY).toString();
+            if (simpleFeatureType.getUserData().containsKey(PlacemarkDescriptorRegistry.PROPERTY_NAME_PLACEMARK_DESCRIPTOR)) {
+                String placemarkDescriptorClass = simpleFeatureType.getUserData().get(PlacemarkDescriptorRegistry.PROPERTY_NAME_PLACEMARK_DESCRIPTOR).toString();
                 PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getPlacemarkDescriptor(placemarkDescriptorClass);
                 if (placemarkDescriptor != null) {
                     return placemarkDescriptor;
@@ -57,7 +56,7 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
             }
 
             final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getBestPlacemarkDescriptor(simpleFeatureType);
-            if (placemarkDescriptor != null && placemarkDescriptor.getQualification(simpleFeatureType) == DecodeQualification.INTENDED) {
+            if (placemarkDescriptor != null && placemarkDescriptor.getCompatibilityFor(simpleFeatureType) == DecodeQualification.INTENDED) {
                 return placemarkDescriptor;
             }
 

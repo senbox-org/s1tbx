@@ -95,7 +95,7 @@ public class VectorDataNodeReader {
         }
 
         final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorProvider.getPlacemarkDescriptor(featureType);
-        placemarkDescriptor.setUserData(clippedCollection.getSchema());
+        placemarkDescriptor.setUserDataOf(clippedCollection.getSchema());
 
         final String name = FileUtils.getFilenameWithoutExtension(vectorDataNodeName);
         VectorDataNode vectorDataNode = new VectorDataNode(name, clippedCollection, placemarkDescriptor);

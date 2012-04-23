@@ -335,9 +335,6 @@ public class Product extends ProductNode {
     }
 
     private void handleGeoCodingChange() {
-        if (pinGroup == null) {
-            return;
-        }
         for (int i = 0; i < pinGroup.getNodeCount(); i++) {
             final Placemark pin = pinGroup.get(i);
             final PlacemarkDescriptor pinDescriptor = pin.getDescriptor();

@@ -20,7 +20,8 @@ import org.esa.beam.framework.dataio.DecodeQualification;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.awt.*;
+import java.awt.Image;
+import java.awt.Point;
 
 /**
  * Placemark descriptors are used to describe and create {@link Placemark}s.
@@ -32,19 +33,11 @@ import java.awt.*;
  * Instead they should derive their implementation from {@link AbstractPlacemarkDescriptor}.
  *
  * @author Norman Fomferra
+ * @author Thomas Storm
  * @version 2.0
  * @since BEAM 2.0 (full revision since BEAM 4.10)
  */
 public interface PlacemarkDescriptor {
-
-    String PLACEMARK_DESCRIPTOR_KEY = "beam.placemarkDescriptor.class";
-
-    /**
-     * Asks the descriptor to set any application specific information in the feature type's user data.
-     *
-     * @param featureType The feature type whose user data may or may not be altered.
-     */
-    void setUserData(SimpleFeatureType featureType);
 
     /**
      * Creates a new placemark by wrapping the given feature.
@@ -55,15 +48,33 @@ public interface PlacemarkDescriptor {
     Placemark createPlacemark(SimpleFeature feature);
 
     /**
-     * Tests if the given {@code featureType} is compatible with this placemark descriptor.
-     * The method shall only return {@code true}, if the {@link #createPlacemark(org.opengis.feature.simple.SimpleFeature)}
-     * method can successfully create a new placemark from a feature having the compatible {@code featureType}.
+     * Asks the descriptor to set any application specific information in the feature type's user data.
+     * When called, the framework has already classified the given feature type as being {@link DecodeQualification#INTENDED} or
+     * {@link DecodeQualification#SUITABLE} by consulting the method {@link #getCompatibilityFor}.
+     * <p/>
+     * Implementors of this method may consider setting specific user data that allows {@link #getCompatibilityFor}
+     * to return {@link DecodeQualification#INTENDED} after e.g. data has been deserialized from a persistent data store.
      *
+     * @param compatibleFeatureType A compatible feature type whose user data may or may not be altered.
+     */
+    void setUserDataOf(SimpleFeatureType compatibleFeatureType);
+
+    /**
+     * Gets the compatibility for the given {@code featureType} with respect to the placemarks created by this descriptor.
+     * <p/>
+     * The method shall only return {@link DecodeQualification#INTENDED}, if the
+     * descriptor was designed for interpreting the given feature type, e.g. by inspecting the {@code featureType}'s
+     * user data which may be set by
+     * {@link #setUserDataOf(org.opengis.feature.simple.SimpleFeatureType)}.
+     * <p/>
+     * The method may return {@link DecodeQualification#SUITABLE}, if the
+     * {@link #createPlacemark(org.opengis.feature.simple.SimpleFeature)}
+     * method can successfully create a new placemark from a feature having the compatible {@code featureType}.
      *
      * @param featureType The feature type to be tested.
      * @return {@code true}, if the {@code featureType} is compatible.
      */
-    DecodeQualification getQualification(SimpleFeatureType featureType);
+    DecodeQualification getCompatibilityFor(SimpleFeatureType featureType);
 
     /**
      * Gets the feature type that provides the minimum set of attributes

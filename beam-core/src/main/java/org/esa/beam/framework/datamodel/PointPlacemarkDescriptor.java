@@ -16,37 +16,19 @@
 
 package org.esa.beam.framework.datamodel;
 
-public class GcpDescriptor extends PointPlacemarkDescriptor {
+import org.opengis.feature.simple.SimpleFeatureType;
 
-    public static GcpDescriptor getInstance() {
-        return (GcpDescriptor) PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GcpDescriptor.class.getName());
-    }
+public abstract class PointPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
 
-    public GcpDescriptor() {
-        super("org.esa.beam.GroundControlPoint");
-    }
+    private final SimpleFeatureType baseFeatureType;
 
-    @Override
-    @Deprecated
-    public String getShowLayerCommandId() {
-        return "showGcpOverlay";
+    protected PointPlacemarkDescriptor(String featureTypeName) {
+        this.baseFeatureType = Placemark.createPointFeatureType(featureTypeName );
     }
 
     @Override
-    @Deprecated
-    public String getRoleName() {
-        return "gcp";
+    public SimpleFeatureType getBaseFeatureType() {
+        return baseFeatureType;
     }
 
-    @Override
-    @Deprecated
-    public String getRoleLabel() {
-        return "GCP";
-    }
-
-    @Override
-    @Deprecated
-    public PlacemarkGroup getPlacemarkGroup(Product product) {
-        return product.getGcpGroup();
-    }
 }

@@ -28,6 +28,8 @@ import java.util.Set;
 
 public class PlacemarkDescriptorRegistry {
 
+    public final static String PROPERTY_NAME_PLACEMARK_DESCRIPTOR  = AbstractPlacemarkDescriptor.PROPERTY_NAME_PLACEMARK_DESCRIPTOR;
+
     private static PlacemarkDescriptorRegistry instance = new PlacemarkDescriptorRegistry();
     private ServiceRegistry<PlacemarkDescriptor> serviceRegistry;
 

@@ -3,9 +3,6 @@ package org.esa.beam.framework.datamodel;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.awt.Image;
-import java.awt.Point;
-
 /**
  * Used as a fallback for the case that
  * we can't find any suitable {@link PlacemarkDescriptor} for a given SimpleFeatureType.
@@ -22,7 +19,7 @@ public class GenericPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
     }
 
     @Override
-    public DecodeQualification getQualification(SimpleFeatureType ft) {
+    public DecodeQualification getCompatibilityFor(SimpleFeatureType ft) {
         if (featureType.equals(ft)) {
             return DecodeQualification.INTENDED;
         }
@@ -44,41 +41,5 @@ public class GenericPlacemarkDescriptor extends AbstractPlacemarkDescriptor {
     @Deprecated
     public String getRoleLabel() {
         return "default";
-    }
-
-    @Override
-    @Deprecated
-    public PlacemarkGroup getPlacemarkGroup(Product product) {
-        return null;
-    }
-
-    @Override
-    @Deprecated
-    public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {
-        return pixelPos;
-    }
-
-    @Override
-    @Deprecated
-    public GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos) {
-        return geoPos;
-    }
-
-    @Override
-    @Deprecated
-    public String getShowLayerCommandId() {
-        return null;
-    }
-
-    @Override
-    @Deprecated
-    public Image getCursorImage() {
-        return null;
-    }
-
-    @Override
-    @Deprecated
-    public Point getCursorHotSpot() {
-        return null;
     }
 }
