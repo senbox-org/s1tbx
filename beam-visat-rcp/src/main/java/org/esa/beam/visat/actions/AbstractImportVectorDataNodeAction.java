@@ -1,9 +1,10 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.swing.TableLayout;
-import org.esa.beam.dataio.geometry.VectorDataNodeReader2;
+import org.esa.beam.dataio.geometry.VectorDataNodeReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.GeometryDescriptor;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
 import org.esa.beam.framework.datamodel.Product;
@@ -21,38 +22,57 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import java.awt.Insets;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 /**
- *
  * @author olafd
  * @author Thomas Storm
  */
 abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
+
     protected FeatureUtils.FeatureCrsProvider crsProvider;
-    protected VectorDataNodeReader2.PlacemarkDescriptorProvider placemarkDescriptorProvider;
+    protected VectorDataNodeReader.PlacemarkDescriptorProvider placemarkDescriptorProvider;
 
     protected AbstractImportVectorDataNodeAction() {
         crsProvider = new MyFeatureCrsProvider(getHelpId());
         placemarkDescriptorProvider = new MyPlacemarkDescriptorProvider();
     }
 
-    private static class MyPlacemarkDescriptorProvider implements VectorDataNodeReader2.PlacemarkDescriptorProvider {
+    private static class MyPlacemarkDescriptorProvider implements VectorDataNodeReader.PlacemarkDescriptorProvider {
+
         @Override
         public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
-            final PlacemarkDescriptor placemarkDescriptor = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(simpleFeatureType);
+            PlacemarkDescriptorRegistry placemarkDescriptorRegistry = PlacemarkDescriptorRegistry.getInstance();
+            if (simpleFeatureType.getUserData().containsKey(PinDescriptor.PLACEMARK_DESCRIPTOR_KEY)) {
+                String placemarkDescriptorClass = simpleFeatureType.getUserData().get(PinDescriptor.PLACEMARK_DESCRIPTOR_KEY).toString();
+                PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getPlacemarkDescriptor(placemarkDescriptorClass);
+                if (placemarkDescriptor != null) {
+                    return placemarkDescriptor;
+                }
+            }
+
+            final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getBestPlacemarkDescriptor(simpleFeatureType);
             if (placemarkDescriptor != null && placemarkDescriptor.getQualification(simpleFeatureType) == DecodeQualification.INTENDED) {
                 return placemarkDescriptor;
             }
 
-            TypeDialog typeDialog = new TypeDialog(VisatApp.getApp().getApplicationWindow(), simpleFeatureType);
-            if (typeDialog.show() != ModalDialog.ID_OK) {
-                return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GeometryDescriptor.class);
+            List<PlacemarkDescriptor> validPlacemarkDescriptors = placemarkDescriptorRegistry.getValidPlacemarkDescriptors(simpleFeatureType);
+
+            if (validPlacemarkDescriptors.size() == 1) {
+                return validPlacemarkDescriptors.get(0);
             }
 
-            return typeDialog.getPlacemarkDescriptor();
+            TypeDialog typeDialog = new TypeDialog(VisatApp.getApp().getApplicationWindow(), simpleFeatureType);
+            if (typeDialog.show() == ModalDialog.ID_OK) {
+                return typeDialog.getPlacemarkDescriptor();
+            }
+
+            return placemarkDescriptorRegistry.getPlacemarkDescriptor(GeometryDescriptor.class);
         }
     }
 
@@ -107,8 +127,8 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
             final JPanel contentPanel = new JPanel(tableLayout);
             final JLabel label = new JLabel();
             label.setText("<html><b>" +
-                                  "These vector data does not define a coordinate reference system (CRS).<br/>" +
-                                  "Please specify a CRS so that coordinates can interpreted correctly.</b>");
+                          "These vector data does not define a coordinate reference system (CRS).<br/>" +
+                          "Please specify a CRS so that coordinates can interpreted correctly.</b>");
 
             contentPanel.add(label);
             contentPanel.add(crsSelectionPanel);
@@ -123,8 +143,9 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
             }
             return DefaultGeographicCRS.WGS84;
         }
-    }
-
-        protected abstract String getDialogTitle();
 
     }
+
+    protected abstract String getDialogTitle();
+
+}

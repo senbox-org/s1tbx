@@ -555,11 +555,11 @@
         <toolView>
             <id>org.esa.beam.visat.toolviews.stat.DensityPlotToolView</id>
             <class>org.esa.beam.visat.toolviews.stat.DensityPlotToolView</class>
-            <title>Density Plot View</title>
-            <tabTitle>Density Plot</tabTitle>
+            <title>Scatter Plot View</title>
+            <tabTitle>Scatter Plot</tabTitle>
             <mnemonic>t</mnemonic>
             <accelerator>ctrl alt T</accelerator>
-            <description>Display Density Plot for a selected band.</description>
+            <description>Display Scatter Plot for a selected band.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/DensityPlot16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/DensityPlot24.gif</largeIcon>
             <helpId>densityplotDialog</helpId>
@@ -570,11 +570,11 @@
         <toolView>
             <id>org.esa.beam.visat.toolviews.stat.ScatterPlotToolView</id>
             <class>org.esa.beam.visat.toolviews.stat.ScatterPlotToolView</class>
-            <title>Scatter Plot View</title>
-            <tabTitle>Scatter Plot</tabTitle>
+            <title>Correlativ Plot View</title>
+            <tabTitle>Correlativ Plot</tabTitle>
             <mnemonic>t</mnemonic>
             <accelerator>ctrl alt T</accelerator>
-            <description>Display Scatter Plot for a selected band.</description>
+            <description>Display Correlativ Plot for a selected band.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/ScatterPlot16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/ScatterPlot24.gif</largeIcon>
             <helpId>scatterplotDialog</helpId>

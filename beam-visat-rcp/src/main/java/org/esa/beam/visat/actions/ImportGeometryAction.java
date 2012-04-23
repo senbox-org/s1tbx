@@ -80,8 +80,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
-// todo - test with shapefile that has no CRS (nf, 2012-04-05)
-// todo - split into 2 actions: ImportVectorDataFromShapefileAction, ImportVectorDataFromTextAction (nf, 2012-04-05)
+// todo - remove before BEAM 4.10 release. Currently kept for inspiration for AbstractImportVectorDataNodeAction and derivates.
 
 public class ImportGeometryAction extends ExecCommand {
 
@@ -480,7 +479,6 @@ public class ImportGeometryAction extends ExecCommand {
             findUniqueVectorDataNodeName(name, product.getVectorDataGroup());
             SimpleFeatureType simpleFeatureType = PlainFeatureFactory.createDefaultFeatureType(modelCrs);
             DefaultFeatureCollection featureCollection = new DefaultFeatureCollection(name, simpleFeatureType);
-
 
 
             VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);

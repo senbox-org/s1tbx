@@ -21,7 +21,7 @@ public abstract class AbstractPlacemarkDescriptor implements PlacemarkDescriptor
      */
     @Override
     public void setUserData(SimpleFeatureType featureType) {
-        featureType.getUserData().put("beam.placemarkDescriptor.class", getClass().getSimpleName());
+        featureType.getUserData().put(PLACEMARK_DESCRIPTOR_KEY, getClass().getName());
     }
 
     /**

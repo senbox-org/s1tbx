@@ -18,7 +18,7 @@ package org.esa.beam.dataio.dimap;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.geometry.VectorDataNodeIO;
-import org.esa.beam.dataio.geometry.VectorDataNodeReader2;
+import org.esa.beam.dataio.geometry.VectorDataNodeReader;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -26,6 +26,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FilterBand;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeometryDescriptor;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
@@ -410,7 +411,7 @@ public class DimapProductReader extends AbstractProductReader {
                 FileReader reader = null;
                 try {
                     reader = new FileReader(vectorFile);
-                    VectorDataNode vectorDataNode = VectorDataNodeReader2.read(vectorFile.getName(), reader, product, new FeatureUtils.FeatureCrsProvider() {
+                    VectorDataNode vectorDataNode = VectorDataNodeReader.read(vectorFile.getName(), reader, product, new FeatureUtils.FeatureCrsProvider() {
                         @Override
                         public CoordinateReferenceSystem getFeatureCrs(Product product) {
                             return modelCrs != null ? modelCrs : DefaultGeographicCRS.WGS84;
@@ -433,14 +434,22 @@ public class DimapProductReader extends AbstractProductReader {
         }
     }
 
-    private static class MyPlacemarkDescriptorProvider implements VectorDataNodeReader2.PlacemarkDescriptorProvider {
+    private static class MyPlacemarkDescriptorProvider implements VectorDataNodeReader.PlacemarkDescriptorProvider {
         @Override
         public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
-            final PlacemarkDescriptor placemarkDescriptor = PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(simpleFeatureType);
+            PlacemarkDescriptorRegistry placemarkDescriptorRegistry = PlacemarkDescriptorRegistry.getInstance();
+            if (simpleFeatureType.getUserData().containsKey(PinDescriptor.PLACEMARK_DESCRIPTOR_KEY)) {
+                String placemarkDescriptorClass = simpleFeatureType.getUserData().get(PinDescriptor.PLACEMARK_DESCRIPTOR_KEY).toString();
+                PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getPlacemarkDescriptor(placemarkDescriptorClass);
+                if (placemarkDescriptor != null) {
+                    return placemarkDescriptor;
+                }
+            }
+            final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getBestPlacemarkDescriptor(simpleFeatureType);
             if (placemarkDescriptor != null) {
                 return placemarkDescriptor;
             } else {
-                return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GeometryDescriptor.class);
+                return placemarkDescriptorRegistry.getPlacemarkDescriptor(GeometryDescriptor.class);
             }
         }
     }

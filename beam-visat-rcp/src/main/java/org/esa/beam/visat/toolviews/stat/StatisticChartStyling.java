@@ -36,6 +36,10 @@ class StatisticChartStyling {
                 newAxis = numberAxis;
             }
         }
+        newAxis.setLabelFont(oldAxis.getLabelFont());
+        newAxis.setLabelPaint(oldAxis.getLabelPaint());
+        newAxis.setTickLabelFont(oldAxis.getTickLabelFont());
+        newAxis.setTickLabelPaint(oldAxis.getTickLabelPaint());
         return newAxis;
     }
 

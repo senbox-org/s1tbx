@@ -48,7 +48,7 @@ class DefaultNetCdfReader extends AbstractProductReader {
         final File fileLocation = new File(getInput().toString());
         netcdfFile = NetcdfFile.open(fileLocation.getPath());
         final ProfileReadContext context = new ProfileReadContextImpl(netcdfFile);
-        String filename = FileUtils.getFilenameWithoutExtension(fileLocation);
+        String filename = extractProductName(fileLocation);
         context.setProperty(Constants.PRODUCT_FILENAME_PROPERTY, filename);
         plugIn.initReadContext(context);
         NetCdfReadProfile profile = new NetCdfReadProfile();
@@ -59,6 +59,16 @@ class DefaultNetCdfReader extends AbstractProductReader {
         product.setModified(false);
         return product;
 
+    }
+
+    static String extractProductName(File fileLocation) {
+        String name = fileLocation.getName();
+        if (name.endsWith(".gz") || name.endsWith(".zip")) {
+            final int dotIndex = name.lastIndexOf(".");
+            name = name.substring(0, dotIndex);
+        }
+
+        return FileUtils.getFilenameWithoutExtension(name);
     }
 
     private void configureProfile(AbstractNetCdfReaderPlugIn plugIn, NetCdfReadProfile profile) {

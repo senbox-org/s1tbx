@@ -45,7 +45,7 @@ public class VectorDataNodeIOTest {
 
     private StringWriter stringWriter;
     private DefaultFeatureCollection testCollection;
-    private VectorDataNodeReader2.PlacemarkDescriptorProvider placemarkDescriptorProvider;
+    private VectorDataNodeReader.PlacemarkDescriptorProvider placemarkDescriptorProvider;
 
     @Before
     public void setUp() throws IOException {
@@ -54,7 +54,7 @@ public class VectorDataNodeIOTest {
         stringWriter = new StringWriter(300);
         final VectorDataNodeWriter writer = new VectorDataNodeWriter();
         writer.writeFeatures(testCollection, stringWriter);
-        placemarkDescriptorProvider = new VectorDataNodeReader2.PlacemarkDescriptorProvider() {
+        placemarkDescriptorProvider = new VectorDataNodeReader.PlacemarkDescriptorProvider() {
             @Override
             public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
                 return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(org.esa.beam.framework.datamodel.GeometryDescriptor.class);
@@ -74,8 +74,8 @@ public class VectorDataNodeIOTest {
     @Test
     public void testDecodingDelimiter() throws IOException {
         final FeatureCollection<SimpleFeatureType, SimpleFeature> readCollection =
-                VectorDataNodeReader2.read("mem", new StringReader(stringWriter.toString()),
-                                           createDummyProduct(), new FeatureUtils.FeatureCrsProvider() {
+                VectorDataNodeReader.read("mem", new StringReader(stringWriter.toString()),
+                                          createDummyProduct(), new FeatureUtils.FeatureCrsProvider() {
                     @Override
                     public CoordinateReferenceSystem getFeatureCrs(Product product) {
                         return DefaultGeographicCRS.WGS84;
@@ -152,7 +152,7 @@ public class VectorDataNodeIOTest {
         assertNotNull(secondLine);
         assertEquals("#defaultCSS=stroke:#ff0000", secondLine);
 
-        VectorDataNode vectorDataNode2 = VectorDataNodeReader2.read("mem", new FileReader(tempFile), createDummyProduct(), new FeatureUtils.FeatureCrsProvider() {
+        VectorDataNode vectorDataNode2 = VectorDataNodeReader.read("mem", new FileReader(tempFile), createDummyProduct(), new FeatureUtils.FeatureCrsProvider() {
             @Override
             public CoordinateReferenceSystem getFeatureCrs(Product product) {
                 return DefaultGeographicCRS.WGS84;
@@ -214,7 +214,7 @@ public class VectorDataNodeIOTest {
 
     private static Product createDummyProduct() {
         Product dummyProduct = new Product("blah", "blahType", 360, 180);
-        dummyProduct.setGeoCoding(new VectorDataNodeReader2Test.DummyGeoCoding());
+        dummyProduct.setGeoCoding(new VectorDataNodeReaderTest.DummyGeoCoding());
         return dummyProduct;
     }
 

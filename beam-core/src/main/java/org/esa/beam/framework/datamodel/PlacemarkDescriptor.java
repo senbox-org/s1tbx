@@ -37,6 +37,8 @@ import java.awt.*;
  */
 public interface PlacemarkDescriptor {
 
+    String PLACEMARK_DESCRIPTOR_KEY = "beam.placemarkDescriptor.class";
+
     /**
      * Asks the descriptor to set any application specific information in the feature type's user data.
      *

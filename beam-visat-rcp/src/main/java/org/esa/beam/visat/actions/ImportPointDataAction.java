@@ -18,7 +18,7 @@ package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.geometry.VectorDataNodeIO;
-import org.esa.beam.dataio.geometry.VectorDataNodeReader2;
+import org.esa.beam.dataio.geometry.VectorDataNodeReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -64,7 +64,7 @@ public class ImportPointDataAction extends ExecCommand {
         try {
             modelCrs = product.getGeoCoding() != null ? ImageManager.getModelCrs(product.getGeoCoding()) :
                        ImageManager.DEFAULT_IMAGE_CRS;
-            vectorDataNode = VectorDataNodeReader2.read(file.getName(), new FileReader(file), product, null, null, null, ProgressMonitor.NULL);
+            vectorDataNode = VectorDataNodeReader.read(file.getName(), new FileReader(file), product, null, null, null, ProgressMonitor.NULL);
         } catch (IOException e) {
             visatApp.showErrorDialog(TITLE, "Failed to load csv file:\n" + e.getMessage());
             return;
