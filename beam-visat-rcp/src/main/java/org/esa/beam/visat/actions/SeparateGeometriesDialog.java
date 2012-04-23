@@ -60,6 +60,10 @@ class SeparateGeometriesDialog extends ModalDialog {
     }
 
     String getSelectedAttributeName() {
-        return comboBox.getSelectedItem().toString();
+        if (comboBox.getItemCount() > 0) {
+            return comboBox.getSelectedItem().toString();
+        } else {
+            return null;
+        }
     }
 }
