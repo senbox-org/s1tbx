@@ -296,12 +296,6 @@ class HistogramPanel extends ChartPagePanel {
             minBinding.setPropertyValue(max);
             maxBinding.setPropertyValue(min);
         }
-        final boolean autoMinMaxEnabled = xAxisRangeControl.isAutoMinMax();
-        for (Property property : xAxisRangeControl.getBindingContext().getPropertySet().getProperties()) {
-            if (property.getName().equals("min") || property.getName().equals("max")) {
-                xAxisRangeControl.getBindingContext().setComponentsEnabled(property.getName(), !autoMinMaxEnabled);
-            }
-        }
 
         updateXAxis();
     }
