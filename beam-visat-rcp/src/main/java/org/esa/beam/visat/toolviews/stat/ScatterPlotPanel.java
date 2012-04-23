@@ -265,15 +265,16 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     private void createUI() {
 
-        getPlot().setAxisOffset(new RectangleInsets(5, 5, 5, 5));
-        getPlot().setNoDataMessage(NO_DATA_MESSAGE);
-        getPlot().setDataset(CONFIDENCE_DSINDEX, confidenceDataset);
-        getPlot().setDataset(SCATTERPOINTS_DSINDEX, scatterpointsDataset);
+        final XYPlot plot = getPlot();
+        plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
+        plot.setNoDataMessage(NO_DATA_MESSAGE);
+        plot.setDataset(CONFIDENCE_DSINDEX, confidenceDataset);
+        plot.setDataset(SCATTERPOINTS_DSINDEX, scatterpointsDataset);
 
         final DeviationRenderer identityRenderer = new DeviationRenderer(true, false);
         identityRenderer.setSeriesPaint(0, StatisticChartStyling.SAMPLE_DATA_PAINT);
         identityRenderer.setSeriesFillPaint(0, StatisticChartStyling.SAMPLE_DATA_FILL_PAINT);
-        getPlot().setRenderer(CONFIDENCE_DSINDEX, identityRenderer);
+        plot.setRenderer(CONFIDENCE_DSINDEX, identityRenderer);
 
         final XYErrorRenderer scatterPointsRenderer = new XYErrorRenderer();
         scatterPointsRenderer.setDrawXError(true);
@@ -286,11 +287,13 @@ class ScatterPlotPanel extends ChartPagePanel {
         scatterPointsRenderer.setSeriesShapesVisible(0, true);
         scatterPointsRenderer.setSeriesOutlineStroke(0, new BasicStroke(1.0f));
         scatterPointsRenderer.setSeriesToolTipGenerator(0, new XYPlotToolTipGenerator());
-        getPlot().setRenderer(SCATTERPOINTS_DSINDEX, scatterPointsRenderer);
+        plot.setRenderer(SCATTERPOINTS_DSINDEX, scatterPointsRenderer);
 
         final boolean autoRangeIncludesZero = false;
-        getPlot().setDomainAxis(StatisticChartStyling.createNumberAxis(null, autoRangeIncludesZero));
-        getPlot().setRangeAxis(StatisticChartStyling.createNumberAxis(null, autoRangeIncludesZero));
+        final boolean xLog = scatterPlotModel.xAxisLogScaled;
+        final boolean yLog = scatterPlotModel.yAxisLogScaled;
+        plot.setDomainAxis(StatisticChartStyling.updateScalingOfAxis(xLog, plot.getDomainAxis(), autoRangeIncludesZero));
+        plot.setRangeAxis(StatisticChartStyling.updateScalingOfAxis(yLog, plot.getRangeAxis(), autoRangeIncludesZero));
 
         createUI(createChartPanel(chart), createInputParameterPanel(), bindingContext);
     }
