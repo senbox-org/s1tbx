@@ -34,6 +34,7 @@ import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.ui.RectangleInsets;
@@ -69,7 +70,7 @@ class DensityPlotPanel extends ChartPagePanel {
 
     private static final String NO_DATA_MESSAGE = "No density plot computed yet.\n" +
             ZOOM_TIP_MESSAGE;
-    private static final String CHART_TITLE = "Density Plot";
+    private static final String CHART_TITLE = "Scatter Plot";
 
     private static final int X_VAR = 0;
     private static final int Y_VAR = 1;
@@ -200,6 +201,8 @@ class DensityPlotPanel extends ChartPagePanel {
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.getRenderer().setBaseToolTipGenerator(new XYPlotToolTipGenerator());
         JFreeChart chart = new JFreeChart(CHART_TITLE, plot);
+        ChartFactory.getChartTheme().apply(chart);
+
         chart.removeLegend();
         createUI(createChartPanel(chart), createMiddlePanel(), bindingContext);
         updateUIState();
