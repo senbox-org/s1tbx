@@ -45,6 +45,7 @@ import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -225,7 +226,7 @@ class DensityPlotPanel extends ChartPagePanel {
         ChartFactory.getChartTheme().apply(chart);
 
         chart.removeLegend();
-        createUI(createChartPanel(chart), createComputationComponentsPanel(), createDisplayComponentsPanel(), bindingContext);
+        createUI(createChartPanel(chart), createOptionsPanel(), bindingContext);
         updateUIState();
     }
 
@@ -243,17 +244,7 @@ class DensityPlotPanel extends ChartPagePanel {
         }
     }
 
-    private JPanel createComputationComponentsPanel() {
-        final JPanel optionsPanel = GridBagUtils.createPanel();
-        final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=0,weightx=1,gridx=0");
-        GridBagUtils.addToPanel(optionsPanel, axisRangeControls[X_VAR].getPanel(), gbc, "gridy=0");
-        GridBagUtils.addToPanel(optionsPanel, xBandList, gbc, "gridy=1");
-        GridBagUtils.addToPanel(optionsPanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=2");
-        GridBagUtils.addToPanel(optionsPanel, yBandList, gbc, "gridy=3");
-        return optionsPanel;
-    }
-
-    private JPanel createDisplayComponentsPanel(){
+    private JPanel createOptionsPanel() {
         toggleColorCheckBox = new JCheckBox("Invert Plot Colors");
         toggleColorCheckBox.addActionListener(new ActionListener() {
             @Override
@@ -262,10 +253,16 @@ class DensityPlotPanel extends ChartPagePanel {
             }
         });
         toggleColorCheckBox.setEnabled(false);
-        final JPanel displayComponentsPanel = GridBagUtils.createPanel();
-        final GridBagConstraints gbc = GridBagUtils.createConstraints("fill=HORIZONTAL,insets.top=0,weightx=1");
-        GridBagUtils.addToPanel(displayComponentsPanel, toggleColorCheckBox, gbc, "gridy=0");
-        return displayComponentsPanel;
+        final JPanel optionsPanel = GridBagUtils.createPanel();
+        final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=0,weightx=1,gridx=0");
+        GridBagUtils.addToPanel(optionsPanel, axisRangeControls[X_VAR].getPanel(), gbc, "gridy=0");
+        GridBagUtils.addToPanel(optionsPanel, xBandList, gbc, "gridy=1");
+        GridBagUtils.addToPanel(optionsPanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=2");
+        GridBagUtils.addToPanel(optionsPanel, yBandList, gbc, "gridy=3");
+        GridBagUtils.addToPanel(optionsPanel, new JPanel(), gbc, "gridy=4");
+        GridBagUtils.addToPanel(optionsPanel, new JSeparator(), gbc, "gridy=5");
+        GridBagUtils.addToPanel(optionsPanel, toggleColorCheckBox, gbc, "gridy=6");
+        return optionsPanel;
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {

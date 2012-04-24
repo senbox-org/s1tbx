@@ -152,7 +152,7 @@ class HistogramPanel extends ChartPagePanel {
         renderer.setBarPainter(new StandardXYBarPainter());
         renderer.setSeriesPaint(0, new Color(0, 0, 200));
 
-        createUI(createChartPanel(chart), createComputationComponentsPanel(), createDisplayComponentsPanel(), bindingContext);
+        createUI(createChartPanel(chart), createOptionsPanel(), bindingContext);
 
         isInitialized = true;
 
@@ -168,7 +168,7 @@ class HistogramPanel extends ChartPagePanel {
         bindingContext.addPropertyChangeListener(componentsActionEnabler);
     }
 
-    private JPanel createComputationComponentsPanel() {
+    private JPanel createOptionsPanel() {
         final JLabel numBinsLabel = new JLabel("#Bins:");
         JTextField numBinsField = new JTextField(Integer.toString(NUM_BINS_DEFAULT));
         numBinsField.setPreferredSize(new Dimension(50, numBinsField.getPreferredSize().height));
@@ -224,16 +224,10 @@ class HistogramPanel extends ChartPagePanel {
         GridBagUtils.addToPanel(optionsPanel, dataSourceOptionsPanel, gbc, "gridy=0");
         GridBagUtils.addToPanel(optionsPanel, new JPanel(), gbc, "gridy=1,fill=VERTICAL,weighty=1");
         GridBagUtils.addToPanel(optionsPanel, displayOptionsPanel, gbc, "gridy=2,fill=HORIZONTAL,weighty=0");
+        GridBagUtils.addToPanel(optionsPanel, new JPanel(), gbc, "gridy=3,fill=VERTICAL,weighty=1");
+        GridBagUtils.addToPanel(optionsPanel, xAxisRangeControl.getBindingContext().getBinding(
+                PROPERTY_NAME_LOG_SCALED).getComponents()[0], gbc, "gridy=4");
         return optionsPanel;
-    }
-
-    private JPanel createDisplayComponentsPanel() {
-        JPanel displayComponentsPanel = GridBagUtils.createPanel();
-        GridBagConstraints displayComponentsConstraints = GridBagUtils.createConstraints(
-                "anchor=SOUTH,fill=HORIZONTAL,weightx=1");
-        GridBagUtils.addToPanel(displayComponentsPanel, xAxisRangeControl.getBindingContext().getBinding(
-                PROPERTY_NAME_LOG_SCALED).getComponents()[0], displayComponentsConstraints, "gridy=0");
-        return displayComponentsPanel;
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {
