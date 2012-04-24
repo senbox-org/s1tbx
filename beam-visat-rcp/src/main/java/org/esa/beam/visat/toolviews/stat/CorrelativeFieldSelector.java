@@ -9,8 +9,13 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.Debug;
+import org.geotools.feature.NameImpl;
+import org.geotools.feature.type.AttributeDescriptorImpl;
+import org.geotools.feature.type.AttributeTypeImpl;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.feature.type.Name;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +23,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Norman Fomferra
@@ -31,6 +37,8 @@ class CorrelativeFieldSelector {
 
     final Property pointDataSourceProperty;
     final Property dataFieldProperty;
+
+    final static String NULL_NAME = " ";
 
     CorrelativeFieldSelector(BindingContext bindingContext) {
         Assert.argument(bindingContext.getPropertySet().getProperty("pointDataSource") != null, "bindingContext");
@@ -59,7 +67,8 @@ class CorrelativeFieldSelector {
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value != null) {
-                    this.setText(((AttributeDescriptor) value).getType().getName().getLocalPart());
+//                    this.setText(((AttributeDescriptor) value).getType().getName().getLocalPart());
+                    this.setText(((AttributeDescriptor) value).getName().getLocalPart());
                 }
                 return this;
             }
@@ -110,6 +119,7 @@ class CorrelativeFieldSelector {
         if (pointDataSourceProperty.getValue() != null) {
             final List<AttributeDescriptor> attributeDescriptors = ((VectorDataNode) pointDataSourceProperty.getValue()).getFeatureType().getAttributeDescriptors();
             final List<AttributeDescriptor> result = new ArrayList<AttributeDescriptor>();
+            result.add(new NullAttributeDescriptor());
             for (AttributeDescriptor attributeDescriptor : attributeDescriptors) {
                 if (Number.class.isAssignableFrom(attributeDescriptor.getType().getBinding())) {
                     result.add(attributeDescriptor);
@@ -125,4 +135,46 @@ class CorrelativeFieldSelector {
         }
     }
 
+    private class NullAttributeDescriptor implements AttributeDescriptor {
+
+        @Override
+        public AttributeType getType() {
+            return null;
+        }
+
+        @Override
+        public String getLocalName() {
+            return NULL_NAME;
+        }
+
+        @Override
+        public Object getDefaultValue() {
+            return null;
+        }
+
+        @Override
+        public Name getName() {
+            return new NameImpl(NULL_NAME);
+        }
+
+        @Override
+        public int getMinOccurs() {
+            return 0;
+        }
+
+        @Override
+        public int getMaxOccurs() {
+            return 0;
+        }
+
+        @Override
+        public boolean isNillable() {
+            return true;
+        }
+
+        @Override
+        public Map<Object, Object> getUserData() {
+            return null;
+        }
+    }
 }

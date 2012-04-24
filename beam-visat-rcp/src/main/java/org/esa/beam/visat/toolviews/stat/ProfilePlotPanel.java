@@ -167,7 +167,7 @@ class ProfilePlotPanel extends ChartPagePanel {
                 DEFAULT_SAMPLE_DATASET_NAME,
                 dataset,
                 PlotOrientation.VERTICAL,
-                true, // Legend?
+                true,
                 true,
                 false
         );
@@ -440,6 +440,7 @@ class ProfilePlotPanel extends ChartPagePanel {
                                 corrSeries.add(x, x, x, y, y, y);
                             }
                         }
+                        dataset.addSeries(corrSeries);
                     }
                 } else {
                     System.out.println("Weird things happened:");
@@ -447,7 +448,6 @@ class ProfilePlotPanel extends ChartPagePanel {
                     System.out.println("  simpleFeatures.length     = " + simpleFeatures.length);
                 }
 
-                dataset.addSeries(corrSeries);
             }
 
             profilePlotDisplay.restoreAutoBounds();
@@ -457,7 +457,10 @@ class ProfilePlotPanel extends ChartPagePanel {
     }
 
     private int getAttributeIndex(VectorDataNode pointDataSource, AttributeDescriptor dataField) {
-        String fieldName = dataField.getLocalName();
+        final String fieldName = dataField.getLocalName();
+        if (fieldName.equals(CorrelativeFieldSelector.NULL_NAME)) {
+            return -1;
+        }
         return pointDataSource.getFeatureType().indexOf(fieldName);
     }
 
@@ -497,7 +500,6 @@ class ProfilePlotPanel extends ChartPagePanel {
         } else {
             removeIntervalMarkers();
         }
-
 
         pointDataSourceEnablement.apply();
         dataFieldEnablement.apply();
