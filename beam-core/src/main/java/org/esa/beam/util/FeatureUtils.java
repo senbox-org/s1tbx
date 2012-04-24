@@ -93,7 +93,7 @@ public class FeatureUtils {
         pm.beginTask("Loading Shapefile", 100);
         try {
             final URL url = file.toURI().toURL();
-            CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(product.getGeoCoding());
+            final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(product.getGeoCoding());
             final Geometry clipGeometry = createGeoBoundaryPolygon(product);
             pm.worked(10);
             FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(url);
@@ -103,16 +103,11 @@ public class FeatureUtils {
             if (featureCrs == null) {
                 featureCrs = crsProvider.getFeatureCrs(product);
             }
-
-            if (!(product.getGeoCoding() instanceof CrsGeoCoding)) {
-                featureCollection = transformPixelPosToGeoPos(featureCollection, product.getGeoCoding());
-            }
-
             FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection
                     = FeatureUtils.clipCollection(featureCollection,
                                                   featureCrs,
                                                   clipGeometry,
-                                                  featureCrs,
+                                                  DefaultGeographicCRS.WGS84,
                                                   null,
                                                   targetCrs,
                                                   SubProgressMonitor.create(pm, 80));

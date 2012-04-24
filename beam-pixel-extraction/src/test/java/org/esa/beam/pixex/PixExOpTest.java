@@ -26,14 +26,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class PixExOpTest {
 
@@ -62,35 +65,35 @@ public class PixExOpTest {
         final File outputDir = getOutpuDir("testUsingGraph", getClass());
         String graphOpXml =
                 "<graph id=\"someGraphId\">\n" +
-                "    <version>1.0</version>\n" +
-                "    <node id=\"someNodeId\">\n" +
-                "      <operator>PixEx</operator>\n" +
-                "      <parameters>\n" +
-                "        <inputPaths>\n" +
-                "           " + parentDir +
-                "        </inputPaths>\n" +
-                "        <exportTiePoints>false</exportTiePoints>\n" +
-                "        <exportBands>true</exportBands>\n" +
-                "        <exportMasks>false</exportMasks>                \n" +
-                "        <coordinates>\n" +
-                "          <coordinate>\n" +
-                "            <latitude>" + coordinates[0].getLat() + "</latitude>\n" +
-                "            <longitude>" + coordinates[0].getLon() + "</longitude>\n" +
-                "            <name>" + coordinates[0].getName() + "</name>\n" +
-                "          </coordinate>\n" +
-                "          <coordinate>\n" +
-                "            <latitude>" + coordinates[1].getLat() + "</latitude>\n" +
-                "            <longitude>" + coordinates[1].getLon() + "</longitude>\n" +
-                "            <name>" + coordinates[1].getName() + "</name>\n" +
-                "          </coordinate>\n" +
-                "        </coordinates>\n" +
-                "        <windowSize>" + windowSize + "</windowSize>\n" +
-                "        <outputDir>" + outputDir.getAbsolutePath() + "</outputDir>\n" +
-                "        <outputFilePrefix>" + "testUsingGraph" + "</outputFilePrefix>\n" +
+                        "    <version>1.0</version>\n" +
+                        "    <node id=\"someNodeId\">\n" +
+                        "      <operator>PixEx</operator>\n" +
+                        "      <parameters>\n" +
+                        "        <inputPaths>\n" +
+                        "           " + parentDir +
+                        "        </inputPaths>\n" +
+                        "        <exportTiePoints>false</exportTiePoints>\n" +
+                        "        <exportBands>true</exportBands>\n" +
+                        "        <exportMasks>false</exportMasks>                \n" +
+                        "        <coordinates>\n" +
+                        "          <coordinate>\n" +
+                        "            <latitude>" + coordinates[0].getLat() + "</latitude>\n" +
+                        "            <longitude>" + coordinates[0].getLon() + "</longitude>\n" +
+                        "            <name>" + coordinates[0].getName() + "</name>\n" +
+                        "          </coordinate>\n" +
+                        "          <coordinate>\n" +
+                        "            <latitude>" + coordinates[1].getLat() + "</latitude>\n" +
+                        "            <longitude>" + coordinates[1].getLon() + "</longitude>\n" +
+                        "            <name>" + coordinates[1].getName() + "</name>\n" +
+                        "          </coordinate>\n" +
+                        "        </coordinates>\n" +
+                        "        <windowSize>" + windowSize + "</windowSize>\n" +
+                        "        <outputDir>" + outputDir.getAbsolutePath() + "</outputDir>\n" +
+                        "        <outputFilePrefix>" + "testUsingGraph" + "</outputFilePrefix>\n" +
 
-                "      </parameters>\n" +
-                "    </node>\n" +
-                "  </graph>";
+                        "      </parameters>\n" +
+                        "    </node>\n" +
+                        "  </graph>";
         Graph graph = GraphIO.read(new StringReader(graphOpXml));
 
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new PixExOp.Spi());
@@ -116,20 +119,19 @@ public class PixExOpTest {
         subDir2_1.mkdir();
         subDir2_2.mkdir();
 
-        File[] parsedInputPaths = PixExOp.getParsedInputPaths(
-                new File[]{new File(testDir.getAbsolutePath() + PixExOp.RECURSIVE_INDICATOR)});
+        final String pattern = testDir.getAbsolutePath() + File.separator + PixExOp.RECURSIVE_INDICATOR;
+        Set<File> dirList = PixExOp.getSourceProductFileSet(null, new File[]{new File(pattern)}, Logger.getAnonymousLogger());
 
-        assertEquals(5, parsedInputPaths.length);
-        List<File> dirList = Arrays.asList(parsedInputPaths);
-        assertTrue("Missing dir '" + testDir.getAbsolutePath() + "'.", dirList.contains(testDir));
+        //assertEquals(5, dirList.size());
+        //assertTrue("Missing dir '" + testDir.getAbsolutePath() + "'.", dirList.contains(testDir));
+        assertEquals(4, dirList.size());
         assertTrue("Missing dir '" + subDir1.getAbsolutePath() + "'.", dirList.contains(subDir1));
         assertTrue("Missing dir '" + subDir2.getAbsolutePath() + "'.", dirList.contains(subDir2));
         assertTrue("Missing dir '" + subDir2_1.getAbsolutePath() + "'.", dirList.contains(subDir2_1));
         assertTrue("Missing dir '" + subDir2_2.getAbsolutePath() + "'.", dirList.contains(subDir2_2));
 
-        parsedInputPaths = PixExOp.getParsedInputPaths(new File[]{testDir, subDir2_1});
-        assertEquals(2, parsedInputPaths.length);
-        dirList = Arrays.asList(parsedInputPaths);
+        dirList = PixExOp.getSourceProductFileSet(null, new File[]{testDir, subDir2_1}, Logger.getAnonymousLogger());
+        assertEquals(2, dirList.size());
         assertTrue("Missing dir '" + testDir.getAbsolutePath() + "'.", dirList.contains(testDir));
         assertTrue("Missing dir '" + subDir2_1.getAbsolutePath() + "'.", dirList.contains(subDir2_1));
 
@@ -397,8 +399,8 @@ public class PixExOpTest {
                                             float lat, float lon, float x, float y) {
         for (Measurement measurement : measurementList) {
             if (measurement.getCoordinateName().equals(coordinateName) && id == measurement.getCoordinateID() &&
-                Float.compare(lat, measurement.getLat()) == 0 && Float.compare(lon, measurement.getLon()) == 0 &&
-                Float.compare(x, measurement.getPixelX()) == 0 && Float.compare(y, measurement.getPixelY()) == 0) {
+                    Float.compare(lat, measurement.getLat()) == 0 && Float.compare(lon, measurement.getLon()) == 0 &&
+                    Float.compare(x, measurement.getPixelX()) == 0 && Float.compare(y, measurement.getPixelY()) == 0) {
                 return;
             }
         }
@@ -418,7 +420,7 @@ public class PixExOpTest {
     }
 
     public static Product createTestProduct(String name, String type, String[] bandNames) throws FactoryException,
-                                                                                                 TransformException {
+            TransformException {
         Rectangle bounds = new Rectangle(360, 180);
         Product product = new Product(name, type, bounds.width, bounds.height);
         AffineTransform i2mTransform = new AffineTransform();

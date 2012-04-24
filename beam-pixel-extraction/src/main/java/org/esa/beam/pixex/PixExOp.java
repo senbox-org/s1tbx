@@ -69,7 +69,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
@@ -582,33 +581,6 @@ public class PixExOp extends Operator implements Output {
         final Product product = new Product("dummy", "dummy", 2, 2);
         product.addBand("dummy", ProductData.TYPE_INT8);
         setTargetProduct(product);
-    }
-
-    public static File[] getParsedInputPaths(File[] filePaths) {
-        final ArrayList<File> directoryList = new ArrayList<File>();
-        for (File file : filePaths) {
-            String trimmedPath = file.getPath().trim();
-            if (trimmedPath.endsWith(RECURSIVE_INDICATOR)) {
-                trimmedPath = trimmedPath.substring(0, trimmedPath.lastIndexOf(RECURSIVE_INDICATOR));
-
-                final File directory = new File(trimmedPath);
-                collectDirectoriesRecursive(directory, directoryList);
-            } else {
-                directoryList.add(new File(trimmedPath));
-            }
-        }
-        Collections.sort(directoryList);
-        return directoryList.toArray(new File[directoryList.size()]);
-    }
-
-    private static void collectDirectoriesRecursive(File directory, ArrayList<File> directoryList) {
-        if (directory.isDirectory()) {
-            directoryList.add(directory);
-            final File[] subDirs = directory.listFiles(new DirectoryFileFilter());
-            for (File subDir : subDirs) {
-                collectDirectoriesRecursive(subDir, directoryList);
-            }
-        }
     }
 
     private static class DirectoryFileFilter implements FileFilter {

@@ -826,22 +826,7 @@
             <description>Import vector data</description>
             <helpId>importVectorData</helpId>
             <placeAfter>importRasterData</placeAfter>
-            <sortChildren>true</sortChildren>
-        </action>
-
-        <action>
-            <parent>file</parent>
-            <placeAfter>importVectorData</placeAfter>
-            <id>export</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Export</text>
-            <mnemonic>I</mnemonic>
             <separatorAfter>true</separatorAfter>
-            <shortDescr>Export</shortDescr>
-            <description>Export</description>
-            <smallIcon>icons/Export16.gif</smallIcon>
-            <largeIcon>icons/Export24.gif</largeIcon>
-            <helpId>export</helpId>
             <sortChildren>true</sortChildren>
         </action>
 
@@ -904,128 +889,25 @@
         <!-- Export Menu Group  -->
         <!--####################-->
 
-        <action>
-            <parent>export</parent>
-            <id>exportImageFile</id>
-            <class>org.esa.beam.visat.actions.ExportImageAction</class>
-            <text>View as Image...</text>
-            <mnemonic>I</mnemonic>
-            <shortDescr>Export the current view as an image.</shortDescr>
-            <description>Export the current view as an image.</description>
-            <context>image</context>
-            <helpId>exportImageFile</helpId>
-        </action>
-
-        <action>
-            <parent>export</parent>
-            <id>exportKmzFile</id>
-            <class>org.esa.beam.visat.actions.ExportKmzFileAction</class>
-            <text>View as Google Earth KMZ...</text>
-            <mnemonic>K</mnemonic>
-            <shortDescr>Export the current view as Google Earth KMZ file.</shortDescr>
-            <description>Export the current view as Google Earth KMZ file.</description>
-            <context>image</context>
-            <helpId>exportKmzFile</helpId>
-        </action>
-
-        <action>
-            <parent>export</parent>
-            <id>exportLegendImageFile</id>
-            <class>org.esa.beam.visat.actions.ExportLegendImageAction</class>
-            <text>Colour Legend as Image...</text>
-            <mnemonic>C</mnemonic>
-            <shortDescr>Export the colour legend as an image.</shortDescr>
-            <description>Export the colour legend of the current view as an image.</description>
-            <context>image</context>
-            <helpId>exportLegendImageFile</helpId>
-        </action>
-
-        <action>
-            <parent>export</parent>
-            <id>exportColorPalette</id>
-            <class>org.esa.beam.visat.actions.ExportColorPaletteAction</class>
-            <text>Colour Palette as File...</text>
-            <mnemonic>a</mnemonic>
-            <shortDescr>Export the colour palette to plain text.</shortDescr>
-            <description>Export the colour palette of the current view to a plain text file.</description>
-            <context>image</context>
-            <helpId>exportColorPalette</helpId>
-        </action>
-
-        <action>
-            <parent>export</parent>
-            <id>exportMaskPixels</id>
-            <class>org.esa.beam.visat.actions.ExportMaskPixelsAction</class>
-            <text>Mask Pixels...</text>
-            <mnemonic>R</mnemonic>
-            <shortDescr>Export the pixels of a Mask.</shortDescr>
-            <description>Export the pixels of a mask as tab-separated text.</description>
-            <context>image</context>
-            <helpId>exportMaskPixels</helpId>
-        </action>
-
-        <action>
-            <parent>export</parent>
-            <id>exportTransectPixels</id>
-            <class>org.esa.beam.visat.actions.ExportTransectPixelsAction</class>
-            <text>Transect Pixels...</text>
-            <mnemonic>T</mnemonic>
-            <shortDescr>Export transect pixels.</shortDescr>
-            <description>Export transect pixels as tab-separated text.</description>
-            <context>image</context>
-            <helpId>exportTransectPixels</helpId>
-        </action>
-
-        <action>
-            <parent>export</parent>
-            <id>exportMetadata</id>
-            <class>org.esa.beam.visat.actions.ExportMetadataAction</class>
-            <text>Product Metadata...</text>
-            <mnemonic>M</mnemonic>
-            <shortDescr>Export the currently displayed metadata.</shortDescr>
-            <description>Export the currently displayed metadata as tab-separated text.</description>
-            <context>metadata</context>
-            <helpId>exportMetadata</helpId>
-        </action>
-
-        <action>
-            <parent>export</parent>
-            <id>exportGeometry</id>
-            <class>org.esa.beam.visat.actions.ExportGeometryAction</class>
-            <text>Geometry as Shapefile...</text>
-            <mnemonic>M</mnemonic>
-            <shortDescr>Exports the currently selected geometry.</shortDescr>
-            <description>Exports the currently selected geometry as ESRI Shapefile.</description>
-            <context>vectorDataNode</context>
-            <helpId>exportShapefile</helpId>
-        </action>
-
-        <action>
-            <parent>export</parent>
-            <id>exportEnviGcpFile</id>
-            <class>org.esa.beam.visat.actions.ExportEnviGcpFileAction</class>
-            <text>Geo-Coding as ENVI GCP File...</text>
-            <mnemonic>G</mnemonic>
-            <shortDescr>Export an ENVI GCP (ground control points) file.</shortDescr>
-            <description>Export an ENVI GCP (ground control points) file for image registration.</description>
-            <helpId>exportEnviGcpFile</helpId>
-        </action>
 
         <!--####################-->
-        <!-- Export Product Raster Data Group  -->
+        <!-- Export Raster Data Group  -->
         <!--####################-->
 
         <action>
-            <parent>export</parent>
-            <id>exportProduct</id>
+            <parent>file</parent>
+            <placeAfter>importVectorData</placeAfter>
+            <id>exportRasterData</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Product</text>
-            <shortDescr>Export Product</shortDescr>
-            <description>Export Product</description>
-            <helpId>exportProduct</helpId>
+            <text>Export Raster Data</text>
+            <mnemonic>I</mnemonic>
+            <shortDescr>Export Raster Data</shortDescr>
+            <description>Export Raster Data</description>
+            <smallIcon>icons/Export16.gif</smallIcon>
+            <largeIcon>icons/Export24.gif</largeIcon>
+            <helpId>exportRasterData</helpId>
             <sortChildren>true</sortChildren>
         </action>
-
 
         <action>
             <id>exportDimapProduct</id>
@@ -1035,6 +917,131 @@
             <shortDescr>Export product to BEAM-DIMAP format.</shortDescr>
             <description>Export the selected product to BEAM-DIMAP format.</description>
             <helpId>exportDimapProduct</helpId>
+        </action>
+
+        <!--####################-->
+        <!-- Export Other Group  -->
+        <!--####################-->
+
+        <action>
+            <parent>file</parent>
+            <placeAfter>exportRasterData</placeAfter>
+            <id>exportOther</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Other Exports</text>
+            <shortDescr>Other Exports</shortDescr>
+            <description>Other Exports</description>
+            <smallIcon>icons/Export16.gif</smallIcon>
+            <largeIcon>icons/Export24.gif</largeIcon>
+            <helpId>exportOther</helpId>
+            <sortChildren>true</sortChildren>
+        </action>
+
+        <action>
+            <parent>exportOther</parent>
+            <id>exportImageFile</id>
+            <class>org.esa.beam.visat.actions.ExportImageAction</class>
+            <text>View as Image</text>
+            <mnemonic>I</mnemonic>
+            <shortDescr>Export the current view as an image.</shortDescr>
+            <description>Export the current view as an image.</description>
+            <context>image</context>
+            <helpId>exportImageFile</helpId>
+        </action>
+
+        <action>
+            <parent>exportOther</parent>
+            <id>exportKmzFile</id>
+            <class>org.esa.beam.visat.actions.ExportKmzFileAction</class>
+            <text>View as Google Earth KMZ</text>
+            <mnemonic>K</mnemonic>
+            <shortDescr>Export the current view as Google Earth KMZ file.</shortDescr>
+            <description>Export the current view as Google Earth KMZ file.</description>
+            <context>image</context>
+            <helpId>exportKmzFile</helpId>
+        </action>
+
+        <action>
+            <parent>exportOther</parent>
+            <id>exportLegendImageFile</id>
+            <class>org.esa.beam.visat.actions.ExportLegendImageAction</class>
+            <text>Colour Legend as Image</text>
+            <mnemonic>C</mnemonic>
+            <shortDescr>Export the colour legend as an image.</shortDescr>
+            <description>Export the colour legend of the current view as an image.</description>
+            <context>image</context>
+            <helpId>exportLegendImageFile</helpId>
+        </action>
+
+        <action>
+            <parent>exportOther</parent>
+            <id>exportColorPalette</id>
+            <class>org.esa.beam.visat.actions.ExportColorPaletteAction</class>
+            <text>Colour Palette as File</text>
+            <mnemonic>a</mnemonic>
+            <shortDescr>Export the colour palette to plain text.</shortDescr>
+            <description>Export the colour palette of the current view to a plain text file.</description>
+            <context>image</context>
+            <helpId>exportColorPalette</helpId>
+        </action>
+
+        <action>
+            <parent>exportOther</parent>
+            <id>exportMaskPixels</id>
+            <class>org.esa.beam.visat.actions.ExportMaskPixelsAction</class>
+            <text>Mask Pixels</text>
+            <mnemonic>R</mnemonic>
+            <shortDescr>Export the pixels of a Mask.</shortDescr>
+            <description>Export the pixels of a mask as tab-separated text.</description>
+            <context>image</context>
+            <helpId>exportMaskPixels</helpId>
+        </action>
+
+        <action>
+            <parent>exportOther</parent>
+            <id>exportTransectPixels</id>
+            <class>org.esa.beam.visat.actions.ExportTransectPixelsAction</class>
+            <text>Transect Pixels</text>
+            <mnemonic>T</mnemonic>
+            <shortDescr>Export transect pixels.</shortDescr>
+            <description>Export transect pixels as tab-separated text.</description>
+            <context>image</context>
+            <helpId>exportTransectPixels</helpId>
+        </action>
+
+        <action>
+            <parent>exportOther</parent>
+            <id>exportMetadata</id>
+            <class>org.esa.beam.visat.actions.ExportMetadataAction</class>
+            <text>Product Metadata</text>
+            <mnemonic>M</mnemonic>
+            <shortDescr>Export the currently displayed metadata.</shortDescr>
+            <description>Export the currently displayed metadata as tab-separated text.</description>
+            <context>metadata</context>
+            <helpId>exportMetadata</helpId>
+        </action>
+
+        <action>
+            <parent>exportOther</parent>
+            <id>exportGeometry</id>
+            <class>org.esa.beam.visat.actions.ExportGeometryAction</class>
+            <text>Geometry as Shapefile</text>
+            <mnemonic>M</mnemonic>
+            <shortDescr>Exports the currently selected geometry.</shortDescr>
+            <description>Exports the currently selected geometry as ESRI Shapefile.</description>
+            <context>vectorDataNode</context>
+            <helpId>exportShapefile</helpId>
+        </action>
+
+        <action>
+            <parent>exportOther</parent>
+            <id>exportEnviGcpFile</id>
+            <class>org.esa.beam.visat.actions.ExportEnviGcpFileAction</class>
+            <text>Geo-Coding as ENVI GCP File</text>
+            <mnemonic>G</mnemonic>
+            <shortDescr>Export an ENVI GCP (ground control points) file.</shortDescr>
+            <description>Export an ENVI GCP (ground control points) file for image registration.</description>
+            <helpId>exportEnviGcpFile</helpId>
         </action>
 
         <!--####################-->

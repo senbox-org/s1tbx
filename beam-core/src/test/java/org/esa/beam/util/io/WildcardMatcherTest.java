@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 public class WildcardMatcherTest {
 
     @Test
-    public void testFileAssumptions() throws Exception {
+    public void testMatchesFileAssumptions() throws Exception {
         String baseDir = new File("").getCanonicalPath();
         assertEquals(baseDir, new File(".").getCanonicalPath());
         assertEquals(baseDir, new File("./").getCanonicalPath());
@@ -32,7 +32,7 @@ public class WildcardMatcherTest {
 
 
     @Test
-    public void testSingleFileNoWildcardUsed() throws Exception {
+    public void testMatchesSingleFileNoWildcardUsed() throws Exception {
         WildcardMatcher m = new WildcardMatcher("test.N1");
         assertEquals(m.isWindowsFs() ? "test\\.n1" : "test\\.N1", m.getRegex());
 
@@ -44,7 +44,7 @@ public class WildcardMatcherTest {
     }
 
     @Test
-    public void testMultiDirectoryNoWildcardUsed_Unix() throws Exception {
+    public void testMatchesMultiDirectoryNoWildcardUsed_Unix() throws Exception {
         WildcardMatcher m = new WildcardMatcher("/home/norman/meris/data.nc", false);
         assertEquals("/home/norman/meris/data\\.nc", m.getRegex());
 
@@ -56,7 +56,7 @@ public class WildcardMatcherTest {
     }
 
     @Test
-    public void testMultiDirectoryNoWildcardUsed_Win() throws Exception {
+    public void testMatchesMultiDirectoryNoWildcardUsed_Win() throws Exception {
         WildcardMatcher m = new WildcardMatcher("C:\\Users\\Norman\\MERIS\\data.nc", true);
         assertEquals("c:/users/norman/meris/data\\.nc", m.getRegex());
 
@@ -75,7 +75,7 @@ public class WildcardMatcherTest {
     }
 
     @Test
-    public void testQuoteInFilename() throws Exception {
+    public void testMatchesQuoteInFilename() throws Exception {
         WildcardMatcher m = new WildcardMatcher("te?t.N1");
         assertEquals(m.isWindowsFs() ? "te.t\\.n1" : "te.t\\.N1", m.getRegex());
 
@@ -86,7 +86,7 @@ public class WildcardMatcherTest {
     }
 
     @Test
-    public void testStarInFilename() throws Exception {
+    public void testMatchesStarInFilename() throws Exception {
         WildcardMatcher m = new WildcardMatcher("*.N1");
         assertEquals(m.isWindowsFs() ? "[^/:]*\\.n1" : "[^/:]*\\.N1", m.getRegex());
 
@@ -98,7 +98,7 @@ public class WildcardMatcherTest {
     }
 
     @Test
-    public void testStarInBetween() throws Exception {
+    public void testMatchesStarInBetween() throws Exception {
         WildcardMatcher m = new WildcardMatcher("foo/*/test.txt");
         assertEquals("foo/[^/:]*/test\\.txt", m.getRegex());
 
@@ -110,7 +110,7 @@ public class WildcardMatcherTest {
     }
 
     @Test
-    public void testStarAtEnd() throws Exception {
+    public void testMatchesStarAtEnd() throws Exception {
         WildcardMatcher m = new WildcardMatcher("foo/*");
         assertEquals("foo/[^/:]*", m.getRegex());
 
@@ -125,7 +125,7 @@ public class WildcardMatcherTest {
     }
 
     @Test
-    public void testDoubleStarInBetween() throws Exception {
+    public void testMatchesDoubleStarInBetween() throws Exception {
         WildcardMatcher m = new WildcardMatcher("foo/**/test.txt");
         assertEquals("foo((/.*/)?|/)test\\.txt", m.getRegex());
 
@@ -139,7 +139,7 @@ public class WildcardMatcherTest {
     }
 
     @Test
-    public void testDoubleStarAtEnd() throws Exception {
+    public void testMatchesDoubleStarAtEnd() throws Exception {
         WildcardMatcher m = new WildcardMatcher("foo/**");
         assertEquals("foo(/.*)?", m.getRegex());
 
@@ -155,6 +155,57 @@ public class WildcardMatcherTest {
 
         assertFalse(m.matches("/foo/bar/doz/gna/test.zip"));
         assertFalse(m.matches("bar/doz/gna/test.zip"));
+    }
+
+    // see http://ant.apache.org/manual/dirtasks.html#patterns
+    @Test
+    public void testMatchesAntExamplePattern1() throws Exception {
+        WildcardMatcher m = new WildcardMatcher("**/CVS/*");
+        assertEquals("(.*/)?cvs/[^/:]*", m.getRegex());
+
+        assertTrue(m.matches("CVS/Repository"));
+        assertTrue(m.matches("org/apache/CVS/Entries"));
+        assertTrue(m.matches("org/apache/jakarta/tools/ant/CVS/Entries"));
+
+        assertFalse(m.matches("org/apache/CVS/foo/bar/Entries"));
+    }
+
+    // see http://ant.apache.org/manual/dirtasks.html#patterns
+    @Test
+    public void testMatchesAntExamplePattern2() throws Exception {
+        WildcardMatcher m = new WildcardMatcher("org/apache/jakarta/**");
+        assertEquals("org/apache/jakarta(/.*)?", m.getRegex());
+
+        assertTrue(m.matches("org/apache/jakarta/tools/ant/docs/index.html"));
+        assertTrue(m.matches("org/apache/jakarta/test.xml"));
+
+        assertFalse(m.matches("org/apache/xyz.java"));
+    }
+
+    // see http://ant.apache.org/manual/dirtasks.html#patterns
+    @Test
+    public void testMatchesAntExamplePattern3() throws Exception {
+        WildcardMatcher m = new WildcardMatcher("org/apache/**/CVS/*");
+        assertEquals("org/apache((/.*/)?|/)cvs/[^/:]*", m.getRegex());
+
+        assertTrue(m.matches("org/apache/CVS/Entries"));
+        assertTrue(m.matches("org/apache/jakarta/tools/ant/CVS/Entries"));
+
+        assertFalse(m.matches("org/apache/CVS/foo/bar/Entries"));
+    }
+
+    // see http://ant.apache.org/manual/dirtasks.html#patterns
+    @Test
+    public void testMatchesAntExamplePattern4() throws Exception {
+        WildcardMatcher m = new WildcardMatcher("**/test/**");
+        assertEquals("(.*/)?test(/.*)?", m.getRegex());
+
+        assertTrue(m.matches("test"));
+        assertTrue(m.matches("test/java"));
+        assertTrue(m.matches("src/test/java"));
+        assertTrue(m.matches("src/test"));
+
+        assertFalse(m.matches("src/main/java"));
     }
 
     @Test
@@ -195,12 +246,15 @@ public class WildcardMatcherTest {
         for (File file : files) {
             //System.out.println("file = " + file);
         }
-        assertEquals(4, files.length);
+        assertEquals(7, files.length);
         Arrays.sort(files);
         assertEquals(new File(dir, "foo/bar"), files[0]);
-        assertEquals(new File(dir, "foo/test1.txt"), files[1]);
-        assertEquals(new File(dir, "foo/test2.dat"), files[2]);
-        assertEquals(new File(dir, "foo/test3.dat"), files[3]);
+        assertEquals(new File(dir, "foo/bar/test1.txt"), files[1]);
+        assertEquals(new File(dir, "foo/bar/test2.dat"), files[2]);
+        assertEquals(new File(dir, "foo/bar/test3.txt"), files[3]);
+        assertEquals(new File(dir, "foo/test1.txt"), files[4]);
+        assertEquals(new File(dir, "foo/test2.dat"), files[5]);
+        assertEquals(new File(dir, "foo/test3.dat"), files[6]);
     }
 
     @Test

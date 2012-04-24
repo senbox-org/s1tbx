@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
  *
  * @author Norman Fomferra
  * @since BEAM 4.10
+ * @see <a href="http://ant.apache.org/manual/dirtasks.html#patterns">Patterns</a> in the Ant documentation
  */
 public class WildcardMatcher {
 
@@ -70,7 +71,8 @@ public class WildcardMatcher {
             }
             if (matcher.matches(text)) {
                 fileSet.add(file);
-            } else if (file.isDirectory()) {
+            }
+            if (file.isDirectory()) {
                 collectFiles(matcher, validPos, file, fileSet);
             }
         }

@@ -18,6 +18,7 @@ package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.UIUtils;
@@ -36,6 +37,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -196,7 +198,12 @@ public class ExportGeometryAction extends ExecCommand {
         if (crs == null) {   // for pins and GCPs crs is null --> assume image crs
             crs = vectorNode.getProduct().getGeoCoding().getImageCRS();
         }
-        final CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(vectorNode.getProduct().getGeoCoding());
+        final CoordinateReferenceSystem modelCrs;
+        if (vectorNode.getProduct().getGeoCoding() instanceof CrsGeoCoding) {
+            modelCrs = ImageManager.getModelCrs(vectorNode.getProduct().getGeoCoding());
+        } else {
+            modelCrs = DefaultGeographicCRS.WGS84;
+        }
         if (!CRS.equalsIgnoreMetadata(crs, modelCrs)) { // we have to reproject the features
             featureCollection = new ReprojectingFeatureCollection(featureCollection, crs, modelCrs);
         }
