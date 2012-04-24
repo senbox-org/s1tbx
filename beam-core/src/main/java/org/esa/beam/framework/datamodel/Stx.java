@@ -269,7 +269,7 @@ public class Stx {
 
         @Override
         public double scaleInverse(double value) {
-            return Math.pow(10, value);
+            return Math.pow(10.0, value);
         }
     }
 
