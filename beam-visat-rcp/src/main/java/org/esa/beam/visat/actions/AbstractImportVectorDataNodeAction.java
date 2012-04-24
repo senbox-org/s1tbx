@@ -55,8 +55,7 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
             }
 
             List<PlacemarkDescriptor> validPlacemarkDescriptors = placemarkDescriptorRegistry.getValidPlacemarkDescriptors(simpleFeatureType);
-
-            if (!validPlacemarkDescriptors.isEmpty()) {
+            if (validPlacemarkDescriptors.size() == 1) {
                 return validPlacemarkDescriptors.get(0);
             }
 

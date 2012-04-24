@@ -58,7 +58,6 @@ public class VectorDataNodeReader {
     private static final String[] LONGITUDE_IDENTIFIERS = new String[]{"lon", "long", "longitude"};
     private static final String[] LATITUDE_IDENTIFIERS = new String[]{"lat", "latitude"};
     private static final String[] GEOMETRY_IDENTIFIERS = new String[]{"geometry", "geom", "the_geom"};
-    private SimpleFeatureType featureType;
     private Map<String, String> properties;
 
     private VectorDataNodeReader(String vectorDataNodeName, Product product, Reader reader, FeatureUtils.FeatureCrsProvider crsProvider, PlacemarkDescriptorProvider placemarkDescriptorProvider) throws IOException {
@@ -94,19 +93,21 @@ public class VectorDataNodeReader {
             clippedCollection = featureCollection;
         }
 
+        SimpleFeatureType featureType = clippedCollection.getSchema();
+        featureType.getUserData().putAll(properties);
         final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorProvider.getPlacemarkDescriptor(featureType);
-        placemarkDescriptor.setUserDataOf(clippedCollection.getSchema());
+        placemarkDescriptor.setUserDataOf(featureType);
 
         final String name = FileUtils.getFilenameWithoutExtension(vectorDataNodeName);
         VectorDataNode vectorDataNode = new VectorDataNode(name, clippedCollection, placemarkDescriptor);
         if (properties.containsKey(ProductNode.PROPERTY_NAME_DESCRIPTION)) {
+            featureType.getUserData().put(ProductNode.PROPERTY_NAME_DESCRIPTION, properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
             vectorDataNode.setDescription(properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
         }
         if (properties.containsKey(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS)) {
+            featureType.getUserData().put(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS, properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
             vectorDataNode.setDefaultStyleCss(properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
-
         }
-        clippedCollection.getSchema().getUserData().putAll(properties);
         return vectorDataNode;
     }
 
@@ -146,7 +147,7 @@ public class VectorDataNodeReader {
     }
 
     FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures() throws IOException {
-        featureType = readFeatureType();
+        final SimpleFeatureType featureType = readFeatureType();
         return readFeatures(featureType);
     }
 
