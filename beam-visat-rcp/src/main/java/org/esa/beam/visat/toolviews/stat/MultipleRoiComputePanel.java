@@ -19,6 +19,7 @@ package org.esa.beam.visat.toolviews.stat;
 import com.bc.ceres.swing.TableLayout;
 import com.jidesoft.list.FilterableCheckBoxList;
 import com.jidesoft.list.QuickListFilterField;
+import com.jidesoft.swing.CheckBoxList;
 import com.jidesoft.swing.SearchableUtils;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.UIUtils;
@@ -52,7 +53,7 @@ class MultipleRoiComputePanel extends JPanel {
 
     private final JButton computeButton;
     private final JCheckBox useRoiCheckBox;
-    private final FilterableCheckBoxList maskNameList;
+    private final CheckBoxList maskNameList;
 
     private RasterDataNode raster;
     private Product product;
@@ -67,7 +68,7 @@ class MultipleRoiComputePanel extends JPanel {
         maskNameSearchField.setHintText("Filter masks here");
         //quickSearchPanel.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), "QuickListFilterField", JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
 
-        maskNameList = new FilterableCheckBoxList(maskNameSearchField.getDisplayListModel()) {
+        maskNameList = new CheckBoxList(maskNameSearchField.getDisplayListModel()) {
             @Override
             public int getNextMatch(String prefix, int startIndex, Position.Bias bias) {
                 return -1;
