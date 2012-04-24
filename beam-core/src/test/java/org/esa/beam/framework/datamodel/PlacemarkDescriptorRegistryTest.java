@@ -130,8 +130,7 @@ public class PlacemarkDescriptorRegistryTest {
 
 
         PlacemarkDescriptor bestPlacemarkDescriptor = registry.getBestPlacemarkDescriptor(null);
-        // todo - Thomas, reactivate test (nf)
-        //assertSame(first, bestPlacemarkDescriptor);
+        assertSame(first, bestPlacemarkDescriptor);
     }
 
     @Test

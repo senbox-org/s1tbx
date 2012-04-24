@@ -105,13 +105,21 @@ public class PlacemarkDescriptorRegistry {
 
     public PlacemarkDescriptor getBestPlacemarkDescriptor(SimpleFeatureType featureType) {
         PlacemarkDescriptor suitablePlacemarkDescriptor = null;
+        PlacemarkDescriptor intendedPlacemarkDescriptor = null;
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
             DecodeQualification qualification = placemarkDescriptor.getCompatibilityFor(featureType);
             if (qualification == DecodeQualification.INTENDED) {
-                return placemarkDescriptor;
+                if (placemarkDescriptor.getBaseFeatureType().getUserData().containsKey(PROPERTY_NAME_PLACEMARK_DESCRIPTOR)) {
+                    return placemarkDescriptor;
+                } else {
+                    intendedPlacemarkDescriptor = placemarkDescriptor;
+                }
             } else if (qualification == DecodeQualification.SUITABLE) {
                 suitablePlacemarkDescriptor = placemarkDescriptor;
             }
+        }
+        if (intendedPlacemarkDescriptor != null) {
+            return intendedPlacemarkDescriptor;
         }
         return suitablePlacemarkDescriptor;
     }
