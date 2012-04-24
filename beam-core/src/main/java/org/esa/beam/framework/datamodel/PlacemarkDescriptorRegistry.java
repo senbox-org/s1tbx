@@ -89,11 +89,9 @@ public class PlacemarkDescriptorRegistry {
                 } else if (!isO1Intended && isO2Intended) {
                     return 1;
                 } else if (isO1Intended && isO2Intended) {
-                    boolean hasO1PlacemarkDescriptor = o1.getBaseFeatureType().getUserData().containsKey(PROPERTY_NAME_PLACEMARK_DESCRIPTOR);
-                    boolean hasO2PlacemarkDescriptor = o2.getBaseFeatureType().getUserData().containsKey(PROPERTY_NAME_PLACEMARK_DESCRIPTOR);
-                    if (hasO1PlacemarkDescriptor && !hasO2PlacemarkDescriptor) {
+                    if (hasClassProperty(o1) && !hasClassProperty(o2)) {
                         return -1;
-                    } else if (!hasO1PlacemarkDescriptor && hasO2PlacemarkDescriptor) {
+                    } else if (!hasClassProperty(o1) && hasClassProperty(o2)) {
                         return 1;
                     }
                 }
@@ -109,7 +107,7 @@ public class PlacemarkDescriptorRegistry {
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
             DecodeQualification qualification = placemarkDescriptor.getCompatibilityFor(featureType);
             if (qualification == DecodeQualification.INTENDED) {
-                if (placemarkDescriptor.getBaseFeatureType().getUserData().containsKey(PROPERTY_NAME_PLACEMARK_DESCRIPTOR)) {
+                if (hasClassProperty(placemarkDescriptor)) {
                     return placemarkDescriptor;
                 } else {
                     intendedPlacemarkDescriptor = placemarkDescriptor;
@@ -122,6 +120,10 @@ public class PlacemarkDescriptorRegistry {
             return intendedPlacemarkDescriptor;
         }
         return suitablePlacemarkDescriptor;
+    }
+
+    private static boolean hasClassProperty(PlacemarkDescriptor placemarkDescriptor) {
+        return placemarkDescriptor.getBaseFeatureType().getUserData().containsKey(PROPERTY_NAME_PLACEMARK_DESCRIPTOR);
     }
 
     private static class Holder {
