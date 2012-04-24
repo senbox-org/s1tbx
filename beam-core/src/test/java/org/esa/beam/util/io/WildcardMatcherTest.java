@@ -221,6 +221,18 @@ public class WildcardMatcherTest {
         assertEquals(new File(dir, "foo/test3.dat"), files[5]);
     }
 
+    @Test
+    public void testGlobExistingDir() throws Exception {
+        String dir = getTestdataDir();
+        File[] files = WildcardMatcher.glob(dir + "/foo");
+        assertNotNull(files);
+        for (File file : files) {
+            //System.out.println("file = " + file);
+        }
+        assertEquals(1, files.length);
+        assertEquals(new File(dir, "foo"), files[0]);
+    }
+
     private String getTestdataDir() throws URISyntaxException {
         URL resource = WildcardMatcherTest.class.getResource("WildcardMatcherTest");
         return new File(resource.toURI()).getPath();

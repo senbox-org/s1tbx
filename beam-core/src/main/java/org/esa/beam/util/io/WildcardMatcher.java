@@ -29,7 +29,7 @@ public class WildcardMatcher {
     }
 
     WildcardMatcher(String wildcard, boolean windowsFs) {
-        this.pattern = Pattern.compile(wildcardToRegexp(wildcard, windowsFs));
+        this.pattern = Pattern.compile(wildcardToRegexp(wildcard.trim(), windowsFs));
         this.windowsFs = windowsFs;
     }
 
@@ -44,6 +44,11 @@ public class WildcardMatcher {
     }
 
     public static void glob(String filePattern, Set<File> fileSet) throws IOException {
+        final File file = new File(filePattern);
+        if (file.exists()) {
+            fileSet.add(file.getCanonicalFile());
+            return;
+        }
         WildcardMatcher matcher = new WildcardMatcher(filePattern);
         String basePath = matcher.getBasePath(filePattern);
         File dir = new File(basePath).getCanonicalFile();
