@@ -311,8 +311,7 @@ class HistogramPanel extends ChartPagePanel {
             max = (Double) xAxisRangeControl.getBindingContext().getBinding("max").getPropertyValue();
         }
 
-        ProgressMonitorSwingWorker<Stx, Object> swingWorker = new ProgressMonitorSwingWorker<Stx, Object>(this,
-                                                                                                          "Computing Histogram") {
+        ProgressMonitorSwingWorker<Stx, Object> swingWorker = new ProgressMonitorSwingWorker<Stx, Object>(this, "Computing Histogram") {
             @Override
             protected Stx doInBackground(ProgressMonitor pm) throws Exception {
                 final Stx stx;
@@ -324,10 +323,18 @@ class HistogramPanel extends ChartPagePanel {
                     factory.withHistogramBinCount(histogramPlotConfig.numBins);
                     factory.withLogHistogram(histogramPlotConfig.histogramLogScaled);
                     if (min != null) {
-                        factory.withMinimum(Stx.LOG10_SCALING.scaleInverse(min));
+                        if (histogramPlotConfig.histogramLogScaled) {
+                            factory.withMinimum(Stx.LOG10_SCALING.scaleInverse(min));
+                        } else {
+                            factory.withMinimum(min);
+                        }
                     }
                     if (max != null) {
-                        factory.withMaximum(Stx.LOG10_SCALING.scaleInverse(max));
+                        if (histogramPlotConfig.histogramLogScaled) {
+                            factory.withMaximum(Stx.LOG10_SCALING.scaleInverse(max));
+                        } else {
+                            factory.withMaximum(max);
+                        }
                     }
                     stx = factory.create(getRaster(), pm);
                 } else {
