@@ -24,6 +24,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.TopologyException;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.jai.ImageManager;
@@ -53,10 +55,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Unstable API. Use at own risk.
@@ -94,7 +93,7 @@ public class FeatureUtils {
         pm.beginTask("Loading Shapefile", 100);
         try {
             final URL url = file.toURI().toURL();
-            final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(product.getGeoCoding());
+            CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(product.getGeoCoding());
             final Geometry clipGeometry = createGeoBoundaryPolygon(product);
             pm.worked(10);
             FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(url);
@@ -104,11 +103,16 @@ public class FeatureUtils {
             if (featureCrs == null) {
                 featureCrs = crsProvider.getFeatureCrs(product);
             }
+
+            if (!(product.getGeoCoding() instanceof CrsGeoCoding)) {
+                featureCollection = transformPixelPosToGeoPos(featureCollection, product.getGeoCoding());
+            }
+
             FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection
                     = FeatureUtils.clipCollection(featureCollection,
                                                   featureCrs,
                                                   clipGeometry,
-                                                  DefaultGeographicCRS.WGS84,
+                                                  featureCrs,
                                                   null,
                                                   targetCrs,
                                                   SubProgressMonitor.create(pm, 80));
@@ -227,115 +231,6 @@ public class FeatureUtils {
         }
     }
 
-
-    /**
-     * Clips the given {@code sourceCollection} against the {@code clipGeometry} and reprojects the clipped features
-     * to the targetCrs.
-     *
-     * @param sourceCollection the feature collection to be clipped and reprojected. If it does not
-     *                         have an associated CRS, the one specified by {@code defaultSourceCrs} is used.
-     * @param defaultSourceCrs if {@code sourceCollection} does not have an associated CRS, this one is used.
-     * @param clipGeometry     the geometry used for clipping
-     * @param clipCrs          the CRS of the {@code clipGeometry}
-     * @param targetID         the ID of the resulting {@link FeatureCollection}. If {@code null} the ID of
-     *                         the sourceCollection is used.
-     * @param targetCrs        the CRS the {@link FeatureCollection} is reprojected to. If {@code null} no reprojection
-     *                         is applied.
-     * @return the clipped and possibly reprojected {@link FeatureCollection}
-     * @throws IllegalStateException if the {@code sourceCollection} has no associated CRS and {@code defaultSourceCrs}
-     *                               is {@code null}
-     */
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> clipCollection2(
-            FeatureCollection<SimpleFeatureType, SimpleFeature> sourceCollection,
-            CoordinateReferenceSystem defaultSourceCrs,
-            Geometry clipGeometry, CoordinateReferenceSystem clipCrs,
-            String targetID, CoordinateReferenceSystem targetCrs, ProgressMonitor pm, Product product) throws NoninvertibleTransformException {
-
-        try {
-            pm.beginTask("Clipping features", sourceCollection.size());
-
-            SimpleFeatureType sourceSchema = sourceCollection.getSchema();
-            CoordinateReferenceSystem sourceCrs = sourceSchema.getCoordinateReferenceSystem();
-            if (targetID == null || targetID.isEmpty()) {
-                targetID = sourceCollection.getID();
-            }
-            if (sourceCrs == null) {
-                sourceCrs = defaultSourceCrs;
-            }
-            if (sourceCrs == null) {
-                throw new IllegalStateException("'sourceCollection' has no CRS defined and 'defaultSourceCrs' is null");
-            }
-            try {
-                sourceSchema = FeatureTypes.transform(sourceSchema, sourceCrs);
-            } catch (SchemaException e) {
-                throw new IllegalStateException(e);
-            }
-            if (targetCrs == null) {
-                targetCrs = sourceCrs;
-            }
-
-            try {
-                AffineTransform transform = ImageManager.getImageToModelTransform(product.getGeoCoding()).createInverse();
-                GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
-                transformer.setMathTransform(new AffineTransform2D(transform));
-                transformer.setCoordinateReferenceSystem(targetCrs);
-                clipGeometry = transformer.transform(clipGeometry);
-
-//                GeometryCoordinateSequenceTransformer clip2SourceTransformer = getTransform(clipCrs, sourceCrs);
-//                clipGeometry = clip2SourceTransformer.transform(clipGeometry);
-            } catch (TransformException e) {
-                throw new IllegalStateException(e);
-            }
-
-            GeometryCoordinateSequenceTransformer source2TargetTransformer;
-            SimpleFeatureType targetSchema;
-
-            try {
-                targetSchema = FeatureTypes.transform(sourceSchema, targetCrs);
-
-                AffineTransform transform = ImageManager.getImageToModelTransform(product.getGeoCoding()).createInverse();
-                source2TargetTransformer = new GeometryCoordinateSequenceTransformer();
-                source2TargetTransformer.setMathTransform(new AffineTransform2D(transform));
-                source2TargetTransformer.setCoordinateReferenceSystem(targetCrs);
-
-//                source2TargetTransformer = getTransform(sourceCrs, targetCrs);
-            } catch (SchemaException e) {
-                throw new IllegalStateException(e);
-            }
-
-            DefaultFeatureCollection targetCollection = new DefaultFeatureCollection(targetID, targetSchema);
-
-            Iterator<SimpleFeature> iterator = sourceCollection.iterator();
-            try {
-                while (iterator.hasNext()) {
-                    SimpleFeature sourceFeature = iterator.next();
-
-                    pm.worked(1);
-
-                    Geometry targetGeometry;
-                    try {
-                        Geometry sourceGeometry = (Geometry) sourceFeature.getDefaultGeometry();
-                        targetGeometry = getClippedGeometry(sourceGeometry, clipGeometry);
-                    } catch (TopologyException ignored) {
-                        continue;
-                    }
-
-                    if (!targetGeometry.isEmpty()) {
-                        SimpleFeature targetFeature = createTargetFeature(targetGeometry, targetSchema,
-                                                                          sourceFeature, source2TargetTransformer);
-                        targetCollection.add(targetFeature);
-                    }
-                }
-            } finally {
-                sourceCollection.close(iterator);
-            }
-
-            return targetCollection;
-        } finally {
-            pm.done();
-        }
-    }
-
     private static SimpleFeature createTargetFeature(Geometry targetGeometry, SimpleFeatureType targetSchema,
                                                      SimpleFeature sourceFeature,
                                                      GeometryCoordinateSequenceTransformer source2TargetTransformer) {
@@ -403,4 +298,23 @@ public class FeatureUtils {
         return firstChar + string.substring(1);
     }
 
+    private static FeatureCollection<SimpleFeatureType, SimpleFeature> transformPixelPosToGeoPos(FeatureCollection<SimpleFeatureType, SimpleFeature> fc, GeoCoding geoCoding) {
+        Iterator<SimpleFeature> iterator = fc.iterator();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> transformedFc = new DefaultFeatureCollection(fc.getID(), fc.getSchema());
+        while (iterator.hasNext()) {
+            SimpleFeature sourceFeature = iterator.next();
+            Geometry geometry = (Geometry) sourceFeature.getDefaultGeometry();
+            GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
+            transformer.setMathTransform(geoCoding.getImageToMapTransform());
+            transformer.setCoordinateReferenceSystem(geoCoding.getMapCRS());
+            try {
+                geometry = transformer.transform(geometry);
+            } catch (TransformException e) {
+                throw new IllegalStateException(e);
+            }
+            sourceFeature.setDefaultGeometry(geometry);
+            transformedFc.add(sourceFeature);
+        }
+        return transformedFc;
+    }
 }
