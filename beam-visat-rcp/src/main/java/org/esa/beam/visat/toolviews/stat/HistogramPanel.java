@@ -16,7 +16,6 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.core.ProgressMonitor;
@@ -459,12 +458,12 @@ class HistogramPanel extends ChartPagePanel {
 
     private class AxisControlChangeListener implements PropertyChangeListener {
 
-        boolean updating;
+        boolean adjusting;
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if (!updating) {
-                updating = true;
+            if (!adjusting) {
+                adjusting = true;
                 if (evt.getPropertyName().equals(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM)) {
                     if (evt.getNewValue().equals(Boolean.TRUE)) {
                         xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).setPropertyValue(Boolean.FALSE);
@@ -476,7 +475,7 @@ class HistogramPanel extends ChartPagePanel {
                     }
                 }
                 updateUIState();
-                updating = false;
+                adjusting = false;
             }
         }
     }
