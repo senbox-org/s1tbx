@@ -1,8 +1,7 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import java.awt.BorderLayout;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -10,25 +9,22 @@ import java.io.StringWriter;
 import java.util.Enumeration;
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import sun.swing.table.DefaultTableCellHeaderRenderer;
 
 public class TableViewPagePanel extends PagePanel {
 
     private AbstractButton switchToChartButton;
     private JTable table;
     private final Icon iconForSwitchToChartButton;
-    private TableCellRenderer headerRenderer;
 
     public TableViewPagePanel(ToolView toolView, String helpId, String titlePrefix, Icon iconForSwitchToChartButton) {
         super(toolView, helpId, titlePrefix);
@@ -56,11 +52,10 @@ public class TableViewPagePanel extends PagePanel {
 
         add(buttonPanel, BorderLayout.EAST);
 
-        headerRenderer = new DefaultTableCellHeaderRenderer();
-
         table = new JTable(new DefaultTableModel());
         table.setColumnModel(new DefaultTableColumnModel());
         table.removeEditor();
+        table.setGridColor(Color.LIGHT_GRAY.brighter());
         table.addMouseListener(new PagePanel.PopupHandler());
 
         final JPanel tablePanel = new JPanel(new BorderLayout());
@@ -94,10 +89,17 @@ public class TableViewPagePanel extends PagePanel {
             final Enumeration<TableColumn> columns = table.getColumnModel().getColumns();
             while (columns.hasMoreElements()) {
                 TableColumn tableColumn = columns.nextElement();
-                tableColumn.setHeaderRenderer(headerRenderer);
-                tableColumn.sizeWidthToFit();
-                tableColumn.setMaxWidth(Integer.MAX_VALUE);
+                sizeWidthToFit(tableColumn);
             }
         }
     }
+
+    private void sizeWidthToFit(TableColumn column) {
+        final JLabel label = new JLabel((String) column.getHeaderValue());
+
+        column.setMinWidth(label.getMinimumSize().width + 12);
+        column.setPreferredWidth(label.getPreferredSize().width + 12);
+        column.setWidth(column.getPreferredWidth());
+    }
+
 }
