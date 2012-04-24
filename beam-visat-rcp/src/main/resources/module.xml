@@ -906,17 +906,6 @@
 
         <action>
             <parent>export</parent>
-            <id>exportDimapProduct</id>
-            <class>org.esa.beam.visat.actions.ProductExportAction</class>
-            <formatName>BEAM-DIMAP</formatName>
-            <mnemonic>P</mnemonic>
-            <shortDescr>Export product to BEAM-DIMAP format.</shortDescr>
-            <description>Export the selected product to BEAM-DIMAP format.</description>
-            <helpId>exportDimapProduct</helpId>
-        </action>
-
-        <action>
-            <parent>export</parent>
             <id>exportImageFile</id>
             <class>org.esa.beam.visat.actions.ExportImageAction</class>
             <text>View as Image...</text>
@@ -1020,6 +1009,32 @@
             <shortDescr>Export an ENVI GCP (ground control points) file.</shortDescr>
             <description>Export an ENVI GCP (ground control points) file for image registration.</description>
             <helpId>exportEnviGcpFile</helpId>
+        </action>
+
+        <!--####################-->
+        <!-- Export Product Raster Data Group  -->
+        <!--####################-->
+
+        <action>
+            <parent>export</parent>
+            <id>exportProduct</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Product</text>
+            <shortDescr>Export Product</shortDescr>
+            <description>Export Product</description>
+            <helpId>exportProduct</helpId>
+            <sortChildren>true</sortChildren>
+        </action>
+
+
+        <action>
+            <id>exportDimapProduct</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>BEAM-DIMAP</formatName>
+            <mnemonic>P</mnemonic>
+            <shortDescr>Export product to BEAM-DIMAP format.</shortDescr>
+            <description>Export the selected product to BEAM-DIMAP format.</description>
+            <helpId>exportDimapProduct</helpId>
         </action>
 
         <!--####################-->

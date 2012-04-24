@@ -83,12 +83,12 @@ public class ProductExportAction extends ExecCommand {
 
         String text = getText();
         if (text == null) {
-            setText(getFormatName() + " Product...");
+            setText(getFormatName());
         }
 
         String parent = getParent();
         if (parent == null) {
-            setParent("export");
+            setParent("exportProduct");
         }
     }
 
