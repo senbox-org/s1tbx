@@ -88,7 +88,7 @@ public class ProductExportAction extends ExecCommand {
 
         String parent = getParent();
         if (parent == null) {
-            setParent("exportProduct");
+            setParent("exportRasterData");
         }
     }
 
