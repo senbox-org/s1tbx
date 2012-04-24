@@ -187,17 +187,7 @@ class HistogramPanel extends ChartPagePanel {
         bindingContext.getPropertySet().getDescriptor(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM).setDefaultValue(false);
         bindingContext.bind(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM, histoLogCheck);
 
-        PropertyChangeListener logChangeListener = new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (evt.getPropertyName().equals(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM)) {
-                    if (evt.getNewValue().equals(Boolean.TRUE)) {
-                        xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).setPropertyValue(Boolean.FALSE);
-                    }
-                }
-                updateUIState();
-            }
-        };
+        PropertyChangeListener logChangeListener = new AxisControlChangeListener();
 
         xAxisRangeControl.getBindingContext().addPropertyChangeListener(logChangeListener);
         xAxisRangeControl.getBindingContext().getPropertySet().addProperty(
@@ -467,5 +457,28 @@ class HistogramPanel extends ChartPagePanel {
         plot.getDomainAxis().setLabel(getAxisLabel());
     }
 
+    private class AxisControlChangeListener implements PropertyChangeListener {
+
+        boolean updating;
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (!updating) {
+                updating = true;
+                if (evt.getPropertyName().equals(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM)) {
+                    if (evt.getNewValue().equals(Boolean.TRUE)) {
+                        xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).setPropertyValue(Boolean.FALSE);
+                        xAxisRangeControl.setMin(Stx.LOG10_SCALING.scale(xAxisRangeControl.getMin()));
+                        xAxisRangeControl.setMax(Stx.LOG10_SCALING.scale(xAxisRangeControl.getMax()));
+                    } else {
+                        xAxisRangeControl.setMin(Stx.LOG10_SCALING.scaleInverse(xAxisRangeControl.getMin()));
+                        xAxisRangeControl.setMax(Stx.LOG10_SCALING.scaleInverse(xAxisRangeControl.getMax()));
+                    }
+                }
+                updateUIState();
+                updating = false;
+            }
+        }
+    }
 }
 
