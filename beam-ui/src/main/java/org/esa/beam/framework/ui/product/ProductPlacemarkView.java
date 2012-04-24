@@ -23,11 +23,18 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.PopupMenuHandler;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.table.AbstractTableModel;
-import java.awt.*;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.util.Enumeration;
 
 /**
  * A view component used to display a product's metadata in tabular form.
@@ -47,8 +54,24 @@ public class ProductPlacemarkView extends BasicView implements ProductNodeView {
         tableModel = new PlacemarkTableModel();
         placemarkTable.setModel(tableModel);
 
+        final TableCellRenderer defaultRenderer = placemarkTable.getTableHeader().getDefaultRenderer();
+
+        Enumeration<TableColumn> columns = placemarkTable.getColumnModel().getColumns();
+        while (columns.hasMoreElements()) {
+            TableColumn tableColumn = columns.nextElement();
+            tableColumn.setHeaderRenderer(defaultRenderer);
+            tableColumn.sizeWidthToFit();
+            tableColumn.setMaxWidth(Integer.MAX_VALUE);
+        }
+
+        final JPanel tablePanel = new JPanel(new BorderLayout());
+        tablePanel.add(placemarkTable, BorderLayout.CENTER);
+
+        final JScrollPane scrollPane = new JScrollPane(tablePanel);
+        scrollPane.setColumnHeaderView(placemarkTable.getTableHeader());
+
         setLayout(new BorderLayout());
-        add(BorderLayout.CENTER, new JScrollPane(placemarkTable));
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     public VectorDataNode getVectorDataNode() {

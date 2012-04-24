@@ -43,7 +43,7 @@ public class ProductMetadataView extends BasicView implements ProductNodeView {
         _metadataTable = new ProductMetadataTable(metadataElement);
         _metadataTable.addMouseListener(new PopupMenuHandler(this));
         setLayout(new BorderLayout());
-        add(BorderLayout.CENTER, new JScrollPane(_metadataTable));
+        add(new JScrollPane(_metadataTable), BorderLayout.CENTER);
         expandMenuItem = new JMenuItem(new ExpandAllAction());
         collapseMenuItem = new JMenuItem(new CollapseAllAction());
     }

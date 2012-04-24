@@ -71,7 +71,7 @@ public class ShowMetadataViewAction extends ExecCommand {
             final MetadataElement element = metadataView.getMetadataElement();
             metadataFrame = visatApp.createInternalFrame(element.getDisplayName(),
                                                                      icon,
-                                                                     metadataView, null);
+                                                                     metadataView, null,false);
             final Product product = metadataView.getProduct();
             final JInternalFrame internalFrame = metadataFrame;
             product.addProductNodeListener(new ProductNodeListenerAdapter() {

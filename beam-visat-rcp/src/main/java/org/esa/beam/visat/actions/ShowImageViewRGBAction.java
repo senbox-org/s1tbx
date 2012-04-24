@@ -123,7 +123,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
 
         final String title = createUniqueInternalFrameTitle(view.getSceneName());
         final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
-        final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId());
+        final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId(),true);
         visatApp.addPropertyMapChangeListener(view);
         updateState();
 
