@@ -44,6 +44,7 @@ abstract class ChartPagePanel extends PagePanel {
     private RoiMaskSelector roiMaskSelector;
     protected AbstractButton refreshButton;
     private final boolean refreshButtonEnabled;
+    private AbstractButton switchToTableButton;
 
     ChartPagePanel(ToolView parentDialog, String helpId, String titlePrefix, boolean refreshButtonEnabled) {
         super(parentDialog, helpId, titlePrefix);
@@ -70,15 +71,18 @@ abstract class ChartPagePanel extends PagePanel {
             }
         });
 
-        final AbstractButton switchToTableButton = ToolButtonFactory.createButton(
+        switchToTableButton = ToolButtonFactory.createButton(
                 UIUtils.loadImageIcon("icons/Table24.png"),
                 false);
         switchToTableButton.setToolTipText("Switch to Table View");
         switchToTableButton.setName("switchToTableButton");
+        switchToTableButton.setEnabled(hasAlternativeView());
         switchToTableButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Todo Switching between table and chart view be implemented (or delegated) here!
+
+                showAlternativeView();
+
             }
         });
 

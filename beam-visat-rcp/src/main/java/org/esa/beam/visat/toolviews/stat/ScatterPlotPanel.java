@@ -48,6 +48,8 @@ import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -87,8 +89,8 @@ import org.opengis.feature.type.AttributeDescriptor;
  */
 class ScatterPlotPanel extends ChartPagePanel {
 
+    public static final String CHART_TITLE = "Correlative Plot";
     private static final String NO_DATA_MESSAGE = "No correlativ plot computed yet.\n" + ZOOM_TIP_MESSAGE;
-    private static final String CHART_TITLE = "Correlative Plot";
 
     private final String PROPERTY_NAME_X_AXIS_LOG_SCALED = "xAxisLogScaled";
     private final String PROPERTY_NAME_Y_AXIS_LOG_SCALED = "yAxisLogScaled";
@@ -138,17 +140,20 @@ class ScatterPlotPanel extends ChartPagePanel {
     @Override
     protected String getDataAsText() {
         if (scatterpointsDataset.getItemCount(0) > 0) {
-            final String rasterName = getRaster().getName();
-            final String correlativDataName = scatterPlotModel.dataField.getLocalName();
             final ScatterPlotTableModel scatterPlotTableModel;
-            scatterPlotTableModel = new ScatterPlotTableModel(rasterName, correlativDataName, computedDatas);
+            scatterPlotTableModel = new ScatterPlotTableModel(getRasterName(), getCorrelativDataName(), computedDatas);
             return scatterPlotTableModel.toCVS();
         }
         return "";
     }
 
+    private String getCorrelativDataName() {
+        return scatterPlotModel.dataField.getLocalName();
+    }
+
     @Override
     protected void initComponents() {
+        super.initComponents();
         initParameters();
         createUI();
     }
@@ -186,6 +191,23 @@ class ScatterPlotPanel extends ChartPagePanel {
         if (event.getSourceNode() instanceof VectorDataNode) {
             updateComponents();
         }
+    }
+
+    @Override
+    protected void showAlternativeView() {
+        final TableModel model;
+        if (computedDatas != null && computedDatas.length > 0) {
+            model = new ScatterPlotTableModel(getRasterName(), getCorrelativDataName(), computedDatas);
+        } else {
+            model = new DefaultTableModel();
+        }
+        final TableViewPagePanel alternativPanel = (TableViewPagePanel)getAlternativeView();
+        alternativPanel.setModel(model);
+        super.showAlternativeView();
+    }
+
+    private String getRasterName() {
+        return getRaster().getName();
     }
 
     private void initParameters() {
@@ -296,9 +318,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                 final double xValue = collection.getXValue(series, item);
                 final double endXValue = collection.getEndXValue(series, item);
                 final double yValue = collection.getYValue(series, item);
-                final String rasterName = getRaster().getName();
                 return String.format("%s: mean = %6.2f, sigma = %6.2f | %s: value = %6.2f",
-                                     rasterName, xValue, endXValue - xValue,
+                                     getRasterName(), xValue, endXValue - xValue,
                                      key, yValue);
             }
         });
@@ -473,6 +494,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         } else {
             scatterpointsDataset.removeAllSeries();
             confidenceDataset.removeAllSeries();
+            computedDatas = null;
         }
     }
 
@@ -569,13 +591,16 @@ class ScatterPlotPanel extends ChartPagePanel {
 
                     scatterpointsDataset.removeAllSeries();
                     confidenceDataset.removeAllSeries();
+                    computedDatas = null;
 
-                    computedDatas = get();
-                    if (computedDatas.length == 0) {
+                    final ComputedData[] data = get();
+                    if (data.length == 0) {
                         return;
                     }
-                    final String correlativDataName = scatterPlotModel.dataField.getLocalName();
-                    final XYIntervalSeries scatterValues = new XYIntervalSeries(correlativDataName);
+
+                    computedDatas = data;
+
+                    final XYIntervalSeries scatterValues = new XYIntervalSeries(getCorrelativDataName());
                     for (int i = 0; i < computedDatas.length; i++) {
                         ComputedData computedData = computedDatas[i];
                         final float rasterMean = computedData.rasterMean;

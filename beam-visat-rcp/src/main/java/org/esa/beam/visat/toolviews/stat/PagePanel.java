@@ -53,6 +53,8 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     private VectorDataNode vectorData;
     private boolean vectorDataChanged;
 
+    private PagePanel alternativeView;
+
     PagePanel(ToolView parentDialog, String helpId, String titlePrefix) {
         super(new BorderLayout(4, 4));
         this.parentDialog = parentDialog;
@@ -62,23 +64,56 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         setPreferredSize(new Dimension(600, 320));
     }
 
-    protected Container getParentDialogContentPane() {
-        return getParentDialog().getContext().getPane().getControl();
-    }
-
-    private void transferProductNodeListener(Product oldProduct, Product newProduct) {
-        if (oldProduct != newProduct) {
-            if (oldProduct != null) {
-                oldProduct.removeProductNodeListener(this);
-            }
-            if (newProduct != null) {
-                newProduct.addProductNodeListener(this);
-            }
-        }
-    }
-
     public String getTitle() {
         return getTitlePrefix() + " - " + getProductNodeDisplayName();
+    }
+
+    public VectorDataNode getVectorDataNode() {
+        return vectorData;
+    }
+
+    public ToolView getParentDialog() {
+        return parentDialog;
+    }
+
+    /**
+     * Notified when a node was added.
+     *
+     * @param event the product node which the listener to be notified
+     */
+    @Override
+    public void nodeAdded(ProductNodeEvent event) {
+    }
+
+    /**
+     * Notified when a node changed.
+     *
+     * @param event the product node which the listener to be notified
+     */
+    @Override
+    public void nodeChanged(ProductNodeEvent event) {
+    }
+
+    /**
+     * Notified when a node's data changed.
+     *
+     * @param event the product node which the listener to be notified
+     */
+    @Override
+    public void nodeDataChanged(ProductNodeEvent event) {
+    }
+
+    /**
+     * Notified when a node was removed.
+     *
+     * @param event the product node which the listener to be notified
+     */
+    @Override
+    public void nodeRemoved(ProductNodeEvent event) {
+    }
+
+    protected Container getParentDialogContentPane() {
+        return getParentDialog().getContext().getPane().getControl();
     }
 
     protected final String getTitlePrefix() {
@@ -89,34 +124,8 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         return product;
     }
 
-    private void setProduct(Product product) {
-        if (this.product != product) {
-            transferProductNodeListener(this.product, product);
-            this.product = product;
-            productChanged = true;
-        }
-    }
-
     protected RasterDataNode getRaster() {
         return raster;
-    }
-
-    protected void setRaster(RasterDataNode raster) {
-        if (this.raster != raster) {
-            this.raster = raster;
-            rasterChanged = true;
-        }
-    }
-
-    public VectorDataNode getVectorDataNode() {
-        return vectorData;
-    }
-
-    protected void setVectorDataNode(VectorDataNode vectorDataNode) {
-        if (this.vectorData != vectorDataNode) {
-            this.vectorData = vectorDataNode;
-            vectorDataChanged = true;
-        }
     }
 
     protected boolean isRasterChanged() {
@@ -131,8 +140,18 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         return vectorDataChanged;
     }
 
-    public ToolView getParentDialog() {
-        return parentDialog;
+    protected void setRaster(RasterDataNode raster) {
+        if (this.raster != raster) {
+            this.raster = raster;
+            rasterChanged = true;
+        }
+    }
+
+    protected void setVectorDataNode(VectorDataNode vectorDataNode) {
+        if (this.vectorData != vectorDataNode) {
+            this.vectorData = vectorDataNode;
+            vectorDataChanged = true;
+        }
     }
 
     /**
@@ -160,7 +179,11 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     /**
      * Initialises the panel's sub-components.
      */
-    protected abstract void initComponents();
+    protected void initComponents(){
+        if (hasAlternativeView()) {
+            alternativeView.initComponents();
+        }
+    }
 
     /**
      * Updates the panel's sub-components as a reaction to a product node selection change.
@@ -203,16 +226,6 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         return menuItem;
     }
 
-    private void maybeOpenPopup(MouseEvent mouseEvent) {
-        if (mouseEvent.isPopupTrigger()) {
-            final JPopupMenu popupMenu = new JPopupMenu();
-            popupMenu.add(createCopyDataToClipboardMenuItem());
-            handlePopupCreated(popupMenu);
-            final Point point = SwingUtilities.convertPoint(mouseEvent.getComponent(), mouseEvent.getPoint(), this);
-            popupMenu.show(this, point.x, point.y);
-        }
-    }
-
     protected void copyTextDataToClipboard() {
         final Cursor oldCursor = getCursor();
         try {
@@ -223,6 +236,83 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
             }
         } finally {
             setCursor(oldCursor);
+        }
+    }
+
+    protected boolean hasAlternativeView(){
+        return alternativeView != null;
+    }
+
+    protected void showAlternativeView() {
+        final JPanel parent = (JPanel) this.getParent();
+        parent.remove(this);
+        this.setVisible(false);
+        parent.add(alternativeView, BorderLayout.CENTER);
+        alternativeView.setVisible(true);
+        parent.revalidate();
+    }
+
+    protected void setAlternativeView(PagePanel alternativeView) {
+        this.alternativeView = alternativeView;
+    }
+
+    protected PagePanel getAlternativeView() {
+        return alternativeView;
+    }
+
+    void selectionChanged(Product product, RasterDataNode raster, VectorDataNode vectorDataNode) {
+        if (raster != getRaster() || product != getProduct() || vectorDataNode != getVectorDataNode()) {
+            setRaster(raster);
+            setProduct(product);
+            setVectorDataNode(vectorDataNode);
+            if (mustHandleSelectionChange()) {
+                handleNodeSelectionChanged();
+                rasterChanged = false;
+                productChanged = false;
+                vectorDataChanged = false;
+            }
+        }
+    }
+
+    private void maybeOpenPopup(MouseEvent mouseEvent) {
+        if (mouseEvent.isPopupTrigger()) {
+            final JPopupMenu popupMenu = new JPopupMenu();
+            popupMenu.add(createCopyDataToClipboardMenuItem());
+            handlePopupCreated(popupMenu);
+            final Point point = SwingUtilities.convertPoint(mouseEvent.getComponent(), mouseEvent.getPoint(), this);
+            popupMenu.show(this, point.x, point.y);
+        }
+    }
+
+    private String getProductNodeDisplayName() {
+        if (raster != null) {
+            return raster.getDisplayName();
+        } else {
+            if (product != null) {
+                return product.getDisplayName();
+            } else {
+                return "";
+            }
+        }
+    }
+
+
+    private void transferProductNodeListener(Product oldProduct, Product newProduct) {
+        if (oldProduct != newProduct) {
+            if (oldProduct != null) {
+                oldProduct.removeProductNodeListener(this);
+            }
+            if (newProduct != null) {
+                newProduct.addProductNodeListener(this);
+            }
+        }
+    }
+
+    private void setProduct(Product product) {
+        if (this.product != product) {
+            transferProductNodeListener(this.product, product);
+            this.product = product;
+            productChanged = true;
         }
     }
 
@@ -243,68 +333,5 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
             maybeOpenPopup(e);
         }
     }
-
-    private String getProductNodeDisplayName() {
-        if (raster != null) {
-            return raster.getDisplayName();
-        } else {
-            if (product != null) {
-                return product.getDisplayName();
-            } else {
-                return "";
-            }
-        }
-    }
-
-    void selectionChanged(Product product, RasterDataNode raster, VectorDataNode vectorDataNode) {
-        if (raster != getRaster() || product != getProduct() || vectorDataNode != getVectorDataNode()) {
-            setRaster(raster);
-            setProduct(product);
-            setVectorDataNode(vectorDataNode);
-            if (mustHandleSelectionChange()) {
-                handleNodeSelectionChanged();
-                rasterChanged = false;
-                productChanged = false;
-                vectorDataChanged = false;
-            }
-        }
-    }
-
-    /**
-     * Notified when a node was added.
-     *
-     * @param event the product node which the listener to be notified
-     */
-    @Override
-    public void nodeAdded(ProductNodeEvent event) {
-    }
-
-    /**
-     * Notified when a node changed.
-     *
-     * @param event the product node which the listener to be notified
-     */
-    @Override
-    public void nodeChanged(ProductNodeEvent event) {
-    }
-
-    /**
-     * Notified when a node's data changed.
-     *
-     * @param event the product node which the listener to be notified
-     */
-    @Override
-    public void nodeDataChanged(ProductNodeEvent event) {
-    }
-
-    /**
-     * Notified when a node was removed.
-     *
-     * @param event the product node which the listener to be notified
-     */
-    @Override
-    public void nodeRemoved(ProductNodeEvent event) {
-    }
-
 }
 
