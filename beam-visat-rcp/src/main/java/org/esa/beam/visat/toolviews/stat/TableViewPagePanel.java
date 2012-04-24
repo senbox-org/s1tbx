@@ -1,6 +1,8 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import java.awt.BorderLayout;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -9,6 +11,7 @@ import java.util.Enumeration;
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableColumnModel;
@@ -58,14 +61,16 @@ public class TableViewPagePanel extends PagePanel {
         table = new JTable(new DefaultTableModel());
         table.setColumnModel(new DefaultTableColumnModel());
         table.removeEditor();
+        table.addMouseListener(new PagePanel.PopupHandler());
 
         final JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.add(table.getTableHeader(), BorderLayout.PAGE_START);
         tablePanel.add(table, BorderLayout.CENTER);
 
         final JScrollPane scrollPane = new JScrollPane(tablePanel);
+        scrollPane.setColumnHeaderView(table.getTableHeader());
 
         add(scrollPane, BorderLayout.CENTER);
+
     }
 
     @Override

@@ -16,6 +16,8 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
+import javax.swing.Icon;
+
 /**
  * The tool view containing a profile plot
  *
@@ -27,6 +29,13 @@ public class ProfilePlotToolView extends AbstractStatisticsToolView {
 
     @Override
     protected PagePanel createPagePanel() {
-        return new ProfilePlotPanel(this, getDescriptor().getHelpId());
+        final String helpId = getDescriptor().getHelpId();
+        final String chartTitle = ProfilePlotPanel.CHART_TITLE;
+        final Icon largeIcon = getDescriptor().getLargeIcon();
+        final ProfilePlotPanel profilePlotPanel = new ProfilePlotPanel(this, helpId);
+        final TableViewPagePanel tableViewPagePanel = new TableViewPagePanel(this, helpId, chartTitle, largeIcon);
+        profilePlotPanel.setAlternativeView(tableViewPagePanel);
+        tableViewPagePanel.setAlternativeView(profilePlotPanel);
+        return profilePlotPanel;
     }
 }

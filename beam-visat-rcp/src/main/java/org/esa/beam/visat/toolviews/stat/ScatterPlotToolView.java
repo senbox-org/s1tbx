@@ -30,9 +30,10 @@ public class ScatterPlotToolView extends AbstractStatisticsToolView {
     @Override
     protected PagePanel createPagePanel() {
         final String helpId = getDescriptor().getHelpId();
-        final Icon iconForSwitchToChartButton = getDescriptor().getLargeIcon();
+        final Icon largeIcon = getDescriptor().getLargeIcon();
+        final String chartTitle = ScatterPlotPanel.CHART_TITLE;
         final ScatterPlotPanel scatterPlotPanel = new ScatterPlotPanel(this, helpId);
-        final TableViewPagePanel tableViewPanel = new TableViewPagePanel(this, helpId, ScatterPlotPanel.CHART_TITLE, iconForSwitchToChartButton);
+        final TableViewPagePanel tableViewPanel = new TableViewPagePanel(this, helpId, chartTitle, largeIcon);
         scatterPlotPanel.setAlternativeView(tableViewPanel);
         tableViewPanel.setAlternativeView(scatterPlotPanel);
         return scatterPlotPanel;

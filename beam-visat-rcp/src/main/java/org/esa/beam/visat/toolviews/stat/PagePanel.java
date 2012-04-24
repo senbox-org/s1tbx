@@ -16,6 +16,7 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
+import javax.swing.table.TableModel;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.UIUtils;
@@ -179,11 +180,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     /**
      * Initialises the panel's sub-components.
      */
-    protected void initComponents(){
-        if (hasAlternativeView()) {
-            alternativeView.initComponents();
-        }
-    }
+    protected abstract void initComponents();
 
     /**
      * Updates the panel's sub-components as a reaction to a product node selection change.

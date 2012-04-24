@@ -19,6 +19,8 @@ package org.esa.beam.visat.toolviews.stat;
 import com.bc.ceres.binding.*;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -65,7 +67,7 @@ import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.getCorrela
  */
 class ProfilePlotPanel extends ChartPagePanel {
 
-    private static final String CHART_TITLE = "Profile Plot";
+    public static final String CHART_TITLE = "Profile Plot";
     private static final String NO_DATA_MESSAGE = "No profile plot computed yet. " +
             "It will be computed if a geometry is selected within the image view.\n" +
             ZOOM_TIP_MESSAGE;
@@ -159,7 +161,21 @@ class ProfilePlotPanel extends ChartPagePanel {
     }
 
     @Override
+    protected void showAlternativeView() {
+        final TableModel model;
+        if (profileData != null) {
+            model = createProfileDataTableModel();
+        } else {
+            model = new DefaultTableModel();
+        }
+        final TableViewPagePanel alternativPanel = (TableViewPagePanel)getAlternativeView();
+        alternativPanel.setModel(model);
+        super.showAlternativeView();
+    }
+
+    @Override
     protected void initComponents() {
+        getAlternativeView().initComponents();
         dataset = new XYIntervalSeriesCollection();
         this.chart = ChartFactory.createXYLineChart(
                 CHART_TITLE,
@@ -570,11 +586,15 @@ class ProfilePlotPanel extends ChartPagePanel {
     @Override
     protected String getDataAsText() {
         if (profileData != null) {
-            ProfileDataTableModel model = new ProfileDataTableModel(getRaster().getName(), profileData, dataSourceConfig);
+            ProfileDataTableModel model = createProfileDataTableModel();
             return model.toCsv();
         } else {
             return "";
         }
+    }
+
+    private ProfileDataTableModel createProfileDataTableModel() {
+        return new ProfileDataTableModel(getRaster().getName(), profileData, dataSourceConfig);
     }
 
     @Override

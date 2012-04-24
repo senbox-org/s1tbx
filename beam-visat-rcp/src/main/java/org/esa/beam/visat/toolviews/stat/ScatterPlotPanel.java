@@ -153,7 +153,7 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     @Override
     protected void initComponents() {
-        super.initComponents();
+        getAlternativeView().initComponents();
         initParameters();
         createUI();
     }
