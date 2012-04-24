@@ -49,6 +49,7 @@ import org.esa.beam.pixex.output.PixExProductRegistry;
 import org.esa.beam.pixex.output.PixExRasterNamesFactory;
 import org.esa.beam.pixex.output.PixExTargetFactory;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.io.WildcardMatcher;
 import org.esa.beam.util.kmz.KmlDocument;
 import org.esa.beam.util.kmz.KmlPlacemark;
 import org.esa.beam.util.kmz.KmzExporter;
@@ -73,11 +74,15 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
 
-import static java.lang.Math.*;
+import static java.lang.Math.floor;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * This operator is used to extract pixels from given locations and source products.
@@ -90,8 +95,8 @@ import static java.lang.Math.*;
 @SuppressWarnings({"MismatchedReadAndWriteOfArray", "UnusedDeclaration"})
 @OperatorMetadata(
         alias = "PixEx",
-        version = "1.0",
-        authors = "Marco Peters, Thomas Storm",
+        version = "1.0.1",
+        authors = "Marco Peters, Thomas Storm, Norman Fomferra",
         copyright = "(c) 2011 by Brockmann Consult",
         description = "Extracts pixels from given locations and source products.")
 public class PixExOp extends Operator implements Output {
@@ -105,9 +110,15 @@ public class PixExOp extends Operator implements Output {
     @TargetProperty()
     private PixExMeasurementReader measurements;
 
+    @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
+            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+            "'*' (matches any character sequence in path names) and\n" +
+            "'?' (matches any single character).")
+    private String[] sourceProductPaths;
+
     @Parameter(
-            description = "The paths to be scanned for input products. May point to a single file or a directory.\n" +
-                    "If path ends with '**' the directory is scanned recursively.")
+            description = "Deprecated since version 1.0, use parameter 'sourcePaths' instead.")
+    @Deprecated
     private File[] inputPaths;
 
     @Parameter(description = "Specifies if bands are to be exported", defaultValue = "true")
@@ -125,14 +136,14 @@ public class PixExOp extends Operator implements Output {
     @Parameter(description = "The acceptable time difference compared to the time given for a coordinate.\n" +
             "The format is a number followed by (D)ay, (H)our or (M)inute. If no time difference is provided, " +
             "all input products are considered regardless of their time.",
-            defaultValue = "")
+               defaultValue = "")
     private String timeDifference = "";
 
     @Parameter(description = "Path to a file containing geo-coordinates. BEAM's placemark files can be used.")
     private File coordinatesFile;
 
     @Parameter(description = "Side length of surrounding window (uneven)", defaultValue = "1",
-            validator = WindowSizeValidator.class)
+               validator = WindowSizeValidator.class)
     private Integer windowSize;
 
     @Parameter(description = "The output directory.", notNull = true)
@@ -146,11 +157,11 @@ public class PixExOp extends Operator implements Output {
 
     @Parameter(description = "If true, the expression result is exported per pixel, otherwise the expression \n" +
             "is used as filter (all pixels in given window must be valid).",
-            defaultValue = "true")
+               defaultValue = "true")
     private Boolean exportExpressionResult;
 
     @Parameter(description = "If set to true, sub-scenes of the regions, where pixels are found, are exported.",
-            defaultValue = "false")
+               defaultValue = "false")
     private boolean exportSubScenes;
 
     @Parameter(description = "An additional border around the region where pixels are found.", defaultValue = "0")
@@ -158,25 +169,25 @@ public class PixExOp extends Operator implements Output {
 
     @Parameter(description = "If set to true, a Google KMZ file will be created, which contains the coordinates " +
             "where pixels are found.",
-            defaultValue = "false")
+               defaultValue = "false")
     private boolean exportKmz;
 
     @Parameter(description = "If set to true, the sensing start and sensing stop should be extracted from the filename " +
             "of each input product.",
-            defaultValue = "false",
-            label = "Extract time from product filename")
+               defaultValue = "false",
+               label = "Extract time from product filename")
     private boolean extractTimeFromFilename;
 
     @Parameter(description = "Describes how a date/time section inside a product filename should be interpreted. E.G. yyyyMMdd_hhmmss",
-            validator = TimeStampExtractor.DateInterpretationPatternValidator.class,
-            defaultValue = "yyyyMMdd",
-            label = "Date/Time pattern")
+               validator = TimeStampExtractor.DateInterpretationPatternValidator.class,
+               defaultValue = "yyyyMMdd",
+               label = "Date/Time pattern")
     private String dateInterpretationPattern;
 
     @Parameter(description = "Describes how the filename of a product should be interpreted.",
-            validator = TimeStampExtractor.FilenameInterpretationPatternValidator.class,
-            defaultValue = "*${date}*${date}*",
-            label = "Time extraction pattern in filename")
+               validator = TimeStampExtractor.FilenameInterpretationPatternValidator.class,
+               defaultValue = "*${date}*${date}*",
+               label = "Time extraction pattern in filename")
     private String filenameInterpretationPattern;
 
     private ProductValidator validator;
@@ -212,18 +223,21 @@ public class PixExOp extends Operator implements Output {
         if (extractTimeFromFilename) {
             timeStampExtractor = new TimeStampExtractor(dateInterpretationPattern, filenameInterpretationPattern);
         }
+
+        Set<File> sourceProductFileSet = getSourceProductFileSet(this.sourceProductPaths, this.inputPaths, getLogger());
+
         coordinateList = initCoordinateList();
         parseTimeDelta(timeDifference);
 
         validator = new ProductValidator();
 
         final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints,
-                exportMasks);
+                                                                                       exportMasks);
         final PixExFormatStrategy formatStrategy = new PixExFormatStrategy(rasterNamesFactory, windowSize, expression,
-                exportExpressionResult);
+                                                                           exportExpressionResult);
         final PixExProductRegistry productRegistry = new PixExProductRegistry(outputFilePrefix, outputDir);
         PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
-                productRegistry);
+                                                                                 productRegistry);
         PixExTargetFactory targetFactory = new PixExTargetFactory(outputFilePrefix, outputDir);
 
         measurementWriter = new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);
@@ -236,12 +250,8 @@ public class PixExOp extends Operator implements Output {
                     measurementsFound |= extractMeasurements(product);
                 }
             }
-            if (inputPaths != null) {
-                inputPaths = getParsedInputPaths(inputPaths);
-                if (inputPaths.length == 0) {
-                    getLogger().log(Level.WARNING, "No valid input path found.");
-                }
-                measurementsFound |= extractMeasurements(inputPaths);
+            if (!sourceProductFileSet.isEmpty()) {
+                measurementsFound |= extractMeasurements(sourceProductFileSet);
             }
 
             setDummyTargetProduct();
@@ -270,6 +280,24 @@ public class PixExOp extends Operator implements Output {
         }
 
         measurements = new PixExMeasurementReader(outputDir);
+    }
+
+    public static Set<File> getSourceProductFileSet(String[] sourceProductPaths1, File[] inputPaths1, Logger logger) {
+        Set<File> sourceProductFileSet = new TreeSet<File>();
+        String[] paths = getSourceProductPaths(sourceProductPaths1, inputPaths1);
+        if (paths != null) {
+            for (String path : paths) {
+                try {
+                    WildcardMatcher.glob(path, sourceProductFileSet);
+                } catch (IOException e) {
+                    logger.severe("I/O problem occurred while scanning source product files: " + e.getMessage());
+                }
+            }
+            if (sourceProductFileSet.isEmpty()) {
+                logger.log(Level.WARNING, "No valid source product path found.");
+            }
+        }
+        return sourceProductFileSet;
     }
 
     @Override
@@ -315,7 +343,7 @@ public class PixExOp extends Operator implements Output {
         boolean areAllPixelsValid = areAllPixelsInWindowValid(upperLeftX, upperLeftY, validData);
         if (areAllPixelsValid || exportExpressionResult) {
             measurementWriter.writeMeasurements(centerX, centerY, coordinateID, coordinate.getName(), product,
-                    validData);
+                                                validData);
             return true;
         }
         return false;
@@ -342,17 +370,17 @@ public class PixExOp extends Operator implements Output {
     PlanarImage createValidMaskImage(Product product) {
         if (expression != null && product.isCompatibleBandArithmeticExpression(expression)) {
             return VirtualBandOpImage.create(expression, ProductData.TYPE_UINT8, 0,
-                    product, ResolutionLevel.MAXRES);
+                                             product, ResolutionLevel.MAXRES);
         } else {
             return ConstantDescriptor.create((float) product.getSceneRasterWidth(),
-                    (float) product.getSceneRasterHeight(),
-                    new Byte[]{-1}, null);
+                                             (float) product.getSceneRasterHeight(),
+                                             new Byte[]{-1}, null);
         }
     }
 
     private boolean isPixelInTimeSpan(Coordinate coordinate, int timeDiff, int calendarField,
                                       ProductData.UTC timeAtPixel) {
-        if(timeDifference.isEmpty()) {
+        if (timeDifference.isEmpty()) {
             return true;
         }
 
@@ -370,7 +398,7 @@ public class PixExOp extends Operator implements Output {
     }
 
     private void parseTimeDelta(String timeDelta) {
-        if(timeDifference.isEmpty()) {
+        if (timeDifference.isEmpty()) {
             return;
         }
         this.timeDelta = Integer.parseInt(timeDelta.substring(0, timeDelta.length() - 1));
@@ -404,8 +432,8 @@ public class PixExOp extends Operator implements Output {
         try {
             fileReader = new FileReader(coordinatesFile);
             final List<Placemark> pins = PlacemarkIO.readPlacemarks(fileReader,
-                    null, // no GeoCoding needed
-                    PinDescriptor.getInstance());
+                                                                    null, // no GeoCoding needed
+                                                                    PinDescriptor.getInstance());
             for (Placemark pin : pins) {
                 final GeoPos geoPos = pin.getGeoPos();
                 if (geoPos != null) {
@@ -427,15 +455,16 @@ public class PixExOp extends Operator implements Output {
         return extractedCoordinates;
     }
 
-    private boolean extractMeasurements(File[] files) {
+    private boolean extractMeasurements(Set<File> fileSet) {
         boolean measurementsFound = false;
-        for (File file : files) {
+        for (File file : fileSet) {
             if (file.isDirectory()) {
                 final File[] subFiles = file.listFiles();
-                Arrays.sort(subFiles);
-                for (File subFile : subFiles) {
-                    if (subFile.isFile()) {
-                        measurementsFound |= extractMeasurements(subFile);
+                if (subFiles != null) {
+                    for (File subFile : subFiles) {
+                        if (subFile.isFile()) {
+                            measurementsFound |= extractMeasurements(subFile);
+                        }
                     }
                 }
             } else {
@@ -449,7 +478,7 @@ public class PixExOp extends Operator implements Output {
         Product product = null;
         try {
             product = ProductIO.readProduct(file);
-            if(product == null) {
+            if (product == null) {
                 getLogger().warning("Unable to read product from file '" + file.getAbsolutePath() + "'.");
                 return false;
             }
@@ -500,7 +529,7 @@ public class PixExOp extends Operator implements Output {
                         exportSubScene(product, matchedCoordinates);
                     } catch (IOException e) {
                         getLogger().log(Level.WARNING,
-                                "Could not export sub-scene for product: " + product.getFileLocation(), e);
+                                        "Could not export sub-scene for product: " + product.getFileLocation(), e);
                     }
                 }
                 if (exportKmz) {
@@ -508,7 +537,7 @@ public class PixExOp extends Operator implements Output {
                         final String coordinateName = matchedCoordinate.getName();
                         if (!knownKmzPlacemarks.contains(coordinateName)) {
                             final Point2D.Float position = new Point2D.Float(matchedCoordinate.getLon(),
-                                    matchedCoordinate.getLat());
+                                                                             matchedCoordinate.getLat());
                             kmlDocument.addChild(new KmlPlacemark(coordinateName, null, position));
                             knownKmzPlacemarks.add(coordinateName);
                         }
@@ -540,7 +569,7 @@ public class PixExOp extends Operator implements Output {
         Rectangle region = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
         region.grow(subSceneBorderSize, subSceneBorderSize);
         final Rectangle productBounds = new Rectangle(0, 0, product.getSceneRasterWidth(),
-                product.getSceneRasterHeight());
+                                                      product.getSceneRasterHeight());
         Rectangle finalRegion = productBounds.intersection(region);
         subsetDef.setRegion(finalRegion);
         final Product subset = ProductSubsetBuilder.createProductSubset(product, subsetDef, null, null);
@@ -621,6 +650,35 @@ public class PixExOp extends Operator implements Output {
         }
     }
 
+    public static String[] getSourceProductPaths(String[] sourceProductPaths, File[] deprecatedInputPaths) {
+        final String[] paths;
+        if (deprecatedInputPaths != null) {
+            if (sourceProductPaths != null) {
+                paths = new String[deprecatedInputPaths.length + sourceProductPaths.length];
+            } else {
+                paths = new String[deprecatedInputPaths.length];
+            }
+            for (int i = 0; i < deprecatedInputPaths.length; i++) {
+                paths[i] = deprecatedInputPaths[i].getPath();
+            }
+            if (sourceProductPaths != null) {
+                System.arraycopy(sourceProductPaths, 0, paths, deprecatedInputPaths.length, sourceProductPaths.length);
+            }
+        } else {
+            if (sourceProductPaths != null) {
+                paths = sourceProductPaths.clone();
+            } else {
+                paths = null;
+            }
+        }
+        if (paths != null) {
+            for (int i = 0; i < paths.length; i++) {
+                paths[i] = paths[i].trim();
+            }
+        }
+        return paths;
+    }
+
     /**
      * The Service Provider Interface (SPI) for the operator.
      * It provides operator meta-data and is a factory for new operator instances.
@@ -637,7 +695,7 @@ public class PixExOp extends Operator implements Output {
         @Override
         public void validateValue(Property property, Object value) throws ValidationException {
             if (((Integer) value) % 2 == 0) {
-                throw new ValidationException("Value of squareSize must be uneven");
+                throw new ValidationException("Value of 'windowSize' must be uneven");
             }
         }
     }

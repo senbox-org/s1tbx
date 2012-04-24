@@ -28,6 +28,7 @@ import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.pixex.PixExOp;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.swing.AbstractButton;
 import javax.swing.JDialog;
@@ -44,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 class PixelExtractionDialog extends ModelessDialog {
@@ -74,25 +76,13 @@ class PixelExtractionDialog extends ModelessDialog {
                     parametersForm.setActiveProduct(sourceProducts[0]);
                     return;
                 } else {
-                    if(parameterMap.containsKey("inputPaths")) {
+                    if (parameterMap.containsKey("inputPaths")) {
                         final File[] inputPaths = (File[]) parameterMap.get("inputPaths");
-                        if(inputPaths.length > 0) {
-                            try {
-                                Product firstProduct = null;
-                                File file = PixExOp.getParsedInputPaths(inputPaths)[0];
-                                if (file.isDirectory()) {
-                                    for (File subFile : file.listFiles()) {
-                                        firstProduct = ProductIO.readProduct(subFile);
-                                        if(firstProduct != null) {
-                                            break;
-                                        }
-                                    }
-                                } else {
-                                    firstProduct = ProductIO.readProduct(file);
-                                }
+                        if (inputPaths.length > 0) {
+                            Product firstProduct = openFirstProduct(inputPaths);
+                            if (firstProduct != null) {
                                 parametersForm.setActiveProduct(firstProduct);
                                 return;
-                            } catch (IOException ignore) {
                             }
                         }
                     }
@@ -113,6 +103,33 @@ class PixelExtractionDialog extends ModelessDialog {
         tabbedPanel.addTab("Parameters", parametersPanel);
 
         setContent(tabbedPanel);
+    }
+
+    private Product openFirstProduct(File[] inputPaths) {
+        Product firstProduct = null;
+        final Set<File> fileSet = PixExOp.getSourceProductFileSet(null, inputPaths, BeamLogManager.getSystemLogger());
+        for (File file : fileSet) {
+            try {
+                if (file.isDirectory()) {
+                    final File[] files = file.listFiles();
+                    if (files != null) {
+                        for (File subFile : files) {
+                            firstProduct = ProductIO.readProduct(subFile);
+                            if (firstProduct != null) {
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    firstProduct = ProductIO.readProduct(file);
+                }
+                if (firstProduct != null) {
+                    break;
+                }
+            } catch (IOException ignore) {
+            }
+        }
+        return firstProduct;
     }
 
     @Override
