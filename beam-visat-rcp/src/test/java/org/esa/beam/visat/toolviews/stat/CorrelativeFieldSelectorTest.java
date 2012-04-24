@@ -75,7 +75,7 @@ public class CorrelativeFieldSelectorTest {
 
         correlativeFieldSelector.pointDataSourceProperty.setValue(product.getVectorDataGroup().get("b"));
 
-        assertEquals(2, correlativeFieldSelector.dataFieldList.getItemCount());
+        assertEquals(3, correlativeFieldSelector.dataFieldList.getItemCount());
     }
 
     private SimpleFeatureType createFeatureType(Class binding) {
