@@ -20,7 +20,11 @@ import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glayer.swing.LayerCanvasModel;
 import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.Viewport;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.UIUtils;
@@ -33,13 +37,27 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.text.NumberFormatter;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
@@ -51,7 +69,14 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
-import static java.lang.Math.*;
+import static java.lang.Math.abs;
+import static java.lang.Math.floor;
+import static java.lang.Math.log;
+import static java.lang.Math.log10;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static java.lang.Math.pow;
+import static java.lang.Math.round;
 
 /**
  * A window which displays product spectra.
@@ -338,11 +363,6 @@ public class NavigationToolView extends AbstractToolView {
                 }
             }
             canvas.handleViewChanged(oldView, newView);
-            if (syncViewsButton.isSelected() && oldView != null && newView != null) {
-                newView.getLayerCanvas().setInitiallyZoomingAll(false);
-                oldView.synchronizeViewport(newView);
-            }
-
             updateState();
         }
     }
@@ -478,7 +498,7 @@ public class NavigationToolView extends AbstractToolView {
             if (internalFrame.getContentPane() instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) internalFrame.getContentPane();
                 if (view != currentView) {
-                    currentView.synchronizeViewport(view);
+                    currentView.synchronizeViewportIfPossible(view);
                 }
             }
         }
@@ -486,6 +506,7 @@ public class NavigationToolView extends AbstractToolView {
 
     /**
      * @param sv a value between MIN_SLIDER_VALUE and MAX_SLIDER_VALUE
+     *
      * @return a value between min and max zoom factor of the AdjustableView
      */
     private double sliderValueToZoomFactor(final int sv) {
@@ -513,6 +534,7 @@ public class NavigationToolView extends AbstractToolView {
 
     /**
      * @param zf a value between min and max zoom factor of the AdjustableView
+     *
      * @return a value between MIN_SLIDER_VALUE and MAX_SLIDER_VALUE
      */
     private int zoomFactorToSliderValue(final double zf) {
@@ -656,7 +678,7 @@ public class NavigationToolView extends AbstractToolView {
                 if (event.getPropertyName().equalsIgnoreCase(Product.PROPERTY_NAME_NAME)) {
                     final ProductNode sourceNode = event.getSourceNode();
                     if ((currentView.isRGB() && sourceNode == currentView.getProduct())
-                            || sourceNode == currentView.getRaster()) {
+                        || sourceNode == currentView.getRaster()) {
                         updateTitle();
                     }
                 }
@@ -670,14 +692,29 @@ public class NavigationToolView extends AbstractToolView {
         public void internalFrameOpened(InternalFrameEvent e) {
             final Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
-                PropertyMap preferences = VisatApp.getApp().getPreferences();
-                final boolean showWindow = preferences.getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NAVIGATION,
-                                                                       true);
+                final PropertyMap preferences = VisatApp.getApp().getPreferences();
+                final boolean showWindow = preferences.getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NAVIGATION, true);
                 if (showWindow) {
-                    ApplicationPage page = VisatApp.getApp().getApplicationPage();
-                    ToolView toolView = page.getToolView(NavigationToolView.ID);
+                    final ApplicationPage page = VisatApp.getApp().getApplicationPage();
+                    final ToolView toolView = page.getToolView(NavigationToolView.ID);
                     if (toolView != null) {
                         page.showToolView(NavigationToolView.ID);
+                    }
+                }
+                final ProductSceneView newSceneView = (ProductSceneView) contentPane;
+                if (syncViewsButton.isSelected()) {
+                    final JInternalFrame[] internalFrames = VisatApp.getApp().getAllInternalFrames();
+                    for (final JInternalFrame internalFrame : internalFrames) {
+                        if (internalFrame.getContentPane() instanceof ProductSceneView) {
+                            final ProductSceneView oldSceneView = (ProductSceneView) internalFrame.getContentPane();
+                            if (oldSceneView != newSceneView) {
+                                final boolean done = oldSceneView.synchronizeViewportIfPossible(newSceneView);
+                                if (done) {
+                                    newSceneView.getLayerCanvas().setInitiallyZoomingAll(false);
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
