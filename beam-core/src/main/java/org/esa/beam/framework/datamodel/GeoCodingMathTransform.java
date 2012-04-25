@@ -20,17 +20,15 @@ import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.referencing.operation.transform.AbstractMathTransform;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptorGroup;
-import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
 
 /**
- * A math transform which converts from grid (pixel) coordinates to geograhical coordinates.
+ * A math transform which converts from grid (pixel) coordinates to geographical coordinates.
  *
  * @author Marco Peters
  * @author Norman Fomferra
- * @version $Revision: $ $Date: $
  * @since BEAM 4.6
  */
 public class GeoCodingMathTransform extends AbstractMathTransform implements MathTransform2D{
