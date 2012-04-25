@@ -16,6 +16,8 @@
 
 package com.bc.ceres.swing.selection;
 
+import com.bc.ceres.core.Extensible;
+
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
@@ -33,7 +35,7 @@ import java.io.IOException;
  * @author Norman Fomferra
  * @since Ceres 0.10
  */
-public interface SelectionContext extends SelectionSource {
+public interface SelectionContext extends SelectionSource, Extensible {
 
     /**
      * Sets a new selection.

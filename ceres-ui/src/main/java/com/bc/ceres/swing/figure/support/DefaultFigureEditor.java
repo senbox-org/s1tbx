@@ -17,19 +17,20 @@
 package com.bc.ceres.swing.figure.support;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureChangeEvent;
+import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.FigureStyle;
-import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.InteractionDispatcher;
-import com.bc.ceres.swing.figure.FigureChangeListener;
+import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
@@ -49,7 +50,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
-public class DefaultFigureEditor implements FigureEditor {
+public class DefaultFigureEditor extends ExtensibleObject implements FigureEditor {
 
     private final UndoContext undoContext;
     private Rectangle selectionRectangle;

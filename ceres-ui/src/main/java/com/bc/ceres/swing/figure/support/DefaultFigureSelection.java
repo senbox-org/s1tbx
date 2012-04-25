@@ -16,13 +16,14 @@
 
 package com.bc.ceres.swing.figure.support;
 
+import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.Handle;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 import java.awt.geom.AffineTransform;
@@ -39,6 +40,11 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
 
     public DefaultFigureSelection() {
         this.selectionStage = 0;
+    }
+
+    @Override
+    public <E> E getExtension(Class<E> extensionType) {
+        return ExtensionManager.getInstance().getExtension(this, extensionType);
     }
 
     @Override

@@ -16,7 +16,7 @@
 
 package com.bc.ceres.swing.selection;
 
-import com.bc.ceres.swing.selection.AbstractSelection;
+import com.bc.ceres.core.Extensible;
 
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.Transferable;
@@ -30,7 +30,7 @@ import java.awt.datatransfer.Transferable;
  * @author Norman Fomferra
  * @since Ceres 0.10
  */
-public interface Selection extends ClipboardOwner, Cloneable {
+public interface Selection extends ClipboardOwner, Cloneable, Extensible {
     /**
      * An empty selection.
      */

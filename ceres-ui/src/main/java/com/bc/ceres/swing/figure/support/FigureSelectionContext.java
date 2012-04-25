@@ -17,12 +17,13 @@
 package com.bc.ceres.swing.figure.support;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureChangeEvent;
+import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureSelection;
-import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionContext;
@@ -32,7 +33,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
-public class FigureSelectionContext implements SelectionContext {
+public class FigureSelectionContext extends ExtensibleObject implements SelectionContext {
 
     private final FigureEditor figureEditor;
     private final FigureCollection figureCollection;

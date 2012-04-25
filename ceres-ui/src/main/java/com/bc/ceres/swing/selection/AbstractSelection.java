@@ -16,7 +16,7 @@
 
 package com.bc.ceres.swing.selection;
 
-import com.bc.ceres.swing.selection.Selection;
+import com.bc.ceres.core.ExtensibleObject;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
@@ -30,7 +30,7 @@ import java.awt.datatransfer.Transferable;
  * @author Norman Fomferra
  * @since Ceres 0.10
  */
-public abstract class AbstractSelection implements Selection {
+public abstract class AbstractSelection extends ExtensibleObject implements Selection {
 
     protected AbstractSelection() {
     }
@@ -86,7 +86,7 @@ public abstract class AbstractSelection implements Selection {
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
     }
 
-    @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException"})
+    @SuppressWarnings("CloneDoesntDeclareCloneNotSupportedException")
     @Override
     public AbstractSelection clone() {
         try {

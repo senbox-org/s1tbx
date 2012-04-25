@@ -16,9 +16,7 @@
 
 package com.bc.ceres.swing.selection;
 
-import com.bc.ceres.swing.selection.Selection;
-import com.bc.ceres.swing.selection.SelectionChangeListener;
-import com.bc.ceres.swing.selection.SelectionContext;
+import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.swing.selection.support.SelectionChangeSupport;
 
 import java.awt.datatransfer.Transferable;
@@ -36,7 +34,7 @@ import java.io.IOException;
  * @author Norman Fomferra
  * @since Ceres 0.10
  */
-public abstract class AbstractSelectionContext implements SelectionContext {
+public abstract class AbstractSelectionContext extends ExtensibleObject implements SelectionContext {
     private final SelectionChangeSupport selectionChangeSupport;
 
     protected AbstractSelectionContext() {
