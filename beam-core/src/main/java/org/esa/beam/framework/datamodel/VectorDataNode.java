@@ -363,11 +363,19 @@ public class VectorDataNode extends ProductNode {
         setDefaultStyleCss(defaultCSS);
     }
 
-    final boolean isPermanent() {
+    /**
+     * Internal API. Don't use.
+     * @return If true, prevents this node from being removed.
+     */
+    public boolean isPermanent() {
         return permanent;
     }
 
-    final  void setPermanent(boolean permanent) {
+    /**
+     * Internal API. Don't use.
+     * @param permanent If true, prevents this node from being removed.
+     */
+    public void setPermanent(boolean permanent) {
         this.permanent = permanent;
     }
 }
