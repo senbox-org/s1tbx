@@ -23,13 +23,24 @@ import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.StxFactory;
+import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.StringUtils;
 
+import javax.swing.AbstractButton;
+import javax.swing.ImageIcon;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.SwingWorker;
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 /**
@@ -44,6 +55,8 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
     private static final String TITLE_PREFIX = "Statistics";
 
     private MultipleRoiComputePanel computePanel;
+    private JPanel backgroundPanel;
+    private AbstractButton hideAndShowButton;
 
     public StatisticsPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, DEFAULT_STATISTICS_TEXT, helpID, TITLE_PREFIX);
@@ -52,14 +65,58 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
     @Override
     protected void initComponents() {
         super.initComponents();
+        remove(0);
+        createUI();
+    }
+
+    private void createUI(){
         computePanel = new MultipleRoiComputePanel(this, getRaster());
-        final JPanel rightPanel = new JPanel(new BorderLayout());
-        rightPanel.add(computePanel, BorderLayout.NORTH);
         final JPanel helpPanel = new JPanel(new BorderLayout());
         helpPanel.add(getHelpButton(), BorderLayout.EAST);
-        rightPanel.add(helpPanel, BorderLayout.SOUTH);
+        helpPanel.add(new JSeparator(),BorderLayout.NORTH);
 
-        add(rightPanel, BorderLayout.EAST);
+        final JPanel rightPanel = GridBagUtils.createPanel();
+        GridBagConstraints extendedOptionsPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1,ipadx=0");
+        GridBagUtils.addToPanel(rightPanel, computePanel, extendedOptionsPanelConstraints, "gridy=0,fill=BOTH,weighty=1");
+        GridBagUtils.addToPanel(rightPanel, helpPanel, extendedOptionsPanelConstraints, "gridy=1,anchor=SOUTHWEST,fill=HORIZONTAL,weighty=0");
+
+        final ImageIcon collapseIcon = UIUtils.loadImageIcon("icons/PanelRight12.png");
+        final ImageIcon collapseRolloverIcon = ToolButtonFactory.createRolloverIcon(collapseIcon);
+        final ImageIcon expandIcon = UIUtils.loadImageIcon("icons/PanelLeft12.png");
+        final ImageIcon expandRolloverIcon = ToolButtonFactory.createRolloverIcon(expandIcon);
+
+        hideAndShowButton = ToolButtonFactory.createButton(collapseIcon, false);
+        hideAndShowButton.setToolTipText("Collapse Options Panel");
+        hideAndShowButton.setName("switchToChartButton");
+        hideAndShowButton.addActionListener(new ActionListener() {
+
+            public boolean rightPanelShown;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                rightPanel.setVisible(rightPanelShown);
+                if (rightPanelShown) {
+                    hideAndShowButton.setIcon(collapseIcon);
+                    hideAndShowButton.setRolloverIcon(collapseRolloverIcon);
+                    hideAndShowButton.setToolTipText("Collapse Options Panel");
+                } else {
+                    hideAndShowButton.setIcon(expandIcon);
+                    hideAndShowButton.setRolloverIcon(expandRolloverIcon);
+                    hideAndShowButton.setToolTipText("Expand Options Panel");
+                }
+                rightPanelShown = !rightPanelShown;
+            }
+        });
+
+        backgroundPanel = new JPanel(new BorderLayout());
+        backgroundPanel.add(new JScrollPane(getTextArea()), BorderLayout.CENTER);
+        backgroundPanel.add(rightPanel, BorderLayout.EAST);
+
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.add(backgroundPanel, new Integer(0));
+        layeredPane.add(hideAndShowButton, new Integer(1));
+        add(layeredPane);
+
     }
 
     @Override
@@ -240,12 +297,18 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
             sb.append(unit);
             sb.append("\n");
         }
-
         return sb.toString();
     }
 
     private double getCoefficientOfVariation(Stx stx) {
         return stx.getStandardDeviation() / stx.getMean();
+    }
+
+    @Override
+    public void doLayout() {
+        super.doLayout();
+        backgroundPanel.setBounds(0, 0, getWidth() - 8, getHeight() - 8);
+        hideAndShowButton.setBounds(getWidth() - hideAndShowButton.getWidth() - 12, 4, 24, 24);
     }
 
 }
