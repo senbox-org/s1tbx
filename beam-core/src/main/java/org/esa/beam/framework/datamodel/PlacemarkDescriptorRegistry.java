@@ -67,7 +67,16 @@ public class PlacemarkDescriptorRegistry {
         return serviceRegistry.getServices();
     }
 
-    public List<PlacemarkDescriptor> getValidPlacemarkDescriptors(final SimpleFeatureType featureType) {
+    /**
+     * Returns an ordered list of placemark descriptors that are compatible with the given feature type.
+     * The list is sorted by by the level of compatibility (see {@link DecodeQualification}). A feature type may have
+     * given the class name of an appropriate placemark descriptor in its "user data", the key for that descriptor name is
+     * given by {@link AbstractPlacemarkDescriptor#PROPERTY_NAME_PLACEMARK_DESCRIPTOR}.
+     *
+     * @param featureType The feature type.
+     * @return An ordered list of descriptors, which may be empty.
+     */
+    public List<PlacemarkDescriptor> getPlacemarkDescriptors(final SimpleFeatureType featureType) {
         ArrayList<PlacemarkDescriptor> list = new ArrayList<PlacemarkDescriptor>();
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {
             DecodeQualification qualification = placemarkDescriptor.getCompatibilityFor(featureType);
@@ -101,7 +110,13 @@ public class PlacemarkDescriptorRegistry {
         return list;
     }
 
-    public PlacemarkDescriptor getBestPlacemarkDescriptor(SimpleFeatureType featureType) {
+    /**
+     * todo
+     *
+     * @param featureType
+     * @return
+     */
+    public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType featureType) {
         PlacemarkDescriptor suitablePlacemarkDescriptor = null;
         PlacemarkDescriptor intendedPlacemarkDescriptor = null;
         for (PlacemarkDescriptor placemarkDescriptor : getPlacemarkDescriptors()) {

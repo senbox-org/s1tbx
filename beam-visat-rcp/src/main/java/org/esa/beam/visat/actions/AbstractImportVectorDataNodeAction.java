@@ -54,17 +54,21 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
                 }
             }
 
-            List<PlacemarkDescriptor> validPlacemarkDescriptors = placemarkDescriptorRegistry.getValidPlacemarkDescriptors(simpleFeatureType);
+            List<PlacemarkDescriptor> validPlacemarkDescriptors = placemarkDescriptorRegistry.getPlacemarkDescriptors(simpleFeatureType);
             if (validPlacemarkDescriptors.size() == 1) {
                 return validPlacemarkDescriptors.get(0);
             }
 
             TypeDialog typeDialog = new TypeDialog(VisatApp.getApp().getApplicationWindow(), simpleFeatureType);
-            if (typeDialog.show() == ModalDialog.ID_OK) {
+            final int dialogResult = typeDialog.show();
+            if (dialogResult == ModalDialog.ID_OK) {
                 return typeDialog.getPlacemarkDescriptor();
+            } else if (dialogResult == ModalDialog.ID_CANCEL) {
+                typeDialog.close();
+                return null;
             }
 
-            return placemarkDescriptorRegistry.getPlacemarkDescriptor(GeometryDescriptor.class);
+            return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GeometryDescriptor.class);
         }
     }
 
@@ -125,13 +129,16 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
             contentPanel.add(label);
             contentPanel.add(crsSelectionPanel);
             dialog.setContent(contentPanel);
-            if (dialog.show() == ModalDialog.ID_OK) {
+            final int dialogResult = dialog.show();
+            if (dialogResult == ModalDialog.ID_OK) {
                 try {
                     return crsSelectionPanel.getCrs(ProductUtils.getCenterGeoPos(product));
                 } catch (FactoryException e) {
                     visatApp.showErrorDialog(getDialogTitle(),
                                              "Can not create Coordinate Reference System.\n" + e.getMessage());
                 }
+            }  else if (dialogResult == ModalDialog.ID_CANCEL) {
+                // todo: CSV import must be canceled completely, TypeDialog must not open in this case! find proper solution
             }
             return DefaultGeographicCRS.WGS84;
         }

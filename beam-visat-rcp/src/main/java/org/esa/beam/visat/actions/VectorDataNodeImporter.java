@@ -92,6 +92,9 @@ class VectorDataNodeImporter {
         VectorDataNode vectorDataNode;
         try {
             vectorDataNode = readGeometry(visatApp, file, product);
+            if (vectorDataNode == null) {
+                return;
+            }
         } catch (Exception e) {
             visatApp.showErrorDialog(dialogTitle, "Failed to import vector data.\n" + "An I/O Error occurred:\n"
                     + e.getMessage()); /* I18N */

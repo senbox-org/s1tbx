@@ -20,12 +20,8 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.thoughtworks.xstream.core.util.OrderRetainingMap;
-import com.vividsolutions.jts.geom.Geometry;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import com.vividsolutions.jts.geom.*;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.converters.JavaTypeConverter;
@@ -34,6 +30,7 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
@@ -43,6 +40,8 @@ import org.opengis.referencing.operation.TransformException;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class VectorDataNodeReader {
@@ -96,9 +95,15 @@ public class VectorDataNodeReader {
         SimpleFeatureType featureType = clippedCollection.getSchema();
         featureType.getUserData().putAll(properties);
         final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorProvider.getPlacemarkDescriptor(featureType);
+        if (placemarkDescriptor == null) {
+            return null;
+        }
         placemarkDescriptor.setUserDataOf(featureType);
 
         final String name = FileUtils.getFilenameWithoutExtension(vectorDataNodeName);
+        if (placemarkDescriptor instanceof PointDescriptor && clippedCollection.size() > 0) {
+            clippedCollection = convertPointsToVertices(clippedCollection);
+        }
         VectorDataNode vectorDataNode = new VectorDataNode(name, clippedCollection, placemarkDescriptor);
         if (properties.containsKey(ProductNode.PROPERTY_NAME_DESCRIPTION)) {
             featureType.getUserData().put(ProductNode.PROPERTY_NAME_DESCRIPTION, properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
@@ -108,14 +113,45 @@ public class VectorDataNodeReader {
             featureType.getUserData().put(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS, properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
             vectorDataNode.setDefaultStyleCss(properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
         }
+
         return vectorDataNode;
+    }
+
+    private FeatureCollection<SimpleFeatureType, SimpleFeature> convertPointsToVertices(FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection) {
+        final FeatureIterator<SimpleFeature> featureIterator = clippedCollection.features();
+        List<Coordinate> tmpList = new ArrayList<Coordinate>();
+        SimpleFeatureType featureType = null;
+        while (featureIterator.hasNext()) {
+            final SimpleFeature feature = featureIterator.next();
+            featureType = feature.getFeatureType();
+            final Point pt = (Point) feature.getDefaultGeometry();
+            tmpList.add(pt.getCoordinate());
+        }
+
+        if (tmpList.size() > 0) {
+            final GeometryFactory geometryFactory = new GeometryFactory();
+            final LineString lineString = geometryFactory.createLineString(tmpList.toArray(new Coordinate[tmpList.size()]));
+
+            FeatureCollection<SimpleFeatureType, SimpleFeature> vertexCollection =
+                    new DefaultFeatureCollection(clippedCollection.getID(), clippedCollection.getSchema());
+
+            SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(featureType);
+            final SimpleFeature feature = featureBuilder.buildFeature("9999");
+            feature.setDefaultGeometry(lineString);
+            // todo: this does not yet work, we get one point only
+
+            vertexCollection.add(feature);
+
+            return vertexCollection;
+        } else {
+            return clippedCollection;
+        }
     }
 
     /**
      * Collects comment lines of the form "# &lt;name&gt; = &lt;value&gt;" until the first non-empty and non-comment line is found.
      *
      * @return All the property assignments found.
-     *
      * @throws java.io.IOException
      */
     Map<String, String> readProperties() throws IOException {
@@ -130,7 +166,7 @@ public class VectorDataNodeReader {
                     String name = line.substring(0, index).trim();
                     String value = line.substring(index + 1).trim();
                     if (StringUtils.isNotNullAndNotEmpty(name) &&
-                        StringUtils.isNotNullAndNotEmpty(value)) {
+                            StringUtils.isNotNullAndNotEmpty(value)) {
                         properties.put(name, value);
                     }
                 }
@@ -208,7 +244,7 @@ public class VectorDataNodeReader {
             throw new IOException("Neither lat/lon nor geometry column provided.");
         }
 
-        if(!hasGeometry && geoCoding == null) {
+        if (!hasGeometry && geoCoding == null) {
             throw new IOException("No geometry provided in product without geo-coding.");
         }
 
@@ -261,7 +297,7 @@ public class VectorDataNodeReader {
         int expectedTokenCount = interpretationStrategy.getExpectedTokenCount(simpleFeatureType.getAttributeCount());
         if (tokens.length != expectedTokenCount) {
             BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
-                    vectorDataNodeName, expectedTokenCount, tokens.length));
+                                                                   vectorDataNodeName, expectedTokenCount, tokens.length));
             return false;
         }
         return true;

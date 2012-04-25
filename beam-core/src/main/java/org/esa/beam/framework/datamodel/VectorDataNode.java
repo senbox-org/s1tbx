@@ -325,7 +325,7 @@ public class VectorDataNode extends ProductNode {
 
     private static PlacemarkDescriptor getPlacemarkDescriptor(final SimpleFeatureType featureType) {
         PlacemarkDescriptorRegistry registry = PlacemarkDescriptorRegistry.getInstance();
-        PlacemarkDescriptor placemarkDescriptor = registry.getBestPlacemarkDescriptor(featureType);
+        PlacemarkDescriptor placemarkDescriptor = registry.getPlacemarkDescriptor(featureType);
         if (placemarkDescriptor == null) {
             return new GenericPlacemarkDescriptor(featureType);
         }

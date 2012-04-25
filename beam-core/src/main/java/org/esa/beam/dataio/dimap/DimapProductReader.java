@@ -416,12 +416,14 @@ public class DimapProductReader extends AbstractProductReader {
                             return modelCrs != null ? modelCrs : DefaultGeographicCRS.WGS84;
                         }
                     }, new MyPlacemarkDescriptorProvider(), modelCrs, ProgressMonitor.NULL);
-                    final ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
-                    final VectorDataNode existing = vectorDataGroup.get(vectorDataNode.getName());
-                    if (existing != null) {
-                        vectorDataGroup.remove(existing);
+                    if (vectorDataNode != null) {
+                        final ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
+                        final VectorDataNode existing = vectorDataGroup.get(vectorDataNode.getName());
+                        if (existing != null) {
+                            vectorDataGroup.remove(existing);
+                        }
+                        vectorDataGroup.add(vectorDataNode);
                     }
-                    vectorDataGroup.add(vectorDataNode);
                 } catch (IOException e) {
                     BeamLogManager.getSystemLogger().log(Level.SEVERE, "Error reading '" + vectorFile + "'", e);
                 } finally {
@@ -444,7 +446,7 @@ public class DimapProductReader extends AbstractProductReader {
                     return placemarkDescriptor;
                 }
             }
-            final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getBestPlacemarkDescriptor(simpleFeatureType);
+            final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getPlacemarkDescriptor(simpleFeatureType);
             if (placemarkDescriptor != null) {
                 return placemarkDescriptor;
             } else {

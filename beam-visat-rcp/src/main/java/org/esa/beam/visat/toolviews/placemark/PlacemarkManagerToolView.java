@@ -415,7 +415,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         if (makePlacemarkNameUnique0(newPlacemark)) {
             showWarningDialog(MessageFormat.format("{0} has been renamed to ''{1}'',\n" +
                                                            "because a {2} with the former name already exists.",
-                                                   FeatureUtils.firstLetterUp(placemarkDescriptor.getRoleLabel()),
+                                                   StringUtils.firstLetterUp(placemarkDescriptor.getRoleLabel()),
                                                    newPlacemark.getName(),
                                                    placemarkDescriptor.getRoleLabel()));
         }
@@ -572,7 +572,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private List<Placemark> loadPlacemarksFromFile() throws IOException {
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        String roleLabel = FeatureUtils.firstLetterUp(placemarkDescriptor.getRoleLabel());
+        String roleLabel = StringUtils.firstLetterUp(placemarkDescriptor.getRoleLabel());
         fileChooser.setDialogTitle("Import " + roleLabel + "s"); /*I18N*/
         setComponentName(fileChooser, "Import");
         fileChooser.addChoosableFileFilter(PlacemarkIO.createTextFileFilter());
@@ -596,7 +596,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     void exportPlacemarks() {
         final BeamFileChooser fileChooser = new BeamFileChooser();
         fileChooser.setDialogTitle(MessageFormat.format("Export {0}(s)",
-                                                        FeatureUtils.firstLetterUp(placemarkDescriptor.getRoleLabel())));   /*I18N*/
+                                                        StringUtils.firstLetterUp(placemarkDescriptor.getRoleLabel())));   /*I18N*/
         setComponentName(fileChooser, "Export_Selected");
         fileChooser.addChoosableFileFilter(PlacemarkIO.createTextFileFilter());
         fileChooser.setFileFilter(PlacemarkIO.createPlacemarkFileFilter());
@@ -653,7 +653,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     void exportPlacemarkDataTable() {
         final BeamFileChooser fileChooser = new BeamFileChooser();
         fileChooser.setDialogTitle(MessageFormat.format("Export {0} Data Table",  /*I18N*/
-                                                        FeatureUtils.firstLetterUp(placemarkDescriptor.getRoleLabel())));
+                                                        StringUtils.firstLetterUp(placemarkDescriptor.getRoleLabel())));
         setComponentName(fileChooser, "Export_Data_Table");
         fileChooser.setFileFilter(PlacemarkIO.createTextFileFilter());
         final File ioDir = getIODir();

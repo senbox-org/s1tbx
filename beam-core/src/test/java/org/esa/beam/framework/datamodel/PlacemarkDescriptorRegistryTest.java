@@ -64,7 +64,7 @@ public class PlacemarkDescriptorRegistryTest {
 
         SimpleFeatureType ft = createYetUnknownFeatureType();
 
-        List<PlacemarkDescriptor> descriptors = registry.getValidPlacemarkDescriptors(ft);
+        List<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(ft);
         assertNotNull(descriptors);
         assertEquals(1, descriptors.size());
     }
@@ -89,7 +89,7 @@ public class PlacemarkDescriptorRegistryTest {
         builder.setName("n");
         SimpleFeatureType featureType = builder.buildFeatureType();
 
-        List<PlacemarkDescriptor> descriptors = registry.getValidPlacemarkDescriptors(featureType);
+        List<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(featureType);
 
         assertEquals(4, descriptors.size());
 
@@ -129,7 +129,7 @@ public class PlacemarkDescriptorRegistryTest {
         PlacemarkDescriptorRegistry registry = new PlacemarkDescriptorRegistry(serviceRegistry);
 
 
-        PlacemarkDescriptor bestPlacemarkDescriptor = registry.getBestPlacemarkDescriptor(null);
+        PlacemarkDescriptor bestPlacemarkDescriptor = registry.getPlacemarkDescriptor((SimpleFeatureType) null);
         assertSame(first, bestPlacemarkDescriptor);
     }
 
@@ -145,7 +145,7 @@ public class PlacemarkDescriptorRegistryTest {
 
         PlacemarkDescriptorRegistry registry = new PlacemarkDescriptorRegistry(serviceRegistry);
 
-        PlacemarkDescriptor bestPlacemarkDescriptor = registry.getBestPlacemarkDescriptor(null);
+        PlacemarkDescriptor bestPlacemarkDescriptor = registry.getPlacemarkDescriptor((SimpleFeatureType) null);
         assertTrue(bestPlacemarkDescriptor == first || bestPlacemarkDescriptor == second);
     }
 
@@ -154,7 +154,7 @@ public class PlacemarkDescriptorRegistryTest {
 
         SimpleFeatureType ft = Placemark.createPointFeatureType(featureTypeName);
 
-        List<PlacemarkDescriptor> descriptors = registry.getValidPlacemarkDescriptors(ft);
+        List<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors(ft);
         assertNotNull(descriptors);
         assertEquals(expected, descriptors.size());
 

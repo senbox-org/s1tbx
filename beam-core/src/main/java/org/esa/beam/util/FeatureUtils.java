@@ -281,17 +281,6 @@ public class FeatureUtils {
         return gf.createPolygon(gf.createLinearRing(coordinates), null);
     }
 
-    /**
-     * Turns the first letter of the given string to upper case.
-     *
-     * @param string the string to change
-     * @return a changed string
-     */
-    public static String firstLetterUp(String string) {
-        String firstChar = string.substring(0, 1).toUpperCase();
-        return firstChar + string.substring(1);
-    }
-
     private static FeatureCollection<SimpleFeatureType, SimpleFeature> transformPixelPosToGeoPos(FeatureCollection<SimpleFeatureType, SimpleFeature> fc, GeoCoding geoCoding) {
         Iterator<SimpleFeature> iterator = fc.iterator();
         FeatureCollection<SimpleFeatureType, SimpleFeature> transformedFc = new DefaultFeatureCollection(fc.getID(), fc.getSchema());

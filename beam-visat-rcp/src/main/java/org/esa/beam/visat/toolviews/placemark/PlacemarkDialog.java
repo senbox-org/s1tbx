@@ -21,8 +21,8 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.StringUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
@@ -279,7 +279,7 @@ public class PlacemarkDialog extends ModalDialog {
                                                            placemarkDescriptor instanceof PinDescriptor);
         boolean belongsToProduct = placemark.getProduct() != null;
         String titlePrefix = belongsToProduct ? "Edit" : "New";
-        String roleLabel = FeatureUtils.firstLetterUp(placemarkDescriptor.getRoleLabel());
+        String roleLabel = StringUtils.firstLetterUp(placemarkDescriptor.getRoleLabel());
 
         dialog.getJDialog().setTitle(titlePrefix + " " + roleLabel);
         dialog.getJDialog().setName(titlePrefix + "_" + roleLabel);
