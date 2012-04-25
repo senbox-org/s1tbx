@@ -28,7 +28,8 @@ public interface Extensible {
      * type.
      *
      * @param extensionType the extension type.
-     * @return the extension for this object corresponding to the specified type.
+     * @return the extension for this object corresponding to the specified type,
+     *         or {@code null} if an extension of type {@code extensionType} cannot be delivered.
      */
     <E> E getExtension(Class<E> extensionType);
 }
