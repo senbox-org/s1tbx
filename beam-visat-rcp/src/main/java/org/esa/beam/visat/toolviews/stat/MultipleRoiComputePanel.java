@@ -101,7 +101,7 @@ class MultipleRoiComputePanel extends JPanel {
         maskNameList.getCheckBoxListSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-
+                refreshButton.setEnabled(true);
                 if (!e.getValueIsAdjusting()) {
                     int[] indices = maskNameList.getCheckBoxListSelectedIndices();
                     System.out.println("indices = " + Arrays.toString(indices));
@@ -147,6 +147,7 @@ class MultipleRoiComputePanel extends JPanel {
                     selectedMasks = new Mask[]{null};
                 }
                 method.compute(selectedMasks);
+                refreshButton.setEnabled(false);
             }
         });
         topPanel.add(refreshButton, BorderLayout.WEST);
@@ -185,6 +186,7 @@ class MultipleRoiComputePanel extends JPanel {
                 }
                 updateMaskListState();
             }
+            refreshButton.setEnabled(raster!=null);
         }
     }
 
@@ -202,7 +204,9 @@ class MultipleRoiComputePanel extends JPanel {
 
         try {
             maskNameSearchField.setListModel(maskNameListModel);
-            maskNameList.setModel(maskNameSearchField.getDisplayListModel());
+            if(product!=null){
+                maskNameList.setModel(maskNameSearchField.getDisplayListModel());
+            }
         } catch (Throwable e) {
 
             /*
@@ -223,13 +227,12 @@ class MultipleRoiComputePanel extends JPanel {
     }
 
     private void updateEnablement() {
-        boolean hasRaster = (raster != null);
         boolean hasMasks = (product != null && product.getMaskGroup().getNodeCount() > 0);
         boolean canSelectMasks = hasMasks && useRoiCheckBox.isSelected();
-        refreshButton.setEnabled(hasRaster);
         useRoiCheckBox.setEnabled(hasMasks);
         maskNameSearchField.setEnabled(canSelectMasks);
         maskNameList.setEnabled(canSelectMasks);
+        refreshButton.setEnabled(raster!=null && (!useRoiCheckBox.isSelected() || !(maskNameList.getSelectedIndices().length>0)));
     }
 
     private class PNL implements ProductNodeListener {
