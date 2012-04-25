@@ -903,8 +903,6 @@
             <mnemonic>I</mnemonic>
             <shortDescr>Export Raster Data</shortDescr>
             <description>Export Raster Data</description>
-            <smallIcon>icons/Export16.gif</smallIcon>
-            <largeIcon>icons/Export24.gif</largeIcon>
             <helpId>exportRasterData</helpId>
             <sortChildren>true</sortChildren>
         </action>
@@ -931,8 +929,6 @@
             <text>Other Exports</text>
             <shortDescr>Other Exports</shortDescr>
             <description>Other Exports</description>
-            <smallIcon>icons/Export16.gif</smallIcon>
-            <largeIcon>icons/Export24.gif</largeIcon>
             <helpId>exportOther</helpId>
             <sortChildren>true</sortChildren>
         </action>
