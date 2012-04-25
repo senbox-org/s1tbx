@@ -946,7 +946,7 @@
             <shortDescr>Export the current view as an image.</shortDescr>
             <description>Export the current view as an image.</description>
             <context>image</context>
-            <popuptext>Export View as Image</popuptext>
+            <popuptext>Export View as Image...</popuptext>
             <helpId>exportImageFile</helpId>
         </action>
 
@@ -959,7 +959,7 @@
             <shortDescr>Export the current view as Google Earth KMZ file.</shortDescr>
             <description>Export the current view as Google Earth KMZ file.</description>
             <context>image</context>
-            <popuptext>Export View as Google Earth KMZ</popuptext>
+            <popuptext>Export View as Google Earth KMZ...</popuptext>
             <helpId>exportKmzFile</helpId>
         </action>
 
@@ -972,7 +972,7 @@
             <shortDescr>Export the colour legend as an image.</shortDescr>
             <description>Export the colour legend of the current view as an image.</description>
             <context>image</context>
-            <popuptext>Export Colour Legend as Image</popuptext>
+            <popuptext>Export Colour Legend as Image...</popuptext>
             <helpId>exportLegendImageFile</helpId>
         </action>
 
@@ -985,7 +985,7 @@
             <shortDescr>Export the colour palette to plain text.</shortDescr>
             <description>Export the colour palette of the current view to a plain text file.</description>
             <context>image</context>
-            <popuptext>Export Colour Palette as File</popuptext>
+            <popuptext>Export Colour Palette as File...</popuptext>
             <helpId>exportColorPalette</helpId>
         </action>
 
@@ -998,7 +998,7 @@
             <shortDescr>Export the pixels of a Mask.</shortDescr>
             <description>Export the pixels of a mask as tab-separated text.</description>
             <context>image</context>
-            <popuptext>Export Mask Pixels</popuptext>
+            <popuptext>Export Mask Pixels...</popuptext>
             <helpId>exportMaskPixels</helpId>
         </action>
 
@@ -1011,7 +1011,7 @@
             <shortDescr>Export transect pixels.</shortDescr>
             <description>Export transect pixels as tab-separated text.</description>
             <context>image</context>
-            <popuptext>Export Transect Pixels</popuptext>
+            <popuptext>Export Transect Pixels...</popuptext>
             <helpId>exportTransectPixels</helpId>
         </action>
 
