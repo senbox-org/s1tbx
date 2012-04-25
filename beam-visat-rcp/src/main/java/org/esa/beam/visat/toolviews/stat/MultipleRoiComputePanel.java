@@ -79,7 +79,6 @@ class MultipleRoiComputePanel extends JPanel {
 
         maskNameSearchField = new QuickListFilterField(maskNameListModel);
         maskNameSearchField.setHintText("Filter masks here");
-        //quickSearchPanel.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), "QuickListFilterField", JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
 
         maskNameList = new CheckBoxList(maskNameSearchField.getDisplayListModel()) {
             @Override
@@ -116,11 +115,15 @@ class MultipleRoiComputePanel extends JPanel {
                 Mask[] selectedMasks;
                 if (useRoi) {
                     int[] listIndexes = maskNameList.getCheckBoxListSelectedIndices();
-                    selectedMasks = new Mask[listIndexes.length];
-                    for (int i = 0; i < listIndexes.length; i++) {
-                        int listIndex = listIndexes[i];
-                        String maskName = maskNameList.getModel().getElementAt(listIndex).toString();
-                        selectedMasks[i] = raster.getProduct().getMaskGroup().get(maskName);
+                    if (listIndexes.length > 0) {
+                        selectedMasks = new Mask[listIndexes.length];
+                        for (int i = 0; i < listIndexes.length; i++) {
+                            int listIndex = listIndexes[i];
+                            String maskName = maskNameList.getModel().getElementAt(listIndex).toString();
+                            selectedMasks[i] = raster.getProduct().getMaskGroup().get(maskName);
+                        }
+                    } else {
+                        selectedMasks = new Mask[]{null};
                     }
                 } else {
                     selectedMasks = new Mask[]{null};
