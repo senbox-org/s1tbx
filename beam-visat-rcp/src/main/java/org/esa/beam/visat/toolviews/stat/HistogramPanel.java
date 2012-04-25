@@ -55,6 +55,7 @@ import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A pane within the statistcs window which displays a histogram.
@@ -159,12 +160,15 @@ class HistogramPanel extends ChartPagePanel {
         updateUIState();
     }
 
-    private void initActionEnablers(){
-        RefreshActionEnabler rangeControlActionEnabler = new RefreshActionEnabler(refreshButton,PROPERTY_NAME_MIN,PROPERTY_NAME_AUTO_MIN_MAX,
-                PROPERTY_NAME_MAX,PROPERTY_NAME_LOGARITHMIC_HISTOGRAM);
+    private void initActionEnablers() {
+        RefreshActionEnabler rangeControlActionEnabler = new RefreshActionEnabler(refreshButton, PROPERTY_NAME_MIN,
+                                                                                  PROPERTY_NAME_AUTO_MIN_MAX,
+                                                                                  PROPERTY_NAME_MAX,
+                                                                                  PROPERTY_NAME_LOGARITHMIC_HISTOGRAM);
         xAxisRangeControl.getBindingContext().addPropertyChangeListener(rangeControlActionEnabler);
-        RefreshActionEnabler componentsActionEnabler = new RefreshActionEnabler(refreshButton,PROPERTY_NAME_NUM_BINS,
-                PROPERTY_NAME_USE_ROI_MASK,PROPERTY_NAME_ROI_MASK);
+        RefreshActionEnabler componentsActionEnabler = new RefreshActionEnabler(refreshButton, PROPERTY_NAME_NUM_BINS,
+                                                                                PROPERTY_NAME_USE_ROI_MASK,
+                                                                                PROPERTY_NAME_ROI_MASK);
         bindingContext.addPropertyChangeListener(componentsActionEnabler);
     }
 
@@ -305,71 +309,7 @@ class HistogramPanel extends ChartPagePanel {
             max = (Double) xAxisRangeControl.getBindingContext().getBinding("max").getPropertyValue();
         }
 
-        ProgressMonitorSwingWorker<Stx, Object> swingWorker = new ProgressMonitorSwingWorker<Stx, Object>(this, "Computing Histogram") {
-            @Override
-            protected Stx doInBackground(ProgressMonitor pm) throws Exception {
-                final Stx stx;
-                if (histogramPlotConfig.useRoiMask || histogramPlotConfig.numBins != Stx.DEFAULT_BIN_COUNT || histogramPlotConfig.histogramLogScaled || min != null || max != null) {
-                    final StxFactory factory = new StxFactory();
-                    if (histogramPlotConfig.useRoiMask) {
-                        factory.withRoiMask(histogramPlotConfig.roiMask);
-                    }
-                    factory.withHistogramBinCount(histogramPlotConfig.numBins);
-                    factory.withLogHistogram(histogramPlotConfig.histogramLogScaled);
-                    if (min != null) {
-                        if (histogramPlotConfig.histogramLogScaled) {
-                            factory.withMinimum(Stx.LOG10_SCALING.scaleInverse(min));
-                        } else {
-                            factory.withMinimum(min);
-                        }
-                    }
-                    if (max != null) {
-                        if (histogramPlotConfig.histogramLogScaled) {
-                            factory.withMaximum(Stx.LOG10_SCALING.scaleInverse(max));
-                        } else {
-                            factory.withMaximum(max);
-                        }
-                    }
-                    stx = factory.create(getRaster(), pm);
-                } else {
-                    stx = getRaster().getStx(true, pm);
-                }
-                return stx;
-            }
-
-            @Override
-            public void done() {
-                try {
-                    Stx stx = get();
-                    if (stx.getSampleCount() > 0) {
-                        if (autoMinMaxEnabled) {
-                            final double min = stx.getHistogramScaling().scale(stx.getMinimum());
-                            final double max = stx.getHistogramScaling().scale(stx.getMaximum());
-                            final double v = MathUtils.computeRoundFactor(min, max, 4);
-                            histogramComputing = true;
-                            xAxisRangeControl.getBindingContext().getBinding("min").setPropertyValue(
-                                    StatisticsUtils.round(min, v));
-                            xAxisRangeControl.getBindingContext().getBinding("max").setPropertyValue(
-                                    StatisticsUtils.round(max, v));
-                            histogramComputing = false;
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(getParentComponent(),
-                                                      "The ROI is empty or no pixels found between min/max.\n"
-                                                              + "A valid histogram could not be computed.",
-                                                      CHART_TITLE,
-                                                      JOptionPane.WARNING_MESSAGE);
-                    }
-                    setStx(stx);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(getParentComponent(),
-                                                  "Failed to compute histogram.\nAn internal error occurred:\n" + e.getMessage(),
-                                                  CHART_TITLE,
-                                                  JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        };
+        ProgressMonitorSwingWorker<Stx, Object> swingWorker = new StxWorker(min, max, autoMinMaxEnabled);
         swingWorker.execute();
     }
 
@@ -430,7 +370,7 @@ class HistogramPanel extends ChartPagePanel {
         sb.append("Histogram maximum:\t").append(max).append("\t").append(getRaster().getUnit()).append("\n");
         sb.append("Histogram bin size:\t").append(
                 getRaster().isLog10Scaled() ? ("NA\t") : ((max - min) / numBins + "\t") +
-                        getRaster().getUnit() + "\n");
+                                                         getRaster().getUnit() + "\n");
         sb.append("Histogram #bins:\t").append(numBins).append("\n");
         sb.append('\n');
 
@@ -467,7 +407,8 @@ class HistogramPanel extends ChartPagePanel {
                 adjusting = true;
                 if (evt.getPropertyName().equals(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM)) {
                     if (evt.getNewValue().equals(Boolean.TRUE)) {
-                        xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).setPropertyValue(Boolean.FALSE);
+                        xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).setPropertyValue(
+                                Boolean.FALSE);
                         xAxisRangeControl.setMin(Stx.LOG10_SCALING.scale(xAxisRangeControl.getMin()));
                         xAxisRangeControl.setMax(Stx.LOG10_SCALING.scale(xAxisRangeControl.getMax()));
                     } else {
@@ -478,6 +419,105 @@ class HistogramPanel extends ChartPagePanel {
                 updateUIState();
                 adjusting = false;
             }
+        }
+    }
+
+    private class StxWorker extends ProgressMonitorSwingWorker<Stx, Object> {
+
+        private final Double min;
+        private final Double max;
+        private final boolean autoMinMaxEnabled;
+
+        public StxWorker(Double min, Double max, boolean autoMinMaxEnabled) {
+            super(HistogramPanel.this, "Computing Histogram");
+            this.min = min;
+            this.max = max;
+            this.autoMinMaxEnabled = autoMinMaxEnabled;
+        }
+
+        @Override
+        protected Stx doInBackground(ProgressMonitor pm) throws Exception {
+            final Stx stx;
+            if (histogramPlotConfig.useRoiMask || histogramPlotConfig.numBins != Stx.DEFAULT_BIN_COUNT || histogramPlotConfig.histogramLogScaled || min != null || max != null) {
+                final StxFactory factory = new StxFactory();
+                if (histogramPlotConfig.useRoiMask) {
+                    factory.withRoiMask(histogramPlotConfig.roiMask);
+                }
+                factory.withHistogramBinCount(histogramPlotConfig.numBins);
+                factory.withLogHistogram(histogramPlotConfig.histogramLogScaled);
+                if (min != null) {
+                    if (histogramPlotConfig.histogramLogScaled) {
+                        factory.withMinimum(Stx.LOG10_SCALING.scaleInverse(min));
+                    } else {
+                        factory.withMinimum(min);
+                    }
+                }
+                if (max != null) {
+                    if (histogramPlotConfig.histogramLogScaled) {
+                        factory.withMaximum(Stx.LOG10_SCALING.scaleInverse(max));
+                    } else {
+                        factory.withMaximum(max);
+                    }
+                }
+                stx = factory.create(getRaster(), pm);
+            } else {
+                stx = getRaster().getStx(true, pm);
+            }
+            return stx;
+        }
+
+        @Override
+        public void done() {
+            try {
+                Stx stx = get();
+                if (stx.getSampleCount() > 0) {
+                    if (autoMinMaxEnabled) {
+                        final double min = stx.getHistogramScaling().scale(stx.getMinimum());
+                        final double max = stx.getHistogramScaling().scale(stx.getMaximum());
+                        final double v = MathUtils.computeRoundFactor(min, max, 4);
+                        histogramComputing = true;
+                        xAxisRangeControl.getBindingContext().getBinding("min").setPropertyValue(
+                                StatisticsUtils.round(min, v));
+                        xAxisRangeControl.getBindingContext().getBinding("max").setPropertyValue(
+                                StatisticsUtils.round(max, v));
+                        histogramComputing = false;
+                    }
+                    setStx(stx);
+                } else {
+                    handleNoPixelsFound();
+                }
+            } catch (ExecutionException e) {
+                if (e.getCause() instanceof IllegalArgumentException) {
+                    handleNoPixelsFound();
+                } else {
+                    handleExecutionException(e);
+                }
+            } catch (InterruptedException e) {
+                handleInterruptedException(e);
+            }
+        }
+
+        private void handleInterruptedException(InterruptedException e) {
+            JOptionPane.showMessageDialog(getParentComponent(),
+                                          "The histogram computation has been interrupted:\n" + e.getMessage(),
+                                          CHART_TITLE,
+                                          JOptionPane.ERROR_MESSAGE);
+        }
+
+        private void handleExecutionException(ExecutionException e) {
+            JOptionPane.showMessageDialog(getParentComponent(),
+                                          "An internal error occurred.\n" +
+                                          "A valid histogram could not be computed:\n" + e.getMessage(),
+                                          CHART_TITLE,
+                                          JOptionPane.ERROR_MESSAGE);
+        }
+
+        private void handleNoPixelsFound() {
+            JOptionPane.showMessageDialog(getParentComponent(),
+                                          "Either the selected ROI is empty or no pixels have been found within the minimum and maximum values specified.\n" +
+                                          "A valid histogram could not be computed.",
+                                          CHART_TITLE,
+                                          JOptionPane.WARNING_MESSAGE);
         }
     }
 }
