@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -38,6 +38,7 @@ import org.esa.beam.framework.ui.product.VectorDataLayer;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ObjectUtils;
 
+import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,8 +54,8 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
     private static final String FILL_COLOR_NAME = DefaultFigureStyle.FILL_COLOR.getName();
     private static final String FILL_OPACITY_NAME = DefaultFigureStyle.FILL_OPACITY.getName();
     private static final String STROKE_COLOR_NAME = DefaultFigureStyle.STROKE_COLOR.getName();
-    private static final String STROKE_WIDTH_NAME = DefaultFigureStyle.STROKE_WIDTH.getName();
     private static final String STROKE_OPACITY_NAME = DefaultFigureStyle.STROKE_OPACITY.getName();
+    private static final String STROKE_WIDTH_NAME = DefaultFigureStyle.STROKE_WIDTH.getName();
     private static final String SYMBOL_NAME_NAME = DefaultFigureStyle.SYMBOL_NAME.getName();
     private static final SimpleFeatureFigure[] NO_SIMPLE_FEATURE_FIGURES = new SimpleFeatureFigure[0];
     private static final ValueSet SYMBOL_VALUE_SET = new ValueSet(new String[]{
@@ -92,13 +93,13 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
         strokeColor.setDefaultValue(getCommonStylePropertyValue(figures, STROKE_COLOR_NAME));
         addPropertyDescriptor(strokeColor);
 
-        final PropertyDescriptor strokeWidth = new PropertyDescriptor(DefaultFigureStyle.STROKE_WIDTH);
-        strokeWidth.setDefaultValue(getCommonStylePropertyValue(figures, STROKE_WIDTH_NAME));
-        addPropertyDescriptor(strokeWidth);
-
         final PropertyDescriptor strokeOpacity = new PropertyDescriptor(DefaultFigureStyle.STROKE_OPACITY);
         strokeOpacity.setDefaultValue(getCommonStylePropertyValue(figures, STROKE_OPACITY_NAME));
         addPropertyDescriptor(strokeOpacity);
+
+        final PropertyDescriptor strokeWidth = new PropertyDescriptor(DefaultFigureStyle.STROKE_WIDTH);
+        strokeWidth.setDefaultValue(getCommonStylePropertyValue(figures, STROKE_WIDTH_NAME));
+        addPropertyDescriptor(strokeWidth);
 
         final PropertyDescriptor symbolName = new PropertyDescriptor(DefaultFigureStyle.SYMBOL_NAME);
         symbolName.setDefaultValue(getCommonStylePropertyValue(figures, SYMBOL_NAME_NAME));
@@ -152,8 +153,8 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
         updateProperty(bindingContext, FILL_COLOR_NAME, getCommonStylePropertyValue(selectedFigures, FILL_COLOR_NAME));
         updateProperty(bindingContext, FILL_OPACITY_NAME, getCommonStylePropertyValue(selectedFigures, FILL_OPACITY_NAME));
         updateProperty(bindingContext, STROKE_COLOR_NAME, getCommonStylePropertyValue(selectedFigures, STROKE_COLOR_NAME));
-        updateProperty(bindingContext, STROKE_WIDTH_NAME, getCommonStylePropertyValue(selectedFigures, STROKE_WIDTH_NAME));
         updateProperty(bindingContext, STROKE_OPACITY_NAME, getCommonStylePropertyValue(selectedFigures, STROKE_OPACITY_NAME));
+        updateProperty(bindingContext, STROKE_WIDTH_NAME, getCommonStylePropertyValue(selectedFigures, STROKE_WIDTH_NAME));
         final Object styleProperty = getCommonStylePropertyValue(selectedFigures, SYMBOL_NAME_NAME);
         if (styleProperty != null) {
             updateProperty(bindingContext, SYMBOL_NAME_NAME, styleProperty);
@@ -175,6 +176,21 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
         if (value != null) {
             style.setValue(propertyName, value);
         }
+    }
+
+    private void updateColorAndOpacity(String colorPropertyName, String opacityPropertyName) {
+        PropertySet propertySet = getBindingContext().getPropertySet();
+        Color color  = propertySet.getValue(colorPropertyName);
+        boolean isTransparent = color != null &&  color.getAlpha() == 0;
+        if (isTransparent) {
+            propertySet.setValue(opacityPropertyName, 0.0);
+        } else {
+            Double transparency = propertySet.getValue(opacityPropertyName);
+            if (transparency != null && transparency == 0.0) {
+                propertySet.setValue(opacityPropertyName, 0.5);
+            }
+        }
+        getBindingContext().setComponentsEnabled(opacityPropertyName, !isTransparent);
     }
 
     private Object getCommonStylePropertyValue(Figure[] figures, String propertyName) {
@@ -244,6 +260,12 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
             if (evt.getNewValue() == null) {
                 return;
             }
+            String propertyName = evt.getPropertyName();
+            if (FILL_COLOR_NAME.equals(propertyName)) {
+                updateColorAndOpacity(FILL_COLOR_NAME, FILL_OPACITY_NAME);
+            } else if (STROKE_COLOR_NAME.equals(propertyName)) {
+                updateColorAndOpacity(STROKE_COLOR_NAME, STROKE_OPACITY_NAME);
+            }
             if (isAdjusting.compareAndSet(false, true)) {
                 try {
                     SimpleFeatureFigure[] figures = getFigures(true);
@@ -268,11 +290,11 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
                     }
 
                     for (SimpleFeatureFigure figure : figures) {
-                        final Object oldFigureValue = figure.getNormalStyle().getValue(evt.getPropertyName());
+                        final Object oldFigureValue = figure.getNormalStyle().getValue(propertyName);
                         final Object newValue = evt.getNewValue();
                         if (!newValue.equals(oldFigureValue)) {
                             Debug.trace(String.format("VectorDataLayerEditor$StyleUpdater (2): about to apply change: name=%s, oldValue=%s, newValue=%s",
-                                                      evt.getPropertyName(), oldFigureValue, evt.getNewValue()));
+                                                      propertyName, oldFigureValue, evt.getNewValue()));
                             // Transfer new style to affected figure.
                             final FigureStyle origStyle = figure.getNormalStyle();
                             final FigureStyle style = new DefaultFigureStyle();

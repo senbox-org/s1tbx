@@ -59,7 +59,7 @@ public interface DataProvider {
      * @param entry      the entry for which the data shall be provided.
      * @param repository the repository containing the entry. // todo - (from nf)  for what? entry knows it repository!
      *
-     * @throws IOException if an error occures during creating the data.
+     * @throws IOException if an error occurs during creating the data.
      */
     void createData(RepositoryEntry entry, Repository repository) throws IOException;
 
@@ -71,7 +71,7 @@ public interface DataProvider {
      *
      * @return the provided data.
      *
-     * @throws IOException if an error occures during providing the data.
+     * @throws IOException if an error occurs during providing the data.
      */
     Object getData(RepositoryEntry entry, Repository repository) throws IOException;
 

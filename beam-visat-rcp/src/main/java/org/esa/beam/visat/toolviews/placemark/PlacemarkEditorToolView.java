@@ -38,10 +38,24 @@ import javax.swing.table.AbstractTableModel;
 import java.awt.BorderLayout;
 
 /**
- * A dialog used to manage the list of pins or ground control points associated
- * with a selected product.
+ * A tool windows that lets users edit the attribute values of selected vector data features.
+ * <p/>
+ * <i>Note: the editor functionality is not implemented yet. Instead it is used as a tool windows that
+ * displays the attributes of selected vector data features.
+ * </i>
+ * <p/>
+ * <i>Implementation idea: Wrap the entire feature attribute set in a {@link com.bc.ceres.binding.PropertySet}
+ * so that we have {@link com.bc.ceres.swing.binding.BindingContext} and can then create a
+ * {@link com.bc.ceres.swing.binding.PropertyPane} for editing (or use the JIDE Property Pane). Furthermore, we
+ * will have to make better use of the {@link com.bc.ceres.core.Extensible} interface, since {@link Selection} already
+ * implements it. But currently the are no factories registered that will return a SimpleFeature or VectorDataNode
+ * instances for a given {@link Selection} object. (nf - 2012-04-25)</i>
+ *
+ * @author Norman
  */
 public class PlacemarkEditorToolView extends AbstractToolView {
+
+    public static final String NO_SELECTION_TEXT = "<html>No vector data feature selected<br/>Try selecting a geometry in a view.</html>";
 
     private VisatApp visatApp;
 
@@ -50,6 +64,7 @@ public class PlacemarkEditorToolView extends AbstractToolView {
     private String titleBase;
     private JScrollPane attributeTablePane;
     private final SCL scl;
+    private FeatureTableModel tableModel;
 
     public PlacemarkEditorToolView() {
         visatApp = VisatApp.getApp();
@@ -60,7 +75,11 @@ public class PlacemarkEditorToolView extends AbstractToolView {
     public JComponent createControl() {
         titleBase = getTitle();
         infoLabel = new JLabel();
-        attributeTable = new JTable();
+        tableModel = new FeatureTableModel();
+        attributeTable = new JTable(tableModel);
+        attributeTable.getColumnModel().getColumn(0).setPreferredWidth(80);
+        attributeTable.getColumnModel().getColumn(1).setPreferredWidth(60);
+        attributeTable.getColumnModel().getColumn(2).setPreferredWidth(320);
         attributeTablePane = new JScrollPane(attributeTable);
         attributeTablePane.setVisible(false);
 
@@ -73,7 +92,7 @@ public class PlacemarkEditorToolView extends AbstractToolView {
     }
 
     @Override
-    public void componentOpened() {
+    public void componentShown() {
         SelectionManager selectionManager = visatApp.getApplicationPage().getSelectionManager();
         selectionManager.addSelectionChangeListener(scl);
         handleSelectionChange(selectionManager.getSelectionContext(),
@@ -93,72 +112,103 @@ public class PlacemarkEditorToolView extends AbstractToolView {
         }
 
         if (selection != null) {
-            VectorDataNode vectorDataNode = null;
+            final VectorDataNode vectorDataNode;
             if (selectionContext instanceof VectorDataFigureEditor) {
-                VectorDataFigureEditor editor = (VectorDataFigureEditor) selectionContext;
-                vectorDataNode = editor.getVectorDataNode();
+                vectorDataNode = ((VectorDataFigureEditor) selectionContext).getVectorDataNode();
+            } else {
+                vectorDataNode = null;
             }
-            if (selection instanceof VectorDataFigureEditor) {
-            }
-            System.out.println("selectionContext = " + selectionContext);
 
             final Object selectedValue = selection.getSelectedValue();
-            System.out.println("selection.selectedValue = " + selectedValue);
-
-
-            if (vectorDataNode != null) {
-                setTitle(titleBase + " - " + vectorDataNode.getName());
-            } else {
-                setTitle(titleBase);
-            }
-
-            if (vectorDataNode != null) {
-                infoLabel.setText(String.format("<html>" +
-                                                        "Vector data node <b>%s</b><br>" +
-                                                        "Placemark descriptor <b>%s</b><br>" +
-                                                        "Feature type <b>%s</b><br>" +
-                                                        "<br>" +
-                                                        "%d placemark(s)<br>" +
-                                                        "%d feature(s)<br></html>",
-                                                vectorDataNode.getName(),
-                                                vectorDataNode.getPlacemarkDescriptor().getClass(),
-                                                vectorDataNode.getFeatureType().getTypeName(),
-                                                vectorDataNode.getPlacemarkGroup().getNodeCount(),
-                                                vectorDataNode.getFeatureCollection().size()));
-            } else {
-                // ?
-                infoLabel.setText(String.format("<html>" +
-                                                        "SelectionContext: <b>%s</b><br>" +
-                                                        "selectedValue: <b>%s</b><br>",
-                                                selectionContext,
-                                                selectedValue
-                ));
-            }
-
+            final SimpleFeature feature;
             if (selectedValue instanceof SimpleFeatureFigure) {
                 SimpleFeatureFigure figure = (SimpleFeatureFigure) selectedValue;
+                feature = figure.getSimpleFeature();
+            } else {
+                feature = null;
+            }
+
+            setTitle(getWindowTitle(vectorDataNode, feature));
+            infoLabel.setText(getInfoText(vectorDataNode, feature));
+
+            if (feature != null) {
                 attributeTablePane.setVisible(true);
-                attributeTable.setModel(new FeatureTableModel(figure.getSimpleFeature()));
+                tableModel.setFeature(feature);
             } else {
                 attributeTablePane.setVisible(false);
             }
         } else {
-            infoLabel.setText("No selection.");
-            setTitle(titleBase);
+            setTitle(getWindowTitle(null, null));
+            infoLabel.setText(getInfoText(null, null));
         }
 
     }
 
-    private static class FeatureTableModel extends AbstractTableModel {
-        private final SimpleFeature feature;
+    private String getInfoText(VectorDataNode vectorDataNode, SimpleFeature feature) {
+        final String infoText;
+        if (vectorDataNode != null) {
+            infoText = String.format("<html>" +
+                                             "Vector data node: <b>%s</b> with %d feature(s)<br>" +
+                                             "Feature type: <b>%s (%s)</b><br>" +
+                                             "Geometry attribute: <b>%s</b><br>" +
+                                             "<br>" +
+                                             "%s<br>" +
+                                             "</html>",
+                                     vectorDataNode.getName(),
+                                     vectorDataNode.getFeatureCollection().size(),
+                                     vectorDataNode.getFeatureType().getTypeName(),
+                                     vectorDataNode.getPlacemarkDescriptor().getClass().getSimpleName(),
+                                     vectorDataNode.getFeatureType().getGeometryDescriptor().getLocalName(),
+                                     feature != null ? String.format("Selected feature <b>%s</b>:", feature.getID()) : "No feature selected.");
+            infoLabel.setText(infoText);
+        } else {
+            infoText = NO_SELECTION_TEXT;
+            // infoText = getSelectionDebugText(selectionContext, selectedValue);
+        }
+        return infoText;
+    }
 
-        public FeatureTableModel(SimpleFeature feature) {
-            this.feature = feature;
+    private String getSelectionDebugText(SelectionContext selectionContext, Object selectedValue) {
+        return String.format("<html>"
+                                     + "SelectionContext: <b>%s</b><br>"
+                                     + "SelectionContext.class: <b>%s</b><br>"
+                                     + "selectedValue: <b>%s</b><br>"
+                                     + "selectedValue.class: <b>%s</b><br>",
+                             selectionContext,
+                             selectionContext.getClass(),
+                             selectedValue,
+                             selectedValue != null ? selectedValue.getClass() : "-"
+        );
+    }
+
+    private String getWindowTitle(VectorDataNode vectorDataNode, SimpleFeature feature) {
+        final String titleText;
+        if (vectorDataNode != null) {
+            if (feature != null) {
+                titleText = titleBase + " - " + vectorDataNode.getName() + " - " + feature.getID();
+            } else {
+                titleText = titleBase + " - " + vectorDataNode.getName();
+            }
+        } else {
+            titleText = titleBase;
+        }
+        return titleText;
+    }
+
+    private static class FeatureTableModel extends AbstractTableModel {
+        private SimpleFeature feature;
+
+        public void setFeature(SimpleFeature newFeature) {
+            final SimpleFeature oldFeature = this.feature;
+            if (oldFeature != newFeature) {
+                this.feature = newFeature;
+                fireTableDataChanged();
+            }
         }
 
         @Override
         public int getRowCount() {
-            return feature.getFeatureType().getAttributeCount();
+            return feature != null ? feature.getFeatureType().getAttributeCount() : 0;
         }
 
         @Override
@@ -184,13 +234,16 @@ public class PlacemarkEditorToolView extends AbstractToolView {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            if (columnIndex == 0) {
-                return feature.getFeatureType().getDescriptor(rowIndex).getLocalName();
-            } else if (columnIndex == 1) {
-                return feature.getFeatureType().getDescriptor(rowIndex).getType().getBinding().getSimpleName();
-            } else {
-                return feature.getAttribute(rowIndex);
+            if (feature != null) {
+                if (columnIndex == 0) {
+                    return feature.getFeatureType().getDescriptor(rowIndex).getLocalName();
+                } else if (columnIndex == 1) {
+                    return feature.getFeatureType().getDescriptor(rowIndex).getType().getBinding().getSimpleName();
+                } else {
+                    return feature.getAttribute(rowIndex);
+                }
             }
+            return null;
         }
     }
 

@@ -258,7 +258,7 @@ public class ExportPinPixelsAction extends ExecCommand {
     }
 
     /**
-     * Creates the export Data. Can be <code>null</code> if an error occures while reading the
+     * Creates the export Data. Can be <code>null</code> if an error occurs while reading the
      * product data or user input.
      *
      * @param product

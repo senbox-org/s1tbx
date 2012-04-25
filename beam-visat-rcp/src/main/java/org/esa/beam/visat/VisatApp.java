@@ -128,6 +128,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -1045,12 +1046,12 @@ public class VisatApp extends BasicApp implements AppContext {
             for (final JInternalFrame frame : frames) {
                 final Container cont = frame.getContentPane();
                 Product frameProduct = null;
-                if (cont instanceof ProductSceneView) {
-                    final ProductSceneView imageView = (ProductSceneView) cont;
-                    frameProduct = imageView.getProduct();
-                } else if (cont instanceof ProductMetadataView) {
-                    final ProductMetadataView metadataView = (ProductMetadataView) cont;
-                    frameProduct = metadataView.getMetadataElement().getProduct();
+                if (cont instanceof ProductNodeView) {
+                    final ProductNodeView nodeView = (ProductNodeView) cont;
+                    ProductNode visibleProductNode = nodeView.getVisibleProductNode();
+                    if (visibleProductNode != null) {
+                        frameProduct = visibleProductNode.getProduct();
+                    }
                 }
                 if (frameProduct != null && frameProduct == product) {
                     desktopPane.closeFrame(frame);
@@ -2263,9 +2264,11 @@ public class VisatApp extends BasicApp implements AppContext {
         frame.setLocation(0, 0);
         if (content != null && content.getPreferredSize() != null) {
             frame.pack();
+            ensureMinWidthAndHight(frame, 640, 480);
         } else {
             frame.setSize(640, 480);
         }
+
         try {
             desktopPane.addFrame(frame);
         } catch (RuntimeException e) {
@@ -2303,6 +2306,13 @@ public class VisatApp extends BasicApp implements AppContext {
                 }
             }
         };
+    }
+
+    private void ensureMinWidthAndHight(JInternalFrame frame, int minWidth, int minHeight) {
+        final Dimension frameSize = frame.getSize();
+        final int correctedWidth = Math.max(frameSize.width, minWidth);
+        final int correctedHeight = Math.max(frameSize.height, minHeight);
+        frame.setSize(new Dimension(correctedWidth, correctedHeight));
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

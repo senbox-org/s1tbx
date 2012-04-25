@@ -58,9 +58,10 @@ public class TableViewPagePanel extends PagePanel {
         table.setGridColor(Color.LIGHT_GRAY.brighter());
         table.addMouseListener(new PagePanel.PopupHandler());
 
+        // the following 4 lines are needed, therewith the scroll pane displays
+        // not only a vertical scroll bar if needed but also a horizontal scroll bar if needed.
         final JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.add(table, BorderLayout.CENTER);
-
         final JScrollPane scrollPane = new JScrollPane(tablePanel);
         scrollPane.setColumnHeaderView(table.getTableHeader());
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -394,7 +394,7 @@ public class ProductSceneView extends BasicView
     @Override
     public ProductNode getVisibleProductNode() {
         if (isRGB()) {
-            return null;
+            return getProduct();
         }
         return getRaster();
     }

@@ -436,8 +436,13 @@
         <toolView>
             <id>org.esa.beam.visat.toolviews.placemark.PlacemarkEditorToolView</id>
             <class>org.esa.beam.visat.toolviews.placemark.PlacemarkEditorToolView</class>
-            <title>Placemark Editor</title>
-            <description>Editor for placemarks of a data product.</description>
+            <!-- Not yet, editor functionality still not implemented! -->
+            <!--
+            <title>Vector Data Editor</title>
+            <description>Edit features of selected vector data.</description>
+            -->
+            <title>Vector Data Information</title>
+            <description>Displays attributes of selected vector data features.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/PinManager16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/PinManager24.gif</largeIcon>
             <helpId>showPlacemarkEditorWnd</helpId>
