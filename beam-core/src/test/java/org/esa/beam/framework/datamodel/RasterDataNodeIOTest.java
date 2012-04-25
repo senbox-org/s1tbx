@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -52,22 +52,12 @@ public class RasterDataNodeIOTest extends TestCase {
     private Product p;
     private TestProductReader pr;
     private Rectangle rectangle;
-    private String enableSourceTileCachingOld;
 
     @Override
     protected void setUp() {
         p = createTestProduct();
         pr = (TestProductReader) p.getProductReader();
         rectangle = new Rectangle(0, 0, SW, SH);
-        enableSourceTileCachingOld = System.getProperty("beam.imageManager.enableSourceTileCaching");
-        System.setProperty("beam.imageManager.enableSourceTileCaching", "true");
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        if (enableSourceTileCachingOld != null) {
-            System.setProperty("beam.imageManager.enableSourceTileCaching", enableSourceTileCachingOld);
-        }
     }
 
     public void testThatSourceImagesGeneratedForBandsAreCached() throws IOException {
