@@ -17,48 +17,50 @@
 package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.CoreException;
+import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ModuleContext;
-import com.bc.ceres.core.runtime.RuntimeConfig;
 import com.bc.ceres.core.runtime.ProxyConfig;
+import com.bc.ceres.core.runtime.RuntimeConfig;
 
 import java.net.URL;
 import java.util.logging.Logger;
 
-public class DefaultModuleContext implements ModuleContext {
+public class DefaultModuleContext extends ExtensibleObject implements ModuleContext {
 
-    private ModuleImpl module;
+    private final ModuleImpl module;
 
     public DefaultModuleContext(ModuleImpl module) {
         this.module = module;
     }
 
-    public <E> E getExtension(Class<E> extensionType) {
-        return ExtensionManager.getInstance().getExtension(this, extensionType);
-    }
-
+    @Override
     public RuntimeConfig getRuntimeConfig() {
         return module.getRuntime().getRuntimeConfig();
     }
 
+    @Override
     public Module getModule() {
         return module;
     }
 
+    @Override
     public Module[] getModules() {
         return module.getRuntime().getModules();
     }
 
+    @Override
     public Module getModule(long id) {
         return module.getRuntime().getModule(id);
     }
 
+    @Override
     public Logger getLogger() {
         return module.getRuntime().getLogger();
     }
 
+    @Override
     public Module installModule(URL url, ProxyConfig proxyConfig, ProgressMonitor pm) throws CoreException {
         return module.getRuntime().installModule(url, proxyConfig, pm);
     }
