@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.AbstractGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.Scene;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
@@ -131,7 +132,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         // - calculate geo-boundary of product
         // - intersect with search region
         // - re-transform intersection polygon points to x/y space
-        // - NONE of the boundary points transforms to a consistent x/y position - all result in (-1,-1) 
+        // - NONE of the boundary points transforms to a consistent x/y position - all result in (-1,-1)
 //        if (_generalArea == null) {
 //            initGeneralArea();
 //        }
@@ -284,9 +285,9 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
                 _gcList.add(null);
                 _centerLineList.add(null);
             } else {
-                final TiePointGrid latTPG = new TiePointGrid("lat" + y, stripeW, stripeH, osX, osY, ssX, ssY, lats);
-                final TiePointGrid lonTPG = new TiePointGrid("lon" + y, stripeW, stripeH, osX, osY, ssX, ssY, lons,
-                                                             true);
+                final ModisTiePointGrid latTPG = new ModisTiePointGrid("lat" + y, stripeW, stripeH, osX, osY, ssX, ssY, lats);
+                final ModisTiePointGrid lonTPG = new ModisTiePointGrid("lon" + y, stripeW, stripeH, osX, osY, ssX, ssY, lons, true);
+
                 final TiePointGeoCoding geoCoding = new TiePointGeoCoding(latTPG, lonTPG, _datum);
                 _cross180 = _cross180 || geoCoding.isCrossingMeridianAt180();
                 _gcList.add(geoCoding);
@@ -471,6 +472,26 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
             }
 
             return pointsDist;
+        }
+    }
+
+    private class ModisTiePointGrid extends TiePointGrid {
+
+        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints) {
+            super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints);
+        }
+
+        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints, int discontinuity) {
+            super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, discontinuity);
+        }
+
+        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints, boolean containsAngles) {
+            super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, containsAngles);
+        }
+
+        @Override
+        public ProductNode getOwner() {
+            return _lonGrid.getOwner();
         }
     }
 }
