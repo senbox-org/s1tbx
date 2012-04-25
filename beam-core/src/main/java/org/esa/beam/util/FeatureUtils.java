@@ -24,7 +24,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.TopologyException;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
@@ -35,13 +34,13 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
@@ -49,13 +48,14 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Unstable API. Use at own risk.
@@ -174,7 +174,6 @@ public class FeatureUtils {
                 targetCrs = sourceCrs;
             }
 
-
             try {
                 GeometryCoordinateSequenceTransformer clip2SourceTransformer = getTransform(clipCrs, sourceCrs);
                 clipGeometry = clip2SourceTransformer.transform(clipGeometry);
@@ -195,10 +194,10 @@ public class FeatureUtils {
 
             DefaultFeatureCollection targetCollection = new DefaultFeatureCollection(targetID, targetSchema);
 
-            Iterator<SimpleFeature> iterator = sourceCollection.iterator();
+            final FeatureIterator<SimpleFeature> features = sourceCollection.features();
             try {
-                while (iterator.hasNext()) {
-                    SimpleFeature sourceFeature = iterator.next();
+                while (features.hasNext()) {
+                    SimpleFeature sourceFeature = features.next();
 
                     pm.worked(1);
 
@@ -217,7 +216,7 @@ public class FeatureUtils {
                     }
                 }
             } finally {
-                sourceCollection.close(iterator);
+                features.close();
             }
 
             return targetCollection;
