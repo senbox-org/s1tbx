@@ -136,7 +136,7 @@ class HistogramPanel extends ChartPagePanel {
         chart = ChartFactory.createHistogram(
                 CHART_TITLE,
                 "Values",
-                "Sample Frequency",
+                "Frequency in #pixels",
                 dataset,
                 PlotOrientation.VERTICAL,
                 false,  // Legend?
