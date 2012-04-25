@@ -485,6 +485,7 @@ class HistogramPanel extends ChartPagePanel {
                     setStx(stx);
                 } else {
                     handleNoPixelsFound();
+                    setStx(null);
                 }
             } catch (ExecutionException e) {
                 if (e.getCause() instanceof IllegalArgumentException) {
@@ -492,8 +493,10 @@ class HistogramPanel extends ChartPagePanel {
                 } else {
                     handleExecutionException(e);
                 }
+                setStx(null);
             } catch (InterruptedException e) {
                 handleInterruptedException(e);
+                setStx(null);
             }
         }
 
