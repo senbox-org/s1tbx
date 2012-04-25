@@ -133,7 +133,10 @@ public class XYPlotMarker implements ChartMouseListener {
     }
 
     private void updatePoint(ChartMouseEvent event) {
-        if (xyDataset == null || xyDataset.getSeriesCount() == 0) {
+        if (xyDataset == null
+                || xyDataset.getSeriesCount() == 0
+                // This situation appears, if the dataset has changed while the overlay is still visible
+                || (seriesIndex < 0 || seriesIndex >= xyDataset.getSeriesCount())) {
             if (removeOverlay()) {
                 // FIXME - exception here:
 
@@ -150,13 +153,6 @@ public class XYPlotMarker implements ChartMouseListener {
                 */
             }
             return;
-        }
-
-        if (seriesIndex < 0 || seriesIndex >= xyDataset.getSeriesCount()) {
-            // This situation appears, if the dataset has changed while the overlay is still visible
-            if (removeOverlay()) {
-                return;
-            }
         }
 
         addOverlay();
