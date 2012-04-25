@@ -161,7 +161,7 @@ public class WildcardMatcherTest {
     @Test
     public void testMatchesAntExamplePattern1() throws Exception {
         WildcardMatcher m = new WildcardMatcher("**/CVS/*");
-        assertEquals("(.*/)?cvs/[^/:]*", m.getRegex());
+        assertEquals(m.isWindowsFs() ? "(.*/)?cvs/[^/:]*" : "(.*/)?CVS/[^/:]*", m.getRegex());
 
         assertTrue(m.matches("CVS/Repository"));
         assertTrue(m.matches("org/apache/CVS/Entries"));
@@ -186,7 +186,7 @@ public class WildcardMatcherTest {
     @Test
     public void testMatchesAntExamplePattern3() throws Exception {
         WildcardMatcher m = new WildcardMatcher("org/apache/**/CVS/*");
-        assertEquals("org/apache((/.*/)?|/)cvs/[^/:]*", m.getRegex());
+        assertEquals(m.isWindowsFs() ? "org/apache((/.*/)?|/)cvs/[^/:]*" : "org/apache((/.*/)?|/)CVS/[^/:]*", m.getRegex());
 
         assertTrue(m.matches("org/apache/CVS/Entries"));
         assertTrue(m.matches("org/apache/jakarta/tools/ant/CVS/Entries"));
