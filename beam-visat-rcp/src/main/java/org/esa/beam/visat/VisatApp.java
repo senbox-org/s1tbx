@@ -38,7 +38,6 @@ import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.status.ResizeStatusBarItem;
 import com.jidesoft.status.TimeStatusBarItem;
 import com.jidesoft.swing.JideBoxLayout;
-import java.awt.Dimension;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.esa.beam.dataio.dimap.DimapProductReader;
@@ -129,6 +128,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -1046,12 +1046,12 @@ public class VisatApp extends BasicApp implements AppContext {
             for (final JInternalFrame frame : frames) {
                 final Container cont = frame.getContentPane();
                 Product frameProduct = null;
-                if (cont instanceof ProductSceneView) {
-                    final ProductSceneView imageView = (ProductSceneView) cont;
-                    frameProduct = imageView.getProduct();
-                } else if (cont instanceof ProductMetadataView) {
-                    final ProductMetadataView metadataView = (ProductMetadataView) cont;
-                    frameProduct = metadataView.getMetadataElement().getProduct();
+                if (cont instanceof ProductNodeView) {
+                    final ProductNodeView nodeView = (ProductNodeView) cont;
+                    ProductNode visibleProductNode = nodeView.getVisibleProductNode();
+                    if (visibleProductNode != null) {
+                        frameProduct = visibleProductNode.getProduct();
+                    }
                 }
                 if (frameProduct != null && frameProduct == product) {
                     desktopPane.closeFrame(frame);
