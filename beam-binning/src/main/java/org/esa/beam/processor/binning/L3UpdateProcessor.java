@@ -255,7 +255,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
                         getLogger().info("Continuing with the next input product");
                         addWarningMessage("Unable to process the input product '" +
                                           product.getName() +
-                                          "' because an exception occures.");
+                                          "' because an exception occurred.");
                         addWarningMessage(e.getMessage());
                     } finally {
                         // delete the spatial database - not needed anymore

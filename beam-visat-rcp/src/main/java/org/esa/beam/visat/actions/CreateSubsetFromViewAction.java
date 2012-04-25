@@ -71,11 +71,10 @@ public class CreateSubsetFromViewAction extends ExecCommand {
                 visatApp.getProductManager().addProduct(subset);
                 subsetNumber++;
             } catch (Exception e) {
-                visatApp.showInfoDialog(DIALOG_TITLE,
-                                        "Unable to create the product subset because\n" + /*I18N*/
-                                        "an error occures at creating the subset.\n" +
-                                        e.getMessage(),
-                                        propertyName); /*I18N*/
+                final String msg = "Unable to create the product subset because\n" +
+                        "an error occurred at creating the subset.\n" +
+                        e.getMessage();
+                visatApp.handleError(msg, e);
             }
         }
     }

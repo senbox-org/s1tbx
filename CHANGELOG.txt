@@ -189,7 +189,7 @@ BEAM-1162 - The Envisat reader should support refomatted / line-interleaved prod
 BEAM-1168 - Add Sinusoidal and Mollweide map projection
 
 Bugs
-BEAM-973 - NullPointerException occures VISAT by creation virtual band abs(Amplitude_HV / Amplitude_HH)
+BEAM-973 - NullPointerException occurs VISAT by creation virtual band abs(Amplitude_HV / Amplitude_HH)
 BEAM-1057 - Navigation rotation edit field prevents rotating image    
 BEAM-1082 - Installation instructions are wrong for GETASSE30
 BEAM-1087 - OBPG child products can not be read  

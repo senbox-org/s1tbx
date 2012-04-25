@@ -878,7 +878,7 @@ public abstract class L3UI extends AbstractProcessorUI {
                 } catch (IOException e1) {
                     getApp().showErrorDialog("Unable to load an example product to\n" +
                                              "select the bands which are to process.\n\n" +
-                                             "An IOException occures while opening the example Product.\n" +
+                                             "An IOException occurred while opening the example Product.\n" +
                                              "Exception message:\n" +
                                              e1.getMessage());
                 }
