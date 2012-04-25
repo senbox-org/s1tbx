@@ -38,6 +38,7 @@ import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.status.ResizeStatusBarItem;
 import com.jidesoft.status.TimeStatusBarItem;
 import com.jidesoft.swing.JideBoxLayout;
+import java.awt.Dimension;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.esa.beam.dataio.dimap.DimapProductReader;
@@ -2263,9 +2264,11 @@ public class VisatApp extends BasicApp implements AppContext {
         frame.setLocation(0, 0);
         if (content != null && content.getPreferredSize() != null) {
             frame.pack();
+            ensureMinWidthAndHight(frame, 640, 480);
         } else {
             frame.setSize(640, 480);
         }
+
         try {
             desktopPane.addFrame(frame);
         } catch (RuntimeException e) {
@@ -2303,6 +2306,13 @@ public class VisatApp extends BasicApp implements AppContext {
                 }
             }
         };
+    }
+
+    private void ensureMinWidthAndHight(JInternalFrame frame, int minWidth, int minHeight) {
+        final Dimension frameSize = frame.getSize();
+        final int correctedWidth = Math.max(frameSize.width, minWidth);
+        final int correctedHeight = Math.max(frameSize.height, minHeight);
+        frame.setSize(new Dimension(correctedWidth, correctedHeight));
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
