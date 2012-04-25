@@ -11,7 +11,14 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleEdge;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -143,6 +150,13 @@ public class XYPlotMarker implements ChartMouseListener {
                 */
             }
             return;
+        }
+
+        if (seriesIndex < 0 || seriesIndex >= xyDataset.getSeriesCount()) {
+            // This situation appears, if the dataset has changed while the overlay is still visible
+            if (removeOverlay()) {
+                return;
+            }
         }
 
         addOverlay();
