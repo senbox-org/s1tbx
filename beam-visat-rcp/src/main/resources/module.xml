@@ -436,8 +436,13 @@
         <toolView>
             <id>org.esa.beam.visat.toolviews.placemark.PlacemarkEditorToolView</id>
             <class>org.esa.beam.visat.toolviews.placemark.PlacemarkEditorToolView</class>
-            <title>Placemark Editor</title>
-            <description>Editor for placemarks of a data product.</description>
+            <!-- Not yet, editor functionality still not implemented! -->
+            <!--
+            <title>Vector Data Editor</title>
+            <description>Edit features of selected vector data.</description>
+            -->
+            <title>Vector Data Information</title>
+            <description>Displays attributes of selected vector data features.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/PinManager16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/PinManager24.gif</largeIcon>
             <helpId>showPlacemarkEditorWnd</helpId>
@@ -903,6 +908,8 @@
             <mnemonic>I</mnemonic>
             <shortDescr>Export Raster Data</shortDescr>
             <description>Export Raster Data</description>
+            <smallIcon>icons/Export16.gif</smallIcon>
+            <largeIcon>icons/Export24.gif</largeIcon>
             <helpId>exportRasterData</helpId>
             <sortChildren>true</sortChildren>
         </action>
@@ -929,6 +936,8 @@
             <text>Other Exports</text>
             <shortDescr>Other Exports</shortDescr>
             <description>Other Exports</description>
+            <smallIcon>icons/Export16.gif</smallIcon>
+            <largeIcon>icons/Export24.gif</largeIcon>
             <helpId>exportOther</helpId>
             <sortChildren>true</sortChildren>
         </action>
@@ -942,7 +951,7 @@
             <shortDescr>Export the current view as an image.</shortDescr>
             <description>Export the current view as an image.</description>
             <context>image</context>
-            <popuptext>Export View as Image...</popuptext>
+            <popuptext>Export View as Image</popuptext>
             <helpId>exportImageFile</helpId>
         </action>
 
@@ -955,7 +964,7 @@
             <shortDescr>Export the current view as Google Earth KMZ file.</shortDescr>
             <description>Export the current view as Google Earth KMZ file.</description>
             <context>image</context>
-            <popuptext>Export View as Google Earth KMZ...</popuptext>
+            <popuptext>Export View as Google Earth KMZ</popuptext>
             <helpId>exportKmzFile</helpId>
         </action>
 
@@ -968,7 +977,7 @@
             <shortDescr>Export the colour legend as an image.</shortDescr>
             <description>Export the colour legend of the current view as an image.</description>
             <context>image</context>
-            <popuptext>Export Colour Legend as Image...</popuptext>
+            <popuptext>Export Colour Legend as Image</popuptext>
             <helpId>exportLegendImageFile</helpId>
         </action>
 
@@ -981,7 +990,7 @@
             <shortDescr>Export the colour palette to plain text.</shortDescr>
             <description>Export the colour palette of the current view to a plain text file.</description>
             <context>image</context>
-            <popuptext>Export Colour Palette as File...</popuptext>
+            <popuptext>Export Colour Palette as File</popuptext>
             <helpId>exportColorPalette</helpId>
         </action>
 
@@ -994,7 +1003,7 @@
             <shortDescr>Export the pixels of a Mask.</shortDescr>
             <description>Export the pixels of a mask as tab-separated text.</description>
             <context>image</context>
-            <popuptext>Export Mask Pixels...</popuptext>
+            <popuptext>Export Mask Pixels</popuptext>
             <helpId>exportMaskPixels</helpId>
         </action>
 
@@ -1007,7 +1016,7 @@
             <shortDescr>Export transect pixels.</shortDescr>
             <description>Export transect pixels as tab-separated text.</description>
             <context>image</context>
-            <popuptext>Export Transect Pixels...</popuptext>
+            <popuptext>Export Transect Pixels</popuptext>
             <helpId>exportTransectPixels</helpId>
         </action>
 
