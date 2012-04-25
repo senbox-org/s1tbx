@@ -26,8 +26,10 @@ import org.esa.beam.framework.datamodel.StxFactory;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingWorker;
+import java.awt.BorderLayout;
 import java.util.List;
 
 /**
@@ -63,15 +65,13 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
     @Override
     protected void updateComponents() {
         super.updateComponents();
-        if (computePanel != null) {
-            final RasterDataNode raster = getRaster();
-            computePanel.setRaster(raster);
-            if (raster != null && raster.isStxSet() && raster.getStx().getResolutionLevel() == 0) {
-                final Stx stx = raster.getStx();
-                getTextArea().setText(createText(null, stx));
-            } else {
-                getTextArea().setText(DEFAULT_STATISTICS_TEXT);
-            }
+        final RasterDataNode raster = getRaster();
+        computePanel.setRaster(raster);
+        if (raster != null && raster.isStxSet() && raster.getStx().getResolutionLevel() == 0) {
+            final Stx stx = raster.getStx();
+            getTextArea().setText(createText(null, stx));
+        } else {
+            getTextArea().setText(DEFAULT_STATISTICS_TEXT);
         }
     }
 
@@ -146,7 +146,7 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
                 } catch (Exception e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute statistics.\nAn error occured:" + e.getMessage(),
+                                                  "Failed to compute statistics.\nAn error occurred:" + e.getMessage(),
                                                   /*I18N*/
                                                   "Statistics", /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
@@ -164,7 +164,7 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
         boolean maskUsed = mask != null;
         final String unit = (StringUtils.isNotNullAndNotEmpty(raster.getUnit()) ? raster.getUnit() : "1");
         final long numPixelTotal = (long) raster.getSceneRasterWidth() * (long) raster.getSceneRasterHeight();
-        final StringBuffer sb = new StringBuffer(1024);
+        final StringBuilder sb = new StringBuilder(1024);
 
         sb.append("\n");
 
