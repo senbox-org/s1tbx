@@ -2,6 +2,8 @@ package org.esa.beam.visat.toolviews.stat;
 
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -20,6 +22,16 @@ class StatisticChartStyling {
     static final Paint SAMPLE_DATA_PAINT = new Color(0, 0, 200);
     static final Paint SAMPLE_DATA_FILL_PAINT = new Color(150, 150, 255);
     static final Shape SAMPLE_DATA_POINT_SHAPE = new Ellipse2D.Float(-4, -4, 8, 8);
+
+    static final Paint REGRESSION_DATA_PAINT = new Color(0, 190, 60);
+    static final Paint REGRESSION_DATA_FILL_PAINT = new Color(0, 190, 60, 80);
+
+    static {
+        final StandardChartTheme theme = (StandardChartTheme) ChartFactory.getChartTheme();
+        theme.setPlotBackgroundPaint(Color.RED);
+        theme.setChartBackgroundPaint(Color.GREEN);
+        theme.setLegendBackgroundPaint(Color.BLUE);
+    }
 
     static ValueAxis updateScalingOfAxis(boolean logScaled, ValueAxis oldAxis, final boolean autoRangeIncludesZero) {
         ValueAxis newAxis = oldAxis;

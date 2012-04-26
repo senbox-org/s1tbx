@@ -62,6 +62,13 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.event.AxisChangeEvent;
+import org.jfree.chart.event.AxisChangeListener;
+import org.jfree.chart.event.ChartChangeEvent;
+import org.jfree.chart.event.ChartChangeEventType;
+import org.jfree.chart.event.ChartChangeListener;
+import org.jfree.chart.event.PlotChangeEvent;
+import org.jfree.chart.event.PlotChangeListener;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.PlotOrientation;
@@ -70,7 +77,9 @@ import org.jfree.chart.renderer.xy.DeviationRenderer;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.data.Range;
 import org.jfree.data.function.Function2D;
+import org.jfree.data.function.LineFunction2D;
 import org.jfree.data.general.DatasetUtilities;
+import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYIntervalSeries;
@@ -99,10 +108,12 @@ class ScatterPlotPanel extends ChartPagePanel {
     private final String PROPERTY_NAME_BOX_SIZE = "boxSize";
     private final String PROPERTY_NAME_SHOW_CONFIDENCE_INTERVAL = "showConfidenceInterval";
     private final String PROPERTY_NAME_CONFIDENCE_INTERVAL = "confidenceInterval";
+    private final String PROPERTY_NAME_SHOW_REGRESSION_LINE = "showRegressionLine";
 
 
     private final int CONFIDENCE_DSINDEX = 0;
-    private final int SCATTERPOINTS_DSINDEX = 1;
+    private final int REGRESSION_DSINDEX = 1;
+    private final int SCATTERPOINTS_DSINDEX = 2;
 
     private final ScatterPlotModel scatterPlotModel;
     private final BindingContext bindingContext;
@@ -110,6 +121,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     private final AxisRangeControl yAxisRangeControl;
     private final XYIntervalSeriesCollection scatterpointsDataset;
     private final XYIntervalSeriesCollection confidenceDataset;
+    private final XYIntervalSeriesCollection regressionDataset;
 
     private final JFreeChart chart;
 
@@ -119,6 +131,8 @@ class ScatterPlotPanel extends ChartPagePanel {
     private CorrelativeFieldSelector correlativeFieldSelector;
     private Range xAutoRangeAxisRange;
     private Range yAutoRangeAxisRange;
+    private AxisChangeListener domainAxisChangeListener;
+    private boolean computingData;
 
     ScatterPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId, CHART_TITLE, false);
@@ -128,8 +142,10 @@ class ScatterPlotPanel extends ChartPagePanel {
         bindingContext = new BindingContext(PropertyContainer.createObjectBacked(scatterPlotModel));
         scatterpointsDataset = new XYIntervalSeriesCollection();
         confidenceDataset = new XYIntervalSeriesCollection();
+        regressionDataset = new XYIntervalSeriesCollection();
         chart = ChartFactory.createScatterPlot(CHART_TITLE, "", "", scatterpointsDataset, PlotOrientation.VERTICAL, true, true, false);
         chart.getXYPlot().setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+        createDomainAxisChangeListener();
     }
 
     @Override
@@ -201,7 +217,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         } else {
             model = new DefaultTableModel();
         }
-        final TableViewPagePanel alternativPanel = (TableViewPagePanel)getAlternativeView();
+        final TableViewPagePanel alternativPanel = (TableViewPagePanel) getAlternativeView();
         alternativPanel.setModel(model);
         super.showAlternativeView();
     }
@@ -224,8 +240,17 @@ class ScatterPlotPanel extends ChartPagePanel {
         bindingContext.addPropertyChangeListener(RoiMaskSelector.PROPERTY_NAME_ROI_MASK, recomputeListener);
         bindingContext.addPropertyChangeListener(PROPERTY_NAME_BOX_SIZE, recomputeListener);
         bindingContext.addPropertyChangeListener(PROPERTY_NAME_DATA_FIELD, recomputeListener);
-        bindingContext.addPropertyChangeListener(PROPERTY_NAME_SHOW_CONFIDENCE_INTERVAL, recomputeListener);
-        bindingContext.addPropertyChangeListener(PROPERTY_NAME_CONFIDENCE_INTERVAL, recomputeListener);
+
+        final PropertyChangeListener computeLineDataListener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                computeRegressionAndConfidenceData();
+            }
+        };
+        bindingContext.addPropertyChangeListener(PROPERTY_NAME_SHOW_CONFIDENCE_INTERVAL, computeLineDataListener);
+        bindingContext.addPropertyChangeListener(PROPERTY_NAME_CONFIDENCE_INTERVAL, computeLineDataListener);
+        bindingContext.addPropertyChangeListener(PROPERTY_NAME_SHOW_REGRESSION_LINE, computeLineDataListener);
+
 
         final PropertyChangeListener rangeLabelUpdateListener = new PropertyChangeListener() {
             @Override
@@ -270,6 +295,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                 handleAxisRangeControlChanges(evt, yAxisRangeControl, getPlot().getRangeAxis(), yAutoRangeAxisRange);
             }
         });
+
+
     }
 
     private void handleAxisRangeControlChanges(PropertyChangeEvent evt, AxisRangeControl axisRangeControl, ValueAxis valueAxis, Range computedAutoRange) {
@@ -293,6 +320,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.setDataset(CONFIDENCE_DSINDEX, confidenceDataset);
+        plot.setDataset(REGRESSION_DSINDEX, regressionDataset);
         plot.setDataset(SCATTERPOINTS_DSINDEX, scatterpointsDataset);
 
         final DeviationRenderer identityRenderer = new DeviationRenderer(true, false);
@@ -300,10 +328,15 @@ class ScatterPlotPanel extends ChartPagePanel {
         identityRenderer.setSeriesFillPaint(0, StatisticChartStyling.SAMPLE_DATA_FILL_PAINT);
         plot.setRenderer(CONFIDENCE_DSINDEX, identityRenderer);
 
+        final DeviationRenderer regressioonRenderer = new DeviationRenderer(true, false);
+        regressioonRenderer.setSeriesPaint(0, StatisticChartStyling.REGRESSION_DATA_PAINT);
+        regressioonRenderer.setSeriesFillPaint(0, StatisticChartStyling.REGRESSION_DATA_FILL_PAINT);
+        plot.setRenderer(REGRESSION_DSINDEX, regressioonRenderer);
+
         final XYErrorRenderer scatterPointsRenderer = new XYErrorRenderer();
         scatterPointsRenderer.setDrawXError(true);
         scatterPointsRenderer.setErrorStroke(new BasicStroke(1));
-        scatterPointsRenderer.setErrorPaint(StatisticChartStyling.CORRELATIVE_POINT_FILL_PAINT);
+        scatterPointsRenderer.setErrorPaint(StatisticChartStyling.CORRELATIVE_POINT_OUTLINE_PAINT);
         scatterPointsRenderer.setSeriesShape(0, StatisticChartStyling.CORRELATIVE_POINT_SHAPE);
         scatterPointsRenderer.setSeriesOutlinePaint(0, StatisticChartStyling.CORRELATIVE_POINT_OUTLINE_PAINT);
         scatterPointsRenderer.setSeriesFillPaint(0, StatisticChartStyling.CORRELATIVE_POINT_FILL_PAINT);
@@ -332,6 +365,21 @@ class ScatterPlotPanel extends ChartPagePanel {
         plot.setRangeAxis(StatisticChartStyling.updateScalingOfAxis(yLog, plot.getRangeAxis(), autoRangeIncludesZero));
 
         createUI(createChartPanel(chart), createInputParameterPanel(), bindingContext);
+
+        plot.getDomainAxis().addChangeListener(domainAxisChangeListener);
+        scatterPlotDisplay.setMouseWheelEnabled(true);
+        scatterPlotDisplay.setMouseZoomable(true);
+    }
+
+    private void createDomainAxisChangeListener() {
+        domainAxisChangeListener = new AxisChangeListener() {
+            @Override
+            public void axisChanged(AxisChangeEvent event) {
+                if (!computingData) {
+                    computeRegressionAndConfidenceData();
+                }
+            }
+        };
     }
 
     private ChartPanel createChartPanel(final JFreeChart chart) {
@@ -430,6 +478,9 @@ class ScatterPlotPanel extends ChartPagePanel {
         confidencePanel.add(confidenceField);
         confidencePanel.add(percentLabel, BorderLayout.EAST);
 
+        final JCheckBox regressionCheck = new JCheckBox("Show regression line");
+        bindingContext.bind("showRegressionLine", regressionCheck);
+
         // UI arrangement
 
         JPanel middlePanel = GridBagUtils.createPanel();
@@ -441,26 +492,23 @@ class ScatterPlotPanel extends ChartPagePanel {
         GridBagUtils.addToPanel(middlePanel, yAxisOptionPanel, middlePanelConstraints, "gridy=4");
         GridBagUtils.addToPanel(middlePanel, new JSeparator(), middlePanelConstraints, "gridy=5");
         GridBagUtils.addToPanel(middlePanel, confidencePanel, middlePanelConstraints, "gridy=6,fill=HORIZONTAL");
+        GridBagUtils.addToPanel(middlePanel, regressionCheck, middlePanelConstraints, "gridy=7,fill=NONE");
 
         return middlePanel;
     }
 
     private void updateScalingOfXAxis() {
         final boolean logScaled = scatterPlotModel.xAxisLogScaled;
-        final XYPlot plot = getPlot();
-        final ValueAxis oldAxis = plot.getDomainAxis();
+        final ValueAxis oldAxis = getPlot().getDomainAxis();
         ValueAxis newAxis = StatisticChartStyling.updateScalingOfAxis(logScaled, oldAxis, false);
-        plot.setDomainAxis(newAxis);
+        oldAxis.removeChangeListener(domainAxisChangeListener);
+        newAxis.addChangeListener(domainAxisChangeListener);
+        getPlot().setDomainAxis(newAxis);
         finishScalingUpdate(xAxisRangeControl, newAxis, oldAxis);
-    }
-
-    private XYPlot getPlot() {
-        return chart.getXYPlot();
     }
 
     private void updateScalingOfYAxis() {
         final boolean logScaled = scatterPlotModel.yAxisLogScaled;
-
         final ValueAxis oldAxis = getPlot().getRangeAxis();
         ValueAxis newAxis = StatisticChartStyling.updateScalingOfAxis(logScaled, oldAxis, false);
         getPlot().setRangeAxis(newAxis);
@@ -471,14 +519,19 @@ class ScatterPlotPanel extends ChartPagePanel {
         if (axisRangeControl.isAutoMinMax()) {
             newAxis.setAutoRange(false);
             confidenceDataset.removeAllSeries();
+            regressionDataset.removeAllSeries();
             newAxis.setAutoRange(true);
             axisRangeControl.adjustComponents(newAxis, 3);
             newAxis.setAutoRange(false);
-            confidenceDataset.addSeries(computeConfidenceData(xAxisRangeControl.getMin(), xAxisRangeControl.getMax()));
+            computeRegressionAndConfidenceData();
         } else {
             newAxis.setAutoRange(false);
             newAxis.setRange(oldAxis.getRange());
         }
+    }
+
+    private XYPlot getPlot() {
+        return chart.getXYPlot();
     }
 
     private void computeChartDataIfPossible() {
@@ -494,6 +547,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         } else {
             scatterpointsDataset.removeAllSeries();
             confidenceDataset.removeAllSeries();
+            regressionDataset.removeAllSeries();
             computedDatas = null;
         }
     }
@@ -591,6 +645,7 @@ class ScatterPlotPanel extends ChartPagePanel {
 
                     scatterpointsDataset.removeAllSeries();
                     confidenceDataset.removeAllSeries();
+                    regressionDataset.removeAllSeries();
                     computedDatas = null;
 
                     final ComputedData[] data = get();
@@ -610,6 +665,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                                           correlativeData, correlativeData, correlativeData);
                     }
 
+                    computingData = true;
                     scatterpointsDataset.addSeries(scatterValues);
 
                     xAxis.setAutoRange(true);
@@ -632,7 +688,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                         yAxisRangeControl.adjustAxis(yAxis, 3);
                     }
 
-                    confidenceDataset.addSeries(computeConfidenceData(xAxis.getLowerBound(), xAxis.getUpperBound()));
+                    computeRegressionAndConfidenceData();
+                    computingData = false;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
@@ -661,6 +718,35 @@ class ScatterPlotPanel extends ChartPagePanel {
             }
         };
         swingWorker.execute();
+    }
+
+    private void computeRegressionAndConfidenceData() {
+        confidenceDataset.removeAllSeries();
+        regressionDataset.removeAllSeries();
+        if (computedDatas != null) {
+            final ValueAxis domainAxis = getPlot().getDomainAxis();
+            final double min = domainAxis.getLowerBound();
+            final double max = domainAxis.getUpperBound();
+            confidenceDataset.addSeries(computeConfidenceData(min, max));
+            if (scatterPlotModel.showRegressionLine) {
+                regressionDataset.addSeries(computeRegressionData(min, max));
+            }
+        }
+    }
+
+    private XYIntervalSeries computeRegressionData(double xStart, double xEnd) {
+        final double[] coefficients = Regression.getOLSRegression(scatterpointsDataset, 0);
+        final Function2D curve = new LineFunction2D(coefficients[0], coefficients[1]);
+        final XYSeries regressionData = DatasetUtilities.sampleFunction2DToSeries(
+                curve, xStart, xEnd, 100, "regression");
+        final XYIntervalSeries xyIntervalRegression = new XYIntervalSeries(regressionData.getKey());
+        final List<XYDataItem> regressionDataItems = regressionData.getItems();
+        for (XYDataItem item : regressionDataItems) {
+            final double x = item.getXValue();
+            final double y = item.getYValue();
+            xyIntervalRegression.add(x, x, x, y, y, y);
+        }
+        return xyIntervalRegression;
     }
 
     private XYIntervalSeries computeConfidenceData(double lowerBound, double upperBound) {
@@ -699,6 +785,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         private boolean yAxisLogScaled; // Don´t remove this field, it is be used via binding
         private boolean showConfidenceInterval; // Don´t remove this field, it is be used via binding
         private double confidenceInterval = 15; // Don´t remove this field, it is be used via binding
+        public boolean showRegressionLine; // Don´t remove this field, it is be used via binding
     }
 
     static class ComputedData {
