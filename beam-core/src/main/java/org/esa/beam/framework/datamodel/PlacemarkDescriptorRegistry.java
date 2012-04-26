@@ -55,14 +55,32 @@ public class PlacemarkDescriptorRegistry {
         Holder.instance = instance;
     }
 
+    /**
+     * Gives a placemark descriptors from the service registry which is compatible with the given class which
+     * extends {@link PlacemarkDescriptor}.
+     *
+     * @param clazz  The class.
+     * @return  the placemark descriptor
+     */
     public PlacemarkDescriptor getPlacemarkDescriptor(Class<? extends PlacemarkDescriptor> clazz) {
         return getPlacemarkDescriptor(clazz.getName());
     }
 
+    /**
+     * Gives a placemark descriptor from the service registry which is compatible with the given class name.
+     *
+     * @param className  The class name.
+     * @return  the placemark descriptor
+     */
     public PlacemarkDescriptor getPlacemarkDescriptor(String className) {
         return serviceRegistry.getService(className);
     }
 
+    /**
+     * Gives all placemark descriptors from the service registry.
+     *
+     * @return  the placemark descriptors
+     */
     public Set<PlacemarkDescriptor> getPlacemarkDescriptors() {
         return serviceRegistry.getServices();
     }
@@ -111,10 +129,10 @@ public class PlacemarkDescriptorRegistry {
     }
 
     /**
-     * todo
+     * Returns the 'best qualified' placemark descriptors which is compatible with the given feature type.
      *
-     * @param featureType
-     * @return
+     * @param featureType The feature type.
+     * @return the placemark descriptor
      */
     public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType featureType) {
         PlacemarkDescriptor suitablePlacemarkDescriptor = null;

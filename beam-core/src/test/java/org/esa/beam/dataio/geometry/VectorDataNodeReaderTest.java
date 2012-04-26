@@ -17,7 +17,9 @@
 package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.AbstractGeoCoding;
@@ -31,8 +33,11 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.io.CsvReader;
+import org.geotools.data.DataUtilities;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.SchemaException;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,10 +56,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Olaf Danne
@@ -281,6 +283,54 @@ public class VectorDataNodeReaderTest {
     }
 
     @Test
+    public void testIsClosedPolygon() throws Exception {
+        List<Coordinate> coordList = new ArrayList<Coordinate>(5);
+        coordList.add(new Coordinate(1.0, 2.0));
+        coordList.add(new Coordinate(2.0, 3.0));
+        coordList.add(new Coordinate(3.0, 4.0));
+        coordList.add(new Coordinate(4.0, 5.0));
+        coordList.add(new Coordinate(5.0, 6.0));
+        assertFalse(VectorDataNodeReader.isClosedPolygon(coordList));
+
+        coordList.clear();
+        coordList.add(new Coordinate(1.6483957603, 2.49567562549));
+        coordList.add(new Coordinate(2.0, 3.0));
+        coordList.add(new Coordinate(3.0, 4.0));
+        coordList.add(new Coordinate(4.0, 5.0));
+        coordList.add(new Coordinate(1.6483957603, 2.49567562549));
+        assertTrue(VectorDataNodeReader.isClosedPolygon(coordList));
+    }
+
+    @Test
+    public void testConvertPointsToVertices() throws IOException {
+        InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("exported_pin_input1.csv"));
+
+        final VectorDataNode dataNode = VectorDataNodeReader.read("blah", reader, createDummyProduct(), crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = dataNode.getFeatureCollection();
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> vertexFeatureCollection = VectorDataNodeReader.convertPointsToVertices(fc);
+
+        assertNotNull(vertexFeatureCollection);
+        assertEquals(1, vertexFeatureCollection.size());
+
+        final SimpleFeature feature = vertexFeatureCollection.features().next();
+        assertEquals(1, feature.getAttributeCount());
+        final String expected =
+                "LINESTRING (7.777766 47.96903, 1.5681322 45.38434, 0.6210307 45.669746, 7.8942046 43.675922, 6.9614143 46.88921, 5.0080223 46.710358)";
+        assertEquals(expected, feature.getAttribute(0).toString());
+        final Object geometry = feature.getDefaultGeometry();
+        assertNotNull(geometry);
+        assertTrue(geometry instanceof LineString);
+        final LineString lineString = (LineString) geometry;
+        assertEquals(6, lineString.getCoordinates().length);
+        assertEquals(7.777766, lineString.getCoordinates()[0].x, 1.E-6);
+        assertEquals(47.96903, lineString.getCoordinates()[0].y, 1.E-6);
+        assertEquals(1.5681322, lineString.getCoordinates()[1].x, 1.E-6);
+        assertEquals(45.38434, lineString.getCoordinates()[1].y, 1.E-6);
+        assertEquals(5.0080223, lineString.getCoordinates()[5].x, 1.E-6);
+        assertEquals(46.710358, lineString.getCoordinates()[5].y, 1.E-6);
+    }
+
+    @Test
     public void testWrongUsages() {
 
         try {
@@ -303,21 +353,21 @@ public class VectorDataNodeReaderTest {
 
         try {
             expectException("org.esa.beam.FT\ta:Integer\tlat\tlon\n" +
-                            "ID1\t1234\tABC\n");
+                                    "ID1\t1234\tABC\n");
         } catch (IOException expected) {
             // ok
         }
 
         try {
             VectorDataNodeReader.read("blah", new StringReader("org.esa.beam.FT\ta:Integer\tno_lat\tlon\n" +
-                                                               "ID1\t1234\tABC\n"), new Product("name", "type", 360, 90), crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL).getFeatureCollection();
+                                                                       "ID1\t1234\tABC\n"), new Product("name", "type", 360, 90), crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL).getFeatureCollection();
         } catch (IOException expected) {
             // ok
         }
 
         try {
             String source = "org.esa.beam.FT\ta\tlat\tlon\n" +
-                            "ID1\t10\t5.0\t50.0\n";
+                    "ID1\t10\t5.0\t50.0\n";
             FeatureCollection<SimpleFeatureType, SimpleFeature> fc = VectorDataNodeReader.read("blah", new StringReader(source), createDummyProduct(), crsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL).getFeatureCollection();
             assertEquals(1, fc.size());
             assertEquals(Double.class, fc.getSchema().getType(0).getBinding());

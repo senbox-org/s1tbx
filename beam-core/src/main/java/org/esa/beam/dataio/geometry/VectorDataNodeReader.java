@@ -28,13 +28,16 @@ import org.esa.beam.util.converters.JavaTypeConverter;
 import org.esa.beam.util.io.CsvReader;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
+import org.geotools.data.DataUtilities;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
@@ -100,10 +103,11 @@ public class VectorDataNodeReader {
         }
         placemarkDescriptor.setUserDataOf(featureType);
 
-        final String name = FileUtils.getFilenameWithoutExtension(vectorDataNodeName);
         if (placemarkDescriptor instanceof PointDescriptor && clippedCollection.size() > 0) {
             clippedCollection = convertPointsToVertices(clippedCollection);
         }
+
+        final String name = FileUtils.getFilenameWithoutExtension(vectorDataNodeName);
         VectorDataNode vectorDataNode = new VectorDataNode(name, clippedCollection, placemarkDescriptor);
         if (properties.containsKey(ProductNode.PROPERTY_NAME_DESCRIPTION)) {
             featureType.getUserData().put(ProductNode.PROPERTY_NAME_DESCRIPTION, properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
@@ -117,35 +121,65 @@ public class VectorDataNodeReader {
         return vectorDataNode;
     }
 
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> convertPointsToVertices(FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection) {
+    /**
+     * Converts a {@link FeatureCollection} with features having single {@link Point} geometries to a new feature collection
+     * which contains just one feature with either a {@link LineString} geometry or a {@link Polygon} geometry
+     * (in case of a closed line string), with the single points being vertices of this new geometry.
+     *
+     * @param clippedCollection
+     * @return the new feature collection
+     */
+    static FeatureCollection<SimpleFeatureType, SimpleFeature> convertPointsToVertices(FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection) {
         final FeatureIterator<SimpleFeature> featureIterator = clippedCollection.features();
-        List<Coordinate> tmpList = new ArrayList<Coordinate>();
-        SimpleFeatureType featureType = null;
+        List<Coordinate> coordList = new ArrayList<Coordinate>();
         while (featureIterator.hasNext()) {
             final SimpleFeature feature = featureIterator.next();
-            featureType = feature.getFeatureType();
             final Point pt = (Point) feature.getDefaultGeometry();
-            tmpList.add(pt.getCoordinate());
+            coordList.add(pt.getCoordinate());
         }
 
-        if (tmpList.size() > 0) {
+        if (coordList.size() > 0) {
             final GeometryFactory geometryFactory = new GeometryFactory();
-            final LineString lineString = geometryFactory.createLineString(tmpList.toArray(new Coordinate[tmpList.size()]));
+            SimpleFeatureType featureType;
+            SimpleFeatureBuilder featureBuilder;
+            SimpleFeature feature;
+
+            try {
+                if (isClosedPolygon(coordList)) {
+                    featureType = DataUtilities.createType("Geometry", "geometry:Polygon");
+                    featureBuilder = new SimpleFeatureBuilder(featureType);
+                    feature = featureBuilder.buildFeature(Integer.toString(coordList.size() + 1));
+                    final LinearRing polygon = geometryFactory.createLinearRing(coordList.toArray(new Coordinate[coordList.size()]));
+                    feature.setDefaultGeometry(polygon);
+                } else {
+                    featureType = DataUtilities.createType("Geometry", "geometry:LineString");
+                    featureBuilder = new SimpleFeatureBuilder(featureType);
+                    feature = featureBuilder.buildFeature(Integer.toString(coordList.size() + 1));
+                    final LineString lineString = geometryFactory.createLineString(coordList.toArray(new Coordinate[coordList.size()]));
+                    feature.setDefaultGeometry(lineString);
+                }
+            } catch (SchemaException e) {
+                BeamLogManager.getSystemLogger().warning("Cannot create line/polygon geometry: " + e.getMessage() +
+                                                                 " --> Will interpret points as they are.");
+                return clippedCollection;
+            }
 
             FeatureCollection<SimpleFeatureType, SimpleFeature> vertexCollection =
-                    new DefaultFeatureCollection(clippedCollection.getID(), clippedCollection.getSchema());
-
-            SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(featureType);
-            final SimpleFeature feature = featureBuilder.buildFeature("9999");
-            feature.setDefaultGeometry(lineString);
-            // todo: this does not yet work, we get one point only
-
+                    new DefaultFeatureCollection(clippedCollection.getID() + "_vertex", featureType);
             vertexCollection.add(feature);
 
             return vertexCollection;
         } else {
             return clippedCollection;
         }
+    }
+
+    static boolean isClosedPolygon(List<Coordinate> coordList) {
+        final double firstX = coordList.get(0).x;
+        final double firstY = coordList.get(0).y;
+        final double lastX = coordList.get(coordList.size() - 1).x;
+        final double lastY = coordList.get(coordList.size() - 1).y;
+        return (firstX == lastX && firstY == lastY);
     }
 
     /**
