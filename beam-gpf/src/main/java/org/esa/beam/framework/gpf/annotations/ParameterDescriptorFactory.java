@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -164,9 +164,9 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
                 if (firstProduct != null) {
                     boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.getType().isArray();
                     values = RasterDataNodeValues.getNames(firstProduct, rasterDataNodeType, includeEmptyValue);
+                    propertyDescriptor.setValueSet(new ValueSet(values));
                 }
             }
-            propertyDescriptor.setValueSet(new ValueSet(values));
         }
         return propertyDescriptor;
     }
