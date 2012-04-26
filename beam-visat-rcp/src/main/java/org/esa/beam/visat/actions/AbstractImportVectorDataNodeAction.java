@@ -1,6 +1,5 @@
 package org.esa.beam.visat.actions;
 
-import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.dataio.geometry.VectorDataNodeReader;
 import org.esa.beam.framework.datamodel.GeometryDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
@@ -8,22 +7,13 @@ import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.ui.crs.CrsSelectionPanel;
-import org.esa.beam.framework.ui.crs.CustomCrsForm;
-import org.esa.beam.framework.ui.crs.PredefinedCrsForm;
-import org.esa.beam.framework.ui.crs.ProductCrsForm;
 import org.esa.beam.util.FeatureUtils;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import java.awt.Insets;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -36,12 +26,14 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
     protected FeatureUtils.FeatureCrsProvider crsProvider;
     protected VectorDataNodeReader.PlacemarkDescriptorProvider placemarkDescriptorProvider;
 
+    private int featureCrsDialogResult;
+
     protected AbstractImportVectorDataNodeAction() {
         crsProvider = new MyFeatureCrsProvider(getHelpId());
         placemarkDescriptorProvider = new MyPlacemarkDescriptorProvider();
     }
 
-    private static class MyPlacemarkDescriptorProvider implements VectorDataNodeReader.PlacemarkDescriptorProvider {
+    private class MyPlacemarkDescriptorProvider implements VectorDataNodeReader.PlacemarkDescriptorProvider {
 
         @Override
         public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
@@ -59,12 +51,16 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
                 return validPlacemarkDescriptors.get(0);
             }
 
-            TypeDialog typeDialog = new TypeDialog(VisatApp.getApp().getApplicationWindow(), simpleFeatureType);
-            final int dialogResult = typeDialog.show();
-            if (dialogResult == ModalDialog.ID_OK) {
-                return typeDialog.getPlacemarkDescriptor();
-            } else if (dialogResult == ModalDialog.ID_CANCEL) {
-                typeDialog.close();
+            if (featureCrsDialogResult == ModalDialog.ID_OK) {
+                TypeDialog typeDialog = new TypeDialog(VisatApp.getApp().getApplicationWindow(), simpleFeatureType);
+                final int dialogResult = typeDialog.show();
+                if (dialogResult == ModalDialog.ID_OK) {
+                    return typeDialog.getPlacemarkDescriptor();
+                } else if (dialogResult == ModalDialog.ID_CANCEL) {
+                    typeDialog.close();
+                    return null;
+                }
+            } else {
                 return null;
             }
 
@@ -105,41 +101,13 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
         }
 
         private CoordinateReferenceSystem promptForFeatureCrs(VisatApp visatApp, Product product) {
-            final ProductCrsForm productCrsForm = new ProductCrsForm(visatApp, product);
-            final CustomCrsForm customCrsForm = new CustomCrsForm(visatApp);
-            final PredefinedCrsForm predefinedCrsForm = new PredefinedCrsForm(visatApp);
+            final FeatureCrsDialog dialog = new FeatureCrsDialog(visatApp, product, "Import CSV Data");
 
-            final CrsSelectionPanel crsSelectionPanel = new CrsSelectionPanel(productCrsForm,
-                                                                              customCrsForm,
-                                                                              predefinedCrsForm);
-            final ModalDialog dialog = new ModalDialog(visatApp.getApplicationWindow(), getDialogTitle(),
-                                                       ModalDialog.ID_OK_CANCEL_HELP, helpId);
-
-            final TableLayout tableLayout = new TableLayout(1);
-            tableLayout.setTableWeightX(1.0);
-            tableLayout.setTableFill(TableLayout.Fill.BOTH);
-            tableLayout.setTablePadding(4, 4);
-            tableLayout.setCellPadding(0, 0, new Insets(4, 10, 4, 4));
-            final JPanel contentPanel = new JPanel(tableLayout);
-            final JLabel label = new JLabel();
-            label.setText("<html><b>" +
-                          "These vector data does not define a coordinate reference system (CRS).<br/>" +
-                          "Please specify a CRS so that coordinates can interpreted correctly.</b>");
-
-            contentPanel.add(label);
-            contentPanel.add(crsSelectionPanel);
-            dialog.setContent(contentPanel);
-            final int dialogResult = dialog.show();
-            if (dialogResult == ModalDialog.ID_OK) {
-                try {
-                    return crsSelectionPanel.getCrs(ProductUtils.getCenterGeoPos(product));
-                } catch (FactoryException e) {
-                    visatApp.showErrorDialog(getDialogTitle(),
-                                             "Can not create Coordinate Reference System.\n" + e.getMessage());
-                }
-            }  else if (dialogResult == ModalDialog.ID_CANCEL) {
-                // todo: CSV import must be canceled completely, TypeDialog must not open in this case! find proper solution
+            featureCrsDialogResult = dialog.show();
+            if (featureCrsDialogResult == ModalDialog.ID_OK) {
+                return dialog.getFeatureCrs();
             }
+
             return DefaultGeographicCRS.WGS84;
         }
 

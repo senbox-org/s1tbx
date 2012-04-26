@@ -47,7 +47,7 @@ class TypeDialog extends ModalDialog {
     }
 
     private void createUI(SimpleFeatureType featureType) {
-        getJDialog().setPreferredSize(new Dimension(400, 220));
+        getJDialog().setPreferredSize(new Dimension(400, 250));
 
         JPanel panel = new JPanel();
         BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
@@ -120,7 +120,6 @@ class TypeDialog extends ModalDialog {
 
     @Override
     protected void onOK() {
-        // todo
         super.onOK();
         getParent().setVisible(true);    // todo: Visat main window disappears otherwise, find better solution
     }
