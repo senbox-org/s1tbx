@@ -23,6 +23,7 @@ import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 
 import javax.swing.*;
@@ -30,6 +31,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import org.jfree.chart.StandardChartTheme;
 
 /**
  * A common class for chart based panels
@@ -45,6 +47,11 @@ abstract class ChartPagePanel extends PagePanel {
     protected AbstractButton refreshButton;
     private final boolean refreshButtonEnabled;
     private AbstractButton switchToTableButton;
+
+    static {
+        final StandardChartTheme theme = (StandardChartTheme) ChartFactory.getChartTheme();
+        theme.setPlotBackgroundPaint(new Color(225, 225, 225));
+    }
 
     ChartPagePanel(ToolView parentDialog, String helpId, String titlePrefix, boolean refreshButtonEnabled) {
         super(parentDialog, helpId, titlePrefix);
@@ -184,8 +191,8 @@ abstract class ChartPagePanel extends PagePanel {
         GridBagUtils.addToPanel(extendedOptionsPanel, new JSeparator(), extendedOptionsPanelConstraints, "gridy=5,anchor=SOUTHWEST");
 
         final JScrollPane optionsScrollPane = new SimpleScrollPane(extendedOptionsPanel,
-                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                                                                   ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                                                                   ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         optionsScrollPane.setBorder(null);
 
         final JPanel rightPanel = new JPanel(new BorderLayout());

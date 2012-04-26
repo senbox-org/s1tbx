@@ -26,13 +26,6 @@ class StatisticChartStyling {
     static final Paint REGRESSION_DATA_PAINT = new Color(0, 190, 60);
     static final Paint REGRESSION_DATA_FILL_PAINT = new Color(0, 190, 60, 80);
 
-    static {
-        final StandardChartTheme theme = (StandardChartTheme) ChartFactory.getChartTheme();
-        theme.setPlotBackgroundPaint(Color.RED);
-        theme.setChartBackgroundPaint(Color.GREEN);
-        theme.setLegendBackgroundPaint(Color.BLUE);
-    }
-
     static ValueAxis updateScalingOfAxis(boolean logScaled, ValueAxis oldAxis, final boolean autoRangeIncludesZero) {
         ValueAxis newAxis = oldAxis;
         if (logScaled) {
