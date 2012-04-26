@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -287,7 +287,10 @@ public class BandMathsDialog extends ModalDialog {
         descriptor.setDescription("The name for the new band.");
         descriptor.setNotEmpty(true);
         descriptor.setValidator(new ProductNodeNameValidator());
-        descriptor.setDefaultValue("new_band_" + (++numNewBands));
+        while(targetProduct.containsRasterDataNode("new_band_" + (++numNewBands))) {
+            // loop
+        }
+        descriptor.setDefaultValue("new_band_" + (numNewBands));
 
         descriptor = container.getDescriptor(PROPERTY_NAME_BAND_DESC);
         descriptor.setDisplayName("Description");
