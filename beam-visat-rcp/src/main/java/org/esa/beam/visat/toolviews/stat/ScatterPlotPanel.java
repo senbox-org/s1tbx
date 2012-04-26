@@ -51,6 +51,7 @@ import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
@@ -204,6 +205,13 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     @Override
     public void nodeAdded(ProductNodeEvent event) {
+        if (event.getSourceNode() instanceof Placemark) {
+            updateComponents();
+        }
+    }
+
+    @Override
+    public void nodeRemoved(ProductNodeEvent event) {
         if (event.getSourceNode() instanceof VectorDataNode) {
             updateComponents();
         }
