@@ -65,7 +65,7 @@ public class ScatterPlotTableModel extends AbstractTableModel implements CsvEnco
         } else if (columnIndex == 6) {
             return computedDatas[rowIndex].rasterSigma;
         } else if (columnIndex == 7) {
-            return computedDatas[rowIndex].correlativData;
+            return computedDatas[rowIndex].correlativeData;
         }
         return null;
     }

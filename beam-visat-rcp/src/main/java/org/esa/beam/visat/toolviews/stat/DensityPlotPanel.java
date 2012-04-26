@@ -324,6 +324,13 @@ class DensityPlotPanel extends ChartPagePanel {
         super.updateComponents();
     }
 
+    private void checkBandsForRange() throws IllegalArgumentException {
+        if(axisRangeControls[X_VAR].getMin().equals(axisRangeControls[X_VAR].getMax()) &&
+                axisRangeControls[Y_VAR].getMin().equals(axisRangeControls[Y_VAR].getMax())){
+            throw new IllegalArgumentException("Value range of at least one band must be larger than one");
+        }
+    }
+
     @Override
     protected void updateChartData() {
 
@@ -341,6 +348,7 @@ class DensityPlotPanel extends ChartPagePanel {
             protected BufferedImage doInBackground(ProgressMonitor pm) throws Exception {
                 pm.beginTask("Computing scatter plot...", 100);
                 try {
+                    checkBandsForRange();
                     setRange(X_VAR, rasterX, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
                     setRange(Y_VAR, rasterY, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
                     final BufferedImage densityPlotImage = ProductUtils.createDensityPlotImage(rasterX,
@@ -366,6 +374,7 @@ class DensityPlotPanel extends ChartPagePanel {
             @Override
             public void done() {
                 try {
+                    checkBandsForRange();
                     final BufferedImage densityPlotImage = get();
                     double minX = axisRangeControls[X_VAR].getMin();
                     double maxX = axisRangeControls[X_VAR].getMax();

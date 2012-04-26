@@ -90,7 +90,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 class ScatterPlotPanel extends ChartPagePanel {
 
     public static final String CHART_TITLE = "Correlative Plot";
-    private static final String NO_DATA_MESSAGE = "No correlativ plot computed yet.\n" + ZOOM_TIP_MESSAGE;
+    private static final String NO_DATA_MESSAGE = "No correlative plot computed yet.\n" + ZOOM_TIP_MESSAGE;
 
     private final String PROPERTY_NAME_X_AXIS_LOG_SCALED = "xAxisLogScaled";
     private final String PROPERTY_NAME_Y_AXIS_LOG_SCALED = "yAxisLogScaled";
@@ -353,7 +353,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
                                                                                          scatterPlotDisplay,
                                                                                          "scatter_plot_area",
-                                                                                         "Mask generated from selected correlativ plot area",
+                                                                                         "Mask generated from selected correlative plot area",
                                                                                          Color.RED,
                                                                                          PlotAreaSelectionTool.AreaType.X_RANGE) {
             @Override
@@ -605,9 +605,9 @@ class ScatterPlotPanel extends ChartPagePanel {
                         ComputedData computedData = computedDatas[i];
                         final float rasterMean = computedData.rasterMean;
                         final float rasterSigma = computedData.rasterSigma;
-                        final float correlativData = computedData.correlativData;
+                        final float correlativeData = computedData.correlativeData;
                         scatterValues.add(rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma,
-                                          correlativData, correlativData, correlativData);
+                                          correlativeData, correlativeData, correlativeData);
                     }
 
                     scatterpointsDataset.addSeries(scatterValues);
@@ -636,7 +636,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute correlativ plot.\n" +
+                                                  "Failed to compute correlative plot.\n" +
                                                           "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
@@ -644,7 +644,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                 } catch (CancellationException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute correlativ plot.\n" +
+                                                  "Failed to compute correlative plot.\n" +
                                                           "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
@@ -652,7 +652,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute correlativ plot.\n" +
+                                                  "Failed to compute correlative plot.\n" +
                                                           "An error occured:\n" +
                                                           e.getCause().getMessage(),
                                                   CHART_TITLE, /*I18N*/
@@ -708,16 +708,16 @@ class ScatterPlotPanel extends ChartPagePanel {
         final float lon;
         final float rasterMean;
         final float rasterSigma;
-        final float correlativData;
+        final float correlativeData;
 
-        ComputedData(float x, float y, float lat, float lon, float rasterMean, float rasterSigma, float correlativData) {
+        ComputedData(float x, float y, float lat, float lon, float rasterMean, float rasterSigma, float correlativeData) {
             this.x = x;
             this.y = y;
             this.lat = lat;
             this.lon = lon;
             this.rasterMean = rasterMean;
             this.rasterSigma = rasterSigma;
-            this.correlativData = correlativData;
+            this.correlativeData = correlativeData;
         }
     }
 }

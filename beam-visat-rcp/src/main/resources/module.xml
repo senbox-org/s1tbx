@@ -575,11 +575,11 @@
         <toolView>
             <id>org.esa.beam.visat.toolviews.stat.ScatterPlotToolView</id>
             <class>org.esa.beam.visat.toolviews.stat.ScatterPlotToolView</class>
-            <title>Correlativ Plot View</title>
-            <tabTitle>Correlativ Plot</tabTitle>
+            <title>Correlative Plot View</title>
+            <tabTitle>Correlative Plot</tabTitle>
             <mnemonic>t</mnemonic>
             <accelerator>ctrl alt T</accelerator>
-            <description>Display Correlativ Plot for a selected band.</description>
+            <description>Display Correlative Plot for a selected band.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/ScatterPlot16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/ScatterPlot24.gif</largeIcon>
             <helpId>scatterplotDialog</helpId>
