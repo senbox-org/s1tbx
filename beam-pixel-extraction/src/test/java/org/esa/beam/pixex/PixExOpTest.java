@@ -119,21 +119,21 @@ public class PixExOpTest {
         subDir2_1.mkdir();
         subDir2_2.mkdir();
 
-        final String pattern = testDir.getAbsolutePath() + File.separator + PixExOp.RECURSIVE_INDICATOR;
+        final String pattern = testDir.getCanonicalPath() + File.separator + PixExOp.RECURSIVE_INDICATOR;
         Set<File> dirList = PixExOp.getSourceProductFileSet(null, new File[]{new File(pattern)}, Logger.getAnonymousLogger());
 
         //assertEquals(5, dirList.size());
         //assertTrue("Missing dir '" + testDir.getAbsolutePath() + "'.", dirList.contains(testDir));
         assertEquals(4, dirList.size());
-        assertTrue("Missing dir '" + subDir1.getAbsolutePath() + "'.", dirList.contains(subDir1));
-        assertTrue("Missing dir '" + subDir2.getAbsolutePath() + "'.", dirList.contains(subDir2));
-        assertTrue("Missing dir '" + subDir2_1.getAbsolutePath() + "'.", dirList.contains(subDir2_1));
-        assertTrue("Missing dir '" + subDir2_2.getAbsolutePath() + "'.", dirList.contains(subDir2_2));
+        assertTrue("Missing dir '" + subDir1.getCanonicalPath() + "'.", dirList.contains(subDir1.getCanonicalFile()));
+        assertTrue("Missing dir '" + subDir2.getCanonicalPath() + "'.", dirList.contains(subDir2.getCanonicalFile()));
+        assertTrue("Missing dir '" + subDir2_1.getCanonicalPath() + "'.", dirList.contains(subDir2_1.getCanonicalFile()));
+        assertTrue("Missing dir '" + subDir2_2.getCanonicalPath() + "'.", dirList.contains(subDir2_2.getCanonicalFile()));
 
         dirList = PixExOp.getSourceProductFileSet(null, new File[]{testDir, subDir2_1}, Logger.getAnonymousLogger());
         assertEquals(2, dirList.size());
-        assertTrue("Missing dir '" + testDir.getAbsolutePath() + "'.", dirList.contains(testDir));
-        assertTrue("Missing dir '" + subDir2_1.getAbsolutePath() + "'.", dirList.contains(subDir2_1));
+        assertTrue("Missing dir '" + testDir.getCanonicalPath() + "'.", dirList.contains(testDir.getCanonicalFile()));
+        assertTrue("Missing dir '" + subDir2_1.getCanonicalPath() + "'.", dirList.contains(subDir2_1.getCanonicalFile()));
 
     }
 
