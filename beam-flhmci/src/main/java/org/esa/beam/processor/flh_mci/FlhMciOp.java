@@ -22,7 +22,6 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeFilter;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
@@ -128,12 +127,7 @@ public class FlhMciOp extends PixelOperator {
             slopeBand.setDescription(FlhMciConstants.SLOPE_BAND_DESCRIPTION);
         }
 
-        productConfigurer.copyBands(new ProductNodeFilter<Band>() {
-            @Override
-            public boolean accept(Band band) {
-                return band.getFlagCoding() != null;
-            }
-        });
+        ProductUtils.copyFlagBands(sourceProduct, productConfigurer.getTargetProduct(), true);
     }
 
     @Override
