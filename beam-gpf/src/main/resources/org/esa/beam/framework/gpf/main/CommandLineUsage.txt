@@ -32,11 +32,11 @@ Options:
                      file are overwritten by the -P<name>=<value> command-line
                      option (see below). The following variables are substituted in
                      the parameters file:
-                         ${gpt.operator} (given by the 'op' argument)
-                         ${gpt.graphFile} (given by the 'graph-file' argument)
-                         ${gpt.parametersFile} (given by the -p option)
-                         ${gpt.targetFile} (given by the -t option)
-                         ${gpt.targetFormat} (given by the -f option)
+                         $'{gpt.operator'} (given by the 'op' argument)
+                         $'{gpt.graphFile'} (given by the 'graph-file' argument)
+                         $'{gpt.parametersFile'} (given by the -p option)
+                         $'{gpt.targetFile'} (given by the -t option)
+                         $'{gpt.targetFormat'} (given by the -f option)
   -c <cache-size>    Sets the tile cache size in bytes. Value can be suffixed
                      with ''K'', ''M'' and ''G''. Must be less than maximum
                      available heap space. If equal to or less than zero, tile
