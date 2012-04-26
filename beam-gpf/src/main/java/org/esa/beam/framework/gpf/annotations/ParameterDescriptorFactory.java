@@ -158,12 +158,11 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
         if (propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
             Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) propertyDescriptor.getAttribute(
                     RasterDataNodeValues.ATTRIBUTE_NAME);
-            String[] values = new String[0];
             if (sourceProductMap != null && sourceProductMap.size() > 0) {
                 Product firstProduct = sourceProductMap.values().iterator().next();
                 if (firstProduct != null) {
                     boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.getType().isArray();
-                    values = RasterDataNodeValues.getNames(firstProduct, rasterDataNodeType, includeEmptyValue);
+                    String[] values = RasterDataNodeValues.getNames(firstProduct, rasterDataNodeType, includeEmptyValue);
                     propertyDescriptor.setValueSet(new ValueSet(values));
                 }
             }
