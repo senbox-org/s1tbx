@@ -1937,7 +1937,7 @@ public class VisatApp extends BasicApp implements AppContext {
                 "drawRectangleTool",
                 "drawEllipseTool",
                 "drawPolygonTool",
-                "magicWandTool",
+                //"magicWandTool", removed for 4.10 release
                 "createVectorDataNode",
                 null,
         });
