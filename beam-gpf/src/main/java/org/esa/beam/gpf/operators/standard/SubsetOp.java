@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -214,6 +214,9 @@ public class SubsetOp extends Operator {
 
     private void collectReferencedRasters(String nodeName, ArrayList<String> referencedNodeNames) {
         RasterDataNode rasterDataNode = sourceProduct.getRasterDataNode(nodeName);
+        if (rasterDataNode == null) {
+            throw new OperatorException(String.format("Source product does not contain a raster named '%s'.", nodeName));
+        }
         final String validPixelExpression = rasterDataNode.getValidPixelExpression();
         collectReferencedRastersInExpression(validPixelExpression, referencedNodeNames);
         if (rasterDataNode instanceof VirtualBand) {
