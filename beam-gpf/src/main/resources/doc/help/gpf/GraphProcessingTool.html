@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~ Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
   ~
   ~ This program is free software; you can redistribute it and/or modify it
   ~ under the terms of the GNU General Public License as published by the Free
@@ -69,7 +69,13 @@
                          parameters in the form &lt;name&gt;=&lt;value&gt; or a XML file
                          containing a a parameter DOM for the operator. Entries in this
                          file are overwritten by the -P&lt;name&gt;=&lt;value&gt; command-line
-                         option (see below).
+                         option (see below). The following variables are substituted in
+                         the parameters file:
+                             ${gpt.operator} (given by the 'op' argument)
+                             ${gpt.graphFile} (given by the 'graph-file' argument)
+                             ${gpt.parametersFile} (given by the -p option)
+                             ${gpt.targetFile} (given by the -t option)
+                             ${gpt.targetFormat} (given by the -f option)
       -c &lt;cache-size&gt;    Sets the tile cache size in bytes. Value can be suffixed
                          with 'K', 'M' and 'G'. Must be less than maximum
                          available heap space. If equal to or less than zero, tile
