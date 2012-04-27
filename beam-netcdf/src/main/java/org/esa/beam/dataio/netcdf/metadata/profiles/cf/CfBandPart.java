@@ -211,6 +211,9 @@ public class CfBandPart extends ProfilePartIO {
         if (attribute == null) {
             attribute = variable.findAttribute(Constants.SLOPE_ATT_NAME);
         }
+        if (attribute == null) {
+            attribute = variable.findAttribute("scaling_factor");
+        }
         return attribute != null ? attribute.getNumericValue().doubleValue() : 1.0;
     }
 
