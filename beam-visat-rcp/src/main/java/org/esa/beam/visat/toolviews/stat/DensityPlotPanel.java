@@ -433,6 +433,14 @@ class DensityPlotPanel extends ChartPagePanel {
                                     e.getCause().getMessage(),
                             CHART_TITLE, /*I18N*/
                             JOptionPane.ERROR_MESSAGE);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(getParentDialogContentPane(),
+                            "Failed to compute scatter plot.\n" +
+                                    "An error occurred:\n" +
+                                    e.getCause().getMessage(),
+                            CHART_TITLE, /*I18N*/
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
