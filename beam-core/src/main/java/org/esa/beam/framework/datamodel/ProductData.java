@@ -257,7 +257,7 @@ public abstract class ProductData implements Cloneable {
             case TYPE_FLOAT64:
                 return new ProductData.Double((double[]) data);
             case TYPE_ASCII:
-                return new ProductData.ASCII((String) data);
+                return new ProductData.ASCII(data.toString());
             case TYPE_UTC:
                 return new ProductData.UTC((int[]) data);
             default:
