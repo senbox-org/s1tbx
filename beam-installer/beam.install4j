@@ -426,7 +426,7 @@ return files;
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.text.ReplaceInstallerVariablesAction">
                       <void property="failIfNoReplacement">
-                        <boolean>true</boolean>
+                        <boolean>false</boolean>
                       </void>
                       <void property="files">
                         <array class="java.io.File" length="1">
