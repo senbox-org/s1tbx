@@ -245,7 +245,7 @@ class DensityPlotPanel extends ChartPagePanel {
     }
 
     private JPanel createOptionsPanel() {
-        toggleColorCheckBox = new JCheckBox("Invert Plot Colors");
+        toggleColorCheckBox = new JCheckBox("Invert plot colors");
         toggleColorCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

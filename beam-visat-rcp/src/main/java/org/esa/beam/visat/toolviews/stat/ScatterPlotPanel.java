@@ -58,24 +58,23 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.util.math.MathUtils;
 import org.geotools.feature.FeatureCollection;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.event.AxisChangeEvent;
 import org.jfree.chart.event.AxisChangeListener;
-import org.jfree.chart.event.ChartChangeEvent;
-import org.jfree.chart.event.ChartChangeEventType;
-import org.jfree.chart.event.ChartChangeListener;
-import org.jfree.chart.event.PlotChangeEvent;
-import org.jfree.chart.event.PlotChangeListener;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Range;
 import org.jfree.data.function.Function2D;
 import org.jfree.data.function.LineFunction2D;
@@ -86,6 +85,8 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYIntervalSeries;
 import org.jfree.data.xy.XYIntervalSeriesCollection;
 import org.jfree.data.xy.XYSeries;
+import org.jfree.ui.RectangleAnchor;
+import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -134,6 +135,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     private Range yAutoRangeAxisRange;
     private AxisChangeListener domainAxisChangeListener;
     private boolean computingData;
+    private XYTitleAnnotation r2Annotation;
 
     ScatterPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId, CHART_TITLE, false);
@@ -144,6 +146,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         scatterpointsDataset = new XYIntervalSeriesCollection();
         confidenceDataset = new XYIntervalSeriesCollection();
         regressionDataset = new XYIntervalSeriesCollection();
+        r2Annotation = new XYTitleAnnotation(0,0,new TextTitle(""));
         chart = ChartFactory.createScatterPlot(CHART_TITLE, "", "", scatterpointsDataset, PlotOrientation.VERTICAL, true, true, false);
         chart.getXYPlot().setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
         createDomainAxisChangeListener();
@@ -330,6 +333,8 @@ class ScatterPlotPanel extends ChartPagePanel {
         plot.setDataset(CONFIDENCE_DSINDEX, confidenceDataset);
         plot.setDataset(REGRESSION_DSINDEX, regressionDataset);
         plot.setDataset(SCATTERPOINTS_DSINDEX, scatterpointsDataset);
+
+        plot.addAnnotation(r2Annotation);
 
         final DeviationRenderer identityRenderer = new DeviationRenderer(true, false);
         identityRenderer.setSeriesPaint(0, StatisticChartStyling.SAMPLE_DATA_PAINT);
@@ -528,6 +533,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             newAxis.setAutoRange(false);
             confidenceDataset.removeAllSeries();
             regressionDataset.removeAllSeries();
+            getPlot().removeAnnotation(r2Annotation);
             newAxis.setAutoRange(true);
             axisRangeControl.adjustComponents(newAxis, 3);
             newAxis.setAutoRange(false);
@@ -556,6 +562,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             scatterpointsDataset.removeAllSeries();
             confidenceDataset.removeAllSeries();
             regressionDataset.removeAllSeries();
+            getPlot().removeAnnotation(r2Annotation);
             computedDatas = null;
         }
     }
@@ -654,6 +661,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                     scatterpointsDataset.removeAllSeries();
                     confidenceDataset.removeAllSeries();
                     regressionDataset.removeAllSeries();
+                    getPlot().removeAnnotation(r2Annotation);
                     computedDatas = null;
 
                     final ComputedData[] data = get();
@@ -731,6 +739,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     private void computeRegressionAndConfidenceData() {
         confidenceDataset.removeAllSeries();
         regressionDataset.removeAllSeries();
+        getPlot().removeAnnotation(r2Annotation);
         if (computedDatas != null) {
             final ValueAxis domainAxis = getPlot().getDomainAxis();
             final double min = domainAxis.getLowerBound();
@@ -738,6 +747,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             confidenceDataset.addSeries(computeConfidenceData(min, max));
             if (scatterPlotModel.showRegressionLine) {
                 regressionDataset.addSeries(computeRegressionData(min, max));
+                computeCoefficientOfDetermination();
             }
         }
     }
@@ -755,6 +765,41 @@ class ScatterPlotPanel extends ChartPagePanel {
             xyIntervalRegression.add(x, x, x, y, y, y);
         }
         return xyIntervalRegression;
+    }
+
+    private void computeCoefficientOfDetermination(){
+        int numberOfItems = scatterpointsDataset.getSeries(0).getItemCount();
+        double arithmeticMeanOfX = 0;  //arithmetic mean of X
+        double arithmeticMeanOfY = 0;  //arithmetic mean of Y
+        double varX = 0;    //variance of X
+        double varY = 0;    //variance of Y
+        double coVarXY = 0;  //covariance of X and Y;
+        //compute arithmetic means
+        for(int i=0; i<numberOfItems; i++){
+            arithmeticMeanOfX += scatterpointsDataset.getXValue(0,i);
+            arithmeticMeanOfY += scatterpointsDataset.getYValue(0,i);
+        }
+        arithmeticMeanOfX /= numberOfItems;
+        arithmeticMeanOfY /= numberOfItems;
+        //compute variances and covariance
+        for(int i=0; i<numberOfItems; i++){
+            varX += Math.pow(scatterpointsDataset.getXValue(0,i)-arithmeticMeanOfX,2);
+            varY += Math.pow(scatterpointsDataset.getYValue(0, i)-arithmeticMeanOfY,2);
+            coVarXY += (scatterpointsDataset.getXValue(0,i)-arithmeticMeanOfX)*(scatterpointsDataset.getYValue(0,i)-arithmeticMeanOfY);
+        }
+        //computation of coefficient of determination
+        double r2 = coVarXY/(Math.sqrt(varX * varY));
+        r2 = MathUtils.round(r2, Math.pow(10.0, 5));
+        TextTitle tt = new TextTitle("R²: " + r2);
+        tt.setFont(chart.getLegend().getItemFont());
+        tt.setBackgroundPaint(new Color(200, 200, 255, 100));
+        tt.setFrame(new BlockBorder(Color.white));
+        tt.setPosition(RectangleEdge.BOTTOM);
+
+        r2Annotation = new XYTitleAnnotation(0.98, 0.02, tt,
+                RectangleAnchor.BOTTOM_RIGHT);
+        r2Annotation.setMaxWidth(0.48);
+        getPlot().addAnnotation(r2Annotation);
     }
 
     private XYIntervalSeries computeConfidenceData(double lowerBound, double upperBound) {
