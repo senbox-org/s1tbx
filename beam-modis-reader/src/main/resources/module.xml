@@ -40,7 +40,7 @@
         <action>
             <id>importModisProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <text>Import MODIS (MOD,MXD,MYD) Product...</text>
+            <text>MODIS (MOD,MXD,MYD)</text>
             <formatName>MODIS</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>M</mnemonic>
