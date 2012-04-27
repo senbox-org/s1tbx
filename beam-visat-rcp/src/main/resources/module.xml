@@ -564,7 +564,7 @@
             <tabTitle>Scatter Plot</tabTitle>
             <mnemonic>t</mnemonic>
             <accelerator>ctrl alt T</accelerator>
-            <description>Display Scatter Plot for a selected band.</description>
+            <description>Display Scatter Plot for two selected bands.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/DensityPlot16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/DensityPlot24.gif</largeIcon>
             <helpId>densityplotDialog</helpId>
