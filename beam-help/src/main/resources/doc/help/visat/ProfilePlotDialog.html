@@ -25,22 +25,106 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Profile Plot</td>
-        
-    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a></td>
+            Profile Plot
+        </td>
+
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a></td>
     </tr>
 </table>
 
-<h3>Profile Plot Display</h3>
+<h3>Profile Plot</h3>
 
-<p>This option is available only, if a geometric shape has been defined in the current image view.
-    The profile plot displays the sample values of current geophysical band along the current geometric shape
-    (the transect profile in this case).<br/>
-    The current shape is the one currently selected of the active layer or, if non is selected, the first one created is
-    is used for the co-ordinate list.</p>
+<p>This option is available only if vector data is present in the product. Then, the profile plot may operate in two
+    modes, the classic mode relying on a geometric shape, and the correlative mode which allows the user to compare
+    satellite data to in-situ data. Both modes are thoroughly described below.
+</p>
 
-<center> <img src="images/ProfilePlotDialog.png">
-</center>
+<h4>Profile plot for geometric shapes</h4>
+
+<div class="image">
+    <img src="images/ProfilePlotDialog.png" alt="profile_plot">
+
+    <div align="center"><font size="2">Screenshot 1 - The Profile Plot Dialog for a geometric shape</font></div>
+</div>
+
+<p>
+    Screenshot 1 displays how the profile plot works for geometries: the values on the x-axis are given by the path
+    length,
+    that is, for a path containing 300 pixels there are 300 x-values. The domain axis is determined by the currently
+    selected band. The plot displays the value of the currently selected band along the bounds of a geometry; in case of
+    Screenshot 1, the values of <i>radiance_15</i> along a transect are displayed.
+</p>
+
+<h5>Standard deviation</h5>
+
+<p>
+    The blue shade around the plot line indicates the standard deviation of the selected band pixel within a square box.
+    The
+    edge length of that square box can be set to any odd value between 1 and 101.
+</p>
+
+<h5>Synchronise cursor position</h5>
+
+<p>
+    The profile plot can be run in a mode that allows the user to map the current position within the band image to the
+    position within the plot. This mode is entered when the user clicks into the plot, and left when the user clicks
+    into the tool window, but somewhere outside the plot. In Screenshot 1, the current position within the image is at
+    pixel #178 of the transect, where the value of <i>radiance_15</i> is 3.519.
+</p>
+
+<h4>Profile plot for correlative data</h4>
+
+
+<div class="image">
+    <img src="images/ProfilePlotDialog_correlative.png" alt="profile_plot">
+
+    <div align="center"><font size="2">Screenshot 2 - The Profile Plot Dialog, correlative mode</font></div>
+</div>
+
+<p>
+    Screenshot 2 displays the other features the profile plot offers. Note that there are some different tunings of the
+    dialog: Most importantly, correlative data is being used. Additionally a ROI mask is being used, no in-between
+    points are computed, and segments are marked. These features are described below separately.
+</p>
+
+<h5>Correlative data</h5>
+
+<p>
+    Using correlative data means that vector data may be displayed within the plot in order to make satellite data
+    comparable to external data. When the option is chosen, some vector data source may be chosen from the 'Point data
+    source'  dropdown list, and if it contains numerical data, the source for the numerical data may be chosen from the
+    'Data field' dropdown list. After that, two plots are displayed in the chart: the first one (in Screenshot 2, it's
+    the blue one) displays the values of the selected band at each pixel given by the vector data, while the second one
+    (Screenshot 2: the red one) displays the values of the selected data field.<br/>
+</p>
+
+<h5>ROI mask</h5>
+
+<p>
+    A ROI mask may be used to mask out values from the profile. All values which do not match the mask are not taken
+    into account. In the example of Screenshot 2, only pixels that match the mask <i>water</i> are considered. For
+    convenience, the mask manager may be openened from the profile plot window using the
+    <img src="images/icons/MaskManager24.png">-button.
+</p>
+
+<h5>Compute in-between points</h5>
+
+<p>
+    When the checkbox 'Compute in-between points' is marked, the points the satellite data plot contains are connected.
+    For each pixel of the geometry the value appears in the plot if the checkbox is marked, and only the
+    end-points of the geometry are considered if the checkbox is not marked.<br/>
+    Note that now the standard deviation is no more painted as blue shade around the plot line but as error bars around
+    the points in the plot.<br/>
+    The checkbox has no effect on the display of correlative data.
+</p>
+
+<h5>Mark segments</h5>
+
+<p>
+    When the checkbox 'Mark segments' is active, the different segments in which the considered geometry can be
+    decomposed are marked by shades in the background of the plot. See Screenshot 2 for an example.
+</p>
 
 <h4>Context Menu</h4>
 
@@ -55,22 +139,23 @@
         Save the diagram as image (PNG). <br>
         You can also use the <img src="images/icons/Export24.gif"> on the right 'Plot' panel.
     </li>
+    <li><b>Copy</b><br>
+        Copies the diagram as image into the clipboard. <br>
+    </li>
     <li><b>Print...</b><br>
         Print the diagram.<br>
         You can also use the <img src="images/icons/Print24.gif"> on the right 'Plot' panel.
     </li>
     <li><b>Zoom In</b><br>
         <ul>
-            <li>Both Axes - Zoom in on both axes.<br>
-        You can also use the <img src="images/icons/ZoomIn24.gif"> on the right 'Plot' panel.</li>
+            <li>Both Axes - Zoom in on both axes.</li>
             <li>Domain Axes - Zoom in only on the domain axis.</li>
             <li>Range Axes - Zoom in only on the range axis.</li>
         </ul>
     </li>
     <li><b>Zoom Out</b><br>
         <ul>
-            <li>Both Axes - Zoom out on both axes.<br>
-        You can also use the <img src="images/icons/ZoomOut24.gif"> on the right 'Plot' panel.</li>
+            <li>Both Axes - Zoom out on both axes.</li>
             <li>Domain Axes - Zoom out only on the domain axis.</li>
             <li>Range Axes - Zoom out only on the range axis.</li>
         </ul>
@@ -78,10 +163,19 @@
     <li><b>Auto Range</b><br>
         <ul>
             <li>Both Axes - Adjusts both axes to the full data range.<br>
-        You can also use the <img src="images/icons/ZoomAll24.gif"> on the right 'Plot' panel.</li>
+                You can also use the <img src="images/icons/View-Fullscreen22.png">-button
+                on the right 'Plot' panel.
+            </li>
             <li>Domain Axes - Adjusts the domain axis to the full data range.</li>
             <li>Range Axes - Adjusts the range axis to the full data range.</li>
         </ul>
+    </li>
+    <li><b>Select Mask 'profile plot area'</b><br/>
+        Switches on and off the mode in which a mask can be created from the profile plot. If the mode is active,
+        ranges may be selected in the plot, which then appear as new mask 'profile plot area' within the mask manager.
+    </li>
+    <li><b>Delete Mask 'profile plot area'</b><br/>
+        If the 'profile plot area' mask has been created before, it may be deleted using this command.
     </li>
     <li><b>Copy Data to Clipboard</b><br>
         This will copy the diagram data as tabulated text to the system clipboard.
