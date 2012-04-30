@@ -193,9 +193,6 @@ class ScatterPlotPanel extends ChartPagePanel {
         correlativeFieldSelector.updatePointDataSource(getProduct());
         correlativeFieldSelector.updateDataField();
 
-        // todo - discuss (nf)
-        // setChartTitle();
-
         if (isRasterChanged()) {
             getPlot().getDomainAxis().setLabel(getAxisLabel(raster, "X", false));
             computeChartDataIfPossible();
@@ -246,7 +243,6 @@ class ScatterPlotPanel extends ChartPagePanel {
             }
         };
 
-        // todo ... insert recompute listener in all properties which triggers a recompute
         bindingContext.addPropertyChangeListener(RoiMaskSelector.PROPERTY_NAME_USE_ROI_MASK, recomputeListener);
         bindingContext.addPropertyChangeListener(RoiMaskSelector.PROPERTY_NAME_ROI_MASK, recomputeListener);
         bindingContext.addPropertyChangeListener(PROPERTY_NAME_BOX_SIZE, recomputeListener);
