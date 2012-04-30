@@ -78,7 +78,7 @@
                 <tocitem text="Product/Band Geo-Coding Information" target="geoCodingInfoDialog"/>
                 <tocitem text="Band Statistics" target="statisticsDialog"/>
                 <tocitem text="Band Histogram" target="histogramDialog"/>
-                <tocitem text="Band Scatter Plot" target="densityplotDialog"/>
+                <tocitem text="Band Scatter Plot" target="densityPlotDialog"/>
                 <tocitem text="Correlative Plot" target="scatterplotDialog"/>
                 <tocitem text="Band Transect Profile Plot" target="profilePlotDialog"/>
                 <tocitem text="Band Transect Co-ordinate List" target="coordinateListDialog"/>
