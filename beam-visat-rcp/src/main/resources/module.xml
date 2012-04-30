@@ -502,8 +502,6 @@
             <class>org.esa.beam.visat.toolviews.stat.InformationToolView</class>
             <title>Information View</title>
             <tabTitle>Information</tabTitle>
-            <mnemonic>t</mnemonic>
-            <accelerator>ctrl alt T</accelerator>
             <description>Display information for a selected band.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/Information16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/Information24.gif</largeIcon>
@@ -517,8 +515,6 @@
             <class>org.esa.beam.visat.toolviews.stat.GeoCodingToolView</class>
             <title>Geo-Coding View</title>
             <tabTitle>Geo-Coding</tabTitle>
-            <mnemonic>t</mnemonic>
-            <accelerator>ctrl alt T</accelerator>
             <description>Display Geo-Coding for a selected band.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/PhiLam16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/PhiLam24.gif</largeIcon>
@@ -532,8 +528,6 @@
             <class>org.esa.beam.visat.toolviews.stat.StatisticsToolView</class>
             <title>Statistics View</title>
             <tabTitle>Statistics</tabTitle>
-            <mnemonic>t</mnemonic>
-            <accelerator>ctrl alt T</accelerator>
             <description>Display Statistics for a selected band.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/Statistics16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/Statistics24.gif</largeIcon>
@@ -547,8 +541,6 @@
             <class>org.esa.beam.visat.toolviews.stat.HistogramPlotToolView</class>
             <title>Histogram View</title>
             <tabTitle>Histogram</tabTitle>
-            <mnemonic>t</mnemonic>
-            <accelerator>ctrl alt T</accelerator>
             <description>Display Histogram for a selected band.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/Histogram16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/Histogram24.gif</largeIcon>
@@ -562,8 +554,6 @@
             <class>org.esa.beam.visat.toolviews.stat.DensityPlotToolView</class>
             <title>Scatter Plot View</title>
             <tabTitle>Scatter Plot</tabTitle>
-            <mnemonic>t</mnemonic>
-            <accelerator>ctrl alt T</accelerator>
             <description>Display Scatter Plot for two selected bands.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/DensityPlot16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/DensityPlot24.gif</largeIcon>
@@ -577,8 +567,6 @@
             <class>org.esa.beam.visat.toolviews.stat.ScatterPlotToolView</class>
             <title>Correlative Plot View</title>
             <tabTitle>Correlative Plot</tabTitle>
-            <mnemonic>t</mnemonic>
-            <accelerator>ctrl alt T</accelerator>
             <description>Display Correlative Plot for a selected band.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/ScatterPlot16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/ScatterPlot24.gif</largeIcon>
@@ -593,8 +581,6 @@
             <class>org.esa.beam.visat.toolviews.stat.ProfilePlotToolView</class>
             <title>Profile Plot View</title>
             <tabTitle>Profile Plot</tabTitle>
-            <mnemonic>t</mnemonic>
-            <accelerator>ctrl alt T</accelerator>
             <description>Display Profile Plot for a selected band.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/ProfilePlot16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/ProfilePlot24.gif</largeIcon>
