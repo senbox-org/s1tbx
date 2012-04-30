@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>VISAT Help - Geometry Management</title>
+    <title>VISAT Help - Vector Data Management</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -24,57 +24,48 @@
 <body>
 <table class="header">
     <tr class="header">
-        <td class="header">&nbsp;Geometry Management</td>
+        <td class="header">&nbsp;Vector Data Management</td>
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
                                                                                      border="0"></a></td>
     </tr>
 </table>
 
-<h2>The Geometry Concept</h2>
+<h2>The Vector Data Concept</h2>
+
+In opposite to the bands and tie-point grids contained in satellite data products - which are all kinds
+of <i>raster data</i> the BEAM product model also features <i>vector data</i>.
+
+Thus, vector data are stored to and restored to from <a href="../general/BeamDimapFormat.html">BEAM-DIMAP</a> product
+files. A product can comprise any number of named <i>vector data containers</i>. Each container may virtually comprise
+any number of vector data nodes.
+
+There are two general occurrences of vector data in BEAM: <b>geometries</b> and <b>correlative</b> data. Both of these
+concepts are thoroughly described below.
+
+<h3>1) Geometries</h3>
 
 <table>
     <tr>
         <td style="border-width:0">
-            In BEAM version 4.7, the concept of <i>geometries</i> has been introduced. In opposite to the bands and
-            tie-point
-            grids contained in satellite data products - which are all kinds of <i>raster data</i> - a geometry refers
-            to
-            <i>vector data</i>. Thus a geometry can be a point, line or polygon. In former BEAM releases, vector data
-            has
-            been supported in terms of shape figures, which where only attached to an image view. Since version 4.7,
-            geometries
-            are part of the a product's data model, and stored (restored) to (from)
-            <a href="../general/BeamDimapFormat.html">BEAM-DIMAP</a> product files. A product can comprise a number of
-            named
-            <i>geometry containers</i>. Each container may virtually comprise any number of geometries.
-            New geometries are always added to the geometry container selected in <b>Geometries</b> node of the
-            <a href="">Products View</a> tool window as shown in the screenshot the right.
-            If there isn't a single geometry container yet, BEAM will create a default container named <b>geometry</b>.
-            (You can customize this default behaviour in the BEAM configuration file <code>${BEAM_HOME}/config/beam.config</code>.)
+            Geometries are points, lines, multilines, polygons, or multipolygons. New geometries are always added to
+            the geometry container selected in the <b>Vector Data</b> node of the
+            <a href="ProductBrowser.html">Products View</a> tool window as shown in Screenshot 1. If there isn't a
+            single geometry container yet, BEAM will create a default container named <b>geometry</b>.<br/>
+            (This default behaviour can be customized in the BEAM configuration file
+            <code>${BEAM_HOME}/config/beam.config</code>.)
         </td>
         <td style="border-width:0">
             <img src="images/ProductsViewWithGeometry.png" alt="Products view with geometries">
+
+            <div align="center"><font size="2">Screenshot 1 - An open product with a geometry container</font></div>
         </td>
     </tr>
 </table>
 
-
-<h2>Relationship with Pins and Ground Control Points (GCP)</h2>
-
-<p>
-    Pins and Ground Control Points are placemarks treated as point geometries. Thus, geometry editing such as moving or
-    deleting is the same as for other geometries as described below in chapter 'Working with Geometries'. Despite this,
-    the pins and GCPs of a data product are still managed as described in
-    <a href="PinManagement.html">Pin Management</a> and <a href="GcpManagement.html">GCP Management</a>, respectively.
-</p>
-
-<h2>Relationship with Masks and Regions of Interest (ROI)</h2>
+<h4>Relationship with Masks and Regions of Interest (ROI)</h4>
 
 <p>
     The geometries in a geometry container can be directly used as a ROI for raster data analysis.
-    The way how this is established is closely related to the new <a href="MaskROIManagement.html">Mask and ROI
-    Management</a>
-    also introduced in BEAM 4.7.
     Once a new geometry container has been added to the data product, an associated <i>geometry mask</i> is created by
     rendering the geometry onto the product's intrinsic raster data grid.
 </p>
@@ -102,12 +93,10 @@
     Multiple geometry ROIs can be defined by creating new geometry containers as described below.
 </p>
 
-<h2>Working with Geometries</h2>
-
-<h3>Creating a new geometry</h3>
+<h4>Creating a new geometry</h4>
 
 <p>
-    Once you have opened an image view, new geometries are created by using the various drawing tools provided by
+    Once an image view is opened, new geometries are created by using the various drawing tools provided by
     VISAT through the <b>Interactions Toolbar</b>:
 </p>
 
@@ -150,7 +139,7 @@
 <p></p>
 
 
-<a name="CreateGeometryContainer"><h3>Creating a new geometry container</h3></a>
+<h4><a name="CreateGeometryContainer">Creating a new geometry container</a></h4>
 
 <p>
     Use the menu item <b>Tools / Create Geometry Container</b> or the corresponding tool button from the
@@ -161,13 +150,13 @@
     <tr>
         <td style="border-width:0"><img src="images/icons/NewVectorDataNode24.gif" alt="Container"></td>
         <td style="border-width:0">Clicking the button opens a dialog for creating a new geometry container.
-            You will be prompted to enter a unique name for the new container.
+            The user is prompted to enter a unique name for the new container.
         </td>
     </tr>
 </table>
 
 
-<h3>Editing geometries</h3>
+<h4>Editing geometries</h4>
 
 <p>
     Geometries may be edited in a number of ways once they have been selected. Note that editing or deleting a geometry
@@ -211,7 +200,8 @@
 <p>
     <b>Move vertex:</b> If single selected geometries are clicked once again, the selection mode changes depending on
     the
-    geometry type. The first mode lets you move the vertexes of lineal and polygonal geometries by dragging the
+    geometry type. The first mode allows the user to move the vertexes of lineal and polygonal geometries by dragging
+    the
     appearing
     vertex handles.
 </p>
@@ -228,7 +218,7 @@
 </p>
 
 <p>
-    <b>Scale:</b> The next selection mode (click again) lets you scale the size of a geometry by dragging the
+    <b>Scale:</b> The next selection mode (click again) allows the user to scale the size of a geometry by dragging the
     appearing size handles.
 </p>
 
@@ -243,24 +233,43 @@
     Mac-users can use <b>fn</b> + <b>Backspace</b> alternatively.
 </p>
 
-
-<h3>Importing geometry data</h3>
+<h3>2) Correlative Data</h3>
 
 <p>
-    You can use the <a href="ImportShapefile.html">Import Shapefile</a> command to import geometries from <i>ESRI Shapefiles</i>.
+    BEAM considers vector data that does not originate from satellite data as <i>correlative data</i>.
+    BEAM supports exploiting of correlative data in some ways, for examples see the help for the
+    <a href="ProfilePlotDialog.html">Profile Plot Dialog</a> or the
+    <a href="CorrelativePlot.html">Correlative Plot Dialog</a>.
+</p>
+
+<h4>Pins and Ground Control Points (GCP)</h4>
+
+<p>
+    Pins and Ground Control Points are vector data treated as point geometries. Thus, geometry editing such as moving or
+    deleting is the same as for other geometries as described above in chapter 'Working with Geometries'. Despite this,
+    the pins and GCPs of a data product are still managed as described in
+    <a href="PinManagement.html">Pin Management</a> and <a href="GcpManagement.html">GCP Management</a>, respectively.
+</p>
+
+<h4>Vector data import</h4>
+
+<p>
+    There are three built-in strategies for importing vector data in BEAM:
+    <ol>
+        <li>Import ESRI shapefiles (see below)</li>
+        <li>Import generic correlative data from CSV files (see <a href="ImportCSV.html">here</a>)</li>
+        <li>Import SeaDAS ship tracks (see <a href="ImportSeaDAS.html">here</a>)</li>
+        <li>Import Mermaid data (see <a href="ImportMermaid.html">here</a>)</li>
+    </ol>
 </p>
 
 <p>
-    <b>Plain text (*.txt):</b> Imports a single geometry (polyline or polygon) from a plain text file
-    having the format described in <a href="ImportShapefile.html">Import Shapefile</a>.
-</p>
-
-<p>
-    <b>ESRI Shapefile (*.shp)</b>: Multiple geometries can be imported from a Shapefile.
+    The <a href="ImportShapefile.html">Import Shapefile</a> command allows the user to import geometries from <i>ESRI
+    Shapefiles(*.shp)</i>: Multiple geometries can be imported from a Shapefile.
     The geometry coordinates used in the Shapefile will be converted to the coordinates reference system used by the
     current data product. Note that BEAM does only offer limited support regarding the various style settings which
-    may be attached to a specific Shapefile. It allso currently ignore all the attribute data that usually
-    comes with a Shapefile. This may change in later BEAM versions.
+    may be attached to a specific Shapefile. It also currently ignores all the attribute data that usually
+    come with a Shapefile. This may change in later BEAM versions.
 </p>
 
 <hr>

@@ -65,7 +65,7 @@
                 <tocitem text="Colour Manipulation" target="showColorManipulationWnd"/>
                 <tocitem text="RGB-Image Profile" target="rgbImageProfile"/>
                 <tocitem text="No-Data Overlay" target="noDataOverlay"/>
-                <tocitem text="Geometry Management" target="geometryManagement"/>
+                <tocitem text="Vector Data Management" target="vectorDataManagement"/>
                 <tocitem text="Mask and ROI Management" target="showMaskROIManagerWnd"/>
             </tocitem>
 

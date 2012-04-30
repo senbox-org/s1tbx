@@ -91,7 +91,7 @@
     <mapID target="expressionEditor" url="visat/ExpressionEditor.html"/>
     <mapID target="rgbImageProfile" url="visat/RGBImageProfile.html"/>
     <mapID target="bandArithmetic" url="visat/BandMaths.html"/>
-    <mapID target="geometryManagement" url="visat/GeometryManagement.html"/>
+    <mapID target="vectorDataManagement" url="visat/VectorDataManagement.html"/>
 
 
     <mapID target="reprojectionAction" url="visat/Reprojection.html"/>
