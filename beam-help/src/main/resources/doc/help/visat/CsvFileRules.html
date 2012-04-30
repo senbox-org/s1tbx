@@ -1,0 +1,188 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>VISAT Help - Import CSV</title>
+    <link rel="stylesheet" href="../style.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            CSV File Conventions
+        </td>
+
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a></td>
+    </tr>
+</table>
+
+<h2>CSV File Conventions</h2>
+
+<p>
+    CSV files are text files and typically have the extension <code>.txt</code>, <code>.dat</code> or
+    <code>.csv</code> . Each line in the file
+    corresponds to a single vertex point of the geometric shape. Co-ordinates are stored in columns separated
+    by the 'tabulator' character (the 'semikolon' character in the special case of MERMAID export files, see
+    <a href="ImportMermaid.html">here</a>). A CSV file <b>must</b> have a header line as described below
+    in order to specify column names (the only exception are SeaDAS 6.x track files, see
+    <a href="ImportSeaDAS.html">here</a>).
+</p>
+
+<h4>Formal Description of a valid CSV File</h4>
+
+<p>
+    The formal description of a CSV File which BEAM will regard as 'valid' looks as follows:
+<blockquote>
+    <pre>
+        feature-format         := {&lt property-record &gt NL} &lt feature-type-record &gt {NL &lt feature-record &gt}
+        feature-type-record    := {&lt feature-type-name &gt} {&lt sep &gt &lt attribute-header &gt}
+        feature-record         := {&lt feature-id &gt}           {&lt sep &gt &lt attribute-value &gt}
+
+        simple-format          := {&lt property-record> NL} &lt header-record&gt       {NL &lt data-record &gt}
+        header-record          := &lt attribute-header> { &lt sep &gt &lt attribute-header &gt}
+        data-record            := &lt attribute-value>  {&lt sep &gt &lt attribute-value &gt}
+
+        attribute-header       := &lt attribute-name &gt [&lt attribute-type-spec &gt]
+        attribute-type-spec    := ':'[&lt attribute-type &gt]
+        property-record        := '#'&lt property-name &gt '=' [&lt property-value &gt]
+        sep                    := TAB | [';' | ',', ...]  (TBC)
+    </pre>
+</blockquote>
+
+</p>
+
+
+<h4>Comment Lines</h4>
+
+<p>
+    The CSV dataset may contain introductory comment lines at the beginning of the file. These lines must start with a
+    '#'.
+</p>
+
+<h4>Header Line</h4>
+
+<p>
+    The header line follows after the last comment line. It contains column names which
+    are also expected to be separated by the 'tabulator' character. Optionally, the name can be given together with
+    a corresponding data type, which must be separated from the name by a ':'.
+</p>
+
+<p>
+    For a spatial interpretation of the given data, the CSV data <b>must</b> contain geoinformation given as
+<ul>
+    <li>
+        Latitude/Longitude: Column name (converted to lower case) must be one of {'lat', 'latitude'} / {'lon', 'long',
+        'longitude'}
+    </li>
+    <li>
+        Geometry: As additional option, BEAM/Visat supports geoinformation given as geometries which are conform with
+        the Simple Features Specification published by the Open
+        GIS Consortium. These are in particular point (Point), line (LineString) and area (Polygon) as well as
+        their corresponding multi-variants (MultiPoint, MultiLineString, MultiPolygon).<br><br>
+        Consequently, a valid column header would be one of
+        {'geometry:Point', 'geometry:LineString', 'geometry:Polygon',
+        'geometry:MultiPoint', 'geometry:MultiLineString', 'geometry:MultiPolygon'}. <br>
+        In addition, the first data column must contain a unique ID for the geometries (e.g. an index 0, 1, 2,...),
+        and the header of the first column must be one of
+        {'org.esa.beam.Point', 'org.esa.beam.LineString', 'org.esa.beam.Polygon',
+        'org.esa.beam.MultiPoint', 'org.esa.beam.MultiLineString', 'org.esa.beam.MultiPolygon'}. <br>
+    </li>
+</ul>
+</p>
+
+<p>
+    If the CSV data set does not provide valid geoinformation as described above, the data set will be rejected as
+    invalid.
+</p>
+
+<h4>Record Lines</h4>
+
+<p>
+    The record lines follow after the header line. Each line contains a record with data values as specified
+    by the column names and data types given in the header. All data values are also expected to be separated by the
+    'tabulator'
+    character. The data types are either interpreted automatically or, if given, taken from the column data types in the
+    header line.
+</p>
+
+<h4>Examples for valid CSV Files</h4>
+
+<p>
+    BEAM pin export table
+</p>
+
+<blockquote>
+    <pre>
+        # BEAM pin export table
+        #
+        # Product:	subset_0_of_MER_RR__1PNPDK20030813_094018_000022742019_00022_07591_4499
+        # Created on:	Thu Apr 26 11:14:57 CEST 2012
+
+        Name	X	Y	Lon	Lat	Label	Desc
+        pin_1	215.5	110.5	9.943068	43.09783	Pin 1
+        pin_2	257.5	111.5	10.458842	42.990147	Pin 2
+        pin_3	273.5	139.5	10.553919	42.664112	Pin 3
+        pin_4	259.5	161.5	10.302726	42.470406	Pin 4
+        pin_5	220.5	157.5	9.838505	42.6018	Pin 5
+        pin_6	199.5	135.5	9.656987	42.87649	Pin 6
+        pin_7	215.5	110.5	9.943068	43.09783	Pin 7
+    </pre>
+</blockquote>
+
+<hr>
+
+<p>
+    Internal BEAM pin CSV file
+</p>
+
+<blockquote>
+    <pre>
+        #defaultCSS=symbol:pin; fill:#0000ff; fill-opacity:0.7; stroke:#ffffff; stroke-opacity:1.0; stroke-width:0.5
+        org.esa.beam.Pin	geometry:Point	style_css:String	label:String	text:String	pixelPos:Point	geoPos:Point	dateTime:Date
+        pin_1	POINT (3.011064291000366 43.2885627746582)	[null]	Pin 1		POINT (476.5 658.5)	POINT (3.011064291000366 43.2885627746582)	[null]
+        pin_5	POINT (6.4610161781311035 45.858734130859375)	[null]	Pin 5		POINT (660.5 365.5)	POINT (6.4610161781311035 45.858734130859375)	[null]
+        pin_2	POINT (3.9401633739471436 42.58957290649414)	[null]	Pin 2		POINT (565.5 706.5)	POINT (3.9401633739471436 42.58957290649414)	[null]
+        pin_3	POINT (4.629702568054199 41.38515853881836)	[null]	Pin 3		POINT (651.5 803.5)	POINT (4.629702568054199 41.38515853881836)	[null]
+        pin_4	POINT (3.0791780948638916 40.82112121582031)	[null]	Pin 4		POINT (545.5 882.5)	POINT (3.0791780948638916 40.82112121582031)	[null]
+    </pre>
+</blockquote>
+
+<hr>
+
+<p>
+    Two Multipolygons
+</p>
+
+<blockquote>
+    <pre>
+        # MULTIPOLYGONs
+        #
+        # Product:	subset_1_MER_RR__1PQBCM20030809_101416_000002002018_00466_07534_0168
+        # Created on:	Thu Apr 12 14:48:36 CEST 2012
+
+        # Wavelength:							884.94403
+        org.esa.beam.Multipolygon	Name:String	Geometry:MultiPolygon	radiance_14:Double
+        0	multipolygon_1	MULTIPOLYGON (((10 47, 0 43, 6 40, 10 47)), ((2 39, 3 39, 2.5 38, 2 39)))	59.383057
+        1	multipolygon_2	MULTIPOLYGON (((8 38, 2 45, 8 42, 8 38)), ((3 35, 5 36, 3.5 39, 3 35)))	59.383057
+ </pre>
+</blockquote>
+
+</body>
+</html>

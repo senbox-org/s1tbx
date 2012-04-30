@@ -28,7 +28,7 @@ public class FeatureCrsDialog extends ModalDialog {
     VisatApp visatApp;
 
     public FeatureCrsDialog(VisatApp visatApp, Product product, String title) {
-        super(visatApp.getApplicationWindow(), title, ModalDialog.ID_OK_CANCEL_HELP, "featureCrsDialog");
+        super(visatApp.getApplicationWindow(), title, ModalDialog.ID_OK_CANCEL_HELP, "importCSV");
         this.product = product;
         this.visatApp = visatApp;
         this.title = title;

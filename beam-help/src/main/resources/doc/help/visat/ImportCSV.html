@@ -1,0 +1,116 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>VISAT Help - Import CSV</title>
+    <link rel="stylesheet" href="../style.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Import CSV
+        </td>
+
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a></td>
+    </tr>
+</table>
+
+<h2>Import CSV</h2>
+
+<p>
+    You can import CSV ('Character Separated Value') data given in plain text files. To be correctly imported and
+    interpreted by BEAM/Visat, these files need to follow
+    certain rules on content and formatting, as described <a href="CsvFileRules.html">here</a>.
+</p>
+
+<h3 id="defineCRS">Definition of the Coordinate Reference System (CRS)</h3>
+
+<p>When importing a CSV text file, you will be asked to
+    define the Coordinate Reference System (CRS) on which the given coordinates are defined.
+</p>
+
+<p align="center"><img src="images/ImportCsvDefineCRS.png">
+</p>
+
+<p>
+    You can choose between three options to define the CRS:
+<ul>
+    <li><b>Use target CRS</b><br/>
+        This options can be chosen if the CSV data is defined on the same CRS as the product you want
+        to import the CSV file in. The transformation used by the projection can be selected. Also the geodetic
+        datum and transformation parameters can be set, if possible for the selected transformation.
+    </li>
+    <li><b>Custom CRS</b><br/>
+        Here you can freely define the CRS of the CSV data.
+    </li>
+    <li><b>Predefined CRS</b><br/>
+        By clicking on the <b>Select...</b> button a new <a href="SelectCrsDialog.html">dialog</a> is shown
+        where a predefined CRS can be selected.
+    </li>
+</ul>
+
+<h3 id="interpretPointData">Interpretation of Point Data</h3>
+
+<p>
+    After the CRS of the CSV data has been selected and confirmed with 'OK', a new dialog 'Point Data Interpretation' is
+    shown.
+    Here it can be selected in which way the given point data in the file shall be interpreted and displayed
+    by BEAM/Visat.
+</p>
+
+<p align="center"><img src="images/PointDataInterpretationDialog.png">
+</p>
+
+<p>
+    You can choose between the following options:
+<ul>
+    <li>Leave imported data <b>unchanged</b><br/>
+        This option should be chosen if the data shall be taken 'as is'. No further interpretation is done. This is the default.
+    </li>
+    <li>Interpret each point as vertex of a single <b>line or polygon</b><br>
+        (This will remove all attributes from points)<br/>
+
+    </li>
+    <li>Further possible interpretations depending on the point data representation in the file, such as<br/>
+        <ul>
+            <li>
+                Interpret each point as <b>pin</b>
+            </li>
+            <li>
+                Interpret each point as <b>track point</b>
+            </li>
+        </ul>
+    </li>
+</ul>
+</p>
+
+<p>
+See more details and examples <a href="CsvFileRules.html">here</a>.
+</p>
+
+<p>
+    After the point data interpretation is confirmed with 'OK', the data is displayed in the current view.
+    Also, a new vector data node corresponding to this CSV source is added in the Products View, and a new
+    vector data and mask layer is added in the <a href="LayerManagerWindow.html">Layer Manager</a>.
+</p>
+
+</body>
+</html>

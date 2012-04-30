@@ -876,6 +876,7 @@
             <class>org.esa.beam.visat.actions.ImportVectorDataNodeFromCsvAction</class>
             <text>CSV</text>
             <parent>importVectorData</parent>
+            <helpId>importCSV</helpId>
         </action>
 
         <action>
