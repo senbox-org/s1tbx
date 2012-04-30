@@ -33,6 +33,7 @@ import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
@@ -120,11 +121,11 @@ class HistogramPanel extends ChartPagePanel {
             xAxisRangeControl.getBindingContext().getPropertySet().getDescriptor("max").setDefaultValue(
                     HISTO_MAX_DEFAULT);
         }
-
-        chart.getXYPlot().setDataset(null);
-        chart.fireChartChanged();
+        dataset = null;
+        this.stx = null;
+        setStx(null);
+        refreshButton.setEnabled(getRaster()!=null);
     }
-
 
     @Override
     protected boolean mustHandleSelectionChange() {
@@ -157,18 +158,26 @@ class HistogramPanel extends ChartPagePanel {
 
         isInitialized = true;
 
-        updateUIState();
+        final Binding minBinding = xAxisRangeControl.getBindingContext().getBinding("min");
+        final double min = (Double) minBinding.getPropertyValue();
+        final Binding maxBinding = xAxisRangeControl.getBindingContext().getBinding("max");
+        final double max = (Double) maxBinding.getPropertyValue();
+        if (!histogramComputing && min > max) {
+            minBinding.setPropertyValue(max);
+            maxBinding.setPropertyValue(min);
+        }
+        updateXAxis();
     }
 
     private void initActionEnablers() {
         RefreshActionEnabler rangeControlActionEnabler = new RefreshActionEnabler(refreshButton, PROPERTY_NAME_MIN,
-                                                                                  PROPERTY_NAME_AUTO_MIN_MAX,
-                                                                                  PROPERTY_NAME_MAX,
-                                                                                  PROPERTY_NAME_LOGARITHMIC_HISTOGRAM);
+                PROPERTY_NAME_AUTO_MIN_MAX,
+                PROPERTY_NAME_MAX,
+                PROPERTY_NAME_LOGARITHMIC_HISTOGRAM);
         xAxisRangeControl.getBindingContext().addPropertyChangeListener(rangeControlActionEnabler);
         RefreshActionEnabler componentsActionEnabler = new RefreshActionEnabler(refreshButton, PROPERTY_NAME_NUM_BINS,
-                                                                                PROPERTY_NAME_USE_ROI_MASK,
-                                                                                PROPERTY_NAME_ROI_MASK);
+                PROPERTY_NAME_USE_ROI_MASK,
+                PROPERTY_NAME_ROI_MASK);
         bindingContext.addPropertyChangeListener(componentsActionEnabler);
     }
 
@@ -199,28 +208,34 @@ class HistogramPanel extends ChartPagePanel {
                 bindingContext.getPropertySet().getProperty(PROPERTY_NAME_LOG_SCALED));
         xAxisRangeControl.getBindingContext().getPropertySet().getDescriptor(PROPERTY_NAME_LOG_SCALED).setDescription(
                 "Toggle whether to use a logarithmic X-axis");
-        xAxisRangeControl.getBindingContext().bindEnabledState(PROPERTY_NAME_LOG_SCALED, false,
-                                                               PROPERTY_NAME_LOGARITHMIC_HISTOGRAM, true);
 
         JPanel dataSourceOptionsPanel = GridBagUtils.createPanel();
         GridBagConstraints dataSourceOptionsConstraints = GridBagUtils.createConstraints(
                 "anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, new JLabel(" "), dataSourceOptionsConstraints,
-                                "gridwidth=2,gridy=0,gridx=0,weightx=0");
+                "gridwidth=2,gridy=0,gridx=0,weightx=0");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, numBinsLabel, dataSourceOptionsConstraints,
-                                "gridwidth=1,gridy=1,gridx=0,weightx=1");
+                "gridwidth=1,gridy=1,gridx=0,weightx=1");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, numBinsField, dataSourceOptionsConstraints,
-                                "gridwidth=1,gridy=1,gridx=1");
+                "gridwidth=1,gridy=1,gridx=1");
         GridBagUtils.addToPanel(dataSourceOptionsPanel, histoLogCheck, dataSourceOptionsConstraints,
-                                "gridwidth=2,gridy=2,gridx=0");
+                "gridwidth=2,gridy=2,gridx=0");
 
         xAxisRangeControl.getBindingContext().bind(PROPERTY_NAME_LOG_SCALED, new JCheckBox("Logarithmic X-axis"));
+        xAxisRangeControl.getBindingContext().addPropertyChangeListener(PROPERTY_NAME_LOG_SCALED, new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                ValueAxis oldAxis = chart.getXYPlot().getDomainAxis();
+                ValueAxis newAxis = StatisticChartStyling.updateScalingOfAxis((Boolean) evt.getNewValue(), oldAxis, true);
+                chart.getXYPlot().setDomainAxis(newAxis);
+            }
+        });
 
         JPanel displayOptionsPanel = GridBagUtils.createPanel();
         GridBagConstraints displayOptionsConstraints = GridBagUtils.createConstraints(
                 "anchor=SOUTH,fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(displayOptionsPanel, xAxisRangeControl.getPanel(), displayOptionsConstraints,
-                                "gridy=2");
+                "gridy=2");
 
         JPanel optionsPanel = GridBagUtils.createPanel();
         GridBagConstraints gbc = GridBagUtils.createConstraints(
@@ -244,11 +259,11 @@ class HistogramPanel extends ChartPagePanel {
         ChartPanel chartPanel = new ChartPanel(chart);
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
-                                                                                         chartPanel,
-                                                                                         "histogram_plot_area",
-                                                                                         "Mask generated from selected histogram plot area",
-                                                                                         Color.RED,
-                                                                                         PlotAreaSelectionTool.AreaType.X_RANGE) {
+                chartPanel,
+                "histogram_plot_area",
+                "Mask generated from selected histogram plot area",
+                Color.RED,
+                PlotAreaSelectionTool.AreaType.X_RANGE) {
 
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, Shape shape) {
@@ -259,10 +274,10 @@ class HistogramPanel extends ChartPagePanel {
             protected String createMaskExpression(double x1, double x2) {
                 String bandName = BandArithmetic.createExternalName(getRaster().getName());
                 return String.format("%s >= %s && %s <= %s",
-                                     bandName,
-                                     stx != null ? stx.getHistogramScaling().scaleInverse(x1) : x1,
-                                     bandName,
-                                     stx != null ? stx.getHistogramScaling().scaleInverse(x2) : x2);
+                        bandName,
+                        stx != null ? stx.getHistogramScaling().scaleInverse(x1) : x1,
+                        bandName,
+                        stx != null ? stx.getHistogramScaling().scaleInverse(x2) : x2);
             }
         };
 
@@ -272,19 +287,6 @@ class HistogramPanel extends ChartPagePanel {
         chartPanel.getPopupMenu().addSeparator();
         chartPanel.getPopupMenu().add(createCopyDataToClipboardMenuItem());
         return chartPanel;
-    }
-
-    private void updateUIState() {
-        final Binding minBinding = xAxisRangeControl.getBindingContext().getBinding("min");
-        final double min = (Double) minBinding.getPropertyValue();
-        final Binding maxBinding = xAxisRangeControl.getBindingContext().getBinding("max");
-        final double max = (Double) maxBinding.getPropertyValue();
-        if (!histogramComputing && min > max) {
-            minBinding.setPropertyValue(max);
-            maxBinding.setPropertyValue(min);
-        }
-
-        updateXAxis();
     }
 
     private static class HistogramPlotConfig {
@@ -308,31 +310,47 @@ class HistogramPanel extends ChartPagePanel {
             min = (Double) xAxisRangeControl.getBindingContext().getBinding("min").getPropertyValue();
             max = (Double) xAxisRangeControl.getBindingContext().getBinding("max").getPropertyValue();
         }
-
         ProgressMonitorSwingWorker<Stx, Object> swingWorker = new StxWorker(min, max, autoMinMaxEnabled);
         swingWorker.execute();
     }
 
     private void setStx(Stx stx) {
-        updateXAxis();
-
-        this.stx = stx;
-        dataset = new XIntervalSeriesCollection();
-        if (this.stx != null) {
+        if(stx != null) {
+            this.stx = stx;
+            dataset = new XIntervalSeriesCollection();
             final int[] binCounts = this.stx.getHistogramBins();
             final RasterDataNode raster = getRaster();
             final XIntervalSeries series = new XIntervalSeries(raster.getName());
-            final Histogram histogram = stx.getHistogram();
+            final Histogram histogram = this.stx.getHistogram();
             for (int i = 0; i < binCounts.length; i++) {
                 final double xMin = histogram.getBinLowValue(0, i);
                 final double xMax = i < binCounts.length - 1 ? histogram.getBinLowValue(0,
-                                                                                        i + 1) : histogram.getHighValue(
+                        i + 1) : histogram.getHighValue(
                         0);
                 series.add(xMin, xMin, xMax, binCounts[i]);
             }
             dataset.addSeries(series);
         }
+        if (this.stx != null) {
+            if (!this.stx.isLogHistogram()) {
+                ((JCheckBox) bindingContext.getBinding(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM).getComponents()[0]).setSelected(Boolean.FALSE);
+                bindingContext.getBinding(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM).setPropertyValue(Boolean.FALSE);
+                refreshButton.setEnabled(false);
+            }
+            else{
+                ((JCheckBox) xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getComponents()[0]).setSelected(Boolean.FALSE);
+                xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).setPropertyValue(Boolean.FALSE);
+            }
+        }
+        else{
+            if(histogramPlotConfig.histogramLogScaled){
+                ((JCheckBox) bindingContext.getBinding(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM).getComponents()[0]).setSelected(Boolean.FALSE);
+                bindingContext.getBinding(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM).setPropertyValue(Boolean.FALSE);
+            }
+        }
+        updateLogXAxisCheckBox();
         chart.getXYPlot().setDataset(dataset);
+        updateXAxis();
         chart.fireChartChanged();
     }
 
@@ -348,7 +366,6 @@ class HistogramPanel extends ChartPagePanel {
     private boolean getAutoMinMaxEnabled() {
         return xAxisRangeControl.isAutoMinMax();
     }
-
 
     @Override
     public String getDataAsText() {
@@ -370,7 +387,7 @@ class HistogramPanel extends ChartPagePanel {
         sb.append("Histogram maximum:\t").append(max).append("\t").append(getRaster().getUnit()).append("\n");
         sb.append("Histogram bin size:\t").append(
                 getRaster().isLog10Scaled() ? ("NA\t") : ((max - min) / numBins + "\t") +
-                                                         getRaster().getUnit() + "\n");
+                        getRaster().getUnit() + "\n");
         sb.append("Histogram #bins:\t").append(numBins).append("\n");
         sb.append('\n');
 
@@ -389,11 +406,17 @@ class HistogramPanel extends ChartPagePanel {
         return sb.toString();
     }
 
+    private void updateLogXAxisCheckBox(){
+        final boolean enabled = dataset != null && this.stx.getMinimum()>0 && !this.stx.isLogHistogram();
+        ((JCheckBox) xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getComponents()[0]).setEnabled(enabled);
+        if(!enabled){
+            xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).setPropertyValue(Boolean.FALSE);
+            ((JCheckBox) xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).getComponents()[0]).setSelected(false);
+        }
+    }
+
     private void updateXAxis() {
-        final boolean logScaled = (Boolean) xAxisRangeControl.getBindingContext().getBinding(
-                PROPERTY_NAME_LOG_SCALED).getPropertyValue();
         final XYPlot plot = chart.getXYPlot();
-        plot.setDomainAxis(StatisticChartStyling.updateScalingOfAxis(logScaled, plot.getDomainAxis(), true));
         plot.getDomainAxis().setLabel(getAxisLabel());
     }
 
@@ -407,16 +430,11 @@ class HistogramPanel extends ChartPagePanel {
                 adjusting = true;
                 if (evt.getPropertyName().equals(PROPERTY_NAME_LOGARITHMIC_HISTOGRAM)) {
                     if (evt.getNewValue().equals(Boolean.TRUE)) {
-                        xAxisRangeControl.getBindingContext().getBinding(PROPERTY_NAME_LOG_SCALED).setPropertyValue(
-                                Boolean.FALSE);
-                        xAxisRangeControl.setMin(Stx.LOG10_SCALING.scale(xAxisRangeControl.getMin()));
-                        xAxisRangeControl.setMax(Stx.LOG10_SCALING.scale(xAxisRangeControl.getMax()));
+                        xAxisRangeControl.adjustComponents(Stx.LOG10_SCALING.scale(xAxisRangeControl.getMin()),Stx.LOG10_SCALING.scale(xAxisRangeControl.getMax()),3);
                     } else {
-                        xAxisRangeControl.setMin(Stx.LOG10_SCALING.scaleInverse(xAxisRangeControl.getMin()));
-                        xAxisRangeControl.setMax(Stx.LOG10_SCALING.scaleInverse(xAxisRangeControl.getMax()));
+                        xAxisRangeControl.adjustComponents(Stx.LOG10_SCALING.scale(xAxisRangeControl.getMin()),Stx.LOG10_SCALING.scale(xAxisRangeControl.getMax()),3);
                     }
                 }
-                updateUIState();
                 adjusting = false;
             }
         }
@@ -490,6 +508,7 @@ class HistogramPanel extends ChartPagePanel {
             } catch (ExecutionException e) {
                 if (e.getCause() instanceof IllegalArgumentException) {
                     handleNoPixelsFound();
+                    setStx(null);
                 } else {
                     handleExecutionException(e);
                 }
@@ -502,26 +521,28 @@ class HistogramPanel extends ChartPagePanel {
 
         private void handleInterruptedException(InterruptedException e) {
             JOptionPane.showMessageDialog(getParentComponent(),
-                                          "The histogram computation has been interrupted:\n" + e.getMessage(),
-                                          CHART_TITLE,
-                                          JOptionPane.ERROR_MESSAGE);
+                    "The histogram computation has been interrupted:\n" + e.getMessage(),
+                    CHART_TITLE,
+                    JOptionPane.ERROR_MESSAGE);
         }
 
         private void handleExecutionException(ExecutionException e) {
             JOptionPane.showMessageDialog(getParentComponent(),
-                                          "An internal error occurred.\n" +
-                                          "A valid histogram could not be computed:\n" + e.getMessage(),
-                                          CHART_TITLE,
-                                          JOptionPane.ERROR_MESSAGE);
+                    "An internal error occurred.\n" +
+                            "A valid histogram could not be computed:\n" + e.getMessage(),
+                    CHART_TITLE,
+                    JOptionPane.ERROR_MESSAGE);
         }
 
         private void handleNoPixelsFound() {
             JOptionPane.showMessageDialog(getParentComponent(),
-                                          "Either the selected ROI is empty or no pixels have been found within the minimum and maximum values specified.\n" +
-                                          "A valid histogram could not be computed.",
-                                          CHART_TITLE,
-                                          JOptionPane.WARNING_MESSAGE);
+                    "Either the selected ROI is empty, no pixels have been found within the minimum and maximum values specified,\n" +
+                            "or the band contains negative values.\n" +
+                            "A valid histogram could not be computed.",
+                    CHART_TITLE,
+                    JOptionPane.WARNING_MESSAGE);
         }
+
     }
 }
 
