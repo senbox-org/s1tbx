@@ -97,7 +97,6 @@ import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowImageViewRGBAction;
 import org.esa.beam.visat.actions.ShowToolBarAction;
 import org.esa.beam.visat.toolviews.diag.TileCacheDiagnosisToolView;
-import org.esa.beam.visat.toolviews.stat.CoordListToolView;
 import org.esa.beam.visat.toolviews.stat.DensityPlotToolView;
 import org.esa.beam.visat.toolviews.stat.GeoCodingToolView;
 import org.esa.beam.visat.toolviews.stat.HistogramPlotToolView;
@@ -1957,7 +1956,6 @@ public class VisatApp extends BasicApp implements AppContext {
         excludedIds.add(ScatterPlotToolView.ID);
         excludedIds.add(DensityPlotToolView.ID);
         excludedIds.add(ProfilePlotToolView.ID);
-        excludedIds.add(CoordListToolView.ID);
         excludedIds.add("org.esa.beam.scripting.visat.ScriptConsoleToolView");
         excludedIds.add("org.esa.beam.visat.toolviews.layermanager.LayerEditorToolView");
 
@@ -2140,8 +2138,7 @@ public class VisatApp extends BasicApp implements AppContext {
                 HistogramPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                 ScatterPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                 DensityPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                CoordListToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX
+                ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX
         ));
         menuBar.add(createJMenu("tools", "Tools", 'T'));
         menuBar.add(createJMenu("window", "Window", 'W'));

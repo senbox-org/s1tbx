@@ -603,21 +603,6 @@
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
         </toolView>
-        <toolView>
-            <id>org.esa.beam.visat.toolviews.stat.CoordListToolView</id>
-            <class>org.esa.beam.visat.toolviews.stat.CoordListToolView</class>
-            <title>Coordinate List View</title>
-            <tabTitle>Coordinate List</tabTitle>
-            <mnemonic>t</mnemonic>
-            <accelerator>ctrl alt T</accelerator>
-            <description>Display Coordinate List for a selected band.</description>
-            <!--<smallIcon>/org/esa/beam/resources/images/icons/ScatterPlot16.gif</smallIcon>-->
-            <!--<largeIcon>/org/esa/beam/resources/images/icons/ScatterPlot24.gif</largeIcon>-->
-            <helpId>coordinateListDialog</helpId>
-            <initState>HIDDEN</initState>
-            <initSide>SOUTH</initSide>
-            <initIndex>0</initIndex>
-        </toolView>
 
         <toolView>
             <id>org.esa.beam.visat.toolviews.worldmap.WorldMapToolView</id>
