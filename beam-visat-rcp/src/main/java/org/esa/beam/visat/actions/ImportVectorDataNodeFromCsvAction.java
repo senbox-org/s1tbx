@@ -34,7 +34,6 @@ public class ImportVectorDataNodeFromCsvAction extends AbstractImportVectorDataN
 
     private VectorDataNodeImporter importer;
 
-
     @Override
     public void actionPerformed(final CommandEvent event) {
         final BeamFileFilter filter = new BeamFileFilter("CSV",
@@ -61,9 +60,18 @@ public class ImportVectorDataNodeFromCsvAction extends AbstractImportVectorDataN
 
         @Override
         public VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException {
-            final CoordinateReferenceSystem modelCrs = product.getGeoCoding() != null ? ImageManager.getModelCrs(product.getGeoCoding()) :
-                    ImageManager.DEFAULT_IMAGE_CRS;
-            return VectorDataNodeReader.read(file.getName(), new FileReader(file), product, crsProvider, placemarkDescriptorProvider, modelCrs, pm);
+            FileReader reader = null;
+            try {
+                final CoordinateReferenceSystem modelCrs =
+                        product.getGeoCoding() != null ? ImageManager.getModelCrs(product.getGeoCoding()) :
+                        ImageManager.DEFAULT_IMAGE_CRS;
+                reader = new FileReader(file);
+                return VectorDataNodeReader.read(file.getName(), reader, product, crsProvider, placemarkDescriptorProvider, modelCrs, pm);
+            } finally {
+                if (reader != null) {
+                    reader.close();
+                }
+            }
         }
     }
 }
