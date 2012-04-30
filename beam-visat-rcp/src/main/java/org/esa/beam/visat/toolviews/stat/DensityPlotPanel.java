@@ -270,7 +270,7 @@ class DensityPlotPanel extends ChartPagePanel {
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
                 densityPlotDisplay,
-                "density_plot_area",
+                "scatter_plot_area",
                 "Mask generated from selected scatter plot area",
                 Color.RED,
                 PlotAreaSelectionTool.AreaType.ELLIPSE) {
