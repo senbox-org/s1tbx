@@ -16,7 +16,6 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.getAxisLabel;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
@@ -25,31 +24,6 @@ import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.vividsolutions.jts.geom.Point;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SwingWorker;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -91,6 +65,34 @@ import org.jfree.ui.RectangleInsets;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SwingWorker;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+
+import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.getAxisLabel;
 
 /**
  * The scatter plot pane within the statistics window.
@@ -161,13 +163,13 @@ class ScatterPlotPanel extends ChartPagePanel {
     protected String getDataAsText() {
         if (scatterpointsDataset.getItemCount(0) > 0) {
             final ScatterPlotTableModel scatterPlotTableModel;
-            scatterPlotTableModel = new ScatterPlotTableModel(getRasterName(), getCorrelativDataName(), computedDatas);
+            scatterPlotTableModel = new ScatterPlotTableModel(getRasterName(), getCorrelativeDataName(), computedDatas);
             return scatterPlotTableModel.toCVS();
         }
         return "";
     }
 
-    private String getCorrelativDataName() {
+    private String getCorrelativeDataName() {
         return scatterPlotModel.dataField.getLocalName();
     }
 
@@ -221,7 +223,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     protected void showAlternativeView() {
         final TableModel model;
         if (computedDatas != null && computedDatas.length > 0) {
-            model = new ScatterPlotTableModel(getRasterName(), getCorrelativDataName(), computedDatas);
+            model = new ScatterPlotTableModel(getRasterName(), getCorrelativeDataName(), computedDatas);
         } else {
             model = new DefaultTableModel();
         }
@@ -667,7 +669,7 @@ class ScatterPlotPanel extends ChartPagePanel {
 
                     computedDatas = data;
 
-                    final XYIntervalSeries scatterValues = new XYIntervalSeries(getCorrelativDataName());
+                    final XYIntervalSeries scatterValues = new XYIntervalSeries(getCorrelativeDataName());
                     for (int i = 0; i < computedDatas.length; i++) {
                         ComputedData computedData = computedDatas[i];
                         final float rasterMean = computedData.rasterMean;
