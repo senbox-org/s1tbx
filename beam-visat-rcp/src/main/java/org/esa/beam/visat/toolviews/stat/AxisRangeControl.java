@@ -56,7 +56,7 @@ class AxisRangeControl {
         GridBagUtils.setAttributes(gbc, "gridwidth=2,insets.top=2,weightx=1");
 
         titledSeparator = new TitledSeparator(axisName, SwingConstants.CENTER);
-        GridBagUtils.addToPanel(panel, titledSeparator, gbc, "gridy=0");
+        GridBagUtils.addToPanel(panel, titledSeparator, gbc, "gridy=0,insets.right=-2");
         GridBagUtils.addToPanel(panel, autoMinMaxBox, gbc, "gridy=1");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=1");

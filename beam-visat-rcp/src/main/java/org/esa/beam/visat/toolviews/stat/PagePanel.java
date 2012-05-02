@@ -38,9 +38,6 @@ import java.awt.event.MouseEvent;
  */
 abstract class PagePanel extends JPanel implements ProductNodeListener {
 
-    protected static final String ZOOM_TIP_MESSAGE = "TIP: To zoom within the chart, draw a rectangle\n" +
-            "with the mouse or use the context menu.";
-
     private final ToolView parentDialog;
     private final String helpId;
     private final String titlePrefix;

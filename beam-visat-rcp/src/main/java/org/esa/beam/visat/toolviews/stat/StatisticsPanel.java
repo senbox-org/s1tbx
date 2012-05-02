@@ -98,12 +98,14 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         init = true;
 
         computePanel = new MultipleRoiComputePanel(this, getRaster());
-        final JPanel helpPanel = new JPanel(new BorderLayout());
-        helpPanel.add(getHelpButton(), BorderLayout.EAST);
-        helpPanel.add(new JSeparator(),BorderLayout.NORTH);
+
+        final JPanel helpPanel = GridBagUtils.createPanel();
+        GridBagConstraints helpPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1,ipadx=0");
+        GridBagUtils.addToPanel(helpPanel,new JSeparator(),helpPanelConstraints,"gridy=0,gridwidth=3,insets.left=4,insets.right=2");
+        GridBagUtils.addToPanel(helpPanel,getHelpButton(),helpPanelConstraints,"gridy=1,gridwidth=1,gridx=2,anchor=EAST,fill=NONE");
 
         final JPanel rightPanel = GridBagUtils.createPanel();
-        GridBagConstraints extendedOptionsPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1,ipadx=0");
+        GridBagConstraints extendedOptionsPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1,insets.right=-2");
         GridBagUtils.addToPanel(rightPanel, computePanel, extendedOptionsPanelConstraints, "gridy=0,fill=BOTH,weighty=1");
         GridBagUtils.addToPanel(rightPanel, helpPanel, extendedOptionsPanelConstraints, "gridy=1,anchor=SOUTHWEST,fill=HORIZONTAL,weighty=0");
 
@@ -455,7 +457,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     public void doLayout() {
         super.doLayout();
         backgroundPanel.setBounds(0, 0, getWidth() - 8, getHeight() - 8);
-        hideAndShowButton.setBounds(getWidth() - hideAndShowButton.getWidth() - 12, 4, 24, 24);
+        hideAndShowButton.setBounds(getWidth() - hideAndShowButton.getWidth() - 12, 6, 24, 24);
     }
 
 

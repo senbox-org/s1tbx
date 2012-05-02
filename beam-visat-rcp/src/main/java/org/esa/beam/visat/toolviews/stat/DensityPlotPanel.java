@@ -70,6 +70,9 @@ import java.util.concurrent.ExecutionException;
 class DensityPlotPanel extends ChartPagePanel {
 
     private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" +
+            "To create a scatter plot, select bands in both combo boxes.\n"+
+            "The plot will be computed when you hit the 'Refresh View' button.\n"+
+            HELP_TIP_MESSAGE+"\n"+
             ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Scatter Plot";
 
@@ -256,12 +259,12 @@ class DensityPlotPanel extends ChartPagePanel {
         final JPanel optionsPanel = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=0,weightx=1,gridx=0");
         GridBagUtils.addToPanel(optionsPanel, axisRangeControls[X_VAR].getPanel(), gbc, "gridy=0");
-        GridBagUtils.addToPanel(optionsPanel, xBandList, gbc, "gridy=1");
-        GridBagUtils.addToPanel(optionsPanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=2");
-        GridBagUtils.addToPanel(optionsPanel, yBandList, gbc, "gridy=3");
+        GridBagUtils.addToPanel(optionsPanel, xBandList, gbc, "gridy=1,insets.left=4,insets.right=2");
+        GridBagUtils.addToPanel(optionsPanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=2,insets.left=0,insets.right=0");
+        GridBagUtils.addToPanel(optionsPanel, yBandList, gbc, "gridy=3,insets.left=4,insets.right=2");
         GridBagUtils.addToPanel(optionsPanel, new JPanel(), gbc, "gridy=4");
-        GridBagUtils.addToPanel(optionsPanel, new JSeparator(), gbc, "gridy=5");
-        GridBagUtils.addToPanel(optionsPanel, toggleColorCheckBox, gbc, "gridy=6");
+        GridBagUtils.addToPanel(optionsPanel, new JSeparator(), gbc, "gridy=5,insets.left=4,insets.right=2");
+        GridBagUtils.addToPanel(optionsPanel, toggleColorCheckBox, gbc, "gridy=6,insets.left=0,insets.right=0");
         return optionsPanel;
     }
 

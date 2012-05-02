@@ -103,7 +103,15 @@ import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.getAxisLab
 class ScatterPlotPanel extends ChartPagePanel {
 
     public static final String CHART_TITLE = "Correlative Plot";
-    private static final String NO_DATA_MESSAGE = "No correlative plot computed yet.\n" + ZOOM_TIP_MESSAGE;
+    private static final String NO_DATA_MESSAGE = "No correlative plot computed yet.\n" +
+            "To create a correlative plot\n" +
+            "   -Select a band" + "\n" +
+            "   -Select vector data (e.g., a SeaDAS 6.x track)" + "\n" +
+            "   -Select the data as point data source" + "\n" +
+            "   -Select a data field" + "\n" +
+            "   -Hit the 'Refresh View' button" + "\n" +
+            HELP_TIP_MESSAGE + "\n" +
+            ZOOM_TIP_MESSAGE;
 
     private final String PROPERTY_NAME_X_AXIS_LOG_SCALED = "xAxisLogScaled";
     private final String PROPERTY_NAME_Y_AXIS_LOG_SCALED = "yAxisLogScaled";
@@ -463,13 +471,13 @@ class ScatterPlotPanel extends ChartPagePanel {
         pointDataFieldPanel.add(correlativeFieldSelector.dataFieldLabel, BorderLayout.NORTH);
         pointDataFieldPanel.add(correlativeFieldSelector.dataFieldList);
 
-        final JCheckBox xLogCheck = new JCheckBox("Log scaled");
+        final JCheckBox xLogCheck = new JCheckBox("Log10 scaled");
         bindingContext.bind(PROPERTY_NAME_X_AXIS_LOG_SCALED, xLogCheck);
         final JPanel xAxisOptionPanel = new JPanel(new BorderLayout());
         xAxisOptionPanel.add(xAxisRangeControl.getPanel());
         xAxisOptionPanel.add(xLogCheck, BorderLayout.SOUTH);
 
-        final JCheckBox yLogCheck = new JCheckBox("Log scaled");
+        final JCheckBox yLogCheck = new JCheckBox("Log10 scaled");
         bindingContext.bind(PROPERTY_NAME_Y_AXIS_LOG_SCALED, yLogCheck);
         final JPanel yAxisOptionPanel = new JPanel(new BorderLayout());
         yAxisOptionPanel.add(yAxisRangeControl.getPanel());
@@ -484,10 +492,12 @@ class ScatterPlotPanel extends ChartPagePanel {
         bindingContext.bind("confidenceInterval", confidenceField);
         bindingContext.getBinding("confidenceInterval").addComponent(percentLabel);
         bindingContext.bindEnabledState("confidenceInterval", true, "showConfidenceInterval", true);
-        final JPanel confidencePanel = new JPanel(new BorderLayout(5, 3));
-        confidencePanel.add(confidenceCheck, BorderLayout.NORTH);
-        confidencePanel.add(confidenceField);
-        confidencePanel.add(percentLabel, BorderLayout.EAST);
+
+        final JPanel confidencePanel = GridBagUtils.createPanel();
+        GridBagConstraints confidencePanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=5,weighty=0,weightx=1");
+        GridBagUtils.addToPanel(confidencePanel, confidenceCheck, confidencePanelConstraints, "gridy=0");
+        GridBagUtils.addToPanel(confidencePanel, confidenceField, confidencePanelConstraints, "gridy=1,gridx=0,insets.left=4,insets.top=2");
+        GridBagUtils.addToPanel(confidencePanel, percentLabel, confidencePanelConstraints, "gridy=1,gridx=1,insets.left=0,insets.top=4");
 
         final JCheckBox regressionCheck = new JCheckBox("Show regression line");
         bindingContext.bind("showRegressionLine", regressionCheck);
@@ -496,14 +506,14 @@ class ScatterPlotPanel extends ChartPagePanel {
 
         JPanel middlePanel = GridBagUtils.createPanel();
         GridBagConstraints middlePanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=6,weighty=0,weightx=1");
-        GridBagUtils.addToPanel(middlePanel, boxSizePanel, middlePanelConstraints, "gridy=0");
+        GridBagUtils.addToPanel(middlePanel, boxSizePanel, middlePanelConstraints, "gridy=0,insets.left=6");
         GridBagUtils.addToPanel(middlePanel, pointDataSourcePanel, middlePanelConstraints, "gridy=1");
         GridBagUtils.addToPanel(middlePanel, pointDataFieldPanel, middlePanelConstraints, "gridy=2");
-        GridBagUtils.addToPanel(middlePanel, xAxisOptionPanel, middlePanelConstraints, "gridy=3");
+        GridBagUtils.addToPanel(middlePanel, xAxisOptionPanel, middlePanelConstraints, "gridy=3,insets.left=0");
         GridBagUtils.addToPanel(middlePanel, yAxisOptionPanel, middlePanelConstraints, "gridy=4");
-        GridBagUtils.addToPanel(middlePanel, new JSeparator(), middlePanelConstraints, "gridy=5");
-        GridBagUtils.addToPanel(middlePanel, confidencePanel, middlePanelConstraints, "gridy=6,fill=HORIZONTAL");
-        GridBagUtils.addToPanel(middlePanel, regressionCheck, middlePanelConstraints, "gridy=7,fill=NONE");
+        GridBagUtils.addToPanel(middlePanel, new JSeparator(), middlePanelConstraints, "gridy=5,insets.left=4");
+        GridBagUtils.addToPanel(middlePanel, confidencePanel, middlePanelConstraints, "gridy=6,fill=HORIZONTAL,insets.left=-4");
+        GridBagUtils.addToPanel(middlePanel, regressionCheck, middlePanelConstraints, "gridy=7,insets.left=-4,insets.top=8");
 
         return middlePanel;
     }

@@ -41,6 +41,11 @@ import org.jfree.chart.StandardChartTheme;
  */
 abstract class ChartPagePanel extends PagePanel {
 
+    protected static final String HELP_TIP_MESSAGE = "For more information about this plot\n" +
+            "hit the help button at the bottom right.";
+    protected static final String ZOOM_TIP_MESSAGE = "TIP: To zoom within the chart, draw a rectangle\n" +
+            "with the mouse or use the context menu.";
+
     private AbstractButton hideAndShowButton;
     private JPanel backgroundPanel;
     private RoiMaskSelector roiMaskSelector;
@@ -96,8 +101,10 @@ abstract class ChartPagePanel extends PagePanel {
         final TableLayout tableLayout = new TableLayout(6);
         tableLayout.setColumnFill(2, TableLayout.Fill.HORIZONTAL);
         tableLayout.setColumnWeightX(2, 1.0);
+        tableLayout.setRowPadding(0, new Insets(0,4,0,0));
         JPanel buttonPanel = new JPanel(tableLayout);
         buttonPanel.add(refreshButton);
+        tableLayout.setRowPadding(0, new Insets(0,0,0,0));
         buttonPanel.add(switchToTableButton);
         buttonPanel.add(new JPanel());
 
@@ -170,7 +177,9 @@ abstract class ChartPagePanel extends PagePanel {
         tableLayout.setColumnFill(4, TableLayout.Fill.HORIZONTAL);
         tableLayout.setColumnWeightX(4, 1.0);
         JPanel buttonPanel = new JPanel(tableLayout);
+        tableLayout.setRowPadding(0, new Insets(0,4,0,0));
         buttonPanel.add(zoomAllButton);
+        tableLayout.setRowPadding(0, new Insets(0,0,0,0));
         buttonPanel.add(propertiesButton);
         buttonPanel.add(saveButton);
         buttonPanel.add(printButton);
@@ -184,11 +193,11 @@ abstract class ChartPagePanel extends PagePanel {
         roiMaskSelector = new RoiMaskSelector(bindingContext);
 
         final JPanel extendedOptionsPanel = GridBagUtils.createPanel();
-        GridBagConstraints extendedOptionsPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1");
+        GridBagConstraints extendedOptionsPanelConstraints = GridBagUtils.createConstraints("insets.left=4,insets.right=2,anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1");
         GridBagUtils.addToPanel(extendedOptionsPanel, new JSeparator(), extendedOptionsPanelConstraints, "gridy=0");
-        GridBagUtils.addToPanel(extendedOptionsPanel, roiMaskSelector.createPanel(), extendedOptionsPanelConstraints, "gridy=1");
-        GridBagUtils.addToPanel(extendedOptionsPanel, optionsPanel, extendedOptionsPanelConstraints, "gridy=2,fill=VERTICAL,fill=HORIZONTAL,weighty=1");
-        GridBagUtils.addToPanel(extendedOptionsPanel, new JSeparator(), extendedOptionsPanelConstraints, "gridy=5,anchor=SOUTHWEST");
+        GridBagUtils.addToPanel(extendedOptionsPanel, roiMaskSelector.createPanel(), extendedOptionsPanelConstraints, "gridy=1,insets.left=-4");
+        GridBagUtils.addToPanel(extendedOptionsPanel, optionsPanel, extendedOptionsPanelConstraints, "insets.left=0,insets.right=0,gridy=2,fill=VERTICAL,fill=HORIZONTAL,weighty=1");
+        GridBagUtils.addToPanel(extendedOptionsPanel, new JSeparator(), extendedOptionsPanelConstraints, "insets.left=4,insets.right=2,gridy=5,anchor=SOUTHWEST");
 
         final JScrollPane optionsScrollPane = new SimpleScrollPane(extendedOptionsPanel,
                                                                    ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -242,7 +251,7 @@ abstract class ChartPagePanel extends PagePanel {
     public void doLayout() {
         super.doLayout();
         backgroundPanel.setBounds(0, 0, getWidth() - 8, getHeight() - 8);
-        hideAndShowButton.setBounds(getWidth() - hideAndShowButton.getWidth() - 12, 4, 24, 24);
+        hideAndShowButton.setBounds(getWidth() - hideAndShowButton.getWidth() - 12, 2, 24, 24);
     }
 
 }

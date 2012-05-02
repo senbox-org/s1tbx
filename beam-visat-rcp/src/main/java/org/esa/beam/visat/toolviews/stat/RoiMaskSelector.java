@@ -26,6 +26,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractButton;
@@ -36,7 +37,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+
 
 class RoiMaskSelector {
     public final static String PROPERTY_NAME_USE_ROI_MASK = "useRoiMask";
@@ -89,22 +90,14 @@ class RoiMaskSelector {
     }
 
     public JPanel createPanel() {
-        final JPanel roiMaskPanel = new JPanel(new GridBagLayout());
-        final GridBagConstraints roiMaskGbc = new GridBagConstraints();
-        roiMaskGbc.anchor = GridBagConstraints.SOUTHWEST;
-        roiMaskGbc.fill = GridBagConstraints.HORIZONTAL;
-        roiMaskGbc.gridx = 0;
-        roiMaskGbc.gridy = 0;
-        roiMaskGbc.weightx = 1;
-        roiMaskPanel.add(useRoiMaskCheckBox, roiMaskGbc);
-        roiMaskGbc.gridy++;
-        roiMaskPanel.add(roiMaskComboBox, roiMaskGbc);
-        roiMaskGbc.gridheight = 2;
-        roiMaskGbc.gridx = 1;
-        roiMaskGbc.gridy = 0;
-        roiMaskGbc.weightx = 0;
-        roiMaskGbc.ipadx = 5;
-        roiMaskPanel.add(showMaskManagerButton, roiMaskGbc);
+        final JPanel roiMaskPanel = GridBagUtils.createPanel();
+        GridBagConstraints roiMaskPanelConstraints = GridBagUtils.createConstraints("anchor=SOUTHWEST,fill=HORIZONTAL,insets.top=2");
+        GridBagUtils.addToPanel(roiMaskPanel, useRoiMaskCheckBox, roiMaskPanelConstraints,
+                ",gridy=0,gridx=0,weightx=1");
+        GridBagUtils.addToPanel(roiMaskPanel, roiMaskComboBox, roiMaskPanelConstraints,
+                "gridy=1,insets.left=4");
+        GridBagUtils.addToPanel(roiMaskPanel, showMaskManagerButton, roiMaskPanelConstraints,
+                "gridheight=2,gridy=0,gridx=1,weightx=0,ipadx=5,insets.left=0");
         return roiMaskPanel;
     }
 
