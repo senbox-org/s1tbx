@@ -34,7 +34,7 @@ public class ImageProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public String[] getFormatNames() {
-        return new String[]{"PNG", "GIF", "JPG", "BMP"};
+        return new String[]{FORMAT_NAME};
     }
 
     @Override

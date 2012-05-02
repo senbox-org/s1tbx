@@ -862,6 +862,18 @@
             <helpId>importDimapProduct</helpId>
         </action>
 
+        <action>
+            <parent>importRasterData</parent>
+            <id>importImageProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>IMAGE</formatName>
+            <text>RGB-Image</text>
+            <useAllFileFilter>false</useAllFileFilter>
+            <shortDescr>Import a data product or product subset from an ordinary RGB image.</shortDescr>
+            <description>Import a data product or product subset from an ordinary RGB image.</description>
+            <helpId>importImageProduct</helpId>
+        </action>
+
         <!--####################-->
         <!-- Export Menu Group  -->
         <!--####################-->
