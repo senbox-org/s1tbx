@@ -112,7 +112,7 @@ public class VectorDataNodeWriter {
                         text = converter.format(value);
                         text = VectorDataNodeIO.encodeTabString(text);
                     }
-                    writer.write(VectorDataNodeIO.DELIMITER_CHAR);
+                    writer.write(VectorDataNodeIO.DEFAULT_DELIMITER_CHAR);
                     writer.write(text);
                 }
                 writer.write('\n');
@@ -133,7 +133,7 @@ public class VectorDataNodeWriter {
             String name = attributeDescriptor.getLocalName();
             String type = typeConverter.format(binding);
 
-            writer.write(VectorDataNodeIO.DELIMITER_CHAR);
+            writer.write(VectorDataNodeIO.DEFAULT_DELIMITER_CHAR);
             writer.write(name);
             writer.write(':');
             writer.write(type);

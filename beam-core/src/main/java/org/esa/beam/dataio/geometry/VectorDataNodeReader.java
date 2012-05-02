@@ -37,7 +37,6 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.FeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
@@ -57,22 +56,27 @@ public class VectorDataNodeReader {
     private InterpretationStrategy interpretationStrategy;
     private final CsvReader reader;
 
-    private static final String[] LONGITUDE_IDENTIFIERS = new String[]{"lon", "long", "longitude"};
-    private static final String[] LATITUDE_IDENTIFIERS = new String[]{"lat", "latitude"};
+    private static final String[] LONGITUDE_IDENTIFIERS = new String[]{"lon", "long", "longitude", "lon_IS"};
+    private static final String[] LATITUDE_IDENTIFIERS = new String[]{"lat", "latitude", "lat_IS"};
     private static final String[] GEOMETRY_IDENTIFIERS = new String[]{"geometry", "geom", "the_geom"};
+    private final char delimiterChar = VectorDataNodeIO.DEFAULT_DELIMITER_CHAR;
+
     private Map<String, String> properties;
 
-    private VectorDataNodeReader(String vectorDataNodeName, Product product, Reader reader, FeatureUtils.FeatureCrsProvider crsProvider, PlacemarkDescriptorProvider placemarkDescriptorProvider) throws IOException {
+    private VectorDataNodeReader(String vectorDataNodeName, Product product, Reader reader, FeatureUtils.FeatureCrsProvider crsProvider,
+                                 PlacemarkDescriptorProvider placemarkDescriptorProvider, char delimiterChar) throws IOException {
         this.product = product;
         this.crsProvider = crsProvider;
         this.placemarkDescriptorProvider = placemarkDescriptorProvider;
         this.geoCoding = product.getGeoCoding();
         this.vectorDataNodeName = vectorDataNodeName;
-        this.reader = new CsvReader(reader, new char[]{VectorDataNodeIO.DELIMITER_CHAR}, true, "#");
+        this.reader = new CsvReader(reader, new char[]{delimiterChar}, true, "#");
     }
 
-    public static VectorDataNode read(String name, Reader reader, Product product, FeatureUtils.FeatureCrsProvider crsProvider, PlacemarkDescriptorProvider placemarkDescriptorProvider, CoordinateReferenceSystem modelCrs, ProgressMonitor pm) throws IOException {
-        return new VectorDataNodeReader(name, product, reader, crsProvider, placemarkDescriptorProvider).read(modelCrs, pm);
+    public static VectorDataNode read(String name, Reader reader, Product product, FeatureUtils.FeatureCrsProvider crsProvider,
+                                      PlacemarkDescriptorProvider placemarkDescriptorProvider, CoordinateReferenceSystem modelCrs,
+                                      char delimiterChar, ProgressMonitor pm) throws IOException {
+        return new VectorDataNodeReader(name, product, reader, crsProvider, placemarkDescriptorProvider, delimiterChar).read(modelCrs, pm);
     }
 
     VectorDataNode read(CoordinateReferenceSystem modelCrs, ProgressMonitor pm) throws IOException {

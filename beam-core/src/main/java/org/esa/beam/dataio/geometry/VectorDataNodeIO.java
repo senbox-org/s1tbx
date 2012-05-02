@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class VectorDataNodeIO {
-    public static final char DELIMITER_CHAR = '\t';
+    public static final char DEFAULT_DELIMITER_CHAR = '\t';
     public static final String ESCAPE_STRING = "\\t";
     public static final String NULL_TEXT = "[null]";
     public static final String FILENAME_EXTENSION = ".csv";
@@ -57,7 +57,7 @@ public class VectorDataNodeIO {
         boolean escapeMode = false;
         for (int i = 0; i < input.length(); i++) {
             char c = input.charAt(i);
-            if (c == DELIMITER_CHAR) {
+            if (c == DEFAULT_DELIMITER_CHAR) {
                 sb.append(ESCAPE_STRING);
                 escapeMode = false;
             } else { 
@@ -86,7 +86,7 @@ public class VectorDataNodeIO {
             } else {
                 if (c == 't' && numEscapes == 1) {
                     sb.deleteCharAt(sb.length()-1);
-                    sb.append(DELIMITER_CHAR);
+                    sb.append(DEFAULT_DELIMITER_CHAR);
                     numEscapes = 0;
                 } else if (c == 't' && numEscapes > 1) {
                     sb.deleteCharAt(sb.length()-1);

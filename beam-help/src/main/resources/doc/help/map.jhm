@@ -45,6 +45,9 @@
     <mapID target="importAtsrProduct" url="visat/ImportATSR.html"/>
     <mapID target="importGETASSE30" url="visat/ImportGETASSE30.html"/>
     <mapID target="importCSV" url="visat/ImportCSV.html"/>
+    <mapID target="interpretPointData" url="visat/ImportCSV.html#interpretPointData"/>
+    <mapID target="importMermaid" url="visat/ImportMermaid.html"/>
+    <mapID target="importSeaDASTrack" url="visat/ImportSeaDASTrack.html"/>
     <mapID target="importShapefile" url="visat/ImportShapefile.html"/>
     <mapID target="importLandsatTMProduct" url="visat/ImportLandsatTM.html"/>
     <mapID target="importAVHRR" url="visat/ImportAVHRR.html"/>

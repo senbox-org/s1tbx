@@ -31,7 +31,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class ImportVectorDataNodeFromCsvAction extends AbstractImportVectorDataNodeAction {
+public class ImportVectorDataNodeFromMermaidAction extends AbstractImportVectorDataNodeAction {
 
     private VectorDataNodeImporter importer;
 
@@ -67,8 +67,10 @@ public class ImportVectorDataNodeFromCsvAction extends AbstractImportVectorDataN
                         product.getGeoCoding() != null ? ImageManager.getModelCrs(product.getGeoCoding()) :
                         ImageManager.DEFAULT_IMAGE_CRS;
                 reader = new FileReader(file);
+
+                final char delimiterChar = ';';
                 return VectorDataNodeReader.read(file.getName(), reader, product, crsProvider, placemarkDescriptorProvider,
-                                                 modelCrs, VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, pm);
+                                                 modelCrs, delimiterChar, pm);
             } finally {
                 if (reader != null) {
                     reader.close();

@@ -42,7 +42,7 @@ class TypeDialog extends ModalDialog {
     private PlacemarkDescriptor placemarkDescriptor;
 
     TypeDialog(Window parent, SimpleFeatureType featureType) {
-        super(parent, "Point Data Interpretation", ModalDialog.ID_OK_CANCEL_HELP, "importCSV");
+        super(parent, "Point Data Interpretation", ModalDialog.ID_OK_CANCEL_HELP, "interpretPointData");
         createUI(featureType);
     }
 

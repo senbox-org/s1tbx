@@ -637,11 +637,15 @@ class ScatterPlotPanel extends ChartPagePanel {
 
                     String localName = dataField.getLocalName();
                     Number attribute = (Number) feature.getAttribute(localName);
+                    final float correlativeData = attribute.floatValue();
+                    float lat = 0.0f;
+                    float lon = 0.0f;
                     final Point geoPos = (Point) feature.getAttribute("geoPos");
-                    final float lat = (float) geoPos.getY();
-                    final float lon = (float) geoPos.getX();
-                    final float correlativData = attribute.floatValue();
-                    computedDataList.add(new ComputedData(centerX, centerY, lat, lon, (float) rasterMean, (float) rasterSigma, correlativData));
+                    if (geoPos != null) {
+                        lat = (float) geoPos.getY();
+                        lon = (float) geoPos.getX();
+                    }
+                    computedDataList.add(new ComputedData(centerX, centerY, lat, lon, (float) rasterMean, (float) rasterSigma, correlativeData));
                 }
 
                 return computedDataList.toArray(new ComputedData[computedDataList.size()]);

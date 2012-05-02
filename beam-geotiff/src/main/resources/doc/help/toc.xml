@@ -6,12 +6,21 @@
         "http://java.sun.com/products/javahelp/toc_2_0.dtd">
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
-
     <tocitem text="VISAT">
         <tocitem text="Tools">
             <tocitem text="Import and Export Tools">
-                <tocitem text="Import GeoTIFF Product" target="importGeoTIFFProduct"/>
-                <tocitem text="Export GeoTIFF Product" target="exportGeoTIFFProduct"/>
+                <tocitem text="Import Raster Data">
+                    <tocitem text="GeoTIFF" target="importGeoTIFFProduct"/>
+                </tocitem>
+            </tocitem>
+        </tocitem>
+    </tocitem>
+    <tocitem text="VISAT">
+        <tocitem text="Tools">
+            <tocitem text="Import and Export Tools">
+                <tocitem text="Export Raster Data">
+                    <tocitem text="GeoTIFF" target="exportGeoTIFFProduct"/>
+                </tocitem>
             </tocitem>
         </tocitem>
     </tocitem>

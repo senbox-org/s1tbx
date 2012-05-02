@@ -828,7 +828,7 @@
             <id>importShapefile</id>
             <class>org.esa.beam.visat.actions.ImportVectorDataNodeFromShapefileAction</class>
             <parent>importVectorData</parent>
-            <text>ESRI Shapefile</text>
+            <text>ESRI Shape File</text>
             <mnemonic>S</mnemonic>
             <shortDescr>Import geometry from ESRI Shapefile.</shortDescr>
             <description>Import geometry from ESRI Shapefile.</description>
@@ -840,6 +840,7 @@
             <class>org.esa.beam.visat.actions.ImportTrackAction</class>
             <text>SeaDAS 6.x Track</text>
             <parent>importVectorData</parent>
+            <helpId>importSeaDASTrack</helpId>
         </action>
 
         <action>
@@ -849,6 +850,15 @@
             <parent>importVectorData</parent>
             <helpId>importCSV</helpId>
         </action>
+
+        <action>
+            <id>importMermaid</id>
+            <class>org.esa.beam.visat.actions.ImportVectorDataNodeFromMermaidAction</class>
+            <text>MERMAID Extraction File</text>
+            <parent>importVectorData</parent>
+            <helpId>importMermaid</helpId>
+        </action>
+
 
         <action>
             <parent>importRasterData</parent>

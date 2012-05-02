@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>VISAT Help - Import CSV</title>
+    <title>VISAT Help - Import CSV Data</title>
     <link rel="stylesheet" href="../style.css">
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </head>
@@ -25,7 +25,7 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Import CSV
+            Import CSV Data
         </td>
 
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
@@ -33,12 +33,13 @@
     </tr>
 </table>
 
-<h2>Import CSV</h2>
+<h2>Import CSV Data</h2>
 
 <p>
-    You can import CSV ('Character Separated Value') data given in plain text files. To be correctly imported and
+    You can import any CSV ('Character Separated Value') data given in plain text files. However, to be correctly imported and
     interpreted by BEAM/Visat, these files need to follow
     certain rules on content and formatting, as described <a href="CsvFileRules.html">here</a>.
+    Trying to import CSV files which deviate from these rules may result in unexpected behaviour or error messages.
 </p>
 
 <h3 id="defineCRS">Definition of the Coordinate Reference System (CRS)</h3>
@@ -67,7 +68,7 @@
     </li>
 </ul>
 
-<h3 id="interpretPointData">Interpretation of Point Data</h3>
+<h3><a name="interpretPointData"/>Interpretation of Point Data</h3>
 
 <p>
     After the CRS of the CSV data has been selected and confirmed with 'OK', a new dialog 'Point Data Interpretation' is

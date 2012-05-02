@@ -1,0 +1,72 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>VISAT Help - Import SeaDAS Track Data</title>
+    <link rel="stylesheet" href="../style.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Import SeaDAS Track Data
+        </td>
+
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a></td>
+    </tr>
+</table>
+
+<h2>Import SeaDAS Track Data</h2>
+
+<p>
+    As another special case of CSV import,
+    BEAM/Visat supports the import of  <a href="http://seadas.gsfc.nasa.gov/">SeaDAS</a>
+    (<b>Sea</b>WiFS <b>D</b>ata <b>A</b>nalysis <b>S</b>ystem) ship track data.
+    SeaDAS is a comprehensive image analysis package for the processing, display,
+    analysis, and quality control of ocean color data. It has been developed within the
+    NASA SeaWiFS (<b>Sea</b>-viewing <b>Wi</b>de <b>F</b>ield-of-view <b>S</b>ensor) Project.
+    Note that BEAM only supports the import of track data generated with the SeaDAS versions 6.x.
+</p>
+<p>
+    In principle, these ship track files are also CSV files, but have an extremely simple layout with three columns only:
+    The first two columns contain the vertex points latitudes and longitudes, respectively, and the third column
+    gives the values of a single data quantity (such as a ship-based radiometer measurement). These files contain
+    <b>no</b> header, all numbers are separated by the 'tab' character.
+</p>
+
+<h4>Example: First few rows of a valid SeaDAS ship track file</h4>
+
+<blockquote>
+    <pre>
+        43.02603	9.333632	58.75
+        43.19814	9.467812	56.95
+        43.22331	9.664354	56.35
+        43.146835	10.020329	56.35
+        42.94263	10.1373825	57.95
+        42.583317	9.992574	61.45
+        42.25091	10.0308075	64.35
+        41.924206	9.992332	67.35
+        41.62962	9.758603	70.45
+        41.41482	9.415496	73.05
+    </pre>
+</blockquote>
+
+</body>
+</html>

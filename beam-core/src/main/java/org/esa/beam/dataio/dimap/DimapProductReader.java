@@ -415,7 +415,7 @@ public class DimapProductReader extends AbstractProductReader {
                         public CoordinateReferenceSystem getFeatureCrs(Product product) {
                             return modelCrs != null ? modelCrs : DefaultGeographicCRS.WGS84;
                         }
-                    }, new MyPlacemarkDescriptorProvider(), modelCrs, ProgressMonitor.NULL);
+                    }, new MyPlacemarkDescriptorProvider(), modelCrs, VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL);
                     if (vectorDataNode != null) {
                         final ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
                         final VectorDataNode existing = vectorDataGroup.get(vectorDataNode.getName());

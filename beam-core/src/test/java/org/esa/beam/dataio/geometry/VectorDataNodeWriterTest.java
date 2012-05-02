@@ -94,7 +94,7 @@ public class VectorDataNodeWriterTest extends TestCase {
             public CoordinateReferenceSystem getFeatureCrs(Product product) {
                 return DefaultGeographicCRS.WGS84;
             }
-        }, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL);
+        }, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL);
         Map<String, String> properties = new HashMap<String, String>();
         for (Map.Entry<Object, Object> entry : dataNode.getFeatureType().getUserData().entrySet()) {
             properties.put(entry.getKey().toString(), entry.getValue().toString());

@@ -22,38 +22,46 @@
         <tocitem text="Introduction" target="visat"/>
         <tocitem text="Tools">
             <tocitem text="Import and Export Tools">
-                <tocitem text="Import Shapefile" target="importShapefile"/>
-                <tocitem text="Import CSV" target="importCSV"/>
-                <tocitem text="Import ENVISAT Data Product" target="importEnvisatProduct"/>
-                <tocitem text="Import ERS1/2 Data Product" target="importErsProduct"/>
-                <tocitem text="Import ATSR Data Product" target="importAtsrProduct"/>
-                <tocitem text="Import MODIS Data Product" target="importModisProduct"/>
-                <tocitem text="Import MERIS Binned Level-3 Data Product" target="importMerisBinnedL3Product"/>
-                <tocitem text="Import BEAM-DIMAP Data Product" target="importDimapProduct"/>
-                <tocitem text="Import LANDSAT 5 TM Data Product" target="importLandsatTMProduct"/>
-                <tocitem text="Import NOAA-AVHRR/3 Level-1b Data Product" target="importAVHRR"/>
-                <tocitem text="Import NASA Ocean Color Product" target="importNasaObpgProduct"/>
-                <tocitem text="Import ALOS/AVNIR-2 Data Product" target="importAvnir2Product"/>
-                <tocitem text="Import ALOS/PRISM Data Product" target="importPrismProduct"/>
-                <tocitem text="Import CHRIS Data Product" target="importChrisProduct"/>
-                <tocitem text="Import NetCDF Data Product" target="importNetCdfProduct"/>
-                <tocitem text="Import HDF-EOS Gridded Data Product" target="importNetCdfProduct"/>
-                <tocitem text="Import SPOT VEGETATION Data Product" target="importSpotVgtProduct"/>
-                <tocitem text="Import GETASSE30 Tile" target="importGETASSE30"/>
-
-                <tocitem text="Export BEAM-DIMAP Data Product" target="exportDimapProduct"/>
-                <tocitem text="Export NetCDF/CF Data Product" target="exportNetCdfProduct"/>
-                <tocitem text="Export HDF-5 Data Product" target="exportHdf5Product"/>
-                <tocitem text="Export Product Metadata" target="exportProductMetadata"/>
-                <tocitem text="Export ENVI GCP File" target="exportEnviGcpFile"/>
-                <tocitem text="Export Displayed Image" target="exportImageFile"/>
-                <tocitem text="Export KML" target="exportKml"/>
-                <tocitem text="Export Mask Pixels" target="exportMaskPixels"/>
-                <tocitem text="Export Transect Pixels" target="exportTransectPixels"/>
-                <tocitem text="Export Geometry as Shapefile" target="exportShapefile"/>
-                <tocitem text="Export Colour Legend" target="exportLegendImageFile"/>
-                <tocitem text="Export Colour Palette" target="exportColorPalette"/>
-
+                <tocitem text="Import Raster Data">
+                    <tocitem text="ATSR" target="importAtsrProduct"/>
+                    <tocitem text="ALOS/AVNIR-2" target="importAvnir2Product"/>
+                    <tocitem text="ALOS/PRISM" target="importPrismProduct"/>
+                    <tocitem text="BEAM-DIMAP" target="importDimapProduct"/>
+                    <tocitem text="CHRIS" target="importChrisProduct"/>
+                    <tocitem text="ENVISAT" target="importEnvisatProduct"/>
+                    <tocitem text="ERS1/2" target="importErsProduct"/>
+                    <tocitem text="GETASSE30 Tile" target="importGETASSE30"/>
+                    <tocitem text="HDF-EOS" target="importNetCdfProduct"/>
+                    <tocitem text="LANDSAT 5 TM" target="importLandsatTMProduct"/>
+                    <tocitem text="MERIS Binned Level-3" target="importMerisBinnedL3Product"/>
+                    <tocitem text="MODIS" target="importModisProduct"/>
+                    <tocitem text="NASA Ocean Color" target="importNasaObpgProduct"/>
+                    <tocitem text="NOAA-AVHRR/3 Level-1b" target="importAVHRR"/>
+                    <tocitem text="NetCDF" target="importNetCdfProduct"/>
+                    <tocitem text="SPOT VEGETATION" target="importSpotVgtProduct"/>
+                </tocitem>
+                <tocitem text="Import Vector Data">
+                    <tocitem text="CSV" target="importCSV"/>
+                    <tocitem text="ESRI Shape File" target="importShapefile"/>
+                    <tocitem text="MERMAID Extraction File" target="importMermaid"/>
+                    <tocitem text="SeaDAS 6.x Track" target="importSeaDASTrack"/>
+                </tocitem>
+                <tocitem text="Export Raster Data">
+                    <tocitem text="BEAM-DIMAP" target="exportDimapProduct"/>
+                    <tocitem text="HDF-5" target="exportHdf5Product"/>
+                    <tocitem text="NetCDF/CF" target="exportNetCdfProduct"/>
+                </tocitem>
+                <tocitem text="Other Exports">
+                    <tocitem text="Colour Legend" target="exportLegendImageFile"/>
+                    <tocitem text="Colour Palette" target="exportColorPalette"/>
+                    <tocitem text="Displayed Image" target="exportImageFile"/>
+                    <tocitem text="ENVI GCP File" target="exportEnviGcpFile"/>
+                    <tocitem text="Geometry as Shapefile" target="exportShapefile"/>
+                    <tocitem text="KML" target="exportKml"/>
+                    <tocitem text="Mask Pixels" target="exportMaskPixels"/>
+                    <tocitem text="Product Metadata" target="exportProductMetadata"/>
+                    <tocitem text="Transect Pixels" target="exportTransectPixels"/>
+                </tocitem>
                 <tocitem text="Product Subset Dialog" target="subsetDialog"/>
                 <tocitem text="Product Grabber" target="productGrabber"/>
             </tocitem>

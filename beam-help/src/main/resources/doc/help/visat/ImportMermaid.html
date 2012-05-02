@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>VISAT Help - Import MERMAID</title>
+    <title>VISAT Help - Import MERMAID Extraction Files</title>
     <link rel="stylesheet" href="../style.css">
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </head>
@@ -25,7 +25,7 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Import MERMAID
+            Import MERMAID Extraction Files
         </td>
 
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
@@ -33,11 +33,34 @@
     </tr>
 </table>
 
-<h2>Import MERMAID</h2>
+<h2>Import MERMAID Extraction Files</h2>
 
 <p>
-    todo
+    BEAM/Visat supports the import of MERMAID (<b>MER</b>is <b>MA</b>tchup <b>I</b>n-situ <b>D</b>atabase) Extraction Files, which have become a
+    very important data source for merged in-situ optical measurements with concurrent MERIS acquisitions.
+    In general, these files follow the <a href="ImportCSV.html">BEAM CSV import</a> and the underlying
+    <a href="CsvFileRules.html">rules</a>, with just a few exceptions (i.e. semicolon as separation character,
+    special latitude/longitude column names.
 </p>
+
+<p>
+    A comprehensive description of the MERMAID project and details on the matchup extraction data format can be found
+    <a href="http://hermes.acri.fr/mermaid/home/home.php">here</a>.
+</p>
+
+<h4>Example: First few columns and rows of a valid MERMAID Extraction File</h4>
+
+<blockquote>
+    <pre>
+        PROCESSING_VERSION;site;PI;lat_IS;lon_IS;TIME_IS;thetas_IS;PQC;MQC;chl_IS;
+        MEGS_8.0;BOUSSOLE;DavidAntoine;43.367;7.9;20030907T130033Z;42.237999;P00000100;M110110101101111010;1.12E-01;
+        MEGS_8.0;BOUSSOLE;DavidAntoine;43.367;7.9;20030908T100033Z;41.848999;P00000100;M110110101101111010;1.10E-01;
+        MEGS_8.0;BOUSSOLE;DavidAntoine;43.367;7.9;20030910T101533Z;41.109001;P00000100;M110110101101111010;1.05E-01;
+        MEGS_8.0;BOUSSOLE;DavidAntoine;43.367;7.9;20030911T110034Z;38.824001;P00000100;M110110101101111010;1.03E-01;
+        MEGS_8.0;BOUSSOLE;DavidAntoine;43.367;7.9;20030914T100033Z;43.737999;P00000100;M110110101101111010;9.60E-02;
+        MEGS_8.0;BOUSSOLE;DavidAntoine;43.367;7.9;20030916T101535Z;43.101002;P00000100;M110110101101111010;9.10E-02;
+    </pre>
+</blockquote>
 
 </body>
 </html>

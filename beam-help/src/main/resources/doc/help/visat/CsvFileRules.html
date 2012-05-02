@@ -38,11 +38,12 @@
 <p>
     CSV files are text files and typically have the extension <code>.txt</code>, <code>.dat</code> or
     <code>.csv</code> . Each line in the file
-    corresponds to a single vertex point of the geometric shape. Co-ordinates are stored in columns separated
-    by the 'tabulator' character (the 'semikolon' character in the special case of MERMAID export files, see
+    corresponds to a single vertex point of the geometric shape which is defined by the geographic coordinates
+    as a mandatory file content. These coordinates must be stored in distinct columns (see below) separated
+    by the 'tabulator' character (the 'semicolon' character in the special case of MERMAID export files, see
     <a href="ImportMermaid.html">here</a>). A CSV file <b>must</b> have a header line as described below
-    in order to specify column names (the only exception are SeaDAS 6.x track files, see
-    <a href="ImportSeaDAS.html">here</a>).
+    in order to specify column names (the only exception are SeaDAS 6.x track files which are another
+    special case of CSV files, see <a href="ImportSeaDASTrack.html">here</a>).
 </p>
 
 <h4>Formal Description of a valid CSV File</h4>
@@ -51,17 +52,17 @@
     The formal description of a CSV File which BEAM will regard as 'valid' looks as follows:
 <blockquote>
     <pre>
-        feature-format         := {&lt property-record &gt NL} &lt feature-type-record &gt {NL &lt feature-record &gt}
-        feature-type-record    := {&lt feature-type-name &gt} {&lt sep &gt &lt attribute-header &gt}
-        feature-record         := {&lt feature-id &gt}           {&lt sep &gt &lt attribute-value &gt}
+        feature-format         := {&lt;property-record&gt; NL} &lt;feature-type-record&gt; {NL &lt;feature-record&gt;}
+        feature-type-record    := {&lt;feature-type-name&gt;} {&lt;sep&gt; &lt;attribute-header&gt;}
+        feature-record         := {&lt;feature-id&gt;}           {&lt;sep&gt; &lt;attribute-value&gt;}
 
-        simple-format          := {&lt property-record> NL} &lt header-record&gt       {NL &lt data-record &gt}
-        header-record          := &lt attribute-header> { &lt sep &gt &lt attribute-header &gt}
-        data-record            := &lt attribute-value>  {&lt sep &gt &lt attribute-value &gt}
+        simple-format          := {&lt;property-record&gt; NL} &lt;header-record&gt;       {NL &lt;data-record&gt;}
+        header-record          := &lt;attribute-header&gt; { &lt;sep&gt; &lt;attribute-header&gt;}
+        data-record            := &lt;attribute-value&gt;  {&lt;sep&gt; &lt;attribute-value&gt;}
 
-        attribute-header       := &lt attribute-name &gt [&lt attribute-type-spec &gt]
-        attribute-type-spec    := ':'[&lt attribute-type &gt]
-        property-record        := '#'&lt property-name &gt '=' [&lt property-value &gt]
+        attribute-header       := &lt;attribute-name&gt; [&lt;attribute-type-spec&gt;]
+        attribute-type-spec    := ':'&lt;attribute-type&gt;
+        property-record        := '#'&lt;property-name&gt; '=' &lt;property-value&gt;
         sep                    := TAB | [';' | ',', ...]  (TBC)
     </pre>
 </blockquote>

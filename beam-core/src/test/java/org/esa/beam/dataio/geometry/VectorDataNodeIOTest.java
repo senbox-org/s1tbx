@@ -80,7 +80,7 @@ public class VectorDataNodeIOTest {
                     public CoordinateReferenceSystem getFeatureCrs(Product product) {
                         return DefaultGeographicCRS.WGS84;
                     }
-                }, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL).getFeatureCollection();
+                }, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL).getFeatureCollection();
 
         assertEquals(testCollection.size(), readCollection.size());
         final FeatureIterator<SimpleFeature> expectedIterator = testCollection.features();
@@ -157,7 +157,7 @@ public class VectorDataNodeIOTest {
             public CoordinateReferenceSystem getFeatureCrs(Product product) {
                 return DefaultGeographicCRS.WGS84;
             }
-        }, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, ProgressMonitor.NULL);
+        }, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL);
 
         assertNotNull(vectorDataNode2);
         assertEquals(vectorDataNode.getDescription(), vectorDataNode2.getDescription());
