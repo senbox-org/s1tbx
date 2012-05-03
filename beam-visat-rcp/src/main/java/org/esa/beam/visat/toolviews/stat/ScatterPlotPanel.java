@@ -24,7 +24,10 @@ import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.vividsolutions.jts.geom.Point;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -32,6 +35,7 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.feature.FeatureCollection;
 import org.jfree.chart.ChartFactory;
@@ -84,6 +88,8 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -193,17 +199,17 @@ class ScatterPlotPanel extends ChartPagePanel {
         if (!isVisible()) {
             return;
         }
-        final RasterDataNode raster = getRaster();
-        xAxisRangeControl.setTitleSuffix(raster != null ? raster.getName() : null);
-
         final AttributeDescriptor dataField = scatterPlotModel.dataField;
-        yAxisRangeControl.setTitleSuffix(dataField != null ? dataField.getLocalName() : null);
+        xAxisRangeControl.setTitleSuffix(dataField != null ? dataField.getLocalName() : null);
+
+        final RasterDataNode raster = getRaster();
+        yAxisRangeControl.setTitleSuffix(raster != null ? raster.getName() : null);
 
         correlativeFieldSelector.updatePointDataSource(getProduct());
         correlativeFieldSelector.updateDataField();
 
         if (isRasterChanged()) {
-            getPlot().getDomainAxis().setLabel(getAxisLabel(raster, "X", false));
+            getPlot().getRangeAxis().setLabel(getAxisLabel(raster, "X", false));
             computeChartDataIfPossible();
         }
     }
@@ -275,11 +281,12 @@ class ScatterPlotPanel extends ChartPagePanel {
                 final VectorDataNode pointDataSource = scatterPlotModel.pointDataSource;
                 final AttributeDescriptor dataField = scatterPlotModel.dataField;
                 if (dataField != null && pointDataSource != null) {
-                    final String vdsName = pointDataSource.getName();
                     final String dataFieldName = dataField.getLocalName();
-                    getPlot().getRangeAxis().setLabel(vdsName + " - " + dataFieldName);
+                    getPlot().getDomainAxis().setLabel(dataFieldName);
+                    xAxisRangeControl.setTitleSuffix(dataFieldName);
                 } else {
-                    getPlot().getRangeAxis().setLabel("");
+                    getPlot().getDomainAxis().setLabel("");
+                    xAxisRangeControl.setTitleSuffix("");
                 }
             }
         };
@@ -483,7 +490,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         yAxisOptionPanel.add(yAxisRangeControl.getPanel());
         yAxisOptionPanel.add(yLogCheck, BorderLayout.SOUTH);
 
-        final JCheckBox acceptableCheck = new JCheckBox("Accepable deviation");
+        final JCheckBox acceptableCheck = new JCheckBox("Acceptable deviation");
         final JTextField acceptableField = new JTextField();
         acceptableField.setPreferredSize(new Dimension(40, acceptableField.getPreferredSize().height));
         acceptableField.setHorizontalAlignment(JTextField.RIGHT);
@@ -597,31 +604,35 @@ class ScatterPlotPanel extends ChartPagePanel {
 
                 final Rectangle sceneRect = new Rectangle(raster.getSceneRasterWidth(), raster.getSceneRasterHeight());
 
+                final GeoCoding geoCoding = raster.getGeoCoding();
+                final AffineTransform imageToModelTransform;
+                imageToModelTransform = ImageManager.getImageToModelTransform(geoCoding);
                 for (SimpleFeature feature : features) {
-                    final Point point;
-                    point = (Point) feature.getDefaultGeometryProperty().getValue();
-                    final int centerX = (int) point.getX();
-                    final int centerY = (int) point.getY();
+                    final Point point = (Point) feature.getDefaultGeometryProperty().getValue();
+                    Point2D modelPos = new Point2D.Float((float) point.getX(), (float) point.getY());
+                    final Point2D imagePos = imageToModelTransform.inverseTransform(modelPos, null);
 
-                    if (!sceneRect.contains(centerX, centerY)) {
+                    if (!sceneRect.contains(imagePos)) {
                         continue;
                     }
-                    final Rectangle box = sceneRect.intersection(new Rectangle(centerX - boxSize / 2,
-                                                                               centerY - boxSize / 2,
-                                                                               boxSize, boxSize));
-                    if (box.isEmpty()) {
+                    final int imageX = (int) imagePos.getX();
+                    final int imageY = (int) imagePos.getY();
+                    final Rectangle imageRect = sceneRect.intersection(new Rectangle(imageX - boxSize / 2,
+                                                                                     imageY - boxSize / 2,
+                                                                                     boxSize, boxSize));
+                    if (imageRect.isEmpty()) {
                         continue;
                     }
-                    final double[] rasterValues = new double[box.width * box.height];
-                    raster.readPixels(box.x, box.y, box.width, box.height, rasterValues);
+                    final double[] rasterValues = new double[imageRect.width * imageRect.height];
+                    raster.readPixels(imageRect.x, imageRect.y, imageRect.width, imageRect.height, rasterValues);
 
-                    final int[] maskBuffer = new int[box.width * box.height];
+                    final int[] maskBuffer = new int[imageRect.width * imageRect.height];
                     Arrays.fill(maskBuffer, 1);
                     if (selectedMask != null) {
-                        selectedMask.readPixels(box.x, box.y, box.width, box.height, maskBuffer);
+                        selectedMask.readPixels(imageRect.x, imageRect.y, imageRect.width, imageRect.height, maskBuffer);
                     }
 
-                    final int centerIndex = box.width * (box.height / 2) + (box.width / 2);
+                    final int centerIndex = imageRect.width * (imageRect.height / 2) + (imageRect.width / 2);
                     if (maskBuffer[centerIndex] == 0) {
                         continue;
                     }
@@ -630,10 +641,10 @@ class ScatterPlotPanel extends ChartPagePanel {
                     double sumSqr = 0;
                     int n = 0;
 
-                    for (int y = 0; y < box.height; y++) {
-                        for (int x = 0; x < box.width; x++) {
-                            final int index = y * box.height + x;
-                            if (raster.isPixelValid(x + box.x, y + box.y) && maskBuffer[index] != 0) {
+                    for (int y = 0; y < imageRect.height; y++) {
+                        for (int x = 0; x < imageRect.width; x++) {
+                            final int index = y * imageRect.height + x;
+                            if (raster.isPixelValid(x + imageRect.x, y + imageRect.y) && maskBuffer[index] != 0) {
                                 final double rasterValue = rasterValues[index];
                                 sum += rasterValue;
                                 sumSqr += rasterValue * rasterValue;
@@ -648,14 +659,14 @@ class ScatterPlotPanel extends ChartPagePanel {
                     String localName = dataField.getLocalName();
                     Number attribute = (Number) feature.getAttribute(localName);
                     final float correlativeData = attribute.floatValue();
-                    float lat = 0.0f;
-                    float lon = 0.0f;
-                    final Point geoPos = (Point) feature.getAttribute("geoPos");
-                    if (geoPos != null) {
-                        lat = (float) geoPos.getY();
-                        lon = (float) geoPos.getX();
+                    final GeoPos geoPos = new GeoPos();
+                    if (geoCoding.canGetGeoPos()) {
+                        final PixelPos pixelPos = new PixelPos((float) imagePos.getX(), (float) imagePos.getY());
+                        geoCoding.getGeoPos(pixelPos, geoPos);
+                    } else {
+                        geoPos.setInvalid();
                     }
-                    computedDataList.add(new ComputedData(centerX, centerY, lat, lon, (float) rasterMean, (float) rasterSigma, correlativeData));
+                    computedDataList.add(new ComputedData(imageX, imageY, geoPos.getLat(), geoPos.getLon(), (float) rasterMean, (float) rasterSigma, correlativeData));
                 }
 
                 return computedDataList.toArray(new ComputedData[computedDataList.size()]);
@@ -689,8 +700,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                         final float rasterMean = computedData.rasterMean;
                         final float rasterSigma = computedData.rasterSigma;
                         final float correlativeData = computedData.correlativeData;
-                        scatterValues.add(rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma,
-                                          correlativeData, correlativeData, correlativeData);
+                        scatterValues.add(correlativeData, correlativeData, correlativeData,
+                                          rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma);
                     }
 
                     computingData = true;
