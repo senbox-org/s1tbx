@@ -86,7 +86,7 @@
     <mapID target="statisticsDialog" url="visat/StatisticsDialog.html"/>
     <mapID target="histogramDialog" url="visat/HistogramDialog.html"/>
     <mapID target="densityPlotDialog" url="visat/DensityPlotDialog.html"/>
-    <mapID target="correlativePlotDialog" url="visat/CorrelativPlotDialog.html"/>
+    <mapID target="correlativePlotDialog" url="visat/CorrelativePlotDialog.html"/>
     <mapID target="profilePlotDialog" url="visat/ProfilePlotDialog.html"/>
     <mapID target="coordinateListDialog" url="visat/CoordinateListDialog.html"/>
     <mapID target="computeMaskArea" url="visat/ComputeMaskArea.html"/>
