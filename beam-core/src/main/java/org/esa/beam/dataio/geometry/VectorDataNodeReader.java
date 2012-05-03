@@ -59,7 +59,6 @@ public class VectorDataNodeReader {
     private static final String[] LONGITUDE_IDENTIFIERS = new String[]{"lon", "long", "longitude", "lon_IS"};
     private static final String[] LATITUDE_IDENTIFIERS = new String[]{"lat", "latitude", "lat_IS"};
     private static final String[] GEOMETRY_IDENTIFIERS = new String[]{"geometry", "geom", "the_geom"};
-    private final char delimiterChar = VectorDataNodeIO.DEFAULT_DELIMITER_CHAR;
 
     private Map<String, String> properties;
 
@@ -91,7 +90,7 @@ public class VectorDataNodeReader {
             clippedCollection = FeatureUtils.clipCollection(featureCollection,
                                                             null,
                                                             clipGeometry,
-                                                            featureCollection.getSchema().getCoordinateReferenceSystem(),
+                                                            product.getGeoCoding().getGeoCRS(),
                                                             null,
                                                             modelCrs,
                                                             SubProgressMonitor.create(pm, 80));
@@ -287,9 +286,9 @@ public class VectorDataNodeReader {
         }
 
         if (hasGeometry && !hasFeatureTypeName) {
-            return new GeometryNoFeatureTypeStrategy(geoCoding, geometryName);
+            return new GeometryNoFeatureTypeStrategy(geometryName);
         } else if (hasGeometry && hasFeatureTypeName) {
-            return new GeometryAndFeatureTypeStrategy(geoCoding, geometryName, featureTypeName);
+            return new GeometryAndFeatureTypeStrategy(geometryName, featureTypeName);
         } else if (hasLatLon && !hasFeatureTypeName) {
             return new LatLonNoFeatureTypeStrategy(geoCoding, latIndex, lonIndex);
         } else if (hasLatLon && hasFeatureTypeName) {
@@ -320,11 +319,6 @@ public class VectorDataNodeReader {
             }
 
             if (simpleFeature != null) {
-                try {
-                    interpretationStrategy.transformGeoPosToPixelPos(simpleFeature);
-                } catch (TransformException e) {
-                    throw new IOException(e);
-                }
                 fc.add(simpleFeature);
             }
         }

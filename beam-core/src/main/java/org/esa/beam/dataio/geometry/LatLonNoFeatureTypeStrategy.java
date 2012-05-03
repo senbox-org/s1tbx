@@ -62,9 +62,8 @@ class LatLonNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
     @Override
     public void setDefaultGeometry(String defaultGeometry, CoordinateReferenceSystem featureCrs, SimpleFeatureTypeBuilder builder) throws IOException {
-        builder.add("geoPos", Point.class, DefaultGeographicCRS.WGS84);
-        builder.add("pixelPos", Point.class, featureCrs);
-        builder.setDefaultGeometry("geoPos");
+        builder.add("geometry", Point.class, featureCrs);
+        builder.setDefaultGeometry("geometry");
     }
 
     @Override
@@ -74,7 +73,7 @@ class LatLonNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
     @Override
     public int getExpectedTokenCount(int attributeCount) {
-        return attributeCount - 2; // pixelPos and geoPos added as attributes
+        return attributeCount - 1; // geometry added as attributes
     }
 
     @Override
@@ -90,33 +89,16 @@ class LatLonNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
             setAttributeValue(builder, simpleFeatureType, attributeIndex, token);
             attributeIndex++;
         }
-        builder.set("geoPos", new GeometryFactory().createPoint(new Coordinate(lon, lat)));
-        PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos((float) lat, (float) lon), null);
+        builder.set("geometry", new GeometryFactory().createPoint(new Coordinate(lon, lat)));
 
-        if (pixelPos.isValid()) {
-            Geometry geometry = createPointGeometry(pixelPos);
-            CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(geoCoding);
-            AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(geoCoding);
-            GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
-            transformer.setMathTransform(new AffineTransform2D(imageToModelTransform));
-            transformer.setCoordinateReferenceSystem(modelCrs);
-            geometry = transformer.transform(geometry);
-            builder.set("pixelPos", geometry);
-            String featureId = getFeatureId(tokens);
-            return builder.buildFeature(featureId);
-        }
-        return null;
+        String featureId = getFeatureId(tokens);
+        return builder.buildFeature(featureId);
     }
 
 
     @Override
     public String getFeatureId(String[] tokens) {
         return idCreator.createFeatureId();
-    }
-
-    @Override
-    public void transformGeoPosToPixelPos(SimpleFeature simpleFeature) {
-        // not needed
     }
 
     @Override

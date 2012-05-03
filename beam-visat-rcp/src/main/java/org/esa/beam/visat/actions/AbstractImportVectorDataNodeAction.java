@@ -7,6 +7,7 @@ import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.visat.VisatApp;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -78,6 +79,10 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
 
         @Override
         public CoordinateReferenceSystem getFeatureCrs(final Product product) {
+            if (ImageManager.getModelCrs(product.getGeoCoding()) == ImageManager.DEFAULT_IMAGE_CRS) {
+                return ImageManager.DEFAULT_IMAGE_CRS;
+            }
+
             final CoordinateReferenceSystem[] featureCrsBuffer = new CoordinateReferenceSystem[1];
             Runnable runnable = new Runnable() {
                 @Override

@@ -17,19 +17,13 @@
 package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
-import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.jai.ImageManager;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
-import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.TransformException;
 
-import java.awt.geom.AffineTransform;
 import java.io.IOException;
 
 /**
@@ -38,12 +32,10 @@ import java.io.IOException;
  */
 class GeometryAndFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
-    private GeoCoding geoCoding;
     private String geometryName;
     private String featureTypeName;
 
-    GeometryAndFeatureTypeStrategy(GeoCoding geoCoding, String geometryName, String featureTypeName) {
-        this.geoCoding = geoCoding;
+    GeometryAndFeatureTypeStrategy(String geometryName, String featureTypeName) {
         this.geometryName = geometryName;
         this.featureTypeName = featureTypeName;
     }
@@ -74,18 +66,6 @@ class GeometryAndFeatureTypeStrategy extends AbstractInterpretationStrategy {
         }
         String featureId = getFeatureId(tokens);
         return builder.buildFeature(featureId);
-    }
-
-    @Override
-    public void transformGeoPosToPixelPos(SimpleFeature simpleFeature) throws TransformException {
-        Geometry geometry = (Geometry) simpleFeature.getDefaultGeometry();
-        CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(geoCoding);
-        AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(geoCoding);
-        GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
-        transformer.setMathTransform(new AffineTransform2D(imageToModelTransform));
-        transformer.setCoordinateReferenceSystem(modelCrs);
-        geometry = transformer.transform(geometry);
-        simpleFeature.setDefaultGeometry(geometry);
     }
 
     @Override

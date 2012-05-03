@@ -42,7 +42,5 @@ interface InterpretationStrategy {
 
     SimpleFeature interpretLine(String[] tokens, SimpleFeatureBuilder builder, SimpleFeatureType simpleFeatureType) throws IOException, ConversionException, TransformException;
 
-    void transformGeoPosToPixelPos(SimpleFeature simpleFeature) throws TransformException;
-
     int getStartColumn();
 }

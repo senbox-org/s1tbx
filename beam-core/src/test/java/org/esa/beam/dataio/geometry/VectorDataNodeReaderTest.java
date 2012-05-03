@@ -92,8 +92,7 @@ public class VectorDataNodeReaderTest {
         assertEquals("Label", attributeDescriptors.get(5).getLocalName());
         assertEquals("Desc", attributeDescriptors.get(6).getLocalName());
         assertEquals("radiance_14", attributeDescriptors.get(7).getLocalName());
-        assertEquals("geoPos", attributeDescriptors.get(8).getLocalName());
-        assertEquals("pixelPos", attributeDescriptors.get(9).getLocalName());
+        assertEquals("geometry", attributeDescriptors.get(8).getLocalName());
 
         assertEquals(String.class, attributeDescriptors.get(0).getType().getBinding());
         assertEquals(Double.class, attributeDescriptors.get(1).getType().getBinding());
@@ -104,7 +103,6 @@ public class VectorDataNodeReaderTest {
         assertEquals(String.class, attributeDescriptors.get(6).getType().getBinding());
         assertEquals(Double.class, attributeDescriptors.get(7).getType().getBinding());
         assertEquals(Point.class, attributeDescriptors.get(8).getType().getBinding());
-        assertEquals(Point.class, attributeDescriptors.get(9).getType().getBinding());
     }
 
     private String readStringFromFile(String name) throws IOException {
@@ -138,8 +136,7 @@ public class VectorDataNodeReaderTest {
         assertEquals("Desc", attributeDescriptors.get(5).getLocalName());
         assertEquals("Lon", attributeDescriptors.get(6).getLocalName());
         assertEquals("radiance_14", attributeDescriptors.get(7).getLocalName());
-        assertEquals("geoPos", attributeDescriptors.get(8).getLocalName());
-        assertEquals("pixelPos", attributeDescriptors.get(9).getLocalName());
+        assertEquals("geometry", attributeDescriptors.get(8).getLocalName());
 
         assertEquals(String.class, attributeDescriptors.get(0).getType().getBinding());
         assertEquals(Double.class, attributeDescriptors.get(1).getType().getBinding());
@@ -150,7 +147,6 @@ public class VectorDataNodeReaderTest {
         assertEquals(Double.class, attributeDescriptors.get(6).getType().getBinding());
         assertEquals(Double.class, attributeDescriptors.get(7).getType().getBinding());
         assertEquals(Point.class, attributeDescriptors.get(8).getType().getBinding());
-        assertEquals(Point.class, attributeDescriptors.get(9).getType().getBinding());
     }
 
     @Test
@@ -423,18 +419,11 @@ public class VectorDataNodeReaderTest {
         assertEquals("151.5", simpleFeatures.get(0).getAttribute("Y").toString());
         assertEquals("313.5", simpleFeatures.get(5).getAttribute("Y").toString());
 
-        assertEquals(7.777766, ((Point) simpleFeatures.get(0).getAttribute("geoPos")).getX(), 1E-3);
-        assertEquals(47.96903, ((Point) simpleFeatures.get(0).getAttribute("geoPos")).getY(), 1E-3);
+        assertEquals(7.777766, ((Point) simpleFeatures.get(0).getAttribute("geometry")).getX(), 1E-3);
+        assertEquals(47.96903, ((Point) simpleFeatures.get(0).getAttribute("geometry")).getY(), 1E-3);
 
-        assertEquals(5.0080223, ((Point) simpleFeatures.get(5).getAttribute("geoPos")).getX(), 1E-3);
-        assertEquals(46.710358, ((Point) simpleFeatures.get(5).getAttribute("geoPos")).getY(), 1E-3);
-
-        assertEquals(7.77766, ((Point) simpleFeatures.get(0).getAttribute("pixelPos")).getX(), 1E-3);
-        assertEquals(47.96903, ((Point) simpleFeatures.get(0).getAttribute("pixelPos")).getY(), 1E-3);
-
-        assertEquals(5.0080223, ((Point) simpleFeatures.get(5).getAttribute("pixelPos")).getX(), 1E-3);
-        assertEquals(46.710358, ((Point) simpleFeatures.get(5).getAttribute("pixelPos")).getY(), 1E-3);
-
+        assertEquals(5.0080223, ((Point) simpleFeatures.get(5).getAttribute("geometry")).getX(), 1E-3);
+        assertEquals(46.710358, ((Point) simpleFeatures.get(5).getAttribute("geometry")).getY(), 1E-3);
     }
 
     private List<AttributeDescriptor> getAttributeDescriptors(String input) throws IOException {
@@ -444,7 +433,7 @@ public class VectorDataNodeReaderTest {
                                                                         VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL).getFeatureType();
 
         assertNotNull(simpleFeatureType);
-        assertEquals(10, simpleFeatureType.getAttributeCount());
+        assertEquals(9, simpleFeatureType.getAttributeCount());
 
         return simpleFeatureType.getAttributeDescriptors();
     }
