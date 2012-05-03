@@ -290,9 +290,9 @@ public class VectorDataNodeReader {
         } else if (hasGeometry && hasFeatureTypeName) {
             return new GeometryAndFeatureTypeStrategy(geometryName, featureTypeName);
         } else if (hasLatLon && !hasFeatureTypeName) {
-            return new LatLonNoFeatureTypeStrategy(geoCoding, latIndex, lonIndex);
+            return new LatLonNoFeatureTypeStrategy(latIndex, lonIndex);
         } else if (hasLatLon && hasFeatureTypeName) {
-            return new LatLonAndFeatureTypeStrategy(geoCoding, featureTypeName, latIndex, lonIndex);
+            return new LatLonAndFeatureTypeStrategy(featureTypeName, latIndex, lonIndex);
         }
         throw new IllegalStateException("Cannot come here");
     }

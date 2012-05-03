@@ -17,7 +17,6 @@
 package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.util.FeatureUtils;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -33,7 +32,7 @@ import java.io.IOException;
  */
 class GeometryNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
-    private FeatureIdCreator idCreator = new FeatureIdCreator();
+    private static int idCount = 0;
     private String geometryName;
 
     public GeometryNoFeatureTypeStrategy(String geometryName) {
@@ -60,7 +59,7 @@ class GeometryNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
     @Override
     public String getFeatureId(String[] tokens) {
-        return idCreator.createFeatureId();
+        return FeatureUtils.createFeatureId(idCount++);
     }
 
     @Override
@@ -77,14 +76,5 @@ class GeometryNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
     @Override
     public int getStartColumn() {
         return 0;
-    }
-
-    private static class FeatureIdCreator {
-
-        private static int count = 0;
-
-        private String createFeatureId() {
-            return "ID" + String.format("%08d", count++);
-        }
     }
 }

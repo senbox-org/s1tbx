@@ -123,6 +123,10 @@ public class FeatureUtils {
         return String.format("org.esa.beam_%s_%s", defaultGeometry, currentTime);
     }
 
+    public static String createFeatureId(int base) {
+        return "ID" + String.format("%08d", base);
+    }
+
     public static interface FeatureCrsProvider {
         CoordinateReferenceSystem getFeatureCrs(Product product);
     }

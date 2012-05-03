@@ -18,25 +18,16 @@ package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.FeatureUtils;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.geom.AffineTransform;
 import java.io.IOException;
 
 /**
@@ -45,19 +36,16 @@ import java.io.IOException;
  */
 class LatLonNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
-    private FeatureIdCreator idCreator;
+    private static int count = 0;
 
     private double lat;
     private double lon;
     private int latIndex;
     private int lonIndex;
-    private GeoCoding geoCoding;
 
-    LatLonNoFeatureTypeStrategy(GeoCoding geoCoding, int latIndex, int lonIndex) {
+    LatLonNoFeatureTypeStrategy(int latIndex, int lonIndex) {
         this.latIndex = latIndex;
         this.lonIndex = lonIndex;
-        this.geoCoding = geoCoding;
-        idCreator = new FeatureIdCreator();
     }
 
     @Override
@@ -98,20 +86,11 @@ class LatLonNoFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
     @Override
     public String getFeatureId(String[] tokens) {
-        return idCreator.createFeatureId();
+        return FeatureUtils.createFeatureId(count++);
     }
 
     @Override
     public int getStartColumn() {
         return 0;
-    }
-
-    private static class FeatureIdCreator {
-
-        private static int count = 0;
-
-        private String createFeatureId() {
-            return "ID" + String.format("%08d", count++);
-        }
     }
 }

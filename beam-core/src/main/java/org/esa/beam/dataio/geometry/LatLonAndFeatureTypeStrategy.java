@@ -18,24 +18,15 @@ package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.jai.ImageManager;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.geom.AffineTransform;
 import java.io.IOException;
 
 /**
@@ -44,15 +35,13 @@ import java.io.IOException;
  */
 class LatLonAndFeatureTypeStrategy extends AbstractInterpretationStrategy {
 
-    private GeoCoding geoCoding;
     private String featureTypeName;
     private double lat;
     private double lon;
     private int latIndex;
     private int lonIndex;
 
-    LatLonAndFeatureTypeStrategy(GeoCoding geoCoding, String featureTypeName, int latIndex, int lonIndex) {
-        this.geoCoding = geoCoding;
+    LatLonAndFeatureTypeStrategy(String featureTypeName, int latIndex, int lonIndex) {
         this.featureTypeName = featureTypeName;
         this.latIndex = latIndex;
         this.lonIndex = lonIndex;
