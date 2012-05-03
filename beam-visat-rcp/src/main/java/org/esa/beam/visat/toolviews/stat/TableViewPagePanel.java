@@ -13,8 +13,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import org.esa.beam.framework.ui.application.ToolView;
@@ -52,21 +52,15 @@ public class TableViewPagePanel extends PagePanel {
 
         add(buttonPanel, BorderLayout.EAST);
 
-        table = new JTable(new DefaultTableModel());
-        table.setColumnModel(new DefaultTableColumnModel());
+        table = new JTable();
         table.removeEditor();
         table.setGridColor(Color.LIGHT_GRAY.brighter());
         table.addMouseListener(new PagePanel.PopupHandler());
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        // the following 4 lines are needed, therewith the scroll pane displays
-        // not only a vertical scroll bar if needed but also a horizontal scroll bar if needed.
-        final JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.add(table, BorderLayout.CENTER);
-        final JScrollPane scrollPane = new JScrollPane(tablePanel);
-        scrollPane.setColumnHeaderView(table.getTableHeader());
+        final JScrollPane scrollPane = new JScrollPane(table);
 
         add(scrollPane, BorderLayout.CENTER);
-
     }
 
     @Override
@@ -87,20 +81,24 @@ public class TableViewPagePanel extends PagePanel {
     void setModel(TableModel tableModel) {
         table.setModel(tableModel);
         if (table.getColumnCount() > 0) {
+            final JTableHeader tableHeader = table.getTableHeader();
+            final int margin = tableHeader.getColumnModel().getColumnMargin();
+            final TableCellRenderer renderer = tableHeader.getDefaultRenderer();
             final Enumeration<TableColumn> columns = table.getColumnModel().getColumns();
             while (columns.hasMoreElements()) {
                 TableColumn tableColumn = columns.nextElement();
-                sizeWidthToFit(tableColumn);
+                final int width = getColumnMinWith(tableColumn, renderer, margin);
+                tableColumn.setPreferredWidth(width);
             }
         }
     }
 
-    private void sizeWidthToFit(TableColumn column) {
-        final JLabel label = new JLabel((String) column.getHeaderValue());
+    private int getColumnMinWith(TableColumn column, TableCellRenderer renderer, int margin) {
+        final Object headerValue = column.getHeaderValue();
+        final JLabel label = (JLabel) renderer.getTableCellRendererComponent(table, headerValue, false, false, 0, 0);
 
-        column.setMinWidth(label.getMinimumSize().width + 12);
-        column.setPreferredWidth(label.getPreferredSize().width + 12);
-        column.setWidth(column.getPreferredWidth());
+        return label.getPreferredSize().width + margin;
     }
+
 
 }

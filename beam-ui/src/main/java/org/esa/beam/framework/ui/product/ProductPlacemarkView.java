@@ -24,9 +24,10 @@ import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.PopupMenuHandler;
 
 import javax.swing.AbstractAction;
-import javax.swing.JPanel;
+import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -50,26 +51,22 @@ public class ProductPlacemarkView extends BasicView implements ProductNodeView {
         this.vectorDataNode.getProduct().addProductNodeListener(new PNL());
         placemarkTable = new SortableTable();
         placemarkTable.addMouseListener(new PopupMenuHandler(this));
+        placemarkTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         tableModel = new PlacemarkTableModel();
         placemarkTable.setModel(tableModel);
 
-        final TableCellRenderer defaultRenderer = placemarkTable.getTableHeader().getDefaultRenderer();
+        final TableCellRenderer renderer = placemarkTable.getTableHeader().getDefaultRenderer();
+        final int margin = placemarkTable.getTableHeader().getColumnModel().getColumnMargin();
 
         Enumeration<TableColumn> columns = placemarkTable.getColumnModel().getColumns();
         while (columns.hasMoreElements()) {
             TableColumn tableColumn = columns.nextElement();
-            tableColumn.setHeaderRenderer(defaultRenderer);
-            tableColumn.sizeWidthToFit();
-            tableColumn.setMaxWidth(Integer.MAX_VALUE);
+            final int width = getColumnMinWith(tableColumn, renderer, margin);
+            tableColumn.setMinWidth(width);
         }
 
-        // the following 4 lines are needed, therewith the scroll pane displays
-        // not only a vertical scroll bar if needed but also a horizontal scroll bar if needed.
-        final JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.add(placemarkTable, BorderLayout.CENTER);
-        final JScrollPane scrollPane = new JScrollPane(tablePanel);
-        scrollPane.setColumnHeaderView(placemarkTable.getTableHeader());
+        final JScrollPane scrollPane = new JScrollPane(placemarkTable);
 
         setLayout(new BorderLayout());
         add(scrollPane, BorderLayout.CENTER);
@@ -100,6 +97,12 @@ public class ProductPlacemarkView extends BasicView implements ProductNodeView {
     @Override
     public JPopupMenu createPopupMenu(MouseEvent event) {
         return null;
+    }
+
+    private int getColumnMinWith(TableColumn column, TableCellRenderer renderer, int margin) {
+        final Object headerValue = column.getHeaderValue();
+        final JLabel label = (JLabel) renderer.getTableCellRendererComponent(null, headerValue, false, false, 0, 0);
+        return label.getPreferredSize().width + margin;
     }
 
     private void onNodeChange(ProductNodeEvent event) {

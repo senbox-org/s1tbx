@@ -59,6 +59,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYIntervalSeries;
 import org.jfree.data.xy.XYIntervalSeriesCollection;
 import org.jfree.data.xy.XYSeries;
+import org.jfree.ui.HorizontalAlignment;
 import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
@@ -109,7 +110,6 @@ class ScatterPlotPanel extends ChartPagePanel {
             "   -Select vector data (e.g., a SeaDAS 6.x track)" + "\n" +
             "   -Select the data as point data source" + "\n" +
             "   -Select a data field" + "\n" +
-            "   -Hit the 'Refresh View' button" + "\n" +
             HELP_TIP_MESSAGE + "\n" +
             ZOOM_TIP_MESSAGE;
 
@@ -118,10 +118,9 @@ class ScatterPlotPanel extends ChartPagePanel {
     private final String PROPERTY_NAME_DATA_FIELD = "dataField";
     private final String PROPERTY_NAME_POINT_DATA_SOURCE = "pointDataSource";
     private final String PROPERTY_NAME_BOX_SIZE = "boxSize";
-    private final String PROPERTY_NAME_SHOW_CONFIDENCE_INTERVAL = "showConfidenceInterval";
-    private final String PROPERTY_NAME_CONFIDENCE_INTERVAL = "confidenceInterval";
+    private final String PROPERTY_NAME_SHOW_ACCEPTABLE_DEVIATION = "showAcceptableDeviation";
+    private final String PROPERTY_NAME_ACCEPTABLE_DEVIATION = "acceptableDeviationInterval";
     private final String PROPERTY_NAME_SHOW_REGRESSION_LINE = "showRegressionLine";
-
 
     private final int CONFIDENCE_DSINDEX = 0;
     private final int REGRESSION_DSINDEX = 1;
@@ -156,7 +155,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         scatterpointsDataset = new XYIntervalSeriesCollection();
         confidenceDataset = new XYIntervalSeriesCollection();
         regressionDataset = new XYIntervalSeriesCollection();
-        r2Annotation = new XYTitleAnnotation(0,0,new TextTitle(""));
+        r2Annotation = new XYTitleAnnotation(0, 0, new TextTitle(""));
         chart = ChartFactory.createScatterPlot(CHART_TITLE, "", "", scatterpointsDataset, PlotOrientation.VERTICAL, true, true, false);
         chart.getXYPlot().setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
         createDomainAxisChangeListener();
@@ -224,6 +223,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     public void nodeRemoved(ProductNodeEvent event) {
         if (event.getSourceNode() instanceof VectorDataNode) {
             updateComponents();
+            computeChartDataIfPossible();
         }
     }
 
@@ -264,8 +264,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                 computeRegressionAndConfidenceData();
             }
         };
-        bindingContext.addPropertyChangeListener(PROPERTY_NAME_SHOW_CONFIDENCE_INTERVAL, computeLineDataListener);
-        bindingContext.addPropertyChangeListener(PROPERTY_NAME_CONFIDENCE_INTERVAL, computeLineDataListener);
+        bindingContext.addPropertyChangeListener(PROPERTY_NAME_SHOW_ACCEPTABLE_DEVIATION, computeLineDataListener);
+        bindingContext.addPropertyChangeListener(PROPERTY_NAME_ACCEPTABLE_DEVIATION, computeLineDataListener);
         bindingContext.addPropertyChangeListener(PROPERTY_NAME_SHOW_REGRESSION_LINE, computeLineDataListener);
 
 
@@ -443,7 +443,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     private JPanel createInputParameterPanel() {
-        final PropertyDescriptor boxSizeDescriptor = bindingContext.getPropertySet().getDescriptor("boxSize");
+        final PropertyDescriptor boxSizeDescriptor = bindingContext.getPropertySet().getDescriptor(PROPERTY_NAME_BOX_SIZE);
         boxSizeDescriptor.setValueRange(new ValueRange(1, 101));
         boxSizeDescriptor.setAttribute("stepSize", 2);
         boxSizeDescriptor.setValidator(new Validator() {
@@ -455,7 +455,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             }
         });
         final JSpinner boxSizeSpinner = new JSpinner();
-        bindingContext.bind("boxSize", boxSizeSpinner);
+        bindingContext.bind(PROPERTY_NAME_BOX_SIZE, boxSizeSpinner);
 
         final JPanel boxSizePanel = new JPanel(new BorderLayout(5, 3));
         boxSizePanel.add(new JLabel("Box size:"), BorderLayout.WEST);
@@ -483,24 +483,24 @@ class ScatterPlotPanel extends ChartPagePanel {
         yAxisOptionPanel.add(yAxisRangeControl.getPanel());
         yAxisOptionPanel.add(yLogCheck, BorderLayout.SOUTH);
 
-        final JCheckBox confidenceCheck = new JCheckBox("Confidence interval");
-        final JTextField confidenceField = new JTextField();
-        confidenceField.setPreferredSize(new Dimension(40, confidenceField.getPreferredSize().height));
-        confidenceField.setHorizontalAlignment(JTextField.RIGHT);
+        final JCheckBox acceptableCheck = new JCheckBox("Accepable deviation");
+        final JTextField acceptableField = new JTextField();
+        acceptableField.setPreferredSize(new Dimension(40, acceptableField.getPreferredSize().height));
+        acceptableField.setHorizontalAlignment(JTextField.RIGHT);
         final JLabel percentLabel = new JLabel(" %");
-        bindingContext.bind("showConfidenceInterval", confidenceCheck);
-        bindingContext.bind("confidenceInterval", confidenceField);
-        bindingContext.getBinding("confidenceInterval").addComponent(percentLabel);
-        bindingContext.bindEnabledState("confidenceInterval", true, "showConfidenceInterval", true);
+        bindingContext.bind(PROPERTY_NAME_SHOW_ACCEPTABLE_DEVIATION, acceptableCheck);
+        bindingContext.bind(PROPERTY_NAME_ACCEPTABLE_DEVIATION, acceptableField);
+        bindingContext.getBinding(PROPERTY_NAME_ACCEPTABLE_DEVIATION).addComponent(percentLabel);
+        bindingContext.bindEnabledState(PROPERTY_NAME_ACCEPTABLE_DEVIATION, true, PROPERTY_NAME_SHOW_ACCEPTABLE_DEVIATION, true);
 
         final JPanel confidencePanel = GridBagUtils.createPanel();
         GridBagConstraints confidencePanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=5,weighty=0,weightx=1");
-        GridBagUtils.addToPanel(confidencePanel, confidenceCheck, confidencePanelConstraints, "gridy=0");
-        GridBagUtils.addToPanel(confidencePanel, confidenceField, confidencePanelConstraints, "gridy=1,gridx=0,insets.left=4,insets.top=2");
+        GridBagUtils.addToPanel(confidencePanel, acceptableCheck, confidencePanelConstraints, "gridy=0");
+        GridBagUtils.addToPanel(confidencePanel, acceptableField, confidencePanelConstraints, "gridy=1,gridx=0,insets.left=4,insets.top=2");
         GridBagUtils.addToPanel(confidencePanel, percentLabel, confidencePanelConstraints, "gridy=1,gridx=1,insets.left=0,insets.top=4");
 
         final JCheckBox regressionCheck = new JCheckBox("Show regression line");
-        bindingContext.bind("showRegressionLine", regressionCheck);
+        bindingContext.bind(PROPERTY_NAME_SHOW_REGRESSION_LINE, regressionCheck);
 
         // UI arrangement
 
@@ -768,7 +768,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         final double[] coefficients = Regression.getOLSRegression(scatterpointsDataset, 0);
         final Function2D curve = new LineFunction2D(coefficients[0], coefficients[1]);
         final XYSeries regressionData = DatasetUtilities.sampleFunction2DToSeries(
-                curve, xStart, xEnd, 100, "regression");
+                curve, xStart, xEnd, 100, "regression line");
         final XYIntervalSeries xyIntervalRegression = new XYIntervalSeries(regressionData.getKey());
         final List<XYDataItem> regressionDataItems = regressionData.getItems();
         for (XYDataItem item : regressionDataItems) {
@@ -779,7 +779,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         return xyIntervalRegression;
     }
 
-    private void computeCoefficientOfDetermination(){
+    private void computeCoefficientOfDetermination() {
         int numberOfItems = scatterpointsDataset.getSeries(0).getItemCount();
         double arithmeticMeanOfX = 0;  //arithmetic mean of X
         double arithmeticMeanOfY = 0;  //arithmetic mean of Y
@@ -787,29 +787,41 @@ class ScatterPlotPanel extends ChartPagePanel {
         double varY = 0;    //variance of Y
         double coVarXY = 0;  //covariance of X and Y;
         //compute arithmetic means
-        for(int i=0; i<numberOfItems; i++){
-            arithmeticMeanOfX += scatterpointsDataset.getXValue(0,i);
-            arithmeticMeanOfY += scatterpointsDataset.getYValue(0,i);
+        for (int i = 0; i < numberOfItems; i++) {
+            arithmeticMeanOfX += scatterpointsDataset.getXValue(0, i);
+            arithmeticMeanOfY += scatterpointsDataset.getYValue(0, i);
         }
         arithmeticMeanOfX /= numberOfItems;
         arithmeticMeanOfY /= numberOfItems;
         //compute variances and covariance
-        for(int i=0; i<numberOfItems; i++){
-            varX += Math.pow(scatterpointsDataset.getXValue(0,i)-arithmeticMeanOfX,2);
-            varY += Math.pow(scatterpointsDataset.getYValue(0, i)-arithmeticMeanOfY,2);
-            coVarXY += (scatterpointsDataset.getXValue(0,i)-arithmeticMeanOfX)*(scatterpointsDataset.getYValue(0,i)-arithmeticMeanOfY);
+        for (int i = 0; i < numberOfItems; i++) {
+            varX += Math.pow(scatterpointsDataset.getXValue(0, i) - arithmeticMeanOfX, 2);
+            varY += Math.pow(scatterpointsDataset.getYValue(0, i) - arithmeticMeanOfY, 2);
+            coVarXY += (scatterpointsDataset.getXValue(0, i) - arithmeticMeanOfX) * (scatterpointsDataset.getYValue(0, i) - arithmeticMeanOfY);
         }
         //computation of coefficient of determination
-        double r2 = coVarXY/(Math.sqrt(varX * varY));
+        double r2 = coVarXY / (Math.sqrt(varX * varY));
         r2 = MathUtils.round(r2, Math.pow(10.0, 5));
-        TextTitle tt = new TextTitle("R²: " + r2);
+
+        final double[] coefficients = Regression.getOLSRegression(scatterpointsDataset, 0);
+        final double intercept = coefficients[0];
+        final double slope = coefficients[1];
+        final String linearEquation;
+        if (intercept >= 0) {
+            linearEquation = "y = " + (float) slope + "x + " + (float) intercept;
+        } else {
+            linearEquation = "y = " + (float) slope + "x - " + Math.abs((float) intercept);
+        }
+
+        TextTitle tt = new TextTitle(linearEquation + "\nR² = " + r2);
+        tt.setTextAlignment(HorizontalAlignment.RIGHT);
         tt.setFont(chart.getLegend().getItemFont());
         tt.setBackgroundPaint(new Color(200, 200, 255, 100));
         tt.setFrame(new BlockBorder(Color.white));
         tt.setPosition(RectangleEdge.BOTTOM);
 
         r2Annotation = new XYTitleAnnotation(0.98, 0.02, tt,
-                RectangleAnchor.BOTTOM_RIGHT);
+                                             RectangleAnchor.BOTTOM_RIGHT);
         r2Annotation.setMaxWidth(0.48);
         getPlot().addAnnotation(r2Annotation);
     }
@@ -822,14 +834,14 @@ class ScatterPlotPanel extends ChartPagePanel {
             }
         };
 
-        final XYSeries identity = DatasetUtilities.sampleFunction2DToSeries(identityFunction, lowerBound, upperBound, 100, "identity");
+        final XYSeries identity = DatasetUtilities.sampleFunction2DToSeries(identityFunction, lowerBound, upperBound, 100, "1:1 line");
         final XYIntervalSeries xyIntervalSeries = new XYIntervalSeries(identity.getKey());
         final List<XYDataItem> items = identity.getItems();
         for (XYDataItem item : items) {
             final double x = item.getXValue();
             final double y = item.getYValue();
-            if (scatterPlotModel.showConfidenceInterval) {
-                final double confidenceInterval = scatterPlotModel.confidenceInterval;
+            if (scatterPlotModel.showAcceptableDeviation) {
+                final double confidenceInterval = scatterPlotModel.acceptableDeviationInterval;
                 final double xOff = confidenceInterval * x / 100;
                 final double yOff = confidenceInterval * y / 100;
                 xyIntervalSeries.add(x, x - xOff, x + xOff, y, y - yOff, y + yOff);
@@ -848,8 +860,8 @@ class ScatterPlotPanel extends ChartPagePanel {
         private AttributeDescriptor dataField; // Don´t remove this field, it is be used via binding
         private boolean xAxisLogScaled; // Don´t remove this field, it is be used via binding
         private boolean yAxisLogScaled; // Don´t remove this field, it is be used via binding
-        private boolean showConfidenceInterval; // Don´t remove this field, it is be used via binding
-        private double confidenceInterval = 15; // Don´t remove this field, it is be used via binding
+        private boolean showAcceptableDeviation; // Don´t remove this field, it is be used via binding
+        private double acceptableDeviationInterval = 15; // Don´t remove this field, it is be used via binding
         public boolean showRegressionLine; // Don´t remove this field, it is be used via binding
     }
 

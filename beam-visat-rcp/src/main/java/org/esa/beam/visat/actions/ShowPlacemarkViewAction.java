@@ -68,11 +68,11 @@ public class ShowPlacemarkViewAction extends ExecCommand {
         JInternalFrame metadataFrame = null;
         try {
             placemarkView.setCommandUIFactory(visatApp.getCommandUIFactory());
-            final Icon icon = UIUtils.loadImageIcon("icons/RsMetaData16.gif");
+            final Icon icon = getSmallIcon();
             final ProductNode productNode = placemarkView.getVisibleProductNode();
             metadataFrame = visatApp.createInternalFrame(productNode.getDisplayName(),
-                    icon,
-                    placemarkView, null, false);
+                                                         icon,
+                                                         placemarkView, null, false);
             final JInternalFrame internalFrame = metadataFrame;
             productNode.getProduct().addProductNodeListener(new ProductNodeListenerAdapter() {
                 @Override

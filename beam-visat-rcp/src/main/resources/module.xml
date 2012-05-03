@@ -570,7 +570,7 @@
             <description>Display Correlative Plot for a selected band.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/ScatterPlot16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/ScatterPlot24.gif</largeIcon>
-            <helpId>scatterplotDialog</helpId>
+            <helpId>correlativePlotDialog</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
@@ -1274,8 +1274,8 @@
             <shortDescr>Open placemark view.</shortDescr>
             <description>Open a placemark view for the selected metadata node.</description>
             <context>vectorDataNode</context>
-            <smallIcon>icons/ImageView16.gif</smallIcon>
-            <largeIcon>icons/ImageView24.gif</largeIcon>
+            <smallIcon>icons/RsVectorData16.gif</smallIcon>
+            <!--<largeIcon>icons/ImageView24.gif</largeIcon>-->
         </action>
 
         <action>
