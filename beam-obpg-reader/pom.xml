@@ -29,7 +29,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-obpg-reader</artifactId>
     <name>BEAM NASA Ocean Color Product Reader</name>
-    <version>1.2</version>
+    <version>1.3-SNAPSHOT</version>
     <url>http://envisat.esa.int/beam/</url>
     <description>A reader for NASA Ocean Color (OBPG) Level-2 Data Products</description>
 

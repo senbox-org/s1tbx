@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,7 +17,14 @@ package org.esa.beam.dataio.obpg;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.DOMBuilder;
@@ -35,7 +42,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ObpgUtils {
 
@@ -292,8 +302,15 @@ public class ObpgUtils {
                             if (flagCoding == null) {
                                 flagCoding = new FlagCoding(name);
                             }
-                            final String flagName = hdfAttribute.getStringValue();
+                            String flagName = hdfAttribute.getStringValue();
                             final int flagMask = convertToFlagMask(attribName);
+                            if (flagCoding.containsAttribute(flagName)) {
+                                String number = "00";
+                                if (attribName.matches("f\\d\\d_name")) {
+                                    number = attribName.substring(1, 3);
+                                }
+                                flagName = String.format("%s_%s", flagName, number);
+                            }
                             flagCoding.addFlag(flagName, flagMask, l2FlagsInfoMap.get(flagName));
                         }
                     }
