@@ -128,7 +128,7 @@ public class StatisticsUtils {
             sb.append(String.format(formatString, "Index"));
             sb.append(String.format(formatString, "Pixel-X"));
             sb.append(String.format(formatString, "Pixel-Y"));
-            if (geoPositions != null) {
+            if (geoPositions.length > 0) {
                 sb.append(String.format(formatString, "Lat"));
                 sb.append(String.format(formatString, "Lon"));
             }
@@ -140,7 +140,7 @@ public class StatisticsUtils {
                 sb.append(String.format(formatString, String.valueOf(i)));
                 sb.append(String.format(formatString, String.valueOf(pixelPos.getX())));
                 sb.append(String.format(formatString, String.valueOf(pixelPos.getY())));
-                if (geoPositions != null) {
+                if (geoPositions.length > 0) {
                     final GeoPos geoPos = geoPositions[i];
                     sb.append(String.format(formatString, String.valueOf(geoPos.lat)));
                     sb.append(String.format(formatString, String.valueOf(geoPos.lon)));
