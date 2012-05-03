@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>VISAT Help - Import Shapefile</title>
+    <title>VISAT Help - Import ESRI Shapefile</title>
     <link rel="stylesheet" href="../style.css">
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </head>
@@ -25,7 +25,7 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Import Shapefile
+            Import ESRI Shapefile
         </td>
 
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
@@ -59,131 +59,34 @@
     </li>
 </ul>
 
-<h3 id="importTransect">Import Transect Data (Geometric Shape)</h3>
+<h3><a name="askIfSeparateGeometries"/>Display the Shapes</h3>
 
 <p>
-    If transect data is imported it is converted into a geometric shape defined either in
-    pixel or geodetic (WGS-84) co-ordinates from a text file.
+    After the CRS of the shape data has been selected and confirmed with 'OK', a new dialog 'Import Geometry' is
+    shown in case if the shape file contains more than one single geometry.
+    It can now be selected if these geometries shall be imported separately or as a whole.
+
+    Also, the attribute for the mask/layer naming can be selected from a drop-down box.
 </p>
+
+<p align="center"><img src="images/AskImportGeometriesSeparately.png">
+</p>
+
+<br/>
 
 <p>
-    Transect data files are text files and have the default extension <code>.txt</code>. Each line in the file
-    corresponds to a single vertex point of the geometric shape. Co-ordinates are stored in columns separated
-    by whitespace characters (space or tabulator). All co-ordinates refer to a pixel's upper left
-    corner. A file can have a header line in order to specify column names.
+    <b>Example:</b> 'World Countries' shapes: all geometries (countries) imported as a whole:
+</p>
+<p align="center"><img src="images/ImportedGeometriesNotSeparately.png">
 </p>
 
-<h4>Transect Data Files without Header Line</h4>
+<br/>
 
 <p>
-    Columns 1 and 2 are mandatory and contain
-    the point's pixel X co-ordinate and Y co-ordinate, respectively. Columns 3 and 4 are optional
-    and contain the point's geodetic latitude and longitude co-ordinates defined on the WGS-84
-    ellipsoid in decimal degree. Other columns are ignored:
+    <b>Example:</b> 'World Countries' shapes: geometries (countries) imported separately:
+</p>
+<p align="center"><img src="images/ImportedGeometriesSeparately.png">
 </p>
 
-<blockquote>
-    <table border="0" width="auto">
-        <tr>
-            <td>column 1:</td>
-            <td><i>mandatory X co-ordinate given in pixels</i></td>
-        </tr>
-        <tr>
-            <td>column 2:</td>
-            <td><i>mandatory Y co-ordinate given in pixels</i></td>
-        </tr>
-        <tr>
-            <td>column 3:</td>
-            <td><i>optional latitude in decimal degree</i></td>
-        </tr>
-        <tr>
-            <td>column 4:</td>
-            <td><i>optional longitude in decimal degree</i></td>
-        </tr>
-        <tr>
-            <td>column 4 + <i>i</i>:</td>
-            <td><i>optional additional data</i></td>
-        </tr>
-    </table>
-</blockquote>
-
-<p>
-    If the current product is geo-coded, which is always true for
-    <a href="../general/envisat-products/index.html">ENVISAT products</a> or map
-    projected products, and the geodetic co-ordinates are given, the pixel co-ordinates are
-    rejected. In this case, VISAT computes the actual pixel co-ordinates for the current product.
-</p>
-
-<p>
-    For example (note, 5th column is ignored):
-</p>
-
-<blockquote>
-    <pre>
-        207 390 43.167255 -7.7339296 38.732
-        208 389 43.175785 -7.718502 48.529
-        208 388 43.18614 -7.715622 50.889
-        209 387 43.19465 -7.7002006 38.709
-        ...
-    </pre>
-</blockquote>
-
-<h4>Transect Data Files with Header Line</h4>
-
-<p>
-    The file can optionally contain a header line. The header line contains column names which
-    are also expected to be separated by whitespace characters. Some column names have a special
-    meaning for the import command, since they specify the alternate column for the recognized
-    co-ordinates. Special names can appear in any order and are letter case insensitive. They are:
-</p>
-
-<blockquote>
-    <table border="0">
-        <tr>
-            <td><code>x</code>, <code>pixel_x</code> or <code>pixel-x</code>:</td>
-            <td><i>X co-ordinate given in
-                pixels</i></td>
-        </tr>
-        <tr>
-            <td><code>y</code>, <code>pixel_y</code> or <code>pixel-y</code>:</td>
-            <td><i>Y co-ordinate given in
-                pixels</i></td>
-        </tr>
-        <tr>
-            <td><code>lat</code> or <code>latitude</code>:</td>
-            <td><i>latitude in decimal degree</i></td>
-        </tr>
-        <tr>
-            <td><code>lon</code>, <code>long</code> or <code>longitude</code>:</td>
-            <td><i>latitude in decimal
-                degree</i></td>
-        </tr>
-        <tr>
-            <td>other names:</td>
-            <td><i>ignored</i></td>
-        </tr>
-    </table>
-</blockquote>
-
-<p>
-    Either pixel or geodetic co-ordinates must be given. Again, if geodetic co-ordinates are present,
-    they override the point's pixel co-ordinate if present, since they are recomputed by VISAT.
-    The columns can appear in any order.
-</p>
-
-<p>
-    For example (note, columns named "Index" and "radiance_11" are ignored):
-</p>
-
-<blockquote>
-    <pre>
-        Index Pixel-X Pixel-Y Lat Lon radiance_11
-        0 205 393 43.139843 -7.767645 35.16
-        1 206 392 43.148373 -7.752228 32.764
-        2 206 391 43.158722 -7.749352 35.751
-        ...
-    </pre>
-</blockquote>
-<hr>
 </body>
 </html>
