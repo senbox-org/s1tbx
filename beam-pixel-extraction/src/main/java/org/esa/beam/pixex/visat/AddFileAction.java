@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,9 +19,9 @@ package org.esa.beam.pixex.visat;
 import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductIOPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.PropertyMap;
@@ -35,6 +35,7 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Thomas Storm
@@ -64,10 +65,9 @@ class AddFileAction extends AbstractAction {
         fileChooser.setMultiSelectionEnabled(true);
 
         FileFilter actualFileFilter = fileChooser.getAcceptAllFileFilter();
-        Iterator allReaderPlugIns = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
-        while (allReaderPlugIns.hasNext()) {
-            final ProductIOPlugIn plugIn = (ProductIOPlugIn) allReaderPlugIns.next();
-            BeamFileFilter productFileFilter = plugIn.getProductFileFilter();
+        Iterator<ProductReaderPlugIn> allReaderPlugIns = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
+        List<BeamFileFilter> sortedFileFilters = BeamFileFilter.getSortedFileFilters(allReaderPlugIns);
+        for (BeamFileFilter productFileFilter : sortedFileFilters) {
             fileChooser.addChoosableFileFilter(productFileFilter);
             if (!VisatApp.ALL_FILES_IDENTIFIER.equals(lastFormat) &&
                 productFileFilter.getFormatName().equals(lastFormat)) {

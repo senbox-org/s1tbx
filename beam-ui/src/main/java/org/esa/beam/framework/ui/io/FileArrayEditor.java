@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,7 +15,6 @@
  */
 package org.esa.beam.framework.ui.io;
 
-import org.esa.beam.framework.dataio.ProductIOPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -32,7 +31,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.filechooser.FileFilter;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -268,9 +266,8 @@ public class FileArrayEditor {
         chooser.setMultiSelectionEnabled(true);
 
         final Iterator<ProductReaderPlugIn> iterator = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
-        while (iterator.hasNext()) {
-            final ProductReaderPlugIn readerPlugIn = iterator.next();
-            final BeamFileFilter productFileFilter = readerPlugIn.getProductFileFilter();
+        List<BeamFileFilter> sortedFileFilters = BeamFileFilter.getSortedFileFilters(iterator);
+        for (BeamFileFilter productFileFilter : sortedFileFilters) {
             chooser.addChoosableFileFilter(productFileFilter);
         }
         chooser.setFileFilter(chooser.getAcceptAllFileFilter());

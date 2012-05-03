@@ -42,9 +42,9 @@ import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.esa.beam.dataio.dimap.DimapProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductIOPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -2585,10 +2585,9 @@ public class VisatApp extends BasicApp implements AppContext {
             fileChooser.setMultiSelectionEnabled(true);
 
             FileFilter actualFileFilter = fileChooser.getAcceptAllFileFilter();
-            Iterator allReaderPlugIns = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
-            while (allReaderPlugIns.hasNext()) {
-                final ProductIOPlugIn plugIn = (ProductIOPlugIn) allReaderPlugIns.next();
-                BeamFileFilter productFileFilter = plugIn.getProductFileFilter();
+            Iterator<ProductReaderPlugIn> allReaderPlugIns = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
+            List<BeamFileFilter> sortedFileFilters = BeamFileFilter.getSortedFileFilters(allReaderPlugIns);
+            for (BeamFileFilter productFileFilter : sortedFileFilters) {
                 fileChooser.addChoosableFileFilter(productFileFilter);
                 if (!ALL_FILES_IDENTIFIER.equals(lastFormat) &&
                         productFileFilter.getFormatName().equals(lastFormat)) {
@@ -2636,7 +2635,7 @@ public class VisatApp extends BasicApp implements AppContext {
             if (selectedFileFilter instanceof BeamFileFilter) {
                 return ProductIO.getProductReader(((BeamFileFilter) selectedFileFilter).getFormatName());
             } else {
-                return ProductIO.getProductReaderForFile(selectedFile);
+                return ProductIO.getProductReaderForInput(selectedFile);
             }
         }
 

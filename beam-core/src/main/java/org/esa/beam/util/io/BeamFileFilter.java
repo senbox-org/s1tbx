@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,12 +15,17 @@
  */
 package org.esa.beam.util.io;
 
+import org.esa.beam.framework.dataio.ProductIOPlugIn;
 import org.esa.beam.util.StringUtils;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A <code>FileFilter</code> with file extensions support.
@@ -130,7 +135,7 @@ public class BeamFileFilter extends FileFilter {
      */
     public void setDescription(String description) {
         if (hasExtensions() && !description.endsWith(")")) {
-            StringBuffer sb = new StringBuffer(description);
+            StringBuilder sb = new StringBuilder(description);
             sb.append(" (");
             for (int i = 0; i < extensions.length; i++) {
                 if (i > 0) {
@@ -268,5 +273,26 @@ public class BeamFileFilter extends FileFilter {
         public int getValue() {
             return value;
         }
+    }
+
+    /**
+     * Return a alphabetically sorted list of file filters originating from a productIO plugin iterator.
+     *
+     * @param pluginIterator a productIO plugin iterator
+     * @return a sorted list of file filters
+     * @since BEAM 4.10
+     */
+    public static <T extends ProductIOPlugIn> List<BeamFileFilter> getSortedFileFilters(Iterator<T> pluginIterator) {
+        List<BeamFileFilter> fileFilterList = new ArrayList<BeamFileFilter>();
+        while (pluginIterator.hasNext()) {
+            fileFilterList.add(pluginIterator.next().getProductFileFilter());
+        }
+        Collections.sort(fileFilterList, new Comparator<BeamFileFilter>() {
+            @Override
+            public int compare(BeamFileFilter bff1, BeamFileFilter bff2) {
+                return bff1.getDescription().compareTo(bff2.getDescription());
+            }
+        });
+        return fileFilterList;
     }
 }

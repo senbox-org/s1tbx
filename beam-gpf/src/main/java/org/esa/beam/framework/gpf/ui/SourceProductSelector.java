@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -29,6 +29,7 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
+import org.esa.beam.util.io.BeamFileFilter;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -56,6 +57,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
@@ -277,9 +279,10 @@ public class SourceProductSelector {
             chooser = new BeamFileChooser();
             chooser.setDialogTitle("Select Source Product");
             final Iterator<ProductReaderPlugIn> iterator = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
-            while (iterator.hasNext()) {
+            List<BeamFileFilter> sortedFileFilters = BeamFileFilter.getSortedFileFilters(iterator);
+            for (BeamFileFilter fileFilter : sortedFileFilters) {
                 // todo - (mp, 2008/04/22)check if product file filter is applicable
-                chooser.addChoosableFileFilter(iterator.next().getProductFileFilter());
+                chooser.addChoosableFileFilter(fileFilter);
             }
             // todo - (mp, 2008/04/22)check if product file filter is applicable
             chooser.setAcceptAllFileFilterUsed(true);
