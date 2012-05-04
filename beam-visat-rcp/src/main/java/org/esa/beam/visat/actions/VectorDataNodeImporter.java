@@ -30,7 +30,6 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 
 import javax.swing.*;
@@ -171,7 +170,7 @@ class VectorDataNodeImporter {
 
     interface VectorDataNodeReader {
 
-        VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException;
+        VectorDataNode readVectorDataNode(File file, Product product, ProgressMonitor pm) throws IOException;
     }
 
     private VectorDataNode readGeometry(final VisatApp visatApp,
@@ -182,7 +181,7 @@ class VectorDataNodeImporter {
         ProgressMonitorSwingWorker<VectorDataNode, Object> worker = new ProgressMonitorSwingWorker<VectorDataNode, Object>(visatApp.getMainFrame(), "Loading vector data") {
             @Override
             protected VectorDataNode doInBackground(ProgressMonitor pm) throws Exception {
-                return reader.readVectorDataNode(visatApp, file, product, helpId, pm);
+                return reader.readVectorDataNode(file, product, pm);
             }
 
             @Override

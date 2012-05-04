@@ -40,12 +40,8 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -424,7 +420,7 @@ public class DimapProductReader extends AbstractProductReader {
                         public CoordinateReferenceSystem getFeatureCrs(Product product) {
                             return modelCrs;
                         }
-                    }, new MyPlacemarkDescriptorProvider(), modelCrs, VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL);
+                    }, new OptimalPlacemarkDescriptorProvider(), modelCrs, VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL);
                     if (vectorDataNode != null) {
                         final ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
                         final VectorDataNode existing = vectorDataGroup.get(vectorDataNode.getName());
@@ -444,7 +440,7 @@ public class DimapProductReader extends AbstractProductReader {
         }
     }
 
-    private static class MyPlacemarkDescriptorProvider implements VectorDataNodeReader.PlacemarkDescriptorProvider {
+    private static class OptimalPlacemarkDescriptorProvider implements VectorDataNodeReader.PlacemarkDescriptorProvider {
         @Override
         public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
             PlacemarkDescriptorRegistry placemarkDescriptorRegistry = PlacemarkDescriptorRegistry.getInstance();

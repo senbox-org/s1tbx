@@ -17,7 +17,6 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.dataio.geometry.VectorDataNodeIO;
 import org.esa.beam.dataio.geometry.VectorDataNodeReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.VectorDataNode;
@@ -40,7 +39,7 @@ public class ImportVectorDataNodeFromMermaidAction extends AbstractImportVectorD
         final BeamFileFilter filter = new BeamFileFilter("CSV",
                                                          new String[]{".txt", ".dat", ".csv"},
                                                          "Plain text");
-        importer = new VectorDataNodeImporter(getHelpId(), filter, new MyVectorDataNodeReader(), "Import MERMAID Extraction File", "csv.io.dir");
+        importer = new VectorDataNodeImporter(getHelpId(), filter, new MermaidReader(), "Import MERMAID Extraction File", "csv.io.dir");
         importer.importGeometry(VisatApp.getApp());
         VisatApp.getApp().updateState();
     }
@@ -57,10 +56,10 @@ public class ImportVectorDataNodeFromMermaidAction extends AbstractImportVectorD
         return importer.getDialogTitle();
     }
 
-    private class MyVectorDataNodeReader implements VectorDataNodeImporter.VectorDataNodeReader {
+    private class MermaidReader implements VectorDataNodeImporter.VectorDataNodeReader {
 
         @Override
-        public VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException {
+        public VectorDataNode readVectorDataNode(File file, Product product, ProgressMonitor pm) throws IOException {
             FileReader reader = null;
             try {
                 final CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(product.getGeoCoding());

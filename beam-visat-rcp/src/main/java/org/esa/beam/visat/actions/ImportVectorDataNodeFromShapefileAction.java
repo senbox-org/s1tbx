@@ -17,37 +17,21 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.ui.crs.CrsSelectionPanel;
-import org.esa.beam.framework.ui.crs.CustomCrsForm;
-import org.esa.beam.framework.ui.crs.PredefinedCrsForm;
-import org.esa.beam.framework.ui.crs.ProductCrsForm;
 import org.esa.beam.util.FeatureUtils;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.SLDUtils;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.Style;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 public class ImportVectorDataNodeFromShapefileAction extends AbstractImportVectorDataNodeAction {
 
@@ -78,7 +62,7 @@ public class ImportVectorDataNodeFromShapefileAction extends AbstractImportVecto
     class VdnShapefileReader implements VectorDataNodeImporter.VectorDataNodeReader {
 
         @Override
-        public VectorDataNode readVectorDataNode(VisatApp visatApp, File file, Product product, String helpId, ProgressMonitor pm) throws IOException {
+        public VectorDataNode readVectorDataNode(File file, Product product, ProgressMonitor pm) throws IOException {
 
             FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = FeatureUtils.loadShapefileForProduct(file,
                                                                                                                          product,
