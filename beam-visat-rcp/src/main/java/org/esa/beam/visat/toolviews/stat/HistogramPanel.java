@@ -474,9 +474,13 @@ class HistogramPanel extends ChartPagePanel {
         @Override
         protected Stx doInBackground(ProgressMonitor pm) throws Exception {
             final Stx stx;
-            if (histogramPlotConfig.useRoiMask || histogramPlotConfig.numBins != Stx.DEFAULT_BIN_COUNT || histogramPlotConfig.histogramLogScaled || min != null || max != null) {
+             if (histogramPlotConfig.useRoiMask || histogramPlotConfig.numBins != Stx.DEFAULT_BIN_COUNT || histogramPlotConfig.histogramLogScaled || min != null || max != null) {
                 final StxFactory factory = new StxFactory();
                 if (histogramPlotConfig.useRoiMask) {
+                    /*if(histogramPlotConfig.roiMask.getValidShape() == null){
+                        handleError("The selected mask is empty.\n"+
+                            "No valid histogram could be computed.");
+                    }*/
                     factory.withRoiMask(histogramPlotConfig.roiMask);
                 }
                 factory.withHistogramBinCount(histogramPlotConfig.numBins);
@@ -525,8 +529,15 @@ class HistogramPanel extends ChartPagePanel {
                     handleStxChange();
                 }
             } catch (ExecutionException e) {
-                handleError("An internal error occurred.\n" +
-                        "No valid histogram could be computed. Reason:\n" + e.getMessage());
+                if(histogramPlotConfig.useRoiMask){
+                    handleError("An internal error occurred.\n" +
+                            "No valid histogram could be computed.\n" +
+                            "Possible reason: The selected ROI is empty.");
+                }
+                else{
+                    handleError("An internal error occurred.\n" +
+                            "No valid histogram could be computed. Reason:\n" + e.getMessage());
+                }
                 handleStxChange();
             } catch (InterruptedException e) {
                 handleError("The histogram computation has been interrupted.");
