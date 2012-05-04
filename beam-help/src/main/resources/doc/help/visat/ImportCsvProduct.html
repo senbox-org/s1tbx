@@ -1,0 +1,61 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>BEAM Help - Import CSV Product</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp; Import CSV Product</td>
+        
+    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a></td>
+    </tr>
+</table>
+
+<h3>Import CSV Product</h3>
+
+<p>
+    The CSV product reader enables VISAT to import simple CSV files into the BEAM product model. See
+    <a href="CsvFileRules.html">here</a> for a description of the expected data format.
+</p>
+
+<p>
+    Note that the CSV Product Reader interprets each column as band. As of BEAM 4.10, there is no support yet for
+    neither metadata nor flag codings.
+</p>
+
+<p>
+    There are a number of reserved properties which may be set within the file:
+    <ul>
+        <li><b>separator</b>: When this property is set, e.g. using <code>#separator=;</code>, the specified separator
+            is being used for parsing the file.</li>
+    <li><b>sceneRasterWidth</b>: Per default, the product will have quadratic dimensions, e.g. if the CSV file contains
+        144 data entries, the product will have width and height 12. If the CSV file contains no square number of data
+        entries, the next higher square number is being used and the added pixels are filled with NaN values. If,
+        however, the property is set, the product's width will be set to the property's value and the height will be
+        computed accordingly.</li>
+    </ul>
+</p>
+
+<hr>
+</body>
+</html>
+
