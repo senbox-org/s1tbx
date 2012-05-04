@@ -421,7 +421,7 @@
         <toolView>
             <id>org.esa.beam.visat.toolviews.mask.MaskManagerToolView</id>
             <class>org.esa.beam.visat.toolviews.mask.MaskManagerToolView</class>
-            <title>Mask / ROI Manager</title>
+            <title>Mask Manager</title>
             <mnemonic>M</mnemonic>
             <accelerator>ctrl alt M</accelerator>
             <description>Manage binary data masks and ROIs.</description>

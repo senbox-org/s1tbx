@@ -79,7 +79,7 @@
     <mapID target="showWorldMapWnd" url="visat/WorldMap.html"/>
     <mapID target="showGcpManagerWnd" url="visat/GcpManagement.html"/>
     <mapID target="showPinManagerWnd" url="visat/PinManagement.html"/>
-    <mapID target="showMaskROIManagerWnd" url="visat/MaskROIManagement.html"/>
+    <mapID target="showMaskManagerWnd" url="visat/MaskManagement.html"/>
     <mapID target="noDataOverlay" url="visat/NoDataOverlay.html"/>
     <mapID target="noDataValue" url="visat/NoDataValue.html"/>
     <mapID target="informationDialog" url="visat/InformationDialog.html"/>

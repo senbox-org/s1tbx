@@ -62,10 +62,10 @@ concepts are thoroughly described below.
     </tr>
 </table>
 
-<h4>Relationship with Masks and Regions of Interest (ROI)</h4>
+<h4>Relationship with Masks and Regions of Interest</h4>
 
 <p>
-    The geometries in a geometry container can be directly used as a ROI for raster data analysis.
+    The geometries in a geometry container can be directly used as a region of interest for raster data analysis.
     Once a new geometry container has been added to the data product, an associated <i>geometry mask</i> is created by
     rendering the geometry onto the product's intrinsic raster data grid.
 </p>
@@ -74,7 +74,7 @@ concepts are thoroughly described below.
     <table>
         <tr>
             <td style="border-width:0"><img src="images/GeometryPlain.png" alt="Geometry Plain"></td>
-            <td style="border-width:0"><img src="images/GeometryROI.png" alt="Geometry ROI"></td>
+            <td style="border-width:0"><img src="images/Geometry.png" alt="Geometry"></td>
         </tr>
         <tr>
             <td style="border-width:0" align="center">Polygon geometry (vector data)</td>
@@ -84,13 +84,13 @@ concepts are thoroughly described below.
 </div>
 <p>
     The associated mask will always have the
-    same name as the geometry container which created it and can serve as possible ROI for the selected band or
+    same name as the geometry container which created it and can serve as possible mask for the selected band or
     tie-point
     grid without any additional user interaction.
-    Once the geometry is created (e.g. simply by drawing it, see below), its associated geometry mask can be used as ROI
+    Once the geometry is created (e.g. simply by drawing it, see below), its associated geometry mask can be used as region of interest
     in the various analysis tools, such as the <a href="StatisticsDialog.html">Statistics</a>,
     <a href="HistogramDialog.html">Histogram</a>, and <a href="DensityPlotDialog.html">Scatter Plot</a> tool windows.
-    Multiple geometry ROIs can be defined by creating new geometry containers as described below.
+    Multiple geometries can be defined by creating new geometry containers as described below.
 </p>
 
 <h4>Creating a new geometry</h4>
