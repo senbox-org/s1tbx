@@ -1,4 +1,4 @@
-package org.esa.beam.visat.toolviews.stat;
+package org.esa.beam.framework.ui.io;
 
 import java.io.IOException;
 import java.io.Writer;

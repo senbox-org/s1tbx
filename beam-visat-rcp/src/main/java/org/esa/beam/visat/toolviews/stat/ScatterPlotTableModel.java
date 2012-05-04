@@ -1,5 +1,8 @@
 package org.esa.beam.visat.toolviews.stat;
 
+import org.esa.beam.framework.ui.io.CsvEncoder;
+import org.esa.beam.framework.ui.io.TableModelCsvEncoder;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;

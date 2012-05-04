@@ -18,6 +18,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.framework.ui.io.TableModelCsvEncoder;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
 public class TableViewPagePanel extends PagePanel {

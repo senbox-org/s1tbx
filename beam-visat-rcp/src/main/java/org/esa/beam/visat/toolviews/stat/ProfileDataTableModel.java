@@ -2,6 +2,8 @@ package org.esa.beam.visat.toolviews.stat;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.TransectProfileData;
+import org.esa.beam.framework.ui.io.CsvEncoder;
+import org.esa.beam.framework.ui.io.TableModelCsvEncoder;
 import org.opengis.feature.simple.SimpleFeature;
 
 import javax.swing.table.AbstractTableModel;

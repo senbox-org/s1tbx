@@ -1,11 +1,17 @@
-package org.esa.beam.visat.toolviews.stat;
+package org.esa.beam.framework.ui.io;
 
 import java.io.IOException;
 import java.io.Writer;
 import javax.swing.table.TableModel;
+
+import org.esa.beam.framework.ui.io.CsvEncoder;
 import org.esa.beam.util.io.CsvWriter;
 
-class TableModelCsvEncoder implements CsvEncoder {
+/**
+ * This simple TableModelCsvEncoder writes the table model content encoded
+ * as CSV to a given writer. The separator char is {@code '\t'}.
+ */
+public class TableModelCsvEncoder implements CsvEncoder {
 
     private final TableModel model;
 
@@ -13,6 +19,12 @@ class TableModelCsvEncoder implements CsvEncoder {
         this.model = model;
     }
 
+    /**
+     * Writes the table model content encoded as csv to the given writer.
+     * The separator char is {@code '\t'}.
+     * @param writer
+     * @throws IOException
+     */
     @Override
     public void encodeCsv(Writer writer) throws IOException {
         CsvWriter csv = new CsvWriter(writer, "\t");
