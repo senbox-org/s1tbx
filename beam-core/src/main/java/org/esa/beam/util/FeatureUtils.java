@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -216,7 +216,9 @@ public class FeatureUtils {
                     if (!targetGeometry.isEmpty()) {
                         SimpleFeature targetFeature = createTargetFeature(targetGeometry, targetSchema,
                                                                           sourceFeature, source2TargetTransformer);
-                        targetCollection.add(targetFeature);
+                        if (targetFeature != null) {
+                            targetCollection.add(targetFeature);
+                        }
                     }
                 }
             } finally {
@@ -236,8 +238,9 @@ public class FeatureUtils {
         if (source2TargetTransformer != null) {
             try {
                 targetGeometry = source2TargetTransformer.transform(targetGeometry);
-            } catch (TransformException ignored) {
-//                            continue;
+            } catch (Exception e) {
+                Debug.trace(e);
+                return null;
             }
             targetFeature = SimpleFeatureBuilder.retype(sourceFeature, targetSchema);
         } else {
