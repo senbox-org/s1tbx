@@ -446,7 +446,6 @@ class ProfilePlotPanel extends ChartPagePanel {
                 SimpleFeature[] simpleFeatures = dataSourceConfig.pointDataSource.getFeatureCollection().toArray(new SimpleFeature[0]);
 
                 if (shapeVertexIndexes.length == simpleFeatures.length) {
-                    // todo - use this code also in ScatterPlotPanel (nf)
                     int fieldIndex = getAttributeIndex(dataSourceConfig.pointDataSource, dataSourceConfig.dataField);
                     if (fieldIndex != -1) {
                         for (int i = 0; i < simpleFeatures.length; i++) {
