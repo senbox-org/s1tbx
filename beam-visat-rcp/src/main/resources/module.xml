@@ -557,7 +557,7 @@
             <description>Display Scatter Plot for two selected bands.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/DensityPlot16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/DensityPlot24.gif</largeIcon>
-            <helpId>densityplotDialog</helpId>
+            <helpId>densityPlotDialog</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>

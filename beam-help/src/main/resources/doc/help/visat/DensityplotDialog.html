@@ -31,19 +31,85 @@
     </tr>
 </table>
 
-
 <h3>Scatter Plot Display</h3>
 
 <p>
-    This dialog allows you to plot one variable against another.
-    In order to plot them, these variables must be already displayed as bands.Otherwise the values would not be
-    present to VISAT, except for the tie point data (latitude, longitude etc.).<br/>
-    You can select a ROI, which must be defined for the X-Band, to the limits for the computation of the scatter plot.
+    This dialog allows you to plot one variable against another.<br>
+    For each band, the value range is evenly divided into 512 bins.
+    The scatter plot shows these bins plotted against each other, resulting in 512*512 cells.
+    For each cell, the number of pixels within the according bands' value ranges is counted and color coded.
+    Yellow stands for large amounts of pixels, black for small ones.
+    If no pixel is assigned to a distinct cell, the cell will receive no color.
+    You can toggle the color coding with the 'Invert plot colors' checkbox.<br>
+    The scatter plot will be computed when you hit <img src="images/icons/ViewRefresh22.png">.
 </p>
 
 <center>
     <img src="images/DensityplotDropDown.png">
 </center>
+
+<h4>Options Panel</h4>
+
+<p>
+    The outcome of the scatter plot can be altered via the options in the options panel.
+    Note that the scatter plot needs to be recomputed in order for changes to the option panel to take effect.
+</p>
+
+<ul>
+
+    <li><b>Refresh View <img src="images/icons/ViewRefresh22.png"></b><br>
+        Causes the scatter plot to be (re-)computed.
+        The button is only enabled when a computation is expected to lead to a different scatter plot than the one on display.
+    </li>
+
+    <li><b>Collapse/Expand Options Panel <img src="images/icons/PanelRight12.png" border="1" > / <img src="images/icons/PanelLeft12.png" border="1"></b><br>
+        Collapses or expands the options panel.
+    </li>
+
+    <li><b>ROI Mask</b><br>
+        A ROI mask may be used to mask out values. All values which do not match the mask are not taken
+        into account. For convenience, the mask manager may be openened from the scatter plot window using the
+        <img src="images/icons/MaskManager24.png">-button.<br>
+        For creating a ROI mask from the scatter plot, see 'Select Mask 'scatter_plot_area'' from the context menu.
+    </li>
+
+    <li><b>Auto min/max</b><br>
+        For both bands, you can explicitly set the minimum and maximum values to be considered during the computation
+        of the scatter plot.
+        To do so, disable the checkbox for the respective band and enter the desired min- or max-value.
+        When the checkboxes are enabled, min- and max-values will be determined automatically.
+    </li>
+
+    <li><b>Invert plot colors</b><br>
+        Inverts the color range. When selected, large pixel frequencies will be displayed in black, small ones in
+        yellow.
+    </li>
+
+    <li><b>Zoom all <img src="images/icons/View-Fullscreen22.png"></b><br>
+        Adjusts both axes to the full data range.
+        You can also use the 'Auto range' entry in the context menu.
+    </li>
+
+    <li><b>Edit Properties <img src="images/icons/Edit24.gif"></b><br>
+        Edit several properties (colors, axes, etc.) of the diagram.
+        You can also use the 'Properties...' entry in the context menu.
+    </li>
+
+    <li><b>Save chart as image <img src="images/icons/Export24.gif"></b><br>
+        Save the diagram as image (PNG).
+        You can also use the 'Save as...' entry in the context menu.
+    </li>
+
+    <li><b>Print chart <img src="images/icons/Print24.gif"></b><br>
+        Print the diagram.
+        You can also use the 'Print...' entry in the context menu.
+    </li>
+
+    <li><b>Help <img src="images/icons/Help22.png"></b><br>
+        Displays this page.
+    </li>
+
+</ul>
 
 <h4>Context Menu</h4>
 
@@ -53,6 +119,9 @@
     <li><b>Properties...</b><br>
         Edit several properties (colors, axes, etc.) of the diagram.<br>
         You can also use the <img src="images/icons/Edit24.gif"> on the right 'Plot' panel.
+    </li>
+    <li><b>Copy</b><br>
+        Copies the diagram as image into the clipboard. <br>
     </li>
     <li><b>Save As...</b><br>
         Save the diagram as image (PNG). <br>
@@ -65,15 +134,16 @@
     <li><b>Zoom In</b><br>
         <ul>
             <li>Both Axes - Zoom in on both axes.<br>
-        You can also use the <img src="images/icons/ZoomIn24.gif"> on the right 'Plot' panel.</li>
+                You can also zoom in by drawing a rectangle. Click at the top left corner of your desired zooming area,
+                drag to the bottom right corner, and release. Note that this won't work when
+                'Select Mask 'scatter_plot_area'' is selected.</li>
             <li>Domain Axes - Zoom in only on the domain axis.</li>
             <li>Range Axes - Zoom in only on the range axis.</li>
         </ul>
     </li>
     <li><b>Zoom Out</b><br>
         <ul>
-            <li>Both Axes - Zoom out on both axes.<br>
-        You can also use the <img src="images/icons/ZoomOut24.gif"> on the right 'Plot' panel.</li>
+            <li>Both Axes - Zoom out on both axes.<br></li>
             <li>Domain Axes - Zoom out only on the domain axis.</li>
             <li>Range Axes - Zoom out only on the range axis.</li>
         </ul>
@@ -81,10 +151,18 @@
     <li><b>Auto Range</b><br>
         <ul>
             <li>Both Axes - Adjusts both axes to the full data range.<br>
-        You can also use the <img src="images/icons/ZoomAll24.gif"> on the right 'Plot' panel.</li>
+            You can also use the <img src="images/icons/View-Fullscreen22.png"> on the right 'Plot' panel.</li>
             <li>Domain Axes - Adjusts the domain axis to the full data range.</li>
             <li>Range Axes - Adjusts the range axis to the full data range.</li>
         </ul>
+    </li>
+    <li><b>Select Mask 'scatter_plot_area'</b><br>
+        Allows you to create a mask from the scatter plot.
+        After selecting the menu entry, you can choose an oval zone by clicking in the plot, dragging, and releasing.
+        The mask will be selected immediately.
+    </li>
+    <li><b>Delete Mask 'scatter_plot_area'</b><br>
+        Removes the mask 'scatter_plot_area' (in case you have created it before).
     </li>
     <li><b>Copy Data to Clipboard</b><br>
         This will copy the diagram data as tabulated text to the system clipboard.

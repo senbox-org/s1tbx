@@ -37,14 +37,89 @@
 <h3>Histogram Display</h3>
 
 <p>
-    This dialog displays a histogram for the selected band.
-    If a ROI is defined, you may restrict the computation to the pixels within that ROI. You can also
-    set the number of bins used for the histogram creation, and set the range manually or let it
-    compute automatically. 
+    This dialog allows for the display of a histogram for the selected band.<br>
+    The value range is evenly divided into bins.
+    The histogram shows how many pixels of the image fall into each of the bins.<br>
+    It is computed when you hit <img src="images/icons/ViewRefresh22.png">.
 </p>
 
 <div align="center"><img src="images/HistogramDialog.png"></div>
 <br>
+
+<h4>Options Panel</h4>
+
+<p>
+    In the panel to the right you find several options to alter the outcome of the histogram.
+    Note that the histogram needs to be recomputed in order for changes to the option panel to take effect.
+</p>
+
+<ul>
+
+    <li><b>Refresh View <img src="images/icons/ViewRefresh22.png"></b><br>
+        Causes the histogram to be (re-)computed.
+        The button is only enabled when a computation is expected to lead to a different histogram than the one on display.
+    </li>
+
+    <li><b>Collapse/Expand Options Panel <img src="images/icons/PanelRight12.png" border="1" > / <img src="images/icons/PanelLeft12.png" border="1"></b><br>
+        Collapses or expands the options panel.
+    </li>
+
+    <li><b>ROI Mask</b><br>
+        A ROI mask may be used to mask out values. All values which do not match the mask are not taken
+        into account. For convenience, the mask manager may be openened from the histogram window using the
+        <img src="images/icons/MaskManager24.png">-button.<br>
+        For creating a ROI mask from the histogram, see 'Select Mask 'histogram_plot_area'' from the context menu.
+    </li>
+
+    <li><b>Bins</b><br>
+        The number of bins can be explicitly set.
+        The bins will be evenly distributed in the defined value range.
+    </li>
+
+    <li><b>Log10 scaled values</b><br>
+        When this option is enabled, not the band values themselves but their common logarithms will be considered during
+        the computation.
+        This option will be disabled when the band contains no positive values.
+    </li>
+
+    <li><b>Auto min/max</b><br>
+        When enabled, the minimum and maximum band value to be considered during the computation of the histogram are
+        determined automatically.
+        When disabled, you can set these values yourself.
+    </li>
+
+    <li><b>Log10 scaled</b><br>
+        Causes the x-axis to be log10-scaled.
+        No new histogram will be computed.
+        This option will be disabled when the band contains at least one negative value or when the displayed histogram was
+        created with log10 scaled values.
+    </li>
+
+    <li><b>Zoom all <img src="images/icons/View-Fullscreen22.png"></b><br>
+        Adjusts both axes to the full data range.
+        You can also use the 'Auto range' entry in the context menu.
+    </li>
+
+    <li><b>Edit Properties <img src="images/icons/Edit24.gif"></b><br>
+        Edit several properties (colors, axes, etc.) of the diagram.
+        You can also use the 'Properties...' entry in the context menu.
+    </li>
+
+    <li><b>Save chart as image <img src="images/icons/Export24.gif"></b><br>
+        Save the diagram as image (PNG).
+        You can also use the 'Save as...' entry in the context menu.
+    </li>
+
+    <li><b>Print chart <img src="images/icons/Print24.gif"></b><br>
+        Print the diagram.
+        You can also use the 'Print...' entry in the context menu.
+    </li>
+
+    <li><b>Help <img src="images/icons/Help22.png"></b><br>
+        Displays this page.
+    </li>
+
+</ul>
 
 <h4>Context Menu</h4>
 
@@ -54,6 +129,9 @@
     <li><b>Properties...</b><br>
         Edit several properties (colors, axes, etc.) of the diagram.<br>
         You can also use the <img src="images/icons/Edit24.gif"> on the right 'Plot' panel.
+    </li>
+    <li><b>Copy</b><br>
+        Copies the diagram as image into the clipboard.<br>
     </li>
     <li><b>Save As...</b><br>
         Save the diagram as image (PNG). <br>
@@ -65,16 +143,17 @@
     </li>
     <li><b>Zoom In</b><br>
         <ul>
-            <li>Both Axes - Zoom in on both axes.<br>
-        You can also use the <img src="images/icons/ZoomIn24.gif"> on the right 'Plot' panel.</li>
+            <li>Both Axes - Zoom in on both axes.<br></li>
+            You can also zoom in by drawing a rectangle. Click at the top left corner of your desired zooming area,
+            drag to the bottom right corner, and release. Note that this won't work when
+            'Select Mask 'histogram_plot_area'' is selected.
             <li>Domain Axes - Zoom in only on the domain axis.</li>
             <li>Range Axes - Zoom in only on the range axis.</li>
         </ul>
     </li>
     <li><b>Zoom Out</b><br>
         <ul>
-            <li>Both Axes - Zoom out on both axes.<br>
-        You can also use the <img src="images/icons/ZoomOut24.gif"> on the right 'Plot' panel.</li>
+            <li>Both Axes - Zoom out on both axes.<br></li>
             <li>Domain Axes - Zoom out only on the domain axis.</li>
             <li>Range Axes - Zoom out only on the range axis.</li>
         </ul>
@@ -82,10 +161,19 @@
     <li><b>Auto Range</b><br>
         <ul>
             <li>Both Axes - Adjusts both axes to the full data range.<br>
-        You can also use the <img src="images/icons/ZoomAll24.gif"> on the right 'Plot' panel.</li>
+                You can also use the <img src="images/icons/View-Fullscreen22.png"> on the right 'Plot' panel.</li>
             <li>Domain Axes - Adjusts the domain axis to the full data range.</li>
             <li>Range Axes - Adjusts the range axis to the full data range.</li>
         </ul>
+    </li>
+    <li><b>Select Mask 'histogram_plot_area'</b><br>
+        Allows you to create a mask from the histogram.
+        After selecting the menu entry, you can choose a horizontal range in the histogram by clicking at one end of
+        the range, dragging the mouse to the other end, and releasing.
+        The mask will be selected immediately.
+    </li>
+    <li><b>Delete Mask 'histogram_plot_area'</b><br>
+        Removes the mask 'histogram_plot_area' (in case you have created it before).
     </li>
     <li><b>Copy Data to Clipboard</b><br>
         This will copy the diagram data as tabulated text to the system clipboard.
