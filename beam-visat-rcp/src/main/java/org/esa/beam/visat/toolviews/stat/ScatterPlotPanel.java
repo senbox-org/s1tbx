@@ -640,6 +640,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                     double sum = 0;
                     double sumSqr = 0;
                     int n = 0;
+                    boolean valid = false;
 
                     for (int y = 0; y < imageRect.height; y++) {
                         for (int x = 0; x < imageRect.width; x++) {
@@ -649,8 +650,13 @@ class ScatterPlotPanel extends ChartPagePanel {
                                 sum += rasterValue;
                                 sumSqr += rasterValue * rasterValue;
                                 n++;
+                                valid = true;
                             }
                         }
+                    }
+
+                    if (!valid) {
+                        continue;
                     }
 
                     double rasterMean = sum / n;
@@ -776,18 +782,24 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     private XYIntervalSeries computeRegressionData(double xStart, double xEnd) {
-        final double[] coefficients = Regression.getOLSRegression(scatterpointsDataset, 0);
-        final Function2D curve = new LineFunction2D(coefficients[0], coefficients[1]);
-        final XYSeries regressionData = DatasetUtilities.sampleFunction2DToSeries(
-                curve, xStart, xEnd, 100, "regression line");
-        final XYIntervalSeries xyIntervalRegression = new XYIntervalSeries(regressionData.getKey());
-        final List<XYDataItem> regressionDataItems = regressionData.getItems();
-        for (XYDataItem item : regressionDataItems) {
-            final double x = item.getXValue();
-            final double y = item.getYValue();
-            xyIntervalRegression.add(x, x, x, y, y, y);
+        if (scatterpointsDataset.getItemCount(0) > 1) {
+            final double[] coefficients = Regression.getOLSRegression(scatterpointsDataset, 0);
+            final Function2D curve = new LineFunction2D(coefficients[0], coefficients[1]);
+            final XYSeries regressionData = DatasetUtilities.sampleFunction2DToSeries(
+                    curve, xStart, xEnd, 100, "regression line");
+            final XYIntervalSeries xyIntervalRegression = new XYIntervalSeries(regressionData.getKey());
+            final List<XYDataItem> regressionDataItems = regressionData.getItems();
+            for (XYDataItem item : regressionDataItems) {
+                final double x = item.getXValue();
+                final double y = item.getYValue();
+                xyIntervalRegression.add(x, x, x, y, y, y);
+            }
+            return xyIntervalRegression;
+        } else {
+            JOptionPane.showMessageDialog(this, "Unable to compute regression line.\n" +
+                    "At least 2 values are needed to compute regression coefficients.");
+            return null;
         }
-        return xyIntervalRegression;
     }
 
     private void computeCoefficientOfDetermination() {
