@@ -95,6 +95,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -615,10 +617,10 @@ class ScatterPlotPanel extends ChartPagePanel {
                     if (!sceneRect.contains(imagePos)) {
                         continue;
                     }
-                    final int imageX = (int) imagePos.getX();
-                    final int imageY = (int) imagePos.getY();
-                    final Rectangle imageRect = sceneRect.intersection(new Rectangle(imageX - boxSize / 2,
-                                                                                     imageY - boxSize / 2,
+                    final float imagePosX = (float) imagePos.getX();
+                    final float imagePosY = (float) imagePos.getY();
+                    final Rectangle imageRect = sceneRect.intersection(new Rectangle(((int) imagePosX) - boxSize / 2,
+                                                                                     ((int) imagePosY) - boxSize / 2,
                                                                                      boxSize, boxSize));
                     if (imageRect.isEmpty()) {
                         continue;
@@ -664,15 +666,18 @@ class ScatterPlotPanel extends ChartPagePanel {
 
                     String localName = dataField.getLocalName();
                     Number attribute = (Number) feature.getAttribute(localName);
+
+                    final Collection<org.opengis.feature.Property> featureProperties = feature.getProperties();
+
                     final float correlativeData = attribute.floatValue();
                     final GeoPos geoPos = new GeoPos();
                     if (geoCoding.canGetGeoPos()) {
-                        final PixelPos pixelPos = new PixelPos((float) imagePos.getX(), (float) imagePos.getY());
+                        final PixelPos pixelPos = new PixelPos(imagePosX, imagePosY);
                         geoCoding.getGeoPos(pixelPos, geoPos);
                     } else {
                         geoPos.setInvalid();
                     }
-                    computedDataList.add(new ComputedData(imageX, imageY, geoPos.getLat(), geoPos.getLon(), (float) rasterMean, (float) rasterSigma, correlativeData));
+                    computedDataList.add(new ComputedData(imagePosX, imagePosY, geoPos.getLat(), geoPos.getLon(), (float) rasterMean, (float) rasterSigma, correlativeData, featureProperties));
                 }
 
                 return computedDataList.toArray(new ComputedData[computedDataList.size()]);
@@ -896,8 +901,9 @@ class ScatterPlotPanel extends ChartPagePanel {
         final float rasterMean;
         final float rasterSigma;
         final float correlativeData;
+        final Collection<org.opengis.feature.Property> featureProperties;
 
-        ComputedData(float x, float y, float lat, float lon, float rasterMean, float rasterSigma, float correlativeData) {
+        ComputedData(float x, float y, float lat, float lon, float rasterMean, float rasterSigma, float correlativeData, Collection<org.opengis.feature.Property> featureProperties) {
             this.x = x;
             this.y = y;
             this.lat = lat;
@@ -905,6 +911,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             this.rasterMean = rasterMean;
             this.rasterSigma = rasterSigma;
             this.correlativeData = correlativeData;
+            this.featureProperties = featureProperties;
         }
     }
 }

@@ -2,33 +2,55 @@ package org.esa.beam.visat.toolviews.stat;
 
 import org.esa.beam.framework.ui.io.CsvEncoder;
 import org.esa.beam.framework.ui.io.TableModelCsvEncoder;
+import org.opengis.feature.Property;
 
+import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import javax.swing.table.AbstractTableModel;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Sabine Embacher
  */
 public class ScatterPlotTableModel extends AbstractTableModel implements CsvEncoder {
 
-    private final String[] colNames;
+    private final List<String> colNames;
+    private final Map<Integer, Integer> propertyIndices;
     private final ScatterPlotPanel.ComputedData[] computedDatas;
 
     public ScatterPlotTableModel(String rasterName, String correlativDataName, ScatterPlotPanel.ComputedData[] computedDatas) {
 
-        colNames = new String[]{
-                "pixel_no",
-                "pixel_x",
-                "pixel_y",
-                "latitude",
-                "longitude",
-                rasterName + "_mean",
-                rasterName + "_sigma",
-                correlativDataName};
-
         this.computedDatas = computedDatas;
+        colNames = new ArrayList<String>();
+        colNames.add("pixel_no");
+        colNames.add("pixel_x");
+        colNames.add("pixel_y");
+        colNames.add("latitude");
+        colNames.add("longitude");
+        colNames.add(rasterName + "_mean");
+        colNames.add(rasterName + "_sigma");
+        colNames.add(correlativDataName);
+
+        final int colStart = 8;
+        propertyIndices = new HashMap<Integer, Integer>();
+
+        int validPropertyCount = 0;
+        final Collection<Property> props = computedDatas[0].featureProperties;
+        final Property[] properties = props.toArray(new Property[props.size()]);
+        for (int i = 0; i < properties.length; i++) {
+            final String name = properties[i].getName().toString();
+            if (!correlativDataName.equals(name)) {
+                colNames.add(name);
+                propertyIndices.put(colStart + validPropertyCount, i);
+                validPropertyCount++;
+            }
+        }
     }
 
     @Override
@@ -43,12 +65,12 @@ public class ScatterPlotTableModel extends AbstractTableModel implements CsvEnco
 
     @Override
     public int getColumnCount() {
-        return colNames.length;
+        return colNames.size();
     }
 
     @Override
     public String getColumnName(int column) {
-        return colNames[column];
+        return colNames.get(column);
     }
 
     @Override
@@ -69,6 +91,11 @@ public class ScatterPlotTableModel extends AbstractTableModel implements CsvEnco
             return computedDatas[rowIndex].rasterSigma;
         } else if (columnIndex == 7) {
             return computedDatas[rowIndex].correlativeData;
+        } else if (columnIndex < getColumnCount()) {
+            final Collection<Property> propColl = computedDatas[rowIndex].featureProperties;
+            final Property[] properties = propColl.toArray(new Property[propColl.size()]);
+            final Integer propertyIndex = propertyIndices.get(columnIndex);
+            return properties[propertyIndex].getValue();
         }
         return null;
     }

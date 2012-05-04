@@ -89,7 +89,7 @@ public class TableViewPagePanel extends PagePanel {
             while (columns.hasMoreElements()) {
                 TableColumn tableColumn = columns.nextElement();
                 final int width = getColumnMinWith(tableColumn, renderer, margin);
-                tableColumn.setPreferredWidth(width);
+                tableColumn.setMinWidth(width);
             }
         }
     }
