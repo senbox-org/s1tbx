@@ -28,6 +28,7 @@
                     <tocitem text="ALOS/PRISM" target="importPrismProduct"/>
                     <tocitem text="BEAM-DIMAP" target="importDimapProduct"/>
                     <tocitem text="CHRIS" target="importChrisProduct"/>
+                    <tocitem text="CSV" target="importCsvProduct"/>
                     <tocitem text="ENVISAT" target="importEnvisatProduct"/>
                     <tocitem text="ERS1/2" target="importErsProduct"/>
                     <tocitem text="GETASSE30 Tile" target="importGETASSE30"/>
