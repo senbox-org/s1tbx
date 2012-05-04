@@ -119,7 +119,7 @@ public class TransectProfileData {
             int n = 0;
             for (int y = 0; y < box.height; y++) {
                 for (int x = 0; x < box.width; x++) {
-                    final int index = y * box.height + x;
+                    final int index = y * box.width + x;
                     if (config.raster.isPixelValid(box.x + x, box.y + y)
                         && (maskBuffer == null || maskBuffer[index] != 0)) {
                         final float v = sampleBuffer[index];
