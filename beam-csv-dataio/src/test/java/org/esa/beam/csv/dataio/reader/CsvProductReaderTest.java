@@ -46,12 +46,36 @@ public class CsvProductReaderTest {
     }
 
     @Test
-    public void testReadProductNodes() throws Exception {
-        final Product product = readTestProduct();
+    public void testRead_QuadraticProduct() throws Exception {
+        final Product product = readTestProduct("simple_format_4_features.txt");
+
+        assertNotNull(product);
+        assertEquals(2, product.getSceneRasterWidth());
+        assertEquals(2, product.getSceneRasterHeight());
+        testBands(product);
+    }
+
+    @Test
+    public void testRead_QuadraticProduct_2() throws Exception {
+        final Product product = readTestProduct("simple_format_8_features.txt");
+
+        assertNotNull(product);
+        assertEquals(3, product.getSceneRasterWidth());
+        assertEquals(3, product.getSceneRasterHeight());
+        testBands(product);
+    }
+
+    @Test
+    public void testRead_ProductWithGivenWidth() throws Exception {
+        final Product product = readTestProduct("simple_format_sceneRasterWidth.txt");
 
         assertNotNull(product);
         assertEquals(4, product.getSceneRasterWidth());
-        assertEquals(1, product.getSceneRasterHeight());
+        assertEquals(2, product.getSceneRasterHeight());
+        testBands(product);
+    }
+
+    private void testBands(Product product) {
         final Band[] bands = product.getBands();
         assertEquals(4, bands.length);
         assertEquals("lat", bands[0].getName());
@@ -67,15 +91,19 @@ public class CsvProductReaderTest {
 
     @Test
     public void testReadBandRasterData() throws Exception {
-        final Product product = readTestProduct();
+        final Product product = readTestProduct("simple_format_example.txt");
+
+        assertEquals(3, product.getSceneRasterWidth());
+        assertEquals(2, product.getSceneRasterHeight());
+
         final Band radiance1 = product.getBand("radiance_1");
         final Band radiance2 = product.getBand("radiance_2");
 
         final Raster radiance1Data = radiance1.getSourceImage().getData();
         final Raster radiance2Data = radiance2.getSourceImage().getData();
 
-        assertEquals(4, radiance1Data.getDataBuffer().getSize());
-        assertEquals(4, radiance2Data.getDataBuffer().getSize());
+        assertEquals(6, radiance1Data.getDataBuffer().getSize());
+        assertEquals(6, radiance2Data.getDataBuffer().getSize());
 
         assertEquals(Float.NaN, radiance1Data.getSampleFloat(0, 0, 0), 1.0E-6);
         assertEquals(13.4f, radiance2Data.getSampleFloat(0, 0, 0), 1.0E-6);
@@ -85,10 +113,19 @@ public class CsvProductReaderTest {
 
         assertEquals(10.5f, radiance1Data.getSampleFloat(2, 0, 0), 1.0E-6);
         assertEquals(10.6f, radiance2Data.getSampleFloat(2, 0, 0), 1.0E-6);
+
+        assertEquals(11.5f, radiance1Data.getSampleFloat(0, 1, 0), 1.0E-6);
+        assertEquals(11.6f, radiance2Data.getSampleFloat(0, 1, 0), 1.0E-6);
+
+        assertEquals(Float.NaN, radiance1Data.getSampleFloat(1, 1, 0), 1.0E-6);
+        assertEquals(Float.NaN, radiance2Data.getSampleFloat(1, 1, 0), 1.0E-6);
+
+        assertEquals(Float.NaN, radiance1Data.getSampleFloat(2, 1, 0), 1.0E-6);
+        assertEquals(Float.NaN, radiance2Data.getSampleFloat(2, 1, 0), 1.0E-6);
     }
 
-    private Product readTestProduct() throws IOException {
-        return reader.readProductNodes(getClass().getResource("simple_format_example.txt").getFile(), null);
+    private Product readTestProduct(String name) throws IOException {
+        return reader.readProductNodes(getClass().getResource(name).getFile(), null);
     }
 
     @Test
@@ -109,11 +146,24 @@ public class CsvProductReaderTest {
         assertEquals(ProductData.TYPE_INT8, ((CsvProductReader)reader).getProductDataType(Byte.class));
     }
 
+    @Test
+    public void testIsSquareNumber() throws Exception {
+        assertTrue(CsvProductReader.isSquareNumber(1));
+        assertTrue(CsvProductReader.isSquareNumber(4));
+        assertTrue(CsvProductReader.isSquareNumber(9));
+        assertTrue(CsvProductReader.isSquareNumber(16));
+        assertFalse(CsvProductReader.isSquareNumber(2));
+        assertFalse(CsvProductReader.isSquareNumber(3));
+        assertFalse(CsvProductReader.isSquareNumber(5));
+        assertFalse(CsvProductReader.isSquareNumber(10));
+        assertFalse(CsvProductReader.isSquareNumber(11));
+    }
+
     // Metadata support not yet implemented, therefore test is ignored
     @Test
     @Ignore
     public void testReadMetaData() throws Exception {
-        final Product product = readTestProduct();
+        final Product product = readTestProduct("simple_format_example.txt");
         final MetadataElement[] metadataElements = product.getMetadataRoot().getElements();
         final MetadataElement propertyElement = metadataElements[0];
         final MetadataElement recordElement = metadataElements[1];

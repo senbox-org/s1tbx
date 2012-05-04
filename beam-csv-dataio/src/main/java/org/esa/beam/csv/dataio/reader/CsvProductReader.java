@@ -17,14 +17,14 @@
 package org.esa.beam.csv.dataio.reader;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.csv.dataio.CsvFile;
+import org.esa.beam.csv.dataio.CsvSource;
+import org.esa.beam.csv.dataio.CsvSourceParser;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.csv.dataio.CsvFile;
-import org.esa.beam.csv.dataio.CsvSource;
-import org.esa.beam.csv.dataio.CsvSourceParser;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -34,12 +34,14 @@ import java.text.MessageFormat;
 import java.util.logging.Level;
 
 /**
- * The CsvProductReader is able to read a CSV file into a product.
+ * The CsvProductReader is able to read a CSV file as a product.
  *
  * @author Olaf Danne
  * @author Thomas Storm
  */
 public class CsvProductReader extends AbstractProductReader {
+
+    private static final String PROPERTY_NAME_SCENE_RASTER_WIDTH = "sceneRasterWidth";
 
     private CsvSource source;
     private CsvSourceParser parser;
@@ -66,9 +68,27 @@ public class CsvProductReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
         parser = CsvFile.createCsvSourceParser(getInput().toString());
         source = parser.parseMetadata();
-        final int sceneRasterWidth = source.getRecordCount();
+        String sceneRasterWidthProperty = source.getProperties().get(PROPERTY_NAME_SCENE_RASTER_WIDTH);
+        final int sceneRasterWidth;
+        final int sceneRasterHeight;
+        int recordCount = source.getRecordCount();
+        if (sceneRasterWidthProperty != null) {
+            sceneRasterWidth = Integer.parseInt(sceneRasterWidthProperty);
+            sceneRasterHeight = recordCount % sceneRasterWidth == 0 ? recordCount / sceneRasterWidth :
+                                recordCount / sceneRasterWidth + 1;
+        } else {
+            if (isSquareNumber(recordCount)) {
+                sceneRasterWidth = (int) Math.sqrt(recordCount);
+            } else {
+                sceneRasterWidth = (int) Math.sqrt(recordCount) + 1;
+            }
+            //noinspection SuspiciousNameCombination
+            sceneRasterHeight = sceneRasterWidth;
+        }
+
         // todo - get name and type from properties, if existing
-        final Product product = new Product(getInput().toString(), "CSV", sceneRasterWidth, 1);
+
+        final Product product = new Product(getInput().toString(), "CSV", sceneRasterWidth, sceneRasterHeight);
         for (AttributeDescriptor descriptor : source.getFeatureType().getAttributeDescriptors()) {
             if (isAccessibleBandType(descriptor.getType().getBinding())) {
                 int type = getProductDataType(descriptor.getType().getBinding());
@@ -88,10 +108,10 @@ public class CsvProductReader extends AbstractProductReader {
                                           ProgressMonitor pm) throws IOException {
         BeamLogManager.getSystemLogger().log(Level.FINEST, MessageFormat.format(
                 "reading band data (" + destBand.getName() + ") from {0} to {1}",
-                sourceOffsetX, sourceOffsetX + destWidth - 1));
-        pm.beginTask("reading band data...", destWidth);
+                sourceOffsetX + sourceOffsetY, sourceOffsetX + destWidth - 1));
+        pm.beginTask("reading band data...", destWidth * destHeight);
         synchronized (parser) {
-            parser.parseRecords(sourceOffsetX, destWidth);
+            parser.parseRecords(sourceOffsetX + sourceOffsetY, destWidth * destHeight);
         }
         final SimpleFeature[] simpleFeatures = source.getSimpleFeatures();
         final Object[] elems = new Object[simpleFeatures.length];
@@ -108,15 +128,25 @@ public class CsvProductReader extends AbstractProductReader {
     void getProductData(Object[] elems, ProductData destBuffer) {
         switch (destBuffer.getType()) {
             case ProductData.TYPE_FLOAT32: {
-                for (int i = 0; i < elems.length; i++) {
-                    final Object elem = elems[i];
+                for (int i = 0; i < destBuffer.getNumElems(); i++) {
+                    final Object elem;
+                    if (i < elems.length) {
+                        elem = elems[i];
+                    } else {
+                        elem = Float.NaN;
+                    }
                     destBuffer.setElemFloatAt(i, (Float) elem);
                 }
                 break;
             }
             case ProductData.TYPE_FLOAT64: {
-                for (int i = 0; i < elems.length; i++) {
-                    final Object elem = elems[i];
+                for (int i = 0; i < destBuffer.getNumElems(); i++) {
+                    final Object elem;
+                    if (i < elems.length) {
+                        elem = elems[i];
+                    } else {
+                        elem = Double.NaN;
+                    }
                     destBuffer.setElemDoubleAt(i, (Double) elem);
                 }
                 break;
@@ -168,12 +198,17 @@ public class CsvProductReader extends AbstractProductReader {
         throw new IllegalArgumentException("Unsupported type '" + type + "'.");
     }
 
+    static boolean isSquareNumber(int number) {
+        int temp = (int) Math.sqrt(number);
+        return temp * temp == number;
+    }
+
     private boolean isAccessibleBandType(Class<?> type) {
         final String className = type.getSimpleName().toLowerCase();
         return className.equals("float") ||
-                className.equals("double") ||
-                className.equals("byte") ||
-                className.equals("short") ||
-                className.equals("integer");
+               className.equals("double") ||
+               className.equals("byte") ||
+               className.equals("short") ||
+               className.equals("integer");
     }
 }
