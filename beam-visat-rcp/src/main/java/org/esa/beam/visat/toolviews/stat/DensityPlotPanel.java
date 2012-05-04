@@ -37,6 +37,7 @@ import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.ui.RectangleInsets;
 
 import javax.swing.DefaultListCellRenderer;
@@ -223,6 +224,14 @@ class DensityPlotPanel extends ChartPagePanel {
     private void createUI() {
         plot = new XYImagePlot();
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
+        NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        domainAxis.setAutoRangeIncludesZero(false);
+        rangeAxis.setAutoRangeIncludesZero(false);
+        domainAxis.setUpperMargin(0);
+        domainAxis.setLowerMargin(0);
+        rangeAxis.setUpperMargin(0);
+        rangeAxis.setLowerMargin(0);
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.getRenderer().setBaseToolTipGenerator(new XYPlotToolTipGenerator());
         JFreeChart chart = new JFreeChart(CHART_TITLE, plot);
