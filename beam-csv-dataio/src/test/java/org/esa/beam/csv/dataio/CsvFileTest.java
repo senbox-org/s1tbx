@@ -44,10 +44,11 @@ public class CsvFileTest {
         final CsvSource source = parser.parseMetadata();
         final Map<String,String> properties = source.getProperties();
         assertNotNull(properties);
-        assertEquals(4, properties.size());
+        assertEquals(5, properties.size());
         assertEquals("POLYGON(0.0, 1.0, 1.1)", properties.get("geometry1"));
         assertEquals("POLYGON(2.0, 1.0, 1.1)", properties.get("geometry2"));
         assertEquals(",", properties.get("separator"));
+        assertEquals("3", properties.get("sceneRasterWidth"));
     }
 
     @Test(expected = IOException.class)
