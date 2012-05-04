@@ -120,10 +120,15 @@ public class VectorDataNodeReader {
     }
 
     VectorDataNode read(CoordinateReferenceSystem modelCrs, ProgressMonitor pm) throws IOException {
+        String nodeName = FileUtils.getFilenameWithoutExtension(sourceName);
+        pm.beginTask("Reading vector data node '" + nodeName + "'", 100);
         reader.mark(1024 * 1024 * 10);
         readProperties();
+        pm.worked(5);
         interpretationStrategy = createInterpretationStrategy();
+        pm.worked(5);
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures();
+        pm.worked(45);
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection;
         if (product.getGeoCoding() != null) {
@@ -134,7 +139,7 @@ public class VectorDataNodeReader {
                                                             product.getGeoCoding().getGeoCRS(),
                                                             null,
                                                             modelCrs,
-                                                            SubProgressMonitor.create(pm, 80));
+                                                            SubProgressMonitor.create(pm, 45));
         } else {
             clippedCollection = featureCollection;
         }
@@ -151,7 +156,7 @@ public class VectorDataNodeReader {
             clippedCollection = convertPointsToVertices(clippedCollection);
         }
 
-        VectorDataNode vectorDataNode = new VectorDataNode(FileUtils.getFilenameWithoutExtension(sourceName), clippedCollection, placemarkDescriptor);
+        VectorDataNode vectorDataNode = new VectorDataNode(nodeName, clippedCollection, placemarkDescriptor);
         if (properties.containsKey(ProductNode.PROPERTY_NAME_DESCRIPTION)) {
             featureType.getUserData().put(ProductNode.PROPERTY_NAME_DESCRIPTION, properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
             vectorDataNode.setDescription(properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
@@ -161,6 +166,7 @@ public class VectorDataNodeReader {
             vectorDataNode.setDefaultStyleCss(properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
         }
 
+        pm.done();
         return vectorDataNode;
     }
 
