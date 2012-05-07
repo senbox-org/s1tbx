@@ -37,30 +37,37 @@
 <h3>Histogram Display</h3>
 
 <p>
-    This dialog allows for the display of a histogram for the selected band.<br>
-    The value range is evenly divided into bins.
-    The histogram shows how many pixels of the image fall into each of the bins.<br>
-    It is computed when you hit <img src="images/icons/ViewRefresh22.png">.
+    This dialog displays a histogram for the selected band. See Screenshot 1 for an example.
 </p>
 
-<div align="center"><img src="images/HistogramDialog.png"></div>
-<br>
+<div class="image">
+    <img src="images/HistogramDialog.png">
+
+    <div align="center"><font size="2">Screenshot 1 - The Histogram Dialog</font></div>
+</div>
+
+<p>
+    The value range of the geophysical image data is evenly divided into bins. The histogram shows how many pixels of
+    the image fall into each of the bins.
+</p>
 
 <h4>Options Panel</h4>
 
 <p>
-    In the panel to the right you find several options to alter the outcome of the histogram.
-    Note that the histogram needs to be recomputed in order for changes to the option panel to take effect.
+    In the panel to the right there are several configuration options. Note that the histogram needs to be recomputed
+    in order for configuration changes to take effect.
 </p>
 
 <ul>
 
     <li><b>Refresh View <img src="images/icons/ViewRefresh22.png"></b><br>
         Causes the histogram to be (re-)computed.
-        The button is only enabled when a computation is expected to lead to a different histogram than the one on display.
+        The button is only enabled when a computation is expected to lead to a different histogram than the one on
+        display.
     </li>
 
-    <li><b>Collapse/Expand Options Panel <img src="images/icons/PanelRight12.png" border="1" > / <img src="images/icons/PanelLeft12.png" border="1"></b><br>
+    <li><b>Collapse/Expand Options Panel <img src="images/icons/PanelRight12.png" border="1"> / <img
+            src="images/icons/PanelLeft12.png" border="1"></b><br>
         Collapses or expands the options panel.
     </li>
 
@@ -77,42 +84,40 @@
     </li>
 
     <li><b>Log10 scaled values</b><br>
-        When this option is enabled, not the band values themselves but their common logarithms will be considered during
-        the computation.
+        When this option is enabled, not the band values themselves but their common logarithms will be considered
+        during the computation.<br/>
         This option will be disabled when the band contains no positive values.
     </li>
 
     <li><b>Auto min/max</b><br>
         When enabled, the minimum and maximum band value to be considered during the computation of the histogram are
-        determined automatically.
-        When disabled, you can set these values yourself.
+        determined automatically.<br/>
+        When disabled, the user may set these values.
     </li>
 
     <li><b>Log10 scaled</b><br>
-        Causes the x-axis to be log10-scaled.
-        No new histogram will be computed.
-        This option will be disabled when the band contains at least one negative value or when the displayed histogram was
-        created with log10 scaled values.
+        Causes the x-axis of the current histogram to be log10-scaled. This option will be disabled when the band
+        contains at least one negative value or when the displayed histogram was created with log10 scaled values.
     </li>
 
     <li><b>Zoom all <img src="images/icons/View-Fullscreen22.png"></b><br>
         Adjusts both axes to the full data range.
-        You can also use the 'Auto range' entry in the context menu.
+        The 'Auto range' entry in the context menu can also be used (see below).
     </li>
 
     <li><b>Edit Properties <img src="images/icons/Edit24.gif"></b><br>
         Edit several properties (colors, axes, etc.) of the diagram.
-        You can also use the 'Properties...' entry in the context menu.
+        he 'Properties...' entry in the context menu can also be used (see below).
     </li>
 
     <li><b>Save chart as image <img src="images/icons/Export24.gif"></b><br>
         Save the diagram as image (PNG).
-        You can also use the 'Save as...' entry in the context menu.
+        The 'Save as...' entry in the context menu can also be used (see below).
     </li>
 
     <li><b>Print chart <img src="images/icons/Print24.gif"></b><br>
         Print the diagram.
-        You can also use the 'Print...' entry in the context menu.
+        The 'Print...' entry in the context menu can also be used (see below).
     </li>
 
     <li><b>Help <img src="images/icons/Help22.png"></b><br>
@@ -123,29 +128,29 @@
 
 <h4>Context Menu</h4>
 
-<p>A click with the right mouse button on the diagram brings up a context menu
-    which consists of the following menu items:</p>
+<p>A click with the right mouse button on the diagram opens a context menu
+    comprising the following menu items:</p>
 <ul>
     <li><b>Properties...</b><br>
         Edit several properties (colors, axes, etc.) of the diagram.<br>
-        You can also use the <img src="images/icons/Edit24.gif"> on the right 'Plot' panel.
+        The <img src="images/icons/Edit24.gif"> on the right 'Plot' panel can also be used.
     </li>
     <li><b>Copy</b><br>
         Copies the diagram as image into the clipboard.<br>
     </li>
     <li><b>Save As...</b><br>
         Save the diagram as image (PNG). <br>
-        You can also use the <img src="images/icons/Export24.gif"> on the right 'Plot' panel.
+        The <img src="images/icons/Export24.gif"> on the right 'Plot' panel can also be used.
     </li>
     <li><b>Print...</b><br>
         Print the diagram.<br>
-        You can also use the <img src="images/icons/Print24.gif"> on the right 'Plot' panel.
+        The <img src="images/icons/Print24.gif"> on the right 'Plot' panel can also be used.
     </li>
     <li><b>Zoom In</b><br>
         <ul>
             <li>Both Axes - Zoom in on both axes.<br></li>
-            You can also zoom in by drawing a rectangle. Click at the top left corner of your desired zooming area,
-            drag to the bottom right corner, and release. Note that this won't work when
+            Zooming can also be achieved by drawing a rectangle by clicking at the top left corner of the desired
+            zooming area, dragging the mouse to the bottom right corner, and releasing. Note that this won't work when
             'Select Mask 'histogram_plot_area'' is selected.
             <li>Domain Axes - Zoom in only on the domain axis.</li>
             <li>Range Axes - Zoom in only on the range axis.</li>
@@ -161,19 +166,20 @@
     <li><b>Auto Range</b><br>
         <ul>
             <li>Both Axes - Adjusts both axes to the full data range.<br>
-                You can also use the <img src="images/icons/View-Fullscreen22.png"> on the right 'Plot' panel.</li>
+                The <img src="images/icons/View-Fullscreen22.png"> on the right 'Plot' panel can also be used.
+            </li>
             <li>Domain Axes - Adjusts the domain axis to the full data range.</li>
             <li>Range Axes - Adjusts the range axis to the full data range.</li>
         </ul>
     </li>
     <li><b>Select Mask 'histogram_plot_area'</b><br>
-        Allows you to create a mask from the histogram.
-        After selecting the menu entry, you can choose a horizontal range in the histogram by clicking at one end of
+        Allows the user to create a mask from the histogram.
+        After selecting the menu entry, a horizontal range in the histogram can be chosen by clicking at one end of
         the range, dragging the mouse to the other end, and releasing.
         The mask will be selected immediately.
     </li>
     <li><b>Delete Mask 'histogram_plot_area'</b><br>
-        Removes the mask 'histogram_plot_area' (in case you have created it before).
+        Removes the mask 'histogram_plot_area' (in case it has been created before).
     </li>
     <li><b>Copy Data to Clipboard</b><br>
         This will copy the diagram data as tabulated text to the system clipboard.
