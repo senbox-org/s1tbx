@@ -26,29 +26,49 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Statistics</td>
-        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a></td>
+            Statistics
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a></td>
     </tr>
 </table>
 
 <h3>Statistics Display</h3>
 
-<p>Displays statistical information about the band.
-   You can either choose to compute the statistics for a whole band, for a single ROI ot
-    to iterate over all ROIs.
+<p>The statistics dialog, opened via <img src="images/icons/Statistics24.gif">, displays statistical information about the currently
+    selected band. See Screenshot 1 for an example.
 </p>
 
-<p class="inote"><b>Note:</b> A mouse right-click within the statistics data area
+<blockquote>
+    <img src="images/StatisticsDialog.png">
+
+    <div align="center"><font size="2">Screenshot 1 - The 'Statistics' tool window</font></div>
+</blockquote>
+
+The set of statistical information displayed comprises:
+<ul>
+    <li>the total number of pixels</li>
+    <li>the minimum/maximum geophysical value</li>
+    <li>the mean geophysical value and its standard deviation (sigma)</li>
+    <li>the median geophysical value</li>
+    <li>several percentile thresholds</li>
+</ul>
+
+<p>
+    Additionally, two diagrams are displayed: the left one is a histogram, the right one shows the thresholds for all
+    percentiles.<br>
+    The statistics can be computed for a whole band, or the considered pixels can be restricted to those matching a
+    single or multiple ROI masks. The list of masks can be narrowed down by typing a pattern into the text field. For
+    convenience, there is also the <img src="images/icons/MaskManager24.png">-icon which allows the user to open the
+    <a href="MaskManagement.html">mask manager tool window.</a>
+</p>
+
+<p class="inote"><b>Note:</b> A mouse right-click within the statistics tables
     brings up a context menu with the item <i>Copy data to clipboard</i>.
     This will copy the diagram data as tabulated text to the system clipboard.
     The copied text can then be pasted directly into a spreadsheet application
-    (e.g. Microsoft&reg; Excel).</p>
-
-
-<blockquote>
-    <img src="images/StatisticsDialogMultiRoi.png">
-</blockquote>
-
+    (e.g. Microsoft&reg; Excel).
+</p>
 
 <hr>
 </body>
