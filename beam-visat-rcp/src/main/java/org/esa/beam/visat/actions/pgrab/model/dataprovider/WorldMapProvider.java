@@ -174,7 +174,7 @@ public class WorldMapProvider implements DataProvider {
     public TableColumn getTableColumn() {
         if (worldMapColumn == null) {
             worldMapColumn = new TableColumn();
-            worldMapColumn.setHeaderValue("Location");      /*I18N*/
+            worldMapColumn.setHeaderValue("Geo-Location");      /*I18N*/
             worldMapColumn.setPreferredWidth(250);
             worldMapColumn.setCellRenderer(new WorldMapCellRenderer(250));
             worldMapColumn.setCellEditor(new WorldMapCellEditor());
@@ -319,7 +319,7 @@ public class WorldMapProvider implements DataProvider {
                 if (value == null) {
                     cellComponent.setText("");
                 } else {
-                    cellComponent.setText("Location not available!");
+                    cellComponent.setText("Geo-location not available!");
                 }
             }
 
