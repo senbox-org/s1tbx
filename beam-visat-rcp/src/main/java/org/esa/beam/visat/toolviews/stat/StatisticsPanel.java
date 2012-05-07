@@ -342,7 +342,6 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         statPanel.add(new JLabel(getSubPanelTitle(mask)), BorderLayout.NORTH);
         statPanel.add(textContainerPanel, BorderLayout.WEST);
         statPanel.add(plotContainerPanel, BorderLayout.CENTER);
-        // statPanel.addMouseListener(popupHandler);
 
         return statPanel;
     }
