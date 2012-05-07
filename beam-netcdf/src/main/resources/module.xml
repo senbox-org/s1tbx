@@ -121,6 +121,7 @@
             <description>Writes a product in NetCDF/BEAM format</description>
             <helpId>exportNetCdfProduct</helpId>
         </action>
+        <!--
         <action>
             <id>exportNetCdf4BEAMProduct</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
@@ -130,7 +131,7 @@
             <description>Writes a product in NetCDF-4/BEAM format</description>
             <helpId>exportNetCdf4Product</helpId>
         </action>
-
+        -->
     </extension>
 
 </module>

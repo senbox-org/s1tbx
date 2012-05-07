@@ -44,16 +44,14 @@
 
 <div class="image">
     <img src="images/ProfilePlotDialog.png" alt="profile_plot">
-
-    <div align="center"><font size="2">Screenshot 1 - The Profile Plot Dialog for a geometric shape</font></div>
 </div>
 
 <p>
-    Screenshot 1 displays how the profile plot works for geometries: the values on the x-axis are given by the path
+    The screenshot above displays how the profile plot works for geometries: the values on the x-axis are given by the path
     length,
     that is, for a path containing 300 pixels there are 300 x-values. The domain axis is determined by the currently
     selected band. The plot displays the value of the currently selected band along the bounds of a geometry; in case of
-    Screenshot 1, the values of <i>algal_2</i> along a transect are displayed.
+    the screenshot, the values of <i>algal_2</i> along a transect are displayed.
 </p>
 
 <h5>Standard deviation</h5>
@@ -69,7 +67,7 @@
 <p>
     The profile plot can be run in a mode that allows the user to map the current position within the band image to the
     position within the plot. This mode is entered when the user clicks into the plot, and left when the user clicks
-    into the tool window, but somewhere outside the plot. In Screenshot 1, the current position within the image is at
+    into the tool window, but somewhere outside the plot. In the upper screenshot, the current position within the image is at
     pixel #178 of the transect, where the value of <i>algal_2</i> is 3.519.
 </p>
 
@@ -78,12 +76,10 @@
 
 <div class="image">
     <img src="images/ProfilePlotDialog_correlative.png" alt="profile_plot">
-
-    <div align="center"><font size="2">Screenshot 2 - The Profile Plot Dialog, correlative mode</font></div>
 </div>
 
 <p>
-    Screenshot 2 displays the other features the profile plot offers. Note that there are some different tunings of the
+    The screenshot displays the other features the profile plot offers. Note that there are some different tunings of the
     dialog: Most importantly, correlative data is being used. Additionally a ROI mask is being used, no in-between
     points are computed, and segments are marked. These features are described below separately.
 </p>
@@ -94,16 +90,16 @@
     Using correlative data means that vector data may be displayed within the plot in order to make satellite data
     comparable to external data. When the option is chosen, some vector data source may be chosen from the 'Point data
     source'  dropdown list, and if it contains numerical data, the source for the numerical data may be chosen from the
-    'Data field' dropdown list. After that, two plots are displayed in the chart: the first one (in Screenshot 2, it's
+    'Data field' dropdown list. After that, two plots are displayed in the chart: the first one (in the lower screenshot, it's
     the blue one) displays the values of the selected band at each pixel given by the vector data, while the second one
-    (Screenshot 2: the red one) displays the values of the selected data field.<br/>
+    (screenshot: the red one) displays the values of the selected data field.<br/>
 </p>
 
 <h5>ROI mask</h5>
 
 <p>
     A ROI mask may be used to mask out values from the profile. All values which do not match the mask are not taken
-    into account. In the example of Screenshot 2, only pixels that match the mask <i>water</i> are considered. For
+    into account. In the example of the lower screenshot, only pixels that match the mask <i>water</i> are considered. For
     convenience, the mask manager may be openened from the profile plot window using the
     <img src="images/icons/MaskManager24.png">-button.
 </p>
@@ -112,7 +108,7 @@
 
 <p>
     When the checkbox 'Compute in-between points' is marked, the points the satellite data plot contains are connected.
-    For each pixel of the geometry the value appears in the plot if the checkbox is marked, and only the
+    For each pixel of the geometry the value appears in the plot if the checkbox is marked, whereas only the
     end-points of the geometry are considered if the checkbox is not marked.<br/>
     Note that now the standard deviation is no more painted as blue shade around the plot line but as error bars around
     the points in the plot.<br/>
@@ -123,7 +119,7 @@
 
 <p>
     When the checkbox 'Mark segments' is active, the different segments in which the considered geometry can be
-    decomposed are marked by shades in the background of the plot. See Screenshot 2 for an example.
+    decomposed are marked by shades in the background of the plot. See the lower screenshot for an example.
 </p>
 
 <h5>Table view</h5>

@@ -96,7 +96,6 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -139,7 +138,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     private final AxisRangeControl xAxisRangeControl;
     private final AxisRangeControl yAxisRangeControl;
     private final XYIntervalSeriesCollection scatterpointsDataset;
-    private final XYIntervalSeriesCollection confidenceDataset;
+    private final XYIntervalSeriesCollection acceptableDeviationDataset;
     private final XYIntervalSeriesCollection regressionDataset;
 
     private final JFreeChart chart;
@@ -161,7 +160,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         scatterPlotModel = new ScatterPlotModel();
         bindingContext = new BindingContext(PropertyContainer.createObjectBacked(scatterPlotModel));
         scatterpointsDataset = new XYIntervalSeriesCollection();
-        confidenceDataset = new XYIntervalSeriesCollection();
+        acceptableDeviationDataset = new XYIntervalSeriesCollection();
         regressionDataset = new XYIntervalSeriesCollection();
         r2Annotation = new XYTitleAnnotation(0, 0, new TextTitle(""));
         chart = ChartFactory.createScatterPlot(CHART_TITLE, "", "", scatterpointsDataset, PlotOrientation.VERTICAL, true, true, false);
@@ -269,7 +268,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         final PropertyChangeListener computeLineDataListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                computeRegressionAndConfidenceData();
+                computeRegressionAndAcceptableDeviationData();
             }
         };
         bindingContext.addPropertyChangeListener(PROPERTY_NAME_SHOW_ACCEPTABLE_DEVIATION, computeLineDataListener);
@@ -345,7 +344,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         final XYPlot plot = getPlot();
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setNoDataMessage(NO_DATA_MESSAGE);
-        plot.setDataset(CONFIDENCE_DSINDEX, confidenceDataset);
+        plot.setDataset(CONFIDENCE_DSINDEX, acceptableDeviationDataset);
         plot.setDataset(REGRESSION_DSINDEX, regressionDataset);
         plot.setDataset(SCATTERPOINTS_DSINDEX, scatterpointsDataset);
 
@@ -404,7 +403,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             @Override
             public void axisChanged(AxisChangeEvent event) {
                 if (!computingData) {
-                    computeRegressionAndConfidenceData();
+                    computeRegressionAndAcceptableDeviationData();
                 }
             }
         };
@@ -428,14 +427,14 @@ class ScatterPlotPanel extends ChartPagePanel {
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
                                                                                          scatterPlotDisplay,
-                                                                                         "scatter_plot_area",
+                                                                                         "correlative_plot_area",
                                                                                          "Mask generated from selected correlative plot area",
                                                                                          Color.RED,
-                                                                                         PlotAreaSelectionTool.AreaType.X_RANGE) {
+                                                                                         PlotAreaSelectionTool.AreaType.Y_RANGE) {
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, Shape shape) {
                 Rectangle2D bounds = shape.getBounds2D();
-                return createMaskExpression(bounds.getMinX(), bounds.getMaxX());
+                return createMaskExpression(bounds.getMinY(), bounds.getMaxY());
             }
 
             protected String createMaskExpression(double x1, double x2) {
@@ -548,13 +547,13 @@ class ScatterPlotPanel extends ChartPagePanel {
     private void finishScalingUpdate(AxisRangeControl axisRangeControl, ValueAxis newAxis, ValueAxis oldAxis) {
         if (axisRangeControl.isAutoMinMax()) {
             newAxis.setAutoRange(false);
-            confidenceDataset.removeAllSeries();
+            acceptableDeviationDataset.removeAllSeries();
             regressionDataset.removeAllSeries();
             getPlot().removeAnnotation(r2Annotation);
             newAxis.setAutoRange(true);
             axisRangeControl.adjustComponents(newAxis, 3);
             newAxis.setAutoRange(false);
-            computeRegressionAndConfidenceData();
+            computeRegressionAndAcceptableDeviationData();
         } else {
             newAxis.setAutoRange(false);
             newAxis.setRange(oldAxis.getRange());
@@ -577,7 +576,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
         } else {
             scatterpointsDataset.removeAllSeries();
-            confidenceDataset.removeAllSeries();
+            acceptableDeviationDataset.removeAllSeries();
             regressionDataset.removeAllSeries();
             getPlot().removeAnnotation(r2Annotation);
             computedDatas = null;
@@ -693,7 +692,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                     yAxis.setAutoRange(false);
 
                     scatterpointsDataset.removeAllSeries();
-                    confidenceDataset.removeAllSeries();
+                    acceptableDeviationDataset.removeAllSeries();
                     regressionDataset.removeAllSeries();
                     getPlot().removeAnnotation(r2Annotation);
                     computedDatas = null;
@@ -738,7 +737,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                         yAxisRangeControl.adjustAxis(yAxis, 3);
                     }
 
-                    computeRegressionAndConfidenceData();
+                    computeRegressionAndAcceptableDeviationData();
                     computingData = false;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -770,15 +769,15 @@ class ScatterPlotPanel extends ChartPagePanel {
         swingWorker.execute();
     }
 
-    private void computeRegressionAndConfidenceData() {
-        confidenceDataset.removeAllSeries();
+    private void computeRegressionAndAcceptableDeviationData() {
+        acceptableDeviationDataset.removeAllSeries();
         regressionDataset.removeAllSeries();
         getPlot().removeAnnotation(r2Annotation);
         if (computedDatas != null) {
             final ValueAxis domainAxis = getPlot().getDomainAxis();
             final double min = domainAxis.getLowerBound();
             final double max = domainAxis.getUpperBound();
-            confidenceDataset.addSeries(computeConfidenceData(min, max));
+            acceptableDeviationDataset.addSeries(computeAcceptableDeviationData(min, max));
             if (scatterPlotModel.showRegressionLine) {
                 regressionDataset.addSeries(computeRegressionData(min, max));
                 computeCoefficientOfDetermination();
@@ -854,7 +853,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         getPlot().addAnnotation(r2Annotation);
     }
 
-    private XYIntervalSeries computeConfidenceData(double lowerBound, double upperBound) {
+    private XYIntervalSeries computeAcceptableDeviationData(double lowerBound, double upperBound) {
         final Function2D identityFunction = new Function2D() {
             @Override
             public double getValue(double x) {
@@ -869,9 +868,9 @@ class ScatterPlotPanel extends ChartPagePanel {
             final double x = item.getXValue();
             final double y = item.getYValue();
             if (scatterPlotModel.showAcceptableDeviation) {
-                final double confidenceInterval = scatterPlotModel.acceptableDeviationInterval;
-                final double xOff = confidenceInterval * x / 100;
-                final double yOff = confidenceInterval * y / 100;
+                final double acceptableDeviation = scatterPlotModel.acceptableDeviationInterval;
+                final double xOff = acceptableDeviation * x / 100;
+                final double yOff = acceptableDeviation * y / 100;
                 xyIntervalSeries.add(x, x - xOff, x + xOff, y, y - yOff, y + yOff);
             } else {
                 xyIntervalSeries.add(x, x, x, y, y, y);
@@ -880,17 +879,19 @@ class ScatterPlotPanel extends ChartPagePanel {
         return xyIntervalSeries;
     }
 
+    // The fields of this class are used by the binding framework
+    @SuppressWarnings("UnusedDeclaration")
     static class ScatterPlotModel {
-        private int boxSize = 1; // Don´t remove this field, it is be used via binding
-        private boolean useRoiMask; // Don´t remove this field, it is be used via binding
-        private Mask roiMask; // Don´t remove this field, it is be used via binding
-        private VectorDataNode pointDataSource; // Don´t remove this field, it is be used via binding
-        private AttributeDescriptor dataField; // Don´t remove this field, it is be used via binding
-        private boolean xAxisLogScaled; // Don´t remove this field, it is be used via binding
-        private boolean yAxisLogScaled; // Don´t remove this field, it is be used via binding
-        private boolean showAcceptableDeviation; // Don´t remove this field, it is be used via binding
-        private double acceptableDeviationInterval = 15; // Don´t remove this field, it is be used via binding
-        public boolean showRegressionLine; // Don´t remove this field, it is be used via binding
+        private int boxSize = 1;
+        private boolean useRoiMask;
+        private Mask roiMask;
+        private VectorDataNode pointDataSource;
+        private AttributeDescriptor dataField;
+        private boolean xAxisLogScaled;
+        private boolean yAxisLogScaled;
+        private boolean showAcceptableDeviation;
+        private double acceptableDeviationInterval = 15;
+        public boolean showRegressionLine;
     }
 
     static class ComputedData {
