@@ -18,6 +18,7 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
@@ -132,21 +133,24 @@ class DensityPlotPanel extends ChartPagePanel {
     @Override
     protected void updateComponents() {
         super.updateComponents();
-        plot.setImage(null);
-        plot.setDataset(null);
-        final ValueSet valueSet = new ValueSet(createAvailableBandList());
-        xBandProperty.getDescriptor().setValueSet(valueSet);
-        yBandProperty.getDescriptor().setValueSet(valueSet);
-        if(valueSet.getItems().length > 0){
-            try{
-                xBandProperty.setValue(valueSet.getItems()[0]);
-                yBandProperty.setValue(valueSet.getItems()[0]);
-            } catch (Exception e){
-                e.printStackTrace();
+        if (isRasterChanged()) {
+            plot.setImage(null);
+            plot.setDataset(null);
+            final ValueSet valueSet = new ValueSet(createAvailableBandList());
+            xBandProperty.getDescriptor().setValueSet(valueSet);
+            yBandProperty.getDescriptor().setValueSet(valueSet);
+            toggleColorCheckBox.setEnabled(false);
+            if (valueSet.getItems().length > 0) {
+                RasterDataNode currentRaster = getRaster();
+                try {
+                    xBandProperty.setValue(currentRaster);
+                    yBandProperty.setValue(currentRaster);
+                } catch (ValidationException ignored) {
+                    Debug.trace(ignored);
+                }
             }
+            refreshButton.setEnabled(xBandProperty.getValue() != null && yBandProperty.getValue() != null);
         }
-        toggleColorCheckBox.setEnabled(false);
-        refreshButton.setEnabled(xBandProperty.getValue()!=null && yBandProperty.getValue()!=null);
     }
 
     private void initParameters() {
