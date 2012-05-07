@@ -75,7 +75,7 @@ public interface ProcessorConstants {
     String LOG_MSG_PROC_ABORTED = "Processing aborted.";
     String LOG_MSG_PROC_CANCELED = "Processing canceled by user.";
     String LOG_MSG_PROC_SUCCESS = "... processing successful";
-    String LOG_MSG_PROC_ERROR = "An error occured during processing: ";
+    String LOG_MSG_PROC_ERROR = "An error occurred during processing: ";
 
     String LOG_MSG_START_REQUEST = "STARTING REQUEST ...";
     String LOG_MSG_FINISHED_REQUEST = "... FINISHED";

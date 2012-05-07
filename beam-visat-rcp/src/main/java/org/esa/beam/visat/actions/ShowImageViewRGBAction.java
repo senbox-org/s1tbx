@@ -142,7 +142,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
         final VisatApp visatApp = VisatApp.getApp();
         UIUtils.setRootFrameWaitCursor(visatApp.getMainFrame());
         RGBBand[] rgbBands = null;
-        boolean errorOccured = false;
+        boolean errorOccurred = false;
         ProductSceneImage productSceneImage = null;
         try {
             pm.beginTask("Creating RGB image...", 2);
@@ -155,12 +155,12 @@ public class ShowImageViewRGBAction extends ExecCommand {
             productSceneImage.initVectorDataCollectionLayer();
             productSceneImage.initMaskCollectionLayer();
         } catch (Exception e) {
-            errorOccured = true;
+            errorOccurred = true;
             throw e;
         } finally {
             pm.done();
             if (rgbBands != null) {
-                releaseRgbBands(rgbBands, errorOccured);
+                releaseRgbBands(rgbBands, errorOccurred);
             }
         }
         return productSceneImage;
@@ -184,7 +184,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
         return rgbBands;
     }
 
-    private static void releaseRgbBands(RGBBand[] rgbBands, boolean errorOccured) {
+    private static void releaseRgbBands(RGBBand[] rgbBands, boolean errorOccurred) {
         for (int i = 0; i < rgbBands.length; i++) {
             final RGBBand rgbBand = rgbBands[i];
             if (rgbBand != null && rgbBand.band != null) {
@@ -192,7 +192,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
                     if (rgbBand.dataLoaded) {
                         rgbBand.band.unloadRasterData();
                     }
-                    if (errorOccured) {
+                    if (errorOccurred) {
                         rgbBand.band.dispose();
                     }
                 }

@@ -26,7 +26,7 @@ import java.util.EventListener;
 
 
 /**
- * A listener which is listening for events occuring in a <code>ProductTree</code>.
+ * A listener which is listening for events occurring in a <code>ProductTree</code>.
  *
  * @author Norman Fomferra
  * @author Sabine Embacher

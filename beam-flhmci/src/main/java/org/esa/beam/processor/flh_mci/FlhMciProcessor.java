@@ -143,7 +143,7 @@ public final class FlhMciProcessor extends Processor {
         } catch (IOException e) {
             _logger.severe(e.getMessage());
             setCurrentStatus(ProcessorConstants.STATUS_FAILED);
-            throw new ProcessorException("An I/O error occured:\n" + e.getMessage(), e);
+            throw new ProcessorException("An I/O error occurred:\n" + e.getMessage(), e);
         } finally {
             pm.done();
         }

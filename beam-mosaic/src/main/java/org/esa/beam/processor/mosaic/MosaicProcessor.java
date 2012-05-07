@@ -186,7 +186,7 @@ public class MosaicProcessor extends Processor {
             try {
                 getProductWriter().deleteOutput(); // product writer already exists
             } catch (IOException e1) {
-                _logger.severe("I/O error occured while deleting the output product: " + e1.getMessage()); /*I18N*/
+                _logger.severe("I/O error occurred while deleting the output product: " + e1.getMessage()); /*I18N*/
                 msgBuffer.append(e1.getMessage());
             }
         }
@@ -806,7 +806,7 @@ public class MosaicProcessor extends Processor {
                 updateData(boundingRectangles, pm);
             } catch (IOException e) {
                 _logger.severe(
-                        "An I/O error occured while reading data from input product '" + _currentInputProduct.getName() + "'"); /*I18N*/
+                        "An I/O error occurred while reading data from input product '" + _currentInputProduct.getName() + "'"); /*I18N*/
                 _logger.info("Continuing with next input product"); /*I18N*/
                 return false;
             }
@@ -1276,7 +1276,7 @@ public class MosaicProcessor extends Processor {
             }
             setOutputProduct(product);
         } catch (IOException e) {
-            throw new ProcessorException("An I/O error occured while opening output product\n" + /*I18N*/
+            throw new ProcessorException("An I/O error occurred while opening output product\n" + /*I18N*/
                                                  "'" + outputProductPath + "'\n" + e.getMessage());
         }
     }

@@ -48,7 +48,7 @@ public interface ProcessorStatusListener {
     void handleProcessingAborted(ProcessorStatusEvent event);
 
     /**
-     * Called if a processing error occured.
+     * Called if a processing error occurred.
      *
      * @param event the processor event
      */

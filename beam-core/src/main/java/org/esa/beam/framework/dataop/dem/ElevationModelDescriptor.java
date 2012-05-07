@@ -107,7 +107,7 @@ public interface ElevationModelDescriptor {
      * Asynchronously installs the files required to use the DEM if not already done or in progress.
      *
      * @param uiComponent an optional UI component which serves as parent for progress monitoring
-     * @return true, if the DEM is already installed, is being installed or will be installed. False, if an error occured
+     * @return true, if the DEM is already installed, is being installed or will be installed. False, if an error occurred
      *         or the user canceled the installation
      */
     boolean installDemFiles(Object uiComponent);

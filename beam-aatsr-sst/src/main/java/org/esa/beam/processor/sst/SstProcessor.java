@@ -170,7 +170,7 @@ public class SstProcessor extends Processor {
             closeProducts();
         } catch (IOException e) {
             _logger.severe(e.getMessage());
-            throw new ProcessorException("An I/O error occured:\n" + e.getMessage(), e);
+            throw new ProcessorException("An I/O error occurred:\n" + e.getMessage(), e);
         }
         _logger.info(SstConstants.LOG_MSG_FINISHED_REQUEST);
     }
@@ -601,7 +601,7 @@ public class SstProcessor extends Processor {
                 setUpNadirCoeffStructures();
             }
         } catch (IOException e) {
-            throw new ProcessorException("An I/O error occured:\n" + e.getMessage(), e);
+            throw new ProcessorException("An I/O error occurred:\n" + e.getMessage(), e);
         }
     }
 

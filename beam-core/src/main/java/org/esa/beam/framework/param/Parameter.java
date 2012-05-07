@@ -161,7 +161,7 @@ public class Parameter {
      * Sets the given value as text. The method first validates the given value before sets it to this parameter's
      * value.
      * <p/>
-     * <p>Any <code>ParamValidateException</code> occuring while performing the validation are delegated to the given
+     * <p>Any <code>ParamValidateException</code> occurring while performing the validation are delegated to the given
      * exception handler (if any).
      *
      * @param newValue the new value to be set
@@ -285,7 +285,7 @@ public class Parameter {
      * <p>The method first parses the given text then validates the resulting object and finally sets this parameter to
      * the validated object.
      * <p/>
-     * <p>Any <code>ParamParseException</code> or <code>ParamValidateException</code> occuring during parsing and
+     * <p>Any <code>ParamParseException</code> or <code>ParamValidateException</code> occurring during parsing and
      * validation are delegated to the given exception handler (if any).
      *
      * @param textValue the text value to be parsed, validated and set

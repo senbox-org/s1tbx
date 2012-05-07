@@ -20,8 +20,9 @@ import com.bc.io.FileUnpacker;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.logging.BeamLogManager;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -117,7 +118,7 @@ class ElevationModelInstaller extends SwingWorker {
                 JOptionPane.showMessageDialog(_parent,
                                               "Failed to install DEM '" + _descriptor.getName() + "' in directory\n" +
                                                       _descriptor.getDemInstallDir() + "\n" +
-                                                      "An unknown error occured.\n",
+                                                      "An unknown error occurred.\n",
                                               "DEM Installation Error",
                                               JOptionPane.ERROR_MESSAGE);
             }
@@ -125,7 +126,7 @@ class ElevationModelInstaller extends SwingWorker {
             JOptionPane.showMessageDialog(_parent,
                                           "Failed to install DEM '" + _descriptor.getName() + "' in directory\n" +
                                                   _descriptor.getDemInstallDir() + "\n" +
-                                                  "An I/O error occured:\n"
+                                                  "An I/O error occurred:\n"
                                                   + _ioException.getMessage(),
                                           "DEM Installation Error",
                                           JOptionPane.ERROR_MESSAGE);

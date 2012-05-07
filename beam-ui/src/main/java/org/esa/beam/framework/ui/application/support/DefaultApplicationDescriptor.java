@@ -150,7 +150,7 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
      *
      * @param config The configuration data.
      * @throws com.bc.ceres.core.CoreException
-     *          if an error occured during configuration.
+     *          if an error occurred during configuration.
      */
     public void configure(ConfigurationElement config) throws CoreException {
 

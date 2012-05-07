@@ -27,7 +27,7 @@ package org.esa.beam.framework.ui;
 public interface ExceptionHandler {
 
     /**
-     * Notifies a client if an exeption occured on a <code>ProductTree</code>.
+     * Notifies a client if an exeption occurred on a <code>ProductTree</code>.
      *
      * @param e the exception
      *

@@ -963,7 +963,7 @@ public abstract class L3UI extends AbstractProcessorUI {
             }
         } catch (IOException e) {
             getApp().showErrorDialog("Unable to open the product to validate the request.\n" +
-                                     "An I/O exception occured while trying to\n" +
+                                     "An I/O exception occurred while trying to\n" +
                                      "open the product for request validation.");
             return false;
         }

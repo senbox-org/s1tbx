@@ -120,7 +120,7 @@ public class PropertyFileParameterPage extends ParameterPage {
      *
      * @param request the request to obtain the parameters
      *
-     * @throws ProcessorException if an error occured
+     * @throws ProcessorException if an error occurred
      */
     @Override
     public void setUIFromRequest(final Request request) throws ProcessorException {
@@ -132,7 +132,7 @@ public class PropertyFileParameterPage extends ParameterPage {
      *
      * @param request the request to fill
      *
-     * @throws ProcessorException if an error occured
+     * @throws ProcessorException if an error occurred
      */
     @Override
     public void initRequestFromUI(final Request request) throws ProcessorException {

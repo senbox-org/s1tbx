@@ -127,7 +127,7 @@ public abstract class ParameterPage {
      *
      * @param request the request to fill
      *
-     * @throws ProcessorException if an error occured
+     * @throws ProcessorException if an error occurred
      */
     public abstract void initRequestFromUI(Request request) throws ProcessorException;
 
@@ -136,7 +136,7 @@ public abstract class ParameterPage {
      *
      * @param request the request to obtain the parameters
      *
-     * @throws ProcessorException if an error occured
+     * @throws ProcessorException if an error occurred
      */
     public abstract void setUIFromRequest(Request request) throws ProcessorException;
 }

@@ -115,7 +115,7 @@ public class ProductNodeEvent extends EventObject {
     }
 
     /**
-     * @return A reference to the group on which a {@link #NODE_ADDED} or {@link #NODE_REMOVED} event occured. May be null.
+     * @return A reference to the group on which a {@link #NODE_ADDED} or {@link #NODE_REMOVED} event occurred. May be null.
      */
     public ProductNodeGroup getGroup() {
         return nodeGroup;

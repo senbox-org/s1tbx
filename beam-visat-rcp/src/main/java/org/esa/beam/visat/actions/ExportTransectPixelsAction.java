@@ -109,7 +109,7 @@ public class ExportTransectPixelsAction extends ExecCommand {
                     .build();
         } catch (IOException e) {
             VisatApp.getApp().showErrorDialog(DLG_TITLE,
-                                              ERR_MSG_BASE + "An I/O error occured:\n" + e.getMessage());   /*I18N*/
+                                              ERR_MSG_BASE + "An I/O error occurred:\n" + e.getMessage());   /*I18N*/
             return;
         }
 

@@ -34,7 +34,7 @@ public class UtilConstantsTest extends TestCase {
         assertEquals("Object is null.", UtilConstants.MSG_OBJECT_NULL);
         assertEquals("String is null or empty.", UtilConstants.MSG_STRING_NULL_OR_EMPTY);
 
-        assertEquals("An exception occured: ", UtilConstants.MSG_EXCEPTION_OCCURRED);
+        assertEquals("An exception occurred: ", UtilConstants.MSG_EXCEPTION_OCCURRED);
 
         assertEquals("Method not implemented: ", UtilConstants.MSG_METHOD_NOT_IMPLEMENTED);
 

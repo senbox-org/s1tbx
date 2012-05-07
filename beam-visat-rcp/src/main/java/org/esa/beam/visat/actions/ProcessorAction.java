@@ -329,7 +329,7 @@ public class ProcessorAction extends ExecCommand {
                     readExceptionMsg.append("For some reason the output product\n"); /*I18N*/
                     readExceptionMsg.append("  ").append(productFile.getPath());
                     readExceptionMsg.append("\ncould not be read.\n");
-                    readExceptionMsg.append("The following exception occured:\n");
+                    readExceptionMsg.append("The following exception occurred:\n");
                     readExceptionMsg.append(e.getMessage()).append("\n");
                     readExceptionMsg.append("Please use ");
                     readExceptionMsg.append(VisatApp.getApp().getAppName());
@@ -349,7 +349,7 @@ public class ProcessorAction extends ExecCommand {
         }
 
         /**
-         * Called if a processing error occured.
+         * Called if a processing error occurred.
          *
          * @param event processor event
          */

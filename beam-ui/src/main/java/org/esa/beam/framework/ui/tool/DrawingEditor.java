@@ -52,7 +52,7 @@ public interface DrawingEditor {
     AbstractTool getSelectTool();
 
     /**
-     * Called if a selection occured.
+     * Called if a selection occurred.
      *
      * @param rectangle The selection rectangle in view coordinates.
      */

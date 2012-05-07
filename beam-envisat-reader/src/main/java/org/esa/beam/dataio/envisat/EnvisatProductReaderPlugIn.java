@@ -16,9 +16,9 @@
 package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import javax.imageio.stream.ImageInputStream;
@@ -167,7 +167,7 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @param file the compressed file
      * @return the input stream
-     * @throws java.io.IOException if an I/O error occured
+     * @throws java.io.IOException if an I/O error occurred
      */
     static InputStream getInflaterInputStream(File file) throws IOException {
         if (file.getName().endsWith(".gz")) {

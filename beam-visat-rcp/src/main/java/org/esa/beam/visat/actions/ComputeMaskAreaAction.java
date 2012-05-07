@@ -281,11 +281,11 @@ public class ComputeMaskAreaAction extends ExecCommand {
                     showResults(areaStatistics);
                 }
             } catch (ExecutionException e) {
-                final String message = MessageFormat.format("An internal Error occured:\n{0}", e.getMessage());
+                final String message = MessageFormat.format("An internal Error occurred:\n{0}", e.getMessage());
                 VisatApp.getApp().showErrorDialog(DIALOG_TITLE, message);
                 Debug.trace(e);
             } catch (InterruptedException e) {
-                final String message = MessageFormat.format("An internal Error occured:\n{0}", e.getMessage());
+                final String message = MessageFormat.format("An internal Error occurred:\n{0}", e.getMessage());
                 VisatApp.getApp().showErrorDialog(DIALOG_TITLE, message);
                 Debug.trace(e);
             }

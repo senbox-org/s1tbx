@@ -15,9 +15,9 @@
  */
 package org.esa.beam.framework.processor;
 
-import java.util.EventObject;
-
 import org.esa.beam.util.Guardian;
+
+import java.util.EventObject;
 
 /**
  * <code>ProcessorStatusEvent</code>s occur if the status of a processor changes.
@@ -58,7 +58,7 @@ public class ProcessorStatusEvent extends EventObject {
     }
 
     /**
-     * Returns the processing request which was processed for the moment at which this event occured.
+     * Returns the processing request which was processed for the moment at which this event occurred.
      *
      * @return the request, or <code>null</code> if no request was processed while this event was generated
      */
@@ -81,7 +81,7 @@ public class ProcessorStatusEvent extends EventObject {
     }
 
     /**
-     * Returns the processor exception for the moment at which this event occured.
+     * Returns the processor exception for the moment at which this event occurred.
      *
      * @return the exception, or <code>null</code> if this event was not caused by an error
      */

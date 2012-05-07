@@ -26,7 +26,7 @@ package org.esa.beam.framework.param;
 public interface ParamExceptionHandler {
 
     /**
-     * Notifies a client if an exeption occured on a <code>Parameter</code>.
+     * Notifies a client if an exeption occurred on a <code>Parameter</code>.
      *
      * @param e the exception
      *

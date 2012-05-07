@@ -957,12 +957,12 @@ _____________________________________________________________________________
            no pins available in target product
        (1) "Assign ROI to multiple products" now transfers ROI shapes
            in pixel coordinates if the target product is spatial compatible.
-           This prevents from pixel shifts occuring during transformation
+           This prevents from pixel shifts occurring during transformation
            of the shape from the source product's to the target product's
            coordinate system.
 #58x - If processors are aborted by user request the message "The request
        has successfully been processed" came up.
-#48x - If output product is empty, IllegalArgumentException occured.
+#48x - If output product is empty, IllegalArgumentException occurred.
 #49x - If processors are aborted by user request, *.data and *.dim were not
        deleted.
 #685 - Map-projection parameters not in sync with ellipsoid of given datum
@@ -1409,7 +1409,7 @@ _____________________________________________________________________________
    iss #285: MERIS L2 yellow substance is from IODD 7.1 on log-scaled
    iss #290: The VISAT navigation window cropped left and right or top and bottom of
              its overview image depending on the aspect ratio of the source image.
-             The problem occured only with high-resolution source images such as
+             The problem occurred only with high-resolution source images such as
              images of MERIS and AATSR full orbit, MERIS FR, and ASAR products.
              However, this was a pure display problem and did not impact functionality
              or accuracy in any way.
@@ -1428,11 +1428,11 @@ _____________________________________________________________________________
    iss #288: Processor plug-ins now correctly take over the currently selected
              product from VISAT as default value for their input product
    iss #127: Console progress monitor of processors did not work anymore due to API changes
-   iss #155: In the L3 Binning Processor an unhandled exeption occured if run with
+   iss #155: In the L3 Binning Processor an unhandled exeption occurred if run with
              mixed up min. and max. latitude or longitude.
    iss #287  An error in the L3 binning algorithm calculates wrong results for MLE
              algorithm with a weight coefficient other than p=0.5.
-   iss #153: In the L3 Binning Processor an unhandled exeption occured if run with
+   iss #153: In the L3 Binning Processor an unhandled exeption occurred if run with
              an incorrect bitmask expression.
    iss #???: The L3 Initial Processor now checks for overwriting of an already
              existing bin database.
@@ -1691,7 +1691,7 @@ The important BEAM fixes are:
    For developers: Math.round was used instead of the correct of Math.floor method to identify
    the correct pixel index in the source product. Refer to implementation of method
    org.esa.beam.framework.dataio.ProductProjectionBuilder.readBandRasterData
-5) An ArrayIndexOutOfBounds occured when using the bitmask reading method
+5) An ArrayIndexOutOfBounds occurred when using the bitmask reading method
    with a boolean buffer not exactly matching the requested width and height to be read.
    This also happened when the buffer was bigger than the requested data size.
    For developers: bug has been fixed in org.esa.beam.framework.datamodel.Product.readBitmask
@@ -1889,7 +1889,7 @@ Version 2.1.1 is a pure service release which fixes some severe problems of
 version 2.1.0. The bug fixes are:
 
 1) Opening BEAM-DIMAP products which have been saved with VISAT versions prior
-   2.0 caused an internal error (NullPointerException). This problem occured
+   2.0 caused an internal error (NullPointerException). This problem occurred
    because the BEAM-DIMAP format slightly changed in order to support the
    new gamma values for RGM images.
 
@@ -2160,7 +2160,7 @@ Fixes
  10) Debug-messages are now correctly written to the log file if this option has been
      enabled in the preferences dialog
 
- 11) Open (BEAM-DIMAP) product:  Fixed a bug which occured if XML attribute values in
+ 11) Open (BEAM-DIMAP) product:  Fixed a bug which occurred if XML attribute values in
      the DIMAP header contained special characters. They are now correctly encoded
      using XML entities (&amp; &lt; &gt; ...)
 
@@ -2346,14 +2346,14 @@ VISAT Bug Fixes
     1) In the product subset dialog a null pointer exception occcured
        when the dialog was closed before the thumbnail was completely loaded.
 
-    2) Althoug a subset was selected, VISAT asked the user whether
+    2) Although a subset was selected, VISAT asked the user whether
        or not to build a subset, in cases where the total product size exceeded
        the (user-defined, see preferences dialog) maximum value.
 
     3) The BEAM-DIMAP product reader and writer have not considered a data product's
        description string.
 
-    4) A thread synchronizing problem has been solved which occured if a band was
+    4) A thread synchronizing problem has been solved which occurred if a band was
        double clicked while another one was already being loaded.
 
     5) The HDF-5 export failed if a product contained empty meta-data attributes.
@@ -2366,7 +2366,7 @@ VISAT Bug Fixes
     7) If the band arithmetic tool used
          o multiple input bands in an expression
          o and the bands originated from a map transformed product
-         o and the band's pixels were processed on-the-fly (without beeing entirely loaded)
+         o and the band's pixels were processed on-the-fly (without being entirely loaded)
        then all band's pixel values seemed to have then same value. Fixed.
 
     8) When the graticule lat/lon resolution
@@ -2936,7 +2936,7 @@ Changes in VISAT - FILE I/O
 
 2) The default directory for saving has been changed to the user home directory.
 
-3) A bug occuring during modification of the filename to be saved is fixed.
+3) A bug occurring during modification of the filename to be saved is fixed.
 
 4) The name of a product saved to BEAM-DIMAP format is now always the same as the
    filename (without the extension).

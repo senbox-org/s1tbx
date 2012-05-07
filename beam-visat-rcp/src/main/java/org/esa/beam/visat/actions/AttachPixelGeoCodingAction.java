@@ -31,8 +31,21 @@ import org.esa.beam.util.ArrayUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import java.awt.Dialog;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -128,10 +141,10 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
                 }
                 if (value instanceof IOException) {
                     visatApp.showErrorDialog(ATTACH_TITLE,
-                                             "An I/O error occured:\n" + ((IOException) value).getMessage());
+                                             "An I/O error occurred:\n" + ((IOException) value).getMessage());
                 } else if (value instanceof Throwable) {
                     visatApp.showErrorDialog(ATTACH_TITLE,
-                                             "An internal error occured:\n" + ((Throwable) value).getMessage());
+                                             "An internal error occurred:\n" + ((Throwable) value).getMessage());
                 } else {
                     visatApp.showInfoDialog(ATTACH_TITLE, "Pixel geo-coding has been attached.", null);
                 }

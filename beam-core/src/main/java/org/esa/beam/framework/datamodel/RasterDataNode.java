@@ -97,7 +97,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     @Deprecated
     public static final String NOT_LOADED_TEXT = "Not loaded"; /*I18N*/
     /**
-     * Text returned by the <code>{@link #getPixelString(int, int)}</code> method if an I/O error occured while pixel data was
+     * Text returned by the <code>{@link #getPixelString(int, int)}</code> method if an I/O error occurred while pixel data was
      * reloaded.
      */
     public static final String IO_ERROR_TEXT = "I/O error"; /*I18N*/

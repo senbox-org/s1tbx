@@ -26,7 +26,7 @@ public class UtilConstants {
     public static final String MSG_STRING_NULL_OR_EMPTY = "String is null or empty.";
 
     // Debug
-    public static final String MSG_EXCEPTION_OCCURRED = "An exception occured: ";
+    public static final String MSG_EXCEPTION_OCCURRED = "An exception occurred: ";
     public static final String MSG_METHOD_NOT_IMPLEMENTED = "Method not implemented: ";
 
     // HelpSys

@@ -25,7 +25,16 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamGroup;
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.processor.*;
+import org.esa.beam.framework.processor.Processor;
+import org.esa.beam.framework.processor.ProcessorConstants;
+import org.esa.beam.framework.processor.ProcessorException;
+import org.esa.beam.framework.processor.ProcessorUtils;
+import org.esa.beam.framework.processor.ProductRef;
+import org.esa.beam.framework.processor.Request;
+import org.esa.beam.framework.processor.RequestElementFactoryException;
+import org.esa.beam.framework.processor.RequestLoader;
+import org.esa.beam.framework.processor.RequestValidator;
+import org.esa.beam.framework.processor.RequestWriter;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.Debug;
@@ -35,8 +44,21 @@ import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingWorker;
+import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -335,7 +357,7 @@ public class ProcessorApp extends BasicApp {
     }
 
     /**
-     * Called if a processing error occured.
+     * Called if a processing error occurred.
      */
     public void processingFailed() {
         _logger.warning("The processing failed.");

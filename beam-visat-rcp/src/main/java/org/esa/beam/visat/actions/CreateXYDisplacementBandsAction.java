@@ -65,7 +65,7 @@ public class CreateXYDisplacementBandsAction extends ExecCommand {
                         product.addBand(bands[1]);
                     } catch (Exception e) {
                         VisatApp.getApp().showErrorDialog(DIALOG_TITLE,
-                                                          "An internal Error occured:\n" + e.getMessage());
+                                                          "An internal Error occurred:\n" + e.getMessage());
                         Debug.trace(e);
                     }
                 }

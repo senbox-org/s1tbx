@@ -22,18 +22,49 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.visat.actions.pgrab.model.*;
+import org.esa.beam.visat.actions.pgrab.model.ProductGrabberConfig;
+import org.esa.beam.visat.actions.pgrab.model.Repository;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryEntry;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryManager;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryManagerListener;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryScanner;
 import org.esa.beam.visat.actions.pgrab.model.dataprovider.ProductPropertiesProvider;
 import org.esa.beam.visat.actions.pgrab.model.dataprovider.QuicklookProvider;
 import org.esa.beam.visat.actions.pgrab.model.dataprovider.WorldMapProvider;
 import org.esa.beam.visat.actions.pgrab.util.Callback;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -707,7 +738,7 @@ public class ProductGrabber {
             try {
                 repositories = get();
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(mainPanel, "An internal Error occured:\n" + e.getMessage());
+                JOptionPane.showMessageDialog(mainPanel, "An internal error occurred:\n" + e.getMessage());
                 return;
             }
             if (repositories.length == 0) {

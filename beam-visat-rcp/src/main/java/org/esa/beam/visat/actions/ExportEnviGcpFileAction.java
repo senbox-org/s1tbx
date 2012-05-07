@@ -19,9 +19,9 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
@@ -118,7 +118,7 @@ public class ExportEnviGcpFileAction extends ExecCommand {
             writer = null;
         } catch (IOException e) {
             visatApp.showErrorDialog("Export ENVI Ground Control Points",
-                                     "An I/O error occured:\n" + e.getMessage());
+                                     "An I/O error occurred:\n" + e.getMessage());
         }
     }
 

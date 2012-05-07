@@ -21,12 +21,23 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.processor.ui.ProcessorUI;
-import org.esa.beam.util.*;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.ResourceInstaller;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 
-import javax.swing.*;
+import javax.swing.JFrame;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -100,7 +111,7 @@ public abstract class Processor {
     }
 
     /**
-     * Retrieves the warning messages that occured during processing (if any). This string is shown in the
+     * Retrieves the warning messages that occurred during processing (if any). This string is shown in the
      * application dialog popping up after the processor ended processing with warnings.
      * Override to perform processor specific warning messages.
      *

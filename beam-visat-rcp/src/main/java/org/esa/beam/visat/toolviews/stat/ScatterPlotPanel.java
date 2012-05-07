@@ -759,7 +759,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
-                                                          "An error occured:\n" +
+                                                          "An error occurred:\n" +
                                                           e.getCause().getMessage(),
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);

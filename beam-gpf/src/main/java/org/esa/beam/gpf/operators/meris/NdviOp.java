@@ -103,7 +103,7 @@ public class NdviOp extends Operator {
         ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
 
         targetProduct.addMask(NDVI_ARITHMETIC_FLAG_NAME, (NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME),
-                              "An arithmetic exception occured.",
+                              "An arithmetic exception occurred.",
                               Color.red.brighter(), 0.7);
         targetProduct.addMask(NDVI_LOW_FLAG_NAME, (NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME),
                               "NDVI value is too low.",

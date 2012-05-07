@@ -16,7 +16,7 @@
 
 package de.gkss.hs.datev2004;
 
-import Jama.*;
+import Jama.Matrix;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -167,7 +167,7 @@ public class DataSet {
 
 
     /**
-     * @return the groups occuring in this data set
+     * @return the groups occurring in this data set
      */
     public short[] groups() {
         //----------------------------------
