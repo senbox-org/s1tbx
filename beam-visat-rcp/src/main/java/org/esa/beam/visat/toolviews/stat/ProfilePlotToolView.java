@@ -26,6 +26,7 @@ import javax.swing.Icon;
 public class ProfilePlotToolView extends AbstractStatisticsToolView {
 
     public static final String ID = ProfilePlotToolView.class.getName();
+    public static final String tableHelpID = "coordinateListDialog";
 
     @Override
     protected PagePanel createPagePanel() {
@@ -33,7 +34,7 @@ public class ProfilePlotToolView extends AbstractStatisticsToolView {
         final String chartTitle = ProfilePlotPanel.CHART_TITLE;
         final Icon largeIcon = getDescriptor().getLargeIcon();
         final ProfilePlotPanel profilePlotPanel = new ProfilePlotPanel(this, helpId);
-        final TableViewPagePanel tableViewPagePanel = new TableViewPagePanel(this, helpId, chartTitle, largeIcon);
+        final TableViewPagePanel tableViewPagePanel = new TableViewPagePanel(this, tableHelpID, chartTitle, largeIcon);
         profilePlotPanel.setAlternativeView(tableViewPagePanel);
         tableViewPagePanel.setAlternativeView(profilePlotPanel);
         return profilePlotPanel;

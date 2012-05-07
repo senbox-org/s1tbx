@@ -26,6 +26,7 @@ import javax.swing.Icon;
 public class ScatterPlotToolView extends AbstractStatisticsToolView {
 
     public static final String ID = ScatterPlotToolView.class.getName();
+    public static final String tableHelpID = "coordinateListDialog";
 
     @Override
     protected PagePanel createPagePanel() {
@@ -33,7 +34,7 @@ public class ScatterPlotToolView extends AbstractStatisticsToolView {
         final Icon largeIcon = getDescriptor().getLargeIcon();
         final String chartTitle = ScatterPlotPanel.CHART_TITLE;
         final ScatterPlotPanel scatterPlotPanel = new ScatterPlotPanel(this, helpId);
-        final TableViewPagePanel tableViewPanel = new TableViewPagePanel(this, helpId, chartTitle, largeIcon);
+        final TableViewPagePanel tableViewPanel = new TableViewPagePanel(this, tableHelpID, chartTitle, largeIcon);
         scatterPlotPanel.setAlternativeView(tableViewPanel);
         tableViewPanel.setAlternativeView(scatterPlotPanel);
         return scatterPlotPanel;

@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>VISAT Help - Co-ordinate List</title>
+    <title>VISAT Help - Table View</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -25,30 +25,74 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Co-ordinate List</td>
+            Table View</td>
         
     <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0 ></a></td>
     </tr>
 </table>
 
-<h3>Co-ordinate List Display</h3>
+<h3>Table View</h3>
 
-<p>This option is available only, if a geometric shape has been defined in the current image view.
-    The co-ordinate list enumerates information not only for each vertex but for each pixel along the current
-    geometric shape (the transect profile in this case).<br/>
-    The current shape is the one currently selected of the active layer or, if non is selected, the first one created is
-    is used for the co-ordinate list.
+<p>
+    A table view can be accessed from the <a href="CorrelativePlotDialog.html">correlative plot</a> or the <a href="ProfilePlotDialog.html">profile plot</a>.
+    It refers to the vector data used to create the according plot and the selected band.<br>
+    You can switch back to the chart view by clicking the chart icon in the upper right.
+    The screenshot below shows the table view for a correlative plot.
 </p>
-
-<p class="inote"><b>Note:</b> A mouse right-click within the co-ordinate list area
-    brings up a context menu with the item <i>Copy data to clipboard</i>.
-    This will copy the diagram data as tabulated text to the system clipboard.
-    The copied text can then be pasted directly into a spreadsheet application
-    (e.g. Microsoft&reg; Excel).</p>
 
 <blockquote> <img src="images/CoordinateListDialog.png">
 </blockquote>
 
+<p>
+    The view enumerates information not only for each vertex but for each pixel along the vector data.
+    For the correlative plot, only those pixels which contain points are considered.
+    For the profile plot, also pixels between pixels containing vector points are considered (you can disable this
+    by deselecting 'Compute in-between points' in the chart view).
+    In detail, the view lists:
+</p>
+
+<ul>
+
+    <li>
+        The pixel index
+    </li>
+
+    <li>
+        The pixel coordinates
+    </li>
+
+    <li>
+       The geographic coordinates of the pixel centroids
+    </li>
+
+    <li>
+        The mean of the valid pixels' values within the box set in the chart view
+    </li>
+
+    <li>
+        The pixel sigma, which indicates the value deviation within the box set in the chart view
+    </li>
+
+    <li>
+        The selected data field of the correlative data (only if the plot uses correlative data and if the pixel
+        contains a vector point).
+    </li>
+
+    <li>
+        The pixel coordinates of the correlative data (only in the correlative plot)
+    </li>
+
+    <li>
+        The geographic coordinates of the correlative data (only in the correlative plot)
+    </li>
+
+</ul>
+
+<p>
+    A mouse right-click within the table brings up a context menu with the item <i>Copy data to clipboard</i>.
+    This will copy the diagram data as tabulated text to the system clipboard.
+    The copied text can then be pasted directly into a spreadsheet application (e.g. Microsoft&reg; Excel).
+</p>
 
 <hr>
 </body>

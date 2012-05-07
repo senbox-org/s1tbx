@@ -90,7 +90,7 @@
                 <tocitem text="Band Scatter Plot" target="densityPlotDialog"/>
                 <tocitem text="Correlative Plot" target="correlativePlotDialog"/>
                 <tocitem text="Band Transect Profile Plot" target="profilePlotDialog"/>
-                <tocitem text="Band Transect Co-ordinate List" target="coordinateListDialog"/>
+                <tocitem text="Table View" target="coordinateListDialog"/>
                 <tocitem text="Compute Mask Area" target="computeMaskArea"/>
             </tocitem>
 
