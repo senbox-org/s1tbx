@@ -25,13 +25,23 @@ import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.StandardChartTheme;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractButton;
+import javax.swing.ImageIcon;
+import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.ScrollPaneConstants;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import org.jfree.chart.StandardChartTheme;
 
 /**
  * A common class for chart based panels
@@ -127,6 +137,7 @@ abstract class ChartPagePanel extends PagePanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 chartPanel.restoreAutoBounds();
+                chartPanel.repaint();
             }
         });
 
