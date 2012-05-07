@@ -82,7 +82,7 @@ public abstract class LayerViewInvalidationListener extends AbstractLayerListene
     }
 
     /**
-     * Called if a visible layer change occured.
+     * Called if a visible layer change occurred.
      *
      * @param layer       The layer.
      * @param modelRegion The region in model coordinates which are affected by the change. May be null, if not available.

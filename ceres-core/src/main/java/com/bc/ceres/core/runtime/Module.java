@@ -180,7 +180,7 @@ public interface Module extends Comparable<Module> {
      *
      * @param pm the progress monitor
      *
-     * @throws CoreException if an error occured
+     * @throws CoreException if an error occurred
      */
     void uninstall(ProgressMonitor pm) throws CoreException;
 

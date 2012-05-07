@@ -67,7 +67,7 @@ public class Tools {
             @Override
             public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable) throws
                     RuntimeException {
-                System.out.println("JAI error occured: " + message);
+                System.out.println("JAI error occurred: " + message);
                 return false;
             }
         });

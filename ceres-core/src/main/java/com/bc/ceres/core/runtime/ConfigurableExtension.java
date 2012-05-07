@@ -31,7 +31,7 @@ public interface ConfigurableExtension {
      *
      * @param config The configuration data.
      *
-     * @throws CoreException if an error occured during configuration.
+     * @throws CoreException if an error occurred during configuration.
      */
     void configure(ConfigurationElement config) throws CoreException;
 }

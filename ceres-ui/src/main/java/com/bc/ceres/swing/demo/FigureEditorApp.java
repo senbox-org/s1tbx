@@ -268,7 +268,7 @@ public abstract class FigureEditorApp {
             public void uncaughtException(Thread t, Throwable e) {
                 e.printStackTrace();
                 String message = MessageFormat.format("" +
-                                                              "An internal error occured!\n" +
+                                                              "An internal error occurred!\n" +
                                                               "Type: {0}\n" +
                                                               "Message: {1}", e.getClass(), e.getMessage());
                 JOptionPane.showMessageDialog(frame, message,

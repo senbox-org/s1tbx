@@ -19,7 +19,12 @@ package com.bc.ceres.glayer.jaitests;
 import com.sun.media.jai.codec.FileCacheSeekableStream;
 import junit.framework.TestCase;
 
-import javax.media.jai.*;
+import javax.media.jai.ImageMIPMap;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.TiledImage;
 import javax.media.jai.operator.BandSelectDescriptor;
 import javax.media.jai.operator.StreamDescriptor;
 import javax.media.jai.util.ImagingListener;
@@ -32,7 +37,7 @@ public class ImageMIPMapTest extends TestCase {
     public ImageMIPMapTest() {
         JAI.getDefaultInstance().setImagingListener(new ImagingListener() {
             public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable) throws RuntimeException {
-                System.out.println("JAI error occured: " + message);
+                System.out.println("JAI error occurred: " + message);
                 return false;
             }
         });
