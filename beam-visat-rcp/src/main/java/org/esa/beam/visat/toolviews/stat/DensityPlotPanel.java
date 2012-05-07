@@ -133,7 +133,7 @@ class DensityPlotPanel extends ChartPagePanel {
     @Override
     protected void updateComponents() {
         super.updateComponents();
-        if (isRasterChanged()) {
+        if (isRasterChanged() || isProductChanged()) {
             plot.setImage(null);
             plot.setDataset(null);
             final ValueSet valueSet = new ValueSet(createAvailableBandList());
