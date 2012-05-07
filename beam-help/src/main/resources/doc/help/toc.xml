@@ -49,6 +49,7 @@
                 </tocitem>
                 <tocitem text="Export Raster Data">
                     <tocitem text="BEAM-DIMAP" target="exportDimapProduct"/>
+                    <tocitem text="CSV" target="exportCsv"/>
                     <tocitem text="HDF-5" target="exportHdf5Product"/>
                     <tocitem text="NetCDF/CF" target="exportNetCdfProduct"/>
                 </tocitem>

@@ -60,6 +60,7 @@
     <mapID target="importSpotVgtProduct" url="visat/ImportSpotVgt.html"/>
     <mapID target="exportDimapProduct" url="visat/ExportDimapProduct.html"/>
     <mapID target="exportNetCdfProduct" url="visat/ExportNetCdfProduct.html"/>
+    <mapID target="exportCsv" url="visat/ExportCSV.html"/>
     <mapID target="exportEnviGcpFile" url="visat/ExportEnviGcpFile.html"/>
     <mapID target="exportHdf5Product" url="visat/ExportHDF.html"/>
     <mapID target="exportProductMetadata" url="visat/ExportProductMetadata.html"/>

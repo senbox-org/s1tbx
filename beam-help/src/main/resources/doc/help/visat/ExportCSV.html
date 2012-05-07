@@ -1,0 +1,78 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>VISAT Help - Export CSV Data</title>
+    <link rel="stylesheet" href="../style.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Export CSV Data
+        </td>
+
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a></td>
+    </tr>
+</table>
+
+<h2>Export CSV Data</h2>
+
+<p>
+    BEAM/Visat supports the export of raster data as CSV ('Character Separated Value') data into plain text files.
+    To invoke this export, choose the item 'Export Raster Data' --> 'CSV' from the BEAM/Visat 'File' menu.
+    A file chooser dialog will be displayed to select an export file (extension .csv).
+    By default, all bands, tie point grids and metadata sets will be exported to the CSV file (row by row from top to
+    bottom of the product raster, each row from left to right. Each pixel is represented by one line in the CSV
+    file, each quantity by one column. An additional column with the 'featureId' (which is just an ascending pixel
+    counter) is put in front. Also, the file contains a header line with the names and data types for each column
+    (name and data type separated by ':'). The column separator is the 'tab' character. See example below.
+</p>
+
+<p align="center"><img src="images/ExportCsvDialog.png">
+</p>
+
+<h4>Export of Data Subsets</h4>
+<p>
+    CSV exports of a whole product would usually become very large. Therefore, the export functionality offers
+    the opportunity to define subsets: either spatial subsets, or subsets by choosing only distinct bands,
+    tie point grids or metadata items. To define the subset to be exported, click the 'Subset...'-button in the
+    upper right of the export file chooser dialog. The <a href="ProductSubsetDialog.html">Specify Product Subset</a>
+    dialog will be opened for subset specification.
+</p>
+
+<p align="center"><img src="images/SubsetDialog.jpg">
+</p>
+
+<h4>Example: First five rows of a CSV export file (band and tie point grid subset)</h4>
+
+<blockquote>
+    <pre>
+       featureId    radiance_8:float    radiance_10:float   l1_flags:byte   latitude:float  longitude:float sun_zenith:float    zonal_wind:float
+       0            13.244587           9.0632085           2               58.19586        11.328176       39.820213           3.1320314
+       1            13.244587           9.0632085           0               58.194206       11.345581       39.813232           3.0703127
+       2            15.124778           11.723249           0               58.192554       11.362987       39.806255           3.0085946
+       3            21.126123           23.472494           2               58.190978       11.380392       39.799282           2.9468756
+       4            21.126123           23.472494           8               58.189247       11.397799       39.792366           2.8851564
+    </pre>
+</blockquote>
+
+</body>
+</html>
