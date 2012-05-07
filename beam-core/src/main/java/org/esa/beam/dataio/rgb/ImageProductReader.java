@@ -17,7 +17,11 @@ package org.esa.beam.dataio.rgb;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RGBImageProfile;
+import org.esa.beam.framework.datamodel.RGBImageProfileManager;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.io.FileUtils;
 
@@ -68,6 +72,7 @@ public class ImageProductReader extends AbstractProductReader {
         SampleModel sampleModel = sourceImage.getSampleModel();
         Product product = new Product(FileUtils.getFilenameWithoutExtension(file), ImageProductReaderPlugIn.FORMAT_NAME,
                                       sourceImage.getWidth(), sourceImage.getHeight());
+        product.setFileLocation(file);
         product.setDescription(String.format("Image (%s, %s)", colorSpace.getClass().getSimpleName(), sampleModel.getClass().getSimpleName()));
         int numBands = sourceImage.getNumBands();
         for (int i = 0; i < numBands; i++) {
