@@ -9,16 +9,29 @@ import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 import com.jidesoft.combobox.CheckBoxListExComboBox;
 import com.thoughtworks.xstream.XStream;
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -29,7 +42,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.prefs.Preferences;
 
 /**
@@ -38,7 +50,7 @@ import java.util.prefs.Preferences;
  */
 class MagicWandForm {
     public static final int TOLERANCE_SLIDER_RESOLUTION = 1000;
-    public static final String PREFERENCES_KEY_LAST_DIR = "beam.magicWand.lastDir";
+    public static final String PREFERENCES_KEY_LAST_DIR = "beam.magicWandTool.lastDir";
 
     private MagicWandInteractor interactor;
 
@@ -80,7 +92,8 @@ class MagicWandForm {
             }
         });
 
-        // todo - update band list, every time the selected view changes (nf)
+        // Development interrupted due to 4.10 release: Band selection list (nf, 2012-05-07)
+        /*
         Band[] spectralBands = MagicWandModel.getSpectralBands(VisatApp.getApp().getSelectedProduct());
         String[] bandNames = new String[spectralBands.length];
         for (int i = 0; i < bandNames.length; i++) {
@@ -92,13 +105,14 @@ class MagicWandForm {
         bandComboBox.setStretchToFit(true);
 
         bindingContext.bind("bandNames", new CheckBoxListExComboBoxComponentAdapter(bandComboBox));
-        // todo - remove test code (nf)
         bindingContext.addPropertyChangeListener("bandNames", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 System.out.println("bandNames = " + Arrays.toString(interactor.getModel().getBandNames()));
             }
         });
+        */
+
         JLabel toleranceLabel = new JLabel("Tolerance:");
         toleranceLabel.setToolTipText("Sets the maximum Euclidian distance tolerated (in units of the spectral bands)");
 
@@ -306,7 +320,8 @@ class MagicWandForm {
         panel.add(toleranceLabel, new TableLayout.Cell(0, 0));
         panel.add(toleranceField, new TableLayout.Cell(0, 1));
         panel.add(toleranceSliderPanel, new TableLayout.Cell(1, 0));
-        panel.add(bandComboBox, new TableLayout.Cell(2, 0));
+        // // Development interrupted due to 4.10 release: Band selection list (nf, 2012-05-07)
+        // panel.add(bandComboBox, new TableLayout.Cell(2, 0));
         panel.add(methodPanel, new TableLayout.Cell(3, 0));
         panel.add(operatorPanel, new TableLayout.Cell(4, 0));
         panel.add(normalizeCheckBox, new TableLayout.Cell(5, 0));

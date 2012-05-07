@@ -1936,9 +1936,9 @@ public class VisatApp extends BasicApp implements AppContext {
                 "drawRectangleTool",
                 "drawEllipseTool",
                 "drawPolygonTool",
-                //"magicWandTool", removed for 4.10 release
                 "createVectorDataNode",
-                null,
+                // Magic Wand removed for 4.10 release
+                "true".equalsIgnoreCase(System.getProperty("beam.magicWandTool.enabled", "false")) ? "magicWandTool" : null,
         });
         return toolBar;
     }
