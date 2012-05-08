@@ -72,7 +72,7 @@ public class OperatorHandlerHtml implements OperatorHandler {
     public void processOperator(OperatorDesc operatorDesc) throws IOException {
         File file = getOperatorPageFile(operatorDesc);
         if (file.exists()) {
-            System.out.println("Warning: File exists: " + file);
+            System.out.println("Warning: File exists and will be overwritten: " + file);
         }
         PrintWriter writer = new PrintWriter(new FileWriter(file));
         try {

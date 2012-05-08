@@ -65,7 +65,7 @@ public class OperatorDoclet extends Doclet {
         } else if (args.length == 1) {
             format = args[0];
         } else {
-            System.out.println("Usage: OperatorDoclet [<format>]");
+            System.out.println("Usage: OperatorDoclet [ console | html ]");
             System.exit(1);
         }
 
@@ -78,6 +78,16 @@ public class OperatorDoclet extends Doclet {
                         "./beam-pixel-extraction/src/main/java;" +
                         "./beam-meris-radiometry/src/main/java;" +
                         "./beam-unmix/src/main/java",
+/*
+                "-classpath", "" +
+                        "./modules/beam-core-4.10;" +
+                        "./modules/beam-gpf-4.10;" +
+                        "./modules/beam-unmix-1.2;" +
+                        "./modules/beam-cluster-analysis-1.1.1;" +
+                        "./modules/beam-meris-radiometry-1.1;" +
+                        "./modules/beam-collocation-1.4;" +
+                        "./modules/beam-pixel-extraction-1.1",
+*/
                 "org.esa.beam.gpf.operators.standard",
                 "org.esa.beam.gpf.operators.standard.reproject",
                 "org.esa.beam.gpf.operators.meris",
@@ -113,7 +123,8 @@ public class OperatorDoclet extends Doclet {
             if (classDoc.subclassOf(root.classNamed(Operator.class.getName()))) {
                 try {
                     System.out.println("Processing " + classDoc.typeName() + "...");
-                    Class<? extends Operator> type = (Class<? extends Operator>) Class.forName(classDoc.qualifiedTypeName());
+                    // Class<? extends Operator> type = (Class<? extends Operator>) Class.forName(classDoc.qualifiedTypeName());
+                    Class<? extends Operator> type = (Class<? extends Operator>)  Thread.currentThread().getContextClassLoader().loadClass(classDoc.qualifiedTypeName());
                     OperatorMetadata annotation = type.getAnnotation(OperatorMetadata.class);
                     if (annotation != null) {
                         if (!annotation.internal()) {
