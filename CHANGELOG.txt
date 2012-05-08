@@ -88,7 +88,7 @@ o Three new readers have been added which allow for
     (2) reading plain text, CSV files into the BEAM product data model; thus, input from such
         files may be used for example with the BEAM Graph Processing Tool 'gpt' command-line.
         Also a corresponding writer is available for CSV.
-    (3) reading ordinary RGM image files (JPEG, PNG, GIF, ...). Products imported from images comprise the
+    (3) reading ordinary RGB image files (JPEG, PNG, GIF, ...). Products imported from images comprise the
         bands red, green, blue with associated wavelength and a grey band which is a linear combination of
         the three.
 
