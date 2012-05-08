@@ -40,9 +40,12 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * A CsvFile is a view on a csv file allowing a) to parse it using the {@link CsvSourceParser} interface
@@ -57,7 +60,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
 
     private final Map<String, String> properties = new HashMap<String, String>();
     private final File csv;
-    private final Map<Long, Long> positionForOffset = new HashMap<Long, Long>();
+    private final SortedMap<Long, Long> bytePositionForOffset = new TreeMap<Long, Long>();
 
     private SimpleFeatureType simpleFeatureType;
     private FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
@@ -94,7 +97,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         featureCollection = new ListFeatureCollection(simpleFeatureType);
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeatureType);
 
-        skipToOffset(offset);
+        skipToLine(offset);
         String line;
         long featureCount = offset;
         while ((numRecords == -1 || featureCount < offset + numRecords) && (line = stream.readLine()) != null) {
@@ -130,7 +133,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
             }
             SimpleFeature simpleFeature = builder.buildFeature(featureId);
             featureCollection.add(simpleFeature);
-            positionForOffset.put(featureCount, stream.getStreamPosition());
+            bytePositionForOffset.put(featureCount, stream.getStreamPosition());
         }
         recordsParsed = true;
     }
@@ -230,16 +233,30 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         propertiesParsed = true;
     }
 
-    private void skipToOffset(long recordOffset) throws IOException {
-        if (positionForOffset.containsKey(recordOffset)) {
-            stream.seek(positionForOffset.get(recordOffset));
+    private void skipToLine(long lineOffset) throws IOException {
+        if (bytePositionForOffset.containsKey(lineOffset)) {
+            stream.seek(bytePositionForOffset.get(lineOffset));
             return;
         }
-        stream.seek(propertiesByteSize + headerByteSize);
-        for (int i = 0; i < recordOffset; i++) {
+        Map.Entry<Long, Long> entry = getBestOffset(lineOffset);
+        stream.seek(entry.getValue());
+        long linesToSkip = lineOffset - entry.getKey();
+        for (int i = 0; i < linesToSkip; i++) {
             stream.readLine();
         }
-        positionForOffset.put(recordOffset, stream.getStreamPosition());
+        bytePositionForOffset.put(lineOffset, stream.getStreamPosition());
+    }
+
+    private Map.Entry<Long, Long> getBestOffset(long lineOffset) {
+        Map.Entry<Long, Long> result = new AbstractMap.SimpleEntry<java.lang.Long, java.lang.Long>(0L, (long) propertiesByteSize + headerByteSize);
+        for (Map.Entry<Long, Long> entry : bytePositionForOffset.entrySet()) {
+            if (entry.getKey() > lineOffset) {
+                return result;
+            } else {
+                result = entry;
+            }
+        }
+        return result;
     }
 
     private void createFeatureType(String[] headerLine) throws IOException {

@@ -108,10 +108,10 @@ public class CsvProductReader extends AbstractProductReader {
                                           ProgressMonitor pm) throws IOException {
         BeamLogManager.getSystemLogger().log(Level.FINEST, MessageFormat.format(
                 "reading band data (" + destBand.getName() + ") from {0} to {1}",
-                sourceOffsetX + sourceOffsetY, sourceOffsetX + destWidth - 1));
-        pm.beginTask("reading band data...", destWidth * destHeight);
+                sourceOffsetY * destBand.getSceneRasterWidth(), sourceOffsetY * destBand.getSceneRasterWidth() + destBand.getSceneRasterWidth() * destHeight));
+        pm.beginTask("reading band data...", destBand.getSceneRasterWidth() * destHeight);
         synchronized (parser) {
-            parser.parseRecords(sourceOffsetX + sourceOffsetY, destWidth * destHeight);
+            parser.parseRecords(sourceOffsetY * destBand.getSceneRasterWidth(), destBand.getSceneRasterWidth() * destHeight);
         }
         final SimpleFeature[] simpleFeatures = source.getSimpleFeatures();
         final Object[] elems = new Object[simpleFeatures.length];
