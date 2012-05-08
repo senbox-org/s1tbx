@@ -6,7 +6,7 @@
 
     <groupId>com.bc.ceres</groupId>
     <artifactId>ceres</artifactId>
-    <version>0.13-SNAPSHOT</version>
+    <version>0.13</version>
     <name>Ceres</name>
     <url>http://www.brockmann-consult.de/</url>
 
@@ -296,6 +296,15 @@
             <id>thomas</id>
             <name>Thomas Storm</name>
             <email>thomas.storm@brockmann-consult.de</email>
+            <organization>Brockmann Consult</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>tonio</id>
+            <name>Tonio Fincke</name>
+            <email>tonio.fincke@brockmann-consult.de</email>
             <organization>Brockmann Consult</organization>
             <roles>
                 <role>Java Developer</role>

@@ -7,7 +7,7 @@
     <parent>
         <artifactId>ceres</artifactId>
         <groupId>com.bc.ceres</groupId>
-        <version>0.13-SNAPSHOT</version>
+        <version>0.13</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
