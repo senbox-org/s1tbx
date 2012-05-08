@@ -46,24 +46,24 @@ o VISAT has been greatly enhanced by a number of efficient and user friendly too
         - Zoom into plot areas using the mouse wheel;
         - Axes in plots, if applicable can now use a log10-scaling;
         - Inspect and export (copy to clipboard) plot data as tabulated data.
-    (1) Profile plot enhancements
+    (2) Profile plot enhancements
         - extract satellite data from a transect or track and display it, optionally averaged over an NxN pixel box,
           optionally filtered by a ROI mask, optionally together with correlative data;
         - synchronise pixel positions: click the transect graphs in the plot and display a cursor which is shown in
           both, the plot and also along the track figure shown in the satellite image view.
-    (2) Correlative plot
+    (3) Correlative plot
         - extract satellite data at geographical points, optionally averaged over an NxN pixel box, optionally filtered
           by a ROI mask, and display against correlative data fields in a scatter plot;
         - display regression line and information;
         - display the 1:1 identity line.
-    (3) Scatter plot
+    (4) Scatter plot
         - compare two raster datasets and display a density plot of pixel frequencies, optionally filtered by a
           ROI mask;
         - quickly invert density colors;
-    (4) Histogram
+    (5) Histogram
         - generate histograms of raster data, optionally filtered by a ROI mask;
         - bin cells of the histogram can now be log10 scaled, thus turning a logarithmic into a normal distribution.
-    (5) Statistics
+    (6) Statistics
         - generate common statistical variables, including commonly used percentile thresholds, histogram and
           percentile plots;
         - optionally compute statistics for one or multiple masks in one go.
