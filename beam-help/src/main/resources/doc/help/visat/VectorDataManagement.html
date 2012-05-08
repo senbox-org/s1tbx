@@ -60,10 +60,10 @@ concepts are thoroughly described below.
     </tr>
 </table>
 
-<h4>Relationship with Masks and Regions of Interest</h4>
+<h4>Relationship with Masks and ROIs</h4>
 
 <p>
-    The geometries in a geometry container can be directly used as a region of interest for raster data analysis.
+    The geometries in a geometry container can be directly used as a ROI for raster data analysis.
     Once a new geometry container has been added to the data product, an associated <i>geometry mask</i> is created by
     rendering the geometry onto the product's intrinsic raster data grid.
 </p>
@@ -85,7 +85,7 @@ concepts are thoroughly described below.
     same name as the geometry container which created it and can serve as possible mask for the selected band or
     tie-point
     grid without any additional user interaction.
-    Once the geometry is created (e.g. simply by drawing it, see below), its associated geometry mask can be used as region of interest
+    Once the geometry is created (e.g. simply by drawing it, see below), its associated geometry mask can be used as ROI
     in the various analysis tools, such as the <a href="StatisticsDialog.html">Statistics</a>,
     <a href="HistogramDialog.html">Histogram</a>, and <a href="DensityPlotDialog.html">Scatter Plot</a> tool windows.
     Multiple geometries can be defined by creating new geometry containers as described below.
@@ -236,8 +236,8 @@ concepts are thoroughly described below.
 <p>
     BEAM considers vector data that does not originate from satellite data as <i>correlative data</i>.
     BEAM supports exploiting of correlative data in some ways, for examples see the help for the
-    <a href="ProfilePlotDialog.html">Profile Plot Dialog</a> or the
-    <a href="CorrelativePlot.html">Correlative Plot Dialog</a>.
+    <a href="ProfilePlotDialog.html">Profile Plot</a> dialog or the
+    <a href="CorrelativePlotDialog.html">Correlative Plot</a> dialog.
 </p>
 
 <h4>Pins and Ground Control Points (GCP)</h4>
