@@ -3,3 +3,4 @@
 *.iws
 .idea/
 target/
+exclusion_list
