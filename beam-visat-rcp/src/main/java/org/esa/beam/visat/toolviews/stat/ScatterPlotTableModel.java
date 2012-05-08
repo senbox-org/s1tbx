@@ -20,14 +20,17 @@ import java.util.Map;
  */
 public class ScatterPlotTableModel extends AbstractTableModel implements CsvEncoder {
 
+    private final String productType;
     private final List<String> colNames;
     private final Map<Integer, Integer> propertyIndices;
     private final ScatterPlotPanel.ComputedData[] computedDatas;
 
-    public ScatterPlotTableModel(String rasterName, String correlativDataName, ScatterPlotPanel.ComputedData[] computedDatas) {
+    public ScatterPlotTableModel(String productType, String rasterName, String correlativDataName, ScatterPlotPanel.ComputedData[] computedDatas) {
 
+        this.productType = productType;
         this.computedDatas = computedDatas;
         colNames = new ArrayList<String>();
+        colNames.add("raster");
         colNames.add("pixel_no");
         colNames.add("pixel_x");
         colNames.add("pixel_y");
@@ -35,9 +38,10 @@ public class ScatterPlotTableModel extends AbstractTableModel implements CsvEnco
         colNames.add("longitude");
         colNames.add(rasterName + "_mean");
         colNames.add(rasterName + "_sigma");
+        colNames.add("reference");
         colNames.add(correlativDataName);
 
-        final int colStart = 8;
+        final int colStart = 10;
         propertyIndices = new HashMap<Integer, Integer>();
 
         int validPropertyCount = 0;
@@ -76,20 +80,24 @@ public class ScatterPlotTableModel extends AbstractTableModel implements CsvEnco
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (columnIndex == 0) {
-            return rowIndex + 1;
+            return productType != null ? productType : "raster";
         } else if (columnIndex == 1) {
-            return computedDatas[rowIndex].x;
+            return rowIndex + 1;
         } else if (columnIndex == 2) {
-            return computedDatas[rowIndex].y;
+            return computedDatas[rowIndex].x;
         } else if (columnIndex == 3) {
-            return computedDatas[rowIndex].lat;
+            return computedDatas[rowIndex].y;
         } else if (columnIndex == 4) {
-            return computedDatas[rowIndex].lon;
+            return computedDatas[rowIndex].lat;
         } else if (columnIndex == 5) {
-            return computedDatas[rowIndex].rasterMean;
+            return computedDatas[rowIndex].lon;
         } else if (columnIndex == 6) {
-            return computedDatas[rowIndex].rasterSigma;
+            return computedDatas[rowIndex].rasterMean;
         } else if (columnIndex == 7) {
+            return computedDatas[rowIndex].rasterSigma;
+        } else if (columnIndex == 8) {
+            return "ref data";
+        } else if (columnIndex == 9) {
             return computedDatas[rowIndex].correlativeData;
         } else if (columnIndex < getColumnCount()) {
             final Collection<Property> propColl = computedDatas[rowIndex].featureProperties;
