@@ -103,7 +103,7 @@
     <mapID target="orthorectificationAction" url="visat/Orthorectification.html"/>
     <mapID target="orthorectificationAlgo" url="visat/OrthorectificationAlgo.html"/>
     <mapID target="mosaicAction" url="visat/Mosaic.html"/>
-    <mapID target="mosaicAlgo" url="mosaic/MosaicAlgo.html"/>
+    <mapID target="mosaicAlgo" url="visat/MosaicAlgo.html"/>
 
 
     <mapID target="demGETASSE30" url="visat/GETASSE30ElevationModel.html"/>
