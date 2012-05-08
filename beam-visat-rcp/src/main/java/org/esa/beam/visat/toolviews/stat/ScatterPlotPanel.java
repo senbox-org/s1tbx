@@ -177,8 +177,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     protected String getDataAsText() {
         if (scatterpointsDataset.getItemCount(0) > 0) {
             final ScatterPlotTableModel scatterPlotTableModel;
-            scatterPlotTableModel = new ScatterPlotTableModel(getProduct().getProductType(),
-                                                              getRasterName(),
+            scatterPlotTableModel = new ScatterPlotTableModel(getRasterName(),
                                                               getCorrelativeDataName(),
                                                               computedDatas);
             return scatterPlotTableModel.toCVS();
@@ -241,8 +240,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     protected void showAlternativeView() {
         final TableModel model;
         if (computedDatas != null && computedDatas.length > 0) {
-            model = new ScatterPlotTableModel(getProduct().getProductType(),
-                                              getRasterName(),
+            model = new ScatterPlotTableModel(getRasterName(),
                                               getCorrelativeDataName(),
                                               computedDatas);
         } else {

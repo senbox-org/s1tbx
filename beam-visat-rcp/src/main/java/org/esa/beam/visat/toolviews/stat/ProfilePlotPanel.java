@@ -594,8 +594,7 @@ class ProfilePlotPanel extends ChartPagePanel {
     }
 
     private ProfileDataTableModel createProfileDataTableModel() {
-        final String productType = getRaster().getProduct().getProductType();
-        return new ProfileDataTableModel(productType, getRaster().getName(), profileData, dataSourceConfig);
+        return new ProfileDataTableModel(getRaster().getName(), profileData, dataSourceConfig);
     }
 
     @Override

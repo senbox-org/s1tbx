@@ -62,63 +62,55 @@ public class ProfileDataTableModelTest {
                 .boxSize(dataSourceConfig.boxSize)
                 .build();
 
-        TableModel tableModel = new ProfileDataTableModel("some Type", band.getName(), profileData, dataSourceConfig);
+        TableModel tableModel = new ProfileDataTableModel(band.getName(), profileData, dataSourceConfig);
 
-        assertEquals(12, tableModel.getColumnCount());
+        assertEquals(10, tableModel.getColumnCount());
 
-        assertEquals("raster", tableModel.getColumnName(0));
-        assertEquals("pixel_no", tableModel.getColumnName(1));
-        assertEquals("pixel_x", tableModel.getColumnName(2));
-        assertEquals("pixel_y", tableModel.getColumnName(3));
-        assertEquals("latitude", tableModel.getColumnName(4));
-        assertEquals("longitude", tableModel.getColumnName(5));
-        assertEquals("b_mean", tableModel.getColumnName(6));
-        assertEquals("b_sigma", tableModel.getColumnName(7));
-        assertEquals("reference", tableModel.getColumnName(8));
-        assertEquals("data", tableModel.getColumnName(9));
-        assertEquals("lat", tableModel.getColumnName(10));
-        assertEquals("lon", tableModel.getColumnName(11));
+        assertEquals("pixel_no", tableModel.getColumnName(0));
+        assertEquals("pixel_x", tableModel.getColumnName(1));
+        assertEquals("pixel_y", tableModel.getColumnName(2));
+        assertEquals("latitude", tableModel.getColumnName(3));
+        assertEquals("longitude", tableModel.getColumnName(4));
+        assertEquals("b_mean", tableModel.getColumnName(5));
+        assertEquals("b_sigma", tableModel.getColumnName(6));
+        assertEquals("data_ref", tableModel.getColumnName(7));
+        assertEquals("lat_ref", tableModel.getColumnName(8));
+        assertEquals("lon_ref", tableModel.getColumnName(9));
 
         assertEquals(10, tableModel.getRowCount());
 
-        assertEquals("some Type", tableModel.getValueAt(0, 0));
-        assertEquals(1, tableModel.getValueAt(0, 1));
+        assertEquals(1, tableModel.getValueAt(0, 0));
+        assertEquals(0.0, tableModel.getValueAt(0, 1));
         assertEquals(0.0, tableModel.getValueAt(0, 2));
-        assertEquals(0.0, tableModel.getValueAt(0, 3));
+        assertEquals(null, tableModel.getValueAt(0, 3));
         assertEquals(null, tableModel.getValueAt(0, 4));
-        assertEquals(null, tableModel.getValueAt(0, 5));
-        assertEquals(0.1F, tableModel.getValueAt(0, 6));
-        assertEquals(0.0F, tableModel.getValueAt(0, 7));
-        assertEquals("ref data", tableModel.getValueAt(0, 8));
-        assertEquals(0.3, tableModel.getValueAt(0, 9));
-        assertEquals(0, tableModel.getValueAt(0, 10));
-        assertEquals(0, tableModel.getValueAt(0, 11));
+        assertEquals(0.1F, tableModel.getValueAt(0, 5));
+        assertEquals(0.0F, tableModel.getValueAt(0, 6));
+        assertEquals(0.3, tableModel.getValueAt(0, 7));
+        assertEquals(0, tableModel.getValueAt(0, 8));
+        assertEquals(0, tableModel.getValueAt(0, 9));
 
-        assertEquals("some Type", tableModel.getValueAt(1, 0));
-        assertEquals(2, tableModel.getValueAt(1, 1));
-        assertEquals(1.0, tableModel.getValueAt(1, 2));
-        assertEquals(0.0, tableModel.getValueAt(1, 3));
+        assertEquals(2, tableModel.getValueAt(1, 0));
+        assertEquals(1.0, tableModel.getValueAt(1, 1));
+        assertEquals(0.0, tableModel.getValueAt(1, 2));
+        assertEquals(null, tableModel.getValueAt(1, 3));
         assertEquals(null, tableModel.getValueAt(1, 4));
-        assertEquals(null, tableModel.getValueAt(1, 5));
-        assertEquals(1.1F, tableModel.getValueAt(1, 6));
-        assertEquals(0.0F, tableModel.getValueAt(1, 7));
-        assertEquals("ref data", tableModel.getValueAt(1, 8));
+        assertEquals(1.1F, tableModel.getValueAt(1, 5));
+        assertEquals(0.0F, tableModel.getValueAt(1, 6));
+        assertEquals(null, tableModel.getValueAt(1, 7));
+        assertEquals(null, tableModel.getValueAt(1, 8));
         assertEquals(null, tableModel.getValueAt(1, 9));
-        assertEquals(null, tableModel.getValueAt(1, 10));
-        assertEquals(null, tableModel.getValueAt(1, 11));
 
-        assertEquals("some Type", tableModel.getValueAt(9, 0));
-        assertEquals(10, tableModel.getValueAt(9, 1));
+        assertEquals(10, tableModel.getValueAt(9, 0));
+        assertEquals(3.0, tableModel.getValueAt(9, 1));
         assertEquals(3.0, tableModel.getValueAt(9, 2));
-        assertEquals(3.0, tableModel.getValueAt(9, 3));
+        assertEquals(null, tableModel.getValueAt(9, 3));
         assertEquals(null, tableModel.getValueAt(9, 4));
-        assertEquals(null, tableModel.getValueAt(9, 5));
-        assertEquals(15.1F, tableModel.getValueAt(9, 6));
-        assertEquals(0.0F, tableModel.getValueAt(9, 7));
-        assertEquals("ref data", tableModel.getValueAt(9, 8));
-        assertEquals(0.1, tableModel.getValueAt(9, 9));
-        assertEquals(0, tableModel.getValueAt(9, 10));
-        assertEquals(0, tableModel.getValueAt(9, 11));
+        assertEquals(15.1F, tableModel.getValueAt(9, 5));
+        assertEquals(0.0F, tableModel.getValueAt(9, 6));
+        assertEquals(0.1, tableModel.getValueAt(9, 7));
+        assertEquals(0, tableModel.getValueAt(9, 8));
+        assertEquals(0, tableModel.getValueAt(9, 9));
 
     }
 
@@ -133,55 +125,47 @@ public class ProfileDataTableModelTest {
                 .boxSize(dataSourceConfig.boxSize)
                 .build();
 
-        TableModel tableModel = new ProfileDataTableModel(null, band.getName(), profileData, dataSourceConfig);
+        TableModel tableModel = new ProfileDataTableModel(band.getName(), profileData, dataSourceConfig);
 
-        assertEquals(10, tableModel.getColumnCount());
+        assertEquals(8, tableModel.getColumnCount());
 
-        assertEquals("raster", tableModel.getColumnName(0));
-        assertEquals("pixel_no", tableModel.getColumnName(1));
-        assertEquals("pixel_x", tableModel.getColumnName(2));
-        assertEquals("pixel_y", tableModel.getColumnName(3));
-        assertEquals("latitude", tableModel.getColumnName(4));
-        assertEquals("longitude", tableModel.getColumnName(5));
-        assertEquals("b_mean", tableModel.getColumnName(6));
-        assertEquals("b_sigma", tableModel.getColumnName(7));
-        assertEquals("reference", tableModel.getColumnName(8));
-        assertEquals("", tableModel.getColumnName(9));
+        assertEquals("pixel_no", tableModel.getColumnName(0));
+        assertEquals("pixel_x", tableModel.getColumnName(1));
+        assertEquals("pixel_y", tableModel.getColumnName(2));
+        assertEquals("latitude", tableModel.getColumnName(3));
+        assertEquals("longitude", tableModel.getColumnName(4));
+        assertEquals("b_mean", tableModel.getColumnName(5));
+        assertEquals("b_sigma", tableModel.getColumnName(6));
+        assertEquals("", tableModel.getColumnName(7));
 
         assertEquals(10, tableModel.getRowCount());
 
-        assertEquals("raster", tableModel.getValueAt(0, 0));
-        assertEquals(1, tableModel.getValueAt(0, 1));
+        assertEquals(1, tableModel.getValueAt(0, 0));
+        assertEquals(0.0, tableModel.getValueAt(0, 1));
         assertEquals(0.0, tableModel.getValueAt(0, 2));
-        assertEquals(0.0, tableModel.getValueAt(0, 3));
+        assertEquals(null, tableModel.getValueAt(0, 3));
         assertEquals(null, tableModel.getValueAt(0, 4));
-        assertEquals(null, tableModel.getValueAt(0, 5));
-        assertEquals(0.1F, tableModel.getValueAt(0, 6));
-        assertEquals(0.0F, tableModel.getValueAt(0, 7));
-        assertEquals("ref data", tableModel.getValueAt(0, 8));
-        assertEquals(null, tableModel.getValueAt(0, 9));
+        assertEquals(0.1F, tableModel.getValueAt(0, 5));
+        assertEquals(0.0F, tableModel.getValueAt(0, 6));
+        assertEquals(null, tableModel.getValueAt(0, 7));
 
-        assertEquals("raster", tableModel.getValueAt(1, 0));
-        assertEquals(2, tableModel.getValueAt(1, 1));
-        assertEquals(1.0, tableModel.getValueAt(1, 2));
-        assertEquals(0.0, tableModel.getValueAt(1, 3));
+        assertEquals(2, tableModel.getValueAt(1, 0));
+        assertEquals(1.0, tableModel.getValueAt(1, 1));
+        assertEquals(0.0, tableModel.getValueAt(1, 2));
+        assertEquals(null, tableModel.getValueAt(1, 3));
         assertEquals(null, tableModel.getValueAt(1, 4));
-        assertEquals(null, tableModel.getValueAt(1, 5));
-        assertEquals(1.1F, tableModel.getValueAt(1, 6));
-        assertEquals(0.0F, tableModel.getValueAt(1, 7));
-        assertEquals("ref data", tableModel.getValueAt(1, 8));
-        assertEquals(null, tableModel.getValueAt(1, 9));
+        assertEquals(1.1F, tableModel.getValueAt(1, 5));
+        assertEquals(0.0F, tableModel.getValueAt(1, 6));
+        assertEquals(null, tableModel.getValueAt(1, 7));
 
-        assertEquals("raster", tableModel.getValueAt(9, 0));
-        assertEquals(10, tableModel.getValueAt(9, 1));
+        assertEquals(10, tableModel.getValueAt(9, 0));
+        assertEquals(3.0, tableModel.getValueAt(9, 1));
         assertEquals(3.0, tableModel.getValueAt(9, 2));
-        assertEquals(3.0, tableModel.getValueAt(9, 3));
+        assertEquals(null, tableModel.getValueAt(9, 3));
         assertEquals(null, tableModel.getValueAt(9, 4));
-        assertEquals(null, tableModel.getValueAt(9, 5));
-        assertEquals(15.1F, tableModel.getValueAt(9, 6));
-        assertEquals(0.0F, tableModel.getValueAt(9, 7));
-        assertEquals("ref data", tableModel.getValueAt(9, 8));
-        assertEquals(null, tableModel.getValueAt(9, 9));
+        assertEquals(15.1F, tableModel.getValueAt(9, 5));
+        assertEquals(0.0F, tableModel.getValueAt(9, 6));
+        assertEquals(null, tableModel.getValueAt(9, 7));
     }
 
 
@@ -194,19 +178,19 @@ public class ProfileDataTableModelTest {
                 .boxSize(dataSourceConfig.boxSize)
                 .build();
 
-        ProfileDataTableModel tableModel = new ProfileDataTableModel(" ", band.getName(), profileData, dataSourceConfig);
+        ProfileDataTableModel tableModel = new ProfileDataTableModel(band.getName(), profileData, dataSourceConfig);
         String csv = tableModel.toCsv();
-        assertEquals("raster\tpixel_no\tpixel_x\tpixel_y\tlatitude\tlongitude\tb_mean\tb_sigma\treference\tdata\tlat\tlon\n" +
-                             "raster\t1\t0.0\t0.0\t\t\t0.1\t0.0\tref data\t0.3\t0\t0\n" +
-                             "raster\t2\t1.0\t0.0\t\t\t1.1\t0.0\tref data\t\t\t\n" +
-                             "raster\t3\t2.0\t0.0\t\t\t2.1\t0.0\tref data\t\t\t\n" +
-                             "raster\t4\t3.0\t0.0\t\t\t3.1\t0.0\tref data\t0.5\t0\t0\n" +
-                             "raster\t5\t2.0\t1.0\t\t\t6.1\t0.0\tref data\t\t\t\n" +
-                             "raster\t6\t1.0\t2.0\t\t\t9.1\t0.0\tref data\t\t\t\n" +
-                             "raster\t7\t0.0\t3.0\t\t\t12.1\t0.0\tref data\t0.7\t0\t0\n" +
-                             "raster\t8\t1.0\t3.0\t\t\t13.1\t0.0\tref data\t\t\t\n" +
-                             "raster\t9\t2.0\t3.0\t\t\t14.1\t0.0\tref data\t\t\t\n" +
-                             "raster\t10\t3.0\t3.0\t\t\t15.1\t0.0\tref data\t0.1\t0\t0\n", csv);
+        assertEquals("pixel_no\tpixel_x\tpixel_y\tlatitude\tlongitude\tb_mean\tb_sigma\tdata_ref\tlat_ref\tlon_ref\n" +
+                             "1\t0.0\t0.0\t\t\t0.1\t0.0\t0.3\t0\t0\n" +
+                             "2\t1.0\t0.0\t\t\t1.1\t0.0\t\t\t\n" +
+                             "3\t2.0\t0.0\t\t\t2.1\t0.0\t\t\t\n" +
+                             "4\t3.0\t0.0\t\t\t3.1\t0.0\t0.5\t0\t0\n" +
+                             "5\t2.0\t1.0\t\t\t6.1\t0.0\t\t\t\n" +
+                             "6\t1.0\t2.0\t\t\t9.1\t0.0\t\t\t\n" +
+                             "7\t0.0\t3.0\t\t\t12.1\t0.0\t0.7\t0\t0\n" +
+                             "8\t1.0\t3.0\t\t\t13.1\t0.0\t\t\t\n" +
+                             "9\t2.0\t3.0\t\t\t14.1\t0.0\t\t\t\n" +
+                             "10\t3.0\t3.0\t\t\t15.1\t0.0\t0.1\t0\t0\n", csv);
     }
 
     @Test
@@ -220,12 +204,12 @@ public class ProfileDataTableModelTest {
                 .boxSize(dataSourceConfig.boxSize)
                 .build();
 
-        ProfileDataTableModel tableModel = new ProfileDataTableModel("some Type", band.getName(), profileData, dataSourceConfig);
+        ProfileDataTableModel tableModel = new ProfileDataTableModel(band.getName(), profileData, dataSourceConfig);
         String csv = tableModel.toCsv();
-        assertEquals("raster\tpixel_no\tpixel_x\tpixel_y\tlatitude\tlongitude\tb_mean\tb_sigma\treference\tdata\tlat\tlon\n" +
-                             "some Type\t1\t0.0\t0.0\t\t\t0.1\t0.0\tref data\t0.3\t0\t0\n" +
-                             "some Type\t4\t3.0\t0.0\t\t\t3.1\t0.0\tref data\t0.5\t0\t0\n" +
-                             "some Type\t7\t0.0\t3.0\t\t\t12.1\t0.0\tref data\t0.7\t0\t0\n" +
-                             "some Type\t10\t3.0\t3.0\t\t\t15.1\t0.0\tref data\t0.1\t0\t0\n", csv);
+        assertEquals("pixel_no\tpixel_x\tpixel_y\tlatitude\tlongitude\tb_mean\tb_sigma\tdata_ref\tlat_ref\tlon_ref\n" +
+                             "1\t0.0\t0.0\t\t\t0.1\t0.0\t0.3\t0\t0\n" +
+                             "4\t3.0\t0.0\t\t\t3.1\t0.0\t0.5\t0\t0\n" +
+                             "7\t0.0\t3.0\t\t\t12.1\t0.0\t0.7\t0\t0\n" +
+                             "10\t3.0\t3.0\t\t\t15.1\t0.0\t0.1\t0\t0\n", csv);
     }
 }

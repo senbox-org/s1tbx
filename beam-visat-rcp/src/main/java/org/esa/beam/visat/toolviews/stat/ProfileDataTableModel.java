@@ -22,7 +22,8 @@ import java.util.Map;
  * @author Norman Fomferra
  */
 public class ProfileDataTableModel extends AbstractTableModel implements CsvEncoder {
-    private final String productType;
+    private final static String REF_SUFFIX = "_ref";
+
     private final TransectProfileData profileData;
     private final List<String> columnNames;
     private final Map<Integer, Integer> propertyIndices;
@@ -31,11 +32,10 @@ public class ProfileDataTableModel extends AbstractTableModel implements CsvEnco
     private final SimpleFeature[] features;
     private final boolean computeInBetweenPoints;
 
-    public ProfileDataTableModel(String productType, String sampleName,
+    public ProfileDataTableModel(String sampleName,
                                  TransectProfileData profileData,
                                  ProfilePlotPanel.DataSourceConfig dataSourceConfig) {
 
-        this.productType = productType == null || productType.trim().length() == 0 ? null : productType;
         this.profileData = profileData;
 
         pointDataIndexes = new int[profileData.getNumPixels()];
@@ -49,21 +49,17 @@ public class ProfileDataTableModel extends AbstractTableModel implements CsvEnco
         computeInBetweenPoints = dataSourceConfig.computeInBetweenPoints;
 
         final String corrDataName;
-        final Class corrDataClass;
         if (dataSourceConfig.pointDataSource != null && dataSourceConfig.dataField != null) {
             corrDataName = dataSourceConfig.dataField.getLocalName();
-            corrDataClass = dataSourceConfig.dataField.getType().getBinding();
             features = dataSourceConfig.pointDataSource.getFeatureCollection().toArray(new SimpleFeature[0]);
             dataFieldIndex = dataSourceConfig.pointDataSource.getFeatureType().indexOf(corrDataName);
         } else {
             corrDataName = "";
-            corrDataClass = Object.class;
             features = null;
             dataFieldIndex = -1;
         }
 
         columnNames = new ArrayList<String>();
-        columnNames.add("raster");
         columnNames.add("pixel_no");
         columnNames.add("pixel_x");
         columnNames.add("pixel_y");
@@ -71,12 +67,11 @@ public class ProfileDataTableModel extends AbstractTableModel implements CsvEnco
         columnNames.add("longitude");
         columnNames.add(sampleName + "_mean");
         columnNames.add(sampleName + "_sigma");
-        columnNames.add("reference");
-        columnNames.add(corrDataName);
+        columnNames.add(corrDataName.trim().length() == 0 ? "" : corrDataName + REF_SUFFIX);
 
         propertyIndices = new HashMap<Integer, Integer>();
         if (features != null && features.length > 0) {
-            final int colStart = 10;
+            final int colStart = 8;
 
             int validPropertyCount = 0;
             final Collection<Property> props = features[0].getProperties();
@@ -85,7 +80,7 @@ public class ProfileDataTableModel extends AbstractTableModel implements CsvEnco
                 Property property = properties[i];
                 final String name = property.getName().toString();
                 if (!corrDataName.equals(name)) {
-                    columnNames.add(name);
+                    columnNames.add(name + REF_SUFFIX);
                     propertyIndices.put(colStart + validPropertyCount, i);
                     validPropertyCount++;
                 }
@@ -114,26 +109,22 @@ public class ProfileDataTableModel extends AbstractTableModel implements CsvEnco
         int pixelIndex = computeInBetweenPoints ? row : profileData.getShapeVertexIndexes()[row];
 
         if (column == 0) {
-            return productType != null ? productType : "raster";
-        } else if (column == 1) {
             return pixelIndex + 1;
-        } else if (column == 2) {
+        } else if (column == 1) {
             return profileData.getPixelPositions()[pixelIndex].getX();
-        } else if (column == 3) {
+        } else if (column == 2) {
             return profileData.getPixelPositions()[pixelIndex].getY();
-        } else if (column == 4) {
+        } else if (column == 3) {
             GeoPos[] geoPositions = profileData.getGeoPositions();
             return geoPositions.length > 0 ? geoPositions[pixelIndex].getLat() : null;
-        } else if (column == 5) {
+        } else if (column == 4) {
             GeoPos[] geoPositions = profileData.getGeoPositions();
             return geoPositions.length > 0 ? geoPositions[pixelIndex].getLon() : null;
-        } else if (column == 6) {
+        } else if (column == 5) {
             return profileData.getSampleValues()[pixelIndex];
-        } else if (column == 7) {
+        } else if (column == 6) {
             return profileData.getSampleSigmas()[pixelIndex];
-        } else if (column == 8) {
-            return "ref data";
-        } else if (column == 9) {
+        } else if (column == 7) {
             if (dataFieldIndex == -1) {
                 return null;
             }
