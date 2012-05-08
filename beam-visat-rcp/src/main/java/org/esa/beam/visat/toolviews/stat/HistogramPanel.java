@@ -193,7 +193,7 @@ class HistogramPanel extends ChartPagePanel {
         final JLabel numBinsLabel = new JLabel("#Bins:");
         JTextField numBinsField = new JTextField(Integer.toString(NUM_BINS_DEFAULT));
         numBinsField.setPreferredSize(new Dimension(50, numBinsField.getPreferredSize().height));
-        final JCheckBox histoLogCheck = new JCheckBox("Log10 scaled values");
+        final JCheckBox histoLogCheck = new JCheckBox("Log10 scaled bins");
 
         bindingContext.getPropertySet().getDescriptor(PROPERTY_NAME_NUM_BINS).setDescription(
                 "Set the number of bins in the histogram");

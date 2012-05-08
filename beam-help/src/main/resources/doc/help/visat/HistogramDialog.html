@@ -81,9 +81,13 @@
         The bins will be evenly distributed in the defined value range.
     </li>
 
-    <li><b>Log10 scaled values</b><br>
+    <li><b>Log10 scaled bins</b><br>
         When this option is enabled, not the band values themselves but their common logarithms will be considered
-        during the computation.<br/>
+        during the computation.
+        Also the bin sizes will be log10 scaled.
+        In the resulting plot, the x-axis will show the log10 scaled band values.
+        You can use this option to turn a logarithmic into a normal distribution.
+        <br/>
         This option will be disabled when the band contains no positive values.
     </li>
 
@@ -94,7 +98,7 @@
     </li>
 
     <li><b>Log10 scaled</b><br>
-        Causes the x-axis of the current histogram to be log10-scaled. This option will be disabled when the band
+        Causes the x-axis of the current histogram to be log10 scaled. This option will be disabled when the band
         contains at least one negative value or when the displayed histogram was created with log10 scaled values.
     </li>
 
