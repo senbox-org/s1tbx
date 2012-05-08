@@ -22,7 +22,11 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
@@ -49,29 +53,30 @@ import java.util.regex.Pattern;
  * @author Thomas Storm
  */
 @OperatorMetadata(alias = "Merge",
-                  description = "Allows copying raster data from other products to a specified product. The " +
-                          "'master product' receives nodes from the source products products.",
+                  description = "Allows copying raster data from any number of source products to a specified 'master'" +
+                          " product.",
                   authors = "BEAM team",
                   version = "1.0",
                   copyright = "(c) 2012 by Brockmann Consult",
                   internal = false)
 public class MergeOp extends Operator {
 
-    @SourceProduct(description = "The 'master product', which receives nodes from subsequently provided products.")
+    @SourceProduct(description = "The master product, which receives nodes from subsequently provided products.")
     private Product masterProduct;
 
-    @SourceProducts(description = "The products to be merged into the 'master product'.")
+    @SourceProducts(description = "The products to be merged into the master product.")
     private Product[] sourceProducts;
 
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(itemAlias = "include", itemsInlined = false,
-               description = "Defines nodes to be included in the target product. If no includes are provided, all" +
+               description = "Defines nodes to be included in the master product. If no includes are provided, all" +
                        " nodes are copied.")
     private NodeDescriptor[] includes;
+
     @Parameter(itemAlias = "exclude", itemsInlined = false,
-               description = "Defines nodes to be excluded from the target product.")
+               description = "Defines nodes to be excluded from the target product (not supported in version 1.0).")
     private NodeDescriptor[] excludes;
 
     @Override
