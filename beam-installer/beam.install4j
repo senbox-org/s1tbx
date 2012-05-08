@@ -1749,7 +1749,7 @@ if (wizardContext != null) {
     </applications>
   </installerGui>
   <mediaSets>
-    <windows name="Win32 JRE" id="20" customizedId="" mediaFileName="beam_${compiler:sys.version}_win32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.6.0_25" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
+    <windows name="Win32 JRE" id="20" customizedId="" mediaFileName="beam_${compiler:sys.version}_win32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.6.0_32" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
@@ -1786,7 +1786,7 @@ if (wizardContext != null) {
       <excludedComponents />
       <includedDownloadableComponents />
     </windows>
-    <windows name="Win64 JRE" id="4707" customizedId="" mediaFileName="beam_${compiler:sys.version}_win64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="64" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-amd64-1.6.0_25" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
+    <windows name="Win64 JRE" id="4707" customizedId="" mediaFileName="beam_${compiler:sys.version}_win64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="64" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-amd64-1.6.0_32" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
@@ -1864,7 +1864,7 @@ if (wizardContext != null) {
       <excludedComponents />
       <includedDownloadableComponents />
     </macosFolder>
-    <unixInstaller name="Linux32 JRE" id="4713" customizedId="" mediaFileName="beam_${compiler:sys.version}_linux32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="linux-x86-1.6.0_25" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="">
+    <unixInstaller name="Linux32 JRE" id="4713" customizedId="" mediaFileName="beam_${compiler:sys.version}_linux32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="linux-x86-1.6.0_32" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="">
       <excludedLaunchers>
         <launcher id="1086" />
       </excludedLaunchers>
@@ -1910,7 +1910,7 @@ if (wizardContext != null) {
         <content />
       </installerScript>
     </unixInstaller>
-    <unixInstaller name="Linux64 JRE" id="128" customizedId="" mediaFileName="beam_${compiler:sys.version}_linux64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="linux-amd64-1.6.0_25" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="">
+    <unixInstaller name="Linux64 JRE" id="128" customizedId="" mediaFileName="beam_${compiler:sys.version}_linux64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="linux-amd64-1.6.0_32" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="">
       <excludedLaunchers>
         <launcher id="1086" />
       </excludedLaunchers>
@@ -2004,6 +2004,7 @@ if (wizardContext != null) {
     </unixInstaller>
   </mediaSets>
   <buildIds buildAll="false">
+    <mediaSet refId="20" />
     <mediaSet refId="4707" />
   </buildIds>
   <buildOptions verbose="false" faster="false" debug="false" />
