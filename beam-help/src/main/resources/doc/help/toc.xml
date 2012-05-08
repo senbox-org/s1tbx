@@ -43,7 +43,7 @@
                 </tocitem>
                 <tocitem text="Import Vector Data">
                     <tocitem text="CSV" target="importCSV"/>
-                    <tocitem text="ESRI Shape File" target="importShapefile"/>
+                    <tocitem text="ESRI Shapefile" target="importShapefile"/>
                     <tocitem text="MERMAID Extraction File" target="importMermaid"/>
                     <tocitem text="SeaDAS 6.x Track" target="importSeaDASTrack"/>
                 </tocitem>

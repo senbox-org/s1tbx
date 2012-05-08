@@ -828,7 +828,7 @@
             <id>importShapefile</id>
             <class>org.esa.beam.visat.actions.ImportVectorDataNodeFromShapefileAction</class>
             <parent>importVectorData</parent>
-            <text>ESRI Shape File</text>
+            <text>ESRI Shapefile</text>
             <mnemonic>S</mnemonic>
             <shortDescr>Import geometry from ESRI Shapefile.</shortDescr>
             <description>Import geometry from ESRI Shapefile.</description>
