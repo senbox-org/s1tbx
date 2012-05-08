@@ -60,8 +60,8 @@
             <operatorName>PixEx</operatorName>
             <dialogTitle>Pixel Extraction</dialogTitle>
             <helpId>pixelExtraction</helpId>
-            <text>Export Pixels...</text>
-            <description>Exports the pixels of a given list of coordinates.</description>
+            <text>Pixel Extraction...</text>
+            <description>Extract of one or more data products for given list of geographical points.</description>
             <mnemonic>P</mnemonic>
         </action>
     </extension>
