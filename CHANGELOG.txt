@@ -34,33 +34,58 @@ _____________________________________________________________________________
 
 1) New BEAM Features
 
-o The file menu has been revised.
+o VISAT has been greatly enhanced by a number of efficient and user friendly tools supporting validation activities.
+  The former statistics tool window has been split into multiple, dedicated tool windows each providing a number of new
+  functions.
+    (1) General enhancements
+        - Generate (ROI) masks from plots: mark a value range in the plot area (histogram, scatter, profile plots)
+          and create a mask comprising the pixels that fall into that value range.
+          The mask is immediately displayed as an overlay in the satellite image view and can be used as a new region of
+          interest fos statistical analyses;
+        - Axes in plots, if applicable can now use a log10-scaling;
+        - Inspect and export (copy to clipboard) plot data as tabulated data.
+    (1) Profile plot enhancements
+        - display correlative (reference, in-situ) data together with the data extracted from a transect or track,
+          optionally filtered by a ROI mask;
+        - synchronise pixel positions: click the transect graphs in the plot and display a cursor which is shown in both,
+          the plot and also along the track figure shown in the satellite image view.
+    (2) Correlative plot
+        - compare satellite data with correlative (reference, in-situ) data in a scatter plot, optionally filtered by a
+          ROI mask;
+        - display regression line and information;
+        - display 1:a identity line.
+    (3) Scatter plot
+        - compare two raster datasets and display a density plot of pixel frequencies, optionally filtered by a ROI mask;
+        - quickly invert density colors;
+    (4) Histogram
+        - generate histograms of raster data, optionally filtered by a ROI mask;
+        - bin cells of the histogram can now be log10 scaled, thus turning a logarithmic into a normal distribution.
+    (5) Statistics
+        - generate common statistical variables, including commonly used percentile thresholds, histogram and
+          percentile plots;
+        - optionally compute statistics for one or multiple masks in one go.
 
-o A new reader has been added which allows reading CSV-files into the BEAM product data model; thus, input from such
-  files may be used for example within the graph processing framework.
+o In order to import the correlative data for the new validation tools, support for multiple types of text-based point
+  and vector data sources has been added: plain text, tab-separated CSV files, data extracts from MERMAID in-situ
+  database, and SeaDAS 6.x ship-tracks can now be read and used as vector data within VISAT.
 
-o The BEAM datamodel has been revised: vector data is now based on the OGC-standard for simple features.
+o Three new readers have been added which allow for
+    (1) reading data products of the new VIIRS (Visible Infrared Imaging Radiometer Suite) instrument.
+        This capability is provided by the SeaDAS Ocean Colour reader which has been developed by the NASA OBPG
+        as part of SeaDAS 7 (http://oceancolor.gsfc.nasa.gov/forum/oceancolor/board_show.pl?bid=28).
+    (2) reading plain text, CSV files into the BEAM product data model; thus, input from such
+        files may be used for example with the BEAM Graph Processing Tool 'gpt' command-line.
+        Also a corresponding writer is available for CSV.
+    (3) reading ordinary RGM image files (JPEG, PNG, GIF, ...). Products imported from images comprise the
+        bands red, green, blue with associated wavelength and a grey band which is a linear combination of
+        the three.
 
-o Support for multiple types of text-based input has been added: CSV-files, data extracts from MERMAID, and
-  SeaDAS 6.x shiptracks can now be read and used as vector data within BEAM VISAT.
+o The VISAT file import / export menus have been revised due to the meanwhile large number of various data formats
+  BEAM is able to import from and export to.
 
-o The statistics window, the geo-coding window, the histogram, the scatter plot and the profile plot are now within
-  independent tool windows.
+o The VISAT colour manipulation tool window has been enhanced by log10-scaled colour bars.
 
-o All these windows have been completely revised towards higher user-friendliness.
-
-o The statistics window now comprises additional threshold values for the most popular percentile values as well as a
-  histogram and a diagram displaying percentile information.
-
-o The histogram tool window now can be displayed using a log10-scaled x-axis; the histogram may also be computed
-  using log10-scaled values, too.
-
-o The scatter plot can be drawn with inverted colours now. Additionally, a selection of values can be selected in order
-  to create a mask from the expression given by these values.
-
-o A new 'correlative plot' has been introduced. It displays the correlation between raster data and vector data.
-
-o The profile plot now also has support for vector data.
+o The BEAM Java core data model has been revised: vector data is now based on the OGC-standard for simple features.
 
 
 2) Complete list of BEAM 4.10 bug fixes and improvements
