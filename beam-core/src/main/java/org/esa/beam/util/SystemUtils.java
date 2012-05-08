@@ -22,12 +22,19 @@ import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
 import javax.media.jai.OperationRegistry;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.datatransfer.*;
+import javax.swing.UIManager;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -527,7 +534,7 @@ public class SystemUtils {
     }
 
     /**
-     * @deprecated since BEAM 4.10 only used by {@link org.esa.beam.dataio.modis.ModisProductReaderPlugIn} - moved there as private method
+     * @deprecated since BEAM 4.10 only used by {@code org.esa.beam.dataio.modis.ModisProductReaderPlugIn} - moved there as private method
      */
     @Deprecated
     public static Class<?> loadHdf4Lib(Class<?> callerClass) {
@@ -537,7 +544,7 @@ public class SystemUtils {
     }
 
     /**
-     * @deprecated since BEAM 4.10 only used by {@link org.esa.beam.dataio.hdf5.HDF5ProductWriterPlugin} - moved there as private method
+     * @deprecated since BEAM 4.10 only used by {@code org.esa.beam.dataio.hdf5.HDF5ProductWriterPlugin} - moved there as private method
      */
     @Deprecated
     public static Class<?> loadHdf5Lib(Class<?> callerClass) {
@@ -586,12 +593,17 @@ public class SystemUtils {
         OperationRegistry operationRegistry = OperationRegistry.getThreadSafeOperationRegistry();
         InputStream is = SystemUtils.class.getResourceAsStream(JAI_REGISTRY_PATH);
         if (is != null) {
+            // Suppress ugly (and harmless) JAI error messages saying that a descriptor is already registered.
+            final PrintStream oldErr = System.err;
             try {
+                setSystemErr(new PrintStream(new ByteArrayOutputStream()));
                 operationRegistry.updateFromStream(is);
                 operationRegistry.registerServices(cl);
                 JAI.getDefaultInstance().setOperationRegistry(operationRegistry);
             } catch (IOException e) {
                 BeamLogManager.getSystemLogger().log(Level.SEVERE, MessageFormat.format("Error loading {0}: {1}", JAI_REGISTRY_PATH, e.getMessage()), e);
+            } finally {
+                setSystemErr(oldErr);
             }
         } else {
             BeamLogManager.getSystemLogger().warning(MessageFormat.format("{0} not found", JAI_REGISTRY_PATH));
@@ -599,6 +611,14 @@ public class SystemUtils {
         Integer parallelism = Integer.getInteger(BEAM_PARALLELISM_PROPERTY_NAME, Runtime.getRuntime().availableProcessors());
         JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
         BeamLogManager.getSystemLogger().info(MessageFormat.format("JAI tile scheduler parallelism set to {0}", parallelism));
+    }
+
+    private static void setSystemErr(PrintStream oldErr) {
+        try {
+            System.setErr(oldErr);
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     public static String getApplicationRemoteVersionUrl() {
