@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * @author Norman Fomferra
  */
-public class ProfileDataTableModel extends AbstractTableModel implements CsvEncoder {
+class ProfileDataTableModel extends AbstractTableModel implements CsvEncoder {
     private final static String REF_SUFFIX = "_ref";
 
     private final TransectProfileData profileData;

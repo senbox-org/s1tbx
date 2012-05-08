@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * @author Sabine Embacher
  */
-public class ScatterPlotTableModel extends AbstractTableModel implements CsvEncoder {
+class ScatterPlotTableModel extends AbstractTableModel implements CsvEncoder {
 
     private final static String REF_SUFFIX = "_ref";
 
