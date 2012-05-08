@@ -41,22 +41,24 @@ o VISAT has been greatly enhanced by a number of efficient and user friendly too
     (1) General enhancements
         - Generate (ROI) masks from plots: mark a value range in the plot area (histogram, scatter, profile plots)
           and create a mask comprising the pixels that fall into that value range.
-          The mask is immediately displayed as an overlay in the satellite image view and can be used as a new region of
-          interest fos statistical analyses;
+          The mask is immediately displayed as an overlay in the satellite image view and can be used as a new region
+          of interest for statistical analyses;
         - Zoom into plot areas using the mouse wheel;
         - Axes in plots, if applicable can now use a log10-scaling;
         - Inspect and export (copy to clipboard) plot data as tabulated data.
     (1) Profile plot enhancements
-        - display correlative data together with the data extracted from a transect or track, optionally filtered by a
-          ROI mask;
+        - extract satellite data from a transect or track and display it, optionally averaged over an NxN pixel box,
+          optionally filtered by a ROI mask, optionally together with correlative data;
         - synchronise pixel positions: click the transect graphs in the plot and display a cursor which is shown in
           both, the plot and also along the track figure shown in the satellite image view.
     (2) Correlative plot
-        - compare satellite data with correlative data in a scatter plot, optionally filtered by a ROI mask;
+        - extract satellite data at geographical points, optionally averaged over an NxN pixel box, optionally filtered
+          by a ROI mask, and display against correlative data fields in a scatter plot;
         - display regression line and information;
         - display the 1:1 identity line.
     (3) Scatter plot
-        - compare two raster datasets and display a density plot of pixel frequencies, optionally filtered by a ROI mask;
+        - compare two raster datasets and display a density plot of pixel frequencies, optionally filtered by a
+          ROI mask;
         - quickly invert density colors;
     (4) Histogram
         - generate histograms of raster data, optionally filtered by a ROI mask;
