@@ -496,7 +496,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         yAxisOptionPanel.add(yLogCheck, BorderLayout.SOUTH);
 
         final JCheckBox acceptableCheck = new JCheckBox("Show tolerance range");
-        JLabel acceptableLabel = new JLabel("+/-");
+        JLabel fieldPräfix = new JLabel("+/-");
         final JTextField acceptableField = new JTextField();
         acceptableField.setPreferredSize(new Dimension(40, acceptableField.getPreferredSize().height));
         acceptableField.setHorizontalAlignment(JTextField.RIGHT);
@@ -504,12 +504,13 @@ class ScatterPlotPanel extends ChartPagePanel {
         bindingContext.bind(PROPERTY_NAME_SHOW_ACCEPTABLE_DEVIATION, acceptableCheck);
         bindingContext.bind(PROPERTY_NAME_ACCEPTABLE_DEVIATION, acceptableField);
         bindingContext.getBinding(PROPERTY_NAME_ACCEPTABLE_DEVIATION).addComponent(percentLabel);
+        bindingContext.getBinding(PROPERTY_NAME_ACCEPTABLE_DEVIATION).addComponent(fieldPräfix);
         bindingContext.bindEnabledState(PROPERTY_NAME_ACCEPTABLE_DEVIATION, true, PROPERTY_NAME_SHOW_ACCEPTABLE_DEVIATION, true);
 
         final JPanel confidencePanel = GridBagUtils.createPanel();
         GridBagConstraints confidencePanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=5,weighty=0,weightx=1");
         GridBagUtils.addToPanel(confidencePanel, acceptableCheck, confidencePanelConstraints, "gridy=0,gridwidth=3");
-        GridBagUtils.addToPanel(confidencePanel, acceptableLabel, confidencePanelConstraints, "weightx=0,insets.left=22,gridy=1,gridx=0,insets.top=4,gridwidth=1");
+        GridBagUtils.addToPanel(confidencePanel, fieldPräfix, confidencePanelConstraints, "weightx=0,insets.left=22,gridy=1,gridx=0,insets.top=4,gridwidth=1");
         GridBagUtils.addToPanel(confidencePanel, acceptableField, confidencePanelConstraints, "weightx=1,gridx=1,insets.left=2,insets.top=2");
         GridBagUtils.addToPanel(confidencePanel, percentLabel, confidencePanelConstraints, "weightx=0,gridx=2,insets.left=0,insets.top=4");
 
