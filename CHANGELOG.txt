@@ -43,6 +43,7 @@ o VISAT has been greatly enhanced by a number of efficient and user friendly too
           and create a mask comprising the pixels that fall into that value range.
           The mask is immediately displayed as an overlay in the satellite image view and can be used as a new region of
           interest fos statistical analyses;
+        - Zoom into plot areas using the mouse wheel;
         - Axes in plots, if applicable can now use a log10-scaling;
         - Inspect and export (copy to clipboard) plot data as tabulated data.
     (1) Profile plot enhancements
