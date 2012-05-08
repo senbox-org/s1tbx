@@ -95,6 +95,11 @@ o Three new readers have been added which allow for
 o The VISAT file import / export menus have been revised due to the meanwhile large number of various data formats
   BEAM is able to import from and export to.
 
+o The following BEAM command-line tool enhancements (see 'gpt -h' on the command-line) have been added
+  - The pixel extraction operator 'PixEx' now uses an extended wild-card syntax to recursively collect source
+    products from a list of directories.
+  - A new operator 'Merge' allows for copying raster data from other data products to a specified 'master' product.
+
 o The BEAM Java core data model has been revised: vector data is now based on the OGC-standard for simple features.
 
 2) Complete list of BEAM 4.10 bug fixes and improvements
