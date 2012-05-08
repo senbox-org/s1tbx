@@ -35,8 +35,9 @@ _____________________________________________________________________________
 1) New BEAM Features
 
 o VISAT has been greatly enhanced by a number of efficient and user friendly tools supporting validation activities.
-  The former statistics tool window has been split into multiple, dedicated tool windows each providing a number of new
-  functions.
+  A number of tools now allow for comparing satellite data with correlative data (e.g. in-situ data or other reference
+  data) imported from external sources. The former statistics tool window has been split into multiple, dedicated tool
+  windows each providing a number of new functions.
     (1) General enhancements
         - Generate (ROI) masks from plots: mark a value range in the plot area (histogram, scatter, profile plots)
           and create a mask comprising the pixels that fall into that value range.
@@ -45,13 +46,12 @@ o VISAT has been greatly enhanced by a number of efficient and user friendly too
         - Axes in plots, if applicable can now use a log10-scaling;
         - Inspect and export (copy to clipboard) plot data as tabulated data.
     (1) Profile plot enhancements
-        - display correlative (reference, in-situ) data together with the data extracted from a transect or track,
-          optionally filtered by a ROI mask;
-        - synchronise pixel positions: click the transect graphs in the plot and display a cursor which is shown in both,
-          the plot and also along the track figure shown in the satellite image view.
-    (2) Correlative plot
-        - compare satellite data with correlative (reference, in-situ) data in a scatter plot, optionally filtered by a
+        - display correlative data together with the data extracted from a transect or track, optionally filtered by a
           ROI mask;
+        - synchronise pixel positions: click the transect graphs in the plot and display a cursor which is shown in
+          both, the plot and also along the track figure shown in the satellite image view.
+    (2) Correlative plot
+        - compare satellite data with correlative data in a scatter plot, optionally filtered by a ROI mask;
         - display regression line and information;
         - display 1:a identity line.
     (3) Scatter plot
@@ -67,7 +67,16 @@ o VISAT has been greatly enhanced by a number of efficient and user friendly too
 
 o In order to import the correlative data for the new validation tools, support for multiple types of text-based point
   and vector data sources has been added: plain text, tab-separated CSV files, data extracts from MERMAID in-situ
-  database, and SeaDAS 6.x ship-tracks can now be read and used as vector data within VISAT.
+  database, and SeaDAS 6.x ship-tracks can now be read and used as vector data within VISAT. All additional columns
+  are kept and, if numerical, may serve as a variable used in the scatter or profile plots.
+
+o Double-clicking the imported vector data in the product browser window displays it in a tabular view similar to
+  double-clicking a band which will an image view.
+
+o Imported point data can now be interpreted as a path or track and will be displayed accordingly in an image view.
+  Additional numerical columns of such imported point data can be directly displayed in the profile plot.
+
+o The VISAT colour manipulation tool window has been enhanced by log10-scaled colour bars.
 
 o Three new readers have been added which allow for
     (1) reading data products of the new VIIRS (Visible Infrared Imaging Radiometer Suite) instrument.
@@ -83,10 +92,7 @@ o Three new readers have been added which allow for
 o The VISAT file import / export menus have been revised due to the meanwhile large number of various data formats
   BEAM is able to import from and export to.
 
-o The VISAT colour manipulation tool window has been enhanced by log10-scaled colour bars.
-
 o The BEAM Java core data model has been revised: vector data is now based on the OGC-standard for simple features.
-
 
 2) Complete list of BEAM 4.10 bug fixes and improvements
 
