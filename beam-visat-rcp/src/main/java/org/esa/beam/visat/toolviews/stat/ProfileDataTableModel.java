@@ -26,7 +26,6 @@ public class ProfileDataTableModel extends AbstractTableModel implements CsvEnco
     private final TransectProfileData profileData;
     private final List<String> columnNames;
     private final Map<Integer, Integer> propertyIndices;
-    private final Class[] columnClasses;
     private final int[] pointDataIndexes;
     private final int dataFieldIndex;
     private final SimpleFeature[] features;
@@ -75,19 +74,6 @@ public class ProfileDataTableModel extends AbstractTableModel implements CsvEnco
         columnNames.add("reference");
         columnNames.add(corrDataName);
 
-        columnClasses = new Class[]{
-                String.class,
-                Integer.class,
-                Integer.class,
-                Integer.class,
-                Float.class,
-                Float.class,
-                Float.class,
-                Float.class,
-                String.class,
-                corrDataClass
-        };
-
         propertyIndices = new HashMap<Integer, Integer>();
         if (features != null && features.length > 0) {
             final int colStart = 10;
@@ -115,11 +101,6 @@ public class ProfileDataTableModel extends AbstractTableModel implements CsvEnco
     @Override
     public String getColumnName(int column) {
         return columnNames.get(column);
-    }
-
-    @Override
-    public Class<?> getColumnClass(int column) {
-        return column < columnClasses.length ? columnClasses[column] : Object.class;
     }
 
     @Override

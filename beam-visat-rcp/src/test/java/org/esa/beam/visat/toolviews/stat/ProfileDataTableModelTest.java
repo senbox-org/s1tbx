@@ -79,19 +79,6 @@ public class ProfileDataTableModelTest {
         assertEquals("lat", tableModel.getColumnName(10));
         assertEquals("lon", tableModel.getColumnName(11));
 
-        assertEquals(String.class, tableModel.getColumnClass(0));
-        assertEquals(Integer.class, tableModel.getColumnClass(1));
-        assertEquals(Integer.class, tableModel.getColumnClass(2));
-        assertEquals(Integer.class, tableModel.getColumnClass(3));
-        assertEquals(Float.class, tableModel.getColumnClass(4));
-        assertEquals(Float.class, tableModel.getColumnClass(5));
-        assertEquals(Float.class, tableModel.getColumnClass(6));
-        assertEquals(Float.class, tableModel.getColumnClass(7));
-        assertEquals(String.class, tableModel.getColumnClass(8));
-        assertEquals(Double.class, tableModel.getColumnClass(9));
-        assertEquals(Object.class, tableModel.getColumnClass(10));
-        assertEquals(Object.class, tableModel.getColumnClass(11));
-
         assertEquals(10, tableModel.getRowCount());
 
         assertEquals("some Type", tableModel.getValueAt(0, 0));
@@ -160,17 +147,6 @@ public class ProfileDataTableModelTest {
         assertEquals("b_sigma", tableModel.getColumnName(7));
         assertEquals("reference", tableModel.getColumnName(8));
         assertEquals("", tableModel.getColumnName(9));
-
-        assertEquals(String.class, tableModel.getColumnClass(0));
-        assertEquals(Integer.class, tableModel.getColumnClass(1));
-        assertEquals(Integer.class, tableModel.getColumnClass(2));
-        assertEquals(Integer.class, tableModel.getColumnClass(3));
-        assertEquals(Float.class, tableModel.getColumnClass(4));
-        assertEquals(Float.class, tableModel.getColumnClass(5));
-        assertEquals(Float.class, tableModel.getColumnClass(6));
-        assertEquals(Float.class, tableModel.getColumnClass(7));
-        assertEquals(String.class, tableModel.getColumnClass(8));
-        assertEquals(Object.class, tableModel.getColumnClass(9));
 
         assertEquals(10, tableModel.getRowCount());
 
