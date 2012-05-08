@@ -24,13 +24,13 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam</artifactId>
-        <version>4.10-SNAPSHOT</version>
+        <version>4.10</version>
     </parent>
 
     <name>BEAM MERIS Cloud Probability Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-meris-cloud</artifactId>
-    <version>1.6-SNAPSHOT</version>
+    <version>1.6</version>
 
     <packaging>jar</packaging>
 

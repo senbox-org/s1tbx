@@ -22,13 +22,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10-SNAPSHOT</version>
+        <version>4.10</version>
     </parent>
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-atsr-reader</artifactId>
     <name>BEAM ATSR Product Reader</name>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.2</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <packaging>jar</packaging>

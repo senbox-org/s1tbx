@@ -22,7 +22,7 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10-SNAPSHOT</version>
+        <version>4.10</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -30,7 +30,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-chris-reader</artifactId>
     <name>BEAM CHRIS/Proba Product Reader</name>
-    <version>1.7-SNAPSHOT</version>
+    <version>1.7</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>

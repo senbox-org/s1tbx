@@ -24,7 +24,7 @@
     <url>http://www.brockmann-consult.de/beam-wiki</url>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam</artifactId>
-    <version>4.10-SNAPSHOT</version>
+    <version>4.10</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -35,8 +35,8 @@
            -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <beam.version>4.10-SNAPSHOT</beam.version>
-        <ceres.version>0.13-SNAPSHOT</ceres.version>
+        <beam.version>4.10</beam.version>
+        <ceres.version>0.13</ceres.version>
         <geotools.version>2.7.4</geotools.version>
         <jide.version>3.3.7</jide.version>
         <hdf.version>2.7</hdf.version>
@@ -263,6 +263,11 @@
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
+                <artifactId>beam-csv-dataio</artifactId>
+                <version>${beam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat-rcp</artifactId>
                 <version>${beam.version}</version>
             </dependency>
@@ -277,19 +282,19 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-envisat-reader</artifactId>
-                <version>1.5-SNAPSHOT</version>
+                <version>1.5</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-netcdf</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-geotiff</artifactId>
-                <version>1.2-SNAPSHOT</version>
+                <version>1.2</version>
             </dependency>
 
             <dependency>
@@ -894,6 +899,15 @@
             <id>thomas</id>
             <name>Thomas Storm</name>
             <email>thomas.storm@brockmann-consult.de</email>
+            <organization>Brockmann Consult</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>tonio</id>
+            <name>Tonio Fincke</name>
+            <email>tonio.fincke@brockmann-consult.de</email>
             <organization>Brockmann Consult</organization>
             <roles>
                 <role>Java Developer</role>

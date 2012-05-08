@@ -23,12 +23,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10-SNAPSHOT</version>
+        <version>4.10</version>
     </parent>
 
     <artifactId>beam-meris-radiometry</artifactId>
     <name>BEAM MERIS Radiometry Processor</name>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1</version>
 
 
     <description>

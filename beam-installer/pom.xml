@@ -24,7 +24,7 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10-SNAPSHOT</version>
+        <version>4.10</version>
     </parent>
 
     <name>BEAM Installer Resources</name>
@@ -124,31 +124,31 @@
                                 <artifactItem>
                                     <groupId>org.esa.beam</groupId>
                                     <artifactId>beam-meris-case2-regional</artifactId>
-                                    <version>1.5.3-SNAPSHOT</version>
+                                    <version>1.5.3</version>
                                     <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.esa.beam</groupId>
                                     <artifactId>beam-meris-l2auxdata</artifactId>
-                                    <version>1.2.2-SNAPSHOT</version>
+                                    <version>1.2.2</version>
                                     <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.esa.beam</groupId>
                                     <artifactId>beam-meris-sdr</artifactId>
-                                    <version>2.3.2-SNAPSHOT</version>
+                                    <version>2.3.2</version>
                                     <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.esa.beam</groupId>
                                     <artifactId>beam-meris-brr</artifactId>
-                                    <version>2.3.2-SNAPSHOT</version>
+                                    <version>2.3.2</version>
                                     <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.esa.beam</groupId>
                                     <artifactId>beam-meris-glint</artifactId>
-                                    <version>1.2.2-SNAPSHOT</version>
+                                    <version>1.2.2</version>
                                     <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>

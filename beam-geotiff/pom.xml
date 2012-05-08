@@ -20,13 +20,13 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-geotiff</artifactId>
     <packaging>jar</packaging>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <name>BEAM GeoTIFF Product Reader/Writer</name>
 
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10-SNAPSHOT</version>
+        <version>4.10</version>
     </parent>
 
     <dependencies>
