@@ -497,7 +497,8 @@ class ScatterPlotPanel extends ChartPagePanel {
         yAxisOptionPanel.add(yAxisRangeControl.getPanel());
         yAxisOptionPanel.add(yLogCheck, BorderLayout.SOUTH);
 
-        final JCheckBox acceptableCheck = new JCheckBox("Acceptable deviation");
+        final JCheckBox acceptableCheck = new JCheckBox("Show tolerance range");
+        JLabel acceptableLabel = new JLabel("+/-");
         final JTextField acceptableField = new JTextField();
         acceptableField.setPreferredSize(new Dimension(40, acceptableField.getPreferredSize().height));
         acceptableField.setHorizontalAlignment(JTextField.RIGHT);
@@ -509,9 +510,10 @@ class ScatterPlotPanel extends ChartPagePanel {
 
         final JPanel confidencePanel = GridBagUtils.createPanel();
         GridBagConstraints confidencePanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=5,weighty=0,weightx=1");
-        GridBagUtils.addToPanel(confidencePanel, acceptableCheck, confidencePanelConstraints, "gridy=0");
-        GridBagUtils.addToPanel(confidencePanel, acceptableField, confidencePanelConstraints, "gridy=1,gridx=0,insets.left=4,insets.top=2");
-        GridBagUtils.addToPanel(confidencePanel, percentLabel, confidencePanelConstraints, "gridy=1,gridx=1,insets.left=0,insets.top=4");
+        GridBagUtils.addToPanel(confidencePanel, acceptableCheck, confidencePanelConstraints, "gridy=0,gridwidth=3");
+        GridBagUtils.addToPanel(confidencePanel, acceptableLabel, confidencePanelConstraints, "weightx=0,insets.left=22,gridy=1,gridx=0,insets.top=4,gridwidth=1");
+        GridBagUtils.addToPanel(confidencePanel, acceptableField, confidencePanelConstraints, "weightx=1,gridx=1,insets.left=2,insets.top=2");
+        GridBagUtils.addToPanel(confidencePanel, percentLabel, confidencePanelConstraints, "weightx=0,gridx=2,insets.left=0,insets.top=4");
 
         final JCheckBox regressionCheck = new JCheckBox("Show regression line");
         bindingContext.bind(PROPERTY_NAME_SHOW_REGRESSION_LINE, regressionCheck);
@@ -833,7 +835,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             coVarXY += (scatterpointsDataset.getXValue(0, i) - arithmeticMeanOfX) * (scatterpointsDataset.getYValue(0, i) - arithmeticMeanOfY);
         }
         //computation of coefficient of determination
-        double r2 = coVarXY / (Math.sqrt(varX * varY));
+        double r2 = Math.pow(coVarXY,2) / (varX * varY);
         r2 = MathUtils.round(r2, Math.pow(10.0, 5));
 
         final double[] coefficients = Regression.getOLSRegression(scatterpointsDataset, 0);
