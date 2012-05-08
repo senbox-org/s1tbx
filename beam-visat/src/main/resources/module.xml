@@ -29,7 +29,7 @@
         <applicationDescriptor>
             <applicationId>VisatMain</applicationId>
             <displayName>VISAT</displayName>
-            <version>4.10-SNAPSHOT</version>
+            <version>4.10</version>
             <buildId>${beam.build.id}</buildId>
             <buildDate>${beam.build.date}</buildDate>
             <excludedToolViews>
