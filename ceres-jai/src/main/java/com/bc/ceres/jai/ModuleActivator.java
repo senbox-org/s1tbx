@@ -49,6 +49,10 @@ public class ModuleActivator implements Activator {
 
     private void register(String descriptorName, RegistryElementDescriptor descriptor, RenderedImageFactory rif) {
         final OperationRegistry registry = JAI.getDefaultInstance().getOperationRegistry();
+        final RegistryElementDescriptor oldOne = registry.getDescriptor(RenderedRegistryMode.MODE_NAME, descriptorName);
+        if (oldOne != null) {
+            registry.unregisterDescriptor(oldOne);
+        }
         registry.registerDescriptor(descriptor);
         registry.registerFactory(RenderedRegistryMode.MODE_NAME, descriptorName, "com.bc.ceres.jai", rif);
     }
