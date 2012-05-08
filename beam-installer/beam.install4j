@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="5.0.10" transformSequenceNumber="3">
+<install4j version="5.0.11" transformSequenceNumber="3">
   <directoryPresets config="./src/main/resources/images" />
   <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="4.10" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
@@ -199,11 +199,11 @@
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.StandardProgramGroupScreen">
-                  <void property="allowUserChangeEnabled">
-                    <boolean>false</boolean>
-                  </void>
                   <void property="programGroupName">
                     <string>BEAM ${compiler:sys.version}</string>
+                  </void>
+                  <void property="showWarningIfExists">
+                    <boolean>true</boolean>
                   </void>
                 </object>
               </java>
@@ -369,7 +369,7 @@
                     </object>
                   </java>
                 </serializedBean>
-                <condition>Util.isWindowsInstaller()</condition>
+                <condition> Util.isWindowsInstaller() &amp;&amp; context.getVariable("sys.programGroupDir") != null</condition>
               </action>
               <action name="" id="4354" customizedId="" beanClass="com.bc.install4j.ScriptPatcherAction" enabled="false" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
                 <serializedBean>
@@ -425,9 +425,6 @@ return files;
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.text.ReplaceInstallerVariablesAction">
-                      <void property="failIfNoReplacement">
-                        <boolean>false</boolean>
-                      </void>
                       <void property="files">
                         <array class="java.io.File" length="1">
                           <void index="0">
@@ -2008,6 +2005,7 @@ if (wizardContext != null) {
   </mediaSets>
   <buildIds buildAll="false">
     <mediaSet refId="4707" />
+    <mediaSet refId="128" />
   </buildIds>
   <buildOptions verbose="false" faster="false" debug="false" />
 </install4j>
