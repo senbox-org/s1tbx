@@ -19,10 +19,10 @@
   <tr><td><b>Name:</b></td><td><code>PixEx</code></td></tr>
   <tr><td><b>Full name:</b></td><td><code>org.esa.beam.pixex.PixExOp</code></td></tr>
   <tr><td><b>Purpose:</b></td><td>Extracts pixels from given locations and source products.</td></tr>
-  <tr><td><b>Version:</b></td><td>1.0</td></tr>
+  <tr><td><b>Version:</b></td><td>1.0.1</td></tr>
 </table>
 <h2>Description</h2>
-This operator is used to extracts pixels from given locations and source products.
+This operator is used to extract pixels from given locations and source products.
  It can also create sub-scenes containing all locations found in the source products and create
  KMZ files which contain the locations found in a source product
 <h2>Sources</h2>
@@ -46,11 +46,20 @@ This operator is used to extracts pixels from given locations and source product
   <th>Constraints</th>
 </tr>
 <tr>
+  <td><code>sourceProductPaths</code></td>
+  <td><code>String[]</code></td>
+  <td><code></code></td>
+  <td>A comma-separated list of file paths specifying the source products.
+Each path may contain the wildcards '**' (matches recursively any directory),
+'*' (matches any character sequence in path names) and
+'?' (matches any single character).</td>
+  <td></td>
+</tr>
+<tr>
   <td><code>inputPaths</code></td>
   <td><code>File[]</code></td>
   <td><code></code></td>
-  <td>The paths to be scanned for input products. May point to a single file or a directory.
-If path ends with '**' the directory is scanned recursively.</td>
+  <td>Deprecated since version 1.0, use parameter 'sourcePaths' instead.</td>
   <td></td>
 </tr>
 <tr>
@@ -84,9 +93,9 @@ If path ends with '**' the directory is scanned recursively.</td>
 <tr>
   <td><code>timeDifference</code></td>
   <td><code>String</code></td>
-  <td><code>1D</code></td>
+  <td><code></code></td>
   <td>The acceptable time difference compared to the time given for a coordinate.
-The format is a number followed by (D)ay, (H)our or (M)inute.</td>
+The format is a number followed by (D)ay, (H)our or (M)inute. If no time difference is provided, all input products are considered regardless of their time.</td>
   <td></td>
 </tr>
 <tr>
@@ -151,6 +160,27 @@ is used as filter (all pixels in given window must be valid).</td>
   <td><code>boolean</code></td>
   <td><code>false</code></td>
   <td>If set to true, a Google KMZ file will be created, which contains the coordinates where pixels are found.</td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>extractTimeFromFilename</code></td>
+  <td><code>boolean</code></td>
+  <td><code>false</code></td>
+  <td>If set to true, the sensing start and sensing stop should be extracted from the filename of each input product.</td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>dateInterpretationPattern</code></td>
+  <td><code>String</code></td>
+  <td><code>yyyyMMdd</code></td>
+  <td>Describes how a date/time section inside a product filename should be interpreted. E.G. yyyyMMdd_hhmmss</td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>filenameInterpretationPattern</code></td>
+  <td><code>String</code></td>
+  <td><code>*${date}*${date}*</code></td>
+  <td>Describes how the filename of a product should be interpreted.</td>
   <td></td>
 </tr>
 </table>
