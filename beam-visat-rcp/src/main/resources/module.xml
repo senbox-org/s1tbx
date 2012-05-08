@@ -333,11 +333,29 @@
             <mnemonic>i</mnemonic>
             <accelerator>ctrl alt I</accelerator>
             <description>Display detailed pixel information in a table view.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/PixelInfo16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/PixelInfo24.gif</largeIcon>
+            <smallIcon>/org/esa/beam/resources/images/icons/PixelInfo16.png</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/PixelInfo24.png</largeIcon>
             <helpId>pixelInfoView</helpId>
             <initState>DOCKED</initState>
             <initSide>WEST</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.placemark.PlacemarkEditorToolView</id>
+            <class>org.esa.beam.visat.toolviews.placemark.PlacemarkEditorToolView</class>
+            <!-- Not yet, editor functionality still not implemented! -->
+            <!--
+            <title>Vector Data Editor</title>
+            <description>Edit features of selected vector data.</description>
+            -->
+            <title>Vector Data Information</title>
+            <description>Displays attributes of selected vector data features.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/FeatureInfo16.png</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/FeatureInfo24.png</largeIcon>
+            <helpId>showPlacemarkEditorWnd</helpId>
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
         </toolView>
 
@@ -434,24 +452,6 @@
         </toolView>
 
         <toolView>
-            <id>org.esa.beam.visat.toolviews.placemark.PlacemarkEditorToolView</id>
-            <class>org.esa.beam.visat.toolviews.placemark.PlacemarkEditorToolView</class>
-            <!-- Not yet, editor functionality still not implemented! -->
-            <!--
-            <title>Vector Data Editor</title>
-            <description>Edit features of selected vector data.</description>
-            -->
-            <title>Vector Data Information</title>
-            <description>Displays attributes of selected vector data features.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/PinManager16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/PinManager24.gif</largeIcon>
-            <helpId>showPlacemarkEditorWnd</helpId>
-            <initState>HIDDEN</initState>
-            <initSide>SOUTH</initSide>
-            <initIndex>0</initIndex>
-        </toolView>
-
-        <toolView>
             <id>org.esa.beam.visat.toolviews.placemark.pin.PinManagerToolView</id>
             <class>org.esa.beam.visat.toolviews.placemark.pin.PinManagerToolView</class>
             <title>Pin Manager</title>
@@ -503,8 +503,8 @@
             <title>Information View</title>
             <tabTitle>Information</tabTitle>
             <description>Display information for a selected band.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/Information16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/Information24.gif</largeIcon>
+            <smallIcon>/org/esa/beam/resources/images/icons/NodeInfo16.png</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/NodeInfo24.png</largeIcon>
             <helpId>informationDialog</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>

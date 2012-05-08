@@ -55,6 +55,8 @@ import java.awt.BorderLayout;
  */
 public class PlacemarkEditorToolView extends AbstractToolView {
 
+    public static final String ID = PlacemarkEditorToolView.class.getName();
+
     public static final String NO_SELECTION_TEXT = "<html>No vector data feature selected<br/>Try selecting a geometry in a view.</html>";
 
     private VisatApp visatApp;
