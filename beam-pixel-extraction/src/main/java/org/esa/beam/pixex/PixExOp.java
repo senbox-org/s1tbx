@@ -116,7 +116,7 @@ public class PixExOp extends Operator implements Output {
     private String[] sourceProductPaths;
 
     @Parameter(
-            description = "Deprecated since version 1.0, use parameter 'sourcePaths' instead.")
+            description = "Deprecated since version 1.0, use parameter 'sourceProductPaths' instead.")
     @Deprecated
     private File[] inputPaths;
 
