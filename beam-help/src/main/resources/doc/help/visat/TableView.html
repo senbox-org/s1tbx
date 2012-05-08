@@ -25,22 +25,25 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Table View</td>
-        
-    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0 ></a></td>
+            Table View
+        </td>
+
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a></td>
     </tr>
 </table>
 
 <h3>Table View</h3>
 
 <p>
-    A table view can be accessed from the <a href="CorrelativePlotDialog.html">correlative plot</a> or the <a href="ProfilePlotDialog.html">profile plot</a>.
+    A table view can be accessed from the <a href="CorrelativePlotDialog.html">correlative plot</a> or the <a
+        href="ProfilePlotDialog.html">profile plot</a>.
     It refers to the data used to create the according plot and the selected band.<br>
     You can switch back to the chart view by clicking the chart icon in the upper right.
     The screenshot below shows the table view for a correlative plot.
 </p>
 
-<blockquote> <img src="images/CoordinateListDialog.png">
+<blockquote><img src="images/CoordinateListDialog.png">
 </blockquote>
 
 <p>
@@ -48,6 +51,10 @@
     For the correlative plot, only those pixels which contain points are considered.
     For the profile plot, also pixels between pixels containing vector points are considered (you can disable this
     by deselecting 'Compute in-between points' in the chart view).
+    Incoming reference data are marked with the suffix "_ref" which means reference data.
+</p>
+
+<p>
     In detail, the view lists:
 </p>
 
@@ -62,7 +69,7 @@
     </li>
 
     <li>
-       The pixel's geographic coordinates
+        The pixel's geographic coordinates
     </li>
 
     <li>
@@ -74,11 +81,12 @@
     </li>
 
     <li>
-        The selected data field of the correlative data (only if there is correlative data available for the pixel)
+        The selected data field (e.g. chl) of the correlative data (only if there is correlative data available for the
+        pixel)
     </li>
 
     <li>
-        The geometry of the correlative data (only in the correlative plot)
+        All the other data field values according to the current correlative data point.
     </li>
 
 </ul>
