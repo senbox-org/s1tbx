@@ -122,6 +122,7 @@
                             <exclude>com.bc.ceres:ceres-*</exclude>
                             <exclude>org.esa.beam:beam-*</exclude>
                             <exclude>ncsa.hdf:*</exclude>
+                            <exclude>gov.nasa.gsfc.seadas:seadas-reader*</exclude>
                         </excludes>
                     </dependencySet>
                     <dependencySet>
@@ -130,6 +131,7 @@
                         </outputFileNameMapping>
                         <includes>
                             <include>com.bc.ceres:*</include>
+                            <include>gov.nasa.gsfc.seadas:seadas-reader*</include>
                         </includes>
                         <excludes>
                             <exclude>com.bc.ceres:ceres-launcher</exclude>

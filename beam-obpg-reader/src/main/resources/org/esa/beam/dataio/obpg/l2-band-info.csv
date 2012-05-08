@@ -1,9 +1,0 @@
-chlor_a;        chlor_a >= 0 && chlor_a <= 100
-K_490;          K_490 >= 0 && K_490 <= 6.4
-tau_869;        tau_869 >= 0 && tau_869 <= 3.2
-angstrom_531;	angstrom_531 >= -6.4 && angstrom_531 <= 6.4
-eps_78;	        eps_78 >= 0 && eps_78 <= 78
-sst;            sst >= -2 && sst <= 45
-sst4;           sst4 >= -2 && sst4 <= 45
-
-
