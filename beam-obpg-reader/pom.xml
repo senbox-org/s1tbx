@@ -26,7 +26,7 @@
     </parent>
 
     <properties>
-        <seadas-reader-version>1.3-20120509-01</seadas-reader-version>
+        <seadas-reader-version>1.3-20120509-02</seadas-reader-version>
     </properties>
 
 
