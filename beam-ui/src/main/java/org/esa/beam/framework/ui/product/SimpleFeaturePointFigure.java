@@ -50,6 +50,10 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
     private static final Color[] labelOutlineColors = new Color[labelOutlineAlphas.length];
     private static final Color labelFontColor = Color.WHITE;
     private static final Color labelOutlineColor = Color.BLACK;
+    private static final String[] labelAttributeNames = new String[] {
+            Placemark.PROPERTY_NAME_LABEL,
+            "Label",
+    };
 
     private final SimpleFeature simpleFeature;
     private Point geometry;
@@ -125,17 +129,23 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
     @Override
     protected void drawPoint(Rendering rendering) {
         super.drawPoint(rendering);
-
-        final Object labelAttribute = simpleFeature.getAttribute(Placemark.PROPERTY_NAME_LABEL);
-        if (labelAttribute instanceof String) {
-            drawLabel(rendering, (String) labelAttribute);
+        String label = getLabel();
+        if (label != null && !label.trim().isEmpty()) {
+            drawLabel(rendering, label);
         }
     }
 
-    private void drawLabel(Rendering rendering, String label) {
-        if (label.trim().isEmpty()) {
-            return;
+    private String getLabel() {
+        for (String labelAttributeName : labelAttributeNames) {
+            Object labelAttribute = simpleFeature.getAttribute(labelAttributeName);
+            if (labelAttribute instanceof String) {
+                return (String) labelAttribute;
+            }
         }
+        return null;
+    }
+
+    private void drawLabel(Rendering rendering, String label) {
 
         final Graphics2D graphics = rendering.getGraphics();
         final Font oldFont = graphics.getFont();
