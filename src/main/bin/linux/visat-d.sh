@@ -16,9 +16,9 @@ fi
 "$app_java_home/bin/java" \
     -Xmx1024M \
     -Dceres.context=beam \
-    -Dceres.debug=true \
+    -Dbeam.debug=true \
     "-Dbeam.home=$BEAM4_HOME" \
-    -jar "$BEAM4_HOME/bin/ceres-launcher.jar" "$@"
+    -jar "$BEAM4_HOME/bin/ceres-launcher.jar" -d "$@"
 
 exit $?
 
