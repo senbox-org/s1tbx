@@ -40,7 +40,7 @@
     <code>.csv</code> . Each line in the file
     corresponds to a single vertex point of the geometric shape which is defined by the geographic coordinates
     as a mandatory file content. These coordinates must be stored in distinct columns (see below) separated
-    by the 'tabulator' character (the 'semicolon' character in the special case of MERMAID export files, see
+    by the 'tabulator' character (the 'semicolon' character in the special case of MERMAID extraction files, see
     <a href="ImportMermaid.html">here</a>). A CSV file <b>must</b> have a header line as described below
     in order to specify column names (the only exception are SeaDAS 6.x track files which are another
     special case of CSV files, see <a href="ImportSeaDASTrack.html">here</a>).
@@ -89,8 +89,8 @@
     For a spatial interpretation of the given data, the CSV data <b>must</b> contain geoinformation given as
 <ul>
     <li>
-        Latitude/Longitude: Column name (converted to lower case) must be one of {'lat', 'latitude'} / {'lon', 'long',
-        'longitude'}
+        Latitude/Longitude: Column name (converted to lower case) must be either 'lat' or 'latitude' in case of Latitude,
+        and either 'lon', 'long' or 'longitude' in case of Longitude.
     </li>
     <li>
         Geometry: As additional option, BEAM/Visat supports geoinformation given as geometries which are conform with
@@ -123,6 +123,12 @@
     header line.
 </p>
 
+<p>
+    If a column named 'Label' or 'label' is present in the CSV data, the corresponding entries will be drawn
+    as label in the current view of BEAM/Visat.
+</p>
+
+
 <h4>Examples for valid CSV Files</h4>
 
 <p>
@@ -136,14 +142,14 @@
         # Product:	subset_0_of_MER_RR__1PNPDK20030813_094018_000022742019_00022_07591_4499
         # Created on:	Thu Apr 26 11:14:57 CEST 2012
 
-        Name	X	Y	Lon	Lat	Label	Desc
-        pin_1	215.5	110.5	9.943068	43.09783	Pin 1
-        pin_2	257.5	111.5	10.458842	42.990147	Pin 2
-        pin_3	273.5	139.5	10.553919	42.664112	Pin 3
-        pin_4	259.5	161.5	10.302726	42.470406	Pin 4
-        pin_5	220.5	157.5	9.838505	42.6018	Pin 5
-        pin_6	199.5	135.5	9.656987	42.87649	Pin 6
-        pin_7	215.5	110.5	9.943068	43.09783	Pin 7
+        Name	X	Y	Lon	        Lat	        Label   Desc
+        pin_1	215.5	110.5	9.943068	43.09783	Pin 1   first
+        pin_2	257.5	111.5	10.458842	42.990147	Pin 2   second
+        pin_3	273.5	139.5	10.553919	42.664112	Pin 3   third
+        pin_4	259.5	161.5	10.302726	42.470406	Pin 4   fourth
+        pin_5	220.5	157.5	9.838505	42.601866	Pin 5   fifth
+        pin_6	199.5	135.5	9.656987	42.87649	Pin 6   sixth
+        pin_7	215.5	110.5	9.943068	43.09783	Pin 7   seventh
     </pre>
 </blockquote>
 
