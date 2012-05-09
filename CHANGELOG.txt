@@ -79,7 +79,7 @@ o Double-clicking the imported vector data in the product browser window display
 o Imported point data can now be interpreted as a path or track and will be displayed accordingly in an image view.
   Additional numerical columns of such imported point data can be directly displayed in the profile plot.
 
-o The VISAT colour manipulation tool window has been enhanced by log10-scaled colour bars.
+o The VISAT colour manipulation tool window has been enhanced by log10 scaled colour bars.
 
 o Three new readers have been added which allow for
     (1) reading data products of the new VIIRS (Visible Infrared Imaging Radiometer Suite) instrument.
