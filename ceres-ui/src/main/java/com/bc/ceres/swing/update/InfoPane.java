@@ -90,7 +90,9 @@ class InfoPane extends JPanel {
             addText(html, "Copyright", module.getCopyright());
             addUrl(html, "Home page", module.getUrl());
             addUrl(html, "License", module.getLicenseUrl());
-            addText(html, "Agency", module.getFunding());
+            if (module.getFunding() != null && !module.getFunding().trim().isEmpty()) {
+                addText(html, "Funding", module.getFunding());
+            }
             addUrl(html, "About", module.getAboutUrl());
             html.append("</ul>");
             html.append("</p>");

@@ -137,7 +137,7 @@ public class ModuleImpl implements Module {
     }
 
     public String getFunding() {
-        return funding == null ? "European Space Agency" : funding;
+        return funding == null ? "" : funding;
     }
 
     public String getUrl() {

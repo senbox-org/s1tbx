@@ -230,10 +230,12 @@ public class ModuleManagerPane extends JPanel {
 
     private void initUi() {
 
+        // todo - discuss with Luis V., why "Funding" ("Agency") is needed  - nf- 2012-05-09
+
         installedModulesTableModel = new ModuleTableModel(moduleManager.getInstalledModuleItems(),
                                                           new String[]{
                                                                   "Name",
-                                                                  "Agency",
+                                                                  // "Funding",
                                                                   "Version",
                                                                   "State",
                                                                   "Action"});
@@ -241,7 +243,7 @@ public class ModuleManagerPane extends JPanel {
         updatableModulesTableModel = new ModuleTableModel(moduleManager.getUpdatableModuleItems(),
                                                           new String[]{
                                                                   "Name",
-                                                                  "Agency",
+                                                                  // "Funding",
                                                                   "Version",
                                                                   "New Version",
                                                                   "Date",
@@ -251,7 +253,7 @@ public class ModuleManagerPane extends JPanel {
         availableModulesTableModel = new ModuleTableModel(moduleManager.getAvailableModuleItems(),
                                                           new String[]{
                                                                   "Name",
-                                                                  "Agency",
+                                                                  // "Funding",
                                                                   "Version",
                                                                   "Date",
                                                                   "Size",
