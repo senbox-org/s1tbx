@@ -70,7 +70,6 @@ public class Placemark extends ProductNode {
      * @param pixelPos   The placemark's pixel position. May be {@code null}, if {@code geoPos} is given.
      * @param geoPos     The placemark's pixel position. May be {@code null}, if {@code pixelPos} is given.
      * @param geoCoding  The placemark's geo-coding. Used to compute {@code pixelPos} from {@code geoPos}, if {@code pixelPos} is {@code null}.
-     *
      * @return A new point placemark.
      */
     public static Placemark createPointPlacemark(PlacemarkDescriptor descriptor,
@@ -102,7 +101,6 @@ public class Placemark extends ProductNode {
 
     /**
      * @return The placemark descriptor that created this placemark.
-     *
      * @since BEAM 4.10
      */
     public PlacemarkDescriptor getDescriptor() {
@@ -111,7 +109,6 @@ public class Placemark extends ProductNode {
 
     /**
      * @return The wrapped {@link SimpleFeature} underlying this placemark.
-     *
      * @since BEAM 4.7
      */
     public final SimpleFeature getFeature() {
@@ -122,7 +119,6 @@ public class Placemark extends ProductNode {
      * Gets the attribute value of the underlying feature.
      *
      * @param attributeName The feature's attribute name.
-     *
      * @return The feature's attribute value, may be {@code null}.
      */
     public Object getAttributeValue(String attributeName) {
@@ -179,7 +175,6 @@ public class Placemark extends ProductNode {
      * Sets this placemark's CSS style.
      *
      * @param styleCss The text, if {@code null} an empty text is set.
-     *
      * @since BEAM 4.10
      */
     public void setStyleCss(String styleCss) {
@@ -188,7 +183,6 @@ public class Placemark extends ProductNode {
 
     /**
      * @return This placemark's CSS style, cannot be {@code null}.
-     *
      * @since BEAM 4.10
      */
     public String getStyleCss() {
@@ -199,7 +193,6 @@ public class Placemark extends ProductNode {
      * Returns an estimated, raw storage size in bytes of this placemark.
      *
      * @param subsetDef if not {@code null} the subset may limit the size returned.
-     *
      * @return the estimated size in bytes.
      */
     @Override
@@ -269,7 +262,7 @@ public class Placemark extends ProductNode {
         if (!ObjectUtils.equalObjects(oldCoordinate, newCoordinate)) {
             if (oldCoordinate == null) {
                 final GeometryFactory geometryFactory = new GeometryFactory();
-                feature.setAttribute(PROPERTY_NAME_PIXELPOS, geometryFactory.createPoint(newCoordinate));
+                setAttributeValue(PROPERTY_NAME_PIXELPOS, geometryFactory.createPoint(newCoordinate));
             } else {
                 final Point point = (Point) getAttributeValue(PROPERTY_NAME_PIXELPOS);
                 point.getCoordinate().setCoordinate(newCoordinate);
@@ -305,7 +298,7 @@ public class Placemark extends ProductNode {
         if (!ObjectUtils.equalObjects(oldCoordinate, newCoordinate)) {
             if (oldCoordinate == null) {
                 final GeometryFactory geometryFactory = new GeometryFactory();
-                feature.setAttribute(PROPERTY_NAME_GEOPOS, geometryFactory.createPoint(newCoordinate));
+                setAttributeValue(PROPERTY_NAME_GEOPOS, geometryFactory.createPoint(newCoordinate));
             } else if (newCoordinate != null) {
                 final Point point = (Point) getAttributeValue(PROPERTY_NAME_GEOPOS);
                 point.getCoordinate().setCoordinate(newCoordinate);
@@ -350,9 +343,9 @@ public class Placemark extends ProductNode {
 
         // todo - remove instanceof - bad code smell  (nf while revising Placemark API)
         if ((descriptor instanceof PinDescriptor || imagePos == null)
-            && geoPos != null
-            && geoCoding != null
-            && geoCoding.canGetPixelPos()) {
+                && geoPos != null
+                && geoCoding != null
+                && geoCoding.canGetPixelPos()) {
             imagePos = geoCoding.getPixelPos(geoPos, imagePos);
         }
 
