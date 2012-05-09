@@ -2,7 +2,7 @@
 
 This file contains all significant changes for each BEAM release.
 
-    o 08.05.2012: Version 4.10
+    o 09.05.2012: Version 4.10
     o 12.05.2011: Version 4.9
     o 29.07.2010: Version 4.8
     o 29.04.2010: Version 4.7.1
@@ -78,6 +78,9 @@ o Double-clicking the imported vector data in the product browser window display
 
 o Imported point data can now be interpreted as a path or track and will be displayed accordingly in an image view.
   Additional numerical columns of such imported point data can be directly displayed in the profile plot.
+
+o The VISAT navigation window can now synchronise multiple image views based on the changing geographical
+  center coordinate of a currently moved image.
 
 o The VISAT colour manipulation tool window has been enhanced by log10 scaled colour bars.
 
