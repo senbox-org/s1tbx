@@ -24,50 +24,21 @@ import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
-import java.text.MessageFormat;
 import java.util.Locale;
 
 public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
-
-    // This is here just to keep the property name
-//    private static final String HDF4_PROPERTY_KEY = "ncsa.hdf.hdflib.HDFLibrary.hdflib";
-
-    private static final String _H4_CLASS_NAME = "ncsa.hdf.hdflib.HDFLibrary";
-    private static boolean hdfLibAvailable = false;
-
-    static {
-        hdfLibAvailable = loadHdf4Lib(ModisProductReaderPlugIn.class) != null;
-    }
-
-    /**
-     * @return whether or not the HDF4 library is available.
-     */
-    public static boolean isHdf4LibAvailable() {
-        return hdfLibAvailable;
-    }
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
      */
     public DecodeQualification getDecodeQualification(Object input) {
-        if (!isHdf4LibAvailable()) {
-            return DecodeQualification.UNABLE;
-        }
+        File file = getInputFile(input);
 
-        File file = null;
-        if (input instanceof String) {
-            file = new File((String) input);
-        } else if (input instanceof File) {
-            file = (File) input;
-        }
-
-        if (file != null && file.exists() && file.isFile() && file.getPath().toLowerCase().endsWith(ModisConstants.DEFAULT_FILE_EXTENSION)) {
+        if (file != null && file.isFile() && hasHdfFileExtension(file)) {
             try {
                 String path = file.getPath();
                 final IHDF ihdf = HDF.getWrap();
@@ -115,10 +86,6 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
      * @return an array containing valid input types, never <code>null</code>
      */
     public Class[] getInputTypes() {
-        if (!isHdf4LibAvailable()) {
-            return new Class[0];
-        }
-
         return new Class[]{String.class, File.class};
     }
 
@@ -128,10 +95,6 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
      * @return a new reader instance, never <code>null</code>
      */
     public ProductReader createReaderInstance() {
-        if (!isHdf4LibAvailable()) {
-            return null;
-        }
-
         return new ModisProductReader(this);
     }
 
@@ -153,10 +116,6 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        if (!isHdf4LibAvailable()) {
-            return new String[0];
-        }
-
         return new String[]{ModisConstants.DEFAULT_FILE_EXTENSION};
     }
 
@@ -179,33 +138,26 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
     public String[] getFormatNames() {
-        if (!isHdf4LibAvailable()) {
-            return new String[0];
-        }
-
         return new String[]{ModisConstants.FORMAT_NAME};
     }
 
-    private static Class<?> loadHdf4Lib(Class<?> callerClass) {
-        return loadClassWithNativeDependencies(callerClass,
-                _H4_CLASS_NAME,
-                "{0}: HDF-4 library not available: {1}: {2}");
+    // package access for testing purpose only tb 2012-05-11
+    static File getInputFile(Object input) {
+        if (input instanceof String) {
+            return new File((String) input);
+        } else if (input instanceof File) {
+            return (File) input;
+        }
+        return null;
     }
 
-    private static Class<?> loadClassWithNativeDependencies(Class<?> callerClass, String className, String warningPattern) {
-        ClassLoader classLoader = callerClass.getClassLoader();
-
-        String classResourceName = "/" + className.replace('.', '/') + ".class";
-        SystemUtils.class.getResource(classResourceName);
-        if (callerClass.getResource(classResourceName) != null) {
-            try {
-                return Class.forName(className, true, classLoader);
-            } catch (Throwable error) {
-                BeamLogManager.getSystemLogger().warning(MessageFormat.format(warningPattern, callerClass, error.getClass(), error.getMessage()));
-                return null;
-            }
-        } else {
-            return null;
+    // package access for testing purpose only tb 2012-05-11
+    @SuppressWarnings("SimplifiableIfStatement")
+    static boolean hasHdfFileExtension(File inputFile) {
+        if (inputFile == null) {
+            return false;
         }
+
+        return inputFile.getPath().toLowerCase().endsWith(ModisConstants.DEFAULT_FILE_EXTENSION);
     }
 }

@@ -16,12 +16,6 @@ public class ModisTestMain {
             throw new IllegalStateException("must supply MODIS input filepath as argument");
         }
 
-        final int fileId = HDFLibrary.Hopen(args[0], HDFConstants.DFACC_RDONLY);
-        System.out.println("fileId = " + fileId);
-
-
-        HDFLibrary.HDFclose(fileId);
-
         final ModisProductReaderPlugIn plugIn = new ModisProductReaderPlugIn();
         final DecodeQualification decodeQualification = plugIn.getDecodeQualification(args[0]);
         System.out.println("decodeQualification = " + decodeQualification);
