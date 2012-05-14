@@ -26,13 +26,15 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import ucar.nc2.*;
 
 import java.awt.*;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 import java.util.logging.Logger;
 
 
@@ -71,6 +73,11 @@ class ModisImappAttributes implements ModisGlobalAttributes {
 
     public Dimension getProductDimensions() {
         return _productDimension;
+    }
+
+    @Override
+    public Dimension getProductDimensions(java.util.List<ucar.nc2.Dimension> netcdfFileDimensions) {
+        throw new NotImplementedException();
     }
 
     public boolean isImappFormat() {

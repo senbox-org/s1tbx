@@ -58,16 +58,17 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
             ModisGlobalAttributes modisAttributes;
             final Variable structMeta = variables.get(ModisConstants.STRUCT_META_KEY);
             if (structMeta == null) {
-                modisAttributes = new ImappAttributes(inputFile);
+                modisAttributes = new ImappAttributes(inputFile, variables);
+                System.out.println("IMAPP");
             } else {
                 modisAttributes = new DaacAttributes(variables);
+                System.out.println("DAAC");
             }
 
             final String productType = modisAttributes.getProductType();
             if (ModisProductDb.getInstance().isSupportedProduct(productType)) {
                 return DecodeQualification.INTENDED;
             }
-
         } catch (IOException ignore) {
         } finally {
             if (netcdfFile != null) {

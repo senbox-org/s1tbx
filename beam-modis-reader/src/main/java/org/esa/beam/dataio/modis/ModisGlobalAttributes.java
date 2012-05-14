@@ -20,9 +20,10 @@ import org.esa.beam.dataio.modis.hdf.HdfDataField;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.GeoCoding;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 
 public interface ModisGlobalAttributes {
@@ -32,6 +33,8 @@ public interface ModisGlobalAttributes {
     String getProductType() throws IOException;
 
     Dimension getProductDimensions();
+
+    Dimension getProductDimensions(List<ucar.nc2.Dimension> netcdfFileDimensions);
 
     HdfDataField getDatafield(String name) throws ProductIOException;
 

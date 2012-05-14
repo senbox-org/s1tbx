@@ -55,6 +55,23 @@ public class DaacAttributes implements ModisGlobalAttributes {
     }
 
     @Override
+    public Dimension getProductDimensions(java.util.List<ucar.nc2.Dimension> netcdfFileDimensions) {
+        int width = 0;
+        int height = 0;
+        for (int i = 0; i < netcdfFileDimensions.size(); i++) {
+            ucar.nc2.Dimension dimension = netcdfFileDimensions.get(i);
+            if (dimension.getName().contains("Max_EV_frames")) {
+                width = dimension.getLength();
+            }
+
+            if (dimension.getName().contains("10*nscans")) {
+                height = dimension.getLength();
+            }
+        }
+        return new Dimension(width, height);
+    }
+
+    @Override
     public HdfDataField getDatafield(String name) throws ProductIOException {
         throw new NotImplementedException();
     }

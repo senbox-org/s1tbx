@@ -2,6 +2,7 @@ package org.esa.beam.dataio.modis;
 
 import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.datamodel.Product;
 
 import java.io.IOException;
 
@@ -20,12 +21,11 @@ public class ModisTestMain {
             return;
         }
 
-//        final ModisProductReader productReader = new ModisProductReader(plugIn);
-//        final Product product = productReader.readProductNodes(args[0], null);
-//
-//        if (product!= null) {
-//            product.dispose();
-//        }
-    }
+        final ModisProductReader productReader = new ModisProductReader(plugIn);
+        final Product product = productReader.readProductNodes(args[0], null);
 
+        if (product!= null) {
+            product.dispose();
+        }
+    }
 }

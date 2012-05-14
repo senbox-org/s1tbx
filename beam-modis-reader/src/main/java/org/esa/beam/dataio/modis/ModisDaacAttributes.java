@@ -23,11 +23,13 @@ import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.util.io.FileUtils;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.awt.Dimension;
 import java.io.File;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 
 class ModisDaacAttributes implements ModisGlobalAttributes {
@@ -80,6 +82,11 @@ class ModisDaacAttributes implements ModisGlobalAttributes {
 
     public Date getSensingStop() {
         return _sensingStop;
+    }
+
+    @Override
+    public Dimension getProductDimensions(List<ucar.nc2.Dimension> netcdfFileDimensions) {
+        throw new NotImplementedException();
     }
 
     ///////////////////////////////////////////////////////////////////////////
