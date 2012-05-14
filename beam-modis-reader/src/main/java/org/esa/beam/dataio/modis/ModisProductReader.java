@@ -277,7 +277,7 @@ public class ModisProductReader extends AbstractProductReader {
     /**
      * Checks the product type against the list of known types. Throws ProductIOException if it doesn't fit.
      */
-    private void checkProductType() throws ProductIOException {
+    private void checkProductType() throws IOException {
         final String productType = _globalAttributes.getProductType();
         final ModisProductDb db = ModisProductDb.getInstance();
         if (!db.isSupportedProduct(productType)) {

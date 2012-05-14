@@ -21,14 +21,15 @@ import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.GeoCoding;
 
 import java.awt.Dimension;
+import java.io.IOException;
 import java.util.Date;
 
 
 public interface ModisGlobalAttributes {
 
-    String getProductName();
+    String getProductName() throws IOException;
 
-    String getProductType();
+    String getProductType() throws IOException;
 
     Dimension getProductDimensions();
 

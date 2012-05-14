@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-class ModisDaacUtils {
+public class ModisDaacUtils {
 
     public static String extractCoreString(HdfAttributes hdfGlobalAttributes) {
         final String coreKey = ModisConstants.CORE_META_KEY;

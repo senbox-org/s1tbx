@@ -2,13 +2,16 @@ package org.esa.beam.dataio.modis;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 
 public class ModisProductReaderPluginTest extends TestCase {
 
     private ModisProductReaderPlugIn plugIn;
+    private File testFile;
 
     public void testInputTypes() {
         final Class[] inputTypes = plugIn.getInputTypes();
@@ -59,6 +62,7 @@ public class ModisProductReaderPluginTest extends TestCase {
         assertNotNull(file);
         assertEquals(testFileName, file.getName());
     }
+
     public void testGetInputFile_fileInput() {
         final File inputFile = new File("I_am_a.file");
         final File file = ModisProductReaderPlugIn.getInputFile(inputFile);
@@ -69,11 +73,55 @@ public class ModisProductReaderPluginTest extends TestCase {
     public void testHasHdfFileExtension() {
         assertFalse(ModisProductReaderPlugIn.hasHdfFileExtension(null));
         assertFalse(ModisProductReaderPlugIn.hasHdfFileExtension(new File("tonio_und.tom")));
-        assertTrue(ModisProductReaderPlugIn.hasHdfFileExtension(new File("I_am_but.hdf"))) ;
+        assertTrue(ModisProductReaderPlugIn.hasHdfFileExtension(new File("I_am_but.hdf")));
+    }
+
+    public void testGetProductFileFilter() {
+        final BeamFileFilter productFileFilter = plugIn.getProductFileFilter();
+        assertNotNull(productFileFilter);
+
+        assertEquals("MODIS", productFileFilter.getFormatName());
+        assertEquals(".hdf", productFileFilter.getDefaultExtension());
+        assertEquals("MODIS HDF4 Data Products (*.hdf)", productFileFilter.getDescription());
+    }
+
+    public void testIsValidInputFile_nullFile() {
+        assertFalse(ModisProductReaderPlugIn.isValidInputFile(null));
+    }
+
+    public void testIsValidInputFile_notExistingFile() {
+        assertFalse(ModisProductReaderPlugIn.isValidInputFile(new File("I/don/not/exist.hdf")));
+    }
+
+    public void testIsValidInputFile_nonHdfFile() throws IOException {
+        testFile = new File("I_do_exist.txt");
+        if (!testFile.createNewFile()) {
+            fail("unable to create TestFile");
+        }
+
+        assertFalse(ModisProductReaderPlugIn.isValidInputFile(testFile));
+    }
+
+    public void testIsValidInputFile_hdfFile() throws IOException {
+        testFile = new File("I_do_exist.hdf");
+        if (!testFile.createNewFile()) {
+            fail("unable to create TestFile");
+        }
+
+        assertTrue(ModisProductReaderPlugIn.isValidInputFile(testFile));
     }
 
     @Override
     protected void setUp() {
         plugIn = new ModisProductReaderPlugIn();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        if (testFile != null) {
+            if (!testFile.delete()) {
+                fail("unable to delete test file");
+            }
+        }
     }
 }
