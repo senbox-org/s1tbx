@@ -17,6 +17,7 @@ package org.esa.beam.dataio.modis.bandreader;
 
 import org.esa.beam.dataio.modis.hdf.HdfUtils;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
+import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.ModisBandDescription;
 import org.esa.beam.framework.datamodel.ProductData;
 
@@ -90,5 +91,9 @@ public class ModisBandReaderFactory {
             }
         }
         return readers;
+    }
+
+    public static ModisBandReader[] getReaders(NetCDFVariables netCDFVariables, final ModisBandDescription desc) throws IOException {
+        return new ModisBandReader[0];
     }
 }

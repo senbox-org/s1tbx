@@ -55,16 +55,28 @@ public class ImappAttributes implements ModisGlobalAttributes {
         int width = 0;
         int height = 0;
         final Variable[] all = netCDFVariables.getAll();
-        for (int i = 0; i < all.length; i++) {
-            final Variable variable = all[i];
+        for (final Variable variable : all) {
             final int rank = variable.getRank();
+            final int[] shape = variable.getShape();
             if (rank == 2) {
-                // @todo 1 tb/tb continue here
+                if (width < shape[1]) {
+                    width = shape[1];
+                }
+
+                if (height < shape[0]) {
+                    height = shape[0];
+                }
             } else if (rank == 3) {
-                // @todo 1 tb/tb continue here
+                if (width < shape[2]) {
+                    width = shape[2];
+                }
+
+                if (height < shape[1]) {
+                    height = shape[1];
+                }
             }
         }
-        throw new NotImplementedException();
+        return new Dimension(width, height);
     }
 
     @Override

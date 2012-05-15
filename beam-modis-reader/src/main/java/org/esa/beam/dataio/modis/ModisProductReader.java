@@ -34,13 +34,15 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.logging.BeamLogManager;
-import ucar.nc2.*;
+import ucar.nc2.NetcdfFile;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import java.util.List;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 public class ModisProductReader extends AbstractProductReader {
@@ -151,16 +153,16 @@ public class ModisProductReader extends AbstractProductReader {
                                                        int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                                        ProgressMonitor pm) throws IOException {
 
-        ModisBandReader reader = fileReader.getBandReader(destBand);
+        final ModisBandReader reader = fileReader.getBandReader(destBand);
 
         if (reader == null) {
             throw new IOException("No band reader for band '" + destBand.getName() + "' available!");
         }
 
         reader.readBandData(sourceOffsetX, sourceOffsetY,
-                            sourceWidth, sourceHeight,
-                            sourceStepX, sourceStepY,
-                            destBuffer, pm);
+                sourceWidth, sourceHeight,
+                sourceStepX, sourceStepY,
+                destBuffer, pm);
     }
 
     /**
@@ -183,8 +185,17 @@ public class ModisProductReader extends AbstractProductReader {
 
         fileReader = createFileReader();
 
-        getProductDimensions();
         final Dimension productDim = globalAttributes.getProductDimensions(netcdfFile.getDimensions());
+        final Product product = new Product(globalAttributes.getProductName(),
+                globalAttributes.getProductType(),
+                productDim.width,
+                productDim.height,
+                this);
+        product.setFileLocation(inFile);
+
+        final NetCDFVariables netCDFVariables = new NetCDFVariables();
+        netCDFVariables.add(netcdfFile.getVariables());
+        fileReader.addRastersAndGeoCoding(product, globalAttributes, netCDFVariables);
 
 // ---todo - remove-----------------------------------------------------------------------------------
         final IHDF ihdf = HDF.getWrap();
@@ -194,11 +205,6 @@ public class ModisProductReader extends AbstractProductReader {
 
             //checkDayNightMode();
 
-
-            final Product product;
-            product = new Product(globalAttributes.getProductName(), globalAttributes.getProductType(),
-                                  productDim.width, productDim.height, this);
-            product.setFileLocation(inFile);
             fileReader.addRastersAndGeocoding(_sdStart, globalAttributes, product);
 
             // add all metadata if required
@@ -300,16 +306,5 @@ public class ModisProductReader extends AbstractProductReader {
         if (!db.isSupportedProduct(productType)) {
             throw new ProductIOException("Unsupported product of type '" + productType + '\'');
         }
-    }
-
-    private Dimension getProductDimensions() {
-        final List<ucar.nc2.Dimension> netcdfFileDimensions = netcdfFile.getDimensions();
-        for (int i = 0; i < netcdfFileDimensions.size(); i++) {
-            ucar.nc2.Dimension dimension = netcdfFileDimensions.get(i);
-            System.out.println("dimension = " + dimension.getName() + " - " + dimension.getLength());
-
-        }
-
-        return null;
     }
 }
