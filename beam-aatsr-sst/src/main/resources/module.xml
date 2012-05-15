@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-aatsr-sst</symbolicName>
-    <version>1.5</version>
+    <version>1.5.1</version>
     <name>AATSR SST Processor</name>
 
     <description>
