@@ -31,11 +31,16 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.Range;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import ucar.ma2.Array;
+import ucar.nc2.Attribute;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 
 class ModisFileReader {
@@ -203,6 +208,22 @@ class ModisFileReader {
         return fRet;
     }
 
+    private float[] getNamedFloatAttribute(Variable variable, String name) {
+        final List<Attribute> attributes = variable.getAttributes();
+        for (final Attribute attribute : attributes) {
+            if (attribute.getName().equals(name)) {
+                final Array values = attribute.getValues();
+                final long size = values.getSize();
+                final float[] result = new float[(int) size];
+                for (int i = 0; i < size; i++) {
+                    result[i] = values.getFloat(i);
+                }
+                return result;
+            }
+        }
+        return new float[0];
+    }
+
     /**
      * Adds all the bands for the given type to the given product
      *
@@ -220,7 +241,39 @@ class ModisFileReader {
 
         for (String bandName : bandNames) {
             final ModisBandDescription bandDesc = prodDb.getBandDescription(prodType, bandName);
+            if (bandDesc == null) {
+                _logger.warning("No band description for band '" + bandName + "' of product type '" + prodType + "'");
+                continue;
+            }
             final ModisBandReader[] bandReaders = ModisBandReaderFactory.getReaders(netCDFVariables, bandDesc);
+            final Variable variable = netCDFVariables.get(bandName);
+            if (variable == null) {
+                _logger.warning("Name Variable '" + bandName + "' of product type '" + prodType + "' not found");
+                continue;
+            }
+            final String bandNameExtensions = getBandNameExtensions(bandDesc.getBandAttribName(), prodType, variable, netCDFVariables);
+            final float[] scales = getNamedFloatAttribute(variable, bandDesc.getScaleAttribName());
+            final float[] offsets = getNamedFloatAttribute(variable, bandDesc.getOffsetAttribName());
+
+
+            for (int i = 0; i < bandReaders.length; i++) {
+                final ModisBandReader bandReader = bandReaders[i];
+                String bandNameExt = null;
+                if (bandNameExtensions != null) {
+                    if (bandReaders.length > 1) {
+                        bandNameExt = ModisUtils.decodeBandName(bandNameExtensions, i);
+                        final String name = bandReader.getName() + bandNameExt;
+                        bandReader.setName(name);
+                    } else {
+                        bandNameExt = bandNameExtensions;
+                    }
+                }
+
+                final String readerBandName = bandReader.getName();
+                final Band band = new Band(readerBandName, bandReader.getDataType(), width, height);
+                throw new NotImplementedException();
+//--------------- TODO - continue here --------------------------------------------------
+            }
         }
 
 
@@ -234,7 +287,8 @@ class ModisFileReader {
                 }
 
                 final ModisBandDescription bandDesc = prodDb.getBandDescription(prodType, bandNames[i]);
-                final ModisBandReader[] readers = ModisBandReaderFactory.getReaders(sdsId, bandDesc);
+                //final ModisBandReader[] readers = ModisBandReaderFactory.getReaders(sdsId, bandDesc);
+                final ModisBandReader[] readers = new ModisBandReader[0];
 
                 final String bandNameExtensions = getBandNameExtensions(sdStart, sdsId, prodType,
                         bandDesc.getBandAttribName());
@@ -761,6 +815,47 @@ class ModisFileReader {
         }
 
         return attribValue;
+    }
+
+    private String getBandNameExtensions(final String bandNameAttribName, final String productType, Variable variable, NetCDFVariables netCDFVariables) {
+        String bandNameExtensions = null;
+
+        // we have to distinguish three possibilities here
+        if (bandNameAttribName.startsWith("@")) {
+            // band names are referenced in another band of this product
+            final String correspBand = bandNameAttribName.substring(1);
+            final ModisBandDescription desc = prodDb.getBandDescription(productType, correspBand);
+            final String bandAttribName = desc.getBandAttribName();
+            final String attributeValue = getNamedStringAttribute(bandAttribName, variable);
+            if (StringUtils.isNullOrEmpty(attributeValue)) {
+                final Variable correspVariable = netCDFVariables.get(correspBand);
+                if (correspVariable != null) {
+                    bandNameExtensions = getNamedStringAttribute(bandAttribName, correspVariable);
+                }
+            } else {
+                bandNameExtensions = attributeValue;
+            }
+        } else if (StringUtils.isIntegerString(bandNameAttribName)) {
+            // band name is directly in the *.dd file
+            bandNameExtensions = bandNameAttribName;
+        } else {
+            // band name is in an attribute
+            bandNameExtensions = getNamedStringAttribute(bandNameAttribName, variable);
+        }
+
+        return bandNameExtensions;
+    }
+
+    private String getNamedStringAttribute(String bandNameAttribName, Variable variable) {
+        String attributeValue = "";
+        final List<Attribute> attributes = variable.getAttributes();
+        for (Attribute attribute : attributes) {
+            if (attribute.getName().equals(bandNameAttribName)) {
+                attributeValue = attribute.getStringValue();
+                break;
+            }
+        }
+        return attributeValue;
     }
 
     ///////////////////////////////////////////////////////////////////////////

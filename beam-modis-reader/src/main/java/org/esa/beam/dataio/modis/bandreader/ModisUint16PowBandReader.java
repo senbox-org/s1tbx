@@ -17,6 +17,7 @@ package org.esa.beam.dataio.modis.bandreader;
 
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.datamodel.ProductData;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 
@@ -29,7 +30,7 @@ public class ModisUint16PowBandReader extends ModisBandReader {
     private float[] targetData;
     private int targetIdx;
 
-    public ModisUint16PowBandReader(final int sdsId, final int layer, final boolean is3d) {
+    public ModisUint16PowBandReader(Variable variable,final int sdsId, final int layer, final boolean is3d) {
         super(sdsId, layer, is3d);
     }
 

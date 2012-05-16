@@ -42,7 +42,7 @@ public class ModisUint8BandReaderTest extends HDFTestCase {
         });
 
         final ProductData buffer = new ProductData.UByte(12);
-        final ModisUint8BandReader reader = new ModisUint8BandReader(3, 2, false);
+        final ModisUint8BandReader reader = new ModisUint8BandReader(null, 3, 2, false);
         reader.setFillValue(0);
         reader.setValidRange(new Range(4, Byte.MAX_VALUE * 2 - 3));
 
@@ -65,7 +65,7 @@ public class ModisUint8BandReaderTest extends HDFTestCase {
 
         final int sdsId = 3;
         final ProductData buffer = new ProductData.UByte(12);
-        final ModisUint8BandReader reader = new ModisUint8BandReader(sdsId, 2, false);
+        final ModisUint8BandReader reader = new ModisUint8BandReader(null, sdsId, 2, false);
 
         try {
             // Method under test

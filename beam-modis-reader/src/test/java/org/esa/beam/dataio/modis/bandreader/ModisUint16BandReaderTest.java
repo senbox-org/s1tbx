@@ -42,7 +42,7 @@ public class ModisUint16BandReaderTest extends HDFTestCase {
         });
 
         final ProductData buffer = new ProductData.UShort(12);
-        final ModisUint16BandReader reader = new ModisUint16BandReader(3, 2, false);
+        final ModisUint16BandReader reader = new ModisUint16BandReader(null, 3, 2, false);
         final int fill = 999;
         reader.setFillValue(fill);
         reader.setValidRange(new Range(4, Short.MAX_VALUE * 2 - 3));
@@ -67,7 +67,7 @@ public class ModisUint16BandReaderTest extends HDFTestCase {
 
         final int sdsId = 3;
         final ProductData buffer = new ProductData.UShort(12);
-        final ModisUint16BandReader reader = new ModisUint16BandReader(sdsId, 2, false);
+        final ModisUint16BandReader reader = new ModisUint16BandReader(null, sdsId, 2, false);
 
         try {
             // Method under test
