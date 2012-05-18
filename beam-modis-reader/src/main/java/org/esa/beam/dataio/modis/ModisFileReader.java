@@ -23,6 +23,7 @@ import org.esa.beam.dataio.modis.hdf.HdfDataField;
 import org.esa.beam.dataio.modis.hdf.HdfUtils;
 import org.esa.beam.dataio.modis.hdf.IHDF;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
+import org.esa.beam.dataio.modis.netcdf.NetCDFAttributes;
 import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.*;
 import org.esa.beam.framework.datamodel.*;
@@ -31,7 +32,6 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.Range;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
@@ -46,8 +46,8 @@ import java.util.logging.Logger;
 class ModisFileReader {
 
     private int _qcFileId;
-    private Logger _logger;
-    private HashMap _bandReaderMap;
+    private Logger logger;
+    private HashMap<Band, ModisBandReader> bandReaderMap;
     private ModisProductDb prodDb;
 
     /**
@@ -55,8 +55,8 @@ class ModisFileReader {
      */
     public ModisFileReader() {
         prodDb = ModisProductDb.getInstance();
-        _logger = BeamLogManager.getSystemLogger();
-        _bandReaderMap = new HashMap();
+        logger = BeamLogManager.getSystemLogger();
+        bandReaderMap = new HashMap<Band, ModisBandReader>();
         _qcFileId = HDFConstants.FAIL;
     }
 
@@ -75,11 +75,11 @@ class ModisFileReader {
             productType += "_IMAPP";
         }
 
-        addBandsToProduct(null, sdStart, productType, product);
-        if (ModisConstants.EOS_TYPE_GRID.equals(globalAttribs.getEosType())) {
+        addBandsToProduct(null, productType, product);
+        if (isEosGridType(globalAttribs)) {
             addMapGeocoding(product, globalAttribs);
         } else {
-            addTiePointGrids(sdStart, productType, product, globalAttribs);
+            addTiePointGrids(null, sdStart, productType, product, globalAttribs);
             addModisTiePointGeoCoding(product, null);
         }
     }
@@ -91,19 +91,19 @@ class ModisFileReader {
             productType += "_IMAPP";
         }
 
-        addBandsToProduct(netCDFVariables, 0, productType, product);
-    }
-
-    private void addMapGeocoding(final Product product,
-                                 final ModisGlobalAttributes globalAttribs) {
-        product.setGeoCoding(globalAttribs.createGeocoding());
+        addBandsToProduct(netCDFVariables, productType, product);
+        if (isEosGridType(globalAttribs)) {
+            addMapGeocoding(product, globalAttribs);
+        } else {
+            addTiePointGrids(netCDFVariables, 0, productType, product, globalAttribs);
+        }
     }
 
     /**
      * Closes the reader and releases all resources.
      */
     public void close() throws IOException {
-        _bandReaderMap.clear();
+        bandReaderMap.clear();
 
         if (_qcFileId != HDFConstants.FAIL) {
             HDF.getWrap().SDend(_qcFileId);
@@ -118,56 +118,31 @@ class ModisFileReader {
      * @return the band reader
      */
     public ModisBandReader getBandReader(final Band band) {
-        return (ModisBandReader) _bandReaderMap.get(band);
+        return bandReaderMap.get(band);
     }
 
     ///////////////////////////////////////////////////////////////////////////
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Closes the sds with the given sdsId
-     *
-     * @param sdsId
-     * @throws IOException
-     */
-    private void closeSds(int sdsId) throws IOException {
-        if (sdsId != HDFConstants.FAIL) {
-            HDF.getWrap().SDendaccess(sdsId);
-        }
+    static boolean isEosGridType(ModisGlobalAttributes globalAttribs) {
+        return ModisConstants.EOS_TYPE_GRID.equals(globalAttribs.getEosType());
     }
 
-    // @todo 4 tb/tb this is stupid code duplication. we have the slight problem that for decoding more
-    // information is needed than the buffer itself. See getNamedFloatAttribute
-    private int[] getNamedIntAttribute(int sdsId, String name) throws IOException {
-        int[] fRet;
-
-        // shortcut for null names
-        if (name == null) {
-            return null;
-        }
-
-        final IHDF ihdf = HDF.getWrap();
-        final int attrIdx = ihdf.SDfindattr(sdsId, name);
-        if (attrIdx == HDFConstants.FAIL) {
-            _logger.warning("Unable to access the attribute '" + name + '\'');
-            return null;
-        } else {
-            final int[] attrInfo = new int[2];
-            final String[] dsName = new String[]{""};
-
-            ihdf.SDattrinfo(sdsId, attrIdx, dsName, attrInfo);
-            final int attrSize = ihdf.DFKNTsize(attrInfo[0]) * attrInfo[1];
-            final byte[] buf = new byte[attrSize];
-            if (ihdf.SDreadattr(sdsId, attrIdx, buf)) {
-                fRet = HdfUtils.decodeByteBufferToAttribute(buf, attrInfo[0], attrInfo[1], dsName[0]).getIntValues();
-            } else {
-                _logger.warning("Unable to access the attribute '" + name + '\'');
-                return null;
+    private static int[] getNamedIntAttribute(Variable variable, String name) {
+        final List<Attribute> attributes = variable.getAttributes();
+        for (final Attribute attribute : attributes) {
+            if (attribute.getName().equals(name)) {
+                final Array values = attribute.getValues();
+                final long size = values.getSize();
+                final int[] result = new int[(int) size];
+                for (int i = 0; i < size; i++) {
+                    result[i] = values.getInt(i);
+                }
+                return result;
             }
         }
-
-        return fRet;
+        return new int[0];
     }
 
     /**
@@ -188,7 +163,7 @@ class ModisFileReader {
         final IHDF ihdf = HDF.getWrap();
         final int attrIdx = ihdf.SDfindattr(sdsId, name);
         if (attrIdx == HDFConstants.FAIL) {
-            _logger.warning("Unable to access the attribute '" + name + '\'');
+            logger.warning("Unable to access the attribute '" + name + '\'');
             return null;
         } else {
             final int[] attrInfo = new int[2];
@@ -200,7 +175,7 @@ class ModisFileReader {
             if (ihdf.SDreadattr(sdsId, attrIdx, buf)) {
                 fRet = HdfUtils.decodeByteBufferToAttribute(buf, attrInfo[0], attrInfo[1], dsName[0]).getFloatValues();
             } else {
-                _logger.warning("Unable to access the attribute '" + name + '\'');
+                logger.warning("Unable to access the attribute '" + name + '\'');
                 return null;
             }
         }
@@ -208,30 +183,21 @@ class ModisFileReader {
         return fRet;
     }
 
-    private float[] getNamedFloatAttribute(Variable variable, String name) {
-        final List<Attribute> attributes = variable.getAttributes();
-        for (final Attribute attribute : attributes) {
-            if (attribute.getName().equals(name)) {
-                final Array values = attribute.getValues();
-                final long size = values.getSize();
-                final float[] result = new float[(int) size];
-                for (int i = 0; i < size; i++) {
-                    result[i] = values.getFloat(i);
-                }
-                return result;
+    private float[] getNamedFloatAttribute(NetCDFAttributes attributes, String name) {
+        final Attribute attribute = attributes.get(name);
+        if (attribute != null) {
+            final Array values = attribute.getValues();
+            final long size = values.getSize();
+            final float[] result = new float[(int) size];
+            for (int i = 0; i < size; i++) {
+                result[i] = values.getFloat(i);
             }
+            return result;
         }
         return new float[0];
     }
 
-    /**
-     * Adds all the bands for the given type to the given product
-     *
-     * @param sdStart the id of the HDF SDstart
-     * @param type    the typeId which is to use to read from the database
-     * @param product the product to be supplied with bands
-     */
-    private void addBandsToProduct(NetCDFVariables netCDFVariables, final int sdStart, final String type, final Product product) throws IOException {
+    private void addBandsToProduct(NetCDFVariables netCDFVariables, final String type, final Product product) throws IOException {
         final String prodType = getTypeString(type, product);
 
         final int width = product.getSceneRasterWidth();
@@ -242,26 +208,29 @@ class ModisFileReader {
         for (String bandName : bandNames) {
             final ModisBandDescription bandDesc = prodDb.getBandDescription(prodType, bandName);
             if (bandDesc == null) {
-                _logger.warning("No band description for band '" + bandName + "' of product type '" + prodType + "'");
+                logger.warning("No band description for band '" + bandName + "' of product type '" + prodType + "'");
                 continue;
             }
             final ModisBandReader[] bandReaders = ModisBandReaderFactory.getReaders(netCDFVariables, bandDesc);
             final Variable variable = netCDFVariables.get(bandName);
             if (variable == null) {
-                _logger.warning("Name Variable '" + bandName + "' of product type '" + prodType + "' not found");
+                logger.warning("Name Variable '" + bandName + "' of product type '" + prodType + "' not found");
                 continue;
             }
-            final String bandNameExtensions = getBandNameExtensions(bandDesc.getBandAttribName(), prodType, variable, netCDFVariables);
-            final float[] scales = getNamedFloatAttribute(variable, bandDesc.getScaleAttribName());
-            final float[] offsets = getNamedFloatAttribute(variable, bandDesc.getOffsetAttribName());
+            final List<Attribute> attributes = variable.getAttributes();
+            NetCDFAttributes netCDFAttributes = new NetCDFAttributes();
+            netCDFAttributes.add(attributes);
 
+            final String bandNameExtensions = getBandNameExtensions(bandDesc.getBandAttribName(), prodType, netCDFAttributes, netCDFVariables);
+            final float[] scales = getNamedFloatAttribute(netCDFAttributes, bandDesc.getScaleAttribName());
+            final float[] offsets = getNamedFloatAttribute(netCDFAttributes, bandDesc.getOffsetAttribName());
 
-            for (int i = 0; i < bandReaders.length; i++) {
-                final ModisBandReader bandReader = bandReaders[i];
+            for (int readerIdx = 0; readerIdx < bandReaders.length; readerIdx++) {
+                final ModisBandReader bandReader = bandReaders[readerIdx];
                 String bandNameExt = null;
                 if (bandNameExtensions != null) {
                     if (bandReaders.length > 1) {
-                        bandNameExt = ModisUtils.decodeBandName(bandNameExtensions, i);
+                        bandNameExt = ModisUtils.decodeBandName(bandNameExtensions, readerIdx);
                         final String name = bandReader.getName() + bandNameExt;
                         bandReader.setName(name);
                     } else {
@@ -271,77 +240,32 @@ class ModisFileReader {
 
                 final String readerBandName = bandReader.getName();
                 final Band band = new Band(readerBandName, bandReader.getDataType(), width, height);
-                throw new NotImplementedException();
-//--------------- TODO - continue here --------------------------------------------------
-            }
-        }
+                setValidRangeAndFillValue(variable, bandReader, band);
 
-
-// ---todo - remove-----------------------------------------------------------------------------------
-        for (int i = 0; i < bandNames.length; i++) {
-            int sdsId = HDFConstants.FAIL;
-            try {
-                sdsId = openNamedSds(sdStart, bandNames[i]);
-                if (sdsId == HDFConstants.FAIL) {
-                    continue;
+                if (bandDesc.getScalingMethod() != null) {
+                    if (hasInvalidScaleAndOffset(scales, offsets, readerIdx)) {
+                        logger.warning("Unable to assign the scaling method '" + bandDesc.getScalingMethod() + "' to the band '" + bandName + '\'');
+                    } else if (bandDesc.isExponentialScaled()) {
+                        bandReader.setScaleAndOffset(scales[readerIdx], offsets[readerIdx]);
+                    } else if (bandDesc.isLinearScaled()) {
+                        band.setScalingFactor(scales[readerIdx]);
+                        band.setScalingOffset(-offsets[readerIdx] * scales[readerIdx]);
+                    } else if (bandDesc.isSlopeInterceptScaled()) {
+                        band.setScalingFactor(scales[readerIdx]);
+                        band.setScalingOffset(offsets[readerIdx]);
+                    } else if (bandDesc.isPow10Scaled()) {
+                        bandReader.setScaleAndOffset(scales[readerIdx], offsets[readerIdx]);
+                    }
                 }
 
-                final ModisBandDescription bandDesc = prodDb.getBandDescription(prodType, bandNames[i]);
-                //final ModisBandReader[] readers = ModisBandReaderFactory.getReaders(sdsId, bandDesc);
-                final ModisBandReader[] readers = new ModisBandReader[0];
+                setBandSpectralInformation(bandDesc, bandNameExt, band);
+                setBandPhysicalUnit(variable, bandDesc, band);
+                setBandDescription(variable, bandDesc, band);
 
-                final String bandNameExtensions = getBandNameExtensions(sdStart, sdsId, prodType,
-                        bandDesc.getBandAttribName());
-                final float[] scales = getNamedFloatAttribute(sdsId, bandDesc.getScaleAttribName());
-                final float[] offsets = getNamedFloatAttribute(sdsId, bandDesc.getOffsetAttribName());
-
-                for (int j = 0; j < readers.length; j++) {
-                    String bandNameExt = null;
-                    if (bandNameExtensions != null) {
-                        if (readers.length > 1) {
-                            bandNameExt = ModisUtils.decodeBandName(bandNameExtensions, j);
-                            final String name = readers[j].getName() + bandNameExt;
-                            readers[j].setName(name);
-                        } else {
-                            bandNameExt = bandNameExtensions;
-                        }
-                    }
-
-                    final String bandName = readers[j].getName();
-                    final Band band = new Band(bandName, readers[j].getDataType(), width, height);
-
-                    setValidRangeAndFillValue(sdsId, readers[j], band);
-
-                    if (bandDesc.getScalingMethod() != null) {
-                        if (scales.length <= j || offsets.length <= j) {
-                            _logger.warning("Unable to assign the scaling method '" +
-                                    bandDesc.getScalingMethod() + "' to the band '" + bandName + '\'');
-                        } else if (bandDesc.getScalingMethod().equalsIgnoreCase(ModisConstants.EXPONENTIAL_SCALE_NAME)) {
-                            readers[j].setScaleAndOffset(scales[j], offsets[j]);
-                        } else if (bandDesc.getScalingMethod().equalsIgnoreCase(ModisConstants.LINEAR_SCALE_NAME)) {
-                            band.setScalingFactor(scales[j]);
-                            band.setScalingOffset(-offsets[j] * scales[j]);
-                        } else if (bandDesc.getScalingMethod().equalsIgnoreCase(
-                                ModisConstants.SLOPE_INTERCEPT_SCALE_NAME)) {
-                            band.setScalingFactor(scales[j]);
-                            band.setScalingOffset(offsets[j]);
-                        } else if (bandDesc.getScalingMethod().equalsIgnoreCase(ModisConstants.POW_10_SCALE_NAME)) {
-                            readers[j].setScaleAndOffset(scales[j], offsets[j]);
-                        }
-                    }
-
-                    setBandSpectralInformation(bandDesc, bandNameExt, band);
-                    setBandPhysicalUnit(sdsId, bandDesc, band);
-                    setBandDescription(sdsId, bandDesc, band);
-
-                    product.addBand(band);
-                    _bandReaderMap.put(band, readers[j]);
-                }
-            } finally {
-                closeSds(sdsId);
+                product.addBand(band);
+                bandReaderMap.put(band, bandReader);
             }
         }
-// ---todo - remove-----------------------------------------------------------------------------------
     }
 
     static String getTypeString(String type, Product product) {
@@ -356,16 +280,18 @@ class ModisFileReader {
         return prodType;
     }
 
-    private void setValidRangeAndFillValue(int sdsId, ModisBandReader reader, Band band) throws IOException {
-        final int[] rangeArray = getNamedIntAttribute(sdsId, ModisConstants.VALID_RANGE_KEY);
-        if (rangeArray != null && rangeArray.length >= 2) {
-            Range range = new Range();
-            range.setMin(rangeArray[0] < rangeArray[1] ? rangeArray[0] : rangeArray[1]);
-            range.setMax(rangeArray[0] > rangeArray[1] ? rangeArray[0] : rangeArray[1]);
+    static boolean hasInvalidScaleAndOffset(float[] scales, float[] offsets, int readerIdx) {
+        return scales.length <= readerIdx || offsets.length <= readerIdx;
+    }
+
+    private static void setValidRangeAndFillValue(Variable variable, ModisBandReader reader, Band band) throws IOException {
+        final int[] rangeArray = getNamedIntAttribute(variable, ModisConstants.VALID_RANGE_KEY);
+        final Range range = createRangeFromArray(rangeArray);
+        if (range != null) {
             reader.setValidRange(range);
         }
 
-        final int[] fillValue = getNamedIntAttribute(sdsId, ModisConstants.FILL_VALUE_KEY);
+        final int[] fillValue = getNamedIntAttribute(variable, ModisConstants.FILL_VALUE_KEY);
         if (fillValue != null && fillValue.length >= 1) {
             reader.setFillValue(fillValue[0]);
             band.setNoDataValue(fillValue[0]);
@@ -373,21 +299,33 @@ class ModisFileReader {
         }
     }
 
-    private static void setBandDescription(int sdsId, ModisBandDescription bandDesc, Band band) throws IOException {
-        final String bandDescription = HdfUtils.getNamedStringAttribute(sdsId, bandDesc.getDescriptionAttribName());
-        if (bandDescription != null) {
-            band.setDescription(bandDescription);
+    private static void setBandDescription(Variable variable, ModisBandDescription bandDesc, Band band) throws IOException {
+        final String descriptionAttribName = bandDesc.getDescriptionAttribName();
+        final List<Attribute> attributes = variable.getAttributes();
+        for (int i = 0; i < attributes.size(); i++) {
+            final Attribute attribute = attributes.get(i);
+            if (attribute.getName().equalsIgnoreCase(descriptionAttribName)) {
+                final String description = attribute.getStringValue();
+                band.setDescription(description);
+                return;
+            }
         }
     }
 
-    private static void setBandPhysicalUnit(int sdsId, ModisBandDescription bandDesc, Band band) throws IOException {
-        final String unit = HdfUtils.getNamedStringAttribute(sdsId, bandDesc.getUnitAttribName());
-        if (unit != null) {
-            band.setUnit(unit);
+    private static void setBandPhysicalUnit(Variable variable, ModisBandDescription bandDesc, Band band) throws IOException {
+        final String unitAttribName = bandDesc.getUnitAttribName();
+        final List<Attribute> attributes = variable.getAttributes();
+        for (int i = 0; i < attributes.size(); i++) {
+            final Attribute attribute = attributes.get(i);
+            if (attribute.getName().equalsIgnoreCase(unitAttribName)) {
+                final String unit = attribute.getStringValue();
+                band.setUnit(unit);
+                return;
+            }
         }
     }
 
-    private static void setBandSpectralInformation(ModisBandDescription bandDesc, String bandNameExt, Band band) {
+    static void setBandSpectralInformation(ModisBandDescription bandDesc, String bandNameExt, Band band) {
         if (bandDesc.isSpectral()) {
             if (bandDesc.hasSpectralInfo()) {
                 final ModisSpectralInfo specInfo = bandDesc.getSpecInfo();
@@ -441,17 +379,23 @@ class ModisFileReader {
     /**
      * Adds all tie point grids to the product
      *
+     * @param netCDFVariables
      * @param sdId
      * @param productType
      * @param prod
      * @throws IOException
      */
-    private void addTiePointGrids(int sdId, String productType, Product prod, ModisGlobalAttributes globalAttribs) throws IOException {
+    private void addTiePointGrids(NetCDFVariables netCDFVariables, int sdId, String productType, Product prod, ModisGlobalAttributes globalAttribs) throws IOException {
         TiePointGrid grid;
         String[] tiePointGridNames = prodDb.getTiePointNames(productType);
 
         for (int n = 0; n < tiePointGridNames.length; n++) {
-            grid = readNamedTiePointGrid(sdId, productType, tiePointGridNames[n], globalAttribs);
+            final Variable variable = netCDFVariables.get(tiePointGridNames[n]);
+            if (variable == null) {
+                logger.warning("Unable to access tie point grid: '" + tiePointGridNames[n] + '\'');
+                continue;
+            }
+            grid = readNamedTiePointGrid(variable, sdId, productType, tiePointGridNames[n], globalAttribs);
             if (grid != null) {
                 prod.addTiePointGrid(grid);
             }
@@ -461,14 +405,19 @@ class ModisFileReader {
     /**
      * Reads the tie point grid with the given name
      *
+     * @param variable
      * @param sdId
      * @param name
      * @return
      * @throws IOException
      */
-    private TiePointGrid readNamedTiePointGrid(int sdId, String prodType, String name,
+    private TiePointGrid readNamedTiePointGrid(Variable variable, int sdId, String prodType, String name,
                                                ModisGlobalAttributes globalAttribs) throws IOException {
         TiePointGrid gridRet = null;
+        ModisTiePointDescription desc = prodDb.getTiePointDescription(prodType, name);
+
+// ---todo - remove-----------------------------------------------------------------------------------
+
         int sdsId = HDFConstants.FAIL;
         int dimId;
         int[] dimInfo = new int[3];
@@ -483,7 +432,7 @@ class ModisFileReader {
         float[] offset = new float[]{0.f};
         String unitAttribName;
         String units = null;
-        ModisTiePointDescription desc;
+
 
         int[] start = new int[2];
         int[] count = new int[2];
@@ -501,7 +450,7 @@ class ModisFileReader {
 
             if (!HDF.getWrap().SDgetinfo(sdsId, dimName, dimSize, dimInfo)) {
                 final String message = "Unable to access tie point grid '" + name + '\'';
-                _logger.severe(message);
+                logger.severe(message);
                 throw new IOException(message);
             }
 
@@ -542,7 +491,7 @@ class ModisFileReader {
             final int[] tiePtInfoY = globalAttribs.getSubsamplingAndOffset(dimNames[1]);
             if (tiePtInfoX != null && tiePtInfoY != null && tiePtInfoX.length > 1 && tiePtInfoY.length > 1) {
                 gridRet = new TiePointGrid(name, count[1], count[0], tiePtInfoX[1], tiePtInfoY[1],
-                        tiePtInfoX[0], tiePtInfoY[0], fArray);
+                                           tiePtInfoX[0], tiePtInfoY[0], fArray);
 
                 unitAttribName = desc.getUnitAttribName();
                 if (unitAttribName != null) {
@@ -552,13 +501,12 @@ class ModisFileReader {
                     }
                 }
             } else {
-                _logger.warning("Unable to access tie point grid: '" + name + '\'');
+                logger.warning("Unable to access tie point grid: '" + name + '\'');
             }
         } finally {
             HDF.getWrap().SDendaccess(sdsId);
-            sdsId = HDFConstants.FAIL;
         }
-
+// ---todo - remove-----------------------------------------------------------------------------------
         return gridRet;
     }
 
@@ -654,11 +602,11 @@ class ModisFileReader {
     private String[] loadExternalQCFile(Product product, ModisProductDescription prodDesc, NetCDFVariables netCDFVariables) throws IOException {
         FileContainer qcFile = assembleQCFile(product, prodDesc);
         if (qcFile == null) {
-            _logger.warning("MODIS QC file not found.");
+            logger.warning("MODIS QC file not found.");
             return null;
         }
 
-        _logger.info("MODIS QC file found: " + qcFile.getFile().getPath());
+        logger.info("MODIS QC file found: " + qcFile.getFile().getPath());
 
         _qcFileId = HDF.getWrap().SDstart(qcFile.getFile().getPath(), HDFConstants.DFACC_RDONLY);
 
@@ -675,14 +623,17 @@ class ModisFileReader {
         final String[] tiePointGridNames = prodDb.getTiePointNames(qcFile.getType());
 
         for (int n = 0; n < tiePointGridNames.length; n++) {
+            // @fodo 1 tb/tb replace null with valid variable
             final TiePointGrid grid
-                    = readNamedTiePointGrid(_qcFileId, qcFile.getType(), tiePointGridNames[n], globalAttributes);
+                    = readNamedTiePointGrid(null, _qcFileId, qcFile.getType(), tiePointGridNames[n], globalAttributes);
             if (grid != null) {
                 product.addTiePointGrid(grid);
             }
         }
 
-        addBandsToProduct(netCDFVariables, _qcFileId, qcFile.getType(), product);
+        // @todo 1 tb/tb get variables from QC file
+        //addBandsToProduct(netCDFVariables, _qcFileId, qcFile.getType(), product);
+        addBandsToProduct(netCDFVariables, qcFile.getType(), product);
         return tiePointGridNames;
     }
 
@@ -753,7 +704,7 @@ class ModisFileReader {
         sdsIdx = ihdf.SDnametoindex(sdId, name);
         if (sdsIdx == HDFConstants.FAIL) {
             String message = "Unable to access the dataset '" + name + '\'';
-            _logger.warning(message);
+            logger.warning(message);
 //            throw new HDFException(message);
             return HDFConstants.FAIL;
         }
@@ -762,62 +713,14 @@ class ModisFileReader {
         sdsId = ihdf.SDselect(sdId, sdsIdx);
         if (sdsId == HDFConstants.FAIL) {
             String message = "Unable to access the dataset '" + name + '\'';
-            _logger.warning(message);
+            logger.warning(message);
             throw new IOException(message);
         }
 
         return sdsId;
     }
 
-    /**
-     * Retrieves the band name extension for this band.
-     *
-     * @@param sdsId
-     * @@param productType
-     * @@param bandNameAttribName
-     * @@return
-     * @@throws ncsa.hdf.hdflib.HDFException
-     */
-    protected String getBandNameExtensions(
-            final int sdId, final int sdsId,
-            final String productType, final String bandNameAttribName) throws IOException {
-        if (bandNameAttribName == null) {
-            return null;
-        }
-
-        final String attribValue;
-        // we have to distinguish three possibilities here
-        if (bandNameAttribName.startsWith("@")) {
-            // band names are referenced in another band of this product
-
-            final String correspBand = bandNameAttribName.substring(1);
-            final ModisBandDescription desc = prodDb.getBandDescription(productType, correspBand);
-            final String bandAttribName = desc.getBandAttribName();
-            final String value = HdfUtils.getNamedStringAttribute(sdsId, bandAttribName);
-            if (value == null) {
-                final int correspSdsId = openNamedSds(sdId, correspBand);
-                if (correspSdsId != HDFConstants.FAIL) {
-                    attribValue = HdfUtils.getNamedStringAttribute(correspSdsId, bandAttribName);
-                    closeSds(correspSdsId);
-                } else {
-                    attribValue = null;
-                }
-            } else {
-                attribValue = value;
-            }
-
-        } else if (StringUtils.isIntegerString(bandNameAttribName)) {
-            // band name is directly in the *.dd file
-            attribValue = bandNameAttribName;
-        } else {
-            // band name is in an attribute
-            attribValue = HdfUtils.getNamedStringAttribute(sdsId, bandNameAttribName);
-        }
-
-        return attribValue;
-    }
-
-    private String getBandNameExtensions(final String bandNameAttribName, final String productType, Variable variable, NetCDFVariables netCDFVariables) {
+    private String getBandNameExtensions(final String bandNameAttribName, final String productType, NetCDFAttributes attributes, NetCDFVariables netCDFVariables) {
         String bandNameExtensions = null;
 
         // we have to distinguish three possibilities here
@@ -826,11 +729,13 @@ class ModisFileReader {
             final String correspBand = bandNameAttribName.substring(1);
             final ModisBandDescription desc = prodDb.getBandDescription(productType, correspBand);
             final String bandAttribName = desc.getBandAttribName();
-            final String attributeValue = getNamedStringAttribute(bandAttribName, variable);
+            final String attributeValue = getNamedStringAttribute(bandAttribName, attributes);
             if (StringUtils.isNullOrEmpty(attributeValue)) {
                 final Variable correspVariable = netCDFVariables.get(correspBand);
                 if (correspVariable != null) {
-                    bandNameExtensions = getNamedStringAttribute(bandAttribName, correspVariable);
+                    final NetCDFAttributes correspAttributes = new NetCDFAttributes();
+                    correspAttributes.add(correspVariable.getAttributes());
+                    bandNameExtensions = getNamedStringAttribute(bandAttribName, correspAttributes);
                 }
             } else {
                 bandNameExtensions = attributeValue;
@@ -840,27 +745,38 @@ class ModisFileReader {
             bandNameExtensions = bandNameAttribName;
         } else {
             // band name is in an attribute
-            bandNameExtensions = getNamedStringAttribute(bandNameAttribName, variable);
+            bandNameExtensions = getNamedStringAttribute(bandNameAttribName, attributes);
         }
 
         return bandNameExtensions;
     }
 
-    private String getNamedStringAttribute(String bandNameAttribName, Variable variable) {
+    private String getNamedStringAttribute(String bandNameAttribName, NetCDFAttributes attributes) {
         String attributeValue = "";
-        final List<Attribute> attributes = variable.getAttributes();
-        for (Attribute attribute : attributes) {
-            if (attribute.getName().equals(bandNameAttribName)) {
-                attributeValue = attribute.getStringValue();
-                break;
-            }
+        final Attribute attribute = attributes.get(bandNameAttribName);
+        if (attribute != null) {
+            attributeValue = attribute.getStringValue();
         }
         return attributeValue;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    //////// INTERNAL CLASSES
-    ///////////////////////////////////////////////////////////////////////////
+    static Range createRangeFromArray(int[] rangeArray) {
+        if (rangeArray != null && rangeArray.length >= 2) {
+            final Range range = new Range();
+            range.setMin(rangeArray[0] < rangeArray[1] ? rangeArray[0] : rangeArray[1]);
+            range.setMax(rangeArray[0] > rangeArray[1] ? rangeArray[0] : rangeArray[1]);
+            return range;
+        }
+        return null;
+    }
+
+    private void addMapGeocoding(final Product product, final ModisGlobalAttributes globalAttribs) {
+        product.setGeoCoding(globalAttribs.createGeocoding());
+    }
+
+///////////////////////////////////////////////////////////////////////////
+//////// INTERNAL CLASSES
+///////////////////////////////////////////////////////////////////////////
 
     static class QCFileFilter implements FilenameFilter {
 
