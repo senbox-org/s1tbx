@@ -31,7 +31,7 @@ public class ModisUint16PowBandReader extends ModisBandReader {
     private int targetIdx;
 
     public ModisUint16PowBandReader(Variable variable,final int sdsId, final int layer, final boolean is3d) {
-        super(sdsId, layer, is3d);
+        super(variable, sdsId, layer, is3d);
     }
 
     /**
@@ -48,13 +48,13 @@ public class ModisUint16PowBandReader extends ModisBandReader {
     protected void prepareForReading(final int sourceOffsetX, final int sourceOffsetY, final int sourceWidth,
                                      final int sourceHeight, final int sourceStepX, final int sourceStepY,
                                      final ProductData destBuffer) {
-        fill = (short) Math.floor(_fillValue + 0.5);
-        if (_validRange == null) {
+        fill = (short) Math.floor(fillValue + 0.5);
+        if (validRange == null) {
             min = 0;
             max = Short.MAX_VALUE * 2 + 1;
         } else {
-            min = (int) Math.floor(_validRange.getMin() + 0.5);
-            max = (int) Math.floor(_validRange.getMax() + 0.5);
+            min = (int) Math.floor(validRange.getMin() + 0.5);
+            max = (int) Math.floor(validRange.getMax() + 0.5);
         }
         targetData = (float[]) destBuffer.getElems();
         targetIdx = 0;
@@ -76,7 +76,7 @@ public class ModisUint16PowBandReader extends ModisBandReader {
 
     @Override
     protected void assign(final int x) {
-        targetData[targetIdx++] = (float) Math.pow(10.f, (_scale * _line[x] + _offset));
+        targetData[targetIdx++] = (float) Math.pow(10.f, (scale * _line[x] + offset));
     }
 
     private void ensureLineWidth(final int sourceWidth) {

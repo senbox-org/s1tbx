@@ -18,11 +18,10 @@
 package org.esa.beam.dataio.modis.bandreader;
 
 import com.bc.ceres.core.ProgressMonitor;
-import ncsa.hdf.hdflib.HDFConstants;
 import org.esa.beam.dataio.modis.ModisConstants;
-import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.math.Range;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 
@@ -36,16 +35,17 @@ abstract public class ModisBandReader {
 
     protected int _sdsId;
     protected int _layer;
-    protected float _scale;
-    protected float _offset;
-    private String _name;
+    protected float scale;
+    protected float offset;
+    private String name;
     protected int[] _start;
     protected int[] _stride;
     protected int[] _count;
     protected int _xCoord;
     protected int _yCoord;
-    protected Range _validRange;
-    protected double _fillValue;
+    protected Range validRange;
+    protected double fillValue;
+    protected Variable variable;
 
     /**
      * Creates a band reader with given scientific dataset identifier
@@ -54,7 +54,8 @@ abstract public class ModisBandReader {
      * @param layer the layer
      * @param is3d  true if the dataset is a 3d dataset
      */
-    public ModisBandReader(final int sdsId, final int layer, final boolean is3d) {
+    public ModisBandReader(Variable variable, final int sdsId, final int layer, final boolean is3d) {
+        this.variable = variable;
         _sdsId = sdsId;
         _layer = layer;
         _count = new int[3];
@@ -75,22 +76,12 @@ abstract public class ModisBandReader {
     }
 
     /**
-     * Closes the band reader.
-     *
-     * @throws IOException
-     */
-    public void close() throws IOException {
-        HDF.getWrap().SDendaccess(_sdsId);
-        _sdsId = HDFConstants.FAIL;
-    }
-
-    /**
      * Sets the name of the band
      *
      * @param name the name for this band reader
      */
     public void setName(final String name) {
-        _name = name;
+        this.name = name;
     }
 
     /**
@@ -99,7 +90,7 @@ abstract public class ModisBandReader {
      * @return name
      */
     public String getName() {
-        return _name;
+        return name;
     }
 
     /**
@@ -132,8 +123,8 @@ abstract public class ModisBandReader {
      * @param offset the offset used by this band reader
      */
     public void setScaleAndOffset(final float scale, final float offset) {
-        _scale = scale;
-        _offset = offset;
+        this.scale = scale;
+        this.offset = offset;
     }
 
     /**
@@ -142,7 +133,7 @@ abstract public class ModisBandReader {
      * @param validRange the raw data valid range
      */
     public void setValidRange(Range validRange) {
-        _validRange = validRange;
+        this.validRange = validRange;
     }
 
     abstract protected void prepareForReading(final int sourceOffsetX, final int sourceOffsetY,
@@ -163,7 +154,7 @@ abstract public class ModisBandReader {
      * @param fillValue the fill value if any raw data is not in the valid range
      */
     public void setFillValue(double fillValue) {
-        _fillValue = fillValue;
+        this.fillValue = fillValue;
     }
 
     /**

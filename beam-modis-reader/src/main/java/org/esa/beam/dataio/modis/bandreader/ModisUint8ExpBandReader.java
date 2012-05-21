@@ -32,7 +32,7 @@ public class ModisUint8ExpBandReader extends ModisBandReader {
     private int targetDataIdx;
 
     public ModisUint8ExpBandReader(Variable variable,final int sdsId, final int layer, final boolean is3d) {
-        super(sdsId, layer, is3d);
+        super(variable, sdsId, layer, is3d);
     }
 
     /**
@@ -49,17 +49,17 @@ public class ModisUint8ExpBandReader extends ModisBandReader {
     protected void prepareForReading(final int sourceOffsetX, final int sourceOffsetY, final int sourceWidth,
                                      final int sourceHeight, final int sourceStepX, final int sourceStepY,
                                      final ProductData destBuffer) {
-        fill = (byte) Math.floor(_fillValue + 0.5);
-        if (_validRange == null) {
+        fill = (byte) Math.floor(fillValue + 0.5);
+        if (validRange == null) {
             min = 0;
             max = Byte.MAX_VALUE * 2 + 1;
         } else {
-            min = (short) Math.floor(_validRange.getMin() + 0.5);
-            max = (short) Math.floor(_validRange.getMax() + 0.5);
+            min = (short) Math.floor(validRange.getMin() + 0.5);
+            max = (short) Math.floor(validRange.getMax() + 0.5);
         }
         targetData = (float[]) destBuffer.getElems();
         targetDataIdx = 0;
-        invScale = 1.0 / _scale;
+        invScale = 1.0 / scale;
         ensureLineWidth(sourceWidth);
     }
 
@@ -78,7 +78,7 @@ public class ModisUint8ExpBandReader extends ModisBandReader {
 
     @Override
     protected void assign(final int x) {
-        targetData[targetDataIdx++] = _offset * (float) Math.exp(_line[x] * invScale);
+        targetData[targetDataIdx++] = offset * (float) Math.exp(_line[x] * invScale);
     }
 
     private void ensureLineWidth(final int sourceWidth) {

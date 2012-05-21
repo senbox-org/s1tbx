@@ -32,7 +32,7 @@ public class ModisInt8BandReader extends ModisBandReader {
     private int targetIdx;
 
     public ModisInt8BandReader(Variable variable,final int sdsId, final int layer, final boolean is3d) {
-        super(sdsId, layer, is3d);
+        super(variable, sdsId, layer, is3d);
     }
 
     /**
@@ -49,13 +49,13 @@ public class ModisInt8BandReader extends ModisBandReader {
     protected void prepareForReading(final int sourceOffsetX, final int sourceOffsetY, final int sourceWidth,
                                      final int sourceHeight, final int sourceStepX, final int sourceStepY,
                                      final ProductData destBuffer) {
-        fill = (byte) Math.floor(_fillValue + 0.5);
-        if (_validRange == null) {
+        fill = (byte) Math.floor(fillValue + 0.5);
+        if (validRange == null) {
             min = Byte.MIN_VALUE;
             max = Byte.MAX_VALUE;
         } else {
-            min = (byte) Math.floor(_validRange.getMin() + 0.5);
-            max = (byte) Math.floor(_validRange.getMax() + 0.5);
+            min = (byte) Math.floor(validRange.getMin() + 0.5);
+            max = (byte) Math.floor(validRange.getMax() + 0.5);
         }
         targetData = (byte[]) destBuffer.getElems();
         targetIdx = 0;
