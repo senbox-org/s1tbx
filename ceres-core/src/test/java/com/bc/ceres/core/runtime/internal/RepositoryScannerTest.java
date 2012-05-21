@@ -16,21 +16,16 @@
 
 package com.bc.ceres.core.runtime.internal;
 
-import java.io.*;
-import java.net.*;
-import java.util.logging.Logger;
-import java.util.HashMap;
-import java.util.Map;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
-
-import junit.framework.TestCase;
-
 import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.NullProgressMonitor;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ProxyConfig;
+import junit.framework.TestCase;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.logging.Logger;
 
 /**
  * Unit test for simple ModuleReader.
@@ -111,6 +106,17 @@ public class RepositoryScannerTest
 
         rm = findModule(repositoryModules, "module-g");
         assertNull(rm);
+    }
+
+    public void testBlah() throws Exception {
+        URL url = new URL("http://www.brockmann-consult.de/beam/software/repositories/4.10");
+
+        final RepositoryScanner repositoryScanner = new RepositoryScanner(Logger.getAnonymousLogger(), url, ProxyConfig.NULL);
+
+        final Module[] modules = repositoryScanner.scan(ProgressMonitor.NULL);
+        for (Module module : modules) {
+            System.out.println("module = " + module.getName());
+        }
     }
 
     private Module findModule(Module[] modules, String name) {
