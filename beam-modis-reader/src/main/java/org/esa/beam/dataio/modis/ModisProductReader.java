@@ -16,15 +16,11 @@
 package org.esa.beam.dataio.modis;
 
 import com.bc.ceres.core.ProgressMonitor;
-import ncsa.hdf.hdflib.HDFConstants;
 import org.esa.beam.dataio.modis.attribute.DaacAttributes;
 import org.esa.beam.dataio.modis.attribute.ImappAttributes;
 import org.esa.beam.dataio.modis.bandreader.ModisBandReader;
-import org.esa.beam.dataio.modis.hdf.HdfAttributeContainer;
-import org.esa.beam.dataio.modis.hdf.HdfAttributes;
-import org.esa.beam.dataio.modis.hdf.IHDF;
-import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.dataio.modis.netcdf.NetCDFAttributes;
+import org.esa.beam.dataio.modis.netcdf.NetCDFUtils;
 import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.AbstractProductReader;
@@ -33,25 +29,16 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.logging.BeamLogManager;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.logging.Logger;
 
 public class ModisProductReader extends AbstractProductReader {
 
-    private HdfAttributes _globalHdfAttrs;
-    private final HashMap _bandReader;
-    private final Logger logger;
-    private int _fileId;
-    private int _sdStart;
     private ModisFileReader fileReader;
     private ModisGlobalAttributes globalAttributes;
     private NetcdfFile netcdfFile;
@@ -65,15 +52,6 @@ public class ModisProductReader extends AbstractProductReader {
      */
     public ModisProductReader(ModisProductReaderPlugIn plugin) {
         super(plugin);
-
-// ---todo - remove-----------------------------------------------------------------------------------
-        _fileId = HDFConstants.FAIL;
-        _sdStart = HDFConstants.FAIL;
-// ---todo - remove-----------------------------------------------------------------------------------
-
-        _bandReader = new HashMap();
-
-        logger = BeamLogManager.getSystemLogger();
     }
 
     /**
@@ -86,30 +64,6 @@ public class ModisProductReader extends AbstractProductReader {
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
-        }
-
-// ---todo - remove-----------------------------------------------------------------------------------
-        if (_fileId != HDFConstants.FAIL) {
-
-            // close all band readers
-            // ----------------------
-            Collection readers = _bandReader.values();
-            Iterator it = readers.iterator();
-            ModisBandReader reader;
-            while (it.hasNext()) {
-                reader = (ModisBandReader) it.next();
-                reader.close();
-            }
-            _bandReader.clear();
-
-            fileReader.close();
-
-            // and finish file access
-            // ----------------------
-            HDF.getWrap().SDend(_sdStart);
-            _sdStart = HDFConstants.FAIL;
-            HDF.getWrap().Hclose(_fileId);
-            _fileId = HDFConstants.FAIL;
         }
 
         super.close();
@@ -197,44 +151,21 @@ public class ModisProductReader extends AbstractProductReader {
         netCDFVariables.add(netcdfFile.getVariables());
         fileReader.addRastersAndGeoCoding(product, globalAttributes, netCDFVariables);
 
-// ---todo - remove-----------------------------------------------------------------------------------
-        final IHDF ihdf = HDF.getWrap();
-        try {
-            _fileId = ihdf.Hopen(inputFilePath, HDFConstants.DFACC_RDONLY);
-            _sdStart = ihdf.SDstart(inputFilePath, HDFConstants.DFACC_RDONLY);
-
-            //checkDayNightMode();
-
-            fileReader.addRastersAndGeocoding(_sdStart, globalAttributes, product);
-
-            // add all metadata if required
-            // ----------------------------
-            if (!isMetadataIgnored()) {
-                // add the metadata
-                addMetadata(product);
-            }
-
-            // ModisProductDb db = ModisProductDb.getInstance();
-// Remarked by sabine because the product flipper uses a TiePointGeoCcoding
-// and makes not an instance of ModisTiePointGeoCoding
-//                if (!(_dayMode ^ db.mustFlip(prod.getProductType()))) {
-//                    prod = ProductFlipper.createFlippedProduct(prod, ProductFlipper.FLIP_BOTH, prod.getName(),
-//                            prod.getDescription());
-//                    prod.setFileLocation(inFile);
-//                }
-            final Date sensingStart = globalAttributes.getSensingStart();
-            if (sensingStart != null) {
-                product.setStartTime(ProductData.UTC.create(sensingStart, 0));
-            }
-            final Date sensingStop = globalAttributes.getSensingStop();
-            if (sensingStop != null) {
-                product.setEndTime(ProductData.UTC.create(sensingStop, 0));
-            }
-            return product;
-        } finally {
-            ihdf.Hclose(_fileId);
+        // add all metadata if required
+        // ----------------------------
+        if (!isMetadataIgnored()) {
+            addMetadata(product);
         }
-// ---todo - remove-----------------------------------------------------------------------------------
+
+        final Date sensingStart = globalAttributes.getSensingStart();
+        if (sensingStart != null) {
+            product.setStartTime(ProductData.UTC.create(sensingStart, 0));
+        }
+        final Date sensingStop = globalAttributes.getSensingStop();
+        if (sensingStop != null) {
+            product.setEndTime(ProductData.UTC.create(sensingStop, 0));
+        }
+        return product;
     }
 
     private ModisFileReader createFileReader() {
@@ -262,7 +193,7 @@ public class ModisProductReader extends AbstractProductReader {
 
         // check wheter daac or imapp
         if (isImappFormat()) {
-            globalAttributes = new ImappAttributes(inFile, netCDFVariables);
+            globalAttributes = new ImappAttributes(inFile, netCDFVariables, netCDFAttributes);
         } else {
             globalAttributes = new DaacAttributes(netCDFVariables);
         }
@@ -275,23 +206,19 @@ public class ModisProductReader extends AbstractProductReader {
     /**
      * Adds the metadata to the product passed in
      *
-     * @param prod
+     * @param prod the product
      */
     private void addMetadata(Product prod) {
-        HdfAttributeContainer container;
-        MetadataElement mdElem = null;
-        MetadataElement globalElem = null;
-
-        mdElem = prod.getMetadataRoot();
+        final MetadataElement mdElem = prod.getMetadataRoot();
         if (mdElem == null) {
             return;
         }
 
-        globalElem = new MetadataElement(ModisConstants.GLOBAL_META_NAME);
+        final MetadataElement globalElem = new MetadataElement(ModisConstants.GLOBAL_META_NAME);
 
-        for (int n = 0; n < _globalHdfAttrs.getNumAttributes(); n++) {
-            container = _globalHdfAttrs.getAttributeAt(n);
-            globalElem.addAttribute(container.toMetadataAttribute());
+        final Attribute[] attributes = netCDFAttributes.getAll();
+        for (final Attribute attribute : attributes) {
+            globalElem.addAttribute(NetCDFUtils.toMetadataAttribute(attribute));
         }
 
         mdElem.addElement(globalElem);

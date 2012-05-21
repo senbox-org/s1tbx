@@ -41,7 +41,18 @@ public class NetCDFAttributesTest extends TestCase {
 
         attrib = netCDFAttributes.get("egal_was");
         assertNull(attrib);
+    }
 
+    public void testGetAll() {
+        final List<Attribute> globalAttributes = new ArrayList<Attribute>();
+        globalAttributes.add(new Attribute("one_attrib", 1));
+        globalAttributes.add(new Attribute("two_attrib", 2));
+        netCDFAttributes.add(globalAttributes);
+
+        final Attribute[] result = netCDFAttributes.getAll();
+        assertNotNull(result);
+        assertEquals(2, result.length);
+        assertEquals(1, result[0].getNumericValue());
     }
 
     protected void setUp() throws Exception {

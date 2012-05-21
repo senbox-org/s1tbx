@@ -25,74 +25,6 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 
 public class ModisBandReaderFactory {
-// @todo 1 tb/tb delete commented out method
-//    /**
-//     * Retrieves a band reader for the given dataset id and the layer index.
-//     *
-//     * @param sdsId the scientific datases identifier
-//     * @param desc  the modis band description
-//     * @return one or more applicable band reader
-//     * @throws IOException
-//     */
-//    public static ModisBandReader[] getReaders(final int sdsId, final ModisBandDescription desc) throws IOException {
-//        ModisBandReader[] readers = null;
-//
-//        final String[] dsName = new String[]{""};
-//        final int[] nInfo = new int[3];
-//        final int[] nDimSizes = new int[3];
-//
-//        if (HDF.getWrap().SDgetinfo(sdsId, dsName, nDimSizes, nInfo)) {
-//            final int prodIODataType = HdfUtils.decodeHdfDataType(nInfo[1]);
-//
-//            final boolean is3d;
-//            if (nInfo[0] > 2) {
-//                readers = new ModisBandReader[nDimSizes[0]];
-//                is3d = true;
-//            } else {
-//                readers = new ModisBandReader[1];
-//                is3d = false;
-//            }
-//
-//            final String bandName = dsName[0];
-//            int scaleMethod = ModisBandReader.decodeScalingMethod(desc.getScalingMethod());
-//
-//            for (int i = 0; i < readers.length; i++) {
-//                if (prodIODataType == ProductData.TYPE_INT8) {
-//                    readers[i] = new ModisInt8BandReader(sdsId, i, is3d);
-//                } else if (prodIODataType == ProductData.TYPE_UINT8) {
-//                    if ((scaleMethod == ModisBandReader.SCALE_LINEAR)
-//                            // @todo IMAPP
-//                            || (scaleMethod == ModisBandReader.SCALE_UNKNOWN)) {
-//                        // @todo IMAPP
-//                        readers[i] = new ModisUint8BandReader(sdsId, i, is3d);
-//                    } else if (scaleMethod == ModisBandReader.SCALE_EXPONENTIAL) {
-//                        readers[i] = new ModisUint8ExpBandReader(sdsId, i, is3d);
-//                    }
-//                } else if (prodIODataType == ProductData.TYPE_UINT16) {
-//                    if ((scaleMethod == ModisBandReader.SCALE_UNKNOWN) ||
-//                            (scaleMethod == ModisBandReader.SCALE_LINEAR) ||
-//                            (scaleMethod == ModisBandReader.SCALE_SLOPE_INTERCEPT)) {
-//                        readers[i] = new ModisUint16BandReader(sdsId, i, is3d);
-//                    } else if (scaleMethod == ModisBandReader.SCALE_POW_10) {
-//                        readers[i] = new ModisUint16PowBandReader(sdsId, i, is3d);
-//                    }
-//                } else if (prodIODataType == ProductData.TYPE_INT16) {
-//                    if ((scaleMethod == ModisBandReader.SCALE_UNKNOWN) ||
-//                            (scaleMethod == ModisBandReader.SCALE_LINEAR)) {
-//                        readers[i] = new ModisInt16BandReader(sdsId, i, is3d);
-//                    }
-//                } else if (prodIODataType == ProductData.TYPE_UINT32) {
-//                    if ((scaleMethod == ModisBandReader.SCALE_UNKNOWN) ||
-//                            (scaleMethod == ModisBandReader.SCALE_LINEAR) ||
-//                            (scaleMethod == ModisBandReader.SCALE_SLOPE_INTERCEPT)) {
-//                        readers[i] = new ModisUint32BandReader(sdsId, i, is3d);
-//                    }
-//                }
-//                readers[i].setName(bandName);
-//            }
-//        }
-//        return readers;
-//    }
 
     public static ModisBandReader[] getReaders(NetCDFVariables netCDFVariables, final ModisBandDescription desc) throws IOException {
         final Variable variable = netCDFVariables.get(desc.getName());
@@ -138,10 +70,7 @@ public class ModisBandReaderFactory {
                 }
             }
             modisBandReaders[i].setName(variable.getName());
-
-
         }
-
 
         return modisBandReaders;
     }

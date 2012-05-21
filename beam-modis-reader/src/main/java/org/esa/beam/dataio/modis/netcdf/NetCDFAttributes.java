@@ -28,4 +28,8 @@ public class NetCDFAttributes {
     public Attribute get(String name) {
         return attributeHashMap.get(name);
     }
+
+    public Attribute[] getAll() {
+        return attributeHashMap.values().toArray(new Attribute[attributeHashMap.size()]);
+    }
 }

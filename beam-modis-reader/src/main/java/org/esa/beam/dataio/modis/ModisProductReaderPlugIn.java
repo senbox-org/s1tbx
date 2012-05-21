@@ -17,6 +17,7 @@ package org.esa.beam.dataio.modis;
 
 import org.esa.beam.dataio.modis.attribute.DaacAttributes;
 import org.esa.beam.dataio.modis.attribute.ImappAttributes;
+import org.esa.beam.dataio.modis.netcdf.NetCDFAttributes;
 import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.DecodeQualification;
@@ -55,10 +56,13 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
             final NetCDFVariables variables = new NetCDFVariables();
             variables.add(netcdfFile.getVariables());
 
-            ModisGlobalAttributes modisAttributes;
+            final NetCDFAttributes attributes = new NetCDFAttributes();
+            attributes.add(netcdfFile.getGlobalAttributes());
+
+            final ModisGlobalAttributes modisAttributes;
             final Variable structMeta = variables.get(ModisConstants.STRUCT_META_KEY);
             if (structMeta == null) {
-                modisAttributes = new ImappAttributes(inputFile, variables);
+                modisAttributes = new ImappAttributes(inputFile, variables, attributes);
                 System.out.println("IMAPP");
             } else {
                 modisAttributes = new DaacAttributes(variables);

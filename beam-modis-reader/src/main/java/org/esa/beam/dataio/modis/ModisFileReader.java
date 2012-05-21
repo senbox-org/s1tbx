@@ -24,8 +24,10 @@ import org.esa.beam.dataio.modis.hdf.HdfUtils;
 import org.esa.beam.dataio.modis.hdf.IHDF;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.dataio.modis.netcdf.NetCDFAttributes;
+import org.esa.beam.dataio.modis.netcdf.NetCDFUtils;
 import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.*;
+import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
@@ -33,7 +35,9 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.Range;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -63,28 +67,10 @@ class ModisFileReader {
     /**
      * Adds all the bands, the tie point grids and the geocoding to the product.
      *
-     * @param sdStart       the id of the HDF SDstart
-     * @param globalAttribs the struct global attributes object
-     * @param product       the product to be supplied with bands
+     * @param globalAttribs   the struct global attributes object
+     * @param product         the product to be supplied with bands
+     * @param netCDFVariables the list of variables in the product
      */
-// ---todo - remove-----------------------------------------------------------------------------------
-    public void addRastersAndGeocoding(final int sdStart, final ModisGlobalAttributes globalAttribs,
-                                       final Product product) throws IOException {
-        String productType = product.getProductType();
-        if (globalAttribs.isImappFormat()) {
-            productType += "_IMAPP";
-        }
-
-        addBandsToProduct(null, productType, product);
-        if (isEosGridType(globalAttribs)) {
-            addMapGeocoding(product, globalAttribs);
-        } else {
-            addTiePointGrids(null, sdStart, productType, product, globalAttribs);
-            addModisTiePointGeoCoding(product, null);
-        }
-    }
-// ---todo - remove-----------------------------------------------------------------------------------
-
     public void addRastersAndGeoCoding(final Product product, ModisGlobalAttributes globalAttribs, NetCDFVariables netCDFVariables) throws IOException {
         String productType = product.getProductType();
         if (globalAttribs.isImappFormat()) {
@@ -96,6 +82,7 @@ class ModisFileReader {
             addMapGeocoding(product, globalAttribs);
         } else {
             addTiePointGrids(netCDFVariables, 0, productType, product, globalAttribs);
+            addModisTiePointGeoCoding(product, null);
         }
     }
 
@@ -186,13 +173,7 @@ class ModisFileReader {
     private float[] getNamedFloatAttribute(NetCDFAttributes attributes, String name) {
         final Attribute attribute = attributes.get(name);
         if (attribute != null) {
-            final Array values = attribute.getValues();
-            final long size = values.getSize();
-            final float[] result = new float[(int) size];
-            for (int i = 0; i < size; i++) {
-                result[i] = values.getFloat(i);
-            }
-            return result;
+            return NetCDFUtils.getFloatValues(attribute);
         }
         return new float[0];
     }
@@ -211,6 +192,7 @@ class ModisFileReader {
                 logger.warning("No band description for band '" + bandName + "' of product type '" + prodType + "'");
                 continue;
             }
+
             final ModisBandReader[] bandReaders = ModisBandReaderFactory.getReaders(netCDFVariables, bandDesc);
             final Variable variable = netCDFVariables.get(bandName);
             if (variable == null) {
@@ -395,7 +377,9 @@ class ModisFileReader {
                 logger.warning("Unable to access tie point grid: '" + tiePointGridNames[n] + '\'');
                 continue;
             }
-            grid = readNamedTiePointGrid(variable, sdId, productType, tiePointGridNames[n], globalAttribs);
+            final NetCDFAttributes attributes = new NetCDFAttributes();
+            attributes.add(variable.getAttributes());
+            grid = readNamedTiePointGrid(variable, attributes, sdId, productType, tiePointGridNames[n], globalAttribs);
             if (grid != null) {
                 prod.addTiePointGrid(grid);
             }
@@ -406,107 +390,69 @@ class ModisFileReader {
      * Reads the tie point grid with the given name
      *
      * @param variable
+     * @param netCDFAttributes
      * @param sdId
-     * @param name
-     * @return
+     * @param name             @return
      * @throws IOException
      */
-    private TiePointGrid readNamedTiePointGrid(Variable variable, int sdId, String prodType, String name,
+    private TiePointGrid readNamedTiePointGrid(Variable variable, NetCDFAttributes netCDFAttributes, int sdId, String prodType, String name,
                                                ModisGlobalAttributes globalAttribs) throws IOException {
-        TiePointGrid gridRet = null;
-        ModisTiePointDescription desc = prodDb.getTiePointDescription(prodType, name);
-
-// ---todo - remove-----------------------------------------------------------------------------------
-
-        int sdsId = HDFConstants.FAIL;
-        int dimId;
-        int[] dimInfo = new int[3];
-        int[] dimSize = new int[3];
-        String[] dimName = {""};
-        int dataType;
         Object buffer;
-        float[] fArray = null;
-        String scaleAttribName;
-        String offsetAttribName;
-        float[] scale = new float[]{1.f};
-        float[] offset = new float[]{0.f};
-        String unitAttribName;
-        String units = null;
+        TiePointGrid gridRet = null;
+        final ModisTiePointDescription desc = prodDb.getTiePointDescription(prodType, name);
+        final DataType ncDataType = variable.getDataType();
+        final int dataType1 = DataTypeUtils.getEquivalentProductDataType(ncDataType, false, false); // @todo tb/tb rename variable
 
+        final List<Dimension> dimensions = variable.getDimensions();
+        final int height = dimensions.get(0).getLength();
+        final int width = dimensions.get(1).getLength();
 
-        int[] start = new int[2];
-        int[] count = new int[2];
-        int[] stride = new int[2];
-
-        start[0] = start[1] = 0;
-        stride[0] = stride[1] = 1;
-
-        try {
-            sdsId = openNamedSds(sdId, name);
-
-            if (sdsId == HDFConstants.FAIL) {
-                return null;
-            }
-
-            if (!HDF.getWrap().SDgetinfo(sdsId, dimName, dimSize, dimInfo)) {
-                final String message = "Unable to access tie point grid '" + name + '\'';
-                logger.severe(message);
-                throw new IOException(message);
-            }
-
-            desc = prodDb.getTiePointDescription(prodType, name);
-            dataType = HdfUtils.decodeHdfDataType(dimInfo[1]);
-
-            dimId = HDF.getWrap().SDgetdimid(sdsId, 0);
-            HDF.getWrap().SDdiminfo(dimId, dimName, dimInfo);
-            count[0] = dimInfo[0];
-
-            dimId = HDF.getWrap().SDgetdimid(sdsId, 1);
-            HDF.getWrap().SDdiminfo(dimId, dimName, dimInfo);
-            count[1] = dimInfo[0];
-
-            buffer = allocateDataArray(count[0] * count[1], dataType);
-            HDF.getWrap().SDreaddata(sdsId, start, stride, count, buffer);
-
-            scaleAttribName = desc.getScaleAttribName();
-            if (scaleAttribName != null) {
-                scale = getNamedFloatAttribute(sdsId, scaleAttribName);
-                if (scale == null || scale.length <= 0) {
-                    scale = new float[]{1.f};
-                }
-            }
-            offsetAttribName = desc.getOffsetAttribName();
-            if (offsetAttribName != null) {
-                offset = getNamedFloatAttribute(sdsId, offsetAttribName);
-                if (offset == null || offset.length <= 0) {
-                    offset = new float[]{0.f};
-                }
-            }
-            fArray = scaleArray(dataType, buffer, scale[0], offset[0]);
-
-            HdfDataField field = globalAttribs.getDatafield(name);
-            String[] dimNames = field.getDimensionNames();
-
-            final int[] tiePtInfoX = globalAttribs.getSubsamplingAndOffset(dimNames[0]);
-            final int[] tiePtInfoY = globalAttribs.getSubsamplingAndOffset(dimNames[1]);
-            if (tiePtInfoX != null && tiePtInfoY != null && tiePtInfoX.length > 1 && tiePtInfoY.length > 1) {
-                gridRet = new TiePointGrid(name, count[1], count[0], tiePtInfoX[1], tiePtInfoY[1],
-                                           tiePtInfoX[0], tiePtInfoY[0], fArray);
-
-                unitAttribName = desc.getUnitAttribName();
-                if (unitAttribName != null) {
-                    units = HdfUtils.getNamedStringAttribute(sdsId, unitAttribName);
-                    if (units != null) {
-                        gridRet.setUnit(units);
-                    }
-                }
-            } else {
-                logger.warning("Unable to access tie point grid: '" + name + '\'');
-            }
-        } finally {
-            HDF.getWrap().SDendaccess(sdsId);
+        float[] floatBuffer = new float[width * height];
+        final Array array = variable.read();
+        for (int i = 0; i < floatBuffer.length; i++) {
+            floatBuffer[i] = array.getFloat(i);
         }
-// ---todo - remove-----------------------------------------------------------------------------------
+
+        String scaleAttribName = desc.getScaleAttribName();
+        float[] scale = new float[]{1.f};
+        if (scaleAttribName != null) {
+            scale = getNamedFloatAttribute(netCDFAttributes, scaleAttribName);
+            if (scale == null || scale.length <= 0) {
+                scale = new float[]{1.f};
+            }
+        }
+
+        String offsetAttribName = desc.getOffsetAttribName();
+        float[] offset = new float[]{0.f};
+        if (offsetAttribName != null) {
+            offset = getNamedFloatAttribute(netCDFAttributes, offsetAttribName);
+            if (offset == null || offset.length <= 0) {
+                offset = new float[]{0.f};
+            }
+        }
+
+        floatBuffer = scaleArray(dataType1, floatBuffer, scale[0], offset[0]);
+        HdfDataField field = globalAttribs.getDatafield(name);
+        String[] dimNames = field.getDimensionNames();
+
+        final int[] tiePtInfoX = globalAttribs.getSubsamplingAndOffset(dimNames[0]);
+        final int[] tiePtInfoY = globalAttribs.getSubsamplingAndOffset(dimNames[1]);
+
+        if (tiePtInfoX != null && tiePtInfoY != null && tiePtInfoX.length > 1 && tiePtInfoY.length > 1) {
+            gridRet = new TiePointGrid(name, width, height, tiePtInfoX[1], tiePtInfoY[1],
+                    tiePtInfoX[0], tiePtInfoY[0], floatBuffer);
+
+            String unitAttribName = desc.getUnitAttribName();
+            if (unitAttribName != null) {
+                String units = NetCDFUtils.getNamedStringAttribute(unitAttribName, netCDFAttributes);
+                if (units != null) {
+                    gridRet.setUnit(units);
+                }
+            }
+        } else {
+            logger.warning("Unable to access tie point grid: '" + name + '\'');
+        }
+
         return gridRet;
     }
 
@@ -594,6 +540,43 @@ class ModisFileReader {
         return fRet;
     }
 
+
+    private static float[] scaleArray(int dataType, float[] buffer, float scale, float offset) {
+
+        if (dataType == ProductData.TYPE_FLOAT32) {
+            for (int n = 0; n < buffer.length; n++) {
+                buffer[n] = scale * buffer[n] + offset;
+            }
+        } else if (dataType == ProductData.TYPE_INT8) {
+            for (int n = 0; n < buffer.length; n++) {
+                buffer[n] = buffer[n] * scale + offset;
+            }
+        } else if (dataType == ProductData.TYPE_UINT8) {
+            for (int n = 0; n < buffer.length; n++) {
+                if (buffer[n] < 0) {
+                    buffer[n] = (buffer[n] + 256) * scale + offset;
+                } else {
+                    buffer[n] = buffer[n] * scale + offset;
+                }
+            }
+
+        } else if (dataType == ProductData.TYPE_INT16) {
+            for (int n = 0; n < buffer.length; n++) {
+                buffer[n] = buffer[n] * scale + offset;
+            }
+        } else if (dataType == ProductData.TYPE_UINT16) {
+            for (int n = 0; n < buffer.length; n++) {
+                if (buffer[n] < 0) {
+                    buffer[n] = (buffer[n] + 65536) * scale + offset;
+                } else {
+                    buffer[n] = buffer[n] * scale + offset;
+                }
+            }
+        }
+
+        return buffer;
+    }
+
     /**
      * Loads an exernal QC file into the product
      *
@@ -623,9 +606,8 @@ class ModisFileReader {
         final String[] tiePointGridNames = prodDb.getTiePointNames(qcFile.getType());
 
         for (int n = 0; n < tiePointGridNames.length; n++) {
-            // @fodo 1 tb/tb replace null with valid variable
-            final TiePointGrid grid
-                    = readNamedTiePointGrid(null, _qcFileId, qcFile.getType(), tiePointGridNames[n], globalAttributes);
+            // @todo 1 tb/tb replace null with valid variable
+            final TiePointGrid grid = readNamedTiePointGrid(null, null, _qcFileId, qcFile.getType(), tiePointGridNames[n], globalAttributes);
             if (grid != null) {
                 product.addTiePointGrid(grid);
             }
@@ -729,13 +711,13 @@ class ModisFileReader {
             final String correspBand = bandNameAttribName.substring(1);
             final ModisBandDescription desc = prodDb.getBandDescription(productType, correspBand);
             final String bandAttribName = desc.getBandAttribName();
-            final String attributeValue = getNamedStringAttribute(bandAttribName, attributes);
+            final String attributeValue = NetCDFUtils.getNamedStringAttribute(bandAttribName, attributes);
             if (StringUtils.isNullOrEmpty(attributeValue)) {
                 final Variable correspVariable = netCDFVariables.get(correspBand);
                 if (correspVariable != null) {
                     final NetCDFAttributes correspAttributes = new NetCDFAttributes();
                     correspAttributes.add(correspVariable.getAttributes());
-                    bandNameExtensions = getNamedStringAttribute(bandAttribName, correspAttributes);
+                    bandNameExtensions = NetCDFUtils.getNamedStringAttribute(bandAttribName, correspAttributes);
                 }
             } else {
                 bandNameExtensions = attributeValue;
@@ -745,19 +727,10 @@ class ModisFileReader {
             bandNameExtensions = bandNameAttribName;
         } else {
             // band name is in an attribute
-            bandNameExtensions = getNamedStringAttribute(bandNameAttribName, attributes);
+            bandNameExtensions = NetCDFUtils.getNamedStringAttribute(bandNameAttribName, attributes);
         }
 
         return bandNameExtensions;
-    }
-
-    private String getNamedStringAttribute(String bandNameAttribName, NetCDFAttributes attributes) {
-        String attributeValue = "";
-        final Attribute attribute = attributes.get(bandNameAttribName);
-        if (attribute != null) {
-            attributeValue = attribute.getStringValue();
-        }
-        return attributeValue;
     }
 
     static Range createRangeFromArray(int[] rangeArray) {
