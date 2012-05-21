@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
     
     <symbolicName>ceres-ui</symbolicName>
-    <version>0.13</version>
+    <version>0.14</version>
     <name>Ceres User Interface Library</name>
 
     <categories>System,Library</categories>
