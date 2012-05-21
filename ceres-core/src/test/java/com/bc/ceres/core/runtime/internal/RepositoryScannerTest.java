@@ -108,7 +108,7 @@ public class RepositoryScannerTest
         assertNull(rm);
     }
 
-    public void testBlah() throws Exception {
+    public void testDumpModuleNames() throws Exception {
         URL url = new URL("http://www.brockmann-consult.de/beam/software/repositories/4.10");
 
         final RepositoryScanner repositoryScanner = new RepositoryScanner(Logger.getAnonymousLogger(), url, ProxyConfig.NULL);
