@@ -279,12 +279,17 @@ public class FeatureUtils {
     public static Geometry createGeoBoundaryPolygon(Product product) {
         GeometryFactory gf = new GeometryFactory();
         GeoPos[] geoPositions = ProductUtils.createGeoBoundary(product, 100);
-        Coordinate[] coordinates = new Coordinate[geoPositions.length + 1];
-        for (int i = 0; i < geoPositions.length; i++) {
-            GeoPos geoPos = geoPositions[i];
-            coordinates[i] = new Coordinate(geoPos.lon, geoPos.lat);
+        Coordinate[] coordinates;
+        if(geoPositions.length >= 0 && geoPositions.length <= 3) {
+            coordinates = new Coordinate[0];
+        } else {
+            coordinates = new Coordinate[geoPositions.length + 1];
+            for (int i = 0; i < geoPositions.length; i++) {
+                GeoPos geoPos = geoPositions[i];
+                coordinates[i] = new Coordinate(geoPos.lon, geoPos.lat);
+            }
+            coordinates[coordinates.length - 1] = coordinates[0];
         }
-        coordinates[coordinates.length - 1] = coordinates[0];
         return gf.createPolygon(gf.createLinearRing(coordinates), null);
     }
 

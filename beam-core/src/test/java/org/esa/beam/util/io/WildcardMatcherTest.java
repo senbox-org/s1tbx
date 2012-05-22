@@ -209,6 +209,60 @@ public class WildcardMatcherTest {
     }
 
     @Test
+
+    public void testGlobInCwd() throws Exception {
+
+        File cwd = new File(".").getCanonicalFile();
+
+        final File[] testFiles = {
+                /*0*/new File(cwd, "WildcardMatcherTest-1.txt"),
+                /*1*/new File(cwd, "WildcardMatcherTest-2.txt"),
+                /*2*/new File(cwd, "WildcardMatcherTest-3.dat"),
+                /*3*/new File(cwd, "WildcardMatcherTest-4.txt"),
+                /*4*/new File(cwd, "WildcardMatcherTest-5.dat"),
+        };
+
+        try {
+            for (File file : testFiles) {
+                if (!file.createNewFile()) {
+                    System.out.println("Warning: test file could not be created: " + file);
+                    System.out.println("Warning: testGlobInCwd() not performed");
+                    return;
+                }
+            }
+
+            File[] files = WildcardMatcher.glob("*.txt");
+            assertNotNull(files);
+            for (File file : files) {
+                //System.out.println("file = " + file);
+            }
+            assertEquals(3, files.length);
+            Arrays.sort(files);
+            assertEquals(testFiles[0], files[0]);
+            assertEquals(testFiles[1], files[1]);
+            assertEquals(testFiles[3], files[2]);
+
+            files = WildcardMatcher.glob("./*.txt");
+            assertNotNull(files);
+            for (File file : files) {
+                //System.out.println("file = " + file);
+            }
+            assertEquals(3, files.length);
+            Arrays.sort(files);
+            assertEquals(testFiles[0], files[0]);
+            assertEquals(testFiles[1], files[1]);
+            assertEquals(testFiles[3], files[2]);
+
+        } finally {
+            for (File file : testFiles) {
+                if (file.exists() && !file.delete()) {
+                    System.out.println("Warning: test file could not be deleted: " + file);
+                }
+            }
+        }
+    }
+
+    @Test
     public void testGlobWithDoubleStar() throws Exception {
         String dir = getTestdataDir();
         File[] files = WildcardMatcher.glob(dir + "/**/*.txt");

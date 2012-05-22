@@ -26,7 +26,7 @@ public class WildcardMatcher {
     private final boolean windowsFs;
 
     public WildcardMatcher(String wildcard) {
-        this(wildcard, System.getProperty("os.name").contains("Win"));
+        this(wildcard, isWindowsOs());
     }
 
     WildcardMatcher(String wildcard, boolean windowsFs) {
@@ -51,9 +51,16 @@ public class WildcardMatcher {
             return;
         }
         WildcardMatcher matcher = new WildcardMatcher(filePattern);
-        String basePath = matcher.getBasePath(filePattern);
-        File dir = new File(basePath).getCanonicalFile();
-        int validPos = dir.getPath().indexOf(basePath);
+        File dir;
+        int validPos;
+        if (file.isAbsolute()) {
+            String basePath = matcher.getBasePath(filePattern);
+            dir = new File(basePath).getCanonicalFile();
+            validPos = 0;
+        }   else {
+            dir = new File(".").getCanonicalFile();
+            validPos = dir.getPath().length() + 1; //  +1 to skip the trailing slash
+        }
         collectFiles(matcher, validPos, dir, fileSet);
     }
 
@@ -84,7 +91,7 @@ public class WildcardMatcher {
         }
         String basePath = filePattern.startsWith("/") ? "/" : "";
         String[] parts = filePattern.split("/");
-        for (int i = 0; i < parts.length && !parts[i].equals("**") && !parts[i].contains("*") && !parts[i].contains("?"); i++) {
+        for (int i = 0; i < parts.length && !containsWildcardChar(parts[i]); i++) {
             if (!parts[i].isEmpty()) {
                 basePath += parts[i];
                 if (i < parts.length - 1) {
@@ -95,17 +102,17 @@ public class WildcardMatcher {
         return new File(basePath).getPath();
     }
 
+    private static boolean containsWildcardChar(String part) {
+        return part.equals("**") || part.contains("*") || part.contains("?");
+    }
+
     String getRegex() {
         return pattern.pattern();
     }
 
     static String wildcardToRegexp(String wildcard, boolean windowsFs) {
 
-        String s = wildcard;
-
-        if (windowsFs) {
-            s = normaliseWindowsPath(s);
-        }
+        String s = resolvePath(wildcard, windowsFs);
 
         s = s.replace("/**/", "_%SLASHSTARSTARSLASH%_");
         s = s.replace("/**", "_%SLASHSTARSTAR%_");
@@ -127,15 +134,24 @@ public class WildcardMatcher {
         return s;
     }
 
-    private static String normaliseWindowsPath(String s) {
-        return s.toLowerCase().replace("\\", "/");
+    public boolean matches(String text) {
+        return pattern.matcher(resolvePath(text, windowsFs)).matches();
     }
 
-    public boolean matches(String text) {
+    private static boolean isWindowsOs() {
+        return System.getProperty("os.name").contains("Win");
+    }
+
+    private static String resolvePath(String text, boolean windowsFs) {
         if (windowsFs) {
-            text = normaliseWindowsPath(text);
+            text = text.toLowerCase().replace("\\", "/");
         }
-        return pattern.matcher(text).matches();
+        // The functionality of this method should be extended so
+        // that also '.' and '..' are removed (or better said resolved).
+        while (text.startsWith("./")) {
+            text = text.substring(2);
+        }
+        return text;
     }
 
 }

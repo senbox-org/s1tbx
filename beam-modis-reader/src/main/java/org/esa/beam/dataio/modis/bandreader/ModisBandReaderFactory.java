@@ -39,34 +39,34 @@ public class ModisBandReaderFactory {
 
         for (int i = 0; i < modisBandReaders.length; i++) {
             if (productDataType == ProductData.TYPE_INT8) {
-                modisBandReaders[i] = new ModisInt8BandReader(variable, 0, i, is3d);
+                modisBandReaders[i] = new ModisInt8BandReader(variable, i, is3d);
             } else if (productDataType == ProductData.TYPE_UINT8) {
                 if ((scaleMethod == ModisBandReader.SCALE_LINEAR)
                         // @todo IMAPP
                         || (scaleMethod == ModisBandReader.SCALE_UNKNOWN)) {
                     // @todo IMAPP
-                    modisBandReaders[i] = new ModisUint8BandReader(variable, 0, i, is3d);
+                    modisBandReaders[i] = new ModisUint8BandReader(variable, i, is3d);
                 } else if (scaleMethod == ModisBandReader.SCALE_EXPONENTIAL) {
-                    modisBandReaders[i] = new ModisUint8ExpBandReader(variable, 0, i, is3d);
+                    modisBandReaders[i] = new ModisUint8ExpBandReader(variable, i, is3d);
                 }
             } else if (productDataType == ProductData.TYPE_UINT16) {
                 if ((scaleMethod == ModisBandReader.SCALE_UNKNOWN) ||
                         (scaleMethod == ModisBandReader.SCALE_LINEAR) ||
                         (scaleMethod == ModisBandReader.SCALE_SLOPE_INTERCEPT)) {
-                    modisBandReaders[i] = new ModisUint16BandReader(variable, 0, i, is3d);
+                    modisBandReaders[i] = new ModisUint16BandReader(variable, i, is3d);
                 } else if (scaleMethod == ModisBandReader.SCALE_POW_10) {
-                    modisBandReaders[i] = new ModisUint16PowBandReader(variable, 0, i, is3d);
+                    modisBandReaders[i] = new ModisUint16PowBandReader(variable, i, is3d);
                 }
             } else if (productDataType == ProductData.TYPE_INT16) {
                 if ((scaleMethod == ModisBandReader.SCALE_UNKNOWN) ||
                         (scaleMethod == ModisBandReader.SCALE_LINEAR)) {
-                    modisBandReaders[i] = new ModisInt16BandReader(variable, 0, i, is3d);
+                    modisBandReaders[i] = new ModisInt16BandReader(variable, i, is3d);
                 }
             } else if (productDataType == ProductData.TYPE_UINT32) {
                 if ((scaleMethod == ModisBandReader.SCALE_UNKNOWN) ||
                         (scaleMethod == ModisBandReader.SCALE_LINEAR) ||
                         (scaleMethod == ModisBandReader.SCALE_SLOPE_INTERCEPT)) {
-                    modisBandReaders[i] = new ModisUint32BandReader(variable, 0, i, is3d);
+                    modisBandReaders[i] = new ModisUint32BandReader(variable, i, is3d);
                 }
             }
             modisBandReaders[i].setName(variable.getName());
