@@ -46,5 +46,5 @@ public interface ModisGlobalAttributes {
 
     String getEosType() throws IOException;
 
-    GeoCoding createGeocoding();
+    GeoCoding  createGeocoding();
 }

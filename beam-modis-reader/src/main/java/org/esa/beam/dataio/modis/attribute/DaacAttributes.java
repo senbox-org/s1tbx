@@ -110,7 +110,7 @@ public class DaacAttributes implements ModisGlobalAttributes {
 
     @Override
     public GeoCoding createGeocoding() {
-        throw new NotImplementedException();
+        return hdfEosStructMetadata.createGeocoding();
     }
 
     private void readEcsCoreString() throws IOException {
