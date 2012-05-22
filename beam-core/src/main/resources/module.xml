@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-core</symbolicName>
-    <version>4.10</version>
+    <version>5.0</version>
     <name>BEAM Core Library</name>
 
 
@@ -41,6 +41,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 5.0:<br/>
+        [BEAM-1398] SLSTR oblique-view images cannot be opened<br/>
         <p>Changes in 4.10:<br/>
         [BEAM-1385] Import images as products (missing RGB product reader)<br/>
         [BEAM-1380] Compute statistics from geo-physical data, not raw data<br/>

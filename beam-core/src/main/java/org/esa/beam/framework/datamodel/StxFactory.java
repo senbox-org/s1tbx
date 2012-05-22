@@ -243,14 +243,11 @@ public class StxFactory {
         final PixelAccessor dataAccessor = new PixelAccessor(dataImage.getSampleModel(), null);
         final PixelAccessor maskAccessor = maskImage != null ? new PixelAccessor(maskImage.getSampleModel(), null) : null;
 
-        final int tileX2 = dataImage.getTileGridXOffset() + dataImage.getNumXTiles() - 1;
-        final int tileY2 = dataImage.getTileGridYOffset() + dataImage.getNumYTiles() - 1;
-
         try {
             pm.beginTask("Computing " + op.getName(), dataImage.getNumXTiles() * dataImage.getNumYTiles());
 
-            for (int tileY = dataImage.getTileGridYOffset(); tileY <= tileY2; tileY++) {
-                for (int tileX = dataImage.getTileGridXOffset(); tileX <= tileX2; tileX++) {
+            for (int tileY = dataImage.getMinTileY(); tileY <= dataImage.getMaxTileY(); tileY++) {
+                for (int tileX = dataImage.getMinTileX(); tileX <= dataImage.getMaxTileX(); tileX++) {
                     if (pm.isCanceled()) {
                         throw new CancellationException("Process terminated by user."); /*I18N*/
                     }
@@ -310,18 +307,6 @@ public class StxFactory {
         }
         if (maskImage.getHeight() != dataImage.getHeight()) {
             throw new IllegalStateException("maskImage.getWidth() != dataImage.getWidth()");
-        }
-        if (maskImage.getTileGridXOffset() != dataImage.getTileGridXOffset()) {
-            throw new IllegalStateException("maskImage.tileGridXOffset != dataImage.tileGridXOffset");
-        }
-        if (maskImage.getTileGridXOffset() != dataImage.getTileGridYOffset()) {
-            throw new IllegalStateException("maskImage.tileGridYOffset != dataImage.tileGridYOffset");
-        }
-        if (maskImage.getNumXTiles() != dataImage.getNumXTiles()) {
-            throw new IllegalStateException("maskImage.numXTiles != dataImage.numXTiles");
-        }
-        if (maskImage.getNumYTiles() != dataImage.getNumYTiles()) {
-            throw new IllegalStateException("maskImage.numYTiles != dataImage.numYTiles");
         }
     }
 
