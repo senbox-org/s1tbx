@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-pixel-extraction</symbolicName>
-    <version>1.1</version>
+    <version>1.2</version>
     <name>BEAM Pixel Extraction Tool</name>
 
     <description>The BEAM Pixel Extraction Tool can be used to generate a CSV file from a given pixel location
@@ -26,6 +26,8 @@
 
     <changelog>
         <![CDATA[
+               <b>Changes from 1.1 to 1.2</b><br/>
+               [BEAM-1399] PixEx operator shall handle products without GeoCoding more gracefully<br/>
                <b>Changes from 1.0 to 1.1</b><br/>
                [BEAM-1393] PixExOp shall use Unix-style wildcards for values of parameter 'inputPaths'<br/>
         ]]>
