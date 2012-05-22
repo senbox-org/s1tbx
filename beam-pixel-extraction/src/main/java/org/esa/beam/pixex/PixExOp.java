@@ -608,10 +608,9 @@ public class PixExOp extends Operator implements Output {
             }
             final GeoCoding geoCoding = product.getGeoCoding();
             if (geoCoding == null) {
-                throw new OperatorException("geoCoding == null");
-//                final String msgPattern = "Product [%s] refused. Cause: Product is not geo-coded.";
-//                logger.warning(String.format(msgPattern, product.getFileLocation()));
-//                return false;
+                final String msgPattern = "Product [%s] refused. Cause: Product is not geo-coded.";
+                logger.warning(String.format(msgPattern, product.getFileLocation()));
+                return false;
             }
             if (!geoCoding.canGetPixelPos()) {
                 final String msgPattern = "Product [%s] refused. Cause: Pixel position can not be determined.";
