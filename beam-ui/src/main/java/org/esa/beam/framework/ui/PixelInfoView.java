@@ -344,13 +344,13 @@ public class PixelInfoView extends JPanel {
     }
 
     void clearSelectionInRasterTables() {
+        final JTable bandTable = getTable(bandPixelInfoPane);
+        final JTable tiePointGridTable = getTable(tiePointGridPixelInfoPane);
+        bandTable.clearSelection();
+        tiePointGridTable.clearSelection();
         final RasterDataNode raster = modelUpdater.getCurrentRaster();
         if (raster != null) {
             final String rasterName = raster.getName();
-            final JTable bandTable = getTable(bandPixelInfoPane);
-            final JTable tiePointGridTable = getTable(tiePointGridPixelInfoPane);
-            bandTable.clearSelection();
-            tiePointGridTable.clearSelection();
             if (!selectCurrentRaster(rasterName, bandTable)) {
                 selectCurrentRaster(rasterName, tiePointGridTable);
             }
