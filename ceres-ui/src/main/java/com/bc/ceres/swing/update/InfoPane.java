@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import javax.swing.text.html.HTMLDocument;
 import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.Point;
@@ -74,7 +75,6 @@ class InfoPane extends JPanel {
             html.append("<html>");
             html.append("<body>");
             html.append("<p>");
-            html.append("<a id=\"tod\"/>");
             html.append("<u>Module description:</u><br/>");
             html.append(getTextValue(module.getDescription()));
             html.append("</p>");
@@ -99,10 +99,14 @@ class InfoPane extends JPanel {
             html.append("</body>");
             html.append("</html>");
 
-            infoPanel.setText(html.toString());
-            infoPanel.setAutoscrolls(false);
-//            infoPanel.scrollToReference("tod"); // todo - make this work (nf, 2008.09.24)
-            infoPanelScrollPane.getViewport().setViewPosition(new Point(0, 0));
+            HTMLDocument document = (HTMLDocument) infoPanel.getEditorKit().createDefaultDocument();
+            try {
+                document.insertAfterStart(document.getRootElements()[0].getElement(0), html.toString());
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(InfoPane.this, "Can not show description", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            infoPanel.setDocument(document);
+
         } else if (selectedModuleItems.length > 1) {
             infoPanel.setText("<html><body></body></html>");
         } else {
