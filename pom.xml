@@ -163,6 +163,7 @@
         <module>beam-flhmci</module>
         <module>beam-mosaic</module>
         <module>beam-binning</module>
+        <module>beam-binning2</module>
         <module>beam-unmix</module>
         <module>beam-cluster-analysis</module>
         <module>beam-collocation</module>

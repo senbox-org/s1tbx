@@ -5,6 +5,7 @@ import org.esa.beam.dataio.modis.ModisDaacUtils;
 import org.esa.beam.dataio.modis.ModisGlobalAttributes;
 import org.esa.beam.dataio.modis.ModisUtils;
 import org.esa.beam.dataio.modis.hdf.HdfDataField;
+import org.esa.beam.dataio.modis.hdf.HdfEosStructMetadata;
 import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -16,11 +17,16 @@ import ucar.nc2.Variable;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 
 public class DaacAttributes implements ModisGlobalAttributes {
 
     private final NetCDFVariables netCDFVariables;
+    private String ecsCoreString;
+    private HdfEosStructMetadata hdfEosStructMetadata;
+    private Date sensingStart;
+    private Date sensingStop;
 
     public DaacAttributes(NetCDFVariables netCDFVariables) {
         this.netCDFVariables = netCDFVariables;
@@ -28,12 +34,9 @@ public class DaacAttributes implements ModisGlobalAttributes {
 
     @Override
     public String getProductName() throws IOException {
-        final Variable variable = netCDFVariables.get(ModisConstants.CORE_META_KEY);
-        if (variable == null) {
-            throw new ProductIOException("Unknown MODIS format: no ECSCore metadata available");
+        if (StringUtils.isNullOrEmpty(ecsCoreString)) {
+            readEcsCoreString();
         }
-
-        final String ecsCoreString = variable.readScalarString();
         final String productName = ModisUtils.extractValueForKey(ecsCoreString,
                                                                  ModisConstants.LOCAL_GRANULEID_KEY);
         if (StringUtils.isNullOrEmpty(productName)) {
@@ -47,11 +50,6 @@ public class DaacAttributes implements ModisGlobalAttributes {
     public String getProductType() throws IOException {
         final String productName = getProductName();
         return ModisDaacUtils.extractProductType(productName);
-    }
-
-    @Override
-    public Dimension getProductDimensions() {
-        throw new NotImplementedException();
     }
 
     @Override
@@ -77,13 +75,19 @@ public class DaacAttributes implements ModisGlobalAttributes {
     }
 
     @Override
-    public Date getSensingStart() {
-        throw new NotImplementedException();
+    public Date getSensingStart() throws ProductIOException {
+        if (sensingStart == null) {
+            parseSensingTimes();
+        }
+        return sensingStart;
     }
 
     @Override
-    public Date getSensingStop() {
-        throw new NotImplementedException();
+    public Date getSensingStop() throws ProductIOException {
+        if (sensingStop == null) {
+            parseSensingTimes();
+        }
+        return sensingStop;
     }
 
     @Override
@@ -97,12 +101,53 @@ public class DaacAttributes implements ModisGlobalAttributes {
     }
 
     @Override
-    public String getEosType() {
-        throw new NotImplementedException();
+    public String getEosType() throws IOException {
+        if (hdfEosStructMetadata == null) {
+            readHdfEosStructMeta();
+        }
+        return hdfEosStructMetadata.getEosType();
     }
 
     @Override
     public GeoCoding createGeocoding() {
-        throw new NotImplementedException();
+        return hdfEosStructMetadata.createGeocoding();
+    }
+
+    private void readEcsCoreString() throws IOException {
+        ecsCoreString = ModisDaacUtils.extractCoreString(netCDFVariables);
+    }
+
+    private void readHdfEosStructMeta() throws IOException {
+        final Variable structMetaVariable = netCDFVariables.get(ModisConstants.STRUCT_META_KEY);
+        if (structMetaVariable == null) {
+            throw new ProductIOException("Unknown MODIS format: no StructMetadata available");
+        }
+
+        final String structMetaString = structMetaVariable.readScalarString();
+        if (StringUtils.isNullOrEmpty(structMetaString)) {
+            throw new ProductIOException("Unknown MODIS format: no StructMetadata available");
+        }
+        hdfEosStructMetadata = new HdfEosStructMetadata(structMetaString);
+    }
+
+    private void parseSensingTimes() throws ProductIOException {
+        try {
+            final String startDate = ModisUtils.extractValueForKey(ecsCoreString, ModisConstants.RANGE_BEGIN_DATE_KEY);
+            final String startTime = ModisUtils.extractValueForKey(ecsCoreString, ModisConstants.RANGE_BEGIN_TIME_KEY);
+            final String endDate = ModisUtils.extractValueForKey(ecsCoreString, ModisConstants.RANGE_END_DATE_KEY);
+            final String endTime = ModisUtils.extractValueForKey(ecsCoreString, ModisConstants.RANGE_END_TIME_KEY);
+
+            if (startDate == null || startTime == null) {
+                throw new ProductIOException("Unable to retrieve sensing start time from metadata");
+            }
+            sensingStart = ModisUtils.createDateFromStrings(startDate, startTime);
+
+            if (endDate == null || endTime == null) {
+                throw new ProductIOException("Unable to retrieve sensing stop time from metadata");
+            }
+            sensingStop = ModisUtils.createDateFromStrings(endDate, endTime);
+        } catch (ParseException e) {
+            throw new ProductIOException(e.getMessage());
+        }
     }
 }

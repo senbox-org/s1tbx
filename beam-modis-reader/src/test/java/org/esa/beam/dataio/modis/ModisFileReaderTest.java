@@ -11,12 +11,10 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.math.Range;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-import ucar.nc2.*;
 
 import java.awt.*;
-import java.awt.Dimension;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
 import java.util.List;
 
 public class ModisFileReaderTest extends TestCase {
@@ -39,12 +37,12 @@ public class ModisFileReaderTest extends TestCase {
     }
 
     public void testCreateRangeFromArray_tooShortArray() {
-        final Range range = ModisFileReader.createRangeFromArray(new int[] {34});
+        final Range range = ModisFileReader.createRangeFromArray(new int[]{34});
         assertNull(range);
     }
 
     public void testCreateRangeFromArray_orderedInts() {
-        final Range range = ModisFileReader.createRangeFromArray(new int[] {34, 3809});
+        final Range range = ModisFileReader.createRangeFromArray(new int[]{34, 3809});
         assertNotNull(range);
 
         assertEquals(34.0, range.getMin(), 1e-8);
@@ -52,7 +50,7 @@ public class ModisFileReaderTest extends TestCase {
     }
 
     public void testCreateRangeFromArray_inverseOrderedInts() {
-        final Range range = ModisFileReader.createRangeFromArray(new int[] {9886, 14});
+        final Range range = ModisFileReader.createRangeFromArray(new int[]{9886, 14});
         assertNotNull(range);
 
         assertEquals(14.0, range.getMin(), 1e-8);
@@ -106,7 +104,7 @@ public class ModisFileReaderTest extends TestCase {
         assertEquals(3.f, band.getSpectralBandwidth(), 1e-8);
     }
 
-    public void testIsEosGridType() {
+    public void testIsEosGridType() throws IOException {
         final TestGlobalAttributes globalAttributes = new TestGlobalAttributes();
 
         globalAttributes.setEosType(ModisConstants.EOS_TYPE_GRID);
@@ -121,7 +119,7 @@ public class ModisFileReaderTest extends TestCase {
     ////////////////////////////////////////////////////////////////////////////////
 
 
-    class TestGlobalAttributes implements ModisGlobalAttributes{
+    class TestGlobalAttributes implements ModisGlobalAttributes {
         private String eosType;
 
         @Override
@@ -131,11 +129,6 @@ public class ModisFileReaderTest extends TestCase {
 
         @Override
         public String getProductType() throws IOException {
-            throw new NotImplementedException();
-        }
-
-        @Override
-        public Dimension getProductDimensions() {
             throw new NotImplementedException();
         }
 

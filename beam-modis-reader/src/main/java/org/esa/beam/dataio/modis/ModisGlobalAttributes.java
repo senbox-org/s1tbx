@@ -32,21 +32,19 @@ public interface ModisGlobalAttributes {
 
     String getProductType() throws IOException;
 
-    Dimension getProductDimensions();
-
     Dimension getProductDimensions(List<ucar.nc2.Dimension> netcdfFileDimensions);
 
     HdfDataField getDatafield(String name) throws ProductIOException;
 
-    Date getSensingStart();
+    Date getSensingStart() throws ProductIOException;
 
-    Date getSensingStop();
+    Date getSensingStop() throws ProductIOException;
 
     int[] getSubsamplingAndOffset(String dimensionName);
 
     boolean isImappFormat();
 
-    String getEosType();
+    String getEosType() throws IOException;
 
-    GeoCoding createGeocoding();
+    GeoCoding  createGeocoding();
 }

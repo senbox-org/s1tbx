@@ -87,18 +87,6 @@ class ModisFileReader {
     }
 
     /**
-     * Closes the reader and releases all resources.
-     */
-    public void close() throws IOException {
-        bandReaderMap.clear();
-
-        if (_qcFileId != HDFConstants.FAIL) {
-            HDF.getWrap().SDend(_qcFileId);
-            _qcFileId = HDFConstants.FAIL;
-        }
-    }
-
-    /**
      * Retrieves the band reader with the given name. If none exists returns null.
      *
      * @param band
@@ -112,7 +100,7 @@ class ModisFileReader {
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    static boolean isEosGridType(ModisGlobalAttributes globalAttribs) {
+    static boolean isEosGridType(ModisGlobalAttributes globalAttribs) throws IOException {
         return ModisConstants.EOS_TYPE_GRID.equals(globalAttribs.getEosType());
     }
 
@@ -440,7 +428,7 @@ class ModisFileReader {
 
         if (tiePtInfoX != null && tiePtInfoY != null && tiePtInfoX.length > 1 && tiePtInfoY.length > 1) {
             gridRet = new TiePointGrid(name, width, height, tiePtInfoX[1], tiePtInfoY[1],
-                    tiePtInfoX[0], tiePtInfoY[0], floatBuffer);
+                                       tiePtInfoX[0], tiePtInfoY[0], floatBuffer);
 
             String unitAttribName = desc.getUnitAttribName();
             if (unitAttribName != null) {
