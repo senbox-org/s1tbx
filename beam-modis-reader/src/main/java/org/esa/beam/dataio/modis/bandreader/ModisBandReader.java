@@ -33,16 +33,15 @@ abstract public class ModisBandReader {
     public static final int SCALE_POW_10 = 3;
     public static final int SCALE_SLOPE_INTERCEPT = 4;
 
-    protected int _sdsId;
-    protected int _layer;
+    protected int layer;
     protected float scale;
     protected float offset;
     private String name;
-    protected int[] _start;
-    protected int[] _stride;
-    protected int[] _count;
-    protected int _xCoord;
-    protected int _yCoord;
+    protected int[] start;
+    protected int[] stride;
+    protected int[] count;
+    protected int xCoord;
+    protected int yCoord;
     protected Range validRange;
     protected double fillValue;
     protected Variable variable;
@@ -50,28 +49,27 @@ abstract public class ModisBandReader {
     /**
      * Creates a band reader with given scientific dataset identifier
      *
-     * @param sdsId the dataset ID
+     * @param variable the variable
      * @param layer the layer
      * @param is3d  true if the dataset is a 3d dataset
      */
-    public ModisBandReader(Variable variable, final int sdsId, final int layer, final boolean is3d) {
+    public ModisBandReader(Variable variable, final int layer, final boolean is3d) {
         this.variable = variable;
-        _sdsId = sdsId;
-        _layer = layer;
-        _count = new int[3];
-        _stride = new int[3];
-        _start = new int[3];
+        this.layer = layer;
+        count = new int[3];
+        stride = new int[3];
+        start = new int[3];
 
-        _stride[0] = _stride[1] = _stride[2] = 1;
-        _start[0] = _layer;
-        _count[0] = 1;
+        stride[0] = stride[1] = stride[2] = 1;
+        start[0] = layer;
+        count[0] = 1;
 
         if (is3d) {
-            _xCoord = 2;
-            _yCoord = 1;
+            xCoord = 2;
+            yCoord = 1;
         } else {
-            _xCoord = 1;
-            _yCoord = 0;
+            xCoord = 1;
+            yCoord = 0;
         }
     }
 
@@ -182,15 +180,15 @@ abstract public class ModisBandReader {
      */
     public void readBandData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                              int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm) throws IOException {
-        _start[_yCoord] = sourceOffsetY;
-        _start[_xCoord] = sourceOffsetX;
-        _count[_yCoord] = 1;
-        _count[_xCoord] = sourceWidth;
-        _stride[_yCoord] = sourceStepY;
-        _stride[_xCoord] = sourceStepX;
+        start[yCoord] = sourceOffsetY;
+        start[xCoord] = sourceOffsetX;
+        count[yCoord] = 1;
+        count[xCoord] = sourceWidth;
+        stride[yCoord] = sourceStepY;
+        stride[xCoord] = sourceStepX;
 
         prepareForReading(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
-                sourceStepX, sourceStepY, destBuffer);
+                          sourceStepX, sourceStepY, destBuffer);
 
         pm.beginTask("Reading band '" + getName() + "'...", sourceHeight);
         // loop over lines
@@ -204,7 +202,7 @@ abstract public class ModisBandReader {
                     validate(x);
                     assign(x);
                 }
-                _start[_yCoord] += sourceStepY;
+                start[yCoord] += sourceStepY;
                 pm.worked(1);
             }
         } finally {

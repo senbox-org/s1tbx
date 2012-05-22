@@ -15,23 +15,25 @@
  */
 package org.esa.beam.dataio.modis.bandreader;
 
-import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.datamodel.ProductData;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.Section;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
 
 public class ModisUint32BandReader extends ModisBandReader {
 
-    private int[] _line;
+    private int[] line;
     private int min;
     private long max;
     private int fill;
     private int[] targetData;
     private int targetIdx;
 
-    public ModisUint32BandReader(Variable variable,final int sdsId, final int layer, final boolean is3d) {
-        super(variable, sdsId, layer, is3d);
+    public ModisUint32BandReader(Variable variable, final int layer, final boolean is3d) {
+        super(variable, layer, is3d);
     }
 
     /**
@@ -54,7 +56,7 @@ public class ModisUint32BandReader extends ModisBandReader {
             max = Integer.MAX_VALUE * 2L + 1;
         } else {
             min = (int) Math.round(validRange.getMin());
-            max = (long) Math.round(validRange.getMax());
+            max = Math.round(validRange.getMax());
         }
         targetData = (int[]) destBuffer.getElems();
         targetIdx = 0;
@@ -63,25 +65,34 @@ public class ModisUint32BandReader extends ModisBandReader {
 
     @Override
     protected void readLine() throws IOException {
-        HDF.getWrap().SDreaddata(_sdsId, _start, _stride, _count, _line);
+        try {
+            final Section section = new Section(start, count, stride);
+            final Array array = variable.read(section);
+            for (int i = 0; i < line.length; i++) {
+                line[i] = array.getShort(i);
+            }
+        } catch (InvalidRangeException e) {
+            throw new IOException(e.getMessage());
+        }
+        //HDF.getWrap().SDreaddata(_sdsId, start, stride, count, line);
     }
 
     @Override
     protected void validate(final int x) {
-        final long value = _line[x] & 0xffffffffL;
+        final long value = line[x] & 0xffffffffL;
         if (value < min || value > max) {
-            _line[x] = fill;
+            line[x] = fill;
         }
     }
 
     @Override
     protected void assign(final int x) {
-        targetData[targetIdx++] = _line[x];
+        targetData[targetIdx++] = line[x];
     }
 
     private void ensureLineWidth(final int sourceWidth) {
-        if ((_line == null) || (_line.length != sourceWidth)) {
-            _line = new int[sourceWidth];
+        if ((line == null) || (line.length != sourceWidth)) {
+            line = new int[sourceWidth];
         }
     }
 }
