@@ -64,9 +64,9 @@ class ModisDaacAttributes implements ModisGlobalAttributes {
         return hdfEosStructMetadata.createGeocoding();
     }
 
-    public Dimension getProductDimensions() {
-        return hdfEosStructMetadata.getProductDimensions();
-    }
+//    public Dimension getProductDimensions() {
+//        return hdfEosStructMetadata.getProductDimensions();
+//    }
 
     public HdfDataField getDatafield(String name) {
         return hdfEosStructMetadata.getDatafield(name);

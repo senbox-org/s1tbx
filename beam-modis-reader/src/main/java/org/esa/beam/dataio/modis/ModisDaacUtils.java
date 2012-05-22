@@ -17,8 +17,10 @@ package org.esa.beam.dataio.modis;
 
 import org.esa.beam.dataio.modis.hdf.HdfAttributeContainer;
 import org.esa.beam.dataio.modis.hdf.HdfAttributes;
+import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.ProductIOException;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -47,6 +49,23 @@ public class ModisDaacUtils {
         for (HdfAttributeContainer hdfAttributeContainer : resultMap.values()) {
             buffer.append(hdfAttributeContainer.getStringValue());
         }
+        return correctAmpersandWrap(buffer.toString());
+    }
+
+    public static String extractCoreString(NetCDFVariables netCDFVariables) throws IOException {
+        final String coreKey = ModisConstants.CORE_META_KEY;
+        final String coreString = coreKey.substring(0, coreKey.length() - 2);
+
+        final StringBuilder buffer = new StringBuilder();
+        final Variable[] variables = netCDFVariables.getAll();
+        for (int i = 0; i < variables.length; i++) {
+            final Variable variable = variables[i];
+            final String name = variable.getName();
+            if (name.startsWith(coreString) && name.length() == coreKey.length()) {
+                buffer.append(variable.readScalarString());
+            }
+        }
+
         return correctAmpersandWrap(buffer.toString());
     }
 

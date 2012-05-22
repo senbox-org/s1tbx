@@ -13,7 +13,6 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
@@ -58,11 +57,6 @@ public class ImappAttributes implements ModisGlobalAttributes {
             logger.warning("Unable to retrieve the product type from the file name.");
             return "unknown";
         }
-    }
-
-    @Override
-    public Dimension getProductDimensions() {
-        throw new NotImplementedException();
     }
 
     @Override
