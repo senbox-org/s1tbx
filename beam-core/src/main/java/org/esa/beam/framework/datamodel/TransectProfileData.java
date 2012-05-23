@@ -70,13 +70,13 @@ public class TransectProfileData {
         this.config = config;
         final ShapeRasterizer rasterizer = new ShapeRasterizer();
         final GeoCoding geoCoding = config.raster.getGeoCoding();
-        try {
-            final AffineTransform m2i = ImageManager.getImageToModelTransform(geoCoding).createInverse();
-            if (!m2i.isIdentity()) {
-                rasterizer.setTransform(m2i);
+        final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
+        if (!i2m.isIdentity()) {
+            try {
+                rasterizer.setTransform(i2m.createInverse());
+            } catch (NoninvertibleTransformException e) {
+                // cannot happen
             }
-        } catch (NoninvertibleTransformException e) {
-            // ignore
         }
         shapeVertices = rasterizer.getVertices(config.path);
         shapeVertexIndexes = new int[shapeVertices.length];
