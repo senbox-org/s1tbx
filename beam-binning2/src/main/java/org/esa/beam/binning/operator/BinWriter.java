@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -78,6 +79,8 @@ public class BinWriter {
         final Variable hsizeVar = netcdfFile.addVariable("bi_hsize", DataType.DOUBLE, new Dimension[]{binIndexDim});
         final Variable startNumVar = netcdfFile.addVariable("bi_start_num", DataType.INT, new Dimension[]{binIndexDim});
         final Variable maxVar = netcdfFile.addVariable("bi_max", DataType.INT, new Dimension[]{binIndexDim});
+        final Variable beginVar = netcdfFile.addVariable("bi_begin", DataType.INT, new Dimension[]{binIndexDim});
+        final Variable extendVar = netcdfFile.addVariable("bi_extend", DataType.INT, new Dimension[]{binIndexDim});
 
         final Variable binNumVar = netcdfFile.addVariable("bl_bin_num", DataType.INT, new Dimension[]{binListDim});
         final Variable numObsVar = netcdfFile.addVariable("bl_nobs", DataType.INT, new Dimension[]{binListDim});
@@ -96,7 +99,7 @@ public class BinWriter {
 
         netcdfFile.create();
         writeBinIndexVariables(netcdfFile, rowNumVar, vsizeVar, hsizeVar, startNumVar, maxVar);
-        writeBinListVariables(netcdfFile, binNumVar, numObsVar, numScenesVar, featureVars, temporalBins);
+        writeBinListVariables(netcdfFile, binNumVar, numObsVar, numScenesVar, featureVars, beginVar, extendVar, temporalBins);
         netcdfFile.close();
     }
 
@@ -143,6 +146,8 @@ public class BinWriter {
                                        final Variable numObsVar,
                                        final Variable numScenesVar,
                                        final List<Variable> featureVars,
+                                       final Variable beginVar,
+                                       final Variable extendVar,
                                        final List<TemporalBin> temporalBins) throws IOException, InvalidRangeException {
 
         ArrayList<BinListVar> binListVars = new ArrayList<BinListVar>();
@@ -179,15 +184,39 @@ public class BinWriter {
         }
 
 
-        final long[] startRowBinIds = new long[planetaryGrid.getNumRows()];
-        final long[] endRowBinIds = new long[planetaryGrid.getNumRows()];
-        writeBinListVariable0(netcdfFile, temporalBins, binListVars, startRowBinIds, endRowBinIds);
+        final long[] binRowBegins = new long[planetaryGrid.getNumRows()];
+        final int[] binRowExtends = new int[planetaryGrid.getNumRows()];
+        Arrays.fill(binRowBegins, -1);
+        Arrays.fill(binRowExtends, 0);
+        writeBinListVariable0(netcdfFile, temporalBins, binListVars, binRowBegins, binRowExtends);
 
         for (int i = 0; i < planetaryGrid.getNumRows(); i++) {
-            long startRowBinId = startRowBinIds[i];
-            long endRowBinId = endRowBinIds[i];
+            long startRowBinId = binRowBegins[i];
+            int endRowBinId = binRowExtends[i];
             System.out.printf("row(%d) = %d...%d%n", i, startRowBinId, endRowBinId);
         }
+
+        writeBinIndexVariable(netcdfFile, beginVar, new BinIndexElementSetter() {
+            @Override
+            public void setArray(Array array, int rowIndex, SeadasGrid grid) {
+                final int i = binRowBegins.length - rowIndex - 1;
+                final long id = binRowBegins[i];
+                if (id == -1L) {
+                    array.setInt(rowIndex, 0);
+                } else {
+                    array.setInt(rowIndex, seadasGrid.convertBinIndex(id));
+                }
+            }
+        });
+
+        writeBinIndexVariable(netcdfFile, extendVar, new BinIndexElementSetter() {
+            @Override
+            public void setArray(Array array, int rowIndex, SeadasGrid grid) {
+                final int i = binRowExtends.length - rowIndex - 1;
+                array.setInt(rowIndex, binRowExtends[i]);
+            }
+        });
+
     }
 
     private void writeBinIndexVariable(NetcdfFileWriteable netcdfFile,
@@ -205,8 +234,8 @@ public class BinWriter {
     private void writeBinListVariable0(NetcdfFileWriteable netcdfFile,
                                        List<TemporalBin> temporalBins,
                                        List<BinListVar> vars,
-                                       long[] startRowBinIds,
-                                       long[] endRowBinIds) throws IOException, InvalidRangeException {
+                                       long[] binRowBegins,
+                                       int[] binRowExtends) throws IOException, InvalidRangeException {
         logger.info("Writing bin list variables");
 
         final int[] origin = new int[1];
@@ -227,7 +256,7 @@ public class BinWriter {
                 rowBins.add(temporalBin);
             } else {
                 if (!rowBins.isEmpty()) {
-                    bufferIndex = writeRowBins(netcdfFile, rowBins, vars, origin, bufferIndex, rowIndex, startRowBinIds, endRowBinIds);
+                    bufferIndex = writeRowBins(netcdfFile, rowBins, vars, origin, bufferIndex, rowIndex, binRowBegins, binRowExtends);
                     rowBins.clear();
                 }
                 rowBins.add(temporalBin);
@@ -235,14 +264,14 @@ public class BinWriter {
             }
         }
         if (!rowBins.isEmpty()) {
-            bufferIndex = writeRowBins(netcdfFile, rowBins, vars, origin, bufferIndex, rowIndex, startRowBinIds, endRowBinIds);
+            bufferIndex = writeRowBins(netcdfFile, rowBins, vars, origin, bufferIndex, rowIndex, binRowBegins, binRowExtends);
         }
         if (bufferIndex > 0) {
             writeBinListVars(netcdfFile, vars, origin, bufferIndex);
         }
     }
 
-    private int writeRowBins(NetcdfFileWriteable netcdfFile, ArrayList<TemporalBin> rowBins, List<BinListVar> vars, int[] origin, int bufferIndex, int rowIndex, long[] startRowBinIds, long[] endRowBinIds) throws IOException, InvalidRangeException {
+    private int writeRowBins(NetcdfFileWriteable netcdfFile, ArrayList<TemporalBin> rowBins, List<BinListVar> vars, int[] origin, int bufferIndex, int rowIndex, long[] binRowBegins, int[] binRowExtends) throws IOException, InvalidRangeException {
         Collections.reverse(rowBins);
         for (TemporalBin rowBin : rowBins) {
             if (bufferIndex == BUFFER_SIZE) {
@@ -253,8 +282,8 @@ public class BinWriter {
             setBinListVarsArrayElement(vars, rowBin, bufferIndex);
             bufferIndex++;
         }
-        startRowBinIds[rowIndex] = rowBins.get(0).getIndex();
-        endRowBinIds[rowIndex] = rowBins.get(rowBins.size() - 1).getIndex();
+        binRowBegins[rowIndex] = rowBins.get(0).getIndex();
+        binRowExtends[rowIndex] = (int) (rowBins.get(rowBins.size() - 1).getIndex() - rowBins.get(0).getIndex()) + 1;
         return bufferIndex;
     }
 
