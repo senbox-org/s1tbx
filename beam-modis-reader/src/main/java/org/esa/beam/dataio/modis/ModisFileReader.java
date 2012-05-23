@@ -89,7 +89,7 @@ class ModisFileReader {
     /**
      * Retrieves the band reader with the given name. If none exists returns null.
      *
-     * @param band
+     * @param band the band the reader is needed for
      * @return the band reader
      */
     public ModisBandReader getBandReader(final Band band) {
@@ -428,7 +428,7 @@ class ModisFileReader {
 
         if (tiePtInfoX != null && tiePtInfoY != null && tiePtInfoX.length > 1 && tiePtInfoY.length > 1) {
             gridRet = new TiePointGrid(name, width, height, tiePtInfoX[1], tiePtInfoY[1],
-                                       tiePtInfoX[0], tiePtInfoY[0], floatBuffer);
+                    tiePtInfoX[0], tiePtInfoY[0], floatBuffer);
 
             String unitAttribName = desc.getUnitAttribName();
             if (unitAttribName != null) {
@@ -691,6 +691,10 @@ class ModisFileReader {
     }
 
     private String getBandNameExtensions(final String bandNameAttribName, final String productType, NetCDFAttributes attributes, NetCDFVariables netCDFVariables) {
+        if (StringUtils.isNullOrEmpty(bandNameAttribName)) {
+            return null;
+        }
+
         String bandNameExtensions = null;
 
         // we have to distinguish three possibilities here
