@@ -74,7 +74,6 @@ public class ModisUint8BandReader extends ModisBandReader {
         } catch (InvalidRangeException e) {
             throw new IOException(e.getMessage());
         }
-        //HDF.getWrap().SDreaddata(_sdsId, start, stride, count, line);
     }
 
     @Override

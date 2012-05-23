@@ -120,22 +120,6 @@ public class ModisUtils {
         return DateTimeUtils.stringToUTC(dateTimeString);
     }
 
-    /**
-     * Resets all array elements to zero
-     *
-     * @param dimInfo
-     * @param dimSize
-     */
-    public static void clearDimensionArrays(int[] dimInfo, int[] dimSize) {
-        for (int i = 0; i < dimInfo.length; i++) {
-            dimInfo[i] = 0;
-        }
-
-        for (int i = 0; i < dimSize.length; i++) {
-            dimSize[i] = 0;
-        }
-    }
-
     public static IncrementOffset getIncrementOffset(String attribute) {
         final IncrementOffset incrementOffset = new IncrementOffset();
         final Range range = getRangeFromString(attribute);

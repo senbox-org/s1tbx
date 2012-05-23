@@ -36,14 +36,7 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-visat</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ncsa.hdf</groupId>
-            <artifactId>lib-hdf</artifactId>
-        </dependency>
-        <!--<dependency>-->
-            <!--<groupId>edu.ucar</groupId>-->
-            <!--<artifactId>netcdf</artifactId>-->
-        <!--</dependency>-->
+
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-netcdf</artifactId>
