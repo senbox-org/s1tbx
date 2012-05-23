@@ -30,6 +30,7 @@ import java.util.logging.Logger;
  */
 public class BinWriter {
 
+    final static int BUFFER_SIZE = 4096;
     final Logger logger;
 
     public BinWriter(Logger logger) {
@@ -138,37 +139,47 @@ public class BinWriter {
                                        final List<Variable> featureVars,
                                        final SeadasGrid seadasGrid,
                                        final List<TemporalBin> temporalBins) throws IOException, InvalidRangeException {
-        writeBinListVariable(netcdfFile, binNumVar, temporalBins, new BinListElementSetter() {
+
+        ArrayList<BinListVar> binListVars = new ArrayList<BinListVar>();
+
+        binListVars.add(new BinListVar(binNumVar, new BinListElementSetter() {
             @Override
             public void setArray(Array array, int binIndex, TemporalBin bin) {
                 array.setInt(binIndex, seadasGrid.convertBinIndex(bin.getIndex()));
             }
-        });
-        writeBinListVariable(netcdfFile, numObsVar, temporalBins, new BinListElementSetter() {
+        }));
+
+        binListVars.add(new BinListVar(numObsVar, new BinListElementSetter() {
             @Override
             public void setArray(Array array, int binIndex, TemporalBin bin) {
                 array.setInt(binIndex, bin.getNumObs());
             }
-        });
-        writeBinListVariable(netcdfFile, numScenesVar, temporalBins, new BinListElementSetter() {
+        }));
+
+        binListVars.add(new BinListVar(numScenesVar, new BinListElementSetter() {
             @Override
             public void setArray(Array array, int binIndex, TemporalBin bin) {
                 array.setInt(binIndex, bin.getNumPasses());
             }
-        });
+        }));
 
         for (int featureIndex = 0; featureIndex < featureVars.size(); featureIndex++) {
             final int k = featureIndex;
-            writeBinListVariable(netcdfFile, featureVars.get(k), temporalBins, new BinListElementSetter() {
+            binListVars.add(new BinListVar(featureVars.get(k), new BinListElementSetter() {
                 @Override
                 public void setArray(Array array, int binIndex, TemporalBin bin) {
                     array.setFloat(binIndex, bin.getFeatureValues()[k]);
                 }
-            });
+            }));
         }
+
+        writeBinListVariable0(netcdfFile, temporalBins, binListVars);
     }
 
-    private void writeBinIndexVariable(NetcdfFileWriteable netcdfFile, Variable variable, SeadasGrid seadasGrid, BinIndexElementSetter setter) throws IOException, InvalidRangeException {
+    private void writeBinIndexVariable(NetcdfFileWriteable netcdfFile,
+                                       Variable variable,
+                                       SeadasGrid seadasGrid,
+                                       BinIndexElementSetter setter) throws IOException, InvalidRangeException {
         logger.info("Writing bin index variable " + variable.getName());
         final int numRows = seadasGrid.getNumRows();
         final Array array = Array.factory(variable.getDataType(), new int[]{numRows});
@@ -178,25 +189,35 @@ public class BinWriter {
         netcdfFile.write(variable.getName(), array);
     }
 
-    private void writeBinListVariable(NetcdfFileWriteable netcdfFile, Variable variable, List<TemporalBin> temporalBins, BinListElementSetter setter) throws IOException, InvalidRangeException {
-        logger.info("Writing bin list variable " + variable.getName());
+    private void writeBinListVariable0(NetcdfFileWriteable netcdfFile,
+                                       List<TemporalBin> temporalBins,
+                                       List<BinListVar> vars) throws IOException, InvalidRangeException {
+        logger.info("Writing bin list variables");
 
-        final int BUFFER_SIZE = 4096;
         final int[] origin = new int[1];
-        final Array buffer = Array.factory(variable.getDataType(), new int[]{BUFFER_SIZE});
         int bufferIndex = 0;
-        final String varName = variable.getName();
         for (TemporalBin temporalBin : temporalBins) {
             if (bufferIndex == BUFFER_SIZE) {
-                netcdfFile.write(varName, origin, buffer);
+                for (BinListVar var : vars) {
+                    netcdfFile.write(var.variable.getName(),
+                                     origin,
+                                     var.buffer);
+                }
                 bufferIndex = 0;
                 origin[0] += BUFFER_SIZE;
             }
-            setter.setArray(buffer, bufferIndex, temporalBin);
+            for (BinListVar var : vars) {
+                var.setter.setArray(var.buffer, bufferIndex, temporalBin);
+            }
             bufferIndex++;
         }
         if (bufferIndex > 0) {
-            netcdfFile.write(varName, origin, buffer.section(new int[]{0}, new int[]{bufferIndex}));
+            origin[0] = 0;
+            for (BinListVar var : vars) {
+                netcdfFile.write(var.variable.getName(),
+                                 origin,
+                                 var.buffer.section(origin, new int[]{bufferIndex}));
+            }
         }
     }
 
@@ -209,4 +230,15 @@ public class BinWriter {
     }
 
 
+    private static class BinListVar {
+        private final Variable variable;
+        private final BinListElementSetter setter;
+        private final Array buffer;
+
+        BinListVar(Variable variable, BinListElementSetter setter) {
+            this.variable = variable;
+            this.setter = setter;
+            this.buffer = Array.factory(variable.getDataType(), new int[]{BUFFER_SIZE});
+        }
+    }
 }
