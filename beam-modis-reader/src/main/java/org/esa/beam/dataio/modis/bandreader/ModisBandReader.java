@@ -56,18 +56,25 @@ abstract public class ModisBandReader {
     public ModisBandReader(Variable variable, final int layer, final boolean is3d) {
         this.variable = variable;
         this.layer = layer;
-        count = new int[3];
-        stride = new int[3];
-        start = new int[3];
-
-        stride[0] = stride[1] = stride[2] = 1;
-        start[0] = layer;
-        count[0] = 1;
 
         if (is3d) {
+            count = new int[3];
+            stride = new int[3];
+            start = new int[3];
+            stride[0] = stride[1] = stride[2] = 1;
+            start[0] = layer;
+            count[0] = 1;
+
             xCoord = 2;
             yCoord = 1;
         } else {
+            count = new int[2];
+            stride = new int[2];
+            start = new int[2];
+            start[0] = layer;
+            count[0] = 1;
+
+            stride[0] = stride[1] = 1;
             xCoord = 1;
             yCoord = 0;
         }

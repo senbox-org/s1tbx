@@ -44,7 +44,7 @@ public class ModisProductDb {
 
     private HashMap<String, String> _productTypes = null;
     private HashMap _productDescriptions = null;
-    private Logger _logger;
+    private Logger logger;
     private static final String META_KEY = "META";
     private static final String SDS_KEY = "SDS";
     private static final String GEO_KEY = "GEO";
@@ -81,7 +81,7 @@ public class ModisProductDb {
     /**
      * Retrieves the names of the bands for the given product type.
      *
-     * @param prodType
+     * @param prodType the product type string
      * @return the names of the bands.
      */
     public String[] getBandNames(final String prodType) {
@@ -91,7 +91,7 @@ public class ModisProductDb {
             final ModisProductDescription prod = getProductDescription(prodType);
             bandNames = prod.getBandNames();
         } catch (IOException e) {
-            _logger.severe("Unable to retrieve the band names for product of type '" + prodType + "'.");
+            logger.severe("Unable to retrieve the band names for product of type '" + prodType + "'.");
         }
 
         return bandNames;
@@ -111,7 +111,7 @@ public class ModisProductDb {
             final ModisProductDescription prod = getProductDescription(prodType);
             bandDesc = prod.getBandDescription(bandName);
         } catch (IOException e) {
-            _logger.severe(
+            logger.severe(
                     "Unable to retrieve information for band '" + bandName + "' of product type '" + prodType + "'.");
         }
 
@@ -131,7 +131,7 @@ public class ModisProductDb {
             final ModisProductDescription prod = getProductDescription(prodType);
             tpNames = prod.getTiePointNames();
         } catch (IOException e) {
-            _logger.severe("Unable to retrieve tie point names for product type '" + prodType + "'.");
+            logger.severe("Unable to retrieve tie point names for product type '" + prodType + "'.");
         }
 
         return tpNames;
@@ -151,7 +151,7 @@ public class ModisProductDb {
             final ModisProductDescription prod = getProductDescription(prodType);
             tpDesc = prod.getTiePointDescription(tpName);
         } catch (IOException e) {
-            _logger.severe(
+            logger.severe(
                     "Unable to retrieve description for tie point grid '" + tpName + "' of product type '" + prodType + "'.");
         }
 
@@ -171,7 +171,7 @@ public class ModisProductDb {
             final ModisProductDescription prod = getProductDescription(prodType);
             strRet = prod.getGeolocationDatasetNames();
         } catch (IOException e) {
-            _logger.severe("Unable to retrieve geolocation information for product type '" + prodType + "'.");
+            logger.severe("Unable to retrieve geolocation information for product type '" + prodType + "'.");
         }
 
         return strRet;
@@ -190,7 +190,7 @@ public class ModisProductDb {
             final ModisProductDescription prod = getProductDescription(prodType);
             bRet = prod.mustFlipTopDown();
         } catch (IOException e) {
-            _logger.severe("Unable to retrieve flipping information for product type '" + prodType + "'.");
+            logger.severe("Unable to retrieve flipping information for product type '" + prodType + "'.");
         }
 
         return bRet;
@@ -205,7 +205,7 @@ public class ModisProductDb {
      */
     private ModisProductDb() {
         _productDescriptions = new HashMap();
-        _logger = BeamLogManager.getSystemLogger();
+        logger = BeamLogManager.getSystemLogger();
     }
 
     /**
@@ -233,7 +233,7 @@ public class ModisProductDb {
             if (records.length == 2) {
                 _productTypes.put(records[0], records[1]);
             } else {
-                _logger.severe(
+                logger.severe(
                         "Invalid number of records in MODISDB - please check the resources for correctness.");
             }
         }
@@ -292,11 +292,11 @@ public class ModisProductDb {
                             records[1], records[2], records[3], records[4],
                             records[5], records[6], records[7], records[8]);
                 } else {
-                    _logger.severe("Invalid number of records in SDS description for product type '" + prodType + "'.");
+                    logger.severe("Invalid number of records in SDS description for product type '" + prodType + "'.");
                 }
             } else if (records[0].equalsIgnoreCase(GEO_KEY)) {
                 if ((records.length < EXP_NUM_GEO_RECORDS_MIN) || (records.length > EXP_NUM_GEO_RECORDS_MAX)) {
-                    _logger.severe("Invalid number of records in GEO description for product type '" + prodType + "'.");
+                    logger.severe("Invalid number of records in GEO description for product type '" + prodType + "'.");
                     continue;
                 }
                 if (records.length == EXP_NUM_GEO_RECORDS_MAX) {
@@ -308,7 +308,7 @@ public class ModisProductDb {
                 if (records.length == EXP_NUM_FLIP_RECORDS) {
                     description.setTopDownFlip(Boolean.valueOf(records[1]));
                 } else {
-                    _logger.severe(
+                    logger.severe(
                             "Invalid number of records in FLIP description for product type '" + prodType + "'.");
                 }
             } else if (records[0].equalsIgnoreCase(TIEPOINT_KEY)) {
@@ -316,7 +316,7 @@ public class ModisProductDb {
                     description.addTiePointGrid(new ModisTiePointDescription(
                             records[1], records[2], records[3], records[4]));
                 } else {
-                    _logger.severe(
+                    logger.severe(
                             "Invalid number of records in TIEP description for product type '" + prodType + "'.");
                 }
             }
@@ -342,7 +342,7 @@ public class ModisProductDb {
         final CsvReader reader;
         try {
             reader = new CsvReader(new InputStreamReader(dbResource.openStream()),
-                                   ModisConstants.FIELD_SEPARATORS, true, "#");
+                    ModisConstants.FIELD_SEPARATORS, true, "#");
         } catch (MalformedURLException e) {
             throw new IOException(e.getMessage());
         }

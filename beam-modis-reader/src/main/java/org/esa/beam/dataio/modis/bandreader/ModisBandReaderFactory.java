@@ -83,7 +83,7 @@ public class ModisBandReaderFactory {
             final Dimension numLayers = variable.getDimension(0);
             modisBandReaders = new ModisBandReader[numLayers.getLength()];
         } else {
-            modisBandReaders = new ModisBandReader[0];
+            modisBandReaders = new ModisBandReader[1];
         }
         return modisBandReaders;
     }
