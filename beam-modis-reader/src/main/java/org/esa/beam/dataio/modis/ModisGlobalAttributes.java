@@ -40,7 +40,7 @@ public interface ModisGlobalAttributes {
 
     Date getSensingStop() throws ProductIOException;
 
-    int[] getSubsamplingAndOffset(String dimensionName);
+    int[] getSubsamplingAndOffset(String dimensionName) throws IOException;
 
     boolean isImappFormat();
 

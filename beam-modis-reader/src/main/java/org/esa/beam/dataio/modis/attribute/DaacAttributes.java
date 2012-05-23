@@ -11,7 +11,6 @@ import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import ucar.nc2.Variable;
 
 import java.awt.*;
@@ -70,7 +69,17 @@ public class DaacAttributes implements ModisGlobalAttributes {
 
     @Override
     public HdfDataField getDatafield(String name) throws ProductIOException {
-        throw new NotImplementedException();
+        final Variable variable = netCDFVariables.get(name);
+        final java.util.List<ucar.nc2.Dimension> dimensions = variable.getDimensions();
+
+        final HdfDataField result = new HdfDataField();
+        final String[] dimensionNames = new String[dimensions.size()];
+        for (int i = 0; i < dimensions.size(); i++) {
+            ucar.nc2.Dimension dimension = dimensions.get(i);
+            dimensionNames[i] = dimension.getName();
+        }
+        result.setDimensionNames(dimensionNames);
+        return result;
     }
 
     @Override
@@ -90,8 +99,11 @@ public class DaacAttributes implements ModisGlobalAttributes {
     }
 
     @Override
-    public int[] getSubsamplingAndOffset(String dimensionName) {
-        throw new NotImplementedException();
+    public int[] getSubsamplingAndOffset(String dimensionName) throws IOException {
+        if (hdfEosStructMetadata == null) {
+            readHdfEosStructMeta();
+        }
+        return hdfEosStructMetadata.getSubsamplingAndOffset(dimensionName);
     }
 
     @Override

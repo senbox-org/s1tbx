@@ -15,9 +15,9 @@ public class NetCDFVariables {
     }
 
     public void add(List<Variable> variables) {
-        for (Iterator<Variable> iterator = variables.iterator(); iterator.hasNext(); ) {
-            final Variable variable = iterator.next();
-            variablesMap.put(variable.getName(), variable);
+        for (final Variable variable : variables) {
+            final String name = extractBandName(variable.getName());
+            variablesMap.put(name, variable);
         }
     }
 
@@ -27,5 +27,14 @@ public class NetCDFVariables {
 
     public Variable[] getAll() {
         return variablesMap.values().toArray(new Variable[variablesMap.size()]);
+    }
+
+    // package access for testing only tb 2012-05-22
+    static String extractBandName(String variableName) {
+        final int slashIndex = variableName.lastIndexOf('/');
+        if (slashIndex > 0) {
+            return variableName.substring(slashIndex + 1, variableName.length());
+        }
+        return variableName;
     }
 }
