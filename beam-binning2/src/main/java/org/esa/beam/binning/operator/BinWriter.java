@@ -198,26 +198,37 @@ public class BinWriter {
         int bufferIndex = 0;
         for (TemporalBin temporalBin : temporalBins) {
             if (bufferIndex == BUFFER_SIZE) {
-                for (BinListVar var : vars) {
-                    netcdfFile.write(var.variable.getName(),
-                                     origin,
-                                     var.buffer);
-                }
+                writeBinListVars(netcdfFile, vars, origin);
                 bufferIndex = 0;
                 origin[0] += BUFFER_SIZE;
             }
-            for (BinListVar var : vars) {
-                var.setter.setArray(var.buffer, bufferIndex, temporalBin);
-            }
+            setBinListVarsArrayElement(vars, temporalBin, bufferIndex);
             bufferIndex++;
         }
         if (bufferIndex > 0) {
-            origin[0] = 0;
-            for (BinListVar var : vars) {
-                netcdfFile.write(var.variable.getName(),
-                                 origin,
-                                 var.buffer.section(origin, new int[]{bufferIndex}));
-            }
+            writeBinListVars(netcdfFile, vars, origin, bufferIndex);
+        }
+    }
+
+    private void setBinListVarsArrayElement(List<BinListVar> vars, TemporalBin temporalBin, int bufferIndex) {
+        for (BinListVar var : vars) {
+            var.setter.setArray(var.buffer, bufferIndex, temporalBin);
+        }
+    }
+
+    private void writeBinListVars(NetcdfFileWriteable netcdfFile, List<BinListVar> vars, int[] origin) throws IOException, InvalidRangeException {
+        for (BinListVar var : vars) {
+            netcdfFile.write(var.variable.getName(),
+                             origin,
+                             var.buffer);
+        }
+    }
+
+    private void writeBinListVars(NetcdfFileWriteable netcdfFile, List<BinListVar> vars, int[] origin, int bufferIndex) throws IOException, InvalidRangeException {
+        for (BinListVar var : vars) {
+            netcdfFile.write(var.variable.getName(),
+                             origin,
+                             var.buffer.section(new int[] {0}, new int[]{bufferIndex}));
         }
     }
 
