@@ -27,7 +27,7 @@ import java.beans.PropertyChangeListener;
  *
  * @author Thomas Storm
  */
-interface BinningModel {
+interface BinningFormModel {
 
     String PROPERTY_KEY_SOURCE_PRODUCTS = "sourceProducts";
     String PROPERTY_KEY_VARIABLE_CONFIGS = "variableConfigs";

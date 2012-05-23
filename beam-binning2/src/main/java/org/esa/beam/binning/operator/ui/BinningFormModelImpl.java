@@ -41,14 +41,14 @@ import java.util.Date;
  * @author Olaf Danne
  * @author Thomas Storm
  */
-class BinningModelImpl implements BinningModel {
+class BinningFormModelImpl implements BinningFormModel {
 
     private static final String GLOBAL_WKT = "polygon((-180 -90, 180 -90, 180 90, -180 90, -180 -90))";
 
     private PropertySet propertySet;
     private BindingContext bindingContext;
 
-    public BinningModelImpl() {
+    public BinningFormModelImpl() {
         propertySet = new PropertyContainer();
         propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_EAST_BOUND, Float.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_NORTH_BOUND, Float.class));
@@ -57,17 +57,17 @@ class BinningModelImpl implements BinningModel {
         propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_WKT, String.class));
         propertySet.addProperty(BinningDialog.createProperty(BoundsInputPanel.PROPERTY_PIXEL_SIZE_X, Float.class));
         propertySet.addProperty(BinningDialog.createProperty(BoundsInputPanel.PROPERTY_PIXEL_SIZE_Y, Float.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_GLOBAL, Boolean.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_COMPUTE_REGION, Boolean.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_REGION, Boolean.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_MANUAL_WKT, Boolean.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_EXPRESSION, String.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_GLOBAL, Boolean.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_COMPUTE_REGION, Boolean.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_REGION, Boolean.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_MANUAL_WKT, Boolean.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, String.class));
         propertySet.setDefaultValues();
     }
 
     @Override
     public Product[] getSourceProducts() {
-        final Product[] products = getPropertyValue(BinningModel.PROPERTY_KEY_SOURCE_PRODUCTS);
+        final Product[] products = getPropertyValue(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS);
         if (products == null) {
             return new Product[0];
         }

@@ -30,10 +30,10 @@ import javax.swing.JTabbedPane;
  */
 class BinningForm extends JTabbedPane {
 
-    BinningForm(AppContext appContext, BinningModel binningModel, TargetProductSelector targetProductSelector) {
-        final JPanel ioPanel = new BinningIOPanel(appContext, binningModel, targetProductSelector);
-        final JPanel regionPanel = new BinningFilterPanel(binningModel);
-        final JPanel binningParametersPanel = new BinningVariablesPanel(appContext, binningModel);
+    BinningForm(AppContext appContext, BinningFormModel binningFormModel, TargetProductSelector targetProductSelector) {
+        final JPanel ioPanel = new BinningIOPanel(appContext, binningFormModel, targetProductSelector);
+        final JPanel regionPanel = new BinningFilterPanel(binningFormModel);
+        final JPanel binningParametersPanel = new BinningVariablesPanel(appContext, binningFormModel);
         addTab("I/O Parameters", ioPanel);
         addTab("Filter", regionPanel);
         addTab("Configuration", binningParametersPanel);

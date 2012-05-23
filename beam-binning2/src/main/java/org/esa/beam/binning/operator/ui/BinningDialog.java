@@ -56,15 +56,15 @@ import java.util.Map;
 public class BinningDialog extends SingleTargetProductDialog {
 
     private BinningForm form;
-    private final BinningModel model;
+    private final BinningFormModel formModel;
 
     protected BinningDialog(AppContext appContext, String title, String helpID) {
         super(appContext, title, helpID);
         if(appContext instanceof VisatApp) {
             ((VisatApp) appContext).getLogger().warning("");
         }
-        model = new BinningModelImpl();
-        form = new BinningForm(appContext, model, getTargetProductSelector());
+        formModel = new BinningFormModelImpl();
+        form = new BinningForm(appContext, formModel, getTargetProductSelector());
     }
 
     static Property createProperty(String name, Class type) {
@@ -80,13 +80,13 @@ public class BinningDialog extends SingleTargetProductDialog {
 
         final Map<String, Object> parameters = new HashMap<String, Object>();
         final BinningConfig binningConfig = new BinningConfig();
-        binningConfig.setMaskExpr(model.getValidExpression());
-        binningConfig.setSuperSampling(model.getSuperSampling());
-        binningConfig.setNumRows(model.getNumRows());
+        binningConfig.setMaskExpr(formModel.getValidExpression());
+        binningConfig.setSuperSampling(formModel.getSuperSampling());
+        binningConfig.setNumRows(formModel.getNumRows());
 
         final List<VariableConfig> variableConfigs = new ArrayList<VariableConfig>();
         final List<AggregatorConfig> aggregatorConfigs = new ArrayList<AggregatorConfig>();
-        final TableRow[] tableRows = model.getTableRows();
+        final TableRow[] tableRows = formModel.getTableRows();
         for (TableRow tableRow : tableRows) {
             final VariableConfig variableConfig = new VariableConfig(tableRow.name, tableRow.expression);
             final AggregatorConfig aggregatorConfig = new AggregatorConfig();
@@ -100,12 +100,12 @@ public class BinningDialog extends SingleTargetProductDialog {
         binningConfig.setAggregatorConfigs(aggregatorConfigs.toArray(new AggregatorConfig[aggregatorConfigs.size()]));
         binningConfig.setVariableConfigs(variableConfigs.toArray(new VariableConfig[variableConfigs.size()]));
 
-        parameters.put("region", model.getRegion());
-        parameters.put("startDate", model.getStartDate());
-        parameters.put("endDate", model.getEndDate());
-        parameters.put("outputBinnedData", model.shallOutputBinnedData());
+        parameters.put("region", formModel.getRegion());
+        parameters.put("startDate", formModel.getStartDate());
+        parameters.put("endDate", formModel.getEndDate());
+        parameters.put("outputBinnedData", formModel.shallOutputBinnedData());
         parameters.put("binningConfig", binningConfig);
-        return GPF.createProduct("Binning", parameters, model.getSourceProducts());
+        return GPF.createProduct("Binning", parameters, formModel.getSourceProducts());
     }
 
     @Override

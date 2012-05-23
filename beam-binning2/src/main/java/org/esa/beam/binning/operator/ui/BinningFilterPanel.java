@@ -63,11 +63,11 @@ class BinningFilterPanel extends JPanel {
     public static final String PROPERTY_WKT = "manualWkt";
 
     private final BindingContext bindingContext;
-    private BinningModel binningModel;
+    private BinningFormModel binningFormModel;
 
-    BinningFilterPanel(final BinningModel binningModel) {
-        this.binningModel = binningModel;
-        bindingContext = binningModel.getBindingContext();
+    BinningFilterPanel(final BinningFormModel binningFormModel) {
+        this.binningFormModel = binningFormModel;
+        bindingContext = binningFormModel.getBindingContext();
         init();
     }
 
@@ -79,10 +79,10 @@ class BinningFilterPanel extends JPanel {
         final JRadioButton regionOption = new JRadioButton("Specify region:");
         final JRadioButton wktOption = new JRadioButton("Enter WKT:");
 
-        bindingContext.bind(BinningModel.PROPERTY_KEY_COMPUTE_REGION, new RadioButtonAdapter(computeOption));
-        bindingContext.bind(BinningModel.PROPERTY_KEY_GLOBAL, new RadioButtonAdapter(globalOption));
-        bindingContext.bind(BinningModel.PROPERTY_KEY_MANUAL_WKT, new RadioButtonAdapter(wktOption));
-        bindingContext.bind(BinningModel.PROPERTY_KEY_REGION, new RadioButtonAdapter(regionOption));
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_COMPUTE_REGION, new RadioButtonAdapter(computeOption));
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_GLOBAL, new RadioButtonAdapter(globalOption));
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_MANUAL_WKT, new RadioButtonAdapter(wktOption));
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_REGION, new RadioButtonAdapter(regionOption));
 
         buttonGroup.add(computeOption);
         buttonGroup.add(globalOption);
@@ -111,7 +111,7 @@ class BinningFilterPanel extends JPanel {
     private JComponent createWktInputPanel() {
         final JTextField textArea = new JTextField();
         bindingContext.bind(PROPERTY_WKT, textArea);
-        bindingContext.bindEnabledState(PROPERTY_WKT, false, BinningModel.PROPERTY_KEY_MANUAL_WKT, false);
+        bindingContext.bindEnabledState(PROPERTY_WKT, false, BinningFormModel.PROPERTY_KEY_MANUAL_WKT, false);
         textArea.setEnabled(false);
         return new JScrollPane(textArea);
 
@@ -125,7 +125,7 @@ class BinningFilterPanel extends JPanel {
         final JFormattedTextField westLonField = new JFormattedTextField(doubleFormatter);
         westLonField.setHorizontalAlignment(JTextField.RIGHT);
         bindingContext.bind(PROPERTY_WEST_BOUND, westLonField);
-        bindingContext.bindEnabledState(PROPERTY_WEST_BOUND, false, BinningModel.PROPERTY_KEY_REGION, false);
+        bindingContext.bindEnabledState(PROPERTY_WEST_BOUND, false, BinningFormModel.PROPERTY_KEY_REGION, false);
         bindingContext.getBinding(PROPERTY_WEST_BOUND).addComponent(westLabel);
         bindingContext.getBinding(PROPERTY_WEST_BOUND).addComponent(westDegreeLabel);
 
@@ -134,7 +134,7 @@ class BinningFilterPanel extends JPanel {
         final JFormattedTextField eastLonField = new JFormattedTextField(doubleFormatter);
         eastLonField.setHorizontalAlignment(JTextField.RIGHT);
         bindingContext.bind(PROPERTY_EAST_BOUND, eastLonField);
-        bindingContext.bindEnabledState(PROPERTY_EAST_BOUND, false, BinningModel.PROPERTY_KEY_REGION, false);
+        bindingContext.bindEnabledState(PROPERTY_EAST_BOUND, false, BinningFormModel.PROPERTY_KEY_REGION, false);
         bindingContext.getBinding(PROPERTY_EAST_BOUND).addComponent(eastLabel);
         bindingContext.getBinding(PROPERTY_EAST_BOUND).addComponent(eastDegreeLabel);
 
@@ -143,7 +143,7 @@ class BinningFilterPanel extends JPanel {
         final JFormattedTextField northLatField = new JFormattedTextField(doubleFormatter);
         northLatField.setHorizontalAlignment(JTextField.RIGHT);
         bindingContext.bind(PROPERTY_NORTH_BOUND, northLatField);
-        bindingContext.bindEnabledState(PROPERTY_NORTH_BOUND, false, BinningModel.PROPERTY_KEY_REGION, false);
+        bindingContext.bindEnabledState(PROPERTY_NORTH_BOUND, false, BinningFormModel.PROPERTY_KEY_REGION, false);
         bindingContext.getBinding(PROPERTY_NORTH_BOUND).addComponent(northLabel);
         bindingContext.getBinding(PROPERTY_NORTH_BOUND).addComponent(northDegreeLabel);
 
@@ -152,11 +152,11 @@ class BinningFilterPanel extends JPanel {
         final JFormattedTextField southLatField = new JFormattedTextField(doubleFormatter);
         southLatField.setHorizontalAlignment(JTextField.RIGHT);
         bindingContext.bind(PROPERTY_SOUTH_BOUND, southLatField);
-        bindingContext.bindEnabledState(PROPERTY_SOUTH_BOUND, false, BinningModel.PROPERTY_KEY_REGION, false);
+        bindingContext.bindEnabledState(PROPERTY_SOUTH_BOUND, false, BinningFormModel.PROPERTY_KEY_REGION, false);
         bindingContext.getBinding(PROPERTY_SOUTH_BOUND).addComponent(southLabel);
         bindingContext.getBinding(PROPERTY_SOUTH_BOUND).addComponent(southDegreeLabel);
 
-        bindingContext.getBinding(BinningModel.PROPERTY_KEY_REGION).setPropertyValue(false);
+        bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_REGION).setPropertyValue(false);
 
         westLonField.setMinimumSize(new Dimension(120, 20));
         westLonField.setPreferredSize(new Dimension(120, 20));
@@ -194,16 +194,16 @@ class BinningFilterPanel extends JPanel {
         DateExComboBox endDatePicker = createDatePicker();
         startDateLabel.setEnabled(false);
         endDateLabel.setEnabled(false);
-        binningModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_TEMPORAL_FILTER, Boolean.class));
-        binningModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_START_DATE, Calendar.class));
-        binningModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_END_DATE, Calendar.class));
-        binningModel.getBindingContext().bind(BinningModel.PROPERTY_KEY_TEMPORAL_FILTER, temporalFilterCheckBox);
-        binningModel.getBindingContext().bind(BinningModel.PROPERTY_KEY_START_DATE, startDatePicker);
-        binningModel.getBindingContext().bind(BinningModel.PROPERTY_KEY_END_DATE, endDatePicker);
-        binningModel.getBindingContext().bindEnabledState(BinningModel.PROPERTY_KEY_START_DATE, true, BinningModel.PROPERTY_KEY_TEMPORAL_FILTER, true);
-        binningModel.getBindingContext().bindEnabledState(BinningModel.PROPERTY_KEY_END_DATE, true, BinningModel.PROPERTY_KEY_TEMPORAL_FILTER, true);
-        binningModel.getBindingContext().getBinding(BinningModel.PROPERTY_KEY_START_DATE).addComponent(startDateLabel);
-        binningModel.getBindingContext().getBinding(BinningModel.PROPERTY_KEY_END_DATE).addComponent(endDateLabel);
+        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TEMPORAL_FILTER, Boolean.class));
+        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_START_DATE, Calendar.class));
+        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_END_DATE, Calendar.class));
+        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_TEMPORAL_FILTER, temporalFilterCheckBox);
+        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_START_DATE, startDatePicker);
+        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_END_DATE, endDatePicker);
+        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_START_DATE, true, BinningFormModel.PROPERTY_KEY_TEMPORAL_FILTER, true);
+        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_END_DATE, true, BinningFormModel.PROPERTY_KEY_TEMPORAL_FILTER, true);
+        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_START_DATE).addComponent(startDateLabel);
+        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_END_DATE).addComponent(endDateLabel);
 
         GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
 

@@ -53,12 +53,12 @@ import java.beans.PropertyChangeListener;
 class BinningVariablesPanel extends JPanel {
 
     private final AppContext appContext;
-    private final BinningModel binningModel;
+    private final BinningFormModel binningFormModel;
     private VariableConfigTable bandsTable;
 
-    BinningVariablesPanel(AppContext appContext, BinningModel binningModel) {
+    BinningVariablesPanel(AppContext appContext, BinningFormModel binningFormModel) {
         this.appContext = appContext;
-        this.binningModel = binningModel;
+        this.binningFormModel = binningFormModel;
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         GridBagUtils.addToPanel(this, createBandsPanel(), gbc, "insets=5,fill=BOTH,weightx=1.0,weighty=1.0");
@@ -68,7 +68,7 @@ class BinningVariablesPanel extends JPanel {
     }
 
     private JPanel createBandsPanel() {
-        bandsTable = new VariableConfigTable(binningModel, appContext);
+        bandsTable = new VariableConfigTable(binningFormModel, appContext);
         final JPanel bandsPanel = new JPanel(new GridBagLayout());
 
         final AbstractButton addButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Plus24.gif"), false);
@@ -102,10 +102,10 @@ class BinningVariablesPanel extends JPanel {
         preferredSize.setSize(25, preferredSize.getHeight());
         button.setPreferredSize(preferredSize);
         button.setEnabled(hasSourceProducts());
-        binningModel.addPropertyChangeListener(new PropertyChangeListener() {
+        binningFormModel.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                if (!evt.getPropertyName().equals(BinningModel.PROPERTY_KEY_SOURCE_PRODUCTS)) {
+                if (!evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS)) {
                     return;
                 }
                 button.setEnabled(hasSourceProducts());
@@ -118,7 +118,7 @@ class BinningVariablesPanel extends JPanel {
                 if (expression != null) {
                     textField.setText(expression);
                     try {
-                        binningModel.setProperty(BinningModel.PROPERTY_KEY_EXPRESSION, expression);
+                        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, expression);
                     } catch (ValidationException e) {
                         appContext.handleError("Invalid expression", e);
                     }
@@ -137,10 +137,10 @@ class BinningVariablesPanel extends JPanel {
 
     private JComponent createOutputBinnedDataComponent() {
         final JCheckBox checkBox = new JCheckBox("Output binned data");
-        final Property property = BinningDialog.createProperty(BinningModel.PROPERTY_KEY_OUTPUT_BINNED_DATA, Boolean.class);
-        binningModel.getBindingContext().getPropertySet().addProperty(property);
-        binningModel.getBindingContext().bind(BinningModel.PROPERTY_KEY_OUTPUT_BINNED_DATA, checkBox);
-        binningModel.getBindingContext().getBinding(BinningModel.PROPERTY_KEY_OUTPUT_BINNED_DATA).setPropertyValue(Boolean.TRUE);
+        final Property property = BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_OUTPUT_BINNED_DATA, Boolean.class);
+        binningFormModel.getBindingContext().getPropertySet().addProperty(property);
+        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_OUTPUT_BINNED_DATA, checkBox);
+        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_OUTPUT_BINNED_DATA).setPropertyValue(Boolean.TRUE);
         return checkBox;
     }
 
@@ -154,12 +154,12 @@ class BinningVariablesPanel extends JPanel {
         superSamplingTextField.setPreferredSize(new Dimension(120, 20));
         superSamplingTextField.setMinimumSize(new Dimension(120, 20));
 
-        binningModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_TARGET_HEIGHT, Integer.class));
-        binningModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_SUPERSAMPLING, Integer.class));
-        binningModel.getBindingContext().bind(BinningModel.PROPERTY_KEY_TARGET_HEIGHT, targetHeightTextField);
-        binningModel.getBindingContext().bind(BinningModel.PROPERTY_KEY_SUPERSAMPLING, superSamplingTextField);
-        binningModel.getBindingContext().getBinding(BinningModel.PROPERTY_KEY_TARGET_HEIGHT).setPropertyValue(2160);
-        binningModel.getBindingContext().getBinding(BinningModel.PROPERTY_KEY_SUPERSAMPLING).setPropertyValue(1);
+        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, Integer.class));
+        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, Integer.class));
+        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, targetHeightTextField);
+        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, superSamplingTextField);
+        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).setPropertyValue(2160);
+        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING).setPropertyValue(1);
 
         final JPanel panel = GridBagUtils.createPanel();
         GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
@@ -172,11 +172,11 @@ class BinningVariablesPanel extends JPanel {
     }
 
     private boolean hasSourceProducts() {
-        return binningModel.getSourceProducts().length > 0;
+        return binningFormModel.getSourceProducts().length > 0;
     }
 
     private String editExpression(String expression) {
-        final Product product = binningModel.getSourceProducts()[0];
+        final Product product = binningFormModel.getSourceProducts()[0];
         if (product == null) {
             return null;
         }

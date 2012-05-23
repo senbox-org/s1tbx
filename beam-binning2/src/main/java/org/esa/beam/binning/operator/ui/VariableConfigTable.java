@@ -64,17 +64,17 @@ class VariableConfigTable {
     private final SortedSet<String> bandNames;
     private final String[] aggregatorNames;
     private final JComboBox bandNamesComboBox;
-    private final BinningModel binningModel;
+    private final BinningFormModel binningFormModel;
     private final AppContext appContext;
 
-    VariableConfigTable(final BinningModel binningModel, AppContext appContext) {
-        this.binningModel = binningModel;
+    VariableConfigTable(final BinningFormModel binningFormModel, AppContext appContext) {
+        this.binningFormModel = binningFormModel;
         this.appContext = appContext;
         bandNames = new TreeSet<String>();
-        binningModel.addPropertyChangeListener(new PropertyChangeListener() {
+        binningFormModel.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                if (evt.getPropertyName().equals(BinningModel.PROPERTY_KEY_SOURCE_PRODUCTS)) {
+                if (evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS)) {
                     updateBandNames();
                 }
             }
@@ -100,7 +100,7 @@ class VariableConfigTable {
                 "Fill value"
         });
 
-        tableModel.addTableModelListener(new VariableConfigTableListener(this, this.binningModel));
+        tableModel.addTableModelListener(new VariableConfigTableListener(this, this.binningFormModel));
 
         table = new JTable(tableModel) {
             @Override
@@ -170,7 +170,7 @@ class VariableConfigTable {
 
     private void updateBandNames() {
         bandNames.clear();
-        final Product[] sourceProducts = binningModel.getSourceProducts();
+        final Product[] sourceProducts = binningFormModel.getSourceProducts();
         for (Product sourceProduct : sourceProducts) {
             Collections.addAll(bandNames, sourceProduct.getBandNames());
         }
@@ -210,11 +210,11 @@ class VariableConfigTable {
                 }
             };
             button.addActionListener(actionListener);
-            binningModel.addPropertyChangeListener(new PropertyChangeListener() {
+            binningFormModel.addPropertyChangeListener(new PropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
-                    if (evt.getPropertyName().equals(BinningModel.PROPERTY_KEY_SOURCE_PRODUCTS)) {
-                        if (binningModel.getSourceProducts().length > 0) {
+                    if (evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS)) {
+                        if (binningFormModel.getSourceProducts().length > 0) {
                             button.setEnabled(true);
                         } else {
                             button.setEnabled(false);
@@ -245,11 +245,11 @@ class VariableConfigTable {
         }
 
         private String editExpression(String expression) {
-            if (binningModel.getSourceProducts().length == 0) {
+            if (binningFormModel.getSourceProducts().length == 0) {
                 return null;
             }
             final Product product;
-            product = binningModel.getSourceProducts()[0];
+            product = binningFormModel.getSourceProducts()[0];
             final ProductExpressionPane expressionPane = ProductExpressionPane.createGeneralExpressionPane(
                     new Product[]{product}, product, appContext.getPreferences());
             expressionPane.setCode(expression);
@@ -265,11 +265,11 @@ class VariableConfigTable {
 
         private VariableConfigTable bandsTable;
 
-        private BinningModel binningModel;
+        private BinningFormModel binningFormModel;
 
-        private VariableConfigTableListener(VariableConfigTable bandsTable, BinningModel binningModel) {
+        private VariableConfigTableListener(VariableConfigTable bandsTable, BinningFormModel binningFormModel) {
             this.bandsTable = bandsTable;
-            this.binningModel = binningModel;
+            this.binningFormModel = binningFormModel;
         }
 
         @Override
@@ -286,7 +286,7 @@ class VariableConfigTable {
                                             row.fillValue);
             }
             try {
-                binningModel.setProperty(BinningModel.PROPERTY_KEY_VARIABLE_CONFIGS, tableRows);
+                binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS, tableRows);
             } catch (ValidationException e) {
                 appContext.handleError("Unable to validate variable configurations.", e);
             }

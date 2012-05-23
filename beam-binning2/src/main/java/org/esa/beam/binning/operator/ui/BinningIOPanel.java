@@ -46,13 +46,13 @@ import java.util.Set;
 class BinningIOPanel extends JPanel {
 
     private final AppContext appContext;
-    private final BinningModel binningModel;
+    private final BinningFormModel binningFormModel;
     private FileArrayEditor sourceFileEditor;
     private TargetProductSelector targetProductSelectorPanel;
 
-    BinningIOPanel(AppContext appContext, BinningModel binningModel, TargetProductSelector targetProductSelectorPanel) {
+    BinningIOPanel(AppContext appContext, BinningFormModel binningFormModel, TargetProductSelector targetProductSelectorPanel) {
         this.appContext = appContext;
-        this.binningModel = binningModel;
+        this.binningFormModel = binningFormModel;
         final FileArrayEditor.EditorParent context = new FilePathContext(appContext);
         sourceFileEditor = new FileArrayEditor(context, "Source products") {
             @Override
@@ -94,7 +94,7 @@ class BinningIOPanel extends JPanel {
                             final File productFile = productFiles[i];
                             products[i] = ProductIO.readProduct(productFile);
                         }
-                        binningModel.setProperty(BinningModel.PROPERTY_KEY_SOURCE_PRODUCTS, products);
+                        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS, products);
                         return null;
                     }
 
