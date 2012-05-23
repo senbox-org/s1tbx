@@ -18,19 +18,24 @@ package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.internal.AbstractButtonAdapter;
+import com.jidesoft.combobox.DateExComboBox;
 import com.jidesoft.swing.TitledSeparator;
+import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 
 import javax.measure.unit.NonSI;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -39,54 +44,52 @@ import java.awt.event.ItemListener;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
 
 /**
- * The panel in the binning operator UI which allows for setting the region.
+ * The panel in the binning operator UI which allows for setting the regional and temporal filters.
  *
  * @author Olaf Danne
  * @author Thomas Storm
  */
-class BinningRegionPanel extends JPanel {
+class BinningFilterPanel extends JPanel {
 
     public static final String PROPERTY_WEST_BOUND = "westBound";
     public static final String PROPERTY_NORTH_BOUND = "northBound";
     public static final String PROPERTY_EAST_BOUND = "eastBound";
     public static final String PROPERTY_SOUTH_BOUND = "southBound";
+    public static final String PROPERTY_WKT = "manualWkt";
 
     private final BindingContext bindingContext;
-    private final WorldMapPaneDataModel worldMapModel;
+    private BinningModel binningModel;
 
-    BinningRegionPanel(final BinningModel model) {
-        bindingContext = model.getBindingContext();
-        worldMapModel = new WorldMapPaneDataModel();
+    BinningFilterPanel(final BinningModel binningModel) {
+        this.binningModel = binningModel;
+        bindingContext = binningModel.getBindingContext();
         init();
     }
 
     private void init() {
-
         ButtonGroup buttonGroup = new ButtonGroup();
 
         final JRadioButton computeOption = new JRadioButton("Compute the geographical region according to extents of input products");
         final JRadioButton globalOption = new JRadioButton("Use the whole globe as region");
         final JRadioButton regionOption = new JRadioButton("Specify region:");
+        final JRadioButton wktOption = new JRadioButton("Enter WKT:");
 
         bindingContext.bind(BinningModel.PROPERTY_KEY_COMPUTE_REGION, new RadioButtonAdapter(computeOption));
         bindingContext.bind(BinningModel.PROPERTY_KEY_GLOBAL, new RadioButtonAdapter(globalOption));
+        bindingContext.bind(BinningModel.PROPERTY_KEY_MANUAL_WKT, new RadioButtonAdapter(wktOption));
         bindingContext.bind(BinningModel.PROPERTY_KEY_REGION, new RadioButtonAdapter(regionOption));
 
         buttonGroup.add(computeOption);
         buttonGroup.add(globalOption);
+        buttonGroup.add(wktOption);
         buttonGroup.add(regionOption);
 
         computeOption.setSelected(true);
-
-        // todo - comment in following code after moving this module to BEAM
-        // until then, world map creation will fail because it tries reading the world map images from a jar
-        // see MosaicOp UI for how it is done
-//        final WorldMapPane worldMapPanel = new WorldMapPane(worldMapModel);
-//        worldMapPanel.setMinimumSize(new Dimension(250, 125));
-//        worldMapPanel.setBorder(BorderFactory.createEtchedBorder());
 
         final GridBagLayout layout = new GridBagLayout();
         setLayout(layout);
@@ -95,14 +98,26 @@ class BinningRegionPanel extends JPanel {
         GridBagUtils.addToPanel(this, new TitledSeparator("Specify target region", SwingConstants.CENTER), gbc, "insets=5,weighty=0,anchor=NORTHWEST,fill=HORIZONTAL");
         GridBagUtils.addToPanel(this, computeOption, gbc, "insets=3,gridy=1");
         GridBagUtils.addToPanel(this, globalOption, gbc, "gridy=2");
-        GridBagUtils.addToPanel(this, regionOption, gbc, "gridy=3");
-        GridBagUtils.addToPanel(this, createBoundsInputPanel(), gbc, "gridy=4");
-        // todo - comment in following code after moving this module to BEAM
-//        GridBagUtils.addToPanel(this, worldMapPanel, gbc, "gridy=5");
+        GridBagUtils.addToPanel(this, wktOption, gbc, "gridy=3");
+        GridBagUtils.addToPanel(this, createWktInputPanel(), gbc, "gridy=4");
+        GridBagUtils.addToPanel(this, regionOption, gbc, "gridy=5");
+        GridBagUtils.addToPanel(this, createBoundsInputPanel(), gbc, "gridy=6,insets.bottom=5");
+
+        GridBagUtils.addToPanel(this, new TitledSeparator("Specify temporal filtering", SwingConstants.CENTER), gbc, "gridy=7,insets.bottom=3");
+        GridBagUtils.addToPanel(this, createTemporalFilterPanel(), gbc, "gridy=8");
         GridBagUtils.addVerticalFiller(this, gbc);
     }
 
-    public JPanel createBoundsInputPanel() {
+    private JComponent createWktInputPanel() {
+        final JTextField textArea = new JTextField();
+        bindingContext.bind(PROPERTY_WKT, textArea);
+        bindingContext.bindEnabledState(PROPERTY_WKT, false, BinningModel.PROPERTY_KEY_MANUAL_WKT, false);
+        textArea.setEnabled(false);
+        return new JScrollPane(textArea);
+
+    }
+
+    private JPanel createBoundsInputPanel() {
         final DoubleFormatter doubleFormatter = new DoubleFormatter("###0.0##");
 
         final JLabel westDegreeLabel = new JLabel(NonSI.DEGREE_ANGLE.toString());
@@ -170,9 +185,48 @@ class BinningRegionPanel extends JPanel {
         return panel;
     }
 
-    public class RadioButtonAdapter extends AbstractButtonAdapter implements ItemListener {
+    private Component createTemporalFilterPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        JCheckBox temporalFilterCheckBox = new JCheckBox("Temporal Filter");
+        JLabel startDateLabel = new JLabel("Start date:");
+        JLabel endDateLabel = new JLabel("End date:");
+        DateExComboBox startDatePicker = createDatePicker();
+        DateExComboBox endDatePicker = createDatePicker();
+        startDateLabel.setEnabled(false);
+        endDateLabel.setEnabled(false);
+        binningModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_TEMPORAL_FILTER, Boolean.class));
+        binningModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_START_DATE, Calendar.class));
+        binningModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_END_DATE, Calendar.class));
+        binningModel.getBindingContext().bind(BinningModel.PROPERTY_KEY_TEMPORAL_FILTER, temporalFilterCheckBox);
+        binningModel.getBindingContext().bind(BinningModel.PROPERTY_KEY_START_DATE, startDatePicker);
+        binningModel.getBindingContext().bind(BinningModel.PROPERTY_KEY_END_DATE, endDatePicker);
+        binningModel.getBindingContext().bindEnabledState(BinningModel.PROPERTY_KEY_START_DATE, true, BinningModel.PROPERTY_KEY_TEMPORAL_FILTER, true);
+        binningModel.getBindingContext().bindEnabledState(BinningModel.PROPERTY_KEY_END_DATE, true, BinningModel.PROPERTY_KEY_TEMPORAL_FILTER, true);
+        binningModel.getBindingContext().getBinding(BinningModel.PROPERTY_KEY_START_DATE).addComponent(startDateLabel);
+        binningModel.getBindingContext().getBinding(BinningModel.PROPERTY_KEY_END_DATE).addComponent(endDateLabel);
 
-        public RadioButtonAdapter(AbstractButton button) {
+        GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
+
+        GridBagUtils.addToPanel(panel, temporalFilterCheckBox, gbc, "anchor=NORTHWEST, insets=5");
+        GridBagUtils.addToPanel(panel, startDateLabel, gbc, "gridx=1,insets.top=9");
+        GridBagUtils.addToPanel(panel, startDatePicker, gbc, "gridx=2,insets.top=6,weightx=1");
+        GridBagUtils.addToPanel(panel, endDateLabel, gbc, "gridy=1,gridx=1,insets.top=9,weightx=0");
+        GridBagUtils.addToPanel(panel, endDatePicker, gbc, "gridx=2,insets.top=6,weightx=1");
+        return panel;
+    }
+
+    private DateExComboBox createDatePicker() {
+        DateExComboBox datePicker = new DateExComboBox();
+        datePicker.setLocale(Locale.ENGLISH);
+        datePicker.getDateModel().setDateFormat(new SimpleDateFormat(BinningOp.DATE_PATTERN));
+        datePicker.setPreferredSize(new Dimension(120, 20));
+        datePicker.setMinimumSize(new Dimension(120, 20));
+        return datePicker;
+    }
+
+    private static class RadioButtonAdapter extends AbstractButtonAdapter implements ItemListener {
+
+        RadioButtonAdapter(AbstractButton button) {
             super(button);
         }
 

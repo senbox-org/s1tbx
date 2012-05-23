@@ -41,6 +41,7 @@ interface BinningModel {
     String PROPERTY_KEY_OUTPUT_BINNED_DATA = "outputBinnedData";
     String PROPERTY_KEY_TARGET_HEIGHT = "targetHeight";
     String PROPERTY_KEY_SUPERSAMPLING = "supersampling";
+    String PROPERTY_KEY_MANUAL_WKT = "manualWktKey";
 
     void setProperty(String key, Object value) throws ValidationException;
 

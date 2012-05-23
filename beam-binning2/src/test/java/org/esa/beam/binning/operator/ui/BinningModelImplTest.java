@@ -16,18 +16,9 @@
 
 package org.esa.beam.binning.operator.ui;
 
-import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.binning.operator.BinningOp;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.util.FeatureUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.junit.Test;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -35,8 +26,6 @@ import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 
 import static org.junit.Assert.*;
 
@@ -155,7 +144,7 @@ public class BinningModelImplTest {
             binningModel.getRegion();
             fail();
         } catch (IllegalStateException expected) {
-            assertTrue(expected.getMessage().equals("Cannot come here"));
+            assertTrue(expected.getMessage().equals("Should never come here"));
         }
     }
 
@@ -164,58 +153,14 @@ public class BinningModelImplTest {
         final BinningModelImpl binningModel = new BinningModelImpl();
 
         binningModel.setProperty(BinningModel.PROPERTY_KEY_GLOBAL, true);
-        assertNull(binningModel.getRegion());
+        assertEquals("polygon((-180 -90, 180 -90, 180 90, -180 90, -180 -90))", binningModel.getRegion());
     }
 
     @Test
-    public void testGetRegion_ForSingleProduct() throws Exception {
+    public void testGetRegion_Compute() throws Exception {
         final BinningModelImpl binningModel = new BinningModelImpl();
 
         binningModel.setProperty(BinningModel.PROPERTY_KEY_COMPUTE_REGION, true);
-        final Product dummyProduct = createDummyProduct(10, 10);
-        binningModel.setProperty(BinningModel.PROPERTY_KEY_SOURCE_PRODUCTS, new Product[] {dummyProduct});
-
-        final Geometry geometry = FeatureUtils.createGeoBoundaryPolygon(dummyProduct);
-
-        final String region = binningModel.getRegion();
-        final String expectedRegion = geometry.toText();
-        assertEquals(expectedRegion, region);
-    }
-
-    @Test
-    public void testGetRegion_ForMultipleProducts() throws Exception {
-        final BinningModelImpl binningModel = new BinningModelImpl();
-
-        binningModel.setProperty(BinningModel.PROPERTY_KEY_COMPUTE_REGION, true);
-        final Product dummyProduct1 = createDummyProduct(10, 10);
-        final Product dummyProduct2 = createDummyProduct(2, 2);
-        binningModel.setProperty(BinningModel.PROPERTY_KEY_SOURCE_PRODUCTS, new Product[] {dummyProduct1, dummyProduct2});
-
-        final String region = binningModel.getRegion();
-        assertEquals("POLYGON ((10 11, 10 19, 19 19, 19 10, 11 10, 11 2, 2 2, 2 11, 10 11))", region);
-    }
-
-    @Test
-    public void testGetRegion_WithoutGeoCoding() throws Exception {
-        final BinningModelImpl binningModel = new BinningModelImpl();
-
-        binningModel.setProperty(BinningModel.PROPERTY_KEY_COMPUTE_REGION, true);
-        binningModel.setProperty(BinningModel.PROPERTY_KEY_SOURCE_PRODUCTS, new Product[] {new Product("I have no geo-coding", "type", 10, 10)});
-
-        BeamLogManager.getSystemLogger().addHandler(new Handler() {
-            @Override
-            public void publish(LogRecord record) {
-                assertTrue(record.getMessage().contains("contains no geo-information. Using the entire globe as region."));
-            }
-
-            @Override
-            public void flush() {
-            }
-
-            @Override
-            public void close() throws SecurityException {
-            }
-        });
         assertNull(binningModel.getRegion());
     }
 
@@ -224,20 +169,13 @@ public class BinningModelImplTest {
         final BinningModelImpl binningModel = new BinningModelImpl();
 
         binningModel.setProperty(BinningModel.PROPERTY_KEY_REGION, true);
-        binningModel.setProperty(BinningRegionPanel.PROPERTY_NORTH_BOUND, 50.0);
-        binningModel.setProperty(BinningRegionPanel.PROPERTY_EAST_BOUND, 15.0);
-        binningModel.setProperty(BinningRegionPanel.PROPERTY_WEST_BOUND, 10.0);
-        binningModel.setProperty(BinningRegionPanel.PROPERTY_SOUTH_BOUND, 40.0);
+        binningModel.setProperty(BinningFilterPanel.PROPERTY_NORTH_BOUND, 50.0);
+        binningModel.setProperty(BinningFilterPanel.PROPERTY_EAST_BOUND, 15.0);
+        binningModel.setProperty(BinningFilterPanel.PROPERTY_WEST_BOUND, 10.0);
+        binningModel.setProperty(BinningFilterPanel.PROPERTY_SOUTH_BOUND, 40.0);
 
         final String region = binningModel.getRegion();
         assertEquals("POLYGON ((10 40, 10 50, 15 50, 15 40, 10 40))", region);
-    }
-
-    private Product createDummyProduct(float startLat, float startLon) {
-        final Product product = new Product("dummy", "type", 10, 10);
-        final GeoCoding geoCoding = new DummyGeoCoding(startLat, startLon);
-        product.setGeoCoding(geoCoding);
-        return product;
     }
 
     private static class MyPropertyChangeListener implements PropertyChangeListener {
@@ -250,72 +188,4 @@ public class BinningModelImplTest {
         }
     }
 
-    private static class DummyGeoCoding implements GeoCoding {
-
-        private final float startLat;
-        private final float startLon;
-
-        private DummyGeoCoding(float startLat, float startLon) {
-            this.startLat = startLat;
-            this.startLon = startLon;
-        }
-
-        @Override
-        public boolean isCrossingMeridianAt180() {
-            return false;
-        }
-
-        @Override
-        public boolean canGetPixelPos() {
-            return true;
-        }
-
-        @Override
-        public boolean canGetGeoPos() {
-            return true;
-        }
-
-        @Override
-        public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
-            return null;
-        }
-
-        @Override
-        public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
-            if(geoPos == null) {
-                geoPos = new GeoPos();
-            }
-            geoPos.setLocation(startLat + (int)pixelPos.y, startLon + (int) pixelPos.x);
-            return geoPos;
-        }
-
-        @Override
-        public Datum getDatum() {
-            return null;
-        }
-
-        @Override
-        public void dispose() {
-        }
-
-        @Override
-        public CoordinateReferenceSystem getImageCRS() {
-            return null;
-        }
-
-        @Override
-        public CoordinateReferenceSystem getMapCRS() {
-            return null;
-        }
-
-        @Override
-        public CoordinateReferenceSystem getGeoCRS() {
-            return null;
-        }
-
-        @Override
-        public MathTransform getImageToMapTransform() {
-            return null;
-        }
-    }
 }

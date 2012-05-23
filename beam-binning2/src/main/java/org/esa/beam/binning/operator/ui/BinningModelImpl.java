@@ -24,17 +24,13 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.BoundsInputPanel;
-import org.esa.beam.util.FeatureUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import java.beans.PropertyChangeListener;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,20 +43,24 @@ import java.util.Date;
  */
 class BinningModelImpl implements BinningModel {
 
+    private static final String GLOBAL_WKT = "polygon((-180 -90, 180 -90, 180 90, -180 90, -180 -90))";
+
     private PropertySet propertySet;
     private BindingContext bindingContext;
 
     public BinningModelImpl() {
         propertySet = new PropertyContainer();
-        propertySet.addProperty(BinningDialog.createProperty(BoundsInputPanel.PROPERTY_EAST_BOUND, Float.class));
-        propertySet.addProperty(BinningDialog.createProperty(BoundsInputPanel.PROPERTY_NORTH_BOUND, Float.class));
-        propertySet.addProperty(BinningDialog.createProperty(BoundsInputPanel.PROPERTY_WEST_BOUND, Float.class));
-        propertySet.addProperty(BinningDialog.createProperty(BoundsInputPanel.PROPERTY_SOUTH_BOUND, Float.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_EAST_BOUND, Float.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_NORTH_BOUND, Float.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_WEST_BOUND, Float.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_SOUTH_BOUND, Float.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_WKT, String.class));
         propertySet.addProperty(BinningDialog.createProperty(BoundsInputPanel.PROPERTY_PIXEL_SIZE_X, Float.class));
         propertySet.addProperty(BinningDialog.createProperty(BoundsInputPanel.PROPERTY_PIXEL_SIZE_Y, Float.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_GLOBAL, Boolean.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_COMPUTE_REGION, Boolean.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_REGION, Boolean.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_MANUAL_WKT, Boolean.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_EXPRESSION, String.class));
         propertySet.setDefaultValues();
     }
@@ -86,33 +86,15 @@ class BinningModelImpl implements BinningModel {
     @Override
     public String getRegion() {
         if (getPropertyValue(PROPERTY_KEY_GLOBAL) != null && (Boolean) getPropertyValue(PROPERTY_KEY_GLOBAL)) {
-            return null;
+            return GLOBAL_WKT;
         } else if (getPropertyValue(PROPERTY_KEY_COMPUTE_REGION) != null &&
                    (Boolean) getPropertyValue(PROPERTY_KEY_COMPUTE_REGION)) {
-            final Product[] products = getPropertyValue(PROPERTY_KEY_SOURCE_PRODUCTS);
-            Geometry currentGeometry = null;
-            for (Product product : products) {
-                if (product.getGeoCoding() == null) {
-                    final String msg = MessageFormat.format(
-                            "Product ''{0}'' contains no geo-information. Using the entire globe as region.",
-                            product.getName());
-                    BeamLogManager.getSystemLogger().warning(msg);
-                    return null;
-                }
-                final Geometry geometry = FeatureUtils.createGeoBoundaryPolygon(product);
-                if (currentGeometry == null) {
-                    currentGeometry = geometry;
-                } else {
-                    currentGeometry = currentGeometry.union(geometry);
-                }
-            }
-
-            return currentGeometry.toText();
+            return null;
         } else if (getPropertyValue(PROPERTY_KEY_REGION) != null && (Boolean) getPropertyValue(PROPERTY_KEY_REGION)) {
-            final double westValue = (Double) getPropertyValue(BinningRegionPanel.PROPERTY_WEST_BOUND);
-            final double eastValue = (Double) getPropertyValue(BinningRegionPanel.PROPERTY_EAST_BOUND);
-            final double northValue = (Double) getPropertyValue(BinningRegionPanel.PROPERTY_NORTH_BOUND);
-            final double southValue = (Double) getPropertyValue(BinningRegionPanel.PROPERTY_SOUTH_BOUND);
+            final double westValue = (Double) getPropertyValue(BinningFilterPanel.PROPERTY_WEST_BOUND);
+            final double eastValue = (Double) getPropertyValue(BinningFilterPanel.PROPERTY_EAST_BOUND);
+            final double northValue = (Double) getPropertyValue(BinningFilterPanel.PROPERTY_NORTH_BOUND);
+            final double southValue = (Double) getPropertyValue(BinningFilterPanel.PROPERTY_SOUTH_BOUND);
             Coordinate[] coordinates = {
                     new Coordinate(westValue, southValue), new Coordinate(westValue, northValue),
                     new Coordinate(eastValue, northValue), new Coordinate(eastValue, southValue),
@@ -122,8 +104,11 @@ class BinningModelImpl implements BinningModel {
             final GeometryFactory geometryFactory = new GeometryFactory();
             final Polygon polygon = geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates), null);
             return polygon.toText();
+        } else if(getPropertyValue(PROPERTY_KEY_MANUAL_WKT) != null &&
+                (Boolean) getPropertyValue(PROPERTY_KEY_MANUAL_WKT)) {
+            return getPropertyValue(BinningFilterPanel.PROPERTY_WKT);
         }
-        throw new IllegalStateException("Cannot come here");
+        throw new IllegalStateException("Should never come here");
     }
 
     @Override

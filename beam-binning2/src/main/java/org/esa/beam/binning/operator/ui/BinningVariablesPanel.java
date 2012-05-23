@@ -18,15 +18,16 @@ package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
-import com.jidesoft.combobox.DateExComboBox;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
-import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
+import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -42,9 +43,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
 
 /**
  * The panel in the binning operator UI which allows for specifying the configuration of binning variables.
@@ -65,17 +63,16 @@ class BinningVariablesPanel extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         GridBagUtils.addToPanel(this, createBandsPanel(), gbc, "insets=5,fill=BOTH,weightx=1.0,weighty=1.0");
         GridBagUtils.addToPanel(this, createValidExpressionPanel(), gbc, "gridy=1,fill=HORIZONTAL,weightx=1.0,weighty=0.0");
-        GridBagUtils.addToPanel(this, createTemporalFilterPanel(), gbc, "gridy=2");
-        GridBagUtils.addToPanel(this, createSuperSamplingAndTargetHeightPanel(), gbc, "gridy=3");
-        GridBagUtils.addToPanel(this, createOutputBinnedDataComponent(), gbc, "gridy=4");
+        GridBagUtils.addToPanel(this, createSuperSamplingAndTargetHeightPanel(), gbc, "gridy=4");
+        GridBagUtils.addToPanel(this, createOutputBinnedDataComponent(), gbc, "gridy=5");
     }
 
     private JPanel createBandsPanel() {
         bandsTable = new VariableConfigTable(binningModel, appContext);
         final JPanel bandsPanel = new JPanel(new GridBagLayout());
 
-        final JButton addButton = new JButton("Add");
-        final JButton removeButton = new JButton("Remove");
+        final AbstractButton addButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Plus24.gif"), false);
+        final AbstractButton removeButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Minus24.gif"), false);
 
         addButton.addActionListener(new ActionListener() {
             @Override
@@ -91,9 +88,9 @@ class BinningVariablesPanel extends JPanel {
         });
 
         final GridBagConstraints gbc = new GridBagConstraints();
-        GridBagUtils.addToPanel(bandsPanel, new JLabel(), gbc, "insets=5,gridwidth=1,fill=HORIZONTAL,weightx=1.0");
-        GridBagUtils.addToPanel(bandsPanel, addButton, gbc, "gridx=1,fill=NONE,weightx=0.0");
-        GridBagUtils.addToPanel(bandsPanel, removeButton, gbc, "gridx=2");
+        GridBagUtils.addToPanel(bandsPanel, addButton, gbc, "gridx=0");
+        GridBagUtils.addToPanel(bandsPanel, removeButton, gbc, "gridx=1");
+        GridBagUtils.addHorizontalFiller(bandsPanel, gbc);
         GridBagUtils.addToPanel(bandsPanel, bandsTable.getComponent(), gbc, "gridx=0,gridy=1,gridwidth=3,fill=BOTH,weightx=1,weighty=1");
 
         return bandsPanel;
@@ -138,36 +135,6 @@ class BinningVariablesPanel extends JPanel {
         return validExpressionPanel;
     }
 
-    private Component createTemporalFilterPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        JCheckBox temporalFilterCheckBox = new JCheckBox("Temporal Filter");
-        JLabel startDateLabel = new JLabel("Start date:");
-        JLabel endDateLabel = new JLabel("End date:");
-        DateExComboBox startDatePicker = createDatePicker();
-        DateExComboBox endDatePicker = createDatePicker();
-        startDateLabel.setEnabled(false);
-        endDateLabel.setEnabled(false);
-        binningModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_TEMPORAL_FILTER, Boolean.class));
-        binningModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_START_DATE, Calendar.class));
-        binningModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningModel.PROPERTY_KEY_END_DATE, Calendar.class));
-        binningModel.getBindingContext().bind(BinningModel.PROPERTY_KEY_TEMPORAL_FILTER, temporalFilterCheckBox);
-        binningModel.getBindingContext().bind(BinningModel.PROPERTY_KEY_START_DATE, startDatePicker);
-        binningModel.getBindingContext().bind(BinningModel.PROPERTY_KEY_END_DATE, endDatePicker);
-        binningModel.getBindingContext().bindEnabledState(BinningModel.PROPERTY_KEY_START_DATE, true, BinningModel.PROPERTY_KEY_TEMPORAL_FILTER, true);
-        binningModel.getBindingContext().bindEnabledState(BinningModel.PROPERTY_KEY_END_DATE, true, BinningModel.PROPERTY_KEY_TEMPORAL_FILTER, true);
-        binningModel.getBindingContext().getBinding(BinningModel.PROPERTY_KEY_START_DATE).addComponent(startDateLabel);
-        binningModel.getBindingContext().getBinding(BinningModel.PROPERTY_KEY_END_DATE).addComponent(endDateLabel);
-
-        GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
-
-        GridBagUtils.addToPanel(panel, temporalFilterCheckBox, gbc, "anchor=NORTHWEST, insets=5");
-        GridBagUtils.addToPanel(panel, startDateLabel, gbc, "gridx=1,insets.top=9");
-        GridBagUtils.addToPanel(panel, startDatePicker, gbc, "gridx=2,insets.top=6,weightx=1");
-        GridBagUtils.addToPanel(panel, endDateLabel, gbc, "gridy=1,gridx=1,insets.top=9,weightx=0");
-        GridBagUtils.addToPanel(panel, endDatePicker, gbc, "gridx=2,insets.top=6,weightx=1");
-        return panel;
-    }
-
     private JComponent createOutputBinnedDataComponent() {
         final JCheckBox checkBox = new JCheckBox("Output binned data");
         final Property property = BinningDialog.createProperty(BinningModel.PROPERTY_KEY_OUTPUT_BINNED_DATA, Boolean.class);
@@ -175,15 +142,6 @@ class BinningVariablesPanel extends JPanel {
         binningModel.getBindingContext().bind(BinningModel.PROPERTY_KEY_OUTPUT_BINNED_DATA, checkBox);
         binningModel.getBindingContext().getBinding(BinningModel.PROPERTY_KEY_OUTPUT_BINNED_DATA).setPropertyValue(Boolean.TRUE);
         return checkBox;
-    }
-
-    private DateExComboBox createDatePicker() {
-        DateExComboBox datePicker = new DateExComboBox();
-        datePicker.setLocale(Locale.ENGLISH);
-        datePicker.getDateModel().setDateFormat(new SimpleDateFormat(BinningOp.DATE_PATTERN));
-        datePicker.setPreferredSize(new Dimension(120, 20));
-        datePicker.setMinimumSize(new Dimension(120, 20));
-        return datePicker;
     }
 
     private Component createSuperSamplingAndTargetHeightPanel() {
