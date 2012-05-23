@@ -27,6 +27,9 @@ public class DaacAttributesTest extends TestCase {
         dimension = new Dimension("MODIS_Grid_16DAY_1km_VI/Data Fields/XDim", 34);
         assertTrue(DaacAttributes.isWidthDimension(dimension));
 
+        dimension = new Dimension("Swath/Data Fields/Number_of_samples_per_record", 34);
+        assertTrue(DaacAttributes.isWidthDimension(dimension));
+
         dimension = new Dimension("ist_quatsch", 34);
         assertFalse(DaacAttributes.isWidthDimension(dimension));
     }
@@ -38,8 +41,10 @@ public class DaacAttributesTest extends TestCase {
         dimension = new Dimension("MODIS_Grid_16DAY_1km_VI/Data Fields/YDim", 838);
         assertTrue(DaacAttributes.isHeightDimension(dimension));
 
+        dimension = new Dimension("Swath/Data Fields/Number_of_records", 838);
+        assertTrue(DaacAttributes.isHeightDimension(dimension));
+
         dimension = new Dimension("ausgedacht", 838);
         assertFalse(DaacAttributes.isHeightDimension(dimension));
-
     }
 }

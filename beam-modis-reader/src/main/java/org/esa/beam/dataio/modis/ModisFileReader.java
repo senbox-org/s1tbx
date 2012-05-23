@@ -21,7 +21,6 @@ import org.esa.beam.dataio.modis.bandreader.ModisBandReaderFactory;
 import org.esa.beam.dataio.modis.hdf.HdfAttributes;
 import org.esa.beam.dataio.modis.hdf.HdfDataField;
 import org.esa.beam.dataio.modis.hdf.HdfUtils;
-import org.esa.beam.dataio.modis.hdf.IHDF;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.dataio.modis.netcdf.NetCDFAttributes;
 import org.esa.beam.dataio.modis.netcdf.NetCDFUtils;
@@ -118,44 +117,6 @@ class ModisFileReader {
             }
         }
         return new int[0];
-    }
-
-    /**
-     * Retrieves a float (array) attribute with the given name
-     *
-     * @param sdsId
-     * @param name
-     * @return a float (array)
-     */
-    private float[] getNamedFloatAttribute(int sdsId, String name) throws IOException {
-        float[] fRet;
-
-        // shortcut for null names
-        if (name == null) {
-            return null;
-        }
-
-        final IHDF ihdf = HDF.getWrap();
-        final int attrIdx = ihdf.SDfindattr(sdsId, name);
-        if (attrIdx == HDFConstants.FAIL) {
-            logger.warning("Unable to access the attribute '" + name + '\'');
-            return null;
-        } else {
-            final int[] attrInfo = new int[2];
-            final String[] dsName = new String[]{""};
-
-            ihdf.SDattrinfo(sdsId, attrIdx, dsName, attrInfo);
-            final int attrSize = ihdf.DFKNTsize(attrInfo[0]) * attrInfo[1];
-            final byte[] buf = new byte[attrSize];
-            if (ihdf.SDreadattr(sdsId, attrIdx, buf)) {
-                fRet = HdfUtils.decodeByteBufferToAttribute(buf, attrInfo[0], attrInfo[1], dsName[0]).getFloatValues();
-            } else {
-                logger.warning("Unable to access the attribute '" + name + '\'');
-                return null;
-            }
-        }
-
-        return fRet;
     }
 
     private float[] getNamedFloatAttribute(NetCDFAttributes attributes, String name) {
@@ -272,8 +233,7 @@ class ModisFileReader {
     private static void setBandDescription(Variable variable, ModisBandDescription bandDesc, Band band) throws IOException {
         final String descriptionAttribName = bandDesc.getDescriptionAttribName();
         final List<Attribute> attributes = variable.getAttributes();
-        for (int i = 0; i < attributes.size(); i++) {
-            final Attribute attribute = attributes.get(i);
+        for (final Attribute attribute : attributes) {
             if (attribute.getName().equalsIgnoreCase(descriptionAttribName)) {
                 final String description = attribute.getStringValue();
                 band.setDescription(description);
@@ -444,91 +404,6 @@ class ModisFileReader {
         return gridRet;
     }
 
-    /**
-     * Allocates an array of the given size and with the given Product data type
-     *
-     * @param size
-     * @param dataType
-     * @return the array
-     */
-    private static Object allocateDataArray(int size, int dataType) {
-        Object ret = null;
-
-        switch (dataType) {
-            case ProductData.TYPE_FLOAT32:
-                ret = new float[size];
-                break;
-
-            case ProductData.TYPE_INT16:
-            case ProductData.TYPE_UINT16:
-                ret = new short[size];
-                break;
-            case ProductData.TYPE_INT8:
-            case ProductData.TYPE_UINT8:
-                ret = new byte[size];
-                break;
-        }
-        return ret;
-    }
-
-    /**
-     * Scales the array passed in.
-     *
-     * @param dataType
-     * @param buffer
-     * @param scale
-     * @param offset
-     * @return the scaled array
-     */
-    private static float[] scaleArray(int dataType, Object buffer, float scale, float offset) {
-        final float[] fRet;
-
-        if (dataType == ProductData.TYPE_FLOAT32) {
-            fRet = (float[]) buffer;
-            for (int n = 0; n < fRet.length; n++) {
-                fRet[n] = scale * fRet[n] + offset;
-            }
-        } else if (dataType == ProductData.TYPE_INT8) {
-            byte[] sData = (byte[]) buffer;
-            fRet = new float[sData.length];
-            for (int n = 0; n < fRet.length; n++) {
-                fRet[n] = sData[n] * scale + offset;
-            }
-        } else if (dataType == ProductData.TYPE_UINT8) {
-            byte[] sData = (byte[]) buffer;
-            fRet = new float[sData.length];
-            for (int n = 0; n < fRet.length; n++) {
-                if (sData[n] < 0) {
-                    fRet[n] = (sData[n] + 256) * scale + offset;
-                } else {
-                    fRet[n] = sData[n] * scale + offset;
-                }
-            }
-
-        } else if (dataType == ProductData.TYPE_INT16) {
-            short[] sData = (short[]) buffer;
-            fRet = new float[sData.length];
-            for (int n = 0; n < fRet.length; n++) {
-                fRet[n] = sData[n] * scale + offset;
-            }
-        } else if (dataType == ProductData.TYPE_UINT16) {
-            short[] sData = (short[]) buffer;
-            fRet = new float[sData.length];
-            for (int n = 0; n < fRet.length; n++) {
-                if (sData[n] < 0) {
-                    fRet[n] = (sData[n] + 65536) * scale + offset;
-                } else {
-                    fRet[n] = sData[n] * scale + offset;
-                }
-            }
-        } else {
-            fRet = null;
-        }
-
-        return fRet;
-    }
-
-
     private static float[] scaleArray(int dataType, float[] buffer, float scale, float offset) {
 
         if (dataType == ProductData.TYPE_FLOAT32) {
@@ -655,39 +530,6 @@ class ModisFileReader {
 
         final String pattern = desc.getExternalGeolocationPattern();
         return pattern.replaceFirst("[xX]", replaceWith);
-    }
-
-    /**
-     * Opens the scientific dataset with the given name.
-     *
-     * @@param sdId the sd interface identifier
-     * @@param name the name
-     * @@return the sds identifier
-     * @@throws ncsa.hdf.hdflib.HDFException
-     */
-    private int openNamedSds(int sdId, String name) throws IOException {
-        int sdsIdx;
-        int sdsId;
-
-        // converts dataset name to index
-        final IHDF ihdf = HDF.getWrap();
-        sdsIdx = ihdf.SDnametoindex(sdId, name);
-        if (sdsIdx == HDFConstants.FAIL) {
-            String message = "Unable to access the dataset '" + name + '\'';
-            logger.warning(message);
-//            throw new HDFException(message);
-            return HDFConstants.FAIL;
-        }
-
-        // opens index as identifier
-        sdsId = ihdf.SDselect(sdId, sdsIdx);
-        if (sdsId == HDFConstants.FAIL) {
-            String message = "Unable to access the dataset '" + name + '\'';
-            logger.warning(message);
-            throw new IOException(message);
-        }
-
-        return sdsId;
     }
 
     private String getBandNameExtensions(final String bandNameAttribName, final String productType, NetCDFAttributes attributes, NetCDFVariables netCDFVariables) {

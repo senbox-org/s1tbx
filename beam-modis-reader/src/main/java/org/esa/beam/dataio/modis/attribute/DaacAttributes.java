@@ -128,14 +128,16 @@ public class DaacAttributes implements ModisGlobalAttributes {
     static boolean isHeightDimension(ucar.nc2.Dimension dimension) {
         final String dimensionName = dimension.getName();
         return dimensionName.contains("10*nscans") ||
-                dimensionName.contains("YDim");
+                dimensionName.contains("YDim") ||
+                dimensionName.contains("Number_of_records");
     }
 
     // package access for testing only tb 2012-05-22
     static boolean isWidthDimension(ucar.nc2.Dimension dimension) {
         final String dimensionName = dimension.getName();
         return dimensionName.contains("Max_EV_frames") ||
-                dimensionName.contains("XDim");
+                dimensionName.contains("XDim") ||
+                dimensionName.contains("Number_of_samples_per_record");
     }
 
     private void readEcsCoreString() throws IOException {
