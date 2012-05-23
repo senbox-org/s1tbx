@@ -273,10 +273,12 @@ public class BinWriter {
     }
 
     private void writeBinListVars(NetcdfFileWriteable netcdfFile, List<BinListVar> vars, int[] origin, int bufferIndex) throws IOException, InvalidRangeException {
+        final int[] origin0 = {0};
+        final int[] shape = {bufferIndex};
         for (BinListVar var : vars) {
             netcdfFile.write(var.variable.getName(),
                              origin,
-                             var.buffer.section(new int[] {0}, new int[]{bufferIndex}));
+                             var.buffer.section(origin0, shape));
         }
     }
 
