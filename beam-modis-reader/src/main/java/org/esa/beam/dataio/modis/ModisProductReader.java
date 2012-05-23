@@ -61,10 +61,16 @@ public class ModisProductReader extends AbstractProductReader {
      */
     @Override
     public void close() throws IOException {
+        if (fileReader != null) {
+            fileReader.close();
+            fileReader = null;
+        }
+
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
         }
+
 
         super.close();
     }

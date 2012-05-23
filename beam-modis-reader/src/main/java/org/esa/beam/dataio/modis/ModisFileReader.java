@@ -15,13 +15,11 @@
  */
 package org.esa.beam.dataio.modis;
 
-import ncsa.hdf.hdflib.HDFConstants;
+import org.esa.beam.dataio.modis.attribute.DaacAttributes;
+import org.esa.beam.dataio.modis.attribute.ImappAttributes;
 import org.esa.beam.dataio.modis.bandreader.ModisBandReader;
 import org.esa.beam.dataio.modis.bandreader.ModisBandReaderFactory;
-import org.esa.beam.dataio.modis.hdf.HdfAttributes;
 import org.esa.beam.dataio.modis.hdf.HdfDataField;
-import org.esa.beam.dataio.modis.hdf.HdfUtils;
-import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.dataio.modis.netcdf.NetCDFAttributes;
 import org.esa.beam.dataio.modis.netcdf.NetCDFUtils;
 import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
@@ -37,6 +35,7 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -48,10 +47,10 @@ import java.util.logging.Logger;
 
 class ModisFileReader {
 
-    private int _qcFileId;
     private Logger logger;
     private HashMap<Band, ModisBandReader> bandReaderMap;
     private ModisProductDb prodDb;
+    private NetcdfFile qcFile;
 
     /**
      * Constructs the object with default parameters
@@ -60,7 +59,6 @@ class ModisFileReader {
         prodDb = ModisProductDb.getInstance();
         logger = BeamLogManager.getSystemLogger();
         bandReaderMap = new HashMap<Band, ModisBandReader>();
-        _qcFileId = HDFConstants.FAIL;
     }
 
     /**
@@ -80,7 +78,7 @@ class ModisFileReader {
         if (isEosGridType(globalAttribs)) {
             addMapGeocoding(product, globalAttribs);
         } else {
-            addTiePointGrids(netCDFVariables, 0, productType, product, globalAttribs);
+            addTiePointGrids(netCDFVariables, productType, product, globalAttribs);
             addModisTiePointGeoCoding(product, null);
         }
     }
@@ -310,12 +308,11 @@ class ModisFileReader {
      * Adds all tie point grids to the product
      *
      * @param netCDFVariables
-     * @param sdId
      * @param productType
      * @param prod
      * @throws IOException
      */
-    private void addTiePointGrids(NetCDFVariables netCDFVariables, int sdId, String productType, Product prod, ModisGlobalAttributes globalAttribs) throws IOException {
+    private void addTiePointGrids(NetCDFVariables netCDFVariables, String productType, Product prod, ModisGlobalAttributes globalAttribs) throws IOException {
         TiePointGrid grid;
         String[] tiePointGridNames = prodDb.getTiePointNames(productType);
 
@@ -327,7 +324,7 @@ class ModisFileReader {
             }
             final NetCDFAttributes attributes = new NetCDFAttributes();
             attributes.add(variable.getAttributes());
-            grid = readNamedTiePointGrid(variable, attributes, sdId, productType, tiePointGridNames[n], globalAttribs);
+            grid = readNamedTiePointGrid(variable, attributes, productType, tiePointGridNames[n], globalAttribs);
             if (grid != null) {
                 prod.addTiePointGrid(grid);
             }
@@ -339,11 +336,10 @@ class ModisFileReader {
      *
      * @param variable
      * @param netCDFAttributes
-     * @param sdId
      * @param name             @return
      * @throws IOException
      */
-    private TiePointGrid readNamedTiePointGrid(Variable variable, NetCDFAttributes netCDFAttributes, int sdId, String prodType, String name,
+    private TiePointGrid readNamedTiePointGrid(Variable variable, NetCDFAttributes netCDFAttributes, String prodType, String name,
                                                ModisGlobalAttributes globalAttribs) throws IOException {
         Object buffer;
         TiePointGrid gridRet = null;
@@ -446,39 +442,45 @@ class ModisFileReader {
      * @param product
      */
     private String[] loadExternalQCFile(Product product, ModisProductDescription prodDesc, NetCDFVariables netCDFVariables) throws IOException {
-        FileContainer qcFile = assembleQCFile(product, prodDesc);
-        if (qcFile == null) {
+        FileContainer qcFileContainer = assembleQCFile(product, prodDesc);
+        if (qcFileContainer == null) {
             logger.warning("MODIS QC file not found.");
             return null;
         }
 
-        logger.info("MODIS QC file found: " + qcFile.getFile().getPath());
+        final File qcFileContainerFile = qcFileContainer.getFile();
+        logger.info("MODIS QC file found: " + qcFileContainerFile.getPath());
 
-        _qcFileId = HDF.getWrap().SDstart(qcFile.getFile().getPath(), HDFConstants.DFACC_RDONLY);
+        qcFile = NetcdfFile.open(qcFileContainerFile.getPath(), null);
 
-        final HdfAttributes globalHdfAttrs = HdfUtils.readAttributes(_qcFileId);
-        final ModisGlobalAttributes globalAttributes;
+        NetCDFAttributes netCDFQCAttributes = new NetCDFAttributes();
+        netCDFQCAttributes.add(qcFile.getGlobalAttributes());
+
+        NetCDFVariables netCDFQCVariables = new NetCDFVariables();
+        netCDFQCVariables.add(qcFile.getVariables());
 
         // check wheter daac or imapp
-        if (globalHdfAttrs.getStringAttributeValue(ModisConstants.HDF_EOS_VERSION_KEY) == null) {
-            globalAttributes = new ModisImappAttributes(qcFile.getFile(), _qcFileId, globalHdfAttrs);
+        final ModisGlobalAttributes globalAttributes;
+        if (isImappFormat(netCDFQCVariables)) {
+            globalAttributes = new ImappAttributes(qcFileContainerFile, netCDFQCVariables, netCDFQCAttributes);
         } else {
-            globalAttributes = new ModisDaacAttributes(globalHdfAttrs);
+            globalAttributes = new DaacAttributes(netCDFQCVariables);
         }
 
-        final String[] tiePointGridNames = prodDb.getTiePointNames(qcFile.getType());
-
+        final String[] tiePointGridNames = prodDb.getTiePointNames(qcFileContainer.getType());
         for (int n = 0; n < tiePointGridNames.length; n++) {
-            // @todo 1 tb/tb replace null with valid variable
-            final TiePointGrid grid = readNamedTiePointGrid(null, null, _qcFileId, qcFile.getType(), tiePointGridNames[n], globalAttributes);
-            if (grid != null) {
-                product.addTiePointGrid(grid);
+            final Variable variable = netCDFQCVariables.get(tiePointGridNames[n]);
+            if (variable != null) {
+                final TiePointGrid grid = readNamedTiePointGrid(variable, netCDFQCAttributes, qcFileContainer.getType(), tiePointGridNames[n], globalAttributes);
+                if (grid != null) {
+                    product.addTiePointGrid(grid);
+                }
             }
         }
 
         // @todo 1 tb/tb get variables from QC file
         //addBandsToProduct(netCDFVariables, _qcFileId, qcFile.getType(), product);
-        addBandsToProduct(netCDFVariables, qcFile.getType(), product);
+        addBandsToProduct(netCDFVariables, qcFileContainer.getType(), product);
         return tiePointGridNames;
     }
 
@@ -579,6 +581,17 @@ class ModisFileReader {
 
     private void addMapGeocoding(final Product product, final ModisGlobalAttributes globalAttribs) {
         product.setGeoCoding(globalAttribs.createGeocoding());
+    }
+
+    private boolean isImappFormat(NetCDFVariables netCDFQCVariables) {
+        return netCDFQCVariables.get(ModisConstants.STRUCT_META_KEY) == null;
+    }
+
+    public void close() throws IOException {
+        if (qcFile != null) {
+            qcFile.close();
+            qcFile = null;
+        }
     }
 
 ///////////////////////////////////////////////////////////////////////////

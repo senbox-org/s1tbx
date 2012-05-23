@@ -73,8 +73,8 @@ public class ModisUtils {
      * Extracts a value for the given key from a daac formatted metadata String.
      * Returns null if key does not exist.
      *
-     * @param metaDataString
-     * @param key
+     * @param metaDataString the metadata string
+     * @param key            the search key
      * @return the value or null if key does not existz
      */
     public static String extractValueForKey(String metaDataString, String key) {
@@ -134,16 +134,6 @@ public class ModisUtils {
         for (int i = 0; i < dimSize.length; i++) {
             dimSize[i] = 0;
         }
-    }
-
-    public static String createBandName(String baseName, String extensions, int index) {
-        String extension = ".";
-        final String[] namesArray = StringUtils.toStringArray(extensions, ",");
-
-        extension += namesArray[index];
-        extension = extension.trim();
-
-        return baseName.concat(extension);
     }
 
     public static IncrementOffset getIncrementOffset(String attribute) {
