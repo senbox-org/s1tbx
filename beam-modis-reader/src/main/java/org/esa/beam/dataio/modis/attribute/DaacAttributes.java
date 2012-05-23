@@ -38,10 +38,10 @@ public class DaacAttributes implements ModisGlobalAttributes {
             readEcsCoreString();
         }
         final String productName = ModisUtils.extractValueForKey(ecsCoreString,
-                                                                 ModisConstants.LOCAL_GRANULEID_KEY);
+                ModisConstants.LOCAL_GRANULEID_KEY);
         if (StringUtils.isNullOrEmpty(productName)) {
             throw new ProductIOException("Unknown MODIS format: ECSCore metadata field '" +
-                                                 ModisConstants.LOCAL_GRANULEID_KEY + "' missing");
+                    ModisConstants.LOCAL_GRANULEID_KEY + "' missing");
         }
         return FileUtils.getFilenameWithoutExtension(new File(productName));
     }
@@ -56,13 +56,12 @@ public class DaacAttributes implements ModisGlobalAttributes {
     public Dimension getProductDimensions(java.util.List<ucar.nc2.Dimension> netcdfFileDimensions) {
         int width = 0;
         int height = 0;
-        for (int i = 0; i < netcdfFileDimensions.size(); i++) {
-            ucar.nc2.Dimension dimension = netcdfFileDimensions.get(i);
-            if (dimension.getName().contains("Max_EV_frames")) {
+        for (ucar.nc2.Dimension dimension : netcdfFileDimensions) {
+            if (isWidthDimension(dimension)) {
                 width = dimension.getLength();
             }
 
-            if (dimension.getName().contains("10*nscans")) {
+            if (isHeightDimension(dimension)) {
                 height = dimension.getLength();
             }
         }
@@ -111,6 +110,20 @@ public class DaacAttributes implements ModisGlobalAttributes {
     @Override
     public GeoCoding createGeocoding() {
         return hdfEosStructMetadata.createGeocoding();
+    }
+
+    // package access for testing only tb 2012-05-22
+    static boolean isHeightDimension(ucar.nc2.Dimension dimension) {
+        final String dimensionName = dimension.getName();
+        return dimensionName.contains("10*nscans") ||
+                dimensionName.contains("YDim");
+    }
+
+    // package access for testing only tb 2012-05-22
+    static boolean isWidthDimension(ucar.nc2.Dimension dimension) {
+        final String dimensionName = dimension.getName();
+        return dimensionName.contains("Max_EV_frames") ||
+                dimensionName.contains("XDim");
     }
 
     private void readEcsCoreString() throws IOException {
