@@ -27,6 +27,7 @@ import org.esa.beam.binning.TemporalBinSource;
 import org.esa.beam.binning.TemporalBinner;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -47,12 +48,17 @@ import org.esa.beam.util.io.WildcardMatcher;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -98,13 +104,14 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
  * @author Thomas Storm
  */
 @OperatorMetadata(alias = "Binning",
-                  version = "0.5.4",
+                  version = "0.7.0",
                   authors = "Norman Fomferra, Marco Zühlke, Thomas Storm",
                   copyright = "(c) 2012 by Brockmann Consult GmbH",
                   description = "Performs spatial and temporal aggregation of pixel values into 'bin' cells")
 public class BinningOp extends Operator implements Output {
 
     public static final String DATE_PATTERN = "yyyy-MM-dd";
+    public static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
     @SourceProducts(description = "The source products to be binned. Must be all of the same structure. " +
             "If not given, the parameter 'sourceProductPaths' must be provided.")
@@ -144,11 +151,15 @@ public class BinningOp extends Operator implements Output {
                description = "The configuration used for the output formatting process.")
     FormatterConfig formatterConfig;
 
+    @Parameter(description = "The name of the file containing metadata key-value pairs (Java properties file format).", defaultValue = "./metadata.properties")
+    File metadataPropertiesFile;
+
     private transient BinningContext binningContext;
     private transient final SpatialBinStore spatialBinStore;
     private transient int sourceProductCount;
     private transient ProductData.UTC minDateUtc;
     private transient ProductData.UTC maxDateUtc;
+    private transient Properties metadataProperties;
 
     public BinningOp() {
         this(new SpatialBinStoreImpl());
@@ -235,7 +246,7 @@ public class BinningOp extends Operator implements Output {
         stopWatch.start();
 
         binningContext = binningConfig.createBinningContext();
-
+        metadataProperties = new Properties();
         sourceProductCount = 0;
 
         try {
@@ -268,6 +279,34 @@ public class BinningOp extends Operator implements Output {
         stopWatch.stopAndTrace(String.format("Total time for binning %d product(s)", sourceProductCount));
     }
 
+    private void initMetadataProperties() {
+        final SimpleDateFormat dateFormat = new SimpleDateFormat(DATETIME_PATTERN, Locale.ENGLISH);
+
+        metadataProperties.put("product_name", FileUtils.getFilenameWithoutExtension(new File(formatterConfig.getOutputFile())));
+        metadataProperties.put("software_qualified_name", getSpi().getOperatorClass().getName());
+        metadataProperties.put("software_name", getSpi().getOperatorClass().getAnnotation(OperatorMetadata.class).alias());
+        metadataProperties.put("software_version", getSpi().getOperatorClass().getAnnotation(OperatorMetadata.class).version());
+        metadataProperties.put("processing_time", dateFormat.format(new Date()));
+
+        if (metadataPropertiesFile != null) {
+            if (!metadataPropertiesFile.exists()) {
+                getLogger().warning(String.format("Metadata properties file '%s' not found", metadataPropertiesFile));
+            } else {
+                try {
+                    getLogger().info(String.format("Reading metadata properties file '%s'...", metadataPropertiesFile));
+                    final FileReader reader = new FileReader(metadataPropertiesFile);
+                    try {
+                        metadataProperties.load(reader);
+                    } finally {
+                        reader.close();
+                    }
+                } catch (IOException e) {
+                    getLogger().warning(String.format("Failed to load metadata properties file '%s': %s", metadataPropertiesFile, e.getMessage()));
+                }
+            }
+        }
+    }
+
     private static Product copyProduct(Product writtenProduct) {
         Product targetProduct = new Product(writtenProduct.getName(), writtenProduct.getProductType(), writtenProduct.getSceneRasterWidth(), writtenProduct.getSceneRasterHeight());
         targetProduct.setStartTime(writtenProduct.getStartTime());
@@ -287,7 +326,6 @@ public class BinningOp extends Operator implements Output {
     private Product readOutput() throws IOException {
         return ProductIO.readProduct(new File(formatterConfig.getOutputFile()));
     }
-
 
     private SortedMap<Long, List<SpatialBin>> doSpatialBinning() throws IOException {
         final SpatialBinner spatialBinner = new SpatialBinner(binningContext, spatialBinStore);
@@ -354,6 +392,8 @@ public class BinningOp extends Operator implements Output {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
+        initMetadataProperties();
+
         if (outputBinnedData) {
             File binnedDataFile = FileUtils.exchangeExtension(new File(formatterConfig.getOutputFile()), "-bins.nc");
             try {
@@ -366,18 +406,29 @@ public class BinningOp extends Operator implements Output {
             }
         }
 
+
         getLogger().info(String.format("Writing mapped product '%s'...", formatterConfig.getOutputFile()));
-        // TODO - add metadata (nf)
+        final MetadataElement globalAttributes = createGlobalAttributesElement();
         Formatter.format(binningContext,
                          getTemporalBinSource(temporalBins),
                          formatterConfig,
                          region,
                          startTime,
                          stopTime,
-                         new MetadataElement("TODO_add_metadata_here"));
+                         globalAttributes);
         stopWatch.stop();
 
         getLogger().info(String.format("Writing mapped product '%s' done, took %s", formatterConfig.getOutputFile(), stopWatch));
+    }
+
+    private MetadataElement createGlobalAttributesElement() {
+        final MetadataElement globalAttributes = new MetadataElement("Global_Attributes");
+        final TreeSet<String> sortedNames = new TreeSet<String>(metadataProperties.stringPropertyNames());
+        for (String name : sortedNames) {
+            final String value = metadataProperties.getProperty(name);
+            globalAttributes.addAttribute(new MetadataAttribute(name, ProductData.createInstance(value), true));
+        }
+        return globalAttributes;
     }
 
     private TemporalBinSource getTemporalBinSource(List<TemporalBin> temporalBins) throws IOException {
@@ -385,9 +436,9 @@ public class BinningOp extends Operator implements Output {
     }
 
     private void writeNetcdfBinFile(File file, List<TemporalBin> temporalBins, ProductData.UTC startTime, ProductData.UTC stopTime) throws IOException {
-        final BinWriter writer = new BinWriter(binningContext, getLogger(), region, startTime != null ? startTime : minDateUtc,stopTime != null ? stopTime : maxDateUtc);
+        final BinWriter writer = new BinWriter(binningContext, getLogger(), region, startTime != null ? startTime : minDateUtc, stopTime != null ? stopTime : maxDateUtc);
         try {
-            writer.write(file, temporalBins);
+            writer.write(file, metadataProperties, temporalBins);
         } catch (InvalidRangeException e) {
             throw new IllegalArgumentException(e);
         }

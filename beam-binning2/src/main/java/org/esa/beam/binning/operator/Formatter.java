@@ -38,7 +38,7 @@ public class Formatter {
                               Geometry roiGeometry,
                               ProductData.UTC startTime,
                               ProductData.UTC stopTime,
-                              MetadataElement metadataElement) throws Exception {
+                              MetadataElement ... metadataElements) throws Exception {
 
         if (binningContext.getBinManager().getAggregatorCount() == 0) {
             throw new IllegalArgumentException("Illegal binning context: aggregatorCount == 0");
@@ -60,7 +60,7 @@ public class Formatter {
                                                                  Reprojector.getRasterPixelSize(planetaryGrid),
                                                                  startTime,
                                                                  stopTime,
-                                                                 metadataElement);
+                                                                 metadataElements);
         } else {
             temporalBinRenderer = new ImageTemporalBinRenderer(binningContext,
                                                                outputFile,

@@ -59,7 +59,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
                                       double pixelSize,
                                       ProductData.UTC startTime,
                                       ProductData.UTC endTime,
-                                      MetadataElement metadata) throws IOException {
+                                      MetadataElement ... metadataElements) throws IOException {
 
         productWriter = ProductIO.getProductWriter(outputFormat);
         if (productWriter == null) {
@@ -75,7 +75,9 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
         product.setGeoCoding(geoCoding);
         product.setStartTime(startTime);
         product.setEndTime(endTime);
-        product.getMetadataRoot().addElement(metadata);
+        for (MetadataElement metadataElement : metadataElements) {
+            product.getMetadataRoot().addElement(metadataElement);
+        }
 
         numObsBand = product.addBand("num_obs", ProductData.TYPE_INT16);
         numObsBand.setNoDataValue(-1);

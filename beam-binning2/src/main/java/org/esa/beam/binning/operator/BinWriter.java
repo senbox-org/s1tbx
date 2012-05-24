@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
 /**
@@ -52,6 +54,7 @@ public class BinWriter {
     }
 
     public void write(File filePath,
+                      Properties metadataProperties,
                       List<TemporalBin> temporalBins) throws IOException, InvalidRangeException {
 
         final NetcdfFileWriteable netcdfFile = NetcdfFileWriteable.createNew(filePath.getPath());
@@ -61,9 +64,19 @@ public class BinWriter {
         if (region != null) {
             netcdfFile.addGlobalAttribute("region", region.toText());
         }
-        DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd");
+        DateFormat dateFormat = ProductData.UTC.createDateFormat(BinningOp.DATETIME_PATTERN);
         netcdfFile.addGlobalAttribute("start_time", startTime != null ? dateFormat.format(startTime.getAsDate()) : "");
         netcdfFile.addGlobalAttribute("stop_time", stopTime != null ? dateFormat.format(stopTime.getAsDate()) : "");
+
+        final TreeSet<String> sortedNames = new TreeSet<String>(metadataProperties.stringPropertyNames());
+        for (String name : sortedNames) {
+            final String value = metadataProperties.getProperty(name);
+            try {
+                netcdfFile.addGlobalAttribute(name, value);
+            } catch (Exception e) {
+                logger.warning(String.format("Failed to write metadata property to '%s': %s = %s", filePath, name, value));
+            }
+        }
 
         netcdfFile.addGlobalAttribute("SEAGrid_bins", 2 * planetaryGrid.getNumRows());
         netcdfFile.addGlobalAttribute("SEAGrid_radius", SEAGrid.RE);
@@ -183,24 +196,16 @@ public class BinWriter {
             }));
         }
 
-
         final long[] binRowBegins = new long[planetaryGrid.getNumRows()];
         final int[] binRowExtends = new int[planetaryGrid.getNumRows()];
         Arrays.fill(binRowBegins, -1);
         Arrays.fill(binRowExtends, 0);
         writeBinListVariable0(netcdfFile, temporalBins, binListVars, binRowBegins, binRowExtends);
 
-        for (int i = 0; i < planetaryGrid.getNumRows(); i++) {
-            long startRowBinId = binRowBegins[i];
-            int endRowBinId = binRowExtends[i];
-            System.out.printf("row(%d) = %d...%d%n", i, startRowBinId, endRowBinId);
-        }
-
         writeBinIndexVariable(netcdfFile, beginVar, new BinIndexElementSetter() {
             @Override
             public void setArray(Array array, int rowIndex, SeadasGrid grid) {
-                final int i = binRowBegins.length - rowIndex - 1;
-                final long id = binRowBegins[i];
+                final long id = binRowBegins[seadasGrid.convertRowIndex(rowIndex)];
                 if (id == -1L) {
                     array.setInt(rowIndex, 0);
                 } else {
@@ -212,8 +217,7 @@ public class BinWriter {
         writeBinIndexVariable(netcdfFile, extendVar, new BinIndexElementSetter() {
             @Override
             public void setArray(Array array, int rowIndex, SeadasGrid grid) {
-                final int i = binRowExtends.length - rowIndex - 1;
-                array.setInt(rowIndex, binRowExtends[i]);
+                array.setInt(rowIndex, binRowExtends[seadasGrid.convertRowIndex(rowIndex)]);
             }
         });
 

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-binning2</symbolicName>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
     <name>Level-3 Binning Processor (GPF)</name>
 
     <description>
@@ -27,6 +27,14 @@
 
     <changelog>
         <![CDATA[
+        Changes from version 0.6 to 0.7:<br\>
+        <ol>
+        <li>Now writing NetCDF binned data file using the same bin numbering as SeaDAS.</li>
+        <li>The NetCDF binned data file now also contains the 'bi_begin' and 'bi_extend' fields found in SeaDAS.</li>
+        <li>Added new operator parameter 'metadataPropertiesFile' which specifies (constant) metadata key-values
+            to be written to the output product.</li>
+        <li>Added metadata element 'Global_Attributes' to the output product.</li>
+        </ol>
         Changes from version 0.5 to 0.6:<br\>
         <ol>
         <li>Fixed content the 'BinIndex' annotation datasets (variable prefix 'bi_').</li>

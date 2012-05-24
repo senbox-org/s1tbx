@@ -42,8 +42,7 @@ public class SeadasGrid {
     }
 
     public int convertRowIndex(int rowIndex) {
-        // SeaDAS uses FORTRAN-style, 1-based indexes
-        return baseGrid.getNumRows() - (rowIndex + 1) + 1;
+        return baseGrid.getNumRows() - rowIndex - 1;
     }
 
     public int convertBinIndex(long binIndex) {
