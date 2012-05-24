@@ -18,6 +18,8 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Geometry;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.SpatialBin;
 import org.esa.beam.binning.SpatialBinConsumer;
@@ -49,7 +51,10 @@ import ucar.ma2.InvalidRangeException;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.Writer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -151,8 +156,11 @@ public class BinningOp extends Operator implements Output {
                description = "The configuration used for the output formatting process.")
     FormatterConfig formatterConfig;
 
-    @Parameter(description = "The name of the file containing metadata key-value pairs (Java properties file format).", defaultValue = "./metadata.properties")
+    @Parameter(description = "The name of the file containing metadata key-value pairs (google \"Java Properties file format\").", defaultValue = "./metadata.properties")
     File metadataPropertiesFile;
+
+    @Parameter(description = "The name of the directory containing metadata templates (google \"Apache Velocity VTL format\").", defaultValue = ".")
+    File metadataTemplateDir;
 
     private transient BinningContext binningContext;
     private transient final SpatialBinStore spatialBinStore;
@@ -213,7 +221,8 @@ public class BinningOp extends Operator implements Output {
      * Processes all source products and writes the output file.
      * The target product represents the written output file
      *
-     * @throws OperatorException If a processing error occurs.
+     * @throws org.esa.beam.framework.gpf.OperatorException
+     *          If a processing error occurs.
      */
     @Override
     public void initialize() throws OperatorException {
@@ -240,6 +249,12 @@ public class BinningOp extends Operator implements Output {
         }
         if (formatterConfig.getOutputFile() == null) {
             throw new OperatorException("Missing operator parameter 'formatterConfig.outputFile'");
+        }
+        if (metadataTemplateDir == null || "".equals(metadataTemplateDir.getPath())) {
+            metadataTemplateDir = new File(".");
+        }
+        if (!metadataTemplateDir.exists()) {
+            throw new OperatorException("Directory given by 'metadataTemplateDir' does not exist: " + metadataTemplateDir);
         }
 
         StopWatch stopWatch = new StopWatch();
@@ -277,6 +292,63 @@ public class BinningOp extends Operator implements Output {
         }
 
         stopWatch.stopAndTrace(String.format("Total time for binning %d product(s)", sourceProductCount));
+
+        processMetadataTemplates();
+    }
+
+    private void processMetadataTemplates() {
+        final File absTemplateDir = metadataTemplateDir.getAbsoluteFile();
+        File[] files = absTemplateDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".vm");
+            }
+        });
+        if (files == null || files.length == 0) {
+            return;
+        }
+
+        final Properties veConfig = new Properties();
+        if (absTemplateDir.equals(new File(".").getAbsoluteFile())) {
+            veConfig.setProperty("file.resource.loader.path", absTemplateDir.getPath());
+        }
+
+        VelocityEngine ve = new VelocityEngine();
+        try {
+            ve.init(veConfig);
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, String.format("Can't generate metadata file(s): Failed to initialise Velocity engine: %s", e.getMessage()), e);
+            return;
+        }
+
+        VelocityContext vc = new VelocityContext(metadataProperties);
+
+        vc.put("operator", this);
+        vc.put("targetProduct", targetProduct);
+        vc.put("metadataProperties", metadataProperties);
+
+        for (File file : files) {
+            processMetadataTemplate(file, ve, vc);
+        }
+    }
+
+    private void processMetadataTemplate(File templateFile, VelocityEngine ve, VelocityContext vc) {
+        String templateName = templateFile.getName();
+        String outputName = templateName.substring(0, templateName.lastIndexOf('.'));
+        try {
+            getLogger().info(String.format("Writing metadata file '%s'...", outputName));
+            Writer writer = new FileWriter(outputName);
+            try {
+                ve.mergeTemplate(templateName, vc, writer);
+            } finally {
+                writer.close();
+            }
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE,
+                            String.format("Failed to generate metadata file from template '%s': %s", templateName, e.getMessage()),
+                            e);
+        }
+
     }
 
     private void initMetadataProperties() {
