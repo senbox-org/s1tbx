@@ -108,4 +108,15 @@ public class ModisUtilsTest extends TestCase {
         assertEquals(2, (int) result.getMin());
         assertEquals(6, (int) result.getMax());
     }
+
+    public void testExtractBandName() {
+        assertEquals("band_name", ModisUtils.extractBandName("band_name"));
+        assertEquals("EV_250_Aggr500_RefSB", ModisUtils.extractBandName("MODIS_SWATH_Type_L1B/Data Fields/EV_250_Aggr500_RefSB"));
+        assertEquals("EV_500_RefSB_Uncert_Indexes", ModisUtils.extractBandName("MODIS_SWATH_Type_L1B/Data Fields/EV_500_RefSB_Uncert_Indexes"));
+    }
+
+    public void testDecodeBandName() {
+        assertEquals(".bla", ModisUtils.decodeBandName("schnipp,schnupp,bla,blubb", 2));
+        assertEquals(".schnipp", ModisUtils.decodeBandName("schnipp,schnupp,bla,blubb", 0));
+    }
 }

@@ -16,11 +16,14 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ShapeRasterizer;
 import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.Arrays;
@@ -49,6 +52,7 @@ public class TransectProfileData {
 
     /**
      * Since 4.5
+     *
      * @deprecated since 4.10, use {@link TransectProfileDataBuilder} instead
      */
     public static TransectProfileData create(RasterDataNode raster, Shape path) throws IOException {
@@ -64,7 +68,16 @@ public class TransectProfileData {
 
     TransectProfileData(Config config) throws IOException {
         this.config = config;
-        ShapeRasterizer rasterizer = new ShapeRasterizer();
+        final ShapeRasterizer rasterizer = new ShapeRasterizer();
+        final GeoCoding geoCoding = config.raster.getGeoCoding();
+        final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
+        if (!i2m.isIdentity()) {
+            try {
+                rasterizer.setTransform(i2m.createInverse());
+            } catch (NoninvertibleTransformException e) {
+                // cannot happen
+            }
+        }
         shapeVertices = rasterizer.getVertices(config.path);
         shapeVertexIndexes = new int[shapeVertices.length];
         pixelPositions = rasterizer.rasterize(shapeVertices, shapeVertexIndexes);
@@ -76,7 +89,6 @@ public class TransectProfileData {
         sampleMin = Float.MAX_VALUE;
         sampleMax = -Float.MAX_VALUE;
 
-        GeoCoding geoCoding = config.raster.getGeoCoding();
         if (geoCoding != null) {
             geoPositions = new GeoPos[pixelPositions.length];
             Arrays.fill(geoPositions, NO_GEO_POS);
@@ -84,7 +96,8 @@ public class TransectProfileData {
             geoPositions = new GeoPos[0];
         }
 
-        final Rectangle sceneRect = new Rectangle(config.raster.getSceneRasterWidth(), config.raster.getSceneRasterHeight());
+        final Rectangle sceneRect = new Rectangle(config.raster.getSceneRasterWidth(),
+                                                  config.raster.getSceneRasterHeight());
         PixelPos pixelPos = new PixelPos();
         int k = 0;
         for (int i = 0; i < pixelPositions.length; i++) {
@@ -192,6 +205,7 @@ public class TransectProfileData {
     }
 
     static class Config {
+
         RasterDataNode raster;
         Shape path;
         int boxSize;

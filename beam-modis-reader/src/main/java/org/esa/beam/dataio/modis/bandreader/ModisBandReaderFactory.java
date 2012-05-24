@@ -15,6 +15,7 @@
  */
 package org.esa.beam.dataio.modis.bandreader;
 
+import org.esa.beam.dataio.modis.ModisUtils;
 import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.ModisBandDescription;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
@@ -69,7 +70,8 @@ public class ModisBandReaderFactory {
                     modisBandReaders[i] = new ModisUint32BandReader(variable, i, is3d);
                 }
             }
-            modisBandReaders[i].setName(variable.getName());
+            final String bandName = ModisUtils.extractBandName(variable.getName());
+            modisBandReaders[i].setName(bandName);
         }
 
         return modisBandReaders;
@@ -81,7 +83,7 @@ public class ModisBandReaderFactory {
             final Dimension numLayers = variable.getDimension(0);
             modisBandReaders = new ModisBandReader[numLayers.getLength()];
         } else {
-            modisBandReaders = new ModisBandReader[0];
+            modisBandReaders = new ModisBandReader[1];
         }
         return modisBandReaders;
     }

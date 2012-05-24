@@ -1,9 +1,9 @@
 package org.esa.beam.dataio.modis.netcdf;
 
+import org.esa.beam.dataio.modis.ModisUtils;
 import ucar.nc2.Variable;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 public class NetCDFVariables {
@@ -15,9 +15,9 @@ public class NetCDFVariables {
     }
 
     public void add(List<Variable> variables) {
-        for (Iterator<Variable> iterator = variables.iterator(); iterator.hasNext(); ) {
-            final Variable variable = iterator.next();
-            variablesMap.put(variable.getName(), variable);
+        for (final Variable variable : variables) {
+            final String name = ModisUtils.extractBandName(variable.getName());
+            variablesMap.put(name, variable);
         }
     }
 

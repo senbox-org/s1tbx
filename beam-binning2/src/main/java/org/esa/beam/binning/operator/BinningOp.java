@@ -385,14 +385,9 @@ public class BinningOp extends Operator implements Output {
     }
 
     private void writeNetcdfBinFile(File file, List<TemporalBin> temporalBins, ProductData.UTC startTime, ProductData.UTC stopTime) throws IOException {
-        final BinWriter writer = new BinWriter(getLogger());
+        final BinWriter writer = new BinWriter(binningContext, getLogger(), region, startTime != null ? startTime : minDateUtc,stopTime != null ? stopTime : maxDateUtc);
         try {
-            writer.write(file,
-                         temporalBins,
-                         binningContext,
-                         region,
-                         startTime != null ? startTime : minDateUtc,
-                         stopTime != null ? stopTime : maxDateUtc);
+            writer.write(file, temporalBins);
         } catch (InvalidRangeException e) {
             throw new IllegalArgumentException(e);
         }

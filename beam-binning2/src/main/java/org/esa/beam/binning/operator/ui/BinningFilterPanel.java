@@ -19,6 +19,7 @@ package org.esa.beam.binning.operator.ui;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.internal.AbstractButtonAdapter;
 import com.jidesoft.combobox.DateExComboBox;
+import com.jidesoft.swing.AutoResizingTextArea;
 import com.jidesoft.swing.TitledSeparator;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -35,12 +36,15 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -109,12 +113,27 @@ class BinningFilterPanel extends JPanel {
     }
 
     private JComponent createWktInputPanel() {
-        final JTextField textArea = new JTextField();
+        final AutoResizingTextArea textArea = new AutoResizingTextArea(5, 5);
+        //Overrides behavior when set enabled
+        textArea.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (textArea.isEnabled()) {
+                    textArea.setBackground(Color.WHITE);
+                } else {
+                    textArea.setBackground(new Color(240, 240, 240));
+                }
+            }
+        });
         bindingContext.bind(PROPERTY_WKT, textArea);
         bindingContext.bindEnabledState(PROPERTY_WKT, false, BinningFormModel.PROPERTY_KEY_MANUAL_WKT, false);
         textArea.setEnabled(false);
-        return new JScrollPane(textArea);
 
+        JScrollPane scrollPane = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setMinimumSize(new Dimension(120, 120));
+        scrollPane.setPreferredSize(new Dimension(120, 100));
+
+        return scrollPane;
     }
 
     private JPanel createBoundsInputPanel() {
