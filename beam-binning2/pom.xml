@@ -6,7 +6,7 @@
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-binning2</artifactId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>0.7.0</version>
 
     <name>BEAM Level-3 Binning (GPF)</name>
     <description>
