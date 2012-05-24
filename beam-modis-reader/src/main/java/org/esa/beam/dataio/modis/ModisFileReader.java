@@ -117,7 +117,7 @@ class ModisFileReader {
         return new int[0];
     }
 
-    private float[] getNamedFloatAttribute(NetCDFAttributes attributes, String name) {
+    private static float[] getNamedFloatAttribute(NetCDFAttributes attributes, String name) {
         final Attribute attribute = attributes.get(name);
         if (attribute != null) {
             return NetCDFUtils.getFloatValues(attribute);
