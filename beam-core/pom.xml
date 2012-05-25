@@ -30,7 +30,7 @@
     <name>BEAM Core API</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-core</artifactId>
-    <version>4.10.2-SNAPSHOT</version>
+    <version>4.10.2</version>
 
     <packaging>jar</packaging>
     <dependencies>
