@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-binning2</symbolicName>
-    <version>0.7.0</version>
+    <version>0.8.0</version>
     <name>Level-3 Binning Processor (GPF)</name>
 
     <description>
@@ -27,6 +27,16 @@
 
     <changelog>
         <![CDATA[
+        Changes from version 0.7 to 0.8:<br\>
+        <ol>
+        <li>Added 'comment' attribute for all BinIndex variables.</li>
+        <li>Fixed 'bi_start_num' being in wrong order.</li>
+        <li>Added new BinIndex variable 'bi_begin_offset' indicating the absolute offset of a data-containing bin
+            within the dataset. Offsets start with 0, -1 means no data in that row.</li>
+        <li>Changed meaning of 'bi_extent' from being bin number range into actual number of bins stored per row.</li>
+        <li>Fixed typo: 'bi_extend' --> 'bi_extent'.</li>
+        bi_begin_offset
+        </ol>
         Changes from version 0.6 to 0.7:<br\>
         <ol>
         <li>Now writing NetCDF binned data file using the same bin numbering as SeaDAS.</li>

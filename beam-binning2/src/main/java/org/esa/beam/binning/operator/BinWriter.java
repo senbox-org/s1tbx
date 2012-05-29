@@ -19,12 +19,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -88,12 +83,37 @@ public class BinWriter {
         final Dimension binListDim = netcdfFile.addDimension("bin_list", temporalBins.size());
 
         final Variable rowNumVar = netcdfFile.addVariable("bi_row_num", DataType.INT, new Dimension[]{binIndexDim});
+        rowNumVar.addAttribute(new Attribute("comment", "zero-based index of row corresponding to each 'bin_index' record."));
+
         final Variable vsizeVar = netcdfFile.addVariable("bi_vsize", DataType.DOUBLE, new Dimension[]{binIndexDim});
+        vsizeVar.addAttribute(new Attribute("comment", "north-south extent (degrees latitude) of bins for each row."));
+
         final Variable hsizeVar = netcdfFile.addVariable("bi_hsize", DataType.DOUBLE, new Dimension[]{binIndexDim});
+        hsizeVar.addAttribute(new Attribute("comment", "east-west extent (degrees longitude) of bins for each row;\n" +
+                "ranges from 360/SEAGrid_bins for the two equatorial rows to 120 for the two polar rows."));
+
         final Variable startNumVar = netcdfFile.addVariable("bi_start_num", DataType.INT, new Dimension[]{binIndexDim});
-        final Variable maxVar = netcdfFile.addVariable("bi_max", DataType.INT, new Dimension[]{binIndexDim});
+        startNumVar.addAttribute(new Attribute("comment", "1-based bin number of first bin in the grid for each row (see bi_begin);\n" +
+                "always the same set of values for the set of rows."));
+        startNumVar.addAttribute(new Attribute("missing_value", 0));
+        startNumVar.addAttribute(new Attribute("_FillValue", 0));
+
+        final Variable beginOffsetVar = netcdfFile.addVariable("bi_begin_offset", DataType.INT, new Dimension[]{binIndexDim});
+        beginOffsetVar.addAttribute(new Attribute("comment", "0-based offset of the first data-containing bin in for each row."));
+        beginOffsetVar.addAttribute(new Attribute("missing_value", -1));
+        beginOffsetVar.addAttribute(new Attribute("_FillValue", -1));
+
         final Variable beginVar = netcdfFile.addVariable("bi_begin", DataType.INT, new Dimension[]{binIndexDim});
-        final Variable extendVar = netcdfFile.addVariable("bi_extend", DataType.INT, new Dimension[]{binIndexDim});
+        beginVar.addAttribute(new Attribute("comment", "1-based bin number of first data-containing bin for each row (see bi_start_num)."));
+        beginVar.addAttribute(new Attribute("missing_value", 0));
+        beginVar.addAttribute(new Attribute("_FillValue", 0));
+
+        final Variable extendVar = netcdfFile.addVariable("bi_extent", DataType.INT, new Dimension[]{binIndexDim});
+        extendVar.addAttribute(new Attribute("comment", "number of bins actually stored (i.e. containing data for each row)."));
+
+        final Variable maxVar = netcdfFile.addVariable("bi_max", DataType.INT, new Dimension[]{binIndexDim});
+        maxVar.addAttribute(new Attribute("comment", "the maximum number of bin for each row; " +
+                "ranges from 3 for the two polar rows to SEAGrid_bins for the two equatorial bins."));
 
         final Variable binNumVar = netcdfFile.addVariable("bl_bin_num", DataType.INT, new Dimension[]{binListDim});
         final Variable numObsVar = netcdfFile.addVariable("bl_nobs", DataType.INT, new Dimension[]{binListDim});
@@ -112,7 +132,7 @@ public class BinWriter {
 
         netcdfFile.create();
         writeBinIndexVariables(netcdfFile, rowNumVar, vsizeVar, hsizeVar, startNumVar, maxVar);
-        writeBinListVariables(netcdfFile, binNumVar, numObsVar, numScenesVar, featureVars, beginVar, extendVar, temporalBins);
+        writeBinListVariables(netcdfFile, binNumVar, numObsVar, numScenesVar, featureVars, beginOffsetVar, beginVar, extendVar, temporalBins);
         netcdfFile.close();
     }
 
@@ -131,7 +151,7 @@ public class BinWriter {
         writeBinIndexVariable(netcdfFile, startNumVar, new BinIndexElementSetter() {
             @Override
             public void setArray(Array array, int rowIndex, SeadasGrid grid) {
-                array.setInt(rowIndex, grid.getFirstBinIndex(rowIndex));
+                array.setInt(rowIndex, grid.getFirstBinIndex(seadasGrid.convertRowIndex(rowIndex)));
             }
         });
         writeBinIndexVariable(netcdfFile, vsizeVar, new BinIndexElementSetter() {
@@ -143,13 +163,13 @@ public class BinWriter {
         writeBinIndexVariable(netcdfFile, hsizeVar, new BinIndexElementSetter() {
             @Override
             public void setArray(Array array, int rowIndex, SeadasGrid grid) {
-                array.setDouble(rowIndex, 360.0 / grid.getNumCols(rowIndex));
+                array.setDouble(rowIndex, 360.0 / grid.getNumCols(seadasGrid.convertRowIndex(rowIndex)));
             }
         });
         writeBinIndexVariable(netcdfFile, maxVar, new BinIndexElementSetter() {
             @Override
             public void setArray(Array array, int rowIndex, SeadasGrid grid) {
-                array.setInt(rowIndex, grid.getNumCols(rowIndex));
+                array.setInt(rowIndex, grid.getNumCols(seadasGrid.convertRowIndex(rowIndex)));
             }
         });
     }
@@ -159,6 +179,7 @@ public class BinWriter {
                                        final Variable numObsVar,
                                        final Variable numScenesVar,
                                        final List<Variable> featureVars,
+                                       final Variable beginOffsetVar,
                                        final Variable beginVar,
                                        final Variable extendVar,
                                        final List<TemporalBin> temporalBins) throws IOException, InvalidRangeException {
@@ -196,11 +217,20 @@ public class BinWriter {
             }));
         }
 
+        final int[] binRowBeginOffsets = new int[planetaryGrid.getNumRows()];
         final long[] binRowBegins = new long[planetaryGrid.getNumRows()];
         final int[] binRowExtends = new int[planetaryGrid.getNumRows()];
+        Arrays.fill(binRowBeginOffsets, -1);
         Arrays.fill(binRowBegins, -1);
         Arrays.fill(binRowExtends, 0);
-        writeBinListVariable0(netcdfFile, temporalBins, binListVars, binRowBegins, binRowExtends);
+        writeBinListVariable0(netcdfFile, temporalBins, binListVars, binRowBeginOffsets, binRowBegins, binRowExtends);
+
+        writeBinIndexVariable(netcdfFile, beginOffsetVar, new BinIndexElementSetter() {
+            @Override
+            public void setArray(Array array, int rowIndex, SeadasGrid grid) {
+                array.setInt(rowIndex, binRowBeginOffsets[seadasGrid.convertRowIndex(rowIndex)]);
+            }
+        });
 
         writeBinIndexVariable(netcdfFile, beginVar, new BinIndexElementSetter() {
             @Override
@@ -238,6 +268,7 @@ public class BinWriter {
     private void writeBinListVariable0(NetcdfFileWriteable netcdfFile,
                                        List<TemporalBin> temporalBins,
                                        List<BinListVar> vars,
+                                       int[] binRowBeginOffsets,
                                        long[] binRowBegins,
                                        int[] binRowExtends) throws IOException, InvalidRangeException {
         logger.info("Writing bin list variables");
@@ -260,7 +291,8 @@ public class BinWriter {
                 rowBins.add(temporalBin);
             } else {
                 if (!rowBins.isEmpty()) {
-                    bufferIndex = writeRowBins(netcdfFile, rowBins, vars, origin, bufferIndex, rowIndex, binRowBegins, binRowExtends);
+                    bufferIndex = writeRowBins(netcdfFile, rowBins, vars, origin, bufferIndex, rowIndex,
+                                               binRowBeginOffsets, binRowBegins, binRowExtends);
                     rowBins.clear();
                 }
                 rowBins.add(temporalBin);
@@ -268,14 +300,24 @@ public class BinWriter {
             }
         }
         if (!rowBins.isEmpty()) {
-            bufferIndex = writeRowBins(netcdfFile, rowBins, vars, origin, bufferIndex, rowIndex, binRowBegins, binRowExtends);
+            bufferIndex = writeRowBins(netcdfFile, rowBins, vars, origin, bufferIndex, rowIndex,
+                                       binRowBeginOffsets, binRowBegins, binRowExtends);
         }
         if (bufferIndex > 0) {
             writeBinListVars(netcdfFile, vars, origin, bufferIndex);
         }
     }
 
-    private int writeRowBins(NetcdfFileWriteable netcdfFile, ArrayList<TemporalBin> rowBins, List<BinListVar> vars, int[] origin, int bufferIndex, int rowIndex, long[] binRowBegins, int[] binRowExtends) throws IOException, InvalidRangeException {
+    private int writeRowBins(NetcdfFileWriteable netcdfFile,
+                             ArrayList<TemporalBin> rowBins,
+                             List<BinListVar> vars,
+                             int[] origin,
+                             int bufferIndex,
+                             int rowIndex,
+                             int[] binRowBeginOffsets,
+                             long[] binRowBegins,
+                             int[] binRowExtends) throws IOException, InvalidRangeException {
+        int offset = origin[0] + bufferIndex;
         Collections.reverse(rowBins);
         for (TemporalBin rowBin : rowBins) {
             if (bufferIndex == BUFFER_SIZE) {
@@ -286,8 +328,9 @@ public class BinWriter {
             setBinListVarsArrayElement(vars, rowBin, bufferIndex);
             bufferIndex++;
         }
+        binRowBeginOffsets[rowIndex] = offset;
         binRowBegins[rowIndex] = rowBins.get(0).getIndex();
-        binRowExtends[rowIndex] = (int) (rowBins.get(rowBins.size() - 1).getIndex() - rowBins.get(0).getIndex()) + 1;
+        binRowExtends[rowIndex] = rowBins.size();
         return bufferIndex;
     }
 
