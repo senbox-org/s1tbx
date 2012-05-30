@@ -148,7 +148,7 @@ class MosaicMapProjectionPanel extends JPanel {
         final WorldMapPaneDataModel worldMapModel = mosaicModel.getWorldMapModel();
         setMapBoundary(worldMapModel);
 
-        final WorldMapPane worldMapPanel = new WorldMapPane(worldMapModel);
+        final WorldMapPane worldMapPanel = new RegionSelectableWorldMapPane(worldMapModel, bindingCtx);
         bindingCtx.addPropertyChangeListener(new MapBoundsChangeListener());
         worldMapPanel.setMinimumSize(new Dimension(250, 125));
         worldMapPanel.setBorder(BorderFactory.createEtchedBorder());

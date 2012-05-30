@@ -28,10 +28,19 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.ProductUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
@@ -48,7 +57,7 @@ import java.util.List;
  * @author Marco Peters
  * @version $Revision$ $Date$
  */
-public final class WorldMapPane extends JPanel {
+public class WorldMapPane extends JPanel {
 
     private LayerCanvas layerCanvas;
     private Layer worldMapLayer;
@@ -60,7 +69,6 @@ public final class WorldMapPane extends JPanel {
         this.dataModel = dataModel;
         layerCanvas = new LayerCanvas();
         layerCanvas.getModel().getViewport().setModelYAxisDown(false);
-        installLayerCanvasNavigation(layerCanvas);
         layerCanvas.addOverlay(new BoundaryOverlay());
         final Layer rootLayer = layerCanvas.getLayer();
 
@@ -76,10 +84,45 @@ public final class WorldMapPane extends JPanel {
         dataModel.addModelChangeListener(new ModelChangeListener());
 
         worldMapLayer = dataModel.getWorldMapLayer(new WorldMapLayerContext(rootLayer));
+        installLayerCanvasNavigation(layerCanvas, worldMapLayer);
         layerCanvas.getLayer().getChildren().add(worldMapLayer);
         layerCanvas.getViewport().zoom(worldMapLayer.getModelBounds());
         setNavControlVisible(true);
 
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                AffineTransform transform = layerCanvas.getViewport().getModelToViewTransform();
+
+                double minX = layerCanvas.getMaxVisibleModelBounds().getMinX();
+                double minY = layerCanvas.getMaxVisibleModelBounds().getMinY();
+                double maxX = layerCanvas.getMaxVisibleModelBounds().getMaxX();
+                double maxY = layerCanvas.getMaxVisibleModelBounds().getMaxY();
+
+                final Point2D upperLeft = transform.transform(new Point2D.Double(minX, minY), null);
+                final Point2D lowerRight = transform.transform(new Point2D.Double(maxX, maxY), null);
+                /*
+                * We need to give the borders a minimum width/height of 1 because otherwise the intersection
+                * operation would not work
+                */
+                Rectangle2D northBorder = new Rectangle2D.Double(upperLeft.getX(), upperLeft.getY(),
+                        lowerRight.getX() - upperLeft.getX(), 1);
+                Rectangle2D southBorder = new Rectangle2D.Double(upperLeft.getX(), lowerRight.getY(),
+                        lowerRight.getX() - upperLeft.getX(), 1);
+                Rectangle2D westBorder = new Rectangle2D.Double(upperLeft.getX(), lowerRight.getY(), 1,
+                        upperLeft.getY() - lowerRight.getY());
+                Rectangle2D eastBorder = new Rectangle2D.Double(lowerRight.getX(), lowerRight.getY(), 1,
+                        upperLeft.getY() - lowerRight.getY());
+
+                boolean isWorldMapFullyVisible = layerCanvas.getBounds().intersects(northBorder) ||
+                        layerCanvas.getBounds().intersects(southBorder) ||
+                        layerCanvas.getBounds().intersects(westBorder) ||
+                        layerCanvas.getBounds().intersects(eastBorder);
+                if (isWorldMapFullyVisible) {
+                    layerCanvas.getViewport().zoom(worldMapLayer.getModelBounds());
+                }
+            }
+        });
     }
 
     @Override
@@ -122,7 +165,7 @@ public final class WorldMapPane extends JPanel {
             if (modelArea.isEmpty()) {
                 if (!viewport.isModelYAxisDown()) {
                     modelArea.setFrame(rectangle2D.getX(), rectangle2D.getMaxY(),
-                                       rectangle2D.getWidth(), rectangle2D.getHeight());
+                            rectangle2D.getWidth(), rectangle2D.getHeight());
                 }
                 modelArea = rectangle2D;
             } else {
@@ -131,7 +174,7 @@ public final class WorldMapPane extends JPanel {
         }
         Rectangle2D modelBounds = modelArea.getBounds2D();
         modelBounds.setFrame(modelBounds.getX() - 2, modelBounds.getY() - 2,
-                             modelBounds.getWidth() + 4, modelBounds.getHeight() + 4);
+                modelBounds.getWidth() + 4, modelBounds.getHeight() + 4);
 
         modelBounds = cropToMaxModelBounds(modelBounds);
 
@@ -148,7 +191,7 @@ public final class WorldMapPane extends JPanel {
         if (oldValue != navControlShown) {
             if (navControlShown) {
                 final ButtonOverlayControl navControl = new ButtonOverlayControl(new ZoomAllAction(),
-                                                                                 new ZoomToSelectedAction());
+                        new ZoomToSelectedAction());
                 navControlWrapper = new WakefulComponent(navControl);
                 navControlWrapper.setMinAlpha(0.3f);
                 layerCanvas.add(navControlWrapper);
@@ -223,8 +266,8 @@ public final class WorldMapPane extends JPanel {
         return centerPos;
     }
 
-    private static void installLayerCanvasNavigation(LayerCanvas layerCanvas) {
-        final MouseHandler mouseHandler = new MouseHandler(layerCanvas);
+    private static void installLayerCanvasNavigation(LayerCanvas layerCanvas, Layer worldMapLayer) {
+        final MouseHandler mouseHandler = new MouseHandler(layerCanvas, worldMapLayer);
         layerCanvas.addMouseListener(mouseHandler);
         layerCanvas.addMouseMotionListener(mouseHandler);
         layerCanvas.addMouseWheelListener(mouseHandler);
@@ -247,13 +290,16 @@ public final class WorldMapPane extends JPanel {
         }
     }
 
-    public static class MouseHandler extends MouseInputAdapter {
+    private static class MouseHandler extends MouseInputAdapter {
 
-        private LayerCanvas layerCanvas;
         private Point p0;
 
-        private MouseHandler(LayerCanvas layerCanvas) {
+        private final LayerCanvas layerCanvas;
+        private final Layer worldMapLayer;
+
+        private MouseHandler(LayerCanvas layerCanvas, Layer worldMapLayer) {
             this.layerCanvas = layerCanvas;
+            this.worldMapLayer = worldMapLayer;
         }
 
         @Override
@@ -266,7 +312,35 @@ public final class WorldMapPane extends JPanel {
             final Point p = e.getPoint();
             final double dx = p.x - p0.x;
             final double dy = p.y - p0.y;
-            layerCanvas.getViewport().moveViewDelta(dx, dy);
+
+            AffineTransform transform = layerCanvas.getViewport().getModelToViewTransform();
+
+            double minX = this.layerCanvas.getMaxVisibleModelBounds().getMinX();
+            double minY = this.layerCanvas.getMaxVisibleModelBounds().getMinY();
+            double maxX = this.layerCanvas.getMaxVisibleModelBounds().getMaxX();
+            double maxY = this.layerCanvas.getMaxVisibleModelBounds().getMaxY();
+
+            final Point2D upperLeft = transform.transform(new Point2D.Double(minX, minY), null);
+            final Point2D lowerRight = transform.transform(new Point2D.Double(maxX, maxY), null);
+            /*
+             * We need to give the borders a minimum width/height of 1 because otherwise the intersection
+             * operation would not work
+             */
+            Rectangle2D northBorder = new Rectangle2D.Double(upperLeft.getX() + dx, upperLeft.getY() + dy,
+                    lowerRight.getX() + dx - upperLeft.getX() + dx, 1);
+            Rectangle2D southBorder = new Rectangle2D.Double(upperLeft.getX() + dx, lowerRight.getY() + dy,
+                    lowerRight.getX() + dx - upperLeft.getX() + dx, 1);
+            Rectangle2D westBorder = new Rectangle2D.Double(upperLeft.getX() + dx, lowerRight.getY() + dy, 1,
+                    upperLeft.getY() + dy - lowerRight.getY() + dy);
+            Rectangle2D eastBorder = new Rectangle2D.Double(lowerRight.getX() + dx, lowerRight.getY() + dy, 1,
+                    upperLeft.getY() + dy - lowerRight.getY() + dy);
+
+            if (!layerCanvas.getBounds().intersects(northBorder) &&
+                    !layerCanvas.getBounds().intersects(southBorder) &&
+                    !layerCanvas.getBounds().intersects(westBorder) &&
+                    !layerCanvas.getBounds().intersects(eastBorder)) {
+                layerCanvas.getViewport().moveViewDelta(dx, dy);
+            }
             p0 = p;
         }
 
@@ -274,7 +348,11 @@ public final class WorldMapPane extends JPanel {
         public void mouseWheelMoved(MouseWheelEvent e) {
             final int wheelRotation = e.getWheelRotation();
             final double newZoomFactor = layerCanvas.getViewport().getZoomFactor() * Math.pow(1.1, wheelRotation);
-            layerCanvas.getViewport().setZoomFactor(newZoomFactor);
+            final Rectangle viewBounds = layerCanvas.getViewport().getViewBounds();
+            final Rectangle2D modelBounds = worldMapLayer.getModelBounds();
+            final double minZoomFactor = Math.min(viewBounds.getWidth() / modelBounds.getWidth(),
+                    viewBounds.getHeight() / modelBounds.getHeight());
+            layerCanvas.getViewport().setZoomFactor(Math.max(newZoomFactor, minZoomFactor));
         }
     }
 
@@ -392,8 +470,8 @@ public final class WorldMapPane extends JPanel {
             g2d.setColor(Color.black);
 
             g2d.drawString(text,
-                           textCenter.x - fontMetrics.stringWidth(text) / 2.0f,
-                           textCenter.y + fontMetrics.getAscent() / 2.0f);
+                    textCenter.x - fontMetrics.stringWidth(text) / 2.0f,
+                    textCenter.y + fontMetrics.getAscent() / 2.0f);
             g2d.setColor(color);
         }
 
@@ -414,7 +492,7 @@ public final class WorldMapPane extends JPanel {
     private class ZoomAllAction extends AbstractAction {
 
         private ZoomAllAction() {
-            putValue(LARGE_ICON_KEY, UIUtils.loadImageIcon("icons/ZoomAll24.gif"));
+            putValue(LARGE_ICON_KEY, UIUtils.loadImageIcon("/com/bc/ceres/swing/actions/icons_22x22/view-fullscreen.png"));
         }
 
         @Override
@@ -434,6 +512,5 @@ public final class WorldMapPane extends JPanel {
             zoomToProduct(getSelectedProduct());
         }
     }
-
 
 }
