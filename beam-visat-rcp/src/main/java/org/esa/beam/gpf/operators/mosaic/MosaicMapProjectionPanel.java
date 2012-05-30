@@ -25,7 +25,6 @@ import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BoundsInputPanel;
-import org.esa.beam.framework.ui.RegionSelectableWorldMapPane;
 import org.esa.beam.framework.ui.WorldMapPane;
 import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.framework.ui.crs.CrsForm;
