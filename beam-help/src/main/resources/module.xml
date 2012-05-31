@@ -33,6 +33,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 4.10.1:<br>
+        [BEAM-1403] Broken links in VISAT help<br>
         Changes in 4.8:<br>
         [BEAM-1082] Installation instructions are wrong for GETASSE30<br>
         Changes in 4.2:<br>

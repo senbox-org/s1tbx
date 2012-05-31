@@ -31,6 +31,8 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-help</artifactId>
     <name>BEAM Help</name>
+    <version>4.10.1</version>
+
     <description>Provides the software user manual.</description>
 
     <build>
