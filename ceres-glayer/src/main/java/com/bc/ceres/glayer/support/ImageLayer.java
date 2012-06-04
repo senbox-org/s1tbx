@@ -220,13 +220,15 @@ public class ImageLayer extends Layer {
 
             // fixme: better concat transforms before (nf)
             Shape imageShape = m2i.createTransformedShape(v2m.createTransformedShape(viewBounds));
-
             Rectangle2D imageBounds = imageShape.getBounds2D();
 
-            int x0 = (int) Math.floor(imageBounds.getX());
-            int y0 = (int) Math.floor(imageBounds.getY());
-            int x1 = x0 + (int) Math.round(imageBounds.getWidth());
-            int y1 = y0 + (int) Math.round(imageBounds.getHeight());
+            int width = multiLevelSource.getImage(0).getWidth();
+            int height = multiLevelSource.getImage(0).getHeight();
+
+            int x0 = Math.max(0, (int) Math.floor(imageBounds.getX()));
+            int y0 = Math.max(0, (int) Math.floor(imageBounds.getY()));
+            int x1 = Math.min(width, x0 + (int) Math.round(imageBounds.getWidth()));
+            int y1 = Math.min(height, y0 + (int) Math.round(imageBounds.getHeight()));
 
             // fixme: better use dashed stroke (nf)
             graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getBorderWidth())));
