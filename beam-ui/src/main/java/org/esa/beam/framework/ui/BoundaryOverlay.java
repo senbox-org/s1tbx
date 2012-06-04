@@ -84,9 +84,9 @@ public abstract class BoundaryOverlay implements LayerCanvas.Overlay {
     private void drawPath(final boolean isCurrent, Graphics2D g2d, final GeneralPath gp, final float offsetX) {
         g2d = prepareGraphics2D(offsetX, g2d);
         if (isCurrent) {
-            g2d.setColor(new Color(255, 200, 200, 70));
+            g2d.setColor(new Color(255, 200, 200, 30));
         } else {
-            g2d.setColor(new Color(255, 255, 255, 70));
+            g2d.setColor(new Color(255, 255, 255, 30));
         }
         g2d.fill(gp);
         if (isCurrent) {
