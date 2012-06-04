@@ -21,7 +21,6 @@ import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import static com.bc.ceres.core.runtime.Constants.SYSTEM_MODULE_NAME;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ModuleRuntime;
 import com.bc.ceres.core.runtime.ModuleState;
@@ -41,6 +40,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.bc.ceres.core.runtime.Constants.SYSTEM_MODULE_NAME;
 
 // todo - handle "note: executing foreign code here!"
 // todo - delegate specific behaviour to kind-of RuntimeAdvisor / RuntimeConfigurer
@@ -234,18 +235,24 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
             try {
                 if (moduleRegistry.getModule(module.getLocation()) != null) {
                     getLogger().warning(
-                            MessageFormat.format("Module [{0}@{1}] already registered.", module.getSymbolicName(),
+                            MessageFormat.format("Module [{0}-{1}@{2}] already registered.",
+                                                 module.getSymbolicName(),
+                                                 module.getVersion(),
                                                  module.getLocation()));
                 } else {
                     long id = module.getSymbolicName().equals(SYSTEM_MODULE_NAME) ? 0L : newModuleId();
                     if (moduleRegistry.getModule(id) == null) {  // ceres-core is maybe already registered
                         registerModule(module, id);
-                        getLogger().info(MessageFormat.format("Module [{0}] registered.", module.getSymbolicName()));
+                        getLogger().info(MessageFormat.format("Module [{0}-{1}] registered.",
+                                                              module.getSymbolicName(),
+                                                              module.getVersion()));
                     }
                 }
             } catch (CoreException e) {
-                logError(MessageFormat.format("Failed to register module [{0}@{1}].",
-                                              module.getSymbolicName(), module.getLocation()), e);
+                logError(MessageFormat.format("Failed to register module [{0}-{1}@{2}].",
+                                              module.getSymbolicName(),
+                                              module.getVersion(),
+                                              module.getLocation()), e);
             }
         }
     }
@@ -300,7 +307,7 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
     }
 
     private void resolveModule(ModuleImpl module) {
-        getLogger().info(MessageFormat.format("Resolving module [{0}].", module.getSymbolicName()));
+        getLogger().info(MessageFormat.format("Resolving module [{0}-{1}].", module.getSymbolicName(), module.getVersion()));
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         final ModuleResolver moduleResolver = new ModuleResolver(contextClassLoader, true);
 
@@ -331,7 +338,10 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
 
     private void logResolveSummary() {
         for (ModuleImpl module : resolvedModules) {
-            String msg = MessageFormat.format("Module [{0}] resolved, reference count is {1}.", module.getSymbolicName(), module.getRefCount());
+            String msg = MessageFormat.format("Module [{0}-{1}] resolved, reference count is {2}.",
+                                              module.getSymbolicName(),
+                                              module.getVersion(),
+                                              module.getRefCount());
             getLogger().fine(msg);
             // Note for all resolvedModules, always module.moduleDependencies != null,
             ModuleImpl[] moduleDependencies = module.getModuleDependencies();
@@ -369,9 +379,13 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
                     try {
                         subProgressMonitor.setSubTaskName(module.getName());
                         module.start();
-                        getLogger().info(MessageFormat.format("Module [{0}] started.", module.getSymbolicName()));
+                        getLogger().info(MessageFormat.format("Module [{0}-{1}] started.",
+                                                              module.getSymbolicName(),
+                                                              module.getVersion()));
                     } catch (CoreException e) {
-                        logError(MessageFormat.format("Failed to start module [{0}].", module.getSymbolicName()), e);
+                        logError(MessageFormat.format("Failed to start module [{0}-{1}].",
+                                                      module.getSymbolicName(),
+                                                      module.getVersion()), e);
                     }
                 }
                 subProgressMonitor.worked(1);
@@ -387,9 +401,13 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
             if (module.getState() == ModuleState.ACTIVE) {
                 try {
                     module.stop();
-                    getLogger().info(MessageFormat.format("Module [{0}] stopped.", module.getSymbolicName()));
+                    getLogger().info(MessageFormat.format("Module [{0}-{1}] stopped.",
+                                                          module.getSymbolicName(),
+                                                          module.getVersion()));
                 } catch (CoreException e) {
-                    logError(MessageFormat.format("Failed to stop module [{0}].", module.getSymbolicName()), e);
+                    logError(MessageFormat.format("Failed to stop module [{0}-{1}].",
+                                                  module.getSymbolicName(),
+                                                  module.getVersion()), e);
                 }
             }
         }
