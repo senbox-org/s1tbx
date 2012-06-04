@@ -57,6 +57,8 @@ public class WorldMapPane extends JPanel {
     private final WorldMapPaneDataModel dataModel;
     private boolean navControlShown;
     private WakefulComponent navControlWrapper;
+    private PanSupport panSupport;
+    private MouseHandler mouseHandler;
 
     public WorldMapPane(WorldMapPaneDataModel dataModel) {
         this(dataModel, null);
@@ -64,6 +66,7 @@ public class WorldMapPane extends JPanel {
 
     public WorldMapPane(WorldMapPaneDataModel dataModel, LayerCanvas.Overlay overlay) {
         this.dataModel = dataModel;
+        this.panSupport = new DefaultPanSupport(layerCanvas);
         layerCanvas = new LayerCanvas();
         getLayerCanvas().getModel().getViewport().setModelYAxisDown(false);
         if (overlay == null) {
@@ -146,14 +149,6 @@ public class WorldMapPane extends JPanel {
         return (float) getLayerCanvas().getViewport().getZoomFactor();
     }
 
-    public void setScale(final float scale) {
-        if (getScale() != scale && scale > 0) {
-            final float oldValue = getScale();
-            getLayerCanvas().getViewport().setZoomFactor(scale);
-            firePropertyChange("scale", oldValue, scale);
-        }
-    }
-
     public void zoomToProduct(Product product) {
         if (product == null || product.getGeoCoding() == null) {
             return;
@@ -205,6 +200,25 @@ public class WorldMapPane extends JPanel {
         }
     }
 
+    public void setPanSupport(PanSupport panSupport) {
+        layerCanvas.removeMouseListener(mouseHandler);
+        layerCanvas.removeMouseMotionListener(mouseHandler);
+
+        this.panSupport = panSupport;
+        mouseHandler = new MouseHandler(layerCanvas, worldMapLayer, panSupport);
+        layerCanvas.addMouseListener(mouseHandler);
+        layerCanvas.addMouseMotionListener(mouseHandler);
+    }
+
+    public LayerCanvas getLayerCanvas() {
+        return layerCanvas;
+    }
+
+    static GeneralPath[] getGeoBoundaryPaths(Product product) {
+        final int step = Math.max(16, (product.getSceneRasterWidth() + product.getSceneRasterHeight()) / 250);
+        return ProductUtils.createGeoBoundaryPaths(product, null, step);
+    }
+
     private void updateUiState(PropertyChangeEvent evt) {
         if (WorldMapPaneDataModel.PROPERTY_LAYER.equals(evt.getPropertyName())) {
             exchangeWorldMapLayer();
@@ -247,30 +261,39 @@ public class WorldMapPane extends JPanel {
         return modelBounds;
     }
 
-
-    static GeneralPath[] getGeoBoundaryPaths(Product product) {
-        final int step = Math.max(16, (product.getSceneRasterWidth() + product.getSceneRasterHeight()) / 250);
-        return ProductUtils.createGeoBoundaryPaths(product, null, step);
-    }
-
-    private static void installLayerCanvasNavigation(LayerCanvas layerCanvas, Layer worldMapLayer) {
-        final MouseHandler mouseHandler = new MouseHandler(layerCanvas, worldMapLayer);
+    private void installLayerCanvasNavigation(LayerCanvas layerCanvas, Layer worldMapLayer) {
+        mouseHandler = new MouseHandler(layerCanvas, worldMapLayer, panSupport);
         layerCanvas.addMouseListener(mouseHandler);
         layerCanvas.addMouseMotionListener(mouseHandler);
         layerCanvas.addMouseWheelListener(mouseHandler);
     }
 
-    /**
-     * @param bufferedImage is ignored
-     * @deprecated since BEAM 4.7, no replacement
-     */
-    @Deprecated
-    @SuppressWarnings({"UnusedDeclaration"})
-    public void setWorldMapImage(java.awt.image.BufferedImage bufferedImage) {
-    }
+    private static boolean viewportIsInWorldMapBounds(double dx, double dy, LayerCanvas layerCanvas) {
+        AffineTransform transform = layerCanvas.getViewport().getModelToViewTransform();
 
-    public LayerCanvas getLayerCanvas() {
-        return layerCanvas;
+        double minX = layerCanvas.getMaxVisibleModelBounds().getMinX();
+        double minY = layerCanvas.getMaxVisibleModelBounds().getMinY();
+        double maxX = layerCanvas.getMaxVisibleModelBounds().getMaxX();
+        double maxY = layerCanvas.getMaxVisibleModelBounds().getMaxY();
+
+        final Point2D upperLeft = transform.transform(new Point2D.Double(minX, minY), null);
+        final Point2D lowerRight = transform.transform(new Point2D.Double(maxX, maxY), null);
+        /*
+        * We need to give the borders a minimum width/height of 1 because otherwise the intersection
+        * operation would not work
+        */
+        Rectangle2D northBorder = new Rectangle2D.Double(upperLeft.getX() + dx, upperLeft.getY() + dy,
+                lowerRight.getX() + dx - upperLeft.getX() + dx, 1);
+        Rectangle2D southBorder = new Rectangle2D.Double(upperLeft.getX() + dx, lowerRight.getY() + dy,
+                lowerRight.getX() + dx - upperLeft.getX() + dx, 1);
+        Rectangle2D westBorder = new Rectangle2D.Double(upperLeft.getX() + dx, lowerRight.getY() + dy, 1,
+                upperLeft.getY() + dy - lowerRight.getY() + dy);
+        Rectangle2D eastBorder = new Rectangle2D.Double(lowerRight.getX() + dx, lowerRight.getY() + dy, 1,
+                upperLeft.getY() + dy - lowerRight.getY() + dy);
+        return (!layerCanvas.getBounds().intersects(northBorder) &&
+                !layerCanvas.getBounds().intersects(southBorder) &&
+                !layerCanvas.getBounds().intersects(westBorder) &&
+                !layerCanvas.getBounds().intersects(eastBorder));
     }
 
     private class ModelChangeListener implements PropertyChangeListener {
@@ -283,60 +306,29 @@ public class WorldMapPane extends JPanel {
 
     private static class MouseHandler extends MouseInputAdapter {
 
-        private Point p0;
-
         private final LayerCanvas layerCanvas;
         private final Layer worldMapLayer;
+        private PanSupport panSupport;
 
-        private MouseHandler(LayerCanvas layerCanvas, Layer worldMapLayer) {
+        private MouseHandler(LayerCanvas layerCanvas, Layer worldMapLayer, PanSupport panSupport) {
             this.layerCanvas = layerCanvas;
             this.worldMapLayer = worldMapLayer;
+            this.panSupport = panSupport;
         }
 
         @Override
         public void mousePressed(MouseEvent e) {
-            p0 = e.getPoint();
+            panSupport.panStarted(e);
         }
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            final Point p = e.getPoint();
-            final double dx = p.x - p0.x;
-            final double dy = p.y - p0.y;
-
-            AffineTransform transform = layerCanvas.getViewport().getModelToViewTransform();
-
-            double minX = this.layerCanvas.getMaxVisibleModelBounds().getMinX();
-            double minY = this.layerCanvas.getMaxVisibleModelBounds().getMinY();
-            double maxX = this.layerCanvas.getMaxVisibleModelBounds().getMaxX();
-            double maxY = this.layerCanvas.getMaxVisibleModelBounds().getMaxY();
-
-            final Point2D upperLeft = transform.transform(new Point2D.Double(minX, minY), null);
-            final Point2D lowerRight = transform.transform(new Point2D.Double(maxX, maxY), null);
-            /*
-             * We need to give the borders a minimum width/height of 1 because otherwise the intersection
-             * operation would not work
-             */
-            Rectangle2D northBorder = new Rectangle2D.Double(upperLeft.getX() + dx, upperLeft.getY() + dy,
-                    lowerRight.getX() + dx - upperLeft.getX() + dx, 1);
-            Rectangle2D southBorder = new Rectangle2D.Double(upperLeft.getX() + dx, lowerRight.getY() + dy,
-                    lowerRight.getX() + dx - upperLeft.getX() + dx, 1);
-            Rectangle2D westBorder = new Rectangle2D.Double(upperLeft.getX() + dx, lowerRight.getY() + dy, 1,
-                    upperLeft.getY() + dy - lowerRight.getY() + dy);
-            Rectangle2D eastBorder = new Rectangle2D.Double(lowerRight.getX() + dx, lowerRight.getY() + dy, 1,
-                    upperLeft.getY() + dy - lowerRight.getY() + dy);
-
-            if (!layerCanvas.getBounds().intersects(northBorder) &&
-                    !layerCanvas.getBounds().intersects(southBorder) &&
-                    !layerCanvas.getBounds().intersects(westBorder) &&
-                    !layerCanvas.getBounds().intersects(eastBorder)) {
-                layerCanvas.getViewport().moveViewDelta(dx, dy);
-            }
-            p0 = p;
+            panSupport.performPan(e);
         }
 
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
+            double oldFactor = layerCanvas.getViewport().getZoomFactor();
             final int wheelRotation = e.getWheelRotation();
             final double newZoomFactor = layerCanvas.getViewport().getZoomFactor() * Math.pow(1.1, wheelRotation);
             final Rectangle viewBounds = layerCanvas.getViewport().getViewBounds();
@@ -344,6 +336,12 @@ public class WorldMapPane extends JPanel {
             final double minZoomFactor = Math.min(viewBounds.getWidth() / modelBounds.getWidth(),
                     viewBounds.getHeight() / modelBounds.getHeight());
             layerCanvas.getViewport().setZoomFactor(Math.max(newZoomFactor, minZoomFactor));
+
+            if (viewportIsInWorldMapBounds(0, 0, layerCanvas) ||
+                    layerCanvas.getViewport().getZoomFactor() > oldFactor) {
+                return;
+            }
+            layerCanvas.getViewport().setZoomFactor(oldFactor);
         }
     }
 
@@ -353,7 +351,6 @@ public class WorldMapPane extends JPanel {
         private final Layer rootLayer;
 
         private WorldMapLayerContext(Layer rootLayer) {
-
             this.rootLayer = rootLayer;
         }
 
@@ -392,8 +389,51 @@ public class WorldMapPane extends JPanel {
         }
     }
 
-    public interface WorldMapPaneExtension {
-        void extendLayerCanvas(LayerCanvas layerCanvas);
+    public interface PanSupport {
+        void panStarted(MouseEvent event);
+
+        void performPan(MouseEvent event);
     }
 
+    protected static class DefaultPanSupport implements PanSupport {
+
+        private Point p0;
+        private final LayerCanvas layerCanvas;
+
+        protected DefaultPanSupport(LayerCanvas layerCanvas) {
+            this.layerCanvas = layerCanvas;
+        }
+
+        @Override
+        public void panStarted(MouseEvent event) {
+            p0 = event.getPoint();
+        }
+
+        @Override
+        public void performPan(MouseEvent event) {
+            final Point p = event.getPoint();
+            final double dx = p.x - p0.x;
+            final double dy = p.y - p0.y;
+
+            if (viewportIsInWorldMapBounds(dx, dy, layerCanvas)) {
+                layerCanvas.getViewport().moveViewDelta(dx, dy);
+            }
+            p0 = p;
+        }
+    }
+
+    /**
+     * Set the worldmap's scale.
+     *
+     * @param scale the scale.
+     * @deprecated since 4.10.1, use layer canvas for zooming instead
+     */
+    @Deprecated
+    public void setScale(final float scale) {
+        if (getScale() != scale && scale > 0) {
+            final float oldValue = getScale();
+            getLayerCanvas().getViewport().setZoomFactor(scale);
+            firePropertyChange("scale", oldValue, scale);
+        }
+    }
 }
