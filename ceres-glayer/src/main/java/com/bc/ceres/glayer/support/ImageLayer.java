@@ -36,15 +36,9 @@ import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Paint;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.Stroke;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 
@@ -59,13 +53,16 @@ public class ImageLayer extends Layer {
 
     public static final String PROPERTY_NAME_MULTI_LEVEL_SOURCE = "multiLevelSource";
     public static final String PROPERTY_NAME_BORDER_SHOWN = "borderShown";
+    public static final String PROPERTY_NAME_PIXEL_GRID_SHOWN = "pixelGridShown";
     public static final String PROPERTY_NAME_BORDER_WIDTH = "borderWidth";
     public static final String PROPERTY_NAME_BORDER_COLOR = "borderColor";
 
-    public static final boolean DEFAULT_BORDER_SHOWN = false;
     public static final double DEFAULT_BORDER_WIDTH = 1.0;
-    public static final Color DEFAULT_BORDER_COLOR = new Color(204, 204, 255);
+    public static final boolean DEFAULT_BORDER_SHOWN = false;
+    public static final Boolean DEFAULT_PIXEL_GRID_SHOWN = true;
+    public static final double DEFAULT_PIXEL_GRID_ZOOM_FACTOR = 24.0;
 
+    public static final Color DEFAULT_BORDER_COLOR = new Color(204, 204, 255);
     /**
      * @deprecated since BEAM 4.7, no replacement; kept for compatibility of sessions
      */
@@ -106,7 +103,7 @@ public class ImageLayer extends Layer {
      * @param multiLevelSource the multi-resolution-level image
      */
     public ImageLayer(MultiLevelSource multiLevelSource) {
-        this(LAYER_TYPE, multiLevelSource,  initConfiguration(LAYER_TYPE.createLayerConfig(null), multiLevelSource));
+        this(LAYER_TYPE, multiLevelSource, initConfiguration(LAYER_TYPE.createLayerConfig(null), multiLevelSource));
     }
 
     public ImageLayer(Type layerType, MultiLevelSource multiLevelSource, PropertySet configuration) {
@@ -200,6 +197,56 @@ public class ImageLayer extends Layer {
         if (isBorderShown()) {
             renderImageBorder(rendering, level);
         }
+        if (level == 0 && vp.getZoomFactor() >= DEFAULT_PIXEL_GRID_ZOOM_FACTOR && isPixelGridShown()) {
+            renderPixelGrid(rendering);
+        }
+    }
+
+    private void renderPixelGrid(Rendering rendering) {
+        final Graphics2D graphics2D = rendering.getGraphics();
+        final Viewport viewport = rendering.getViewport();
+
+        final Object oldAntialiasing = graphics2D.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+        final Paint oldPaint = graphics2D.getPaint();
+        final Stroke oldStroke = graphics2D.getStroke();
+
+        Rectangle viewBounds = viewport.getViewBounds();
+
+        try {
+            AffineTransform m2i = multiLevelSource.getModel().getModelToImageTransform(0);
+            AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(0);
+            AffineTransform v2m = viewport.getViewToModelTransform();
+            AffineTransform m2v = viewport.getModelToViewTransform();
+
+            // fixme: better concat transforms before (nf)
+            Shape imageShape = m2i.createTransformedShape(v2m.createTransformedShape(viewBounds));
+
+            Rectangle2D imageBounds = imageShape.getBounds2D();
+
+            int x0 = (int) Math.floor(imageBounds.getX());
+            int y0 = (int) Math.floor(imageBounds.getY());
+            int x1 = x0 + (int) Math.round(imageBounds.getWidth());
+            int y1 = y0 + (int) Math.round(imageBounds.getHeight());
+
+            // fixme: better use dashed stroke (nf)
+            graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getBorderWidth())));
+            graphics2D.setColor(getBorderColor());
+            graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            for (int x = x0; x <= x1; x++) {
+                // fixme: better concat transforms before (nf)
+                graphics2D.draw(m2v.createTransformedShape(i2m.createTransformedShape(new Line2D.Double(x, y0, x, y1))));
+            }
+            for (int y = y0; y <= y1; y++) {
+                // fixme: better concat transforms before (nf)
+                graphics2D.draw(m2v.createTransformedShape(i2m.createTransformedShape(new Line2D.Double(x0, y, x1, y))));
+            }
+
+        } finally {
+            graphics2D.setPaint(oldPaint);
+            graphics2D.setStroke(oldStroke);
+            graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntialiasing);
+        }
     }
 
     private void renderImageBorder(Rendering rendering, int level) {
@@ -266,6 +313,10 @@ public class ImageLayer extends Layer {
         return getConfigurationProperty(PROPERTY_NAME_BORDER_SHOWN, DEFAULT_BORDER_SHOWN);
     }
 
+    public boolean isPixelGridShown() {
+        return getConfigurationProperty(PROPERTY_NAME_PIXEL_GRID_SHOWN, DEFAULT_PIXEL_GRID_SHOWN);
+    }
+
     public double getBorderWidth() {
         return getConfigurationProperty(PROPERTY_NAME_BORDER_WIDTH, DEFAULT_BORDER_WIDTH);
     }
@@ -312,12 +363,12 @@ public class ImageLayer extends Layer {
         private static Property addImageToModelTransformModel(PropertyContainer configuration) {
             Property property = configuration.getProperty(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
             if (property == null) {
-                 property = Property.create(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class);
+                property = Property.create(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class);
                 configuration.addProperty(property);
             }
             property.getDescriptor().setTransient(true);
             return property;
-         }
+        }
 
 
         private static Property addMultiLevelSourceModel(PropertyContainer configuration) {
