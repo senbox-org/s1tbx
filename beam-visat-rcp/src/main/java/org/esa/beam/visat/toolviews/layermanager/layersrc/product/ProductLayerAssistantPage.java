@@ -103,6 +103,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_SHOWN, false);
         final ImageLayer imageLayer = (ImageLayer) type.createLayer(getContext().getLayerContext(),
                                                                     configuration);
         imageLayer.setName(rasterDataNode.getDisplayName());

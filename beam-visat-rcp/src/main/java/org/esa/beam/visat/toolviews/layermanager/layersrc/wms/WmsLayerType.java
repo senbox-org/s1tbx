@@ -83,6 +83,7 @@ public class WmsLayerType extends ImageLayer.Type {
         final PropertySet config = imageLayerType.createLayerConfig(ctx);
         config.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         config.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+        config.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_SHOWN, false);
 
         final ImageLayer wmsImageLayer = new ImageLayer(this, multiLevelSource, config);
         wmsImageLayer.setName(wmsLayer.getName());
