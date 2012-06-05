@@ -53,16 +53,22 @@ public class ImageLayer extends Layer {
 
     public static final String PROPERTY_NAME_MULTI_LEVEL_SOURCE = "multiLevelSource";
     public static final String PROPERTY_NAME_BORDER_SHOWN = "borderShown";
-    public static final String PROPERTY_NAME_PIXEL_GRID_SHOWN = "pixelGridShown";
     public static final String PROPERTY_NAME_BORDER_WIDTH = "borderWidth";
     public static final String PROPERTY_NAME_BORDER_COLOR = "borderColor";
+    public static final String PROPERTY_NAME_PIXEL_BORDER_SHOWN = "pixelBorderShown";
+    public static final String PROPERTY_NAME_PIXEL_BORDER_WIDTH = "pixelBorderWidth";
+    public static final String PROPERTY_NAME_PIXEL_BORDER_COLOR = "pixelBorderColor";
 
-    public static final double DEFAULT_BORDER_WIDTH = 1.0;
     public static final boolean DEFAULT_BORDER_SHOWN = false;
-    public static final Boolean DEFAULT_PIXEL_GRID_SHOWN = true;
-    public static final double DEFAULT_PIXEL_GRID_ZOOM_FACTOR = 24.0;
-
     public static final Color DEFAULT_BORDER_COLOR = new Color(204, 204, 255);
+    public static final double DEFAULT_BORDER_WIDTH = 1.0;
+
+    public static final Boolean DEFAULT_PIXEL_BORDER_SHOWN = true;
+    public static final Color DEFAULT_PIXEL_BORDER_COLOR = new Color(255, 255, 204);
+    public static final double DEFAULT_PIXEL_BORDER_WIDTH = 0.5;
+
+    public static final double DEFAULT_PIXEL_BORDER_ZOOM_FACTOR = 24.0;
+
     /**
      * @deprecated since BEAM 4.7, no replacement; kept for compatibility of sessions
      */
@@ -194,11 +200,12 @@ public class ImageLayer extends Layer {
         final MultiLevelRenderer renderer = getRenderer(rendering);
         renderer.renderImage(rendering, multiLevelSource, level);
 
+        // fixme: combine both decoration-drawing methods in order to share coord. transformation stuff (nf)
+        if (level == 0 && vp.getZoomFactor() >= DEFAULT_PIXEL_BORDER_ZOOM_FACTOR && isPixelBorderShown()) {
+            renderPixelGrid(rendering);
+        }
         if (isBorderShown()) {
             renderImageBorder(rendering, level);
-        }
-        if (level == 0 && vp.getZoomFactor() >= DEFAULT_PIXEL_GRID_ZOOM_FACTOR && isPixelGridShown()) {
-            renderPixelGrid(rendering);
         }
     }
 
@@ -230,9 +237,15 @@ public class ImageLayer extends Layer {
             int x1 = Math.min(width, x0 + (int) Math.round(imageBounds.getWidth()));
             int y1 = Math.min(height, y0 + (int) Math.round(imageBounds.getHeight()));
 
-            // fixme: better use dashed stroke (nf)
-            graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getBorderWidth())));
-            graphics2D.setColor(getBorderColor());
+            // fixme: the dashed stroke is slow (nf)
+            /*
+            graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getPixelBorderWidth()),
+                                                 BasicStroke.CAP_SQUARE,
+                                                 BasicStroke.JOIN_MITER,
+                                                 10.0f, new float[] {3.0F, 3.0F}, 0.0f));
+            */
+            graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getPixelBorderWidth())));
+            graphics2D.setColor(getPixelBorderColor());
             graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             for (int x = x0; x <= x1; x++) {
@@ -315,16 +328,24 @@ public class ImageLayer extends Layer {
         return getConfigurationProperty(PROPERTY_NAME_BORDER_SHOWN, DEFAULT_BORDER_SHOWN);
     }
 
-    public boolean isPixelGridShown() {
-        return getConfigurationProperty(PROPERTY_NAME_PIXEL_GRID_SHOWN, DEFAULT_PIXEL_GRID_SHOWN);
-    }
-
     public double getBorderWidth() {
         return getConfigurationProperty(PROPERTY_NAME_BORDER_WIDTH, DEFAULT_BORDER_WIDTH);
     }
 
     public Color getBorderColor() {
         return getConfigurationProperty(PROPERTY_NAME_BORDER_COLOR, DEFAULT_BORDER_COLOR);
+    }
+
+    public boolean isPixelBorderShown() {
+        return getConfigurationProperty(PROPERTY_NAME_PIXEL_BORDER_SHOWN, DEFAULT_PIXEL_BORDER_SHOWN);
+    }
+
+    public double getPixelBorderWidth() {
+        return getConfigurationProperty(PROPERTY_NAME_PIXEL_BORDER_WIDTH, DEFAULT_PIXEL_BORDER_WIDTH);
+    }
+
+    public Color getPixelBorderColor() {
+        return getConfigurationProperty(PROPERTY_NAME_PIXEL_BORDER_COLOR, DEFAULT_PIXEL_BORDER_COLOR);
     }
 
     private static PropertySet initConfiguration(PropertySet configuration, MultiLevelSource multiLevelSource) {
@@ -358,6 +379,10 @@ public class ImageLayer extends Layer {
             template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, Boolean.class, ImageLayer.DEFAULT_BORDER_SHOWN, true));
             template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_BORDER_COLOR, Color.class, ImageLayer.DEFAULT_BORDER_COLOR, true));
             template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, Double.class, ImageLayer.DEFAULT_BORDER_WIDTH, true));
+
+            template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_SHOWN, Boolean.class, ImageLayer.DEFAULT_PIXEL_BORDER_SHOWN, true));
+            template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_COLOR, Color.class, ImageLayer.DEFAULT_PIXEL_BORDER_COLOR, true));
+            template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_WIDTH, Double.class, ImageLayer.DEFAULT_PIXEL_BORDER_WIDTH, true));
 
             return template;
         }
