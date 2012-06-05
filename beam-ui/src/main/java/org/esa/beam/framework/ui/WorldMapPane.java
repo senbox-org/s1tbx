@@ -66,8 +66,8 @@ public class WorldMapPane extends JPanel {
 
     public WorldMapPane(WorldMapPaneDataModel dataModel, LayerCanvas.Overlay overlay) {
         this.dataModel = dataModel;
-        this.panSupport = new DefaultPanSupport(layerCanvas);
         layerCanvas = new LayerCanvas();
+        this.panSupport = new DefaultPanSupport(layerCanvas);
         getLayerCanvas().getModel().getViewport().setModelYAxisDown(false);
         if (overlay == null) {
             getLayerCanvas().addOverlay(new BoundaryOverlayImpl(dataModel));
