@@ -34,9 +34,11 @@ import org.esa.beam.framework.datamodel.Product;
 
 import javax.swing.JPanel;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -50,12 +52,14 @@ import java.awt.geom.Rectangle2D;
 public class RegionSelectableWorldMapPane {
 
     private static final int OFFSET = 6;
+
     private final BindingContext bindingContext;
     private final DefaultFigureEditor figureEditor;
     private final WorldMapPane worldMapPane;
     private final RegionSelectionInteractor regionSelectionInteractor;
 
     private Rectangle2D selectionRectangle;
+    private Rectangle2D movableRectangle;
 
     public RegionSelectableWorldMapPane(WorldMapPaneDataModel dataModel, BindingContext bindingContext) {
         this.bindingContext = bindingContext;
@@ -63,6 +67,7 @@ public class RegionSelectableWorldMapPane {
         worldMapPane.setPanSupport(new RegionSelectionDecoratingPanSupport(worldMapPane.getLayerCanvas()));
         figureEditor = new DefaultFigureEditor(worldMapPane.getLayerCanvas());
         regionSelectionInteractor = new RegionSelectionInteractor();
+        worldMapPane.getLayerCanvas().addMouseMotionListener(new CursorChanger());
     }
 
     public JPanel createUI() {
@@ -76,6 +81,40 @@ public class RegionSelectableWorldMapPane {
         figureStyle.setStrokeColor(new Color(200, 0, 0));
         figureStyle.setStrokeWidth(2);
         return figureStyle;
+    }
+
+    private class CursorChanger implements MouseMotionListener {
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            final Rectangle2D.Double movableRectangle = createMovableRectangle();
+            final Cursor moveCursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
+            if (worldMapPane.getCursor() != moveCursor && movableRectangle.contains(e.getPoint())) {
+                worldMapPane.setCursor(moveCursor);
+            }
+            if (!movableRectangle.contains(e.getPoint())) {
+                worldMapPane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            final Rectangle2D.Double movableRectangle = createMovableRectangle();
+            final Cursor moveCursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
+            if (worldMapPane.getCursor() != moveCursor && movableRectangle.contains(e.getPoint())) {
+                worldMapPane.setCursor(moveCursor);
+            }
+            if (!movableRectangle.contains(e.getPoint())) {
+                worldMapPane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+        }
+
+        private Rectangle2D.Double createMovableRectangle() {
+            return new Rectangle2D.Double(movableRectangle.getX() + OFFSET,
+                                          movableRectangle.getY() + OFFSET,
+                                          movableRectangle.getWidth() - 2 * OFFSET,
+                                          movableRectangle.getHeight() - 2 * OFFSET);
+        }
     }
 
     private class FigureEditorAwareWorldMapPane extends WorldMapPane implements FigureEditorAware {
@@ -127,6 +166,7 @@ public class RegionSelectableWorldMapPane {
             Shape transformedShape = viewport.getViewToModelTransform().createTransformedShape(rectangularShape);
             if (selectionRectangle == null) {
                 selectionRectangle = rectangularShape;
+                movableRectangle = rectangularShape;
             }
             return figureEditor.getFigureFactory().createPolygonFigure(transformedShape, createFigureStyle());
         }
@@ -226,8 +266,9 @@ public class RegionSelectableWorldMapPane {
             }
         }
 
-        private void setSelectionRectangleBounds(double x, double y, double width, double height, AffineTransform transform) {
-            Shape newFigureShape = transform.createTransformedShape(new Rectangle2D.Double(x, y, width, height));
+        private void setSelectionRectangleBounds(double x, double y, double width, double height, AffineTransform viewToModelTransform) {
+            movableRectangle = new Rectangle2D.Double(x, y, width, height);
+            Shape newFigureShape = viewToModelTransform.createTransformedShape(movableRectangle);
             Figure newFigure = figureEditor.getFigureFactory().createPolygonFigure(newFigureShape, createFigureStyle());
             figureEditor.getFigureCollection().removeAllFigures();
             figureEditor.getFigureCollection().addFigure(newFigure);
@@ -271,8 +312,8 @@ public class RegionSelectableWorldMapPane {
         private Rectangle2D.Double createIntersectionRectangle() {
             return new Rectangle2D.Double(selectionRectangle.getX() - OFFSET,
                                           selectionRectangle.getY() - OFFSET,
-                                          selectionRectangle.getWidth() + OFFSET,
-                                          selectionRectangle.getHeight() + OFFSET);
+                                          selectionRectangle.getWidth() + 2 * OFFSET,
+                                          selectionRectangle.getHeight() + 2 * OFFSET);
         }
 
     }
