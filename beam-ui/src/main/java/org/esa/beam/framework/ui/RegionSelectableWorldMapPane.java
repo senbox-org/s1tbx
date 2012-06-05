@@ -49,6 +49,7 @@ import java.awt.geom.Rectangle2D;
  */
 public class RegionSelectableWorldMapPane {
 
+    private static final int OFFSET = 6;
     private final BindingContext bindingContext;
     private final DefaultFigureEditor figureEditor;
     private final WorldMapPane worldMapPane;
@@ -109,7 +110,8 @@ public class RegionSelectableWorldMapPane {
 
         private ShapeFigure createShapeFigure(Product selectedProduct) {
             PixelPos upperLeftPixel = new PixelPos(0.5f, 0.5f);
-            PixelPos lowerRightPixel = new PixelPos(selectedProduct.getSceneRasterWidth() - 0.5f, selectedProduct.getSceneRasterHeight() - 0.5f);
+            PixelPos lowerRightPixel = new PixelPos(
+                    selectedProduct.getSceneRasterWidth() - 0.5f, selectedProduct.getSceneRasterHeight() - 0.5f);
             GeoCoding geoCoding = selectedProduct.getGeoCoding();
             GeoPos upperLeftGeoPos = geoCoding.getGeoPos(upperLeftPixel, null);
             GeoPos lowerRightGeoPos = geoCoding.getGeoPos(lowerRightPixel, null);
@@ -119,7 +121,9 @@ public class RegionSelectableWorldMapPane {
             Point2D.Double lowerRight = modelToView(lowerRightGeoPos, modelToViewTransform);
             Point2D.Double upperLeft = modelToView(upperLeftGeoPos, modelToViewTransform);
 
-            Rectangle2D.Double rectangularShape = new Rectangle2D.Double(upperLeft.x, upperLeft.y, lowerRight.x - upperLeft.x, lowerRight.y - upperLeft.y);
+            Rectangle2D.Double rectangularShape = new Rectangle2D.Double(upperLeft.x, upperLeft.y,
+                                                                         lowerRight.x - upperLeft.x,
+                                                                         lowerRight.y - upperLeft.y);
             Shape transformedShape = viewport.getViewToModelTransform().createTransformedShape(rectangularShape);
             if (selectionRectangle == null) {
                 selectionRectangle = rectangularShape;
@@ -147,13 +151,10 @@ public class RegionSelectableWorldMapPane {
         private Point point;
         private int rectangleLongitude;
         private int rectangleLatitude;
-        private static final int HANDLE_SIZE = 6;
 
         @Override
         public void mousePressed(MouseEvent event) {
             point = event.getPoint();
-            AffineTransform modelToViewTransform = getModelToViewTransform(event);
-            selectionRectangle = modelToViewTransform.createTransformedShape(figureEditor.getFigureCollection().getFigure(0).getBounds()).getBounds2D();
             determineDraggedRectangleBorders(event);
         }
 
@@ -170,18 +171,18 @@ public class RegionSelectableWorldMapPane {
             double dy2 = Math.abs(y2 - y);
 
             rectangleLongitude = BORDER_UNKNOWN;
-            if (dx1 <= HANDLE_SIZE) {
+            if (dx1 <= OFFSET) {
                 rectangleLongitude = WEST_BORDER;
-            } else if (dx2 <= HANDLE_SIZE) {
+            } else if (dx2 <= OFFSET) {
                 rectangleLongitude = EAST_BORDER;
             } else if (x >= x1 && x < x2) {
                 rectangleLongitude = NO_LONGITUDE_BORDER;
             }
 
             rectangleLatitude = BORDER_UNKNOWN;
-            if (dy1 <= HANDLE_SIZE) {
+            if (dy1 <= OFFSET) {
                 rectangleLatitude = NORTH_BORDER;
-            } else if (dy2 <= HANDLE_SIZE) {
+            } else if (dy2 <= OFFSET) {
                 rectangleLatitude = SOUTH_BORDER;
             } else if (y > y1 && y < y2) {
                 rectangleLatitude = NO_LATITUDE_BORDER;
@@ -190,10 +191,6 @@ public class RegionSelectableWorldMapPane {
 
         @Override
         public void mouseDragged(MouseEvent event) {
-            modifySelectionRectangle(event);
-        }
-
-        private void modifySelectionRectangle(MouseEvent event) {
             double dx = event.getX() - point.getX();
             double dy = point.getY() - event.getY();
 
@@ -220,12 +217,12 @@ public class RegionSelectableWorldMapPane {
             }
 
             if (widthOfUpdatedRectangle > 2 && heightOfUpdatedRectangle > 2 &&
-                    !(selectionRectangle.getX() == xOfUpdatedRectangle
-                            && selectionRectangle.getY() == yOfUpdatedRectangle
-                            && selectionRectangle.getWidth() == widthOfUpdatedRectangle
-                            && selectionRectangle.getHeight() == heightOfUpdatedRectangle)) {
+                !(selectionRectangle.getX() == xOfUpdatedRectangle
+                  && selectionRectangle.getY() == yOfUpdatedRectangle
+                  && selectionRectangle.getWidth() == widthOfUpdatedRectangle
+                  && selectionRectangle.getHeight() == heightOfUpdatedRectangle)) {
                 setSelectionRectangleBounds(xOfUpdatedRectangle, yOfUpdatedRectangle, widthOfUpdatedRectangle,
-                        heightOfUpdatedRectangle, getViewToModelTransform(event));
+                                            heightOfUpdatedRectangle, getViewToModelTransform(event));
             }
         }
 
@@ -249,20 +246,34 @@ public class RegionSelectableWorldMapPane {
         public void panStarted(MouseEvent event) {
             super.panStarted(event);
             p0 = event.getPoint();
-            AffineTransform modelToView = worldMapPane.getLayerCanvas().getViewport().getModelToViewTransform();
-            selectionRectangle = modelToView.createTransformedShape(figureEditor.getFigureCollection().getFigure(0).getBounds()).getBounds2D();
-            if (selectionRectangle.contains(event.getPoint())) {
+            updateSelectionRectangle();
+            final Rectangle2D.Double intersectionRectangle = createIntersectionRectangle();
+            if (intersectionRectangle.contains(event.getPoint())) {
                 regionSelectionInteractor.mousePressed(event);
             }
         }
 
         @Override
         public void performPan(MouseEvent event) {
-            if (selectionRectangle.contains(p0)) {
+            final Rectangle2D.Double intersectionRectangle = createIntersectionRectangle();
+            if (intersectionRectangle.contains(p0)) {
                 regionSelectionInteractor.mouseDragged(event);
             } else {
                 super.performPan(event);
             }
         }
+
+        private void updateSelectionRectangle() {
+            AffineTransform modelToView = worldMapPane.getLayerCanvas().getViewport().getModelToViewTransform();
+            selectionRectangle = modelToView.createTransformedShape(figureEditor.getFigureCollection().getFigure(0).getBounds()).getBounds2D();
+        }
+
+        private Rectangle2D.Double createIntersectionRectangle() {
+            return new Rectangle2D.Double(selectionRectangle.getX() - OFFSET,
+                                          selectionRectangle.getY() - OFFSET,
+                                          selectionRectangle.getWidth() + OFFSET,
+                                          selectionRectangle.getHeight() + OFFSET);
+        }
+
     }
 }
