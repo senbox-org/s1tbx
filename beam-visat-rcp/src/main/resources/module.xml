@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-visat-rcp</symbolicName>
-    <version>4.10</version>
+    <version>4.10.1</version>
     <name>VISAT Rich Client Platform</name>
 
     <description>
@@ -27,6 +27,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 4.10.1<br/>
+          [BEAM-1404] Image views shall draw pixel grid at high zoom levels<br/>
         <p>Changes in 4.10<br/>
           [BEAM-1123] Opened StatisticsDialog slows down performance of geometrc objects<br/>
           [BEAM-1385] Import images as products (missing RGB product reader)<br/>

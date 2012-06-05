@@ -265,21 +265,30 @@ public class ProductSceneImage implements ProductLayerContext {
                                                                    ImageLayer.DEFAULT_BORDER_WIDTH);
         final Color borderColor = configuration.getPropertyColor("image.border.color",
                                                                  ImageLayer.DEFAULT_BORDER_COLOR);
+        final boolean pixelBorderShown = configuration.getPropertyBool("pixel.border.shown",
+                                                                  ImageLayer.DEFAULT_PIXEL_BORDER_SHOWN);
+        final double pixelBorderWidth = configuration.getPropertyDouble("pixel.border.size",
+                                                                   ImageLayer.DEFAULT_PIXEL_BORDER_WIDTH);
+        final Color pixelBorderColor = configuration.getPropertyColor("pixel.border.color",
+                                                                 ImageLayer.DEFAULT_PIXEL_BORDER_COLOR);
 
         final PropertySet layerConfiguration = layer.getConfiguration();
         layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, borderShown);
         layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, borderWidth);
         layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, borderColor);
+        layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_SHOWN, pixelBorderShown);
+        layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_WIDTH, pixelBorderWidth);
+        layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_COLOR, pixelBorderColor);
     }
 
     private Layer createNoDataLayer() {
-        final LayerType noDatatype = LayerTypeRegistry.getLayerType(NoDataLayerType.class);
-        final PropertySet configTemplate = noDatatype.createLayerConfig(null);
+        final LayerType noDataType = LayerTypeRegistry.getLayerType(NoDataLayerType.class);
+        final PropertySet configTemplate = noDataType.createLayerConfig(null);
 
         final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
         configTemplate.setValue(NoDataLayerType.PROPERTY_NAME_COLOR, color);
         configTemplate.setValue(NoDataLayerType.PROPERTY_NAME_RASTER, getRaster());
-        final Layer layer = noDatatype.createLayer(this, configTemplate);
+        final Layer layer = noDataType.createLayer(this, configTemplate);
         final double transparency = configuration.getPropertyDouble("noDataOverlay.transparency", 0.3);
         layer.setTransparency(transparency);
         return layer;

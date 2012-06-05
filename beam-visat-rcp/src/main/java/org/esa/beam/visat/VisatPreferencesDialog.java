@@ -656,7 +656,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param;
 
-            param = new Parameter(ProductSceneView.PROPERTY_KEY_GRAPHICS_ANTIALIASING, Boolean.FALSE);
+            param = new Parameter(ProductSceneView.PROPERTY_KEY_GRAPHICS_ANTIALIASING, Boolean.TRUE);
             param.getProperties().setLabel("Use anti-aliasing for rendering text and vector graphics"); /*I18N*/
             configParams.addParameter(param);
 
@@ -749,8 +749,8 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setLabel("Image border colour"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("pixel.border.shown", Boolean.TRUE);
-            param.getProperties().setLabel("Show pixel border in magnified views"); /*I18N*/
+            param = new Parameter("pixel.border.shown", ImageLayer.DEFAULT_PIXEL_BORDER_SHOWN);
+            param.getProperties().setLabel("Show pixel borders in magnified views"); /*I18N*/
             param.addParamChangeListener(new ParamChangeListener() {
 
                 @Override
@@ -760,6 +760,13 @@ public class VisatPreferencesDialog extends ConfigDialog {
             });
             configParams.addParameter(param);
 
+            param = new Parameter("pixel.border.size", ImageLayer.DEFAULT_PIXEL_BORDER_WIDTH);
+            param.getProperties().setLabel("Pixel border size"); /*I18N*/
+            configParams.addParameter(param);
+
+            param = new Parameter("pixel.border.color", ImageLayer.DEFAULT_PIXEL_BORDER_COLOR);
+            param.getProperties().setLabel("Pixel border colour"); /*I18N*/
+            configParams.addParameter(param);
         }
 
         @Override
@@ -842,14 +849,35 @@ public class VisatPreferencesDialog extends ConfigDialog {
             gbc.gridy++;
             gbc.gridwidth = 1;
 
+            gbc.insets.top = _LINE_INSET_TOP;
+
+            param = getConfigParam("pixel.border.size");
+            gbc.weightx = 0;
+            pageUI.add(param.getEditor().getLabelComponent(), gbc);
+            gbc.weightx = 1;
+            pageUI.add(param.getEditor().getEditorComponent(), gbc);
+            gbc.gridy++;
+
+            param = getConfigParam("pixel.border.color");
+            gbc.gridwidth = 1;
+            gbc.weightx = 0;
+            pageUI.add(param.getEditor().getLabelComponent(), gbc);
+            gbc.weightx = 1;
+            pageUI.add(param.getEditor().getEditorComponent(), gbc);
+            gbc.gridy++;
+
             return createPageUIContentPane(pageUI);
         }
 
         @Override
         public void updatePageUI() {
-            boolean enabled = (Boolean) getConfigParam("image.border.shown").getValue();
-            setConfigParamUIEnabled("image.border.size", enabled);
-            setConfigParamUIEnabled("image.border.color", enabled);
+            boolean imageBorderEnabled = (Boolean) getConfigParam("image.border.shown").getValue();
+            setConfigParamUIEnabled("image.border.size", imageBorderEnabled);
+            setConfigParamUIEnabled("image.border.color", imageBorderEnabled);
+
+            boolean pixelBorderEnabled = (Boolean) getConfigParam("pixel.border.shown").getValue();
+            setConfigParamUIEnabled("pixel.border.size", pixelBorderEnabled);
+            setConfigParamUIEnabled("pixel.border.color", pixelBorderEnabled);
         }
     }
 

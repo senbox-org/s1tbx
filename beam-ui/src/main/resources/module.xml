@@ -26,6 +26,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.10.1<br/>
+        [BEAM-1404] Image views shall draw pixel grid at high zoom levels<br/>
         [BEAM-1401] Null pointer exception when closing image views<br/>
         <p>Changes in 4.10<br/>
         [BEAM-1384] Synchronise image views via geographical center coordinates<br/>
