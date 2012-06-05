@@ -23,24 +23,21 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
+        <version>4.10.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>beam-examples</artifactId>
     <groupId>org.esa.beam</groupId>
-    <version>1.0</version>
     <name>BEAM Examples</name>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-gpf</artifactId>
-            <version>${beam.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-visat</artifactId>
-            <version>${beam.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-processing</symbolicName>
-    <version>4.10</version>
+    <version>4.10.3</version>
     <name>BEAM Processing Library</name>
 
     <description>A basic library used by all processors.</description>

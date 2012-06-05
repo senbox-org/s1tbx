@@ -24,13 +24,12 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam</artifactId>
-        <version>4.10</version>
+        <version>4.10.3-SNAPSHOT</version>
     </parent>
 
     <name>BEAM Core API</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-core</artifactId>
-    <version>4.10.2</version>
 
     <packaging>jar</packaging>
     <dependencies>
