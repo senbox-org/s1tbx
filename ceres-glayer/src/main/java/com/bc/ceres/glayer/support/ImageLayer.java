@@ -65,7 +65,7 @@ public class ImageLayer extends Layer {
 
     public static final Boolean DEFAULT_PIXEL_BORDER_SHOWN = true;
     public static final Color DEFAULT_PIXEL_BORDER_COLOR = new Color(255, 255, 204);
-    public static final double DEFAULT_PIXEL_BORDER_WIDTH = 0.5;
+    public static final double DEFAULT_PIXEL_BORDER_WIDTH = 0.0;
 
     public static final double DEFAULT_PIXEL_BORDER_ZOOM_FACTOR = 24.0;
 
@@ -234,8 +234,8 @@ public class ImageLayer extends Layer {
 
             int x0 = Math.max(0, (int) Math.floor(imageBounds.getX()));
             int y0 = Math.max(0, (int) Math.floor(imageBounds.getY()));
-            int x1 = Math.min(width, x0 + (int) Math.round(imageBounds.getWidth()));
-            int y1 = Math.min(height, y0 + (int) Math.round(imageBounds.getHeight()));
+            int x1 = Math.min(width, x0 + (int) Math.round(imageBounds.getWidth()) + 1);
+            int y1 = Math.min(height, y0 + (int) Math.round(imageBounds.getHeight()) + 1);
 
             // fixme: the dashed stroke is slow (nf)
             /*
