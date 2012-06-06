@@ -8,6 +8,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 0.13.1<br/>
+        [CERES-057] Version text in splash screen shall be configurable<br/>
         Changes in 0.13<br/>
         [CERES-056] Use latest XStream library<br/>
         [CERES-055] Core API: Add extension point "adapters" in order to have declarative extension types<br/>
