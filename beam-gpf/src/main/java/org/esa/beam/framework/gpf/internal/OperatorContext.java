@@ -72,13 +72,13 @@ public class OperatorContext {
     private OperatorSpi operatorSpi;
     private boolean computeTileMethodUsable;
     private boolean computeTileStackMethodUsable;
-    private Map<String, Object> parameters;
     private Map<Band, OperatorImage> targetImageMap;
     private OperatorConfiguration configuration;
     private Logger logger;
     private boolean cancelled;
     private boolean disposed;
-    private PropertyContainer propertyContainer;
+    private Map<String, Object> parameters;
+    private PropertySet parameterSet;
     private boolean initialising;
     private boolean requiresAllBands;
 
@@ -461,12 +461,12 @@ public class OperatorContext {
     }
 
 
-    private PropertyContainer getOperatorPropertyContainer() {
-        if (propertyContainer == null) {
+    private PropertySet getParameterSet() {
+        if (parameterSet == null) {
             PropertyDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
-            propertyContainer = PropertyContainer.createObjectBacked(operator, parameterDescriptorFactory);
+            parameterSet = PropertyContainer.createObjectBacked(operator, parameterDescriptorFactory);
         }
-        return propertyContainer;
+        return parameterSet;
     }
 
     private void initGraphMetadata() {
@@ -979,13 +979,13 @@ public class OperatorContext {
     }
 
     public void injectParameterDefaultValues() throws OperatorException {
-        getOperatorPropertyContainer().setDefaultValues();
+        getParameterSet().setDefaultValues();
     }
 
     private void injectParameterValues() throws OperatorException {
         if (parameters != null) {
             for (String parameterName : parameters.keySet()) {
-                final Property property = getOperatorPropertyContainer().getProperty(parameterName);
+                final Property property = getParameterSet().getProperty(parameterName);
                 if (property == null) {
                     // Note: "Unknown parameter" exception commented out by Norman on 09.02.2011
                     // Intention is to reuse parameter maps for multiple operators. (see OpParameterInitialisationTest)
