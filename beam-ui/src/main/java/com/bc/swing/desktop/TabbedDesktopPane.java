@@ -48,7 +48,6 @@ import java.util.Comparator;
 
 /**
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision$ $Date$
  */
 public class TabbedDesktopPane extends JPanel {
 
@@ -60,10 +59,6 @@ public class TabbedDesktopPane extends JPanel {
     private JMenu windowMenu;
     private WindowMenuListener windowMenuListener;
     private InternalFrameLayoutManager frameLayoutManager;
-
-// <old-UI>
-//    private static final Color BACKGROUND_COLOR = new Color(138, 133, 128);
-// </old-UI>
 
     public TabbedDesktopPane() {
         this(new JideTabbedPane(JTabbedPane.TOP,
@@ -79,6 +74,9 @@ public class TabbedDesktopPane extends JPanel {
         this.windowMenu = null;
         this.windowMenuListener = new WindowMenuListener();
         this.frameLayoutManager = new DefaultInternalFrameLayoutManager();
+
+        this.tabbedPane.setShowCloseButtonOnTab(true);
+
         initUI();
     }
 
@@ -106,7 +104,7 @@ public class TabbedDesktopPane extends JPanel {
         JMenu windowMenuOld = this.windowMenu;
         if (windowMenuOld != windowMenu) {
             if (windowMenuOld != null) {
-                windowMenu.removeMenuListener(windowMenuListener);
+                windowMenuOld.removeMenuListener(windowMenuListener);
             }
             this.windowMenu = windowMenu;
             if (this.windowMenu != null) {
@@ -415,14 +413,13 @@ public class TabbedDesktopPane extends JPanel {
     }
 
     private JInternalFrame[] getVisibleFrames(final JInternalFrame[] frames) {
-        ArrayList list = new ArrayList();
-        for (int i = 0; i < frames.length; i++) {
-            JInternalFrame internalFrame = frames[i];
-            if (internalFrame.isVisible() && !internalFrame.isIcon()) {
-                list.add(internalFrame);
+        ArrayList<JInternalFrame> list = new ArrayList<JInternalFrame>();
+        for (JInternalFrame frame : frames) {
+            if (frame.isVisible() && !frame.isIcon()) {
+                list.add(frame);
             }
         }
-        return (JInternalFrame[]) list.toArray(new JInternalFrame[list.size()]);
+        return list.toArray(new JInternalFrame[list.size()]);
     }
 
     private static class InternalFrameProxy extends JComponent {
@@ -499,12 +496,10 @@ public class TabbedDesktopPane extends JPanel {
         }
     }
 
-    private static class FrameComparator implements Comparator {
+    private static class FrameComparator implements Comparator<JInternalFrame> {
 
         @Override
-        public int compare(Object o1, Object o2) {
-            final JInternalFrame f1 = (JInternalFrame) o1;
-            final JInternalFrame f2 = (JInternalFrame) o2;
+        public int compare(JInternalFrame f1, JInternalFrame f2) {
             if (f1.getTitle() != null && f2.getTitle() != null) {
                 return f1.getTitle().compareTo(f2.getTitle());
             } else if (f1.getTitle() != null) {
@@ -524,9 +519,7 @@ public class TabbedDesktopPane extends JPanel {
          */
         @Override
         public void mouseReleased(MouseEvent e) {
-// <JIDE>
-// todo - Context menu does not work anymore!!!    
-// </JIDE>
+            // check: Context menu does not work anymore!!!
             if (e.isPopupTrigger()) {
                 final int index = tabbedPane.indexAtLocation(e.getX(), e.getY());
                 if (index >= 0) {
@@ -558,8 +551,7 @@ public class TabbedDesktopPane extends JPanel {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         final JInternalFrame[] allFrames = getAllFrames();
-                        for (int i = 0; i < allFrames.length; i++) {
-                            JInternalFrame otherFrame = allFrames[i];
+                        for (JInternalFrame otherFrame : allFrames) {
                             if (otherFrame != thisFrame) {
                                 closeFrame(otherFrame);
                             }
