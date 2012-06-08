@@ -49,7 +49,7 @@ public class BinWriter {
     }
 
     public void write(File filePath,
-                      Properties metadataProperties,
+                      Map<String, String> metadataProperties,
                       List<TemporalBin> temporalBins) throws IOException, InvalidRangeException {
 
         final NetcdfFileWriteable netcdfFile = NetcdfFileWriteable.createNew(filePath.getPath());
@@ -63,9 +63,8 @@ public class BinWriter {
         netcdfFile.addGlobalAttribute("start_time", startTime != null ? dateFormat.format(startTime.getAsDate()) : "");
         netcdfFile.addGlobalAttribute("stop_time", stopTime != null ? dateFormat.format(stopTime.getAsDate()) : "");
 
-        final TreeSet<String> sortedNames = new TreeSet<String>(metadataProperties.stringPropertyNames());
-        for (String name : sortedNames) {
-            final String value = metadataProperties.getProperty(name);
+        for (String name : metadataProperties.keySet()) {
+            final String value = metadataProperties.get(name);
             try {
                 netcdfFile.addGlobalAttribute(name, value);
             } catch (Exception e) {

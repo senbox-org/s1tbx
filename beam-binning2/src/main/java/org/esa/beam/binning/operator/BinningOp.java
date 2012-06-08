@@ -167,7 +167,7 @@ public class BinningOp extends Operator implements Output {
     private transient int sourceProductCount;
     private transient ProductData.UTC minDateUtc;
     private transient ProductData.UTC maxDateUtc;
-    private transient Properties metadataProperties;
+    private transient SortedMap<String, String> metadataProperties;
 
     public BinningOp() {
         this(new SpatialBinStoreImpl());
@@ -217,6 +217,10 @@ public class BinningOp extends Operator implements Output {
         this.formatterConfig = formatterConfig;
     }
 
+    SortedMap<String, String> getMetadataProperties() {
+        return metadataProperties;
+    }
+
     /**
      * Processes all source products and writes the output file.
      * The target product represents the written output file
@@ -261,7 +265,7 @@ public class BinningOp extends Operator implements Output {
         stopWatch.start();
 
         binningContext = binningConfig.createBinningContext();
-        metadataProperties = new Properties();
+        metadataProperties = new TreeMap<String, String>();
         sourceProductCount = 0;
 
         try {
@@ -368,7 +372,11 @@ public class BinningOp extends Operator implements Output {
                     getLogger().info(String.format("Reading metadata properties file '%s'...", metadataPropertiesFile));
                     final FileReader reader = new FileReader(metadataPropertiesFile);
                     try {
-                        metadataProperties.load(reader);
+                        final Properties properties = new Properties();
+                        properties.load(reader);
+                        for (String name : properties.stringPropertyNames()) {
+                            metadataProperties.put(name, properties.getProperty(name));
+                        }
                     } finally {
                         reader.close();
                     }
@@ -495,9 +503,8 @@ public class BinningOp extends Operator implements Output {
 
     private MetadataElement createGlobalAttributesElement() {
         final MetadataElement globalAttributes = new MetadataElement("Global_Attributes");
-        final TreeSet<String> sortedNames = new TreeSet<String>(metadataProperties.stringPropertyNames());
-        for (String name : sortedNames) {
-            final String value = metadataProperties.getProperty(name);
+        for (String name : metadataProperties.keySet()) {
+            final String value = metadataProperties.get(name);
             globalAttributes.addAttribute(new MetadataAttribute(name, ProductData.createInstance(value), true));
         }
         return globalAttributes;

@@ -17,9 +17,16 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.SortedMap;
 
-import static java.lang.Math.*;
-import static org.junit.Assert.*;
+import static java.lang.Math.sqrt;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Test that creates a local and a global L3 product from 5 source files.
@@ -49,6 +56,35 @@ public class BinningOpTest {
         if (!FileUtils.deleteTree(TESTDATA_DIR)) {
             System.out.println("Warning: failed to completely delete test I/O directory:" + TESTDATA_DIR);
         }
+    }
+
+    @Test
+    public void testMetadataGeneration() throws Exception {
+        BinningOp binningOp = new BinningOp();
+
+        binningOp.setSourceProducts(createSourceProduct(0.1F),
+                                    createSourceProduct(0.2F),
+                                    createSourceProduct(0.3F));
+
+        binningOp.setStartDate("2002-01-01");
+        binningOp.setEndDate("2002-01-10");
+        binningOp.setBinningConfig(createBinningConfig());
+        binningOp.setFormatterConfig(createFormatterConfig());
+
+        assertNull(binningOp.getMetadataProperties());
+
+        binningOp.getTargetProduct();
+
+        SortedMap<String, String> metadataProperties = binningOp.getMetadataProperties();
+        assertNotNull(metadataProperties);
+        Set<String> nameSet = metadataProperties.keySet();
+        final String[] names = nameSet.toArray(new String[nameSet.size()]);
+        assertEquals(5, names.length);
+        assertEquals("processing_time", names[0]);
+        assertEquals("product_name", names[1]);
+        assertEquals("software_name", names[2]);
+        assertEquals("software_qualified_name", names[3]);
+        assertEquals("software_version", names[4]);
     }
 
     @Test
