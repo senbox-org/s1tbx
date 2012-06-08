@@ -455,9 +455,6 @@ return files;
                           </void>
                         </array>
                       </void>
-                      <void property="ignoreMissing">
-                        <boolean>false</boolean>
-                      </void>
                     </object>
                   </java>
                 </serializedBean>
