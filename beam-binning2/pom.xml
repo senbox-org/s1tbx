@@ -4,15 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.esa.beam</groupId>
+        <artifactId>beam-plugins</artifactId>
+        <version>1-SNAPSHOT</version>
+        <relativePath>../beam-plugins/pom.xml</relativePath>
+    </parent>
+
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-binning2</artifactId>
     <version>0.8.0</version>
-
-    <parent>
-        <groupId>org.esa.beam</groupId>
-        <artifactId>beam</artifactId>
-        <version>4.10</version>
-    </parent>
 
     <name>BEAM Level-3 Binning (GPF)</name>
     <description>
@@ -25,38 +26,59 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-core</artifactId>
+            <version>4.10</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-gpf</artifactId>
+            <version>4.10</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-ui</artifactId>
+            <version>4.10</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-visat-rcp</artifactId>
+            <version>4.10</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-netcdf</artifactId>
+            <version>1.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--Needed because the scope of beam-netcdf has been set to provided-->
+        <dependency>
+            <groupId>edu.ucar</groupId>
+            <artifactId>netcdf</artifactId>
+            <version>4.2.20</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Not a real dependency, but used for tests -->
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
+            <version>1.5</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>blue-marble-worldmap</artifactId>
             <version>1.0.1</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
@@ -114,6 +136,5 @@
         </extensions>
 
     </build>
-
 
 </project>

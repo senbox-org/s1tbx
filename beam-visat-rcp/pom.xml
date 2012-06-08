@@ -20,8 +20,9 @@
 
     <parent>
         <groupId>org.esa.beam</groupId>
-        <artifactId>beam</artifactId>
+        <artifactId>beam-system</artifactId>
         <version>4.10.3-SNAPSHOT</version>
+        <relativePath>../beam-system/pom.xml</relativePath>
     </parent>
 
     <groupId>org.esa.beam</groupId>
@@ -54,7 +55,6 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-gpf</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-wms</artifactId>

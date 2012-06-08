@@ -22,9 +22,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
+        <artifactId>beam-plugins</artifactId>
+        <version>1-SNAPSHOT</version>
+        <relativePath>../beam-plugins/pom.xml</relativePath>
     </parent>
 
     <artifactId>beam-unmix</artifactId>
@@ -36,18 +37,26 @@
         <dependency>
             <groupId>Jama</groupId>
             <artifactId>Jama</artifactId>
+            <version>1.0.2</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.bc.ceres</groupId>
             <artifactId>ceres-binding</artifactId>
+            <version>0.13</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-visat</artifactId>
+            <version>4.10</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-gpf</artifactId>
+            <version>4.10</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -56,6 +65,7 @@
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
                 <artifactId>maven-javahelp-plugin</artifactId>
+                <version>1.0</version>
             </plugin>
         </plugins>
     </build>

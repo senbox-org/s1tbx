@@ -21,9 +21,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
+        <artifactId>beam-system</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
+        <version>4.10.3-SNAPSHOT</version>
+        <relativePath>../beam-system/pom.xml</relativePath>
     </parent>
 
     <packaging>jar</packaging>
@@ -31,7 +32,6 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-help</artifactId>
     <name>BEAM Help</name>
-    <version>4.10.1</version>
 
     <description>Provides the software user manual.</description>
 

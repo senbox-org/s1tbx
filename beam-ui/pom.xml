@@ -20,9 +20,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <artifactId>beam</artifactId>
+        <artifactId>beam-system</artifactId>
         <groupId>org.esa.beam</groupId>
         <version>4.10.3-SNAPSHOT</version>
+        <relativePath>../beam-system/pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>

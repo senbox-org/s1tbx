@@ -20,9 +20,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
+        <artifactId>beam-plugins</artifactId>
+        <version>1-SNAPSHOT</version>
+        <relativePath>../beam-plugins/pom.xml</relativePath>
     </parent>
 
     <groupId>org.esa.beam</groupId>
@@ -37,6 +38,12 @@
             <groupId>gov.nasa.gsfc.seadas</groupId>
             <artifactId>seadas-reader</artifactId>
             <version>1.3-20120509-04</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.esa.beam</groupId>
+                    <artifactId>beam-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

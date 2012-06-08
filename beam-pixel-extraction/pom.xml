@@ -18,13 +18,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.esa.beam</groupId>
+        <artifactId>beam-plugins</artifactId>
+        <version>1-SNAPSHOT</version>
+        <relativePath>../beam-plugins/pom.xml</relativePath>
+    </parent>
+
+    <groupId>org.esa.beam</groupId>
     <artifactId>beam-pixel-extraction</artifactId>
     <version>1.2-SNAPSHOT</version>
     <name>BEAM Pixel Extraction Tool</name>
@@ -38,10 +41,15 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-visat</artifactId>
+            <version>4.10</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-gpf</artifactId>
+            <version>4.10</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
+
 </project>

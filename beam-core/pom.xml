@@ -23,8 +23,9 @@
 
     <parent>
         <groupId>org.esa.beam</groupId>
-        <artifactId>beam</artifactId>
+        <artifactId>beam-system</artifactId>
         <version>4.10.3-SNAPSHOT</version>
+        <relativePath>../beam-system/pom.xml</relativePath>
     </parent>
 
     <name>BEAM Core API</name>
@@ -83,11 +84,6 @@
             <artifactId>Jama</artifactId>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-api</artifactId>
         </dependency>
@@ -114,6 +110,10 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-cql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
 

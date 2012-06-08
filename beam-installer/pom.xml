@@ -22,9 +22,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
+        <artifactId>beam-system</artifactId>
         <groupId>org.esa.beam</groupId>
         <version>4.10.3-SNAPSHOT</version>
+        <relativePath>../beam-system/pom.xml</relativePath>
     </parent>
 
     <name>BEAM Installer Resources</name>
@@ -120,7 +121,6 @@
                         </goals>
                         <configuration>
                             <artifactItems>
-
                                 <artifactItem>
                                     <groupId>org.esa.beam</groupId>
                                     <artifactId>beam-meris-case2-regional</artifactId>

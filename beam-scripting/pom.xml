@@ -23,8 +23,9 @@
 
     <parent>
         <groupId>org.esa.beam</groupId>
-        <artifactId>beam</artifactId>
-        <version>4.10</version>
+        <artifactId>beam-system</artifactId>
+        <version>4.10.3-SNAPSHOT</version>
+        <relativePath>../beam-system/pom.xml</relativePath>
     </parent>
 
     <name>BEAM Scripting Interface</name>

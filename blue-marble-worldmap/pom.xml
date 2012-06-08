@@ -16,29 +16,37 @@
   -->
 
 <project>
-    <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.esa.beam</groupId>
     <artifactId>blue-marble-worldmap</artifactId>
     <name>BEAM NASA Blue Marble Worldmap</name>
     <version>1.0.1</version>
 
+    <parent>
+        <groupId>org.esa.beam</groupId>
+        <artifactId>beam-plugins</artifactId>
+        <version>1-SNAPSHOT</version>
+        <relativePath>../beam-plugins/pom.xml</relativePath>
+    </parent>
+
     <dependencies>
         <dependency>
             <groupId>com.bc.ceres</groupId>
             <artifactId>ceres-glayer</artifactId>
+            <version>0.13</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-core</artifactId>
+            <version>4.10</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-referencing</artifactId>
+            <version>2.7.4</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
