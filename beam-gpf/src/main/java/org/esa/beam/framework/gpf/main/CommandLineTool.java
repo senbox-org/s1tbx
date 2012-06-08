@@ -31,7 +31,11 @@ import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.graph.Graph;
@@ -120,15 +124,12 @@ class CommandLineTool {
 
     private void run(CommandLineArgs lineArgs) throws ValidationException, IOException, GraphException {
         initializeJAI(lineArgs.getTileCacheCapacity(), lineArgs.getTileSchedulerParallelism());
-
-        final OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-
         if (lineArgs.getOperatorName() != null) {
             // Operator name given: parameters and sources are parsed from command-line args
             runOperator(lineArgs);
         } else if (lineArgs.getGraphFilePath() != null) {
             // Path to Graph XML given: parameters and sources are parsed from command-line args
-            runGraph(lineArgs, operatorSpiRegistry);
+            runGraph(lineArgs);
         }
     }
 
@@ -156,8 +157,8 @@ class CommandLineTool {
         }
     }
 
-    private void runGraph(CommandLineArgs lineArgs, OperatorSpiRegistry operatorSpiRegistry)
-            throws IOException, GraphException {
+    private void runGraph(CommandLineArgs lineArgs) throws IOException, GraphException {
+        final OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
 
         Map<String, String> templateVariables = getRawParameterMap(lineArgs);
 
