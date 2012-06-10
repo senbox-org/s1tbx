@@ -21,19 +21,15 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.TestOps;
-import org.esa.beam.framework.gpf.graph.Graph;
-import org.esa.beam.framework.gpf.graph.GraphException;
-import org.esa.beam.framework.gpf.graph.GraphIO;
-import org.esa.beam.framework.gpf.graph.Node;
+import org.esa.beam.framework.gpf.graph.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Collections;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 
@@ -201,7 +197,7 @@ public class CommandLineToolMultiSourceGraphTest {
         }
 
         @Override
-        public void executeGraph(Graph graph) throws GraphException {
+        public void executeGraph(Graph graph, GraphProcessingObserver observer) throws GraphException {
             logString += "e=" + graph.getId() + ";";
             executedGraph = graph;
         }
@@ -215,12 +211,22 @@ public class CommandLineToolMultiSourceGraphTest {
         }
 
         @Override
-        public Map<String, String> readParametersFile(String filePath, Map<String, String> templateVariables) throws IOException {
-            return Collections.emptyMap();
+        public void print(String m) {
         }
 
         @Override
-        public void print(String m) {
+        public Logger getLogger() {
+            return Logger.getLogger("test");
+        }
+
+        @Override
+        public Reader createReader(String fileName) throws FileNotFoundException {
+            return new StringReader(fileName);
+        }
+
+        @Override
+        public Writer createWriter(String fileName) throws IOException {
+            return new StringWriter();
         }
     }
 }

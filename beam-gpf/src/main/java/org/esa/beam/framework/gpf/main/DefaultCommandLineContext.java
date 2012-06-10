@@ -17,27 +17,23 @@
 package org.esa.beam.framework.gpf.main;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.util.TemplateReader;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.graph.Graph;
-import org.esa.beam.framework.gpf.graph.GraphException;
-import org.esa.beam.framework.gpf.graph.GraphIO;
-import org.esa.beam.framework.gpf.graph.GraphProcessor;
+import org.esa.beam.framework.gpf.graph.*;
 import org.esa.beam.gpf.operators.standard.WriteOp;
-import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * The default command line context.
  */
 class DefaultCommandLineContext implements CommandLineContext {
+
     @Override
     public Product readProduct(String productFilepath) throws IOException {
         Product product;
@@ -67,48 +63,12 @@ class DefaultCommandLineContext implements CommandLineContext {
     }
 
     @Override
-    public void executeGraph(Graph graph) throws GraphException {
+    public void executeGraph(Graph graph, GraphProcessingObserver observer) throws GraphException {
         GraphProcessor processor = new GraphProcessor();
+        if (observer != null) {
+            processor.addObserver(observer);
+        }
         processor.executeGraph(graph, ProgressMonitor.NULL);
-    }
-
-    @Override
-    public Map<String, String> readParametersFile(String filePath, Map<String, String> templateVariables) throws IOException {
-        File file = new File(filePath);
-        Reader reader = new FileReader(file);
-        if (templateVariables != null) {
-            reader = new TemplateReader(reader, templateVariables);
-        }
-        String fileContent = FileUtils.readText(reader);
-        if (isParametersXml(fileContent)) {
-            Map<String, String> map = new HashMap<String, String>();
-            map.put(CommandLineTool.KEY_PARAMETERS_XML, fileContent);
-            return map;
-        } else {
-            return readProperties(fileContent);
-        }
-    }
-
-    private boolean isParametersXml(String fileContent) {
-        // TODO - this is not a sufficient test (nf, 2012-03-02)
-        return fileContent.contains("<parameters>") && fileContent.contains("</parameters>");
-    }
-
-    private Map<String, String> readProperties(String fileContent) throws IOException {
-        Properties properties = new Properties();
-        Reader reader = new StringReader(fileContent);
-        HashMap<String, String> hashMap;
-        try {
-            properties.load(reader);
-            hashMap = new HashMap<String, String>();
-            for (Object object : properties.keySet()) {
-                String key = object.toString();
-                hashMap.put(key, properties.getProperty(key));
-            }
-        } finally {
-            reader.close();
-        }
-        return hashMap;
     }
 
     @Override
@@ -119,5 +79,20 @@ class DefaultCommandLineContext implements CommandLineContext {
     @Override
     public void print(String m) {
         System.out.print(m);
+    }
+
+    @Override
+    public Logger getLogger() {
+        return BeamLogManager.getSystemLogger();
+    }
+
+    @Override
+    public Reader createReader(String textFilePath) throws FileNotFoundException {
+        return new FileReader(textFilePath);
+    }
+
+    @Override
+    public Writer createWriter(String fileName) throws IOException {
+        return new FileWriter(fileName);
     }
 }

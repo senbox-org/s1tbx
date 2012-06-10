@@ -65,10 +65,10 @@ class CommandLineUsage {
         appendDocElementList(opListText, docElementList);
         return MessageFormat.format(usagePattern,
                                     CommandLineTool.TOOL_NAME,
-                                    CommandLineTool.DEFAULT_TARGET_FILEPATH,
-                                    CommandLineTool.DEFAULT_FORMAT_NAME,
-                                    CommandLineTool.DEFAULT_TILE_CACHE_SIZE_IN_M,
-                                    CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELISM,
+                                    CommandLineArgs.DEFAULT_TARGET_FILEPATH,
+                                    CommandLineArgs.DEFAULT_FORMAT_NAME,
+                                    CommandLineArgs.DEFAULT_TILE_CACHE_SIZE_IN_M,
+                                    CommandLineArgs.DEFAULT_TILE_SCHEDULER_PARALLELISM,
                                     opListText.toString());
     }
 

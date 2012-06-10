@@ -1,0 +1,18 @@
+<metadata>
+    <source>
+        <name>$sourceProduct.name</name>
+        <width>$sourceProduct.sceneRasterWidth</width>
+        <height>$sourceProduct.sceneRasterHeight</height>
+    </source>
+    <target>
+        <name>$targetProduct.name</name>
+        <width>$targetProduct.sceneRasterWidth</width>
+        <height>$targetProduct.sceneRasterHeight</height>
+    </target>
+    <operator>$operatorName</operator>
+    <extra>
+#foreach ($key in $metadata.keySet())
+        <$key>$metadata.get($key)</$key>
+#end
+    </extra>
+</metadata>

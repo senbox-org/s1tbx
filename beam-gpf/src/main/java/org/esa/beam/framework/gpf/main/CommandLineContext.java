@@ -20,9 +20,14 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
+import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.Map;
+import java.util.logging.Logger;
 
 interface CommandLineContext {
     Product readProduct(String productFilepath) throws IOException;
@@ -31,11 +36,15 @@ interface CommandLineContext {
 
     Graph readGraph(String filePath, Map<String, String> templateVariables) throws GraphException, IOException;
 
-    Map<String, String> readParametersFile(String filePath, Map<String, String> templateVariables) throws IOException;
-
-    void executeGraph(Graph graph) throws GraphException;
+    void executeGraph(Graph graph, GraphProcessingObserver observer) throws GraphException;
 
     Product createOpProduct(String opName, Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException;
 
     void print(String m);
+
+    Logger getLogger();
+
+    Reader createReader(String fileName) throws FileNotFoundException;
+
+    Writer createWriter(String fileName) throws IOException;
 }

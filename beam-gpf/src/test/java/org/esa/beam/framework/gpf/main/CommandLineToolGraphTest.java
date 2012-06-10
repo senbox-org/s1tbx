@@ -23,17 +23,13 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.TestOps;
-import org.esa.beam.framework.gpf.graph.Graph;
-import org.esa.beam.framework.gpf.graph.GraphException;
-import org.esa.beam.framework.gpf.graph.GraphIO;
-import org.esa.beam.framework.gpf.graph.Node;
+import org.esa.beam.framework.gpf.graph.*;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileScheduler;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.HashMap;
+import java.io.*;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class CommandLineToolGraphTest extends TestCase {
 
@@ -328,7 +324,7 @@ public class CommandLineToolGraphTest extends TestCase {
         }
 
         @Override
-        public void executeGraph(Graph graph) throws GraphException {
+        public void executeGraph(Graph graph, GraphProcessingObserver observer) throws GraphException {
             logString += "e=" + graph.getId() + ";";
             executedGraph = graph;
         }
@@ -342,16 +338,24 @@ public class CommandLineToolGraphTest extends TestCase {
         }
 
         @Override
-        public Map<String, String> readParametersFile(String filePath, Map<String, String> templateVariables) throws IOException {
-            HashMap<String, String> hashMap = new HashMap<String, String>();
-            hashMap.put("expression", "sqrt(x*x + y*y)");
-            hashMap.put("threshold", "-0.5125");
-            return hashMap;
+        public Reader createReader(String fileName) throws FileNotFoundException {
+            return new StringReader("expression=sqrt(x*x + y*y)\n" +
+                                            "threshold=-0.5125");
+        }
+
+        @Override
+        public Writer createWriter(String fileName) throws IOException {
+            return new StringWriter();
         }
 
         @Override
         public void print(String m) {
             this.m += m;
+        }
+
+        @Override
+        public Logger getLogger() {
+            return Logger.getLogger("test");
         }
     }
 }
