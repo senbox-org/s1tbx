@@ -71,6 +71,8 @@ public class BinningOpTest {
         binningOp.setBinningConfig(createBinningConfig());
         binningOp.setFormatterConfig(createFormatterConfig());
 
+        binningOp.setParameter("metadataTemplateDir", TESTDATA_DIR);
+
         assertNull(binningOp.getMetadataProperties());
 
         binningOp.getTargetProduct();
@@ -510,7 +512,6 @@ public class BinningOpTest {
             targetProduct.dispose();
         }
     }
-
 
     private void assertGlobalBinningProductIsOk(Product targetProduct, File location, float obs1, float obs2, float obs3, float obs4, float obs5) throws IOException {
         assertTargetProductIsOk(targetProduct, location, obs1, obs2, obs3, obs4, obs5, 360, 180, 179, 87);

@@ -38,8 +38,6 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-core</artifactId>
-            <version>4.10</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
@@ -52,8 +50,6 @@
         <dependency>
             <groupId>edu.ucar</groupId>
             <artifactId>netcdf</artifactId>
-            <version>4.2.20</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

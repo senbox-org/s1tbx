@@ -39,8 +39,6 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-visat</artifactId>
-            <version>4.10</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

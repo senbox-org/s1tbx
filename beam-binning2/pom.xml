@@ -26,29 +26,21 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-core</artifactId>
-            <version>4.10</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-gpf</artifactId>
-            <version>4.10</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-ui</artifactId>
-            <version>4.10</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-visat-rcp</artifactId>
-            <version>4.10</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -62,8 +54,6 @@
         <dependency>
             <groupId>edu.ucar</groupId>
             <artifactId>netcdf</artifactId>
-            <version>4.2.20</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Not a real dependency, but used for tests -->
@@ -78,6 +68,13 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>blue-marble-worldmap</artifactId>
             <version>1.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>1.5</version>
             <scope>provided</scope>
         </dependency>
 

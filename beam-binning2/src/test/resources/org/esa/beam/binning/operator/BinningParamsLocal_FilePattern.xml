@@ -18,7 +18,7 @@
     </binningConfig>
     <formatterConfig>
         <outputType>Product</outputType>
-        <outputFile>${gpt.targetFile}</outputFile>
+        <outputFile>${targetFile}</outputFile>
         <outputFormat>BEAM-DIMAP</outputFormat>
     </formatterConfig>
 </parameters>

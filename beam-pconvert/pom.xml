@@ -35,8 +35,6 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-core</artifactId>
-            <version>4.10</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

@@ -25,7 +25,7 @@ import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BoundsInputPanel;
-import org.esa.beam.framework.ui.WorldMapPane;
+import org.esa.beam.framework.ui.RegionSelectableWorldMapPane;
 import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.framework.ui.crs.CrsForm;
 import org.esa.beam.framework.ui.crs.CrsSelectionPanel;
@@ -148,10 +148,7 @@ class MosaicMapProjectionPanel extends JPanel {
         final WorldMapPaneDataModel worldMapModel = mosaicModel.getWorldMapModel();
         setMapBoundary(worldMapModel);
 
-        // Uncomment this to use RegionSelectableWorldMapPane
-//        final JPanel worldMapPanel = new RegionSelectableWorldMapPane(worldMapModel, bindingCtx).createUI();
-        final WorldMapPane worldMapPanel = new WorldMapPane(worldMapModel);
-
+        final JPanel worldMapPanel = new RegionSelectableWorldMapPane(worldMapModel, bindingCtx).createUI();
         bindingCtx.addPropertyChangeListener(new MapBoundsChangeListener());
         worldMapPanel.setMinimumSize(new Dimension(250, 125));
         worldMapPanel.setBorder(BorderFactory.createEtchedBorder());
