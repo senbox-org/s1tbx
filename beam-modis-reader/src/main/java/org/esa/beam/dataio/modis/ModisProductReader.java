@@ -24,6 +24,7 @@ import org.esa.beam.dataio.modis.netcdf.NetCDFUtils;
 import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.AbstractProductReader;
+import org.esa.beam.framework.dataio.ProductFlipper;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -70,7 +71,6 @@ public class ModisProductReader extends AbstractProductReader {
             netcdfFile.close();
             netcdfFile = null;
         }
-
 
         super.close();
     }
@@ -120,9 +120,9 @@ public class ModisProductReader extends AbstractProductReader {
         }
 
         reader.readBandData(sourceOffsetX, sourceOffsetY,
-                sourceWidth, sourceHeight,
-                sourceStepX, sourceStepY,
-                destBuffer, pm);
+                            sourceWidth, sourceHeight,
+                            sourceStepX, sourceStepY,
+                            destBuffer, pm);
     }
 
     /**
@@ -146,11 +146,11 @@ public class ModisProductReader extends AbstractProductReader {
         fileReader = createFileReader();
 
         final Dimension productDim = globalAttributes.getProductDimensions(netcdfFile.getDimensions());
-        final Product product = new Product(globalAttributes.getProductName(),
-                globalAttributes.getProductType(),
-                productDim.width,
-                productDim.height,
-                this);
+        Product product = new Product(globalAttributes.getProductName(),
+                                      globalAttributes.getProductType(),
+                                      productDim.width,
+                                      productDim.height,
+                                      this);
         product.setFileLocation(inFile);
 
         final NetCDFVariables netCDFVariables = new NetCDFVariables();
@@ -170,6 +170,22 @@ public class ModisProductReader extends AbstractProductReader {
         final Date sensingStop = globalAttributes.getSensingStop();
         if (sensingStop != null) {
             product.setEndTime(ProductData.UTC.create(sensingStop, 0));
+        }
+
+        //if (!(_dayMode ^ db.mustFlip(prod.getProductType()))) {
+//                    prod = ProductFlipper.createFlippedProduct(prod, ProductFlipper.FLIP_BOTH, prod.getName(),
+//                            prod.getDescription());
+//                    prod.setFileLocation(inFile);
+//                }
+        final ModisProductDb productDb = ModisProductDb.getInstance();
+        if (productDb.mustFlip(globalAttributes.getProductType())) {
+            // @todo 1 tb/tb this creates weired geo-codings!!!!!
+//            product = ProductFlipper.createFlippedProduct(product,
+//                                                          ProductFlipper.FLIP_BOTH,
+//                                                          product.getName(),
+//                                                          product.getDescription());
+//                    prod.setFileLocation(inFile);
+            System.out.println("FLIP_IT!!!!!!!!!!!!!!!!!!");
         }
         return product;
     }
