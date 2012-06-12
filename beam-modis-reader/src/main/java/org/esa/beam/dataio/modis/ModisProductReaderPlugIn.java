@@ -63,10 +63,8 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
             final Variable structMeta = variables.get(ModisConstants.STRUCT_META_KEY);
             if (structMeta == null) {
                 modisAttributes = new ImappAttributes(inputFile, variables, attributes);
-                System.out.println("IMAPP");
             } else {
                 modisAttributes = new DaacAttributes(variables);
-                System.out.println("DAAC");
             }
 
             final String productType = modisAttributes.getProductType();
