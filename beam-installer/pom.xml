@@ -124,7 +124,7 @@
                                 <artifactItem>
                                     <groupId>org.esa.beam</groupId>
                                     <artifactId>beam-meris-case2-regional</artifactId>
-                                    <version>1.5.3</version>
+                                    <version>1.5.4-SNAPSHOT</version>
                                     <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
