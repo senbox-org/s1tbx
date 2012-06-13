@@ -146,6 +146,10 @@ public class ModisBandDescription {
         return ModisConstants.LINEAR_SCALE_NAME.equalsIgnoreCase(scaleMethod);
     }
 
+    public boolean isLinearInvertedScaled() {
+        return ModisConstants.LINEAR_INVERTED_SCALE_NAME.equalsIgnoreCase(scaleMethod);
+    }
+
     public boolean isSlopeInterceptScaled() {
         return ModisConstants.SLOPE_INTERCEPT_SCALE_NAME.equalsIgnoreCase(scaleMethod);
     }

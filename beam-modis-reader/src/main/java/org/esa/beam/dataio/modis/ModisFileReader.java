@@ -179,6 +179,10 @@ class ModisFileReader {
                     } else if (bandDesc.isLinearScaled()) {
                         band.setScalingFactor(scales[readerIdx]);
                         band.setScalingOffset(-offsets[readerIdx] * scales[readerIdx]);
+                    } else if (bandDesc.isLinearInvertedScaled()) {
+                        invert(scales);
+                        band.setScalingFactor(scales[readerIdx]);
+                        band.setScalingOffset(-offsets[readerIdx] * scales[readerIdx]);
                     } else if (bandDesc.isSlopeInterceptScaled()) {
                         band.setScalingFactor(scales[readerIdx]);
                         band.setScalingOffset(offsets[readerIdx]);
@@ -193,6 +197,14 @@ class ModisFileReader {
 
                 product.addBand(band);
                 bandReaderMap.put(band, bandReader);
+            }
+        }
+    }
+
+    static void invert(float[] scales) {
+        for (int i = 0; i < scales.length; i++) {
+            if (scales[i] != 0.f) {
+                scales[i] = 1.f / scales[i];
             }
         }
     }
@@ -243,8 +255,7 @@ class ModisFileReader {
     private static void setBandPhysicalUnit(Variable variable, ModisBandDescription bandDesc, Band band) throws IOException {
         final String unitAttribName = bandDesc.getUnitAttribName();
         final List<Attribute> attributes = variable.getAttributes();
-        for (int i = 0; i < attributes.size(); i++) {
-            final Attribute attribute = attributes.get(i);
+        for (final Attribute attribute : attributes) {
             if (attribute.getName().equalsIgnoreCase(unitAttribName)) {
                 final String unit = attribute.getStringValue();
                 band.setUnit(unit);

@@ -114,6 +114,16 @@ public class ModisFileReaderTest extends TestCase {
         assertFalse(ModisFileReader.isEosGridType(globalAttributes));
     }
 
+    public void testInvert() {
+        final float[] scales = new float[] {24.7f, 0.f, -100.f};
+
+        ModisFileReader.invert(scales);
+
+        assertEquals(0.04048583f, scales[0], 1e-8);
+        assertEquals(0.f, scales[1], 1e-8);
+        assertEquals(-0.01f, scales[2], 1e-8);
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
     /////// INNER CLASS
     ////////////////////////////////////////////////////////////////////////////////

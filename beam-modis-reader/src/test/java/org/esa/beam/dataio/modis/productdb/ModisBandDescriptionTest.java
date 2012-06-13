@@ -139,6 +139,14 @@ public class ModisBandDescriptionTest extends TestCase {
         assertFalse(notLinear.isLinearScaled());
     }
 
+    public void testIsLinearInvertedScale() {
+        final ModisBandDescription linear = new ModisBandDescription("", "", ModisConstants.LINEAR_INVERTED_SCALE_NAME, "", "", "", "", "");
+        assertTrue(linear.isLinearInvertedScaled());
+
+        final ModisBandDescription notLinear = new ModisBandDescription("", "", "notLinear", "", "", "", "", "");
+        assertFalse(notLinear.isLinearInvertedScaled());
+    }
+
     public void testIsSlopeInterceptScale() {
         final ModisBandDescription slopeIntercept = new ModisBandDescription("", "", ModisConstants.SLOPE_INTERCEPT_SCALE_NAME, "", "", "", "", "");
         assertTrue(slopeIntercept.isSlopeInterceptScaled());

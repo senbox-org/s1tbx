@@ -181,6 +181,7 @@ public class ModisConstants {
 
     public static final String EXPONENTIAL_SCALE_NAME = "exp";
     public static final String LINEAR_SCALE_NAME = "lin";
+    public static final String LINEAR_INVERTED_SCALE_NAME = "lin_inv";
     public static final String SLOPE_INTERCEPT_SCALE_NAME = "sli";
     public static final String POW_10_SCALE_NAME = "p10";
 
@@ -191,4 +192,5 @@ public class ModisConstants {
     public static final String EOS_TYPE_GRID = "EOS_TYPE_GRID";
     public static final String EOS_TYPE_SWATH = "EOS_TYPE_SWATH";
     public static final String EOS_TYPE_POINT = "EOS_TYPE_POINT";
+
 }
