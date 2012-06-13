@@ -498,6 +498,13 @@
                 <version>1.0.4</version>
             </dependency>
 
+            <!-- APACHE velocity support ########################################  -->
+            <dependency>
+                <groupId>velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>1.5</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

@@ -47,13 +47,6 @@
             <artifactId>ceres-binding</artifactId>
         </dependency>
 
-        <!-- todo - specify in main POM? -->
-        <dependency>
-            <groupId>velocity</groupId>
-            <artifactId>velocity</artifactId>
-            <version>1.5</version>
-        </dependency>
-
     </dependencies>
 
     <profiles>
