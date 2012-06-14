@@ -610,7 +610,7 @@ class CommandLineTool implements GraphProcessingObserver {
 
         VelocityEngine velocityEngine;
         try {
-            velocityEngine = createVelocityEngine(velocityDirPath);
+            velocityEngine = createVelocityEngine(velocityDir.getPath());
         } catch (Exception e) {
             logSevereProblem(String.format("Can't merge Velocity template file(s): Failed to initialise Velocity engine: %s", e.getMessage()), e);
             return;
