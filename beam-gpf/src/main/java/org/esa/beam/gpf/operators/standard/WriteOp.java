@@ -369,7 +369,6 @@ public class WriteOp extends Operator implements Output {
             if (productWriter instanceof DimapProductWriter) {
                 // if we can update the header (only DIMAP) rewrite it!
                 synchronized (productWriter) {
-                    System.out.println("Writing header of " + targetProduct.getName());
                     productWriter.writeProductNodes(targetProduct, file);
                 }
             }
