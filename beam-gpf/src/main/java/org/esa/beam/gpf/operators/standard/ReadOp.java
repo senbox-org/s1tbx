@@ -59,21 +59,23 @@ import java.io.IOException;
                   description = "Reads a product from disk.")
 public class ReadOp extends Operator {
 
-    private ProductReader beamReader;
 
     @Parameter(description = "The file from which the data product is read.", notNull = true, notEmpty = true)
     private File file;
     @TargetProduct
     private Product targetProduct;
 
+    private transient ProductReader productReader;
+
     @Override
     public void initialize() throws OperatorException {
         try {
-            targetProduct = ProductIO.readProduct(file);
-            if (targetProduct == null) {
+            final ProductReader productReader = ProductIO.getProductReaderForInput(file);
+            if (productReader == null) {
                 throw new OperatorException("No product reader found for file " + file);
             }
-            beamReader = targetProduct.getProductReader();
+            targetProduct = productReader.readProductNodes(file, null);
+            this.productReader = productReader;
         } catch (IOException e) {
             throw new OperatorException(e);
         }
@@ -85,7 +87,7 @@ public class ReadOp extends Operator {
         ProductData dataBuffer = targetTile.getRawSamples();
         Rectangle rectangle = targetTile.getRectangle();
         try {
-            beamReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
+            productReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
                                           rectangle.height, dataBuffer, pm);
             targetTile.setRawSamples(dataBuffer);
         } catch (IOException e) {
