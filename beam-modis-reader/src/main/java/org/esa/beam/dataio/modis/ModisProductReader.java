@@ -180,11 +180,11 @@ public class ModisProductReader extends AbstractProductReader {
         final ModisProductDb productDb = ModisProductDb.getInstance();
         if (productDb.mustFlip(globalAttributes.getProductType())) {
             // @todo 1 tb/tb this creates weired geo-codings!!!!!
-//            product = ProductFlipper.createFlippedProduct(product,
-//                                                          ProductFlipper.FLIP_BOTH,
-//                                                          product.getName(),
-//                                                          product.getDescription());
-//                    prod.setFileLocation(inFile);
+            product = ProductFlipper.createFlippedProduct(product,
+                                                          ProductFlipper.FLIP_BOTH,
+                                                          product.getName(),
+                                                          product.getDescription());
+            product.setFileLocation(inFile);
             System.out.println("FLIP_IT!!!!!!!!!!!!!!!!!!");
         }
         return product;
