@@ -5,9 +5,13 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 
@@ -23,47 +27,126 @@ public class CommandLineToolTemplateTest {
     private CommandLineTool tool;
     private TestCommandLineContext context;
 
+    private File sourceFile = new File("test.testdata");
+    private File targetFile = new File("20120607-CHL-1D.testdata");
+
+    @BeforeClass
+    public static void initClass() throws Exception {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
+    }
+
+    @Before
+    public void init() throws Exception {
+        TestProductIOPlugIn.INSTANCE.clear();
+        context = new TestCommandLineContext();
+        tool = new CommandLineTool(context);
+    }
+
     @Test
     public void testTemplateMergingWithOpName() throws Exception {
         String metadataPath = "test.properties";
-        String sourcePath = new File("test.nc").getAbsolutePath();
-        Product sourceProduct = new Product("source", "TEST", 10, 10);
-        String targetPath = "20120607-CHL-1D.dim";
+        String parameterPath = "params.xml";
+        File templateDir = getTemplateDir();
 
-        URL templateUrl = getClass().getResource("op-metadata.xml.vm");
-        File templateDir = new File(templateUrl.toURI()).getParentFile();
-        String templatePath = templateDir.getPath();
+        TestProductIOPlugIn.INSTANCE.getSourceProducts().put(sourceFile.getAbsoluteFile(), createSourceProduct());
 
-        context.products.put(sourcePath, sourceProduct);
-        context.textFiles.put(metadataPath, "processingCenter=BC\nsoftwareName=BEAM");
+        context.textFiles.put(metadataPath, "" +
+                "processingCenter=BC\n" +
+                "softwareName=BEAM\n");
+
+        context.textFiles.put(parameterPath, "" +
+                "<parameters>\n" +
+                "    <pixelSizeX>0.04</pixelSizeX>\n" +
+                "    <pixelSizeY>0.02</pixelSizeY>\n" +
+                "    <crs>" + DefaultGeographicCRS.WGS84 + "</crs>\n" +
+                "</parameters>\n");
+
 
         tool.run("Reproject",
-                 "-t", targetPath,
+                 "-p", parameterPath,
+                 "-t", targetFile.getPath(),
                  "-m", metadataPath,
-                 "-v", templatePath,
-                 sourcePath);
+                 "-v", templateDir.getPath(),
+                 sourceFile.getPath());
 
         assertNotNull(context.writers.get("./20120607-CHL-1D-op-metadata.xml"));
         assertNotNull(context.writers.get("./20120607-CHL-1D-op-metadata.html"));
 
-        assertEquals("<metadata>\n" +
-                             "    <source>\n" +
-                             "        <name>source</name>\n" +
-                             "        <width>10</width>\n" +
-                             "        <height>10</height>\n" +
-                             "    </source>\n" +
-                             "    <target>\n" +
-                             "        <name>target</name>\n" +
-                             "        <width>10</width>\n" +
-                             "        <height>10</height>\n" +
-                             "    </target>\n" +
-                             "    <operator>Reproject</operator>\n" +
-                             "    <extra>\n" +
-                             "        <processingCenter>BC</processingCenter>\n" +
-                             "        <softwareName>BEAM</softwareName>\n" +
-                             "    </extra>\n" +
-                             "</metadata>",
-                     context.writers.get("./20120607-CHL-1D-op-metadata.xml").toString());
+        final String theXml = context.writers.get("./20120607-CHL-1D-op-metadata.xml").toString();
+        final String expectedXml = "<metadata>\n" +
+                "\n" +
+                "    <source>\n" +
+                "        <name>MERIS</name>\n" +
+                "        <width>10</width>\n" +
+                "        <height>10</height>\n" +
+                "    </source>\n" +
+                "\n" +
+                "    <sources>\n" +
+                "        <sourceProduct>MERIS</sourceProduct>\n" +
+                "        <sourceProduct.1>MERIS</sourceProduct.1>\n" +
+                "        <sourceProduct1>MERIS</sourceProduct1>\n" +
+                "    </sources>\n" +
+                "\n" +
+                "    <target>\n" +
+                "        <name>projected_MERIS</name>\n" +
+                "        <width>226</width>\n" +
+                "        <height>451</height>\n" +
+                "    </target>\n" +
+                "\n" +
+                "    <parameterMetadata>\n" +
+                "        <parameters>\n" +
+                "            <crs>GEOGCS[\"WGS84(DD)\", \n" +
+                "  DATUM[\"WGS84\", \n" +
+                "    SPHEROID[\"WGS84\", 6378137.0, 298.257223563]], \n" +
+                "  PRIMEM[\"Greenwich\", 0.0], \n" +
+                "  UNIT[\"degree\", 0.017453292519943295], \n" +
+                "  AXIS[\"Geodetic longitude\", EAST], \n" +
+                "  AXIS[\"Geodetic latitude\", NORTH]]</crs>\n" +
+                "            <pixelSizeY>0.02</pixelSizeY>\n" +
+                "            <orientation>0.0</orientation>\n" +
+                "            <pixelSizeX>0.04</pixelSizeX>\n" +
+                "            <includeTiePointGrids>true</includeTiePointGrids>\n" +
+                "            <resamplingName>Nearest</resamplingName>\n" +
+                "        </parameters>\n" +
+                "        <parameterFile>params.xml</parameterFile>\n" +
+                "        <parameterXml><![CDATA[<parameters>\n" +
+                "    <pixelSizeX>0.04</pixelSizeX>\n" +
+                "    <pixelSizeY>0.02</pixelSizeY>\n" +
+                "    <crs>GEOGCS[\"WGS84(DD)\", \n" +
+                "  DATUM[\"WGS84\", \n" +
+                "    SPHEROID[\"WGS84\", 6378137.0, 298.257223563]], \n" +
+                "  PRIMEM[\"Greenwich\", 0.0], \n" +
+                "  UNIT[\"degree\", 0.017453292519943295], \n" +
+                "  AXIS[\"Geodetic longitude\", EAST], \n" +
+                "  AXIS[\"Geodetic latitude\", NORTH]]</crs>\n" +
+                "</parameters>\n" +
+                "]]></parameterXml>\n" +
+                "    </parameterMetadata>\n" +
+                "\n" +
+                "    <operatorMetadata>\n" +
+                "        <operatorName>Reproject</operatorName>\n" +
+                "        <operatorClass>class org.esa.beam.gpf.operators.standard.reproject.ReprojectionOp</operatorClass>\n" +
+                "    </operatorMetadata>\n" +
+                "\n" +
+                "    <extraMetadata>\n" +
+                "        <processingCenter>BC</processingCenter>\n" +
+                "        <softwareName>BEAM</softwareName>\n" +
+                "    </extraMetadata>\n" +
+                "</metadata>";
+
+        for (int i = 0; i < expectedXml.length(); i++) {
+            final char c = expectedXml.charAt(i);
+            System.out.print(c);
+            if (c != theXml.charAt(i)) {
+
+                System.out.println(((int)expectedXml.charAt(i)) + " != "+  ((int)theXml.charAt(i)));
+                break;
+            }
+        }
+
+        assertEquals(expectedXml,
+                     theXml);
+
 
         assertEquals("<html>\n" +
                              "<body>\n" +
@@ -79,41 +162,43 @@ public class CommandLineToolTemplateTest {
 
     @Test
     public void testTemplateMergingWithGraphXml() throws Exception {
+
         String metadataPath = "test.properties";
-        File sourceFile = new File("test.testdata").getAbsoluteFile();
-        Product sourceProduct = new Product("MERIS", "MARCO", 10, 10);
-        sourceProduct.addBand("x", "5.1");
-        sourceProduct.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 10, 10, 0, 0, 1, 1));
-        File targetFile = new File("20120607-CHL-1D.testdata");
+        String parameterPath = "params.txt";
+        File templateDir = getTemplateDir();
 
-        URL templateUrl = getClass().getResource("graph-metadata.xml.vm");
-        File templateDir = new File(templateUrl.toURI()).getParentFile();
-        String templatePath = templateDir.getPath();
+        TestProductIOPlugIn.INSTANCE.getSourceProducts().put(sourceFile, createSourceProduct());
 
-        TestProductIOPlugIn.INSTANCE.getSourceProducts().put(sourceFile, sourceProduct);
+        final String graphXml = "" +
+                "<graph id=\"testGraph\">\n" +
+                "    <version>1.0</version>\n" +
+                "    <node id=\"testNode\">\n" +
+                "        <operator>Reproject</operator>\n" +
+                "        <sources>\n" +
+                "            <source>${src}</source>\n" +
+                "        </sources>\n" +
+                "        <parameters>\n" +
+                "            <pixelSizeX>${pixelSizeX}</pixelSizeX>\n" +
+                "            <pixelSizeY>${pixelSizeY}</pixelSizeY>\n" +
+                "            <crs>" + DefaultGeographicCRS.WGS84 + "</crs>\n" +
+                "        </parameters>\n" +
+                "    </node>\n" +
+                "</graph>\n";
+        context.textFiles.put("graph.xml", graphXml);
 
-        context.textFiles.put(metadataPath, "processingCenter=BC\nsoftwareName=BEAM");
-        context.textFiles.put("graph.xml",
-                              "" +
-                                      "<graph id=\"testGraph\">\n" +
-                                      "    <version>1.0</version>\n" +
-                                      "    <node id=\"testNode\">\n" +
-                                      "        <operator>Reproject</operator>\n" +
-                                      "        <sources>\n" +
-                                      "            <source>${f}</source>\n" +
-                                      "        </sources>\n" +
-                                      "        <parameters>\n" +
-                                      "            <crs>" + DefaultGeographicCRS.WGS84.toString() + "</crs>\n" +
-                                      "        </parameters>\n" +
-                                      "    </node>\n" +
-                                      "</graph>\n" +
-                                      "\n");
+        context.textFiles.put(metadataPath, "" +
+                "processingCenter = BC\n" +
+                "softwareName = BEAM\n");
+        context.textFiles.put(parameterPath, "" +
+                "pixelSizeX = 0.04\n" +
+                "pixelSizeY = 0.02\n");
 
         tool.run("graph.xml",
                  "-t", targetFile.getPath(),
+                 "-p", parameterPath,
                  "-m", metadataPath,
-                 "-v", templatePath,
-                 "-Sf=" + sourceFile);
+                 "-v", templateDir.getPath(),
+                 "-Ssrc=" + sourceFile);
 
         final Map<Object, Product> targetProducts = TestProductIOPlugIn.INSTANCE.getTargetProducts();
         assertTrue(targetProducts.containsKey(targetFile));
@@ -123,35 +208,77 @@ public class CommandLineToolTemplateTest {
         assertNotNull(context.writers.get("./20120607-CHL-1D-graph-metadata.html"));
 
         assertEquals("<metadata>\n" +
+                             "\n" +
                              "    <source>\n" +
                              "        <name>MERIS</name>\n" +
                              "        <width>10</width>\n" +
                              "        <height>10</height>\n" +
                              "    </source>\n" +
+                             "\n" +
                              "    <sources>\n" +
-                             "        <f>MERIS</f>\n" +
+                             "        <src>MERIS</src>\n" +
                              "    </sources>\n" +
+                             "\n" +
                              "    <target>\n" +
                              "        <name>projected_MERIS</name>\n" +
-                             "        <width>11</width>\n" +
-                             "        <height>11</height>\n" +
+                             "        <width>226</width>\n" +
+                             "        <height>451</height>\n" +
                              "    </target>\n" +
-                             "    <graph>\n" +
-                             "        <node>testNode</node>\n" +
-                             "        <node>ReadProduct$f</node>\n" +
-                             "        <node>WriteProduct$testNode</node>\n" +
-                             "    </graph>\n" +
-                             "    <extra>\n" +
+                             "\n" +
+                             "    <parameterMetadata>\n" +
+                             "        <parameters>\n" +
+                             "            <pixelSizeX>0.04</pixelSizeX>\n" +
+                             "            <pixelSizeY>0.02</pixelSizeY>\n" +
+                             "            <sourceProducts></sourceProducts>\n" +   // todo - this should not be here!
+                             "            <src>ReadOp@src</src>\n" +               // todo - this should not be here!
+                             "        </parameters>\n" +
+                             "        <parameterFile>params.txt</parameterFile>\n" +
+                             "        <parameterFileContent><![CDATA[pixelSizeX = 0.04\n" +
+                             "pixelSizeY = 0.02\n" +
+                             "]]></parameterFileContent>\n" +
+                             "    </parameterMetadata>\n" +
+                             "\n" +
+                             "    <graphMetadata>\n" +
+                             "        <graphFile>graph.xml</graphFile>\n" +
+                             "        <graphXml><![CDATA[<graph id=\"testGraph\">\n" +
+                             "    <version>1.0</version>\n" +
+                             "    <node id=\"testNode\">\n" +
+                             "        <operator>Reproject</operator>\n" +
+                             "        <sources>\n" +
+                             "            <source>${src}</source>\n" +
+                             "        </sources>\n" +
+                             "        <parameters>\n" +
+                             "            <pixelSizeX>${pixelSizeX}</pixelSizeX>\n" +
+                             "            <pixelSizeY>${pixelSizeY}</pixelSizeY>\n" +
+                             "            <crs>GEOGCS[\"WGS84(DD)\", \n" +
+                             "  DATUM[\"WGS84\", \n" +
+                             "    SPHEROID[\"WGS84\", 6378137.0, 298.257223563]], \n" +
+                             "  PRIMEM[\"Greenwich\", 0.0], \n" +
+                             "  UNIT[\"degree\", 0.017453292519943295], \n" +
+                             "  AXIS[\"Geodetic longitude\", EAST], \n" +
+                             "  AXIS[\"Geodetic latitude\", NORTH]]</crs>\n" +
+                             "        </parameters>\n" +
+                             "    </node>\n" +
+                             "</graph>\n" +
+                             "]]></graphXml>\n" +
+                             "        <graphNodeIds>\n" +
+                             "            <node>testNode</node>\n" +
+                             "            <node>ReadOp@src</node>\n" +
+                             "            <node>WriteOp@testNode</node>\n" +
+                             "        </graphNodeIds>\n" +
+                             "    </graphMetadata>\n" +
+                             "\n" +
+                             "    <extraMetadata>\n" +
                              "        <processingCenter>BC</processingCenter>\n" +
                              "        <softwareName>BEAM</softwareName>\n" +
-                             "    </extra>\n" +
+                             "    </extraMetadata>\n" +
                              "</metadata>",
                      context.writers.get("./20120607-CHL-1D-graph-metadata.xml").toString());
 
         assertEquals("<html>\n" +
                              "<body>\n" +
                              "Size of MERIS: 10 x 10 pixels<br/>\n" +
-                             "Size of projected_MERIS: 11 x 11 pixels<br/>\n" +
+                             "Size of projected_MERIS: 226 x 451 pixels<br/>\n" +
                              "Extra data:<br/>\n" +
                              "processingCenter = BC<br/>\n" +
                              "softwareName = BEAM<br/>\n" +
@@ -160,19 +287,16 @@ public class CommandLineToolTemplateTest {
                      context.writers.get("./20120607-CHL-1D-graph-metadata.html").toString());
     }
 
-    @Before
-    public void setUp() throws Exception {
-        context = new TestCommandLineContext() {
-//            @Override
-//            public void executeGraph(Graph graph, GraphProcessingObserver observer) throws GraphException {
-//                final GraphContext graphContext = new GraphContext(graph);
-//                observer.graphProcessingStarted(graphContext);
-//                observer.graphProcessingStopped(graphContext);
-//            }
-        };
-        tool = new CommandLineTool(context);
+    private File getTemplateDir() throws URISyntaxException {
+        URL templateUrl = getClass().getResource("graph-metadata.xml.vm");
+        return new File(templateUrl.toURI()).getParentFile();
+    }
 
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
+    private Product createSourceProduct() throws FactoryException, TransformException {
+        Product sourceProduct = new Product("MERIS", "MARCO", 10, 10);
+        sourceProduct.addBand("x", "5.1");
+        sourceProduct.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 10, 10, 0, 0, 1, 1));
+        return sourceProduct;
     }
 
 }

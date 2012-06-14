@@ -18,6 +18,7 @@ package org.esa.beam.framework.gpf.main;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -36,8 +37,15 @@ class DefaultCommandLineContext implements CommandLineContext {
 
     @Override
     public Product readProduct(String productFilepath) throws IOException {
-        Product product;
-        product = ProductIO.readProduct(productFilepath);
+        final File input = new File(productFilepath);
+        final ProductReader productReader = ProductIO.getProductReaderForInput(input);
+        if (productReader == null) {
+            throw new OperatorException("No product reader found for '" + productFilepath + "'");
+        }
+        Product product = productReader.readProductNodes(input, null);
+        if (product.getProductReader() == null) {
+            product.setProductReader(productReader);
+        }
         return product;
     }
 
@@ -52,7 +60,7 @@ class DefaultCommandLineContext implements CommandLineContext {
 
     @Override
     public Graph readGraph(String filePath, Map<String, String> templateVariables) throws GraphException, IOException {
-        FileReader fileReader = new FileReader(filePath);
+        Reader fileReader = createReader(filePath);
         Graph graph;
         try {
             graph = GraphIO.read(fileReader, templateVariables);

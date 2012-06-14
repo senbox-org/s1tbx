@@ -62,7 +62,8 @@ class CommandLineTool implements GraphProcessingObserver {
     static final String TOOL_NAME = "gpt";
     static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
     static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat(DATETIME_PATTERN, Locale.ENGLISH);
-    static final String READ_OP_ID_PREFIX = "ReadProduct$";
+    static final String READ_OP_ID_PREFIX = "ReadOp@";
+    public static final String WRITE_OP_ID_PREFIX = "WriteOp@";
 
     private final CommandLineContext commandLineContext;
     private final VelocityContext velocityContext;
@@ -273,7 +274,7 @@ class CommandLineTool implements GraphProcessingObserver {
             configuration.createChild("clearCacheAfterRowWrite").setValue(
                     Boolean.toString(commandLineArgs.isClearCacheAfterRowWrite()));
 
-            Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
+            Node targetNode = new Node(WRITE_OP_ID_PREFIX + lastNode.getId(), writeOperatorAlias);
             targetNode.addSource(new NodeSource("source", lastNode.getId()));
             targetNode.setConfiguration(configuration);
 
@@ -284,8 +285,14 @@ class CommandLineTool implements GraphProcessingObserver {
         File graphFile = new File(commandLineArgs.getGraphFilePath());
         velocityContext.put("graph", graph);
         velocityContext.put("graphFile", graphFile);
-        // todo
-        // velocityContext.put("graphFileContents", FileUtils.readText(graphFile));
+
+        final Reader reader = commandLineContext.createReader(graphFile.getPath());
+        try {
+            final String xml = FileUtils.readText(reader);
+            velocityContext.put("graphXml", xml);
+        } finally {
+            reader.close();
+        }
     }
 
     private  Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap) throws
@@ -372,7 +379,7 @@ class CommandLineTool implements GraphProcessingObserver {
             File file = new File(commandLineArgs.getParameterFilePath());
             ConfigFile configFile = readConfigurationFile(file.getPath());
             velocityContext.put("parameterFile", file);
-            velocityContext.put("parameterFileContents", configFile.content);
+            velocityContext.put("parameterFileContent", configFile.content);
             if (configFile.isXml) {
                 velocityContext.put("parameterXml", configFile.content);
             } else {

@@ -15,6 +15,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -30,8 +31,8 @@ public class TestProductIOPlugIn implements ProductReaderPlugIn, ProductWriterPl
     public static final String FORMAT_DESCRIPTION = "Testdata format for unit-level testing";
 
     public static final TestProductIOPlugIn INSTANCE = new TestProductIOPlugIn();
-    private final Map<Object, Product> sourceProducts = new HashMap<Object, Product>();
-    private final Map<Object, Product> targetProducts = new HashMap<Object, Product>();
+    private final Map<Object, Product> sourceProducts = Collections.synchronizedMap(new HashMap<Object, Product>());
+    private final Map<Object, Product> targetProducts = Collections.synchronizedMap(new HashMap<Object, Product>());
 
     static {
         ProductIOPlugInManager.getInstance().addReaderPlugIn(INSTANCE);
@@ -44,6 +45,11 @@ public class TestProductIOPlugIn implements ProductReaderPlugIn, ProductWriterPl
 
     public Map<Object, Product> getTargetProducts() {
         return targetProducts;
+    }
+
+    public void clear() {
+        sourceProducts.clear();
+        targetProducts.clear();
     }
 
     @Override
