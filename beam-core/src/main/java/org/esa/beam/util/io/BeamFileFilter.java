@@ -285,7 +285,10 @@ public class BeamFileFilter extends FileFilter {
     public static <T extends ProductIOPlugIn> List<BeamFileFilter> getSortedFileFilters(Iterator<T> pluginIterator) {
         List<BeamFileFilter> fileFilterList = new ArrayList<BeamFileFilter>();
         while (pluginIterator.hasNext()) {
-            fileFilterList.add(pluginIterator.next().getProductFileFilter());
+            final BeamFileFilter productFileFilter = pluginIterator.next().getProductFileFilter();
+            if (productFileFilter != null) {
+                fileFilterList.add(productFileFilter);
+            }
         }
         Collections.sort(fileFilterList, new Comparator<BeamFileFilter>() {
             @Override
