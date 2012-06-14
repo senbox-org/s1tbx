@@ -58,7 +58,7 @@ public class CommandLineToolTemplateTest {
                 "<parameters>\n" +
                 "    <pixelSizeX>0.04</pixelSizeX>\n" +
                 "    <pixelSizeY>0.02</pixelSizeY>\n" +
-                "    <crs>" + DefaultGeographicCRS.WGS84 + "</crs>\n" +
+                "    <crs>EPSG:4326</crs>\n" +
                 "</parameters>\n");
 
 
@@ -72,86 +72,62 @@ public class CommandLineToolTemplateTest {
         assertNotNull(context.writers.get("./20120607-CHL-1D-op-metadata.xml"));
         assertNotNull(context.writers.get("./20120607-CHL-1D-op-metadata.html"));
 
-        final String theXml = context.writers.get("./20120607-CHL-1D-op-metadata.xml").toString();
-        final String expectedXml = "<metadata>\n" +
-                "\n" +
-                "    <source>\n" +
-                "        <name>MERIS</name>\n" +
-                "        <width>10</width>\n" +
-                "        <height>10</height>\n" +
-                "    </source>\n" +
-                "\n" +
-                "    <sources>\n" +
-                "        <sourceProduct>MERIS</sourceProduct>\n" +
-                "        <sourceProduct.1>MERIS</sourceProduct.1>\n" +
-                "        <sourceProduct1>MERIS</sourceProduct1>\n" +
-                "    </sources>\n" +
-                "\n" +
-                "    <target>\n" +
-                "        <name>projected_MERIS</name>\n" +
-                "        <width>226</width>\n" +
-                "        <height>451</height>\n" +
-                "    </target>\n" +
-                "\n" +
-                "    <parameterMetadata>\n" +
-                "        <parameters>\n" +
-                "            <crs>GEOGCS[\"WGS84(DD)\", \n" +
-                "  DATUM[\"WGS84\", \n" +
-                "    SPHEROID[\"WGS84\", 6378137.0, 298.257223563]], \n" +
-                "  PRIMEM[\"Greenwich\", 0.0], \n" +
-                "  UNIT[\"degree\", 0.017453292519943295], \n" +
-                "  AXIS[\"Geodetic longitude\", EAST], \n" +
-                "  AXIS[\"Geodetic latitude\", NORTH]]</crs>\n" +
-                "            <pixelSizeY>0.02</pixelSizeY>\n" +
-                "            <orientation>0.0</orientation>\n" +
-                "            <pixelSizeX>0.04</pixelSizeX>\n" +
-                "            <includeTiePointGrids>true</includeTiePointGrids>\n" +
-                "            <resamplingName>Nearest</resamplingName>\n" +
-                "        </parameters>\n" +
-                "        <parameterFile>params.xml</parameterFile>\n" +
-                "        <parameterXml><![CDATA[<parameters>\n" +
-                "    <pixelSizeX>0.04</pixelSizeX>\n" +
-                "    <pixelSizeY>0.02</pixelSizeY>\n" +
-                "    <crs>GEOGCS[\"WGS84(DD)\", \n" +
-                "  DATUM[\"WGS84\", \n" +
-                "    SPHEROID[\"WGS84\", 6378137.0, 298.257223563]], \n" +
-                "  PRIMEM[\"Greenwich\", 0.0], \n" +
-                "  UNIT[\"degree\", 0.017453292519943295], \n" +
-                "  AXIS[\"Geodetic longitude\", EAST], \n" +
-                "  AXIS[\"Geodetic latitude\", NORTH]]</crs>\n" +
-                "</parameters>\n" +
-                "]]></parameterXml>\n" +
-                "    </parameterMetadata>\n" +
-                "\n" +
-                "    <operatorMetadata>\n" +
-                "        <operatorName>Reproject</operatorName>\n" +
-                "        <operatorClass>class org.esa.beam.gpf.operators.standard.reproject.ReprojectionOp</operatorClass>\n" +
-                "    </operatorMetadata>\n" +
-                "\n" +
-                "    <extraMetadata>\n" +
-                "        <processingCenter>BC</processingCenter>\n" +
-                "        <softwareName>BEAM</softwareName>\n" +
-                "    </extraMetadata>\n" +
-                "</metadata>";
 
-        for (int i = 0; i < expectedXml.length(); i++) {
-            final char c = expectedXml.charAt(i);
-            System.out.print(c);
-            if (c != theXml.charAt(i)) {
-
-                System.out.println(((int)expectedXml.charAt(i)) + " != "+  ((int)theXml.charAt(i)));
-                break;
-            }
-        }
-
-        assertEquals(expectedXml,
-                     theXml);
+        assertEquals("<metadata>\n" +
+                             "\n" +
+                             "    <source>\n" +
+                             "        <name>MERIS</name>\n" +
+                             "        <width>10</width>\n" +
+                             "        <height>10</height>\n" +
+                             "    </source>\n" +
+                             "\n" +
+                             "    <sources>\n" +
+                             "        <sourceProduct>MERIS</sourceProduct>\n" +
+                             "        <sourceProduct.1>MERIS</sourceProduct.1>\n" +
+                             "        <sourceProduct1>MERIS</sourceProduct1>\n" +
+                             "    </sources>\n" +
+                             "\n" +
+                             "    <target>\n" +
+                             "        <name>projected_MERIS</name>\n" +
+                             "        <width>226</width>\n" +
+                             "        <height>451</height>\n" +
+                             "    </target>\n" +
+                             "\n" +
+                             "    <parameterMetadata>\n" +
+                             "        <parameters>\n" +
+                             "            <crs>EPSG:4326</crs>\n" +
+                             "            <pixelSizeY>0.02</pixelSizeY>\n" +
+                             "            <orientation>0.0</orientation>\n" +
+                             "            <pixelSizeX>0.04</pixelSizeX>\n" +
+                             "            <includeTiePointGrids>true</includeTiePointGrids>\n" +
+                             "            <resamplingName>Nearest</resamplingName>\n" +
+                             "        </parameters>\n" +
+                             "        <parameterFile>params.xml</parameterFile>\n" +
+                             "        <parameterXml><![CDATA[<parameters>\n" +
+                             "    <pixelSizeX>0.04</pixelSizeX>\n" +
+                             "    <pixelSizeY>0.02</pixelSizeY>\n" +
+                             "    <crs>EPSG:4326</crs>\n" +
+                             "</parameters>\n" +
+                             "]]></parameterXml>\n" +
+                             "    </parameterMetadata>\n" +
+                             "\n" +
+                             "    <operatorMetadata>\n" +
+                             "        <operatorName>Reproject</operatorName>\n" +
+                             "        <operatorClass>class org.esa.beam.gpf.operators.standard.reproject.ReprojectionOp</operatorClass>\n" +
+                             "    </operatorMetadata>\n" +
+                             "\n" +
+                             "    <extraMetadata>\n" +
+                             "        <processingCenter>BC</processingCenter>\n" +
+                             "        <softwareName>BEAM</softwareName>\n" +
+                             "    </extraMetadata>\n" +
+                             "</metadata>",
+                     context.writers.get("./20120607-CHL-1D-op-metadata.xml").toString());
 
 
         assertEquals("<html>\n" +
                              "<body>\n" +
-                             "Size of source: 10 x 10 pixels<br/>\n" +
-                             "Size of target: 10 x 10 pixels<br/>\n" +
+                             "Size of MERIS: 10 x 10 pixels<br/>\n" +
+                             "Size of projected_MERIS: 226 x 451 pixels<br/>\n" +
                              "Extra data:<br/>\n" +
                              "processingCenter = BC<br/>\n" +
                              "softwareName = BEAM<br/>\n" +
@@ -180,7 +156,7 @@ public class CommandLineToolTemplateTest {
                 "        <parameters>\n" +
                 "            <pixelSizeX>${pixelSizeX}</pixelSizeX>\n" +
                 "            <pixelSizeY>${pixelSizeY}</pixelSizeY>\n" +
-                "            <crs>" + DefaultGeographicCRS.WGS84 + "</crs>\n" +
+                "            <crs>EPSG:4326</crs>\n" +
                 "        </parameters>\n" +
                 "    </node>\n" +
                 "</graph>\n";
@@ -229,8 +205,8 @@ public class CommandLineToolTemplateTest {
                              "        <parameters>\n" +
                              "            <pixelSizeX>0.04</pixelSizeX>\n" +
                              "            <pixelSizeY>0.02</pixelSizeY>\n" +
-                             "            <sourceProducts></sourceProducts>\n" +   // todo - this should not be here!
-                             "            <src>ReadOp@src</src>\n" +               // todo - this should not be here!
+                             "            <sourceProducts></sourceProducts>\n" +
+                             "            <src>ReadOp@src</src>\n" +
                              "        </parameters>\n" +
                              "        <parameterFile>params.txt</parameterFile>\n" +
                              "        <parameterFileContent><![CDATA[pixelSizeX = 0.04\n" +
@@ -250,13 +226,7 @@ public class CommandLineToolTemplateTest {
                              "        <parameters>\n" +
                              "            <pixelSizeX>${pixelSizeX}</pixelSizeX>\n" +
                              "            <pixelSizeY>${pixelSizeY}</pixelSizeY>\n" +
-                             "            <crs>GEOGCS[\"WGS84(DD)\", \n" +
-                             "  DATUM[\"WGS84\", \n" +
-                             "    SPHEROID[\"WGS84\", 6378137.0, 298.257223563]], \n" +
-                             "  PRIMEM[\"Greenwich\", 0.0], \n" +
-                             "  UNIT[\"degree\", 0.017453292519943295], \n" +
-                             "  AXIS[\"Geodetic longitude\", EAST], \n" +
-                             "  AXIS[\"Geodetic latitude\", NORTH]]</crs>\n" +
+                             "            <crs>EPSG:4326</crs>\n" +
                              "        </parameters>\n" +
                              "    </node>\n" +
                              "</graph>\n" +
