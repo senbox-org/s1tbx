@@ -1,11 +1,17 @@
 package org.esa.beam.framework.gpf.main;
 
+import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.Assert;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.graph.Graph;
+import org.esa.beam.framework.gpf.graph.GraphException;
+import org.esa.beam.framework.gpf.graph.GraphIO;
+import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
+import org.esa.beam.framework.gpf.graph.GraphProcessor;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
 import org.esa.beam.framework.gpf.internal.OperatorProductReader;
 import org.junit.Ignore;
@@ -30,6 +36,26 @@ public abstract class TestCommandLineContext implements CommandLineContext {
     final Map<String, Product> products = new HashMap<String, Product>();
     private Product targetProduct;
 
+    @Override
+    public Graph readGraph(String filePath, Map<String, String> templateVariables) throws GraphException, IOException {
+        Reader fileReader = createReader(filePath);
+        Graph graph;
+        try {
+            graph = GraphIO.read(fileReader, templateVariables);
+        } finally {
+            fileReader.close();
+        }
+        return graph;
+    }
+
+    @Override
+    public void executeGraph(Graph graph, GraphProcessingObserver observer) throws GraphException {
+        GraphProcessor processor = new GraphProcessor();
+        if (observer != null) {
+            processor.addObserver(observer);
+        }
+        processor.executeGraph(graph, ProgressMonitor.NULL);
+    }
 
     @Override
     public Product readProduct(String productFilepath) throws IOException {

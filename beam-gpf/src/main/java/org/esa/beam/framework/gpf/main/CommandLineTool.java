@@ -62,6 +62,7 @@ class CommandLineTool implements GraphProcessingObserver {
     static final String TOOL_NAME = "gpt";
     static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
     static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat(DATETIME_PATTERN, Locale.ENGLISH);
+    static final String READ_OP_ID_PREFIX = "ReadProduct$";
 
     private final CommandLineContext commandLineContext;
     private final VelocityContext velocityContext;
@@ -396,18 +397,18 @@ class CommandLineTool implements GraphProcessingObserver {
         for (Entry<String, String> entry : sourceFilePathsMap.entrySet()) {
             String sourceId = entry.getKey();
             String sourceFilePath = entry.getValue();
-            String nodeId = addNodeId(sourceFilePath, fileToNodeIdMap);
+            String nodeId = addNodeId(sourceId, sourceFilePath, fileToNodeIdMap);
             nodeIdMap.put(sourceId, nodeId);
         }
         return nodeIdMap;
     }
 
-    private String addNodeId(String sourceFilePath,
+    private String addNodeId(String sourceId, String sourceFilePath,
                              Map<File, String> fileToNodeId) throws IOException {
         File sourceFile = new File(sourceFilePath).getCanonicalFile();
         String nodeId = fileToNodeId.get(sourceFile);
         if (nodeId == null) {
-            nodeId = "ReadProduct$" + fileToNodeId.size();
+            nodeId = READ_OP_ID_PREFIX + sourceId;
             fileToNodeId.put(sourceFile, nodeId);
         }
         return nodeId;
@@ -578,6 +579,24 @@ class CommandLineTool implements GraphProcessingObserver {
             velocityContext.put("targetProduct", outputProducts[0]);
         }
         velocityContext.put("targetProducts", outputProducts);
+
+        Product sourceProduct = null;
+        Map<String, Product> sourceProducts = new HashMap<String, Product>();
+        for (Node node : graphContext.getGraph().getNodes()) {
+            final NodeContext nodeContext = graphContext.getNodeContext(node);
+            if (nodeContext.getOperator() instanceof ReadOp) {
+                final Product product = nodeContext.getOperator().getTargetProduct();
+                if (sourceProduct == null) {
+                    sourceProduct =  product;
+                }
+                if (node.getId().startsWith(READ_OP_ID_PREFIX)) {
+                    final String sourceId = node.getId().substring(READ_OP_ID_PREFIX.length());
+                    sourceProducts.put(sourceId, product);
+                }
+            }
+        }
+        velocityContext.put("sourceProduct", sourceProduct);
+        velocityContext.put("sourceProducts", sourceProducts);
     }
 
     @Override

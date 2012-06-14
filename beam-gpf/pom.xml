@@ -50,7 +50,6 @@
             <groupId>velocity</groupId>
             <artifactId>velocity</artifactId>
         </dependency>
-
     </dependencies>
 
     <profiles>

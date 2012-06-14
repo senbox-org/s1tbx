@@ -58,8 +58,12 @@ public class CommandLineToolMultiSourceGraphTest {
     @Test
     public void testGraphWithTwoSources() throws Exception {
         final Map<String, String> map = new HashMap<String, String>();
-        map.put("ReadProduct$0", "ernie.dim");
-        map.put("ReadProduct$1", "idefix.dim");
+        // todo - generated source IDs are not logical (mz,nf 2012.04.14)
+        // we would expect that this one is also valid:
+        // map.put("ReadProduct$sourceProduct.1", "ernie.dim");
+
+        map.put("ReadProduct$sourceProduct", "ernie.dim");
+        map.put("ReadProduct$sourceProduct.2", "idefix.dim");
         testGraph(new String[]{"graph.xml", "ernie.dim", "idefix.dim"},
                   4,
                   "g=graph.xml;e=chain1;",
@@ -71,9 +75,13 @@ public class CommandLineToolMultiSourceGraphTest {
     @Test
     public void testGraphWithWith3Sources() throws Exception {
         final Map<String, String> map = new HashMap<String, String>();
-        map.put("ReadProduct$0", "ernie.dim");
-        map.put("ReadProduct$1", "idefix.dim");
-        map.put("ReadProduct$2", "obelix.dim");
+        // todo - generated source IDs are not logical (mz,nf 2012.04.14)
+        // we would expect that this one is also valid:
+        // map.put("ReadProduct$sourceProduct.1", "ernie.dim");
+
+        map.put("ReadProduct$sourceProduct", "ernie.dim");
+        map.put("ReadProduct$sourceProduct.2", "idefix.dim");
+        map.put("ReadProduct$sourceProduct.3", "obelix.dim");
         testGraph(new String[]{"graph.xml", "ernie.dim", "idefix.dim", "obelix.dim"},
                   5,
                   "g=graph.xml;e=chain1;",
@@ -85,9 +93,16 @@ public class CommandLineToolMultiSourceGraphTest {
     @Test
     public void testGraphWith2SourcesAndOneNamedSource() throws Exception {
         final Map<String, String> map = new HashMap<String, String>();
-        map.put("ReadProduct$0", "vincent.dim");
-        map.put("ReadProduct$1", "ernie.dim");
-        map.put("ReadProduct$2", "idefix.dim");
+
+        // todo - generated source IDs are not logical (mz,nf 2012.04.14)
+        // we would expect:
+//        map.put("ReadProduct$Vincent", "vincent.dim");
+//        map.put("ReadProduct$sourceProduct.2", "ernie.dim");
+//        map.put("ReadProduct$sourceProduct.3", "idefix.dim");
+
+        map.put("ReadProduct$Vincent", "vincent.dim");
+        map.put("ReadProduct$sourceProduct", "ernie.dim");
+        map.put("ReadProduct$sourceProduct.2", "idefix.dim");
 
         testGraph(new String[]{"graph.xml", "-SVincent=vincent.dim", "ernie.dim", "idefix.dim"},
                   5,
@@ -102,9 +117,9 @@ public class CommandLineToolMultiSourceGraphTest {
     @Test
     public void testGraphWithOnlyNamedSources() throws Exception {
         final Map<String, String> map = new HashMap<String, String>();
-        map.put("ReadProduct$0", "vincent.dim");
-        map.put("ReadProduct$1", "ernie.dim");
-        map.put("ReadProduct$2", "idefix.dim");
+        map.put("ReadProduct$Vincent", "vincent.dim");
+        map.put("ReadProduct$ernie", "ernie.dim");
+        map.put("ReadProduct$idefix", "idefix.dim");
 
         testGraph(new String[]{"graph.xml", "-SVincent=vincent.dim", "-Sernie=ernie.dim", "-Sidefix=idefix.dim"},
                   5,
@@ -135,8 +150,9 @@ public class CommandLineToolMultiSourceGraphTest {
         for (Map.Entry<String, String> entry : expectedSourceNodeIdFilePathMap.entrySet()) {
             String expectedSourceFilePath = entry.getValue();
             if (expectedSourceFilePath != null) {
-                Node generatedReaderNode1 = executedGraph.getNode(entry.getKey());
-                assertNotNull(generatedReaderNode1);
+                final String key = entry.getKey();
+                Node generatedReaderNode1 = executedGraph.getNode(key);
+                assertNotNull("Source ID not found: " + key, generatedReaderNode1);
                 assertEquals(expectedSourceFilePath,
                              generatedReaderNode1.getConfiguration().getChild("file").getValue());
             }

@@ -1,0 +1,27 @@
+<metadata>
+    <source>
+        <name>$sourceProduct.name</name>
+        <width>$sourceProduct.sceneRasterWidth</width>
+        <height>$sourceProduct.sceneRasterHeight</height>
+    </source>
+    <sources>
+#foreach ($key in $sourceProducts.keySet())
+        <$key>$sourceProducts.get($key).name</$key>
+#end
+    </sources>
+    <target>
+        <name>$targetProduct.name</name>
+        <width>$targetProduct.sceneRasterWidth</width>
+        <height>$targetProduct.sceneRasterHeight</height>
+    </target>
+    <graph>
+#foreach ($node in $graph.nodes)
+        <node>$node.id</node>
+#end
+    </graph>
+    <extra>
+#foreach ($key in $metadata.keySet())
+        <$key>$metadata.get($key)</$key>
+#end
+    </extra>
+</metadata>
