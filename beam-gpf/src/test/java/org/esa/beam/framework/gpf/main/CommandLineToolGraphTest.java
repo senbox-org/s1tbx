@@ -357,5 +357,10 @@ public class CommandLineToolGraphTest extends TestCase {
         public Logger getLogger() {
             return Logger.getLogger("test");
         }
+
+        @Override
+        public boolean fileExists(String fileName) {
+            return false;
+        }
     }
 }
