@@ -43,6 +43,11 @@ public class TestCommandLineContext extends DefaultCommandLineContext {
     }
 
     @Override
+    public boolean fileExists(String fileName) {
+        return textFiles.containsKey(fileName);
+    }
+
+    @Override
     public Logger getLogger() {
         return Logger.getLogger("TestCommandLineContext");
     }

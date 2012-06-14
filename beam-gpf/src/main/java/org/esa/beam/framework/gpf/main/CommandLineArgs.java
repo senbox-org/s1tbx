@@ -37,10 +37,10 @@ public class CommandLineArgs {
     private static final int G = M * 1024;
     public static final String DEFAULT_TARGET_FILEPATH = "target.dim";
     public static final String DEFAULT_METADATA_FILEPATH = "metadata.properties";
-    public  static final String DEFAULT_VELOCITY_TEMPLATE_DIRPATH = ".";
-    public  static final String DEFAULT_FORMAT_NAME = ProductIO.DEFAULT_FORMAT_NAME;
-    public  static final int DEFAULT_TILE_CACHE_SIZE_IN_M = 512;
-    public  static final int DEFAULT_TILE_SCHEDULER_PARALLELISM = Runtime.getRuntime().availableProcessors();
+    public static final String DEFAULT_VELOCITY_TEMPLATE_DIRPATH = ".";
+    public static final String DEFAULT_FORMAT_NAME = ProductIO.DEFAULT_FORMAT_NAME;
+    public static final int DEFAULT_TILE_CACHE_SIZE_IN_M = 512;
+    public static final int DEFAULT_TILE_SCHEDULER_PARALLELISM = Runtime.getRuntime().availableProcessors();
     public static final String DEFAULT_MERGED_TEMPLATE_FILE_PATTERN = "${targetDir}/${targetBaseName}-${templateBaseName}";
     public static final String VELOCITY_TEMPLATE_EXTENSION = ".vm";
 
@@ -163,11 +163,11 @@ public class CommandLineArgs {
         if (graphFilePath == null && !targetFilePathMap.isEmpty()) {
             throw error("Defined target products only valid for graph XML");
         }
-        if (metadataFilePath == null || metadataFilePath.isEmpty()) {
-            metadataFilePath = DEFAULT_METADATA_FILEPATH;
+        if (metadataFilePath != null && metadataFilePath.isEmpty()) {
+            metadataFilePath = null;
         }
-        if (velocityTemplateDirPath == null || velocityTemplateDirPath.isEmpty()) {
-            velocityTemplateDirPath = DEFAULT_VELOCITY_TEMPLATE_DIRPATH;
+        if (velocityTemplateDirPath != null && velocityTemplateDirPath.isEmpty()) {
+            velocityTemplateDirPath = null;
         }
         if (targetFilePath == null && targetFilePathMap.isEmpty()) {
             targetFilePath = DEFAULT_TARGET_FILEPATH;
@@ -176,7 +176,6 @@ public class CommandLineArgs {
             final String extension = FileUtils.getExtension(targetFilePath);
             if (extension == null || extension.isEmpty()) {
                 targetFormatName = DEFAULT_FORMAT_NAME;
-                // todo - decide if to append extension or not  (nf - 29.10.2007)
             } else {
                 targetFormatName = detectWriterFormat(extension);
                 if (targetFormatName == null) {

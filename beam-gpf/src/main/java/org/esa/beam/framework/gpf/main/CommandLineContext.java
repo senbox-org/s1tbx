@@ -44,6 +44,8 @@ interface CommandLineContext {
 
     Logger getLogger();
 
+    boolean fileExists(String fileName);
+
     Reader createReader(String fileName) throws FileNotFoundException;
 
     Writer createWriter(String fileName) throws IOException;

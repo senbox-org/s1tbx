@@ -168,7 +168,7 @@ public class CommandLineArgsTest {
     @Test
     public void testMetadataFileOption() throws Exception {
         CommandLineArgs lineArgs = parseArgs("Reproject");
-        assertEquals(CommandLineArgs.DEFAULT_METADATA_FILEPATH, lineArgs.getMetadataFilePath());
+        assertEquals(null, lineArgs.getMetadataFilePath());
         lineArgs = parseArgs("Reproject", "-m", "metadata/reproject-md.properties");
         assertEquals("metadata/reproject-md.properties", lineArgs.getMetadataFilePath());
     }
@@ -176,7 +176,7 @@ public class CommandLineArgsTest {
     @Test
     public void testVelocityDirOption() throws Exception {
         CommandLineArgs lineArgs = parseArgs("Reproject");
-        assertEquals(CommandLineArgs.DEFAULT_VELOCITY_TEMPLATE_DIRPATH, lineArgs.getVelocityTemplateDirPath());
+        assertEquals(null, lineArgs.getVelocityTemplateDirPath());
         lineArgs = parseArgs("Reproject", "-v", "metadata/vml");
         assertEquals("metadata/vml", lineArgs.getVelocityTemplateDirPath());
     }

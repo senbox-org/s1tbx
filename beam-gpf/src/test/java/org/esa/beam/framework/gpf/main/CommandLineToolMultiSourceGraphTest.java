@@ -60,15 +60,15 @@ public class CommandLineToolMultiSourceGraphTest {
         final Map<String, String> map = new HashMap<String, String>();
         // todo - generated source IDs are not logical (mz,nf 2012.04.14)
         // we would expect that this one is also valid:
-        // map.put("ReadProduct$sourceProduct.1", "ernie.dim");
+        // map.put("ReadOp@sourceProduct.1", "ernie.dim");
 
-        map.put("ReadProduct$sourceProduct", "ernie.dim");
-        map.put("ReadProduct$sourceProduct.2", "idefix.dim");
+        map.put("ReadOp@sourceProduct", "ernie.dim");
+        map.put("ReadOp@sourceProduct.2", "idefix.dim");
         testGraph(new String[]{"graph.xml", "ernie.dim", "idefix.dim"},
                   4,
                   "g=graph.xml;e=chain1;",
                   map,
-                  "WriteProduct$node1", "target.dim", "BEAM-DIMAP"
+                  "WriteOp@node1", "target.dim", "BEAM-DIMAP"
         );
     }
 
@@ -77,16 +77,16 @@ public class CommandLineToolMultiSourceGraphTest {
         final Map<String, String> map = new HashMap<String, String>();
         // todo - generated source IDs are not logical (mz,nf 2012.04.14)
         // we would expect that this one is also valid:
-        // map.put("ReadProduct$sourceProduct.1", "ernie.dim");
+        // map.put("ReadOp@sourceProduct.1", "ernie.dim");
 
-        map.put("ReadProduct$sourceProduct", "ernie.dim");
-        map.put("ReadProduct$sourceProduct.2", "idefix.dim");
-        map.put("ReadProduct$sourceProduct.3", "obelix.dim");
+        map.put("ReadOp@sourceProduct", "ernie.dim");
+        map.put("ReadOp@sourceProduct.2", "idefix.dim");
+        map.put("ReadOp@sourceProduct.3", "obelix.dim");
         testGraph(new String[]{"graph.xml", "ernie.dim", "idefix.dim", "obelix.dim"},
                   5,
                   "g=graph.xml;e=chain1;",
                   map,
-                  "WriteProduct$node1", "target.dim", "BEAM-DIMAP"
+                  "WriteOp@node1", "target.dim", "BEAM-DIMAP"
         );
     }
 
@@ -96,19 +96,19 @@ public class CommandLineToolMultiSourceGraphTest {
 
         // todo - generated source IDs are not logical (mz,nf 2012.04.14)
         // we would expect:
-//        map.put("ReadProduct$Vincent", "vincent.dim");
-//        map.put("ReadProduct$sourceProduct.2", "ernie.dim");
-//        map.put("ReadProduct$sourceProduct.3", "idefix.dim");
+//        map.put("ReadOp@Vincent", "vincent.dim");
+//        map.put("ReadOp@sourceProduct.2", "ernie.dim");
+//        map.put("ReadOp@sourceProduct.3", "idefix.dim");
 
-        map.put("ReadProduct$Vincent", "vincent.dim");
-        map.put("ReadProduct$sourceProduct", "ernie.dim");
-        map.put("ReadProduct$sourceProduct.2", "idefix.dim");
+        map.put("ReadOp@Vincent", "vincent.dim");
+        map.put("ReadOp@sourceProduct", "ernie.dim");
+        map.put("ReadOp@sourceProduct.2", "idefix.dim");
 
         testGraph(new String[]{"graph.xml", "-SVincent=vincent.dim", "ernie.dim", "idefix.dim"},
                   5,
                   "g=graph.xml;e=chain1;",
                   map,
-                  "WriteProduct$node1",
+                  "WriteOp@node1",
                   "target.dim",
                   "BEAM-DIMAP"
         );
@@ -117,15 +117,15 @@ public class CommandLineToolMultiSourceGraphTest {
     @Test
     public void testGraphWithOnlyNamedSources() throws Exception {
         final Map<String, String> map = new HashMap<String, String>();
-        map.put("ReadProduct$Vincent", "vincent.dim");
-        map.put("ReadProduct$ernie", "ernie.dim");
-        map.put("ReadProduct$idefix", "idefix.dim");
+        map.put("ReadOp@Vincent", "vincent.dim");
+        map.put("ReadOp@ernie", "ernie.dim");
+        map.put("ReadOp@idefix", "idefix.dim");
 
         testGraph(new String[]{"graph.xml", "-SVincent=vincent.dim", "-Sernie=ernie.dim", "-Sidefix=idefix.dim"},
                   5,
                   "g=graph.xml;e=chain1;",
                   map,
-                  "WriteProduct$node1",
+                  "WriteOp@node1",
                   "target.dim",
                   "BEAM-DIMAP"
         );
@@ -243,6 +243,11 @@ public class CommandLineToolMultiSourceGraphTest {
         @Override
         public Writer createWriter(String fileName) throws IOException {
             return new StringWriter();
+        }
+
+        @Override
+        public boolean fileExists(String fileName) {
+            return false;
         }
     }
 }

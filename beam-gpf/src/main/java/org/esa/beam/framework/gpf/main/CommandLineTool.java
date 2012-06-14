@@ -170,17 +170,31 @@ class CommandLineTool implements GraphProcessingObserver {
 
     private void readMetadata() throws Exception {
         if (commandLineArgs.getMetadataFilePath() != null) {
-            try {
-                File file = new File(commandLineArgs.getMetadataFilePath());
-                ConfigFile configFile = readConfigurationFile(commandLineArgs.getMetadataFilePath());
-                velocityContext.put("metadata", configFile.map);
-                velocityContext.put("metadataFile", file);
-                velocityContext.put("metadataFileContent", configFile.content);
-                if (configFile.isXml) {
-                    velocityContext.put("metadataXml", configFile.content);
-                }
-            } catch (Exception e) {
-                logSevereProblem(String.format("Failed to read metadata file '%s': %s", commandLineArgs.getMetadataFilePath(), e.getMessage()), e);
+            readMetadata(commandLineArgs.getMetadataFilePath(), true);
+        } else {
+            readMetadata(CommandLineArgs.DEFAULT_METADATA_FILEPATH, false);
+        }
+    }
+
+    private void readMetadata(String path, boolean fail) throws Exception {
+        try {
+            final File file = new File(path);
+            ConfigFile configFile = readConfigurationFile(path);
+            velocityContext.put("metadata", configFile.map);
+            velocityContext.put("metadataFile", file);
+            velocityContext.put("metadataFileContent", configFile.content);
+            if (configFile.isXml) {
+                velocityContext.put("metadataXml", configFile.content);
+            }
+        } catch (Exception e) {
+            if (fail) {
+                throw e;
+            }
+            final String message = String.format("Failed to read metadata file '%s': %s", path, e.getMessage());
+            if (commandLineContext.fileExists(path)) {
+                logSevereProblem(message, e);
+            } else {
+                commandLineContext.getLogger().warning(message);
             }
         }
     }
@@ -464,7 +478,6 @@ class CommandLineTool implements GraphProcessingObserver {
     private ConfigFile readConfigurationFile(String filePath) throws Exception {
         ConfigFile configFile = new ConfigFile();
         configFile.content = readTextFile(filePath);
-        Map<String, String> map;
         if (isXml(configFile.content)) {
             configFile.map = new TreeMap<String, String>();
             configFile.isXml = true;
@@ -503,9 +516,11 @@ class CommandLineTool implements GraphProcessingObserver {
 
     private void runVelocityTemplates() {
         String velocityDirPath = commandLineArgs.getVelocityTemplateDirPath();
-        File velocityDir = new File(".");
+        File velocityDir;
         if (velocityDirPath != null) {
             velocityDir = new File(velocityDirPath);
+        }  else {
+            velocityDir = new File(CommandLineArgs.DEFAULT_VELOCITY_TEMPLATE_DIRPATH);
         }
 
         String[] templateNames = velocityDir.list(new FilenameFilter() {

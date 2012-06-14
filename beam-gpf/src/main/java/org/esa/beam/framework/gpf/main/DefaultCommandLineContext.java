@@ -103,4 +103,9 @@ class DefaultCommandLineContext implements CommandLineContext {
     public Writer createWriter(String fileName) throws IOException {
         return new FileWriter(fileName);
     }
+
+    @Override
+    public boolean fileExists(String fileName) {
+        return new File(fileName).exists();
+    }
 }
