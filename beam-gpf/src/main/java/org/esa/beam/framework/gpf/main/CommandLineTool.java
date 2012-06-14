@@ -33,10 +33,20 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.experimental.Output;
-import org.esa.beam.framework.gpf.graph.*;
+import org.esa.beam.framework.gpf.graph.Graph;
+import org.esa.beam.framework.gpf.graph.GraphContext;
+import org.esa.beam.framework.gpf.graph.GraphException;
+import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
+import org.esa.beam.framework.gpf.graph.Node;
+import org.esa.beam.framework.gpf.graph.NodeContext;
+import org.esa.beam.framework.gpf.graph.NodeSource;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.framework.gpf.internal.OperatorProductReader;
 import org.esa.beam.gpf.operators.standard.ReadOp;
@@ -45,12 +55,24 @@ import org.esa.beam.util.io.FileUtils;
 import org.xmlpull.mxp1.MXParser;
 
 import javax.media.jai.JAI;
-import java.awt.*;
-import java.io.*;
+import java.awt.Rectangle;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.logging.Level;
 
 /**
@@ -90,7 +112,7 @@ class CommandLineTool implements GraphProcessingObserver {
         this.velocityContext = new VelocityContext();
     }
 
-    void run(String ... args) throws Exception {
+    void run(String... args) throws Exception {
         boolean stackTraceDumpEnabled = CommandLineArgs.isStackTraceDumpEnabled(args);
         try {
             commandLineArgs = CommandLineArgs.parseArgs(args);
@@ -174,6 +196,7 @@ class CommandLineTool implements GraphProcessingObserver {
         } else {
             readMetadata(CommandLineArgs.DEFAULT_METADATA_FILEPATH, false);
         }
+        readSourceMetadataFiles();
     }
 
     private void readMetadata(String path, boolean fail) throws Exception {
@@ -197,6 +220,51 @@ class CommandLineTool implements GraphProcessingObserver {
                 commandLineContext.getLogger().warning(message);
             }
         }
+    }
+
+    void readSourceMetadataFiles() {
+
+        Map<String, Map<String, String>> sourceMetadataFileContents = new HashMap<String, Map<String, String>>();
+
+        final SortedMap<String, String> sourceFilePathMap = commandLineArgs.getSourceFilePathMap();
+        for (String sourceId : sourceFilePathMap.keySet()) {
+            final String sourcePath = sourceFilePathMap.get(sourceId);
+            final Map<String, String> sourceMetadataFileContent = getSourceMetadataFileContent(sourceId, sourcePath);
+            sourceMetadataFileContents.put(sourceId, sourceMetadataFileContent);
+            if (sourceId.equals("sourceProduct")) {
+                velocityContext.put("sourceMetadataFileContent", sourceMetadataFileContent);
+            }
+        }
+
+        if (sourceMetadataFileContents.size() == 1) {
+            velocityContext.put("sourceMetadataFileContent", sourceMetadataFileContents.values().toArray()[0]);
+        }
+
+        velocityContext.put("sourceMetadataFileContents", sourceMetadataFileContents);
+    }
+
+    Map<String, String> getSourceMetadataFileContent(String sourceId, String sourcePath) {
+        final File file = new File(sourcePath);
+        File dir = file.getParentFile();
+        if (dir == null) {
+            dir = new File(".");
+        }
+        final HashMap<String, String> sourceFileContentMap = new HashMap<String, String>();
+        final SourceMetadataFilenameFilter filter = new SourceMetadataFilenameFilter(file.getName());
+        final String[] metadataFileNames = dir.list(filter);
+        if (metadataFileNames != null) {
+            for (String metadataFileName : metadataFileNames) {
+                try {
+                    final ConfigFile configFile = readConfigurationFile(new File(dir, metadataFileName).getPath());
+                    final String metadataBaseName = filter.getMetadataBaseName(metadataFileName);
+                    sourceFileContentMap.put(metadataBaseName, configFile.content);
+                } catch (Exception e) {
+                    logSevereProblem(String.format("Failed to load metadata file '%s' associated with '%s = %s': %s",
+                                                   metadataFileName, sourceId, sourcePath, e.getMessage()), e);
+                }
+            }
+        }
+        return sourceFileContentMap;
     }
 
     private void runGraphOrOperator() throws Exception {
@@ -246,7 +314,7 @@ class CommandLineTool implements GraphProcessingObserver {
 
         Map<String, String> templateVariables = getRawParameterMap();
 
-        Map<String, String> sourceNodeIdMap = getSourceNodeIdMap(commandLineArgs);
+        Map<String, String> sourceNodeIdMap = getSourceNodeIdMap();
         templateVariables.putAll(sourceNodeIdMap);
         // todo - use Velocity and the current Velocity context for reading the graph XML! (nf, 20120610)
         Graph graph = readGraph(commandLineArgs.getGraphFilePath(), templateVariables);
@@ -309,7 +377,7 @@ class CommandLineTool implements GraphProcessingObserver {
         }
     }
 
-    private  Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap) throws
+    private Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap) throws
             ValidationException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName,
@@ -400,7 +468,7 @@ class CommandLineTool implements GraphProcessingObserver {
                 // Java properties loaded. But CLI parameters shall always overwrite file parameters.
                 configFile.map.putAll(commandLineArgs.getParameterMap());
             }
-            parameterMap =  configFile.map;
+            parameterMap = configFile.map;
         } else {
             parameterMap = new HashMap<String, String>();
         }
@@ -411,7 +479,7 @@ class CommandLineTool implements GraphProcessingObserver {
         return parameterMap;
     }
 
-    private Map<String, String> getSourceNodeIdMap(CommandLineArgs commandLineArgs) throws IOException {
+    private Map<String, String> getSourceNodeIdMap() throws IOException {
         SortedMap<File, String> fileToNodeIdMap = new TreeMap<File, String>();
         SortedMap<String, String> nodeIdMap = new TreeMap<String, String>();
         SortedMap<String, String> sourceFilePathsMap = commandLineArgs.getSourceFilePathMap();
@@ -468,12 +536,13 @@ class CommandLineTool implements GraphProcessingObserver {
         Velocity.evaluate(velocityContext, stringWriter, "gpt", reader);
         return stringWriter.toString();
     }
-     private static class ConfigFile {
-          boolean isXml;
-         String content;
-         Map<String, String> map;
 
-     }
+    private static class ConfigFile {
+        boolean isXml;
+        String content;
+        Map<String, String> map;
+
+    }
 
     private ConfigFile readConfigurationFile(String filePath) throws Exception {
         ConfigFile configFile = new ConfigFile();
@@ -519,7 +588,7 @@ class CommandLineTool implements GraphProcessingObserver {
         File velocityDir;
         if (velocityDirPath != null) {
             velocityDir = new File(velocityDirPath);
-        }  else {
+        } else {
             velocityDir = new File(CommandLineArgs.DEFAULT_VELOCITY_TEMPLATE_DIRPATH);
         }
 
@@ -587,6 +656,8 @@ class CommandLineTool implements GraphProcessingObserver {
         return velocityEngine;
     }
 
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
     //  GraphProcessingObserver impl
 
     @Override
@@ -609,7 +680,7 @@ class CommandLineTool implements GraphProcessingObserver {
             if (nodeContext.getOperator() instanceof ReadOp) {
                 final Product product = nodeContext.getOperator().getTargetProduct();
                 if (sourceProduct == null) {
-                    sourceProduct =  product;
+                    sourceProduct = product;
                 }
                 if (node.getId().startsWith(READ_OP_ID_PREFIX)) {
                     final String sourceId = node.getId().substring(READ_OP_ID_PREFIX.length());
@@ -628,4 +699,5 @@ class CommandLineTool implements GraphProcessingObserver {
     @Override
     public void tileProcessingStopped(GraphContext graphContext, Rectangle tileRectangle) {
     }
+
 }
