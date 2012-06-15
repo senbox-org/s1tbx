@@ -50,6 +50,7 @@
     <modules>
         <module>beam-system</module>
         <module>beam-plugins</module>
+        <module>beam-plugin-parent</module>
     </modules>
 
     <repositories>

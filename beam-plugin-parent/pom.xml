@@ -1,66 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
-  ~
-  ~ This program is free software; you can redistribute it and/or modify it
-  ~ under the terms of the GNU General Public License as published by the Free
-  ~ Software Foundation; either version 3 of the License, or (at your option)
-  ~ any later version.
-  ~ This program is distributed in the hope that it will be useful, but WITHOUT
-  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-  ~ more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License along
-  ~ with this program; if not, see http://www.gnu.org/licenses/
-  -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-    <modelVersion>4.0.0</modelVersion>
-
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.esa.beam</groupId>
         <artifactId>beam-parent</artifactId>
+        <groupId>org.esa.beam</groupId>
         <version>1-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
+    <artifactId>beam-plugin-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>BEAM system level modules aggregator</name>
-    <groupId>org.esa.beam</groupId>
-    <artifactId>beam-system</artifactId>
-    <description>This POM serves as aggregator for all BEAM system level modules.</description>
-    <version>4.10.3-SNAPSHOT</version>
-
     <properties>
-        <!-- In version 3.0 of Maven the sourceEncoding property will be embedded in the build tag.
-        For now the convention is to that it as property.
-        TODO: Move the sourceEncoding property to the build tag if version 3.0 is released -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <beam.version>4.10.3-SNAPSHOT</beam.version>
-        <ceres.version>0.13.1-SNAPSHOT</ceres.version>
+        <beam.version>[4.10,5-SNAPSHOT)</beam.version>
+        <ceres.version>[0.13,0.14-SNAPSHOT)</ceres.version>
         <geotools.version>2.7.4</geotools.version>
         <jide.version>3.3.7</jide.version>
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.2.20</netcdf.version>
     </properties>
-    <modules>
-        <!-- the bootstrap module has no sources, its only purpose is to construct a class path for VISAT -->
-        <module>../beam-bootstrap</module>
-        <module>../beam-core</module>
-        <module>../beam-csv-dataio</module>
-        <module>../beam-examples</module>
-        <module>../beam-gpf</module>
-        <module>../beam-help</module>
-        <module>../beam-processing</module>
-        <module>../beam-scripting</module>
-        <module>../beam-ui</module>
-        <module>../beam-visat</module>
-        <module>../beam-visat-rcp</module>
-        <module>../beam-installer</module>
-    </modules>
 
     <dependencyManagement>
         <dependencies>
@@ -71,42 +31,49 @@
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-launcher</artifactId>
                 <version>${ceres.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-core</artifactId>
                 <version>${ceres.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-binding</artifactId>
                 <version>${ceres.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-ui</artifactId>
                 <version>${ceres.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-binio</artifactId>
                 <version>${ceres.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-glayer</artifactId>
                 <version>${ceres.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-jai</artifactId>
                 <version>${ceres.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <!-- BEAM System Level Modules ############################################# -->
@@ -115,36 +82,43 @@
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-core</artifactId>
                 <version>${beam.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-gpf</artifactId>
                 <version>${beam.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-ui</artifactId>
                 <version>${beam.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-processing</artifactId>
                 <version>${beam.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-csv-dataio</artifactId>
                 <version>${beam.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat-rcp</artifactId>
                 <version>${beam.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat</artifactId>
                 <version>${beam.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <!-- Miscellaneous 3rd party libraries ############################################# -->
@@ -153,16 +127,19 @@
                 <groupId>ncsa.hdf</groupId>
                 <artifactId>lib-hdf</artifactId>
                 <version>${hdf.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>netcdf</artifactId>
                 <version>${netcdf.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
                 <version>1.4.1</version>
+                <scope>provided</scope>
             </dependency>
 
             <!-- GeoTools Libraries ############################################# -->
@@ -496,19 +473,6 @@
                 <groupId>org.xeustechnologies</groupId>
                 <artifactId>jtar</artifactId>
                 <version>1.0.4</version>
-            </dependency>
-
-            <!-- APACHE velocity support ########################################  -->
-            <dependency>
-                <groupId>velocity</groupId>
-                <artifactId>velocity</artifactId>
-                <version>1.5</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>jdom</groupId>
-                        <artifactId>jdom</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
         </dependencies>

@@ -23,9 +23,9 @@
 
     <parent>
         <groupId>org.esa.beam</groupId>
-        <artifactId>beam-plugins</artifactId>
-        <version>1-SNAPSHOT</version>
-        <relativePath>../beam-plugins/pom.xml</relativePath>
+        <artifactId>beam-plugin-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
     <name>BEAM AATSR SST Processor</name>

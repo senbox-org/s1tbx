@@ -6,9 +6,9 @@
 
     <parent>
         <groupId>org.esa.beam</groupId>
-        <artifactId>beam-plugins</artifactId>
-        <version>1-SNAPSHOT</version>
-        <relativePath>../beam-plugins/pom.xml</relativePath>
+        <artifactId>beam-plugin-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
     <groupId>org.esa.beam</groupId>
@@ -47,14 +47,13 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-netcdf</artifactId>
             <version>1.1</version>
-            <scope>provided</scope>
         </dependency>
 
-        <!--Needed because the scope of beam-netcdf has been set to provided-->
         <dependency>
             <groupId>edu.ucar</groupId>
             <artifactId>netcdf</artifactId>
         </dependency>
+
 
         <!-- Not a real dependency, but used for tests -->
         <dependency>
@@ -76,6 +75,12 @@
             <artifactId>velocity</artifactId>
             <version>1.5</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>jdom</groupId>
+                    <artifactId>jdom</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>
