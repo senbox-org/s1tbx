@@ -17,20 +17,15 @@ package org.esa.beam.dataio.modis;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.AbstractGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.Scene;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.Range;
 
+import java.awt.*;
 import java.awt.geom.Line2D;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,11 +74,11 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         Guardian.assertNotNull("lonGrid", lonGrid);
         Guardian.assertNotNull("datum", datum);
         if (latGrid.getRasterWidth() != lonGrid.getRasterWidth() ||
-            latGrid.getRasterHeight() != lonGrid.getRasterHeight() ||
-            latGrid.getOffsetX() != lonGrid.getOffsetX() ||
-            latGrid.getOffsetY() != lonGrid.getOffsetY() ||
-            latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
-            latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
+                latGrid.getRasterHeight() != lonGrid.getRasterHeight() ||
+                latGrid.getOffsetX() != lonGrid.getOffsetX() ||
+                latGrid.getOffsetY() != lonGrid.getOffsetY() ||
+                latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
+                latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
             throw new IllegalArgumentException("latGrid is not compatible with lonGrid");
         }
         _latGrid = latGrid;
@@ -117,7 +112,6 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @param geoPos   the geographical position as lat/lon in the coodinate system determined by {@link #getDatum()}
      * @param pixelPos an instance of <code>Point</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the pixel co-ordinates as x/y
      */
     public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
@@ -128,7 +122,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         pixelPos.y = -1;
 
         // tb 2009-01-21 - this shortcut check is numerically incorrect. MERCI fails to calculate intersection
-        // lines - althoiugh the operation should be consistent.
+        // lines - although the operation should be consistent.
         // - calculate geo-boundary of product
         // - intersect with search region
         // - re-transform intersection polygon points to x/y space
@@ -161,7 +155,6 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the geographical position as lat/lon in the coodinate system determined by {@link #getDatum()}
      */
     public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
@@ -253,7 +246,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         _gcList = new ArrayList<GeoCoding>();
         _centerLineList = new ArrayList<PolyLine>();
         final float osX = _lonGrid.getOffsetX();
-        final float osY = _lonGrid.getOffsetY() + 0.5f;
+        final float osY = _lonGrid.getOffsetY();
         final float ssX = _lonGrid.getSubSamplingX();
         final float ssY = _lonGrid.getSubSamplingY();
 
@@ -262,10 +255,10 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
         final int stripeW = _lonGrid.getRasterWidth();
         final int gcStripeSceneWidth = _lonGrid.getSceneRasterWidth();
-        final int h = _lonGrid.getRasterHeight();
+        final int tpRasterHeight = _lonGrid.getRasterHeight();
         final int sceneHeight = _lonGrid.getSceneRasterHeight();
         final int stripeH;
-        if (sceneHeight / h == 2) {
+        if (isHighResolution(sceneHeight, tpRasterHeight)) {
             stripeH = 10;
             _gcStripeSceneHeight = 20;
         } else {
@@ -274,7 +267,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         }
 
         final int gcRawWidth = stripeW * stripeH;
-        for (int y = 0; y < h; y += stripeH) {
+        for (int y = 0; y < tpRasterHeight; y += stripeH) {
             final float[] lats = new float[gcRawWidth];
             final float[] lons = new float[gcRawWidth];
             System.arraycopy(lonFloats, y * stripeW, lons, 0, stripeW * stripeH);
@@ -411,11 +404,92 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @param srcScene  the source scene
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code>
-     *
      * @return true, if the geo-coding could be transferred.
      */
     @Override
     public boolean transferGeoCoding(final Scene srcScene, final Scene destScene, final ProductSubsetDef subsetDef) {
+        final String latGridName = _latGrid.getName();
+        final String lonGridName = _lonGrid.getName();
+
+        if (mustRecalculateTiePointGrids(subsetDef)) {
+            try {
+                recalculateTiePointGrids(srcScene, destScene, subsetDef, latGridName, lonGridName);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return createGeocoding(destScene);
+
+    }
+
+    private boolean recalculateTiePointGrids(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef, String latGridName, String lonGridName) throws IOException {
+        // first step - remove location TP grids that have already been transferred. Their size is
+        // calculated wrong in most cases
+        final TiePointGrid falseTiePointGrid = destScene.getProduct().getTiePointGrid(latGridName);
+        final float rightOffsetX = falseTiePointGrid.getOffsetX();
+        final float falseOffsetY = falseTiePointGrid.getOffsetY();
+        final float rightSubsamplingX = falseTiePointGrid.getSubSamplingX();
+        final float rightSubsamplingY = falseTiePointGrid.getSubSamplingY();
+
+        removeTiePointGrid(destScene, latGridName);
+        removeTiePointGrid(destScene, lonGridName);
+
+        final Product srcProduct = srcScene.getProduct();
+        final int sceneRasterHeight = srcProduct.getSceneRasterHeight();
+        final int tpRasterHeight = srcProduct.getTiePointGrid(lonGridName).getRasterHeight();
+        final int scanlineHeight;
+        if (isHighResolution(sceneRasterHeight, tpRasterHeight)) {
+            scanlineHeight = 20;
+        } else {
+            scanlineHeight = 10;
+        }
+
+        final Rectangle region = subsetDef.getRegion();
+        final int startY = calculateStartLine(scanlineHeight, region);
+        final int stopY = calculateStopLine(scanlineHeight, region);
+        final int extendedHeight = stopY - startY;
+
+        float[] recalculatedLatFloats = new float[region.width * extendedHeight];
+        recalculatedLatFloats = srcProduct.getTiePointGrid(latGridName).getPixels(region.x, startY, region.width, extendedHeight, recalculatedLatFloats);
+
+        float[] recalculatedLonFloats = new float[region.width * extendedHeight];
+        recalculatedLonFloats = srcProduct.getTiePointGrid(lonGridName).getPixels(region.x, startY, region.width, extendedHeight, recalculatedLonFloats);
+
+
+        final int yOffsetIncrement = startY - region.y;
+        final TiePointGrid correctedLatTiePointGrid = new TiePointGrid(latGridName,
+                region.width,
+                extendedHeight,
+                rightOffsetX,
+                falseOffsetY + yOffsetIncrement,
+                rightSubsamplingX,
+                rightSubsamplingY,
+                recalculatedLatFloats
+        );
+        final TiePointGrid correctedLonTiePointGrid = new TiePointGrid(lonGridName,
+                region.width,
+                extendedHeight,
+                rightOffsetX,
+                falseOffsetY + yOffsetIncrement,
+                rightSubsamplingX,
+                rightSubsamplingY,
+                recalculatedLonFloats
+        );
+        destScene.getProduct().addTiePointGrid(correctedLatTiePointGrid);
+        destScene.getProduct().addTiePointGrid(correctedLonTiePointGrid);
+
+        return false;
+    }
+
+    private void removeTiePointGrid(Scene destScene, String gridName) {
+        final TiePointGrid tiePointGrid = destScene.getProduct().getTiePointGrid(gridName);
+        if (tiePointGrid != null) {
+            destScene.getProduct().removeTiePointGrid(tiePointGrid);
+        }
+    }
+
+    private boolean createGeocoding(Scene destScene) {
         final String latGridName = _latGrid.getName();
         final String lonGridName = _lonGrid.getName();
         final TiePointGrid latGrid = destScene.getProduct().getTiePointGrid(latGridName);
@@ -426,6 +500,25 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         }
         return false;
     }
+
+    static boolean mustRecalculateTiePointGrids(ProductSubsetDef subsetDef) {
+        return subsetDef.getRegion() != null;
+    }
+
+    // note: this relation is ONLY valid for original Modis products, i.e. products that have not been
+    // subsetted or subsampled . tb 2012-06-15
+    static boolean isHighResolution(int sceneHeight, int tpRasterHeight) {
+        return sceneHeight / tpRasterHeight == 2;
+    }
+
+    static int calculateStartLine(int scanlineHeight, Rectangle region) {
+        return region.y / scanlineHeight * scanlineHeight;
+    }
+
+    static int calculateStopLine(int scanlineHeight, Rectangle region) {
+        return (region.y + region.height) / scanlineHeight * scanlineHeight + scanlineHeight;
+    }
+
 
     private static class PolyLine {
 
@@ -479,10 +572,6 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
         public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints) {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints);
-        }
-
-        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints, int discontinuity) {
-            super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, discontinuity);
         }
 
         public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints, boolean containsAngles) {

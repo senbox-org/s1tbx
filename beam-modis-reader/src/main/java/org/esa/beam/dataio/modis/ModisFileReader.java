@@ -282,12 +282,6 @@ class ModisFileReader {
         }
     }
 
-
-    /**
-     * Adds the geolocation to the product
-     *
-     * @param product
-     */
     private void addModisTiePointGeoCoding(Product product, NetCDFVariables netCDFVariables) throws IOException {
         ModisProductDescription prodDesc = prodDb.getProductDescription(product.getProductType());
         final String[] geolocationDatasetNames;
@@ -394,7 +388,7 @@ class ModisFileReader {
         final int[] tiePtInfoY = globalAttribs.getSubsamplingAndOffset(dimNames[1]);
 
         if (tiePtInfoX != null && tiePtInfoY != null && tiePtInfoX.length > 1 && tiePtInfoY.length > 1) {
-            gridRet = new TiePointGrid(name, width, height, tiePtInfoX[1], tiePtInfoY[1],
+            gridRet = new TiePointGrid(name, width, height, tiePtInfoX[1], tiePtInfoY[1] + 0.5f,
                     tiePtInfoX[0], tiePtInfoY[0], floatBuffer);
 
             String unitAttribName = desc.getUnitAttribName();

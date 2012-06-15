@@ -38,6 +38,9 @@ public class DaacAttributesTest extends TestCase {
         Dimension dimension = new Dimension("10*nscans", 838);
         assertTrue(DaacAttributes.isHeightDimension(dimension));
 
+        dimension = new Dimension("20*nscans", 838);
+        assertTrue(DaacAttributes.isHeightDimension(dimension));
+
         dimension = new Dimension("MODIS_Grid_16DAY_1km_VI/Data Fields/YDim", 838);
         assertTrue(DaacAttributes.isHeightDimension(dimension));
 

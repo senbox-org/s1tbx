@@ -24,7 +24,6 @@ import org.esa.beam.dataio.modis.netcdf.NetCDFUtils;
 import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.ProductFlipper;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -120,9 +119,9 @@ public class ModisProductReader extends AbstractProductReader {
         }
 
         reader.readBandData(sourceOffsetX, sourceOffsetY,
-                            sourceWidth, sourceHeight,
-                            sourceStepX, sourceStepY,
-                            destBuffer, pm);
+                sourceWidth, sourceHeight,
+                sourceStepX, sourceStepY,
+                destBuffer, pm);
     }
 
     /**
@@ -147,10 +146,10 @@ public class ModisProductReader extends AbstractProductReader {
 
         final Dimension productDim = globalAttributes.getProductDimensions(netcdfFile.getDimensions());
         Product product = new Product(globalAttributes.getProductName(),
-                                      globalAttributes.getProductType(),
-                                      productDim.width,
-                                      productDim.height,
-                                      this);
+                globalAttributes.getProductType(),
+                productDim.width,
+                productDim.height,
+                this);
         product.setFileLocation(inFile);
 
         final NetCDFVariables netCDFVariables = new NetCDFVariables();
@@ -177,16 +176,16 @@ public class ModisProductReader extends AbstractProductReader {
 //                            prod.getDescription());
 //                    prod.setFileLocation(inFile);
 //                }
-        final ModisProductDb productDb = ModisProductDb.getInstance();
-        if (productDb.mustFlip(globalAttributes.getProductType())) {
-            // @todo 1 tb/tb this creates weired geo-codings!!!!!
-            product = ProductFlipper.createFlippedProduct(product,
-                                                          ProductFlipper.FLIP_BOTH,
-                                                          product.getName(),
-                                                          product.getDescription());
-            product.setFileLocation(inFile);
-            System.out.println("FLIP_IT!!!!!!!!!!!!!!!!!!");
-        }
+//        final ModisProductDb productDb = ModisProductDb.getInstance();
+//        if (productDb.mustFlip(globalAttributes.getProductType())) {
+//            // @todo 1 tb/tb this creates weired geo-codings!!!!!
+//            product = ProductFlipper.createFlippedProduct(product,
+//                                                          ProductFlipper.FLIP_BOTH,
+//                                                          product.getName(),
+//                                                          product.getDescription());
+//            product.setFileLocation(inFile);
+//            System.out.println("FLIP_IT!!!!!!!!!!!!!!!!!!");
+//        }
         return product;
     }
 

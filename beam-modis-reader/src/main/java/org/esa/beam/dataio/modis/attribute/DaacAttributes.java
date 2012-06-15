@@ -57,11 +57,17 @@ public class DaacAttributes implements ModisGlobalAttributes {
         int height = 0;
         for (ucar.nc2.Dimension dimension : netcdfFileDimensions) {
             if (isWidthDimension(dimension)) {
-                width = dimension.getLength();
+                final int dimWidth = dimension.getLength();
+                if (dimWidth > width) {
+                    width = dimWidth;
+                }
             }
 
             if (isHeightDimension(dimension)) {
-                height = dimension.getLength();
+                final int dimHeight = dimension.getLength();
+                if (dimHeight > height) {
+                    height = dimHeight;
+                }
             }
         }
         return new Dimension(width, height);
@@ -128,6 +134,7 @@ public class DaacAttributes implements ModisGlobalAttributes {
     static boolean isHeightDimension(ucar.nc2.Dimension dimension) {
         final String dimensionName = dimension.getName();
         return dimensionName.contains("10*nscans") ||
+                dimensionName.contains("20*nscans") ||
                 dimensionName.contains("YDim") ||
                 dimensionName.contains("Number_of_records");
     }
