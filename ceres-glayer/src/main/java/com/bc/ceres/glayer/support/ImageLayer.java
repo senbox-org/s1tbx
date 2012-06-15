@@ -216,82 +216,78 @@ public class ImageLayer extends Layer {
         }
 
         final Graphics2D graphics2D = rendering.getGraphics();
-
         final Object oldAntialiasing = graphics2D.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
         final Paint oldPaint = graphics2D.getPaint();
         final Stroke oldStroke = graphics2D.getStroke();
-
-        final Viewport viewport = rendering.getViewport();
-        final Rectangle viewBounds = viewport.getViewBounds();
-
         try {
-            AffineTransform m2i = multiLevelSource.getModel().getModelToImageTransform(0);
-            AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(0);
-            AffineTransform v2m = viewport.getViewToModelTransform();
-            AffineTransform m2v = viewport.getModelToViewTransform();
-
-            // fixme: better concat transforms before (nf)
-            Shape imageShape = m2i.createTransformedShape(v2m.createTransformedShape(viewBounds));
-            Rectangle2D imageBounds = imageShape.getBounds2D();
-
-            RenderedImage image = multiLevelSource.getImage(level);
-            int width = image.getWidth();
-            int height = image.getHeight();
-
             graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            //
-            // Draw pixel border
-            //
             if (pixelBorderShown) {
-                final double pixelSizeInViewX = i2m.getScaleX() * m2v.getScaleX();
-                final double pixelSizeInViewY = i2m.getScaleY() * m2v.getScaleY();
-                if (pixelSizeInViewX >= MIN_PIXEL_SIZE_IN_VIEW || pixelSizeInViewY >= MIN_PIXEL_SIZE_IN_VIEW) {
-                    int x0 = Math.max(0, (int) Math.floor(imageBounds.getX()));
-                    int y0 = Math.max(0, (int) Math.floor(imageBounds.getY()));
-                    int x1 = Math.min(width, x0 + (int) Math.round(imageBounds.getWidth()) + 1);
-                    int y1 = Math.min(height, y0 + (int) Math.round(imageBounds.getHeight()) + 1);
-
-                    // fixme: the dashed stroke is slow (nf)
-                    /*
-                    graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getPixelBorderWidth()),
-                                                         BasicStroke.CAP_SQUARE,
-                                                         BasicStroke.JOIN_MITER,
-                                                         10.0f, new float[] {3.0F, 3.0F}, 0.0f));
-                    */
-                    graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getPixelBorderWidth())));
-                    graphics2D.setColor(getPixelBorderColor());
-                    for (int x = x0; x <= x1; x++) {
-                        // fixme: better concat transforms before (nf)
-                        graphics2D.draw(m2v.createTransformedShape(i2m.createTransformedShape(new Line2D.Double(x, y0, x, y1))));
-                    }
-                    for (int y = y0; y <= y1; y++) {
-                        // fixme: better concat transforms before (nf)
-                        graphics2D.draw(m2v.createTransformedShape(i2m.createTransformedShape(new Line2D.Double(x0, y, x1, y))));
-                    }
-                }
+                drawPixelBorders(rendering, graphics2D);
             }
-
-            //
-            // Draw image border
-            //
             if (imageBorderShown) {
-                // fixme: better concat transforms before (nf)
-                Shape modelShape = i2m.createTransformedShape(
-                        new Rectangle(image.getMinX(), image.getMinY(), image.getWidth(), image.getHeight()));
-                Shape viewShape = m2v.createTransformedShape(modelShape);
-
-                graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getBorderWidth())));
-                graphics2D.setColor(getBorderColor());
-                graphics2D.draw(viewShape);
+                drawImageBorder(rendering, graphics2D, level);
             }
-
         } finally {
             graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntialiasing);
             graphics2D.setPaint(oldPaint);
             graphics2D.setStroke(oldStroke);
         }
 
+    }
+
+    private void drawImageBorder(Rendering rendering, Graphics2D graphics2D, int level) {
+        final RenderedImage image = multiLevelSource.getImage(level);
+        final Viewport viewport = rendering.getViewport();
+        final AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(level);
+        final AffineTransform m2v = viewport.getModelToViewTransform();
+        // fixme: better concat transforms before (nf)
+        final Shape modelShape = i2m.createTransformedShape(
+                new Rectangle(image.getMinX(), image.getMinY(), image.getWidth(), image.getHeight()));
+        final Shape viewShape = m2v.createTransformedShape(modelShape);
+
+        graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getBorderWidth())));
+        graphics2D.setColor(getBorderColor());
+        graphics2D.draw(viewShape);
+    }
+
+    private void drawPixelBorders(Rendering rendering, Graphics2D graphics2D) {
+        final Viewport viewport = rendering.getViewport();
+        final AffineTransform m2i0 = multiLevelSource.getModel().getModelToImageTransform(0);
+        final AffineTransform i2m0 = multiLevelSource.getModel().getImageToModelTransform(0);
+        final AffineTransform v2m = viewport.getViewToModelTransform();
+        final AffineTransform m2v = viewport.getModelToViewTransform();
+        final Rectangle viewBounds = viewport.getViewBounds();
+        // fixme: better concat transforms before (nf)
+        final Shape imageShape = m2i0.createTransformedShape(v2m.createTransformedShape(viewBounds));
+        final Rectangle2D imageBounds = imageShape.getBounds2D();
+
+        final double pixelSizeInViewX = i2m0.getScaleX() * m2v.getScaleX();
+        final double pixelSizeInViewY = i2m0.getScaleY() * m2v.getScaleY();
+        if (pixelSizeInViewX >= MIN_PIXEL_SIZE_IN_VIEW || pixelSizeInViewY >= MIN_PIXEL_SIZE_IN_VIEW) {
+            RenderedImage image0 = multiLevelSource.getImage(0);
+            int x0 = Math.max(0, (int) Math.floor(imageBounds.getX()));
+            int y0 = Math.max(0, (int) Math.floor(imageBounds.getY()));
+            int x1 = Math.min(image0.getWidth(), x0 + (int) Math.round(imageBounds.getWidth()) + 1);
+            int y1 = Math.min(image0.getHeight(), y0 + (int) Math.round(imageBounds.getHeight()) + 1);
+
+            // fixme: the dashed stroke is slow (nf)
+            /*
+            graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getPixelBorderWidth()),
+                                                 BasicStroke.CAP_SQUARE,
+                                                 BasicStroke.JOIN_MITER,
+                                                 10.0f, new float[] {3.0F, 3.0F}, 0.0f));
+            */
+            graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getPixelBorderWidth())));
+            graphics2D.setColor(getPixelBorderColor());
+            for (int x = x0; x <= x1; x++) {
+                // fixme: better concat transforms before (nf)
+                graphics2D.draw(m2v.createTransformedShape(i2m0.createTransformedShape(new Line2D.Double(x, y0, x, y1))));
+            }
+            for (int y = y0; y <= y1; y++) {
+                // fixme: better concat transforms before (nf)
+                graphics2D.draw(m2v.createTransformedShape(i2m0.createTransformedShape(new Line2D.Double(x0, y, x1, y))));
+            }
+        }
     }
 
     @Override
@@ -399,7 +395,6 @@ public class ImageLayer extends Layer {
             property.getDescriptor().setTransient(true);
             return property;
         }
-
 
         private static Property addMultiLevelSourceModel(PropertyContainer configuration) {
             if (configuration.getProperty(PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
