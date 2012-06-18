@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-netcdf</symbolicName>
-    <version>1.1</version>
+    <version>1.1.1</version>
     <name>NetCDF Product Reader and Writer</name>
     <description>
         A product reader and writer for NetCDF files. It supports metadata profiles for CF, BEAM, HDF-EOS, ODESA.
@@ -31,6 +31,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.1.1:<br/>
+        Adapted to new Maven-architecture<br/>
         Changes in 1.1:<br/>
         [BEAM-1381] - Statistics written to NetCDF files shall be in geo-physical units<br/>
         [BEAM-1363] - Write NetCDf 4 files using compression<br/>

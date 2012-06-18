@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-mosaic</symbolicName>
-    <version>2.3</version>
+    <version>2.3.1</version>
     <name>Level-3 Mosaic Processor</name>
 
 
@@ -15,6 +15,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 2.3.1<br/>
+        Adapted to new Maven-architecture<br/>
         <p>Changes in 2.3<br/>
         [BEAM-1036] Ensure temporarily loaded products are disposed in processors<br/>
         [BEAM-1011] Worl Map Tool View to utilise new layer capabilities<br/>

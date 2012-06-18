@@ -11,6 +11,7 @@
     <changelog>
         <![CDATA[
         Changes in 1.4.1:<br/>
+        Adapted to new Maven-architecture<br>
         [BEAM-1405] Rounding errors in collocation of int32 bands<br/>
         Changes in 1.4:<br/>
         [BEAM-1314] Processor menus are not visible on Mac<br/>

@@ -29,7 +29,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-rtp-codec</artifactId>
     <name>BEAM Raw, tiled pyramid codec (experimental)</name>
-    <version>0.1</version>
+    <version>0.1.1-SNAPSHOT</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>

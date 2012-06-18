@@ -31,7 +31,7 @@
     <name>BEAM MERIS SMAC Atmospheric Correction</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-meris-smac</artifactId>
-    <version>1.5.203</version>
+    <version>1.5.204-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
-            <version>1.5</version>
+            <version>1.5.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

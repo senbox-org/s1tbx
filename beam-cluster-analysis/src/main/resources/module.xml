@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>beam-cluster-analysis</symbolicName>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <name>BEAM Cluster Analysis</name>
 
     <description>
@@ -11,6 +11,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.1.2:<br/>
+        Adapted to new Maven-architecture<br>
         Changes in 1.1:<br/>
         [BEAM-841] EM clustering does not come to an end for small scenes<br/>
         [BEAM-839] Improper initialization of EM clustering algorithm<br/>

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-hdf5-writer</symbolicName>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <name>HDF5 Product Writer</name>
 
 
@@ -13,6 +13,12 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
+    <changelog>
+        <![CDATA[
+        Changes in 1.0.1:<br\>
+        Adapted to new Maven-architecture<br>
+        ]]>
+    </changelog>
 
     <dependency>
         <module>beam-core</module>

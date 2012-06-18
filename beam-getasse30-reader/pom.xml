@@ -29,7 +29,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-getasse30-reader</artifactId>
     <name>BEAM GETASSE30 DEM Reader</name>
-    <version>1.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-atsr-reader</symbolicName>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <name>ATSR Product Reader</name>
 
     <description>Enables BEAM to read ERS-1 and -2 ATSR data products.</description>
@@ -22,6 +22,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in Version 1.0.3<br/>
+        Adapted to new Maven-architecture<br>
         Changes in Version 1.0.2<br/>
         Remove usage of deprecated methods/classes<br/>
         Changes in Version 1.0.1<br/>

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-binning</symbolicName>
-    <version>2.1</version>
+    <version>2.1.1</version>
     <name>Level-3 Binning Processor</name>
 
     <description>
@@ -26,6 +26,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 2.1.1:<br\>
+        Adapted to new Maven-architecture<br>
         Changes in 2.1:<br\>
         [BEAM-1103] Product outside of target area breaks processing of L3 binning<br\>
         Changes in 2.0.2:<br\>

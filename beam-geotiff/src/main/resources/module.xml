@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-geotiff</symbolicName>
-    <version>1.2</version>
+    <version>1.2.1</version>
     <name>GeoTIFF Product Module</name>
     <description>A module for reading and writing GeoTIFF Data Products</description>
 
@@ -28,6 +28,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.2.1:<br/>
+        Adapted to new Maven-architecture<br>
         Changes in 1.2:<br/>
         [BEAM-1383] GeoTIFF product reader should support reading from InputStreams<br/>
         [BEAM-1340] GeoTIFF products with a single TAG_MODEL_TIE_POINT entry should be supported<br/>

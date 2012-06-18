@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-chris-reader</symbolicName>
-    <version>1.7</version>
+    <version>1.7.1</version>
     <name>CHRIS/Proba Product Reader</name>
 
     <description>Enables BEAM to read CHRIS/Proba HDF4 data products.</description>
@@ -14,6 +14,10 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in Version 1.7.1
+        <ul>
+        <li>Adapted to new Maven-architecture
+        </ul>
         <p>Changes in Version 1.7
         <ul>
         <li>Remove usage of deprecated methods/classes</li>

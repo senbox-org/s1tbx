@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-avhrr-reader</symbolicName>
-    <version>1.2</version>
+    <version>1.2.1</version>
     <name>AVHRR Product Reader</name>
 
     <description>Enables BEAM to read AVHRR/3 Level-1b data products.</description>
@@ -14,6 +14,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.2.1:<br/>
+        Adapted to new Maven-architecture<br>
         Changes in 1.2:<br/>
         Remove usage of deprecated methods/classes<br/>
         Changes in 1.1:<br/>

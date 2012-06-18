@@ -31,7 +31,7 @@
     <name>BEAM MERIS FLH/MCI Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-flhmci</artifactId>
-    <version>1.6.102</version>
+    <version>1.6.103-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 

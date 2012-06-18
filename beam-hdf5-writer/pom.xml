@@ -29,7 +29,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-hdf5-writer</artifactId>
     <name>BEAM HDF5 Product Writer</name>
-    <version>1.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>

@@ -27,6 +27,7 @@
     <changelog>
         <![CDATA[
                <b>Changes from 1.1 to 1.2</b><br/>
+               Adapted to new Maven-architecture<br/>
                [BEAM-1399] PixEx operator shall handle products without GeoCoding more gracefully<br/>
                <b>Changes from 1.0 to 1.1</b><br/>
                [BEAM-1393] PixExOp shall use Unix-style wildcards for values of parameter 'inputPaths'<br/>

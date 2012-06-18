@@ -31,7 +31,7 @@
     <name>BEAM AATSR SST Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-aatsr-sst</artifactId>
-    <version>1.5</version>
+    <version>1.5.1-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 

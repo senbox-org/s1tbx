@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-spot-vgt-reader</symbolicName>
-    <version>1.2</version>
+    <version>1.2.1</version>
     <name>BEAM SPOT VGT Product Reader</name>
 
     <description>Enables BEAM to read SPOT VGT data products.</description>
@@ -14,6 +14,8 @@
 
     <changelog>
         <![CDATA[
+                Changes in 1.2.1:<br>
+                Adapted to new Maven-architecture<br/>
                 Changes in 1.2:<br>
                 [BEAM-1392] SPOT-VGT product fails in scatter plot between B0 and SZA<br/>
                 Changes in 1.1:<br>
