@@ -18,6 +18,8 @@ package org.esa.beam.framework.ui;
 
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.BindingProblem;
+import com.bc.ceres.swing.binding.BindingProblemListener;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.CoordinateSystem;
 
@@ -151,6 +153,18 @@ public class BoundsInputPanel {
         bindingContext.bindEnabledState(PROPERTY_PIXEL_SIZE_Y, false, enablePropertyKey, disableUIProperty);
         panel.add(pixelSizeYField);
         panel.add(pixelYUnit);
+        bindingContext.addProblemListener(new BindingProblemListener() {
+            @Override
+            public void problemReported(BindingProblem newProblem, BindingProblem oldProblem) {
+                newProblem.getBinding().getComponentAdapter().adjustComponents();
+            }
+
+            @Override
+            public void problemCleared(BindingProblem oldProblem) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+        });
 
         return panel;
     }
@@ -168,7 +182,6 @@ public class BoundsInputPanel {
             pixelSizeYField.setValue(unitMap.get(unitY));
         }
     }
-
 
     private static class DoubleFormatter extends JFormattedTextField.AbstractFormatter {
 
