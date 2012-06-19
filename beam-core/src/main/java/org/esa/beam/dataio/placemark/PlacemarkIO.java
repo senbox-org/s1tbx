@@ -20,7 +20,15 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.DimapProductHelpers;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
@@ -37,8 +45,13 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.*;
-import java.io.*;
+import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.PushbackReader;
+import java.io.Reader;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -416,11 +429,15 @@ public class PlacemarkIO {
         }
 
         final Placemark placemark = Placemark.createPointPlacemark(descriptor, name1, label, description1, pixelPos, geoPos, geoCoding);
-
-        placemark.setStyleCss(element.getChildTextTrim(DimapProductConstants.TAG_PLACEMARK_STYLE_CSS));
+        String styleCss = element.getChildTextTrim(DimapProductConstants.TAG_PLACEMARK_STYLE_CSS);
+        if(styleCss == null) {
+            final String placemarkStyleCss = placemark.getStyleCss();
+            styleCss = StringUtils.isNullOrEmpty(placemarkStyleCss) ? getStyleCssFromOldFormat(element) :
+                       placemarkStyleCss + ";" + getStyleCssFromOldFormat(element);
+        }
+        placemark.setStyleCss(styleCss);
 
         return placemark;
-
     }
 
     private static String getStyleCssFromOldFormat(Element element) {
