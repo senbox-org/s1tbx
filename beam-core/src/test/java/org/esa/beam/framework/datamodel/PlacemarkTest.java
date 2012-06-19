@@ -285,7 +285,7 @@ public class PlacemarkTest extends TestCase {
         assertEquals(pinDesc, placemark.getDescription());
         assertEquals(pinLat, placemark.getGeoPos().lat, 1e-15f);
         assertEquals(pinLon, placemark.getGeoPos().lon, 1e-15f);
-        assertEquals("", placemark.getStyleCss());
+        assertEquals("fill:255,0,0;stroke:0,0,255", placemark.getStyleCss());
     }
 
     public void testLabelSettings() {
