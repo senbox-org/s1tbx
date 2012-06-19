@@ -25,6 +25,7 @@ import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
@@ -105,10 +106,10 @@ public class VectorDataLayer extends Layer {
             SimpleFeatureFigure featureFigure = figureMap.get(simpleFeature);
             if (featureFigure != null) {
                 figureMap.remove(simpleFeature);
-            } else {
-                featureFigure = getFigureFactory().createSimpleFeatureFigure(simpleFeature, vectorDataNode.getDefaultStyleCss());
-                figureCollection.addFigure(featureFigure);
+                figureCollection.removeFigure(featureFigure);
             }
+            featureFigure = getFigureFactory().createSimpleFeatureFigure(simpleFeature, vectorDataNode.getDefaultStyleCss());
+            figureCollection.addFigure(featureFigure);
             featureFigure.forceRegeneration();
         }
 
@@ -164,11 +165,19 @@ public class VectorDataLayer extends Layer {
                         fireLayerDataChanged(null);
                     }
                 }
+            } else if (event.getSourceNode() instanceof Placemark) {
+                final Placemark sourceNode = (Placemark) event.getSourceNode();
+                if (getVectorDataNode().getPlacemarkGroup().contains(sourceNode)) {
+                    if (event.getPropertyName().equals(Placemark.PROPERTY_NAME_STYLE_CSS)) {
+                        updateFigureCollection();
+                    }
+                }
             }
         }
     }
 
     private class FigureChangeHandler implements FigureChangeListener {
+
         @Override
         public void figureChanged(FigureChangeEvent event) {
             final Figure sourceFigure = event.getSourceFigure();
@@ -177,7 +186,8 @@ public class VectorDataLayer extends Layer {
                 try {
                     final VectorDataNode vectorDataNode = getVectorDataNode();
                     final SimpleFeature simpleFeature = featureFigure.getSimpleFeature();
-                    Debug.trace("VectorDataLayer$FigureChangeHandler: vectorDataNode=" + vectorDataNode.getName() + ", featureType=" + simpleFeature.getFeatureType().getTypeName());
+                    Debug.trace("VectorDataLayer$FigureChangeHandler: vectorDataNode=" + vectorDataNode.getName() +
+                                ", featureType=" + simpleFeature.getFeatureType().getTypeName());
                     reactingAgainstFigureChange = true;
                     vectorDataNode.fireFeaturesChanged(simpleFeature);
                     // todo - compute changed modelRegion instead of passing null (nf)
