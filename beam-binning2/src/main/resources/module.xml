@@ -72,7 +72,7 @@
         <action>
             <id>BinningNew</id>
             <text>Level-3 Binning (GPF)</text>
-            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <class>org.esa.beam.binning.operator.ui.BinningOperatorAction</class>
             <placeAfter>Binning</placeAfter>
             <operatorName>Binning</operatorName>
         </action>

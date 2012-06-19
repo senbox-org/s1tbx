@@ -31,49 +31,42 @@
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-launcher</artifactId>
                 <version>${ceres.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-core</artifactId>
                 <version>${ceres.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-binding</artifactId>
                 <version>${ceres.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-ui</artifactId>
                 <version>${ceres.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-binio</artifactId>
                 <version>${ceres.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-glayer</artifactId>
                 <version>${ceres.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-jai</artifactId>
                 <version>${ceres.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- BEAM System Level Modules ############################################# -->
@@ -82,43 +75,36 @@
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-core</artifactId>
                 <version>${beam.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-gpf</artifactId>
                 <version>${beam.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-ui</artifactId>
                 <version>${beam.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-processing</artifactId>
                 <version>${beam.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-csv-dataio</artifactId>
                 <version>${beam.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat-rcp</artifactId>
                 <version>${beam.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat</artifactId>
                 <version>${beam.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- Miscellaneous 3rd party libraries ############################################# -->
@@ -127,19 +113,16 @@
                 <groupId>ncsa.hdf</groupId>
                 <artifactId>lib-hdf</artifactId>
                 <version>${hdf.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>netcdf</artifactId>
                 <version>${netcdf.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
                 <version>1.4.1</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- GeoTools Libraries ############################################# -->
@@ -396,7 +379,7 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.8.2</version>
-                <!--<scope>test</scope>-->
+                <scope>test</scope>
             </dependency>
 
             <dependency>
