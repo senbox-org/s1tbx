@@ -1021,6 +1021,7 @@
             <shortDescr>Export the currently displayed metadata.</shortDescr>
             <description>Export the currently displayed metadata as tab-separated text.</description>
             <context>metadata</context>
+            <popuptext>Export Product Metadata...</popuptext>
             <helpId>exportMetadata</helpId>
         </action>
 
@@ -1033,6 +1034,7 @@
             <shortDescr>Exports the currently selected geometry.</shortDescr>
             <description>Exports the currently selected geometry as ESRI Shapefile.</description>
             <context>vectorDataNode</context>
+            <popuptext>Export Geometry as Shapefile...</popuptext>
             <helpId>exportShapefile</helpId>
         </action>
 
