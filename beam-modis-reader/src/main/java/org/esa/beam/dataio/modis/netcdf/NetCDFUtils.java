@@ -6,6 +6,9 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
+import ucar.nc2.Variable;
+
+import java.io.IOException;
 
 public class NetCDFUtils {
 
@@ -54,6 +57,13 @@ public class NetCDFUtils {
         }
 
         return attrib;
+    }
+
+    public static MetadataAttribute toMetadataAttribute(Variable variable) throws IOException {
+        final String variableValue = variable.readScalarString();
+        ProductData prodData = ProductData.createInstance(variableValue);
+
+        return new MetadataAttribute(variable.getName(), prodData, true);
     }
 
     public static float[] getFloatValues(Attribute attribute) {

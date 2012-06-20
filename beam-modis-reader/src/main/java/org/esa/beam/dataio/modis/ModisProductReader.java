@@ -31,6 +31,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 import java.awt.*;
 import java.io.File;
@@ -78,6 +79,12 @@ public class ModisProductReader extends AbstractProductReader {
     ////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
+    // package access for testing only tb 2012-06-19
+    static boolean isGlobalAttributeName(String variableName) {
+        return "StructMetadata.0".equalsIgnoreCase(variableName)
+                || "CoreMetadata.0".equalsIgnoreCase(variableName)
+                || "ArchiveMetadata.0".equalsIgnoreCase(variableName);
+    }
 
     /**
      * The template method which is called by the method after an optional spatial subset has
@@ -119,9 +126,9 @@ public class ModisProductReader extends AbstractProductReader {
         }
 
         reader.readBandData(sourceOffsetX, sourceOffsetY,
-                sourceWidth, sourceHeight,
-                sourceStepX, sourceStepY,
-                destBuffer, pm);
+                            sourceWidth, sourceHeight,
+                            sourceStepX, sourceStepY,
+                            destBuffer, pm);
     }
 
     /**
@@ -146,10 +153,10 @@ public class ModisProductReader extends AbstractProductReader {
 
         final Dimension productDim = globalAttributes.getProductDimensions(netcdfFile.getDimensions());
         Product product = new Product(globalAttributes.getProductName(),
-                globalAttributes.getProductType(),
-                productDim.width,
-                productDim.height,
-                this);
+                                      globalAttributes.getProductType(),
+                                      productDim.width,
+                                      productDim.height,
+                                      this);
         product.setFileLocation(inFile);
 
         final NetCDFVariables netCDFVariables = new NetCDFVariables();
@@ -229,7 +236,7 @@ public class ModisProductReader extends AbstractProductReader {
      *
      * @param prod the product
      */
-    private void addMetadata(Product prod) {
+    private void addMetadata(Product prod) throws IOException {
         final MetadataElement mdElem = prod.getMetadataRoot();
         if (mdElem == null) {
             return;
@@ -240,6 +247,16 @@ public class ModisProductReader extends AbstractProductReader {
         final Attribute[] attributes = netCDFAttributes.getAll();
         for (final Attribute attribute : attributes) {
             globalElem.addAttribute(NetCDFUtils.toMetadataAttribute(attribute));
+        }
+
+        // we need to scan the variables because the NetCDF lib puts three important
+        // global attributes into the list of variables tb 2012-06-19
+        final Variable[] variables = netCDFVariables.getAll();
+        for (int i = 0; i < variables.length; i++) {
+            final Variable variable = variables[i];
+            if (isGlobalAttributeName(variable.getName())) {
+                globalElem.addAttribute(NetCDFUtils.toMetadataAttribute(variable));
+            }
         }
 
         mdElem.addElement(globalElem);
