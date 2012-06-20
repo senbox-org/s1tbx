@@ -106,11 +106,25 @@ public class RegionSelectableWorldMapPane {
 
         private void updateCursor(MouseEvent e) {
             final Cursor moveCursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
+            final Cursor northCursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
+            final Rectangle2D.Double northRectangle = new Rectangle2D.Double(rectangleForDragCursor.getX(),
+                                                                             rectangleForDragCursor.getY() - 2 * OFFSET,
+                                                                             rectangleForDragCursor.getWidth(),
+                                                                             2*OFFSET);
+            final Rectangle2D.Double rectangleForNonDefaultCursors = new Rectangle2D.Double(rectangleForDragCursor.getX()-2*OFFSET,
+                                                                                            rectangleForDragCursor.getY()-2*OFFSET,
+                                                                                            rectangleForDragCursor.getWidth()+2*OFFSET,
+                                                                                            rectangleForDragCursor.getHeight()+2*OFFSET);
+
+            if (worldMapPane.getCursor() != northCursor && northRectangle.contains(e.getPoint())) {
+                worldMapPane.setCursor(northCursor);
+            }
+
             if (worldMapPane.getCursor() != moveCursor && rectangleForDragCursor.contains(e.getPoint())) {
                 worldMapPane.setCursor(moveCursor);
             }
             final Cursor defaultCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
-            if (worldMapPane.getCursor() != defaultCursor && !rectangleForDragCursor.contains(e.getPoint())) {
+            if (worldMapPane.getCursor() != defaultCursor && !rectangleForNonDefaultCursors.contains(e.getPoint())) {
                 worldMapPane.setCursor(defaultCursor);
             }
         }
@@ -131,7 +145,7 @@ public class RegionSelectableWorldMapPane {
                 @Override
                 public void scrolled() {
                     final FigureCollection figureCollection = figureEditor.getFigureCollection();
-                    if(figureCollection.getFigureCount() == 0) {
+                    if (figureCollection.getFigureCount() == 0) {
                         return;
                     }
                     final Rectangle2D modelBounds = figureCollection.getFigure(0).getBounds();
