@@ -16,12 +16,14 @@
 
 package org.esa.beam.framework.ui;
 
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorAware;
 import com.bc.ceres.swing.figure.ShapeFigure;
@@ -60,6 +62,7 @@ public class RegionSelectableWorldMapPane {
     private final DefaultFigureEditor figureEditor;
     private final WorldMapPane worldMapPane;
     private final RegionSelectionInteractor regionSelectionInteractor;
+    private final RegionSelectableWorldMapPane.CursorChanger cursorChanger = new CursorChanger();
 
     private Rectangle2D selectionRectangle;
     private Rectangle2D movableRectangle;
@@ -70,7 +73,7 @@ public class RegionSelectableWorldMapPane {
         worldMapPane.setPanSupport(new RegionSelectionDecoratingPanSupport(worldMapPane.getLayerCanvas()));
         figureEditor = new DefaultFigureEditor(worldMapPane.getLayerCanvas());
         regionSelectionInteractor = new RegionSelectionInteractor();
-        worldMapPane.getLayerCanvas().addMouseMotionListener(new CursorChanger());
+        worldMapPane.getLayerCanvas().addMouseMotionListener(cursorChanger);
     }
 
     public JPanel createUI() {
@@ -88,35 +91,35 @@ public class RegionSelectableWorldMapPane {
 
     private class CursorChanger implements MouseMotionListener {
 
+        private Rectangle2D.Double rectangleForDragCursor;
+
         @Override
         public void mouseDragged(MouseEvent e) {
-            final Rectangle2D.Double movableRectangle = createMovableRectangle();
-            final Cursor moveCursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
-            if (worldMapPane.getCursor() != moveCursor && movableRectangle.contains(e.getPoint())) {
-                worldMapPane.setCursor(moveCursor);
-            }
-            if (!movableRectangle.contains(e.getPoint())) {
-                worldMapPane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            }
+            updateRectangleForDragCursor();
+            updateCursor(e);
         }
 
         @Override
         public void mouseMoved(MouseEvent e) {
-            final Rectangle2D.Double movableRectangle = createMovableRectangle();
+            updateCursor(e);
+        }
+
+        private void updateCursor(MouseEvent e) {
             final Cursor moveCursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
-            if (worldMapPane.getCursor() != moveCursor && movableRectangle.contains(e.getPoint())) {
+            if (worldMapPane.getCursor() != moveCursor && rectangleForDragCursor.contains(e.getPoint())) {
                 worldMapPane.setCursor(moveCursor);
             }
-            if (!movableRectangle.contains(e.getPoint())) {
-                worldMapPane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            final Cursor defaultCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+            if (worldMapPane.getCursor() != defaultCursor && !rectangleForDragCursor.contains(e.getPoint())) {
+                worldMapPane.setCursor(defaultCursor);
             }
         }
 
-        private Rectangle2D.Double createMovableRectangle() {
-            return new Rectangle2D.Double(movableRectangle.getX() + OFFSET,
-                    movableRectangle.getY() + OFFSET,
-                    movableRectangle.getWidth() - 2 * OFFSET,
-                    movableRectangle.getHeight() - 2 * OFFSET);
+        private void updateRectangleForDragCursor() {
+            rectangleForDragCursor = new Rectangle2D.Double(movableRectangle.getX() + OFFSET,
+                                                            movableRectangle.getY() + OFFSET,
+                                                            movableRectangle.getWidth() - 2 * OFFSET,
+                                                            movableRectangle.getHeight() - 2 * OFFSET);
         }
     }
 
@@ -124,6 +127,21 @@ public class RegionSelectableWorldMapPane {
 
         private FigureEditorAwareWorldMapPane(WorldMapPaneDataModel dataModel, SelectionOverlay overlay) {
             super(dataModel, overlay);
+            addScrollListener(new ScrollListener() {
+                @Override
+                public void scrolled() {
+                    final FigureCollection figureCollection = figureEditor.getFigureCollection();
+                    if(figureCollection.getFigureCount() == 0) {
+                        return;
+                    }
+                    final Rectangle2D modelBounds = figureCollection.getFigure(0).getBounds();
+                    final AffineTransform modelToViewTransform = worldMapPane.getLayerCanvas().getViewport().getModelToViewTransform();
+                    final Shape transformedShape = modelToViewTransform.createTransformedShape(modelBounds);
+                    movableRectangle.setRect(transformedShape.getBounds2D());
+                    selectionRectangle.setRect(movableRectangle);
+                    cursorChanger.updateRectangleForDragCursor();
+                }
+            });
         }
 
         @Override
@@ -164,13 +182,12 @@ public class RegionSelectableWorldMapPane {
             Point2D.Double upperLeft = modelToView(upperLeftGeoPos, modelToViewTransform);
 
             Rectangle2D.Double rectangularShape = new Rectangle2D.Double(upperLeft.x, upperLeft.y,
-                    lowerRight.x - upperLeft.x,
-                    lowerRight.y - upperLeft.y);
+                                                                         lowerRight.x - upperLeft.x,
+                                                                         lowerRight.y - upperLeft.y);
+            selectionRectangle = rectangularShape;
+            movableRectangle = rectangularShape;
+            cursorChanger.updateRectangleForDragCursor();
             Shape transformedShape = viewport.getViewToModelTransform().createTransformedShape(rectangularShape);
-            if (selectionRectangle == null) {
-                selectionRectangle = rectangularShape;
-                movableRectangle = rectangularShape;
-            }
             return figureEditor.getFigureFactory().createPolygonFigure(transformedShape, createFigureStyle());
         }
 
@@ -198,16 +215,13 @@ public class RegionSelectableWorldMapPane {
         private Point point;
         private int rectangleLongitude;
         private int rectangleLatitude;
-        private boolean causedByTextChange;
 
         private RegionSelectionInteractor() {
             bindingContext.getPropertySet().getProperty(NORTH_BOUND).addPropertyChangeListener(new BoundsChangeListener(NORTH_BOUND));
             bindingContext.getPropertySet().getProperty(SOUTH_BOUND).addPropertyChangeListener(new BoundsChangeListener(SOUTH_BOUND));
             bindingContext.getPropertySet().getProperty(WEST_BOUND).addPropertyChangeListener(new BoundsChangeListener(WEST_BOUND));
             bindingContext.getPropertySet().getProperty(EAST_BOUND).addPropertyChangeListener(new BoundsChangeListener(EAST_BOUND));
-            causedByTextChange = true;
         }
-
 
         @Override
         public void mousePressed(MouseEvent event) {
@@ -248,7 +262,6 @@ public class RegionSelectableWorldMapPane {
 
         @Override
         public void mouseDragged(MouseEvent event) {
-            causedByTextChange = false;
             double dx = event.getX() - point.getX();
             double dy = point.getY() - event.getY();
 
@@ -275,43 +288,53 @@ public class RegionSelectableWorldMapPane {
             }
 
             if (widthOfUpdatedRectangle > 2 && heightOfUpdatedRectangle > 2 &&
-                    !(selectionRectangle.getX() == xOfUpdatedRectangle
-                            && selectionRectangle.getY() == yOfUpdatedRectangle
-                            && selectionRectangle.getWidth() == widthOfUpdatedRectangle
-                            && selectionRectangle.getHeight() == heightOfUpdatedRectangle)) {
-                setSelectionRectangleBoundsInImageCoordinates(xOfUpdatedRectangle, yOfUpdatedRectangle,
-                        widthOfUpdatedRectangle, heightOfUpdatedRectangle,
-                        getViewToModelTransform(event));
+                !(selectionRectangle.getX() == xOfUpdatedRectangle
+                  && selectionRectangle.getY() == yOfUpdatedRectangle
+                  && selectionRectangle.getWidth() == widthOfUpdatedRectangle
+                  && selectionRectangle.getHeight() == heightOfUpdatedRectangle)) {
+                setMovableRectangleInImageCoordinates(xOfUpdatedRectangle, yOfUpdatedRectangle,
+                                                      widthOfUpdatedRectangle, heightOfUpdatedRectangle);
+                Shape newFigureShape = getViewToModelTransform(event).createTransformedShape(movableRectangle);
+                final Rectangle2D modelRectangle = newFigureShape.getBounds2D();
+
+                adaptToModelRectangle(modelRectangle);
             }
         }
 
-        private void setSelectionRectangleBoundsInImageCoordinates(double x, double y, double width, double height, AffineTransform viewToModelTransform) {
-            movableRectangle = new Rectangle2D.Double(x, y, width, height);
-            Shape newFigureShape = viewToModelTransform.createTransformedShape(movableRectangle);
-            final Rectangle2D modelRectangle = newFigureShape.getBounds2D();
-            setSelectionRectangleBoundsInModelCoordinates(modelRectangle);
+        @Override
+        public void mouseReleased(MouseEvent event) {
+            selectionRectangle.setRect(movableRectangle);
         }
 
-        private void setSelectionRectangleBoundsInModelCoordinates(Rectangle2D newFigureShape) {
-          correctBoundsIfNecessary(newFigureShape);
-            if(newFigureShape.getWidth()==0 || newFigureShape.getHeight()==0){
-                return;
+        private void updateProperties(Rectangle2D modelRectangle) {
+            try {
+                bindingContext.getPropertySet().getProperty(NORTH_BOUND).setValue(modelRectangle.getMaxY());
+                bindingContext.getPropertySet().getProperty(SOUTH_BOUND).setValue(modelRectangle.getMinY());
+                bindingContext.getPropertySet().getProperty(WEST_BOUND).setValue(modelRectangle.getMinX());
+                bindingContext.getPropertySet().getProperty(EAST_BOUND).setValue(modelRectangle.getMaxX());
+            } catch (ValidationException e) {
+                // should never come here
+                throw new IllegalStateException(e);
             }
-            Figure newFigure = figureEditor.getFigureFactory().createPolygonFigure(newFigureShape, createFigureStyle());
+        }
+
+        private void updateFigure(Rectangle2D modelRectangle) {
+            Figure newFigure = figureEditor.getFigureFactory().createPolygonFigure(modelRectangle, createFigureStyle());
             figureEditor.getFigureCollection().removeAllFigures();
             figureEditor.getFigureCollection().addFigure(newFigure);
-            if (!causedByTextChange) {
-                try {
-                    bindingContext.getPropertySet().getProperty(NORTH_BOUND).setValue(newFigureShape.getMaxY());
-                    bindingContext.getPropertySet().getProperty(SOUTH_BOUND).setValue(newFigureShape.getMinY());
-                    bindingContext.getPropertySet().getProperty(WEST_BOUND).setValue(newFigureShape.getMinX());
-                    bindingContext.getPropertySet().getProperty(EAST_BOUND).setValue(newFigureShape.getMaxX());
-                } catch (ValidationException e) {
-                    //not supposed to come here
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+        }
+
+        private void setMovableRectangleInImageCoordinates(double x, double y, double width, double height) {
+            movableRectangle.setRect(x, y, width, height);
+        }
+
+        private void adaptToModelRectangle(Rectangle2D modelRectangle) {
+            correctBoundsIfNecessary(modelRectangle);
+            if (modelRectangle.getWidth() != 0 && modelRectangle.getHeight() != 0 &&
+                !modelRectangle.equals(figureEditor.getFigureCollection().getFigure(0).getBounds())) {
+                updateFigure(modelRectangle);
+                updateProperties(modelRectangle);
             }
-            causedByTextChange = true;
         }
 
         private void correctBoundsIfNecessary(Rectangle2D newFigureShape) {
@@ -325,10 +348,10 @@ public class RegionSelectableWorldMapPane {
             maxY = Math.max(minY, Math.min(90, Math.max(-90, maxY)));
             minX = Math.min(maxX, Math.min(180, Math.max(-180, minX)));
             minY = Math.min(maxY, Math.min(90, Math.max(-90, minY)));
-            if(newFigureShape.getMinX()!=minX || newFigureShape.getMinY()!=minY
-                || newFigureShape.getMaxX()!=maxX || newFigureShape.getMaxY()!=maxY){
+            if (newFigureShape.getMinX() != minX || newFigureShape.getMinY() != minY
+                || newFigureShape.getMaxX() != maxX || newFigureShape.getMaxY() != maxY) {
             }
-            newFigureShape.setRect(minX, minY, maxX-minX, maxY-minY);
+            newFigureShape.setRect(minX, minY, maxX - minX, maxY - minY);
         }
 
         private class BoundsChangeListener implements PropertyChangeListener {
@@ -341,28 +364,24 @@ public class RegionSelectableWorldMapPane {
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                if(!causedByTextChange){
-                    return;
-                }
-                final Rectangle2D bounds = figureEditor.getFigureCollection().getFigure(0).getBounds();
-                double x = (property==WEST_BOUND ?
-                      Double.parseDouble(bindingContext.getPropertySet().getProperty(WEST_BOUND).getValue().toString())
-                      : bounds.getX());
-                double y = (property==SOUTH_BOUND ?
-                        Double.parseDouble(bindingContext.getPropertySet().getProperty(SOUTH_BOUND).getValue().toString())
-                        : bounds.getY());
-                double width = (property.equals(EAST_BOUND) || property.equals(WEST_BOUND)?
-                        Double.parseDouble(bindingContext.getPropertySet().getProperty(EAST_BOUND).getValue().toString())-x
-                        : bounds.getWidth());
-                double height = (property==NORTH_BOUND || property.equals(SOUTH_BOUND) ?
-                        Double.parseDouble(bindingContext.getPropertySet().getProperty(NORTH_BOUND).getValue().toString())-y
-                        : bounds.getHeight());
-                bounds.setRect(x, y, width, height);
-                setSelectionRectangleBoundsInModelCoordinates(bounds);
+                final Rectangle2D modelRectangle = figureEditor.getFigureCollection().getFigure(0).getBounds();
+                final PropertySet propertySet = bindingContext.getPropertySet();
+                double x = (property.equals(WEST_BOUND) ?
+                            Double.parseDouble(propertySet.getProperty(WEST_BOUND).getValue().toString()) :
+                            modelRectangle.getX());
+                double y = (property.equals(SOUTH_BOUND) ?
+                            Double.parseDouble(propertySet.getProperty(SOUTH_BOUND).getValue().toString()) :
+                            modelRectangle.getY());
+                double width = (property.equals(EAST_BOUND) || property.equals(WEST_BOUND) ?
+                                Double.parseDouble(propertySet.getProperty(EAST_BOUND).getValue().toString()) - x :
+                                modelRectangle.getWidth());
+                double height = (property.equals(NORTH_BOUND) || property.equals(SOUTH_BOUND) ?
+                                 Double.parseDouble(propertySet.getProperty(NORTH_BOUND).getValue().toString()) - y :
+                                 modelRectangle.getHeight());
+                modelRectangle.setRect(x, y, width, height);
+                adaptToModelRectangle(modelRectangle);
             }
-
         }
-
     }
 
     private class RegionSelectionDecoratingPanSupport extends WorldMapPane.DefaultPanSupport {
@@ -377,7 +396,6 @@ public class RegionSelectableWorldMapPane {
         public void panStarted(MouseEvent event) {
             super.panStarted(event);
             p0 = event.getPoint();
-            updateSelectionRectangle();
             final Rectangle2D.Double intersectionRectangle = createIntersectionRectangle();
             if (intersectionRectangle.contains(event.getPoint())) {
                 regionSelectionInteractor.mousePressed(event);
@@ -394,16 +412,24 @@ public class RegionSelectableWorldMapPane {
             }
         }
 
-        private void updateSelectionRectangle() {
+        @Override
+        public void panStopped(MouseEvent event) {
+            super.panStopped(event);
+            updateRectangles();
+        }
+
+        private void updateRectangles() {
             AffineTransform modelToView = worldMapPane.getLayerCanvas().getViewport().getModelToViewTransform();
             selectionRectangle = modelToView.createTransformedShape(figureEditor.getFigureCollection().getFigure(0).getBounds()).getBounds2D();
+            movableRectangle.setRect(selectionRectangle);
+            cursorChanger.updateRectangleForDragCursor();
         }
 
         private Rectangle2D.Double createIntersectionRectangle() {
             return new Rectangle2D.Double(selectionRectangle.getX() - OFFSET,
-                    selectionRectangle.getY() - OFFSET,
-                    selectionRectangle.getWidth() + 2 * OFFSET,
-                    selectionRectangle.getHeight() + 2 * OFFSET);
+                                          selectionRectangle.getY() - OFFSET,
+                                          selectionRectangle.getWidth() + 2 * OFFSET,
+                                          selectionRectangle.getHeight() + 2 * OFFSET);
         }
 
     }
