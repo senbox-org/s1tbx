@@ -356,8 +356,8 @@ public class WorldMapPane extends JPanel {
                     viewBounds.getHeight() / modelBounds.getHeight());
             layerCanvas.getViewport().setZoomFactor(Math.max(newZoomFactor, minZoomFactor));
 
-            if (viewportIsInWorldMapBounds(0, 0, layerCanvas) ||
-                    layerCanvas.getViewport().getZoomFactor() > oldFactor) {
+            if (layerCanvas.getViewport().getZoomFactor() > oldFactor
+                    || viewportIsInWorldMapBounds(0, 0, layerCanvas)) {
                 fireScrolled();
                 return;
             }
