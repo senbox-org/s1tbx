@@ -31,12 +31,24 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.media.jai.*;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.PointOpImage;
+import javax.media.jai.RasterAccessor;
+import javax.media.jai.RasterFactory;
+import javax.media.jai.RasterFormatTag;
 import javax.media.jai.operator.CropDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
-import java.awt.*;
-import java.awt.image.*;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.image.ComponentSampleModel;
+import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferFloat;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.Vector;
 
@@ -93,6 +105,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      */
     private static final String SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY = "beam.pixelGeoCoding.fractionAccuracy";
 
+    private static final int MAX_SEARCH_CYCLES = 10;
+
     // TODO - (nf) make EPS for quad-tree search dependent on current scene
     private static final float EPS = 0.04F; // used by quad-tree search
     private static final boolean _trace = false;
@@ -112,6 +126,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     private PixelGrid _lonGrid;
     private boolean initialized;
     private LatLonImage latLonImage;
+    private double deltaThreshold;
 
     /**
      * Constructs a new pixel-based geo-coding.
@@ -144,9 +159,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             throw new IllegalArgumentException(
                     "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
-        if (searchRadius <= 0) {
-            throw new IllegalArgumentException("searchRadius <= 0");
-        }
         _latBand = latBand;
         rasterWidth = _latBand.getSceneRasterWidth();
         rasterHeight = _latBand.getSceneRasterHeight();
@@ -155,7 +167,19 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         _searchRadius = searchRadius;
         _pixelPosEstimator = latBand.getProduct().getGeoCoding();
         if (_pixelPosEstimator != null) {
+            if (searchRadius < 2) {
+                throw new IllegalArgumentException("searchRadius < 2");
+            }
             _crossingMeridianAt180 = _pixelPosEstimator.isCrossingMeridianAt180();
+            GeoPos p0 = _pixelPosEstimator.getGeoPos(new PixelPos(0.5f, 0.5f), null);
+            GeoPos p1 = _pixelPosEstimator.getGeoPos(new PixelPos(1.5f, 0.5f), null);
+
+            float r = (float) Math.cos(Math.toRadians(p1.lat));
+            float dlat = Math.abs(p0.lat - p1.lat);
+            float dlon = r * lonDiff(p0.lon, p1.lon);
+            float delta = dlat * dlat + dlon * dlon;
+            deltaThreshold = Math.sqrt(delta) * 2;
+
         }
         initialized = false;
         useTiling = Boolean.getBoolean(SYSPROP_PIXEL_GEO_CODING_USE_TILING);
@@ -403,99 +427,113 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         final int x0 = (int) Math.floor(pixelPos.x);
         final int y0 = (int) Math.floor(pixelPos.y);
         if (x0 >= 0 && x0 < rasterWidth && y0 >= 0 && y0 < rasterHeight) {
-            int bestX = -1;
-            int bestY = -1;
-            int x1 = x0 - _searchRadius;
-            int y1 = y0 - _searchRadius;
-            int x2 = x0 + _searchRadius;
-            int y2 = y0 + _searchRadius;
-            x1 = Math.max(x1, 0);
-            y1 = Math.max(y1, 0);
-            x2 = Math.min(x2, rasterWidth - 1);
-            y2 = Math.min(y2, rasterHeight - 1);
-
             final float lat0 = geoPos.lat;
             final float lon0 = geoPos.lon;
-            int bestCount = 0;
 
-            if (useTiling) {
-                Rectangle rect = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-                Raster latLonData = latLonImage.getData(rect);
-                ComponentSampleModel sampleModel = (ComponentSampleModel) latLonData.getSampleModel();
-                DataBufferFloat dataBuffer = (DataBufferFloat) latLonData.getDataBuffer();
-                float[][] bankData = dataBuffer.getBankData();
-                int sampleModelTranslateX = latLonData.getSampleModelTranslateX();
-                int sampleModelTranslateY = latLonData.getSampleModelTranslateY();
-                int scanlineStride = sampleModel.getScanlineStride();
-                int pixelStride = sampleModel.getPixelStride();
+            pixelPos.setLocation(x0, y0);
+            int y1;
+            int x1;
+            float minDelta;
+            int cycles = 0;
+            do {
+                x1 = (int) Math.floor(pixelPos.x);
+                y1 = (int) Math.floor(pixelPos.y);
+                minDelta = findBestPixel(x1, y1, lat0, lon0, pixelPos);
+            } while (++cycles < MAX_SEARCH_CYCLES && (x1 != (int)pixelPos.x || y1 != (int)pixelPos.y) && bestPixelIsOnSearchBorder(x1, y1, pixelPos));
 
-                int bankDataIndex = (y0 - sampleModelTranslateY) * scanlineStride + (x0 - sampleModelTranslateX) * pixelStride;
-                float lat = bankData[0][bankDataIndex];
-                float lon = bankData[1][bankDataIndex];
-
-                float r = (float) Math.cos(lat * D2R);
-                float dlat = Math.abs(lat - lat0);
-                float dlon = r * lonDiff(lon, lon0);
-                float minDelta = dlat * dlat + dlon * dlon;
-
-                for (int y = y1; y <= y2; y++) {
-                    for (int x = x1; x <= x2; x++) {
-                        if (!(x == x0 && y == y0)) {
-                            bankDataIndex = (y - sampleModelTranslateY) * scanlineStride + (x - sampleModelTranslateX) * pixelStride;
-                            lat = bankData[0][bankDataIndex];
-                            lon = bankData[1][bankDataIndex];
-
-                            dlat = Math.abs(lat - lat0);
-                            dlon = r * lonDiff(lon, lon0);
-                            float delta = dlat * dlat + dlon * dlon;
-                            if (delta < minDelta) {
-                                minDelta = delta;
-                                bestX = x;
-                                bestY = y;
-                                bestCount++;
-                            }
-                        }
-                    }
-                }
+            if (Math.sqrt(minDelta) < deltaThreshold) {
+                pixelPos.setLocation(pixelPos.x + 0.5f, pixelPos.y + 0.5f);
             } else {
-                final float[] latArray = (float[]) _latGrid.getRasterData().getElems();
-                final float[] lonArray = (float[]) _lonGrid.getRasterData().getElems();
+                pixelPos.setInvalid();
+            }
+        }
+    }
 
-                int i = rasterWidth * y0 + x0;
-                float lat = latArray[i];
-                float lon = lonArray[i];
-                float r = (float) Math.cos(lat * D2R);
-                float dlat = Math.abs(lat - lat0);
-                float dlon = r * lonDiff(lon, lon0);
-                float minDelta = dlat * dlat + dlon * dlon;
+    private boolean bestPixelIsOnSearchBorder(int x0, int y0, PixelPos bestPixel) {
+        final int diffX = Math.abs((int)bestPixel.x - x0);
+        final int diffY = Math.abs((int)bestPixel.y - y0);
+        return diffX > (_searchRadius - 2) || diffY > (_searchRadius - 2);
+    }
 
-                for (int y = y1; y <= y2; y++) {
-                    for (int x = x1; x <= x2; x++) {
-                        if (!(x == x0 && y == y0)) {
-                            i = rasterWidth * y + x;
-                            lat = latArray[i];
-                            lon = lonArray[i];
-                            dlat = Math.abs(lat - lat0);
-                            dlon = r * lonDiff(lon, lon0);
-                            float delta = dlat * dlat + dlon * dlon;
-                            if (delta < minDelta) {
-                                minDelta = delta;
-                                bestX = x;
-                                bestY = y;
-                                bestCount++;
-                            }
+    private float findBestPixel(int x0, int y0, float lat0, float lon0, PixelPos bestPixel) {
+        int x1 = x0 - _searchRadius;
+        int y1 = y0 - _searchRadius;
+        int x2 = x0 + _searchRadius;
+        int y2 = y0 + _searchRadius;
+        x1 = Math.max(x1, 0);
+        y1 = Math.max(y1, 0);
+        x2 = Math.min(x2, rasterWidth - 1);
+        y2 = Math.min(y2, rasterHeight - 1);
+        float r = (float) Math.cos(lat0 * D2R);
+
+        if (useTiling) {
+            Rectangle rect = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+            Raster latLonData = latLonImage.getData(rect);
+            ComponentSampleModel sampleModel = (ComponentSampleModel) latLonData.getSampleModel();
+            DataBufferFloat dataBuffer = (DataBufferFloat) latLonData.getDataBuffer();
+            float[][] bankData = dataBuffer.getBankData();
+            int sampleModelTranslateX = latLonData.getSampleModelTranslateX();
+            int sampleModelTranslateY = latLonData.getSampleModelTranslateY();
+            int scanlineStride = sampleModel.getScanlineStride();
+            int pixelStride = sampleModel.getPixelStride();
+
+            int bankDataIndex = (y0 - sampleModelTranslateY) * scanlineStride + (x0 - sampleModelTranslateX) * pixelStride;
+            float lat = bankData[0][bankDataIndex];
+            float lon = bankData[1][bankDataIndex];
+
+            float dlat = Math.abs(lat - lat0);
+            float dlon = r * lonDiff(lon, lon0);
+            float minDelta = dlat * dlat + dlon * dlon;
+
+            for (int y = y1; y <= y2; y++) {
+                for (int x = x1; x <= x2; x++) {
+                    if (!(x == x0 && y == y0)) {
+                        bankDataIndex = (y - sampleModelTranslateY) * scanlineStride + (x - sampleModelTranslateX) * pixelStride;
+                        lat = bankData[0][bankDataIndex];
+                        lon = bankData[1][bankDataIndex];
+
+                        dlat = Math.abs(lat - lat0);
+                        dlon = r * lonDiff(lon, lon0);
+                        float delta = dlat * dlat + dlon * dlon;
+                        if (delta < minDelta) {
+                            minDelta = delta;
+                            bestPixel.setLocation(x, y);
+                        } else if (delta == minDelta && Math.abs(x - x0) + Math.abs(y - y0) > Math.abs(bestPixel.x - x0) + Math.abs(bestPixel.y - y0)) {
+                            bestPixel.setLocation(x, y);
                         }
                     }
                 }
             }
+            return minDelta;
+        } else {
+            final float[] latArray = (float[]) _latGrid.getRasterData().getElems();
+            final float[] lonArray = (float[]) _lonGrid.getRasterData().getElems();
 
-            if (Debug.isEnabled()) {
-                // trace(x0, y0, bestX, bestY, bestCount);
-            }
+            int i = rasterWidth * y0 + x0;
+            float lat = latArray[i];
+            float lon = lonArray[i];
 
-            if (bestCount > 0 && (bestX != x0 || bestY != y0)) {
-                pixelPos.setLocation(bestX + 0.5f, bestY + 0.5f);
+            float dlat = Math.abs(lat - lat0);
+            float dlon = r * lonDiff(lon, lon0);
+            float minDelta = dlat * dlat + dlon * dlon;
+
+            for (int y = y1; y <= y2; y++) {
+                for (int x = x1; x <= x2; x++) {
+                    if (!(x == x0 && y == y0)) {
+                        i = rasterWidth * y + x;
+                        lat = latArray[i];
+                        lon = lonArray[i];
+                        dlat = Math.abs(lat - lat0);
+                        dlon = r * lonDiff(lon, lon0);
+                        float delta = dlat * dlat + dlon * dlon;
+                        if (delta < minDelta) {
+                            minDelta = delta;
+                            bestPixel.setLocation(x, y);
+                        }
+                    }
+                }
             }
+            return minDelta;
         }
     }
 
