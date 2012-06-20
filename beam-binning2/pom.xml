@@ -47,6 +47,7 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-netcdf</artifactId>
             <version>1.1.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
