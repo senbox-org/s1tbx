@@ -11,7 +11,7 @@
 
     <packaging>pom</packaging>
 
-    <name>BEAM plugin modules aggregator</name>
+    <name>BEAM Aggregator of Plugin Modules</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-plugins</artifactId>
     <description>This POM serves as aggregator for all BEAM plugin modules.</description>

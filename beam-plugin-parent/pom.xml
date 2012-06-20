@@ -13,6 +13,9 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <name>BEAM Plugin Parent</name>
+    <description>This POM serves as parent for all internal plugin modules, providing their dependency management.</description>
+
     <properties>
         <beam.version>[4.10,5-SNAPSHOT)</beam.version>
         <ceres.version>[0.13,0.14-SNAPSHOT)</ceres.version>
