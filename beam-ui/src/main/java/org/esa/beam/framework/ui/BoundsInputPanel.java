@@ -154,18 +154,28 @@ public class BoundsInputPanel {
         panel.add(pixelSizeYField);
         panel.add(pixelYUnit);
         bindingContext.addProblemListener(new BindingProblemListener() {
+
             @Override
-            public void problemReported(BindingProblem newProblem, BindingProblem oldProblem) {
-                newProblem.getBinding().getComponentAdapter().adjustComponents();
+            public void problemReported(BindingProblem problem, BindingProblem ignored) {
+                final String propertyName = problem.getBinding().getPropertyName();
+                final boolean invalidBoundSet = propertyName.equals(PROPERTY_NORTH_BOUND) ||
+                                                  propertyName.equals(PROPERTY_EAST_BOUND) ||
+                                                  propertyName.equals(PROPERTY_SOUTH_BOUND) ||
+                                                  propertyName.equals(PROPERTY_WEST_BOUND);
+                if(invalidBoundSet) {
+                    resetTextField(problem);
+                }
+            }
+
+            private void resetTextField(BindingProblem problem) {
+                problem.getBinding().getComponentAdapter().adjustComponents();
             }
 
             @Override
-            public void problemCleared(BindingProblem oldProblem) {
-                //To change body of implemented methods use File | Settings | File Templates.
+            public void problemCleared(BindingProblem ignored) {
+                // do nothing
             }
-
         });
-
         return panel;
     }
 
