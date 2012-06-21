@@ -43,6 +43,7 @@
         <![CDATA[
         <p>Changes in 4.10.3:<br/>
         [BEAM-1410] PixelGeoCoding has accuracy problems<br/>
+        [BEAM-1407] Editing pin files and existing (edited) pin files does not work<br/>
         <p>Changes in 4.10.2:<br/>
         [BEAM-1402] Profile plot using correlative data and projected products used wrong pixels<br/>
         <p>Changes in 4.10.1:<br/>
