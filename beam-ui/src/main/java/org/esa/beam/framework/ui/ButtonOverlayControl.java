@@ -59,15 +59,21 @@ class ButtonOverlayControl extends JComponent {
 
     private Rectangle2D.Double buttonArea;
     private List<ButtonDef> buttonDefList;
+    private int numCols;
 
     ButtonOverlayControl(Action... actions) {
+        this(2, actions);
+    }
+
+    ButtonOverlayControl(int numCols, Action... actions) {
+        this.numCols = numCols;
         buttonDimension = new Dimension(24, 24);
         buttonDefList = new ArrayList<ButtonDef>();
         for (Action action : actions) {
-            buttonDefList.add(new ButtonDef(action, buttonDimension));
+            buttonDefList.add(new ButtonDef(action, buttonDimension, numCols));
         }
 
-        Dimension preferredSize = computePreferedSize();
+        Dimension preferredSize = computePreferredSize();
         setPreferredSize(preferredSize);
         setBounds(0, 0, preferredSize.width, preferredSize.height);
 
@@ -83,7 +89,7 @@ class ButtonOverlayControl extends JComponent {
         if (isPreferredSizeSet()) {
             return super.getPreferredSize();
         }
-        return computePreferedSize();
+        return computePreferredSize();
     }
 
     @Override
@@ -166,16 +172,16 @@ class ButtonOverlayControl extends JComponent {
     }
 
     private Point computeButtonLocation(int buttonIndex) {
-        final int xIndex = buttonIndex % 2;
-        final int yIndex = buttonIndex / 2;
+        final int xIndex = buttonIndex % numCols;
+        final int yIndex = buttonIndex / numCols;
         int xLocation = (int) buttonArea.x + xIndex * (buttonDimension.width + BUTTON_SPACING);
         int yLocation = (int) buttonArea.y + yIndex * (buttonDimension.height + BUTTON_SPACING);
         return new Point(xLocation, yLocation);
     }
 
-    private Dimension computePreferedSize() {
+    private Dimension computePreferredSize() {
         int numButtons = buttonDefList.size();
-        int buttonCols = numButtons <= 1 ? 1 : 2;
+        int buttonCols = numButtons <= 1 ? 1 : numCols;
         int buttonRows = numButtons <= 1 ? 1 : (numButtons + 1) / buttonCols;
 
         int width = BUTTON_AREA_INSET;
@@ -247,12 +253,14 @@ class ButtonOverlayControl extends JComponent {
     private static class ButtonDef {
 
         private final Action action;
+        private final int numCols;
         private final Image image;
         private RoundRectangle2D.Double shape;
         private boolean highlighted;
 
-        private ButtonDef(Action action, Dimension buttonDimension) {
+        private ButtonDef(Action action, Dimension buttonDimension, int numCols) {
             this.action = action;
+            this.numCols = numCols;
             Image rawImage = iconToImage((Icon) this.action.getValue(Action.LARGE_ICON_KEY));
             image = rawImage.getScaledInstance(buttonDimension.width,
                                                buttonDimension.height,
@@ -273,8 +281,8 @@ class ButtonOverlayControl extends JComponent {
 
         public Point getImageOffset() {
             final Rectangle bounds = shape.getBounds();
-            final int xOffset = bounds.x + (bounds.width - image.getWidth(null)) / 2;
-            final int yOffset = bounds.y + (bounds.height - image.getHeight(null)) / 2;
+            final int xOffset = bounds.x + (bounds.width - image.getWidth(null)) / numCols;
+            final int yOffset = bounds.y + (bounds.height - image.getHeight(null)) / numCols;
             return new Point(xOffset, yOffset);
         }
 

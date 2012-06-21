@@ -25,6 +25,7 @@ import org.esa.beam.util.ProductUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.BorderLayout;
@@ -196,8 +197,8 @@ public class WorldMapPane extends JPanel {
         boolean oldValue = this.navControlShown;
         if (oldValue != navControlShown) {
             if (navControlShown) {
-                final ButtonOverlayControl navControl = new ButtonOverlayControl(new ZoomAllAction(),
-                        new ZoomToSelectedAction());
+                final Action[] overlayActions = getOverlayActions();
+                final ButtonOverlayControl navControl = new ButtonOverlayControl(overlayActions.length, overlayActions);
                 navControlWrapper = new WakefulComponent(navControl);
                 navControlWrapper.setMinAlpha(0.3f);
                 getLayerCanvas().add(navControlWrapper);
@@ -235,6 +236,10 @@ public class WorldMapPane extends JPanel {
 
     public boolean removeScrollListener(ScrollListener scrollListener) {
         return scrollListeners.remove(scrollListener);
+    }
+
+    protected Action[] getOverlayActions() {
+        return new Action[] {new ZoomAllAction(), new ZoomToSelectedAction()};
     }
 
     private void fireScrolled() {
@@ -409,17 +414,19 @@ public class WorldMapPane extends JPanel {
         }
     }
 
+    public interface ScrollListener {
+        void scrolled();
+    }
+
     public interface PanSupport {
         void panStarted(MouseEvent event);
-
         void performPan(MouseEvent event);
-
         void panStopped(MouseEvent event);
     }
 
     protected static class DefaultPanSupport implements PanSupport {
-
         private Point p0;
+
         private final LayerCanvas layerCanvas;
 
         protected DefaultPanSupport(LayerCanvas layerCanvas) {
@@ -442,7 +449,6 @@ public class WorldMapPane extends JPanel {
             }
             p0 = p;
         }
-
         @Override
         public void panStopped(MouseEvent event) {
         }
@@ -461,11 +467,5 @@ public class WorldMapPane extends JPanel {
             getLayerCanvas().getViewport().setZoomFactor(scale);
             firePropertyChange("scale", oldValue, scale);
         }
-    }
-
-    public interface ScrollListener {
-
-        void scrolled();
-
     }
 }
