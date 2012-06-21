@@ -417,9 +417,12 @@ public class CollocateOp extends Operator {
             if (rename) {
                 newmask.setName(pattern.replace(SOURCE_NAME_REFERENCE, mask.getName()));
                 for (final Band targetBand : targetProduct.getBands()) {
-                    newmask.updateExpression(
-                            BandArithmetic.createExternalName(sourceRasterMap.get(targetBand).getName()),
-                            BandArithmetic.createExternalName(targetBand.getName()));
+                    RasterDataNode srcRDN = sourceRasterMap.get(targetBand);
+                    if (srcRDN != null) {
+                        newmask.updateExpression(
+                                BandArithmetic.createExternalName(srcRDN.getName()),
+                                BandArithmetic.createExternalName(targetBand.getName()));
+                    }
                 }
             }
             targetProduct.getMaskGroup().add(newmask);
