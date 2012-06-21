@@ -228,9 +228,14 @@ public class TabbedDesktopPane extends JPanel {
         tabbedPane.setCloseAction(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final JInternalFrame selectedFrame = getSelectedFrame();
-                if(selectedFrame != null) {
-                    closeFrame(selectedFrame);
+                Object component = e.getSource();
+                if (component instanceof InternalFrameProxy) {
+                    InternalFrameProxy placeHolder = (InternalFrameProxy) component;
+                    JInternalFrame selectedFrame = placeHolder.getInternalFrame();
+
+                    if(selectedFrame != null) {
+                        closeFrame(selectedFrame);
+                    }
                 }
             }
         });
