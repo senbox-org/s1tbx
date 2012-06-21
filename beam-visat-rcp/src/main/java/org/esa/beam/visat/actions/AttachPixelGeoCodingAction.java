@@ -168,7 +168,7 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
         private JSpinner _radiusSpinner;
         private final Integer _defaultRadius = new Integer(6);
         private final Integer _minRadius = new Integer(0);
-        private final Integer _maxRadius = new Integer(10);
+        private final Integer _maxRadius = new Integer(99);
         private final Integer _bigRadiusStep = new Integer(0);
         private final Integer _smallRadiusStep = new Integer(1);
 
