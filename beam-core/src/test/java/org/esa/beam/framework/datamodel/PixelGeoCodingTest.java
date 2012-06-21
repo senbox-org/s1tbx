@@ -144,9 +144,9 @@ public class PixelGeoCodingTest extends TestCase {
         doTestGetGeoPos();
     }
 
-    public void testGetGeoPos_useTiling() throws IOException {
+    public void testGetGeoPos_useNoTiling() throws IOException {
         try {
-            System.setProperty("beam.pixelGeoCoding.useTiling", "true");
+            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
             doTestGetGeoPos();
         } finally {
             System.clearProperty("beam.pixelGeoCoding.useTiling");
@@ -255,9 +255,9 @@ public class PixelGeoCodingTest extends TestCase {
         doTestTransferGeoCoding();
     }
 
-    public void testTransferGeoCoding_useTiling() throws IOException {
+    public void testTransferGeoCoding_useNoTiling() throws IOException {
         try {
-            System.setProperty("beam.pixelGeoCoding.useTiling", "true");
+            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
             doTestTransferGeoCoding();
         } finally {
             System.clearProperty("beam.pixelGeoCoding.useTiling");
@@ -284,9 +284,9 @@ public class PixelGeoCodingTest extends TestCase {
         doTestTransferGeoCoding_WithSpatialSubset();
     }
 
-    public void testTransferGeoCoding_WithSpatialSubset_useTiling() throws IOException {
+    public void testTransferGeoCoding_WithSpatialSubset_useNoTiling() throws IOException {
         try {
-            System.setProperty("beam.pixelGeoCoding.useTiling", "true");
+            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
             doTestTransferGeoCoding_WithSpatialSubset();
         } finally {
             System.clearProperty("beam.pixelGeoCoding.useTiling");
