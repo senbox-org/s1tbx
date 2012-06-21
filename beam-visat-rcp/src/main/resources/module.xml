@@ -27,6 +27,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 4.10.3<br/>
+          [BEAM-1409] Import vector data into reprojected product (e.g. LANDSAT) fails
         <p>Changes in 4.10.1<br/>
           [BEAM-1404] Image views shall draw pixel grid at high zoom levels<br/>
         <p>Changes in 4.10<br/>
