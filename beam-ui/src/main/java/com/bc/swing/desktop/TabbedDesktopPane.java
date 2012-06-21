@@ -74,9 +74,6 @@ public class TabbedDesktopPane extends JPanel {
         this.windowMenu = null;
         this.windowMenuListener = new WindowMenuListener();
         this.frameLayoutManager = new DefaultInternalFrameLayoutManager();
-
-        this.tabbedPane.setShowCloseButtonOnTab(true);
-
         initUI();
     }
 
