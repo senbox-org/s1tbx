@@ -25,7 +25,7 @@
         <module>../beam-atsr-reader</module>
         <module>../beam-avhrr-reader</module>
         <module>../beam-binning</module>
-        <module>../beam-binning2</module>
+        <!--<module>../beam-binning2</module>-->
         <module>../beam-chris-reader</module>
         <module>../beam-cluster-analysis</module>
         <module>../beam-collocation</module>
