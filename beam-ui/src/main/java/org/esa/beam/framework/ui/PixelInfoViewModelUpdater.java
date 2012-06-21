@@ -47,6 +47,7 @@ import javax.swing.SwingUtilities;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Vector;
 
@@ -409,7 +410,7 @@ class PixelInfoViewModelUpdater {
         }
         if (isPixelValid(band, _pixelX, _pixelY, _level)) {
             if (band.isFloatingPointType()) {
-                return String.valueOf(ProductUtils.getGeophysicalSampleDouble(band, _pixelX, _pixelY, _level));
+                return String.valueOf((float) ProductUtils.getGeophysicalSampleDouble(band, _pixelX, _pixelY, _level));
             } else {
                 return String.valueOf(ProductUtils.getGeophysicalSampleLong(band, _pixelX, _pixelY, _level));
             }
