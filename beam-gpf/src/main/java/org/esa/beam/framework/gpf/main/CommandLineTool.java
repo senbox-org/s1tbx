@@ -38,6 +38,7 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.graph.Graph;
@@ -134,7 +135,7 @@ class CommandLineTool implements GraphProcessingObserver {
             commandLineContext.print(CommandLineUsage.getUsageTextForOperator(commandLineArgs.getOperatorName()));
         } else if (commandLineArgs.getGraphFilePath() != null) {
             commandLineContext.print(CommandLineUsage.getUsageTextForGraph(commandLineArgs.getGraphFilePath(),
-                                                                           commandLineContext));
+                    commandLineContext));
         } else {
             commandLineContext.print(CommandLineUsage.getUsageText());
         }
@@ -260,7 +261,7 @@ class CommandLineTool implements GraphProcessingObserver {
                     sourceFileContentMap.put(metadataBaseName, configFile.content);
                 } catch (Exception e) {
                     logSevereProblem(String.format("Failed to load metadata file '%s' associated with '%s = %s': %s",
-                                                   metadataFileName, sourceId, sourcePath, e.getMessage()), e);
+                            metadataFileName, sourceId, sourcePath, e.getMessage()), e);
                 }
             }
         }
@@ -299,8 +300,12 @@ class CommandLineTool implements GraphProcessingObserver {
             String formatName = commandLineArgs.getTargetFormatName();
             writeProduct(targetProduct, filePath, formatName, commandLineArgs.isClearCacheAfterRowWrite());
         }
-        velocityContext.put("operator", operator);
-        velocityContext.put("operatorSpi", operator != null ? operator.getSpi() : null);
+        if (operator != null) {
+            OperatorSpi spi = operator.getSpi();
+            velocityContext.put("operator", operator);
+            velocityContext.put("operatorSpi", spi);
+            velocityContext.put("operatorMetadata", spi.getOperatorClass().getAnnotation(OperatorMetadata.class));
+        }
         velocityContext.put("operatorName", operatorName);
         velocityContext.put("parameters", parameters); // Check if we should use parameterMap here (nf)
         velocityContext.put("sourceProduct", sourceProducts.get("sourceProduct"));
@@ -381,7 +386,7 @@ class CommandLineTool implements GraphProcessingObserver {
             ValidationException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName,
-                                                                                                          parameters);
+                parameters);
         // explicitly set default values for putting them into the backing map
         container.setDefaultValues();
 

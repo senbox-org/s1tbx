@@ -30,6 +30,7 @@
 
     <operatorMetadata>
         <operatorName>$operatorName</operatorName>
+        <operatorVersion>$operatorMetadata.version()</operatorVersion>
         <operatorClass>$operator.class</operatorClass>
     </operatorMetadata>
 

@@ -113,6 +113,7 @@ public class CommandLineToolTemplateTest {
                              "\n" +
                              "    <operatorMetadata>\n" +
                              "        <operatorName>Reproject</operatorName>\n" +
+                             "        <operatorVersion>1.0</operatorVersion>\n" +
                              "        <operatorClass>class org.esa.beam.gpf.operators.standard.reproject.ReprojectionOp</operatorClass>\n" +
                              "    </operatorMetadata>\n" +
                              "\n" +
