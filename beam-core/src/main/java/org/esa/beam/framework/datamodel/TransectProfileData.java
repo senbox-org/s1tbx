@@ -127,8 +127,8 @@ public class TransectProfileData {
                 config.roiMask.readPixels(box.x, box.y, box.width, box.height, maskBuffer, ProgressMonitor.NULL);
             }
 
-            float sum = 0;
-            float sumSqr = 0;
+            double sum = 0;
+            double sumSqr = 0;
             int n = 0;
             for (int y = 0; y < box.height; y++) {
                 for (int x = 0; x < box.width; x++) {
@@ -151,9 +151,10 @@ public class TransectProfileData {
             }
 
             if (n > 0) {
-                final float mean = sum / n;
-                sampleValues[i] = mean;
-                sampleSigmas[i] = n > 1 ? (float) Math.sqrt((sumSqr - (sum * sum) / n) / (n - 1)) : 0.0F;
+                final double mean = sum / n;
+                final double variance =  n > 1 ? (sumSqr - (sum * sum) / n) / (n - 1) : 0.0;
+                sampleValues[i] = (float) mean;
+                sampleSigmas[i] = (float)(variance > 0.0 ? Math.sqrt(variance) : 0.0);
             }
 
             if (geoCoding != null) {
