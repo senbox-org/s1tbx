@@ -23,13 +23,13 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam-plugin-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0</version>
         <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-pixel-extraction</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <name>BEAM Pixel Extraction Tool</name>
 
     <description>

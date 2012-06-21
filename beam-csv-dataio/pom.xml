@@ -5,7 +5,7 @@
     <parent>
         <artifactId>beam-system</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10.3-SNAPSHOT</version>
+        <version>4.10.3</version>
         <relativePath>../beam-system/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
