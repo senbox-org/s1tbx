@@ -29,6 +29,7 @@ import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -238,6 +239,14 @@ public class WorldMapPane extends JPanel {
         return zoomListeners.remove(zoomListener);
     }
 
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        for (Component component : navControlWrapper.getComponents()) {
+            component.setEnabled(enabled);
+        }
+    }
+
     protected Action[] getOverlayActions() {
         return new Action[]{new ZoomAllAction(), new ZoomToSelectedAction()};
     }
@@ -352,6 +361,9 @@ public class WorldMapPane extends JPanel {
 
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
+            if(!isEnabled()) {
+                return;
+            }
             double oldFactor = layerCanvas.getViewport().getZoomFactor();
             final int wheelRotation = e.getWheelRotation();
             final double newZoomFactor = layerCanvas.getViewport().getZoomFactor() * Math.pow(1.1, wheelRotation);

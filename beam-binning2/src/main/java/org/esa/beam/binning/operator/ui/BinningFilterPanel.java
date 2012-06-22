@@ -191,6 +191,18 @@ class BinningFilterPanel extends JPanel {
         southLatField.setMinimumSize(new Dimension(120, 20));
         southLatField.setPreferredSize(new Dimension(120, 20));
 
+        final JPanel worldMapPaneUI = worldMapPane.createUI();
+        worldMapPaneUI.setEnabled(false);
+        bindingContext.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if(evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_REGION)) {
+                    final Boolean specifyRegion = (Boolean) bindingContext.getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_REGION).getValue();
+                    worldMapPaneUI.setEnabled(specifyRegion);
+                }
+            }
+        });
+
         final JPanel panel = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
         GridBagUtils.addToPanel(panel, westLabel, gbc, "anchor=WEST,gridx=0,gridy=1");
@@ -205,7 +217,7 @@ class BinningFilterPanel extends JPanel {
         GridBagUtils.addToPanel(panel, southLabel, gbc, "gridx=3,gridy=2");
         GridBagUtils.addToPanel(panel, southLatField, gbc, "gridx=4");
         GridBagUtils.addToPanel(panel, southDegreeLabel, gbc, "gridx=5");
-        GridBagUtils.addToPanel(panel, worldMapPane.createUI(), gbc, "gridy=3,gridx=0,gridwidth=REMAINDER,insets.top=10,anchor=CENTER");
+        GridBagUtils.addToPanel(panel, worldMapPaneUI, gbc, "gridy=3,gridx=0,gridwidth=REMAINDER,insets.top=10,anchor=CENTER");
 
         return panel;
     }

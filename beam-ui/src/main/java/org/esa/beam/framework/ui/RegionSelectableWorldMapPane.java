@@ -40,6 +40,7 @@ import javax.swing.Action;
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
@@ -73,11 +74,13 @@ public class RegionSelectableWorldMapPane {
     private Rectangle2D movableRectangle;
     private Rectangle2D.Double defaultRectangle;
     private Shape defaultShape;
+    private final RegionSelectableWorldMapPane.RegionSelectionDecoratingPanSupport panSupport;
 
     public RegionSelectableWorldMapPane(WorldMapPaneDataModel dataModel, BindingContext bindingContext) {
         this.bindingContext = bindingContext;
         worldMapPane = new FigureEditorAwareWorldMapPane(dataModel, new SelectionOverlay(dataModel));
-        worldMapPane.setPanSupport(new RegionSelectionDecoratingPanSupport(worldMapPane.getLayerCanvas()));
+        panSupport = new RegionSelectionDecoratingPanSupport(worldMapPane.getLayerCanvas());
+        worldMapPane.setPanSupport(panSupport);
         figureEditor = new DefaultFigureEditor(worldMapPane.getLayerCanvas());
         regionSelectionInteractor = new RegionSelectionInteractor();
         worldMapPane.getLayerCanvas().addMouseMotionListener(cursorChanger);
@@ -205,6 +208,8 @@ public class RegionSelectableWorldMapPane {
 
     private class FigureEditorAwareWorldMapPane extends WorldMapPane implements FigureEditorAware {
 
+        private LayerCanvas.Overlay greyOverlay;
+
         private FigureEditorAwareWorldMapPane(WorldMapPaneDataModel dataModel, SelectionOverlay overlay) {
             super(dataModel, overlay);
             addZoomListener(new ZoomListener() {
@@ -213,6 +218,14 @@ public class RegionSelectableWorldMapPane {
                     handleZoom();
                 }
             });
+            greyOverlay = new LayerCanvas.Overlay() {
+                @Override
+                public void paintOverlay(LayerCanvas canvas, Rendering rendering) {
+                    final Graphics2D graphics = rendering.getGraphics();
+                    graphics.setPaint(new Color(200, 200, 200, 180));
+                    graphics.fillRect(0, 0, worldMapPane.getWidth(), worldMapPane.getHeight());
+                }
+            };
         }
 
         @Override
@@ -241,6 +254,33 @@ public class RegionSelectableWorldMapPane {
             getLayerCanvas().getViewport().zoom(modelBounds);
             handleZoom();
         }
+
+        @Override
+        public void setEnabled(boolean enabled) {
+            super.setEnabled(enabled);
+            if(enabled) {
+                worldMapPane.getLayerCanvas().addMouseMotionListener(cursorChanger);
+                worldMapPane.getLayerCanvas().removeOverlay(greyOverlay);
+                worldMapPane.setPanSupport(panSupport);
+            } else {
+                worldMapPane.getLayerCanvas().removeMouseMotionListener(cursorChanger);
+                worldMapPane.getLayerCanvas().addOverlay(greyOverlay);
+                worldMapPane.setPanSupport(new PanSupport() {
+                    @Override
+                    public void panStarted(MouseEvent event) {
+                    }
+
+                    @Override
+                    public void performPan(MouseEvent event) {
+                    }
+
+                    @Override
+                    public void panStopped(MouseEvent event) {
+                    }
+                });
+
+            }
+        }
     }
 
     private void handleZoom() {
@@ -267,14 +307,16 @@ public class RegionSelectableWorldMapPane {
         @Override
         protected void handleSelectedProduct(Rendering rendering, Product selectedProduct) {
             if (firstTime) {
-                ShapeFigure shapeFigure = createShapeFigure(selectedProduct);
+                initGeometries(selectedProduct);
+                ShapeFigure shapeFigure = figureEditor.getFigureFactory().createPolygonFigure(defaultShape, createFigureStyle());
                 figureEditor.getFigureCollection().addFigure(shapeFigure);
+                regionSelectionInteractor.updateProperties(defaultShape.getBounds2D());
                 firstTime = false;
             }
             figureEditor.drawFigureCollection(rendering);
         }
 
-        private ShapeFigure createShapeFigure(Product selectedProduct) {
+        private void initGeometries(Product selectedProduct) {
             final GeoPos upperLeftGeoPos;
             final GeoPos lowerRightGeoPos;
             if (selectedProduct != null) {
@@ -301,7 +343,6 @@ public class RegionSelectableWorldMapPane {
             defaultRectangle = createRectangle(rectangularShape);
             cursorChanger.updateRectanglesForDragCursor();
             defaultShape = viewport.getViewToModelTransform().createTransformedShape(rectangularShape);
-            return figureEditor.getFigureFactory().createPolygonFigure(defaultShape, createFigureStyle());
         }
 
         private Rectangle2D.Double createRectangle(Rectangle2D.Double rectangularShape) {
@@ -491,19 +532,28 @@ public class RegionSelectableWorldMapPane {
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                final Rectangle2D modelRectangle = figureEditor.getFigureCollection().getFigure(0).getBounds();
                 final PropertySet propertySet = bindingContext.getPropertySet();
+                final Object westValue = propertySet.getProperty(WEST_BOUND).getValue();
+                final Object southValue = propertySet.getProperty(SOUTH_BOUND).getValue();
+                final Object eastValue = propertySet.getProperty(EAST_BOUND).getValue();
+                final Object northValue = propertySet.getProperty(NORTH_BOUND).getValue();
+
+                if(westValue == null || southValue == null || eastValue == null || northValue == null) {
+                    return;
+                }
+
+                final Rectangle2D modelRectangle = figureEditor.getFigureCollection().getFigure(0).getBounds();
                 double x = (property.equals(WEST_BOUND) ?
-                        Double.parseDouble(propertySet.getProperty(WEST_BOUND).getValue().toString()) :
+                        Double.parseDouble(westValue.toString()) :
                         modelRectangle.getX());
                 double y = (property.equals(SOUTH_BOUND) ?
-                        Double.parseDouble(propertySet.getProperty(SOUTH_BOUND).getValue().toString()) :
+                        Double.parseDouble(southValue.toString()) :
                         modelRectangle.getY());
                 double width = (property.equals(EAST_BOUND) || property.equals(WEST_BOUND) ?
-                        Double.parseDouble(propertySet.getProperty(EAST_BOUND).getValue().toString()) - x :
+                        Double.parseDouble(eastValue.toString()) - x :
                         modelRectangle.getWidth());
                 double height = (property.equals(NORTH_BOUND) || property.equals(SOUTH_BOUND) ?
-                        Double.parseDouble(propertySet.getProperty(NORTH_BOUND).getValue().toString()) - y :
+                        Double.parseDouble(northValue.toString()) - y :
                         modelRectangle.getHeight());
                 modelRectangle.setRect(x, y, width, height);
                 adaptToModelRectangle(modelRectangle);
