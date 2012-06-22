@@ -32,14 +32,14 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-system</artifactId>
     <description>This POM serves as aggregator for all BEAM system level modules.</description>
-    <version>4.10.3</version>
+    <version>4.10.4-SNAPSHOT</version>
 
     <properties>
         <!-- In version 3.0 of Maven the sourceEncoding property will be embedded in the build tag.
         For now the convention is to that it as property.
         TODO: Move the sourceEncoding property to the build tag if version 3.0 is released -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <beam.version>4.10.3</beam.version>
+        <beam.version>4.10.4-SNAPSHOT</beam.version>
         <ceres.version>0.13.1</ceres.version>
         <geotools.version>2.7.4</geotools.version>
         <jide.version>3.3.7</jide.version>
