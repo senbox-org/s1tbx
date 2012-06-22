@@ -207,19 +207,10 @@ public class RegionSelectableWorldMapPane {
 
         private FigureEditorAwareWorldMapPane(WorldMapPaneDataModel dataModel, SelectionOverlay overlay) {
             super(dataModel, overlay);
-            addScrollListener(new ScrollListener() {
+            addZoomListener(new ZoomListener() {
                 @Override
-                public void scrolled() {
-                    final FigureCollection figureCollection = figureEditor.getFigureCollection();
-                    if (figureCollection.getFigureCount() == 0) {
-                        return;
-                    }
-                    final Rectangle2D modelBounds = figureCollection.getFigure(0).getBounds();
-                    final AffineTransform modelToViewTransform = worldMapPane.getLayerCanvas().getViewport().getModelToViewTransform();
-                    final Shape transformedShape = modelToViewTransform.createTransformedShape(modelBounds);
-                    movableRectangle.setRect(transformedShape.getBounds2D());
-                    selectionRectangle.setRect(movableRectangle);
-                    cursorChanger.updateRectanglesForDragCursor();
+                public void zoomed() {
+                    handleZoom();
                 }
             });
         }
@@ -237,6 +228,32 @@ public class RegionSelectableWorldMapPane {
             actions[actions.length - 1] = new ResetAction();
             return actions;
         }
+
+        @Override
+        public void zoomToProduct(Product product) {
+            if(product != null) {
+                super.zoomToProduct(product);
+            }
+            Rectangle2D modelBounds = figureEditor.getFigureCollection().getFigure(0).getBounds();
+            modelBounds.setFrame(modelBounds.getX() - 2, modelBounds.getY() - 2,
+                                 modelBounds.getWidth() + 4, modelBounds.getHeight() + 4);
+
+            getLayerCanvas().getViewport().zoom(modelBounds);
+            handleZoom();
+        }
+    }
+
+    private void handleZoom() {
+        final FigureCollection figureCollection = figureEditor.getFigureCollection();
+        if (figureCollection.getFigureCount() == 0) {
+            return;
+        }
+        final Rectangle2D modelBounds = figureCollection.getFigure(0).getBounds();
+        final AffineTransform modelToViewTransform = worldMapPane.getLayerCanvas().getViewport().getModelToViewTransform();
+        final Shape transformedShape = modelToViewTransform.createTransformedShape(modelBounds);
+        movableRectangle.setRect(transformedShape.getBounds2D());
+        selectionRectangle.setRect(movableRectangle);
+        cursorChanger.updateRectanglesForDragCursor();
     }
 
     private class SelectionOverlay extends BoundaryOverlay {
@@ -258,13 +275,19 @@ public class RegionSelectableWorldMapPane {
         }
 
         private ShapeFigure createShapeFigure(Product selectedProduct) {
-            PixelPos upperLeftPixel = new PixelPos(0.5f, 0.5f);
-            PixelPos lowerRightPixel = new PixelPos(
-                    selectedProduct.getSceneRasterWidth() - 0.5f, selectedProduct.getSceneRasterHeight() - 0.5f);
-            GeoCoding geoCoding = selectedProduct.getGeoCoding();
-            GeoPos upperLeftGeoPos = geoCoding.getGeoPos(upperLeftPixel, null);
-            GeoPos lowerRightGeoPos = geoCoding.getGeoPos(lowerRightPixel, null);
-
+            final GeoPos upperLeftGeoPos;
+            final GeoPos lowerRightGeoPos;
+            if (selectedProduct != null) {
+                PixelPos upperLeftPixel = new PixelPos(0.5f, 0.5f);
+                PixelPos lowerRightPixel = new PixelPos(
+                        selectedProduct.getSceneRasterWidth() - 0.5f, selectedProduct.getSceneRasterHeight() - 0.5f);
+                GeoCoding geoCoding = selectedProduct.getGeoCoding();
+                upperLeftGeoPos = geoCoding.getGeoPos(upperLeftPixel, null);
+                lowerRightGeoPos = geoCoding.getGeoPos(lowerRightPixel, null);
+            } else {
+                upperLeftGeoPos = new GeoPos(75.0F, -15.0F);
+                lowerRightGeoPos = new GeoPos(35.0F, 30.0F);
+            }
             Viewport viewport = worldMapPane.getLayerCanvas().getViewport();
             AffineTransform modelToViewTransform = viewport.getModelToViewTransform();
             Point2D.Double lowerRight = modelToView(lowerRightGeoPos, modelToViewTransform);

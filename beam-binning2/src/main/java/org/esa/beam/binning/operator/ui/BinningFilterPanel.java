@@ -23,6 +23,8 @@ import com.jidesoft.swing.AutoResizingTextArea;
 import com.jidesoft.swing.TitledSeparator;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.RegionSelectableWorldMapPane;
+import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 
 import javax.measure.unit.NonSI;
 import javax.swing.AbstractButton;
@@ -137,6 +139,9 @@ class BinningFilterPanel extends JPanel {
     }
 
     private JPanel createBoundsInputPanel() {
+        final WorldMapPaneDataModel worldMapPaneDataModel = new WorldMapPaneDataModel();
+        final RegionSelectableWorldMapPane worldMapPane = new RegionSelectableWorldMapPane(worldMapPaneDataModel, bindingContext);
+
         final DoubleFormatter doubleFormatter = new DoubleFormatter("###0.0##");
 
         final JLabel westDegreeLabel = new JLabel(NonSI.DEGREE_ANGLE.toString());
@@ -200,6 +205,7 @@ class BinningFilterPanel extends JPanel {
         GridBagUtils.addToPanel(panel, southLabel, gbc, "gridx=3,gridy=2");
         GridBagUtils.addToPanel(panel, southLatField, gbc, "gridx=4");
         GridBagUtils.addToPanel(panel, southDegreeLabel, gbc, "gridx=5");
+        GridBagUtils.addToPanel(panel, worldMapPane.createUI(), gbc, "gridy=3,gridx=0,gridwidth=REMAINDER,insets.top=10,anchor=CENTER");
 
         return panel;
     }

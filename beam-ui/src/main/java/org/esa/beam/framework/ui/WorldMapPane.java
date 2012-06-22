@@ -62,7 +62,7 @@ public class WorldMapPane extends JPanel {
     private WakefulComponent navControlWrapper;
     private PanSupport panSupport;
     private MouseHandler mouseHandler;
-    private Set<ScrollListener> scrollListeners;
+    private Set<ZoomListener> zoomListeners;
 
     public WorldMapPane(WorldMapPaneDataModel dataModel) {
         this(dataModel, null);
@@ -72,7 +72,7 @@ public class WorldMapPane extends JPanel {
         this.dataModel = dataModel;
         layerCanvas = new LayerCanvas();
         this.panSupport = new DefaultPanSupport(layerCanvas);
-        this.scrollListeners = new HashSet<ScrollListener>();
+        this.zoomListeners = new HashSet<ZoomListener>();
         getLayerCanvas().getModel().getViewport().setModelYAxisDown(false);
         if (overlay == null) {
             getLayerCanvas().addOverlay(new BoundaryOverlayImpl(dataModel));
@@ -115,18 +115,18 @@ public class WorldMapPane extends JPanel {
                 * operation would not work
                 */
                 Rectangle2D northBorder = new Rectangle2D.Double(upperLeft.getX(), upperLeft.getY(),
-                        lowerRight.getX() - upperLeft.getX(), 1);
+                                                                 lowerRight.getX() - upperLeft.getX(), 1);
                 Rectangle2D southBorder = new Rectangle2D.Double(upperLeft.getX(), lowerRight.getY(),
-                        lowerRight.getX() - upperLeft.getX(), 1);
+                                                                 lowerRight.getX() - upperLeft.getX(), 1);
                 Rectangle2D westBorder = new Rectangle2D.Double(upperLeft.getX(), lowerRight.getY(), 1,
-                        upperLeft.getY() - lowerRight.getY());
+                                                                upperLeft.getY() - lowerRight.getY());
                 Rectangle2D eastBorder = new Rectangle2D.Double(lowerRight.getX(), lowerRight.getY(), 1,
-                        upperLeft.getY() - lowerRight.getY());
+                                                                upperLeft.getY() - lowerRight.getY());
 
                 boolean isWorldMapFullyVisible = getLayerCanvas().getBounds().intersects(northBorder) ||
-                        getLayerCanvas().getBounds().intersects(southBorder) ||
-                        getLayerCanvas().getBounds().intersects(westBorder) ||
-                        getLayerCanvas().getBounds().intersects(eastBorder);
+                                                 getLayerCanvas().getBounds().intersects(southBorder) ||
+                                                 getLayerCanvas().getBounds().intersects(westBorder) ||
+                                                 getLayerCanvas().getBounds().intersects(eastBorder);
                 if (isWorldMapFullyVisible) {
                     zoomAll();
                 }
@@ -166,7 +166,7 @@ public class WorldMapPane extends JPanel {
             if (modelArea.isEmpty()) {
                 if (!viewport.isModelYAxisDown()) {
                     modelArea.setFrame(rectangle2D.getX(), rectangle2D.getMaxY(),
-                            rectangle2D.getWidth(), rectangle2D.getHeight());
+                                       rectangle2D.getWidth(), rectangle2D.getHeight());
                 }
                 modelArea = rectangle2D;
             } else {
@@ -175,7 +175,7 @@ public class WorldMapPane extends JPanel {
         }
         Rectangle2D modelBounds = modelArea.getBounds2D();
         modelBounds.setFrame(modelBounds.getX() - 2, modelBounds.getY() - 2,
-                modelBounds.getWidth() + 4, modelBounds.getHeight() + 4);
+                             modelBounds.getWidth() + 4, modelBounds.getHeight() + 4);
 
         modelBounds = cropToMaxModelBounds(modelBounds);
 
@@ -230,21 +230,21 @@ public class WorldMapPane extends JPanel {
         return ProductUtils.createGeoBoundaryPaths(product, null, step);
     }
 
-    public boolean addScrollListener(ScrollListener scrollListener) {
-        return scrollListeners.add(scrollListener);
+    public boolean addZoomListener(ZoomListener zoomListener) {
+        return zoomListeners.add(zoomListener);
     }
 
-    public boolean removeScrollListener(ScrollListener scrollListener) {
-        return scrollListeners.remove(scrollListener);
+    public boolean removeZoomListener(ZoomListener zoomListener) {
+        return zoomListeners.remove(zoomListener);
     }
 
     protected Action[] getOverlayActions() {
-        return new Action[] {new ZoomAllAction(), new ZoomToSelectedAction()};
+        return new Action[]{new ZoomAllAction(), new ZoomToSelectedAction()};
     }
 
     private void fireScrolled() {
-        for (ScrollListener scrollListener : scrollListeners) {
-            scrollListener.scrolled();
+        for (ZoomListener zoomListener : zoomListeners) {
+            zoomListener.zoomed();
         }
     }
 
@@ -256,9 +256,9 @@ public class WorldMapPane extends JPanel {
             repaint();
         }
         if (WorldMapPaneDataModel.PROPERTY_SELECTED_PRODUCT.equals(evt.getPropertyName()) ||
-                WorldMapPaneDataModel.PROPERTY_AUTO_ZOOM_ENABLED.equals(evt.getPropertyName())) {
+            WorldMapPaneDataModel.PROPERTY_AUTO_ZOOM_ENABLED.equals(evt.getPropertyName())) {
             final Product selectedProduct = dataModel.getSelectedProduct();
-            if (selectedProduct != null && dataModel.isAutoZommEnabled()) {
+            if (selectedProduct != null && dataModel.isAutoZoomEnabled()) {
                 zoomToProduct(selectedProduct);
             } else {
                 repaint();
@@ -284,7 +284,7 @@ public class WorldMapPane extends JPanel {
     private Rectangle2D cropToMaxModelBounds(Rectangle2D modelBounds) {
         final Rectangle2D maxModelBounds = worldMapLayer.getModelBounds();
         if (modelBounds.getWidth() >= maxModelBounds.getWidth() - 1 ||
-                modelBounds.getHeight() >= maxModelBounds.getHeight() - 1) {
+            modelBounds.getHeight() >= maxModelBounds.getHeight() - 1) {
             modelBounds = maxModelBounds;
         }
         return modelBounds;
@@ -312,13 +312,13 @@ public class WorldMapPane extends JPanel {
         * operation would not work
         */
         Rectangle2D northBorder = new Rectangle2D.Double(upperLeft.getX() + dx, upperLeft.getY() + dy,
-                lowerRight.getX() + dx - upperLeft.getX() + dx, 1);
+                                                         lowerRight.getX() + dx - upperLeft.getX() + dx, 1);
         Rectangle2D southBorder = new Rectangle2D.Double(upperLeft.getX() + dx, lowerRight.getY() + dy,
-                lowerRight.getX() + dx - upperLeft.getX() + dx, 1);
+                                                         lowerRight.getX() + dx - upperLeft.getX() + dx, 1);
         Rectangle2D westBorder = new Rectangle2D.Double(upperLeft.getX() + dx, lowerRight.getY() + dy, 1,
-                upperLeft.getY() + dy - lowerRight.getY() + dy);
+                                                        upperLeft.getY() + dy - lowerRight.getY() + dy);
         Rectangle2D eastBorder = new Rectangle2D.Double(lowerRight.getX() + dx, lowerRight.getY() + dy, 1,
-                upperLeft.getY() + dy - lowerRight.getY() + dy);
+                                                        upperLeft.getY() + dy - lowerRight.getY() + dy);
         return (!layerCanvas.getBounds().intersects(northBorder) &&
                 !layerCanvas.getBounds().intersects(southBorder) &&
                 !layerCanvas.getBounds().intersects(westBorder) &&
@@ -358,11 +358,11 @@ public class WorldMapPane extends JPanel {
             final Rectangle viewBounds = layerCanvas.getViewport().getViewBounds();
             final Rectangle2D modelBounds = worldMapLayer.getModelBounds();
             final double minZoomFactor = Math.min(viewBounds.getWidth() / modelBounds.getWidth(),
-                    viewBounds.getHeight() / modelBounds.getHeight());
+                                                  viewBounds.getHeight() / modelBounds.getHeight());
             layerCanvas.getViewport().setZoomFactor(Math.max(newZoomFactor, minZoomFactor));
 
             if (layerCanvas.getViewport().getZoomFactor() > oldFactor
-                    || viewportIsInWorldMapBounds(0, 0, layerCanvas)) {
+                || viewportIsInWorldMapBounds(0, 0, layerCanvas)) {
                 fireScrolled();
                 return;
             }
@@ -410,21 +410,27 @@ public class WorldMapPane extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            zoomToProduct(getSelectedProduct());
+            final Product selectedProduct = getSelectedProduct();
+            zoomToProduct(selectedProduct);
         }
     }
 
-    public interface ScrollListener {
-        void scrolled();
+    public interface ZoomListener {
+
+        void zoomed();
     }
 
     public interface PanSupport {
+
         void panStarted(MouseEvent event);
+
         void performPan(MouseEvent event);
+
         void panStopped(MouseEvent event);
     }
 
     protected static class DefaultPanSupport implements PanSupport {
+
         private Point p0;
 
         private final LayerCanvas layerCanvas;
@@ -449,6 +455,7 @@ public class WorldMapPane extends JPanel {
             }
             p0 = p;
         }
+
         @Override
         public void panStopped(MouseEvent event) {
         }
@@ -458,6 +465,7 @@ public class WorldMapPane extends JPanel {
      * Set the worldmap's scale.
      *
      * @param scale the scale.
+     *
      * @deprecated since 4.10.1, use layer canvas for zooming instead
      */
     @Deprecated

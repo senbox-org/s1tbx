@@ -50,10 +50,10 @@ class BinningFormModelImpl implements BinningFormModel {
 
     public BinningFormModelImpl() {
         propertySet = new PropertyContainer();
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_EAST_BOUND, Float.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_NORTH_BOUND, Float.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_WEST_BOUND, Float.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_SOUTH_BOUND, Float.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_EAST_BOUND, Double.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_NORTH_BOUND, Double.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_WEST_BOUND, Double.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_SOUTH_BOUND, Double.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_WKT, String.class));
         propertySet.addProperty(BinningDialog.createProperty(BoundsInputPanel.PROPERTY_PIXEL_SIZE_X, Float.class));
         propertySet.addProperty(BinningDialog.createProperty(BoundsInputPanel.PROPERTY_PIXEL_SIZE_Y, Float.class));

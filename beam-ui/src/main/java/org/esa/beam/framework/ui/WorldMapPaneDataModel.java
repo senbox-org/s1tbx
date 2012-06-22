@@ -128,12 +128,12 @@ public class WorldMapPaneDataModel {
         }
     }
 
-    public boolean isAutoZommEnabled() {
+    public boolean isAutoZoomEnabled() {
         return autoZoomEnabled;
     }
 
     public void setAutoZoomEnabled(boolean autoZoomEnabled) {
-        final boolean oldAutoZommEnabled = isAutoZommEnabled();
+        final boolean oldAutoZommEnabled = isAutoZoomEnabled();
         if (oldAutoZommEnabled != autoZoomEnabled) {
             this.autoZoomEnabled = autoZoomEnabled;
             firePropertyChange(PROPERTY_AUTO_ZOOM_ENABLED, oldAutoZommEnabled, autoZoomEnabled);
