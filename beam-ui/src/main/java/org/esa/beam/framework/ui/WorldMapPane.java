@@ -29,7 +29,6 @@ import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -64,6 +63,7 @@ public class WorldMapPane extends JPanel {
     private PanSupport panSupport;
     private MouseHandler mouseHandler;
     private Set<ZoomListener> zoomListeners;
+    private Action[] overlayActions;
 
     public WorldMapPane(WorldMapPaneDataModel dataModel) {
         this(dataModel, null);
@@ -198,7 +198,7 @@ public class WorldMapPane extends JPanel {
         boolean oldValue = this.navControlShown;
         if (oldValue != navControlShown) {
             if (navControlShown) {
-                final Action[] overlayActions = getOverlayActions();
+                overlayActions = getOverlayActions();
                 final ButtonOverlayControl navControl = new ButtonOverlayControl(overlayActions.length, overlayActions);
                 navControlWrapper = new WakefulComponent(navControl);
                 navControlWrapper.setMinAlpha(0.3f);
@@ -242,9 +242,7 @@ public class WorldMapPane extends JPanel {
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        for (Component component : navControlWrapper.getComponents()) {
-            component.setEnabled(enabled);
-        }
+        navControlWrapper.setEnabled(enabled);
     }
 
     protected Action[] getOverlayActions() {
