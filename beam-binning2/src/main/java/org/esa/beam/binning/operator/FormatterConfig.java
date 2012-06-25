@@ -66,7 +66,8 @@ public class FormatterConfig {
     private String outputFile;
     @Parameter
     private String outputFormat;
-    @Parameter(alias = "outputBands", itemAlias = "band")
+    @Parameter(alias = "outputBands", itemAlias = "band", description = "Configures the target bands. Not needed " +
+                                                                        "if output type 'Product' is chosen.")
     private BandConfiguration[] bandConfigurations;
 
     public FormatterConfig() {

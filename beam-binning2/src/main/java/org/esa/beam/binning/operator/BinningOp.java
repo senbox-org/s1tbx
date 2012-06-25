@@ -109,7 +109,7 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
  * @author Thomas Storm
  */
 @OperatorMetadata(alias = "Binning",
-                  version = "0.8.0",
+                  version = "0.8.1",
                   authors = "Norman Fomferra, Marco Zühlke, Thomas Storm",
                   copyright = "(c) 2012 by Brockmann Consult GmbH",
                   description = "Performs spatial and temporal aggregation of pixel values into 'bin' cells")
@@ -293,11 +293,26 @@ public class BinningOp extends Operator implements Output {
             throw e;
         } catch (Exception e) {
             throw new OperatorException(e);
+        } finally {
+            cleanSourceProducts();
         }
 
         stopWatch.stopAndTrace(String.format("Total time for binning %d product(s)", sourceProductCount));
 
         processMetadataTemplates();
+    }
+
+    private void cleanSourceProducts() {
+        if(sourceProducts == null) {
+            return;
+        }
+        for (Product sourceProduct : sourceProducts) {
+            for(int i = 0; i < binningContext.getVariableContext().getVariableCount(); i++) {
+                final String variableName = binningContext.getVariableContext().getVariableName(i);
+                final Band band = sourceProduct.getBand(variableName);
+                sourceProduct.removeBand(band);
+            }
+        }
     }
 
     private void processMetadataTemplates() {

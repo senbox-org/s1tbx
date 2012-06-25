@@ -6,9 +6,10 @@ import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class BinManagerTest {
+
     @Test
     public void testBinCreation() {
         VariableContext variableContext = new MyVariableContext("a", "b", "c");
@@ -29,5 +30,15 @@ public class BinManagerTest {
         assertEquals(3 + 3 + 2 + 3, tbin.getFeatureValues().length);
     }
 
+    @Test
+    public void testNameUnifying() throws Exception {
+        BinManager.NameUnifier nameUnifier = new BinManager.NameUnifier();
+        assertEquals("expression_p90", nameUnifier.unifyName("expression_p90"));
+        assertEquals("expression_p90_1", nameUnifier.unifyName("expression_p90"));
+        assertEquals("expression_p90_2", nameUnifier.unifyName("expression_p90"));
+        assertEquals("expression_p50", nameUnifier.unifyName("expression_p50"));
+        assertEquals("expression_p50_1", nameUnifier.unifyName("expression_p50"));
 
+
+    }
 }

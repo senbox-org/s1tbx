@@ -16,10 +16,14 @@
 
 package org.esa.beam.binning;
 
+import com.bc.ceres.core.ServiceRegistry;
+import com.bc.ceres.core.ServiceRegistryManager;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 /**
  * A simple registry for {@link AggregatorDescriptor}s.
@@ -28,6 +32,7 @@ import java.util.ServiceLoader;
  * @author Norman
  */
 public class AggregatorDescriptorRegistry {
+
     private final Map<String, AggregatorDescriptor> map;
 
     private AggregatorDescriptorRegistry() {
@@ -35,6 +40,17 @@ public class AggregatorDescriptorRegistry {
         for (AggregatorDescriptor descriptor : ServiceLoader.load(AggregatorDescriptor.class)) {
             map.put(descriptor.getName(), descriptor);
         }
+
+        if (map.isEmpty()) {
+            // todo - clarify why this is needed when the operator is being used in VISAT
+            final ServiceRegistry<AggregatorDescriptor> serviceRegistry = ServiceRegistryManager.getInstance().getServiceRegistry(AggregatorDescriptor.class);
+            final Set<AggregatorDescriptor> aggregatorDescriptors = serviceRegistry.getServices();
+
+            for (AggregatorDescriptor descriptor : aggregatorDescriptors) {
+                map.put(descriptor.getName(), descriptor);
+            }
+        }
+
     }
 
     public static AggregatorDescriptorRegistry getInstance() {
@@ -57,6 +73,7 @@ public class AggregatorDescriptorRegistry {
 
     // Initialization-on-demand holder idiom
     private static class Holder {
+
         private static final AggregatorDescriptorRegistry instance = new AggregatorDescriptorRegistry();
     }
 }

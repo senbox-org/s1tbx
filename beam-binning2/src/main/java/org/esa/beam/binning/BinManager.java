@@ -19,6 +19,9 @@ package org.esa.beam.binning;
 import org.esa.beam.binning.support.VariableContextImpl;
 import org.esa.beam.binning.support.VectorImpl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * The bin manager class comprises a number of {@link Aggregator}s
  *
@@ -64,10 +67,11 @@ public class BinManager {
         this.outputFeatureCount = outputFeatureCount;
         this.outputFeatureNames = new String[outputFeatureCount];
         this.outputFeatureFillValues = new double[outputFeatureCount];
+        final NameUnifier nameUnifier = new NameUnifier();
         int k = 0;
         for (Aggregator aggregator : aggregators) {
             for (int i = 0; i < aggregator.getOutputFeatureNames().length; i++) {
-                outputFeatureNames[k] = aggregator.getOutputFeatureNames()[i];
+                outputFeatureNames[k] = nameUnifier.unifyName(aggregator.getOutputFeatureNames()[i]);
                 outputFeatureFillValues[k] = aggregator.getOutputFillValue();
                 k++;
             }
@@ -218,6 +222,21 @@ public class BinManager {
             final Aggregator aggregator = aggregators[i];
             vector.setOffsetAndSize(temporalFeatureOffsets[i], aggregator.getTemporalFeatureNames().length);
             aggregator.initTemporal(bin, vector);
+        }
+    }
+
+    static class NameUnifier {
+
+        private final Map<String, Integer> addedNames = new HashMap<String, Integer>();
+
+        String unifyName(String name) {
+            if(!addedNames.containsKey(name)) {
+                addedNames.put(name, 0);
+                return name;
+            } else {
+                addedNames.put(name, addedNames.get(name) + 1);
+            }
+            return name + "_" + addedNames.get(name);
         }
     }
 }

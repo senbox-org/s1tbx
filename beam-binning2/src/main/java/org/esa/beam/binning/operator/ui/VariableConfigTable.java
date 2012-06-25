@@ -20,6 +20,7 @@ import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.AggregatorDescriptorRegistry;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
+import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -48,6 +49,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
@@ -71,6 +73,7 @@ class VariableConfigTable {
         this.binningFormModel = binningFormModel;
         this.appContext = appContext;
         bandNames = new TreeSet<String>();
+        bandNames.add("<expression>");
         binningFormModel.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -79,17 +82,19 @@ class VariableConfigTable {
                 }
             }
         });
-        final AggregatorDescriptor[] aggregatorDescriptors = AggregatorDescriptorRegistry.getInstance().getAggregatorDescriptors();
-        aggregatorNames = new String[aggregatorDescriptors.length];
-        for (int i = 0; i < aggregatorDescriptors.length; i++) {
-            aggregatorNames[i] = aggregatorDescriptors[i].getName();
+        final List<AggregatorDescriptor> aggregatorDescriptors = getAggregatorDescriptors(AggregatorOnMaxSet.Descriptor.NAME);
+        aggregatorNames = new String[aggregatorDescriptors.size()];
+        for (int i = 0; i < aggregatorDescriptors.size(); i++) {
+            aggregatorNames[i] = aggregatorDescriptors.get(i).getName();
         }
 
         tableModel = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int column) {
+                final Object bandName = tableModel.getValueAt(row, 0);
                 return column != 1 ||
-                       table.getSelectedRow() == row && tableModel.getValueAt(row, 0).toString().equals("<expression>");
+                       table.getSelectedRow() == row && bandName != null &&
+                       bandName.toString().matches("<expression_?\\d*>");
             }
         };
         tableModel.setColumnIdentifiers(new String[]{
@@ -97,6 +102,7 @@ class VariableConfigTable {
                 "Expression",
                 "Aggregation",
                 "Weight",
+                "Percentile",
                 "Fill value"
         });
 
@@ -105,8 +111,10 @@ class VariableConfigTable {
         table = new JTable(tableModel) {
             @Override
             public Class getColumnClass(int column) {
-                if (column == 3 || column == 4) {
+                if (column == 3 || column == 5) {
                     return Double.class;
+                } else if (column == 4) {
+                    return Integer.class;
                 } else {
                     return String.class;
                 }
@@ -119,6 +127,7 @@ class VariableConfigTable {
         table.getColumnModel().getColumn(2).setMinWidth(100);
         table.getColumnModel().getColumn(3).setMinWidth(60);
         table.getColumnModel().getColumn(4).setMinWidth(60);
+        table.getColumnModel().getColumn(5).setMinWidth(60);
 
         bandNamesComboBox = new JComboBox(bandNames.toArray());
 
@@ -133,25 +142,42 @@ class VariableConfigTable {
         };
         table.getColumnModel().getColumn(3).setCellRenderer(cellRenderer);
         table.getColumnModel().getColumn(4).setCellRenderer(cellRenderer);
+        table.getColumnModel().getColumn(5).setCellRenderer(cellRenderer);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         scrollPane = new JScrollPane(table);
+    }
+
+    private List<AggregatorDescriptor> getAggregatorDescriptors(String... filterNames) {
+        final AggregatorDescriptor[] allDescriptors = AggregatorDescriptorRegistry.getInstance().getAggregatorDescriptors();
+        final List<AggregatorDescriptor> filteredDescriptors = new ArrayList<AggregatorDescriptor>();
+        for (final AggregatorDescriptor descriptor : allDescriptors) {
+            for (String name : filterNames) {
+                if (!descriptor.getName().equals(name)) {
+                    filteredDescriptors.add(descriptor);
+                }
+            }
+        }
+        return filteredDescriptors;
     }
 
     JComponent getComponent() {
         return scrollPane;
     }
 
-    void addRow(final String name, String expression, String algorithmName, double weightCoefficient, float fillValue) {
+    void addRow(final String name, String expression, String algorithmName, double weightCoefficient, float fillValue, int percentile) {
         if (algorithmName == null || !StringUtils.contains(aggregatorNames, algorithmName)) {
             algorithmName = AggregatorAverage.Descriptor.NAME;
         }
-        tableModel.addRow(new Object[]{name, expression, algorithmName, weightCoefficient, fillValue});
+        bandNames.add("<expression_" + getExpressionCount() + ">");
+        updateBandNameCombobox();
+        tableModel.addRow(new Object[]{name, expression, algorithmName, weightCoefficient, percentile, fillValue});
     }
 
     void removeSelectedRows() {
         while (table.getSelectedRows().length != 0) {
             tableModel.removeRow(table.getSelectedRows()[0]);
         }
+        updateBandNames();
     }
 
     private Row[] getRows() {
@@ -163,7 +189,8 @@ class VariableConfigTable {
                               (String) dataListRow.get(1),
                               (String) dataListRow.get(2),
                               (Double) dataListRow.get(3),
-                              (Float) dataListRow.get(4));
+                              (Integer) dataListRow.get(4),
+                              (Float) dataListRow.get(5));
         }
         return rows;
     }
@@ -175,6 +202,9 @@ class VariableConfigTable {
             Collections.addAll(bandNames, sourceProduct.getBandNames());
         }
         bandNames.add("<expression>");
+        for(int i = 0; i < getExpressionCount(); i++) {
+            bandNames.add("<expression_" + i + ">");
+        }
         updateBandNameCombobox();
     }
 
@@ -183,6 +213,16 @@ class VariableConfigTable {
         for (String bandName : bandNames) {
             bandNamesComboBox.addItem(bandName);
         }
+    }
+
+    int getExpressionCount() {
+        int expressionCount = 0;
+        final Row[] rows = getRows();
+        for (Row row : rows) {
+            final String bandName = row.bandName;
+            expressionCount += bandName != null && bandName.matches("<expression_?\\d*>") ? 1 : 0;
+        }
+        return expressionCount;
     }
 
     private class CellExpressionEditor extends AbstractCellEditor implements TableCellEditor {
@@ -283,6 +323,7 @@ class VariableConfigTable {
                                             row.expression,
                                             aggregatorDescriptor,
                                             row.weightCoefficient,
+                                            row.percentile,
                                             row.fillValue);
             }
             try {
@@ -300,13 +341,15 @@ class VariableConfigTable {
         private final String algorithmName;
         private final double weightCoefficient;
         private final float fillValue;
+        private final Integer percentile;
 
-        Row(String bandName, String expression, String algorithmName, double weightCoefficient, float fillValue) {
+        Row(String bandName, String expression, String algorithmName, double weightCoefficient, Integer percentile, float fillValue) {
             this.bandName = bandName;
+            this.expression = expression;
             this.algorithmName = algorithmName;
             this.weightCoefficient = weightCoefficient;
+            this.percentile = percentile;
             this.fillValue = fillValue;
-            this.expression = expression;
         }
     }
 }

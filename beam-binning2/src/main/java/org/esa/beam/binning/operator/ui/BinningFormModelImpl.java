@@ -113,7 +113,11 @@ class BinningFormModelImpl implements BinningFormModel {
 
     @Override
     public String getValidExpression() {
-        return getPropertyValue(PROPERTY_KEY_EXPRESSION);
+        final String propertyValue = getPropertyValue(PROPERTY_KEY_EXPRESSION);
+        if (propertyValue == null) {
+            return "true";
+        }
+        return propertyValue;
     }
 
     @Override

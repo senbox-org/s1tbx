@@ -22,6 +22,7 @@ import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import org.esa.beam.binning.operator.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningConfig;
 import org.esa.beam.binning.operator.BinningOp;
+import org.esa.beam.binning.operator.FormatterConfig;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
@@ -37,25 +38,12 @@ import java.util.Map;
 /**
  * UI for binning operator.
  *
- * todo
- * - target product: remove outer group [done]
- * - remove first bullet, replace by min/max lat/lon or beam map region chooser
- * - valid expression globally [done]
- * - allow specifying bands by expression
- * - weight -> parameters, empty by default, add description on aggregators to help
- * - fill value -> NaN by default
- * - missing parameters: add to parameters panel
- * - remove formatter config
- * - geometry: rename to region
- * - add time parameters
- * - allow specifying spatial resolution OR supersampling
- *
  * @author Olaf Danne
  * @author Thomas Storm
  */
 public class BinningDialog extends SingleTargetProductDialog {
 
-    private BinningForm form;
+    private final BinningForm form;
     private final BinningFormModel formModel;
 
     protected BinningDialog(AppContext appContext, String title, String helpID) {
@@ -79,33 +67,55 @@ public class BinningDialog extends SingleTargetProductDialog {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new BinningOp.Spi());
 
         final Map<String, Object> parameters = new HashMap<String, Object>();
-        final BinningConfig binningConfig = new BinningConfig();
-        binningConfig.setMaskExpr(formModel.getValidExpression());
-        binningConfig.setSuperSampling(formModel.getSuperSampling());
-        binningConfig.setNumRows(formModel.getNumRows());
-
-        final List<VariableConfig> variableConfigs = new ArrayList<VariableConfig>();
-        final List<AggregatorConfig> aggregatorConfigs = new ArrayList<AggregatorConfig>();
-        final TableRow[] tableRows = formModel.getTableRows();
-        for (TableRow tableRow : tableRows) {
-            final VariableConfig variableConfig = new VariableConfig(tableRow.name, tableRow.expression);
-            final AggregatorConfig aggregatorConfig = new AggregatorConfig();
-            aggregatorConfig.setAggregatorName(tableRow.aggregator.getName());
-            aggregatorConfig.setVarName(tableRow.name);
-            aggregatorConfig.setFillValue(tableRow.fillValue);
-            aggregatorConfig.setWeightCoeff(tableRow.weight);
-            variableConfigs.add(variableConfig);
-            aggregatorConfigs.add(aggregatorConfig);
-        }
-        binningConfig.setAggregatorConfigs(aggregatorConfigs.toArray(new AggregatorConfig[aggregatorConfigs.size()]));
-        binningConfig.setVariableConfigs(variableConfigs.toArray(new VariableConfig[variableConfigs.size()]));
-
         parameters.put("region", formModel.getRegion());
         parameters.put("startDate", formModel.getStartDate());
         parameters.put("endDate", formModel.getEndDate());
         parameters.put("outputBinnedData", formModel.shallOutputBinnedData());
-        parameters.put("binningConfig", binningConfig);
+        parameters.put("binningConfig", createBinningConfig());
+        parameters.put("formatterConfig", createFormatterConfig());
         return GPF.createProduct("Binning", parameters, formModel.getSourceProducts());
+    }
+
+    private FormatterConfig createFormatterConfig() {
+        final FormatterConfig formatterConfig = new FormatterConfig();
+        formatterConfig.setOutputFormat("BEAM-DIMAP");
+        formatterConfig.setOutputFile(getTargetProductSelector().getModel().getProductFile().getPath());
+        formatterConfig.setOutputType("Product");
+        return formatterConfig;
+    }
+
+    private BinningConfig createBinningConfig() {
+        final List<VariableConfig> variableConfigs = new ArrayList<VariableConfig>();
+        final List<AggregatorConfig> aggregatorConfigs = new ArrayList<AggregatorConfig>();
+        for (TableRow tableRow : formModel.getTableRows()) {
+            variableConfigs.add(new VariableConfig(tableRow.name, tableRow.expression));
+            aggregatorConfigs.add(createAggregatorConfig(tableRow.aggregator.getName(),
+                                                         tableRow.name,
+                                                         tableRow.fillValue,
+                                                         tableRow.weight,
+                                                         tableRow.percentile));
+        }
+        return createBinningConfig(variableConfigs, aggregatorConfigs);
+    }
+
+    private AggregatorConfig createAggregatorConfig(String name, String varName, Float fillValue, Double weightCoeff, int percentile) {
+        final AggregatorConfig aggregatorConfig = new AggregatorConfig();
+        aggregatorConfig.setAggregatorName(name);
+        aggregatorConfig.setVarName(varName);
+        aggregatorConfig.setFillValue(fillValue);
+        aggregatorConfig.setWeightCoeff(weightCoeff);
+        aggregatorConfig.setPercentage(percentile);
+        return aggregatorConfig;
+    }
+
+    private BinningConfig createBinningConfig(List<VariableConfig> variableConfigs, List<AggregatorConfig> aggregatorConfigs) {
+        final BinningConfig binningConfig = new BinningConfig();
+        binningConfig.setAggregatorConfigs(aggregatorConfigs.toArray(new AggregatorConfig[aggregatorConfigs.size()]));
+        binningConfig.setVariableConfigs(variableConfigs.toArray(new VariableConfig[variableConfigs.size()]));
+        binningConfig.setMaskExpr(formModel.getValidExpression());
+        binningConfig.setNumRows(formModel.getNumRows());
+        binningConfig.setSuperSampling(formModel.getSuperSampling());
+        return binningConfig;
     }
 
     @Override

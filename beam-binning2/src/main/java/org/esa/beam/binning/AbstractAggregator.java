@@ -16,6 +16,9 @@
 
 package org.esa.beam.binning;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Abstract base class that provides the aggregator's static metadata.
  *
@@ -64,7 +67,11 @@ public abstract class AbstractAggregator implements Aggregator {
 
     @Override
     public String[] getOutputFeatureNames() {
-        return outputFeatureNames;
+        final List<String> result = new ArrayList<String>(outputFeatureNames.length);
+        for (String name : outputFeatureNames) {
+            result.add(name.replace("<", "").replace(">", ""));
+        }
+        return result.toArray(new String[result.size()]);
     }
 
     @Override
@@ -79,5 +86,4 @@ public abstract class AbstractAggregator implements Aggregator {
         }
         return featureNames;
     }
-
 }

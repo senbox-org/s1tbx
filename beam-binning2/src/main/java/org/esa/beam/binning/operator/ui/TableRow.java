@@ -30,13 +30,15 @@ class TableRow {
     final AggregatorDescriptor aggregator;
     final Double weight;
     final Float fillValue;
+    public Integer percentile;
 
-    TableRow(String name, String expression, AggregatorDescriptor aggregator, Double weight, Float fillValue) {
-        this.expression = expression;
-        this.fillValue = fillValue;
-        this.weight = weight;
-        this.aggregator = aggregator;
+    TableRow(String name, String expression, AggregatorDescriptor aggregator, Double weight, Integer percentile, Float fillValue) {
         this.name = name;
+        this.expression = expression;
+        this.aggregator = aggregator;
+        this.weight = weight;
+        this.percentile = percentile;
+        this.fillValue = fillValue;
     }
 
     @Override
@@ -46,6 +48,7 @@ class TableRow {
                ", name='" + name + '\'' +
                ", expression='" + expression + '\'' +
                ", weight=" + weight +
+               ", percentile=" + percentile +
                ", fillValue=" + fillValue +
                '}';
     }

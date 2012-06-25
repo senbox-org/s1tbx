@@ -50,7 +50,7 @@ public class BinningFormModelImplTest {
         final BinningFormModel binningFormModel = new BinningFormModelImpl();
         assertArrayEquals(new TableRow[0], binningFormModel.getTableRows());
 
-        final TableRow tableRow = new TableRow("name", "name", null, 0.1, 0.2f);
+        final TableRow tableRow = new TableRow("name", "name", null, 0.1, 90, 0.2f);
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS,
                                  new TableRow[]{tableRow});
 
@@ -105,7 +105,7 @@ public class BinningFormModelImplTest {
     @Test
     public void testGetValidExpression() throws Exception {
         final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
-        assertNull(binningFormModel.getValidExpression());
+        assertTrue(Boolean.parseBoolean(binningFormModel.getValidExpression()));
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, "some_expression");
 
         assertEquals("some_expression", binningFormModel.getValidExpression());
