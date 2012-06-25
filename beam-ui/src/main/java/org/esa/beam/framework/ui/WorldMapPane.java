@@ -63,7 +63,6 @@ public class WorldMapPane extends JPanel {
     private PanSupport panSupport;
     private MouseHandler mouseHandler;
     private Set<ZoomListener> zoomListeners;
-    private Action[] overlayActions;
 
     public WorldMapPane(WorldMapPaneDataModel dataModel) {
         this(dataModel, null);
@@ -198,7 +197,7 @@ public class WorldMapPane extends JPanel {
         boolean oldValue = this.navControlShown;
         if (oldValue != navControlShown) {
             if (navControlShown) {
-                overlayActions = getOverlayActions();
+                final Action[] overlayActions = getOverlayActions();
                 final ButtonOverlayControl navControl = new ButtonOverlayControl(overlayActions.length, overlayActions);
                 navControlWrapper = new WakefulComponent(navControl);
                 navControlWrapper.setMinAlpha(0.3f);
