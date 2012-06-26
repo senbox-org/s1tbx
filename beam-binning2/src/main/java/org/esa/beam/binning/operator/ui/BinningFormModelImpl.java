@@ -29,6 +29,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.BoundsInputPanel;
+import org.esa.beam.util.Debug;
 
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
@@ -178,14 +179,17 @@ class BinningFormModelImpl implements BinningFormModel {
         final Property property = new Property(descriptor, new DefaultPropertyAccessor());
         propertySet.addProperty(property);
         property.setValue(value);
-        // todo -- replace by debug-level logging
         if (value != null && value.getClass().isArray()) {
-            for (Object _value : (Object[]) value) {
-                System.out.println("set property: 'key = " + key + ", value = " + _value + "'.");
+            for (Object singleValue : (Object[]) value) {
+                printDebugMessage(key, singleValue);
             }
         } else {
-            System.out.println("set property: 'key = " + key + ", value = " + value + "'.");
+            printDebugMessage(key, value);
         }
+    }
+
+    private void printDebugMessage(String key, Object value) {
+        Debug.trace("set property: 'key = " + key + ", value = " + value + "'.");
     }
 
     @Override
