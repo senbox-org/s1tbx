@@ -41,6 +41,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.experimental.Output;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
@@ -119,33 +120,37 @@ public class BinningOp extends Operator implements Output {
     public static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
     @SourceProducts(description = "The source products to be binned. Must be all of the same structure. " +
-            "If not given, the parameter 'sourceProductPaths' must be provided.")
+                                  "If not given, the parameter 'sourceProductPaths' must be provided.")
     Product[] sourceProducts;
 
     @TargetProduct
     Product targetProduct;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-            "'*' (matches any character sequence in path names) and\n" +
-            "'?' (matches any single character).")
+                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+                             "'*' (matches any character sequence in path names) and\n" +
+                             "'?' (matches any single character).")
     String[] sourceProductPaths;
 
     @Parameter(converter = JtsGeometryConverter.class,
                description = "The considered geographical region as a geometry in well-known text format (WKT).\n" +
-                       "If not given, the entire Globe is assumed.")
+                             "If not given, the entire Globe is assumed.")
     Geometry region;
 
-    @Parameter(description = "The start date. If not given, taken from the 'oldest' source product.",
+    @Parameter(description =
+                       "The start date. If not given, taken from the 'oldest' source product. Products that have " +
+                       "a start date before the start date given by this parameter are not considered.",
                format = DATE_PATTERN)
     String startDate;
 
-    @Parameter(description = "The end date. If not given, taken from the 'youngest' source product.",
+    @Parameter(description =
+                       "The end date. If not given, taken from the 'youngest' source product. Products that have " +
+                       "an end date after the end date given by this parameter are not considered.",
                format = DATE_PATTERN)
     String endDate;
 
     @Parameter(description = "If true, a SeaDAS-style, binned data NetCDF file is written in addition to the\n" +
-            "target product. The output file name will be <target>-bins.nc", defaultValue = "true")
+                             "target product. The output file name will be <target>-bins.nc", defaultValue = "true")
     boolean outputBinnedData;
 
     @Parameter(notNull = true,
@@ -258,11 +263,14 @@ public class BinningOp extends Operator implements Output {
             metadataTemplateDir = new File(".");
         }
         if (!metadataTemplateDir.exists()) {
-            throw new OperatorException("Directory given by 'metadataTemplateDir' does not exist: " + metadataTemplateDir);
+            throw new OperatorException(
+                    "Directory given by 'metadataTemplateDir' does not exist: " + metadataTemplateDir);
         }
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
+
+        sourceProducts = filterSourceProducts(sourceProducts, startDateUtc, endDateUtc);
 
         binningContext = binningConfig.createBinningContext();
         metadataProperties = new TreeMap<String, String>();
@@ -302,12 +310,39 @@ public class BinningOp extends Operator implements Output {
         processMetadataTemplates();
     }
 
+    static Product[] filterSourceProducts(Product[] sourceProducts, ProductData.UTC startTime, ProductData.UTC endTime) {
+        final List<Product> filteredSourceProducts = new ArrayList<Product>();
+        if (sourceProducts == null) {
+            return null;
+        }
+        for (Product sourceProduct : sourceProducts) {
+            final ProductData.UTC productStartTime = sourceProduct.getStartTime();
+            final ProductData.UTC productEndTime = sourceProduct.getEndTime();
+            final boolean hasStartTime = productStartTime != null;
+            final boolean hasEndTime = productEndTime != null;
+            if (hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate())
+                && hasEndTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
+                filteredSourceProducts.add(sourceProduct);
+            } else if (!hasStartTime && !hasEndTime) {
+                filteredSourceProducts.add(sourceProduct);
+            } else if (hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate())
+                && !hasEndTime ) {
+                filteredSourceProducts.add(sourceProduct);
+            } else if(!hasStartTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
+                filteredSourceProducts.add(sourceProduct);
+            } else {
+                Debug.trace("Filtered out product '" + sourceProduct.getName() + "'");
+            }
+        }
+        return filteredSourceProducts.toArray(new Product[filteredSourceProducts.size()]);
+    }
+
     private void cleanSourceProducts() {
-        if(sourceProducts == null) {
+        if (sourceProducts == null) {
             return;
         }
         for (Product sourceProduct : sourceProducts) {
-            for(int i = 0; i < binningContext.getVariableContext().getVariableCount(); i++) {
+            for (int i = 0; i < binningContext.getVariableContext().getVariableCount(); i++) {
                 final String variableName = binningContext.getVariableContext().getVariableName(i);
                 final Band band = sourceProduct.getBand(variableName);
                 sourceProduct.removeBand(band);
@@ -530,7 +565,9 @@ public class BinningOp extends Operator implements Output {
     }
 
     private void writeNetcdfBinFile(File file, List<TemporalBin> temporalBins, ProductData.UTC startTime, ProductData.UTC stopTime) throws IOException {
-        final BinWriter writer = new BinWriter(binningContext, getLogger(), region, startTime != null ? startTime : minDateUtc, stopTime != null ? stopTime : maxDateUtc);
+        final BinWriter writer = new BinWriter(binningContext, getLogger(), region,
+                                               startTime != null ? startTime : minDateUtc,
+                                               stopTime != null ? stopTime : maxDateUtc);
         try {
             writer.write(file, metadataProperties, temporalBins);
         } catch (InvalidRangeException e) {
@@ -556,14 +593,12 @@ public class BinningOp extends Operator implements Output {
 
     private void updateDateRangeUtc(Product sourceProduct) {
         if (sourceProduct.getStartTime() != null) {
-            if (minDateUtc == null
-                    || sourceProduct.getStartTime().getAsDate().before(minDateUtc.getAsDate())) {
+            if (minDateUtc == null || sourceProduct.getStartTime().getAsDate().before(minDateUtc.getAsDate())) {
                 minDateUtc = sourceProduct.getStartTime();
             }
         }
         if (sourceProduct.getEndTime() != null) {
-            if (maxDateUtc == null
-                    || sourceProduct.getEndTime().getAsDate().after(maxDateUtc.getAsDate())) {
+            if (maxDateUtc == null || sourceProduct.getEndTime().getAsDate().after(maxDateUtc.getAsDate())) {
                 maxDateUtc = sourceProduct.getStartTime();
             }
         }
@@ -578,12 +613,14 @@ public class BinningOp extends Operator implements Output {
     }
 
     static interface SpatialBinStore extends SpatialBinConsumer {
+
         SortedMap<Long, List<SpatialBin>> getSpatialBinMap() throws IOException;
 
         void consumingCompleted() throws IOException;
     }
 
     private static class SpatialBinStoreImpl implements SpatialBinStore {
+
         // Note, we use a sorted map in order to sort entries on-the-fly
         final private SortedMap<Long, List<SpatialBin>> spatialBinMap = new TreeMap<Long, List<SpatialBin>>();
 
@@ -611,6 +648,7 @@ public class BinningOp extends Operator implements Output {
     }
 
     private static class SimpleTemporalBinSource implements TemporalBinSource {
+
         private final List<TemporalBin> temporalBins;
 
         public SimpleTemporalBinSource(List<TemporalBin> temporalBins) {
@@ -641,6 +679,7 @@ public class BinningOp extends Operator implements Output {
      * in {@code /META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      */
     public static class Spi extends OperatorSpi {
+
         public Spi() {
             super(BinningOp.class);
         }

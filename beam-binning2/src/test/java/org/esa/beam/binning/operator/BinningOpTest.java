@@ -4,6 +4,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.GPF;
@@ -511,6 +512,25 @@ public class BinningOpTest {
         } catch (IOException e) {
             targetProduct.dispose();
         }
+    }
+
+    @Test
+    public void testFilterAccordingToTime() throws Exception {
+        final Product product1 = new Product("name", "type", 10, 10);
+        final Product product2 = new Product("name", "type", 10, 10);
+        final Product product3 = new Product("name", "type", 10, 10);
+        Product[] inputProducts = {product1, product2, product3};
+        Product[] expectedProducts = {product1, product2, product3};
+        Product[] filteredProducts = BinningOp.filterSourceProducts(inputProducts, ProductData.UTC.parse("01-JUL-2000 00:00:00"), ProductData.UTC.parse("01-AUG-2000 00:00:00"));
+        assertArrayEquals(inputProducts, filteredProducts);
+
+        product1.setStartTime(ProductData.UTC.parse("02-JUL-2000 00:00:00"));
+        product1.setEndTime(ProductData.UTC.parse("02-AUG-2000 00:00:00"));
+
+        inputProducts = new Product[] {product1, product2, product3};
+        expectedProducts = new Product[] {product2, product3};
+        filteredProducts = BinningOp.filterSourceProducts(inputProducts, ProductData.UTC.parse("01-JUL-2000 00:00:00"), ProductData.UTC.parse("01-AUG-2000 00:00:00"));
+        assertArrayEquals(expectedProducts, filteredProducts);
     }
 
     private void assertGlobalBinningProductIsOk(Product targetProduct, File location, float obs1, float obs2, float obs3, float obs4, float obs5) throws IOException {
