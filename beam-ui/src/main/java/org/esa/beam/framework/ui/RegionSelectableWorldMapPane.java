@@ -265,20 +265,23 @@ public class RegionSelectableWorldMapPane {
             } else {
                 worldMapPane.getLayerCanvas().removeMouseMotionListener(cursorChanger);
                 worldMapPane.getLayerCanvas().addOverlay(greyOverlay);
-                worldMapPane.setPanSupport(new PanSupport() {
-                    @Override
-                    public void panStarted(MouseEvent event) {
-                    }
+                worldMapPane.setPanSupport(new NullPanSupport());
 
-                    @Override
-                    public void performPan(MouseEvent event) {
-                    }
+            }
+        }
 
-                    @Override
-                    public void panStopped(MouseEvent event) {
-                    }
-                });
+        private class NullPanSupport implements PanSupport {
 
+            @Override
+            public void panStarted(MouseEvent event) {
+            }
+
+            @Override
+            public void performPan(MouseEvent event) {
+            }
+
+            @Override
+            public void panStopped(MouseEvent event) {
             }
         }
     }
@@ -619,7 +622,9 @@ public class RegionSelectableWorldMapPane {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            regionSelectionInteractor.reset();
+            if(isEnabled()) {
+                regionSelectionInteractor.reset();
+            }
         }
     }
 

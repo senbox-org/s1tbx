@@ -117,6 +117,14 @@ class ButtonOverlayControl extends JComponent {
 
     }
 
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        for (ButtonDef buttonDef : buttonDefList) {
+            buttonDef.getAction().setEnabled(enabled);
+        }
+    }
+
     private void drawBackground(Rectangle bounds, Graphics2D graphics2D) {
         final Shape backgroundShape = new RoundRectangle2D.Double(bounds.x, bounds.y,
                                                                   bounds.width, bounds.height,

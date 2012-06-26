@@ -358,7 +358,7 @@ public class WorldMapPane extends JPanel {
 
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
-            if(!isEnabled()) {
+            if (!isEnabled()) {
                 return;
             }
             double oldFactor = layerCanvas.getViewport().getZoomFactor();
@@ -407,7 +407,9 @@ public class WorldMapPane extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            zoomAll();
+            if (isEnabled()) {
+                zoomAll();
+            }
         }
     }
 
@@ -419,8 +421,10 @@ public class WorldMapPane extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            final Product selectedProduct = getSelectedProduct();
-            zoomToProduct(selectedProduct);
+            if (isEnabled()) {
+                final Product selectedProduct = getSelectedProduct();
+                zoomToProduct(selectedProduct);
+            }
         }
     }
 
