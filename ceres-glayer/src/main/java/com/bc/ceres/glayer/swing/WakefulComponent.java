@@ -80,8 +80,6 @@ public class WakefulComponent extends JComponent {
     private Graphics2D imageGraphics;
     private HitHandler hitHandler;
 
-    private Component[] components;
-
     public enum VisualState {
 
         INACTIVE,
@@ -188,15 +186,8 @@ public class WakefulComponent extends JComponent {
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        if (enabled) {
-            for (Component component : components) {
-                add(component);
-            }
-        } else {
-            components = getComponents();
-            for (Component component : getComponents()) {
-                remove(component);
-            }
+        for (Component component : getComponents()) {
+            component.setEnabled(enabled);
         }
     }
 
