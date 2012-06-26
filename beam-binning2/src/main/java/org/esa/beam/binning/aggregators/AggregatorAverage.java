@@ -28,7 +28,6 @@ import java.util.Arrays;
 public final class AggregatorAverage extends AbstractAggregator {
     private final int varIndex;
     private final WeightFn weightFn;
-    private final Double weightCoeff;
 
     public AggregatorAverage(VariableContext varCtx, String varName, Double weightCoeff, Float fillValue) {
         super(Descriptor.NAME,
@@ -45,7 +44,6 @@ public final class AggregatorAverage extends AbstractAggregator {
         if (weightCoeff != null && weightCoeff < 0.0) {
             throw new IllegalArgumentException("weightCoeff < 0.0");
         }
-        this.weightCoeff = weightCoeff;
         this.varIndex = varCtx.getVariableIndex(varName);
         this.weightFn = WeightFn.createPow(weightCoeff != null ? weightCoeff : 0.0);
     }

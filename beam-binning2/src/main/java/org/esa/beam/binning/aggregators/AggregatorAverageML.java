@@ -33,7 +33,6 @@ public class AggregatorAverageML extends AbstractAggregator {
 
     private final int varIndex;
     private final WeightFn weightFn;
-    private final Double weightCoeff;
 
     public AggregatorAverageML(VariableContext ctx, String varName, Double weightCoeff, Float fillValue) {
         super(Descriptor.NAME,
@@ -42,7 +41,6 @@ public class AggregatorAverageML extends AbstractAggregator {
               createFeatureNames(varName, "mean", "sigma", "median", "mode"),
               fillValue);
         this.varIndex = ctx.getVariableIndex(varName);
-        this.weightCoeff = weightCoeff;
         this.weightFn = WeightFn.createPow(weightCoeff != null ? weightCoeff : 0.5);
     }
 
