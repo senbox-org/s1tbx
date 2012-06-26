@@ -122,12 +122,24 @@ class VariableConfigTable {
         };
         table.getTableHeader().setReorderingAllowed(false);
 
-        table.getColumnModel().getColumn(0).setMinWidth(60);
-        table.getColumnModel().getColumn(1).setMinWidth(60);
-        table.getColumnModel().getColumn(2).setMinWidth(100);
-        table.getColumnModel().getColumn(3).setMinWidth(60);
-        table.getColumnModel().getColumn(4).setMinWidth(60);
-        table.getColumnModel().getColumn(5).setMinWidth(60);
+        table.getColumnModel().getColumn(0).setMinWidth(100);
+        table.getColumnModel().getColumn(1).setMinWidth(100);
+
+        table.getColumnModel().getColumn(2).setWidth(80);
+        table.getColumnModel().getColumn(3).setWidth(60);
+        table.getColumnModel().getColumn(4).setWidth(60);
+        table.getColumnModel().getColumn(5).setWidth(60);
+
+        table.getColumnModel().getColumn(2).setMaxWidth(80);
+        table.getColumnModel().getColumn(3).setMaxWidth(60);
+        table.getColumnModel().getColumn(4).setMaxWidth(60);
+        table.getColumnModel().getColumn(5).setMaxWidth(60);
+
+        table.getColumnModel().getColumn(1).setResizable(false);
+        table.getColumnModel().getColumn(2).setResizable(false);
+        table.getColumnModel().getColumn(3).setResizable(false);
+        table.getColumnModel().getColumn(4).setResizable(false);
+        table.getColumnModel().getColumn(5).setResizable(false);
 
         bandNamesComboBox = new JComboBox(bandNames.toArray());
 
@@ -143,7 +155,7 @@ class VariableConfigTable {
         table.getColumnModel().getColumn(3).setCellRenderer(cellRenderer);
         table.getColumnModel().getColumn(4).setCellRenderer(cellRenderer);
         table.getColumnModel().getColumn(5).setCellRenderer(cellRenderer);
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
         scrollPane = new JScrollPane(table);
     }
 
