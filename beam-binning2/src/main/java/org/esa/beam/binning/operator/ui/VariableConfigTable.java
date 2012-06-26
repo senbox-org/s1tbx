@@ -73,7 +73,7 @@ class VariableConfigTable {
         this.binningFormModel = binningFormModel;
         this.appContext = appContext;
         bandNames = new TreeSet<String>();
-        bandNames.add("<expression>");
+        bandNames.add("<expression_0>");
         binningFormModel.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -201,7 +201,6 @@ class VariableConfigTable {
         for (Product sourceProduct : sourceProducts) {
             Collections.addAll(bandNames, sourceProduct.getBandNames());
         }
-        bandNames.add("<expression>");
         for(int i = 0; i < getExpressionCount(); i++) {
             bandNames.add("<expression_" + i + ">");
         }

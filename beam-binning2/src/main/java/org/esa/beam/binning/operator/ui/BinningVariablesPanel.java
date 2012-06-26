@@ -79,11 +79,7 @@ class BinningVariablesPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 final String name;
                 final int expressionCount = bandsTable.getExpressionCount();
-                if (expressionCount == 0) {
-                    name = "<expression>";
-                } else {
-                    name = "<expression_" + expressionCount + ">";
-                }
+                name = "<expression_" + expressionCount + ">";
                 bandsTable.addRow(name, null, AggregatorAverage.Descriptor.NAME, Double.NaN, Float.NaN, -1);
             }
         });
