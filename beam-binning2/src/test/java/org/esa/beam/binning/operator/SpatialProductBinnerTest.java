@@ -17,30 +17,38 @@
 package org.esa.beam.binning.operator;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.binning.*;
+import org.esa.beam.binning.BinManager;
+import org.esa.beam.binning.BinningContext;
+import org.esa.beam.binning.PlanetaryGrid;
+import org.esa.beam.binning.SpatialBin;
+import org.esa.beam.binning.SpatialBinConsumer;
+import org.esa.beam.binning.SpatialBinner;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.support.BinningContextImpl;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.binning.support.VariableContextImpl;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class SpatialProductBinnerTest {
+
     @Test
     public void testThatProductMustHaveAGeoCoding() throws Exception {
         BinningContext ctx = createValidCtx();
 
         try {
             MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
-            SpatialProductBinner.processProduct(new Product("p", "t", 32, 256), new SpatialBinner(ctx, mySpatialBinProcessor), 1, null);
+            SpatialProductBinner.processProduct(new Product("p", "t", 32, 256), new SpatialBinner(ctx, mySpatialBinProcessor),
+                                                1, new HashMap<Product, List<Band>>(), null);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // ok
@@ -62,7 +70,8 @@ public class SpatialProductBinnerTest {
         product.setPreferredTileSize(32, 16);
 
         MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
-        SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinProcessor), 1, ProgressMonitor.NULL);
+        SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinProcessor),
+                                            1, new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
         Assert.assertEquals(32 * 256, mySpatialBinProcessor.numObs);
     }
 
@@ -104,6 +113,7 @@ public class SpatialProductBinnerTest {
     }
 
     private static class MySpatialBinConsumer implements SpatialBinConsumer {
+
         int numObs;
 
         @Override

@@ -1,8 +1,10 @@
 package org.esa.beam.binning.operator;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
@@ -10,24 +12,23 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.main.GPT;
+import org.esa.beam.util.converters.JtsGeometryConverter;
 import org.esa.beam.util.io.FileUtils;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedMap;
 
-import static java.lang.Math.sqrt;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static java.lang.Math.*;
+import static org.junit.Assert.*;
 
 /**
  * Test that creates a local and a global L3 product from 5 source files.
@@ -134,6 +135,7 @@ public class BinningOpTest {
         binningOp.setEndDate("2002-01-10");
         binningOp.setBinningConfig(binningConfig);
         binningOp.setFormatterConfig(formatterConfig);
+        binningOp.setRegion(new JtsGeometryConverter().parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
 
         final Product targetProduct = binningOp.getTargetProduct();
         assertNotNull(targetProduct);
@@ -253,6 +255,7 @@ public class BinningOpTest {
         parameters.put("endDate", "2002-01-10");
         parameters.put("binningConfig", binningConfig);
         parameters.put("formatterConfig", formatterConfig);
+        parameters.put("region", "POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))");
 
         final Product targetProduct = GPF.createProduct("Binning", parameters,
                                                         createSourceProduct(obs1),
@@ -516,21 +519,46 @@ public class BinningOpTest {
 
     @Test
     public void testFilterAccordingToTime() throws Exception {
-        final Product product1 = new Product("name", "type", 10, 10);
-        final Product product2 = new Product("name", "type", 10, 10);
-        final Product product3 = new Product("name", "type", 10, 10);
+        final Product product1 = new Product("name1", "type", 10, 10);
+        final Product product2 = new Product("name2", "type", 10, 10);
+        final Product product3 = new Product("name3", "type", 10, 10);
         Product[] inputProducts = {product1, product2, product3};
         Product[] expectedProducts = {product1, product2, product3};
         Product[] filteredProducts = BinningOp.filterSourceProducts(inputProducts, ProductData.UTC.parse("01-JUL-2000 00:00:00"), ProductData.UTC.parse("01-AUG-2000 00:00:00"));
-        assertArrayEquals(inputProducts, filteredProducts);
+        assertArrayEquals(expectedProducts, filteredProducts);
 
         product1.setStartTime(ProductData.UTC.parse("02-JUL-2000 00:00:00"));
         product1.setEndTime(ProductData.UTC.parse("02-AUG-2000 00:00:00"));
 
-        inputProducts = new Product[] {product1, product2, product3};
-        expectedProducts = new Product[] {product2, product3};
+        inputProducts = new Product[]{product1, product2, product3};
+        expectedProducts = new Product[]{product2, product3};
         filteredProducts = BinningOp.filterSourceProducts(inputProducts, ProductData.UTC.parse("01-JUL-2000 00:00:00"), ProductData.UTC.parse("01-AUG-2000 00:00:00"));
         assertArrayEquals(expectedProducts, filteredProducts);
+    }
+
+    @Test
+    public void testSetRegionToProductsExtent() throws Exception {
+        BinningOp binningOp = new BinningOp();
+        final Product product1 = new Product("name1", "type", 10, 10);
+        final Product product2 = new Product("name2", "type", 10, 10);
+
+        product1.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 10, 10, 10.0, 50.0, 1.0, 1.0));
+        product2.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 10, 10, 15.0, 45.0, 1.0, 1.0));
+
+        binningOp.sourceProducts = new Product[]{product1, product2};
+        binningOp.setRegionToProductsExtent();
+        Geometry region = binningOp.getRegion();
+
+        GeneralPath shape = new GeneralPath();
+        shape.moveTo((float) region.getCoordinates()[0].x, (float) region.getCoordinates()[0].y);
+
+        for (int i = 1; i < region.getNumPoints(); i++) {
+            shape.lineTo((float) region.getCoordinates()[i].x, (float) region.getCoordinates()[i].y);
+        }
+
+        Rectangle2D.Double expected = new Rectangle2D.Double(10.0, 36.0, 14.0, 14.0);
+
+        assertEquals(expected, shape.getBounds2D());
     }
 
     private void assertGlobalBinningProductIsOk(Product targetProduct, File location, float obs1, float obs2, float obs3, float obs4, float obs5) throws IOException {
@@ -605,7 +633,8 @@ public class BinningOpTest {
 
         // Test pixel values of band "chl_sigma"
         //
-        final float sig = (float) sqrt((obs1 * obs1 + obs2 * obs2 + obs3 * obs3 + obs4 * obs4 + obs5 * obs5) / nob - mea * mea);
+        final float sig = (float) sqrt(
+                (obs1 * obs1 + obs2 * obs2 + obs3 * obs3 + obs4 * obs4 + obs5 * obs5) / nob - mea * mea);
         final float[] expectedSigs = new float[]{
                 _x_, _x_, _x_, _x_,
                 _x_, sig, sig, _x_,

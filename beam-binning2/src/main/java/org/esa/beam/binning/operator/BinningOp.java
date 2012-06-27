@@ -18,6 +18,7 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.esa.beam.binning.BinningContext;
@@ -48,8 +49,11 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.converters.JtsGeometryConverter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.io.WildcardMatcher;
+import org.geotools.geometry.jts.JTS;
 import ucar.ma2.InvalidRangeException;
 
+import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -60,11 +64,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -134,7 +141,8 @@ public class BinningOp extends Operator implements Output {
 
     @Parameter(converter = JtsGeometryConverter.class,
                description = "The considered geographical region as a geometry in well-known text format (WKT).\n" +
-                             "If not given, the entire Globe is assumed.")
+                             "If not given, the geographical region will be computed according to the extents of the " +
+                             "input products.")
     Geometry region;
 
     @Parameter(description =
@@ -174,12 +182,15 @@ public class BinningOp extends Operator implements Output {
     private transient ProductData.UTC maxDateUtc;
     private transient SortedMap<String, String> metadataProperties;
 
+    private final Map<Product, List<Band>> addedBands;
+
     public BinningOp() {
         this(new SpatialBinStoreImpl());
     }
 
     private BinningOp(SpatialBinStore spatialBinStore) {
         this.spatialBinStore = spatialBinStore;
+        addedBands = new HashMap<Product, List<Band>>();
     }
 
     public Geometry getRegion() {
@@ -238,39 +249,20 @@ public class BinningOp extends Operator implements Output {
         ProductData.UTC startDateUtc = getStartDateUtc("startDate");
         ProductData.UTC endDateUtc = getEndDateUtc("endDate");
 
-        if (startDateUtc != null && endDateUtc != null && endDateUtc.getAsDate().before(startDateUtc.getAsDate())) {
-            throw new OperatorException("End date '" + this.endDate + "' before start date '" + this.startDate + "'");
-        }
-        if (sourceProducts == null && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
-            throw new OperatorException("Either source products must be given or parameter 'sourceProductPaths' must be specified");
-        }
-        if (binningConfig == null) {
-            throw new OperatorException("Missing operator parameter 'binningConfig'");
-        }
-        if (binningConfig.getMaskExpr() == null) {
-            throw new OperatorException("Missing operator parameter 'binningConfig.maskExpr'");
-        }
-        if (binningConfig.getNumRows() <= 2) {
-            throw new OperatorException("Operator parameter 'binningConfig.numRows' must be greater than 2");
-        }
-        if (formatterConfig == null) {
-            throw new OperatorException("Missing operator parameter 'formatterConfig'");
-        }
-        if (formatterConfig.getOutputFile() == null) {
-            throw new OperatorException("Missing operator parameter 'formatterConfig.outputFile'");
-        }
-        if (metadataTemplateDir == null || "".equals(metadataTemplateDir.getPath())) {
-            metadataTemplateDir = new File(".");
-        }
-        if (!metadataTemplateDir.exists()) {
-            throw new OperatorException(
-                    "Directory given by 'metadataTemplateDir' does not exist: " + metadataTemplateDir);
-        }
+        validateInput(startDateUtc, endDateUtc);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         sourceProducts = filterSourceProducts(sourceProducts, startDateUtc, endDateUtc);
+
+        if (region == null) {
+            try {
+                setRegionToProductsExtent();
+            } catch (IOException e) {
+                throw new OperatorException(e);
+            }
+        }
 
         binningContext = binningConfig.createBinningContext();
         metadataProperties = new TreeMap<String, String>();
@@ -310,11 +302,82 @@ public class BinningOp extends Operator implements Output {
         processMetadataTemplates();
     }
 
+    void setRegionToProductsExtent() throws IOException {
+        Set<GeneralPath[]> extents = new HashSet<GeneralPath[]>();
+        if (sourceProductPaths != null) {
+            SortedSet<File> fileSet = new TreeSet<File>();
+            for (String filePattern : sourceProductPaths) {
+                WildcardMatcher.glob(filePattern, fileSet);
+            }
+            for (File file : fileSet) {
+                Product sourceProduct = ProductIO.readProduct(file);
+                if (sourceProduct != null) {
+                    try {
+                        extents.add(ProductUtils.createGeoBoundaryPaths(sourceProduct));
+                    } finally {
+                        sourceProduct.dispose();
+                    }
+                } else {
+                    getLogger().severe(String.format("Failed to read file '%s' (not a data product or reader missing)", file));
+                }
+            }
+        }
+
+        if (sourceProducts != null) {
+            for (Product sourceProduct : sourceProducts) {
+                extents.add(ProductUtils.createGeoBoundaryPaths(sourceProduct));
+            }
+        }
+
+        Area area = new Area();
+        for (GeneralPath[] extent : extents) {
+            for (GeneralPath generalPath : extent) {
+                area.add(new Area(generalPath));
+            }
+        }
+        region = JTS.shapeToGeometry(area, new GeometryFactory());
+    }
+
+    private void validateInput(ProductData.UTC startDateUtc, ProductData.UTC endDateUtc) {
+        if (startDateUtc != null && endDateUtc != null && endDateUtc.getAsDate().before(startDateUtc.getAsDate())) {
+            throw new OperatorException("End date '" + this.endDate + "' before start date '" + this.startDate + "'");
+        }
+        if (sourceProducts == null && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
+            throw new OperatorException("Either source products must be given or parameter 'sourceProductPaths' must be specified");
+        }
+        if (binningConfig == null) {
+            throw new OperatorException("Missing operator parameter 'binningConfig'");
+        }
+        if (binningConfig.getMaskExpr() == null) {
+            throw new OperatorException("Missing operator parameter 'binningConfig.maskExpr'");
+        }
+        if (binningConfig.getNumRows() <= 2) {
+            throw new OperatorException("Operator parameter 'binningConfig.numRows' must be greater than 2");
+        }
+        if (formatterConfig == null) {
+            throw new OperatorException("Missing operator parameter 'formatterConfig'");
+        }
+        if (formatterConfig.getOutputFile() == null) {
+            throw new OperatorException("Missing operator parameter 'formatterConfig.outputFile'");
+        }
+        if (metadataTemplateDir == null || "".equals(metadataTemplateDir.getPath())) {
+            metadataTemplateDir = new File(".");
+        }
+        if (!metadataTemplateDir.exists()) {
+            throw new OperatorException(
+                    "Directory given by 'metadataTemplateDir' does not exist: " + metadataTemplateDir);
+        }
+    }
+
     static Product[] filterSourceProducts(Product[] sourceProducts, ProductData.UTC startTime, ProductData.UTC endTime) {
         final List<Product> filteredSourceProducts = new ArrayList<Product>();
         if (sourceProducts == null) {
             return null;
         }
+        if (startTime == null || endTime == null) {
+            return sourceProducts;
+        }
+
         for (Product sourceProduct : sourceProducts) {
             final ProductData.UTC productStartTime = sourceProduct.getStartTime();
             final ProductData.UTC productEndTime = sourceProduct.getEndTime();
@@ -326,9 +389,9 @@ public class BinningOp extends Operator implements Output {
             } else if (!hasStartTime && !hasEndTime) {
                 filteredSourceProducts.add(sourceProduct);
             } else if (hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate())
-                && !hasEndTime ) {
+                       && !hasEndTime) {
                 filteredSourceProducts.add(sourceProduct);
-            } else if(!hasStartTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
+            } else if (!hasStartTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
                 filteredSourceProducts.add(sourceProduct);
             } else {
                 Debug.trace("Filtered out product '" + sourceProduct.getName() + "'");
@@ -338,14 +401,9 @@ public class BinningOp extends Operator implements Output {
     }
 
     private void cleanSourceProducts() {
-        if (sourceProducts == null) {
-            return;
-        }
-        for (Product sourceProduct : sourceProducts) {
-            for (int i = 0; i < binningContext.getVariableContext().getVariableCount(); i++) {
-                final String variableName = binningContext.getVariableContext().getVariableName(i);
-                final Band band = sourceProduct.getBand(variableName);
-                sourceProduct.removeBand(band);
+        for (Map.Entry<Product, List<Band>> entry : addedBands.entrySet()) {
+            for (Band band : entry.getValue()) {
+                entry.getKey().removeBand(band);
             }
         }
     }
@@ -495,7 +553,7 @@ public class BinningOp extends Operator implements Output {
         stopWatch.start();
         updateDateRangeUtc(sourceProduct);
         getLogger().info(String.format("Spatial binning of product '%s'...", sourceProduct.getName()));
-        final long numObs = SpatialProductBinner.processProduct(sourceProduct, spatialBinner, binningContext.getSuperSampling(), ProgressMonitor.NULL);
+        final long numObs = SpatialProductBinner.processProduct(sourceProduct, spatialBinner, binningContext.getSuperSampling(), addedBands, ProgressMonitor.NULL);
         stopWatch.stop();
         getLogger().info(String.format("Spatial binning of product '%s' done, %d observations seen, took %s", sourceProduct.getName(), numObs, stopWatch));
         sourceProductCount++;

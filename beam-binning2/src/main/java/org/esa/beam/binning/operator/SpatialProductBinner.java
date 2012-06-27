@@ -21,14 +21,25 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.binning.ObservationSlice;
 import org.esa.beam.binning.SpatialBinner;
 import org.esa.beam.binning.VariableContext;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.math.MathUtils;
 
-import java.awt.*;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class which performs a spatial binning of single input products.
@@ -44,13 +55,17 @@ public class SpatialProductBinner {
      * @param product         The source product.
      * @param spatialBinner   The spatial binner to be used.
      * @param superSampling   The super-sampling rate.
+     * @param addedBands      A container for the bands that are added during processing.
      * @param progressMonitor A progress monitor.
+     *
      * @return The total number of observations processed.
+     *
      * @throws IOException If an I/O error occurs.
      */
     public static long processProduct(Product product,
                                       SpatialBinner spatialBinner,
                                       Integer superSampling,
+                                      Map<Product, List<Band>> addedBands,
                                       ProgressMonitor progressMonitor) throws IOException {
         if (product.getGeoCoding() == null) {
             throw new IllegalArgumentException("product.getGeoCoding() == null");
@@ -72,6 +87,10 @@ public class SpatialProductBinner {
                                                    variableExpr);
                 band.setValidPixelExpression(variableContext.getValidMaskExpression());
                 product.addBand(band);
+                if (!addedBands.containsKey(product)) {
+                    addedBands.put(product, new ArrayList<Band>());
+                }
+                addedBands.get(product).add(band);
             }
         }
 
@@ -160,7 +179,8 @@ public class SpatialProductBinner {
     }
 
     private static ObservationSlice createObservationSlice(GeoCoding geoCoding, Raster maskTile, Raster[] varTiles, float[] superSamplingSteps) {
-        final ObservationSlice observationSlice = new ObservationSlice(varTiles, maskTile.getWidth() * maskTile.getHeight());
+        final ObservationSlice observationSlice = new ObservationSlice(varTiles,
+                                                                       maskTile.getWidth() * maskTile.getHeight());
         final int y1 = maskTile.getMinY();
         final int y2 = y1 + maskTile.getHeight();
         final int x1 = maskTile.getMinX();

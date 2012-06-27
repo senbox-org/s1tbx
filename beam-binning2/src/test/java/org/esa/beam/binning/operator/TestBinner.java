@@ -2,8 +2,15 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.io.WKTReader;
-import org.esa.beam.binning.*;
+import org.esa.beam.binning.BinningContext;
+import org.esa.beam.binning.SpatialBin;
+import org.esa.beam.binning.SpatialBinConsumer;
+import org.esa.beam.binning.SpatialBinner;
+import org.esa.beam.binning.TemporalBin;
+import org.esa.beam.binning.TemporalBinSource;
+import org.esa.beam.binning.TemporalBinner;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -15,7 +22,13 @@ import org.junit.Ignore;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * <p>
@@ -40,6 +53,7 @@ import java.util.*;
  */
 @Ignore
 public class TestBinner {
+
     public static void main(String[] args) throws Exception {
 
         String sourceDirFile = args[0];
@@ -87,7 +101,8 @@ public class TestBinner {
             System.out.println("reading " + sourceFile);
             final Product product = ProductIO.readProduct(sourceFile);
             System.out.println("processing " + sourceFile);
-            final long numObs = SpatialProductBinner.processProduct(product, spatialBinner, binningContext.getSuperSampling(), ProgressMonitor.NULL);
+            final long numObs = SpatialProductBinner.processProduct(product, spatialBinner,
+                                                                    binningContext.getSuperSampling(), new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
             System.out.println("done, " + numObs + " observations processed");
 
             stopWatch.stopAndTrace("Spatial binning of product took");
@@ -127,6 +142,7 @@ public class TestBinner {
     }
 
     private static class SpatialBinStore implements SpatialBinConsumer {
+
         // Note, we use a sorted map in order to sort entries on-the-fly
         final private SortedMap<Long, List<SpatialBin>> spatialBinMap = new TreeMap<Long, List<SpatialBin>>();
 
@@ -149,6 +165,7 @@ public class TestBinner {
     }
 
     private static class MyTemporalBinSource implements TemporalBinSource {
+
         private final List<TemporalBin> temporalBins;
 
         public MyTemporalBinSource(List<TemporalBin> temporalBins) {

@@ -19,8 +19,11 @@ package org.esa.beam.binning;
 import com.bc.ceres.core.Assert;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import org.geotools.geometry.jts.JTS;
 
-import java.awt.*;
+import java.awt.Rectangle;
+import java.awt.geom.GeneralPath;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -68,6 +71,7 @@ public class Reprojector {
      *
      * @param planetaryGrid The binning grid.
      * @param roiGeometry   The region of interest in geo-graphical coordinates.
+     *
      * @return The sub-region in pixel coordinates.
      */
     public static Rectangle computeRasterSubRegion(PlanetaryGrid planetaryGrid, Geometry roiGeometry) {
@@ -76,7 +80,8 @@ public class Reprojector {
         final int gridWidth = 2 * gridHeight;
         Rectangle outputRegion = new Rectangle(gridWidth, gridHeight);
         if (roiGeometry != null) {
-            final Coordinate[] coordinates = roiGeometry.getBoundary().getCoordinates();
+            final Coordinate[] coordinates = getBoundsCoordinates(roiGeometry);
+
             double gxmin = Double.POSITIVE_INFINITY;
             double gxmax = Double.NEGATIVE_INFINITY;
             double gymin = Double.POSITIVE_INFINITY;
@@ -97,8 +102,22 @@ public class Reprojector {
         return outputRegion;
     }
 
+    private static Coordinate[] getBoundsCoordinates(Geometry roiGeometry) {
+        // do not use ShapeWriter.toShape(Geometry) here, because it rounds
+        GeneralPath shape = new GeneralPath();
+        shape.moveTo((float) roiGeometry.getCoordinates()[0].x, (float) roiGeometry.getCoordinates()[0].y);
+
+        for (int i = 1; i < roiGeometry.getNumPoints(); i++) {
+            shape.lineTo((float) roiGeometry.getCoordinates()[i].x, (float) roiGeometry.getCoordinates()[i].y);
+        }
+
+        roiGeometry = JTS.shapeToGeometry(shape.getBounds2D(), new GeometryFactory());
+        return roiGeometry.getCoordinates();
+    }
+
     /**
      * @param planetaryGrid The planetary grid used for the binning.
+     *
      * @return The pixel size in degree of a raster resulting from the given {@code planetaryGrid}.
      */
     public static double getRasterPixelSize(PlanetaryGrid planetaryGrid) {
