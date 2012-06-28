@@ -16,27 +16,27 @@
 
 package org.esa.beam.statistics.calculators;
 
-import com.bc.ceres.core.ProgressMonitor;
-
-import java.util.Map;
+import com.bc.ceres.binding.PropertySet;
 
 /**
- * A statistics calculator is an implementation of an algorithm that calculates statistics on a set of measurement
- * values.
+ * A descriptor interface for {@link StatisticsCalculator} classes.
  *
  * @author Thomas Storm
  */
-public interface StatisticsCalculator {
+public interface StatisticsCalculatorDescriptor {
 
     /**
-     * Calculates the statistics of the given input pixel values and puts the results into a map; thus, implementors
-     * may compute multiple statistical values (such as min/max).
-     *
-     * @param values      The values on which the statistics shall be computed.
-     * @param pm          A progress monitor.
-     *
-     * @return A map containing the statistical value mapped to its name; e.g. something like "Min" => 0.07
+     * @return the corresponding {@link StatisticsCalculator}'s name.
      */
-    Map<String, Double> calculateStatistics(double[] values, ProgressMonitor pm);
+    String getName();
+
+    /**
+     * Creates an instance of the {@link StatisticsCalculator} corresponding to this descriptor.
+     *
+     * @param propertySet A set of properties the resulting {@link StatisticsCalculator} shall have.
+     *
+     * @return An instance of {@link StatisticsCalculator}.
+     */
+    StatisticsCalculator createStatisticsCalculator(PropertySet propertySet);
 
 }

@@ -12,12 +12,12 @@ Requirements for statistics operator
 - output ASCII file containing statistics, grouped by regions
 - output product containing bands for each statistic (num_obs, num_passes, p50)
 
-
 (*)
 - xth percentile
 - median (as shortcut to 50th percentile)
 - mean/sigma
 - min/max
 
-Important: this operator shall serve as basis for a weighted P90 operator, so make sure that computation of statistics
-is highly configurable, such that the operator will easily be extendible.
+This operator works on single pixels, not on bin cells; thus, it will not be able to fulfill the requirements of
+the weighted P90 tool, which needs to create output products. The beam-binning2 module will be needed to be extended
+accordingly.

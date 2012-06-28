@@ -63,7 +63,7 @@ public class StatisticsOp extends Operator implements Output {
                              "'?' (matches any single character).")
     String[] sourceProductPaths;
 
-    @Parameter(description = "The considered geographical region(s) given as polygons within an ESRI shape file")
+    @Parameter(description = "The considered geographical region(s) given as polygons within an ESRI shape file.")
     File shapefile;
 
     @Parameter(description =
@@ -78,16 +78,37 @@ public class StatisticsOp extends Operator implements Output {
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
+    @Parameter(description = "The band configurations. These configurations determine the output of the operator.")
+    BandConfiguration[] bandConfigurations;
 
 
     @Override
     public void initialize() throws OperatorException {
+        /*
+        Algorithm:
 
+        - validate input
+        - gather all source products
+        - for each region from shapefile:
+            - for each bandConfiguration:
+                - gather all pixels p for the band/expression that fit to validPixelExpression
+                - get results from StatisticsCalculator.calculateStatistics
+                - add to output: band/expression name, name of statisticsCalculator, id of region, pairs from results
 
-
+         */
 
 
     }
+
+    private void validateInput() {
+        if (startDate != null && endDate != null && endDate.getAsDate().before(startDate.getAsDate())) {
+            throw new OperatorException("End date '" + this.endDate + "' before start date '" + this.startDate + "'");
+        }
+        if (sourceProducts == null && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
+            throw new OperatorException("Either source products must be given or parameter 'sourceProductPaths' must be specified");
+        }
+    }
+
 
     public static class BandConfiguration {
 
@@ -95,16 +116,22 @@ public class StatisticsOp extends Operator implements Output {
                                  "be provided.")
         String sourceBandName;
 
-        @Parameter(description = "The band maths expression serving as input band. If empty, parameter 'sourceBandName'" +
-                                 "must be provided.")
+        @Parameter(description =
+                           "The band maths expression serving as input band. If empty, parameter 'sourceBandName'" +
+                           "must be provided.")
         String expression;
 
         @Parameter(description = "The band maths expression serving as criterion for whether to consider pixels for " +
                                  "computation.")
         String validPixelExpression;
 
-        @Parameter(description = "The name of the calculator that shall be used for this band.", converter = StatisticsCalculatorConverter.class)
+        @Parameter(description = "The name of the calculator that shall be used for this band.",
+                   converter = StatisticsCalculatorConverter.class)
         StatisticsCalculator statisticsCalculator;
+
+        @Parameter(description = "The weight coefficient that shall be used in the statistics calculator.",
+                   defaultValue = "Double.NaN")
+        double weightCoeff;
 
     }
 
