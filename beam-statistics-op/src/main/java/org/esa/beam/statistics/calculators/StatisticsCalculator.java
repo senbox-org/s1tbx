@@ -30,11 +30,12 @@ public interface StatisticsCalculator {
 
     /**
      * Calculates the statistics of the given input pixel values and puts the results into a map; thus, implementors
-     * may compute multiple statistical values (such as min/max) and put them into the map.
+     * may compute multiple statistical values (such as min/max).
      *
      * @param values The values on which the statistics shall be computed.
      * @param pm     A progress monitor.
-     * @return       A map containing the statistical value mapped to its name; e.g. something like "Min" => 0.07
+     *
+     * @return A map containing the statistical value mapped to its name; e.g. something like "Min" => 0.07
      */
     Map<String, Double> calculateStatistics(double[] values, ProgressMonitor pm);
 
