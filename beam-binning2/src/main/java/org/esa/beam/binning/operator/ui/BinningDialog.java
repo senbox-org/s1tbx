@@ -28,6 +28,7 @@ import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
+import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.VisatApp;
 
@@ -48,7 +49,7 @@ public class BinningDialog extends SingleTargetProductDialog {
     private final BinningFormModel formModel;
 
     protected BinningDialog(AppContext appContext, String title, String helpID) {
-        super(appContext, title, ID_APPLY_CLOSE, helpID);
+        super(appContext, title, ID_APPLY_CLOSE, helpID, new TargetProductSelectorModel(), true);
         if (appContext instanceof VisatApp) {
             ((VisatApp) appContext).getLogger().warning("");
         }

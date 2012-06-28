@@ -61,16 +61,21 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         this(appContext, title, buttonMask, helpID, new TargetProductSelectorModel());
     }
 
-    protected SingleTargetProductDialog(AppContext appContext, String title, int buttonMask, String helpID,
-                                        TargetProductSelectorModel model) {
+    protected SingleTargetProductDialog(AppContext appContext, String title, int buttonMask, String helpID, TargetProductSelectorModel model) {
+        this(appContext, title, buttonMask, helpID, model, false);
+    }
+
+    protected SingleTargetProductDialog(AppContext appContext, String title, int buttonMask, String helpID, TargetProductSelectorModel model, boolean alwaysWriteOutput) {
         super(appContext.getApplicationWindow(), title, buttonMask, helpID);
         this.appContext = appContext;
-        targetProductSelector = new TargetProductSelector(model);
+        targetProductSelector = new TargetProductSelector(model, alwaysWriteOutput);
         String homeDirPath = SystemUtils.getUserHomeDir().getPath();
         String saveDir = appContext.getPreferences().getPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR,
                                                                        homeDirPath);
         targetProductSelector.getModel().setProductDir(new File(saveDir));
-        targetProductSelector.getOpenInAppCheckBox().setText("Open in " + appContext.getApplicationName());
+        if (!alwaysWriteOutput) {
+            targetProductSelector.getOpenInAppCheckBox().setText("Open in " + appContext.getApplicationName());
+        }
         targetProductSelector.getModel().getValueContainer().addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
