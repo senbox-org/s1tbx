@@ -594,7 +594,6 @@ public class BinningOp extends Operator implements Output {
             }
         }
 
-
         getLogger().info(String.format("Writing mapped product '%s'...", formatterConfig.getOutputFile()));
         final MetadataElement globalAttributes = createGlobalAttributesElement();
         Formatter.format(binningContext,
