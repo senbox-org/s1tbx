@@ -1,6 +1,8 @@
 package org.esa.beam.framework.ui;
 
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.binding.BindingContext;
 
 import javax.measure.unit.NonSI;
@@ -12,12 +14,14 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
 /**
- * This user interface offers a world map and text fields to define region bounds.
- * The input values from the text fields and from the world map update the values of the bindingContext.
+ * This user interface provides a world map and text fields to define region bounds.
+ * The input values from the text fields and from the world map are reflected in the {@link BindingContext}, which can
+ * be retrieved using {@link #getBindingContext()}.
  */
 public class RegionBoundsInputUI {
 
@@ -48,7 +52,7 @@ public class RegionBoundsInputUI {
      * The created binding context can be retrieved via {@link #getBindingContext()}.
      */
     public RegionBoundsInputUI() {
-        this(15, 15, -15, -15);
+        this(75, 30, 35, -15);
     }
 
     /**
@@ -75,18 +79,44 @@ public class RegionBoundsInputUI {
      * The bindingContext has to contain four parameters: {@link #PROPERTY_NORTH_BOUND northBound} ,
      * {@link #PROPERTY_SOUTH_BOUND southBound}, {@link #PROPERTY_WEST_BOUND westBound} and
      * {@link #PROPERTY_EAST_BOUND eastBound}.</br>
-     * If the bindingContext contains valid geographic coordinates, these coordinates are used to initialize the user
+     * If the bindingContext contains geographic coordinates, these coordinates are used to initialize the user
      * interface.</br>
-     * If the values are invalid, default values will be used.</br>
      *
      * @param bindingContext The binding context which is needed for initialisation.
      */
     public RegionBoundsInputUI(final BindingContext bindingContext) {
         this.bindingContext = bindingContext;
 
+        final PropertySet propertySet = bindingContext.getPropertySet();
+        try {
+            if (propertySet.getProperty(PROPERTY_NORTH_BOUND).getValue() == null) {
+                propertySet.getProperty(PROPERTY_NORTH_BOUND).setValue(75.0);
+            }
+            if (propertySet.getProperty(PROPERTY_EAST_BOUND).getValue() == null) {
+                propertySet.getProperty(PROPERTY_EAST_BOUND).setValue(30.0);
+            }
+            if (propertySet.getProperty(PROPERTY_SOUTH_BOUND).getValue() == null) {
+                propertySet.getProperty(PROPERTY_SOUTH_BOUND).setValue(35.0);
+            }
+            if (propertySet.getProperty(PROPERTY_WEST_BOUND).getValue() == null) {
+                propertySet.getProperty(PROPERTY_WEST_BOUND).setValue(-15.0);
+            }
+        } catch (ValidationException e) {
+            // should never come here
+            throw new IllegalStateException(e);
+        }
+
+        final Double northBound = propertySet.getProperty(PROPERTY_NORTH_BOUND).<Double>getValue();
+        final Double eastBound = propertySet.getProperty(PROPERTY_EAST_BOUND).<Double>getValue();
+        final Double southBound = propertySet.getProperty(PROPERTY_SOUTH_BOUND).<Double>getValue();
+        final Double westBound = propertySet.getProperty(PROPERTY_WEST_BOUND).<Double>getValue();
+        if (!geoBoundsAreValid(northBound, eastBound, southBound, westBound)) {
+            throw new IllegalArgumentException(MessageFormat.format("Given geo-bounds ({0}, {1}, {2}, {3}) are invalid.",
+                                                                    northBound, eastBound, southBound, westBound));
+        }
+
         final WorldMapPaneDataModel worldMapPaneDataModel = new WorldMapPaneDataModel();
-        final RegionSelectableWorldMapPane worldMapPane;
-        worldMapPane = new RegionSelectableWorldMapPane(worldMapPaneDataModel, bindingContext);
+        final RegionSelectableWorldMapPane worldMapPane = new RegionSelectableWorldMapPane(worldMapPaneDataModel, bindingContext);
         worldMapPaneUI = worldMapPane.createUI();
 
         northLabel = new JLabel("North:");
@@ -179,8 +209,8 @@ public class RegionBoundsInputUI {
 
     /**
      * Returns the binding context which contains property values {@link #PROPERTY_NORTH_BOUND northBound} ,
-          * {@link #PROPERTY_SOUTH_BOUND southBound}, {@link #PROPERTY_WEST_BOUND westBound}, and
-          * {@link #PROPERTY_EAST_BOUND eastBound}. This method should be used to get the bounds set by the UI components.
+     * {@link #PROPERTY_SOUTH_BOUND southBound}, {@link #PROPERTY_WEST_BOUND westBound}, and
+     * {@link #PROPERTY_EAST_BOUND eastBound}. This method should be used to get the bounds set by the UI components.
      * It is needed when no binding context has been passed to the RegionBoundsInputUI initially.
      *
      * @return the binding context.
@@ -190,6 +220,10 @@ public class RegionBoundsInputUI {
     }
 
     private static BindingContext createBindingContext(double northBound, double eastBound, double southBound, double westBound) {
+        if (!geoBoundsAreValid(northBound, eastBound, southBound, westBound)) {
+            throw new IllegalArgumentException(MessageFormat.format("Given geo-bounds ({0}, {1}, {2}, {3}) are invalid.",
+                                                                    northBound, eastBound, southBound, westBound));
+        }
         final Bounds bounds = new Bounds(northBound, eastBound, southBound, westBound);
         final PropertyContainer container = PropertyContainer.createObjectBacked(bounds);
         return new BindingContext(container);
@@ -216,6 +250,23 @@ public class RegionBoundsInputUI {
         return new JLabel(NonSI.DEGREE_ANGLE.toString());
     }
 
+
+    static boolean geoBoundsAreValid(Double northBound, Double eastBound, Double southBound, Double westBound) {
+        return northBound > southBound
+               && eastBound > westBound
+               && isInValidLatitudeRange(northBound)
+               && isInValidLatitudeRange(southBound)
+               && isInValidLongitudeRange(eastBound)
+               && isInValidLongitudeRange(westBound);
+    }
+
+    private static boolean isInValidLongitudeRange(Double longitude) {
+        return longitude <= 180 && longitude >= -180;
+    }
+
+    private static boolean isInValidLatitudeRange(Double latitude) {
+        return latitude <= 90 && latitude >= -90;
+    }
 
     private static class DoubleFormatter extends JFormattedTextField.AbstractFormatter {
 
@@ -245,6 +296,7 @@ public class RegionBoundsInputUI {
     }
 
     private static class Bounds {
+
         double northBound;
         double eastBound;
         double southBound;
