@@ -16,6 +16,7 @@
 
 package org.esa.beam.collocation.visat;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.collocation.CollocateOp;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
@@ -54,7 +55,7 @@ class CollocationDialog extends SingleTargetProductDialog {
     }
 
     @Override
-    protected Product createTargetProduct() throws Exception {
+    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
         final Map<String, Product> productMap = new HashMap<String, Product>(5);
         productMap.put("master", form.getMasterProduct());
         productMap.put("slave", form.getSlaveProduct());

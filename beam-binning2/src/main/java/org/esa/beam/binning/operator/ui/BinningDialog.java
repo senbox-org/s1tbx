@@ -19,6 +19,7 @@ package org.esa.beam.binning.operator.ui;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.binning.operator.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningConfig;
 import org.esa.beam.binning.operator.BinningOp;
@@ -47,8 +48,8 @@ public class BinningDialog extends SingleTargetProductDialog {
     private final BinningFormModel formModel;
 
     protected BinningDialog(AppContext appContext, String title, String helpID) {
-        super(appContext, title, helpID);
-        if(appContext instanceof VisatApp) {
+        super(appContext, title, ID_APPLY_CLOSE, helpID);
+        if (appContext instanceof VisatApp) {
             ((VisatApp) appContext).getLogger().warning("");
         }
         formModel = new BinningFormModelImpl();
@@ -63,8 +64,10 @@ public class BinningDialog extends SingleTargetProductDialog {
     }
 
     @Override
-    protected Product createTargetProduct() throws Exception {
+    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new BinningOp.Spi());
+
+        pm.beginTask("Binning...", 100);
 
         final Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("region", formModel.getRegion());
@@ -73,7 +76,15 @@ public class BinningDialog extends SingleTargetProductDialog {
         parameters.put("outputBinnedData", formModel.shallOutputBinnedData());
         parameters.put("binningConfig", createBinningConfig());
         parameters.put("formatterConfig", createFormatterConfig());
-        return GPF.createProduct("Binning", parameters, formModel.getSourceProducts());
+
+        pm.worked(1);
+
+        final Product targetProduct = GPF.createProduct("Binning", parameters, formModel.getSourceProducts());
+
+        pm.worked(99);
+        pm.done();
+
+        return targetProduct;
     }
 
     private FormatterConfig createFormatterConfig() {

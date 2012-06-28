@@ -16,6 +16,7 @@
 
 package org.esa.beam.meris.radiometry.visat;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
@@ -28,7 +29,7 @@ import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.ArrayUtils;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import java.util.HashMap;
 
 class RadiometryDialog extends SingleTargetProductDialog {
@@ -54,7 +55,7 @@ class RadiometryDialog extends SingleTargetProductDialog {
     }
 
     @Override
-    protected Product createTargetProduct() throws Exception {
+    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
         final Product sourceProduct = form.getSourceProduct();
         final Product radioCorrProduct = GPF.createProduct(alias, parameterSupport.getParameterMap(), sourceProduct);
         if (isEnvisatFormatSelected() && getTargetProductSelector().getModel().isSaveToFileSelected()) {
@@ -86,7 +87,7 @@ class RadiometryDialog extends SingleTargetProductDialog {
             }
             if (!isEnvisatSource) {
                 final String msg = "If " + EnvisatConstants.ENVISAT_FORMAT_NAME + " is selected as output format, " +
-                        "the source product must be in the same format.";
+                                   "the source product must be in the same format.";
                 JOptionPane.showMessageDialog(this.getContent(), msg, "Invalid Settings", JOptionPane.ERROR_MESSAGE);
                 return false;
             }

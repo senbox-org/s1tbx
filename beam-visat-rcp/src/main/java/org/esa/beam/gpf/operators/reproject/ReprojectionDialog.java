@@ -18,12 +18,17 @@ package org.esa.beam.gpf.operators.reproject;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.ui.*;
+import org.esa.beam.framework.gpf.ui.DefaultAppContext;
+import org.esa.beam.framework.gpf.ui.OperatorMenu;
+import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
+import org.esa.beam.framework.gpf.ui.ParameterUpdater;
+import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -102,7 +107,7 @@ class ReprojectionDialog extends SingleTargetProductDialog {
     }
 
     @Override
-    protected Product createTargetProduct() throws Exception {
+    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
         final Map<String, Product> productMap = form.getProductMap();
         final Map<String, Object> parameterMap = new HashMap<String, Object>();
         form.updateParameterMap(parameterMap);

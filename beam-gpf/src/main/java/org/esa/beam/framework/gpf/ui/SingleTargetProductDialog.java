@@ -33,7 +33,8 @@ import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.JOptionPane;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -75,7 +76,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals("saveToFileSelected") ||
-                        evt.getPropertyName().equals("openInAppSelected")) {
+                    evt.getPropertyName().equals("openInAppSelected")) {
                     updateRunButton();
                 }
             }
@@ -124,7 +125,10 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
 
         Product targetProduct = null;
         try {
-            targetProduct = createTargetProduct();
+            TargetProductCreator targetProductCreator = new TargetProductCreator();
+            targetProductCreator.executeWithBlocking();
+            targetProduct = targetProductCreator.get();
+
             if (targetProduct == null) {
                 throw new NullPointerException("Target product is null.");
             }
@@ -193,7 +197,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
             if (existingProduct != null) {
                 String message = MessageFormat.format(
                         "A product with the name ''{0}'' is already opened in {1}.\n\n" +
-                                "Do you want to continue?",
+                        "Do you want to continue?",
                         productName, appContext.getApplicationName());
                 final int answer = JOptionPane.showConfirmDialog(getJDialog(), message,
                                                                  getTitle(), JOptionPane.YES_NO_OPTION);
@@ -207,7 +211,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
             if (productFile.exists()) {
                 String message = MessageFormat.format(
                         "The specified output file\n\"{0}\"\n already exists.\n\n" +
-                                "Do you want to overwrite the existing file?",
+                        "Do you want to overwrite the existing file?",
                         productFile.getPath());
                 final int answer = JOptionPane.showConfirmDialog(getJDialog(), message,
                                                                  getTitle(), JOptionPane.YES_NO_OPTION);
@@ -223,7 +227,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         File productFile = getTargetProductSelector().getModel().getProductFile();
         final String message = MessageFormat.format(
                 "The target product has been successfully written to\n{0}\n" +
-                        "Total time spend for processing: {2}",
+                "Total time spend for processing: {2}",
                 formatFile(productFile),
                 formatDuration(saveTime));
         showSuppressibleInformationDialog(message, "saveInfo");
@@ -232,8 +236,8 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
     private void showOpenInAppInfo() {
         final String message = MessageFormat.format(
                 "The target product has successfully been created and opened in {0}.\n\n" +
-                        "Actual processing of source to target data will be performed only on demand,\n" +
-                        "for example, if the target product is saved or an image view is opened.",
+                "Actual processing of source to target data will be performed only on demand,\n" +
+                "for example, if the target product is saved or an image view is opened.",
                 appContext.getApplicationName());
         showSuppressibleInformationDialog(message, "openInAppInfo");
     }
@@ -242,9 +246,9 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         File productFile = getTargetProductSelector().getModel().getProductFile();
         final String message = MessageFormat.format(
                 "The target product has been successfully written to\n" +
-                        "{0}\n" +
-                        "and has been opened in {1}.\n" +
-                        "Total time spend for processing: {2}\n",
+                "{0}\n" +
+                "and has been opened in {1}.\n" +
+                "Total time spend for processing: {2}\n",
                 formatFile(productFile),
                 appContext.getApplicationName(),
                 formatDuration(saveTime));
@@ -279,6 +283,18 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                                      infoMessage,
                                      getTitle(),
                                      JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private class TargetProductCreator extends ProgressMonitorSwingWorker<Product, Void> {
+
+        protected TargetProductCreator() {
+            super(getJDialog(), "Creating Target Product");
+        }
+
+        @Override
+        protected Product doInBackground(ProgressMonitor pm) throws Exception {
+            return createTargetProduct(pm);
+        }
     }
 
     private class ProductWriterSwingWorker extends ProgressMonitorSwingWorker<Product, Object> {
@@ -362,8 +378,11 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
      * The method should throw a {@link OperatorException} in order to signal "nominal" processing errors,
      * other exeption types are treated as internal errors.
      *
+     * @param pm A ProgressMonitor.
+     *
      * @return The target product.
+     *
      * @throws Exception if an error occurs, an {@link OperatorException} is signaling "nominal" processing errors.
      */
-    protected abstract Product createTargetProduct() throws Exception;
+    protected abstract Product createTargetProduct(ProgressMonitor pm) throws Exception;
 }

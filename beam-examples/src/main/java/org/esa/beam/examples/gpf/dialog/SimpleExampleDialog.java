@@ -1,5 +1,6 @@
 package org.esa.beam.examples.gpf.dialog;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -12,6 +13,7 @@ import org.esa.beam.framework.ui.AppContext;
  * Date: 13.07.11
  */
 public class SimpleExampleDialog extends SingleTargetProductDialog {
+
     private String alias;
     private OperatorParameterSupport parameterSupport;
     private SimpleForm form;
@@ -33,7 +35,7 @@ public class SimpleExampleDialog extends SingleTargetProductDialog {
     }
 
     @Override
-    protected Product createTargetProduct() throws Exception {
+    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
         final Product sourceProduct = form.getSourceProduct();
         return GPF.createProduct(alias, parameterSupport.getParameterMap(), sourceProduct);
     }

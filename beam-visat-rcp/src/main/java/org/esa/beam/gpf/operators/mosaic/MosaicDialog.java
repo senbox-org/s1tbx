@@ -16,6 +16,7 @@
 
 package org.esa.beam.gpf.operators.mosaic;
 
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.impl.ParserImpl;
@@ -85,7 +86,8 @@ class MosaicDialog extends SingleTargetProductDialog {
             return false;
         }
         final boolean varsNotSpecified = mosaicModel.getVariables() == null || mosaicModel.getVariables().length == 0;
-        final boolean condsNotSpecified = mosaicModel.getConditions() == null || mosaicModel.getConditions().length == 0;
+        final boolean condsNotSpecified =
+                mosaicModel.getConditions() == null || mosaicModel.getConditions().length == 0;
         if (varsNotSpecified && condsNotSpecified) {
             showErrorDialog("No variables or conditions specified.");
             return false;
@@ -95,7 +97,7 @@ class MosaicDialog extends SingleTargetProductDialog {
     }
 
     @Override
-    protected Product createTargetProduct() throws Exception {
+    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
         final MosaicFormModel formModel = form.getFormModel();
         return GPF.createProduct("Mosaic", formModel.getParameterMap(), formModel.getSourceProductMap());
     }

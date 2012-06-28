@@ -20,6 +20,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
@@ -34,7 +35,9 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.ui.AppContext;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -124,7 +127,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
     }
 
     @Override
-    protected Product createTargetProduct() throws Exception {
+    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
         final HashMap<String, Product> sourceProducts = ioParametersPanel.createSourceProductsMap();
         return GPF.createProduct(operatorName, parameterSupport.getParameterMap(), sourceProducts);
     }
@@ -238,7 +241,8 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             Object object = propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
             if (object != null) {
                 Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
-                boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.isNotEmpty() && !propertyDescriptor.getType().isArray();
+                boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.isNotEmpty() &&
+                                            !propertyDescriptor.getType().isArray();
                 values = RasterDataNodeValues.getNames(product, rasterDataNodeType, includeEmptyValue);
             }
         }
