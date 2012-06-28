@@ -369,7 +369,19 @@ public class RegionSelectableWorldMapPane {
                     && eastBound != null
                     && westBound != null
                     && northBound > southBound
-                    && eastBound > westBound;
+                    && eastBound > westBound
+                    && isInValidLatitudeRange(northBound)
+                    && isInValidLatitudeRange(southBound)
+                    && isInValidLongitudeRange(eastBound)
+                    && isInValidLongitudeRange(westBound);
+        }
+
+        private boolean isInValidLongitudeRange(Double longitude) {
+            return longitude <= 180 && longitude >= -180;
+        }
+
+        private boolean isInValidLatitudeRange(Double latitude) {
+            return latitude <= 90 && latitude >= -90;
         }
 
         private Rectangle2D.Double createRectangle(Rectangle2D.Double rectangularShape) {
