@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -23,20 +23,16 @@ import com.jidesoft.swing.AutoResizingTextArea;
 import com.jidesoft.swing.TitledSeparator;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.RegionSelectableWorldMapPane;
-import org.esa.beam.framework.ui.WorldMapPaneDataModel;
+import org.esa.beam.framework.ui.RegionBoundsInputUI;
 
-import javax.measure.unit.NonSI;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import java.awt.Color;
 import java.awt.Component;
@@ -47,9 +43,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -107,7 +100,7 @@ class BinningFilterPanel extends JPanel {
         GridBagUtils.addToPanel(this, wktOption, gbc, "gridy=3");
         GridBagUtils.addToPanel(this, createWktInputPanel(), gbc, "gridy=4");
         GridBagUtils.addToPanel(this, regionOption, gbc, "gridy=5");
-        GridBagUtils.addToPanel(this, createBoundsInputPanel(), gbc, "gridy=6,insets.bottom=5");
+        GridBagUtils.addToPanel(this, createAndInitBoundsUI(), gbc, "gridy=6,insets.bottom=5");
 
         GridBagUtils.addToPanel(this, new TitledSeparator("Specify temporal filtering", SwingConstants.CENTER), gbc, "gridy=7,insets.bottom=3");
         GridBagUtils.addToPanel(this, createTemporalFilterPanel(), gbc, "gridy=8");
@@ -138,88 +131,21 @@ class BinningFilterPanel extends JPanel {
         return scrollPane;
     }
 
-    private JPanel createBoundsInputPanel() {
-        final WorldMapPaneDataModel worldMapPaneDataModel = new WorldMapPaneDataModel();
-        final RegionSelectableWorldMapPane worldMapPane = new RegionSelectableWorldMapPane(worldMapPaneDataModel, bindingContext);
+    private JPanel createAndInitBoundsUI() {
+        final RegionBoundsInputUI regionBoundsInputUI;
+        regionBoundsInputUI = new RegionBoundsInputUI(bindingContext);
 
-        final DoubleFormatter doubleFormatter = new DoubleFormatter("###0.0##");
-
-        final JLabel westDegreeLabel = new JLabel(NonSI.DEGREE_ANGLE.toString());
-        final JLabel westLabel = new JLabel("West:");
-        final JFormattedTextField westLonField = new JFormattedTextField(doubleFormatter);
-        westLonField.setHorizontalAlignment(JTextField.RIGHT);
-        bindingContext.bind(PROPERTY_WEST_BOUND, westLonField);
-        bindingContext.bindEnabledState(PROPERTY_WEST_BOUND, false, BinningFormModel.PROPERTY_KEY_REGION, false);
-        bindingContext.getBinding(PROPERTY_WEST_BOUND).addComponent(westLabel);
-        bindingContext.getBinding(PROPERTY_WEST_BOUND).addComponent(westDegreeLabel);
-
-        final JLabel eastDegreeLabel = new JLabel(NonSI.DEGREE_ANGLE.toString());
-        final JLabel eastLabel = new JLabel("East:");
-        final JFormattedTextField eastLonField = new JFormattedTextField(doubleFormatter);
-        eastLonField.setHorizontalAlignment(JTextField.RIGHT);
-        bindingContext.bind(PROPERTY_EAST_BOUND, eastLonField);
-        bindingContext.bindEnabledState(PROPERTY_EAST_BOUND, false, BinningFormModel.PROPERTY_KEY_REGION, false);
-        bindingContext.getBinding(PROPERTY_EAST_BOUND).addComponent(eastLabel);
-        bindingContext.getBinding(PROPERTY_EAST_BOUND).addComponent(eastDegreeLabel);
-
-        final JLabel northLabel = new JLabel("North:");
-        final JLabel northDegreeLabel = new JLabel(NonSI.DEGREE_ANGLE.toString());
-        final JFormattedTextField northLatField = new JFormattedTextField(doubleFormatter);
-        northLatField.setHorizontalAlignment(JTextField.RIGHT);
-        bindingContext.bind(PROPERTY_NORTH_BOUND, northLatField);
-        bindingContext.bindEnabledState(PROPERTY_NORTH_BOUND, false, BinningFormModel.PROPERTY_KEY_REGION, false);
-        bindingContext.getBinding(PROPERTY_NORTH_BOUND).addComponent(northLabel);
-        bindingContext.getBinding(PROPERTY_NORTH_BOUND).addComponent(northDegreeLabel);
-
-        final JLabel southLabel = new JLabel("South:");
-        final JLabel southDegreeLabel = new JLabel(NonSI.DEGREE_ANGLE.toString());
-        final JFormattedTextField southLatField = new JFormattedTextField(doubleFormatter);
-        southLatField.setHorizontalAlignment(JTextField.RIGHT);
-        bindingContext.bind(PROPERTY_SOUTH_BOUND, southLatField);
-        bindingContext.bindEnabledState(PROPERTY_SOUTH_BOUND, false, BinningFormModel.PROPERTY_KEY_REGION, false);
-        bindingContext.getBinding(PROPERTY_SOUTH_BOUND).addComponent(southLabel);
-        bindingContext.getBinding(PROPERTY_SOUTH_BOUND).addComponent(southDegreeLabel);
-
-        bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_REGION).setPropertyValue(false);
-
-        westLonField.setMinimumSize(new Dimension(120, 20));
-        westLonField.setPreferredSize(new Dimension(120, 20));
-        northLatField.setMinimumSize(new Dimension(120, 20));
-        northLatField.setPreferredSize(new Dimension(120, 20));
-        eastLonField.setMinimumSize(new Dimension(120, 20));
-        eastLonField.setPreferredSize(new Dimension(120, 20));
-        southLatField.setMinimumSize(new Dimension(120, 20));
-        southLatField.setPreferredSize(new Dimension(120, 20));
-
-        final JPanel worldMapPaneUI = worldMapPane.createUI();
-        worldMapPaneUI.setEnabled(false);
-        bindingContext.addPropertyChangeListener(new PropertyChangeListener() {
+        bindingContext.addPropertyChangeListener(BinningFormModel.PROPERTY_KEY_REGION, new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                if(evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_REGION)) {
-                    final Boolean specifyRegion = (Boolean) bindingContext.getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_REGION).getValue();
-                    worldMapPaneUI.setEnabled(specifyRegion);
-                }
+                final boolean enabled = (Boolean) evt.getNewValue();
+                regionBoundsInputUI.setEnabled(enabled);
             }
         });
 
-        final JPanel panel = GridBagUtils.createPanel();
-        final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
-        GridBagUtils.addToPanel(panel, westLabel, gbc, "anchor=WEST,gridx=0,gridy=1");
-        GridBagUtils.addToPanel(panel, westLonField, gbc, "gridx=1");
-        GridBagUtils.addToPanel(panel, westDegreeLabel, gbc, "gridx=2");
-        GridBagUtils.addToPanel(panel, northLabel, gbc, "gridx=3,gridy=0");
-        GridBagUtils.addToPanel(panel, northLatField, gbc, "gridx=4");
-        GridBagUtils.addToPanel(panel, northDegreeLabel, gbc, "gridx=5");
-        GridBagUtils.addToPanel(panel, eastLabel, gbc, "gridx=6,gridy=1");
-        GridBagUtils.addToPanel(panel, eastLonField, gbc, "gridx=7");
-        GridBagUtils.addToPanel(panel, eastDegreeLabel, gbc, "gridx=8");
-        GridBagUtils.addToPanel(panel, southLabel, gbc, "gridx=3,gridy=2");
-        GridBagUtils.addToPanel(panel, southLatField, gbc, "gridx=4");
-        GridBagUtils.addToPanel(panel, southDegreeLabel, gbc, "gridx=5");
-        GridBagUtils.addToPanel(panel, worldMapPaneUI, gbc, "gridy=3,gridx=0,gridwidth=REMAINDER,insets.top=10,anchor=CENTER");
+        regionBoundsInputUI.setEnabled(false);
 
-        return panel;
+        return regionBoundsInputUI.getUI();
     }
 
     private Component createTemporalFilterPanel() {
@@ -283,30 +209,4 @@ class BinningFilterPanel extends JPanel {
         }
     }
 
-    private static class DoubleFormatter extends JFormattedTextField.AbstractFormatter {
-
-        private final DecimalFormat format;
-
-        DoubleFormatter(String pattern) {
-            final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
-            format = new DecimalFormat(pattern, decimalFormatSymbols);
-
-            format.setParseIntegerOnly(false);
-            format.setParseBigDecimal(false);
-            format.setDecimalSeparatorAlwaysShown(true);
-        }
-
-        @Override
-        public Object stringToValue(String text) throws ParseException {
-            return format.parse(text).doubleValue();
-        }
-
-        @Override
-        public String valueToString(Object value) throws ParseException {
-            if (value == null) {
-                return "";
-            }
-            return format.format(value);
-        }
-    }
 }

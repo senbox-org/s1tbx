@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -61,6 +61,11 @@ import java.util.Map;
  * @author Tonio Fincke
  */
 public class RegionSelectableWorldMapPane {
+
+    public static final String NORTH_BOUND = "northBound";
+    public static final String SOUTH_BOUND = "southBound";
+    public static final String WEST_BOUND = "westBound";
+    public static final String EAST_BOUND = "eastBound";
 
     private static final int OFFSET = 6;
 
@@ -180,9 +185,9 @@ public class RegionSelectableWorldMapPane {
 
         private void updateRectanglesForDragCursor() {
             Rectangle2D.Double rectangleForDragCursor = new Rectangle2D.Double(movableRectangle.getX() + OFFSET,
-                    movableRectangle.getY() + OFFSET,
-                    movableRectangle.getWidth() - 2 * OFFSET,
-                    movableRectangle.getHeight() - 2 * OFFSET);
+                                                                               movableRectangle.getY() + OFFSET,
+                                                                               movableRectangle.getWidth() - 2 * OFFSET,
+                                                                               movableRectangle.getHeight() - 2 * OFFSET);
             rectangleMap.get(MOVE).setRect(rectangleForDragCursor);
 
             final double x = rectangleForDragCursor.getX();
@@ -244,7 +249,7 @@ public class RegionSelectableWorldMapPane {
 
         @Override
         public void zoomToProduct(Product product) {
-            if(product != null) {
+            if (product != null) {
                 super.zoomToProduct(product);
             }
             Rectangle2D modelBounds = figureEditor.getFigureCollection().getFigure(0).getBounds();
@@ -258,7 +263,7 @@ public class RegionSelectableWorldMapPane {
         @Override
         public void setEnabled(boolean enabled) {
             super.setEnabled(enabled);
-            if(enabled) {
+            if (enabled) {
                 worldMapPane.getLayerCanvas().addMouseMotionListener(cursorChanger);
                 worldMapPane.getLayerCanvas().removeOverlay(greyOverlay);
                 worldMapPane.setPanSupport(panSupport);
@@ -330,8 +335,18 @@ public class RegionSelectableWorldMapPane {
                 upperLeftGeoPos = geoCoding.getGeoPos(upperLeftPixel, null);
                 lowerRightGeoPos = geoCoding.getGeoPos(lowerRightPixel, null);
             } else {
-                upperLeftGeoPos = new GeoPos(75.0F, -15.0F);
-                lowerRightGeoPos = new GeoPos(35.0F, 30.0F);
+                Double northBound = bindingContext.getPropertySet().getValue(NORTH_BOUND);
+                Double eastBound = bindingContext.getPropertySet().getValue(EAST_BOUND);
+                Double southBound = bindingContext.getPropertySet().getValue(SOUTH_BOUND);
+                Double westBound = bindingContext.getPropertySet().getValue(WEST_BOUND);
+
+                if (valuesAreValid(northBound, eastBound, southBound, westBound)) {
+                    upperLeftGeoPos = new GeoPos(northBound.floatValue(), westBound.floatValue());
+                    lowerRightGeoPos = new GeoPos(southBound.floatValue(), eastBound.floatValue());
+                } else {
+                    upperLeftGeoPos = new GeoPos(30.0F, -30.0F);
+                    lowerRightGeoPos = new GeoPos(-30.0F, 30.0F);
+                }
             }
             Viewport viewport = worldMapPane.getLayerCanvas().getViewport();
             AffineTransform modelToViewTransform = viewport.getModelToViewTransform();
@@ -339,8 +354,8 @@ public class RegionSelectableWorldMapPane {
             Point2D.Double upperLeft = modelToView(upperLeftGeoPos, modelToViewTransform);
 
             Rectangle2D.Double rectangularShape = new Rectangle2D.Double(upperLeft.x, upperLeft.y,
-                    lowerRight.x - upperLeft.x,
-                    lowerRight.y - upperLeft.y);
+                                                                         lowerRight.x - upperLeft.x,
+                                                                         lowerRight.y - upperLeft.y);
             selectionRectangle = createRectangle(rectangularShape);
             movableRectangle = createRectangle(rectangularShape);
             defaultRectangle = createRectangle(rectangularShape);
@@ -348,9 +363,18 @@ public class RegionSelectableWorldMapPane {
             defaultShape = viewport.getViewToModelTransform().createTransformedShape(rectangularShape);
         }
 
+        private boolean valuesAreValid(Double northBound, Double eastBound, Double southBound, Double westBound) {
+            return northBound != null
+                    && southBound != null
+                    && eastBound != null
+                    && westBound != null
+                    && northBound > southBound
+                    && eastBound > westBound;
+        }
+
         private Rectangle2D.Double createRectangle(Rectangle2D.Double rectangularShape) {
             return new Rectangle2D.Double(rectangularShape.getX(), rectangularShape.getY(),
-                    rectangularShape.getWidth(),rectangularShape.getHeight());
+                                          rectangularShape.getWidth(), rectangularShape.getHeight());
         }
 
         private Point2D.Double modelToView(GeoPos geoPos, AffineTransform modelToView) {
@@ -369,10 +393,6 @@ public class RegionSelectableWorldMapPane {
         private static final int EAST_BORDER = 1;
         private static final int SOUTH_BORDER = 2;
         private static final int WEST_BORDER = 3;
-        private static final String NORTH_BOUND = "northBound";
-        private static final String SOUTH_BOUND = "southBound";
-        private static final String WEST_BOUND = "westBound";
-        private static final String EAST_BOUND = "eastBound";
 
         private Point point;
         private int rectangleLongitude;
@@ -455,7 +475,7 @@ public class RegionSelectableWorldMapPane {
                             && selectionRectangle.getWidth() == widthOfUpdatedRectangle
                             && selectionRectangle.getHeight() == heightOfUpdatedRectangle)) {
                 setMovableRectangleInImageCoordinates(xOfUpdatedRectangle, yOfUpdatedRectangle,
-                        widthOfUpdatedRectangle, heightOfUpdatedRectangle);
+                                                      widthOfUpdatedRectangle, heightOfUpdatedRectangle);
                 Shape newFigureShape = getViewToModelTransform(event).createTransformedShape(movableRectangle);
                 final Rectangle2D modelRectangle = newFigureShape.getBounds2D();
 
@@ -541,7 +561,7 @@ public class RegionSelectableWorldMapPane {
                 final Object eastValue = propertySet.getProperty(EAST_BOUND).getValue();
                 final Object northValue = propertySet.getProperty(NORTH_BOUND).getValue();
 
-                if(westValue == null || southValue == null || eastValue == null || northValue == null) {
+                if (westValue == null || southValue == null || eastValue == null || northValue == null) {
                     return;
                 }
 
@@ -607,9 +627,9 @@ public class RegionSelectableWorldMapPane {
 
         private Rectangle2D.Double createIntersectionRectangle() {
             return new Rectangle2D.Double(selectionRectangle.getX() - OFFSET,
-                    selectionRectangle.getY() - OFFSET,
-                    selectionRectangle.getWidth() + 2 * OFFSET,
-                    selectionRectangle.getHeight() + 2 * OFFSET);
+                                          selectionRectangle.getY() - OFFSET,
+                                          selectionRectangle.getWidth() + 2 * OFFSET,
+                                          selectionRectangle.getHeight() + 2 * OFFSET);
         }
 
     }
@@ -622,7 +642,7 @@ public class RegionSelectableWorldMapPane {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if(isEnabled()) {
+            if (isEnabled()) {
                 regionSelectionInteractor.reset();
             }
         }
