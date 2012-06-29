@@ -160,14 +160,13 @@ public class StatisticsOpTest {
     }
 
     @Test
-    public void testGetPixelValues() throws Exception {
+    public void testGetPixelValues_Triangle() throws Exception {
         final StatisticsOp statisticsOp = new StatisticsOp();
         final GeometryFactory factory = new GeometryFactory();
         final Polygon region = new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
                 new Coordinate(13.56552, 38.366566),
                 new Coordinate(13.58868, 38.36225),
                 new Coordinate(13.582469, 38.34155),
-                new Coordinate(13.559316, 38.34586),
                 new Coordinate(13.56552, 38.366566)
         }), factory), new LinearRing[0], factory);
         final double[] pixelValues = statisticsOp.getPixelValues(
@@ -176,8 +175,31 @@ public class StatisticsOpTest {
 
         final double[] expected =
                 {0.83418011, 0.83418011, 0.695856511,
+                             0.69585651, 0.775825023,
+                                         0.721552133};
+        assertArrayEquals(expected, pixelValues, 1E-6);
+    }
+
+    @Test
+    public void testGetPixelValues_Rhomb() throws Exception {
+        final StatisticsOp statisticsOp = new StatisticsOp();
+        final GeometryFactory factory = new GeometryFactory();
+        final Polygon region = new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
+                new Coordinate(13.577101, 38.3664407),
+                new Coordinate(13.585574, 38.351902),
+                new Coordinate(13.570892, 38.343708),
+                new Coordinate(13.562417, 38.356213),
+                new Coordinate(13.577101, 38.3664407)
+        }), factory), new LinearRing[0], factory);
+        final double[] pixelValues = statisticsOp.getPixelValues(
+                ProductIO.readProduct(getClass().getResource("testProduct1.dim").getFile()),
+                "algal_2", region);
+
+        final double[] expected = {
+                             0.83418011,
                  0.69585651, 0.69585651, 0.775825023,
-                 0.83418011, 0.80447363, 0.721552133};
+                             0.80447363
+        };
         assertArrayEquals(expected, pixelValues, 1E-6);
     }
 
