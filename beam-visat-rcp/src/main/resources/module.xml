@@ -27,8 +27,10 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 4.10.4<br/>
+          [BEAM-1412] Profile plot uses wrong pixels for shape in projected products<br/>
         <p>Changes in 4.10.3<br/>
-          [BEAM-1409] Import vector data into reprojected product (e.g. LANDSAT) fails
+          [BEAM-1409] Import vector data into reprojected product (e.g. LANDSAT) fails<br/>
         <p>Changes in 4.10.1<br/>
           [BEAM-1404] Image views shall draw pixel grid at high zoom levels<br/>
         <p>Changes in 4.10<br/>
