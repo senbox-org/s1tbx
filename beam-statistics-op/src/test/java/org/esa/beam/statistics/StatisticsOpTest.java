@@ -20,16 +20,12 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-<<<<<<< HEAD
-=======
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Product;
->>>>>>> extracting pixel values from a band for a region
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -156,7 +152,6 @@ public class StatisticsOpTest {
                         new Coordinate(13.8, 38)
                 }), factory), new LinearRing[0], factory)
         );
-
     }
 
     @Test
