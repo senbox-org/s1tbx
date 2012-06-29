@@ -18,6 +18,7 @@ package org.esa.beam.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
@@ -29,8 +30,15 @@ import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptor;
 import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptorRegistry;
+import org.esa.beam.util.FeatureUtils;
+import org.geotools.data.FeatureSource;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.text.ParseException;
 
 /**
@@ -48,7 +56,7 @@ import java.text.ParseException;
                   version = "1.0",
                   authors = "Thomas Storm",
                   copyright = "(c) 2012 by Brockmann Consult GmbH",
-                  description = "Computes statistics for any number of source products.")
+                  description = "Computes statistics for an arbitrary number of source products.")
 public class StatisticsOp extends Operator implements Output {
 
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
@@ -64,8 +72,10 @@ public class StatisticsOp extends Operator implements Output {
                              "'?' (matches any single character).")
     String[] sourceProductPaths;
 
-    @Parameter(description = "The considered geographical region(s) given as polygons within an ESRI shape file.")
-    File shapefile;
+    @Parameter(description =
+                       "An ESRI shapefile, providing the considered geographical region(s) given as polygons. If " +
+                       "null, all pixels are considered.")
+    URL shapefile;
 
     @Parameter(description =
                        "The start date. If not given, taken from the 'oldest' source product. Products that have " +
@@ -82,6 +92,7 @@ public class StatisticsOp extends Operator implements Output {
     @Parameter(description = "The band configurations. These configurations determine the output of the operator.")
     BandConfiguration[] bandConfigurations;
 
+    Geometry[] regions;
 
     @Override
     public void initialize() throws OperatorException {
@@ -99,9 +110,30 @@ public class StatisticsOp extends Operator implements Output {
          */
 
 
+        validateInput();
+        extractRegions();
+
+
     }
 
-    private void validateInput() {
+    void extractRegions() {
+        try {
+            final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = FeatureUtils.getFeatureSource(shapefile);
+            final FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures();
+            regions = new Geometry[features.size()];
+            final FeatureIterator<SimpleFeature> featureIterator = features.features();
+            int i = 0;
+            while (featureIterator.hasNext()) {
+                final SimpleFeature feature = featureIterator.next();
+                final Geometry defaultGeometry = (Geometry) feature.getDefaultGeometry();
+                regions[i++] = defaultGeometry;
+            }
+        } catch (IOException e) {
+            throw new OperatorException("Unable to create URL from shapefile path '" + shapefile + "'.", e);
+        }
+    }
+
+    void validateInput() {
         if (startDate != null && endDate != null && endDate.getAsDate().before(startDate.getAsDate())) {
             throw new OperatorException("End date '" + this.endDate + "' before start date '" + this.startDate + "'");
         }
@@ -136,7 +168,7 @@ public class StatisticsOp extends Operator implements Output {
 
     }
 
-    static class UtcConverter implements Converter<ProductData.UTC> {
+    public static class UtcConverter implements Converter<ProductData.UTC> {
 
         @Override
         public ProductData.UTC parse(String text) throws ConversionException {
@@ -159,12 +191,12 @@ public class StatisticsOp extends Operator implements Output {
 
     }
 
-    static class StatisticsCalculatorDescriptorConverter implements Converter<StatisticsCalculatorDescriptor> {
+    public static class StatisticsCalculatorDescriptorConverter implements Converter<StatisticsCalculatorDescriptor> {
 
         @Override
         public StatisticsCalculatorDescriptor parse(String text) throws ConversionException {
             final StatisticsCalculatorDescriptor descriptor = StatisticsCalculatorDescriptorRegistry.getInstance().getStatisticsCalculatorDescriptor(text);
-            if(descriptor == null) {
+            if (descriptor == null) {
                 throw new ConversionException("No descriptor '" + text + "' registered.");
             }
             return descriptor;

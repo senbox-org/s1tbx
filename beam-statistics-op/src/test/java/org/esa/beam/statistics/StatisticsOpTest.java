@@ -18,8 +18,10 @@ package org.esa.beam.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.statistics.calculators.PercentileStatisticsCalculator;
 import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptor;
 import org.junit.Test;
@@ -77,6 +79,56 @@ public class StatisticsOpTest {
         expectException(converter, "Perzentil");
 
         expectNotImplementedException(converter, new PercentileStatisticsCalculator.Descriptor());
+    }
+
+    @Test
+    public void testValidateInput() throws Exception {
+        final StatisticsOp statisticsOp = new StatisticsOp();
+        statisticsOp.startDate = ProductData.UTC.parse("2010-01-31 14:46:23", "yyyy-MM-ss hh:mm:ss");
+        statisticsOp.endDate = ProductData.UTC.parse("2010-01-31 14:45:23", "yyyy-MM-ss hh:mm:ss");
+
+        try {
+            statisticsOp.validateInput();
+            fail();
+        } catch (OperatorException expected) {
+            assertTrue(expected.getMessage().contains("before start date"));
+        }
+
+        statisticsOp.endDate = ProductData.UTC.parse("2010-01-31 14:47:23", "yyyy-MM-ss hh:mm:ss");
+
+        try {
+            statisticsOp.validateInput();
+            fail();
+        } catch (OperatorException expected) {
+            assertTrue(expected.getMessage().contains("must be given"));
+        }
+    }
+
+    @Test
+    public void testExtractRegions() throws Exception {
+        final StatisticsOp statisticsOp = new StatisticsOp();
+        statisticsOp.shapefile = getClass().getResource("polygons.shp");
+        statisticsOp.extractRegions();
+
+        assertEquals(3, statisticsOp.regions.length);
+
+        for (Geometry region : statisticsOp.regions) {
+            assertNotNull(region);
+        }
+
+        final Geometry firstRegion = statisticsOp.regions[0];
+        assertEquals(5, firstRegion.getCoordinates().length);
+        assertEquals(firstRegion.getCoordinates()[4], firstRegion.getCoordinates()[0]);
+
+        final Geometry secondRegion = statisticsOp.regions[1];
+        assertEquals(13, secondRegion.getCoordinates().length);
+        assertEquals(secondRegion.getCoordinates()[12], secondRegion.getCoordinates()[0]);
+
+        final Geometry thirdRegion = statisticsOp.regions[2];
+        assertEquals(7, thirdRegion.getCoordinates().length);
+        assertEquals(thirdRegion.getCoordinates()[6], thirdRegion.getCoordinates()[0]);
+
+
     }
 
     private static void expectException(Converter converter, String text) {
