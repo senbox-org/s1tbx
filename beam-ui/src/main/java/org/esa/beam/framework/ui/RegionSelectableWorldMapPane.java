@@ -18,6 +18,7 @@ package org.esa.beam.framework.ui;
 
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
@@ -82,7 +83,25 @@ public class RegionSelectableWorldMapPane {
     private Shape defaultShape;
     private final RegionSelectableWorldMapPane.RegionSelectionDecoratingPanSupport panSupport;
 
+    /**
+     * Creates a RegionSelectableWorldMapPane.
+     *
+     * @param dataModel
+     * @param bindingContext The binding context which has to contain at least the following properties:
+     *                       {@link #NORTH_BOUND northBound} ,
+     *                       {@link #SOUTH_BOUND southBound}, {@link #WEST_BOUND westBound}, and
+     *                       {@link #EAST_BOUND eastBound}. If all these property values are null, default values
+     *                       will be used. The property values are considered valid when the latitude values are
+     *                       within the allowed latitude range [-90, 90], the longitude values are within the
+     *                       allowed longitude range [-180, 180], the northBound is bigger than the southBound,
+     *                       the eastBound is bigger than the westBound, and no value is null. In this case,
+     *                       the world map will be initialized with these values.</br>
+     * @throws IllegalArgumentException If the bindingContext is null
+     * @throws IllegalArgumentException If the bindingContext does not contain the expected properties
+     * @throws IllegalArgumentException If the properties do not contain valid values
+     */
     public RegionSelectableWorldMapPane(WorldMapPaneDataModel dataModel, BindingContext bindingContext) {
+        ensureValidBindingContext(bindingContext);
         this.bindingContext = bindingContext;
         worldMapPane = new FigureEditorAwareWorldMapPane(dataModel, new SelectionOverlay(dataModel));
         panSupport = new RegionSelectionDecoratingPanSupport(worldMapPane.getLayerCanvas());
@@ -94,6 +113,59 @@ public class RegionSelectableWorldMapPane {
 
     public JPanel createUI() {
         return worldMapPane;
+    }
+
+    static void ensureValidBindingContext(BindingContext bindingContext) {
+        Assert.argument(bindingContext != null, "bindingContext must be not null");
+        ensureExistingProperty(bindingContext, NORTH_BOUND);
+        ensureExistingProperty(bindingContext, SOUTH_BOUND);
+        ensureExistingProperty(bindingContext, WEST_BOUND);
+        ensureExistingProperty(bindingContext, EAST_BOUND);
+
+
+        final Double northBound = bindingContext.getPropertySet().getValue(NORTH_BOUND);
+        final Double eastBound = bindingContext.getPropertySet().getValue(EAST_BOUND);
+        final Double southBound = bindingContext.getPropertySet().getValue(SOUTH_BOUND);
+        final Double westBound = bindingContext.getPropertySet().getValue(WEST_BOUND);
+
+        if (northBound == null && eastBound == null && southBound == null && westBound == null) {
+            setDefaultValues(bindingContext);
+        } else if (!geoBoundsAreValid(northBound, eastBound, southBound, westBound)) {
+            throw new IllegalArgumentException(MessageFormat.format("Given geo-bounds ({0}, {1}, {2}, {3}) are invalid.",
+                                                                    northBound, eastBound, southBound, westBound));
+        }
+    }
+
+    private static void ensureExistingProperty(BindingContext bindingContext, String propertyName) {
+        Assert.argument(bindingContext.getPropertySet().getProperty(propertyName) != null, "bindingContext must contain a property named " + propertyName);
+    }
+
+    private static void setDefaultValues(BindingContext bindingContext) {
+        bindingContext.getPropertySet().setValue(NORTH_BOUND, 75.0);
+        bindingContext.getPropertySet().setValue(WEST_BOUND, -15.0);
+        bindingContext.getPropertySet().setValue(SOUTH_BOUND, 35.0);
+        bindingContext.getPropertySet().setValue(EAST_BOUND, 30.0);
+    }
+
+    static boolean geoBoundsAreValid(Double northBound, Double eastBound, Double southBound, Double westBound) {
+        return northBound != null
+                && eastBound != null
+                && southBound != null
+                && westBound != null
+                && northBound > southBound
+                && eastBound > westBound
+                && isInValidLatitudeRange(northBound)
+                && isInValidLatitudeRange(southBound)
+                && isInValidLongitudeRange(eastBound)
+                && isInValidLongitudeRange(westBound);
+    }
+
+    private static boolean isInValidLongitudeRange(Double longitude) {
+        return longitude <= 180 && longitude >= -180;
+    }
+
+    private static boolean isInValidLatitudeRange(Double latitude) {
+        return latitude <= 90 && latitude >= -90;
     }
 
     private DefaultFigureStyle createFigureStyle() {
@@ -161,7 +233,7 @@ public class RegionSelectableWorldMapPane {
         private void updateCursor(MouseEvent e) {
             final boolean cursorOutsideOfSelectionRectangle =
                     !rectangleMap.get(DEFAULT).contains(e.getPoint()) &&
-                    worldMapPane.getCursor() != cursorMap.get(DEFAULT);
+                            worldMapPane.getCursor() != cursorMap.get(DEFAULT);
             if (cursorOutsideOfSelectionRectangle) {
                 worldMapPane.setCursor(cursorMap.get(DEFAULT));
             } else {
@@ -200,7 +272,7 @@ public class RegionSelectableWorldMapPane {
                                                                                movableRectangle.getY() + OFFSET,
                                                                                movableRectangle.getWidth() - 2 * OFFSET,
                                                                                movableRectangle.getHeight() -
-                                                                               2 * OFFSET);
+                                                                                       2 * OFFSET);
             rectangleMap.get(MOVE).setRect(rectangleForDragCursor);
 
             final double x = rectangleForDragCursor.getX();
@@ -348,21 +420,13 @@ public class RegionSelectableWorldMapPane {
                 upperLeftGeoPos = geoCoding.getGeoPos(upperLeftPixel, null);
                 lowerRightGeoPos = geoCoding.getGeoPos(lowerRightPixel, null);
             } else {
-                Double northBound = bindingContext.getPropertySet().getValue(NORTH_BOUND);
-                Double eastBound = bindingContext.getPropertySet().getValue(EAST_BOUND);
-                Double southBound = bindingContext.getPropertySet().getValue(SOUTH_BOUND);
-                Double westBound = bindingContext.getPropertySet().getValue(WEST_BOUND);
+                final Double northBound = bindingContext.getPropertySet().getValue(NORTH_BOUND);
+                final Double eastBound = bindingContext.getPropertySet().getValue(EAST_BOUND);
+                final Double southBound = bindingContext.getPropertySet().getValue(SOUTH_BOUND);
+                final Double westBound = bindingContext.getPropertySet().getValue(WEST_BOUND);
 
-                if (northBound == null || eastBound == null || southBound == null || westBound == null) {
-                    upperLeftGeoPos = new GeoPos(75.0F, -15.0F);
-                    lowerRightGeoPos = new GeoPos(35.0F, 30.0F);
-                } else if (RegionBoundsInputUI.geoBoundsAreValid(northBound, eastBound, southBound, westBound)) {
-                    upperLeftGeoPos = new GeoPos(northBound.floatValue(), westBound.floatValue());
-                    lowerRightGeoPos = new GeoPos(southBound.floatValue(), eastBound.floatValue());
-                } else {
-                    throw new IllegalStateException(MessageFormat.format("Given geo-bounds ({0}, {1}, {2}, {3}) are invalid.",
-                                                                         northBound, eastBound, southBound, westBound));
-                }
+                upperLeftGeoPos = new GeoPos(northBound.floatValue(), westBound.floatValue());
+                lowerRightGeoPos = new GeoPos(southBound.floatValue(), eastBound.floatValue());
             }
             Viewport viewport = worldMapPane.getLayerCanvas().getViewport();
             AffineTransform modelToViewTransform = viewport.getModelToViewTransform();
@@ -477,10 +541,10 @@ public class RegionSelectableWorldMapPane {
             }
 
             if (widthOfUpdatedRectangle > 2 && heightOfUpdatedRectangle > 2 &&
-                !(selectionRectangle.getX() == xOfUpdatedRectangle
-                  && selectionRectangle.getY() == yOfUpdatedRectangle
-                  && selectionRectangle.getWidth() == widthOfUpdatedRectangle
-                  && selectionRectangle.getHeight() == heightOfUpdatedRectangle)) {
+                    !(selectionRectangle.getX() == xOfUpdatedRectangle
+                            && selectionRectangle.getY() == yOfUpdatedRectangle
+                            && selectionRectangle.getWidth() == widthOfUpdatedRectangle
+                            && selectionRectangle.getHeight() == heightOfUpdatedRectangle)) {
                 setMovableRectangleInImageCoordinates(xOfUpdatedRectangle, yOfUpdatedRectangle,
                                                       widthOfUpdatedRectangle, heightOfUpdatedRectangle);
                 Shape newFigureShape = getViewToModelTransform(event).createTransformedShape(movableRectangle);
@@ -529,7 +593,7 @@ public class RegionSelectableWorldMapPane {
         private void adaptToModelRectangle(Rectangle2D modelRectangle) {
             correctBoundsIfNecessary(modelRectangle);
             if (modelRectangle.getWidth() != 0 && modelRectangle.getHeight() != 0 &&
-                !modelRectangle.equals(figureEditor.getFigureCollection().getFigure(0).getBounds())) {
+                    !modelRectangle.equals(figureEditor.getFigureCollection().getFigure(0).getBounds())) {
                 updateFigure(modelRectangle);
                 updateProperties(modelRectangle);
             }
@@ -547,7 +611,7 @@ public class RegionSelectableWorldMapPane {
             minX = Math.min(maxX, Math.min(180, Math.max(-180, minX)));
             minY = Math.min(maxY, Math.min(90, Math.max(-90, minY)));
             if (newFigureShape.getMinX() != minX || newFigureShape.getMinY() != minY
-                || newFigureShape.getMaxX() != maxX || newFigureShape.getMaxY() != maxY) {
+                    || newFigureShape.getMaxX() != maxX || newFigureShape.getMaxY() != maxY) {
                 newFigureShape.setRect(minX, minY, maxX - minX, maxY - minY);
             }
         }
@@ -574,17 +638,17 @@ public class RegionSelectableWorldMapPane {
 
                 final Rectangle2D modelRectangle = figureEditor.getFigureCollection().getFigure(0).getBounds();
                 double x = (property.equals(WEST_BOUND) ?
-                            Double.parseDouble(westValue.toString()) :
-                            modelRectangle.getX());
+                        Double.parseDouble(westValue.toString()) :
+                        modelRectangle.getX());
                 double y = (property.equals(SOUTH_BOUND) ?
-                            Double.parseDouble(southValue.toString()) :
-                            modelRectangle.getY());
+                        Double.parseDouble(southValue.toString()) :
+                        modelRectangle.getY());
                 double width = (property.equals(EAST_BOUND) || property.equals(WEST_BOUND) ?
-                                Double.parseDouble(eastValue.toString()) - x :
-                                modelRectangle.getWidth());
+                        Double.parseDouble(eastValue.toString()) - x :
+                        modelRectangle.getWidth());
                 double height = (property.equals(NORTH_BOUND) || property.equals(SOUTH_BOUND) ?
-                                 Double.parseDouble(northValue.toString()) - y :
-                                 modelRectangle.getHeight());
+                        Double.parseDouble(northValue.toString()) - y :
+                        modelRectangle.getHeight());
                 modelRectangle.setRect(x, y, width, height);
                 adaptToModelRectangle(modelRectangle);
             }
