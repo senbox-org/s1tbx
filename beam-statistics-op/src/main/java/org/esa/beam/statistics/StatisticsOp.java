@@ -18,9 +18,22 @@ package org.esa.beam.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
+import com.vividsolutions.jts.awt.ShapeWriter;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateFilter;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -31,15 +44,28 @@ import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptor;
 import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptorRegistry;
 import org.esa.beam.util.FeatureUtils;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.io.WildcardMatcher;
 import org.geotools.data.FeatureSource;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * An operator that is used to compute statistics for any number of source products, restricted to regions given by an
@@ -112,8 +138,74 @@ public class StatisticsOp extends Operator implements Output {
 
         validateInput();
         extractRegions();
+        Product[] sourceProducts = collectSourceProducts();
+    }
 
+    double[] getPixelValues(Product product, String bandName, Geometry region) {
+        convertRegionToPixelRegion(product, region);
 
+        final Band band = product.getBand(bandName);
+        final Shape shape = new ShapeWriter().toShape(region);
+        final Rectangle2D bounds2D = shape.getBounds2D();
+
+        bounds2D.setRect((int) bounds2D.getX(), (int) bounds2D.getY(),
+                         (int) bounds2D.getWidth() + 1, (int) bounds2D.getHeight() + 1);
+
+        List<Double> buffer = new ArrayList<Double>();
+        final GeometryFactory factory = new GeometryFactory();
+        final Coordinate[] coordinatesArray = {new Coordinate()};
+        for (int y = (int) bounds2D.getY(); y < bounds2D.getY() + bounds2D.getHeight(); y++) {
+            for (int x = (int) bounds2D.getX(); x < bounds2D.getX() + bounds2D.getWidth(); x++) {
+                coordinatesArray[0].x = x;
+                coordinatesArray[0].y = y;
+                final CoordinateArraySequence coordinates = new CoordinateArraySequence(coordinatesArray);
+                final Point point = new Point(coordinates, factory);
+                final boolean contains = region.intersects(point);
+                if (contains) {
+                    buffer.add(ProductUtils.getGeophysicalSampleDouble(band, x, y, 0));
+                }
+            }
+        }
+
+        double[] pixelValues = new double[buffer.size()];
+        for (int j = 0; j < buffer.size(); j++) {
+            pixelValues[j] = buffer.get(j);
+        }
+        return pixelValues;
+    }
+
+    private static void convertRegionToPixelRegion(Product product, Geometry region) {
+        final GeoCoding geoCoding = product.getGeoCoding();
+        region.apply(new CoordinateFilter() {
+            @Override
+            public void filter(Coordinate coord) {
+                final PixelPos pixelPos = new PixelPos();
+                geoCoding.getPixelPos(new GeoPos((float) coord.y, (float) coord.x), pixelPos);
+                coord.setCoordinate(new Coordinate((int) pixelPos.x, (int)pixelPos.y));
+            }
+        });
+    }
+
+    Mask createMaskFromRegion(Product product, Geometry region) {
+        final Mask mask = new Mask("mask",
+                                   product.getSceneRasterWidth(),
+                                   product.getSceneRasterHeight(),
+                                   Mask.VectorDataType.INSTANCE);
+        final SimpleFeatureTypeBuilder simpleFeatureTypeBuilder = new SimpleFeatureTypeBuilder();
+        simpleFeatureTypeBuilder.setName("name");
+        simpleFeatureTypeBuilder.setDefaultGeometry("geom");
+        simpleFeatureTypeBuilder.add("geom", Geometry.class);
+        final SimpleFeatureType simpleFeatureType = simpleFeatureTypeBuilder.buildFeatureType();
+
+        final SimpleFeatureBuilder simpleFeatureBuilder = new SimpleFeatureBuilder(simpleFeatureType);
+        final SimpleFeature feature = simpleFeatureBuilder.buildFeature("id", new Object[]{region});
+        final DefaultFeatureCollection collection = new DefaultFeatureCollection("collection", simpleFeatureType);
+        collection.add(feature);
+        final VectorDataNode vectorDataNode = new VectorDataNode("name", collection);
+        product.getVectorDataGroup().add(vectorDataNode);
+        Mask.VectorDataType.setVectorData(mask, vectorDataNode);
+
+        return mask;
     }
 
     void extractRegions() {
@@ -140,6 +232,41 @@ public class StatisticsOp extends Operator implements Output {
         if (sourceProducts == null && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
             throw new OperatorException("Either source products must be given or parameter 'sourceProductPaths' must be specified");
         }
+    }
+
+    Product[] collectSourceProducts() {
+        final List<Product> products = new ArrayList<Product>();
+        if (sourceProducts != null) {
+            Collections.addAll(products, sourceProducts);
+        }
+        if (sourceProductPaths != null) {
+            SortedSet<File> fileSet = new TreeSet<File>();
+            for (String filePattern : sourceProductPaths) {
+                try {
+                    WildcardMatcher.glob(filePattern, fileSet);
+                } catch (IOException e) {
+                    logReadProductError(filePattern);
+                }
+            }
+            for (File file : fileSet) {
+                try {
+                    Product sourceProduct = ProductIO.readProduct(file);
+                    if (sourceProduct != null) {
+                        products.add(sourceProduct);
+                    } else {
+                        logReadProductError(file.getAbsolutePath());
+                    }
+                } catch (IOException e) {
+                    logReadProductError(file.getAbsolutePath());
+                }
+            }
+        }
+
+        return products.toArray(new Product[products.size()]);
+    }
+
+    private void logReadProductError(String file) {
+        getLogger().severe(String.format("Failed to read from '%s' (not a data product or reader missing)", file));
     }
 
 

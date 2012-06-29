@@ -18,7 +18,18 @@ package org.esa.beam.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+<<<<<<< HEAD
+=======
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
+>>>>>>> extracting pixel values from a band for a region
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -129,6 +140,45 @@ public class StatisticsOpTest {
         assertEquals(thirdRegion.getCoordinates()[6], thirdRegion.getCoordinates()[0]);
 
 
+    }
+
+    @Test
+    public void testCreateMaskFromRegion() throws Exception {
+        final StatisticsOp statisticsOp = new StatisticsOp();
+        final GeometryFactory factory = new GeometryFactory();
+        final Mask mask = statisticsOp.createMaskFromRegion(
+                ProductIO.readProduct(getClass().getResource("testProduct1.dim").getFile()),
+                new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
+                        new Coordinate(13.8, 38),
+                        new Coordinate(14.5, 38.1),
+                        new Coordinate(14.24, 36.9),
+                        new Coordinate(13.24, 37.17),
+                        new Coordinate(13.8, 38)
+                }), factory), new LinearRing[0], factory)
+        );
+
+    }
+
+    @Test
+    public void testGetPixelValues() throws Exception {
+        final StatisticsOp statisticsOp = new StatisticsOp();
+        final GeometryFactory factory = new GeometryFactory();
+        final Polygon region = new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
+                new Coordinate(13.56552, 38.366566),
+                new Coordinate(13.58868, 38.36225),
+                new Coordinate(13.582469, 38.34155),
+                new Coordinate(13.559316, 38.34586),
+                new Coordinate(13.56552, 38.366566)
+        }), factory), new LinearRing[0], factory);
+        final double[] pixelValues = statisticsOp.getPixelValues(
+                ProductIO.readProduct(getClass().getResource("testProduct1.dim").getFile()),
+                "algal_2", region);
+
+        final double[] expected =
+                {0.83418011, 0.83418011, 0.695856511,
+                 0.69585651, 0.69585651, 0.775825023,
+                 0.83418011, 0.80447363, 0.721552133};
+        assertArrayEquals(expected, pixelValues, 1E-6);
     }
 
     private static void expectException(Converter converter, String text) {
