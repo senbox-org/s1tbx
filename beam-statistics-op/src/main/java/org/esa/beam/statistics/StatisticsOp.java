@@ -27,7 +27,8 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.experimental.Output;
-import org.esa.beam.statistics.calculators.StatisticsCalculator;
+import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptor;
+import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptorRegistry;
 
 import java.io.File;
 import java.text.ParseException;
@@ -126,8 +127,8 @@ public class StatisticsOp extends Operator implements Output {
         String validPixelExpression;
 
         @Parameter(description = "The name of the calculator that shall be used for this band.",
-                   converter = StatisticsCalculatorConverter.class)
-        StatisticsCalculator statisticsCalculator;
+                   converter = StatisticsCalculatorDescriptorConverter.class)
+        StatisticsCalculatorDescriptor statisticsCalculatorDescriptor;
 
         @Parameter(description = "The weight coefficient that shall be used in the statistics calculator.",
                    defaultValue = "Double.NaN")
@@ -158,21 +159,25 @@ public class StatisticsOp extends Operator implements Output {
 
     }
 
-    static class StatisticsCalculatorConverter implements Converter<StatisticsCalculator> {
+    static class StatisticsCalculatorDescriptorConverter implements Converter<StatisticsCalculatorDescriptor> {
 
         @Override
-        public StatisticsCalculator parse(String text) throws ConversionException {
-            return null;
+        public StatisticsCalculatorDescriptor parse(String text) throws ConversionException {
+            final StatisticsCalculatorDescriptor descriptor = StatisticsCalculatorDescriptorRegistry.getInstance().getStatisticsCalculatorDescriptor(text);
+            if(descriptor == null) {
+                throw new ConversionException("No descriptor '" + text + "' registered.");
+            }
+            return descriptor;
         }
 
         @Override
-        public String format(StatisticsCalculator value) {
-            return null;
+        public String format(StatisticsCalculatorDescriptor value) {
+            throw new IllegalStateException("Not implemented");
         }
 
         @Override
-        public Class<StatisticsCalculator> getValueType() {
-            return StatisticsCalculator.class;
+        public Class<StatisticsCalculatorDescriptor> getValueType() {
+            return StatisticsCalculatorDescriptor.class;
         }
     }
 

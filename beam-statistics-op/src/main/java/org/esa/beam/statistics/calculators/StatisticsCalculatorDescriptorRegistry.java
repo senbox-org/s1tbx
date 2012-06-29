@@ -25,26 +25,26 @@ import java.util.ServiceLoader;
  *
  * @author Thomas Storm
  */
-class StatisticsCalculatorDescriptorRegistry {
+public class StatisticsCalculatorDescriptorRegistry {
 
     private final Map<String, StatisticsCalculatorDescriptor> map;
 
     private StatisticsCalculatorDescriptorRegistry() {
         map = new HashMap<String, StatisticsCalculatorDescriptor>();
         for (StatisticsCalculatorDescriptor statisticsCalculator : ServiceLoader.load(StatisticsCalculatorDescriptor.class)) {
-            map.put(statisticsCalculator.getName(), statisticsCalculator);
+            map.put(statisticsCalculator.getName().toLowerCase(), statisticsCalculator);
         }
     }
 
-    static StatisticsCalculatorDescriptorRegistry getInstance() {
+    public static StatisticsCalculatorDescriptorRegistry getInstance() {
         return Holder.instance;
     }
 
-    StatisticsCalculatorDescriptor getStatisticsCalculatorDescriptor(String name) {
-        return map.get(name);
+    public StatisticsCalculatorDescriptor getStatisticsCalculatorDescriptor(String name) {
+        return map.get(name.toLowerCase());
     }
 
-    StatisticsCalculatorDescriptor[] getStatisticCalculatorDescriptors() {
+    public StatisticsCalculatorDescriptor[] getStatisticCalculatorDescriptors() {
         return map.values().toArray(new StatisticsCalculatorDescriptor[map.size()]);
     }
 

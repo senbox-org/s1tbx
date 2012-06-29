@@ -43,7 +43,7 @@ public class PercentileStatisticsCalculator implements StatisticsCalculator {
 
         @Override
         public String getName() {
-            return null;
+            return "PERCENTILE";
         }
 
         @Override

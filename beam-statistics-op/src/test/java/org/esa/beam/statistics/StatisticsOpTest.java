@@ -17,9 +17,14 @@
 package org.esa.beam.statistics;
 
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.statistics.calculators.PercentileStatisticsCalculator;
+import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptor;
 import org.junit.Test;
+
+import java.text.ParseException;
 
 import static org.junit.Assert.*;
 
@@ -52,18 +57,41 @@ public class StatisticsOpTest {
         expectException(utcConverter, "2010-01-31T14:46:22.123");
         expectException(utcConverter, "2010-01-31'T'14.46.22.123");
 
+        expectNotImplementedException(utcConverter, ProductData.UTC.parse("2010-JAN-01 10:37:22"));
+    }
+
+    @Test
+    public void testStatisticsCalculatorConverter() throws Exception {
+        final StatisticsOp.StatisticsCalculatorDescriptorConverter converter = new StatisticsOp.StatisticsCalculatorDescriptorConverter();
+        assertEquals(StatisticsCalculatorDescriptor.class, converter.getValueType());
+
+        StatisticsCalculatorDescriptor calculator = converter.parse("PERCENTILE");
+        assertTrue(calculator instanceof PercentileStatisticsCalculator.Descriptor);
+
+        calculator = converter.parse("percentile");
+        assertTrue(calculator instanceof PercentileStatisticsCalculator.Descriptor);
+
+        calculator = converter.parse("Percentile");
+        assertTrue(calculator instanceof PercentileStatisticsCalculator.Descriptor);
+
+        expectException(converter, "Perzentil");
+
+        expectNotImplementedException(converter, new PercentileStatisticsCalculator.Descriptor());
+    }
+
+    private static void expectException(Converter converter, String text) {
         try {
-            utcConverter.format(ProductData.UTC.parse("2010-JAN-01 10:37:22"));
+            converter.parse(text);
+            fail();
+        } catch (ConversionException e) {}
+    }
+
+    private static void expectNotImplementedException(Converter converter, Object value) throws ParseException {
+        try {
+            converter.format(value);
             fail();
         } catch (IllegalStateException e) {
             assertTrue(e.getMessage().contains("Not implemented"));
         }
-    }
-
-    private static void expectException(StatisticsOp.UtcConverter utcConverter, String text) {
-        try {
-            utcConverter.parse(text);
-            fail();
-        } catch (ConversionException e) {}
     }
 }
