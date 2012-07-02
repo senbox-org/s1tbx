@@ -31,19 +31,15 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptor;
 import org.esa.beam.statistics.calculators.StatisticsCalculatorPercentile;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -59,49 +55,46 @@ public class StatisticsOpTest {
         assertNotNull(GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi("StatisticsOp"));
     }
 
-    @Ignore // todo - make run green and remove ignore
     @Test
     public void testStatisticsOp() throws Exception {
         final StatisticsOp statisticsOp = new StatisticsOp();
-        final GeometryFactory factory = new GeometryFactory();
-        final Polygon region = new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
-                new Coordinate(13.56552, 38.366566),
-                new Coordinate(13.58868, 38.36225),
-                new Coordinate(13.582469, 38.34155),
-                new Coordinate(13.559316, 38.34586),
-                new Coordinate(13.56552, 38.366566)
-        }), factory), new LinearRing[0], factory);
-        statisticsOp.regions = new Geometry[]{region};
-        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
         final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
         bandConfiguration.statisticsCalculatorDescriptor = new StatisticsCalculatorPercentile.Descriptor();
         bandConfiguration.percentile = 50;
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
+        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        statisticsOp.shapefile = getClass().getResource("9_pixels.shp");
+        final StringBuilder builder = new StringBuilder();
+
         statisticsOp.outputStrategy = new StatisticsOp.OutputStrategy() {
-
-            private StringBuilder builder = new StringBuilder();
-
             @Override
-            public void addToOutput(StatisticsOp.BandConfiguration configuration, Map<String, Double> statistics) {
-                builder.append(configuration.sourceBandName);
-                builder.append("\n");
+            public void addToOutput(StatisticsOp.BandConfiguration configuration, String regionId, Map<String, Double> statistics) {
+                builder.append(regionId)
+                        .append("\n")
+                        .append(configuration.sourceBandName)
+                        .append(":\n");
                 for (Map.Entry<String, Double> entry : statistics.entrySet()) {
+                    final DecimalFormatSymbols decimalFormatSymbols = DecimalFormatSymbols.getInstance();
+                    decimalFormatSymbols.setDecimalSeparator('.');
                     builder.append(entry.getKey())
                             .append(": ")
-                            .append(entry.getValue());
+                            .append(new DecimalFormat("0.000000", decimalFormatSymbols).format(entry.getValue()));
                 }
             }
 
             @Override
             public void output() throws IOException {
-                final String result = builder.toString();
-                assertEquals("algal_2\n" +
-                                     "p50:0.775825",
-                             result);
             }
         };
+
         statisticsOp.initialize();
+
+        final String result = builder.toString();
+        assertEquals("9_pixels.1\n" +
+                     "algal_2:\n" +
+                     "p50: 0.775825",
+                     result);
     }
 
     @Test
@@ -167,7 +160,7 @@ public class StatisticsOpTest {
     @Test
     public void testExtractRegions() throws Exception {
         final StatisticsOp statisticsOp = new StatisticsOp();
-        statisticsOp.shapefile = getShapefile();
+        statisticsOp.shapefile = getClass().getResource("polygons.shp");
 
         statisticsOp.extractRegions();
 
@@ -281,9 +274,5 @@ public class StatisticsOpTest {
         } catch (IllegalStateException e) {
             assertTrue(e.getMessage().contains("Not implemented"));
         }
-    }
-
-    private URL getShapefile() {
-        return getClass().getResource("polygons.shp");
     }
 }

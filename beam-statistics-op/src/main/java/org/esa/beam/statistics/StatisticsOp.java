@@ -132,34 +132,23 @@ public class StatisticsOp extends Operator implements Output {
 
     @Override
     public void initialize() throws OperatorException {
-        /*
-        Algorithm:
-
-        - validate input
-        - gather all source products
-        - for each region from shapefile:
-            - for each bandConfiguration:
-                - gather all pixels p for the band/expression that fit to validPixelExpression
-                - get results from StatisticsCalculator.calculateStatistics
-                - add to output: band/expression name, name of statisticsCalculator, id of region, pairs from results
-
-         */
-
-
         validateInput();
         extractRegions();
-        Product[] allSourceProducts = collectSourceProducts();
+        computeOutput(collectSourceProducts());
+        writeOutput();
+    }
+
+    void computeOutput(Product[] allSourceProducts) {
         for (BandConfiguration bandConfiguration : bandConfigurations) {
             final PropertySet propertySet = createPropertySet(bandConfiguration);
             final StatisticsCalculator statisticsCalculator = bandConfiguration.statisticsCalculatorDescriptor.createStatisticsCalculator(propertySet);
-            for (Geometry region : regions) {
+            for (int i = 0; i < regions.length; i++) {
+                final Geometry region = regions[i];
                 final double[] pixelValues = getPixelValues(allSourceProducts, bandConfiguration, region);
                 final Map<String, Double> statistics = statisticsCalculator.calculateStatistics(pixelValues, ProgressMonitor.NULL);// todo - allow smarter progress monitor
-                outputStrategy.addToOutput(bandConfiguration, statistics);
+                outputStrategy.addToOutput(bandConfiguration, regionIds[i], statistics);
             }
         }
-
-        writeOutput();
     }
 
     private static PropertySet createPropertySet(BandConfiguration bandConfiguration) {
@@ -398,7 +387,7 @@ public class StatisticsOp extends Operator implements Output {
 
     interface OutputStrategy {
 
-        void addToOutput(BandConfiguration bandConfiguration, Map<String, Double> statistics);
+        void addToOutput(BandConfiguration bandConfiguration, String regionId, Map<String, Double> statistics);
 
         void output() throws IOException;
     }
