@@ -32,6 +32,7 @@ import org.esa.beam.statistics.calculators.PercentileStatisticsCalculator;
 import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptor;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.text.ParseException;
 
 import static org.junit.Assert.*;
@@ -146,18 +147,33 @@ public class StatisticsOpTest {
         final GeometryFactory factory = new GeometryFactory();
         final Polygon region = new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
                 new Coordinate(13.56552, 38.366566),
-                new Coordinate(13.58868, 38.36225),
-                new Coordinate(13.582469, 38.34155),
+                new Coordinate(13.600261, 38.3601),
+                new Coordinate(13.594047, 38.339397),
                 new Coordinate(13.56552, 38.366566)
         }), factory), new LinearRing[0], factory);
+        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
+        bandConfiguration.sourceBandName = "algal_2";
+
+        final double[] expectedWithoutExpression = {
+                0.83418011, 0.83418011, 0.695856511, 0.6710759,
+                                        0.775825023, 0.6241307,
+                                                     0.7215521
+        };
+
+        final double[] expectedWithExpression = {
+                0.83418011, 0.83418011, 0.695856511, 0.6710759,
+                                        0.775825023, 0.6241307
+        };
+        testThatValuesAreOk(statisticsOp, region, bandConfiguration, expectedWithoutExpression, null);
+        testThatValuesAreOk(statisticsOp, region, bandConfiguration, expectedWithExpression, "algal_2 > 0.73 or algal_2 < 0.71");
+    }
+
+    private void testThatValuesAreOk(StatisticsOp statisticsOp, Polygon region, StatisticsOp.BandConfiguration bandConfiguration, double[] expected, String validPixelExpression) throws IOException {
+        bandConfiguration.validPixelExpression = validPixelExpression;
         final double[] pixelValues = statisticsOp.getPixelValues(
                 ProductIO.readProduct(getClass().getResource("testProduct1.dim").getFile()),
-                "algal_2", region);
+                bandConfiguration, region);
 
-        final double[] expected =
-                {0.83418011, 0.83418011, 0.695856511,
-                             0.69585651, 0.775825023,
-                                         0.721552133};
         assertArrayEquals(expected, pixelValues, 1E-6);
     }
 
@@ -172,16 +188,23 @@ public class StatisticsOpTest {
                 new Coordinate(13.562417, 38.356213),
                 new Coordinate(13.577101, 38.3664407)
         }), factory), new LinearRing[0], factory);
-        final double[] pixelValues = statisticsOp.getPixelValues(
-                ProductIO.readProduct(getClass().getResource("testProduct1.dim").getFile()),
-                "algal_2", region);
+        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
+        bandConfiguration.sourceBandName = "algal_2";
 
-        final double[] expected = {
+        final double[] expectedWithoutExpression = {
                              0.83418011,
                  0.69585651, 0.69585651, 0.775825023,
                              0.80447363
         };
-        assertArrayEquals(expected, pixelValues, 1E-6);
+
+        final double[] expectedWithExpression = {
+                             0.83418011,
+                                         0.775825023,
+                             0.80447363
+        };
+
+        testThatValuesAreOk(statisticsOp, region, bandConfiguration, expectedWithoutExpression, null);
+        testThatValuesAreOk(statisticsOp, region, bandConfiguration, expectedWithExpression, "algal_2 > 0.7");
     }
 
     private static void expectException(Converter converter, String text) {
@@ -191,6 +214,7 @@ public class StatisticsOpTest {
         } catch (ConversionException e) {}
     }
 
+    @SuppressWarnings("unchecked")
     private static void expectNotImplementedException(Converter converter, Object value) throws ParseException {
         try {
             converter.format(value);

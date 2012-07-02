@@ -146,7 +146,7 @@ public class StatisticsOp extends Operator implements Output {
             final StatisticsCalculator statisticsCalculator = bandConfiguration.statisticsCalculatorDescriptor.createStatisticsCalculator(null);// todo - put correct parameter
             for (Product sourceProduct : sourceProducts) {
                 for (Geometry region : regions) {
-                    final double[] pixelValues = getPixelValues(sourceProduct, bandConfiguration.sourceBandName, region);
+                    final double[] pixelValues = getPixelValues(sourceProduct, bandConfiguration, region);
                     final Map<String,Double> statistics = statisticsCalculator.calculateStatistics(pixelValues, ProgressMonitor.NULL);// todo - allow smarter progress monitor
                     addToOutput(bandConfiguration, statistics);
                 }
@@ -156,23 +156,26 @@ public class StatisticsOp extends Operator implements Output {
         writeOutput();
     }
 
-    private void writeOutput() {
-        // todo - implement
-    }
-
     private void addToOutput(BandConfiguration bandConfiguration, Map<String, Double> statistics) {
         // todo - implement
     }
 
-    double[] getPixelValues(Product product, String bandName, Geometry region) {
-        convertRegionToPixelRegion(region, product.getGeoCoding());
+    private void writeOutput() {
+        // todo - implement
+    }
 
-        final Shape shape = new ShapeWriter().toShape(region);
+    double[] getPixelValues(Product product, BandConfiguration configuration, Geometry region) {
+        Geometry pixelRegion = convertRegionToPixelRegion(region, product.getGeoCoding());
+
+        final Shape shape = new ShapeWriter().toShape(pixelRegion);
         final Rectangle2D bounds2D = shape.getBounds2D();
 
         bounds2D.setRect((int) bounds2D.getX(), (int) bounds2D.getY(),
                          (int) bounds2D.getWidth() + 1, (int) bounds2D.getHeight() + 1);
-        final Band band = product.getBand(bandName);
+        final Band band = product.getBand(configuration.sourceBandName);
+
+        final String originalValidPixelExpression = band.getValidPixelExpression();
+        band.setValidPixelExpression(configuration.validPixelExpression);
 
         List<Double> buffer = new ArrayList<Double>();
         final GeometryFactory factory = new GeometryFactory();
@@ -183,12 +186,15 @@ public class StatisticsOp extends Operator implements Output {
                 coordinatesArray[0].y = y;
                 final CoordinateArraySequence coordinates = new CoordinateArraySequence(coordinatesArray);
                 final Point point = new Point(coordinates, factory);
-                final boolean contains = region.intersects(point);
-                if (contains) {
+                final boolean contains = pixelRegion.intersects(point);
+
+                if (contains && band.isPixelValid(x, y)) {
                     buffer.add(ProductUtils.getGeophysicalSampleDouble(band, x, y, 0));
                 }
             }
         }
+
+        band.setValidPixelExpression(originalValidPixelExpression);
 
         return convertToPrimitiveArray(buffer);
     }
@@ -201,8 +207,11 @@ public class StatisticsOp extends Operator implements Output {
         return pixelValues;
     }
 
-    private static void convertRegionToPixelRegion(Geometry region, final GeoCoding geoCoding) {
-        region.apply(new CoordinateFilter() {
+    private static Geometry convertRegionToPixelRegion(Geometry region, final GeoCoding geoCoding) {
+        // the following line does clone the coordinates, so I have to use Geometry#clone()
+        // final Geometry geometry = new GeometryFactory().createGeometry(region);
+        final Geometry geometry = (Geometry) region.clone();
+        geometry.apply(new CoordinateFilter() {
             @Override
             public void filter(Coordinate coord) {
                 final PixelPos pixelPos = new PixelPos();
@@ -210,6 +219,7 @@ public class StatisticsOp extends Operator implements Output {
                 coord.setCoordinate(new Coordinate((int) pixelPos.x, (int) pixelPos.y));
             }
         });
+        return geometry;
     }
 
     void extractRegions() {
