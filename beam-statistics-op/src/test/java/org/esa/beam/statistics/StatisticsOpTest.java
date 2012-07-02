@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -39,7 +39,11 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Thomas Storm
@@ -93,7 +97,7 @@ public class StatisticsOpTest {
             public void output() throws IOException {
                 final String result = builder.toString();
                 assertEquals("algal_2\n" +
-                             "p50:0.775825",
+                                     "p50:0.775825",
                              result);
             }
         };
@@ -110,12 +114,12 @@ public class StatisticsOpTest {
 
         assertEquals(expected, actual.getAsDate().getTime());
 
-        expectException(utcConverter, "2010-01-31'T'14:46:22.1234");
-        expectException(utcConverter, "2010-31-01'T'14:46:22.123");
-        expectException(utcConverter, "2010-01-31T14:46:22.123");
-        expectException(utcConverter, "2010-01-31'T'14.46.22.123");
+        assertConversionException(utcConverter, "2010-01-31'T'14:46:22.1234");
+        assertConversionException(utcConverter, "2010-31-01'T'14:46:22.123");
+        assertConversionException(utcConverter, "2010-01-31T14:46:22.123");
+        assertConversionException(utcConverter, "2010-01-31'T'14.46.22.123");
 
-        expectNotImplementedException(utcConverter, ProductData.UTC.parse("2010-JAN-01 10:37:22"));
+        assertNotImplementedException(utcConverter, ProductData.UTC.parse("2010-JAN-01 10:37:22"));
     }
 
     @Test
@@ -132,9 +136,9 @@ public class StatisticsOpTest {
         calculator = converter.parse("Percentile");
         assertTrue(calculator instanceof StatisticsCalculatorPercentile.Descriptor);
 
-        expectException(converter, "Perzentil");
+        assertConversionException(converter, "Perzentil");
 
-        expectNotImplementedException(converter, new StatisticsCalculatorPercentile.Descriptor());
+        assertNotImplementedException(converter, new StatisticsCalculatorPercentile.Descriptor());
     }
 
     @Test
@@ -164,6 +168,7 @@ public class StatisticsOpTest {
     public void testExtractRegions() throws Exception {
         final StatisticsOp statisticsOp = new StatisticsOp();
         statisticsOp.shapefile = getShapefile();
+
         statisticsOp.extractRegions();
 
         assertEquals(3, statisticsOp.regions.length);
@@ -260,7 +265,7 @@ public class StatisticsOpTest {
         testThatValuesAreOk(statisticsOp, region, bandConfiguration, expectedWithExpression, "algal_2 > 0.7");
     }
 
-    private static void expectException(Converter converter, String text) {
+    private static void assertConversionException(Converter converter, String text) {
         try {
             converter.parse(text);
             fail();
@@ -269,7 +274,7 @@ public class StatisticsOpTest {
     }
 
     @SuppressWarnings("unchecked")
-    private static void expectNotImplementedException(Converter converter, Object value) throws ParseException {
+    private static void assertNotImplementedException(Converter converter, Object value) throws ParseException {
         try {
             converter.format(value);
             fail();
