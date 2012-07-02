@@ -25,7 +25,6 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -118,6 +117,7 @@ public class StatisticsOpTest {
         statisticsOp.extractRegions();
 
         assertEquals(3, statisticsOp.regions.length);
+        assertEquals(3, statisticsOp.regionIds.length);
 
         for (Geometry region : statisticsOp.regions) {
             assertNotNull(region);
@@ -135,23 +135,9 @@ public class StatisticsOpTest {
         assertEquals(7, thirdRegion.getCoordinates().length);
         assertEquals(thirdRegion.getCoordinates()[6], thirdRegion.getCoordinates()[0]);
 
-
-    }
-
-    @Test
-    public void testCreateMaskFromRegion() throws Exception {
-        final StatisticsOp statisticsOp = new StatisticsOp();
-        final GeometryFactory factory = new GeometryFactory();
-        final Mask mask = statisticsOp.createMaskFromRegion(
-                ProductIO.readProduct(getClass().getResource("testProduct1.dim").getFile()),
-                new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
-                        new Coordinate(13.8, 38),
-                        new Coordinate(14.5, 38.1),
-                        new Coordinate(14.24, 36.9),
-                        new Coordinate(13.24, 37.17),
-                        new Coordinate(13.8, 38)
-                }), factory), new LinearRing[0], factory)
-        );
+        assertEquals("polygons.1", statisticsOp.regionIds[0]);
+        assertEquals("polygons.2", statisticsOp.regionIds[1]);
+        assertEquals("polygons.3", statisticsOp.regionIds[2]);
     }
 
     @Test
