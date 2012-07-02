@@ -68,8 +68,10 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -130,12 +132,22 @@ public class StatisticsOp extends Operator implements Output {
 
     OutputStrategy outputStrategy;
 
+    Set<Product> collectedProducts;
+
     @Override
     public void initialize() throws OperatorException {
         validateInput();
         extractRegions();
         computeOutput(collectSourceProducts());
         writeOutput();
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        for (Product collectedProduct : collectedProducts) {
+            collectedProduct.dispose();
+        }
     }
 
     void computeOutput(Product[] allSourceProducts) {
@@ -277,6 +289,7 @@ public class StatisticsOp extends Operator implements Output {
 
     Product[] collectSourceProducts() {
         final List<Product> products = new ArrayList<Product>();
+        collectedProducts = new HashSet<Product>();
         if (sourceProducts != null) {
             Collections.addAll(products, sourceProducts);
         }
@@ -294,6 +307,7 @@ public class StatisticsOp extends Operator implements Output {
                     Product sourceProduct = ProductIO.readProduct(file);
                     if (sourceProduct != null) {
                         products.add(sourceProduct);
+                        collectedProducts.add(sourceProduct);
                     } else {
                         logReadProductError(file.getAbsolutePath());
                     }
