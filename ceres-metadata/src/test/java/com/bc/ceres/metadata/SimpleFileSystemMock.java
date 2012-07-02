@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-class SimpleFileSystemMock implements SimpleFileSystem {
+public class SimpleFileSystemMock implements SimpleFileSystem {
 
     private Map<String, Reader> readerMap = new HashMap<String, Reader>();
     private Map<String, Writer> writerMap = new HashMap<String, Writer>();
@@ -44,15 +44,15 @@ class SimpleFileSystemMock implements SimpleFileSystem {
         return this.listMap.get(path);
     }
 
-    void setReader(String name, Reader reader) {
+    public void setReader(String name, Reader reader) {
         readerMap.put(name, reader);
     }
 
-    void setList(String dirName, String... files) {
+    public void setList(String dirName, String... files) {
         listMap.put(dirName, files);
     }
 
-    void setWriter(String name, Writer writer) {
+    public void setWriter(String name, Writer writer) {
         writerMap.put(name, writer);
     }
 }

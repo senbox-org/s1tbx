@@ -27,6 +27,7 @@ import java.io.StringWriter;
 import java.util.Map;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class MetadataEngineTest {
 
@@ -206,6 +207,46 @@ public class MetadataEngineTest {
         assertNotNull(resourceMap);
         assertEquals(1, resourceMap.size());
         assertEquals("BEAM is ${state}", resourceMap.get("key"));
+    }
+
+    @Test
+    public void testSourceMetadataWith2ProductsInSameDirectory() throws Exception {
+        ioAccessor.setReader("input/MER_L1-report.xml", new StringReader("<?xml>hello</xml>"));
+        ioAccessor.setReader("input/MER_FRS_L1-meta.xml", new StringReader("world"));
+        ioAccessor.setList("input", "MER_L1-report.xml", "MER_L1.dim", "MER_L1.data", "MER_FRS_L1-meta.xml", "MER_FRS_L1.N1");
+
+        VelocityContext velocityContext = metadataEngine.getVelocityContext();
+
+        metadataEngine.readSourceMetadata("source1", "input/MER_L1.N1");
+        metadataEngine.readSourceMetadata("source2", "input/MER_FRS_L1.N1");
+
+        assertEquals(2, velocityContext.getKeys().length);
+
+        assertNotNull(velocityContext.get("source1"));
+        Object object = velocityContext.get("source1");
+        assertTrue(object instanceof Map);
+        Map map = (Map) object;
+        assertEquals(1, map.size());
+
+        Object report = map.get("report.xml");
+        assertNotNull(report);
+        assertTrue(report instanceof MetadataResource);
+        MetadataResource resource = (MetadataResource) report;
+        assertTrue(resource.isXml());
+        assertEquals("<?xml>hello</xml>", resource.getContent());
+
+        assertNotNull(velocityContext.get("source2"));
+        object = velocityContext.get("source2");
+        assertTrue(object instanceof Map);
+        Map map2 = (Map) object;
+        assertEquals(1, map2.size());
+
+        report = map2.get("meta.xml");
+        assertNotNull(report);
+        assertTrue(report instanceof MetadataResource);
+        resource = (MetadataResource) report;
+        assertFalse(resource.isXml());
+        assertEquals("world", resource.getContent());
     }
 
     @Test
