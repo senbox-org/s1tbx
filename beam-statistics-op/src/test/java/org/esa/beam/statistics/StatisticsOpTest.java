@@ -25,15 +25,19 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.statistics.calculators.PercentileStatisticsCalculator;
 import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptor;
+import org.esa.beam.statistics.calculators.StatisticsCalculatorPercentile;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URL;
 import java.text.ParseException;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -49,6 +53,51 @@ public class StatisticsOpTest {
     @Test
     public void testThatStatisticsOpIsRegistered() throws Exception {
         assertNotNull(GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi("StatisticsOp"));
+    }
+
+    @Ignore // todo - make run green and remove ignore
+    @Test
+    public void testStatisticsOp() throws Exception {
+        final StatisticsOp statisticsOp = new StatisticsOp();
+        final GeometryFactory factory = new GeometryFactory();
+        final Polygon region = new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
+                new Coordinate(13.56552, 38.366566),
+                new Coordinate(13.58868, 38.36225),
+                new Coordinate(13.582469, 38.34155),
+                new Coordinate(13.559316, 38.34586),
+                new Coordinate(13.56552, 38.366566)
+        }), factory), new LinearRing[0], factory);
+        statisticsOp.regions = new Geometry[]{region};
+        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
+        bandConfiguration.sourceBandName = "algal_2";
+        bandConfiguration.statisticsCalculatorDescriptor = new StatisticsCalculatorPercentile.Descriptor();
+        bandConfiguration.percentile = 50;
+        statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
+        statisticsOp.outputStrategy = new StatisticsOp.OutputStrategy() {
+
+            private StringBuilder builder = new StringBuilder();
+
+            @Override
+            public void addToOutput(StatisticsOp.BandConfiguration configuration, Map<String, Double> statistics) {
+                builder.append(configuration.sourceBandName);
+                builder.append("\n");
+                for (Map.Entry<String, Double> entry : statistics.entrySet()) {
+                    builder.append(entry.getKey())
+                            .append(": ")
+                            .append(entry.getValue());
+                }
+            }
+
+            @Override
+            public void output() throws IOException {
+                final String result = builder.toString();
+                assertEquals("algal_2\n" +
+                             "p50:0.775825",
+                             result);
+            }
+        };
+        statisticsOp.initialize();
     }
 
     @Test
@@ -75,17 +124,17 @@ public class StatisticsOpTest {
         assertEquals(StatisticsCalculatorDescriptor.class, converter.getValueType());
 
         StatisticsCalculatorDescriptor calculator = converter.parse("PERCENTILE");
-        assertTrue(calculator instanceof PercentileStatisticsCalculator.Descriptor);
+        assertTrue(calculator instanceof StatisticsCalculatorPercentile.Descriptor);
 
         calculator = converter.parse("percentile");
-        assertTrue(calculator instanceof PercentileStatisticsCalculator.Descriptor);
+        assertTrue(calculator instanceof StatisticsCalculatorPercentile.Descriptor);
 
         calculator = converter.parse("Percentile");
-        assertTrue(calculator instanceof PercentileStatisticsCalculator.Descriptor);
+        assertTrue(calculator instanceof StatisticsCalculatorPercentile.Descriptor);
 
         expectException(converter, "Perzentil");
 
-        expectNotImplementedException(converter, new PercentileStatisticsCalculator.Descriptor());
+        expectNotImplementedException(converter, new StatisticsCalculatorPercentile.Descriptor());
     }
 
     @Test
@@ -114,7 +163,7 @@ public class StatisticsOpTest {
     @Test
     public void testExtractRegions() throws Exception {
         final StatisticsOp statisticsOp = new StatisticsOp();
-        statisticsOp.shapefile = getClass().getResource("polygons.shp");
+        statisticsOp.shapefile = getShapefile();
         statisticsOp.extractRegions();
 
         assertEquals(3, statisticsOp.regions.length);
@@ -156,13 +205,13 @@ public class StatisticsOpTest {
 
         final double[] expectedWithoutExpression = {
                 0.83418011, 0.83418011, 0.695856511, 0.6710759,
-                                        0.775825023, 0.6241307,
-                                                     0.7215521
+                0.775825023, 0.6241307,
+                0.7215521
         };
 
         final double[] expectedWithExpression = {
                 0.83418011, 0.83418011, 0.695856511, 0.6710759,
-                                        0.775825023, 0.6241307
+                0.775825023, 0.6241307
         };
         testThatValuesAreOk(statisticsOp, region, bandConfiguration, expectedWithoutExpression, null);
         testThatValuesAreOk(statisticsOp, region, bandConfiguration, expectedWithExpression, "algal_2 > 0.73 or algal_2 < 0.71");
@@ -171,10 +220,14 @@ public class StatisticsOpTest {
     private void testThatValuesAreOk(StatisticsOp statisticsOp, Polygon region, StatisticsOp.BandConfiguration bandConfiguration, double[] expected, String validPixelExpression) throws IOException {
         bandConfiguration.validPixelExpression = validPixelExpression;
         final double[] pixelValues = statisticsOp.getPixelValues(
-                ProductIO.readProduct(getClass().getResource("testProduct1.dim").getFile()),
+                new Product[]{getTestProduct()},
                 bandConfiguration, region);
 
         assertArrayEquals(expected, pixelValues, 1E-6);
+    }
+
+    private Product getTestProduct() throws IOException {
+        return ProductIO.readProduct(getClass().getResource("testProduct1.dim").getFile());
     }
 
     @Test
@@ -192,15 +245,15 @@ public class StatisticsOpTest {
         bandConfiguration.sourceBandName = "algal_2";
 
         final double[] expectedWithoutExpression = {
-                             0.83418011,
-                 0.69585651, 0.69585651, 0.775825023,
-                             0.80447363
+                0.83418011,
+                0.69585651, 0.69585651, 0.775825023,
+                0.80447363
         };
 
         final double[] expectedWithExpression = {
-                             0.83418011,
-                                         0.775825023,
-                             0.80447363
+                0.83418011,
+                0.775825023,
+                0.80447363
         };
 
         testThatValuesAreOk(statisticsOp, region, bandConfiguration, expectedWithoutExpression, null);
@@ -211,7 +264,8 @@ public class StatisticsOpTest {
         try {
             converter.parse(text);
             fail();
-        } catch (ConversionException e) {}
+        } catch (ConversionException e) {
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -222,5 +276,9 @@ public class StatisticsOpTest {
         } catch (IllegalStateException e) {
             assertTrue(e.getMessage().contains("Not implemented"));
         }
+    }
+
+    private URL getShapefile() {
+        return getClass().getResource("polygons.shp");
     }
 }

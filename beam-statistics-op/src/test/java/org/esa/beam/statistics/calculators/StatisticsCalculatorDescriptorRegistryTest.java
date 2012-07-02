@@ -34,13 +34,13 @@ public class StatisticsCalculatorDescriptorRegistryTest {
         final StatisticsCalculatorDescriptorRegistry instance = StatisticsCalculatorDescriptorRegistry.getInstance();
         final StatisticsCalculatorDescriptor[] descriptors = instance.getStatisticCalculatorDescriptors();
         assertEquals(1, descriptors.length);
-        assertTrue(descriptors[0] instanceof PercentileStatisticsCalculator.Descriptor);
+        assertTrue(descriptors[0] instanceof StatisticsCalculatorPercentile.Descriptor);
         final PropertyContainer propertySet = new PropertyContainer();
         final Property percentileProperty = new Property(new PropertyDescriptor("percentile", Integer.class), new DefaultPropertyAccessor());
         percentileProperty.setValue(5);
         propertySet.addProperty(percentileProperty);
         final StatisticsCalculator statisticsCalculator = descriptors[0].createStatisticsCalculator(propertySet);
-        assertTrue(statisticsCalculator instanceof PercentileStatisticsCalculator);
-        assertEquals(5, ((PercentileStatisticsCalculator)statisticsCalculator).percentile);
+        assertTrue(statisticsCalculator instanceof StatisticsCalculatorPercentile);
+        assertEquals(5, ((StatisticsCalculatorPercentile)statisticsCalculator).percentile);
     }
 }

@@ -19,6 +19,8 @@ package org.esa.beam.statistics.calculators;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ProgressMonitor;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -26,17 +28,48 @@ import java.util.Map;
  *
  * @author Thomas Storm
  */
-public class PercentileStatisticsCalculator implements StatisticsCalculator {
+public class StatisticsCalculatorPercentile implements StatisticsCalculator {
 
     final int percentile;
 
-    public PercentileStatisticsCalculator(int percentile) {
+    public StatisticsCalculatorPercentile(int percentile) {
         this.percentile = percentile;
     }
 
     @Override
     public Map<String, Double> calculateStatistics(double[] values, ProgressMonitor pm) {
-        return null;
+        final HashMap<String, Double> result = new HashMap<String, Double>();
+        Arrays.sort(values);
+        result.put("p" + percentile, computePercentile(values));
+        return result;
+    }
+
+    /**
+     * Computes the p-th percentile of an array of measurements following
+     * the "Engineering Statistics Handbook: Percentile". NIST.
+     * http://www.itl.nist.gov/div898/handbook/prc/section2/prc252.htm.
+     * Retrieved 2011-03-16.
+     *
+     * @param measurements Sorted array of measurements.
+     * @return The  p-th percentile.
+     *
+     * todo : move this and its origin (org.esa.beam.binning.aggregators.AggregatorPercentile#computePercentile())
+     * to some utility class
+     */
+    public double computePercentile(double[] measurements) {
+        int N = measurements.length;
+        double n = (percentile / 100.0F) * (N + 1);
+        int k = (int) Math.floor(n);
+        double d = n - k;
+        double yp;
+        if (k == 0) {
+            yp = measurements[0];
+        } else if (k >= N) {
+            yp = measurements[N - 1];
+        } else {
+            yp = measurements[k - 1] + d * (measurements[k] - measurements[k - 1]);
+        }
+        return yp;
     }
 
     public static class Descriptor implements StatisticsCalculatorDescriptor {
@@ -49,7 +82,7 @@ public class PercentileStatisticsCalculator implements StatisticsCalculator {
         @Override
         public StatisticsCalculator createStatisticsCalculator(PropertySet propertySet) {
             final int percentile = propertySet.getProperty("percentile").<Integer>getValue();
-            return new PercentileStatisticsCalculator(percentile);
+            return new StatisticsCalculatorPercentile(percentile);
         }
     }
 

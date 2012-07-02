@@ -18,13 +18,21 @@ package org.esa.beam.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.awt.ShapeWriter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateFilter;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
@@ -120,6 +128,8 @@ public class StatisticsOp extends Operator implements Output {
 
     String[] regionIds;
 
+    OutputStrategy outputStrategy;
+
     @Override
     public void initialize() throws OperatorException {
         /*
@@ -138,62 +148,77 @@ public class StatisticsOp extends Operator implements Output {
 
         validateInput();
         extractRegions();
-        Product[] sourceProducts = collectSourceProducts();
+        Product[] allSourceProducts = collectSourceProducts();
         for (BandConfiguration bandConfiguration : bandConfigurations) {
-            final StatisticsCalculator statisticsCalculator = bandConfiguration.statisticsCalculatorDescriptor.createStatisticsCalculator(null);// todo - put correct parameter
-            for (Product sourceProduct : sourceProducts) {
-                for (Geometry region : regions) {
-                    final double[] pixelValues = getPixelValues(sourceProduct, bandConfiguration, region);
-                    final Map<String,Double> statistics = statisticsCalculator.calculateStatistics(pixelValues, ProgressMonitor.NULL);// todo - allow smarter progress monitor
-                    addToOutput(bandConfiguration, statistics);
-                }
+            final PropertySet propertySet = createPropertySet(bandConfiguration);
+            final StatisticsCalculator statisticsCalculator = bandConfiguration.statisticsCalculatorDescriptor.createStatisticsCalculator(propertySet);
+            for (Geometry region : regions) {
+                final double[] pixelValues = getPixelValues(allSourceProducts, bandConfiguration, region);
+                final Map<String, Double> statistics = statisticsCalculator.calculateStatistics(pixelValues, ProgressMonitor.NULL);// todo - allow smarter progress monitor
+                outputStrategy.addToOutput(bandConfiguration, statistics);
             }
         }
 
         writeOutput();
     }
 
-    private void addToOutput(BandConfiguration bandConfiguration, Map<String, Double> statistics) {
-        // todo - implement
+    private static PropertySet createPropertySet(BandConfiguration bandConfiguration) {
+        final PropertyContainer propertyContainer = new PropertyContainer();
+        propertyContainer.addProperty(new Property(new PropertyDescriptor("percentile", Integer.class), new DefaultPropertyAccessor()));
+        propertyContainer.addProperty(new Property(new PropertyDescriptor("weightCoeff", Double.class), new DefaultPropertyAccessor()));
+        try {
+            propertyContainer.getProperty("percentile").setValue(bandConfiguration.percentile);
+            propertyContainer.getProperty("weightCoeff").setValue(bandConfiguration.weightCoeff);
+        } catch (ValidationException e) {
+            // Can never come here
+            throw new IllegalStateException(e);
+        }
+        return propertyContainer;
+    }
+
+    double[] getPixelValues(Product[] products, BandConfiguration configuration, Geometry region) {
+        final GeometryFactory factory = new GeometryFactory();
+        final Coordinate[] coordinatesArray = {new Coordinate()};
+        List<Double> buffer = new ArrayList<Double>();
+        for (Product product : products) {
+
+            Geometry pixelRegion = convertRegionToPixelRegion(region, product.getGeoCoding());
+
+            final Shape shape = new ShapeWriter().toShape(pixelRegion);
+            final Rectangle2D bounds2D = shape.getBounds2D();
+
+            bounds2D.setRect((int) bounds2D.getX(), (int) bounds2D.getY(),
+                             (int) bounds2D.getWidth() + 1, (int) bounds2D.getHeight() + 1);
+            final Band band = product.getBand(configuration.sourceBandName);
+
+            final String originalValidPixelExpression = band.getValidPixelExpression();
+            band.setValidPixelExpression(configuration.validPixelExpression);
+
+            for (int y = (int) bounds2D.getY(); y < bounds2D.getY() + bounds2D.getHeight(); y++) {
+                for (int x = (int) bounds2D.getX(); x < bounds2D.getX() + bounds2D.getWidth(); x++) {
+                    coordinatesArray[0].x = x;
+                    coordinatesArray[0].y = y;
+                    final CoordinateArraySequence coordinates = new CoordinateArraySequence(coordinatesArray);
+                    final Point point = new Point(coordinates, factory);
+                    final boolean contains = pixelRegion.intersects(point);
+
+                    if (contains && band.isPixelValid(x, y)) {
+                        buffer.add(ProductUtils.getGeophysicalSampleDouble(band, x, y, 0));
+                    }
+                }
+            }
+
+            band.setValidPixelExpression(originalValidPixelExpression);
+        }
+        return convertToPrimitiveArray(buffer);
     }
 
     private void writeOutput() {
-        // todo - implement
-    }
-
-    double[] getPixelValues(Product product, BandConfiguration configuration, Geometry region) {
-        Geometry pixelRegion = convertRegionToPixelRegion(region, product.getGeoCoding());
-
-        final Shape shape = new ShapeWriter().toShape(pixelRegion);
-        final Rectangle2D bounds2D = shape.getBounds2D();
-
-        bounds2D.setRect((int) bounds2D.getX(), (int) bounds2D.getY(),
-                         (int) bounds2D.getWidth() + 1, (int) bounds2D.getHeight() + 1);
-        final Band band = product.getBand(configuration.sourceBandName);
-
-        final String originalValidPixelExpression = band.getValidPixelExpression();
-        band.setValidPixelExpression(configuration.validPixelExpression);
-
-        List<Double> buffer = new ArrayList<Double>();
-        final GeometryFactory factory = new GeometryFactory();
-        final Coordinate[] coordinatesArray = {new Coordinate()};
-        for (int y = (int) bounds2D.getY(); y < bounds2D.getY() + bounds2D.getHeight(); y++) {
-            for (int x = (int) bounds2D.getX(); x < bounds2D.getX() + bounds2D.getWidth(); x++) {
-                coordinatesArray[0].x = x;
-                coordinatesArray[0].y = y;
-                final CoordinateArraySequence coordinates = new CoordinateArraySequence(coordinatesArray);
-                final Point point = new Point(coordinates, factory);
-                final boolean contains = pixelRegion.intersects(point);
-
-                if (contains && band.isPixelValid(x, y)) {
-                    buffer.add(ProductUtils.getGeophysicalSampleDouble(band, x, y, 0));
-                }
-            }
+        try {
+            outputStrategy.output();
+        } catch (IOException e) {
+            throw new OperatorException("Unable to write output.", e);
         }
-
-        band.setValidPixelExpression(originalValidPixelExpression);
-
-        return convertToPrimitiveArray(buffer);
     }
 
     private static double[] convertToPrimitiveArray(List<Double> buffer) {
@@ -220,6 +245,20 @@ public class StatisticsOp extends Operator implements Output {
     }
 
     void extractRegions() {
+        if (shapefile == null) {
+            final GeometryFactory factory = new GeometryFactory();
+            regions = new Geometry[]{
+                    new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
+                            new Coordinate(-180, -90),
+                            new Coordinate(-180, 90),
+                            new Coordinate(180, 90),
+                            new Coordinate(180, -90),
+                            new Coordinate(-180, -90)
+                    }), factory), null, factory)
+            };
+            regionIds = new String[]{"world"};
+            return;
+        }
         try {
             final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = FeatureUtils.getFeatureSource(shapefile);
             final FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures();
@@ -355,6 +394,13 @@ public class StatisticsOp extends Operator implements Output {
         public Class<StatisticsCalculatorDescriptor> getValueType() {
             return StatisticsCalculatorDescriptor.class;
         }
+    }
+
+    interface OutputStrategy {
+
+        void addToOutput(BandConfiguration bandConfiguration, Map<String, Double> statistics);
+
+        void output() throws IOException;
     }
 
     /**
