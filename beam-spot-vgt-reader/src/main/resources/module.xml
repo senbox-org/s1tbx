@@ -14,6 +14,8 @@
 
     <changelog>
         <![CDATA[
+                Changes in 1.2.2:<br>
+                Accuracy problem in geocoding fixed<br/>
                 Changes in 1.2.1:<br>
                 Adapted to new Maven-architecture<br/>
                 Changes in 1.2:<br>
