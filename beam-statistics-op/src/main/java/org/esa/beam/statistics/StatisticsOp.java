@@ -30,7 +30,6 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -120,8 +119,6 @@ public class StatisticsOp extends Operator implements Output {
     Geometry[] regions;
 
     String[] regionIds;
-
-    Mask validMask;
 
     @Override
     public void initialize() throws OperatorException {
