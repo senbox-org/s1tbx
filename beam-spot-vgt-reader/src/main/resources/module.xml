@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-spot-vgt-reader</symbolicName>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <name>BEAM SPOT VGT Product Reader</name>
 
     <description>Enables BEAM to read SPOT VGT data products.</description>
