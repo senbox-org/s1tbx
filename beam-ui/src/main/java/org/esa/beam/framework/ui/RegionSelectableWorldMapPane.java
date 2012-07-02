@@ -177,6 +177,14 @@ public class RegionSelectableWorldMapPane {
         return figureStyle;
     }
 
+    private void updateRectangles() {
+        AffineTransform modelToView = worldMapPane.getLayerCanvas().getViewport().getModelToViewTransform();
+        selectionRectangle = modelToView.createTransformedShape(figureEditor.getFigureCollection().getFigure(0).getBounds()).getBounds2D();
+        movableRectangle.setRect(selectionRectangle);
+        cursorChanger.updateRectanglesForDragCursor();
+    }
+
+
     private class CursorChanger implements MouseMotionListener {
 
         private final String DEFAULT = "default";
@@ -658,17 +666,9 @@ public class RegionSelectableWorldMapPane {
                         modelRectangle.getHeight());
                 modelRectangle.setRect(x, y, width, height);
                 adaptToModelRectangle(modelRectangle);
-                final AffineTransform transform = getTransform();
-                final Rectangle2D viewRectangle = transform.createTransformedShape(modelRectangle).getBounds2D();
-                selectionRectangle.setRect(viewRectangle);
-                movableRectangle.setRect(viewRectangle);
-                cursorChanger.updateRectanglesForDragCursor();
-                updateFigure(modelRectangle);
+                updateRectangles();
             }
 
-            private AffineTransform getTransform() {
-                return worldMapPane.getLayerCanvas().getViewport().getModelToViewTransform();
-            }
         }
     }
 
@@ -704,13 +704,6 @@ public class RegionSelectableWorldMapPane {
         public void panStopped(MouseEvent event) {
             super.panStopped(event);
             updateRectangles();
-        }
-
-        private void updateRectangles() {
-            AffineTransform modelToView = worldMapPane.getLayerCanvas().getViewport().getModelToViewTransform();
-            selectionRectangle = modelToView.createTransformedShape(figureEditor.getFigureCollection().getFigure(0).getBounds()).getBounds2D();
-            movableRectangle.setRect(selectionRectangle);
-            cursorChanger.updateRectanglesForDragCursor();
         }
 
         private Rectangle2D.Double createIntersectionRectangle() {
