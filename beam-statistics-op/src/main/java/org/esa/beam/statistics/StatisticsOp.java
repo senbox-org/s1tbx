@@ -270,8 +270,6 @@ public class StatisticsOp extends Operator implements Output {
                 final SimpleFeature feature = featureIterator.next();
                 final Geometry defaultGeometry = (Geometry) feature.getDefaultGeometry();
                 regionIds[i] = feature.getID();
-                // todo analyse
-//                regionIds[i] = feature.getName().toString();
                 regions[i++] = defaultGeometry;
             }
         } catch (IOException e) {

@@ -16,6 +16,7 @@
 
 package org.esa.beam.statistics.calculators;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ProgressMonitor;
 
@@ -81,8 +82,13 @@ public class StatisticsCalculatorPercentile implements StatisticsCalculator {
 
         @Override
         public StatisticsCalculator createStatisticsCalculator(PropertySet propertySet) {
-            // todo fix npe
-            final int percentile = propertySet.getProperty("percentile").<Integer>getValue();
+            final int percentile;
+            final Property percentileProperty = propertySet.getProperty(getName());
+            if (percentileProperty != null) {
+                percentile = percentileProperty.<Integer>getValue();
+            } else {
+                throw new IllegalArgumentException("Missing property '" + getName() + "'");
+            }
             return new StatisticsCalculatorPercentile(percentile);
         }
     }
