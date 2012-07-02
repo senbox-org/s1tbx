@@ -53,6 +53,7 @@ import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptor;
 import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptorRegistry;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.io.WildcardMatcher;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
@@ -63,7 +64,10 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -106,6 +110,9 @@ public class StatisticsOp extends Operator implements Output {
                              "'?' (matches any single character).")
     String[] sourceProductPaths;
 
+    @Parameter(description = "The target file for output.", notNull = true)
+    File outputFile;
+
     @Parameter(description =
                        "An ESRI shapefile, providing the considered geographical region(s) given as polygons. If " +
                        "null, all pixels are considered.")
@@ -136,10 +143,22 @@ public class StatisticsOp extends Operator implements Output {
 
     @Override
     public void initialize() throws OperatorException {
+//        setUp();
         validateInput();
         extractRegions();
-        computeOutput(collectSourceProducts());
+        Product[] allSourceProducts = collectSourceProducts();
+        initializeOutput(allSourceProducts);
+        computeOutput(allSourceProducts);
         writeOutput();
+    }
+
+    private void initializeOutput(Product[] allSourceProducts) {
+        final List<String> algorithmNamesList = new ArrayList<String>();
+        for (BandConfiguration bandConfiguration : bandConfigurations) {
+            algorithmNamesList.add(bandConfiguration.statisticsCalculatorDescriptor.getName());
+        }
+        final String[] algorithmNames = algorithmNamesList.toArray(new String[algorithmNamesList.size()]);
+        outputStrategy.initialiseOutput(allSourceProducts, algorithmNames, startDate, endDate, regionIds);
     }
 
     @Override
@@ -147,6 +166,29 @@ public class StatisticsOp extends Operator implements Output {
         super.dispose();
         for (Product collectedProduct : collectedProducts) {
             collectedProduct.dispose();
+        }
+    }
+
+    // todo - move to outputStrategy or similar
+    private void setUp() {
+        try {
+            final PrintStream metadataOutput;
+            final PrintStream csvOutput;
+            if (outputFile.isDirectory()) {
+                final File metadataFile = new File(outputFile, "statistics_metadata.ascii");
+                final File csvFile = new File(outputFile, "statistics_data.csv");
+                metadataOutput = new PrintStream(new FileOutputStream(metadataFile));
+                csvOutput = new PrintStream(new FileOutputStream(csvFile));
+            } else {
+                final StringBuilder metadataFileName = new StringBuilder(FileUtils.getFilenameWithoutExtension(outputFile));
+                metadataFileName.append("_metadata.ascii");
+                final File metadataFile = new File(outputFile.getParent(), metadataFileName.toString());
+                metadataOutput = new PrintStream(new FileOutputStream(metadataFile));
+                csvOutput = new PrintStream(new FileOutputStream(outputFile));
+            }
+            this.outputStrategy = new CsvFormatter(metadataOutput, csvOutput);
+        } catch (FileNotFoundException e) {
+            throw new OperatorException("Unable to create formatter for file '" + outputFile.getAbsolutePath() + "'.");
         }
     }
 
@@ -216,7 +258,7 @@ public class StatisticsOp extends Operator implements Output {
 
     private void writeOutput() {
         try {
-            outputStrategy.output();
+            outputStrategy.finaliseOutput();
         } catch (IOException e) {
             throw new OperatorException("Unable to write output.", e);
         }
@@ -401,9 +443,12 @@ public class StatisticsOp extends Operator implements Output {
 
     interface OutputStrategy {
 
+        void initialiseOutput(Product[] sourceProducts, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate,
+                              String[] regionIds);
+
         void addToOutput(BandConfiguration bandConfiguration, String regionId, Map<String, Double> statistics);
 
-        void output() throws IOException;
+        void finaliseOutput() throws IOException;
     }
 
     /**

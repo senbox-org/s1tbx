@@ -84,8 +84,13 @@ public class StatisticsOpTest {
             }
 
             @Override
-            public void output() throws IOException {
+            public void initialiseOutput(Product[] sourceProducts, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
             }
+
+            @Override
+            public void finaliseOutput() throws IOException {
+            }
+
         };
 
         statisticsOp.initialize();

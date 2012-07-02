@@ -81,7 +81,17 @@ public class StatisticsCalculatorPercentile implements StatisticsCalculator {
         }
 
         @Override
+        public String getDescription(PropertySet propertySet) {
+            return "p" + getPercentile(propertySet);
+        }
+
+        @Override
         public StatisticsCalculator createStatisticsCalculator(PropertySet propertySet) {
+            final int percentile = getPercentile(propertySet);
+            return new StatisticsCalculatorPercentile(percentile);
+        }
+
+        private int getPercentile(PropertySet propertySet) {
             final int percentile;
             final Property percentileProperty = propertySet.getProperty(getName());
             if (percentileProperty != null) {
@@ -89,7 +99,7 @@ public class StatisticsCalculatorPercentile implements StatisticsCalculator {
             } else {
                 throw new IllegalArgumentException("Missing property '" + getName() + "'");
             }
-            return new StatisticsCalculatorPercentile(percentile);
+            return percentile;
         }
     }
 

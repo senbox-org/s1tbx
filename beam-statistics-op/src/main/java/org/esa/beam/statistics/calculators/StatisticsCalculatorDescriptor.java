@@ -31,6 +31,14 @@ public interface StatisticsCalculatorDescriptor {
     String getName();
 
     /**
+     * @param propertySet A set of properties, same as used as in
+     *                    {@link StatisticsCalculatorDescriptor#createStatisticsCalculator(com.bc.ceres.binding.PropertySet)}.
+     *
+     * @return A description of this descriptor.
+     */
+    String getDescription(PropertySet propertySet);
+
+    /**
      * Creates an instance of the {@link StatisticsCalculator} corresponding to this descriptor.
      *
      * @param propertySet A set of properties the resulting {@link StatisticsCalculator} shall have.
