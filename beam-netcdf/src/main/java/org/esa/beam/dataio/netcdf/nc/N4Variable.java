@@ -61,36 +61,16 @@ public class N4Variable implements NVariable {
 
     @Override
     public void addAttribute(String name, Number value) throws IOException {
-        if (value instanceof Double) {
-            addAttributeImpl(name, value, NhVariable.TP_DOUBLE);
-        } else if (value instanceof Float) {
-            addAttributeImpl(name, value, NhVariable.TP_FLOAT);
-        } else {
-            addAttributeImpl(name, value.intValue(), NhVariable.TP_INT);
-        }
+        DataType dataType = DataType.getType(value.getClass());
+        int nhType = N4DataType.convert(dataType, false);
+        addAttributeImpl(name, value, nhType);
     }
 
     @Override
     public void addAttribute(String name, Array value) throws IOException {
-        Class elementType = value.getElementType();
-        int type;
-        if (elementType == long.class) {
-            type = NhVariable.TP_LONG;
-        } else if (elementType == int.class) {
-            type = NhVariable.TP_INT;
-        } else if (elementType == short.class) {
-            type = NhVariable.TP_SHORT;
-        } else if (elementType == byte.class) {
-            type = NhVariable.TP_SBYTE;
-        } else if (elementType == double.class) {
-            type = NhVariable.TP_DOUBLE;
-        } else if (elementType == float.class) {
-            type = NhVariable.TP_FLOAT;
-        } else {
-            throw new IllegalArgumentException("Unsupported attribute date type: " + elementType);
-        }
-
-        addAttributeImpl(name, value.getStorage(), type);
+        DataType dataType = DataType.getType(value.getElementType());
+        int nhType = N4DataType.convert(dataType, false);
+        addAttributeImpl(name, value.getStorage(), nhType);
     }
 
     private void addAttributeImpl(String name, Object value, int type) throws IOException {
@@ -114,9 +94,9 @@ public class N4Variable implements NVariable {
 
     @Override
     public void write(int x, int y, int width, int height, boolean isYFlipped, ProductData data) throws IOException {
-         if (writer == null) {
-             writer = createWriter(isYFlipped);
-         }
+        if (writer == null) {
+            writer = createWriter(isYFlipped);
+        }
         writer.write(x, y, width, height, data);
     }
 
