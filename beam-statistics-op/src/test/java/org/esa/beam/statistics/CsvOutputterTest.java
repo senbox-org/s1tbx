@@ -68,6 +68,8 @@ public class CsvOutputterTest {
                      "#              bullerbue\n" +
                      "#              bielefeld\n" +
                      "#\n" +
+                     "#\n" +
+                     "#\n" +
                      "# Region\tBand\tmax\tmin\tp90\tp95"
                 , metadataOutput.toString());
 

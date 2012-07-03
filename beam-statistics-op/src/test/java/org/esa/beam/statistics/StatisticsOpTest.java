@@ -31,13 +31,14 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptor;
 import org.esa.beam.statistics.calculators.StatisticsCalculatorPercentile;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.ParseException;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -47,8 +48,18 @@ import static org.junit.Assert.*;
  */
 public class StatisticsOpTest {
 
+    static final File TESTDATA_DIR = new File("target/statistics-test-io");
+
     static {
         GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        TESTDATA_DIR.mkdirs();
+        if (!TESTDATA_DIR.isDirectory()) {
+            fail("Can't create test I/O directory: " + TESTDATA_DIR);
+        }
     }
 
     @Test
@@ -58,34 +69,15 @@ public class StatisticsOpTest {
 
     @Test
     public void testStatisticsOp() throws Exception {
-        final StatisticsOp statisticsOp = new StatisticsOp() {
-            @Override
-            void setupOutputter() {
-                // caring for output in test
-            }
-
-            @Override
-            public void extractRegions() {
-                // caring for regions in test
-            }
-        };
+        final StatisticsOp statisticsOp = new StatisticsOp();
         final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
         bandConfiguration.statisticsCalculatorDescriptor = new StatisticsCalculatorPercentile.Descriptor();
         bandConfiguration.percentile = 50;
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
         statisticsOp.sourceProducts = new Product[]{getTestProduct()};
-        final GeometryFactory factory = new GeometryFactory();
-        final Polygon region = new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
-                new Coordinate(13.56552, 38.366566),
-                new Coordinate(13.58868, 38.36225),
-                new Coordinate(13.582469, 38.34155),
-                new Coordinate(13.559316, 38.34586),
-                new Coordinate(13.56552, 38.366566)
-        }), factory), new LinearRing[0], factory);
-        statisticsOp.regions = new Geometry[]{region};
-        statisticsOp.regionIds = new String[]{"9_pixels.1"};
-        statisticsOp.outputFile = new File("");
+        statisticsOp.shapefile = getClass().getResource("9_pixels.shp");
+        statisticsOp.outputFile = getTestFile("statisticsOutput.out");
         final StringBuilder builder = new StringBuilder();
 
         statisticsOp.outputter = new MyOutputter(builder);
@@ -97,6 +89,28 @@ public class StatisticsOpTest {
                      "algal_2:\n" +
                      "p50: 0.775825",
                      result);
+    }
+
+    @Test
+    public void testStatisticsOp_WithGPF() throws Exception {
+        final StatisticsOp.BandConfiguration bandConfiguration_1 = new StatisticsOp.BandConfiguration();
+        bandConfiguration_1.sourceBandName = "algal_2";
+        bandConfiguration_1.statisticsCalculatorDescriptor = new StatisticsCalculatorPercentile.Descriptor();
+        bandConfiguration_1.percentile = 50;
+
+        final StatisticsOp.BandConfiguration bandConfiguration_2 = new StatisticsOp.BandConfiguration();
+        bandConfiguration_2.sourceBandName = "l2_flags";
+        bandConfiguration_2.statisticsCalculatorDescriptor = new StatisticsCalculatorPercentile.Descriptor();
+        bandConfiguration_2.percentile = 90;
+
+        final HashMap<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("outputFile", getTestFile("statisticsOutput.out"));
+        parameters.put("shapefile", getClass().getResource("9_pixels.shp"));
+        parameters.put("bandConfigurations", new StatisticsOp.BandConfiguration[]{
+                bandConfiguration_1,
+                bandConfiguration_2});
+        GPF.createProduct("StatisticsOp", parameters, getTestProduct());
+
     }
 
     @Test
@@ -113,8 +127,6 @@ public class StatisticsOpTest {
         assertConversionException(utcConverter, "2010-31-01'T'14:46:22.123");
         assertConversionException(utcConverter, "2010-01-31T14:46:22.123");
         assertConversionException(utcConverter, "2010-01-31'T'14.46.22.123");
-
-        assertNotImplementedException(utcConverter, ProductData.UTC.parse("2010-JAN-01 10:37:22"));
     }
 
     @Test
@@ -132,8 +144,6 @@ public class StatisticsOpTest {
         assertTrue(calculator instanceof StatisticsCalculatorPercentile.Descriptor);
 
         assertConversionException(converter, "Perzentil");
-
-        assertNotImplementedException(converter, new StatisticsCalculatorPercentile.Descriptor());
     }
 
     @Test
@@ -268,16 +278,6 @@ public class StatisticsOpTest {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private static void assertNotImplementedException(Converter converter, Object value) throws ParseException {
-        try {
-            converter.format(value);
-            fail();
-        } catch (IllegalStateException e) {
-            assertTrue(e.getMessage().contains("Not implemented"));
-        }
-    }
-
     private static class MyOutputter implements StatisticsOp.Outputter {
 
         private final StringBuilder builder;
@@ -308,6 +308,9 @@ public class StatisticsOpTest {
         @Override
         public void finaliseOutput() throws IOException {
         }
+    }
 
+    static File getTestFile(String fileName) {
+        return new File(TESTDATA_DIR, fileName);
     }
 }

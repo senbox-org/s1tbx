@@ -78,6 +78,8 @@ class CsvOutputter implements StatisticsOp.Outputter {
                     .append("\n");
         }
         metadataOutput.append("#\n")
+                .append("#\n")
+                .append("#\n")
                 .append("# Region")
                 .append("\t")
                 .append("Band");
@@ -92,11 +94,13 @@ class CsvOutputter implements StatisticsOp.Outputter {
         if (!statisticsContainer.containsBand(bandConfiguration.sourceBandName)) {
             statisticsContainer.put(bandConfiguration.sourceBandName, new BandStatistics());
         }
-        if (!statisticsContainer.getDataForBandName(bandConfiguration.sourceBandName).containsRegion(regionId)) {
-            statisticsContainer.getDataForBandName(bandConfiguration.sourceBandName).put(regionId, new RegionStatistics());
+        final BandStatistics dataForBandName = statisticsContainer.getDataForBandName(bandConfiguration.sourceBandName);
+        if (!dataForBandName.containsRegion(regionId)) {
+            dataForBandName.put(regionId, new RegionStatistics());
         }
         for (Map.Entry<String, Double> entry : statistics.entrySet()) {
-            statisticsContainer.getDataForBandName(bandConfiguration.sourceBandName).getDataForRegionName(regionId).put(entry.getKey(), entry.getValue());
+            final RegionStatistics dataForRegionName = dataForBandName.getDataForRegionName(regionId);
+            dataForRegionName.put(entry.getKey(), entry.getValue());
         }
     }
 
@@ -116,7 +120,9 @@ class CsvOutputter implements StatisticsOp.Outputter {
                     csvOutput.append("\t");
                     final RegionStatistics dataForRegionName = bandStatistics.getDataForRegionName(regionName);
                     if (dataForRegionName.containsAlgorithm(algorithmName)) {
-                        csvOutput.append(String.valueOf(dataForRegionName.getDataForAlgorithmName(algorithmName)));
+                        final double doubleValue = dataForRegionName.getDataForAlgorithmName(algorithmName);
+                        final String stringValue = String.valueOf(doubleValue);
+                        csvOutput.append(stringValue.substring(0, Math.min(stringValue.lastIndexOf('.') + 6, stringValue.length())));
                     }
                 }
                 csvOutput.append("\n");

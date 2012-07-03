@@ -64,7 +64,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -143,6 +142,7 @@ public class StatisticsOp extends Operator implements Output {
 
     @Override
     public void initialize() throws OperatorException {
+        setDummyTargetProduct();
         validateInput();
         setupOutputter();
         extractRegions();
@@ -163,13 +163,17 @@ public class StatisticsOp extends Operator implements Output {
     void initializeOutput(Product[] allSourceProducts) {
         final List<String> algorithmNamesList = new ArrayList<String>();
         for (BandConfiguration bandConfiguration : bandConfigurations) {
-            algorithmNamesList.add(bandConfiguration.statisticsCalculatorDescriptor.getName());
+            final PropertySet propertySet = createPropertySet(bandConfiguration);
+            algorithmNamesList.add(bandConfiguration.statisticsCalculatorDescriptor.getDescription(propertySet));
         }
         final String[] algorithmNames = algorithmNamesList.toArray(new String[algorithmNamesList.size()]);
         outputter.initialiseOutput(allSourceProducts, algorithmNames, startDate, endDate, regionIds);
     }
 
     void setupOutputter() {
+        if (outputter != null) {
+            return;
+        }
         try {
             final PrintStream metadataOutput;
             final PrintStream csvOutput;
@@ -186,7 +190,7 @@ public class StatisticsOp extends Operator implements Output {
                 csvOutput = new PrintStream(new FileOutputStream(outputFile));
             }
             this.outputter = new CsvOutputter(metadataOutput, csvOutput);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             throw new OperatorException("Unable to create formatter for file '" + outputFile.getAbsolutePath() + "'.");
         }
     }
@@ -326,7 +330,7 @@ public class StatisticsOp extends Operator implements Output {
         if (sourceProducts == null && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
             throw new OperatorException("Either source products must be given or parameter 'sourceProductPaths' must be specified");
         }
-        if(outputFile == null) {
+        if (outputFile == null) {
             throw new OperatorException("Parameter 'outputFile' must not be null.");
         }
     }
@@ -368,6 +372,11 @@ public class StatisticsOp extends Operator implements Output {
         getLogger().severe(String.format("Failed to read from '%s' (not a data product or reader missing)", file));
     }
 
+    private void setDummyTargetProduct() {
+        final Product product = new Product("dummy", "dummy", 2, 2);
+        product.addBand("dummy", ProductData.TYPE_INT8);
+        setTargetProduct(product);
+    }
 
     public static class BandConfiguration {
 
@@ -411,7 +420,10 @@ public class StatisticsOp extends Operator implements Output {
 
         @Override
         public String format(ProductData.UTC value) {
-            throw new IllegalStateException("Not implemented");
+            if (value != null) {
+                return value.format();
+            }
+            return "";
         }
 
         @Override
@@ -434,7 +446,10 @@ public class StatisticsOp extends Operator implements Output {
 
         @Override
         public String format(StatisticsCalculatorDescriptor value) {
-            throw new IllegalStateException("Not implemented");
+            if (value != null) {
+                return value.getName();
+            }
+            return "";
         }
 
         @Override
