@@ -19,7 +19,6 @@ package org.esa.beam.statistics;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -32,9 +31,9 @@ import static org.junit.Assert.*;
 /**
  * @author Thomas Storm
  */
-public class CsvFormatterTest {
+public class CsvOutputterTest {
 
-    private CsvFormatter csvFormatter;
+    private CsvOutputter csvOutputter;
     private StringBuilder metadataOutput;
     private StringBuilder csvOutput;
     private PrintStream metadataStream;
@@ -46,7 +45,7 @@ public class CsvFormatterTest {
         csvOutput = new StringBuilder();
         metadataStream = new PrintStream(new StringOutputStream(metadataOutput));
         csvStream = new PrintStream(new StringOutputStream(csvOutput));
-        csvFormatter = new CsvFormatter(metadataStream, csvStream);
+        csvOutputter = new CsvOutputter(metadataStream, csvStream);
     }
 
     @Test
@@ -57,7 +56,7 @@ public class CsvFormatterTest {
         final String[] regionIds = {"bullerbue", "bielefeld"};
         final String[] algorithmNames = new String[]{"p90", "p95", "min", "max"};
 
-        csvFormatter.initialiseOutput(sourceProducts, algorithmNames, startDate, endDate, regionIds);
+        csvOutputter.initialiseOutput(sourceProducts, algorithmNames, startDate, endDate, regionIds);
         metadataStream.close();
 
         assertEquals("# BEAM Statistics export\n" +
@@ -69,7 +68,7 @@ public class CsvFormatterTest {
                      "#              bullerbue\n" +
                      "#              bielefeld\n" +
                      "#\n" +
-                     "# Region\tBand\tp90\tp95\tmin\tmax"
+                     "# Region\tBand\tmax\tmin\tp90\tp95"
                 , metadataOutput.toString());
 
     }
@@ -78,39 +77,44 @@ public class CsvFormatterTest {
     public void testAddToOutput() throws Exception {
         addOutput();
 
-        assertEquals(csvFormatter.data.get("normalised_cow_density_index_(ncdi)")
-                             .get("werdohl")
-                             .get("p95"), 3.0, 1E-6);
-        assertEquals(csvFormatter.data.get("normalised_cow_density_index_(ncdi)")
-                             .get("werdohl")
-                             .get("p90"), 2.0, 1E-6);
+        assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_cow_density_index_(ncdi)")
+                             .getDataForRegionName("werdohl")
+                             .getDataForAlgorithmName("p95"), 3.0, 1E-6);
+        assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_cow_density_index_(ncdi)")
+                             .getDataForRegionName("werdohl")
+                             .getDataForAlgorithmName("p90"), 2.0, 1E-6);
 
-        assertEquals(csvFormatter.data.get("normalised_pig_density_index_(npdi)")
-                             .get("bielefeld")
-                             .get("p90"), 1.0, 1E-6);
-        assertEquals(csvFormatter.data.get("normalised_pig_density_index_(npdi)")
-                             .get("bielefeld")
-                             .get("p95"), 2.0, 1E-6);
-        assertEquals(csvFormatter.data.get("normalised_pig_density_index_(npdi)")
-                             .get("bielefeld")
-                             .get("max"), 3.0, 1E-6);
-        assertEquals(csvFormatter.data.get("normalised_pig_density_index_(npdi)")
-                             .get("bielefeld")
-                             .get("min"), 0.5, 1E-6);
+        assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_pig_density_index_(npdi)")
+                             .getDataForRegionName("bielefeld")
+                             .getDataForAlgorithmName("p90"), 1.0, 1E-6);
+        assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_pig_density_index_(npdi)")
+                             .getDataForRegionName("bielefeld")
+                             .getDataForAlgorithmName("p95"), 2.0, 1E-6);
+        assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_pig_density_index_(npdi)")
+                             .getDataForRegionName("bielefeld")
+                             .getDataForAlgorithmName("max"), 3.0, 1E-6);
+        assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_pig_density_index_(npdi)")
+                             .getDataForRegionName("bielefeld")
+                             .getDataForAlgorithmName("min"), 0.5, 1E-6);
 
-        assertEquals(csvFormatter.data.get("normalised_cow_density_index_(ncdi)")
-                             .get("bielefeld")
-                             .get("p90"), 1.0, 1E-6);
+        assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_cow_density_index_(ncdi)")
+                             .getDataForRegionName("bielefeld")
+                             .getDataForAlgorithmName("p90"), 1.0, 1E-6);
     }
 
-    @Ignore // todo - make run and comment in
     @Test
     public void testFinaliseOutput() throws Exception {
+        csvOutputter.initialiseOutput(new Product[0], new String[]{
+                "p90",
+                "p95",
+                "max",
+                "min"
+        }, null, null, new String[]{"werdohl", "bielefeld"});
         addOutput();
-        csvFormatter.finaliseOutput();
+        csvOutputter.finaliseOutput();
         csvStream.close();
         assertEquals("werdohl\tnormalised_cow_density_index_(ncdi)\t\t\t2.0\t3.0\n" +
-                     "bielefeld\tnormalised_cow_density_index_(ncdi)\t\t\t1.0\t\n" +
+                     "bielefeld\tnormalised_cow_density_index_(ncdi)\t\t\t1.0\t3.0\n" +
                      "bielefeld\tnormalised_pig_density_index_(npdi)\t3.0\t0.5\t1.0\t2.0\n"
                 , csvOutput.toString());
     }
@@ -122,11 +126,11 @@ public class CsvFormatterTest {
         statistics.put("p90", 2.0);
         statistics.put("p95", 3.0);
 
-        csvFormatter.addToOutput(bandConfiguration, "werdohl", statistics);
+        csvOutputter.addToOutput(bandConfiguration, "werdohl", statistics);
 
         statistics.put("p90", 1.0);
 
-        csvFormatter.addToOutput(bandConfiguration, "bielefeld", statistics);
+        csvOutputter.addToOutput(bandConfiguration, "bielefeld", statistics);
 
         bandConfiguration.sourceBandName = "normalised_pig_density_index_(npdi)";
 
@@ -135,7 +139,7 @@ public class CsvFormatterTest {
         statistics.put("max", 3.0);
         statistics.put("min", 0.5);
 
-        csvFormatter.addToOutput(bandConfiguration, "bielefeld", statistics);
+        csvOutputter.addToOutput(bandConfiguration, "bielefeld", statistics);
     }
 
 

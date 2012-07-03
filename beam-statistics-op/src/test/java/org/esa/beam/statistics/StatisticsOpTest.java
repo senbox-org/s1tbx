@@ -33,6 +33,7 @@ import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptor;
 import org.esa.beam.statistics.calculators.StatisticsCalculatorPercentile;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -65,9 +66,10 @@ public class StatisticsOpTest {
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
         statisticsOp.sourceProducts = new Product[]{getTestProduct()};
         statisticsOp.shapefile = getClass().getResource("9_pixels.shp");
+        statisticsOp.outputFile = new File("");
         final StringBuilder builder = new StringBuilder();
 
-        statisticsOp.outputStrategy = new StatisticsOp.OutputStrategy() {
+        statisticsOp.outputter = new StatisticsOp.Outputter() {
             @Override
             public void addToOutput(StatisticsOp.BandConfiguration configuration, String regionId, Map<String, Double> statistics) {
                 builder.append(regionId)

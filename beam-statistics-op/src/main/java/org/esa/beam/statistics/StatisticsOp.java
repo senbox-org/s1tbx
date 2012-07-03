@@ -137,14 +137,14 @@ public class StatisticsOp extends Operator implements Output {
 
     String[] regionIds;
 
-    OutputStrategy outputStrategy;
+    Outputter outputter;
 
     Set<Product> collectedProducts;
 
     @Override
     public void initialize() throws OperatorException {
-//        setUp();
         validateInput();
+//        setUp();
         extractRegions();
         Product[] allSourceProducts = collectSourceProducts();
         initializeOutput(allSourceProducts);
@@ -158,7 +158,7 @@ public class StatisticsOp extends Operator implements Output {
             algorithmNamesList.add(bandConfiguration.statisticsCalculatorDescriptor.getName());
         }
         final String[] algorithmNames = algorithmNamesList.toArray(new String[algorithmNamesList.size()]);
-        outputStrategy.initialiseOutput(allSourceProducts, algorithmNames, startDate, endDate, regionIds);
+        outputter.initialiseOutput(allSourceProducts, algorithmNames, startDate, endDate, regionIds);
     }
 
     @Override
@@ -169,8 +169,7 @@ public class StatisticsOp extends Operator implements Output {
         }
     }
 
-    // todo - move to outputStrategy or similar
-    private void setUp() {
+    private void setupOutputter() {
         try {
             final PrintStream metadataOutput;
             final PrintStream csvOutput;
@@ -186,7 +185,7 @@ public class StatisticsOp extends Operator implements Output {
                 metadataOutput = new PrintStream(new FileOutputStream(metadataFile));
                 csvOutput = new PrintStream(new FileOutputStream(outputFile));
             }
-            this.outputStrategy = new CsvFormatter(metadataOutput, csvOutput);
+            this.outputter = new CsvOutputter(metadataOutput, csvOutput);
         } catch (FileNotFoundException e) {
             throw new OperatorException("Unable to create formatter for file '" + outputFile.getAbsolutePath() + "'.");
         }
@@ -200,7 +199,7 @@ public class StatisticsOp extends Operator implements Output {
                 final Geometry region = regions[i];
                 final double[] pixelValues = getPixelValues(allSourceProducts, bandConfiguration, region);
                 final Map<String, Double> statistics = statisticsCalculator.calculateStatistics(pixelValues, ProgressMonitor.NULL);// todo - allow smarter progress monitor
-                outputStrategy.addToOutput(bandConfiguration, regionIds[i], statistics);
+                outputter.addToOutput(bandConfiguration, regionIds[i], statistics);
             }
         }
     }
@@ -258,7 +257,7 @@ public class StatisticsOp extends Operator implements Output {
 
     private void writeOutput() {
         try {
-            outputStrategy.finaliseOutput();
+            outputter.finaliseOutput();
         } catch (IOException e) {
             throw new OperatorException("Unable to write output.", e);
         }
@@ -326,6 +325,9 @@ public class StatisticsOp extends Operator implements Output {
         }
         if (sourceProducts == null && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
             throw new OperatorException("Either source products must be given or parameter 'sourceProductPaths' must be specified");
+        }
+        if(outputFile == null) {
+            throw new OperatorException("Parameter 'outputFile' must not be null.");
         }
     }
 
@@ -441,7 +443,7 @@ public class StatisticsOp extends Operator implements Output {
         }
     }
 
-    interface OutputStrategy {
+    interface Outputter {
 
         void initialiseOutput(Product[] sourceProducts, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate,
                               String[] regionIds);
