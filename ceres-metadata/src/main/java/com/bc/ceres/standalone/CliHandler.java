@@ -25,7 +25,7 @@ public class CliHandler {
 
     public void printUsage() {
         HelpFormatter formatter = new HelpFormatter();
-        String usage = "java -classpath path com.bc.ceres.standalone.MetadataEngineMain [options] [arg1] [arg2] ...";
+        String usage = "java -classpath path com.bc.ceres.standalone.MetadataEngineMain -t /path/targetItem.suff -v templateX=/path/metadata.vm.txt [-v templateY=/path/report.vm.xml] [optional options] [arg1] [arg2] ...";
         formatter.printHelp(usage, options);
     }
 
