@@ -19,6 +19,8 @@ package org.esa.beam.binning.operator.ui;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.binning.operator.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningConfig;
 import org.esa.beam.binning.operator.BinningOp;
@@ -66,26 +68,9 @@ public class BinningDialog extends SingleTargetProductDialog {
     @Override
     protected Product createTargetProduct() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new BinningOp.Spi());
-
-        // todo - get ProgressMonitor somewhere
-//        pm.beginTask("Binning...", 100);
-
-        final Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("region", formModel.getRegion());
-        parameters.put("startDate", formModel.getStartDate());
-        parameters.put("endDate", formModel.getEndDate());
-        parameters.put("outputBinnedData", formModel.shallOutputBinnedData());
-        parameters.put("binningConfig", createBinningConfig());
-        parameters.put("formatterConfig", createFormatterConfig());
-
-//        pm.worked(1);
-
-        final Product targetProduct = GPF.createProduct("Binning", parameters, formModel.getSourceProducts());
-
-//        pm.worked(99);
-//        pm.done();
-
-        return targetProduct;
+        final TargetProductCreator targetProductCreator = new TargetProductCreator();
+        targetProductCreator.executeWithBlocking();
+        return targetProductCreator.get();
     }
 
     private FormatterConfig createFormatterConfig() {
@@ -134,6 +119,35 @@ public class BinningDialog extends SingleTargetProductDialog {
     public int show() {
         setContent(form);
         return super.show();
+    }
+
+    private class TargetProductCreator extends ProgressMonitorSwingWorker<Product, Void> {
+
+        protected TargetProductCreator() {
+            super(BinningDialog.this.getJDialog(), "Creating target product");
+        }
+
+        @Override
+        protected Product doInBackground(ProgressMonitor pm) throws Exception {
+            pm.beginTask("Binning...", 100);
+
+            final Map<String, Object> parameters = new HashMap<String, Object>();
+            parameters.put("region", formModel.getRegion());
+            parameters.put("startDate", formModel.getStartDate());
+            parameters.put("endDate", formModel.getEndDate());
+            parameters.put("outputBinnedData", formModel.shallOutputBinnedData());
+            parameters.put("binningConfig", createBinningConfig());
+            parameters.put("formatterConfig", createFormatterConfig());
+
+            pm.worked(1);
+
+            final Product targetProduct = GPF.createProduct("Binning", parameters, formModel.getSourceProducts());
+
+            pm.worked(99);
+            pm.done();
+
+            return targetProduct;
+        }
     }
 
 }

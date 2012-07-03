@@ -130,10 +130,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
 
         Product targetProduct = null;
         try {
-            TargetProductCreator targetProductCreator = new TargetProductCreator();
-            targetProductCreator.executeWithBlocking();
-            targetProduct = targetProductCreator.get();
-
+            targetProduct = createTargetProduct();
             if (targetProduct == null) {
                 throw new NullPointerException("Target product is null.");
             }
@@ -288,18 +285,6 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                                      infoMessage,
                                      getTitle(),
                                      JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private class TargetProductCreator extends ProgressMonitorSwingWorker<Product, Void> {
-
-        protected TargetProductCreator() {
-            super(getJDialog(), "Creating Target Product");
-        }
-
-        @Override
-        protected Product doInBackground(ProgressMonitor pm) throws Exception {
-            return createTargetProduct();
-        }
     }
 
     private class ProductWriterSwingWorker extends ProgressMonitorSwingWorker<Product, Object> {
