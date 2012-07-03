@@ -18,12 +18,7 @@ package org.esa.beam.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.awt.ShapeWriter;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -162,12 +157,15 @@ public class StatisticsOp extends Operator implements Output {
 
     void initializeOutput(Product[] allSourceProducts) {
         final List<String> algorithmNamesList = new ArrayList<String>();
+        final List<String> bandNamesList = new ArrayList<String>();
         for (BandConfiguration bandConfiguration : bandConfigurations) {
-            final PropertySet propertySet = createPropertySet(bandConfiguration);
+            final PropertySet propertySet = StatisticsUtils.createPropertySet(bandConfiguration);
             algorithmNamesList.add(bandConfiguration.statisticsCalculatorDescriptor.getDescription(propertySet));
+            bandNamesList.add(bandConfiguration.sourceBandName);
         }
         final String[] algorithmNames = algorithmNamesList.toArray(new String[algorithmNamesList.size()]);
-        outputter.initialiseOutput(allSourceProducts, algorithmNames, startDate, endDate, regionIds);
+        final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
+        outputter.initialiseOutput(allSourceProducts, bandNames, algorithmNames, startDate, endDate, regionIds);
     }
 
     void setupOutputter() {
@@ -197,7 +195,7 @@ public class StatisticsOp extends Operator implements Output {
 
     void computeOutput(Product[] allSourceProducts) {
         for (BandConfiguration bandConfiguration : bandConfigurations) {
-            final PropertySet propertySet = createPropertySet(bandConfiguration);
+            final PropertySet propertySet = StatisticsUtils.createPropertySet(bandConfiguration);
             final StatisticsCalculator statisticsCalculator = bandConfiguration.statisticsCalculatorDescriptor.createStatisticsCalculator(propertySet);
             for (int i = 0; i < regions.length; i++) {
                 final Geometry region = regions[i];
@@ -206,20 +204,6 @@ public class StatisticsOp extends Operator implements Output {
                 outputter.addToOutput(bandConfiguration, regionIds[i], statistics);
             }
         }
-    }
-
-    private static PropertySet createPropertySet(BandConfiguration bandConfiguration) {
-        final PropertyContainer propertyContainer = new PropertyContainer();
-        propertyContainer.addProperty(new Property(new PropertyDescriptor("percentile", Integer.class), new DefaultPropertyAccessor()));
-        propertyContainer.addProperty(new Property(new PropertyDescriptor("weightCoeff", Double.class), new DefaultPropertyAccessor()));
-        try {
-            propertyContainer.getProperty("percentile").setValue(bandConfiguration.percentile);
-            propertyContainer.getProperty("weightCoeff").setValue(bandConfiguration.weightCoeff);
-        } catch (ValidationException e) {
-            // Can never come here
-            throw new IllegalStateException(e);
-        }
-        return propertyContainer;
     }
 
     double[] getPixelValues(Product[] products, BandConfiguration configuration, Geometry region) {
@@ -405,6 +389,17 @@ public class StatisticsOp extends Operator implements Output {
                    defaultValue = "-1")
         int percentile;
 
+        public BandConfiguration() {
+        }
+
+        public BandConfiguration(String sourceBandName, String expression, String validPixelExpression, StatisticsCalculatorDescriptor statisticsCalculatorDescriptor, double weightCoeff, int percentile) {
+            this.sourceBandName = sourceBandName;
+            this.expression = expression;
+            this.validPixelExpression = validPixelExpression;
+            this.statisticsCalculatorDescriptor = statisticsCalculatorDescriptor;
+            this.weightCoeff = weightCoeff;
+            this.percentile = percentile;
+        }
     }
 
     public static class UtcConverter implements Converter<ProductData.UTC> {
@@ -460,7 +455,7 @@ public class StatisticsOp extends Operator implements Output {
 
     interface Outputter {
 
-        void initialiseOutput(Product[] sourceProducts, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate,
+        void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate,
                               String[] regionIds);
 
         void addToOutput(BandConfiguration bandConfiguration, String regionId, Map<String, Double> statistics);

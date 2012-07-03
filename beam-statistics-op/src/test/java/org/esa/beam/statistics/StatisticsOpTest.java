@@ -108,7 +108,8 @@ public class StatisticsOpTest {
         parameters.put("shapefile", getClass().getResource("9_pixels.shp"));
         parameters.put("bandConfigurations", new StatisticsOp.BandConfiguration[]{
                 bandConfiguration_1,
-                bandConfiguration_2});
+                bandConfiguration_2
+        });
         GPF.createProduct("StatisticsOp", parameters, getTestProduct());
 
     }
@@ -287,6 +288,10 @@ public class StatisticsOpTest {
         }
 
         @Override
+        public void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
+        }
+
+        @Override
         public void addToOutput(StatisticsOp.BandConfiguration configuration, String regionId, Map<String, Double> statistics) {
             builder.append(regionId)
                     .append("\n")
@@ -299,10 +304,6 @@ public class StatisticsOpTest {
                         .append(": ")
                         .append(new DecimalFormat("0.000000", decimalFormatSymbols).format(entry.getValue()));
             }
-        }
-
-        @Override
-        public void initialiseOutput(Product[] sourceProducts, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
         }
 
         @Override

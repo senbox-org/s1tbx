@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An implementation of the {@link org.esa.beam.statistics.StatisticsOp.Outputter} interface.
  * Writes the output to two files: the first file contains metadata, the second file contains the actual statistics.
  *
  * @author Thomas Storm
@@ -49,11 +48,11 @@ class CsvOutputter implements StatisticsOp.Outputter {
     }
 
     @Override
-    public void initialiseOutput(Product[] sourceProducts, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate,
+    public void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate,
                                  String[] regionIds) {
         Arrays.sort(algorithmNames);
         this.algorithmNames = algorithmNames;
-                metadataOutput.append("# BEAM Statistics export\n")
+        metadataOutput.append("# BEAM Statistics export\n")
                 .append("#")
                 .append("# Products:\n");
         for (Product sourceProduct : sourceProducts) {
@@ -122,7 +121,8 @@ class CsvOutputter implements StatisticsOp.Outputter {
                     if (dataForRegionName.containsAlgorithm(algorithmName)) {
                         final double doubleValue = dataForRegionName.getDataForAlgorithmName(algorithmName);
                         final String stringValue = String.valueOf(doubleValue);
-                        csvOutput.append(stringValue.substring(0, Math.min(stringValue.lastIndexOf('.') + 6, stringValue.length())));
+                        csvOutput.append(stringValue.substring(0, Math.min(
+                                stringValue.lastIndexOf('.') + 6, stringValue.length())));
                     }
                 }
                 csvOutput.append("\n");

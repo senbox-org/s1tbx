@@ -55,8 +55,9 @@ public class CsvOutputterTest {
         final ProductData.UTC endDate = ProductData.UTC.parse("2011-01-01", "yyyy-MM-dd");
         final String[] regionIds = {"bullerbue", "bielefeld"};
         final String[] algorithmNames = new String[]{"p90", "p95", "min", "max"};
+        final String[] bandNames = new String[0];
 
-        csvOutputter.initialiseOutput(sourceProducts, algorithmNames, startDate, endDate, regionIds);
+        csvOutputter.initialiseOutput(sourceProducts, bandNames, algorithmNames, startDate, endDate, regionIds);
         metadataStream.close();
 
         assertEquals("# BEAM Statistics export\n" +
@@ -106,7 +107,7 @@ public class CsvOutputterTest {
 
     @Test
     public void testFinaliseOutput() throws Exception {
-        csvOutputter.initialiseOutput(new Product[0], new String[]{
+        csvOutputter.initialiseOutput(new Product[0], new String[0], new String[]{
                 "p90",
                 "p95",
                 "max",
