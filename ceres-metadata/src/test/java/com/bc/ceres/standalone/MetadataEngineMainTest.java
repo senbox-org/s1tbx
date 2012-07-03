@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.HashMap;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -27,18 +26,16 @@ public class MetadataEngineMainTest {
         SimpleFileSystemMock simpleFileSystem = new SimpleFileSystemMock();
         metadataEngineMain = new MetadataEngineMain(new MetadataEngine(simpleFileSystem));
 
-        String[] args = {"Hello", "world"};
-        System.setProperty("metadata", "/my/metadata.properties");
-        System.setProperty("template1", "/my-template.xml.vm");
-        System.setProperty("template2", "/yours.txt.vm");
-        System.setProperty("source1", "source/path/tsm-1.dim");
-        System.setProperty("source2", "source/path/tsm-2.N1");
-        System.setProperty("source3", "source/path/tsm-3.hdf");
-        System.setProperty("output", "/my/chl-a.N1");
+        String[] args = {"-m", "/my/metadata.properties",
+                "-v", "template1=/my-template.xml.vm", "-v", "template2=/yours.txt.vm",
+                "-S", "source1=source/path/tsm-1.dim", "-S", "source2=source/path/tsm-2.N1", "-S", "source3=source/path/tsm-3.hdf",
+                "-t", "/my/chl-a.N1",
+                "Hello", "world"};
+        metadataEngineMain.setCliHandler(new CliHandler(args));
 
         String template = "$commandLineArgs.get(0) $commandLineArgs.get(1). " +
                 "$metadata.getContent(). " +
-                "Output item path: $system.getProperty(\"output\"). " +
+                "Output item path: $targetPath. " +
                 "The source metadata: " +
                 "1) $source1.get(\"metadata.txt\").getContent() " +
                 "2) $source2.get(\"blubber.xm\").getContent() " +
@@ -51,7 +48,7 @@ public class MetadataEngineMainTest {
                 "            <source>$sourcePath</source>\n" +
                 "        #end\n" +
                 "    </sources>\n" +
-                "    <target>$system.getProperty(\"output\")</target>\n" +
+                "    <target>$targetPath</target>\n" +
                 "    <additional>$commandLineArgs.get(0) $commandLineArgs.get(1)</additional>\n" +
                 "</metadata>";
 
@@ -72,7 +69,7 @@ public class MetadataEngineMainTest {
         simpleFileSystem.setWriter("/my/chl-a-yours.txt", metadataResultXml);
 
         //execution
-        metadataEngineMain.processMetadata(args);
+        metadataEngineMain.processMetadata();
 
         assertFalse(metadataResult.toString().isEmpty());
         assertFalse(metadataResultXml.toString().isEmpty());
@@ -88,22 +85,5 @@ public class MetadataEngineMainTest {
                 "    <target>/my/chl-a.N1</target>\n" +
                 "    <additional>Hello world</additional>\n" +
                 "</metadata>", metadataResultXml.toString());
-    }
-
-    @Test
-    public void testFetchSourcePaths() throws Exception {
-        metadataEngineMain = new MetadataEngineMain(new MetadataEngine(new SimpleFileSystemMock()));
-        System.setProperty("any", "not retrieved");
-        System.setProperty("any key", "also not retrieved");
-        System.setProperty("source1", "bla/path");
-        System.setProperty("source2", "blub/path");
-        System.setProperty("source3", "bli/path");
-
-        HashMap<String, String> sources = metadataEngineMain.fetchProperty(MetadataEngineMain.KEY_SOURCE);
-
-        assertEquals(3, sources.size());
-        assertEquals("bla/path", sources.get("source1"));
-        assertEquals("blub/path", sources.get("source2"));
-        assertEquals("bli/path", sources.get("source3"));
     }
 }
