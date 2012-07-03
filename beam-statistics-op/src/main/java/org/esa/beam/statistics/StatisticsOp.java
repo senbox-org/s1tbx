@@ -144,21 +144,12 @@ public class StatisticsOp extends Operator implements Output {
     @Override
     public void initialize() throws OperatorException {
         validateInput();
-//        setUp();
+        setupOutputter();
         extractRegions();
         Product[] allSourceProducts = collectSourceProducts();
         initializeOutput(allSourceProducts);
         computeOutput(allSourceProducts);
         writeOutput();
-    }
-
-    private void initializeOutput(Product[] allSourceProducts) {
-        final List<String> algorithmNamesList = new ArrayList<String>();
-        for (BandConfiguration bandConfiguration : bandConfigurations) {
-            algorithmNamesList.add(bandConfiguration.statisticsCalculatorDescriptor.getName());
-        }
-        final String[] algorithmNames = algorithmNamesList.toArray(new String[algorithmNamesList.size()]);
-        outputter.initialiseOutput(allSourceProducts, algorithmNames, startDate, endDate, regionIds);
     }
 
     @Override
@@ -169,7 +160,16 @@ public class StatisticsOp extends Operator implements Output {
         }
     }
 
-    private void setupOutputter() {
+    void initializeOutput(Product[] allSourceProducts) {
+        final List<String> algorithmNamesList = new ArrayList<String>();
+        for (BandConfiguration bandConfiguration : bandConfigurations) {
+            algorithmNamesList.add(bandConfiguration.statisticsCalculatorDescriptor.getName());
+        }
+        final String[] algorithmNames = algorithmNamesList.toArray(new String[algorithmNamesList.size()]);
+        outputter.initialiseOutput(allSourceProducts, algorithmNames, startDate, endDate, regionIds);
+    }
+
+    void setupOutputter() {
         try {
             final PrintStream metadataOutput;
             final PrintStream csvOutput;
@@ -255,7 +255,7 @@ public class StatisticsOp extends Operator implements Output {
         return convertToPrimitiveArray(buffer);
     }
 
-    private void writeOutput() {
+    void writeOutput() {
         try {
             outputter.finaliseOutput();
         } catch (IOException e) {

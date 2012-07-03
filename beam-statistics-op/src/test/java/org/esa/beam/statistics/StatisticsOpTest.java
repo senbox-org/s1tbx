@@ -58,42 +58,37 @@ public class StatisticsOpTest {
 
     @Test
     public void testStatisticsOp() throws Exception {
-        final StatisticsOp statisticsOp = new StatisticsOp();
+        final StatisticsOp statisticsOp = new StatisticsOp() {
+            @Override
+            void setupOutputter() {
+                // caring for output in test
+            }
+
+            @Override
+            public void extractRegions() {
+                // caring for regions in test
+            }
+        };
         final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
         bandConfiguration.statisticsCalculatorDescriptor = new StatisticsCalculatorPercentile.Descriptor();
         bandConfiguration.percentile = 50;
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
         statisticsOp.sourceProducts = new Product[]{getTestProduct()};
-        statisticsOp.shapefile = getClass().getResource("9_pixels.shp");
+        final GeometryFactory factory = new GeometryFactory();
+        final Polygon region = new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
+                new Coordinate(13.56552, 38.366566),
+                new Coordinate(13.58868, 38.36225),
+                new Coordinate(13.582469, 38.34155),
+                new Coordinate(13.559316, 38.34586),
+                new Coordinate(13.56552, 38.366566)
+        }), factory), new LinearRing[0], factory);
+        statisticsOp.regions = new Geometry[]{region};
+        statisticsOp.regionIds = new String[]{"9_pixels.1"};
         statisticsOp.outputFile = new File("");
         final StringBuilder builder = new StringBuilder();
 
-        statisticsOp.outputter = new StatisticsOp.Outputter() {
-            @Override
-            public void addToOutput(StatisticsOp.BandConfiguration configuration, String regionId, Map<String, Double> statistics) {
-                builder.append(regionId)
-                        .append("\n")
-                        .append(configuration.sourceBandName)
-                        .append(":\n");
-                for (Map.Entry<String, Double> entry : statistics.entrySet()) {
-                    final DecimalFormatSymbols decimalFormatSymbols = DecimalFormatSymbols.getInstance();
-                    decimalFormatSymbols.setDecimalSeparator('.');
-                    builder.append(entry.getKey())
-                            .append(": ")
-                            .append(new DecimalFormat("0.000000", decimalFormatSymbols).format(entry.getValue()));
-                }
-            }
-
-            @Override
-            public void initialiseOutput(Product[] sourceProducts, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
-            }
-
-            @Override
-            public void finaliseOutput() throws IOException {
-            }
-
-        };
+        statisticsOp.outputter = new MyOutputter(builder);
 
         statisticsOp.initialize();
 
@@ -281,5 +276,38 @@ public class StatisticsOpTest {
         } catch (IllegalStateException e) {
             assertTrue(e.getMessage().contains("Not implemented"));
         }
+    }
+
+    private static class MyOutputter implements StatisticsOp.Outputter {
+
+        private final StringBuilder builder;
+
+        public MyOutputter(StringBuilder builder) {
+            this.builder = builder;
+        }
+
+        @Override
+        public void addToOutput(StatisticsOp.BandConfiguration configuration, String regionId, Map<String, Double> statistics) {
+            builder.append(regionId)
+                    .append("\n")
+                    .append(configuration.sourceBandName)
+                    .append(":\n");
+            for (Map.Entry<String, Double> entry : statistics.entrySet()) {
+                final DecimalFormatSymbols decimalFormatSymbols = DecimalFormatSymbols.getInstance();
+                decimalFormatSymbols.setDecimalSeparator('.');
+                builder.append(entry.getKey())
+                        .append(": ")
+                        .append(new DecimalFormat("0.000000", decimalFormatSymbols).format(entry.getValue()));
+            }
+        }
+
+        @Override
+        public void initialiseOutput(Product[] sourceProducts, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
+        }
+
+        @Override
+        public void finaliseOutput() throws IOException {
+        }
+
     }
 }
