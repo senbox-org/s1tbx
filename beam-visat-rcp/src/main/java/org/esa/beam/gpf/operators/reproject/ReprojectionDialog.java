@@ -18,7 +18,6 @@ package org.esa.beam.gpf.operators.reproject;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
@@ -107,7 +106,7 @@ class ReprojectionDialog extends SingleTargetProductDialog {
     }
 
     @Override
-    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
+    protected Product createTargetProduct() throws Exception {
         final Map<String, Product> productMap = form.getProductMap();
         final Map<String, Object> parameterMap = new HashMap<String, Object>();
         form.updateParameterMap(parameterMap);

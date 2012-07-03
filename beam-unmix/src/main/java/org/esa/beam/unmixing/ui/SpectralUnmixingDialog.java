@@ -15,7 +15,6 @@
  */
 package org.esa.beam.unmixing.ui;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -83,7 +82,7 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
     }
 
     @Override
-    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
+    protected Product createTargetProduct() throws Exception {
         final SpectralUnmixingFormModel formModel = form.getFormModel();
         Map<String, Object> parameterMap = parameterSupport.getParameterMap();
         updateParameterMap(parameterMap);

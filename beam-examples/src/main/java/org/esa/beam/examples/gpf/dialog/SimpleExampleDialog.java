@@ -1,6 +1,5 @@
 package org.esa.beam.examples.gpf.dialog;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -35,7 +34,7 @@ public class SimpleExampleDialog extends SingleTargetProductDialog {
     }
 
     @Override
-    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
+    protected Product createTargetProduct() throws Exception {
         final Product sourceProduct = form.getSourceProduct();
         return GPF.createProduct(alias, parameterSupport.getParameterMap(), sourceProduct);
     }

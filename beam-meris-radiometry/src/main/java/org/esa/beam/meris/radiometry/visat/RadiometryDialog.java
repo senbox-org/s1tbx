@@ -16,7 +16,6 @@
 
 package org.esa.beam.meris.radiometry.visat;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
@@ -55,7 +54,7 @@ class RadiometryDialog extends SingleTargetProductDialog {
     }
 
     @Override
-    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
+    protected Product createTargetProduct() throws Exception {
         final Product sourceProduct = form.getSourceProduct();
         final Product radioCorrProduct = GPF.createProduct(alias, parameterSupport.getParameterMap(), sourceProduct);
         if (isEnvisatFormatSelected() && getTargetProductSelector().getModel().isSaveToFileSelected()) {

@@ -298,7 +298,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
 
         @Override
         protected Product doInBackground(ProgressMonitor pm) throws Exception {
-            return createTargetProduct(pm);
+            return createTargetProduct();
         }
     }
 
@@ -383,11 +383,9 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
      * The method should throw a {@link OperatorException} in order to signal "nominal" processing errors,
      * other exeption types are treated as internal errors.
      *
-     * @param pm A ProgressMonitor.
-     *
      * @return The target product.
      *
      * @throws Exception if an error occurs, an {@link OperatorException} is signaling "nominal" processing errors.
      */
-    protected abstract Product createTargetProduct(ProgressMonitor pm) throws Exception;
+    protected abstract Product createTargetProduct() throws Exception;
 }

@@ -19,7 +19,6 @@ package org.esa.beam.binning.operator.ui;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.binning.operator.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningConfig;
 import org.esa.beam.binning.operator.BinningOp;
@@ -65,10 +64,11 @@ public class BinningDialog extends SingleTargetProductDialog {
     }
 
     @Override
-    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
+    protected Product createTargetProduct() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new BinningOp.Spi());
 
-        pm.beginTask("Binning...", 100);
+        // todo - get ProgressMonitor somewhere
+//        pm.beginTask("Binning...", 100);
 
         final Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("region", formModel.getRegion());
@@ -78,12 +78,12 @@ public class BinningDialog extends SingleTargetProductDialog {
         parameters.put("binningConfig", createBinningConfig());
         parameters.put("formatterConfig", createFormatterConfig());
 
-        pm.worked(1);
+//        pm.worked(1);
 
         final Product targetProduct = GPF.createProduct("Binning", parameters, formModel.getSourceProducts());
 
-        pm.worked(99);
-        pm.done();
+//        pm.worked(99);
+//        pm.done();
 
         return targetProduct;
     }

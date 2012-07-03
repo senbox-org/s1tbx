@@ -20,7 +20,6 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValueSet;
-import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
@@ -127,7 +126,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
     }
 
     @Override
-    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
+    protected Product createTargetProduct() throws Exception {
         final HashMap<String, Product> sourceProducts = ioParametersPanel.createSourceProductsMap();
         return GPF.createProduct(operatorName, parameterSupport.getParameterMap(), sourceProducts);
     }

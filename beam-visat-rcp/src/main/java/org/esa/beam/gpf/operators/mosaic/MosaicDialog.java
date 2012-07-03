@@ -16,7 +16,6 @@
 
 package org.esa.beam.gpf.operators.mosaic;
 
-import com.bc.ceres.core.ProgressMonitor;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.impl.ParserImpl;
@@ -97,7 +96,7 @@ class MosaicDialog extends SingleTargetProductDialog {
     }
 
     @Override
-    protected Product createTargetProduct(ProgressMonitor pm) throws Exception {
+    protected Product createTargetProduct() throws Exception {
         final MosaicFormModel formModel = form.getFormModel();
         return GPF.createProduct("Mosaic", formModel.getParameterMap(), formModel.getSourceProductMap());
     }
