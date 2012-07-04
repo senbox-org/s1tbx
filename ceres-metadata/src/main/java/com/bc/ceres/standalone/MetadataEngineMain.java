@@ -78,7 +78,7 @@ public class MetadataEngineMain {
         for (String key : sourcePaths.keySet()) {
             metadataEngine.readSourceMetadata(key, sourcePaths.get(key));
         }
-        velocityContext.put(KEY_SOURCES, sourcePaths.values());
+        velocityContext.put(KEY_SOURCES, sourcePaths);
 
         velocityContext.put(KEY_SYSTEM, System.getProperties());
         velocityContext.put(KEY_ARGS, Arrays.asList(cliHandler.fetchArguments()));

@@ -40,7 +40,8 @@ public class MetadataEngineMainTest {
                 "1) $source1.get(\"metadata.txt\").getContent() " +
                 "2) $source2.get(\"blubber.xm\").getContent() " +
                 "3) $source3.get(\"report.txt\").getContent() " +
-                "4) $source3.get(\"report.xml\").getContent().";
+                "4) $source3.get(\"report.xml\").getContent(). " +
+                "A source path: $sourcePaths.get(\"source1\").";
 
         String template2 = "<metadata>\n" +
                 "    <sources>\n" +
@@ -75,7 +76,8 @@ public class MetadataEngineMainTest {
         assertFalse(metadataResultXml.toString().isEmpty());
 
         assertEquals("Hello world. my.key=my value. Output item path: /my/chl-a.N1. " +
-                "The source metadata: 1) source 1 text 2) source 2 text 3) source 3-txt text 4) source 3-xml text.", metadataResult.toString());
+                "The source metadata: 1) source 1 text 2) source 2 text 3) source 3-txt text 4) source 3-xml text. " +
+                "A source path: source/path/tsm-1.dim.", metadataResult.toString());
         assertEquals("<metadata>\n" +
                 "    <sources>\n" +
                 "                    <source>source/path/tsm-3.hdf</source>\n" +
