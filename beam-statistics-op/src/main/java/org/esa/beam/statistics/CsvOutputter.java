@@ -89,11 +89,11 @@ class CsvOutputter implements StatisticsOp.Outputter {
     }
 
     @Override
-    public void addToOutput(StatisticsOp.BandConfiguration bandConfiguration, String regionId, Map<String, Double> statistics) {
-        if (!statisticsContainer.containsBand(bandConfiguration.sourceBandName)) {
-            statisticsContainer.put(bandConfiguration.sourceBandName, new BandStatistics());
+    public void addToOutput(String bandName, String regionId, Map<String, Double> statistics) {
+        if (!statisticsContainer.containsBand(bandName)) {
+            statisticsContainer.put(bandName, new BandStatistics());
         }
-        final BandStatistics dataForBandName = statisticsContainer.getDataForBandName(bandConfiguration.sourceBandName);
+        final BandStatistics dataForBandName = statisticsContainer.getDataForBandName(bandName);
         if (!dataForBandName.containsRegion(regionId)) {
             dataForBandName.put(regionId, new RegionStatistics());
         }

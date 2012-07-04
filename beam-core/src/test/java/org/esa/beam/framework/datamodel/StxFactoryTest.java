@@ -3,6 +3,8 @@ package org.esa.beam.framework.datamodel;
 import com.bc.ceres.core.ProgressMonitor;
 import org.junit.Test;
 
+import java.awt.Color;
+
 import static org.junit.Assert.*;
 
 /**
@@ -169,12 +171,62 @@ public class StxFactoryTest {
         assertEquals(3464.4, stx.getStandardDeviation(), 1.0e-1);
     }
 
-    private Band createTestBand(int type, int w, int h) {
+    @Test
+    public void testCreateStxForMultipleBands() throws Exception {
+        final Band testBand1 = createTestBand(ProductData.TYPE_FLOAT64, 10, 10, -100);
+        final Band testBand2 = createTestBand(ProductData.TYPE_FLOAT64, 10, 10, -200);
+        Stx stx = new StxFactory().withHistogramBinCount(2097152).create(ProgressMonitor.NULL, null, new RasterDataNode[] {testBand1, testBand2});
+        assertEquals(100, stx.getMinimum(), 1E-3);
+        assertEquals(299, stx.getMaximum(), 1E-3);
+        assertEquals(199.5, stx.getMean(), 1E-3);
+        assertEquals(199.5, stx.getMedian(), 1E-3);
+        assertEquals(279, stx.getHistogram().getPTileThreshold(0.9)[0], 1E-3);
+        assertEquals(199, stx.getHistogram().getPTileThreshold(0.5)[0], 1E-3);
+        assertEquals(119, stx.getHistogram().getPTileThreshold(0.1)[0], 1E-3);
+    }
+
+    @Test
+    public void testCreateStxForNullBands() throws Exception {
+        final Band testBand1 = createTestBand(ProductData.TYPE_FLOAT64, 10, 10, -100);
+        final Band testBand2 = null;
+        Stx stx = new StxFactory().withHistogramBinCount(524288).create(ProgressMonitor.NULL, null, new RasterDataNode[] {testBand1, testBand2});
+        assertEquals(100, stx.getMinimum(), 1E-3);
+        assertEquals(199, stx.getMaximum(), 1E-3);
+        assertEquals(149.5, stx.getMean(), 1E-3);
+        assertEquals(149.5, stx.getMedian(), 1E-3);
+        assertEquals(189, stx.getHistogram().getPTileThreshold(0.9)[0], 1E-3);
+        assertEquals(149, stx.getHistogram().getPTileThreshold(0.5)[0], 1E-3);
+        assertEquals(109, stx.getHistogram().getPTileThreshold(0.1)[0], 1E-3);
+    }
+
+    @Test
+    public void testCreateStxForMultipleBandsAndRoiMask() throws Exception {
+        final Band testBand1 = createTestBand(ProductData.TYPE_FLOAT64, 10, 10, -100);
+        final Band testBand2 = createTestBand(ProductData.TYPE_FLOAT64, 10, 10, -200);
+        final Mask roiMask = testBand1.getProduct().addMask("validMask", "X < 5", "testValidMask", Color.gray, Double.NaN);
+        final Mask roiMask2 = testBand2.getProduct().addMask("validMask", "X < 5", "testValidMask", Color.gray, Double.NaN);
+        Stx stx = new StxFactory()
+                .withHistogramBinCount(2097152)
+                .create(ProgressMonitor.NULL, new Mask[] {roiMask, roiMask2}, new RasterDataNode[]{testBand1, testBand2});
+        assertEquals(100, stx.getMinimum(), 1E-3);
+        assertEquals(294, stx.getMaximum(), 1E-3);
+        assertEquals(197, stx.getMean(), 1E-3);
+        assertEquals(274, stx.getHistogram().getPTileThreshold(0.9)[0], 1E-3);
+        assertEquals(194, stx.getHistogram().getPTileThreshold(0.5)[0], 1E-3);
+        assertEquals(114, stx.getHistogram().getPTileThreshold(0.1)[0], 1E-3);
+    }
+
+    private Band createTestBand(int type, int w, int h, double offset) {
         final Product product = new Product("F", "F", w, h);
-        final double mean = (w * h - 1.0) / 2.0;
-        final Band band = new VirtualBand("V", type, w, h, "(Y-0.5) * " + w + " + (X-0.5) - " + mean);
+        final Band band = new VirtualBand("V", type, w, h, "(Y-0.5) * " + w + " + (X-0.5) - " + offset);
         product.addBand(band);
 
         return band;
     }
+
+    private Band createTestBand(int type, int w, int h) {
+        final double mean = (w * h - 1.0) / 2.0;
+        return createTestBand(type, w, h, mean);
+    }
+
 }

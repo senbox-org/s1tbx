@@ -16,12 +16,12 @@
 
 package org.esa.beam.statistics;
 
-import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.FeatureUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
@@ -39,7 +39,9 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -73,59 +75,63 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
 
     @Override
     public void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
+        Arrays.sort(algorithmNames);
+        final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
         try {
-            final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = FeatureUtils.getFeatureSource(originalShapefile);
+            featureSource = FeatureUtils.getFeatureSource(originalShapefile);
             originalFeatures = featureSource.getFeatures();
-            final SimpleFeatureType originalFeatureType = featureSource.getSchema();
-            final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
-            typeBuilder.init(originalFeatureType);
-            typeBuilder.setSuperType(originalFeatureType);
-            for (int i = 0; i < algorithmNames.length; i++) {
-                final String algorithmName = algorithmNames[i];
-                final String bandName = bandNames[i];
-                typeBuilder.add(createAttributeName(algorithmName, bandName), Double.class);
-            }
-            typeBuilder.setDefaultGeometry(originalFeatureType.getGeometryDescriptor().getLocalName());
-            typeBuilder.setName(originalFeatureType.getName());
-            updatedFeatureType = typeBuilder.buildFeatureType();
         } catch (IOException e) {
             throw new OperatorException("Unable to initialise the output.", e);
         }
+        final SimpleFeatureType originalFeatureType = featureSource.getSchema();
+        final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
+        typeBuilder.init(originalFeatureType);
+        typeBuilder.setSuperType(originalFeatureType);
+        for (final String algorithmName : algorithmNames) {
+            for (String bandName : bandNames) {
+                typeBuilder.add(createUniqueAttributeName(algorithmName, bandName), Double.class);
+            }
+        }
+        typeBuilder.setDefaultGeometry(originalFeatureType.getGeometryDescriptor().getLocalName());
+        typeBuilder.setName(originalFeatureType.getName());
+        updatedFeatureType = typeBuilder.buildFeatureType();
 
     }
 
     @Override
-    public void addToOutput(StatisticsOp.BandConfiguration bandConfiguration, String regionId, Map<String, Double> statistics) {
+    public void addToOutput(String bandName, String regionId, Map<String, Double> statistics) {
         final SimpleFeatureBuilder simpleFeatureBuilder = new SimpleFeatureBuilder(updatedFeatureType);
-        final PropertySet propertySet = StatisticsUtils.createPropertySet(bandConfiguration);
-        final String description = bandConfiguration.statisticsCalculatorDescriptor.getDescription(propertySet);
-        final String name = createAttributeName(description, bandConfiguration.sourceBandName);
+        final List<SimpleFeature> markedToRemove = new ArrayList<SimpleFeature>();
+        final List<SimpleFeature> markedToAdd = new ArrayList<SimpleFeature>();
         for (SimpleFeature feature : features) {
-            if (feature.getID().equals(regionId)) {
-                final SimpleFeature updatedFeature = createUpdatedFeature(simpleFeatureBuilder, feature, name, statistics.get(description));
-                features.remove(feature);
-                features.add(updatedFeature);
-                return;
+            for (String algorithmName : statistics.keySet()) {
+                final String name = createUniqueAttributeName(algorithmName, bandName);
+                if (feature.getID().equals(regionId)) {
+                    final SimpleFeature updatedFeature = createUpdatedFeature(simpleFeatureBuilder, feature, name, statistics.get(algorithmName));
+                    markedToRemove.add(feature);
+                    markedToAdd.add(updatedFeature);
+                }
             }
+        }
+        features.removeAll(markedToRemove);
+        features.addAll(markedToAdd);
+        if (!(markedToAdd.isEmpty() && markedToRemove.isEmpty())) {
+            return;
         }
 
         final FeatureIterator<SimpleFeature> featureIterator = originalFeatures.features();
         while (featureIterator.hasNext()) {
             final SimpleFeature originalFeature = featureIterator.next();
             if (originalFeature.getID().equals(regionId)) {
-                final SimpleFeature feature = createUpdatedFeature(simpleFeatureBuilder, originalFeature, name, statistics.get(description));
+                SimpleFeature feature = originalFeature;
+                for (String algorithmName : statistics.keySet()) {
+                    final String name = createUniqueAttributeName(algorithmName, bandName);
+                    feature = createUpdatedFeature(simpleFeatureBuilder, feature, name, statistics.get(algorithmName));
+                }
                 features.add(feature);
                 return;
             }
         }
-    }
-
-    private static SimpleFeature createUpdatedFeature(SimpleFeatureBuilder builder, SimpleFeature baseFeature, String name, Double value) {
-        builder.init(baseFeature);
-        builder.set(name, value);
-        final SimpleFeature feature = builder.buildFeature(baseFeature.getID());
-        feature.setDefaultGeometry(baseFeature.getDefaultGeometry());
-        return feature;
     }
 
     @Override
@@ -137,18 +143,35 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
         exportVectorDataNode(vectorDataNode, targetFile);
     }
 
-    // todo - add test
-    private static String createAttributeName(String description, String sourceBandName) {
-        String temp = description + "_" + sourceBandName;
-        if (temp.length() > 10) {
-            temp = temp.replace("a", "").replace("e", "").replace("i", "").replace("o", "").replace("u", "");
-            // todo - log warning here...
+    private static SimpleFeature createUpdatedFeature(SimpleFeatureBuilder builder, SimpleFeature baseFeature, String name, Double value) {
+        builder.init(baseFeature);
+        builder.set(name, value);
+        final SimpleFeature feature = builder.buildFeature(baseFeature.getID());
+        feature.setDefaultGeometry(baseFeature.getDefaultGeometry());
+        return feature;
+    }
+
+    String createUniqueAttributeName(String algorithmName, String sourceBandName) {
+        String temp = algorithmName + "_" + sourceBandName;
+        String attributeName = temp;
+        final boolean tooLong = temp.length() > 10;
+        if (tooLong) {
+            attributeName = algorithmName + "_" + sourceBandName.replace("_", "");
+            attributeName = attributeName.replace("a", "").replace("e", "").replace("i", "").replace("o", "").replace("u", "");
         }
-        if (temp.length() > 10) {
-            // todo - ...and here
-            temp = temp.substring(0, 9);
+        if (attributeName.length() > 10) {
+            throw new IllegalArgumentException(
+                    MessageFormat.format(
+                            "Too long combination of algorithm name and band name: ''{0}'', ''{1}''. " +
+                            "Combination must not exceed 10 characters in length.", algorithmName, sourceBandName));
         }
-        return temp;
+
+        if (tooLong) {
+            BeamLogManager.getSystemLogger().warning(
+                    "attribute name '" + temp + "' exceeds 10 characters in length. Shortened to '" + attributeName +
+                    "'.");
+        }
+        return attributeName;
     }
 
     private static void exportVectorDataNode(VectorDataNode vectorDataNode, File file) throws IOException {

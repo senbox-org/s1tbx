@@ -18,24 +18,21 @@ package org.esa.beam.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ProgressMonitor;
-import com.vividsolutions.jts.awt.ShapeWriter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateFilter;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -43,21 +40,18 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.experimental.Output;
-import org.esa.beam.statistics.calculators.StatisticsCalculator;
-import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptor;
-import org.esa.beam.statistics.calculators.StatisticsCalculatorDescriptorRegistry;
 import org.esa.beam.util.FeatureUtils;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.io.WildcardMatcher;
 import org.geotools.data.FeatureSource;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
+import javax.imageio.ImageIO;
+import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -66,6 +60,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -104,9 +99,6 @@ public class StatisticsOp extends Operator implements Output {
                              "'?' (matches any single character).")
     String[] sourceProductPaths;
 
-    @Parameter(description = "The target file for output.", notNull = true)
-    File outputFile;
-
     @Parameter(description =
                        "An ESRI shapefile, providing the considered geographical region(s) given as polygons. If " +
                        "null, all pixels are considered.")
@@ -127,20 +119,30 @@ public class StatisticsOp extends Operator implements Output {
     @Parameter(description = "The band configurations. These configurations determine the output of the operator.")
     BandConfiguration[] bandConfigurations;
 
-    Geometry[] regions;
+    @Parameter(description = "Determines if a copy of the input shapefile shall be created and augmented with the " +
+                             "statistical data.")
+    boolean doOutputShapefile;
 
-    String[] regionIds;
+    @Parameter(description = "The target file for shapefile output.")
+    File outputShapefile;
 
-    Outputter outputter;
+    @Parameter(description = "Determines if the output shall be written into an ASCII file.")
+    boolean doOutputAsciiFile;
+
+    @Parameter(description = "The target file for ASCII output.")
+    File outputAsciiFile;
+
+    Set<Outputter> outputters = new HashSet<Outputter>();
 
     Set<Product> collectedProducts;
+
+    String[] regionNames;
 
     @Override
     public void initialize() throws OperatorException {
         setDummyTargetProduct();
         validateInput();
         setupOutputter();
-        extractRegions();
         Product[] allSourceProducts = collectSourceProducts();
         initializeOutput(allSourceProducts);
         computeOutput(allSourceProducts);
@@ -155,108 +157,115 @@ public class StatisticsOp extends Operator implements Output {
         }
     }
 
+    private VectorDataNode[] createVectorDataNodes(Product product) {
+        final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> features;
+        try {
+            featureSource = FeatureUtils.getFeatureSource(shapefile);
+            features = featureSource.getFeatures();
+        } catch (IOException e) {
+            throw new OperatorException("Unable to create masks from shapefile '" + shapefile + "'.", e);
+        }
+        final FeatureIterator<SimpleFeature> featureIterator = features.features();
+        final List<VectorDataNode> result = new ArrayList<VectorDataNode>();
+        while (featureIterator.hasNext()) {
+            final SimpleFeature simpleFeature = featureIterator.next();
+            final Geometry geometry = convertRegionToPixelRegion((Geometry) simpleFeature.getDefaultGeometry(), product.getGeoCoding());
+            simpleFeature.setDefaultGeometry(geometry);
+            final DefaultFeatureCollection fc = new DefaultFeatureCollection(simpleFeature.getID(), simpleFeature.getFeatureType());
+            fc.add(simpleFeature);
+            result.add(new VectorDataNode(simpleFeature.getID(), fc));
+        }
+        regionNames = new String[result.size()];
+        for (int i = 0; i < result.size(); i++) {
+            final VectorDataNode vectorDataNode = result.get(i);
+            regionNames[i] = vectorDataNode.getName();
+        }
+        return result.toArray(new VectorDataNode[result.size()]);
+    }
+
     void initializeOutput(Product[] allSourceProducts) {
-        final List<String> algorithmNamesList = new ArrayList<String>();
         final List<String> bandNamesList = new ArrayList<String>();
         for (BandConfiguration bandConfiguration : bandConfigurations) {
-            final PropertySet propertySet = StatisticsUtils.createPropertySet(bandConfiguration);
-            algorithmNamesList.add(bandConfiguration.statisticsCalculatorDescriptor.getDescription(propertySet));
             bandNamesList.add(bandConfiguration.sourceBandName);
         }
-        final String[] algorithmNames = algorithmNamesList.toArray(new String[algorithmNamesList.size()]);
+        final String[] algorithmNames = new String[]{"min", "max", "median", "mean", "sigma", "p90", "p95", "total"};
         final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
-        outputter.initialiseOutput(allSourceProducts, bandNames, algorithmNames, startDate, endDate, regionIds);
+        for (Outputter outputter : outputters) {
+            outputter.initialiseOutput(allSourceProducts, bandNames, algorithmNames, startDate, endDate, regionNames);
+        }
     }
 
     void setupOutputter() {
-        if (outputter != null) {
-            return;
-        }
-        try {
-            final PrintStream metadataOutput;
-            final PrintStream csvOutput;
-            if (outputFile.isDirectory()) {
-                final File metadataFile = new File(outputFile, "statistics_metadata.ascii");
-                final File csvFile = new File(outputFile, "statistics_data.csv");
-                metadataOutput = new PrintStream(new FileOutputStream(metadataFile));
-                csvOutput = new PrintStream(new FileOutputStream(csvFile));
-            } else {
-                final StringBuilder metadataFileName = new StringBuilder(FileUtils.getFilenameWithoutExtension(outputFile));
-                metadataFileName.append("_metadata.ascii");
-                final File metadataFile = new File(outputFile.getParent(), metadataFileName.toString());
-                metadataOutput = new PrintStream(new FileOutputStream(metadataFile));
-                csvOutput = new PrintStream(new FileOutputStream(outputFile));
+        if (doOutputAsciiFile) {
+            try {
+                final StringBuilder metadataFileName = new StringBuilder(FileUtils.getFilenameWithoutExtension(outputAsciiFile));
+                metadataFileName.append("_metadata.txt");
+                final File metadataFile = new File(outputAsciiFile.getParent(), metadataFileName.toString());
+                final PrintStream metadataOutput = new PrintStream(new FileOutputStream(metadataFile));
+                final PrintStream csvOutput = new PrintStream(new FileOutputStream(outputAsciiFile));
+                outputters.add(new CsvOutputter(metadataOutput, csvOutput));
+            } catch (IOException e) {
+                throw new OperatorException(
+                        "Unable to create formatter for file '" + outputAsciiFile.getAbsolutePath() + "'.");
             }
-            this.outputter = new CsvOutputter(metadataOutput, csvOutput);
-        } catch (IOException e) {
-            throw new OperatorException("Unable to create formatter for file '" + outputFile.getAbsolutePath() + "'.");
+        }
+        if (doOutputShapefile) {
+            outputters.add(new ShapefileOutputter(shapefile, outputShapefile.getAbsolutePath()));
         }
     }
 
     void computeOutput(Product[] allSourceProducts) {
-        for (BandConfiguration bandConfiguration : bandConfigurations) {
-            final PropertySet propertySet = StatisticsUtils.createPropertySet(bandConfiguration);
-            final StatisticsCalculator statisticsCalculator = bandConfiguration.statisticsCalculatorDescriptor.createStatisticsCalculator(propertySet);
-            for (int i = 0; i < regions.length; i++) {
-                final Geometry region = regions[i];
-                final double[] pixelValues = getPixelValues(allSourceProducts, bandConfiguration, region);
-                final Map<String, Double> statistics = statisticsCalculator.calculateStatistics(pixelValues, ProgressMonitor.NULL);// todo - allow smarter progress monitor
-                outputter.addToOutput(bandConfiguration, regionIds[i], statistics);
-            }
-        }
-    }
-
-    double[] getPixelValues(Product[] products, BandConfiguration configuration, Geometry region) {
-        final GeometryFactory factory = new GeometryFactory();
-        final Coordinate[] coordinatesArray = {new Coordinate()};
-        List<Double> buffer = new ArrayList<Double>();
-        for (Product product : products) {
-
-            Geometry pixelRegion = convertRegionToPixelRegion(region, product.getGeoCoding());
-
-            final Shape shape = new ShapeWriter().toShape(pixelRegion);
-            final Rectangle2D bounds2D = shape.getBounds2D();
-
-            bounds2D.setRect((int) bounds2D.getX(), (int) bounds2D.getY(),
-                             (int) bounds2D.getWidth() + 1, (int) bounds2D.getHeight() + 1);
-            final Band band = product.getBand(configuration.sourceBandName);
-
-            final String originalValidPixelExpression = band.getValidPixelExpression();
-            band.setValidPixelExpression(configuration.validPixelExpression);
-
-            for (int y = (int) bounds2D.getY(); y < bounds2D.getY() + bounds2D.getHeight(); y++) {
-                for (int x = (int) bounds2D.getX(); x < bounds2D.getX() + bounds2D.getWidth(); x++) {
-                    coordinatesArray[0].x = x;
-                    coordinatesArray[0].y = y;
-                    final CoordinateArraySequence coordinates = new CoordinateArraySequence(coordinatesArray);
-                    final Point point = new Point(coordinates, factory);
-                    final boolean contains = pixelRegion.intersects(point);
-
-                    if (contains && band.isPixelValid(x, y)) {
-                        buffer.add(ProductUtils.getGeophysicalSampleDouble(band, x, y, 0));
+        final List<Band> bands = new ArrayList<Band>();
+        for (BandConfiguration configuration : bandConfigurations) {
+            final HashMap<String, List<Mask>> map = new HashMap<String, List<Mask>>();
+            for (Product product : allSourceProducts) {
+                bands.add(product.getBand(configuration.sourceBandName));
+                for (VectorDataNode vectorDataNode : createVectorDataNodes(product)) {
+                    product.getVectorDataGroup().add(vectorDataNode);
+                    final Mask mask = product.addMask(vectorDataNode.getName(), vectorDataNode, "", Color.BLUE, Double.NaN);
+                    if (!map.containsKey(vectorDataNode.getName())) {
+                        map.put(vectorDataNode.getName(), new ArrayList<Mask>());
+                    }
+                    map.get(vectorDataNode.getName()).add(mask);
+                    try {
+                        ImageIO.write(mask.getSourceImage().getAsBufferedImage(), "png", new File("C:\\temp\\delemete.png"));
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
-
-            band.setValidPixelExpression(originalValidPixelExpression);
+            for (String regionName : regionNames) {
+                final List<Mask> maskList = map.get(regionName);
+                final Mask[] roiMasks = maskList.toArray(new Mask[maskList.size()]);
+                final Stx stx = new StxFactory()
+                        .withHistogramBinCount(1024 * 1024)
+                        .create(ProgressMonitor.NULL, roiMasks, bands.toArray(new Band[bands.size()]));
+                final HashMap<String, Double> stxMap = new HashMap<String, Double>();
+                stxMap.put("min", stx.getMinimum());
+                stxMap.put("max", stx.getMaximum());
+                stxMap.put("mean", stx.getMean());
+                stxMap.put("sigma", stx.getStandardDeviation());
+                stxMap.put("total", (double)stx.getSampleCount());
+                stxMap.put("median", stx.getHistogram().getPTileThreshold(0.5)[0]);
+                stxMap.put("p90", stx.getHistogram().getPTileThreshold(0.9)[0]);
+                stxMap.put("p95", stx.getHistogram().getPTileThreshold(0.95)[0]);
+                for (Outputter outputter : outputters) {
+                    outputter.addToOutput(bands.get(0).getName(), regionName, stxMap);
+                }
+            }
+            bands.clear();
         }
-        return convertToPrimitiveArray(buffer);
     }
 
     void writeOutput() {
         try {
-            outputter.finaliseOutput();
+            for (Outputter outputter : outputters) {
+                outputter.finaliseOutput();
+            }
         } catch (IOException e) {
             throw new OperatorException("Unable to write output.", e);
         }
-    }
-
-    private static double[] convertToPrimitiveArray(List<Double> buffer) {
-        double[] pixelValues = new double[buffer.size()];
-        for (int j = 0; j < buffer.size(); j++) {
-            pixelValues[j] = buffer.get(j);
-        }
-        return pixelValues;
     }
 
     private static Geometry convertRegionToPixelRegion(Geometry region, final GeoCoding geoCoding) {
@@ -274,39 +283,6 @@ public class StatisticsOp extends Operator implements Output {
         return geometry;
     }
 
-    void extractRegions() {
-        if (shapefile == null) {
-            final GeometryFactory factory = new GeometryFactory();
-            regions = new Geometry[]{
-                    new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
-                            new Coordinate(-180, -90),
-                            new Coordinate(-180, 90),
-                            new Coordinate(180, 90),
-                            new Coordinate(180, -90),
-                            new Coordinate(-180, -90)
-                    }), factory), null, factory)
-            };
-            regionIds = new String[]{"world"};
-            return;
-        }
-        try {
-            final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = FeatureUtils.getFeatureSource(shapefile);
-            final FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures();
-            regionIds = new String[features.size()];
-            regions = new Geometry[features.size()];
-            final FeatureIterator<SimpleFeature> featureIterator = features.features();
-            int i = 0;
-            while (featureIterator.hasNext()) {
-                final SimpleFeature feature = featureIterator.next();
-                final Geometry defaultGeometry = (Geometry) feature.getDefaultGeometry();
-                regionIds[i] = feature.getID();
-                regions[i++] = defaultGeometry;
-            }
-        } catch (IOException e) {
-            throw new OperatorException("Unable to create URL from shapefile path '" + shapefile + "'.", e);
-        }
-    }
-
     void validateInput() {
         if (startDate != null && endDate != null && endDate.getAsDate().before(startDate.getAsDate())) {
             throw new OperatorException("End date '" + this.endDate + "' before start date '" + this.startDate + "'");
@@ -314,8 +290,11 @@ public class StatisticsOp extends Operator implements Output {
         if (sourceProducts == null && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
             throw new OperatorException("Either source products must be given or parameter 'sourceProductPaths' must be specified");
         }
-        if (outputFile == null) {
-            throw new OperatorException("Parameter 'outputFile' must not be null.");
+        if (outputAsciiFile != null && outputAsciiFile.isDirectory()) {
+            throw new OperatorException("Parameter 'outputAsciiFile' must not point to a directory.");
+        }
+        if (outputShapefile != null && outputShapefile.isDirectory()) {
+            throw new OperatorException("Parameter 'outputShapefile' must not point to a directory.");
         }
     }
 
@@ -377,14 +356,6 @@ public class StatisticsOp extends Operator implements Output {
                                  "computation.")
         String validPixelExpression;
 
-        @Parameter(description = "The name of the calculator that shall be used for this band.",
-                   converter = StatisticsCalculatorDescriptorConverter.class)
-        StatisticsCalculatorDescriptor statisticsCalculatorDescriptor;
-
-        @Parameter(description = "The weight coefficient to be used in the statistics calculator, if applicable.",
-                   defaultValue = "Double.NaN")
-        double weightCoeff;
-
         @Parameter(description = "The percentile to be used in the statistics calculator, if applicable.",
                    defaultValue = "-1")
         int percentile;
@@ -392,14 +363,6 @@ public class StatisticsOp extends Operator implements Output {
         public BandConfiguration() {
         }
 
-        public BandConfiguration(String sourceBandName, String expression, String validPixelExpression, StatisticsCalculatorDescriptor statisticsCalculatorDescriptor, double weightCoeff, int percentile) {
-            this.sourceBandName = sourceBandName;
-            this.expression = expression;
-            this.validPixelExpression = validPixelExpression;
-            this.statisticsCalculatorDescriptor = statisticsCalculatorDescriptor;
-            this.weightCoeff = weightCoeff;
-            this.percentile = percentile;
-        }
     }
 
     public static class UtcConverter implements Converter<ProductData.UTC> {
@@ -428,37 +391,12 @@ public class StatisticsOp extends Operator implements Output {
 
     }
 
-    public static class StatisticsCalculatorDescriptorConverter implements Converter<StatisticsCalculatorDescriptor> {
-
-        @Override
-        public StatisticsCalculatorDescriptor parse(String text) throws ConversionException {
-            final StatisticsCalculatorDescriptor descriptor = StatisticsCalculatorDescriptorRegistry.getInstance().getStatisticsCalculatorDescriptor(text);
-            if (descriptor == null) {
-                throw new ConversionException("No descriptor '" + text + "' registered.");
-            }
-            return descriptor;
-        }
-
-        @Override
-        public String format(StatisticsCalculatorDescriptor value) {
-            if (value != null) {
-                return value.getName();
-            }
-            return "";
-        }
-
-        @Override
-        public Class<StatisticsCalculatorDescriptor> getValueType() {
-            return StatisticsCalculatorDescriptor.class;
-        }
-    }
-
     interface Outputter {
 
         void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate,
                               String[] regionIds);
 
-        void addToOutput(BandConfiguration bandConfiguration, String regionId, Map<String, Double> statistics);
+        void addToOutput(String bandName, String regionId, Map<String, Double> statistics);
 
         void finaliseOutput() throws IOException;
     }
