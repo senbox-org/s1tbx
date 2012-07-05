@@ -54,20 +54,18 @@ public class MetadataResourceEngine {
      * Creates the metadata engine.
      *
      * @param simpleFileSystem A abstraction of the used filesystem.
-     * @throws Exception If the initialization of velocity fails.
      */
-    public MetadataResourceEngine(SimpleFileSystem simpleFileSystem) throws Exception {
+    public MetadataResourceEngine(SimpleFileSystem simpleFileSystem) {
         this(simpleFileSystem, new MetadataResourceResolver(simpleFileSystem));
     }
 
     /**
      * Creates the metadata engine.
      *
-     * @param simpleFileSystem A abstraction of the used filesystem.
+     * @param simpleFileSystem         A abstraction of the used filesystem.
      * @param metadataResourceResolver A resolver for metadata resource names..
-     * @throws Exception If the initialization of velocity fails.
      */
-    public MetadataResourceEngine(SimpleFileSystem simpleFileSystem, MetadataResourceResolver metadataResourceResolver) throws Exception {
+    public MetadataResourceEngine(SimpleFileSystem simpleFileSystem, MetadataResourceResolver metadataResourceResolver) {
         Assert.notNull(simpleFileSystem, "simpleFileSystem");
         Assert.notNull(metadataResourceResolver, "metadataResourceResolver");
         this.resourceEngine = new ResourceEngine();
@@ -91,11 +89,12 @@ public class MetadataResourceEngine {
      *
      * @param name The name under which the metadata are placed into the velocity context
      * @param path The path name of the metadata resource
-     * @throws Exception If an error occurs
+     * @return The resource
+     * @throws IOException If an I/O error occurs
      */
-    public void readResource(String name, String path) throws Exception {
-        Reader reader = simpleFileSystem.getReader(path);
-        resourceEngine.processAndAddResource(name, new ReaderResource(path, reader));
+    public Resource readResource(String name, String path) throws IOException {
+        Reader reader = simpleFileSystem.createReader(path);
+        return resourceEngine.processAndAddResource(name, new ReaderResource(path, reader));
     }
 
     /**
@@ -107,15 +106,15 @@ public class MetadataResourceEngine {
      *
      * @param sourceId   The name under which the metadata are placed into the velocity context
      * @param sourcePath The path name of the source item
-     * @throws Exception If an error occurs
+     * @throws IOException If an I/O error occurs
      */
-    public void readRelatedResource(String sourceId, String sourcePath) throws Exception {
+    public void readRelatedResource(String sourceId, String sourcePath) throws IOException {
         SortedMap<String, String> sourceNames = metadataResourceResolver.getSourceNames(sourcePath);
         for (Map.Entry<String, String> sourceEntries : sourceNames.entrySet()) {
             String metadataBaseName = sourceEntries.getKey();
             String path = sourceEntries.getValue();
 
-            Reader reader = simpleFileSystem.getReader(path);
+            Reader reader = simpleFileSystem.createReader(path);
             Resource resource = new ReaderResource(path, reader);
 
             Resource processedResource = resourceEngine.processResource(resource);
@@ -163,7 +162,7 @@ public class MetadataResourceEngine {
      *
      * @param templatePath The path name of the velocity template
      * @param targetPath   The path name of the target item
-     * @throws IOException If an error occurs
+     * @throws IOException If an I/O error occurs
      */
     public void writeRelatedResource(String templatePath, String targetPath) throws IOException {
         MetadataResourceResolver.TargetResourceInfo targetResourceInfo = metadataResourceResolver.getTargetName(templatePath, targetPath);
@@ -172,10 +171,10 @@ public class MetadataResourceEngine {
         velocityContext.put("templateName", targetResourceInfo.templateName);
         velocityContext.put("templateBaseName", targetResourceInfo.templateBaseName);
 
-        Reader templateReader = simpleFileSystem.getReader(templatePath);
+        Reader templateReader = simpleFileSystem.createReader(templatePath);
         Resource processedResource = resourceEngine.processResource(new ReaderResource(templatePath, templateReader));
 
-        Writer writer = simpleFileSystem.getWriter(targetResourceInfo.targetName);
+        Writer writer = simpleFileSystem.createWriter(targetResourceInfo.targetName);
         try {
             writer.write(processedResource.getContent());
         } finally {

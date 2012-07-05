@@ -36,7 +36,7 @@ public interface SimpleFileSystem {
      * @return a reader instance
      * @throws IOException If an I/O error occurs
      */
-    Reader getReader(String path) throws IOException;
+    Reader createReader(String path) throws IOException;
 
     /**
      * Returns a writer for the given path.
@@ -45,7 +45,7 @@ public interface SimpleFileSystem {
      * @return a writer instance
      * @throws IOException If an I/O error occurs
      */
-    Writer getWriter(String path) throws IOException;
+    Writer createWriter(String path) throws IOException;
 
     /**
      * Lists all elements inside the given directory path.

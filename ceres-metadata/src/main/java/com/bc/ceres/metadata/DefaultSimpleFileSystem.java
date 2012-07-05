@@ -33,12 +33,12 @@ import java.io.Writer;
 public class DefaultSimpleFileSystem implements SimpleFileSystem {
 
     @Override
-    public Reader getReader(String path) throws IOException {
+    public Reader createReader(String path) throws IOException {
         return new FileReader(path);
     }
 
     @Override
-    public Writer getWriter(String path) throws IOException {
+    public Writer createWriter(String path) throws IOException {
         return new FileWriter(path);
     }
 

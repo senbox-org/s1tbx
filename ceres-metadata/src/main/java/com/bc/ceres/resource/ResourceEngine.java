@@ -43,10 +43,8 @@ public class ResourceEngine {
 
     /**
      * Create a resource engine.
-     *
-     * @throws Exception
      */
-    public ResourceEngine() throws Exception {
+    public ResourceEngine() {
         this(createVelocityEngine());
     }
 
@@ -54,16 +52,19 @@ public class ResourceEngine {
      * Create a resource engine using the given velocity engine.
      *
      * @param velocityEngine A velocity engine
-     * @throws Exception
      */
-    public ResourceEngine(VelocityEngine velocityEngine) throws Exception {
+    public ResourceEngine(VelocityEngine velocityEngine) {
         this.velocityEngine = velocityEngine;
         this.velocityContext = new VelocityContext();
     }
 
-    private static VelocityEngine createVelocityEngine() throws Exception {
+    private static VelocityEngine createVelocityEngine() {
         VelocityEngine velocityEngine = new VelocityEngine();
-        velocityEngine.init();
+        try {
+            velocityEngine.init();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to initialize velocity engine", e);
+        }
         return velocityEngine;
     }
 
