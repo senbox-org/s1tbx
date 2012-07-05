@@ -105,6 +105,16 @@ class DefaultCommandLineContext implements CommandLineContext {
     }
 
     @Override
+    public String[] list(String path) throws IOException {
+        File directory = new File(path);
+        if (directory.exists() && directory.isDirectory()) {
+            return directory.list();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public boolean fileExists(String fileName) {
         return new File(fileName).exists();
     }

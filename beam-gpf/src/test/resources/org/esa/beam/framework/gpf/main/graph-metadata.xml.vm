@@ -24,13 +24,13 @@
             <$key>$parameters.get($key)</$key>
 #end
         </parameters>
-        <parameterFile>$parameterFile</parameterFile>
-        <parameterFileContent><![CDATA[$parameterFileContent]]></parameterFileContent>
+        <parameterFile>$parameterFile.path</parameterFile>
+        <parameterFileContent><![CDATA[$parameterFile.content]]></parameterFileContent>
     </parameterMetadata>
 
     <graphMetadata>
-        <graphFile>$graphFile</graphFile>
-        <graphXml><![CDATA[$graphXml]]></graphXml>
+        <graphFile>$graphXml.path</graphFile>
+        <graphXml><![CDATA[$graphXml.content]]></graphXml>
         <graphNodeIds>
 #foreach ($node in $graph.nodes)
             <node>$node.id</node>
@@ -39,8 +39,8 @@
     </graphMetadata>
 
     <extraMetadata>
-#foreach ($key in $metadata.keySet())
-        <$key>$metadata.get($key)</$key>
+#foreach ($key in $metadata.map.keySet())
+        <$key>$metadata.map.get($key)</$key>
 #end
     </extraMetadata>
 </metadata>

@@ -3,8 +3,8 @@
 Size of $sourceProduct.name: $sourceProduct.sceneRasterWidth x $sourceProduct.sceneRasterHeight pixels<br/>
 Size of $targetProduct.name: $targetProduct.sceneRasterWidth x $targetProduct.sceneRasterHeight pixels<br/>
 Extra data:<br/>
-#foreach ($key in $metadata.keySet())
-$key = $metadata.get($key)<br/>
+#foreach ($key in $metadata.map.keySet())
+$key = $metadata.map.get($key)<br/>
 #end
 </body>
 </html>

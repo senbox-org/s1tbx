@@ -2,7 +2,9 @@ package org.esa.beam.framework.gpf.main;
 
 import org.junit.Ignore;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -28,7 +31,12 @@ public class TestCommandLineContext extends DefaultCommandLineContext {
     @Override
     public Reader createReader(String fileName) throws FileNotFoundException {
         if (!textFiles.containsKey(fileName)) {
-            throw new FileNotFoundException(fileName);
+            File file = new File(fileName);
+            if (file.exists()) {
+                return new FileReader(file);
+            } else {
+                throw new FileNotFoundException(fileName);
+            }
         }
         StringReader stringReader = new StringReader(textFiles.get(fileName));
         readers.add(stringReader);
@@ -56,5 +64,11 @@ public class TestCommandLineContext extends DefaultCommandLineContext {
     public void print(String m) {
         printBuffer.append(m);
         printBuffer.append('\n');
+    }
+
+    @Override
+    public String[] list(String path) throws IOException {
+        Set<String> strings = textFiles.keySet();
+        return strings.toArray(new String[strings.size()]);
     }
 }

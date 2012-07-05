@@ -24,8 +24,8 @@
             <$key>$parameters.get($key)</$key>
 #end
         </parameters>
-        <parameterFile>$parameterFile</parameterFile>
-        <parameterXml><![CDATA[$parameterXml]]></parameterXml>
+        <parameterFile>$parameterFile.path</parameterFile>
+        <parameterXml><![CDATA[$parameterFile.content]]></parameterXml>
     </parameterMetadata>
 
     <operatorMetadata>
@@ -35,8 +35,8 @@
     </operatorMetadata>
 
     <extraMetadata>
-#foreach ($key in $metadata.keySet())
-        <$key>$metadata.get($key)</$key>
+#foreach ($key in $metadata.map.keySet())
+        <$key>$metadata.map.get($key)</$key>
 #end
     </extraMetadata>
 </metadata>

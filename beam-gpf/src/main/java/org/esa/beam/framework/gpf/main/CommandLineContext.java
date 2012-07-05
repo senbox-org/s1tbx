@@ -16,20 +16,18 @@
 
 package org.esa.beam.framework.gpf.main;
 
+import com.bc.ceres.metadata.SimpleFileSystem;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
 import java.util.Map;
 import java.util.logging.Logger;
 
-interface CommandLineContext {
+interface CommandLineContext extends SimpleFileSystem {
     Product readProduct(String productFilepath) throws IOException;
 
     void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException;
@@ -46,7 +44,4 @@ interface CommandLineContext {
 
     boolean fileExists(String fileName);
 
-    Reader createReader(String fileName) throws FileNotFoundException;
-
-    Writer createWriter(String fileName) throws IOException;
 }

@@ -99,6 +99,12 @@
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-metadata</artifactId>
+                <version>${ceres.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-glayer</artifactId>
                 <version>${ceres.version}</version>
             </dependency>

@@ -69,8 +69,8 @@ public class CommandLineToolTemplateTest {
                  "-v", templateDir.getPath(),
                  sourceFile.getPath());
 
-        assertNotNull(context.writers.get("./20120607-CHL-1D-op-metadata.xml"));
-        assertNotNull(context.writers.get("./20120607-CHL-1D-op-metadata.html"));
+        assertNotNull(context.writers.get("20120607-CHL-1D-op-metadata.xml"));
+        assertNotNull(context.writers.get("20120607-CHL-1D-op-metadata.html"));
 
 
         assertEquals("<metadata>\n" +
@@ -107,8 +107,7 @@ public class CommandLineToolTemplateTest {
                              "    <pixelSizeX>0.04</pixelSizeX>\n" +
                              "    <pixelSizeY>0.02</pixelSizeY>\n" +
                              "    <crs>EPSG:4326</crs>\n" +
-                             "</parameters>\n" +
-                             "]]></parameterXml>\n" +
+                             "</parameters>]]></parameterXml>\n" +
                              "    </parameterMetadata>\n" +
                              "\n" +
                              "    <operatorMetadata>\n" +
@@ -122,7 +121,7 @@ public class CommandLineToolTemplateTest {
                              "        <softwareName>BEAM</softwareName>\n" +
                              "    </extraMetadata>\n" +
                              "</metadata>",
-                     context.writers.get("./20120607-CHL-1D-op-metadata.xml").toString());
+                     context.writers.get("20120607-CHL-1D-op-metadata.xml").toString());
 
 
         assertEquals("<html>\n" +
@@ -134,7 +133,7 @@ public class CommandLineToolTemplateTest {
                              "softwareName = BEAM<br/>\n" +
                              "</body>\n" +
                              "</html>",
-                     context.writers.get("./20120607-CHL-1D-op-metadata.html").toString());
+                     context.writers.get("20120607-CHL-1D-op-metadata.html").toString());
     }
 
     @Test
@@ -181,8 +180,8 @@ public class CommandLineToolTemplateTest {
         assertTrue(targetProducts.containsKey(targetFile));
 
 
-        assertNotNull(context.writers.get("./20120607-CHL-1D-graph-metadata.xml"));
-        assertNotNull(context.writers.get("./20120607-CHL-1D-graph-metadata.html"));
+        assertNotNull(context.writers.get("20120607-CHL-1D-graph-metadata.xml"));
+        assertNotNull(context.writers.get("20120607-CHL-1D-graph-metadata.html"));
 
         assertEquals("<metadata>\n" +
                              "\n" +
@@ -211,8 +210,7 @@ public class CommandLineToolTemplateTest {
                              "        </parameters>\n" +
                              "        <parameterFile>params.txt</parameterFile>\n" +
                              "        <parameterFileContent><![CDATA[pixelSizeX = 0.04\n" +
-                             "pixelSizeY = 0.02\n" +
-                             "]]></parameterFileContent>\n" +
+                             "pixelSizeY = 0.02]]></parameterFileContent>\n" +
                              "    </parameterMetadata>\n" +
                              "\n" +
                              "    <graphMetadata>\n" +
@@ -230,8 +228,7 @@ public class CommandLineToolTemplateTest {
                              "            <crs>EPSG:4326</crs>\n" +
                              "        </parameters>\n" +
                              "    </node>\n" +
-                             "</graph>\n" +
-                             "]]></graphXml>\n" +
+                             "</graph>]]></graphXml>\n" +
                              "        <graphNodeIds>\n" +
                              "            <node>testNode</node>\n" +
                              "            <node>ReadOp@src</node>\n" +
@@ -244,7 +241,7 @@ public class CommandLineToolTemplateTest {
                              "        <softwareName>BEAM</softwareName>\n" +
                              "    </extraMetadata>\n" +
                              "</metadata>",
-                     context.writers.get("./20120607-CHL-1D-graph-metadata.xml").toString());
+                     context.writers.get("20120607-CHL-1D-graph-metadata.xml").toString());
 
         assertEquals("<html>\n" +
                              "<body>\n" +
@@ -255,7 +252,7 @@ public class CommandLineToolTemplateTest {
                              "softwareName = BEAM<br/>\n" +
                              "</body>\n" +
                              "</html>",
-                     context.writers.get("./20120607-CHL-1D-graph-metadata.html").toString());
+                     context.writers.get("20120607-CHL-1D-graph-metadata.html").toString());
     }
 
     private File getTemplateDir() throws URISyntaxException {

@@ -253,6 +253,11 @@ public class CommandLineToolOperatorTest extends TestCase {
         }
 
         @Override
+        public String[] list(String path) throws IOException {
+            return new String[0];
+        }
+
+        @Override
         public Reader createReader(String fileName) throws FileNotFoundException {
             if ("testOperatorWithParametersFromFile".equals(fileName)) {
                 return new StringReader("expression = log(2+radiance_13)\n" +
