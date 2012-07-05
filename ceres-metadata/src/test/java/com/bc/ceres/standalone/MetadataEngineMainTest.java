@@ -1,6 +1,6 @@
 package com.bc.ceres.standalone;
 
-import com.bc.ceres.metadata.MetadataEngine;
+import com.bc.ceres.metadata.MetadataResourceEngine;
 import com.bc.ceres.metadata.SimpleFileSystemMock;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,14 +17,14 @@ public class MetadataEngineMainTest {
 
     @Before
     public void setUp() throws Exception {
-        MetadataEngine metadataEngine = new MetadataEngine(new SimpleFileSystemMock());
-        metadataEngineMain = new MetadataEngineMain(metadataEngine);
+        MetadataResourceEngine metadataResourceEngine = new MetadataResourceEngine(new SimpleFileSystemMock());
+        metadataEngineMain = new MetadataEngineMain(metadataResourceEngine);
     }
 
     @Test
     public void testProcessMetadata() throws Exception {
         SimpleFileSystemMock simpleFileSystem = new SimpleFileSystemMock();
-        metadataEngineMain = new MetadataEngineMain(new MetadataEngine(simpleFileSystem));
+        metadataEngineMain = new MetadataEngineMain(new MetadataResourceEngine(simpleFileSystem));
 
         String[] args = {"-m", "/my/metadata.properties",
                 "-v", "template1=/my-template.xml.vm", "-v", "template2=/yours.txt.vm",
@@ -56,10 +56,10 @@ public class MetadataEngineMainTest {
         simpleFileSystem.setReader("/my/metadata.properties", new StringReader("my.key=my value"));
         simpleFileSystem.setReader("/my-template.xml.vm", new StringReader(template));
         simpleFileSystem.setReader("/yours.txt.vm", new StringReader(template2));
-        simpleFileSystem.setList("source/path",
-                "tsm-1.dim", "tsm-1.data", "tsm-1-metadata.txt",
-                "tsm-2.N1", "tsm-2-blubber.xm",
-                "tsm-3.hdf", "tsm-3-report.txt", "tsm-3-report.xml");
+        simpleFileSystem.setDirectoryList("source/path",
+                                          "tsm-1.dim", "tsm-1.data", "tsm-1-metadata.txt",
+                                          "tsm-2.N1", "tsm-2-blubber.xm",
+                                          "tsm-3.hdf", "tsm-3-report.txt", "tsm-3-report.xml");
         simpleFileSystem.setReader("source/path/tsm-1-metadata.txt", new StringReader("source 1 text"));
         simpleFileSystem.setReader("source/path/tsm-2-blubber.xm", new StringReader("source 2 text"));
         simpleFileSystem.setReader("source/path/tsm-3-report.txt", new StringReader("source 3-txt text"));

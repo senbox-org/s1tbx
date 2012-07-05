@@ -14,35 +14,43 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.ceres.metadata;
+package com.bc.ceres.resource;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.Properties;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * This class encapsulates the content of a metadata resource. This can be either XML or
+ * This class encapsulates the content of a resource. This can be either XML or
  * Java properties.
  *
  * @author MarcoZ
  * @author Bettina
  * @since Ceres 0.13.2
  */
-public class MetadataResource {
-
-    private final boolean isXml;
-    private final String content;
-    private final SortedMap<String, String> map;
+public abstract class Resource {
+    private final String path;
+    private boolean isXml;
+    private String content;
+    private SortedMap<String, String> map;
+    private final Resource origin;
 
     /**
-     * Creates a {@code MetadataResource} object from the given text.
+     * Creates a {@code Resource} object for the given path.
      *
-     * @param content The content in text format
+     * @param path The path of this resource
      */
-    public MetadataResource(String content) {
-        this.content = content;
+    public Resource(String path, Resource origin) {
+        this.path = path;
+        this.origin = origin;
+    }
+
+    private void init() {
+        this.content = read();
         if (isXml(content)) {
             this.map = new TreeMap<String, String>();
             this.isXml = true;
@@ -52,19 +60,43 @@ public class MetadataResource {
         }
     }
 
+    abstract protected String read();
+
+    public String getPath() {
+        return path;
+    }
+
+    public Resource getOrigin() {
+        return origin;
+    }
+
     public boolean isXml() {
+        if (content == null) {
+            init();
+        }
         return isXml;
     }
 
     public String getContent() {
+        if (content == null) {
+            init();
+        }
         return content;
     }
 
     public SortedMap<String, String> getMap() {
+        if (content == null) {
+            init();
+        }
         return map;
     }
 
-    private static SortedMap<String, String> readProperties(String text) {
+    @Override
+    public String toString() {
+        return getContent();
+    }
+
+    static SortedMap<String, String> readProperties(String text) {
         try {
             Properties properties = new Properties();
             properties.load(new StringReader(text));
@@ -78,9 +110,19 @@ public class MetadataResource {
         }
     }
 
-    private static boolean isXml(String textContent) {
+    static boolean isXml(String textContent) {
         String t = textContent.trim();
         return t.startsWith("<?xml ") || t.startsWith("<?XML ") || (t.startsWith("<") && t.endsWith(">"));
     }
 
+    public static String readText(Reader reader) throws IOException {
+        final BufferedReader br = new BufferedReader(reader);
+        StringBuilder text = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) {
+            text.append(line);
+            text.append("\n");
+        }
+        return text.toString().trim();
+    }
 }

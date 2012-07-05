@@ -48,7 +48,7 @@ public class SimpleFileSystemMock implements SimpleFileSystem {
         readerMap.put(name, reader);
     }
 
-    public void setList(String dirName, String... files) {
+    public void setDirectoryList(String dirName, String... files) {
         listMap.put(dirName, files);
     }
 

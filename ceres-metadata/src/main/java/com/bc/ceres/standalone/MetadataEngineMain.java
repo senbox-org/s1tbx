@@ -1,7 +1,7 @@
 package com.bc.ceres.standalone;
 
 import com.bc.ceres.metadata.DefaultSimpleFileSystem;
-import com.bc.ceres.metadata.MetadataEngine;
+import com.bc.ceres.metadata.MetadataResourceEngine;
 import org.apache.velocity.VelocityContext;
 
 import java.util.Arrays;
@@ -40,17 +40,17 @@ public class MetadataEngineMain {
     public static final String KEY_TARGET = "targetPath";
     public static final String KEY_SYSTEM = "system";
     public static final String KEY_ARGS = "commandLineArgs";
-    private MetadataEngine metadataEngine;
+    private MetadataResourceEngine metadataResourceEngine;
     private CliHandler cliHandler;
 
-    public MetadataEngineMain(MetadataEngine metadataEngine) {
-        this.metadataEngine = metadataEngine;
+    public MetadataEngineMain(MetadataResourceEngine metadataResourceEngine) {
+        this.metadataResourceEngine = metadataResourceEngine;
     }
 
     public static void main(String[] commandLineArgs) {
         MetadataEngineMain metadataEngineMain = null;
         try {
-            metadataEngineMain = new MetadataEngineMain(new MetadataEngine(new DefaultSimpleFileSystem()));
+            metadataEngineMain = new MetadataEngineMain(new MetadataResourceEngine(new DefaultSimpleFileSystem()));
             metadataEngineMain.setCliHandler(new CliHandler(commandLineArgs));
             if (commandLineArgs.length < 2) {
                 metadataEngineMain.cliHandler.printUsage();
@@ -68,15 +68,15 @@ public class MetadataEngineMain {
     }
 
     void processMetadata() throws Exception {
-        VelocityContext velocityContext = metadataEngine.getVelocityContext();
+        VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
         String metadataPath = cliHandler.fetchGlobalMetadataFile();
         if (metadataPath != null) {
-            metadataEngine.readMetadata(KEY_METADATA, metadataPath, false);
+            metadataResourceEngine.readResource(KEY_METADATA, metadataPath);
         }
 
         Map<String, String> sourcePaths = cliHandler.fetchSourceItemFiles();
         for (String key : sourcePaths.keySet()) {
-            metadataEngine.readSourceMetadata(key, sourcePaths.get(key));
+            metadataResourceEngine.readRelatedResource(key, sourcePaths.get(key));
         }
         velocityContext.put(KEY_SOURCES, sourcePaths);
 
@@ -87,7 +87,11 @@ public class MetadataEngineMain {
         String outputItemPath = cliHandler.fetchTargetItemFile();
         velocityContext.put(KEY_TARGET, outputItemPath);
         for (String templateKey : templatePaths.keySet()) {
-            metadataEngine.writeTargetMetadata(templatePaths.get(templateKey), outputItemPath);
+            metadataResourceEngine.writeRelatedResource(templatePaths.get(templateKey), outputItemPath);
+        }
+        Object[] keys = velocityContext.getKeys();
+        for (Object key : keys) {
+            System.out.println(key + " - " + velocityContext.get((String)key));
         }
     }
 
