@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-envisat-reader</symbolicName>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
     <name>Envisat Product Reader</name>
 
     <description>Enables BEAM to read ENVISAT data products.</description>
@@ -29,6 +29,8 @@
 
 
     <changelog><![CDATA[
+       <p>Changes from version 1.5.1 to 1.5.2:<br/>
+       [BEAM-1414] Incorrect valid-pixel mask for ATSR SST bands<br/>
        <p>Changes from version 1.5 to 1.5.1:<br/>
        Adapted to new Maven-architecture<br>
        <p>Changes from version 1.4 to 1.5:<br/>
