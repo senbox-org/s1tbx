@@ -29,7 +29,7 @@ import java.io.StringWriter;
  * {@link VelocityContext}. For the evaluation the current {@link VelocityContext}
  * and its content is used.
  * <p/>
- * Resources can be retrieved afterwards,
+ * Resources can be retrieved afterwards.
  * <p/>
  *
  * @author MarcoZ

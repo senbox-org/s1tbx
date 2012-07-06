@@ -62,14 +62,25 @@ public abstract class Resource {
 
     abstract protected String read();
 
+    /**
+     * Gets the path of the resource on the underlying file system.
+     *
+     * @return The path of the resource
+     */
     public String getPath() {
         return path;
     }
+
 
     public Resource getOrigin() {
         return origin;
     }
 
+    /**
+     * True, if the content of the resource is of XML format.
+     *
+     * @return True, if content is XML.
+     */
     public boolean isXml() {
         if (content == null) {
             init();
@@ -77,6 +88,11 @@ public abstract class Resource {
         return isXml;
     }
 
+    /**
+     * Returns the exact copy of the content of the resource.
+     *
+     * @return The content of the resource.
+     */
     public String getContent() {
         if (content == null) {
             init();
@@ -84,6 +100,12 @@ public abstract class Resource {
         return content;
     }
 
+    /**
+     * Returns an alphabetically sorted map, only if the content of the resource was a
+     * Java properties file.
+     *
+     * @return Properties as map.
+     */
     public SortedMap<String, String> getMap() {
         if (content == null) {
             init();
@@ -91,6 +113,11 @@ public abstract class Resource {
         return map;
     }
 
+    /**
+     * Returns the exact copy of the content of the resource.
+     *
+     * @return The content of the resource.
+     */
     @Override
     public String toString() {
         return getContent();

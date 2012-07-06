@@ -89,10 +89,6 @@ public class MetadataEngineMain {
         for (String templateKey : templatePaths.keySet()) {
             metadataResourceEngine.writeRelatedResource(templatePaths.get(templateKey), outputItemPath);
         }
-        Object[] keys = velocityContext.getKeys();
-        for (Object key : keys) {
-            System.out.println(key + " - " + velocityContext.get((String)key));
-        }
     }
 
     void setCliHandler(CliHandler cliHandler) { //only for tests
