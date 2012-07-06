@@ -7,9 +7,18 @@
     </source>
 
     <sources>
+        <product>
 #foreach ($key in $sourceProducts.keySet())
         <$key>$sourceProducts.get($key).name</$key>
 #end
+        </product>
+        <metadata>
+#foreach( $sourceM in $sourceMetadata)
+   #foreach( $reports in $sourceM)
+       $reports.content
+   #end
+#end
+        </metadata>
     </sources>
 
     <target>

@@ -132,7 +132,7 @@ class CommandLineTool implements GraphProcessingObserver {
             commandLineContext.print(CommandLineUsage.getUsageTextForOperator(commandLineArgs.getOperatorName()));
         } else if (commandLineArgs.getGraphFilePath() != null) {
             commandLineContext.print(CommandLineUsage.getUsageTextForGraph(commandLineArgs.getGraphFilePath(),
-                                                                           commandLineContext));
+                    commandLineContext));
         } else {
             commandLineContext.print(CommandLineUsage.getUsageText());
         }
@@ -221,7 +221,7 @@ class CommandLineTool implements GraphProcessingObserver {
                 metadataResourceEngine.readRelatedResource(sourceId, sourcePath);
             } catch (IOException e) {
                 logSevereProblem(String.format("Failed to load metadata file associated with '%s = %s': %s",
-                                               sourceId, sourcePath, e.getMessage()), e);
+                        sourceId, sourcePath, e.getMessage()), e);
             }
         }
     }
@@ -331,7 +331,6 @@ class CommandLineTool implements GraphProcessingObserver {
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
         File graphFile = new File(commandLineArgs.getGraphFilePath());
         velocityContext.put("graph", graph);
-        velocityContext.put("graphFile", graphFile);
 
         metadataResourceEngine.readResource("graphXml", graphFile.getPath());
     }
@@ -340,7 +339,7 @@ class CommandLineTool implements GraphProcessingObserver {
             ValidationException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName,
-                                                                                                          parameters);
+                parameters);
         // explicitly set default values for putting them into the backing map
         container.setDefaultValues();
 
@@ -467,11 +466,8 @@ class CommandLineTool implements GraphProcessingObserver {
         return commandLineContext.readProduct(filePath);
     }
 
-    void writeProduct(Product targetProduct,
-                      String filePath,
-                      String formatName,
-                      boolean clearCacheAfterRowWrite) throws
-            IOException {
+    void writeProduct(Product targetProduct, String filePath, String formatName,
+                      boolean clearCacheAfterRowWrite) throws IOException {
         commandLineContext.writeProduct(targetProduct, filePath, formatName, clearCacheAfterRowWrite);
     }
 
@@ -483,8 +479,7 @@ class CommandLineTool implements GraphProcessingObserver {
         commandLineContext.executeGraph(graph, this);
     }
 
-    private Product createOpProduct(String opName,
-                                    Map<String, Object> parameters,
+    private Product createOpProduct(String opName, Map<String, Object> parameters,
                                     Map<String, Product> sourceProducts) throws OperatorException {
         return commandLineContext.createOpProduct(opName, parameters, sourceProducts);
     }
