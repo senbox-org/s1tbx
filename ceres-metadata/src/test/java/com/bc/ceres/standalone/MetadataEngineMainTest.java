@@ -37,10 +37,10 @@ public class MetadataEngineMainTest {
                 "$metadata.getContent(). " +
                 "Output item path: $targetPath. " +
                 "The source metadata: " +
-                "1) $source1.get(\"metadata.txt\").getContent() " +
-                "2) $source2.get(\"blubber.xm\").getContent() " +
-                "3) $source3.get(\"report.txt\").getContent() " +
-                "4) $source3.get(\"report.xml\").getContent(). " +
+                "1) $sourceMetadata.get(\"source1\").get(\"metadata_txt\").content " +
+                "2) $sourceMetadata.get(\"source2\").get(\"blubber_xm\").content " +
+                "3) $sourceMetadata.get(\"source3\").get(\"report_txt\").content " +
+                "4) $sourceMetadata.get(\"source3\").get(\"report_xml\").content. " +
                 "A source path: $sourcePaths.get(\"source1\").";
 
         String template2 = "<metadata>\n" +

@@ -18,6 +18,8 @@ package com.bc.ceres.metadata;
 
 import org.junit.Test;
 
+import java.util.SortedMap;
+
 import static org.junit.Assert.*;
 
 public class MetadataResourceResolverTest {
@@ -58,5 +60,18 @@ public class MetadataResourceResolverTest {
         assertEquals(".", MetadataResourceResolver.getDirname(".\\foo.txt"));
         assertEquals("bar", MetadataResourceResolver.getDirname("bar\\foo.txt"));
         assertEquals("C:/bar", MetadataResourceResolver.getDirname("C:\\bar\\foo.txt"));
+    }
+
+    @Test
+    public void testGetSourceNames() throws Exception {
+        SimpleFileSystemMock simpleFileSystem = new SimpleFileSystemMock();
+        simpleFileSystem.setDirectoryList("/bla/bli", "file1", "product-file2.xml", "file3", "product-file4.properties");
+        MetadataResourceResolver resolver = new MetadataResourceResolver(simpleFileSystem);
+
+        SortedMap<String,String> sourceMetadataPaths= resolver.getSourceMetadataPaths("/bla/bli/product.dim");
+
+        assertEquals(2, sourceMetadataPaths.size());
+        assertEquals("/bla/bli/product-file2.xml", sourceMetadataPaths.get("file2.xml"));
+        assertEquals("/bla/bli/product-file4.properties", sourceMetadataPaths.get("file4.properties"));
     }
 }

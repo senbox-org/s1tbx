@@ -98,18 +98,21 @@ public class MetadataResourceEngine {
     }
 
     /**
-     * Reads the all metadata file belonging to the given source item and places them into
-     * the velocity context.
+     * Reads the all metadata file belonging to the given source item and places them into a map registered as
+     * 'sourceMetadata' the velocity context. The 'sourceMetadata'-map contains the processed metadata files as another map.
+     * The map of metadata files can be retrieved using the key 'sourceId'.
      * <p/>
      * Metadata files belong to a source if they follow a naming pattern:
      * For a given {@code sourcePath} "chl_a.nc", e.g. "chl_a-metadata.xml" and "chl_a-report.html" are considered.
      *
-     * @param sourceId   The name under which the metadata are placed into the velocity context
+     * @param sourceId   The name under which the metadata are placed in the 'sourceMetadata'-map
      * @param sourcePath The path name of the source item
      * @throws IOException If an I/O error occurs
      */
     public void readRelatedResource(String sourceId, String sourcePath) throws IOException {
-        SortedMap<String, String> sourceNames = metadataResourceResolver.getSourceNames(sourcePath);
+        SortedMap<String, String> sourceNames = metadataResourceResolver.getSourceMetadataPaths(sourcePath);
+        HashMap<String, Resource> resourceMap = new HashMap<String, Resource>();
+
         for (Map.Entry<String, String> sourceEntries : sourceNames.entrySet()) {
             String metadataBaseName = sourceEntries.getKey();
             String path = sourceEntries.getValue();
@@ -118,36 +121,19 @@ public class MetadataResourceEngine {
             Resource resource = new ReaderResource(path, reader);
 
             Resource processedResource = resourceEngine.processResource(resource);
-
-            getVelocityMapSafe(sourceId).put(metadataBaseName, processedResource);
+            resourceMap.put(metadataBaseName.replace(".", "_"), processedResource)  ;
         }
-        if (!sourceNames.isEmpty()) {
-            getVelocityListSafe("sourceIDs").add(sourceId);
-        }
+        getVelocityMapSafe("sourceMetadata").put(sourceId, resourceMap)  ;
     }
 
-    private List<String> getVelocityListSafe(String name) {
-        VelocityContext velocityContext1 = resourceEngine.getVelocityContext();
-        Object listObject = velocityContext1.get(name);
-        List<String> list;
-        if (listObject instanceof List) {
-            list = (List<String>) listObject;
-        } else {
-            list = new ArrayList<String>();
-            velocityContext1.put(name, list);
-        }
-        return list;
-    }
-
-    private Map<String, Resource> getVelocityMapSafe(String name) {
-        VelocityContext velocityContext1 = resourceEngine.getVelocityContext();
-        Object mapObject = velocityContext1.get(name);
-        Map<String, Resource> map;
+    private Map<String, Map> getVelocityMapSafe(String name) {
+        Object mapObject = resourceEngine.getVelocityContext().get(name);
+        Map<String, Map> map;
         if (mapObject instanceof Map) {
-            map = (Map<String, Resource>) mapObject;
+            map = (Map<String, Map>) mapObject;
         } else {
-            map = new HashMap<String, Resource>();
-            velocityContext1.put(name, map);
+            map = new HashMap<String, Map>();
+            resourceEngine.getVelocityContext().put(name, map);
         }
         return map;
     }

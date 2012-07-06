@@ -165,47 +165,47 @@ public class MetadataResourceEngineTest {
         ioAccessor.setReader("input/MER_L1-meta.txt", new StringReader("key = BEAM is ${state}"));
         ioAccessor.setDirectoryList("input", "MER_L1-report.xml", "MER_L1-meta.txt", "MER_L1.N1");
 
-        VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
-
+        //execution
         metadataResourceEngine.readRelatedResource("source1", "input/MER_L1.N1");
 
-        assertEquals(2, velocityContext.getKeys().length);
-        assertNotNull(velocityContext.get("source1"));
-        assertNotNull(velocityContext.get("sourceIDs"));
+        VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
+        assertEquals(1, velocityContext.getKeys().length);
+        assertNotNull(velocityContext.get("sourceMetadata"));
 
-        Object object = velocityContext.get("source1");
+        Object object = velocityContext.get("sourceMetadata");
         assertTrue(object instanceof Map);
         Map map = (Map) object;
-        assertEquals(2, map.size());
-        assertTrue(map.containsKey("report.xml"));
-        assertTrue(map.containsKey("meta.txt"));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey("source1"));
 
-        object = map.get("report.xml");
+        object = map.get("source1");
+        assertNotNull(object);
+        assertTrue(object instanceof Map);
+        Map resourceMap = (Map) object;
+        assertEquals(2, resourceMap.size());
+        assertTrue(resourceMap.containsKey("report_xml"));
+        assertTrue(resourceMap.containsKey("meta_txt"));
+
+        object = resourceMap.get("report_xml");
         assertNotNull(object);
         assertTrue(object instanceof Resource);
         Resource resource = (Resource) object;
         assertTrue(resource.isXml());
         assertEquals("<?xml>this is XML</xml>", resource.getContent());
-        Map<String, String> resourceMap = resource.getMap();
-        assertNotNull(resourceMap);
-        assertTrue(resourceMap.isEmpty());
+        Map<String, String> xmlMap = resource.getMap();
+        assertNotNull(xmlMap);
+        assertTrue(xmlMap.isEmpty());
 
-        object = map.get("meta.txt");
+        object = resourceMap.get("meta_txt");
         assertNotNull(object);
         assertTrue(object instanceof Resource);
         resource = (Resource) object;
         assertFalse(resource.isXml());
         assertEquals("key = BEAM is ${state}", resource.getContent()); // sourceMetadata NEVER gets evaluated
-        resourceMap = resource.getMap();
-        assertNotNull(resourceMap);
-        assertEquals(1, resourceMap.size());
-        assertEquals("BEAM is ${state}", resourceMap.get("key"));
-
-        object = velocityContext.get("sourceIDs");
-        assertTrue(object instanceof List);
-        List list = (List) object;
-        assertEquals(1, list.size());
-        assertTrue(list.contains("source1"));
+        Map<String, String> propertiesMap = resource.getMap();
+        assertNotNull(propertiesMap);
+        assertEquals(1, propertiesMap.size());
+        assertEquals("BEAM is ${state}", propertiesMap.get("key"));
     }
 
     @Test
@@ -214,24 +214,29 @@ public class MetadataResourceEngineTest {
         ioAccessor.setReader("input/MER_FRS_L1-meta.xml", new StringReader("world"));
         ioAccessor.setDirectoryList("input", "MER_L1-report.xml", "MER_L1.dim", "MER_L1.data", "MER_FRS_L1-meta.xml", "MER_FRS_L1.N1");
 
-        VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
-
+        //execution
         metadataResourceEngine.readRelatedResource("source1", "input/MER_L1.N1");
         metadataResourceEngine.readRelatedResource("source2", "input/MER_FRS_L1.N1");
 
-        assertEquals(3, velocityContext.getKeys().length);
+        VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
+        assertEquals(1, velocityContext.getKeys().length);
 
-        assertNotNull(velocityContext.get("source1"));
-        assertNotNull(velocityContext.get("source2"));
-        assertNotNull(velocityContext.get("sourceIDs"));
+        assertNotNull(velocityContext.get("sourceMetadata"));
 
-        Object object = velocityContext.get("source1");
+        Object object = velocityContext.get("sourceMetadata");
         assertTrue(object instanceof Map);
         Map map = (Map) object;
-        assertEquals(1, map.size());
-        assertTrue(map.containsKey("report.xml"));
+        assertEquals(2, map.size());
+        assertTrue(map.containsKey("source1"));
+        assertTrue(map.containsKey("source2"));
 
-        object = map.get("report.xml");
+        object = map.get("source1");
+        assertNotNull(object);
+        assertTrue(object instanceof Map);
+        Map sourceMap = (Map) object;
+        assertEquals(1, sourceMap.size());
+
+        object = sourceMap.get("report_xml");
         assertNotNull(object);
         assertTrue(object instanceof Resource);
         Resource resource = (Resource) object;
@@ -239,26 +244,19 @@ public class MetadataResourceEngineTest {
         assertEquals("input/MER_L1-report.xml", resource.getPath());
         assertEquals("<?xml>hello</xml>", resource.getContent());
 
-        object = velocityContext.get("source2");
+        object = map.get("source2");
+        assertNotNull(object);
         assertTrue(object instanceof Map);
-        map = (Map) object;
-        assertEquals(1, map.size());
-        assertTrue(map.containsKey("meta.xml"));
+        sourceMap = (Map) object;
+        assertEquals(1, sourceMap.size());
 
-        object = map.get("meta.xml");
+        object = sourceMap.get("meta_xml");
         assertNotNull(object);
         assertTrue(object instanceof Resource);
         resource = (Resource) object;
         assertFalse(resource.isXml());
         assertEquals("input/MER_FRS_L1-meta.xml", resource.getPath());
         assertEquals("world", resource.getContent());
-
-        object = velocityContext.get("sourceIDs");
-        assertTrue(object instanceof List);
-        List list = (List) object;
-        assertEquals(2, list.size());
-        assertTrue(list.contains("source1"));
-        assertTrue(list.contains("source2"));
     }
 
     @Test
@@ -268,24 +266,28 @@ public class MetadataResourceEngineTest {
         ioAccessor.setDirectoryList("input1", "MER_L1-report.xml", "MER_L1.N1");
         ioAccessor.setDirectoryList("input2", "MER_FRS_L1-meta.xml", "MER_FRS_L1.N1");
 
-        VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
-
+        //execution
         metadataResourceEngine.readRelatedResource("source1", "input1/MER_L1.N1");
         metadataResourceEngine.readRelatedResource("source2", "input2/MER_FRS_L1.N1");
 
-        assertEquals(3, velocityContext.getKeys().length);
+        VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
+        assertEquals(1, velocityContext.getKeys().length);
 
-        assertNotNull(velocityContext.get("source1"));
-        assertNotNull(velocityContext.get("source2"));
-        assertNotNull(velocityContext.get("sourceIDs"));
-
-        Object object = velocityContext.get("source1");
+        Object object = velocityContext.get("sourceMetadata");
         assertTrue(object instanceof Map);
         Map map = (Map) object;
-        assertEquals(1, map.size());
-        assertTrue(map.containsKey("report.xml"));
+        assertEquals(2, map.size());
+        assertTrue(map.containsKey("source1"));
+        assertTrue(map.containsKey("source2"));
 
-        object = map.get("report.xml");
+
+        object = map.get("source1");
+        assertTrue(object instanceof Map);
+        Map sourceMap = (Map) object;
+        assertEquals(1, sourceMap.size());
+        assertTrue(sourceMap.containsKey("report_xml"));
+
+        object = sourceMap.get("report_xml");
         assertNotNull(object);
         assertTrue(object instanceof Resource);
         Resource resource = (Resource) object;
@@ -293,28 +295,18 @@ public class MetadataResourceEngineTest {
         assertEquals("input1/MER_L1-report.xml", resource.getPath());
         assertEquals("<?xml>this is XML</xml>", resource.getContent());
 
-        object = velocityContext.get("source2");
+        object = map.get("source2");
         assertTrue(object instanceof Map);
-        map = (Map) object;
-        assertEquals(1, map.size());
-        assertTrue(map.containsKey("meta.xml"));
+        sourceMap = (Map) object;
+        assertEquals(1, sourceMap.size());
+        assertTrue(sourceMap.containsKey("meta_xml"));
 
-        object = map.get("meta.xml");
+        object = sourceMap.get("meta_xml");
         assertNotNull(object);
         assertTrue(object instanceof Resource);
         resource = (Resource) object;
         assertTrue(resource.isXml());
         assertEquals("input2/MER_FRS_L1-meta.xml", resource.getPath());
         assertEquals("<?xml>this is XML</xml> <tag>value</tag>", resource.getContent());
-
-        object = velocityContext.get("sourceIDs");
-        assertTrue(object instanceof List);
-        List list = (List) object;
-        assertEquals(2, list.size());
-        assertTrue(list.contains("source1"));
-        assertTrue(list.contains("source2"));
     }
-
-
-
 }

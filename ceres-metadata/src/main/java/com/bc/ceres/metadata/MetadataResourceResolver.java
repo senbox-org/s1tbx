@@ -46,7 +46,7 @@ public class MetadataResourceResolver {
         this.simpleFileSystem = simpleFileSystem;
     }
 
-    public SortedMap<String, String> getSourceNames(String sourcePath) throws IOException {
+    public SortedMap<String, String> getSourceMetadataPaths(String sourcePath) throws IOException {
 
         final String basename = getBasename(sourcePath);
         final String dirname = getDirname(sourcePath);
@@ -58,7 +58,12 @@ public class MetadataResourceResolver {
             for (String filename : directoryList) {
                 if (!filename.equalsIgnoreCase(basename) && filename.startsWith(wantedPrefix)) {
                     String metadataBaseName = filename.substring(wantedPrefix.length());
-                    sourceNames.put(metadataBaseName, dirname + "/" + filename);
+                    if (dirname.isEmpty()) {
+                        sourceNames.put(metadataBaseName, filename);
+                    } else {
+                        sourceNames.put(metadataBaseName, dirname + "/" + filename);
+                    }
+
                 }
             }
         }
