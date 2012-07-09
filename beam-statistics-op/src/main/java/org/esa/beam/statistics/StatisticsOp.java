@@ -111,7 +111,7 @@ public class StatisticsOp extends Operator implements Output {
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
-    @Parameter(description = "The band configurations. These configurations determine the output of the operator.")
+    @Parameter(description = "The band configurations. These configurations determine the input of the operator.")
     BandConfiguration[] bandConfigurations;
 
     @Parameter(description = "Determines if a copy of the input shapefile shall be created and augmented with the " +
@@ -158,15 +158,15 @@ public class StatisticsOp extends Operator implements Output {
 
     private VectorDataNode[] createVectorDataNodes(Product product) {
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
-            final FeatureUtils.FeatureCrsProvider crsProvider = new FeatureUtils.FeatureCrsProvider() {
-                @Override
-                public CoordinateReferenceSystem getFeatureCrs(Product targetProduct) {
-                    if (ImageManager.getModelCrs(targetProduct.getGeoCoding()) == ImageManager.DEFAULT_IMAGE_CRS) {
-                        return ImageManager.DEFAULT_IMAGE_CRS;
-                    }
-                    return DefaultGeographicCRS.WGS84;
+        final FeatureUtils.FeatureCrsProvider crsProvider = new FeatureUtils.FeatureCrsProvider() {
+            @Override
+            public CoordinateReferenceSystem getFeatureCrs(Product targetProduct) {
+                if (ImageManager.getModelCrs(targetProduct.getGeoCoding()) == ImageManager.DEFAULT_IMAGE_CRS) {
+                    return ImageManager.DEFAULT_IMAGE_CRS;
                 }
-            };
+                return DefaultGeographicCRS.WGS84;
+            }
+        };
         try {
             featureCollection = FeatureUtils.loadShapefileForProduct(new File(shapefile.toURI()), product,
                                                                      crsProvider, ProgressMonitor.NULL);
@@ -192,7 +192,11 @@ public class StatisticsOp extends Operator implements Output {
     void initializeOutput(Product[] allSourceProducts) {
         final List<String> bandNamesList = new ArrayList<String>();
         for (BandConfiguration bandConfiguration : bandConfigurations) {
-            bandNamesList.add(bandConfiguration.sourceBandName);
+            if (bandConfiguration.sourceBandName != null) {
+                bandNamesList.add(bandConfiguration.sourceBandName);
+            } else {
+                bandNamesList.add(bandConfiguration.expression);
+            }
         }
         final String[] algorithmNames = new String[]{"min", "max", "median", "mean", "sigma", "p90", "p95", "total"};
         final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
@@ -225,7 +229,7 @@ public class StatisticsOp extends Operator implements Output {
         for (BandConfiguration configuration : bandConfigurations) {
             final HashMap<String, List<Mask>> map = new HashMap<String, List<Mask>>();
             for (Product product : allSourceProducts) {
-                bands.add(product.getBand(configuration.sourceBandName));
+                bands.add(getBand(configuration, product));
                 for (VectorDataNode vectorDataNode : createVectorDataNodes(product)) {
                     product.getVectorDataGroup().add(vectorDataNode);
                     final Mask mask = product.addMask(vectorDataNode.getName(), vectorDataNode, "", Color.BLUE, Double.NaN);
@@ -256,6 +260,19 @@ public class StatisticsOp extends Operator implements Output {
             }
             bands.clear();
         }
+    }
+
+    static Band getBand(BandConfiguration configuration, Product product) {
+        if (configuration.sourceBandName == null && configuration.expression == null) {
+            throw new OperatorException("Configuration must contain either a source band name or an expression.");
+        }
+        if (configuration.sourceBandName != null && configuration.expression != null) {
+            throw new OperatorException("Configuration must contain either a source band name or an expression.");
+        }
+        if (configuration.sourceBandName != null) {
+            return product.getBand(configuration.sourceBandName);
+        }
+        return product.addBand(configuration.expression.replace(" ", "_"), configuration.expression, ProductData.TYPE_FLOAT64);
     }
 
     void writeOutput() {

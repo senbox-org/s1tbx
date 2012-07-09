@@ -18,14 +18,11 @@ package org.esa.beam.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.io.FileUtils;
@@ -104,6 +101,66 @@ public class StatisticsOpTest {
     }
 
     @Test
+    public void testStatisticsOp_WithExpression() throws Exception {
+        final StatisticsOp statisticsOp = new StatisticsOp();
+        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
+        bandConfiguration.expression = "algal_2 * PI";
+        statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
+        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        statisticsOp.shapefile = getClass().getResource("4_pixels.shp");
+        statisticsOp.doOutputAsciiFile = false;
+        final StringBuilder builder = new StringBuilder();
+
+        statisticsOp.outputters.add(new MyOutputter(builder));
+
+        statisticsOp.initialize();
+
+        final String result = builder.toString();
+        assertEquals("4_pixels.1\n" +
+                     "algal_2_*_PI:\n" +
+                     "max: 2.527328\n" +
+                     "mean: 2.354394\n" +
+                     "median: 2.266823\n" +
+                     "min: 2.186098\n" +
+                     "p90: 2.527328\n" +
+                     "p95: 2.527328\n" +
+                     "sigma: 0.155752\n" +
+                     "total: 4.000000\n",
+                     result);
+    }
+
+    @Test
+    public void testGetBand() throws Exception {
+        final StatisticsOp.BandConfiguration configuration = new StatisticsOp.BandConfiguration();
+
+        final Product testProduct = getTestProduct();
+        try {
+            StatisticsOp.getBand(configuration, testProduct);
+            fail();
+        } catch (OperatorException expected) {
+            assertTrue(expected.getMessage().contains("must contain either a source band name or an expression"));
+        }
+
+        configuration.sourceBandName = "algal_2";
+        final Band band = StatisticsOp.getBand(configuration, testProduct);
+        assertEquals("algal_2", band.getName());
+
+        configuration.expression = "algal_2 * PI";
+        try {
+            StatisticsOp.getBand(configuration, testProduct);
+            fail();
+        } catch (OperatorException expected) {
+            assertTrue(expected.getMessage().contains("must contain either a source band name or an expression"));
+        }
+
+        configuration.sourceBandName = null;
+        final Band virtualBand = StatisticsOp.getBand(configuration, testProduct);
+        assertEquals("algal_2_*_PI", virtualBand.getName());
+        assertTrue(virtualBand instanceof VirtualBand);
+        assertEquals("algal_2 * PI", ((VirtualBand)virtualBand).getExpression());
+    }
+
+    @Test
     public void testStatisticsOp_WithGPF() throws Exception {
         final StatisticsOp.BandConfiguration bandConfiguration_1 = new StatisticsOp.BandConfiguration();
         bandConfiguration_1.sourceBandName = "algal_2";
@@ -123,7 +180,6 @@ public class StatisticsOpTest {
         assertTrue(getTestFile("statisticsOutput.out").exists());
         assertTrue(getTestFile("statisticsOutput_metadata.txt").exists());
         assertTrue(getTestFile("statisticsShapefile.shp").exists());
-
     }
 
     @Test
@@ -165,65 +221,8 @@ public class StatisticsOpTest {
         }
     }
 
-    @Test
-    public void testGetPixelValues_Triangle() throws Exception {
-        final StatisticsOp statisticsOp = new StatisticsOp();
-        final GeometryFactory factory = new GeometryFactory();
-        final Polygon region = new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
-                new Coordinate(13.56552, 38.366566),
-                new Coordinate(13.600261, 38.3601),
-                new Coordinate(13.594047, 38.339397),
-                new Coordinate(13.56552, 38.366566)
-        }), factory), new LinearRing[0], factory);
-        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
-        bandConfiguration.sourceBandName = "algal_2";
-
-        final double[] expectedWithoutExpression = {
-                0.83418011, 0.83418011, 0.695856511, 0.6710759,
-                0.775825023, 0.6241307,
-                0.7215521
-        };
-
-        final double[] expectedWithExpression = {
-                0.83418011, 0.83418011, 0.695856511, 0.6710759,
-                0.775825023, 0.6241307
-        };
-//        testThatValuesAreOk(statisticsOp, region, bandConfiguration, expectedWithoutExpression, null);
-//        testThatValuesAreOk(statisticsOp, region, bandConfiguration, expectedWithExpression, "algal_2 > 0.73 or algal_2 < 0.71");
-    }
-
     private Product getTestProduct() throws IOException {
         return ProductIO.readProduct(getClass().getResource("testProduct1.dim").getFile());
-    }
-
-    @Test
-    public void testGetPixelValues_Rhomb() throws Exception {
-        final StatisticsOp statisticsOp = new StatisticsOp();
-        final GeometryFactory factory = new GeometryFactory();
-        final Polygon region = new Polygon(new LinearRing(new CoordinateArraySequence(new Coordinate[]{
-                new Coordinate(13.577101, 38.3664407),
-                new Coordinate(13.585574, 38.351902),
-                new Coordinate(13.570892, 38.343708),
-                new Coordinate(13.562417, 38.356213),
-                new Coordinate(13.577101, 38.3664407)
-        }), factory), new LinearRing[0], factory);
-        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
-        bandConfiguration.sourceBandName = "algal_2";
-
-        final double[] expectedWithoutExpression = {
-                0.83418011,
-                0.69585651, 0.69585651, 0.775825023,
-                0.80447363
-        };
-
-        final double[] expectedWithExpression = {
-                0.83418011,
-                0.775825023,
-                0.80447363
-        };
-
-//        testThatValuesAreOk(statisticsOp, region, bandConfiguration, expectedWithoutExpression, null);
-//        testThatValuesAreOk(statisticsOp, region, bandConfiguration, expectedWithExpression, "algal_2 > 0.7");
     }
 
     private static void assertConversionException(Converter converter, String text) {
