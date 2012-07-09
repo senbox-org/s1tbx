@@ -50,7 +50,6 @@ import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -228,11 +227,6 @@ public class StatisticsOp extends Operator implements Output {
                         map.put(vectorDataNode.getName(), new ArrayList<Mask>());
                     }
                     map.get(vectorDataNode.getName()).add(mask);
-                    try {
-                        ImageIO.write(mask.getSourceImage().getAsBufferedImage(), "png", new File("C:\\temp\\delemete.png"));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
             }
             for (String regionName : regionNames) {
