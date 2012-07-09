@@ -25,10 +25,6 @@
         <module>beam-visat-rcp</module>
     </dependency>
 
-    <extension point="ceres-core:serviceProviders">
-        <serviceProvider>org.esa.beam.statistics.calculators.StatisticsCalculator</serviceProvider>
-    </extension>
-
     <extension point="beam-ui:actions">
         <action>
             <id>statistics</id>

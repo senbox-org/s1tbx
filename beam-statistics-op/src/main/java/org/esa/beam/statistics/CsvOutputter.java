@@ -53,7 +53,7 @@ class CsvOutputter implements StatisticsOp.Outputter {
         Arrays.sort(algorithmNames);
         this.algorithmNames = algorithmNames;
         metadataOutput.append("# BEAM Statistics export\n")
-                .append("#")
+                .append("#\n")
                 .append("# Products:\n");
         for (Product sourceProduct : sourceProducts) {
             metadataOutput.append("#              ")
@@ -61,15 +61,20 @@ class CsvOutputter implements StatisticsOp.Outputter {
                     .append("\n");
         }
         if (startDate != null) {
-            metadataOutput.append("# Start Date: ")
+            metadataOutput
+                    .append("#\n")
+                    .append("# Start Date: ")
                     .append(startDate.format())
                     .append("\n");
         }
         if (endDate != null) {
-            metadataOutput.append("# End Date: ")
+            metadataOutput
+                    .append("#\n")
+                    .append("# End Date: ")
                     .append(endDate.format())
                     .append("\n");
         }
+        metadataOutput.append("#\n");
         metadataOutput.append("# Regions:\n");
         for (String regionId : regionIds) {
             metadataOutput.append("#              ")
@@ -77,7 +82,6 @@ class CsvOutputter implements StatisticsOp.Outputter {
                     .append("\n");
         }
         metadataOutput.append("#\n")
-                .append("#\n")
                 .append("#\n")
                 .append("# Region")
                 .append("\t")

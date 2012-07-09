@@ -1,0 +1,26 @@
+  <graph id="someGraphId">
+    <version>1.0</version>
+    <node id="someNodeId">
+      <operator>StatisticsOp</operator>
+      <sources>
+        <sourceProducts>${sourceProducts}</sourceProducts>
+      </sources>
+      <parameters>
+        <sourceProductPaths>null</sourceProductPaths>
+        <shapefile>C:\temp\geometry_Polygon.shp</shapefile>
+        <bandConfigurations>
+          <bandConfiguration>
+            <sourceBandName>algal_2</sourceBandName>
+            <validPixelExpression>algal_2 > 0.1</validPixelExpression>
+          </bandConfiguration>
+          <bandConfiguration>
+            <expression>algal_2*2</expression>
+          </bandConfiguration>
+        </bandConfigurations>
+        <doOutputShapefile>true</doOutputShapefile>
+        <outputShapefile>c:\temp\outputShapefile.shp</outputShapefile>
+        <doOutputAsciiFile>true</doOutputAsciiFile>
+        <outputAsciiFile>c:\temp\outputAscii.out</outputAsciiFile>
+      </parameters>
+    </node>
+  </graph>

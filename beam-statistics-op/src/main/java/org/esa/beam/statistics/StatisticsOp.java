@@ -51,7 +51,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URL;
+import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,7 +97,7 @@ public class StatisticsOp extends Operator implements Output {
     @Parameter(description =
                        "An ESRI shapefile, providing the considered geographical region(s) given as polygons. If " +
                        "null, all pixels are considered.")
-    URL shapefile;
+    File shapefile;
 
     @Parameter(description =
                        "The start date. If not given, taken from the 'oldest' source product. Products that have " +
@@ -111,7 +111,8 @@ public class StatisticsOp extends Operator implements Output {
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
-    @Parameter(description = "The band configurations. These configurations determine the input of the operator.")
+    @Parameter(description = "The band configurations. These configurations determine the input of the operator.",
+               alias = "bandConfigurations", itemAlias = "bandConfiguration")
     BandConfiguration[] bandConfigurations;
 
     @Parameter(description = "Determines if a copy of the input shapefile shall be created and augmented with the " +
@@ -127,11 +128,13 @@ public class StatisticsOp extends Operator implements Output {
     @Parameter(description = "The target file for ASCII output.")
     File outputAsciiFile;
 
-    Set<Outputter> outputters = new HashSet<Outputter>();
-
     Set<Product> collectedProducts;
 
-    SortedSet<String> regionNames = new TreeSet<String>();
+    final Set<Outputter> outputters = new HashSet<Outputter>();
+
+    final Map<Product, VectorDataNode[]> productVdnMap = new HashMap<Product, VectorDataNode[]>();
+
+    final SortedSet<String> regionNames = new TreeSet<String>();
 
     private PrintStream metadataOutputStream;
 
@@ -143,6 +146,7 @@ public class StatisticsOp extends Operator implements Output {
         validateInput();
         setupOutputter();
         Product[] allSourceProducts = collectSourceProducts();
+        initializeVectorDataNodes(allSourceProducts);
         initializeOutput(allSourceProducts);
         computeOutput(allSourceProducts);
         writeOutput();
@@ -153,6 +157,12 @@ public class StatisticsOp extends Operator implements Output {
         super.dispose();
         for (Product collectedProduct : collectedProducts) {
             collectedProduct.dispose();
+        }
+    }
+
+    private void initializeVectorDataNodes(Product[] allSourceProducts) {
+        for (Product sourceProduct : allSourceProducts) {
+            productVdnMap.put(sourceProduct, createVectorDataNodes(sourceProduct));
         }
     }
 
@@ -168,10 +178,10 @@ public class StatisticsOp extends Operator implements Output {
             }
         };
         try {
-            featureCollection = FeatureUtils.loadShapefileForProduct(new File(shapefile.toURI()), product,
+            featureCollection = FeatureUtils.loadShapefileForProduct(shapefile, product,
                                                                      crsProvider, ProgressMonitor.NULL);
         } catch (Exception e) {
-            throw new OperatorException("Unable to load shapefile '" + shapefile.getFile() + "'.", e);
+            throw new OperatorException("Unable to load shapefile '" + shapefile.getAbsolutePath() + "'.", e);
         }
 
         final FeatureIterator<SimpleFeature> featureIterator = featureCollection.features();
@@ -198,7 +208,7 @@ public class StatisticsOp extends Operator implements Output {
                 bandNamesList.add(bandConfiguration.expression);
             }
         }
-        final String[] algorithmNames = new String[]{"min", "max", "median", "mean", "sigma", "p90", "p95", "total"};
+        final String[] algorithmNames = new String[]{"minimum", "maximum", "median", "average", "sigma", "p90", "p95", "total"};
         final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
         for (Outputter outputter : outputters) {
             outputter.initialiseOutput(allSourceProducts, bandNames, algorithmNames, startDate, endDate, regionNames.toArray(new String[regionNames.size()]));
@@ -220,7 +230,11 @@ public class StatisticsOp extends Operator implements Output {
             }
         }
         if (doOutputShapefile) {
-            outputters.add(new ShapefileOutputter(shapefile, outputShapefile.getAbsolutePath()));
+            try {
+                outputters.add(new ShapefileOutputter(shapefile.toURI().toURL(), outputShapefile.getAbsolutePath()));
+            } catch (MalformedURLException e) {
+                throw new OperatorException(e);
+            }
         }
     }
 
@@ -232,7 +246,7 @@ public class StatisticsOp extends Operator implements Output {
                 final Band band = getBand(configuration, product);
                 band.setValidPixelExpression(configuration.validPixelExpression);
                 bands.add(band);
-                for (VectorDataNode vectorDataNode : createVectorDataNodes(product)) {
+                for (VectorDataNode vectorDataNode : productVdnMap.get(product)) {
                     product.getVectorDataGroup().add(vectorDataNode);
                     final Mask mask = product.addMask(vectorDataNode.getName(), vectorDataNode, "", Color.BLUE, Double.NaN);
                     if (!map.containsKey(vectorDataNode.getName())) {
@@ -248,9 +262,9 @@ public class StatisticsOp extends Operator implements Output {
                         .withHistogramBinCount(1024 * 1024)
                         .create(ProgressMonitor.NULL, roiMasks, bands.toArray(new Band[bands.size()]));
                 final HashMap<String, Double> stxMap = new HashMap<String, Double>();
-                stxMap.put("min", stx.getMinimum());
-                stxMap.put("max", stx.getMaximum());
-                stxMap.put("mean", stx.getMean());
+                stxMap.put("minimum", stx.getMinimum());
+                stxMap.put("maximum", stx.getMaximum());
+                stxMap.put("average", stx.getMean());
                 stxMap.put("sigma", stx.getStandardDeviation());
                 stxMap.put("total", (double) stx.getSampleCount());
                 stxMap.put("median", stx.getHistogram().getPTileThreshold(0.5)[0]);
@@ -366,6 +380,10 @@ public class StatisticsOp extends Operator implements Output {
         @Parameter(description = "The band maths expression serving as criterion for whether to consider pixels for " +
                                  "computation.")
         String validPixelExpression;
+
+        public BandConfiguration() {
+            // used by DOM converter
+        }
     }
 
     public static class UtcConverter implements Converter<ProductData.UTC> {

@@ -184,6 +184,8 @@ public class ShapefileOutputterTest {
         String attributeName4 = shapefileOutputter.createUniqueAttributeName("p90", "radiance_13");
         String attributeName5 = shapefileOutputter.createUniqueAttributeName("p90", "algal2");
         String attributeName6 = shapefileOutputter.createUniqueAttributeName("p90", "algal1");
+        String attributeName7 = shapefileOutputter.createUniqueAttributeName("maximum", "algal1");
+        String attributeName8 = shapefileOutputter.createUniqueAttributeName("minimum", "algal1");
 
         assertEquals("mdn_rdnc12", attributeName1);
         assertEquals("mdn_rdnc13", attributeName2);
@@ -191,16 +193,18 @@ public class ShapefileOutputterTest {
         assertEquals("p90_rdnc13", attributeName4);
         assertEquals("p90_algal2", attributeName5);
         assertEquals("p90_algal1", attributeName6);
+        assertEquals("mx_lgl1", attributeName7);
+        assertEquals("mn_lgl1", attributeName8);
 
         try {
             shapefileOutputter.createUniqueAttributeName("median", "saharan_dust_index");
             fail();
         } catch (IllegalArgumentException expected) {
             assertEquals("Too long combination of algorithm name and band name: 'median', 'saharan_dust_index'. " +
-                         "Combination must not exceed 10 characters in length.", expected.getMessage());
+                         "Combination must not exceed 10 characters in length when writing shapefiles.", expected.getMessage());
         }
 
-        assertEquals(4, called[0]);
+        assertEquals(6, called[0]);
 
         BeamLogManager.getSystemLogger().removeHandler(handler);
     }

@@ -61,14 +61,17 @@ public class CsvOutputterTest {
         metadataStream.close();
 
         assertEquals("# BEAM Statistics export\n" +
-                     "## Products:\n" +
+                     "#\n" +
+                     "# Products:\n" +
                      "#              MER_RR__2PBCMsomething\n" +
+                     "#\n" +
                      "# Start Date: 01-JAN-2010 00:00:00.000000\n" +
+                     "#\n" +
                      "# End Date: 01-JAN-2011 00:00:00.000000\n" +
+                     "#\n" +
                      "# Regions:\n" +
                      "#              bullerbue\n" +
                      "#              bielefeld\n" +
-                     "#\n" +
                      "#\n" +
                      "#\n" +
                      "# Region\tBand\tmax\tmin\tp90\tp95"

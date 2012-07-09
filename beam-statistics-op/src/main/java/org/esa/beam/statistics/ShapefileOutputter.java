@@ -43,6 +43,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -100,19 +101,25 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
     public void addToOutput(String bandName, String regionId, Map<String, Double> statistics) {
         final SimpleFeatureBuilder simpleFeatureBuilder = new SimpleFeatureBuilder(updatedFeatureType);
         final List<SimpleFeature> markedToRemove = new ArrayList<SimpleFeature>();
-        final List<SimpleFeature> markedToAdd = new ArrayList<SimpleFeature>();
+        final Map<String, SimpleFeature> markedToAdd = new HashMap<String, SimpleFeature>();
         for (SimpleFeature feature : features) {
             for (String algorithmName : statistics.keySet()) {
                 final String name = createUniqueAttributeName(algorithmName, bandName);
                 if (feature.getID().equals(regionId)) {
-                    final SimpleFeature updatedFeature = createUpdatedFeature(simpleFeatureBuilder, feature, name, statistics.get(algorithmName));
+                    SimpleFeature featureToUpdate;
+                    if(markedToAdd.get(regionId) != null) {
+                        featureToUpdate = markedToAdd.get(regionId);
+                    } else {
+                        featureToUpdate = feature;
+                    }
+                    final SimpleFeature updatedFeature = createUpdatedFeature(simpleFeatureBuilder, featureToUpdate, name, statistics.get(algorithmName));
                     markedToRemove.add(feature);
-                    markedToAdd.add(updatedFeature);
+                    markedToAdd.put(regionId, updatedFeature);
                 }
             }
         }
         features.removeAll(markedToRemove);
-        features.addAll(markedToAdd);
+        features.addAll(markedToAdd.values());
         if (!(markedToAdd.isEmpty() && markedToRemove.isEmpty())) {
             return;
         }
@@ -153,13 +160,14 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
         final boolean tooLong = temp.length() > 10;
         if (tooLong) {
             attributeName = algorithmName + "_" + sourceBandName.replace("_", "");
+            attributeName = attributeName.replace("minimum", "min").replace("maximum", "max");
             attributeName = attributeName.replace("a", "").replace("e", "").replace("i", "").replace("o", "").replace("u", "");
         }
         if (attributeName.length() > 10) {
             throw new IllegalArgumentException(
                     MessageFormat.format(
                             "Too long combination of algorithm name and band name: ''{0}'', ''{1}''. " +
-                            "Combination must not exceed 10 characters in length.", algorithmName, sourceBandName));
+                            "Combination must not exceed 10 characters in length when writing shapefiles.", algorithmName, sourceBandName));
         }
 
         if (tooLong) {

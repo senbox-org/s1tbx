@@ -76,7 +76,7 @@ public class StatisticsOpTest {
         bandConfiguration.sourceBandName = "algal_2";
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
         statisticsOp.sourceProducts = new Product[]{getTestProduct()};
-        statisticsOp.shapefile = getClass().getResource("4_pixels.shp");
+        statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
 
         final MyOutputter outputter = new MyOutputter();
@@ -87,9 +87,9 @@ public class StatisticsOpTest {
         assertEquals("4_pixels.1", outputter.region);
         assertEquals("algal_2", outputter.bandName);
         assertEquals(4, outputter.pixels);
-        assertEquals(0.804474, outputter.max, 1E-4);
-        assertEquals(0.695857, outputter.min, 1E-4);
-        assertEquals(0.749427, outputter.mean, 1E-4);
+        assertEquals(0.804474, outputter.maximum, 1E-4);
+        assertEquals(0.695857, outputter.minimum, 1E-4);
+        assertEquals(0.749427, outputter.average, 1E-4);
         assertEquals(0.721552, outputter.median, 1E-4);
         assertEquals(0.049578, outputter.sigma, 1E-4);
         assertEquals(0.804474, outputter.p90, 1E-4);
@@ -103,7 +103,7 @@ public class StatisticsOpTest {
         bandConfiguration.expression = "algal_2 * PI";
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
         statisticsOp.sourceProducts = new Product[]{getTestProduct()};
-        statisticsOp.shapefile = getClass().getResource("4_pixels.shp");
+        statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
 
         final MyOutputter outputter = new MyOutputter();
@@ -114,9 +114,9 @@ public class StatisticsOpTest {
         assertEquals("4_pixels.1", outputter.region);
         assertEquals("algal_2_*_PI", outputter.bandName);
         assertEquals(4, outputter.pixels);
-        assertEquals(2.527328, outputter.max, 1E-4);
-        assertEquals(2.186098, outputter.min, 1E-4);
-        assertEquals(2.354394, outputter.mean, 1E-4);
+        assertEquals(2.527328, outputter.maximum, 1E-4);
+        assertEquals(2.186098, outputter.minimum, 1E-4);
+        assertEquals(2.354394, outputter.average, 1E-4);
         assertEquals(2.266823, outputter.median, 1E-4);
         assertEquals(0.155752, outputter.sigma, 1E-4);
         assertEquals(2.527328, outputter.p90, 1E-4);
@@ -131,7 +131,7 @@ public class StatisticsOpTest {
         bandConfiguration.validPixelExpression = "algal_2 > 0.7";
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
         statisticsOp.sourceProducts = new Product[]{getTestProduct()};
-        statisticsOp.shapefile = getClass().getResource("4_pixels.shp");
+        statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
 
         final MyOutputter outputter = new MyOutputter();
@@ -142,9 +142,9 @@ public class StatisticsOpTest {
         assertEquals("4_pixels.1", outputter.region);
         assertEquals("algal_2", outputter.bandName);
         assertEquals(3, outputter.pixels);
-        assertEquals(0.8045, outputter.max, 1E-4);
-        assertEquals(0.7216, outputter.min, 1E-4);
-        assertEquals(0.7672, outputter.mean, 1E-4);
+        assertEquals(0.8045, outputter.maximum, 1E-4);
+        assertEquals(0.7216, outputter.minimum, 1E-4);
+        assertEquals(0.7672, outputter.average, 1E-4);
         assertEquals(0.7758, outputter.median, 1E-4);
         assertEquals(0.04211, outputter.sigma, 1E-4);
         assertEquals(0.8044, outputter.p90, 1E-4);
@@ -192,7 +192,7 @@ public class StatisticsOpTest {
         parameters.put("outputShapefile", getTestFile("statisticsShapefile.shp"));
         parameters.put("doOutputAsciiFile", true);
         parameters.put("doOutputShapefile", true);
-        parameters.put("shapefile", getClass().getResource("4_pixels.shp"));
+        parameters.put("shapefile", new File(getClass().getResource("4_pixels.shp").toURI()));
         parameters.put("bandConfigurations", new StatisticsOp.BandConfiguration[]{
                 bandConfiguration_1,
         });
@@ -258,9 +258,9 @@ public class StatisticsOpTest {
     private static class MyOutputter implements StatisticsOp.Outputter {
 
         int pixels;
-        double min;
-        double max;
-        double mean;
+        double minimum;
+        double maximum;
+        double average;
         double median;
         double sigma;
         double p90;
@@ -285,12 +285,12 @@ public class StatisticsOpTest {
                 final String key = entry.getKey();
                 if(key.equalsIgnoreCase("total")) {
                     pixels = entry.getValue().intValue();
-                } else if(key.equalsIgnoreCase("min")) {
-                    min = entry.getValue();
-                } else if(key.equalsIgnoreCase("max")) {
-                    max = entry.getValue();
-                } else if(key.equalsIgnoreCase("mean")) {
-                    mean = entry.getValue();
+                } else if(key.equalsIgnoreCase("minimum")) {
+                    minimum = entry.getValue();
+                } else if(key.equalsIgnoreCase("maximum")) {
+                    maximum = entry.getValue();
+                } else if(key.equalsIgnoreCase("average")) {
+                    average = entry.getValue();
                 } else if(key.equalsIgnoreCase("median")) {
                     median = entry.getValue();
                 } else if(key.equalsIgnoreCase("sigma")) {
