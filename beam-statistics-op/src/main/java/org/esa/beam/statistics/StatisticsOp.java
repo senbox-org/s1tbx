@@ -19,15 +19,9 @@ package org.esa.beam.statistics;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.core.ProgressMonitor;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateFilter;
-import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.Stx;
@@ -139,6 +133,10 @@ public class StatisticsOp extends Operator implements Output {
 
     SortedSet<String> regionNames = new TreeSet<String>();
 
+    private PrintStream metadataOutputStream;
+
+    private PrintStream csvOutputStream;
+
     @Override
     public void initialize() throws OperatorException {
         setDummyTargetProduct();
@@ -159,7 +157,7 @@ public class StatisticsOp extends Operator implements Output {
     }
 
     private VectorDataNode[] createVectorDataNodes(Product product) {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = null;
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
             final FeatureUtils.FeatureCrsProvider crsProvider = new FeatureUtils.FeatureCrsProvider() {
                 @Override
                 public CoordinateReferenceSystem getFeatureCrs(Product targetProduct) {
@@ -209,9 +207,9 @@ public class StatisticsOp extends Operator implements Output {
                 final StringBuilder metadataFileName = new StringBuilder(FileUtils.getFilenameWithoutExtension(outputAsciiFile));
                 metadataFileName.append("_metadata.txt");
                 final File metadataFile = new File(outputAsciiFile.getParent(), metadataFileName.toString());
-                final PrintStream metadataOutput = new PrintStream(new FileOutputStream(metadataFile));
-                final PrintStream csvOutput = new PrintStream(new FileOutputStream(outputAsciiFile));
-                outputters.add(new CsvOutputter(metadataOutput, csvOutput));
+                metadataOutputStream = new PrintStream(new FileOutputStream(metadataFile));
+                csvOutputStream = new PrintStream(new FileOutputStream(outputAsciiFile));
+                outputters.add(new CsvOutputter(metadataOutputStream, csvOutputStream));
             } catch (IOException e) {
                 throw new OperatorException(
                         "Unable to create formatter for file '" + outputAsciiFile.getAbsolutePath() + "'.");
@@ -267,22 +265,14 @@ public class StatisticsOp extends Operator implements Output {
             }
         } catch (IOException e) {
             throw new OperatorException("Unable to write output.", e);
-        }
-    }
-
-    private static Geometry convertRegionToPixelRegion(Geometry region, final GeoCoding geoCoding) {
-        // the following line does clone the coordinates, so I have to use Geometry#clone()
-        // final Geometry geometry = new GeometryFactory().createGeometry(region);
-        final Geometry geometry = (Geometry) region.clone();
-        geometry.apply(new CoordinateFilter() {
-            @Override
-            public void filter(Coordinate coord) {
-                final PixelPos pixelPos = new PixelPos();
-                geoCoding.getPixelPos(new GeoPos((float) coord.y, (float) coord.x), pixelPos);
-                coord.setCoordinate(new Coordinate((int) pixelPos.x, (int) pixelPos.y));
+        } finally {
+            if (metadataOutputStream != null) {
+                metadataOutputStream.close();
             }
-        });
-        return geometry;
+            if (csvOutputStream != null) {
+                csvOutputStream.close();
+            }
+        }
     }
 
     void validateInput() {
@@ -357,14 +347,6 @@ public class StatisticsOp extends Operator implements Output {
         @Parameter(description = "The band maths expression serving as criterion for whether to consider pixels for " +
                                  "computation.")
         String validPixelExpression;
-
-        @Parameter(description = "The percentile to be used in the statistics calculator, if applicable.",
-                   defaultValue = "-1")
-        int percentile;
-
-        public BandConfiguration() {
-        }
-
     }
 
     public static class UtcConverter implements Converter<ProductData.UTC> {
