@@ -108,25 +108,33 @@ public class PgxProductReader extends AbstractProductReader {
     }
 
     @Override
-    protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                                          int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
-                                          int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
+    protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY,
+                                          int sourceWidth, int sourceHeight,
+                                          int sourceStepX, int sourceStepY,
+                                          Band destBand,
+                                          int destOffsetX,
+                                          int destOffsetY,
+                                          int destWidth,
+                                          int destHeight,
+                                          ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
         if (band != destBand) {
             return;
         }
         synchronized (this) {
             final int width = destBand.getSceneRasterWidth();
-            if (sourceOffsetX == 0 && sourceWidth == width) {
+            if (sourceOffsetX == 0 && sourceWidth == width && destBuffer.getNumElems() == sourceWidth * sourceHeight) {
                 long pos = dataPosition + sourceOffsetY * width * 2;
                 stream.seek(pos);
                 destBuffer.readFrom(stream);
-            } else {
-                for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
-                    long pos = dataPosition + (y * width + sourceOffsetX) * 2;
+            } else if (destWidth == sourceWidth || destHeight == sourceHeight) {
+                for (int i = 0; i < sourceHeight; i++) {
+                    long pos = dataPosition + ((i + sourceOffsetY) * width + sourceOffsetX) * 2;
                     stream.seek(pos);
-                    destBuffer.readFrom(0, sourceWidth, stream);
+                    destBuffer.readFrom(i * sourceWidth, sourceWidth, stream);
                 }
+            } else {
+                //Debug.trace("Weirrrrd: " + destWidth + "x" + destHeight + " != " + sourceWidth + "x" + sourceHeight);
             }
         }
     }
