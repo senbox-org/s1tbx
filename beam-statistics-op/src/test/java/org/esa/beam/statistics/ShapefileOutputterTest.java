@@ -18,11 +18,12 @@ package org.esa.beam.statistics;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.FeatureUtils;
+import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -51,24 +52,30 @@ public class ShapefileOutputterTest {
         }
     }
 
-    @Ignore // todo - make run and comment in
+    @After
+    public void tearDown() throws Exception {
+        if (!FileUtils.deleteTree(TESTDATA_DIR)) {
+            System.out.println("Warning: failed to completely delete test I/O directory:" + TESTDATA_DIR);
+        }
+    }
+
     @Test
     public void testSingleShape() throws Exception {
-        final URL originalShapefile = getClass().getResource("9_pixels.shp");
-        final String targetShapefile = getTestFile("9_pixels_output.shp").getAbsolutePath();
+        final URL originalShapefile = getClass().getResource("4_pixels.shp");
+        final String targetShapefile = getTestFile("4_pixels_output.shp").getAbsolutePath();
         final ShapefileOutputter shapefileOutputter = new ShapefileOutputter(originalShapefile, targetShapefile);
         final String[] algorithmNames = {"p90", "p95"};
 
-        shapefileOutputter.initialiseOutput(new Product[0], new String[] {"algal_2", "algal_2"}, algorithmNames,
+        shapefileOutputter.initialiseOutput(new Product[0], new String[] {"algal_2"}, algorithmNames,
                                             null, null, null);
 
         HashMap<String, Double> statistics = new HashMap<String, Double>();
         statistics.put("p90", 0.1);
-        shapefileOutputter.addToOutput("algal_2", "9_pixels.1", statistics);
+        shapefileOutputter.addToOutput("algal_2", "4_pixels.1", statistics);
 
         statistics.clear();
         statistics.put("p95", 0.195);
-        shapefileOutputter.addToOutput("algal_2", "9_pixels.1", statistics);
+        shapefileOutputter.addToOutput("algal_2", "4_pixels.1", statistics);
 
         shapefileOutputter.finaliseOutput();
 

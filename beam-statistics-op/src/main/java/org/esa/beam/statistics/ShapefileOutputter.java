@@ -86,13 +86,11 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
         final SimpleFeatureType originalFeatureType = featureSource.getSchema();
         final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
         typeBuilder.init(originalFeatureType);
-        typeBuilder.setSuperType(originalFeatureType);
         for (final String algorithmName : algorithmNames) {
             for (String bandName : bandNames) {
                 typeBuilder.add(createUniqueAttributeName(algorithmName, bandName), Double.class);
             }
         }
-        typeBuilder.setDefaultGeometry(originalFeatureType.getGeometryDescriptor().getLocalName());
         typeBuilder.setName(originalFeatureType.getName());
         updatedFeatureType = typeBuilder.buildFeatureType();
 
@@ -146,9 +144,7 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
     private static SimpleFeature createUpdatedFeature(SimpleFeatureBuilder builder, SimpleFeature baseFeature, String name, Double value) {
         builder.init(baseFeature);
         builder.set(name, value);
-        final SimpleFeature feature = builder.buildFeature(baseFeature.getID());
-        feature.setDefaultGeometry(baseFeature.getDefaultGeometry());
-        return feature;
+        return builder.buildFeature(baseFeature.getID());
     }
 
     String createUniqueAttributeName(String algorithmName, String sourceBandName) {
