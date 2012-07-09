@@ -29,7 +29,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -38,6 +37,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static org.junit.Assert.*;
 
@@ -65,7 +65,6 @@ public class StatisticsOpTest {
         assertNotNull(GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi("StatisticsOp"));
     }
 
-    @Ignore // todo - make run and comment in
     @Test
     public void testStatisticsOp() throws Exception {
         final StatisticsOp statisticsOp = new StatisticsOp();
@@ -73,7 +72,7 @@ public class StatisticsOpTest {
         bandConfiguration.sourceBandName = "algal_2";
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
         statisticsOp.sourceProducts = new Product[]{getTestProduct()};
-        statisticsOp.shapefile = getClass().getResource("9_pixels.shp");
+        statisticsOp.shapefile = getClass().getResource("4_pixels.shp");
         statisticsOp.outputAsciiFile = getTestFile("statisticsOutput.out");
         final StringBuilder builder = new StringBuilder();
 
@@ -82,30 +81,32 @@ public class StatisticsOpTest {
         statisticsOp.initialize();
 
         final String result = builder.toString();
-        assertEquals("9_pixels.1\n" +
+        assertEquals("4_pixels.1\n" +
                      "algal_2:\n" +
-                     "p50: 0.775825",
+                     "max: 0.804474\n" +
+                     "mean: 0.749427\n" +
+                     "median: 0.721552\n" +
+                     "min: 0.695857\n" +
+                     "p90: 0.804474\n" +
+                     "p95: 0.804474\n" +
+                     "sigma: 0.049578\n" +
+                     "total: 4.000000\n",
                      result);
     }
 
-    @Ignore // todo - make run and comment in
     @Test
     public void testStatisticsOp_WithGPF() throws Exception {
         final StatisticsOp.BandConfiguration bandConfiguration_1 = new StatisticsOp.BandConfiguration();
         bandConfiguration_1.sourceBandName = "algal_2";
-
-        final StatisticsOp.BandConfiguration bandConfiguration_2 = new StatisticsOp.BandConfiguration();
-        bandConfiguration_2.sourceBandName = "l2_flags";
 
         final HashMap<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("outputAsciiFile", getTestFile("statisticsOutput.out"));
         parameters.put("outputShapefile", getTestFile("statisticsShapefile.shp"));
         parameters.put("doOutputAsciiFile", true);
         parameters.put("doOutputShapefile", true);
-        parameters.put("shapefile", getClass().getResource("9_pixels.shp"));
+        parameters.put("shapefile", getClass().getResource("4_pixels.shp"));
         parameters.put("bandConfigurations", new StatisticsOp.BandConfiguration[]{
                 bandConfiguration_1,
-                bandConfiguration_2
         });
         GPF.createProduct("StatisticsOp", parameters, getTestProduct());
 
@@ -233,16 +234,19 @@ public class StatisticsOpTest {
 
         @Override
         public void addToOutput(String bandName, String regionId, Map<String, Double> statistics) {
+            final TreeMap<String, Double> map = new TreeMap<String, Double>();
+            map.putAll(statistics);
             builder.append(regionId)
                     .append("\n")
                     .append(bandName)
                     .append(":\n");
-            for (Map.Entry<String, Double> entry : statistics.entrySet()) {
+            for (Map.Entry<String, Double> entry : map.entrySet()) {
                 final DecimalFormatSymbols decimalFormatSymbols = DecimalFormatSymbols.getInstance();
                 decimalFormatSymbols.setDecimalSeparator('.');
                 builder.append(entry.getKey())
                         .append(": ")
-                        .append(new DecimalFormat("0.000000", decimalFormatSymbols).format(entry.getValue()));
+                        .append(new DecimalFormat("0.000000", decimalFormatSymbols).format(entry.getValue()))
+                        .append("\n");
             }
         }
 

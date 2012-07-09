@@ -40,15 +40,17 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.experimental.Output;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.io.WildcardMatcher;
-import org.geotools.data.FeatureSource;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Color;
 import java.io.File;
@@ -135,7 +137,7 @@ public class StatisticsOp extends Operator implements Output {
 
     Set<Product> collectedProducts;
 
-    String[] regionNames;
+    SortedSet<String> regionNames = new TreeSet<String>();
 
     @Override
     public void initialize() throws OperatorException {
@@ -157,28 +159,34 @@ public class StatisticsOp extends Operator implements Output {
     }
 
     private VectorDataNode[] createVectorDataNodes(Product product) {
-        final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> features;
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = null;
+            final FeatureUtils.FeatureCrsProvider crsProvider = new FeatureUtils.FeatureCrsProvider() {
+                @Override
+                public CoordinateReferenceSystem getFeatureCrs(Product targetProduct) {
+                    if (ImageManager.getModelCrs(targetProduct.getGeoCoding()) == ImageManager.DEFAULT_IMAGE_CRS) {
+                        return ImageManager.DEFAULT_IMAGE_CRS;
+                    }
+                    return DefaultGeographicCRS.WGS84;
+                }
+            };
         try {
-            featureSource = FeatureUtils.getFeatureSource(shapefile);
-            features = featureSource.getFeatures();
-        } catch (IOException e) {
-            throw new OperatorException("Unable to create masks from shapefile '" + shapefile + "'.", e);
+            featureCollection = FeatureUtils.loadShapefileForProduct(new File(shapefile.toURI()), product,
+                                                                     crsProvider, ProgressMonitor.NULL);
+        } catch (Exception e) {
+            throw new OperatorException("Unable to load shapefile '" + shapefile.getFile() + "'.", e);
         }
-        final FeatureIterator<SimpleFeature> featureIterator = features.features();
+
+        final FeatureIterator<SimpleFeature> featureIterator = featureCollection.features();
         final List<VectorDataNode> result = new ArrayList<VectorDataNode>();
         while (featureIterator.hasNext()) {
             final SimpleFeature simpleFeature = featureIterator.next();
-            final Geometry geometry = convertRegionToPixelRegion((Geometry) simpleFeature.getDefaultGeometry(), product.getGeoCoding());
-            simpleFeature.setDefaultGeometry(geometry);
             final DefaultFeatureCollection fc = new DefaultFeatureCollection(simpleFeature.getID(), simpleFeature.getFeatureType());
             fc.add(simpleFeature);
             result.add(new VectorDataNode(simpleFeature.getID(), fc));
         }
-        regionNames = new String[result.size()];
-        for (int i = 0; i < result.size(); i++) {
-            final VectorDataNode vectorDataNode = result.get(i);
-            regionNames[i] = vectorDataNode.getName();
+
+        for (final VectorDataNode vectorDataNode : result) {
+            regionNames.add(vectorDataNode.getName());
         }
         return result.toArray(new VectorDataNode[result.size()]);
     }
@@ -191,7 +199,7 @@ public class StatisticsOp extends Operator implements Output {
         final String[] algorithmNames = new String[]{"min", "max", "median", "mean", "sigma", "p90", "p95", "total"};
         final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
         for (Outputter outputter : outputters) {
-            outputter.initialiseOutput(allSourceProducts, bandNames, algorithmNames, startDate, endDate, regionNames);
+            outputter.initialiseOutput(allSourceProducts, bandNames, algorithmNames, startDate, endDate, regionNames.toArray(new String[regionNames.size()]));
         }
     }
 
@@ -240,7 +248,7 @@ public class StatisticsOp extends Operator implements Output {
                 stxMap.put("max", stx.getMaximum());
                 stxMap.put("mean", stx.getMean());
                 stxMap.put("sigma", stx.getStandardDeviation());
-                stxMap.put("total", (double)stx.getSampleCount());
+                stxMap.put("total", (double) stx.getSampleCount());
                 stxMap.put("median", stx.getHistogram().getPTileThreshold(0.5)[0]);
                 stxMap.put("p90", stx.getHistogram().getPTileThreshold(0.9)[0]);
                 stxMap.put("p95", stx.getHistogram().getPTileThreshold(0.95)[0]);
