@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 # -------------------------------------------------------------------------------
 #  Please adapt according to your system

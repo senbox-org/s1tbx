@@ -54,15 +54,17 @@ public class MetadataEngineMain {
             metadataEngineMain.setCliHandler(new CliHandler(commandLineArgs));
             if (commandLineArgs.length < 2) {
                 metadataEngineMain.cliHandler.printUsage();
+                System.err.print("Error in MetadataEngineMain: The two options -v and -t are mandatory. ");
+                System.exit(1);
             } else {
                 metadataEngineMain.processMetadata();
             }
         } catch (IllegalArgumentException e) {
-            System.err.println(e.getMessage());
+            System.err.println("Error in MetadataEngineMain:" + e.getMessage());
             metadataEngineMain.cliHandler.printUsage();
             System.exit(1);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println("Error in MetadataEngineMain:" + e.getMessage());
             System.exit(1);
         }
     }
