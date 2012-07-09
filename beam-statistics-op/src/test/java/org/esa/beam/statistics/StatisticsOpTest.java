@@ -32,8 +32,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -80,24 +78,22 @@ public class StatisticsOpTest {
         statisticsOp.sourceProducts = new Product[]{getTestProduct()};
         statisticsOp.shapefile = getClass().getResource("4_pixels.shp");
         statisticsOp.doOutputAsciiFile = false;
-        final StringBuilder builder = new StringBuilder();
 
-        statisticsOp.outputters.add(new MyOutputter(builder));
+        final MyOutputter outputter = new MyOutputter();
+        statisticsOp.outputters.add(outputter);
 
         statisticsOp.initialize();
 
-        final String result = builder.toString();
-        assertEquals("4_pixels.1\n" +
-                     "algal_2:\n" +
-                     "max: 0.804474\n" +
-                     "mean: 0.749427\n" +
-                     "median: 0.721552\n" +
-                     "min: 0.695857\n" +
-                     "p90: 0.804474\n" +
-                     "p95: 0.804474\n" +
-                     "sigma: 0.049578\n" +
-                     "total: 4.000000\n",
-                     result);
+        assertEquals("4_pixels.1", outputter.region);
+        assertEquals("algal_2", outputter.bandName);
+        assertEquals(4, outputter.pixels);
+        assertEquals(0.804474, outputter.max, 1E-4);
+        assertEquals(0.695857, outputter.min, 1E-4);
+        assertEquals(0.749427, outputter.mean, 1E-4);
+        assertEquals(0.721552, outputter.median, 1E-4);
+        assertEquals(0.049578, outputter.sigma, 1E-4);
+        assertEquals(0.804474, outputter.p90, 1E-4);
+        assertEquals(0.804474, outputter.p95, 1E-4);
     }
 
     @Test
@@ -109,24 +105,50 @@ public class StatisticsOpTest {
         statisticsOp.sourceProducts = new Product[]{getTestProduct()};
         statisticsOp.shapefile = getClass().getResource("4_pixels.shp");
         statisticsOp.doOutputAsciiFile = false;
-        final StringBuilder builder = new StringBuilder();
 
-        statisticsOp.outputters.add(new MyOutputter(builder));
+        final MyOutputter outputter = new MyOutputter();
+        statisticsOp.outputters.add(outputter);
 
         statisticsOp.initialize();
 
-        final String result = builder.toString();
-        assertEquals("4_pixels.1\n" +
-                     "algal_2_*_PI:\n" +
-                     "max: 2.527328\n" +
-                     "mean: 2.354394\n" +
-                     "median: 2.266823\n" +
-                     "min: 2.186098\n" +
-                     "p90: 2.527328\n" +
-                     "p95: 2.527328\n" +
-                     "sigma: 0.155752\n" +
-                     "total: 4.000000\n",
-                     result);
+        assertEquals("4_pixels.1", outputter.region);
+        assertEquals("algal_2_*_PI", outputter.bandName);
+        assertEquals(4, outputter.pixels);
+        assertEquals(2.527328, outputter.max, 1E-4);
+        assertEquals(2.186098, outputter.min, 1E-4);
+        assertEquals(2.354394, outputter.mean, 1E-4);
+        assertEquals(2.266823, outputter.median, 1E-4);
+        assertEquals(0.155752, outputter.sigma, 1E-4);
+        assertEquals(2.527328, outputter.p90, 1E-4);
+        assertEquals(2.527328, outputter.p95, 1E-4);
+    }
+
+    @Test
+    public void testStatisticsOp_WithValidExpression() throws Exception {
+        final StatisticsOp statisticsOp = new StatisticsOp();
+        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
+        bandConfiguration.sourceBandName = "algal_2";
+        bandConfiguration.validPixelExpression = "algal_2 > 0.7";
+        statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
+        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        statisticsOp.shapefile = getClass().getResource("4_pixels.shp");
+        statisticsOp.doOutputAsciiFile = false;
+
+        final MyOutputter outputter = new MyOutputter();
+        statisticsOp.outputters.add(outputter);
+
+        statisticsOp.initialize();
+
+        assertEquals("4_pixels.1", outputter.region);
+        assertEquals("algal_2", outputter.bandName);
+        assertEquals(3, outputter.pixels);
+        assertEquals(0.8045, outputter.max, 1E-4);
+        assertEquals(0.7216, outputter.min, 1E-4);
+        assertEquals(0.7672, outputter.mean, 1E-4);
+        assertEquals(0.7758, outputter.median, 1E-4);
+        assertEquals(0.04211, outputter.sigma, 1E-4);
+        assertEquals(0.8044, outputter.p90, 1E-4);
+        assertEquals(0.8044, outputter.p95, 1E-4);
     }
 
     @Test
@@ -157,7 +179,7 @@ public class StatisticsOpTest {
         final Band virtualBand = StatisticsOp.getBand(configuration, testProduct);
         assertEquals("algal_2_*_PI", virtualBand.getName());
         assertTrue(virtualBand instanceof VirtualBand);
-        assertEquals("algal_2 * PI", ((VirtualBand)virtualBand).getExpression());
+        assertEquals("algal_2 * PI", ((VirtualBand) virtualBand).getExpression());
     }
 
     @Test
@@ -235,10 +257,18 @@ public class StatisticsOpTest {
 
     private static class MyOutputter implements StatisticsOp.Outputter {
 
-        private final StringBuilder builder;
+        int pixels;
+        double min;
+        double max;
+        double mean;
+        double median;
+        double sigma;
+        double p90;
+        double p95;
+        String region;
+        String bandName;
 
-        public MyOutputter(StringBuilder builder) {
-            this.builder = builder;
+        public MyOutputter() {
         }
 
         @Override
@@ -249,17 +279,27 @@ public class StatisticsOpTest {
         public void addToOutput(String bandName, String regionId, Map<String, Double> statistics) {
             final TreeMap<String, Double> map = new TreeMap<String, Double>();
             map.putAll(statistics);
-            builder.append(regionId)
-                    .append("\n")
-                    .append(bandName)
-                    .append(":\n");
+            region = regionId;
+            this.bandName = bandName;
             for (Map.Entry<String, Double> entry : map.entrySet()) {
-                final DecimalFormatSymbols decimalFormatSymbols = DecimalFormatSymbols.getInstance();
-                decimalFormatSymbols.setDecimalSeparator('.');
-                builder.append(entry.getKey())
-                        .append(": ")
-                        .append(new DecimalFormat("0.000000", decimalFormatSymbols).format(entry.getValue()))
-                        .append("\n");
+                final String key = entry.getKey();
+                if(key.equalsIgnoreCase("total")) {
+                    pixels = entry.getValue().intValue();
+                } else if(key.equalsIgnoreCase("min")) {
+                    min = entry.getValue();
+                } else if(key.equalsIgnoreCase("max")) {
+                    max = entry.getValue();
+                } else if(key.equalsIgnoreCase("mean")) {
+                    mean = entry.getValue();
+                } else if(key.equalsIgnoreCase("median")) {
+                    median = entry.getValue();
+                } else if(key.equalsIgnoreCase("sigma")) {
+                    sigma = entry.getValue();
+                } else if(key.equalsIgnoreCase("p90")) {
+                    p90 = entry.getValue();
+                } else if(key.equalsIgnoreCase("p95")) {
+                    p95 = entry.getValue();
+                }
             }
         }
 

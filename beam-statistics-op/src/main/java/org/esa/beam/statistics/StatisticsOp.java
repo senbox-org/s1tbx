@@ -229,7 +229,9 @@ public class StatisticsOp extends Operator implements Output {
         for (BandConfiguration configuration : bandConfigurations) {
             final HashMap<String, List<Mask>> map = new HashMap<String, List<Mask>>();
             for (Product product : allSourceProducts) {
-                bands.add(getBand(configuration, product));
+                final Band band = getBand(configuration, product);
+                band.setValidPixelExpression(configuration.validPixelExpression);
+                bands.add(band);
                 for (VectorDataNode vectorDataNode : createVectorDataNodes(product)) {
                     product.getVectorDataGroup().add(vectorDataNode);
                     final Mask mask = product.addMask(vectorDataNode.getName(), vectorDataNode, "", Color.BLUE, Double.NaN);
