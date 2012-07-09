@@ -19,7 +19,6 @@ package org.esa.beam.statistics;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -77,7 +76,6 @@ public class CsvOutputterTest {
 
     }
 
-    @Ignore // todo - make run and comment in
     @Test
     public void testAddToOutput() throws Exception {
         addOutput();
