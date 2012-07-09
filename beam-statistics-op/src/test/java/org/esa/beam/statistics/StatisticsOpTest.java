@@ -28,6 +28,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.util.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -60,6 +62,13 @@ public class StatisticsOpTest {
         }
     }
 
+    @After
+    public void tearDown() throws Exception {
+        if (!FileUtils.deleteTree(TESTDATA_DIR)) {
+            System.out.println("Warning: failed to completely delete test I/O directory:" + TESTDATA_DIR);
+        }
+    }
+
     @Test
     public void testThatStatisticsOpIsRegistered() throws Exception {
         assertNotNull(GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi("StatisticsOp"));
@@ -73,7 +82,7 @@ public class StatisticsOpTest {
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
         statisticsOp.sourceProducts = new Product[]{getTestProduct()};
         statisticsOp.shapefile = getClass().getResource("4_pixels.shp");
-        statisticsOp.outputAsciiFile = getTestFile("statisticsOutput.out");
+        statisticsOp.doOutputAsciiFile = false;
         final StringBuilder builder = new StringBuilder();
 
         statisticsOp.outputters.add(new MyOutputter(builder));
@@ -109,6 +118,11 @@ public class StatisticsOpTest {
                 bandConfiguration_1,
         });
         GPF.createProduct("StatisticsOp", parameters, getTestProduct());
+
+        assertFalse(getTestFile("statisticsOutput.put").exists());
+        assertTrue(getTestFile("statisticsOutput.out").exists());
+        assertTrue(getTestFile("statisticsOutput_metadata.txt").exists());
+        assertTrue(getTestFile("statisticsShapefile.shp").exists());
 
     }
 
