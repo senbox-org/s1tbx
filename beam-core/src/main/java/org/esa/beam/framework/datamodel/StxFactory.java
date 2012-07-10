@@ -351,7 +351,7 @@ public class StxFactory {
             throw new IllegalStateException("maskImage.getWidth() != dataImage.getWidth()");
         }
         if (maskImage.getHeight() != dataImage.getHeight()) {
-            throw new IllegalStateException("maskImage.getWidth() != dataImage.getWidth()");
+            throw new IllegalStateException("maskImage.getHeight() != dataImage.getHeight()");
         }
     }
 
