@@ -279,6 +279,7 @@ public class StatisticsOp extends Operator implements Output {
     }
 
     static Band getBand(BandConfiguration configuration, Product product) {
+        final Band band;
         if (configuration.sourceBandName == null && configuration.expression == null) {
             throw new OperatorException("Configuration must contain either a source band name or an expression.");
         }
@@ -286,9 +287,14 @@ public class StatisticsOp extends Operator implements Output {
             throw new OperatorException("Configuration must contain either a source band name or an expression.");
         }
         if (configuration.sourceBandName != null) {
-            return product.getBand(configuration.sourceBandName);
+            band = product.getBand(configuration.sourceBandName);
+        } else {
+            band = product.addBand(configuration.expression.replace(" ", "_"), configuration.expression, ProductData.TYPE_FLOAT64);
         }
-        return product.addBand(configuration.expression.replace(" ", "_"), configuration.expression, ProductData.TYPE_FLOAT64);
+        if(band == null) {
+            throw new OperatorException("Band '" + configuration.sourceBandName + "' does exist in product '" + product.getName() + "'.");
+        }
+        return band;
     }
 
     void writeOutput() {
