@@ -65,6 +65,15 @@ public class TimeStampExtractorTest {
         assertEquals(dateRange[0].getAsDate().getTime(), dateRange[1].getAsDate().getTime());
     }
 
+    @Test
+    public void testExtractTimeStamps_6() throws ParseException, ValidationException {
+        final TimeStampExtractor extractor = new TimeStampExtractor("yyyyMMdd", "*${date}*.dim");
+        ProductData.UTC[] dateRange = extractor.extractTimeStamps("something__20110601_bas_wac_acr_1200__20110602___something.dim");
+        assertEquals(dateRange.length, 2);
+        assertEquals(ProductData.UTC.parse("2011-06-02", "yyyy-MM-dd").getAsDate().getTime(), dateRange[0].getAsDate().getTime());
+        assertEquals(dateRange[0].getAsDate().getTime(), dateRange[1].getAsDate().getTime());
+    }
+
     @Test(expected = ValidationException.class)
     public void testExtractTimeStamps_badFilename() throws ParseException, ValidationException {
         final TimeStampExtractor extractor = new TimeStampExtractor("yyyyMMdd", "${date}*.dim");
