@@ -71,10 +71,7 @@ public class CsvOutputterTest {
                      "#\n" +
                      "# Regions:\n" +
                      "#              bullerbue\n" +
-                     "#              bielefeld\n" +
-                     "#\n" +
-                     "#\n" +
-                     "# Region\tBand\tmax\tmin\tp90\tp95"
+                     "#              bielefeld\n"
                 , metadataOutput.toString());
 
     }
@@ -119,7 +116,8 @@ public class CsvOutputterTest {
         addOutput();
         csvOutputter.finaliseOutput();
         csvStream.close();
-        assertEquals("werdohl\tnormalised_cow_density_index_(ncdi)\t\t\t2.0\t3.0\n" +
+        assertEquals("# Region\tBand\tmax\tmin\tp90\tp95\n" +
+                     "werdohl\tnormalised_cow_density_index_(ncdi)\t\t\t2.0\t3.0\n" +
                      "bielefeld\tnormalised_cow_density_index_(ncdi)\t\t\t1.0\t3.0\n" +
                      "bielefeld\tnormalised_pig_density_index_(npdi)\t3.0\t0.5\t1.0\t2.0\n"
                 , csvOutput.toString());

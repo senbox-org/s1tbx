@@ -81,15 +81,6 @@ class CsvOutputter implements StatisticsOp.Outputter {
                     .append(regionId)
                     .append("\n");
         }
-        metadataOutput.append("#\n")
-                .append("#\n")
-                .append("# Region")
-                .append("\t")
-                .append("Band");
-        for (String algorithmName : algorithmNames) {
-            metadataOutput.append("\t")
-                    .append(algorithmName);
-        }
     }
 
     @Override
@@ -112,6 +103,16 @@ class CsvOutputter implements StatisticsOp.Outputter {
         if (algorithmNames == null) {
             throw new IllegalStateException(getClass().getSimpleName() + " not initialised.");
         }
+
+        csvOutput.append("# Region")
+                .append("\t")
+                .append("Band");
+
+        for (String algorithmName : algorithmNames) {
+            csvOutput.append("\t")
+                    .append(algorithmName);
+        }
+        csvOutput.append("\n");
 
         for (String bandName : statisticsContainer.getBandNames()) {
             final BandStatistics bandStatistics = statisticsContainer.getDataForBandName(bandName);
