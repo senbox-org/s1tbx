@@ -48,6 +48,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -224,9 +225,9 @@ public class StatisticsOp extends Operator implements Output {
                 metadataOutputStream = new PrintStream(new FileOutputStream(metadataFile));
                 csvOutputStream = new PrintStream(new FileOutputStream(outputAsciiFile));
                 outputters.add(new CsvOutputter(metadataOutputStream, csvOutputStream));
-            } catch (IOException e) {
+            } catch (FileNotFoundException e) {
                 throw new OperatorException(
-                        "Unable to create formatter for file '" + outputAsciiFile.getAbsolutePath() + "'.");
+                        "Directory '" + outputAsciiFile.getParent() + "' does not exist.");
             }
         }
         if (doOutputShapefile) {
