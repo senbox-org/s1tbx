@@ -141,6 +141,8 @@ public class StatisticsOp extends Operator implements Output {
 
     private PrintStream csvOutputStream;
 
+    private PrintStream bandMappingOutputStream;
+
     @Override
     public void initialize() throws OperatorException {
         setDummyTargetProduct();
@@ -232,9 +234,16 @@ public class StatisticsOp extends Operator implements Output {
         }
         if (doOutputShapefile) {
             try {
-                outputters.add(new ShapefileOutputter(shapefile.toURI().toURL(), outputShapefile.getAbsolutePath()));
+                final String baseName = FileUtils.getFilenameWithoutExtension(outputShapefile);
+                final File file = new File(outputShapefile.getParent(), baseName + "_band_mapping.txt");
+                final FileOutputStream outputStream = new FileOutputStream(file);
+                bandMappingOutputStream = new PrintStream(outputStream);
+                BandNameCreator bandNameCreator = new BandNameCreator(bandMappingOutputStream);
+                outputters.add(new ShapefileOutputter(shapefile.toURI().toURL(), outputShapefile.getAbsolutePath(), bandNameCreator));
             } catch (MalformedURLException e) {
-                throw new OperatorException(e);
+                throw new OperatorException("Unable to create shapefile outputter", e);
+            } catch (FileNotFoundException e) {
+                throw new OperatorException("Unable to create shapefile outputter", e);
             }
         }
     }
@@ -311,6 +320,9 @@ public class StatisticsOp extends Operator implements Output {
             }
             if (csvOutputStream != null) {
                 csvOutputStream.close();
+            }
+            if (bandMappingOutputStream != null) {
+                bandMappingOutputStream.close();
             }
         }
     }

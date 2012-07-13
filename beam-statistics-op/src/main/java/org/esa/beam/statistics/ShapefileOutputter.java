@@ -21,7 +21,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.FeatureUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
@@ -39,7 +38,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,12 +63,14 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
     private final String targetShapefile;
     private SimpleFeatureType updatedFeatureType;
     private FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures;
+    private BandNameCreator bandNameCreator;
 
     final List<SimpleFeature> features;
 
-    ShapefileOutputter(URL originalShapefile, String targetShapefile) {
+    ShapefileOutputter(URL originalShapefile, String targetShapefile, BandNameCreator bandNameCreator) {
         this.originalShapefile = originalShapefile;
         this.targetShapefile = targetShapefile;
+        this.bandNameCreator = bandNameCreator;
         features = new ArrayList<SimpleFeature>();
     }
 
@@ -89,7 +89,8 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
         typeBuilder.init(originalFeatureType);
         for (final String algorithmName : algorithmNames) {
             for (String bandName : bandNames) {
-                typeBuilder.add(createUniqueAttributeName(algorithmName, bandName), Double.class);
+                final String attributeName = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
+                typeBuilder.add(attributeName, Double.class);
             }
         }
         typeBuilder.setName(originalFeatureType.getName());
@@ -104,7 +105,7 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
         final Map<String, SimpleFeature> markedToAdd = new HashMap<String, SimpleFeature>();
         for (SimpleFeature feature : features) {
             for (String algorithmName : statistics.keySet()) {
-                final String name = createUniqueAttributeName(algorithmName, bandName);
+                final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
                 if (feature.getID().equals(regionId)) {
                     SimpleFeature featureToUpdate;
                     if(markedToAdd.get(regionId) != null) {
@@ -130,7 +131,7 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
             if (originalFeature.getID().equals(regionId)) {
                 SimpleFeature feature = originalFeature;
                 for (String algorithmName : statistics.keySet()) {
-                    final String name = createUniqueAttributeName(algorithmName, bandName);
+                    final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
                     feature = createUpdatedFeature(simpleFeatureBuilder, feature, name, statistics.get(algorithmName));
                 }
                 features.add(feature);
@@ -152,30 +153,6 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
         builder.init(baseFeature);
         builder.set(name, value);
         return builder.buildFeature(baseFeature.getID());
-    }
-
-    String createUniqueAttributeName(String algorithmName, String sourceBandName) {
-        String temp = algorithmName + "_" + sourceBandName;
-        String attributeName = temp;
-        final boolean tooLong = temp.length() > 10;
-        if (tooLong) {
-            attributeName = algorithmName + "_" + sourceBandName.replace("_", "");
-            attributeName = attributeName.replace("minimum", "min").replace("maximum", "max");
-            attributeName = attributeName.replace("a", "").replace("e", "").replace("i", "").replace("o", "").replace("u", "");
-        }
-        if (attributeName.length() > 10) {
-            throw new IllegalArgumentException(
-                    MessageFormat.format(
-                            "Too long combination of algorithm name and band name: ''{0}'', ''{1}''. " +
-                            "Combination must not exceed 10 characters in length when writing shapefiles.", algorithmName, sourceBandName));
-        }
-
-        if (tooLong) {
-            BeamLogManager.getSystemLogger().warning(
-                    "attribute name '" + temp + "' exceeds 10 characters in length. Shortened to '" + attributeName +
-                    "'.");
-        }
-        return attributeName;
     }
 
     private static void exportVectorDataNode(VectorDataNode vectorDataNode, File file) throws IOException {

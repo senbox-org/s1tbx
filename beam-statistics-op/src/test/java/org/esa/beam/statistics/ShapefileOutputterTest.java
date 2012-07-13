@@ -19,7 +19,6 @@ package org.esa.beam.statistics;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.junit.After;
@@ -31,9 +30,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
 import static org.junit.Assert.*;
 
@@ -63,7 +59,7 @@ public class ShapefileOutputterTest {
     public void testSingleShape() throws Exception {
         final URL originalShapefile = getClass().getResource("4_pixels.shp");
         final String targetShapefile = getTestFile("4_pixels_output.shp").getAbsolutePath();
-        final ShapefileOutputter shapefileOutputter = new ShapefileOutputter(originalShapefile, targetShapefile);
+        final ShapefileOutputter shapefileOutputter = new ShapefileOutputter(originalShapefile, targetShapefile, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 
         shapefileOutputter.initialiseOutput(new Product[0], new String[] {"algal_2"}, algorithmNames,
@@ -97,7 +93,7 @@ public class ShapefileOutputterTest {
     public void testThreeShapes() throws Exception {
         final URL originalShapefile = getClass().getResource("polygons.shp");
         final String targetShapefile = getTestFile("polygons_output.shp").getAbsolutePath();
-        final ShapefileOutputter shapefileOutputter = new ShapefileOutputter(originalShapefile, targetShapefile);
+        final ShapefileOutputter shapefileOutputter = new ShapefileOutputter(originalShapefile, targetShapefile, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 
         shapefileOutputter.initialiseOutput(new Product[0], new String[] {"algal_2", "algal_2"}, algorithmNames,
@@ -153,60 +149,6 @@ public class ShapefileOutputterTest {
                 assertEquals(3.95, (Double)feature.getProperty("p95_lgl2").getValue(), 1E-6);
             }
         }
-    }
-
-    @Test
-    public void testCreateAttributeName() throws Exception {
-        final int[] called = new int[1];
-        final Handler handler = new Handler() {
-
-            @Override
-            public void publish(LogRecord record) {
-                assertEquals(Level.WARNING, record.getLevel());
-                assertTrue(record.getMessage().contains("exceeds 10 characters in length. Shortened to"));
-                called[0]++;
-            }
-
-            @Override
-            public void flush() {
-            }
-
-            @Override
-            public void close() throws SecurityException {
-            }
-        };
-        BeamLogManager.getSystemLogger().addHandler(handler);
-
-        final ShapefileOutputter shapefileOutputter = new ShapefileOutputter(null, null);
-        String attributeName1 = shapefileOutputter.createUniqueAttributeName("median", "radiance_12");
-        String attributeName2 = shapefileOutputter.createUniqueAttributeName("median", "radiance_13");
-        String attributeName3 = shapefileOutputter.createUniqueAttributeName("p90", "radiance_12");
-        String attributeName4 = shapefileOutputter.createUniqueAttributeName("p90", "radiance_13");
-        String attributeName5 = shapefileOutputter.createUniqueAttributeName("p90", "algal2");
-        String attributeName6 = shapefileOutputter.createUniqueAttributeName("p90", "algal1");
-        String attributeName7 = shapefileOutputter.createUniqueAttributeName("maximum", "algal1");
-        String attributeName8 = shapefileOutputter.createUniqueAttributeName("minimum", "algal1");
-
-        assertEquals("mdn_rdnc12", attributeName1);
-        assertEquals("mdn_rdnc13", attributeName2);
-        assertEquals("p90_rdnc12", attributeName3);
-        assertEquals("p90_rdnc13", attributeName4);
-        assertEquals("p90_algal2", attributeName5);
-        assertEquals("p90_algal1", attributeName6);
-        assertEquals("mx_lgl1", attributeName7);
-        assertEquals("mn_lgl1", attributeName8);
-
-        try {
-            shapefileOutputter.createUniqueAttributeName("median", "saharan_dust_index");
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertEquals("Too long combination of algorithm name and band name: 'median', 'saharan_dust_index'. " +
-                         "Combination must not exceed 10 characters in length when writing shapefiles.", expected.getMessage());
-        }
-
-        assertEquals(6, called[0]);
-
-        BeamLogManager.getSystemLogger().removeHandler(handler);
     }
 
     static File getTestFile(String fileName) {

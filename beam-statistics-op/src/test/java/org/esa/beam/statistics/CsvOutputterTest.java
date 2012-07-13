@@ -143,11 +143,11 @@ public class CsvOutputterTest {
     }
 
 
-    private static class StringOutputStream extends OutputStream {
+    static class StringOutputStream extends OutputStream {
 
         StringBuilder builder;
 
-        private StringOutputStream(StringBuilder builder) {
+        StringOutputStream(StringBuilder builder) {
             this.builder = builder;
         }
 
