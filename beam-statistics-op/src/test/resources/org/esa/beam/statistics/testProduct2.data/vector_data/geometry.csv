@@ -1,0 +1,4 @@
+#description=Default vector data container for geometries (automatically created)
+#defaultCSS=fill:#ffaa00; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0; symbol:cross
+org.esa.beam.Geometry	geometry:Geometry	style_css:String
+IDbeb29d7b3ab	POLYGON ((62.77304458618164 121.78186798095703, 62.77326583862305 124.23053741455078, 66.2839126586914 124.23145294189453, 66.28369140625 121.78256225585938, 62.77304458618164 121.78186798095703))	[null]

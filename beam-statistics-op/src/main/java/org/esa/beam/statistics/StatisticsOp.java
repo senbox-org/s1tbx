@@ -163,9 +163,13 @@ public class StatisticsOp extends Operator implements Output {
         }
     }
 
-    private void initializeVectorDataNodes(Product[] allSourceProducts) {
-        for (Product sourceProduct : allSourceProducts) {
-            productVdnMap.put(sourceProduct, createVectorDataNodes(sourceProduct));
+    void initializeVectorDataNodes(Product[] allSourceProducts) {
+        if(shapefile != null) {
+            for (Product sourceProduct : allSourceProducts) {
+                productVdnMap.put(sourceProduct, createVectorDataNodes(sourceProduct));
+            }
+        } else {
+            regionNames.add("world");
         }
     }
 
@@ -211,7 +215,16 @@ public class StatisticsOp extends Operator implements Output {
                 bandNamesList.add(bandConfiguration.expression);
             }
         }
-        final String[] algorithmNames = new String[]{"minimum", "maximum", "median", "average", "sigma", "p90", "p95", "total"};
+        final String[] algorithmNames = new String[]{
+                "minimum",
+                "maximum",
+                "median",
+                "average",
+                "sigma",
+                "p90",
+                "p95",
+                "total"
+        };
         final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
         for (Outputter outputter : outputters) {
             outputter.initialiseOutput(allSourceProducts, bandNames, algorithmNames, startDate, endDate, regionNames.toArray(new String[regionNames.size()]));
@@ -251,22 +264,26 @@ public class StatisticsOp extends Operator implements Output {
     void computeOutput(Product[] allSourceProducts) {
         final List<Band> bands = new ArrayList<Band>();
         for (BandConfiguration configuration : bandConfigurations) {
-            final HashMap<String, List<Mask>> map = new HashMap<String, List<Mask>>();
+            final HashMap<String, List<Mask>> regionNameToMasks = new HashMap<String, List<Mask>>();
             for (Product product : allSourceProducts) {
                 final Band band = getBand(configuration, product);
                 band.setValidPixelExpression(configuration.validPixelExpression);
                 bands.add(band);
-                for (VectorDataNode vectorDataNode : productVdnMap.get(product)) {
-                    product.getVectorDataGroup().add(vectorDataNode);
-                    final Mask mask = product.addMask(vectorDataNode.getName(), vectorDataNode, "", Color.BLUE, Double.NaN);
-                    if (!map.containsKey(vectorDataNode.getName())) {
-                        map.put(vectorDataNode.getName(), new ArrayList<Mask>());
+                if (shapefile != null) {
+                    for (VectorDataNode vectorDataNode : productVdnMap.get(product)) {
+                        product.getVectorDataGroup().add(vectorDataNode);
+                        final Mask mask = product.addMask(vectorDataNode.getName(), vectorDataNode, "", Color.BLUE, Double.NaN);
+                        if (!regionNameToMasks.containsKey(vectorDataNode.getName())) {
+                            regionNameToMasks.put(vectorDataNode.getName(), new ArrayList<Mask>());
+                        }
+                        regionNameToMasks.get(vectorDataNode.getName()).add(mask);
                     }
-                    map.get(vectorDataNode.getName()).add(mask);
+                } else {
+                    regionNameToMasks.put("world", new ArrayList<Mask>());
                 }
             }
             for (String regionName : regionNames) {
-                final List<Mask> maskList = map.get(regionName);
+                final List<Mask> maskList = regionNameToMasks.get(regionName);
                 final Mask[] roiMasks = maskList.toArray(new Mask[maskList.size()]);
                 final Stx stx = new StxFactory()
                         .withHistogramBinCount(1024 * 1024)
@@ -301,8 +318,10 @@ public class StatisticsOp extends Operator implements Output {
         } else {
             band = product.addBand(configuration.expression.replace(" ", "_"), configuration.expression, ProductData.TYPE_FLOAT64);
         }
-        if(band == null) {
-            throw new OperatorException("Band '" + configuration.sourceBandName + "' does not exist in product '" + product.getName() + "'.");
+        if (band == null) {
+            throw new OperatorException(
+                    "Band '" + configuration.sourceBandName + "' does not exist in product '" + product.getName() +
+                    "'.");
         }
         return band;
     }

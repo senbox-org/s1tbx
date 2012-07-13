@@ -75,7 +75,7 @@ public class StatisticsOpTest {
         final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
-        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        statisticsOp.sourceProducts = new Product[]{getTestProducts()[0]};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
 
@@ -102,7 +102,7 @@ public class StatisticsOpTest {
         final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
         bandConfiguration.expression = "algal_2 * PI";
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
-        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        statisticsOp.sourceProducts = new Product[]{getTestProducts()[0]};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
 
@@ -130,7 +130,7 @@ public class StatisticsOpTest {
         bandConfiguration.sourceBandName = "algal_2";
         bandConfiguration.validPixelExpression = "algal_2 > 0.7";
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
-        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        statisticsOp.sourceProducts = new Product[]{getTestProducts()[0]};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
 
@@ -155,7 +155,7 @@ public class StatisticsOpTest {
     public void testGetBand() throws Exception {
         final StatisticsOp.BandConfiguration configuration = new StatisticsOp.BandConfiguration();
 
-        final Product testProduct = getTestProduct();
+        final Product testProduct = getTestProducts()[0];
         try {
             StatisticsOp.getBand(configuration, testProduct);
             fail();
@@ -196,7 +196,7 @@ public class StatisticsOpTest {
         parameters.put("bandConfigurations", new StatisticsOp.BandConfiguration[]{
                 bandConfiguration_1,
         });
-        GPF.createProduct("StatisticsOp", parameters, getTestProduct());
+        GPF.createProduct("StatisticsOp", parameters, getTestProducts()[0]);
 
         assertFalse(getTestFile("statisticsOutput.put").exists());
         assertTrue(getTestFile("statisticsOutput.out").exists());
@@ -243,8 +243,29 @@ public class StatisticsOpTest {
         }
     }
 
-    private Product getTestProduct() throws IOException {
-        return ProductIO.readProduct(getClass().getResource("testProduct1.dim").getFile());
+    @Test
+    public void testComputeOutput() throws Exception {
+        StatisticsOp statisticsOp = new StatisticsOp();
+        StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
+        bandConfiguration.sourceBandName = "algal_2";
+        statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[] {bandConfiguration};
+        MyOutputter outputter = new MyOutputter();
+        statisticsOp.outputters.add(outputter);
+        statisticsOp.shapefile = new File(getClass().getResource("south_of_sicily.shp").getFile());
+
+        Product[] testProducts = getTestProducts();
+
+        statisticsOp.initializeVectorDataNodes(testProducts);
+        statisticsOp.computeOutput(testProducts);
+
+        // todo - validate output
+    }
+
+    private Product[] getTestProducts() throws IOException {
+        return new Product[]{
+                ProductIO.readProduct(getClass().getResource("testProduct1.dim").getFile()),
+                ProductIO.readProduct(getClass().getResource("testProduct2.dim").getFile())
+        };
     }
 
     private static void assertConversionException(Converter converter, String text) {
