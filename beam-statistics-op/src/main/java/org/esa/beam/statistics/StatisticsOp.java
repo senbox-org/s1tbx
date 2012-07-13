@@ -302,7 +302,7 @@ public class StatisticsOp extends Operator implements Output {
             band = product.addBand(configuration.expression.replace(" ", "_"), configuration.expression, ProductData.TYPE_FLOAT64);
         }
         if(band == null) {
-            throw new OperatorException("Band '" + configuration.sourceBandName + "' does exist in product '" + product.getName() + "'.");
+            throw new OperatorException("Band '" + configuration.sourceBandName + "' does not exist in product '" + product.getName() + "'.");
         }
         return band;
     }
