@@ -53,6 +53,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -319,9 +320,8 @@ public class StatisticsOp extends Operator implements Output {
             band = product.addBand(configuration.expression.replace(" ", "_"), configuration.expression, ProductData.TYPE_FLOAT64);
         }
         if (band == null) {
-            throw new OperatorException(
-                    "Band '" + configuration.sourceBandName + "' does not exist in product '" + product.getName() +
-                    "'.");
+            throw new OperatorException(MessageFormat.format("Band ''{0}'' does not exist in product ''{1}''.",
+                                         configuration.sourceBandName, product.getName()));
         }
         return band;
     }
