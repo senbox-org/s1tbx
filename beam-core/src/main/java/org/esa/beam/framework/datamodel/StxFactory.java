@@ -149,6 +149,8 @@ public class StxFactory {
 
         Histogram histogram = this.histogram;
 
+        Assert.argument(roiMasks == null || roiMasks.length == rasters.length, "roiMasks == null || roiMasks.length == rasters.length");
+
         final List<RasterDataNode> filteredRasterList = new ArrayList<RasterDataNode>();
         for (RasterDataNode rasterDataNode : rasters) {
             if (rasterDataNode != null) {
@@ -165,10 +167,15 @@ public class StxFactory {
             if (roiMasks != null) {
                 roiShapes[0] = this.roiShape;
                 for (int i = 0; i < roiMasks.length; i++) {
-                    if (roiMasks[i].getValidShape() != null) {
-                        roiShapes[i] = roiMasks[i].getValidShape();
+                    if (roiMasks[i] == null) {
+                        roiShapes[i] = null;
+                        roiImages[i] = null;
+                    } else {
+                        if (roiMasks[i].getValidShape() != null) {
+                            roiShapes[i] = roiMasks[i].getValidShape();
+                        }
+                        roiImages[i] = roiMasks[i].getSourceImage();
                     }
-                    roiImages[i] = roiMasks[i].getSourceImage();
                 }
             }
 

@@ -270,22 +270,11 @@ public class StatisticsOp extends Operator implements Output {
                 final Band band = getBand(configuration, product);
                 band.setValidPixelExpression(configuration.validPixelExpression);
                 bands.add(band);
-                if (shapefile != null) {
-                    for (VectorDataNode vectorDataNode : productVdnMap.get(product)) {
-                        product.getVectorDataGroup().add(vectorDataNode);
-                        final Mask mask = product.addMask(vectorDataNode.getName(), vectorDataNode, "", Color.BLUE, Double.NaN);
-                        if (!regionNameToMasks.containsKey(vectorDataNode.getName())) {
-                            regionNameToMasks.put(vectorDataNode.getName(), new ArrayList<Mask>());
-                        }
-                        regionNameToMasks.get(vectorDataNode.getName()).add(mask);
-                    }
-                } else {
-                    regionNameToMasks.put("world", new ArrayList<Mask>());
-                }
+                fillRegionToMaskMap(regionNameToMasks, product);
             }
             for (String regionName : regionNames) {
                 final List<Mask> maskList = regionNameToMasks.get(regionName);
-                final Mask[] roiMasks = maskList.toArray(new Mask[maskList.size()]);
+                final Mask[] roiMasks = getMasksForBands(maskList, bands);
                 final Stx stx = new StxFactory()
                         .withHistogramBinCount(1024 * 1024)
                         .create(ProgressMonitor.NULL, roiMasks, bands.toArray(new Band[bands.size()]));
@@ -303,6 +292,38 @@ public class StatisticsOp extends Operator implements Output {
                 }
             }
             bands.clear();
+        }
+    }
+
+    private Mask[] getMasksForBands(List<Mask> allMasks, List<Band> bands) {
+        Mask[] masks = new Mask[bands.size()];
+        for (int i = 0; i < bands.size(); i++) {
+            final Band band = bands.get(i);
+            for (Mask mask : allMasks) {
+                if (band.getProduct() == mask.getProduct()) {
+                    masks[i] = mask;
+                    break;
+                } else {
+                    masks[i] = band.getProduct().addMask("emptyMask", "false", "mask that accepts no value", Color.RED, 0.5);
+                }
+            }
+        }
+
+        return masks;
+    }
+
+    private void fillRegionToMaskMap(HashMap<String, List<Mask>> regionNameToMasks, Product product) {
+        if (shapefile != null) {
+            for (VectorDataNode vectorDataNode : productVdnMap.get(product)) {
+                product.getVectorDataGroup().add(vectorDataNode);
+                if (!regionNameToMasks.containsKey(vectorDataNode.getName())) {
+                    regionNameToMasks.put(vectorDataNode.getName(), new ArrayList<Mask>());
+                }
+                Mask currentMask = product.getMaskGroup().get(vectorDataNode.getName());
+                regionNameToMasks.get(vectorDataNode.getName()).add(currentMask);
+            }
+        } else {
+            regionNameToMasks.put("world", new ArrayList<Mask>());
         }
     }
 
