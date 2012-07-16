@@ -415,6 +415,10 @@ public class StatisticsOp extends Operator implements Output {
             }
         }
 
+        if (products.size() == 0) {
+            throw new OperatorException("No input products found.");
+        }
+
         return products.toArray(new Product[products.size()]);
     }
 
