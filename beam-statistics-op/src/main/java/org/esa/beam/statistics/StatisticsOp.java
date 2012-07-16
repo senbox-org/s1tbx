@@ -46,6 +46,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import javax.media.jai.Histogram;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -279,14 +280,15 @@ public class StatisticsOp extends Operator implements Output {
                         .withHistogramBinCount(1024 * 1024)
                         .create(ProgressMonitor.NULL, roiMasks, bands.toArray(new Band[bands.size()]));
                 final HashMap<String, Double> stxMap = new HashMap<String, Double>();
-                stxMap.put("minimum", stx.getMinimum());
-                stxMap.put("maximum", stx.getMaximum());
-                stxMap.put("average", stx.getMean());
-                stxMap.put("sigma", stx.getStandardDeviation());
-                stxMap.put("total", (double) stx.getSampleCount());
-                stxMap.put("median", stx.getHistogram().getPTileThreshold(0.5)[0]);
-                stxMap.put("p90", stx.getHistogram().getPTileThreshold(0.9)[0]);
-                stxMap.put("p95", stx.getHistogram().getPTileThreshold(0.95)[0]);
+                Histogram histogram = stx.getHistogram();
+                stxMap.put("minimum", histogram.getLowValue(0));
+                stxMap.put("maximum", histogram.getHighValue(0));
+                stxMap.put("average", histogram.getMean()[0]);
+                stxMap.put("sigma", histogram.getStandardDeviation()[0]);
+                stxMap.put("total", (double) histogram.getTotals()[0]);
+                stxMap.put("median", histogram.getPTileThreshold(0.5)[0]);
+                stxMap.put("p90", histogram.getPTileThreshold(0.9)[0]);
+                stxMap.put("p95", histogram.getPTileThreshold(0.95)[0]);
                 for (Outputter outputter : outputters) {
                     outputter.addToOutput(bands.get(0).getName(), regionName, stxMap);
                 }
@@ -337,6 +339,7 @@ public class StatisticsOp extends Operator implements Output {
         }
         if (configuration.sourceBandName != null) {
             band = product.getBand(configuration.sourceBandName);
+            band.setNoDataValueUsed(true);
         } else {
             band = product.addBand(configuration.expression.replace(" ", "_"), configuration.expression, ProductData.TYPE_FLOAT64);
         }

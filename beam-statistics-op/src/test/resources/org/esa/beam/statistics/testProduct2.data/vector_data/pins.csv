@@ -1,3 +1,0 @@
-#defaultCSS=symbol:pin; fill:#0000ff; fill-opacity:0.7; stroke:#ffffff; stroke-opacity:1.0; stroke-width:0.5
-org.esa.beam.Pin	geometry:Point	style_css:String	label:String	text:String	pixelPos:Point	geoPos:Point	dateTime:Date
-pin_1	POINT (79.45015716552734 113.50313568115234)	[null]	Pin 1		POINT (821.5 1072.5)	POINT (14.549222946166992 37.02815628051758)	[null]
