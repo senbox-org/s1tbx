@@ -84,7 +84,7 @@ class CsvOutputter implements StatisticsOp.Outputter {
     }
 
     @Override
-    public void addToOutput(String bandName, String regionId, Map<String, Double> statistics) {
+    public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
         if (!statisticsContainer.containsBand(bandName)) {
             statisticsContainer.put(bandName, new BandStatistics());
         }
@@ -92,7 +92,7 @@ class CsvOutputter implements StatisticsOp.Outputter {
         if (!dataForBandName.containsRegion(regionId)) {
             dataForBandName.put(regionId, new RegionStatistics());
         }
-        for (Map.Entry<String, Double> entry : statistics.entrySet()) {
+        for (Map.Entry<String, Number> entry : statistics.entrySet()) {
             final RegionStatistics dataForRegionName = dataForBandName.getDataForRegionName(regionId);
             dataForRegionName.put(entry.getKey(), entry.getValue());
         }
@@ -124,8 +124,8 @@ class CsvOutputter implements StatisticsOp.Outputter {
                     csvOutput.append("\t");
                     final RegionStatistics dataForRegionName = bandStatistics.getDataForRegionName(regionName);
                     if (dataForRegionName.containsAlgorithm(algorithmName)) {
-                        final double doubleValue = dataForRegionName.getDataForAlgorithmName(algorithmName);
-                        final String stringValue = String.valueOf(doubleValue);
+                        final Number numberValue = dataForRegionName.getDataForAlgorithmName(algorithmName);
+                        final String stringValue = String.valueOf(numberValue);
                         csvOutput.append(stringValue.substring(0, Math.min(
                                 stringValue.lastIndexOf('.') + 6, stringValue.length())));
                     }
@@ -181,9 +181,9 @@ class CsvOutputter implements StatisticsOp.Outputter {
 
     static class RegionStatistics {
 
-        Map<String, Double> regionStatistics = new HashMap<String, Double>();
+        Map<String, Number> regionStatistics = new HashMap<String, Number>();
 
-        double getDataForAlgorithmName(String algorithmName) {
+        Number getDataForAlgorithmName(String algorithmName) {
             return regionStatistics.get(algorithmName);
         }
 
@@ -191,7 +191,7 @@ class CsvOutputter implements StatisticsOp.Outputter {
             return regionStatistics.containsKey(algorithmName);
         }
 
-        void put(String algorithmName, double value) {
+        void put(String algorithmName, Number value) {
             regionStatistics.put(algorithmName, value);
         }
     }

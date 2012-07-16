@@ -99,7 +99,7 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
     }
 
     @Override
-    public void addToOutput(String bandName, String regionId, Map<String, Double> statistics) {
+    public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
         final SimpleFeatureBuilder simpleFeatureBuilder = new SimpleFeatureBuilder(updatedFeatureType);
         final List<SimpleFeature> markedToRemove = new ArrayList<SimpleFeature>();
         final Map<String, SimpleFeature> markedToAdd = new HashMap<String, SimpleFeature>();
@@ -150,7 +150,7 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
         exportVectorDataNode(vectorDataNode, targetFile);
     }
 
-    private static SimpleFeature createUpdatedFeature(SimpleFeatureBuilder builder, SimpleFeature baseFeature, String name, Double value) {
+    private static SimpleFeature createUpdatedFeature(SimpleFeatureBuilder builder, SimpleFeature baseFeature, String name, Number value) {
         builder.init(baseFeature);
         builder.set(name, value);
         return builder.buildFeature(baseFeature.getID());

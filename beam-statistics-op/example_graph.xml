@@ -6,21 +6,21 @@
         <sourceProducts>${sourceProducts}</sourceProducts>
       </sources>
       <parameters>
-        <sourceProductPaths>null</sourceProductPaths>
-        <shapefile>C:\temp\geometry_Polygon.shp</shapefile>
+        <sourceProductPaths>C:\dev\Ressourcen\EOData\MERIS\FR\NorthSea\*.dim</sourceProductPaths>
+        <shapefile>C:\temp\cwbody_desh_gk3.shp</shapefile>
         <bandConfigurations>
           <bandConfiguration>
-            <sourceBandName>algal_2</sourceBandName>
-            <validPixelExpression>algal_2 > 0.1</validPixelExpression>
+            <sourceBandName>chl_conc</sourceBandName>
+            <validPixelExpression>chl_conc > 0.1</validPixelExpression>
           </bandConfiguration>
           <bandConfiguration>
             <expression>algal_2*2</expression>
           </bandConfiguration>
         </bandConfigurations>
         <doOutputShapefile>true</doOutputShapefile>
-        <outputShapefile>c:\temp\outputShapefile.shp</outputShapefile>
+        <outputShapefile>c:\temp\output\outputShapefile_NS2012.shp</outputShapefile>
         <doOutputAsciiFile>true</doOutputAsciiFile>
-        <outputAsciiFile>c:\temp\outputAscii.out</outputAsciiFile>
+        <outputAsciiFile>c:\temp\output\outputAscii_NS2012.txt</outputAsciiFile>
       </parameters>
     </node>
   </graph>

@@ -65,7 +65,7 @@ public class ShapefileOutputterTest {
         shapefileOutputter.initialiseOutput(new Product[0], new String[] {"algal_2"}, algorithmNames,
                                             null, null, null);
 
-        HashMap<String, Double> statistics = new HashMap<String, Double>();
+        HashMap<String, Number> statistics = new HashMap<String, Number>();
         statistics.put("p90", 0.1);
         shapefileOutputter.addToOutput("algal_2", "4_pixels.1", statistics);
 
@@ -99,7 +99,7 @@ public class ShapefileOutputterTest {
         shapefileOutputter.initialiseOutput(new Product[0], new String[] {"algal_2", "algal_2"}, algorithmNames,
                                             null, null, null);
 
-        HashMap<String, Double> statistics = new HashMap<String, Double>();
+        HashMap<String, Number> statistics = new HashMap<String, Number>();
 
         statistics.put("p90", 1.90);
         shapefileOutputter.addToOutput("algal_2", "polygons.1", statistics);

@@ -289,13 +289,13 @@ public class StatisticsOp extends Operator implements Output {
                 final Stx stx = new StxFactory()
                         .withHistogramBinCount(1024 * 1024)
                         .create(ProgressMonitor.NULL, roiMasks, bands.toArray(new Band[bands.size()]));
-                final HashMap<String, Double> stxMap = new HashMap<String, Double>();
+                final HashMap<String, Number> stxMap = new HashMap<String, Number>();
                 Histogram histogram = stx.getHistogram();
                 stxMap.put("minimum", histogram.getLowValue(0));
                 stxMap.put("maximum", histogram.getHighValue(0));
                 stxMap.put("average", histogram.getMean()[0]);
                 stxMap.put("sigma", histogram.getStandardDeviation()[0]);
-                stxMap.put("total", (double) histogram.getTotals()[0]);
+                stxMap.put("total", histogram.getTotals()[0]);
                 stxMap.put("median", histogram.getPTileThreshold(0.5)[0]);
                 stxMap.put("p90", histogram.getPTileThreshold(0.9)[0]);
                 stxMap.put("p95", histogram.getPTileThreshold(0.95)[0]);
@@ -493,7 +493,7 @@ public class StatisticsOp extends Operator implements Output {
         void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate,
                               String[] regionIds);
 
-        void addToOutput(String bandName, String regionId, Map<String, Double> statistics);
+        void addToOutput(String bandName, String regionId, Map<String, Number> statistics);
 
         void finaliseOutput() throws IOException;
     }

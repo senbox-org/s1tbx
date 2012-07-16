@@ -82,27 +82,27 @@ public class CsvOutputterTest {
 
         assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_cow_density_index_(ncdi)")
                              .getDataForRegionName("werdohl")
-                             .getDataForAlgorithmName("p95"), 3.0, 1E-6);
+                             .getDataForAlgorithmName("p95").doubleValue(), 3.0, 1E-6);
         assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_cow_density_index_(ncdi)")
                              .getDataForRegionName("werdohl")
-                             .getDataForAlgorithmName("p90"), 2.0, 1E-6);
+                             .getDataForAlgorithmName("p90").doubleValue(), 2.0, 1E-6);
 
         assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_pig_density_index_(npdi)")
                              .getDataForRegionName("bielefeld")
-                             .getDataForAlgorithmName("p90"), 1.0, 1E-6);
+                             .getDataForAlgorithmName("p90").doubleValue(), 1.0, 1E-6);
         assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_pig_density_index_(npdi)")
                              .getDataForRegionName("bielefeld")
-                             .getDataForAlgorithmName("p95"), 2.0, 1E-6);
+                             .getDataForAlgorithmName("p95").doubleValue(), 2.0, 1E-6);
         assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_pig_density_index_(npdi)")
                              .getDataForRegionName("bielefeld")
-                             .getDataForAlgorithmName("max"), 3.0, 1E-6);
+                             .getDataForAlgorithmName("max").doubleValue(), 3.0, 1E-6);
         assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_pig_density_index_(npdi)")
                              .getDataForRegionName("bielefeld")
-                             .getDataForAlgorithmName("min"), 0.5, 1E-6);
+                             .getDataForAlgorithmName("min").doubleValue(), 0.5, 1E-6);
 
         assertEquals(csvOutputter.statisticsContainer.getDataForBandName("normalised_cow_density_index_(ncdi)")
                              .getDataForRegionName("bielefeld")
-                             .getDataForAlgorithmName("p90"), 1.0, 1E-6);
+                             .getDataForAlgorithmName("p90").doubleValue(), 1.0, 1E-6);
     }
 
     @Test
@@ -124,7 +124,7 @@ public class CsvOutputterTest {
     }
 
     private void addOutput() {
-        final HashMap<String, Double> statistics = new HashMap<String, Double>();
+        final HashMap<String, Number> statistics = new HashMap<String, Number>();
         statistics.put("p90", 2.0);
         statistics.put("p95", 3.0);
 

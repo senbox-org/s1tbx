@@ -276,29 +276,29 @@ public class StatisticsOpTest {
         }
 
         @Override
-        public void addToOutput(String bandName, String regionId, Map<String, Double> statistics) {
-            final TreeMap<String, Double> map = new TreeMap<String, Double>();
+        public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
+            final TreeMap<String, Number> map = new TreeMap<String, Number>();
             map.putAll(statistics);
             region = regionId;
             this.bandName = bandName;
-            for (Map.Entry<String, Double> entry : map.entrySet()) {
+            for (Map.Entry<String, Number> entry : map.entrySet()) {
                 final String key = entry.getKey();
                 if(key.equalsIgnoreCase("total")) {
                     pixels = entry.getValue().intValue();
                 } else if(key.equalsIgnoreCase("minimum")) {
-                    minimum = entry.getValue();
+                    minimum = entry.getValue().doubleValue();
                 } else if(key.equalsIgnoreCase("maximum")) {
-                    maximum = entry.getValue();
+                    maximum = entry.getValue().doubleValue();
                 } else if(key.equalsIgnoreCase("average")) {
-                    average = entry.getValue();
+                    average = entry.getValue().doubleValue();
                 } else if(key.equalsIgnoreCase("median")) {
-                    median = entry.getValue();
+                    median = entry.getValue().doubleValue();
                 } else if(key.equalsIgnoreCase("sigma")) {
-                    sigma = entry.getValue();
+                    sigma = entry.getValue().doubleValue();
                 } else if(key.equalsIgnoreCase("p90")) {
-                    p90 = entry.getValue();
+                    p90 = entry.getValue().doubleValue();
                 } else if(key.equalsIgnoreCase("p95")) {
-                    p95 = entry.getValue();
+                    p95 = entry.getValue().doubleValue();
                 }
             }
         }
