@@ -49,7 +49,7 @@ class BandNameCreator {
      */
     BandNameCreator(PrintStream printStream) {
         this.printStream = printStream;
-        indexMap  = new HashMap<String, Integer>();
+        indexMap = new HashMap<String, Integer>();
         mappedNames = new HashSet<String>();
     }
 
@@ -65,11 +65,12 @@ class BandNameCreator {
             attributeName = shorten(algorithmName) + "_" + getIndex(algorithmName);
             indexMap.put(algorithmName, getIndex(algorithmName) + 1);
         }
-        if (tooLong) {
-            addMapping(desiredAttributeName, attributeName);
+        if (tooLong && !mappedNames.contains(desiredAttributeName)) {
             BeamLogManager.getSystemLogger().warning(
-                    "attribute name '" + desiredAttributeName + "' exceeds 10 characters in length. Shortened to '" + attributeName +
+                    "attribute name '" + desiredAttributeName + "' exceeds 10 characters in length. Shortened to '" +
+                    attributeName +
                     "'.");
+            addMapping(desiredAttributeName, attributeName);
         }
         return attributeName;
     }
@@ -88,14 +89,12 @@ class BandNameCreator {
     }
 
     private void addMapping(String desiredAttributeName, String attributeName) {
-        if(!mappedNames.contains(desiredAttributeName)) {
-            printStream
-                    .append(attributeName)
-                    .append("=")
-                    .append(desiredAttributeName)
-                    .append("\n");
-            mappedNames.add(desiredAttributeName);
-        }
+        printStream
+                .append(attributeName)
+                .append("=")
+                .append(desiredAttributeName)
+                .append("\n");
+        mappedNames.add(desiredAttributeName);
     }
 
     private static class NullOutputStream extends OutputStream {
