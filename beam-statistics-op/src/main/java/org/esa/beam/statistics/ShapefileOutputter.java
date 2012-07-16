@@ -128,7 +128,8 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
         final FeatureIterator<SimpleFeature> featureIterator = originalFeatures.features();
         while (featureIterator.hasNext()) {
             final SimpleFeature originalFeature = featureIterator.next();
-            if (originalFeature.getID().equals(regionId)) {
+            String featureName = StatisticsOp.getFeatureName(originalFeature);
+            if (featureName.equals(regionId)) {
                 SimpleFeature feature = originalFeature;
                 for (String algorithmName : statistics.keySet()) {
                     final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);

@@ -199,13 +199,23 @@ public class StatisticsOp extends Operator implements Output {
             final SimpleFeature simpleFeature = featureIterator.next();
             final DefaultFeatureCollection fc = new DefaultFeatureCollection(simpleFeature.getID(), simpleFeature.getFeatureType());
             fc.add(simpleFeature);
-            result.add(new VectorDataNode(simpleFeature.getID(), fc));
+            String name = getFeatureName(simpleFeature);
+            result.add(new VectorDataNode(name, fc));
         }
 
         for (final VectorDataNode vectorDataNode : result) {
             regionNames.add(vectorDataNode.getName());
         }
         return result.toArray(new VectorDataNode[result.size()]);
+    }
+
+    static String getFeatureName(SimpleFeature simpleFeature) {
+        if (simpleFeature.getAttribute("name") != null) {
+            return simpleFeature.getAttribute("name").toString();
+        } else if (simpleFeature.getAttribute("NAME") != null) {
+            return simpleFeature.getAttribute("NAME").toString();
+        }
+        return simpleFeature.getID();
     }
 
     void initializeOutput(Product[] allSourceProducts) {
