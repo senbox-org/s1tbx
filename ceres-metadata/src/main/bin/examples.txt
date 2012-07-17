@@ -1,0 +1,52 @@
+VELOCITY TEMPLATES
+----------------------
+
+Example 1:
+  <processStep>
+      <software>
+          <name>$commandLineArgs.get(0)</name>
+          <version>$commandLineArgs.get(1)</version>
+      </software>
+      <dem>$commandLineArgs.get(2)</dem>
+      <source>
+          <sourceProduct>$sourcePaths.get("source")</sourceProduct>
+          <metadata>$sourceMetadata.get("source").get("metadata_xml").content</metadata>
+      </source>
+  </processStep>
+
+Example 2:
+      $commandLineArgs.get(0) $commandLineArgs.get(1).
+      $metadataXX.getContent().
+      Output item path: $targetPath.
+      The source metadata:
+      1) $sourceMetadata.get("source1").get("metadata_txt").content
+      2) $sourceMetadata.get("source2").get("blubber_xm").content
+      3) $sourceMetadata.get("source3").get("report_txt").content
+      4) $sourceMetadata.get("source3").get("report_xml").content.
+      A source path: $sourcePaths.get("source1").
+
+Example 3:
+      <metadata>
+          <sources>
+              #foreach ($sourcePath in $sourcePaths)
+                  <source>$sourcePath</source>
+              #end
+          </sources>
+          <target>$targetPath</target>
+          <additional>$commandLineArgs.get(0) $commandLineArgs.get(1)</additional>
+      </metadata>
+
+
+Command line for Example 1:
+java -cp "$classPath" com.bc.ceres.standalone.MetadataEngineMain
+                -v template1=$metadataTemplatePath
+                -S source=$inputpath
+                -t $metadataOutputPath
+                $software $amorgosVersion $(basename $demdir)
+
+Command line for Example 2 and 3:
+String[] args = {"-m", "/my/metadataXX.properties",
+                "-v", "template1=/my-template.xml.vm", "-v", "template2=/yours.txt.vm",
+                "-S", "source1=source/path/tsm-1.dim", "-S", "source2=source/path/tsm-2.N1", "-S", "source3=source/path/tsm-3.hdf",
+                "-t", "/my/chl-a.N1",
+                "Hello", "world"};

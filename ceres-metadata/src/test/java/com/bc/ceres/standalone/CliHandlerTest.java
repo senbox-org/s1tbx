@@ -42,8 +42,8 @@ public class CliHandlerTest {
         assertTrue(option.isRequired());
         assertNull(option.getValue());
         assertEquals("filePath", option.getArgName());
-        String desc = "The absolute item path (e.g. a product), the metadata file will be places next to the item with the name " +
-                "'itemName-templateName.templateSuffix. Refer to as $targetPath in velocity templates.";
+        String desc = "The absolute item path (e.g. a product), the metadata file will be placed next to the item with the " +
+                "name 'itemName-templateName.templateSuffix'. Refer to as $targetPath in velocity templates.";
         assertEquals(desc, option.getDescription());
 
         option = options.getOption("-S");

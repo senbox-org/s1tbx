@@ -25,7 +25,7 @@ public class CliHandler {
 
     public void printUsage() {
         HelpFormatter formatter = new HelpFormatter();
-        String usage = "java -classpath path com.bc.ceres.standalone.MetadataEngineMain -t /path/targetItem.suff -v templateX=/path/metadata.vm.txt [-v templateY=/path/report.vm.xml] [optional options] [arg1] [arg2] ...";
+        String usage = "java -classpath path com.bc.ceres.standalone.MetadataEngineMain -t /path/targetItem.suff -v templateX=/path/metadata.txt.vm [-v templateY=/path/report.xml.vm] [optional options] [arg1] [arg2] ...";
         formatter.printHelp(usage, options);
     }
 
@@ -83,8 +83,8 @@ public class CliHandler {
 
         OptionBuilder.hasArg();
         OptionBuilder.withArgName("filePath");
-        OptionBuilder.withDescription("The absolute item path (e.g. a product), the metadata file will be places next to the item " +
-                "with the name 'itemName-templateName.templateSuffix. Refer to as $targetPath in velocity templates.");
+        OptionBuilder.withDescription("The absolute item path (e.g. a product), the metadata file will be placed next to the item " +
+                "with the name 'itemName-templateName.templateSuffix'. Refer to as $targetPath in velocity templates.");
         OptionBuilder.isRequired();
         options.addOption(OptionBuilder.create("t"));
 
