@@ -225,7 +225,7 @@ public class ProductGrabber {
         }
 
         final SwingWorker repositoryCollector = new RepositoryCollector(baseDir, doRecursive,
-                                                                        new MyProgressBarProgressMonitor(progressBar,
+                                                                        new ProductGrabberProgressBarProgressMonitor(progressBar,
                                                                                                          statusLabel));
         repositoryCollector.execute();
     }
@@ -376,7 +376,7 @@ public class ProductGrabber {
                     repositoryManager.stopUpdateRepository();
                 } else {
                     repositoryManager.startUpdateRepository((Repository) repositoryList.getSelectedItem(),
-                                                            new MyProgressBarProgressMonitor(progressBar, statusLabel),
+                                                            new ProductGrabberProgressBarProgressMonitor(progressBar, statusLabel),
                                                             uiCallBack);
                 }
             }
@@ -436,7 +436,7 @@ public class ProductGrabber {
                 repositoryTable.setModel(sortedModel);
                 repositoryTable.setColumnModel(tableModel.getColumnModel());
                 repositoryManager.startUpdateRepository(repository,
-                                                        new MyProgressBarProgressMonitor(progressBar, statusLabel),
+                                                        new ProductGrabberProgressBarProgressMonitor(progressBar, statusLabel),
                                                         uiCallBack);
             }
         }
@@ -446,9 +446,9 @@ public class ProductGrabber {
         }
     }
 
-    private class MyProgressBarProgressMonitor extends ProgressBarProgressMonitor {
+    private class ProductGrabberProgressBarProgressMonitor extends ProgressBarProgressMonitor {
 
-        public MyProgressBarProgressMonitor(JProgressBar progressBar, JLabel messageLabel) {
+        public ProductGrabberProgressBarProgressMonitor(JProgressBar progressBar, JLabel messageLabel) {
             super(progressBar, messageLabel);
         }
 
