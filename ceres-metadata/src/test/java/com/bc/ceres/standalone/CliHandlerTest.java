@@ -52,8 +52,9 @@ public class CliHandlerTest {
         assertNull(option.getValue());
         assertEquals("source>=<filePath", option.getArgName());
         desc = "Optional. The absolute path and name of the source items. Could be several given by key-value-pairs. In the velocity " +
-                "templates the key will give you the content of the associated metadata file. The reference $sourcePaths holds a list of " +
-                "the input item paths.";
+                "templates the key will give you the content of the associated metadata file(s). The reference $sourcePaths holds a " +
+                "map of the input item paths. The reference $sourceMetadata holds a map with all source-metadata, which can be referenced " +
+                "by their key. ($sourceMetadata.get(\"source\").get(\"metadata_xml\").content";
         assertEquals(desc, option.getDescription());
 
         option = options.getOption("-m");
@@ -61,7 +62,8 @@ public class CliHandlerTest {
         assertFalse("static metadata are optional", option.isRequired());
         assertNull(option.getValue());
         assertEquals("filePath", option.getArgName());
-        desc = "Optional. The absolute path and name of a text file to be included. E.g. global metadata. Refer to as $metadata in velocity templates.";
+        desc = "Optional. The absolute path and name of a text file (e.g. global metadata) to be included as ceres-metadata - Resource. " +
+                "Refer to as $metadata in velocity templates. ($metadata.content; $metadata.map.get(\"key\") or $metadata.path)";
         assertEquals(desc, option.getDescription());
     }
 

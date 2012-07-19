@@ -91,14 +91,16 @@ public class CliHandler {
         OptionBuilder.hasArg();
         OptionBuilder.withArgName("source>=<filePath");
         OptionBuilder.withDescription("Optional. The absolute path and name of the source items. Could be several given by key-value-pairs. " +
-                "In the velocity templates the key will give you the content of the associated metadata file. The reference $sourcePaths " +
-                "holds a list of the input item paths.");
+                "In the velocity templates the key will give you the content of the associated metadata file(s). The reference $sourcePaths " +
+                "holds a map of the input item paths. The reference $sourceMetadata holds a map with all source-metadata, which can be " +
+                "referenced by their key. " +
+                "($sourceMetadata.get(\"source\").get(\"metadata_xml\").content");
         options.addOption(OptionBuilder.create("S"));
 
         OptionBuilder.hasArg();
         OptionBuilder.withArgName("filePath");
-        OptionBuilder.withDescription("Optional. The absolute path and name of a text file to be included. E.g. global metadata. " +
-                "Refer to as $metadata in velocity templates.");
+        OptionBuilder.withDescription("Optional. The absolute path and name of a text file (e.g. global metadata) to be included as ceres-metadata - Resource. " +
+                "Refer to as $metadata in velocity templates. ($metadata.content; $metadata.map.get(\"key\") or $metadata.path)");
         options.addOption(OptionBuilder.create("m"));
 
         return options;

@@ -1,3 +1,11 @@
+Please read about metadata naming convention here:
+http://www.brockmann-consult.de/beam-wiki/display/BEAM/GPT+and+Velocity
+section: State 2 - Metadata files
+section: State 3 - Source metadata files
+section: State 6 - Velocity templates
+
+Please refer also to the usage of the MetadataEngine.
+
 VELOCITY TEMPLATES
 ----------------------
 
@@ -39,7 +47,7 @@ Example 3:
 
 Command line for Example 1:
 java -cp "$classPath" com.bc.ceres.standalone.MetadataEngineMain
-                -v template1=$metadataTemplatePath
+                -v template1=/home/userx/velocity/metadata.xml.vm
                 -S source=$inputpath
                 -t $metadataOutputPath
                 $software $amorgosVersion $(basename $demdir)

@@ -20,6 +20,10 @@
             <source>${project.basedir}/../ceres-metadata/src/main/bin/examples.txt</source>
             <outputDirectory>/</outputDirectory>
         </file>
+        <file>
+            <source>${project.basedir}/../ceres-metadata/src/main/bin/readme.txt</source>
+            <outputDirectory>/</outputDirectory>
+        </file>
     </files>
     <fileSets>
         <fileSet>
