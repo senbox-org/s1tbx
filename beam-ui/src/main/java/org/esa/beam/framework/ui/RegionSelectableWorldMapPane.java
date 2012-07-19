@@ -355,6 +355,9 @@ public class RegionSelectableWorldMapPane {
 
         @Override
         public void setEnabled(boolean enabled) {
+            if (enabled == isEnabled()) {
+                return;
+            }
             super.setEnabled(enabled);
             if (enabled) {
                 worldMapPane.getLayerCanvas().addMouseMotionListener(cursorChanger);
