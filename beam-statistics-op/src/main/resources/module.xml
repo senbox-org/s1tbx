@@ -25,21 +25,4 @@
         <module>beam-visat-rcp</module>
     </dependency>
 
-    <extension point="beam-ui:actions">
-        <action>
-            <id>statistics</id>
-            <text>Statistics operator</text>
-            <class>org.esa.beam.statistics.ui.StatisticsOpAction</class>
-            <placeAfter>Binning</placeAfter>
-            <operatorName>Statistics</operatorName>
-        </action>
-    </extension>
-
-    <!--<extension point="beam-ui:helpSets">-->
-    <!--<helpSet>-->
-    <!--<parent>beam-help</parent>-->
-    <!--<path>doc/help/beam-statistics.hs</path>-->
-    <!--</helpSet>-->
-    <!--</extension>-->
-
 </module>
