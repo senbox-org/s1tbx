@@ -101,8 +101,8 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
 
         final JPanel helpPanel = GridBagUtils.createPanel();
         GridBagConstraints helpPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1,ipadx=0");
-        GridBagUtils.addToPanel(helpPanel,new JSeparator(),helpPanelConstraints,"gridy=0,gridwidth=3,insets.left=4,insets.right=2");
-        GridBagUtils.addToPanel(helpPanel,getHelpButton(),helpPanelConstraints,"gridy=1,gridwidth=1,gridx=2,anchor=EAST,fill=NONE");
+        GridBagUtils.addToPanel(helpPanel, new JSeparator(), helpPanelConstraints, "gridy=0,gridwidth=3,insets.left=4,insets.right=2");
+        GridBagUtils.addToPanel(helpPanel, getHelpButton(), helpPanelConstraints, "gridy=1,gridwidth=1,gridx=2,anchor=EAST,fill=NONE");
 
         final JPanel rightPanel = GridBagUtils.createPanel();
         GridBagConstraints extendedOptionsPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1,insets.right=-2");
@@ -179,6 +179,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     }
 
     private static class ComputeResult {
+
         final Stx stx;
         final Mask mask;
 
@@ -496,6 +497,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     }
 
     private class PopupHandler extends MouseAdapter {
+
         @Override
         public void mouseReleased(MouseEvent e) {
             if (e.getButton() == 2 || e.isPopupTrigger()) {

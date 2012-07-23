@@ -50,7 +50,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.Arrays;
 
 
 /**
@@ -162,7 +161,7 @@ class MultipleRoiComputePanel extends JPanel {
         selectAllCheckBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                if(selectAllCheckBox.isSelected()){
+                if (selectAllCheckBox.isSelected()) {
                     maskNameList.selectAll();
                 }
                 selectAndEnableCheckBoxes();
@@ -172,7 +171,7 @@ class MultipleRoiComputePanel extends JPanel {
         selectNoneCheckBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                if(selectNoneCheckBox.isSelected()){
+                if (selectNoneCheckBox.isSelected()) {
                     maskNameList.selectNone();
                 }
                 selectAndEnableCheckBoxes();
@@ -219,12 +218,12 @@ class MultipleRoiComputePanel extends JPanel {
         }
     }
 
-    private void selectAndEnableCheckBoxes(){
-            final int length = maskNameList.getCheckBoxListSelectedIndices().length;
-            selectNoneCheckBox.setEnabled(length>0);
-            selectAllCheckBox.setEnabled(length<maskNameList.getModel().getSize());
-            selectNoneCheckBox.setSelected(length==0);
-            selectAllCheckBox.setSelected(length==maskNameList.getModel().getSize());
+    private void selectAndEnableCheckBoxes() {
+        final int length = maskNameList.getCheckBoxListSelectedIndices().length;
+        selectNoneCheckBox.setEnabled(length > 0);
+        selectAllCheckBox.setEnabled(length < maskNameList.getModel().getSize());
+        selectNoneCheckBox.setSelected(length == 0);
+        selectAllCheckBox.setSelected(length == maskNameList.getModel().getSize());
     }
 
     private void updateMaskListState() {
