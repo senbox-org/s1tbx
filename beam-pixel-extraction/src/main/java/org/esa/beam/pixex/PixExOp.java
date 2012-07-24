@@ -159,6 +159,11 @@ public class PixExOp extends Operator implements Output {
                defaultValue = "true")
     private Boolean exportExpressionResult;
 
+    @Parameter(description = "If the window size is larger than 1, this parameter describes by which method a single \n" +
+                "value shall be derived from the pixels.",
+                defaultValue = "mean")
+    private String pixelValueAggregationMethod;
+
     @Parameter(description = "If set to true, sub-scenes of the regions, where pixels are found, are exported.",
                defaultValue = "false")
     private boolean exportSubScenes;

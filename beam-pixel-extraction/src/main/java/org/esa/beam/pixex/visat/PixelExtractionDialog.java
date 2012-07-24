@@ -138,6 +138,7 @@ class PixelExtractionDialog extends ModelessDialog {
         parameterMap.put("expression", parametersForm.getExpression());
         parameterMap.put("timeDifference", parametersForm.getAllowedTimeDifference());
         parameterMap.put("exportExpressionResult", parametersForm.isExportExpressionResultSelected());
+        parameterMap.put("pixelValueAggregationMethod", parametersForm.getPixelValueAggregationMethod());
         ProgressMonitorSwingWorker worker = new MyProgressMonitorSwingWorker(getParent(), "Creating output file(s)...");
         worker.executeWithBlocking();
     }
