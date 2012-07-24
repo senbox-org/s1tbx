@@ -77,6 +77,12 @@ class PixelExtractionParametersForm {
     private static final ImageIcon ADD_ICON = UIUtils.loadImageIcon("icons/Plus24.gif");
     private static final ImageIcon REMOVE_ICON = UIUtils.loadImageIcon("icons/Minus24.gif");
 
+    private static final String NO_AGGREGATION = "no aggregation";
+    private static final String MEAN_AGGREGATION = "mean";
+    private static final String MIN_AGGREGATION = "min";
+    private static final String MAX_AGGREGATION = "max";
+    private static final String MEDIAN_AGGREGATION = "median";
+
     private JPanel mainPanel;
     private JLabel windowLabel;
     private JSpinner windowSpinner;
@@ -187,7 +193,8 @@ class PixelExtractionParametersForm {
         mainPanel.add(windowLabel);
 
         mainPanel.add(new JLabel("Pixel value aggregation method:"));
-        methodChooserComboBox = new JComboBox(new String[]{"mean", "min", "max", "median"});
+        methodChooserComboBox = new JComboBox(new String[]{NO_AGGREGATION, MEAN_AGGREGATION, MIN_AGGREGATION,
+            MAX_AGGREGATION, MEDIAN_AGGREGATION});
         mainPanel.add(methodChooserComboBox);
         mainPanel.add(tableLayout.createVerticalSpacer());
 

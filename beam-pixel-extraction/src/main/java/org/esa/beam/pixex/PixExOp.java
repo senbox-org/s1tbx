@@ -43,6 +43,13 @@ import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.MeasurementWriter;
+import org.esa.beam.pixex.output.AggregatingPixExMeasurementFactory;
+import org.esa.beam.pixex.output.MaxMeasurementAggregator;
+import org.esa.beam.pixex.output.MeanMeasurementAggregator;
+import org.esa.beam.pixex.output.MeasurementAggregator;
+import org.esa.beam.pixex.output.MeasurementFactory;
+import org.esa.beam.pixex.output.MedianMeasurementAggregator;
+import org.esa.beam.pixex.output.MinMeasurementAggregator;
 import org.esa.beam.pixex.output.PixExFormatStrategy;
 import org.esa.beam.pixex.output.PixExMeasurementFactory;
 import org.esa.beam.pixex.output.PixExProductRegistry;
@@ -79,9 +86,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
 
-import static java.lang.Math.floor;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 
 /**
  * This operator is used to extract pixels from given locations and source products.
@@ -102,6 +107,11 @@ public class PixExOp extends Operator implements Output {
 
     public static final String RECURSIVE_INDICATOR = "**";
     private static final String SUB_SCENES_DIR_NAME = "subScenes";
+    private static final String NO_AGGREGATION = "no aggregation";
+    private static final String MEAN_AGGREGATION = "mean";
+    private static final String MIN_AGGREGATION = "min";
+    private static final String MAX_AGGREGATION = "max";
+    private static final String MEDIAN_AGGREGATION = "median";
 
     @SourceProducts()
     private Product[] sourceProducts;
@@ -110,9 +120,9 @@ public class PixExOp extends Operator implements Output {
     private PixExMeasurementReader measurements;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-            "'*' (matches any character sequence in path names) and\n" +
-            "'?' (matches any single character).")
+                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+                             "'*' (matches any character sequence in path names) and\n" +
+                             "'?' (matches any single character).")
     private String[] sourceProductPaths;
 
     @Parameter(
@@ -133,8 +143,8 @@ public class PixExOp extends Operator implements Output {
     private Coordinate[] coordinates;
 
     @Parameter(description = "The acceptable time difference compared to the time given for a coordinate.\n" +
-            "The format is a number followed by (D)ay, (H)our or (M)inute. If no time difference is provided, " +
-            "all input products are considered regardless of their time.",
+                             "The format is a number followed by (D)ay, (H)our or (M)inute. If no time difference is provided, " +
+                             "all input products are considered regardless of their time.",
                defaultValue = "")
     private String timeDifference = "";
 
@@ -155,13 +165,14 @@ public class PixExOp extends Operator implements Output {
     private String expression;
 
     @Parameter(description = "If true, the expression result is exported per pixel, otherwise the expression \n" +
-            "is used as filter (all pixels in given window must be valid).",
+                             "is used as filter (all pixels in given window must be valid).",
                defaultValue = "true")
     private Boolean exportExpressionResult;
 
-    @Parameter(description = "If the window size is larger than 1, this parameter describes by which method a single \n" +
-                "value shall be derived from the pixels.",
-                defaultValue = "mean")
+    @Parameter(
+            description = "If the window size is larger than 1, this parameter describes by which method a single \n" +
+                          "value shall be derived from the pixels.",
+            defaultValue = NO_AGGREGATION, valueSet = {MIN_AGGREGATION, MAX_AGGREGATION, MEAN_AGGREGATION, MEDIAN_AGGREGATION, NO_AGGREGATION})
     private String pixelValueAggregationMethod;
 
     @Parameter(description = "If set to true, sub-scenes of the regions, where pixels are found, are exported.",
@@ -172,20 +183,22 @@ public class PixExOp extends Operator implements Output {
     private int subSceneBorderSize;
 
     @Parameter(description = "If set to true, a Google KMZ file will be created, which contains the coordinates " +
-            "where pixels are found.",
+                             "where pixels are found.",
                defaultValue = "false")
     private boolean exportKmz;
 
-    @Parameter(description = "If set to true, the sensing start and sensing stop should be extracted from the filename " +
-            "of each input product.",
-               defaultValue = "false",
-               label = "Extract time from product filename")
+    @Parameter(
+            description = "If set to true, the sensing start and sensing stop should be extracted from the filename " +
+                          "of each input product.",
+            defaultValue = "false",
+            label = "Extract time from product filename")
     private boolean extractTimeFromFilename;
 
-    @Parameter(description = "Describes how a date/time section inside a product filename should be interpreted. E.G. yyyyMMdd_hhmmss",
-               validator = TimeStampExtractor.DateInterpretationPatternValidator.class,
-               defaultValue = "yyyyMMdd",
-               label = "Date/Time pattern")
+    @Parameter(
+            description = "Describes how a date/time section inside a product filename should be interpreted. E.G. yyyyMMdd_hhmmss",
+            validator = TimeStampExtractor.DateInterpretationPatternValidator.class,
+            defaultValue = "yyyyMMdd",
+            label = "Date/Time pattern")
     private String dateInterpretationPattern;
 
     @Parameter(description = "Describes how the filename of a product should be interpreted.",
@@ -240,8 +253,14 @@ public class PixExOp extends Operator implements Output {
         final PixExFormatStrategy formatStrategy = new PixExFormatStrategy(rasterNamesFactory, windowSize, expression,
                                                                            exportExpressionResult);
         final PixExProductRegistry productRegistry = new PixExProductRegistry(outputFilePrefix, outputDir);
-        PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
-                                                                                 productRegistry);
+        MeasurementFactory measurementFactory;
+        if (pixelValueAggregationMethod.equals(NO_AGGREGATION) || windowSize == 1) {
+            measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
+                                                             productRegistry);
+        } else {
+            measurementFactory = new AggregatingPixExMeasurementFactory(rasterNamesFactory, windowSize,
+                                                                        productRegistry, getMeasurementAggregator());
+        }
         PixExTargetFactory targetFactory = new PixExTargetFactory(outputFilePrefix, outputDir);
 
         measurementWriter = new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);
@@ -284,6 +303,19 @@ public class PixExOp extends Operator implements Output {
         }
 
         measurements = new PixExMeasurementReader(outputDir);
+    }
+
+    private MeasurementAggregator getMeasurementAggregator() {
+        if (pixelValueAggregationMethod.equals(MEAN_AGGREGATION)) {
+            return new MeanMeasurementAggregator();
+        } else if (pixelValueAggregationMethod.equals(MIN_AGGREGATION)) {
+            return new MinMeasurementAggregator();
+        } else if (pixelValueAggregationMethod.equals(MAX_AGGREGATION)) {
+            return new MaxMeasurementAggregator();
+        } else if (pixelValueAggregationMethod.equals(MEDIAN_AGGREGATION)) {
+            return new MedianMeasurementAggregator();
+        }
+        throw new IllegalStateException("Unable to create measurement aggregator for " + pixelValueAggregationMethod);
     }
 
     public static Set<File> getSourceProductFileSet(String[] sourceProductPaths1, File[] inputPaths1, Logger logger) {

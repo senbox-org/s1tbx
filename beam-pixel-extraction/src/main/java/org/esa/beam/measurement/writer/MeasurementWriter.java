@@ -38,6 +38,7 @@ package org.esa.beam.measurement.writer;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.measurement.Measurement;
+import org.esa.beam.pixex.output.MeasurementFactory;
 
 import java.awt.image.Raster;
 import java.io.IOException;
