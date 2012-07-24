@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-pixel-extraction</symbolicName>
-    <version>1.2</version>
+    <version>1.3</version>
     <name>BEAM Pixel Extraction Tool</name>
 
     <description>The BEAM Pixel Extraction Tool can be used to generate a CSV file from a given pixel location
