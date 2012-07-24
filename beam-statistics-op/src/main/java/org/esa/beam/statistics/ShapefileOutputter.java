@@ -55,20 +55,39 @@ import java.util.Map;
  *
  * @author Thomas Storm
  */
-class ShapefileOutputter implements StatisticsOp.Outputter {
+public class ShapefileOutputter implements StatisticsOp.Outputter {
 
     private static final String FILE_EXTENSION_SHAPEFILE = ".shp";
 
-    private final URL originalShapefile;
     private final String targetShapefile;
-    private SimpleFeatureType updatedFeatureType;
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures;
-    private BandNameCreator bandNameCreator;
+    private final FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures;
+    private final SimpleFeatureType originalFeatureType;
+    private final BandNameCreator bandNameCreator;
 
+    private SimpleFeatureType updatedFeatureType;
     final List<SimpleFeature> features;
 
-    ShapefileOutputter(URL originalShapefile, String targetShapefile, BandNameCreator bandNameCreator) {
-        this.originalShapefile = originalShapefile;
+    public static ShapefileOutputter createShapefileOutputter(URL originalShapefile, String targetShapefile, BandNameCreator bandNameCreator) {
+        final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> features;
+        try {
+            featureSource = FeatureUtils.getFeatureSource(originalShapefile);
+            features = featureSource.getFeatures();
+        } catch (IOException e) {
+            throw new OperatorException("Unable to initialise the output.", e);
+        }
+        return createShapefileOutputter(featureSource.getSchema(), features, targetShapefile, bandNameCreator);
+    }
+
+    public static ShapefileOutputter createShapefileOutputter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures,
+                                                              String targetShapefile, BandNameCreator bandNameCreator) {
+        return new ShapefileOutputter(originalFeatureType, originalFeatures, targetShapefile, bandNameCreator);
+    }
+
+    private ShapefileOutputter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures,
+                               String targetShapefile, BandNameCreator bandNameCreator) {
+        this.originalFeatureType = originalFeatureType;
+        this.originalFeatures = originalFeatures;
         this.targetShapefile = targetShapefile;
         this.bandNameCreator = bandNameCreator;
         features = new ArrayList<SimpleFeature>();
@@ -77,14 +96,6 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
     @Override
     public void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
         Arrays.sort(algorithmNames);
-        final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
-        try {
-            featureSource = FeatureUtils.getFeatureSource(originalShapefile);
-            originalFeatures = featureSource.getFeatures();
-        } catch (IOException e) {
-            throw new OperatorException("Unable to initialise the output.", e);
-        }
-        final SimpleFeatureType originalFeatureType = featureSource.getSchema();
         final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
         typeBuilder.init(originalFeatureType);
         for (final String algorithmName : algorithmNames) {
@@ -95,7 +106,7 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
         }
         typeBuilder.setName(originalFeatureType.getName());
         updatedFeatureType = typeBuilder.buildFeatureType();
-
+        bandNameCreator.reset();
     }
 
     @Override
@@ -108,7 +119,7 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
                 final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
                 if (feature.getID().equals(regionId)) {
                     SimpleFeature featureToUpdate;
-                    if(markedToAdd.get(regionId) != null) {
+                    if (markedToAdd.get(regionId) != null) {
                         featureToUpdate = markedToAdd.get(regionId);
                     } else {
                         featureToUpdate = feature;
@@ -118,6 +129,7 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
                     markedToAdd.put(regionId, updatedFeature);
                 }
             }
+            bandNameCreator.reset();
         }
         features.removeAll(markedToRemove);
         features.addAll(markedToAdd.values());
@@ -128,13 +140,14 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
         final FeatureIterator<SimpleFeature> featureIterator = originalFeatures.features();
         while (featureIterator.hasNext()) {
             final SimpleFeature originalFeature = featureIterator.next();
-            String featureName = StatisticsOp.getFeatureName(originalFeature);
-            if (featureName.equals(regionId)) {
+//            String featureName = StatisticsOp.getFeatureName(originalFeature);
+            if (namesMatch(regionId, originalFeature.getIdentifier().getID())) {
                 SimpleFeature feature = originalFeature;
                 for (String algorithmName : statistics.keySet()) {
                     final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
                     feature = createUpdatedFeature(simpleFeatureBuilder, feature, name, statistics.get(algorithmName));
                 }
+                bandNameCreator.reset();
                 features.add(feature);
                 return;
             }
@@ -143,11 +156,23 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
 
     @Override
     public void finaliseOutput() throws IOException {
+        if (features.isEmpty()) {
+            return;
+        }
         final DefaultFeatureCollection fc = new DefaultFeatureCollection("some_id", updatedFeatureType);
         fc.addAll(features);
         final VectorDataNode vectorDataNode = new VectorDataNode("some_name", fc);
         final File targetFile = new File(targetShapefile);
         exportVectorDataNode(vectorDataNode, targetFile);
+    }
+
+    private static boolean namesMatch(String regionId, String featureName) {
+        return featureName.replace("_", "")
+                .replace(" ", "")
+                .replace("-", "")
+                .equals(regionId.replace("_", "")
+                                .replace("-", "")
+                                .replace(" ", ""));
     }
 
     private static SimpleFeature createUpdatedFeature(SimpleFeatureBuilder builder, SimpleFeature baseFeature, String name, Number value) {
@@ -192,9 +217,9 @@ class ShapefileOutputter implements StatisticsOp.Outputter {
         featureStore.addFeatures(featureCollection);
         try {
             transaction.commit();
-        } catch (IOException e) {
+        } catch (Exception e) {
             transaction.rollback();
-            throw e;
+            throw new IOException("Cannot write shapefile. Error:\n" + e.getMessage(), e);
         } finally {
             transaction.close();
         }

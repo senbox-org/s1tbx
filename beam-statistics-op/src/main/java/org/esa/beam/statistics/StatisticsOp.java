@@ -166,7 +166,7 @@ public class StatisticsOp extends Operator implements Output {
     }
 
     void initializeVectorDataNodes(Product[] allSourceProducts) {
-        if(shapefile != null) {
+        if (shapefile != null) {
             for (Product sourceProduct : allSourceProducts) {
                 productVdnMap.put(sourceProduct, createVectorDataNodes(sourceProduct));
             }
@@ -264,7 +264,7 @@ public class StatisticsOp extends Operator implements Output {
                 final FileOutputStream outputStream = new FileOutputStream(file);
                 bandMappingOutputStream = new PrintStream(outputStream);
                 BandNameCreator bandNameCreator = new BandNameCreator(bandMappingOutputStream);
-                outputters.add(new ShapefileOutputter(shapefile.toURI().toURL(), outputShapefile.getAbsolutePath(), bandNameCreator));
+                outputters.add(ShapefileOutputter.createShapefileOutputter(shapefile.toURI().toURL(), outputShapefile.getAbsolutePath(), bandNameCreator));
             } catch (MalformedURLException e) {
                 throw new OperatorException("Unable to create shapefile outputter", e);
             } catch (FileNotFoundException e) {
@@ -355,7 +355,7 @@ public class StatisticsOp extends Operator implements Output {
         }
         if (band == null) {
             throw new OperatorException(MessageFormat.format("Band ''{0}'' does not exist in product ''{1}''.",
-                                         configuration.sourceBandName, product.getName()));
+                                                             configuration.sourceBandName, product.getName()));
         }
         return band;
     }
@@ -488,7 +488,7 @@ public class StatisticsOp extends Operator implements Output {
 
     }
 
-    interface Outputter {
+    public interface Outputter {
 
         void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate,
                               String[] regionIds);

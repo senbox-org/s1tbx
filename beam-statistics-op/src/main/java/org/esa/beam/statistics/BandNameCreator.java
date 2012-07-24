@@ -31,7 +31,7 @@ import java.util.Set;
  *
  * @author Thomas Storm
  */
-class BandNameCreator {
+public class BandNameCreator {
 
     private Map<String, Integer> indexMap;
     private final PrintStream printStream;
@@ -40,14 +40,14 @@ class BandNameCreator {
     /**
      * Constructor that creates no band mapping output.
      */
-    BandNameCreator() {
+    public BandNameCreator() {
         this(new PrintStream(new NullOutputStream()));
     }
 
     /**
      * Constructor that writes band mapping output to the given print stream.
      */
-    BandNameCreator(PrintStream printStream) {
+    public BandNameCreator(PrintStream printStream) {
         this.printStream = printStream;
         indexMap = new HashMap<String, Integer>();
         mappedNames = new HashSet<String>();
@@ -95,6 +95,11 @@ class BandNameCreator {
                 .append(desiredAttributeName)
                 .append("\n");
         mappedNames.add(desiredAttributeName);
+    }
+
+    public void reset() {
+        indexMap.clear();
+        mappedNames.clear();
     }
 
     private static class NullOutputStream extends OutputStream {

@@ -59,10 +59,10 @@ public class ShapefileOutputterTest {
     public void testSingleShape() throws Exception {
         final URL originalShapefile = getClass().getResource("4_pixels.shp");
         final String targetShapefile = getTestFile("4_pixels_output.shp").getAbsolutePath();
-        final ShapefileOutputter shapefileOutputter = new ShapefileOutputter(originalShapefile, targetShapefile, new BandNameCreator());
+        final ShapefileOutputter shapefileOutputter = ShapefileOutputter.createShapefileOutputter(originalShapefile, targetShapefile, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 
-        shapefileOutputter.initialiseOutput(new Product[0], new String[] {"algal_2"}, algorithmNames,
+        shapefileOutputter.initialiseOutput(new Product[0], new String[]{"algal_2"}, algorithmNames,
                                             null, null, null);
 
         HashMap<String, Number> statistics = new HashMap<String, Number>();
@@ -75,8 +75,8 @@ public class ShapefileOutputterTest {
 
         shapefileOutputter.finaliseOutput();
 
-        final FeatureSource<SimpleFeatureType,SimpleFeature> featureSource = FeatureUtils.getFeatureSource(new File(targetShapefile).toURI().toURL());
-        final FeatureCollection<SimpleFeatureType,SimpleFeature> features = featureSource.getFeatures();
+        final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = FeatureUtils.getFeatureSource(new File(targetShapefile).toURI().toURL());
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures();
 
         assertEquals(1, features.size());
 
@@ -85,18 +85,18 @@ public class ShapefileOutputterTest {
         assertNotNull(simpleFeature.getProperty("p90_lgl2"));
         assertNotNull(simpleFeature.getProperty("p95_lgl2"));
 
-        assertEquals(0.1, (Double)simpleFeature.getProperty("p90_lgl2").getValue(), 1E-6);
-        assertEquals(0.195, (Double)simpleFeature.getProperty("p95_lgl2").getValue(), 1E-6);
+        assertEquals(0.1, (Double) simpleFeature.getProperty("p90_lgl2").getValue(), 1E-6);
+        assertEquals(0.195, (Double) simpleFeature.getProperty("p95_lgl2").getValue(), 1E-6);
     }
 
     @Test
     public void testThreeShapes() throws Exception {
         final URL originalShapefile = getClass().getResource("polygons.shp");
         final String targetShapefile = getTestFile("polygons_output.shp").getAbsolutePath();
-        final ShapefileOutputter shapefileOutputter = new ShapefileOutputter(originalShapefile, targetShapefile, new BandNameCreator());
+        final ShapefileOutputter shapefileOutputter = ShapefileOutputter.createShapefileOutputter(originalShapefile, targetShapefile, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 
-        shapefileOutputter.initialiseOutput(new Product[0], new String[] {"algal_2", "algal_2"}, algorithmNames,
+        shapefileOutputter.initialiseOutput(new Product[0], new String[]{"algal_2", "algal_2"}, algorithmNames,
                                             null, null, null);
 
         HashMap<String, Number> statistics = new HashMap<String, Number>();
@@ -135,18 +135,18 @@ public class ShapefileOutputterTest {
 
                 assertEquals(1.90, (Double) feature.getProperty("p90_lgl2").getValue(), 1E-6);
                 assertEquals(1.95, (Double) feature.getProperty("p95_lgl2").getValue(), 1E-6);
-            } else if(feature.getID().contains("2")) {
+            } else if (feature.getID().contains("2")) {
                 assertNotNull(feature.getProperty("p90_lgl2"));
                 assertNotNull(feature.getProperty("p95_lgl2"));
 
                 assertEquals(2.90, (Double) feature.getProperty("p90_lgl2").getValue(), 1E-6);
-                assertEquals(2.95, (Double)feature.getProperty("p95_lgl2").getValue(), 1E-6);
-            }  else if(feature.getID().contains("3")) {
+                assertEquals(2.95, (Double) feature.getProperty("p95_lgl2").getValue(), 1E-6);
+            } else if (feature.getID().contains("3")) {
                 assertNotNull(feature.getProperty("p90_lgl2"));
                 assertNotNull(feature.getProperty("p95_lgl2"));
 
-                assertEquals(3.90, (Double)feature.getProperty("p90_lgl2").getValue(), 1E-6);
-                assertEquals(3.95, (Double)feature.getProperty("p95_lgl2").getValue(), 1E-6);
+                assertEquals(3.90, (Double) feature.getProperty("p90_lgl2").getValue(), 1E-6);
+                assertEquals(3.95, (Double) feature.getProperty("p95_lgl2").getValue(), 1E-6);
             }
         }
     }

@@ -117,10 +117,17 @@ public class CsvOutputterTest {
         csvOutputter.finaliseOutput();
         csvStream.close();
         assertEquals("# Region\tBand\tmax\tmin\tp90\tp95\n" +
-                     "werdohl\tnormalised_cow_density_index_(ncdi)\t\t\t2.0\t3.0\n" +
-                     "bielefeld\tnormalised_cow_density_index_(ncdi)\t\t\t1.0\t3.0\n" +
-                     "bielefeld\tnormalised_pig_density_index_(npdi)\t3.0\t0.5\t1.0\t2.0\n"
+                     "werdohl\tnormalised_cow_density_index_(ncdi)\t\t\t2.0000\t3.0000\n" +
+                     "bielefeld\tnormalised_cow_density_index_(ncdi)\t\t\t1.0000\t3.0000\n" +
+                     "bielefeld\tnormalised_pig_density_index_(npdi)\t3.0000\t0.5000\t1.0000\t2.0000\n"
                 , csvOutput.toString());
+    }
+
+    @Test
+    public void testGetValueAsString() throws Exception {
+        assertEquals("0.0016", CsvOutputter.getValueAsString(1.6E-3));
+        assertEquals("10.0000", CsvOutputter.getValueAsString(10.0));
+        assertEquals("10", CsvOutputter.getValueAsString(10));
     }
 
     private void addOutput() {

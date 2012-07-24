@@ -19,11 +19,11 @@ package org.esa.beam.statistics;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,7 +32,7 @@ import java.util.Set;
  *
  * @author Thomas Storm
  */
-class CsvOutputter implements StatisticsOp.Outputter {
+public class CsvOutputter implements StatisticsOp.Outputter {
 
     private final PrintStream metadataOutput;
     private final PrintStream csvOutput;
@@ -41,7 +41,7 @@ class CsvOutputter implements StatisticsOp.Outputter {
 
     private String[] algorithmNames;
 
-    CsvOutputter(PrintStream metadataOutput, PrintStream csvOutput) throws FileNotFoundException {
+    public CsvOutputter(PrintStream metadataOutput, PrintStream csvOutput) {
         this.metadataOutput = metadataOutput;
         this.csvOutput = csvOutput;
         statisticsContainer = new Statistics();
@@ -125,14 +125,19 @@ class CsvOutputter implements StatisticsOp.Outputter {
                     final RegionStatistics dataForRegionName = bandStatistics.getDataForRegionName(regionName);
                     if (dataForRegionName.containsAlgorithm(algorithmName)) {
                         final Number numberValue = dataForRegionName.getDataForAlgorithmName(algorithmName);
-                        final String stringValue = String.valueOf(numberValue);
-                        csvOutput.append(stringValue.substring(0, Math.min(
-                                stringValue.lastIndexOf('.') + 6, stringValue.length())));
+                        csvOutput.append(getValueAsString(numberValue));
                     }
                 }
                 csvOutput.append("\n");
             }
         }
+    }
+
+    static String getValueAsString(Number numberValue) {
+        if (numberValue instanceof Float || numberValue instanceof Double) {
+            return String.format(Locale.ENGLISH, "%.4f", numberValue.doubleValue());
+        }
+        return numberValue.toString();
     }
 
     static class Statistics {
