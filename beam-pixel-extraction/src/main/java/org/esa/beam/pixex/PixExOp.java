@@ -43,13 +43,13 @@ import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.MeasurementWriter;
-import org.esa.beam.pixex.aggregators.MeanAggregator;
-import org.esa.beam.pixex.aggregators.MinAggregator;
+import org.esa.beam.pixex.aggregators.AggregatorStrategy;
+import org.esa.beam.pixex.aggregators.MaxAggregatorStrategy;
+import org.esa.beam.pixex.aggregators.MeanAggregatorStrategy;
+import org.esa.beam.pixex.aggregators.MedianAggregatorStrategy;
+import org.esa.beam.pixex.aggregators.MinAggregatorStrategy;
 import org.esa.beam.pixex.output.AggregatingPixExMeasurementFactory;
-import org.esa.beam.pixex.aggregators.MaxAggregator;
-import org.esa.beam.pixex.aggregators.Aggregator;
 import org.esa.beam.pixex.output.MeasurementFactory;
-import org.esa.beam.pixex.aggregators.MedianAggregator;
 import org.esa.beam.pixex.output.PixExFormatStrategy;
 import org.esa.beam.pixex.output.PixExMeasurementFactory;
 import org.esa.beam.pixex.output.PixExProductRegistry;
@@ -172,7 +172,8 @@ public class PixExOp extends Operator implements Output {
     @Parameter(
             description = "If the window size is larger than 1, this parameter describes by which method a single \n" +
                           "value shall be derived from the pixels.",
-            defaultValue = NO_AGGREGATION, valueSet = {MIN_AGGREGATION, MAX_AGGREGATION, MEAN_AGGREGATION, MEDIAN_AGGREGATION, NO_AGGREGATION})
+            defaultValue = NO_AGGREGATION,
+            valueSet = {MIN_AGGREGATION, MAX_AGGREGATION, MEAN_AGGREGATION, MEDIAN_AGGREGATION, NO_AGGREGATION})
     private String pixelValueAggregationMethod;
 
     @Parameter(description = "If set to true, sub-scenes of the regions, where pixels are found, are exported.",
@@ -305,15 +306,15 @@ public class PixExOp extends Operator implements Output {
         measurements = new PixExMeasurementReader(outputDir);
     }
 
-    private Aggregator getMeasurementAggregator() {
+    private AggregatorStrategy getMeasurementAggregator() {
         if (pixelValueAggregationMethod.equals(MEAN_AGGREGATION)) {
-            return new MeanAggregator();
+            return new MeanAggregatorStrategy();
         } else if (pixelValueAggregationMethod.equals(MIN_AGGREGATION)) {
-            return new MinAggregator();
+            return new MinAggregatorStrategy();
         } else if (pixelValueAggregationMethod.equals(MAX_AGGREGATION)) {
-            return new MaxAggregator();
+            return new MaxAggregatorStrategy();
         } else if (pixelValueAggregationMethod.equals(MEDIAN_AGGREGATION)) {
-            return new MedianAggregator();
+            return new MedianAggregatorStrategy();
         }
         throw new IllegalStateException("Unable to create measurement aggregator for " + pixelValueAggregationMethod);
     }

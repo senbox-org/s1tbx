@@ -5,11 +5,11 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.measurement.Measurement;
-import org.esa.beam.pixex.aggregators.MaxAggregator;
-import org.esa.beam.pixex.aggregators.MeanAggregator;
-import org.esa.beam.pixex.aggregators.Aggregator;
-import org.esa.beam.pixex.aggregators.MedianAggregator;
-import org.esa.beam.pixex.aggregators.MinAggregator;
+import org.esa.beam.pixex.aggregators.AggregatorStrategy;
+import org.esa.beam.pixex.aggregators.MaxAggregatorStrategy;
+import org.esa.beam.pixex.aggregators.MeanAggregatorStrategy;
+import org.esa.beam.pixex.aggregators.MedianAggregatorStrategy;
+import org.esa.beam.pixex.aggregators.MinAggregatorStrategy;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -31,8 +31,8 @@ public class AggregatingPixExMeasurementFactoryTest {
     public void setUp() throws Exception {
         product = new Product("name", "type", 4, 4);
 
-        band1 = product.addBand("val1", ProductData.TYPE_INT16);
-        fillValues(band1, 10);
+        band1 = product.addBand("val1", ProductData.TYPE_INT32);
+        fillValues(band1, 11);
 
         band2 = product.addBand("val2", ProductData.TYPE_FLOAT32);
         fillValues(band2, 20);
@@ -46,9 +46,9 @@ public class AggregatingPixExMeasurementFactoryTest {
     @Test
     public void testCreateMeasurementsWithMeanMeasurementAggregator() throws Exception {
         // preparation
-        final Aggregator aggregator = new MeanAggregator();
+        final AggregatorStrategy aggregatorStrategy = new MeanAggregatorStrategy();
         final MeasurementFactory factory = new AggregatingPixExMeasurementFactory(rasterNamesFactory, windowSize,
-                                                                                  productRegistry, aggregator);
+                                                                                  productRegistry, aggregatorStrategy);
 
         // execution
         final int pixelX = 1;
@@ -62,17 +62,16 @@ public class AggregatingPixExMeasurementFactoryTest {
         assertEquals(1, measurements.length);
 
         Measurement expectedMeasurement = createExpectedMeasurement(pixelX, pixelY, coordinateID,
-                                                                          coordsName, 144 / 9, 229.5f / 9f);
+                                                                    coordsName, 153.0f / 9.0f, 229.5f / 9.0f);
         assertEquals(expectedMeasurement, measurements[0]);
     }
 
-    @Ignore
     @Test
     public void testCreateMeasurementsWithMinMeasurementAggregator() throws Exception {
         // preparation
-        final Aggregator aggregator = new MinAggregator();
+        final AggregatorStrategy aggregatorStrategy = new MinAggregatorStrategy();
         final MeasurementFactory factory = new AggregatingPixExMeasurementFactory(rasterNamesFactory, windowSize,
-                                                                                  productRegistry, aggregator);
+                                                                                  productRegistry, aggregatorStrategy);
 
         // execution
         final int pixelX = 1;
@@ -86,17 +85,16 @@ public class AggregatingPixExMeasurementFactoryTest {
         assertEquals(1, measurements.length);
 
         Measurement expectedMeasurement = createExpectedMeasurement(pixelX, pixelY, coordinateID,
-                                                                    coordsName, 11, 20.5f);
+                                                                    coordsName, 12, 20.5f);
         assertEquals(expectedMeasurement, measurements[0]);
     }
 
-    @Ignore
     @Test
     public void testCreateMeasurementsWithMaxMeasurementAggregator() throws Exception {
         // preparation
-        final Aggregator aggregator = new MaxAggregator();
+        final AggregatorStrategy aggregatorStrategy = new MaxAggregatorStrategy();
         final MeasurementFactory factory = new AggregatingPixExMeasurementFactory(rasterNamesFactory, windowSize,
-                                                                                  productRegistry, aggregator);
+                                                                                  productRegistry, aggregatorStrategy);
 
         // execution
         final int pixelX = 1;
@@ -110,7 +108,7 @@ public class AggregatingPixExMeasurementFactoryTest {
         assertEquals(1, measurements.length);
 
         Measurement expectedMeasurement = createExpectedMeasurement(pixelX, pixelY, coordinateID,
-                                                                    coordsName, 21, 30.5f);
+                                                                    coordsName, 22, 30.5f);
         assertEquals(expectedMeasurement, measurements[0]);
     }
 
@@ -118,9 +116,9 @@ public class AggregatingPixExMeasurementFactoryTest {
     @Test
     public void testCreateMeasurementsWithMedianMeasurementAggregator() throws Exception {
         // preparation
-        final Aggregator aggregator = new MedianAggregator();
+        final AggregatorStrategy aggregatorStrategy = new MedianAggregatorStrategy();
         final MeasurementFactory factory = new AggregatingPixExMeasurementFactory(rasterNamesFactory, windowSize,
-                                                                                  productRegistry, aggregator);
+                                                                                  productRegistry, aggregatorStrategy);
 
         // execution
         final int pixelX = 1;
@@ -143,14 +141,14 @@ public class AggregatingPixExMeasurementFactoryTest {
     /////////////////////////////*/
 
     private Measurement createExpectedMeasurement(int pixelX, int pixelY, int coordinateID,
-                                                  String coordsName, int firstExpectedValue,
+                                                  String coordsName, float firstExpectedValue,
                                                   float secondExpectedValue) throws
-                                                                              IOException {
+                                                                             IOException {
         final Number[] values = {firstExpectedValue, secondExpectedValue};
 
         final long productId = productRegistry.getProductId(product);
 
-        return new Measurement(coordinateID, coordsName, productId, pixelX+0.5f, pixelY+0.5f, null, new GeoPos(),
+        return new Measurement(coordinateID, coordsName, productId, pixelX + 0.5f, pixelY + 0.5f, null, new GeoPos(),
                                values, true);
     }
 

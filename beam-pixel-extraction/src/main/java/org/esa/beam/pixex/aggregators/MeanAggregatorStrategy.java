@@ -1,12 +1,22 @@
 package org.esa.beam.pixex.aggregators;
 
 
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.pixex.calvalus.ma.AggregatedNumber;
 
-public class MeanAggregator implements Aggregator {
+public class MeanAggregatorStrategy implements AggregatorStrategy {
 
     @Override
-    public Number[] aggregateMeasuresForBands(Number[][] allValues, int numPixels, int numBands, int[] dataTypes) {
+    public float getValue(Object attributeValue) {
+        if (attributeValue instanceof AggregatedNumber) {
+            return (float) ((AggregatedNumber) attributeValue).mean;
+        }
+        return ((Number) attributeValue).floatValue();
+    }
+
+    /*
+
+    @Override
+    public Number[] aggregateMeasuresForBands(Record allValues, int numPixels, int numBands, int[] dataTypes) {
         Number[] meanMeasurementValues = new Number[numBands];
 
         for (int bandIndex = 0; bandIndex < numBands; bandIndex++) {
@@ -35,5 +45,5 @@ public class MeanAggregator implements Aggregator {
         }
         return meanMeasurementValues;
     }
-
+*/
 }

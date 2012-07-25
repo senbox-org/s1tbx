@@ -1,11 +1,21 @@
 package org.esa.beam.pixex.aggregators;
 
-import java.util.Arrays;
+import org.esa.beam.pixex.calvalus.ma.AggregatedNumber;
 
-public class MinAggregator implements Aggregator {
+public class MinAggregatorStrategy implements AggregatorStrategy {
 
     @Override
-    public Number[] aggregateMeasuresForBands(Number[][] allValues, int numPixels, int numBands, int[] dataTypes) {
+    public float getValue(Object attributeValue) {
+        if (attributeValue instanceof AggregatedNumber) {
+            return (float) ((AggregatedNumber) attributeValue).min;
+        }
+        throw new IllegalStateException();
+    }
+
+    /*
+
+    @Override
+    public Number[] aggregateMeasuresForBands(Record allValues, int numPixels, int numBands, int[] dataTypes) {
         Number[] meanMeasurementValues = new Number[numBands];
         Arrays.fill(meanMeasurementValues, Double.POSITIVE_INFINITY);
         for (int i = 0; i < allValues.length; i++) {
@@ -23,4 +33,5 @@ public class MinAggregator implements Aggregator {
         return second;
     }
 
+*/
 }

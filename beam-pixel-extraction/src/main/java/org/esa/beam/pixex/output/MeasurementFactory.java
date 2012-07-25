@@ -15,12 +15,13 @@ import java.io.IOException;
 
 public abstract class MeasurementFactory {
 
-    public abstract Measurement[] createMeasurements(int pixelX, int pixelY, int coordinateID, String coordinateName, Product product, Raster validData) throws IOException;
+    public abstract Measurement[] createMeasurements(int pixelX, int pixelY, int coordinateID, String coordinateName,
+                                                     Product product, Raster validData) throws IOException;
 
     protected static Measurement createMeasurement(Product product, long productId,
-                                                 int coordinateID,
-                                                 String coordinateName, Number[] values,
-                                                 Raster validData, int x, int y) {
+                                                   int coordinateID,
+                                                   String coordinateName, Number[] values,
+                                                   Raster validData, int x, int y) {
         final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
         final GeoCoding geoCoding = product.getGeoCoding();
         final GeoPos currentGeoPos;
@@ -45,7 +46,7 @@ public abstract class MeasurementFactory {
                 } else if (raster.isFloatingPointType()) {
                     bandValues[i] = (double) raster.getSampleFloat(x, y);
                 } else {
-                    int temp = raster.getSampleInt(x,y);
+                    int temp = raster.getSampleInt(x, y);
                     if (raster instanceof Mask) {
                         bandValues[i] = temp == 0 ? 0 : 1; // normalize to 0 for false and 1 for true
                     } else {
