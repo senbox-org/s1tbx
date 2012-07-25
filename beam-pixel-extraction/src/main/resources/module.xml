@@ -62,8 +62,6 @@
             <parent>tool</parent>
             <id>pixelExtraction</id>
             <class>org.esa.beam.pixex.visat.PixelExtractionAction</class>
-            <operatorName>PixEx</operatorName>
-            <dialogTitle>Pixel Extraction</dialogTitle>
             <helpId>pixelExtraction</helpId>
             <text>Pixel Extraction...</text>
             <description>Extract of one or more data products for given list of geographical points.</description>
