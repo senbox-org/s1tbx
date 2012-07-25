@@ -175,6 +175,49 @@ public class PixExOpTest {
     }
 
     @Test
+    public void testTimeExtractionFromFilename() throws Exception {
+
+        Coordinate[] coordinates = {new Coordinate("coord", 20.0f, 20.0f, null)};
+        int windowSize = 1;
+
+        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
+        final File outputDir = getOutpuDir("testSingleProduct", getClass());
+        parameterMap.put("outputDir", outputDir);
+        parameterMap.put("exportTiePoints", false);
+        parameterMap.put("exportMasks", false);
+        parameterMap.put("coordinates", coordinates);
+        parameterMap.put("windowSize", windowSize);
+        parameterMap.put("extractTimeFromFilename", true);
+        parameterMap.put("dateInterpretationPattern", "yyyyMMdd");
+        parameterMap.put("filenameInterpretationPattern", "*${date}*");
+
+        String[] bandNames = {"rad_1", "rad_2"};
+        Product p1 = createTestProduct("andi", "type1", bandNames);
+        p1.setStartTime(ProductData.UTC.parse("22/08/1999", "dd/MM/yyyy"));
+
+        Product p2 = createTestProduct("bob", "type1", bandNames);
+        p2.setFileLocation(new File("bob_20010320.nc"));
+        p2.setStartTime(ProductData.UTC.parse("30/03/1920", "dd/MM/yyyy"));
+
+        Product p3 = createTestProduct("jane", "type1", bandNames);
+        p3.setFileLocation(new File("bob_20101114.nc"));
+        Product[] sourceProducts = {p1,p2,p3};
+
+        computeData(parameterMap, sourceProducts);
+
+        final PixExMeasurementReader reader = new PixExMeasurementReader(outputDir);
+        try {
+            final List<Measurement> measurementList = convertToList(reader);
+            assertEquals(sourceProducts.length, measurementList.size());
+            assertEquals(ProductData.UTC.parse("22/08/1999", "dd/MM/yyyy").getAsDate(), measurementList.get(0).getTime().getAsDate());
+            assertEquals(ProductData.UTC.parse("20/03/2001", "dd/MM/yyyy").getAsDate(), measurementList.get(1).getTime().getAsDate());
+            assertEquals(ProductData.UTC.parse("14/11/2010", "dd/MM/yyyy").getAsDate(), measurementList.get(2).getTime().getAsDate());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testTwoProductsSameType() throws Exception {
 
         Coordinate[] coordinates = {

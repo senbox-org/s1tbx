@@ -99,7 +99,7 @@ import static java.lang.Math.*;
 @SuppressWarnings({"MismatchedReadAndWriteOfArray", "UnusedDeclaration"})
 @OperatorMetadata(
         alias = "PixEx",
-        version = "1.0.1",
+        version = "1.3",
         authors = "Marco Peters, Thomas Storm, Norman Fomferra",
         copyright = "(c) 2011 by Brockmann Consult",
         description = "Extracts pixels from given locations and source products.")
@@ -518,14 +518,7 @@ public class PixExOp extends Operator implements Output {
                 getLogger().warning("Unable to read product from file '" + file.getAbsolutePath() + "'.");
                 return false;
             }
-            if (extractTimeFromFilename) {
-                final ProductData.UTC[] timeStamps = timeStampExtractor.extractTimeStamps(file.getName());
-                product.setStartTime(timeStamps[0]);
-                product.setEndTime(timeStamps[1]);
-            }
             return extractMeasurements(product);
-        } catch (ValidationException e) {
-            throw new OperatorException(e);
         } catch (IOException e) {
             getLogger().warning("Unable to read product from file '" + file.getAbsolutePath() + "'.");
         } finally {
@@ -541,6 +534,18 @@ public class PixExOp extends Operator implements Output {
         boolean coordinatesFound = false;
         if (!validator.validate(product)) {
             return coordinatesFound;
+        }
+
+        try {
+            File file = product.getFileLocation();
+            if (extractTimeFromFilename && file != null) {
+                String fileName = file.getName();
+                final ProductData.UTC[] timeStamps = timeStampExtractor.extractTimeStamps(fileName);
+                product.setStartTime(timeStamps[0]);
+                product.setEndTime(timeStamps[1]);
+            }
+        } catch (ValidationException e) {
+            throw new OperatorException(e);
         }
 
         final PlanarImage validMaskImage = createValidMaskImage(product);
