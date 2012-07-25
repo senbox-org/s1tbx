@@ -43,13 +43,13 @@ import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.MeasurementWriter;
+import org.esa.beam.pixex.aggregators.MeanAggregator;
+import org.esa.beam.pixex.aggregators.MinAggregator;
 import org.esa.beam.pixex.output.AggregatingPixExMeasurementFactory;
-import org.esa.beam.pixex.output.MaxMeasurementAggregator;
-import org.esa.beam.pixex.output.MeanMeasurementAggregator;
-import org.esa.beam.pixex.output.MeasurementAggregator;
+import org.esa.beam.pixex.aggregators.MaxAggregator;
+import org.esa.beam.pixex.aggregators.Aggregator;
 import org.esa.beam.pixex.output.MeasurementFactory;
-import org.esa.beam.pixex.output.MedianMeasurementAggregator;
-import org.esa.beam.pixex.output.MinMeasurementAggregator;
+import org.esa.beam.pixex.aggregators.MedianAggregator;
 import org.esa.beam.pixex.output.PixExFormatStrategy;
 import org.esa.beam.pixex.output.PixExMeasurementFactory;
 import org.esa.beam.pixex.output.PixExProductRegistry;
@@ -305,15 +305,15 @@ public class PixExOp extends Operator implements Output {
         measurements = new PixExMeasurementReader(outputDir);
     }
 
-    private MeasurementAggregator getMeasurementAggregator() {
+    private Aggregator getMeasurementAggregator() {
         if (pixelValueAggregationMethod.equals(MEAN_AGGREGATION)) {
-            return new MeanMeasurementAggregator();
+            return new MeanAggregator();
         } else if (pixelValueAggregationMethod.equals(MIN_AGGREGATION)) {
-            return new MinMeasurementAggregator();
+            return new MinAggregator();
         } else if (pixelValueAggregationMethod.equals(MAX_AGGREGATION)) {
-            return new MaxMeasurementAggregator();
+            return new MaxAggregator();
         } else if (pixelValueAggregationMethod.equals(MEDIAN_AGGREGATION)) {
-            return new MedianMeasurementAggregator();
+            return new MedianAggregator();
         }
         throw new IllegalStateException("Unable to create measurement aggregator for " + pixelValueAggregationMethod);
     }

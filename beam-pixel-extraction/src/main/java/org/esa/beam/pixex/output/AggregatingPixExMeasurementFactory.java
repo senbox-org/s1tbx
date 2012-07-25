@@ -4,6 +4,7 @@ package org.esa.beam.pixex.output;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.measurement.Measurement;
+import org.esa.beam.pixex.aggregators.Aggregator;
 
 import java.awt.image.Raster;
 import java.io.IOException;
@@ -14,15 +15,15 @@ public class AggregatingPixExMeasurementFactory extends MeasurementFactory{
     private final RasterNamesFactory rasterNamesFactory;
     private final int windowSize;
     private final ProductRegistry productRegistry;
-    private final MeasurementAggregator measurementAggregator;
+    private final Aggregator aggregator;
 
     public AggregatingPixExMeasurementFactory(final RasterNamesFactory rasterNamesFactory,
                                               final int windowSize, final ProductRegistry productRegistry,
-                                              MeasurementAggregator measurementAggregator) {
+                                              Aggregator aggregator) {
         this.rasterNamesFactory = rasterNamesFactory;
         this.windowSize = windowSize;
         this.productRegistry = productRegistry;
-        this.measurementAggregator = measurementAggregator;
+        this.aggregator = aggregator;
     }
 
     @Override
@@ -45,7 +46,7 @@ public class AggregatingPixExMeasurementFactory extends MeasurementFactory{
             setBandValues(product, rasterNames, x, y, bandValues);
             values[idx] = bandValues;
         }
-        Number[] aggregatedMeasurementValues = measurementAggregator.aggregateMeasuresForBands(values, numPixels,
+        Number[] aggregatedMeasurementValues = aggregator.aggregateMeasuresForBands(values, numPixels,
                                                                                       rasterNames.length,
                                                                                       getRasterDatatypes(product));
         measurements[0] = createMeasurement(product, productId, coordinateID, coordinateName, aggregatedMeasurementValues,
