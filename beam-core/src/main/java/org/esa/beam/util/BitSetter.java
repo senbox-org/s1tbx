@@ -76,7 +76,7 @@ public class BitSetter {
      * @return the collection of flags with the given flag possibly set
      */
     public static int setFlag(int flags, int bitIndex, boolean cond) {
-        return cond ? (flags | (1 << bitIndex)) : flags;
+        return cond ? (flags | (1 << bitIndex)) : (flags & ~(1 << bitIndex));
     }
 
     /**
@@ -88,7 +88,6 @@ public class BitSetter {
      * @return the collection of flags with the given flag possibly set
      */
     public static long setFlag(long flags, int bitIndex, boolean cond) {
-        return cond ? (flags | (1L << bitIndex)) : flags;
+        return cond ? (flags | (1L << bitIndex)) : (flags & ~(1L << bitIndex));
     }
-
 }

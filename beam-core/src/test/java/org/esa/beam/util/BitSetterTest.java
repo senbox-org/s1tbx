@@ -96,4 +96,49 @@ public class BitSetterTest extends TestCase {
             assertEquals("i = " + i, expected, BitSetter.isFlagSet(flags, i));
         }
     }
+
+    public void testSetAndReset64BitFlag() throws Exception {
+        // test that long flags can be reset properly
+        long sampleL = BitSetter.setFlag(0, 2, true);
+        assertEquals(4, sampleL);
+        sampleL = BitSetter.setFlag(sampleL, 2, false);
+        assertEquals(0, sampleL);
+        sampleL = BitSetter.setFlag(sampleL, 1, true);
+        assertEquals(2, sampleL);
+        sampleL = BitSetter.setFlag(sampleL, 1, false);
+        assertEquals(0, sampleL);
+        sampleL = BitSetter.setFlag(sampleL, 4, true);
+        assertEquals(16, sampleL);
+        sampleL = BitSetter.setFlag(sampleL, 4, false);
+        assertEquals(0, sampleL);
+        sampleL = BitSetter.setFlag(sampleL, 3, true);
+        assertEquals(8, sampleL);
+        sampleL = BitSetter.setFlag(sampleL, 1, true);
+        assertEquals(10, sampleL);
+        sampleL = BitSetter.setFlag(sampleL, 3, false);
+        assertEquals(2, sampleL);
+    }
+
+    public void testSetAndReset32BitFlag() throws Exception {
+        // test that int flags can be reset properly
+        int sampleI = BitSetter.setFlag(0, 2, true);
+        assertEquals(4, sampleI);
+        sampleI = BitSetter.setFlag(sampleI, 2, false);
+        assertEquals(0, sampleI);
+        sampleI = BitSetter.setFlag(sampleI, 1, true);
+        assertEquals(2, sampleI);
+        sampleI = BitSetter.setFlag(sampleI, 1, false);
+        assertEquals(0, sampleI);
+        sampleI = BitSetter.setFlag(sampleI, 4, true);
+        assertEquals(16, sampleI);
+        sampleI = BitSetter.setFlag(sampleI, 4, false);
+        assertEquals(0, sampleI);
+        sampleI = BitSetter.setFlag(sampleI, 3, true);
+        assertEquals(8, sampleI);
+        sampleI = BitSetter.setFlag(sampleI, 1, true);
+        assertEquals(10, sampleI);
+        sampleI = BitSetter.setFlag(sampleI, 3, false);
+        assertEquals(2, sampleI);
+    }
+
 }
