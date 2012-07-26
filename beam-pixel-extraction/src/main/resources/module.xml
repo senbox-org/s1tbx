@@ -50,6 +50,9 @@
     <dependency>
         <module>beam-gpf</module>
     </dependency>
+    <dependency>
+        <module>beam-csv-dataio</module>
+    </dependency>
 
     <categories>VISAT,Processing</categories>
 

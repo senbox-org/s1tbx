@@ -8,15 +8,12 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.measurement.Measurement;
+import org.esa.beam.measurement.writer.MeasurementFactory;
 import org.esa.beam.util.ProductUtils;
 
 import java.awt.image.Raster;
-import java.io.IOException;
 
-public abstract class MeasurementFactory {
-
-    public abstract Measurement[] createMeasurements(int pixelX, int pixelY, int coordinateID, String coordinateName,
-                                                     Product product, Raster validData) throws IOException;
+public abstract class AbstractMeasurementFactory implements MeasurementFactory {
 
     protected static Measurement createMeasurement(Product product, long productId,
                                                    int coordinateID,

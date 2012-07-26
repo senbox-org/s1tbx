@@ -35,6 +35,7 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.pixex.Coordinate;
+import org.esa.beam.pixex.PixExOp;
 import org.jfree.ui.DateCellRenderer;
 
 import javax.swing.AbstractButton;
@@ -77,12 +78,6 @@ class PixelExtractionParametersForm {
     private static final ImageIcon ADD_ICON = UIUtils.loadImageIcon("icons/Plus24.gif");
     private static final ImageIcon REMOVE_ICON = UIUtils.loadImageIcon("icons/Minus24.gif");
 
-    private static final String NO_AGGREGATION = "no aggregation";
-    private static final String MEAN_AGGREGATION = "mean";
-    private static final String MIN_AGGREGATION = "min";
-    private static final String MAX_AGGREGATION = "max";
-    private static final String MEDIAN_AGGREGATION = "median";
-
     private JPanel mainPanel;
     private JLabel windowLabel;
     private JSpinner windowSpinner;
@@ -99,7 +94,7 @@ class PixelExtractionParametersForm {
     private JSpinner timeSpinner;
     private JComboBox timeUnitComboBox;
     private String allowedTimeDifference = "";
-    private JComboBox methodChooserComboBox;
+    private JComboBox aggregationStrategyChooser;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -140,7 +135,7 @@ class PixelExtractionParametersForm {
     }
 
     public String getPixelValueAggregationMethod() {
-        return methodChooserComboBox.getSelectedItem().toString();
+        return aggregationStrategyChooser.getSelectedItem().toString();
     }
 
     private void createUi(PropertyContainer container) {
@@ -162,6 +157,8 @@ class PixelExtractionParametersForm {
         tableLayout.setCellPadding(7, 1, new Insets(0, 0, 0, 0));
         tableLayout.setCellPadding(8, 0, new Insets(8, 4, 4, 4)); // kmz export label
         tableLayout.setCellPadding(8, 1, new Insets(0, 0, 0, 0));
+        tableLayout.setCellPadding(9, 0, new Insets(8, 4, 4, 4)); // output match label
+        tableLayout.setCellPadding(9, 1, new Insets(0, 0, 0, 0));
 
         mainPanel = new JPanel(tableLayout);
         mainPanel.add(new JLabel("Coordinates:"));
@@ -193,9 +190,14 @@ class PixelExtractionParametersForm {
         mainPanel.add(windowLabel);
 
         mainPanel.add(new JLabel("Pixel value aggregation method:"));
-        methodChooserComboBox = new JComboBox(new String[]{NO_AGGREGATION, MEAN_AGGREGATION, MIN_AGGREGATION,
-            MAX_AGGREGATION, MEDIAN_AGGREGATION});
-        mainPanel.add(methodChooserComboBox);
+        aggregationStrategyChooser = new JComboBox(new String[]{
+                PixExOp.NO_AGGREGATION,
+                PixExOp.MEAN_AGGREGATION,
+                PixExOp.MIN_AGGREGATION,
+                PixExOp.MAX_AGGREGATION,
+                PixExOp.MEDIAN_AGGREGATION
+        });
+        mainPanel.add(aggregationStrategyChooser);
         mainPanel.add(tableLayout.createVerticalSpacer());
 
         mainPanel.add(new JLabel("Expression:"));
@@ -210,6 +212,24 @@ class PixelExtractionParametersForm {
         mainPanel.add(createKmzExportPanel(bindingContext));
         mainPanel.add(tableLayout.createHorizontalSpacer());
 
+        mainPanel.add(new JLabel("Match with original input:"));
+        mainPanel.add(createOutputOriginalMeasurementsBox(bindingContext));
+        mainPanel.add(tableLayout.createHorizontalSpacer());
+
+    }
+
+    private JComponent createOutputOriginalMeasurementsBox(BindingContext bindingContext) {
+        final TableLayout tableLayout = new TableLayout(1);
+        tableLayout.setTablePadding(4, 4);
+        tableLayout.setTableWeightX(1.0);
+        tableLayout.setTableWeightY(0.0);
+        tableLayout.setTableFill(TableLayout.Fill.BOTH);
+        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        final JPanel panel = new JPanel(tableLayout);
+        final JCheckBox outputOriginalMeasurementsBox = new JCheckBox("Output original measurements");
+        bindingContext.bind("outputOriginalMeasurements", outputOriginalMeasurementsBox);
+        panel.add(outputOriginalMeasurementsBox);
+        return panel;
     }
 
     private Component createKmzExportPanel(BindingContext bindingContext) {
@@ -311,7 +331,7 @@ class PixelExtractionParametersForm {
         final Integer windowSize = (Integer) windowSpinner.getValue();
         windowLabel.setText(String.format("%1$d x %1$d", windowSize));
         final boolean pixelsNeedToBeAggregated = windowSize > 1;
-        methodChooserComboBox.setEnabled(pixelsNeedToBeAggregated);
+        aggregationStrategyChooser.setEnabled(pixelsNeedToBeAggregated);
     }
 
     private JPanel createExportPanel(BindingContext bindingContext) {
@@ -407,12 +427,12 @@ class PixelExtractionParametersForm {
 
         final JTable coordinateTable = new JTable(coordinateTableModel);
         coordinateTable.setName("coordinateTable");
-        coordinateTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        coordinateTable.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
         coordinateTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         coordinateTable.setRowSelectionAllowed(true);
         coordinateTable.getTableHeader().setReorderingAllowed(false);
         coordinateTable.setDefaultRenderer(Float.class, new DecimalTableCellRenderer(new DecimalFormat("0.0000")));
-        coordinateTable.setPreferredScrollableViewportSize(new Dimension(150, 100));
+        coordinateTable.setPreferredScrollableViewportSize(new Dimension(250, 100));
         coordinateTable.getColumnModel().getColumn(1).setCellEditor(new FloatCellEditor(-90, 90));
         coordinateTable.getColumnModel().getColumn(2).setCellEditor(new FloatCellEditor(-180, 180));
         final DefaultDateModel dateModel = new DefaultDateModel();
@@ -475,6 +495,7 @@ class PixelExtractionParametersForm {
                 final Rectangle buttonBounds = component.getBounds();
                 popup.add(new AddCoordinateAction(coordinateTableModel));
                 popup.add(new AddPlacemarkFileAction(appContext, coordinateTableModel, mainPanel));
+                popup.add(new AddCsvFileAction(coordinateTableModel, mainPanel));
                 popup.show(component, 1, buttonBounds.height + 1);
             }
         }

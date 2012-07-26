@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PixExMeasurementFactory extends MeasurementFactory {
+public class PixExMeasurementFactory extends AbstractMeasurementFactory {
 
     private final RasterNamesFactory rasterNamesFactory;
     private final int windowSize;

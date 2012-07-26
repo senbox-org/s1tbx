@@ -14,7 +14,7 @@ import java.awt.image.Raster;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class AggregatingPixExMeasurementFactory extends MeasurementFactory {
+public class AggregatingPixExMeasurementFactory extends AbstractMeasurementFactory {
 
     private final RasterNamesFactory rasterNamesFactory;
     private final int windowSize;

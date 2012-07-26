@@ -21,7 +21,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.measurement.Measurement;
-import org.esa.beam.measurement.writer.FormatStrategy;
 import org.esa.beam.util.StringUtils;
 
 import java.io.PrintWriter;
@@ -30,21 +29,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-public class PixExFormatStrategy implements FormatStrategy {
-
-    private static final DateFormat DATE_FORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd\tHH:mm:ss");
-
-    private final RasterNamesFactory rasterNamesFactory;
-    private final String expression;
-    private final int windowSize;
-    private final boolean exportExpressionResult;
+public class PixExFormatStrategy extends AbstractFormatStrategy {
 
     public PixExFormatStrategy(final RasterNamesFactory rasterNamesFactory, final int windowSize,
                                final String expression, final boolean exportExpressionResult) {
-        this.rasterNamesFactory = rasterNamesFactory;
-        this.expression = expression;
-        this.windowSize = windowSize;
-        this.exportExpressionResult = exportExpressionResult;
+        super(rasterNamesFactory, expression, windowSize, exportExpressionResult);
     }
 
     @Override
@@ -107,37 +96,8 @@ public class PixExFormatStrategy implements FormatStrategy {
     private void write(PrintWriter writer, Measurement measurement) {
         if (expression == null || exportExpressionResult || measurement.isValid()) {
             final boolean withExpression = expression != null && exportExpressionResult;
-            writeLine(writer, measurement, withExpression);
+            writeLine(writer, null, measurement, withExpression);
         }
-    }
-
-    public static void writeLine(PrintWriter writer, Measurement measurement, boolean withExpression) {
-        if (withExpression) {
-            writer.printf(Locale.ENGLISH, "%s\t", String.valueOf(measurement.isValid()));
-        }
-        final ProductData.UTC time = measurement.getTime();
-        String timeString;
-        if (time != null) {
-            timeString = DATE_FORMAT.format(time.getAsDate());
-        } else {
-            timeString = " \t ";
-        }
-        writer.printf(Locale.ENGLISH,
-                      "%d\t%d\t%s\t%.6f\t%.6f\t%.3f\t%.3f\t%s",
-                      measurement.getProductId(), measurement.getCoordinateID(),
-                      measurement.getCoordinateName(),
-                      measurement.getLat(), measurement.getLon(),
-                      measurement.getPixelX(), measurement.getPixelY(),
-                      timeString);
-        final Number[] values = measurement.getValues();
-        for (Number value : values) {
-            if (Double.isNaN(value.doubleValue())) {
-                writer.printf(Locale.ENGLISH, "\t%s", "");
-            } else {
-                writer.printf(Locale.ENGLISH, "\t%s", value);
-            }
-        }
-        writer.println();
     }
 
 }

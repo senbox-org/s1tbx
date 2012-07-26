@@ -5,6 +5,7 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.measurement.Measurement;
+import org.esa.beam.measurement.writer.MeasurementFactory;
 import org.esa.beam.pixex.aggregators.AggregatorStrategy;
 import org.esa.beam.pixex.aggregators.MaxAggregatorStrategy;
 import org.esa.beam.pixex.aggregators.MeanAggregatorStrategy;

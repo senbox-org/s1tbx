@@ -42,6 +42,8 @@ import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.measurement.Measurement;
+import org.esa.beam.measurement.writer.FormatStrategy;
+import org.esa.beam.measurement.writer.MeasurementFactory;
 import org.esa.beam.measurement.writer.MeasurementWriter;
 import org.esa.beam.pixex.aggregators.AggregatorStrategy;
 import org.esa.beam.pixex.aggregators.MaxAggregatorStrategy;
@@ -49,12 +51,12 @@ import org.esa.beam.pixex.aggregators.MeanAggregatorStrategy;
 import org.esa.beam.pixex.aggregators.MedianAggregatorStrategy;
 import org.esa.beam.pixex.aggregators.MinAggregatorStrategy;
 import org.esa.beam.pixex.output.AggregatingPixExMeasurementFactory;
-import org.esa.beam.pixex.output.MeasurementFactory;
 import org.esa.beam.pixex.output.PixExFormatStrategy;
 import org.esa.beam.pixex.output.PixExMeasurementFactory;
 import org.esa.beam.pixex.output.PixExProductRegistry;
 import org.esa.beam.pixex.output.PixExRasterNamesFactory;
 import org.esa.beam.pixex.output.PixExTargetFactory;
+import org.esa.beam.pixex.output.WriteWithOriginalOutputFormatStrategy;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.WildcardMatcher;
 import org.esa.beam.util.kmz.KmlDocument;
@@ -107,11 +109,11 @@ public class PixExOp extends Operator implements Output {
 
     public static final String RECURSIVE_INDICATOR = "**";
     private static final String SUB_SCENES_DIR_NAME = "subScenes";
-    private static final String NO_AGGREGATION = "no aggregation";
-    private static final String MEAN_AGGREGATION = "mean";
-    private static final String MIN_AGGREGATION = "min";
-    private static final String MAX_AGGREGATION = "max";
-    private static final String MEDIAN_AGGREGATION = "median";
+    public static final String NO_AGGREGATION = "no aggregation";
+    public static final String MEAN_AGGREGATION = "mean";
+    public static final String MIN_AGGREGATION = "min";
+    public static final String MAX_AGGREGATION = "max";
+    public static final String MEDIAN_AGGREGATION = "median";
 
     @SourceProducts()
     private Product[] sourceProducts;
@@ -208,6 +210,9 @@ public class PixExOp extends Operator implements Output {
                label = "Time extraction pattern in filename")
     private String filenameInterpretationPattern;
 
+    @Parameter(defaultValue = "false", description = "Determines if the original measurements shall be output, too.")
+    private boolean outputOriginalMeasurements;
+
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
     private boolean isTargetProductInitialized;
@@ -254,8 +259,9 @@ public class PixExOp extends Operator implements Output {
 
         final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints,
                                                                                        exportMasks, aggregatorStrategy);
-        final PixExFormatStrategy formatStrategy = new PixExFormatStrategy(rasterNamesFactory, windowSize, expression,
-                                                                           exportExpressionResult);
+
+        final FormatStrategy formatStrategy = initFormatStrategy(rasterNamesFactory,
+                                                                 null); // todo enable for original measurements
         final PixExProductRegistry productRegistry = new PixExProductRegistry(outputFilePrefix, outputDir);
         MeasurementFactory measurementFactory;
         if (aggregatorStrategy == null || windowSize == 1) {
@@ -307,6 +313,16 @@ public class PixExOp extends Operator implements Output {
         }
 
         measurements = new PixExMeasurementReader(outputDir);
+    }
+
+    private FormatStrategy initFormatStrategy(PixExRasterNamesFactory rasterNamesFactory,
+                                              Measurement[] originalMeasurements) {
+        if (outputOriginalMeasurements) {
+            return new WriteWithOriginalOutputFormatStrategy(originalMeasurements, rasterNamesFactory, windowSize,
+                                                             expression, exportExpressionResult);
+        }
+        return new PixExFormatStrategy(rasterNamesFactory, windowSize, expression,
+                                       exportExpressionResult);
     }
 
     private void initAggregatorStrategy() {
