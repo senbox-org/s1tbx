@@ -22,8 +22,6 @@ public class AggregatingPixExMeasurementFactoryTest {
 
     private Product product;
     private RasterNamesFactory rasterNamesFactory;
-    private Band band1;
-    private Band band2;
     private ProductRegistry productRegistry;
     private int windowSize;
 
@@ -31,10 +29,10 @@ public class AggregatingPixExMeasurementFactoryTest {
     public void setUp() throws Exception {
         product = new Product("name", "type", 4, 4);
 
-        band1 = product.addBand("val1", ProductData.TYPE_INT32);
+        Band band1 = product.addBand("val1", ProductData.TYPE_INT32);
         fillValues(band1, 11);
 
-        band2 = product.addBand("val2", ProductData.TYPE_FLOAT32);
+        Band band2 = product.addBand("val2", ProductData.TYPE_FLOAT32);
         fillValues(band2, 20);
 
         rasterNamesFactory = createNewRasterNamesFactory();

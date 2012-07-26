@@ -1,6 +1,5 @@
 package org.esa.beam.pixex.output;
 
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
@@ -8,11 +7,8 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.pixex.aggregators.AggregatorStrategy;
-import org.esa.beam.pixex.calvalus.ma.AggregatedNumber;
 import org.esa.beam.pixex.calvalus.ma.DefaultRecord;
 import org.esa.beam.pixex.calvalus.ma.Record;
-import org.esa.beam.pixex.calvalus.ma.RecordAggregator;
-import org.esa.beam.pixex.calvalus.ma.RecordTransformer;
 
 import java.awt.image.Raster;
 import java.io.IOException;
@@ -41,25 +37,20 @@ public class AggregatingPixExMeasurementFactory extends MeasurementFactory {
         final int numPixels = windowSize * windowSize;
         final Measurement[] measurements = new Measurement[1];
         final String[] rasterNames = rasterNamesFactory.getUniqueRasterNames(product);
-        final float[][] values = new float[rasterNames.length][numPixels];
+        final Float[][] values = new Float[rasterNames.length][numPixels];
 
         for (int i = 0; i < rasterNames.length; i++) {
             String rasterName = rasterNames[i];
-            float[] bandValues = new float[numPixels];
+            Float[] bandValues = new Float[numPixels];
             final Band band = product.getBand(rasterName);
             setBandValues(product, band, bandValues, windowSize, pixelX, pixelY);
             values[i] = bandValues;
         }
 
         Record record = new DefaultRecord(values);
-
-        final RecordTransformer recordAggregator = new RecordAggregator(-1, -1.0);
-        final Record transformedRecord = recordAggregator.transform(record);
-
         final float[] numbers = new float[rasterNames.length * aggregatorStrategy.getValueCount()];
         for (int i = 0; i < rasterNames.length; i++) {
-            final Object[] attributeValues = transformedRecord.getAttributeValues();
-            float[] valuesForBand = aggregatorStrategy.getValues((AggregatedNumber) attributeValues[i]);
+            float[] valuesForBand = aggregatorStrategy.getValues(record, i);
             for (int j = 0; j < aggregatorStrategy.getValueCount(); j++) {
                 float v = valuesForBand[j];
                 numbers[i * aggregatorStrategy.getValueCount() + j] = v;
@@ -80,8 +71,8 @@ public class AggregatingPixExMeasurementFactory extends MeasurementFactory {
         return result;
     }
 
-    protected static void setBandValues(Product product, RasterDataNode raster, float[] bandValues,
-                                        int windowSize, int pixelX, int pixelY) {
+    private static void setBandValues(Product product, RasterDataNode raster, Float[] bandValues,
+                                      int windowSize, int pixelX, int pixelY) {
 
         final int windowBorder = windowSize / 2;
 
@@ -101,12 +92,12 @@ public class AggregatingPixExMeasurementFactory extends MeasurementFactory {
                     } else {
                         int temp = raster.getSampleInt(x, y);
                         if (raster instanceof Mask) {
-                            bandValues[pixelIndex] = temp == 0 ? 0 : 1; // normalize to 0 for false and 1 for true
+                            bandValues[pixelIndex] = (float) (temp == 0 ? 0 : 1); // normalize to 0 for false and 1 for true
                         } else {
                             if (raster.getDataType() == ProductData.TYPE_UINT32) {
-                                bandValues[pixelIndex] = temp & 0xffffL;
+                                bandValues[pixelIndex] = (float) (temp & 0xffffL);
                             } else {
-                                bandValues[pixelIndex] = temp;
+                                bandValues[pixelIndex] = (float) temp;
                             }
                         }
                     }

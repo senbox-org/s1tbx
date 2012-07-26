@@ -7,7 +7,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.pixex.aggregators.AggregatorStrategy;
-import org.esa.beam.pixex.calvalus.ma.AggregatedNumber;
+import org.esa.beam.pixex.calvalus.ma.Record;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -103,8 +103,8 @@ public class PixExRasterNamesFactoryTest {
         final AggregatorStrategy aggregatorStrategy = new AggregatorStrategy() {
 
             @Override
-            public float[] getValues(AggregatedNumber aggregatedNumber) {
-                return null;
+            public float[] getValues(Record record, int rasterIndex) {
+                return new float[0];
             }
 
             @Override
@@ -116,6 +116,7 @@ public class PixExRasterNamesFactoryTest {
             public String[] getSuffixes() {
                 return new String[]{"first", "second", "last"};
             }
+
         };
         final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(true, false, false,
                                                                                             aggregatorStrategy);
