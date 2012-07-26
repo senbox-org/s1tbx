@@ -4,15 +4,16 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.measurement.Measurement;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class PixExFormatStrategyTest_writeMeasurement {
 
@@ -38,7 +39,8 @@ public class PixExFormatStrategyTest_writeMeasurement {
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
-        assertThat(reader.readLine(), equalTo("14\t13\tname12\t20.799999\t21.900000\t15.300\t16.400\t2000-01-18\t00:00:18\t12.4\t\t1.0345\t7"));
+        assertThat(reader.readLine(),
+                   equalTo("14\t13\tname12\t20.799999\t21.900000\t15.300\t16.400\t2000-01-18\t00:00:18\t12.4\t\t1.0345\t7"));
         assertThat(reader.readLine(), equalTo(null));
     }
 
@@ -56,7 +58,8 @@ public class PixExFormatStrategyTest_writeMeasurement {
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
-        assertThat(reader.readLine(), equalTo("14\t13\tname12\t20.799999\t21.900000\t15.300\t16.400\t \t \t12.4\t\t1.0345\t7"));
+        assertThat(reader.readLine(),
+                   equalTo("14\t13\tname12\t20.799999\t21.900000\t15.300\t16.400\t \t \t12.4\t\t1.0345\t7"));
         assertThat(reader.readLine(), equalTo(null));
     }
 
@@ -75,8 +78,10 @@ public class PixExFormatStrategyTest_writeMeasurement {
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
-        assertThat(reader.readLine(), equalTo("true\t3\t2\tname1\t9.800000\t10.900000\t4.300\t5.400\t2000-01-07\t00:00:07\t12.4\t\t1.0345\t7"));
-        assertThat(reader.readLine(), equalTo("false\t4\t3\tname2\t10.800000\t11.900000\t5.300\t6.400\t2000-01-08\t00:00:08\t14.4\t2.345\t1.666\t8"));
+        assertThat(reader.readLine(),
+                   equalTo("true\t3\t2\tname1\t9.800000\t10.900000\t4.300\t5.400\t2000-01-07\t00:00:07\t12.4\t\t1.0345\t7"));
+        assertThat(reader.readLine(),
+                   equalTo("false\t4\t3\tname2\t10.800000\t11.900000\t5.300\t6.400\t2000-01-08\t00:00:08\t14.4\t2.345\t1.666\t8"));
         assertThat(reader.readLine(), equalTo(null));
     }
 
@@ -92,7 +97,8 @@ public class PixExFormatStrategyTest_writeMeasurement {
         return newMeasurement(offset, values, valid, true);
     }
 
-    private Measurement newMeasurement(int offset, final Number[] values, final boolean valid, final boolean createDate) {
+    private Measurement newMeasurement(int offset, final Number[] values, final boolean valid,
+                                       final boolean createDate) {
         final int coordinateID = 1 + offset;
         final String name = "name" + offset;
         final int productId = 2 + offset;
@@ -121,6 +127,11 @@ public class PixExFormatStrategyTest_writeMeasurement {
             @Override
             public String[] getRasterNames(Product product) {
                 return new String[0];  //Todo change body of created method. Use File | Settings | File Templates to change
+            }
+
+            @Override
+            public String[] getUniqueRasterNames(Product product) {
+                return getRasterNames(product);
             }
         };
     }

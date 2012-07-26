@@ -1,6 +1,13 @@
 package org.esa.beam.pixex.aggregators;
 
+import org.esa.beam.pixex.calvalus.ma.AggregatedNumber;
+
 public interface AggregatorStrategy {
 
-    float getValue(Object attributeValue);
+    float[] getValues(AggregatedNumber aggregatedNumber);
+
+    int getValueCount();
+
+    String[] getSuffixes();
+
 }

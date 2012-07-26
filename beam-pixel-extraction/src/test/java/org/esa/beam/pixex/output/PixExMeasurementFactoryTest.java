@@ -5,12 +5,13 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.measurement.Measurement;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class PixExMeasurementFactoryTest {
 
@@ -38,14 +39,16 @@ public class PixExMeasurementFactoryTest {
     public void testMeasurementCreation() throws IOException {
         // preparation
         final int windowSize = 3;
-        final PixExMeasurementFactory factory = new PixExMeasurementFactory(rasterNamesFactory, windowSize, productRegistry);
+        final PixExMeasurementFactory factory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
+                                                                            productRegistry);
 
         // execution
         final int pixelX = 3;
         final int pixelY = 4;
         final int coordinateID = 2345;
         final String cordName = "CordName";
-        final Measurement[] measurements = factory.createMeasurements(pixelX, pixelY, coordinateID, cordName, product, null);
+        final Measurement[] measurements = factory.createMeasurements(pixelX, pixelY, coordinateID, cordName, product,
+                                                                      null);
 
         // verifying
         assertThat(measurements.length, equalTo(9));
@@ -62,7 +65,8 @@ public class PixExMeasurementFactoryTest {
     ////  Test Helper Methods  ////
     /////////////////////////////*/
 
-    private Measurement createExpectedMeasurement(int windowSize, int pixelX, int pixelY, int coordinateID, String cordName, int i) throws IOException {
+    private Measurement createExpectedMeasurement(int windowSize, int pixelX, int pixelY, int coordinateID,
+                                                  String cordName, int i) throws IOException {
         final int windowOffset = windowSize / 2;
 
         final int xOffset = i % windowSize;
@@ -80,7 +84,8 @@ public class PixExMeasurementFactoryTest {
 
         final long productId = productRegistry.getProductId(product);
 
-        return new Measurement(coordinateID, cordName, productId, 0.5f + pixX, 0.5f + pixY, null, new GeoPos(), values, true);
+        return new Measurement(coordinateID, cordName, productId, 0.5f + pixX, 0.5f + pixY, null, new GeoPos(), values,
+                               true);
     }
 
     private ProductRegistry newProductRegistry() {
@@ -97,6 +102,11 @@ public class PixExMeasurementFactoryTest {
             @Override
             public String[] getRasterNames(Product product) {
                 return product.getBandNames();
+            }
+
+            @Override
+            public String[] getUniqueRasterNames(Product product) {
+                return getRasterNames(product);
             }
         };
     }

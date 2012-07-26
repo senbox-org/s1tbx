@@ -33,8 +33,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class PixExFormatStrategyTest_writeHeader {
 
@@ -164,6 +164,11 @@ public class PixExFormatStrategyTest_writeHeader {
             @Override
             public String[] getRasterNames(Product product) {
                 return rasterNames;
+            }
+
+            @Override
+            public String[] getUniqueRasterNames(Product product) {
+                return getRasterNames(product);
             }
         };
     }

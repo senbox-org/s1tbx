@@ -6,7 +6,6 @@ import org.esa.beam.measurement.Measurement;
 import java.awt.image.Raster;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class PixExMeasurementFactory extends MeasurementFactory {
@@ -30,7 +29,6 @@ public class PixExMeasurementFactory extends MeasurementFactory {
         final List<Measurement> measurements = new ArrayList<Measurement>();
         final String[] rasterNames = rasterNamesFactory.getRasterNames(product);
         final Number[] values = new Number[rasterNames.length];
-        Arrays.fill(values, Double.NaN);
         final int windowBorder = windowSize / 2;
 
         for (int idx = 0; idx < numPixels; idx++) {

@@ -174,7 +174,7 @@ public class PixExOp extends Operator implements Output {
                           "value shall be derived from the pixels.",
             defaultValue = NO_AGGREGATION,
             valueSet = {MIN_AGGREGATION, MAX_AGGREGATION, MEAN_AGGREGATION, MEDIAN_AGGREGATION, NO_AGGREGATION})
-    private String pixelValueAggregationMethod;
+    private String aggregatorStrategyType;
 
     @Parameter(description = "If set to true, sub-scenes of the regions, where pixels are found, are exported.",
                defaultValue = "false")
@@ -218,6 +218,7 @@ public class PixExOp extends Operator implements Output {
     private KmlDocument kmlDocument;
     private ArrayList<String> knownKmzPlacemarks;
     private TimeStampExtractor timeStampExtractor;
+    private AggregatorStrategy aggregatorStrategy;
 
     @Override
     public void initialize() throws OperatorException {
@@ -242,6 +243,8 @@ public class PixExOp extends Operator implements Output {
             timeStampExtractor = new TimeStampExtractor(dateInterpretationPattern, filenameInterpretationPattern);
         }
 
+        initAggregatorStrategy();
+
         Set<File> sourceProductFileSet = getSourceProductFileSet(this.sourceProductPaths, this.inputPaths, getLogger());
 
         coordinateList = initCoordinateList();
@@ -250,17 +253,17 @@ public class PixExOp extends Operator implements Output {
         validator = new ProductValidator();
 
         final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints,
-                                                                                       exportMasks);
+                                                                                       exportMasks, aggregatorStrategy);
         final PixExFormatStrategy formatStrategy = new PixExFormatStrategy(rasterNamesFactory, windowSize, expression,
                                                                            exportExpressionResult);
         final PixExProductRegistry productRegistry = new PixExProductRegistry(outputFilePrefix, outputDir);
         MeasurementFactory measurementFactory;
-        if (pixelValueAggregationMethod.equals(NO_AGGREGATION) || windowSize == 1) {
+        if (aggregatorStrategy == null || windowSize == 1) {
             measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
                                                              productRegistry);
         } else {
             measurementFactory = new AggregatingPixExMeasurementFactory(rasterNamesFactory, windowSize,
-                                                                        productRegistry, getMeasurementAggregator());
+                                                                        productRegistry, aggregatorStrategy);
         }
         PixExTargetFactory targetFactory = new PixExTargetFactory(outputFilePrefix, outputDir);
 
@@ -306,17 +309,18 @@ public class PixExOp extends Operator implements Output {
         measurements = new PixExMeasurementReader(outputDir);
     }
 
-    private AggregatorStrategy getMeasurementAggregator() {
-        if (pixelValueAggregationMethod.equals(MEAN_AGGREGATION)) {
-            return new MeanAggregatorStrategy();
-        } else if (pixelValueAggregationMethod.equals(MIN_AGGREGATION)) {
-            return new MinAggregatorStrategy();
-        } else if (pixelValueAggregationMethod.equals(MAX_AGGREGATION)) {
-            return new MaxAggregatorStrategy();
-        } else if (pixelValueAggregationMethod.equals(MEDIAN_AGGREGATION)) {
-            return new MedianAggregatorStrategy();
+    private void initAggregatorStrategy() {
+        if (aggregatorStrategyType.equals(MEAN_AGGREGATION)) {
+            aggregatorStrategy = new MeanAggregatorStrategy();
+        } else if (aggregatorStrategyType.equals(MIN_AGGREGATION)) {
+            aggregatorStrategy = new MinAggregatorStrategy();
+        } else if (aggregatorStrategyType.equals(MAX_AGGREGATION)) {
+            aggregatorStrategy = new MaxAggregatorStrategy();
+        } else if (aggregatorStrategyType.equals(MEDIAN_AGGREGATION)) {
+            aggregatorStrategy = new MedianAggregatorStrategy();
+        } else if (aggregatorStrategyType.equals(NO_AGGREGATION)) {
+            aggregatorStrategy = null;
         }
-        throw new IllegalStateException("Unable to create measurement aggregator for " + pixelValueAggregationMethod);
     }
 
     public static Set<File> getSourceProductFileSet(String[] sourceProductPaths1, File[] inputPaths1, Logger logger) {

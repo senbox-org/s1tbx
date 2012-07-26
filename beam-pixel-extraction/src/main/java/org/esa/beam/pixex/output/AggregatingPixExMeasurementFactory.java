@@ -8,6 +8,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.pixex.aggregators.AggregatorStrategy;
+import org.esa.beam.pixex.calvalus.ma.AggregatedNumber;
 import org.esa.beam.pixex.calvalus.ma.DefaultRecord;
 import org.esa.beam.pixex.calvalus.ma.Record;
 import org.esa.beam.pixex.calvalus.ma.RecordAggregator;
@@ -39,7 +40,7 @@ public class AggregatingPixExMeasurementFactory extends MeasurementFactory {
         final long productId = productRegistry.getProductId(product);
         final int numPixels = windowSize * windowSize;
         final Measurement[] measurements = new Measurement[1];
-        final String[] rasterNames = rasterNamesFactory.getRasterNames(product);
+        final String[] rasterNames = rasterNamesFactory.getUniqueRasterNames(product);
         final float[][] values = new float[rasterNames.length][numPixels];
 
         for (int i = 0; i < rasterNames.length; i++) {
@@ -55,32 +56,26 @@ public class AggregatingPixExMeasurementFactory extends MeasurementFactory {
         final RecordTransformer recordAggregator = new RecordAggregator(-1, -1.0);
         final Record transformedRecord = recordAggregator.transform(record);
 
-        final float[] numbers = new float[rasterNames.length];
+        final float[] numbers = new float[rasterNames.length * aggregatorStrategy.getValueCount()];
         for (int i = 0; i < rasterNames.length; i++) {
             final Object[] attributeValues = transformedRecord.getAttributeValues();
-            float valueForBand = aggregatorStrategy.getValue(attributeValues[i]);
-            numbers[i] = valueForBand;
+            float[] valuesForBand = aggregatorStrategy.getValues((AggregatedNumber) attributeValues[i]);
+            for (int j = 0; j < aggregatorStrategy.getValueCount(); j++) {
+                float v = valuesForBand[j];
+                numbers[i * aggregatorStrategy.getValueCount() + j] = v;
+            }
         }
 
         measurements[0] = createMeasurement(product, productId, coordinateID, coordinateName,
-                                            createNumberArray(numbers), validData,
+                                            createFloatArray(numbers), validData,
                                             pixelX, pixelY);
         return measurements;
     }
 
-    private Number[] createNumberArray(float[] bandValues) {
-        final Float[] result = new Float[bandValues.length];
-        for (int i = 0; i < bandValues.length; i++) {
-            result[i] = bandValues[i];
-        }
-        return result;
-    }
-
-    private Float[] createFloatArray(Number[] bandValues) {
-        final Float[] result = new Float[bandValues.length];
-        for (int i = 0; i < bandValues.length; i++) {
-            Number bandValue = bandValues[i];
-            result[i] = bandValue.floatValue();
+    private Float[] createFloatArray(float[] values) {
+        final Float[] result = new Float[values.length];
+        for (int i = 0; i < values.length; i++) {
+            result[i] = values[i];
         }
         return result;
     }

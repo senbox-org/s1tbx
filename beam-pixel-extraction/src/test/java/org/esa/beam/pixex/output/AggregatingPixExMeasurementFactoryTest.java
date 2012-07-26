@@ -61,8 +61,11 @@ public class AggregatingPixExMeasurementFactoryTest {
         // verifying
         assertEquals(1, measurements.length);
 
-        Measurement expectedMeasurement = createExpectedMeasurement(pixelX, pixelY, coordinateID,
-                                                                    coordsName, 153.0f / 9.0f, 229.5f / 9.0f);
+        final Measurement expectedMeasurement = new Measurement(coordinateID, coordsName, 1234L, 1.5F, 1.5F, null,
+                                                                new GeoPos(),
+                                                                new Number[]{
+                                                                        17.0F, 3.5707142F, 25.5F, 3.5707142F
+                                                                }, true);
         assertEquals(expectedMeasurement, measurements[0]);
     }
 
@@ -166,6 +169,11 @@ public class AggregatingPixExMeasurementFactoryTest {
             @Override
             public String[] getRasterNames(Product product) {
                 return product.getBandNames();
+            }
+
+            @Override
+            public String[] getUniqueRasterNames(Product product) {
+                return getRasterNames(product);
             }
         };
     }

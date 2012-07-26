@@ -330,7 +330,7 @@ public class MeasurementWriterTest {
 
     private MeasurementWriter createMeasurementWriter(int windowSize, boolean exportMasks, String filenamePrefix,
                                                       String expression, boolean exportExpressionResult) {
-        final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(true, true, exportMasks);
+        final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(true, true, exportMasks, null);
         final PixExProductRegistry productRegistry = new PixExProductRegistry(filenamePrefix, outputDir);
         final PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
                                                                                        productRegistry);
