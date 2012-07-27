@@ -53,20 +53,6 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
         writer.println();
     }
 
-    private void writeValuesOld(PrintWriter writer, Object[] values) {
-        for (Object value : values) {
-            if (value instanceof Number) {
-                if (Double.isNaN(((Number)value).doubleValue())) {
-                    writer.printf(Locale.ENGLISH, "\t%s", "");
-                } else {
-                    writer.printf(Locale.ENGLISH, "\t%s", value);
-                }
-            } else {
-                writer.printf(Locale.ENGLISH, value.toString()); // todo - check: maybe need to be more specific here
-            }
-        }
-    }
-
     private void writeValues(PrintWriter writer, Object[] values) {
         for (int i = 0; i < values.length; i++) {
             final Object value = values[i];

@@ -3,7 +3,6 @@ package org.esa.beam.pixex.output;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.FormatStrategy;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -16,7 +15,6 @@ import static org.junit.Assert.assertNull;
 
 public class WriteWithOriginalOutputFormatStrategyTest {
 
-    @Ignore
     @Test
     public void testWriteMeasurements_oneMeasurement_withNaN() throws Exception {
         // preparation
@@ -37,8 +35,9 @@ public class WriteWithOriginalOutputFormatStrategyTest {
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
-        assertEquals("10.100000\t10.010000\t13.4\t\t2.0345\t12" +      // original measurement
-                     "\t13\t14\tname\t10.000000\t10.000000\t1.000\t1.000\t \t \t12.4\t\t1.0345\t7", reader.readLine());
+        String originalMeasurementString = "13.4\t\t2.0345\t12";
+        String newMeasurementString = "\t13\t14\tname\t10.000000\t10.000000\t1.000\t1.000\t \t \t12.4\t\t1.0345\t7";
+        assertEquals(originalMeasurementString + newMeasurementString, reader.readLine());
         assertNull(reader.readLine());
     }
 }
