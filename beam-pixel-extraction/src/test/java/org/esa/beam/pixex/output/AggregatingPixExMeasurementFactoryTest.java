@@ -12,12 +12,11 @@ import org.esa.beam.pixex.aggregators.MeanAggregatorStrategy;
 import org.esa.beam.pixex.aggregators.MedianAggregatorStrategy;
 import org.esa.beam.pixex.aggregators.MinAggregatorStrategy;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class AggregatingPixExMeasurementFactoryTest {
 
@@ -114,7 +113,6 @@ public class AggregatingPixExMeasurementFactoryTest {
         assertEquals(expectedMeasurement, measurements[0]);
     }
 
-    @Ignore
     @Test
     public void testCreateMeasurementsWithMedianMeasurementAggregator() throws Exception {
         // preparation
@@ -134,7 +132,7 @@ public class AggregatingPixExMeasurementFactoryTest {
         assertEquals(1, measurements.length);
 
         Measurement expectedMeasurement = createExpectedMeasurement(pixelX, pixelY, coordinateID,
-                                                                    coordsName, 16, 25.5f);
+                                                                    coordsName, 17, 25.5f);
         assertEquals(expectedMeasurement, measurements[0]);
     }
 
