@@ -60,7 +60,7 @@ public class MatchupFormatStrategyTest {
         pixExFormat.writeMeasurements(new PrintWriter(stringWriter), new Measurement[]{additionalMeasurement});
 
         String originalMeasurementString = "value1_1\tvalue2_1\t\t";
-        String newMeasurementString = "\t13\t14\tname\t10.000000\t10.000000\t1.000\t1.000\t \t \t12.4\t7";
+        String newMeasurementString = "\t13\t14\tname\t10.000000\t10.000000\t1.000\t1.000\t \t \t12.4\t7\n";
         assertEquals(originalMeasurementString + newMeasurementString, stringWriter.toString());
 
         additionalMeasurement = new Measurement(23, "name", 13, 1, 1, null, new GeoPos(10, 10), values, true);
@@ -69,7 +69,7 @@ public class MatchupFormatStrategyTest {
         pixExFormat.writeMeasurements(new PrintWriter(stringWriter), new Measurement[]{additionalMeasurement});
 
         originalMeasurementString = "\t\tvalue1_2\tvalue2_2";
-        newMeasurementString = "\t13\t23\tname\t10.000000\t10.000000\t1.000\t1.000\t \t \t12.4\t7";
+        newMeasurementString = "\t13\t23\tname\t10.000000\t10.000000\t1.000\t1.000\t \t \t12.4\t7\n";
         assertEquals(originalMeasurementString + newMeasurementString, stringWriter.toString());
     }
 
