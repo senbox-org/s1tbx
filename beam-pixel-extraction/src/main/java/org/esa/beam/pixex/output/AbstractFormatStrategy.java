@@ -27,7 +27,6 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
     protected void writeLine(PrintWriter writer, Measurement originalMeasurement, Measurement measurement,
                              boolean withExpression) {
         if (originalMeasurement != null) {
-            // write lat/lon/values of originalMeasurement
             writer.printf(Locale.ENGLISH, "%.6f\t%.6f",
                           originalMeasurement.getLat(),
                           originalMeasurement.getLon());
@@ -52,17 +51,21 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
                       measurement.getLat(), measurement.getLon(),
                       measurement.getPixelX(), measurement.getPixelY(),
                       timeString);
-        final Number[] values = measurement.getValues();
+        final Object[] values = measurement.getValues();
         writeValues(writer, values);
         writer.println();
     }
 
-    private void writeValues(PrintWriter writer, Number[] values) {
-        for (Number value : values) {
-            if (Double.isNaN(value.doubleValue())) {
-                writer.printf(Locale.ENGLISH, "\t%s", "");
+    private void writeValues(PrintWriter writer, Object[] values) {
+        for (Object value : values) {
+            if (value instanceof Number) {
+                if (Double.isNaN(((Number)value).doubleValue())) {
+                    writer.printf(Locale.ENGLISH, "\t%s", "");
+                } else {
+                    writer.printf(Locale.ENGLISH, "\t%s", value);
+                }
             } else {
-                writer.printf(Locale.ENGLISH, "\t%s", value);
+                writer.printf(Locale.ENGLISH, value.toString()); // todo - check: maybe need to be more specific here
             }
         }
     }

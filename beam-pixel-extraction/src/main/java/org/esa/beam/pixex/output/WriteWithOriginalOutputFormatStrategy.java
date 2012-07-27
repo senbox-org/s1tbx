@@ -32,17 +32,11 @@ public class WriteWithOriginalOutputFormatStrategy extends AbstractFormatStrateg
     }
 
     Measurement findMatchingMeasurement(Measurement measurement) {
-        Measurement matchingMeasurement = null;
-        double minDelta = Double.POSITIVE_INFINITY;
         for (Measurement currentMeasurement : originalMeasurements) {
-            final float latDelta = (float) Math.pow(currentMeasurement.getLat() - measurement.getLat(), 2);
-            final float lonDelta = (float) Math.pow(currentMeasurement.getLon() - measurement.getLon(), 2);
-            double currentDelta = latDelta + lonDelta;
-            if (currentDelta < minDelta) {
-                minDelta = currentDelta;
-                matchingMeasurement = currentMeasurement;
+            if (currentMeasurement.getCoordinateID() == measurement.getCoordinateID()) {
+                return currentMeasurement;
             }
         }
-        return matchingMeasurement;
+        throw new IllegalArgumentException("No matching measurement found for measurement '" + measurement.toString() + "'.");
     }
 }

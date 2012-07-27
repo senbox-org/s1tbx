@@ -20,6 +20,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.core.ProgressMonitor;
+import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
@@ -63,6 +64,8 @@ import org.esa.beam.util.kmz.KmlDocument;
 import org.esa.beam.util.kmz.KmlPlacemark;
 import org.esa.beam.util.kmz.KmzExporter;
 import org.esa.beam.util.math.MathUtils;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -127,8 +130,7 @@ public class PixExOp extends Operator implements Output {
                              "'?' (matches any single character).")
     private String[] sourceProductPaths;
 
-    @Parameter(
-            description = "Deprecated since version 1.0, use parameter 'sourceProductPaths' instead.")
+    @Parameter(description = "Deprecated since version 1.0, use parameter 'sourceProductPaths' instead.")
     @Deprecated
     private File[] inputPaths;
 
@@ -251,17 +253,14 @@ public class PixExOp extends Operator implements Output {
         initAggregatorStrategy();
 
         Set<File> sourceProductFileSet = getSourceProductFileSet(this.sourceProductPaths, this.inputPaths, getLogger());
-
         coordinateList = initCoordinateList();
+        Measurement[] originalMeasurements = createOriginalMeasurements(coordinateList);
         parseTimeDelta(timeDifference);
-
         validator = new ProductValidator();
-
         final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints,
                                                                                        exportMasks, aggregatorStrategy);
 
-        final FormatStrategy formatStrategy = initFormatStrategy(rasterNamesFactory,
-                                                                 null); // todo enable for original measurements
+        final FormatStrategy formatStrategy = initFormatStrategy(rasterNamesFactory, originalMeasurements);
         final PixExProductRegistry productRegistry = new PixExProductRegistry(outputFilePrefix, outputDir);
         MeasurementFactory measurementFactory;
         if (aggregatorStrategy == null || windowSize == 1) {
@@ -313,6 +312,25 @@ public class PixExOp extends Operator implements Output {
         }
 
         measurements = new PixExMeasurementReader(outputDir);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Measurement[] createOriginalMeasurements(List<Coordinate> coordinateList) {
+        if (!outputOriginalMeasurements) {
+            return null;
+        }
+        Measurement[] result = new Measurement[coordinateList.size()];
+        for (int i = 0; i < coordinateList.size(); i++) {
+            final Coordinate coordinate = coordinateList.get(i);
+            SimpleFeature feature = coordinate.getFeature();
+            List<AttributeDescriptor> originalAttributeDescriptors = (List<AttributeDescriptor>) feature.getFeatureType().getUserData().get("originalAttributeDescriptors");
+            List<Object> attributes = (List<Object>) feature.getUserData().get("originalAttributes");
+            Point point = (Point) feature.getDefaultGeometry();
+            result[i] = new Measurement(coordinate.getID(), "", -1, -1, -1, null, new GeoPos((float)point.getY(), (float)point.getX()), attributes.toArray(), true);
+
+        }
+
+        return result;
     }
 
     private FormatStrategy initFormatStrategy(PixExRasterNamesFactory rasterNamesFactory,
@@ -480,6 +498,10 @@ public class PixExOp extends Operator implements Output {
         if (coordinates != null) {
             list.addAll(Arrays.asList(coordinates));
         }
+        for (int i = 0; i < list.size(); i++) {
+            final Coordinate coordinate = list.get(i);
+            coordinate.setID(i + 1);
+        }
         return list;
     }
 
@@ -573,10 +595,9 @@ public class PixExOp extends Operator implements Output {
         try {
             List<Coordinate> matchedCoordinates = new ArrayList<Coordinate>();
 
-            for (int i = 0; i < coordinateList.size(); i++) {
-                Coordinate coordinate = coordinateList.get(i);
+            for (Coordinate coordinate : coordinateList) {
                 try {
-                    final boolean measurementExtracted = extractMeasurement(product, coordinate, i + 1, validMaskImage);
+                    final boolean measurementExtracted = extractMeasurement(product, coordinate, coordinate.getID(), validMaskImage);
                     if (measurementExtracted && (exportSubScenes || exportKmz)) {
                         matchedCoordinates.add(coordinate);
                     }

@@ -16,14 +16,18 @@
 
 package org.esa.beam.pixex;
 
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.converters.DateFormatConverter;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.opengis.feature.simple.SimpleFeature;
 
 import java.util.Date;
 
 /**
- * A coordinate is composed by a name, altitude, longitude and can optionally have a date.
+ * A coordinate is composed by a name, altitude, longitude and can optionally have a date and an arbitrary set of
+ * measurement values.
  */
 public class Coordinate {
 
@@ -37,6 +41,10 @@ public class Coordinate {
                description = "The date time of the coordinate in ISO 8601 format.\n The format pattern is 'yyyy-MM-dd'T'HH:mm:ssZ'",
                converter = ISO8601Converter.class)
     private Date dateTime;
+    @Parameter(description = "Associated feature providing original measurementes at this coordinate.", notNull = false, converter = SimpleFeatureConverter.class)
+    private SimpleFeature feature;
+
+    private int id;
 
     @SuppressWarnings({"UnusedDeclaration"})
     public Coordinate() {
@@ -44,11 +52,16 @@ public class Coordinate {
     }
 
     public Coordinate(String name, Float lat, Float lon, Date dateTime) {
+        this(name, lat, lon, dateTime, null);
+    }
+
+    public Coordinate(String name, Float lat, Float lon, Date dateTime, SimpleFeature feature) {
         this.name = name;
         this.lat = lat;
         this.lon = lon;
         //noinspection AssignmentToDateFieldFromParameter
         this.dateTime = dateTime;
+        this.feature = feature;
     }
 
     public String getName() {
@@ -70,6 +83,18 @@ public class Coordinate {
         return null;
     }
 
+    public SimpleFeature getFeature() {
+        return feature;
+    }
+
+    public int getID() {
+        return id;
+    }
+
+    public void setID(int ID) {
+        this.id = ID;
+    }
+
     public static class ISO8601Converter extends DateFormatConverter {
 
         public ISO8601Converter() {
@@ -78,4 +103,21 @@ public class Coordinate {
     }
 
 
+    public static class SimpleFeatureConverter implements Converter<SimpleFeature> {
+
+        @Override
+        public Class<? extends SimpleFeature> getValueType() {
+            return SimpleFeature.class;
+        }
+
+        @Override
+        public SimpleFeature parse(String text) throws ConversionException {
+            return null;
+        }
+
+        @Override
+        public String format(SimpleFeature value) {
+            return value.toString();
+        }
+    }
 }

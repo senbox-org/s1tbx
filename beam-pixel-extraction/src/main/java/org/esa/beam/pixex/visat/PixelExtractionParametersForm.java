@@ -113,7 +113,7 @@ class PixelExtractionParametersForm {
             final Placemark placemark = coordinateTableModel.getPlacemarkAt(i);
             GeoPos geoPos = placemark.getGeoPos();
             final Date dateTime = (Date) placemark.getFeature().getAttribute(Placemark.PROPERTY_NAME_DATETIME);
-            coordinates[i] = new Coordinate(placemark.getName(), geoPos.lat, geoPos.lon, dateTime);
+            coordinates[i] = new Coordinate(placemark.getName(), geoPos.lat, geoPos.lon, dateTime, placemark.getFeature());
         }
         return coordinates;
     }

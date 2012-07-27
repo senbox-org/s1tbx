@@ -11,85 +11,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertSame;
 import static org.junit.Assert.assertNull;
 
 public class WriteWithOriginalOutputFormatStrategyTest {
-
-    @Test
-    public void testFindMatchingMeasurements_1() throws Exception {
-        //preparation
-        Measurement originalMeasurement1 = new Measurement(-1, "original1", -1, -1, -1, null, new GeoPos(70f, 50f),
-                                                           new Number[0], true);
-        Measurement originalMeasurement2 = new Measurement(-1, "original2", -1, -1, -1, null, new GeoPos(71f, 49f),
-                                                           new Number[0], true);
-
-        Measurement masterMeasurement = new Measurement(1, "master", 1234, 2, 2, null, new GeoPos(70f, 50f),
-                                                        new Number[0], true);
-
-        //execution
-        final Measurement[] originalMeasurements = new Measurement[]{
-                originalMeasurement1,
-                originalMeasurement2
-        };
-        final WriteWithOriginalOutputFormatStrategy strategy = new WriteWithOriginalOutputFormatStrategy(
-                originalMeasurements, null, -1, "", false);
-        final Measurement matchingMeasurement = strategy.findMatchingMeasurement(masterMeasurement);
-
-        //verification
-        assertSame(originalMeasurement1, matchingMeasurement);
-    }
-
-    @Test
-    public void testFindMatchingMeasurements_2() throws Exception {
-        //preparation
-        Measurement originalMeasurement1 = new Measurement(-1, "original1", -1, -1, -1, null, new GeoPos(70f, 50f),
-                                                           new Number[0], true);
-        Measurement originalMeasurement2 = new Measurement(-1, "original2", -1, -1, -1, null, new GeoPos(71f, 49f),
-                                                           new Number[0], true);
-
-        Measurement masterMeasurement = new Measurement(1, "master", 1234, 2, 2, null, new GeoPos(71f, 50f),
-                                                        new Number[0], true);
-
-        //execution
-        final Measurement[] originalMeasurements = new Measurement[]{
-                originalMeasurement1,
-                originalMeasurement2
-        };
-        final WriteWithOriginalOutputFormatStrategy strategy = new WriteWithOriginalOutputFormatStrategy(
-                originalMeasurements, null, -1, "", false);
-        final Measurement matchingMeasurement = strategy.findMatchingMeasurement(masterMeasurement);
-
-        //verification
-        assertSame(originalMeasurement1, matchingMeasurement);
-    }
-
-    @Test
-    public void testFindMatchingMeasurements_3() throws Exception {
-        //preparation
-        Measurement originalMeasurement1 = new Measurement(-1, "original1", -1, -1, -1, null, new GeoPos(70f, 50f),
-                                                           new Number[0], true);
-        Measurement originalMeasurement2 = new Measurement(-1, "original2", -1, -1, -1, null, new GeoPos(71f, 50f),
-                                                           new Number[0], true);
-        Measurement originalMeasurement3 = new Measurement(-1, "original2", -1, -1, -1, null, new GeoPos(72f, 50f),
-                                                           new Number[0], true);
-
-        Measurement masterMeasurement = new Measurement(1, "master", 1234, 2, 2, null, new GeoPos(71.01f, 50f),
-                                                        new Number[0], true);
-
-        //execution
-        final Measurement[] originalMeasurements = new Measurement[]{
-                originalMeasurement1,
-                originalMeasurement2,
-                originalMeasurement3
-        };
-        final WriteWithOriginalOutputFormatStrategy strategy = new WriteWithOriginalOutputFormatStrategy(
-                originalMeasurements, null, -1, "", false);
-        final Measurement matchingMeasurement = strategy.findMatchingMeasurement(masterMeasurement);
-
-        //verification
-        assertSame(originalMeasurement2, matchingMeasurement);
-    }
 
     @Test
     public void testWriteMeasurements_oneMeasurement_withNaN() throws Exception {
@@ -98,7 +22,7 @@ public class WriteWithOriginalOutputFormatStrategyTest {
         final Measurement measurement = new Measurement(14, "name", 13, 1, 1, null, new GeoPos(10, 10), values, true);
 
         final Number[] originalValues = {13.4, Double.NaN, 2.0345, 12};
-        final Measurement originalMeasurement = new Measurement(-1, null, -1, -1, -1, null, new GeoPos(10.1F, 10.01F),
+        final Measurement originalMeasurement = new Measurement(14, null, -1, -1, -1, null, new GeoPos(10.1F, 10.01F),
                                                                 originalValues, true);
 
         final FormatStrategy pixExFormat = new WriteWithOriginalOutputFormatStrategy(

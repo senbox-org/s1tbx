@@ -121,12 +121,12 @@ public class PixExMeasurementReaderTest {
         assertEquals(240.5, measurement.getPixelY(), 1.0e-6);
         final Date expectedDate = ProductData.UTC.parse("2005-07-09T10:12:03", "yyyy-MM-dd'T'hh:mm:ss").getAsDate();
         assertEquals(expectedDate, measurement.getTime().getAsDate());
-        final Number[] values = measurement.getValues();
-        assertEquals(65.272634, values[0].doubleValue(), 1.0e-6);
-        assertEquals(Double.NaN, values[1].doubleValue(), 1.0e-6);
-        assertEquals(42.278252, values[2].doubleValue(), 1.0e-6);
-        assertEquals(0, values[3].intValue());
-        assertEquals(500, values[4].intValue());
+        final Object[] values = measurement.getValues();
+        assertEquals(65.272634, ((Number)values[0]).doubleValue(), 1.0e-6);
+        assertEquals(Double.NaN, ((Number) values[1]).doubleValue(), 1.0e-6);
+        assertEquals(42.278252, ((Number) values[2]).doubleValue(), 1.0e-6);
+        assertEquals(0, ((Number) values[3]).intValue());
+        assertEquals(500, ((Number) values[4]).intValue());
     }
 
     @Test(expected = UnsupportedOperationException.class)

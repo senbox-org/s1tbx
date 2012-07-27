@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 class AddCsvFileAction extends AbstractAction {
 
@@ -61,7 +62,10 @@ class AddCsvFileAction extends AbstractAction {
                 final SimpleFeature[] simpleFeatures = csvSource.getSimpleFeatures();
                 final SimpleFeatureBuilder simpleFeatureBuilder = new SimpleFeatureBuilder(extendedFeatureType);
                 for (SimpleFeature simpleFeature : simpleFeatures) {
-                    final SimpleFeature extendedFeature = getExtendedFeature(simpleFeatureBuilder, simpleFeature);
+                    simpleFeatureBuilder.init(simpleFeature);
+                    SimpleFeature extendedFeature = simpleFeatureBuilder.buildFeature(simpleFeature.getID());
+                    extendedFeature.setDefaultGeometry(simpleFeature.getDefaultGeometry());
+                    extendedFeature.getUserData().put("originalAttributes", simpleFeature.getAttributes());
                     final Placemark placemark = placemarkDescriptor.createPlacemark(extendedFeature);
                     setPlacemarkGeoPos(extendedFeature, placemark);
                     tableModel.addPlacemark(placemark);
@@ -87,23 +91,17 @@ class AddCsvFileAction extends AbstractAction {
         placemark.setGeoPos(new GeoPos((float) centroid.getY(), (float) centroid.getX()));
     }
 
-    private SimpleFeature getExtendedFeature(SimpleFeatureBuilder simpleFeatureBuilder, SimpleFeature simpleFeature) {
-        simpleFeatureBuilder.init(simpleFeature);
-        final SimpleFeature extendedFeature = simpleFeatureBuilder.buildFeature(simpleFeature.getID());
-        extendedFeature.setDefaultGeometry(simpleFeature.getDefaultGeometry());
-        simpleFeatureBuilder.reset();
-        return extendedFeature;
-    }
-
     private SimpleFeatureType getExtendedFeatureType(SimpleFeatureType featureType) {
         final SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
         builder.init(featureType);
-        final SimpleFeatureType pointFeatureType = Placemark.createPointFeatureType(
-                featureType.getName().getLocalPart());
+        final SimpleFeatureType pointFeatureType = Placemark.createPointFeatureType(featureType.getName().getLocalPart());
         for (AttributeDescriptor attributeDescriptor : pointFeatureType.getAttributeDescriptors()) {
             builder.add(attributeDescriptor);
         }
-        return builder.buildFeatureType();
+        SimpleFeatureType extendedFeatureType = builder.buildFeatureType();
+        List<AttributeDescriptor> attributeDescriptors = featureType.getAttributeDescriptors();
+        extendedFeatureType.getUserData().put("originalAttributeDescriptors", attributeDescriptors);
+        return extendedFeatureType;
     }
 
     private BeamFileChooser getFileChooser(String lastDir) {
