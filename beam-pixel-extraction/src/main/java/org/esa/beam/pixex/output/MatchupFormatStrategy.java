@@ -5,11 +5,13 @@ import org.esa.beam.measurement.Measurement;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MatchupFormatStrategy extends AbstractFormatStrategy {
 
     final Measurement[] originalMeasurements;
+    private HashMap<String, Integer> attributeIndices = new HashMap<String, Integer>();
 
     public MatchupFormatStrategy(Measurement[] originalMeasurements,
                                  RasterNamesFactory rasterNamesFactory, int windowSize,
@@ -40,9 +42,20 @@ public class MatchupFormatStrategy extends AbstractFormatStrategy {
     public void writeMeasurements(PrintWriter writer, Measurement[] measurements) {
         for (Measurement measurement : measurements) {
             Measurement matchingMeasurement = findMatchingMeasurement(measurement);
+            final boolean withExpression = expression != null && exportExpressionResult;
             if (expression == null || exportExpressionResult || measurement.isValid()) {
-                final boolean withExpression = expression != null && exportExpressionResult;
-                writeLine(writer, matchingMeasurement, measurement, withExpression);
+                for (int i = 0; i < getOriginalAttributeNames().size(); i++) {
+                    for (int j = 0; j < matchingMeasurement.getOriginalAttributeNames().length; j++) {
+                        String originalAttributeName = matchingMeasurement.getOriginalAttributeNames()[j];
+                        Integer index = attributeIndices.get(originalAttributeName);
+                        if (index == i) {
+                            writeValue(writer, matchingMeasurement.getValues()[j]);
+                        }
+                    }
+                    writer.write("\t");
+                }
+                writeLine(writer, measurement, withExpression);
+                writer.write("\n");
             }
         }
     }
@@ -53,7 +66,8 @@ public class MatchupFormatStrategy extends AbstractFormatStrategy {
                 return currentMeasurement;
             }
         }
-        throw new IllegalArgumentException("No matching measurement found for measurement '" + measurement.toString() + "'.");
+        throw new IllegalArgumentException(
+                "No matching measurement found for measurement '" + measurement.toString() + "'.");
     }
 
     @Override
@@ -67,6 +81,7 @@ public class MatchupFormatStrategy extends AbstractFormatStrategy {
             for (String attributeName : originalMeasurement.getOriginalAttributeNames()) {
                 if (!attributeNames.contains(attributeName)) {
                     attributeNames.add(attributeName);
+                    attributeIndices.put(attributeName, attributeNames.size() - 1);
                 }
             }
         }

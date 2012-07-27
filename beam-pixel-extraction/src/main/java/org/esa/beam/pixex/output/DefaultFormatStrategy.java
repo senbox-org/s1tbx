@@ -53,7 +53,8 @@ public class DefaultFormatStrategy extends AbstractFormatStrategy {
     private void write(PrintWriter writer, Measurement measurement) {
         if (expression == null || exportExpressionResult || measurement.isValid()) {
             final boolean withExpression = expression != null && exportExpressionResult;
-            writeLine(writer, null, measurement, withExpression);
+            writeLine(writer, measurement, withExpression);
+            writer.write("\n");
         }
     }
 

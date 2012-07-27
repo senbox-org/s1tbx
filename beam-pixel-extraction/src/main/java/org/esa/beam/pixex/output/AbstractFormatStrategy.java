@@ -110,13 +110,7 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
         return STANDARD_COLUMN_NAMES.length;
     }
 
-    protected void writeLine(PrintWriter writer, Measurement originalMeasurement, Measurement measurement,
-                             boolean withExpression) {
-        if (originalMeasurement != null) {
-            writeValues(writer, originalMeasurement.getValues());
-            writer.printf(Locale.ENGLISH, "\t");
-        }
-
+    protected void writeLine(PrintWriter writer, Measurement measurement, boolean withExpression) {
         if (withExpression) {
             writer.printf(Locale.ENGLISH, "%s\t", String.valueOf(measurement.isValid()));
         }
@@ -136,24 +130,27 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
                       timeString);
         final Object[] values = measurement.getValues();
         writeValues(writer, values);
-        writer.println();
     }
 
     private void writeValues(PrintWriter writer, Object[] values) {
         for (int i = 0; i < values.length; i++) {
             final Object value = values[i];
-            if (value instanceof Number) {
-                if (Double.isNaN(((Number) value).doubleValue())) {
-                    writer.printf(Locale.ENGLISH, "%s", "");
-                } else {
-                    writer.printf(Locale.ENGLISH, "%s", value);
-                }
-            } else {
-                writer.printf(Locale.ENGLISH, value.toString()); // todo - check: maybe need to be more specific here
-            }
+            writeValue(writer, value);
             if (i != values.length - 1) {
                 writer.print("\t");
             }
+        }
+    }
+
+    protected void writeValue(PrintWriter writer, Object value) {
+        if (value instanceof Number) {
+            if (Double.isNaN(((Number) value).doubleValue())) {
+                writer.printf(Locale.ENGLISH, "%s", "");
+            } else {
+                writer.printf(Locale.ENGLISH, "%s", value);
+            }
+        } else {
+            writer.printf(Locale.ENGLISH, value.toString()); // todo - check: maybe need to be more specific here
         }
     }
 
