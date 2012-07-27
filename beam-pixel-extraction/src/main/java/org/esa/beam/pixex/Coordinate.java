@@ -41,7 +41,8 @@ public class Coordinate {
                description = "The date time of the coordinate in ISO 8601 format.\n The format pattern is 'yyyy-MM-dd'T'HH:mm:ssZ'",
                converter = ISO8601Converter.class)
     private Date dateTime;
-    @Parameter(description = "Associated feature providing original measurementes at this coordinate.", notNull = false, converter = SimpleFeatureConverter.class)
+    @Parameter(description = "Associated feature providing original measurementes at this coordinate.", notNull = false,
+               converter = SimpleFeatureConverter.class)
     private SimpleFeature feature;
 
     private int id;
@@ -117,7 +118,11 @@ public class Coordinate {
 
         @Override
         public String format(SimpleFeature value) {
-            return value.toString();
+            if (value != null) {
+                return value.toString();
+            } else {
+                return null;
+            }
         }
     }
 }

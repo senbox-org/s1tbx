@@ -282,7 +282,7 @@ public class MeasurementWriterTest {
             numValues++;
             scanner.nextFloat();
         }
-        assertEquals(measurement.getValues().length, numValues);
+        assertEquals(numValues, measurement.getValues().length);
 
     }
 

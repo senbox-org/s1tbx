@@ -3,6 +3,7 @@ package org.esa.beam.pixex.output;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.FormatStrategy;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -15,6 +16,7 @@ import static org.junit.Assert.assertNull;
 
 public class WriteWithOriginalOutputFormatStrategyTest {
 
+    @Ignore
     @Test
     public void testWriteMeasurements_oneMeasurement_withNaN() throws Exception {
         // preparation

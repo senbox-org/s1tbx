@@ -27,9 +27,6 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
     protected void writeLine(PrintWriter writer, Measurement originalMeasurement, Measurement measurement,
                              boolean withExpression) {
         if (originalMeasurement != null) {
-            writer.printf(Locale.ENGLISH, "%.6f\t%.6f",
-                          originalMeasurement.getLat(),
-                          originalMeasurement.getLon());
             writeValues(writer, originalMeasurement.getValues());
             writer.printf(Locale.ENGLISH, "\t");
         }
@@ -45,7 +42,7 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
             timeString = " \t ";
         }
         writer.printf(Locale.ENGLISH,
-                      "%d\t%d\t%s\t%.6f\t%.6f\t%.3f\t%.3f\t%s",
+                      "%d\t%d\t%s\t%.6f\t%.6f\t%.3f\t%.3f\t%s\t",
                       measurement.getProductId(), measurement.getCoordinateID(),
                       measurement.getCoordinateName(),
                       measurement.getLat(), measurement.getLon(),
@@ -56,7 +53,7 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
         writer.println();
     }
 
-    private void writeValues(PrintWriter writer, Object[] values) {
+    private void writeValuesOld(PrintWriter writer, Object[] values) {
         for (Object value : values) {
             if (value instanceof Number) {
                 if (Double.isNaN(((Number)value).doubleValue())) {
@@ -66,6 +63,24 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
                 }
             } else {
                 writer.printf(Locale.ENGLISH, value.toString()); // todo - check: maybe need to be more specific here
+            }
+        }
+    }
+
+    private void writeValues(PrintWriter writer, Object[] values) {
+        for (int i = 0; i < values.length; i++) {
+            final Object value = values[i];
+            if (value instanceof Number) {
+                if (Double.isNaN(((Number) value).doubleValue())) {
+                    writer.printf(Locale.ENGLISH, "%s", "");
+                } else {
+                    writer.printf(Locale.ENGLISH, "%s", value);
+                }
+            } else {
+                writer.printf(Locale.ENGLISH, value.toString()); // todo - check: maybe need to be more specific here
+            }
+            if (i != values.length - 1) {
+                writer.print("\t");
             }
         }
     }
