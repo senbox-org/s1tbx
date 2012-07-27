@@ -52,12 +52,12 @@ import org.esa.beam.pixex.aggregators.MeanAggregatorStrategy;
 import org.esa.beam.pixex.aggregators.MedianAggregatorStrategy;
 import org.esa.beam.pixex.aggregators.MinAggregatorStrategy;
 import org.esa.beam.pixex.output.AggregatingPixExMeasurementFactory;
-import org.esa.beam.pixex.output.PixExFormatStrategy;
+import org.esa.beam.pixex.output.DefaultFormatStrategy;
+import org.esa.beam.pixex.output.MatchupFormatStrategy;
 import org.esa.beam.pixex.output.PixExMeasurementFactory;
 import org.esa.beam.pixex.output.PixExProductRegistry;
 import org.esa.beam.pixex.output.PixExRasterNamesFactory;
 import org.esa.beam.pixex.output.PixExTargetFactory;
-import org.esa.beam.pixex.output.WriteWithOriginalOutputFormatStrategy;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.WildcardMatcher;
 import org.esa.beam.util.kmz.KmlDocument;
@@ -343,10 +343,10 @@ public class PixExOp extends Operator implements Output {
     private FormatStrategy initFormatStrategy(PixExRasterNamesFactory rasterNamesFactory,
                                               Measurement[] originalMeasurements) {
         if (outputOriginalMeasurements) {
-            return new WriteWithOriginalOutputFormatStrategy(originalMeasurements, rasterNamesFactory, windowSize,
+            return new MatchupFormatStrategy(originalMeasurements, rasterNamesFactory, windowSize,
                                                              expression, exportExpressionResult);
         }
-        return new PixExFormatStrategy(rasterNamesFactory, windowSize, expression,
+        return new DefaultFormatStrategy(rasterNamesFactory, windowSize, expression,
                                        exportExpressionResult);
     }
 

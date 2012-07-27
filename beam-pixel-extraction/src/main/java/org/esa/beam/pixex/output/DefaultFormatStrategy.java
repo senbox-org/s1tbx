@@ -29,10 +29,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-public class PixExFormatStrategy extends AbstractFormatStrategy {
+public class DefaultFormatStrategy extends AbstractFormatStrategy {
 
-    public PixExFormatStrategy(final RasterNamesFactory rasterNamesFactory, final int windowSize,
-                               final String expression, final boolean exportExpressionResult) {
+    public DefaultFormatStrategy(final RasterNamesFactory rasterNamesFactory, final int windowSize,
+                                 final String expression, final boolean exportExpressionResult) {
         super(rasterNamesFactory, expression, windowSize, exportExpressionResult);
     }
 

@@ -30,12 +30,12 @@ public class PixExFormatStrategyTest_writeMeasurement {
         // preparation
         final Measurement measurement = newMeasurement(12, new Number[]{12.4, Double.NaN, 1.0345, 7}, true);
         final Measurement[] oneMeasurement = {measurement};
-        final PixExFormatStrategy pixExFormat;
-        pixExFormat = new PixExFormatStrategy(dummyRasterNamesFactory, 1, "expression", false);
+        final DefaultFormatStrategy defaultFormat;
+        defaultFormat = new DefaultFormatStrategy(dummyRasterNamesFactory, 1, "expression", false);
 
         // execution
         final StringWriter stringWriter = new StringWriter();
-        pixExFormat.writeMeasurements(new PrintWriter(stringWriter), oneMeasurement);
+        defaultFormat.writeMeasurements(new PrintWriter(stringWriter), oneMeasurement);
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
@@ -49,12 +49,12 @@ public class PixExFormatStrategyTest_writeMeasurement {
         // preparation
         final Measurement measurement = newMeasurementWithoutDate(12, new Number[]{12.4, Double.NaN, 1.0345, 7}, true);
         final Measurement[] oneMeasurement = {measurement};
-        final PixExFormatStrategy pixExFormat;
-        pixExFormat = new PixExFormatStrategy(dummyRasterNamesFactory, 1, "expression", false);
+        final DefaultFormatStrategy defaultFormat;
+        defaultFormat = new DefaultFormatStrategy(dummyRasterNamesFactory, 1, "expression", false);
 
         // execution
         final StringWriter stringWriter = new StringWriter();
-        pixExFormat.writeMeasurements(new PrintWriter(stringWriter), oneMeasurement);
+        defaultFormat.writeMeasurements(new PrintWriter(stringWriter), oneMeasurement);
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
@@ -68,13 +68,13 @@ public class PixExFormatStrategyTest_writeMeasurement {
         // preparation
         final Measurement measurement1 = newMeasurement(1, new Number[]{12.4, Double.NaN, 1.0345, 7}, true);
         final Measurement measurement2 = newMeasurement(2, new Number[]{14.4, 2.345, 1.666, 8}, false);
-        final PixExFormatStrategy pixExFormat;
+        final DefaultFormatStrategy defaultFormat;
         final boolean exportInvalids = true;
-        pixExFormat = new PixExFormatStrategy(dummyRasterNamesFactory, 1, "expression", exportInvalids);
+        defaultFormat = new DefaultFormatStrategy(dummyRasterNamesFactory, 1, "expression", exportInvalids);
 
         // execution
         final StringWriter stringWriter = new StringWriter();
-        pixExFormat.writeMeasurements(new PrintWriter(stringWriter), new Measurement[]{measurement1, measurement2});
+        defaultFormat.writeMeasurements(new PrintWriter(stringWriter), new Measurement[]{measurement1, measurement2});
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));

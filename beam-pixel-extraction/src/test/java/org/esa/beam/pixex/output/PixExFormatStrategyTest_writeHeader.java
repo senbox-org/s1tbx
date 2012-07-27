@@ -43,7 +43,7 @@ public class PixExFormatStrategyTest_writeHeader {
         // preparation
         final RasterNamesFactory rasterNamesFactory = newRasterNamesFactory(new String[]{"rad_1", "rad_2", "uncert"});
         final FormatStrategy pixExFormatStrategy;
-        pixExFormatStrategy = new PixExFormatStrategy(rasterNamesFactory, 9, "expression", true);
+        pixExFormatStrategy = new DefaultFormatStrategy(rasterNamesFactory, 9, "expression", true);
 
         // execution
         final StringWriter stringWriter = new StringWriter(200);
@@ -68,7 +68,7 @@ public class PixExFormatStrategyTest_writeHeader {
         // preparation
         final RasterNamesFactory rasterNamesFactory = newRasterNamesFactory(new String[]{"rad_1", "rad_2", "uncert"});
         final FormatStrategy pixExFormatStrategy;
-        pixExFormatStrategy = new PixExFormatStrategy(rasterNamesFactory, 9, "expression", false);
+        pixExFormatStrategy = new DefaultFormatStrategy(rasterNamesFactory, 9, "expression", false);
 
         // execution
         final StringWriter stringWriter = new StringWriter(200);
@@ -92,7 +92,7 @@ public class PixExFormatStrategyTest_writeHeader {
         // preparation
         final RasterNamesFactory rasterNamesFactory = newRasterNamesFactory(new String[]{"varA", "varB", "var C"});
         final FormatStrategy pixExFormatStrategy;
-        pixExFormatStrategy = new PixExFormatStrategy(rasterNamesFactory, 3, null, false);
+        pixExFormatStrategy = new DefaultFormatStrategy(rasterNamesFactory, 3, null, false);
 
         // execution
         final StringWriter stringWriter = new StringWriter(200);
@@ -116,7 +116,7 @@ public class PixExFormatStrategyTest_writeHeader {
         String[] rasterNames = {"varA", "varB", "var C"};
         final RasterNamesFactory rasterNamesFactory = newRasterNamesFactory(rasterNames);
         final FormatStrategy pixExFormatStrategy;
-        pixExFormatStrategy = new PixExFormatStrategy(rasterNamesFactory, 3, null, false);
+        pixExFormatStrategy = new DefaultFormatStrategy(rasterNamesFactory, 3, null, false);
 
         // execution
         final StringWriter stringWriter = new StringWriter(200);

@@ -5,13 +5,13 @@ import org.esa.beam.measurement.Measurement;
 
 import java.io.PrintWriter;
 
-public class WriteWithOriginalOutputFormatStrategy extends AbstractFormatStrategy {
+public class MatchupFormatStrategy extends AbstractFormatStrategy {
 
     final Measurement[] originalMeasurements;
 
-    public WriteWithOriginalOutputFormatStrategy(Measurement[] originalMeasurements,
-                                                 RasterNamesFactory rasterNamesFactory, int windowSize,
-                                                 String expression, boolean exportExpressionResult) {
+    public MatchupFormatStrategy(Measurement[] originalMeasurements,
+                                 RasterNamesFactory rasterNamesFactory, int windowSize,
+                                 String expression, boolean exportExpressionResult) {
         super(rasterNamesFactory, expression, windowSize, exportExpressionResult);
         this.originalMeasurements = originalMeasurements;
     }

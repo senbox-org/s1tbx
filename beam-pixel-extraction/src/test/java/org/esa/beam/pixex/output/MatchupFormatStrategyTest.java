@@ -13,7 +13,7 @@ import java.io.StringWriter;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class WriteWithOriginalOutputFormatStrategyTest {
+public class MatchupFormatStrategyTest {
 
     @Test
     public void testWriteMeasurements_oneMeasurement_withNaN() throws Exception {
@@ -25,7 +25,7 @@ public class WriteWithOriginalOutputFormatStrategyTest {
         final Measurement originalMeasurement = new Measurement(14, null, -1, -1, -1, null, new GeoPos(10.1F, 10.01F),
                                                                 originalValues, true);
 
-        final FormatStrategy pixExFormat = new WriteWithOriginalOutputFormatStrategy(
+        final FormatStrategy pixExFormat = new MatchupFormatStrategy(
                 new Measurement[]{originalMeasurement},
                 null, 1, "expression", false);
 
