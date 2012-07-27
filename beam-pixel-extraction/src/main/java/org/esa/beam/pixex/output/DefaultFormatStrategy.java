@@ -16,18 +16,10 @@
 
 package org.esa.beam.pixex.output;
 
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.measurement.Measurement;
-import org.esa.beam.util.StringUtils;
 
 import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
 public class DefaultFormatStrategy extends AbstractFormatStrategy {
 
@@ -38,47 +30,12 @@ public class DefaultFormatStrategy extends AbstractFormatStrategy {
 
     @Override
     public void writeHeader(PrintWriter writer, Product product) {
-        writer.printf("# BEAM pixel extraction export table%n");
 
-        writer.printf("#%n");
-        writer.printf(Locale.ENGLISH, "# Window size: %d%n", windowSize);
-        if (expression != null) {
-            writer.printf("# Expression: %s%n", expression);
-        }
+        writeStandardHeader(writer);
+        writeWavelengthLine(writer, product);
+        writeStandardColumnNames(writer);
+        writeRasterNames(writer, product);
 
-        final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
-        writer.printf(Locale.ENGLISH, "# Created on:\t%s%n%n", dateFormat.format(new Date()));
-
-        boolean includeExpressionInTable = expression != null && exportExpressionResult;
-
-        final String[] rasterNames = rasterNamesFactory.getRasterNames(product);
-        if (product != null) {
-            ArrayList<Float> wavelengthList = new ArrayList<Float>();
-            for (String rasterName : rasterNames) {
-                RasterDataNode rasterDataNode = product.getRasterDataNode(rasterName);
-                if (rasterDataNode instanceof Band) {
-                    Band band = (Band) rasterDataNode;
-                    wavelengthList.add(band.getSpectralWavelength());
-                }
-            }
-            if (!wavelengthList.isEmpty()) {
-                Float[] wavelengthArray = wavelengthList.toArray(new Float[wavelengthList.size()]);
-                String patternStart = "# Wavelength:";
-                String patternPadding = "\t \t \t \t \t \t \t \t \t" + (includeExpressionInTable ? " \t" : "");
-                writer.printf(Locale.ENGLISH, patternStart + patternPadding + "%s%n",
-                              StringUtils.arrayToString(wavelengthArray, "\t"));
-            }
-        }
-
-
-        if (includeExpressionInTable) {
-            writer.print("Expression result\t");
-        }
-        writer.print("ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)");
-
-        for (String name : rasterNames) {
-            writer.printf(Locale.ENGLISH, "\t%s", name);
-        }
         writer.println();
     }
 

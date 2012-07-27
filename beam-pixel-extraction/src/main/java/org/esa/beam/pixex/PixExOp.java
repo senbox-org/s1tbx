@@ -65,6 +65,7 @@ import org.esa.beam.util.kmz.KmlPlacemark;
 import org.esa.beam.util.kmz.KmzExporter;
 import org.esa.beam.util.math.MathUtils;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -313,6 +314,7 @@ public class PixExOp extends Operator implements Output {
         measurements = new PixExMeasurementReader(outputDir);
     }
 
+    @SuppressWarnings("unchecked")
     private Measurement[] createOriginalMeasurements(List<Coordinate> coordinateList) {
         if (!outputOriginalMeasurements) {
             return null;
@@ -323,7 +325,14 @@ public class PixExOp extends Operator implements Output {
             SimpleFeature feature = coordinate.getFeature();
             Point point = (Point) feature.getDefaultGeometry();
             Object[] values = getAttributeValues(feature);
-            result[i] = new Measurement(coordinate.getID(), "", -1, -1, -1, null, new GeoPos((float) point.getY(), (float) point.getX()), values, true);
+            List<AttributeDescriptor> originalAttributeDescriptors = (List<AttributeDescriptor>) feature.getFeatureType().getUserData().get("originalAttributeDescriptors");
+            List<String> originalAttributeNames = new ArrayList<String>();
+            for (AttributeDescriptor originalAttributeDescriptor : originalAttributeDescriptors) {
+                if (!originalAttributeNames.contains(originalAttributeDescriptor.getLocalName())) {
+                    originalAttributeNames.add(originalAttributeDescriptor.getLocalName());
+                }
+            }
+            result[i] = new Measurement(coordinate.getID(), "", -1, -1, -1, null, new GeoPos((float) point.getY(), (float) point.getX()), values, originalAttributeNames.toArray(new String[originalAttributeNames.size()]), true);
         }
 
         return result;

@@ -36,9 +36,15 @@ public class Measurement {
     private final float pixelY;
     private final String coordinateName;
     private final boolean isValid;
+    private final String[] originalAttributeNames;
 
     public Measurement(int coordinateID, String name, long productId, float pixelX, float pixelY, ProductData.UTC time,
-                GeoPos geoPos, Object[] values, boolean isValid) {
+                       GeoPos geoPos, Object[] values, boolean isValid) {
+        this(coordinateID, name, productId, pixelX, pixelY, time, geoPos, values, null, isValid);
+    }
+
+    public Measurement(int coordinateID, String name, long productId, float pixelX, float pixelY, ProductData.UTC time,
+                       GeoPos geoPos, Object[] values, String[] originalAttributeNames, boolean isValid) {
         this.coordinateID = coordinateID;
         this.productId = productId;
         this.pixelX = pixelX;
@@ -49,6 +55,7 @@ public class Measurement {
         this.isValid = isValid;
         this.values = new Object[values.length];
         System.arraycopy(values, 0, this.values, 0, values.length);
+        this.originalAttributeNames = originalAttributeNames;
     }
 
     public ProductData.UTC getTime() {
@@ -165,5 +172,9 @@ public class Measurement {
                 ", coordinateName='" + coordinateName + '\'' +
                 ", isValid=" + isValid +
                 '}';
+    }
+
+    public String[] getOriginalAttributeNames() {
+        return originalAttributeNames;
     }
 }

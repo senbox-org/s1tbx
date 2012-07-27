@@ -4,6 +4,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.measurement.Measurement;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MatchupFormatStrategy extends AbstractFormatStrategy {
 
@@ -18,6 +20,20 @@ public class MatchupFormatStrategy extends AbstractFormatStrategy {
 
     @Override
     public void writeHeader(PrintWriter writer, Product product) {
+        writeStandardHeader(writer);
+        writeWavelengthLine(writer, product);
+
+        writeOriginalMeasurementsColumns(writer);
+        writeStandardColumnNames(writer);
+        writeRasterNames(writer, product);
+        writer.println();
+    }
+
+    private void writeOriginalMeasurementsColumns(PrintWriter writer) {
+        final List<String> originalAttributeNames = getOriginalAttributeNames();
+        for (final String attributeName : originalAttributeNames) {
+            writer.write(attributeName + "\t");
+        }
     }
 
     @Override
@@ -38,5 +54,22 @@ public class MatchupFormatStrategy extends AbstractFormatStrategy {
             }
         }
         throw new IllegalArgumentException("No matching measurement found for measurement '" + measurement.toString() + "'.");
+    }
+
+    @Override
+    protected int getAttributeCount() {
+        return getOriginalAttributeNames().size() + super.getAttributeCount();
+    }
+
+    private List<String> getOriginalAttributeNames() {
+        List<String> attributeNames = new ArrayList<String>();
+        for (Measurement originalMeasurement : originalMeasurements) {
+            for (String attributeName : originalMeasurement.getOriginalAttributeNames()) {
+                if (!attributeNames.contains(attributeName)) {
+                    attributeNames.add(attributeName);
+                }
+            }
+        }
+        return attributeNames;
     }
 }
