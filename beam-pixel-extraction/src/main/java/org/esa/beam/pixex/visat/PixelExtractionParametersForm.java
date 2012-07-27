@@ -495,7 +495,7 @@ class PixelExtractionParametersForm {
                 final Rectangle buttonBounds = component.getBounds();
                 popup.add(new AddCoordinateAction(coordinateTableModel));
                 popup.add(new AddPlacemarkFileAction(appContext, coordinateTableModel, mainPanel));
-                popup.add(new AddCsvFileAction(coordinateTableModel, mainPanel));
+                popup.add(new AddCsvFileAction(appContext, coordinateTableModel, mainPanel));
                 popup.show(component, 1, buttonBounds.height + 1);
             }
         }
