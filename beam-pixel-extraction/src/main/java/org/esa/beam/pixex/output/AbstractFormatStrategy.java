@@ -150,7 +150,7 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
                 writer.printf(Locale.ENGLISH, "%s", value);
             }
         } else {
-            writer.printf(Locale.ENGLISH, value.toString()); // todo - check: maybe need to be more specific here
+            writer.printf(Locale.ENGLISH, value.toString());
         }
     }
 
