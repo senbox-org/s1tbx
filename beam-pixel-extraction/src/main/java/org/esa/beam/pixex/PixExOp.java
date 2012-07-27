@@ -65,7 +65,6 @@ import org.esa.beam.util.kmz.KmlPlacemark;
 import org.esa.beam.util.kmz.KmzExporter;
 import org.esa.beam.util.math.MathUtils;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -314,7 +313,6 @@ public class PixExOp extends Operator implements Output {
         measurements = new PixExMeasurementReader(outputDir);
     }
 
-    @SuppressWarnings("unchecked")
     private Measurement[] createOriginalMeasurements(List<Coordinate> coordinateList) {
         if (!outputOriginalMeasurements) {
             return null;
@@ -323,14 +321,23 @@ public class PixExOp extends Operator implements Output {
         for (int i = 0; i < coordinateList.size(); i++) {
             final Coordinate coordinate = coordinateList.get(i);
             SimpleFeature feature = coordinate.getFeature();
-            List<AttributeDescriptor> originalAttributeDescriptors = (List<AttributeDescriptor>) feature.getFeatureType().getUserData().get("originalAttributeDescriptors");
-            List<Object> attributes = (List<Object>) feature.getUserData().get("originalAttributes");
             Point point = (Point) feature.getDefaultGeometry();
-            result[i] = new Measurement(coordinate.getID(), "", -1, -1, -1, null, new GeoPos((float)point.getY(), (float)point.getX()), attributes.toArray(), true);
-
+            Object[] values = getAttributeValues(feature);
+            result[i] = new Measurement(coordinate.getID(), "", -1, -1, -1, null, new GeoPos((float) point.getY(), (float) point.getX()), values, true);
         }
 
         return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object[] getAttributeValues(SimpleFeature feature) {
+        List<Object> attributes = (List<Object>) feature.getUserData().get("originalAttributes");
+        Object[] values = new Object[attributes.size()];
+        values[0] = feature.getID();
+        for (int i1 = 1; i1 < values.length; i1++) {
+            values[i1] = attributes.get(i1);
+        }
+        return values;
     }
 
     private FormatStrategy initFormatStrategy(PixExRasterNamesFactory rasterNamesFactory,
