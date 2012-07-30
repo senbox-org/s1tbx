@@ -20,7 +20,6 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.core.ProgressMonitor;
-import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
@@ -65,7 +64,6 @@ import org.esa.beam.util.kmz.KmlPlacemark;
 import org.esa.beam.util.kmz.KmzExporter;
 import org.esa.beam.util.math.MathUtils;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -322,17 +320,16 @@ public class PixExOp extends Operator implements Output {
         Measurement[] result = new Measurement[coordinateList.size()];
         for (int i = 0; i < coordinateList.size(); i++) {
             final Coordinate coordinate = coordinateList.get(i);
-            SimpleFeature feature = coordinate.getFeature();
-            Point point = (Point) feature.getDefaultGeometry();
-            Object[] values = getAttributeValues(feature);
-            List<AttributeDescriptor> originalAttributeDescriptors = (List<AttributeDescriptor>) feature.getFeatureType().getUserData().get("originalAttributeDescriptors");
-            List<String> originalAttributeNames = new ArrayList<String>();
-            for (AttributeDescriptor originalAttributeDescriptor : originalAttributeDescriptors) {
-                if (!originalAttributeNames.contains(originalAttributeDescriptor.getLocalName())) {
-                    originalAttributeNames.add(originalAttributeDescriptor.getLocalName());
-                }
+            Coordinate.OriginalValue[] originalValues = coordinate.getOriginalValues();
+            Object[] values = new Object[originalValues.length];
+            String[] originalVariableNames = new String[originalValues.length];
+            for (int valueIndex = 0; valueIndex < originalValues.length; valueIndex++) {
+                final Coordinate.OriginalValue originalValue = originalValues[valueIndex];
+                values[valueIndex] = originalValue.value;
+                originalVariableNames[valueIndex] = originalValue.variableName;
             }
-            result[i] = new Measurement(coordinate.getID(), "", -1, -1, -1, null, new GeoPos((float) point.getY(), (float) point.getX()), values, originalAttributeNames.toArray(new String[originalAttributeNames.size()]), true);
+
+            result[i] = new Measurement(coordinate.getID(), "", -1, -1, -1, null, new GeoPos(coordinate.getLat(), coordinate.getLon()), values, originalVariableNames, true);
         }
 
         return result;

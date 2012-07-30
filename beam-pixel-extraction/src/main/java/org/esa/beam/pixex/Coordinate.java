@@ -16,12 +16,9 @@
 
 package org.esa.beam.pixex;
 
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.converters.DateFormatConverter;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.opengis.feature.simple.SimpleFeature;
 
 import java.util.Date;
 
@@ -41,9 +38,8 @@ public class Coordinate {
                description = "The date time of the coordinate in ISO 8601 format.\n The format pattern is 'yyyy-MM-dd'T'HH:mm:ssZ'",
                converter = ISO8601Converter.class)
     private Date dateTime;
-    @Parameter(description = "Associated feature providing original measurementes at this coordinate.", notNull = false,
-               converter = SimpleFeatureConverter.class)
-    private SimpleFeature feature;
+    @Parameter
+    private OriginalValue[] originalValues;
 
     private int id;
 
@@ -56,13 +52,13 @@ public class Coordinate {
         this(name, lat, lon, dateTime, null);
     }
 
-    public Coordinate(String name, Float lat, Float lon, Date dateTime, SimpleFeature feature) {
+    public Coordinate(String name, Float lat, Float lon, Date dateTime, OriginalValue[] originalValues) {
         this.name = name;
         this.lat = lat;
         this.lon = lon;
         //noinspection AssignmentToDateFieldFromParameter
         this.dateTime = dateTime;
-        this.feature = feature;
+        this.originalValues = originalValues;
     }
 
     public String getName() {
@@ -84,8 +80,8 @@ public class Coordinate {
         return null;
     }
 
-    public SimpleFeature getFeature() {
-        return feature;
+    public OriginalValue[] getOriginalValues() {
+        return originalValues;
     }
 
     public int getID() {
@@ -103,26 +99,17 @@ public class Coordinate {
         }
     }
 
+    public static class OriginalValue {
 
-    public static class SimpleFeatureConverter implements Converter<SimpleFeature> {
+        @Parameter(description = "The name of the variable the original value is associated with.")
+        String variableName;
 
-        @Override
-        public Class<? extends SimpleFeature> getValueType() {
-            return SimpleFeature.class;
-        }
+        @Parameter(description = "The original value.")
+        Object value;
 
-        @Override
-        public SimpleFeature parse(String text) throws ConversionException {
-            return null;
-        }
-
-        @Override
-        public String format(SimpleFeature value) {
-            if (value != null) {
-                return value.toString();
-            } else {
-                return null;
-            }
+        public OriginalValue(String variableName, Object value) {
+            this.variableName = variableName;
+            this.value = value;
         }
     }
 }
