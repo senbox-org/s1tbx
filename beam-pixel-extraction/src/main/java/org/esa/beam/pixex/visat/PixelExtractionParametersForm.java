@@ -119,7 +119,12 @@ class PixelExtractionParametersForm {
             SimpleFeature feature = placemark.getFeature();
             final Date dateTime = (Date) feature.getAttribute(Placemark.PROPERTY_NAME_DATETIME);
             List<AttributeDescriptor> originalAttributeDescriptors = (List<AttributeDescriptor>) feature.getFeatureType().getUserData().get("originalAttributeDescriptors");
-            Coordinate.OriginalValue[] originalValues = new Coordinate.OriginalValue[originalAttributeDescriptors.size()];
+            final Coordinate.OriginalValue[] originalValues;
+            if (originalAttributeDescriptors == null) {
+                originalValues = new Coordinate.OriginalValue[0];
+            } else {
+                originalValues = new Coordinate.OriginalValue[originalAttributeDescriptors.size()];
+            }
             List<Object> attributes = (List<Object>) feature.getUserData().get("originalAttributes");
             for (int j = 0; j < originalValues.length; j++) {
                 String value = j == 0 ? feature.getID() : attributes.get(j).toString();
