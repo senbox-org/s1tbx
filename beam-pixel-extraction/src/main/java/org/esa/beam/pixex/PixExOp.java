@@ -60,6 +60,7 @@ import org.esa.beam.pixex.output.PixExTargetFactory;
 import org.esa.beam.pixex.output.ProductRegistry;
 import org.esa.beam.pixex.output.ScatterPlotDecoratingStrategy;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.WildcardMatcher;
 import org.esa.beam.util.kmz.KmlDocument;
 import org.esa.beam.util.kmz.KmlPlacemark;
@@ -223,7 +224,8 @@ public class PixExOp extends Operator implements Output {
     private boolean outputOriginalMeasurements;
 
     @Parameter(description = "Array of 2-tuples of variable names; " +
-                             "for each of these tuples a scatter plot will be exported.", notNull = false)
+                             "for each of these tuples a scatter plot will be exported.", notNull = false,
+               itemAlias = "variableCombination")
     private VariableCombination[] scatterPlotVariableCombinations;
 
     private ProductValidator validator;
@@ -237,6 +239,7 @@ public class PixExOp extends Operator implements Output {
     private ArrayList<String> knownKmzPlacemarks;
     private TimeStampExtractor timeStampExtractor;
     private AggregatorStrategy aggregatorStrategy;
+    private FormatStrategy formatStrategy;
 
     @SuppressWarnings("unchecked")
     public static Coordinate.OriginalValue[] getOriginalValues(SimpleFeature feature) {
@@ -259,7 +262,7 @@ public class PixExOp extends Operator implements Output {
 
     @Override
     public void initialize() throws OperatorException {
-        if (coordinatesFile == null && (coordinates == null || coordinates.length == 0)) {
+        if (coordinatesFile == null && (coordinates == null || coordinates.length == 0) && matchupFile == null) {
             throw new OperatorException("No coordinates specified.");
         }
         if (outputDir != null && !outputDir.exists() && !outputDir.mkdirs()) {
@@ -291,8 +294,8 @@ public class PixExOp extends Operator implements Output {
                                                                                        exportMasks, aggregatorStrategy);
 
         final PixExProductRegistry productRegistry = new PixExProductRegistry(outputFilePrefix, outputDir);
-        final FormatStrategy formatStrategy = initFormatStrategy(rasterNamesFactory, originalMeasurements,
-                                                                 productRegistry);
+        formatStrategy = initFormatStrategy(rasterNamesFactory, originalMeasurements,
+                                            productRegistry);
         MeasurementFactory measurementFactory;
         if (aggregatorStrategy == null || windowSize == 1) {
             measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
@@ -536,7 +539,7 @@ public class PixExOp extends Operator implements Output {
     }
 
     private void parseTimeDelta(String timeDelta) {
-        if (timeDifference.isEmpty()) {
+        if (StringUtils.isNullOrEmpty(timeDifference)) {
             return;
         }
         this.timeDelta = Integer.parseInt(timeDelta.substring(0, timeDelta.length() - 1));
@@ -697,6 +700,7 @@ public class PixExOp extends Operator implements Output {
                     getLogger().warning(e.getMessage());
                 }
             }
+            formatStrategy.finish();
             coordinatesFound = !matchedCoordinates.isEmpty();
             if (coordinatesFound) {
                 if (exportSubScenes) {
@@ -848,6 +852,9 @@ public class PixExOp extends Operator implements Output {
     }
 
     public static class VariableCombination {
+
+        public VariableCombination() {
+        }
 
         @Parameter(description = "The name of the variable from the original measurements")
         public String originalVariableName;

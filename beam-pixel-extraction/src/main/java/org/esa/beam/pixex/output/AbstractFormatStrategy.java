@@ -154,4 +154,8 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
         }
     }
 
+    @Override
+    public void finish() {
+    }
+
 }

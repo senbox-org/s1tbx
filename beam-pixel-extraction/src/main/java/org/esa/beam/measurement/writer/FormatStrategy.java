@@ -10,4 +10,6 @@ public interface FormatStrategy {
     void writeHeader(PrintWriter writer, Product product);
 
     void writeMeasurements(PrintWriter writer, Measurement[] measurements);
+
+    void finish();
 }

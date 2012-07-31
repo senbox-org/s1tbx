@@ -84,7 +84,7 @@ public class ScatterPlotDecoratingStrategyTest {
 
         assertEquals(variableCombinations.length, strategy.plots.size());
 
-        JFreeChart sstPlot = strategy.plots.get(0);
+        JFreeChart sstPlot = strategy.plots.get(variableCombinations[0]);
         assertEquals("original_sst", sstPlot.getXYPlot().getDomainAxis().getLabel());
         assertEquals("product_sst", sstPlot.getXYPlot().getRangeAxis().getLabel());
         assertEquals("Scatter plot of 'original_sst' and 'product_sst'", sstPlot.getTitle().getText());
@@ -103,8 +103,7 @@ public class ScatterPlotDecoratingStrategyTest {
         assertEquals(8, sstDataset.getX(seriesIndex, 1));
         assertEquals(9, sstDataset.getY(seriesIndex, 1));
 
-
-        JFreeChart tsmPlot = strategy.plots.get(1);
+        JFreeChart tsmPlot = strategy.plots.get(variableCombinations[1]);
         assertEquals("original_tsm", tsmPlot.getXYPlot().getDomainAxis().getLabel());
         assertEquals("product_tsm", tsmPlot.getXYPlot().getRangeAxis().getLabel());
         assertEquals("Scatter plot of 'original_tsm' and 'product_tsm'", tsmPlot.getTitle().getText());
@@ -149,6 +148,10 @@ public class ScatterPlotDecoratingStrategyTest {
 
         @Override
         public void writeMeasurements(PrintWriter writer, Measurement[] measurements) {
+        }
+
+        @Override
+        public void finish() {
         }
     }
 }
