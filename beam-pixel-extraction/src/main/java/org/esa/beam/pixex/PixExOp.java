@@ -403,6 +403,10 @@ public class PixExOp extends Operator implements Output {
     }
 
     private void initAggregatorStrategy() {
+        if (windowSize == 1) {
+            aggregatorStrategy = null;
+            return;
+        }
         if (aggregatorStrategyType.equals(MEAN_AGGREGATION)) {
             aggregatorStrategy = new MeanAggregatorStrategy();
         } else if (aggregatorStrategyType.equals(MIN_AGGREGATION)) {
