@@ -57,6 +57,8 @@ import org.esa.beam.pixex.output.PixExMeasurementFactory;
 import org.esa.beam.pixex.output.PixExProductRegistry;
 import org.esa.beam.pixex.output.PixExRasterNamesFactory;
 import org.esa.beam.pixex.output.PixExTargetFactory;
+import org.esa.beam.pixex.output.ProductRegistry;
+import org.esa.beam.pixex.output.ScatterPlotDecoratingStrategy;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.WildcardMatcher;
 import org.esa.beam.util.kmz.KmlDocument;
@@ -213,6 +215,9 @@ public class PixExOp extends Operator implements Output {
     @Parameter(defaultValue = "false", description = "Determines if the original measurements shall be output, too.")
     private boolean outputOriginalMeasurements;
 
+    @Parameter(description = "Set of 2-tuples of variable names; for each of these tuples a scatter plot will be exported.", notNull = false)
+    private Set<String[]> scatterPlotVariableCombinations;
+
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
     private boolean isTargetProductInitialized;
@@ -258,8 +263,8 @@ public class PixExOp extends Operator implements Output {
         final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints,
                                                                                        exportMasks, aggregatorStrategy);
 
-        final FormatStrategy formatStrategy = initFormatStrategy(rasterNamesFactory, originalMeasurements);
         final PixExProductRegistry productRegistry = new PixExProductRegistry(outputFilePrefix, outputDir);
+        final FormatStrategy formatStrategy = initFormatStrategy(rasterNamesFactory, originalMeasurements, productRegistry);
         MeasurementFactory measurementFactory;
         if (aggregatorStrategy == null || windowSize == 1) {
             measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
@@ -305,6 +310,8 @@ public class PixExOp extends Operator implements Output {
                     }
                 }
             }
+
+
         } finally {
             measurementWriter.close();
         }
@@ -347,13 +354,22 @@ public class PixExOp extends Operator implements Output {
     }
 
     private FormatStrategy initFormatStrategy(PixExRasterNamesFactory rasterNamesFactory,
-                                              Measurement[] originalMeasurements) {
+                                              Measurement[] originalMeasurements, ProductRegistry productRegistry) {
+        FormatStrategy decoratedStrategy;
         if (outputOriginalMeasurements) {
-            return new MatchupFormatStrategy(originalMeasurements, rasterNamesFactory, windowSize,
-                                                             expression, exportExpressionResult);
+            decoratedStrategy = new MatchupFormatStrategy(originalMeasurements, rasterNamesFactory, windowSize,
+                                                          expression, exportExpressionResult);
+        } else {
+            decoratedStrategy = new DefaultFormatStrategy(rasterNamesFactory, windowSize, expression,
+                                                          exportExpressionResult);
         }
-        return new DefaultFormatStrategy(rasterNamesFactory, windowSize, expression,
-                                       exportExpressionResult);
+
+        if (scatterPlotVariableCombinations != null && !scatterPlotVariableCombinations.isEmpty()) {
+            return new ScatterPlotDecoratingStrategy(originalMeasurements, decoratedStrategy,
+                                                     scatterPlotVariableCombinations, rasterNamesFactory,
+                                                     productRegistry, outputDir, outputFilePrefix);
+        }
+        return decoratedStrategy;
     }
 
     private void initAggregatorStrategy() {

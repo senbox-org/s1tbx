@@ -41,7 +41,7 @@ public class MatchupFormatStrategy extends AbstractFormatStrategy {
     @Override
     public void writeMeasurements(PrintWriter writer, Measurement[] measurements) {
         for (Measurement measurement : measurements) {
-            Measurement matchingMeasurement = findMatchingMeasurement(measurement);
+            Measurement matchingMeasurement = findMatchingMeasurement(measurement, originalMeasurements);
             final boolean withExpression = expression != null && exportExpressionResult;
             if (expression == null || exportExpressionResult || measurement.isValid()) {
                 for (int i = 0; i < getOriginalAttributeNames().size(); i++) {
@@ -60,7 +60,7 @@ public class MatchupFormatStrategy extends AbstractFormatStrategy {
         }
     }
 
-    Measurement findMatchingMeasurement(Measurement measurement) {
+    static Measurement findMatchingMeasurement(Measurement measurement, Measurement[] originalMeasurements) {
         for (Measurement currentMeasurement : originalMeasurements) {
             if (currentMeasurement.getCoordinateID() == measurement.getCoordinateID()) {
                 return currentMeasurement;
