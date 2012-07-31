@@ -112,13 +112,13 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     public static final String CHART_TITLE = "Correlative Plot";
     private static final String NO_DATA_MESSAGE = "No correlative plot computed yet.\n" +
-            "To create a correlative plot\n" +
-            "   -Select a band" + "\n" +
-            "   -Select vector data (e.g., a SeaDAS 6.x track)" + "\n" +
-            "   -Select the data as point data source" + "\n" +
-            "   -Select a data field" + "\n" +
-            HELP_TIP_MESSAGE + "\n" +
-            ZOOM_TIP_MESSAGE;
+                                                  "To create a correlative plot\n" +
+                                                  "   -Select a band" + "\n" +
+                                                  "   -Select vector data (e.g., a SeaDAS 6.x track)" + "\n" +
+                                                  "   -Select the data as point data source" + "\n" +
+                                                  "   -Select a data field" + "\n" +
+                                                  HELP_TIP_MESSAGE + "\n" +
+                                                  ZOOM_TIP_MESSAGE;
 
     private final String PROPERTY_NAME_X_AXIS_LOG_SCALED = "xAxisLogScaled";
     private final String PROPERTY_NAME_Y_AXIS_LOG_SCALED = "yAxisLogScaled";
@@ -163,7 +163,8 @@ class ScatterPlotPanel extends ChartPagePanel {
         acceptableDeviationDataset = new XYIntervalSeriesCollection();
         regressionDataset = new XYIntervalSeriesCollection();
         r2Annotation = new XYTitleAnnotation(0, 0, new TextTitle(""));
-        chart = ChartFactory.createScatterPlot(CHART_TITLE, "", "", scatterpointsDataset, PlotOrientation.VERTICAL, true, true, false);
+        chart = ChartFactory.createScatterPlot(CHART_TITLE, "", "", scatterpointsDataset, PlotOrientation.VERTICAL,
+                                               true, true, false);
         chart.getXYPlot().setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
         createDomainAxisChangeListener();
     }
@@ -328,7 +329,8 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     }
 
-    private void handleAxisRangeControlChanges(PropertyChangeEvent evt, AxisRangeControl axisRangeControl, ValueAxis valueAxis, Range computedAutoRange) {
+    private void handleAxisRangeControlChanges(PropertyChangeEvent evt, AxisRangeControl axisRangeControl,
+                                               ValueAxis valueAxis, Range computedAutoRange) {
         final String propertyName = evt.getPropertyName();
         if (AxisRangeControl.PROPERTY_NAME_AUTO_MIN_MAX.equals(propertyName)) {
             if (axisRangeControl.isAutoMinMax()) {
@@ -380,11 +382,11 @@ class ScatterPlotPanel extends ChartPagePanel {
                 final XYIntervalSeriesCollection collection = (XYIntervalSeriesCollection) dataset;
                 final Comparable key = collection.getSeriesKey(series);
                 final double xValue = collection.getXValue(series, item);
-                final double endXValue = collection.getEndXValue(series, item);
+                final double endYValue = collection.getEndYValue(series, item);
                 final double yValue = collection.getYValue(series, item);
                 return String.format("%s: mean = %6.2f, sigma = %6.2f | %s: value = %6.2f",
-                                     getRasterName(), xValue, endXValue - xValue,
-                                     key, yValue);
+                                     getRasterName(), yValue, endYValue - yValue,
+                                     key, xValue);
             }
         });
         plot.setRenderer(SCATTERPOINTS_DSINDEX, scatterPointsRenderer);
@@ -392,7 +394,8 @@ class ScatterPlotPanel extends ChartPagePanel {
         final boolean autoRangeIncludesZero = false;
         final boolean xLog = scatterPlotModel.xAxisLogScaled;
         final boolean yLog = scatterPlotModel.yAxisLogScaled;
-        plot.setDomainAxis(StatisticChartStyling.updateScalingOfAxis(xLog, plot.getDomainAxis(), autoRangeIncludesZero));
+        plot.setDomainAxis(
+                StatisticChartStyling.updateScalingOfAxis(xLog, plot.getDomainAxis(), autoRangeIncludesZero));
         plot.setRangeAxis(StatisticChartStyling.updateScalingOfAxis(yLog, plot.getRangeAxis(), autoRangeIncludesZero));
 
         createUI(createChartPanel(chart), createInputParameterPanel(), bindingContext);
@@ -455,7 +458,8 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     private JPanel createInputParameterPanel() {
-        final PropertyDescriptor boxSizeDescriptor = bindingContext.getPropertySet().getDescriptor(PROPERTY_NAME_BOX_SIZE);
+        final PropertyDescriptor boxSizeDescriptor = bindingContext.getPropertySet().getDescriptor(
+                PROPERTY_NAME_BOX_SIZE);
         boxSizeDescriptor.setValueRange(new ValueRange(1, 101));
         boxSizeDescriptor.setAttribute("stepSize", 2);
         boxSizeDescriptor.setValidator(new Validator() {
@@ -505,14 +509,19 @@ class ScatterPlotPanel extends ChartPagePanel {
         bindingContext.bind(PROPERTY_NAME_ACCEPTABLE_DEVIATION, acceptableField);
         bindingContext.getBinding(PROPERTY_NAME_ACCEPTABLE_DEVIATION).addComponent(percentLabel);
         bindingContext.getBinding(PROPERTY_NAME_ACCEPTABLE_DEVIATION).addComponent(fieldPräfix);
-        bindingContext.bindEnabledState(PROPERTY_NAME_ACCEPTABLE_DEVIATION, true, PROPERTY_NAME_SHOW_ACCEPTABLE_DEVIATION, true);
+        bindingContext.bindEnabledState(PROPERTY_NAME_ACCEPTABLE_DEVIATION, true,
+                                        PROPERTY_NAME_SHOW_ACCEPTABLE_DEVIATION, true);
 
         final JPanel confidencePanel = GridBagUtils.createPanel();
-        GridBagConstraints confidencePanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=5,weighty=0,weightx=1");
+        GridBagConstraints confidencePanelConstraints = GridBagUtils.createConstraints(
+                "anchor=NORTHWEST,fill=HORIZONTAL,insets.top=5,weighty=0,weightx=1");
         GridBagUtils.addToPanel(confidencePanel, acceptableCheck, confidencePanelConstraints, "gridy=0,gridwidth=3");
-        GridBagUtils.addToPanel(confidencePanel, fieldPräfix, confidencePanelConstraints, "weightx=0,insets.left=22,gridy=1,gridx=0,insets.top=4,gridwidth=1");
-        GridBagUtils.addToPanel(confidencePanel, acceptableField, confidencePanelConstraints, "weightx=1,gridx=1,insets.left=2,insets.top=2");
-        GridBagUtils.addToPanel(confidencePanel, percentLabel, confidencePanelConstraints, "weightx=0,gridx=2,insets.left=0,insets.top=4");
+        GridBagUtils.addToPanel(confidencePanel, fieldPräfix, confidencePanelConstraints,
+                                "weightx=0,insets.left=22,gridy=1,gridx=0,insets.top=4,gridwidth=1");
+        GridBagUtils.addToPanel(confidencePanel, acceptableField, confidencePanelConstraints,
+                                "weightx=1,gridx=1,insets.left=2,insets.top=2");
+        GridBagUtils.addToPanel(confidencePanel, percentLabel, confidencePanelConstraints,
+                                "weightx=0,gridx=2,insets.left=0,insets.top=4");
 
         final JCheckBox regressionCheck = new JCheckBox("Show regression line");
         bindingContext.bind(PROPERTY_NAME_SHOW_REGRESSION_LINE, regressionCheck);
@@ -520,15 +529,18 @@ class ScatterPlotPanel extends ChartPagePanel {
         // UI arrangement
 
         JPanel middlePanel = GridBagUtils.createPanel();
-        GridBagConstraints middlePanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=6,weighty=0,weightx=1");
+        GridBagConstraints middlePanelConstraints = GridBagUtils.createConstraints(
+                "anchor=NORTHWEST,fill=HORIZONTAL,insets.top=6,weighty=0,weightx=1");
         GridBagUtils.addToPanel(middlePanel, boxSizePanel, middlePanelConstraints, "gridy=0,insets.left=6");
         GridBagUtils.addToPanel(middlePanel, pointDataSourcePanel, middlePanelConstraints, "gridy=1");
         GridBagUtils.addToPanel(middlePanel, pointDataFieldPanel, middlePanelConstraints, "gridy=2");
         GridBagUtils.addToPanel(middlePanel, xAxisOptionPanel, middlePanelConstraints, "gridy=3,insets.left=0");
         GridBagUtils.addToPanel(middlePanel, yAxisOptionPanel, middlePanelConstraints, "gridy=4");
         GridBagUtils.addToPanel(middlePanel, new JSeparator(), middlePanelConstraints, "gridy=5,insets.left=4");
-        GridBagUtils.addToPanel(middlePanel, confidencePanel, middlePanelConstraints, "gridy=6,fill=HORIZONTAL,insets.left=-4");
-        GridBagUtils.addToPanel(middlePanel, regressionCheck, middlePanelConstraints, "gridy=7,insets.left=-4,insets.top=8");
+        GridBagUtils.addToPanel(middlePanel, confidencePanel, middlePanelConstraints,
+                                "gridy=6,fill=HORIZONTAL,insets.left=-4");
+        GridBagUtils.addToPanel(middlePanel, regressionCheck, middlePanelConstraints,
+                                "gridy=7,insets.left=-4,insets.top=8");
 
         return middlePanel;
     }
@@ -573,13 +585,14 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     private void computeChartDataIfPossible() {
         if (scatterPlotModel.pointDataSource != null
-                && scatterPlotModel.dataField != null
-                && scatterPlotModel.pointDataSource.getFeatureCollection() != null
-                && scatterPlotModel.pointDataSource.getFeatureCollection().features() != null
-                && scatterPlotModel.pointDataSource.getFeatureCollection().features().hasNext() == true
-                && scatterPlotModel.pointDataSource.getFeatureCollection().features().next() != null
-                && scatterPlotModel.pointDataSource.getFeatureCollection().features().next().getAttribute(scatterPlotModel.dataField.getLocalName()) != null
-                && getRaster() != null) {
+            && scatterPlotModel.dataField != null
+            && scatterPlotModel.pointDataSource.getFeatureCollection() != null
+            && scatterPlotModel.pointDataSource.getFeatureCollection().features() != null
+            && scatterPlotModel.pointDataSource.getFeatureCollection().features().hasNext() == true
+            && scatterPlotModel.pointDataSource.getFeatureCollection().features().next() != null
+            && scatterPlotModel.pointDataSource.getFeatureCollection().features().next().getAttribute(
+                scatterPlotModel.dataField.getLocalName()) != null
+            && getRaster() != null) {
             compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
         } else {
             scatterpointsDataset.removeAllSeries();
@@ -637,7 +650,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                     final int[] maskBuffer = new int[imageRect.width * imageRect.height];
                     Arrays.fill(maskBuffer, 1);
                     if (selectedMask != null) {
-                        selectedMask.readPixels(imageRect.x, imageRect.y, imageRect.width, imageRect.height, maskBuffer);
+                        selectedMask.readPixels(imageRect.x, imageRect.y, imageRect.width, imageRect.height,
+                                                maskBuffer);
                     }
 
                     final int centerIndex = imageRect.width * (imageRect.height / 2) + (imageRect.width / 2);
@@ -683,7 +697,9 @@ class ScatterPlotPanel extends ChartPagePanel {
                     } else {
                         geoPos.setInvalid();
                     }
-                    computedDataList.add(new ComputedData(imagePosX, imagePosY, geoPos.getLat(), geoPos.getLon(), (float) rasterMean, (float) rasterSigma, correlativeData, featureProperties));
+                    computedDataList.add(
+                            new ComputedData(imagePosX, imagePosY, geoPos.getLat(), geoPos.getLon(), (float) rasterMean,
+                                             (float) rasterSigma, correlativeData, featureProperties));
                 }
 
                 return computedDataList.toArray(new ComputedData[computedDataList.size()]);
@@ -750,7 +766,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
-                                                          "Calculation canceled.",
+                                                  "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
@@ -758,7 +774,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
-                                                          "Calculation canceled.",
+                                                  "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
@@ -766,8 +782,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
-                                                          "An error occurred:\n" +
-                                                          e.getCause().getMessage(),
+                                                  "An error occurred:\n" +
+                                                  e.getCause().getMessage(),
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
                 }
@@ -808,7 +824,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             return xyIntervalRegression;
         } else {
             JOptionPane.showMessageDialog(this, "Unable to compute regression line.\n" +
-                    "At least 2 values are needed to compute regression coefficients.");
+                                                "At least 2 values are needed to compute regression coefficients.");
             return null;
         }
     }
@@ -831,10 +847,11 @@ class ScatterPlotPanel extends ChartPagePanel {
         for (int i = 0; i < numberOfItems; i++) {
             varX += Math.pow(scatterpointsDataset.getXValue(0, i) - arithmeticMeanOfX, 2);
             varY += Math.pow(scatterpointsDataset.getYValue(0, i) - arithmeticMeanOfY, 2);
-            coVarXY += (scatterpointsDataset.getXValue(0, i) - arithmeticMeanOfX) * (scatterpointsDataset.getYValue(0, i) - arithmeticMeanOfY);
+            coVarXY += (scatterpointsDataset.getXValue(0, i) - arithmeticMeanOfX) * (scatterpointsDataset.getYValue(0,
+                                                                                                                    i) - arithmeticMeanOfY);
         }
         //computation of coefficient of determination
-        double r2 = Math.pow(coVarXY,2) / (varX * varY);
+        double r2 = Math.pow(coVarXY, 2) / (varX * varY);
         r2 = MathUtils.round(r2, Math.pow(10.0, 5));
 
         final double[] coefficients = Regression.getOLSRegression(scatterpointsDataset, 0);
@@ -868,7 +885,8 @@ class ScatterPlotPanel extends ChartPagePanel {
             }
         };
 
-        final XYSeries identity = DatasetUtilities.sampleFunction2DToSeries(identityFunction, lowerBound, upperBound, 100, "1:1 line");
+        final XYSeries identity = DatasetUtilities.sampleFunction2DToSeries(identityFunction, lowerBound, upperBound,
+                                                                            100, "1:1 line");
         final XYIntervalSeries xyIntervalSeries = new XYIntervalSeries(identity.getKey());
         final List<XYDataItem> items = identity.getItems();
         for (XYDataItem item : items) {
@@ -911,7 +929,8 @@ class ScatterPlotPanel extends ChartPagePanel {
         final float correlativeData;
         final Collection<org.opengis.feature.Property> featureProperties;
 
-        ComputedData(float x, float y, float lat, float lon, float rasterMean, float rasterSigma, float correlativeData, Collection<org.opengis.feature.Property> featureProperties) {
+        ComputedData(float x, float y, float lat, float lon, float rasterMean, float rasterSigma, float correlativeData,
+                     Collection<org.opengis.feature.Property> featureProperties) {
             this.x = x;
             this.y = y;
             this.lat = lat;
