@@ -38,7 +38,6 @@ import org.esa.beam.pixex.Coordinate;
 import org.esa.beam.pixex.PixExOp;
 import org.jfree.ui.DateCellRenderer;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
@@ -74,7 +73,6 @@ import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.Date;
-import java.util.List;
 
 class PixelExtractionParametersForm {
 
@@ -110,7 +108,6 @@ class PixelExtractionParametersForm {
         return mainPanel;
     }
 
-    @SuppressWarnings("unchecked")
     public Coordinate[] getCoordinates() {
         Coordinate[] coordinates = new Coordinate[coordinateTableModel.getRowCount()];
         for (int i = 0; i < coordinateTableModel.getRowCount(); i++) {
@@ -118,19 +115,7 @@ class PixelExtractionParametersForm {
             GeoPos geoPos = placemark.getGeoPos();
             SimpleFeature feature = placemark.getFeature();
             final Date dateTime = (Date) feature.getAttribute(Placemark.PROPERTY_NAME_DATETIME);
-            List<AttributeDescriptor> originalAttributeDescriptors = (List<AttributeDescriptor>) feature.getFeatureType().getUserData().get("originalAttributeDescriptors");
-            final Coordinate.OriginalValue[] originalValues;
-            if (originalAttributeDescriptors == null) {
-                originalValues = new Coordinate.OriginalValue[0];
-            } else {
-                originalValues = new Coordinate.OriginalValue[originalAttributeDescriptors.size()];
-            }
-            List<Object> attributes = (List<Object>) feature.getUserData().get("originalAttributes");
-            for (int j = 0; j < originalValues.length; j++) {
-                String value = j == 0 ? feature.getID() : attributes.get(j).toString();
-                originalValues[j] = new Coordinate.OriginalValue(originalAttributeDescriptors.get(j).getLocalName(),
-                                                                 value);
-            }
+            final Coordinate.OriginalValue[] originalValues = PixExOp.getOriginalValues(feature);
             coordinates[i] = new Coordinate(placemark.getName(), geoPos.lat, geoPos.lon, dateTime, originalValues);
         }
         return coordinates;

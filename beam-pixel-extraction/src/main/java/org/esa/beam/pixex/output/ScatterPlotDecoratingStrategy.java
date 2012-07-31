@@ -19,6 +19,7 @@ package org.esa.beam.pixex.output;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.FormatStrategy;
+import org.esa.beam.pixex.PixExOp;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
@@ -35,7 +36,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Tonio Fincke
@@ -45,7 +45,7 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
 
     private final Measurement[] originalMeasurements;
     private final FormatStrategy decoratedStrategy;
-    private final Set<String[]> scatterPlotVariableCombinations;
+    private final PixExOp.VariableCombination[] scatterPlotVariableCombinations;
 
     final Map<Long, Map<String, Integer>> rasterNamesIndices = new HashMap<Long, Map<String, Integer>>();
     final List<JFreeChart> plots = new ArrayList<JFreeChart>();
@@ -55,7 +55,8 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
     private final String filePrefix;
 
     public ScatterPlotDecoratingStrategy(Measurement[] originalMeasurements, FormatStrategy decoratedStrategy,
-                                         Set<String[]> scatterPlotVariableCombinations, RasterNamesFactory rasterNamesFactory,
+                                         PixExOp.VariableCombination[] scatterPlotVariableCombinations,
+                                         RasterNamesFactory rasterNamesFactory,
                                          ProductRegistry productRegistry, File parentDirectory, String filePrefix) {
         this.originalMeasurements = originalMeasurements;
         this.decoratedStrategy = decoratedStrategy;
@@ -98,16 +99,22 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
     public void writeMeasurements(PrintWriter writer, Measurement[] measurements) {
         decoratedStrategy.writeMeasurements(writer, measurements);
 
-        for (String[] variableCombination : scatterPlotVariableCombinations) {
-            String scatterPlotName = String.format("Scatter plot of '%s' and '%s'", variableCombination[0], variableCombination[1]);
+        for (PixExOp.VariableCombination variableCombination : scatterPlotVariableCombinations) {
+            String scatterPlotName = String.format("Scatter plot of '%s' and '%s'",
+                                                   variableCombination.originalVariableName,
+                                                   variableCombination.productVariableName);
             XYDataset dataset = createDataset(variableCombination, measurements);
-            JFreeChart scatterPlot = ChartFactory.createScatterPlot(scatterPlotName, variableCombination[0], variableCombination[1],
-                                                                    dataset, PlotOrientation.VERTICAL, false, false, false);
+            JFreeChart scatterPlot = ChartFactory.createScatterPlot(scatterPlotName,
+                                                                    variableCombination.originalVariableName,
+                                                                    variableCombination.productVariableName,
+                                                                    dataset, PlotOrientation.VERTICAL, false, false,
+                                                                    false);
             plots.add(scatterPlot);
             try {
                 File targetFile = new File(parent,
                                            String.format("%s_scatter_plot_%s_%s.png",
-                                                         filePrefix, variableCombination[0], variableCombination[1]));
+                                                         filePrefix, variableCombination.originalVariableName,
+                                                         variableCombination.productVariableName));
                 ChartUtilities.saveChartAsPNG(targetFile, scatterPlot, 600, 400);
             } catch (IOException e) {
                 BeamLogManager.getSystemLogger().warning(e.getMessage());
@@ -115,23 +122,22 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
         }
     }
 
-    private XYDataset createDataset(String[] variableCombination, Measurement[] measurements) {
+    private XYDataset createDataset(PixExOp.VariableCombination variableCombination, Measurement[] measurements) {
         final XYSeriesCollection dataSet = new XYSeriesCollection();
         XYSeries data = new XYSeries("data");
-        String originalVariableName = variableCombination[0];
-        String productVariableName = variableCombination[1];
         for (Measurement measurement : measurements) {
-            Measurement originalMeasurement = MatchupFormatStrategy.findMatchingMeasurement(measurement, originalMeasurements);
+            Measurement originalMeasurement = MatchupFormatStrategy.findMatchingMeasurement(measurement,
+                                                                                            originalMeasurements);
             final String[] originalAttributeNames = originalMeasurement.getOriginalAttributeNames();
             Object originalValue = null;
             for (int i = 0; i < originalAttributeNames.length; i++) {
                 final String attributeName = originalAttributeNames[i];
-                if (attributeName.equals(originalVariableName)) {
+                if (attributeName.equals(variableCombination.originalVariableName)) {
                     originalValue = originalMeasurement.getValues()[i];
                     break;
                 }
             }
-            Object value = getValue(productVariableName, measurement);
+            Object value = getValue(variableCombination.productVariableName, measurement);
             data.add((Number) originalValue, (Number) value);
         }
         dataSet.addSeries(data);

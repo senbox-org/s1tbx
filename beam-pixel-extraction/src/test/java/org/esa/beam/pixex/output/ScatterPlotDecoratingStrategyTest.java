@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.FormatStrategy;
+import org.esa.beam.pixex.PixExOp;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYDataset;
 import org.junit.Before;
@@ -27,10 +28,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Comparator;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import static org.junit.Assert.*;
 
@@ -42,7 +40,7 @@ public class ScatterPlotDecoratingStrategyTest {
 
     private static final int PRODUCT_ID = 0;
     private ScatterPlotDecoratingStrategy strategy;
-    private Set<String[]> variableCombinations;
+    private PixExOp.VariableCombination[] variableCombinations;
 
     @Before
     public void setUp() throws Exception {
@@ -52,29 +50,31 @@ public class ScatterPlotDecoratingStrategyTest {
                 new Measurement(1, "someOtherName", -1, -1, -1, null, null, new Object[]{8, 2.0},
                                 new String[]{"original_sst", "original_tsm"}, true)
         };
-        variableCombinations = new TreeSet<String[]>(new Comparator<String[]>() {
-            @Override
-            public int compare(String[] o1, String[] o2) {
-                return o1[0].compareTo(o2[0]);
-            }
-        });
-        variableCombinations.add(new String[]{"original_sst", "product_sst"});
-        variableCombinations.add(new String[]{"original_tsm", "product_tsm"});
+        variableCombinations = new PixExOp.VariableCombination[2];
+        variableCombinations[0] = new PixExOp.VariableCombination();
+        variableCombinations[0].originalVariableName = "original_sst";
+        variableCombinations[0].productVariableName = "product_sst";
+
+        variableCombinations[1] = new PixExOp.VariableCombination();
+        variableCombinations[1].originalVariableName = "original_tsm";
+        variableCombinations[1].productVariableName = "product_tsm";
+
         strategy = new ScatterPlotDecoratingStrategy(originalMeasurements, new NullStrategy(), variableCombinations,
-                                                     new PixExRasterNamesFactory(true, true, true, null), new ProductRegistry() {
-            @Override
-            public long getProductId(Product product) throws IOException {
-                return 0;
-            }
-        });
+                                                     new PixExRasterNamesFactory(true, true, true, null),
+                                                     new ProductRegistry() {
+                                                         @Override
+                                                         public long getProductId(Product product) throws IOException {
+                                                             return 0;
+                                                         }
+                                                     }, null, null);
 
     }
 
     @Test
     public void testCreateScatterPlots() throws Exception {
         Measurement[] productMeasurements = new Measurement[]{
-                new Measurement(0, "someName", PRODUCT_ID, -1, -1, null, null, new Object[] {7, 4.0}, true),
-                new Measurement(1, "someOtherName", PRODUCT_ID, -1, -1, null, null, new Object[] {9, 3.0}, true)
+                new Measurement(0, "someName", PRODUCT_ID, -1, -1, null, null, new Object[]{7, 4.0}, true),
+                new Measurement(1, "someOtherName", PRODUCT_ID, -1, -1, null, null, new Object[]{9, 3.0}, true)
         };
 
         assertTrue(strategy.plots.isEmpty());
@@ -82,7 +82,7 @@ public class ScatterPlotDecoratingStrategyTest {
         strategy.fillRasterNamesIndicesMap(createProduct());
         strategy.writeMeasurements(null, productMeasurements);
 
-        assertEquals(variableCombinations.size(), strategy.plots.size());
+        assertEquals(variableCombinations.length, strategy.plots.size());
 
         JFreeChart sstPlot = strategy.plots.get(0);
         assertEquals("original_sst", sstPlot.getXYPlot().getDomainAxis().getLabel());

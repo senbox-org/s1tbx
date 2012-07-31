@@ -64,8 +64,10 @@ import org.esa.beam.util.io.WildcardMatcher;
 import org.esa.beam.util.kmz.KmlDocument;
 import org.esa.beam.util.kmz.KmlPlacemark;
 import org.esa.beam.util.kmz.KmzExporter;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.MathUtils;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -155,6 +157,10 @@ public class PixExOp extends Operator implements Output {
     @Parameter(description = "Path to a file containing geo-coordinates. BEAM's placemark files can be used.")
     private File coordinatesFile;
 
+    @Parameter(description = "Path to a CSV-file containing geo-coordinates associated with measurements according" +
+                             "to BEAM CSV format specification")
+    private File matchupFile;
+
     @Parameter(description = "Side length of surrounding window (uneven)", defaultValue = "1",
                validator = WindowSizeValidator.class)
     private Integer windowSize;
@@ -200,7 +206,8 @@ public class PixExOp extends Operator implements Output {
     private boolean extractTimeFromFilename;
 
     @Parameter(
-            description = "Describes how a date/time section inside a product filename should be interpreted. E.G. yyyyMMdd_hhmmss",
+            description = "Describes how a date/time section inside a product filename should be interpreted. " +
+                          "E.G. yyyyMMdd_hhmmss",
             validator = TimeStampExtractor.DateInterpretationPatternValidator.class,
             defaultValue = "yyyyMMdd",
             label = "Date/Time pattern")
@@ -215,8 +222,9 @@ public class PixExOp extends Operator implements Output {
     @Parameter(defaultValue = "false", description = "Determines if the original measurements shall be output, too.")
     private boolean outputOriginalMeasurements;
 
-    @Parameter(description = "Set of 2-tuples of variable names; for each of these tuples a scatter plot will be exported.", notNull = false)
-    private Set<String[]> scatterPlotVariableCombinations;
+    @Parameter(description = "Array of 2-tuples of variable names; " +
+                             "for each of these tuples a scatter plot will be exported.", notNull = false)
+    private VariableCombination[] scatterPlotVariableCombinations;
 
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
@@ -229,6 +237,25 @@ public class PixExOp extends Operator implements Output {
     private ArrayList<String> knownKmzPlacemarks;
     private TimeStampExtractor timeStampExtractor;
     private AggregatorStrategy aggregatorStrategy;
+
+    @SuppressWarnings("unchecked")
+    public static Coordinate.OriginalValue[] getOriginalValues(SimpleFeature feature) {
+        List<AttributeDescriptor> originalAttributeDescriptors = (List<AttributeDescriptor>) feature.getFeatureType().getUserData().get(
+                "originalAttributeDescriptors");
+        final Coordinate.OriginalValue[] originalValues;
+        if (originalAttributeDescriptors == null) {
+            originalValues = new Coordinate.OriginalValue[0];
+        } else {
+            originalValues = new Coordinate.OriginalValue[originalAttributeDescriptors.size()];
+        }
+        List<Object> attributes = (List<Object>) feature.getUserData().get("originalAttributes");
+        for (int j = 0; j < originalValues.length; j++) {
+            Object value = j == 0 ? feature.getID() : attributes.get(j);
+            originalValues[j] = new Coordinate.OriginalValue(originalAttributeDescriptors.get(j).getLocalName(),
+                                                             value);
+        }
+        return originalValues;
+    }
 
     @Override
     public void initialize() throws OperatorException {
@@ -264,7 +291,8 @@ public class PixExOp extends Operator implements Output {
                                                                                        exportMasks, aggregatorStrategy);
 
         final PixExProductRegistry productRegistry = new PixExProductRegistry(outputFilePrefix, outputDir);
-        final FormatStrategy formatStrategy = initFormatStrategy(rasterNamesFactory, originalMeasurements, productRegistry);
+        final FormatStrategy formatStrategy = initFormatStrategy(rasterNamesFactory, originalMeasurements,
+                                                                 productRegistry);
         MeasurementFactory measurementFactory;
         if (aggregatorStrategy == null || windowSize == 1) {
             measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
@@ -336,7 +364,9 @@ public class PixExOp extends Operator implements Output {
                 originalVariableNames[valueIndex] = originalValue.variableName;
             }
 
-            result[i] = new Measurement(coordinate.getID(), "", -1, -1, -1, null, new GeoPos(coordinate.getLat(), coordinate.getLon()), values, originalVariableNames, true);
+            result[i] = new Measurement(coordinate.getID(), "", -1, -1, -1, null,
+                                        new GeoPos(coordinate.getLat(), coordinate.getLon()), values,
+                                        originalVariableNames, true);
         }
 
         return result;
@@ -364,7 +394,7 @@ public class PixExOp extends Operator implements Output {
                                                           exportExpressionResult);
         }
 
-        if (scatterPlotVariableCombinations != null && !scatterPlotVariableCombinations.isEmpty()) {
+        if (scatterPlotVariableCombinations != null && scatterPlotVariableCombinations.length != 0) {
             return new ScatterPlotDecoratingStrategy(originalMeasurements, decoratedStrategy,
                                                      scatterPlotVariableCombinations, rasterNamesFactory,
                                                      productRegistry, outputDir, outputFilePrefix);
@@ -527,11 +557,39 @@ public class PixExOp extends Operator implements Output {
         if (coordinates != null) {
             list.addAll(Arrays.asList(coordinates));
         }
+        if (matchupFile != null) {
+            list.addAll(extractMatchupCoordinates(matchupFile));
+        }
         for (int i = 0; i < list.size(); i++) {
             final Coordinate coordinate = list.get(i);
             coordinate.setID(i + 1);
         }
         return list;
+    }
+
+    static List<Coordinate> extractMatchupCoordinates(File matchupFile) {
+        final List<Coordinate> result = new ArrayList<Coordinate>();
+        List<SimpleFeature> simpleFeatures;
+        try {
+            simpleFeatures = PixExOpUtils.extractFeatures(matchupFile);
+        } catch (IOException e) {
+            BeamLogManager.getSystemLogger().warning(
+                    String.format("Unable to read matchups from file '%s'. Reason: %s",
+                                  matchupFile.getAbsolutePath(), e.getMessage()));
+            return result;
+        }
+        for (SimpleFeature extendedFeature : simpleFeatures) {
+            try {
+                final Coordinate.OriginalValue[] originalValues = getOriginalValues(extendedFeature);
+                final GeoPos geoPos;
+                geoPos = PixExOpUtils.getGeoPos(extendedFeature);
+                final Date dateTime = (Date) extendedFeature.getAttribute(Placemark.PROPERTY_NAME_DATETIME);
+                result.add(new Coordinate(extendedFeature.getID(), geoPos.lat, geoPos.lon, dateTime, originalValues));
+            } catch (IOException e) {
+                BeamLogManager.getSystemLogger().warning(e.getMessage());
+            }
+        }
+        return result;
     }
 
     private List<Coordinate> extractCoordinates(File coordinatesFile) {
@@ -626,7 +684,8 @@ public class PixExOp extends Operator implements Output {
 
             for (Coordinate coordinate : coordinateList) {
                 try {
-                    final boolean measurementExtracted = extractMeasurement(product, coordinate, coordinate.getID(), validMaskImage);
+                    final boolean measurementExtracted = extractMeasurement(product, coordinate, coordinate.getID(),
+                                                                            validMaskImage);
                     if (measurementExtracted && (exportSubScenes || exportKmz)) {
                         matchedCoordinates.add(coordinate);
                     }
@@ -782,5 +841,15 @@ public class PixExOp extends Operator implements Output {
                 throw new ValidationException("Value of 'windowSize' must be uneven");
             }
         }
+    }
+
+    public static class VariableCombination {
+
+        @Parameter(description = "The name of the variable from the original measurements")
+        public String originalVariableName;
+
+        @Parameter(description = "The name of the variable from the product")
+        public String productVariableName;
+
     }
 }

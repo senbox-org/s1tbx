@@ -1,23 +1,15 @@
 package org.esa.beam.pixex.visat;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
-import org.esa.beam.csv.dataio.CsvFile;
-import org.esa.beam.csv.dataio.CsvSource;
-import org.esa.beam.csv.dataio.CsvSourceParser;
 import org.esa.beam.framework.datamodel.GenericPlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.pixex.PixExOpUtils;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
@@ -45,63 +37,30 @@ class AddCsvFileAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         PropertyMap preferences = appContext.getPreferences();
-        final BeamFileChooser fileChooser = getFileChooser(preferences.getPropertyString(LAST_OPEN_CSV_DIR, SystemUtils.getUserHomeDir().getPath()));
+        final BeamFileChooser fileChooser = getFileChooser(
+                preferences.getPropertyString(LAST_OPEN_CSV_DIR, SystemUtils.getUserHomeDir().getPath()));
         int answer = fileChooser.showDialog(parent, "Select");
         if (answer == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             preferences.setPropertyString(LAST_OPEN_CSV_DIR, selectedFile.getParent());
-            CsvSourceParser csvSourceParser = null;
             try {
-                csvSourceParser = CsvFile.createCsvSourceParser(selectedFile.getAbsolutePath());
-                final CsvSource csvSource = csvSourceParser.parseMetadata();
-                csvSourceParser.parseRecords(0, csvSource.getRecordCount());
-
-                final SimpleFeatureType extendedFeatureType = getExtendedFeatureType(csvSource.getFeatureType());
-
-                final GenericPlacemarkDescriptor placemarkDescriptor = new GenericPlacemarkDescriptor(extendedFeatureType);
-                final SimpleFeature[] simpleFeatures = csvSource.getSimpleFeatures();
-                final SimpleFeatureBuilder simpleFeatureBuilder = new SimpleFeatureBuilder(extendedFeatureType);
-                for (SimpleFeature simpleFeature : simpleFeatures) {
-                    simpleFeatureBuilder.init(simpleFeature);
-                    SimpleFeature extendedFeature = simpleFeatureBuilder.buildFeature(simpleFeature.getID());
-                    extendedFeature.setDefaultGeometry(simpleFeature.getDefaultGeometry());
-                    extendedFeature.getUserData().put("originalAttributes", simpleFeature.getAttributes());
+                final List<SimpleFeature> extendedFeatures = PixExOpUtils.extractFeatures(selectedFile);
+                for (SimpleFeature extendedFeature : extendedFeatures) {
+                    final GenericPlacemarkDescriptor placemarkDescriptor = new GenericPlacemarkDescriptor(
+                            extendedFeature.getFeatureType());
                     final Placemark placemark = placemarkDescriptor.createPlacemark(extendedFeature);
                     setPlacemarkGeoPos(extendedFeature, placemark);
                     tableModel.addPlacemark(placemark);
                 }
-
             } catch (IOException exception) {
                 appContext.handleError(String.format("Error occurred while reading file: %s", selectedFile), exception);
-            } finally {
-                if (csvSourceParser != null) {
-                    csvSourceParser.close();
-                }
             }
         }
-
     }
 
     private void setPlacemarkGeoPos(SimpleFeature extendedFeature, Placemark placemark) throws IOException {
-        final Geometry defaultGeometry = (Geometry) extendedFeature.getDefaultGeometry();
-        if (defaultGeometry == null) {
-            throw new IOException("Could not read geometry of feature '" + extendedFeature.getID() + "'.");
-        }
-        final Point centroid = defaultGeometry.getCentroid();
-        placemark.setGeoPos(new GeoPos((float) centroid.getY(), (float) centroid.getX()));
-    }
-
-    private SimpleFeatureType getExtendedFeatureType(SimpleFeatureType featureType) {
-        final SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-        builder.init(featureType);
-        final SimpleFeatureType pointFeatureType = Placemark.createPointFeatureType(featureType.getName().getLocalPart());
-        for (AttributeDescriptor attributeDescriptor : pointFeatureType.getAttributeDescriptors()) {
-            builder.add(attributeDescriptor);
-        }
-        SimpleFeatureType extendedFeatureType = builder.buildFeatureType();
-        List<AttributeDescriptor> attributeDescriptors = featureType.getAttributeDescriptors();
-        extendedFeatureType.getUserData().put("originalAttributeDescriptors", attributeDescriptors);
-        return extendedFeatureType;
+        final GeoPos geoPos = PixExOpUtils.getGeoPos(extendedFeature);
+        placemark.setGeoPos(geoPos);
     }
 
     private BeamFileChooser getFileChooser(String lastDir) {
