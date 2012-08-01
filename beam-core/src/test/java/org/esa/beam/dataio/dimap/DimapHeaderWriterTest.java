@@ -912,6 +912,31 @@ public class DimapHeaderWriterTest extends TestCase {
                 "        <LATITUDE_BAND>" + pixelGeoCoding.getLatBand().getName() + "</LATITUDE_BAND>" + LS +
                 "        <LONGITUDE_BAND>" + pixelGeoCoding.getLonBand().getName() + "</LONGITUDE_BAND>" + LS +
                 "        <SEARCH_RADIUS>" + pixelGeoCoding.getSearchRadius() + "</SEARCH_RADIUS>" + LS +
+                "        <Pixel_Position_Estimator>" + LS +
+                "            <Coordinate_Reference_System>" + LS +
+                "                <Horizontal_CS>" + LS +
+                "                    <HORIZONTAL_CS_TYPE>GEOGRAPHIC</HORIZONTAL_CS_TYPE>" + LS +
+                "                    <Geographic_CS>" + LS +
+                "                        <Horizontal_Datum>" + LS +
+                "                            <HORIZONTAL_DATUM_NAME>WGS-84</HORIZONTAL_DATUM_NAME>" + LS +
+                "                            <Ellipsoid>" + LS +
+                "                                <ELLIPSOID_NAME>WGS-84</ELLIPSOID_NAME>" + LS +
+                "                                <Ellipsoid_Parameters>" + LS +
+                "                                    <ELLIPSOID_MAJ_AXIS unit=\"M\">6378137.0</ELLIPSOID_MAJ_AXIS>" + LS +
+                "                                    <ELLIPSOID_MIN_AXIS unit=\"M\">6356752.3</ELLIPSOID_MIN_AXIS>" + LS +
+                "                                </Ellipsoid_Parameters>" + LS +
+                "                            </Ellipsoid>" + LS +
+                "                        </Horizontal_Datum>" + LS +
+                "                    </Geographic_CS>" + LS +
+                "                </Horizontal_CS>" + LS +
+                "            </Coordinate_Reference_System>" + LS +
+                "            <Geoposition>" + LS +
+                "                <Geoposition_Points>" + LS +
+                "                    <TIE_POINT_GRID_NAME_LAT>lat</TIE_POINT_GRID_NAME_LAT>" + LS +
+                "                    <TIE_POINT_GRID_NAME_LON>lat</TIE_POINT_GRID_NAME_LON>" + LS +
+                "                </Geoposition_Points>" + LS +
+                "            </Geoposition>" + LS +
+                "        </Pixel_Position_Estimator>" + LS +
                 "    </Geoposition>" + LS +
                 "    <Raster_Dimensions>" + LS +
                 "        <NCOLS>200</NCOLS>" + LS +
