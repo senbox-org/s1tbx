@@ -31,6 +31,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.1.2:<br/>
+        [BEAM-1421] - A file in NetCDF-BEAM format, which was created using the BandMaths gpf operator, can not be opened in VISAT<br/>
         Changes in 1.1.1:<br/>
         Adapted to new Maven-architecture<br/>
         Changes in 1.1:<br/>

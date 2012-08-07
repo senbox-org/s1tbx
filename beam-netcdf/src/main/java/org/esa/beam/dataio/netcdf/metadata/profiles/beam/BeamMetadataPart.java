@@ -70,7 +70,7 @@ public class BeamMetadataPart extends ProfilePartIO {
         String[] splittedPrefix = prefix.split(SPLITTER);
         String metaDataElementName = prefix;
         if (splittedPrefix.length > 1) {
-            metaDataElementName = splittedPrefix[1];
+            metaDataElementName = splittedPrefix[splittedPrefix.length - 1];
         }
         MetadataElement metadataElement = metadataRoot.getElement(metaDataElementName);
         if (metadataElement == null) {
@@ -95,7 +95,7 @@ public class BeamMetadataPart extends ProfilePartIO {
         } else {
             // attribute is leaf, add attribute into subgroup
             String newAttributeName = attribute.getName().replaceFirst(prefix, "").replace(SPLITTER, "");
-            if (newAttributeName.endsWith(UNIT_SUFFIX)) {
+            if (newAttributeName.endsWith("." + UNIT_SUFFIX)) {
                 // setting the unit this way requires that it is written AFTER its attribute
                 newAttributeName = newAttributeName.substring(0, newAttributeName.length() - UNIT_SUFFIX.length() - 1);
                 MetadataAttribute anAttribute = metadataElement.getAttribute(newAttributeName);
@@ -103,7 +103,7 @@ public class BeamMetadataPart extends ProfilePartIO {
                 if (value != null) {
                     anAttribute.setUnit(value);
                 }
-            } else if (newAttributeName.endsWith(DESCRIPTION_SUFFIX)) {
+            } else if (newAttributeName.endsWith("." + DESCRIPTION_SUFFIX)) {
                 // setting the description this way requires that it is written AFTER its attribute
                 newAttributeName = newAttributeName.substring(0, newAttributeName.length() - DESCRIPTION_SUFFIX.length() - 1);
                 MetadataAttribute anAttribute = metadataElement.getAttribute(newAttributeName);
