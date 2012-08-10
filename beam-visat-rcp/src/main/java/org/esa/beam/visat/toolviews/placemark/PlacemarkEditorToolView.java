@@ -16,26 +16,23 @@
 
 package org.esa.beam.visat.toolviews.placemark;
 
-import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
-import com.bc.ceres.swing.selection.Selection;
-import com.bc.ceres.swing.selection.SelectionChangeEvent;
-import com.bc.ceres.swing.selection.SelectionContext;
-import com.bc.ceres.swing.selection.SelectionManager;
+import com.bc.ceres.swing.selection.*;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.SimpleFeatureFigure;
 import org.esa.beam.framework.ui.product.VectorDataFigureEditor;
 import org.esa.beam.visat.VisatApp;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.type.AttributeDescriptor;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
-import java.awt.BorderLayout;
+import java.awt.*;
 
 /**
  * A tool windows that lets users edit the attribute values of selected vector data features.
@@ -66,7 +63,8 @@ public class PlacemarkEditorToolView extends AbstractToolView {
     private String titleBase;
     private JScrollPane attributeTablePane;
     private final SCL scl;
-    private FeatureTableModel tableModel;
+    private PlacemarkTableModel tableModel;
+    private Placemark placemark;
 
     public PlacemarkEditorToolView() {
         visatApp = VisatApp.getApp();
@@ -77,7 +75,7 @@ public class PlacemarkEditorToolView extends AbstractToolView {
     public JComponent createControl() {
         titleBase = getTitle();
         infoLabel = new JLabel();
-        tableModel = new FeatureTableModel();
+        tableModel = new PlacemarkTableModel();
         attributeTable = new JTable(tableModel);
         attributeTable.getColumnModel().getColumn(0).setPreferredWidth(80);
         attributeTable.getColumnModel().getColumn(1).setPreferredWidth(60);
@@ -105,6 +103,7 @@ public class PlacemarkEditorToolView extends AbstractToolView {
     public void componentHidden() {
         final SelectionManager selectionManager = visatApp.getApplicationPage().getSelectionManager();
         selectionManager.removeSelectionChangeListener(scl);
+        placemark = null;
     }
 
     private void handleSelectionChange(SelectionContext selectionContext, Selection selection) {
@@ -133,9 +132,15 @@ public class PlacemarkEditorToolView extends AbstractToolView {
             setTitle(getWindowTitle(vectorDataNode, feature));
             infoLabel.setText(getInfoText(vectorDataNode, feature));
 
-            if (feature != null) {
+            if (vectorDataNode != null) {
+                placemark = vectorDataNode.getPlacemarkGroup().getPlacemark(feature);
+            } else {
+                placemark = null;
+            }
+
+            if (placemark != null) {
                 attributeTablePane.setVisible(true);
-                tableModel.setFeature(feature);
+                tableModel.setFeature(placemark);
             } else {
                 attributeTablePane.setVisible(false);
             }
@@ -161,7 +166,8 @@ public class PlacemarkEditorToolView extends AbstractToolView {
                                      vectorDataNode.getFeatureType().getTypeName(),
                                      vectorDataNode.getPlacemarkDescriptor().getClass().getSimpleName(),
                                      vectorDataNode.getFeatureType().getGeometryDescriptor().getLocalName(),
-                                     feature != null ? String.format("Selected feature <b>%s</b>:", feature.getID()) : "No feature selected.");
+                                     feature != null ? String.format("Selected feature <b>%s</b>:",
+                                                                     feature.getID()) : "No feature selected.");
             infoLabel.setText(infoText);
         } else {
             infoText = NO_SELECTION_TEXT;
@@ -197,20 +203,20 @@ public class PlacemarkEditorToolView extends AbstractToolView {
         return titleText;
     }
 
-    private static class FeatureTableModel extends AbstractTableModel {
-        private SimpleFeature feature;
+    private static class PlacemarkTableModel extends AbstractTableModel {
+        private Placemark placemark;
 
-        public void setFeature(SimpleFeature newFeature) {
-            final SimpleFeature oldFeature = this.feature;
+        public void setFeature(Placemark newFeature) {
+            final Placemark oldFeature = this.placemark;
             if (oldFeature != newFeature) {
-                this.feature = newFeature;
+                this.placemark = newFeature;
                 fireTableDataChanged();
             }
         }
 
         @Override
         public int getRowCount() {
-            return feature != null ? feature.getFeatureType().getAttributeCount() : 0;
+            return placemark != null ? placemark.getFeature().getFeatureType().getAttributeCount() : 0;
         }
 
         @Override
@@ -220,7 +226,36 @@ public class PlacemarkEditorToolView extends AbstractToolView {
 
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {
+            if (placemark != null && columnIndex == 2) {
+                final AttributeDescriptor attributeDescriptor
+                        = placemark.getFeature().getFeatureType().getAttributeDescriptors().get(rowIndex);
+                final Class<?> binding = attributeDescriptor.getType().getBinding();
+                if (String.class.isAssignableFrom(binding) || Geometry.class.isAssignableFrom(binding)) {
+                    return true;
+                }
+            }
             return false;
+        }
+
+        @Override
+        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+            if (placemark != null) {
+                final AttributeDescriptor attributeDescriptor
+                        = placemark.getFeature().getFeatureType().getAttributeDescriptors().get(rowIndex);
+                final Class<?> binding = attributeDescriptor.getType().getBinding();
+                if (String.class.isAssignableFrom(binding)) {
+                    placemark.setAttributeValue(attributeDescriptor.getLocalName(), aValue);
+                } else if (Geometry.class.isAssignableFrom(binding)) {
+                    WKTReader reader = new WKTReader();
+                    try {
+                        final Geometry geometry = reader.read((String) aValue);
+                        placemark.setAttributeValue(attributeDescriptor.getLocalName(), geometry);
+                    } catch (ParseException e) {
+                        // No way to handle this any further   :(
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
 
         @Override
@@ -236,13 +271,13 @@ public class PlacemarkEditorToolView extends AbstractToolView {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            if (feature != null) {
+            if (placemark != null) {
                 if (columnIndex == 0) {
-                    return feature.getFeatureType().getDescriptor(rowIndex).getLocalName();
+                    return placemark.getFeature().getFeatureType().getDescriptor(rowIndex).getLocalName();
                 } else if (columnIndex == 1) {
-                    return feature.getFeatureType().getDescriptor(rowIndex).getType().getBinding().getSimpleName();
+                    return placemark.getFeature().getFeatureType().getDescriptor(rowIndex).getType().getBinding().getSimpleName();
                 } else {
-                    return feature.getAttribute(rowIndex);
+                    return placemark.getFeature().getAttribute(rowIndex);
                 }
             }
             return null;

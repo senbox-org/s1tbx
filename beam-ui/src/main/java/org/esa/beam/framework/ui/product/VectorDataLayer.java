@@ -25,11 +25,7 @@ import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -170,6 +166,8 @@ public class VectorDataLayer extends Layer {
                 if (getVectorDataNode().getPlacemarkGroup().contains(sourceNode)) {
                     if (event.getPropertyName().equals(Placemark.PROPERTY_NAME_STYLE_CSS)) {
                         updateFigureCollection();
+                    } else if (event.getPropertyName().equals("geometry")) {
+                        updateFigureCollection();
                     }
                 }
             }
@@ -187,7 +185,7 @@ public class VectorDataLayer extends Layer {
                     final VectorDataNode vectorDataNode = getVectorDataNode();
                     final SimpleFeature simpleFeature = featureFigure.getSimpleFeature();
                     Debug.trace("VectorDataLayer$FigureChangeHandler: vectorDataNode=" + vectorDataNode.getName() +
-                                ", featureType=" + simpleFeature.getFeatureType().getTypeName());
+                                        ", featureType=" + simpleFeature.getFeatureType().getTypeName());
                     reactingAgainstFigureChange = true;
                     vectorDataNode.fireFeaturesChanged(simpleFeature);
                     // todo - compute changed modelRegion instead of passing null (nf)
