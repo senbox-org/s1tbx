@@ -10,15 +10,16 @@ import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.Debug;
 import org.geotools.feature.NameImpl;
-import org.geotools.feature.type.AttributeDescriptorImpl;
-import org.geotools.feature.type.AttributeTypeImpl;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.Name;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -131,6 +132,28 @@ class CorrelativeFieldSelector {
             try {
                 dataFieldProperty.setValue(null);
             } catch (ValidationException ignore) {
+            }
+        }
+    }
+
+    public void tryToSelectNamedPointDataSource(String pointDataSourceName) {
+        final int itemCount = pointDataSourceList.getItemCount();
+        for (int i = 0; i < itemCount; i++) {
+            final VectorDataNode vdn = (VectorDataNode) pointDataSourceList.getItemAt(i);
+            if (vdn.getName().equals(pointDataSourceName)) {
+                pointDataSourceList.setSelectedItem(vdn);
+                break;
+            }
+        }
+    }
+
+    public void tryToSelectNamedDataField(String dataFieldName) {
+        final int itemCount = dataFieldList.getItemCount();
+        for (int i = 0; i < itemCount; i++) {
+            final AttributeDescriptor ad = (AttributeDescriptor) dataFieldList.getItemAt(i);
+            if (ad.getName().getLocalPart().equals(dataFieldName)) {
+                dataFieldList.setSelectedItem(ad);
+                break;
             }
         }
     }

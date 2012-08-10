@@ -29,6 +29,8 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
@@ -36,6 +38,7 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.feature.FeatureCollection;
 import org.jfree.chart.ChartFactory;
@@ -96,7 +99,9 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
@@ -112,13 +117,13 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     public static final String CHART_TITLE = "Correlative Plot";
     private static final String NO_DATA_MESSAGE = "No correlative plot computed yet.\n" +
-                                                  "To create a correlative plot\n" +
-                                                  "   -Select a band" + "\n" +
-                                                  "   -Select vector data (e.g., a SeaDAS 6.x track)" + "\n" +
-                                                  "   -Select the data as point data source" + "\n" +
-                                                  "   -Select a data field" + "\n" +
-                                                  HELP_TIP_MESSAGE + "\n" +
-                                                  ZOOM_TIP_MESSAGE;
+            "To create a correlative plot\n" +
+            "   -Select a band" + "\n" +
+            "   -Select vector data (e.g., a SeaDAS 6.x track)" + "\n" +
+            "   -Select the data as point data source" + "\n" +
+            "   -Select a data field" + "\n" +
+            HELP_TIP_MESSAGE + "\n" +
+            ZOOM_TIP_MESSAGE;
 
     private final String PROPERTY_NAME_X_AXIS_LOG_SCALED = "xAxisLogScaled";
     private final String PROPERTY_NAME_Y_AXIS_LOG_SCALED = "yAxisLogScaled";
@@ -153,8 +158,24 @@ class ScatterPlotPanel extends ChartPagePanel {
     private boolean computingData;
     private XYTitleAnnotation r2Annotation;
 
+    private final ProductManager.Listener productRemovedListener;
+    private final Map<Product, UserSettings> userSettingsMap;
+
     ScatterPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId, CHART_TITLE, false);
+        userSettingsMap = new HashMap<Product, UserSettings>();
+        productRemovedListener = new ProductManager.Listener() {
+            @Override
+            public void productAdded(ProductManager.Event event) {
+            }
+
+            @Override
+            public void productRemoved(ProductManager.Event event) {
+                final UserSettings userSettings = userSettingsMap.remove(event.getProduct());
+                userSettings.dispose();
+            }
+        };
+
         xAxisRangeControl = new AxisRangeControl("X-Axis");
         yAxisRangeControl = new AxisRangeControl("Y-Axis");
         scatterPlotModel = new ScatterPlotModel();
@@ -167,6 +188,28 @@ class ScatterPlotPanel extends ChartPagePanel {
                                                true, true, false);
         chart.getXYPlot().setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
         createDomainAxisChangeListener();
+        final PropertyChangeListener userSettingsUpdateListener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (getRaster() != null) {
+                    final VectorDataNode pointDataSourceValue = scatterPlotModel.pointDataSource;
+                    String pointDataSourceName = "";
+                    if (pointDataSourceValue != null) {
+                        pointDataSourceName = pointDataSourceValue.getName();
+                    }
+                    final AttributeDescriptor dataFieldValue = scatterPlotModel.dataField;
+                    String dataFieldName = "";
+                    if (dataFieldValue != null) {
+                        dataFieldName = dataFieldValue.getName().getLocalPart();
+                    }
+                    final UserSettings userSettings = getUserSettings(getRaster().getProduct());
+                    userSettings.set(getRaster().getName(), pointDataSourceName, dataFieldName);
+                }
+            }
+        };
+
+        bindingContext.addPropertyChangeListener(PROPERTY_NAME_DATA_FIELD, userSettingsUpdateListener);
+        bindingContext.addPropertyChangeListener(PROPERTY_NAME_POINT_DATA_SOURCE, userSettingsUpdateListener);
     }
 
     @Override
@@ -184,10 +227,6 @@ class ScatterPlotPanel extends ChartPagePanel {
             return scatterPlotTableModel.toCVS();
         }
         return "";
-    }
-
-    private String getCorrelativeDataName() {
-        return scatterPlotModel.dataField.getLocalName();
     }
 
     @Override
@@ -209,13 +248,36 @@ class ScatterPlotPanel extends ChartPagePanel {
         final RasterDataNode raster = getRaster();
         yAxisRangeControl.setTitleSuffix(raster != null ? raster.getName() : null);
 
-        correlativeFieldSelector.updatePointDataSource(getProduct());
+        final Product product = getProduct();
+
+        injectProductRemovedListener(product);
+
+        final String rasterName = raster.getName();
+        final UserSettings userSettings = getUserSettings(product);
+        final String pointDataSourceName = userSettings.getPointDataSourceName(rasterName);
+        final String dataFieldName = userSettings.getDataFieldName(rasterName);
+
+        correlativeFieldSelector.updatePointDataSource(product);
         correlativeFieldSelector.updateDataField();
+
+        if (StringUtils.isNotNullAndNotEmpty(pointDataSourceName)) {
+            correlativeFieldSelector.tryToSelectNamedPointDataSource(pointDataSourceName);
+        }
+        if (StringUtils.isNotNullAndNotEmpty(dataFieldName)) {
+            correlativeFieldSelector.tryToSelectNamedDataField(dataFieldName);
+        }
 
         if (isRasterChanged()) {
             getPlot().getRangeAxis().setLabel(getAxisLabel(raster, "X", false));
             computeChartDataIfPossible();
         }
+        if (product == null || product.getProductManager() == null) {
+            return;
+        }
+    }
+
+    private String getCorrelativeDataName() {
+        return scatterPlotModel.dataField.getLocalName();
     }
 
     @Override
@@ -585,14 +647,14 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     private void computeChartDataIfPossible() {
         if (scatterPlotModel.pointDataSource != null
-            && scatterPlotModel.dataField != null
-            && scatterPlotModel.pointDataSource.getFeatureCollection() != null
-            && scatterPlotModel.pointDataSource.getFeatureCollection().features() != null
-            && scatterPlotModel.pointDataSource.getFeatureCollection().features().hasNext() == true
-            && scatterPlotModel.pointDataSource.getFeatureCollection().features().next() != null
-            && scatterPlotModel.pointDataSource.getFeatureCollection().features().next().getAttribute(
+                && scatterPlotModel.dataField != null
+                && scatterPlotModel.pointDataSource.getFeatureCollection() != null
+                && scatterPlotModel.pointDataSource.getFeatureCollection().features() != null
+                && scatterPlotModel.pointDataSource.getFeatureCollection().features().hasNext() == true
+                && scatterPlotModel.pointDataSource.getFeatureCollection().features().next() != null
+                && scatterPlotModel.pointDataSource.getFeatureCollection().features().next().getAttribute(
                 scatterPlotModel.dataField.getLocalName()) != null
-            && getRaster() != null) {
+                && getRaster() != null) {
             compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
         } else {
             scatterpointsDataset.removeAllSeries();
@@ -766,7 +828,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
-                                                  "Calculation canceled.",
+                                                          "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
@@ -774,7 +836,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
-                                                  "Calculation canceled.",
+                                                          "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
@@ -782,8 +844,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
-                                                  "An error occurred:\n" +
-                                                  e.getCause().getMessage(),
+                                                          "An error occurred:\n" +
+                                                          e.getCause().getMessage(),
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
                 }
@@ -824,7 +886,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             return xyIntervalRegression;
         } else {
             JOptionPane.showMessageDialog(this, "Unable to compute regression line.\n" +
-                                                "At least 2 values are needed to compute regression coefficients.");
+                    "At least 2 values are needed to compute regression coefficients.");
             return null;
         }
     }
@@ -939,6 +1001,53 @@ class ScatterPlotPanel extends ChartPagePanel {
             this.rasterSigma = rasterSigma;
             this.correlativeData = correlativeData;
             this.featureProperties = featureProperties;
+        }
+    }
+
+    private void injectProductRemovedListener(Product product) {
+        if (product == null) {
+            return;
+        }
+        final ProductManager productManager = product.getProductManager();
+        if (productManager != null) {
+            // If the listener is already added it will not be added twice.
+            // Take a look inte the "addListener" method.
+            productManager.addListener(productRemovedListener);
+        }
+    }
+
+    private UserSettings getUserSettings(Product product) {
+        if (product == null) {
+            return null;
+        }
+        if (userSettingsMap.get(product) == null) {
+            userSettingsMap.put(product, new UserSettings());
+        }
+        return userSettingsMap.get(product);
+    }
+
+    private static class UserSettings {
+        Map<String, String> pointDataSourceNames = new HashMap<String, String>();
+        Map<String, String> dataFieldNames = new HashMap<String, String>();
+
+        public void set(String rasterName, String pointDataSourceName, String dataFieldName) {
+            pointDataSourceNames.put(rasterName, pointDataSourceName);
+            dataFieldNames.put(rasterName, dataFieldName);
+        }
+
+        public String getPointDataSourceName(String rasterName) {
+            return pointDataSourceNames.get(rasterName);
+        }
+
+        public String getDataFieldName(String rasterName) {
+            return dataFieldNames.get(rasterName);
+        }
+
+        public void dispose() {
+            pointDataSourceNames.clear();
+            pointDataSourceNames = null;
+            dataFieldNames.clear();
+            dataFieldNames = null;
         }
     }
 }
