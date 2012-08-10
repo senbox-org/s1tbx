@@ -252,27 +252,26 @@ class ScatterPlotPanel extends ChartPagePanel {
 
         injectProductRemovedListener(product);
 
-        final String rasterName = raster.getName();
-        final UserSettings userSettings = getUserSettings(product);
-        final String pointDataSourceName = userSettings.getPointDataSourceName(rasterName);
-        final String dataFieldName = userSettings.getDataFieldName(rasterName);
+        if (raster != null) {
+            final String rasterName = raster.getName();
+            final UserSettings userSettings = getUserSettings(product);
+            final String pointDataSourceName = userSettings.getPointDataSourceName(rasterName);
+            final String dataFieldName = userSettings.getDataFieldName(rasterName);
 
-        correlativeFieldSelector.updatePointDataSource(product);
-        correlativeFieldSelector.updateDataField();
+            correlativeFieldSelector.updatePointDataSource(product);
+            correlativeFieldSelector.updateDataField();
 
-        if (StringUtils.isNotNullAndNotEmpty(pointDataSourceName)) {
-            correlativeFieldSelector.tryToSelectNamedPointDataSource(pointDataSourceName);
-        }
-        if (StringUtils.isNotNullAndNotEmpty(dataFieldName)) {
-            correlativeFieldSelector.tryToSelectNamedDataField(dataFieldName);
+            if (StringUtils.isNotNullAndNotEmpty(pointDataSourceName)) {
+                correlativeFieldSelector.tryToSelectNamedPointDataSource(pointDataSourceName);
+            }
+            if (StringUtils.isNotNullAndNotEmpty(dataFieldName)) {
+                correlativeFieldSelector.tryToSelectNamedDataField(dataFieldName);
+            }
         }
 
         if (isRasterChanged()) {
             getPlot().getRangeAxis().setLabel(getAxisLabel(raster, "X", false));
             computeChartDataIfPossible();
-        }
-        if (product == null || product.getProductManager() == null) {
-            return;
         }
     }
 
