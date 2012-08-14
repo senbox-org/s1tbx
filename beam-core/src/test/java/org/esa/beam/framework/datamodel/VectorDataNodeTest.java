@@ -16,6 +16,8 @@
 
 package org.esa.beam.framework.datamodel;
 
+import org.esa.beam.util.FiringFeatureCollection;
+import org.geotools.data.collection.ListFeatureCollection;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
@@ -33,6 +35,25 @@ public class VectorDataNodeTest {
         testVectorData(new VectorDataNode("Pins", pinType), "Pins", pinType);
         testVectorData(new VectorDataNode("GCPs", gcpType), "GCPs", gcpType);
         testVectorData(new VectorDataNode("Imported", unknownType), "Imported", unknownType);
+    }
+
+    @Test
+    public void testVectorDataNodeAndPlacemarkGroup() {
+        Product p = new Product("p", "pt", 512, 512);
+        ProductNodeGroup<VectorDataNode> vectorDataGroup = p.getVectorDataGroup();
+        ListFeatureCollection featureCollection = new FiringFeatureCollection(Placemark.createPointFeatureType("feature"));
+        Placemark placemark = Placemark.createPointPlacemark(PointDescriptor.getInstance(), "placemark_1", null, null,
+                                                             new PixelPos(10, 10), null, null);
+
+        VectorDataNode vectorDataNode = new VectorDataNode("Features", featureCollection);
+        vectorDataNode.setOwner(p);
+        vectorDataNode.getPlacemarkGroup();         //Also: creates the PlacemarkGroup
+        vectorDataGroup.add(vectorDataNode);
+
+        featureCollection.add(placemark.getFeature());
+
+        assertEquals(1, vectorDataNode.getFeatureCollection().size());
+        assertEquals(vectorDataNode.getFeatureCollection().size(), vectorDataNode.getPlacemarkGroup().getNodeCount());
     }
 
     @Test
@@ -67,7 +88,7 @@ public class VectorDataNodeTest {
 
 
     @Test
-    public void testDefaultStyle()  {
+    public void testDefaultStyle() {
         SimpleFeatureType unknownType = PlacemarkDescriptorRegistryTest.createYetUnknownFeatureType();
         Product p = new Product("p", "pt", 4, 4);
         VectorDataNode vdn = new VectorDataNode("vdn", unknownType);
@@ -97,7 +118,7 @@ public class VectorDataNodeTest {
     }
 
     @Test
-    public void testStyle()  {
+    public void testStyle() {
         SimpleFeatureType unknownType = PlacemarkDescriptorRegistryTest.createYetUnknownFeatureType();
         Product p = new Product("p", "pt", 4, 4);
         VectorDataNode vdn = new VectorDataNode("vdn", unknownType);
