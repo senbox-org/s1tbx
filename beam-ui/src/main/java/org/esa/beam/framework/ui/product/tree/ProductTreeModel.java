@@ -15,11 +15,7 @@
  */
 package org.esa.beam.framework.ui.product.tree;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.*;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
@@ -159,6 +155,11 @@ public class ProductTreeModel implements TreeModel {
             if (event.getSourceNode() instanceof Product) {
                 Product product = (Product) event.getSourceNode();
                 TreePath path = getTreePath(product);
+                if (path != null) {
+                    fireTreeNodeChanged(path);
+                }
+            } else if (event.getSourceNode() instanceof VectorDataNode) {
+                TreePath path = getTreePath(event.getSourceNode());
                 if (path != null) {
                     fireTreeNodeChanged(path);
                 }

@@ -95,6 +95,7 @@ public class CreateVectorDataNodeAction extends ExecCommand {
         VectorDataNode vectorDataNode = new VectorDataNode(name, type);
         vectorDataNode.setDescription(description);
         product.getVectorDataGroup().add(vectorDataNode);
+        vectorDataNode.getPlacemarkGroup();
 
         final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
         if (sceneView != null) {
