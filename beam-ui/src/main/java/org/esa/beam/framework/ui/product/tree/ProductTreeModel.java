@@ -20,7 +20,6 @@ import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.VectorDataNode;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
