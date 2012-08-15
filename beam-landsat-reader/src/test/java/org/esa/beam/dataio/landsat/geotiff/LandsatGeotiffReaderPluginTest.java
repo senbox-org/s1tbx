@@ -52,7 +52,7 @@ public class LandsatGeotiffReaderPluginTest {
 
         final VirtualDir input = LandsatGeotiffReaderPlugin.getInput(testFile);
         assertNotNull(input);
-        assertEquals(testFile.getParentFile().getPath(), input.getBasePath());
+        assertEquals(testFile.getAbsoluteFile().getParentFile().getPath(), input.getBasePath());
     }
 
     @Test
@@ -61,7 +61,7 @@ public class LandsatGeotiffReaderPluginTest {
 
         final VirtualDir input = LandsatGeotiffReaderPlugin.getInput(testFile.getPath());
         assertNotNull(input);
-        assertEquals(testFile.getParentFile().getPath(), input.getBasePath());
+        assertEquals(testFile.getAbsoluteFile().getParentFile().getPath(), input.getBasePath());
     }
 
     @Test
