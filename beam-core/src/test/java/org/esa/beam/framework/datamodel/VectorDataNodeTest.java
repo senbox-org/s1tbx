@@ -16,9 +16,9 @@
 
 package org.esa.beam.framework.datamodel;
 
-import org.esa.beam.util.FiringFeatureCollection;
-import org.geotools.data.collection.ListFeatureCollection;
+import org.geotools.feature.FeatureCollection;
 import org.junit.Test;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
@@ -41,14 +41,13 @@ public class VectorDataNodeTest {
     public void testVectorDataNodeAndPlacemarkGroup() {
         Product p = new Product("p", "pt", 512, 512);
         ProductNodeGroup<VectorDataNode> vectorDataGroup = p.getVectorDataGroup();
-        ListFeatureCollection featureCollection = new FiringFeatureCollection(Placemark.createPointFeatureType("feature"));
         Placemark placemark = Placemark.createPointPlacemark(PointDescriptor.getInstance(), "placemark_1", null, null,
                                                              new PixelPos(10, 10), null, null);
 
-        VectorDataNode vectorDataNode = new VectorDataNode("Features", featureCollection);
-        vectorDataNode.setOwner(p);
-        vectorDataNode.getPlacemarkGroup();         //Also: creates the PlacemarkGroup
-        vectorDataGroup.add(vectorDataNode);
+        VectorDataNode vectorDataNode = new VectorDataNode("Features", Placemark.createPointFeatureType("feature"));
+        FeatureCollection<SimpleFeatureType,SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
+        vectorDataGroup.add(vectorDataNode);        //Also: Sets the owner of the vectorDataNode
+        vectorDataNode.getPlacemarkGroup();         //Also: Creates the PlacemarkGroup (owner has to be set!)
 
         featureCollection.add(placemark.getFeature());
 
