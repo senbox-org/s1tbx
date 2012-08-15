@@ -60,7 +60,7 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
             if (isMatchingArchiveFileName(getFileInput(input).getName())) {
                 return DecodeQualification.INTENDED;
             }
-            return DecodeQualification.SUITABLE;
+            return DecodeQualification.UNABLE;
         }
 
         String[] list;
@@ -138,7 +138,11 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
         File inputFile = getFileInput(input);
 
         if (inputFile.isFile() && !isCompressedFile(inputFile)) {
-            inputFile = inputFile.getParentFile();
+            final File absoluteFile = inputFile.getAbsoluteFile();
+            inputFile = absoluteFile.getParentFile();
+            if (inputFile == null) {
+                throw new IOException("Unable to retrieve parent to file: " + absoluteFile.getAbsolutePath());
+            }
         }
 
         VirtualDir virtualDir = VirtualDir.create(inputFile);
