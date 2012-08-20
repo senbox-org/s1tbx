@@ -13,14 +13,12 @@
             <sourceBandName>chl_conc</sourceBandName>
             <validPixelExpression>chl_conc > 0.1</validPixelExpression>
           </bandConfiguration>
-          <bandConfiguration>
-            <expression>algal_2*2</expression>
-          </bandConfiguration>
         </bandConfigurations>
         <doOutputShapefile>true</doOutputShapefile>
         <outputShapefile>c:\temp\output\outputShapefile_NS2012.shp</outputShapefile>
         <doOutputAsciiFile>true</doOutputAsciiFile>
         <outputAsciiFile>c:\temp\output\outputAscii_NS2012.txt</outputAsciiFile>
+        <percentiles>20,50,90,95</percentiles>
       </parameters>
     </node>
   </graph>

@@ -106,7 +106,6 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
         }
         typeBuilder.setName(originalFeatureType.getName());
         updatedFeatureType = typeBuilder.buildFeatureType();
-        bandNameCreator.reset();
     }
 
     @Override
@@ -117,7 +116,7 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
         for (SimpleFeature feature : features) {
             for (String algorithmName : statistics.keySet()) {
                 final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
-                if (feature.getID().equals(regionId)) {
+                if (StatisticsOp.getFeatureName(feature).equals(regionId)) {
                     SimpleFeature featureToUpdate;
                     if (markedToAdd.get(regionId) != null) {
                         featureToUpdate = markedToAdd.get(regionId);
@@ -129,7 +128,6 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
                     markedToAdd.put(regionId, updatedFeature);
                 }
             }
-            bandNameCreator.reset();
         }
         features.removeAll(markedToRemove);
         features.addAll(markedToAdd.values());
@@ -140,14 +138,12 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
         final FeatureIterator<SimpleFeature> featureIterator = originalFeatures.features();
         while (featureIterator.hasNext()) {
             final SimpleFeature originalFeature = featureIterator.next();
-//            String featureName = StatisticsOp.getFeatureName(originalFeature);
-            if (namesMatch(regionId, originalFeature.getIdentifier().getID())) {
+            if (StatisticsOp.getFeatureName(originalFeature).equals(regionId)) {
                 SimpleFeature feature = originalFeature;
                 for (String algorithmName : statistics.keySet()) {
                     final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
                     feature = createUpdatedFeature(simpleFeatureBuilder, feature, name, statistics.get(algorithmName));
                 }
-                bandNameCreator.reset();
                 features.add(feature);
                 return;
             }
@@ -164,15 +160,6 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
         final VectorDataNode vectorDataNode = new VectorDataNode("some_name", fc);
         final File targetFile = new File(targetShapefile);
         exportVectorDataNode(vectorDataNode, targetFile);
-    }
-
-    private static boolean namesMatch(String regionId, String featureName) {
-        return featureName.replace("_", "")
-                .replace(" ", "")
-                .replace("-", "")
-                .equals(regionId.replace("_", "")
-                                .replace("-", "")
-                                .replace(" ", ""));
     }
 
     private static SimpleFeature createUpdatedFeature(SimpleFeatureBuilder builder, SimpleFeature baseFeature, String name, Number value) {

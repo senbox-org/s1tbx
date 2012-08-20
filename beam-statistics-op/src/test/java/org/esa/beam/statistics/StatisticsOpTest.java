@@ -92,8 +92,9 @@ public class StatisticsOpTest {
         assertEquals(0.749427, outputter.average, 1E-4);
         assertEquals(0.721552, outputter.median, 1E-4);
         assertEquals(0.042935, outputter.sigma, 1E-4);
-        assertEquals(0.804474, outputter.p90, 1E-4);
-        assertEquals(0.804474, outputter.p95, 1E-4);
+        assertEquals(2, outputter.percentiles.length);
+        assertEquals(0.804474, outputter.percentiles[0], 1E-4);
+        assertEquals(0.804474, outputter.percentiles[1], 1E-4);
     }
 
     @Test
@@ -119,8 +120,9 @@ public class StatisticsOpTest {
         assertEquals(2.354394, outputter.average, 1E-4);
         assertEquals(2.266823, outputter.median, 1E-4);
         assertEquals(0.134885, outputter.sigma, 1E-4);
-        assertEquals(2.527328, outputter.p90, 1E-4);
-        assertEquals(2.527328, outputter.p95, 1E-4);
+        assertEquals(2, outputter.percentiles.length);
+        assertEquals(2.527328, outputter.percentiles[0], 1E-4);
+        assertEquals(2.527328, outputter.percentiles[1], 1E-4);
     }
 
     @Test
@@ -147,8 +149,9 @@ public class StatisticsOpTest {
         assertEquals(0.7672, outputter.average, 1E-4);
         assertEquals(0.7758, outputter.median, 1E-4);
         assertEquals(0.0344, outputter.sigma, 1E-4);
-        assertEquals(0.8044, outputter.p90, 1E-4);
-        assertEquals(0.8044, outputter.p95, 1E-4);
+        assertEquals(2, outputter.percentiles.length);
+        assertEquals(0.8044, outputter.percentiles[0], 1E-4);
+        assertEquals(0.8044, outputter.percentiles[1], 1E-4);
     }
 
     @Test
@@ -202,6 +205,36 @@ public class StatisticsOpTest {
         assertTrue(getTestFile("statisticsOutput.out").exists());
         assertTrue(getTestFile("statisticsOutput_metadata.txt").exists());
         assertTrue(getTestFile("statisticsShapefile.shp").exists());
+    }
+
+    @Test
+    public void testStatisticsOp_WithDifferentPercentiles() throws Exception {
+        final StatisticsOp statisticsOp = new StatisticsOp();
+        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
+        bandConfiguration.sourceBandName = "algal_2";
+        statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
+        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
+        statisticsOp.doOutputAsciiFile = false;
+        statisticsOp.percentiles = new int[] {20, 51, 90};
+
+        final MyOutputter outputter = new MyOutputter();
+        statisticsOp.outputters.add(outputter);
+
+        statisticsOp.initialize();
+
+        assertEquals("4_pixels.1", outputter.region);
+        assertEquals("algal_2", outputter.bandName);
+        assertEquals(4, outputter.pixels);
+        assertEquals(0.804474, outputter.maximum, 1E-4);
+        assertEquals(0.695857, outputter.minimum, 1E-4);
+        assertEquals(0.749427, outputter.average, 1E-4);
+        assertEquals(0.721552, outputter.median, 1E-4);
+        assertEquals(0.042935, outputter.sigma, 1E-4);
+        assertEquals(3, outputter.percentiles.length);
+        assertEquals(0.6958565, outputter.percentiles[0], 1E-4);
+        assertEquals(0.775825, outputter.percentiles[1], 1E-4);
+        assertEquals(0.804474, outputter.percentiles[2], 1E-4);
     }
 
     @Test
@@ -263,16 +296,23 @@ public class StatisticsOpTest {
         double average;
         double median;
         double sigma;
-        double p90;
-        double p95;
+        double[] percentiles;
         String region;
         String bandName;
 
         public MyOutputter() {
+            percentiles = new double[2];
         }
 
         @Override
         public void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
+            int numPercentiles = 0;
+            for (String algorithmName : algorithmNames) {
+                if (algorithmName.matches("p\\d\\d")) {
+                    numPercentiles++;
+                }
+            }
+            percentiles = new double[numPercentiles];
         }
 
         @Override
@@ -281,6 +321,7 @@ public class StatisticsOpTest {
             map.putAll(statistics);
             region = regionId;
             this.bandName = bandName;
+            int percentileIndex = 0;
             for (Map.Entry<String, Number> entry : map.entrySet()) {
                 final String key = entry.getKey();
                 if(key.equalsIgnoreCase("total")) {
@@ -295,10 +336,8 @@ public class StatisticsOpTest {
                     median = entry.getValue().doubleValue();
                 } else if(key.equalsIgnoreCase("sigma")) {
                     sigma = entry.getValue().doubleValue();
-                } else if(key.equalsIgnoreCase("p90")) {
-                    p90 = entry.getValue().doubleValue();
-                } else if(key.equalsIgnoreCase("p95")) {
-                    p95 = entry.getValue().doubleValue();
+                } else if(key.startsWith("p")) {
+                    percentiles[percentileIndex++] = entry.getValue().doubleValue();
                 }
             }
         }

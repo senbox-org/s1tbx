@@ -85,6 +85,7 @@ import java.util.TreeSet;
 public class StatisticsOp extends Operator implements Output {
 
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    public static final String DEFAULT_PERCENTILES = "90,95";
 
     @SourceProducts(description =
                             "The source products to be considered for statistics computation. If not given, the " +
@@ -130,6 +131,10 @@ public class StatisticsOp extends Operator implements Output {
 
     @Parameter(description = "The target file for ASCII output.")
     File outputAsciiFile;
+
+    @Parameter(description = "The percentile levels that shall be created. Must be in the interval [0..100]",
+               notNull = false, defaultValue = DEFAULT_PERCENTILES)
+    int[] percentiles;
 
     Set<Product> collectedProducts;
 
@@ -227,20 +232,29 @@ public class StatisticsOp extends Operator implements Output {
                 bandNamesList.add(bandConfiguration.expression);
             }
         }
-        final String[] algorithmNames = new String[]{
-                "minimum",
-                "maximum",
-                "median",
-                "average",
-                "sigma",
-                "p90",
-                "p95",
-                "total"
-        };
+        final String[] algorithmNames = getAlgorithmNames();
         final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
         for (Outputter outputter : outputters) {
             outputter.initialiseOutput(allSourceProducts, bandNames, algorithmNames, startDate, endDate, regionNames.toArray(new String[regionNames.size()]));
         }
+    }
+
+    private String[] getAlgorithmNames() {
+        final List<String> algorithms = new ArrayList<String>();
+        algorithms.add("minimum");
+        algorithms.add("maximum");
+        algorithms.add("median");
+        algorithms.add("average");
+        algorithms.add("sigma");
+        for (int percentile : percentiles) {
+            algorithms.add(getPercentileName(percentile));
+        }
+        algorithms.add("total");
+        return algorithms.toArray(new String[algorithms.size()]);
+    }
+
+    private String getPercentileName(int percentile) {
+        return "p" + percentile;
     }
 
     void setupOutputter() {
@@ -297,8 +311,9 @@ public class StatisticsOp extends Operator implements Output {
                 stxMap.put("sigma", histogram.getStandardDeviation()[0]);
                 stxMap.put("total", histogram.getTotals()[0]);
                 stxMap.put("median", histogram.getPTileThreshold(0.5)[0]);
-                stxMap.put("p90", histogram.getPTileThreshold(0.9)[0]);
-                stxMap.put("p95", histogram.getPTileThreshold(0.95)[0]);
+                for (int percentile : percentiles) {
+                    stxMap.put(getPercentileName(percentile), histogram.getPTileThreshold(percentile * 0.01)[0]);
+                }
                 for (Outputter outputter : outputters) {
                     outputter.addToOutput(bands.get(0).getName(), regionName, stxMap);
                 }
@@ -392,6 +407,11 @@ public class StatisticsOp extends Operator implements Output {
         }
         if (outputShapefile != null && outputShapefile.isDirectory()) {
             throw new OperatorException("Parameter 'outputShapefile' must not point to a directory.");
+        }
+        for (int percentile : percentiles) {
+            if (percentile < 0 || percentile > 100) {
+                throw new OperatorException("Percentile '" + percentile + "' outside of interval [0..100].");
+            }
         }
     }
 

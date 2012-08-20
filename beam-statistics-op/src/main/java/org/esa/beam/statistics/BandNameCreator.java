@@ -22,9 +22,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Provides a method used by {@link ShapefileOutputter} in order to create unique attribute names and a mapping file.
@@ -35,7 +33,7 @@ public class BandNameCreator {
 
     private Map<String, Integer> indexMap;
     private final PrintStream printStream;
-    private Set<String> mappedNames;
+    private Map<String, String> mappedNames;
 
     /**
      * Constructor that creates no band mapping output.
@@ -50,11 +48,14 @@ public class BandNameCreator {
     public BandNameCreator(PrintStream printStream) {
         this.printStream = printStream;
         indexMap = new HashMap<String, Integer>();
-        mappedNames = new HashSet<String>();
+        mappedNames = new HashMap<String, String>();
     }
 
     String createUniqueAttributeName(String algorithmName, String sourceBandName) {
         final String desiredAttributeName = algorithmName + "_" + sourceBandName;
+        if (mappedNames.containsKey(desiredAttributeName)) {
+            return mappedNames.get(desiredAttributeName);
+        }
         String attributeName = desiredAttributeName;
         final boolean tooLong = desiredAttributeName.length() > 10;
         if (tooLong) {
@@ -65,7 +66,7 @@ public class BandNameCreator {
             attributeName = shorten(algorithmName) + "_" + getIndex(algorithmName);
             indexMap.put(algorithmName, getIndex(algorithmName) + 1);
         }
-        if (tooLong && !mappedNames.contains(desiredAttributeName)) {
+        if (tooLong && !mappedNames.containsKey(desiredAttributeName)) {
             BeamLogManager.getSystemLogger().warning(
                     "attribute name '" + desiredAttributeName + "' exceeds 10 characters in length. Shortened to '" +
                     attributeName +
@@ -94,12 +95,7 @@ public class BandNameCreator {
                 .append("=")
                 .append(desiredAttributeName)
                 .append("\n");
-        mappedNames.add(desiredAttributeName);
-    }
-
-    public void reset() {
-        indexMap.clear();
-        mappedNames.clear();
+        mappedNames.put(desiredAttributeName, attributeName);
     }
 
     private static class NullOutputStream extends OutputStream {
