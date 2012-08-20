@@ -216,7 +216,7 @@ public class PixExOp extends Operator implements Output {
 
     @Parameter(description = "Describes how the filename of a product should be interpreted.",
                validator = TimeStampExtractor.FilenameInterpretationPatternValidator.class,
-               defaultValue = "*${date}*${date}*",
+               defaultValue = "*${startDate}*${endDate}*",
                label = "Time extraction pattern in filename")
     private String filenameInterpretationPattern;
 
