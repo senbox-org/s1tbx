@@ -61,6 +61,7 @@ import org.esa.beam.pixex.output.ProductRegistry;
 import org.esa.beam.pixex.output.ScatterPlotDecoratingStrategy;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.TimeStampExtractor;
 import org.esa.beam.util.io.WildcardMatcher;
 import org.esa.beam.util.kmz.KmlDocument;
 import org.esa.beam.util.kmz.KmlPlacemark;

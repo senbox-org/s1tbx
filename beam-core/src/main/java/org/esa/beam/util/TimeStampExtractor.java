@@ -1,4 +1,4 @@
-package org.esa.beam.pixex;
+package org.esa.beam.util;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;

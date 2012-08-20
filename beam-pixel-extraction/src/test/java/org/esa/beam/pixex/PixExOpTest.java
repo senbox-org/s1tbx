@@ -191,7 +191,7 @@ public class PixExOpTest {
         parameterMap.put("windowSize", windowSize);
         parameterMap.put("extractTimeFromFilename", true);
         parameterMap.put("dateInterpretationPattern", "yyyyMMdd");
-        parameterMap.put("filenameInterpretationPattern", "*${date}*");
+        parameterMap.put("filenameInterpretationPattern", "*${startDate}*");
 
         String[] bandNames = {"rad_1", "rad_2"};
         Product p1 = createTestProduct("andi", "type1", bandNames);
