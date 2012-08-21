@@ -84,6 +84,8 @@ import java.util.TreeSet;
                   description = "Computes statistics for an arbitrary number of source products.")
 public class StatisticsOp extends Operator implements Output {
 
+    private static final int HISTOGRAM_BIN_COUNT = 1024 * 1024;
+
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     public static final String DEFAULT_PERCENTILES = "90,95";
 
@@ -249,6 +251,7 @@ public class StatisticsOp extends Operator implements Output {
         for (int percentile : percentiles) {
             algorithms.add(getPercentileName(percentile));
         }
+        algorithms.add("pxx_max_error");
         algorithms.add("total");
         return algorithms.toArray(new String[algorithms.size()]);
     }
@@ -301,7 +304,7 @@ public class StatisticsOp extends Operator implements Output {
                 final List<Mask> maskList = regionNameToMasks.get(regionName);
                 final Mask[] roiMasks = getMasksForBands(maskList, bands);
                 final Stx stx = new StxFactory()
-                        .withHistogramBinCount(1024 * 1024)
+                        .withHistogramBinCount(HISTOGRAM_BIN_COUNT)
                         .create(ProgressMonitor.NULL, roiMasks, bands.toArray(new Band[bands.size()]));
                 final HashMap<String, Number> stxMap = new HashMap<String, Number>();
                 Histogram histogram = stx.getHistogram();
@@ -314,6 +317,7 @@ public class StatisticsOp extends Operator implements Output {
                 for (int percentile : percentiles) {
                     stxMap.put(getPercentileName(percentile), histogram.getPTileThreshold(percentile * 0.01)[0]);
                 }
+                stxMap.put("pxx_max_error", (histogram.getHighValue(0) - histogram.getLowValue(0)) / histogram.getNumBins(0));
                 for (Outputter outputter : outputters) {
                     outputter.addToOutput(bands.get(0).getName(), regionName, stxMap);
                 }
