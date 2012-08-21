@@ -17,13 +17,21 @@ package org.esa.beam.dataio.modis;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.AbstractGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.Scene;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.Range;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -502,7 +510,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
     }
 
     static boolean mustRecalculateTiePointGrids(ProductSubsetDef subsetDef) {
-        return subsetDef.getRegion() != null;
+        return subsetDef != null && subsetDef.getRegion() != null;
     }
 
     // note: this relation is ONLY valid for original Modis products, i.e. products that have not been

@@ -3,13 +3,14 @@ package org.esa.beam.dataio.modis;
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 
-import java.awt.*;
+import java.awt.Rectangle;
 
 public class ModisTiePointGeoCodingTest extends TestCase {
 
     public void testMustRecalculateGeoCoding() {
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
 
+        assertFalse(ModisTiePointGeoCoding.mustRecalculateTiePointGrids(null));
         assertFalse(ModisTiePointGeoCoding.mustRecalculateTiePointGrids(subsetDef));
 
         subsetDef.setRegion(new Rectangle(0, 3, 4, 5));
