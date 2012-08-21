@@ -57,7 +57,6 @@ import javax.media.jai.Histogram;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -107,13 +106,15 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     private MultipleRoiComputePanel computePanel;
     private JPanel backgroundPanel;
     private AbstractButton hideAndShowButton;
+    private AbstractButton exportButton;
     private JPanel contentPanel;
-    private boolean init;
 
     private final StatisticsPanel.PopupHandler popupHandler;
     private final StringBuilder resultText;
+    private boolean init;
     private Histogram[] histograms;
-    private JButton export;
+    private StatisticsPanel.ExportAsCsvAction exportAsCsvAction;
+    private StatisticsPanel.ExportAsShapefileAction exportAsShapefileAction;
 
     public StatisticsPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, helpID, TITLE_PREFIX);
@@ -126,16 +127,18 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         init = true;
 
         computePanel = new MultipleRoiComputePanel(this, getRaster());
+        exportButton = getExportButton();
 
-        final JPanel helpPanel = GridBagUtils.createPanel();
+        final JPanel exportAndHelpPanel = GridBagUtils.createPanel();
         GridBagConstraints helpPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1,ipadx=0");
-        GridBagUtils.addToPanel(helpPanel, new JSeparator(), helpPanelConstraints, "gridy=0,gridwidth=3,insets.left=4,insets.right=2");
-        GridBagUtils.addToPanel(helpPanel, getHelpButton(), helpPanelConstraints, "gridy=1,gridwidth=1,gridx=2,anchor=EAST,fill=NONE");
+        GridBagUtils.addToPanel(exportAndHelpPanel, new JSeparator(), helpPanelConstraints, "fill=HORIZONTAL,gridwidth=2,insets.left=5,insets.right=5");
+        GridBagUtils.addToPanel(exportAndHelpPanel, exportButton, helpPanelConstraints, "gridy=1,anchor=WEST,fill=NONE");
+        GridBagUtils.addToPanel(exportAndHelpPanel, getHelpButton(), helpPanelConstraints, "gridx=1,gridy=1,anchor=EAST,fill=NONE");
 
         final JPanel rightPanel = GridBagUtils.createPanel();
         GridBagConstraints extendedOptionsPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1,insets.right=-2");
         GridBagUtils.addToPanel(rightPanel, computePanel, extendedOptionsPanelConstraints, "gridy=0,fill=BOTH,weighty=1");
-        GridBagUtils.addToPanel(rightPanel, helpPanel, extendedOptionsPanelConstraints, "gridy=1,anchor=SOUTHWEST,fill=HORIZONTAL,weighty=0");
+        GridBagUtils.addToPanel(rightPanel, exportAndHelpPanel, extendedOptionsPanelConstraints, "gridy=1,anchor=SOUTHWEST,fill=HORIZONTAL,weighty=0");
 
         final ImageIcon collapseIcon = UIUtils.loadImageIcon("icons/PanelRight12.png");
         final ImageIcon collapseRolloverIcon = ToolButtonFactory.createRolloverIcon(collapseIcon);
@@ -174,14 +177,10 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         contentScrollPane.setBorder(null);
         contentScrollPane.setBackground(Color.WHITE);
 
-        export = new JButton("Export");
-        export.setVisible(false);
-
         backgroundPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         GridBagUtils.addToPanel(backgroundPanel, contentScrollPane, gbc, "fill=BOTH, weightx=1.0, weighty=1.0, anchor=NORTH");
         GridBagUtils.addToPanel(backgroundPanel, rightPanel, gbc, "gridx=1, fill=VERTICAL, weightx=0.0, gridheight=2");
-        GridBagUtils.addToPanel(backgroundPanel, export, gbc, "insets=5, gridx=0, gridy=1, anchor=WEST, weighty=0.0");
 
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.add(backgroundPanel);
@@ -203,9 +202,13 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         if (raster != null && raster.isStxSet() && raster.getStx().getResolutionLevel() == 0) {
             resultText.append(createText(raster.getStx(), null));
             contentPanel.add(createStatPanel(raster.getStx(), null));
+            histograms = new Histogram[] {raster.getStx().getHistogram()};
+            exportAsCsvAction = new ExportAsCsvAction(null);
+            exportAsShapefileAction = new ExportAsShapefileAction(null);
+            exportButton.setEnabled(true);
         } else {
             contentPanel.add(new JLabel(DEFAULT_STATISTICS_TEXT));
-            export.setVisible(false);
+            exportButton.setEnabled(false);
         }
 
         contentPanel.revalidate();
@@ -270,12 +273,14 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                     contentPanel.revalidate();
                     contentPanel.repaint();
                 }
-
             }
 
             @Override
             protected void done() {
                 try {
+                    exportAsCsvAction = new ExportAsCsvAction(selectedMasks);
+                    exportAsShapefileAction = new ExportAsShapefileAction(selectedMasks);
+                    exportButton.setEnabled(true);
                     get();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -285,17 +290,6 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                                                   "Statistics", /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
                 }
-                export.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        JPopupMenu viewPopup = new JPopupMenu("Export");
-                        viewPopup.add(new ExportAsCsvAction(selectedMasks));
-                        viewPopup.add(new ExportAsShapefileAction(selectedMasks));
-                        final Rectangle buttonBounds = export.getBounds();
-                        viewPopup.show(export, 1, buttonBounds.height + 1);
-                    }
-                });
-                export.setVisible(true);
             }
         };
 
@@ -544,6 +538,23 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         return chartPanel;
     }
 
+    private AbstractButton getExportButton() {
+        final AbstractButton export = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Export24.gif"),
+                                                                         false);
+        export.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JPopupMenu viewPopup = new JPopupMenu("Export");
+                viewPopup.add(exportAsCsvAction);
+                viewPopup.add(exportAsShapefileAction);
+                final Rectangle buttonBounds = export.getBounds();
+                viewPopup.show(export, 1, buttonBounds.height + 1);
+            }
+        });
+        export.setEnabled(false);
+        return export;
+    }
+
     private class PopupHandler extends MouseAdapter {
 
         @Override
@@ -593,13 +604,18 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
 
                 CsvOutputter csvOutputter = new CsvOutputter(metadataOutputStream, csvOutputStream);
 
-                String[] regionIds = new String[masks.length];
-                for (int i = 0; i < masks.length; i++) {
-                    if (masks[i] != null) {
-                        regionIds[i] = masks[i].getName();
-                    } else {
-                        regionIds[i] = "\t";
+                String[] regionIds;
+                if (masks != null) {
+                    regionIds = new String[masks.length];
+                    for (int i = 0; i < masks.length; i++) {
+                        if (masks[i] != null) {
+                            regionIds[i] = masks[i].getName();
+                        } else {
+                            regionIds[i] = "\t";
+                        }
                     }
+                } else {
+                    regionIds = new String[] {"full_scene"};
                 }
                 csvOutputter.initialiseOutput(
                         new Product[]{getRaster().getProduct()},
@@ -631,8 +647,6 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                     statistics.put("total", histogram.getTotals()[0]);
                     csvOutputter.addToOutput(getRaster().getName(), regionIds[i], statistics);
                 }
-
-
                 csvOutputter.finaliseOutput();
             } catch (IOException exception) {
                 JOptionPane.showMessageDialog(getParentDialogContentPane(),
