@@ -19,7 +19,6 @@ package org.esa.beam.visat.toolviews.stat;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -29,6 +28,7 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.statistics.BandNameCreator;
 import org.esa.beam.statistics.CsvOutputter;
@@ -37,7 +37,7 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
-import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.jfree.chart.ChartFactory;
@@ -58,6 +58,7 @@ import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
@@ -83,6 +84,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -114,7 +116,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     private boolean init;
     private Histogram[] histograms;
     private StatisticsPanel.ExportAsCsvAction exportAsCsvAction;
-    private StatisticsPanel.ExportAsShapefileAction exportAsShapefileAction;
+    private PutStatisticsIntoVectorDataAction putStatisticsIntoVectorDataAction;
 
     public StatisticsPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, helpID, TITLE_PREFIX);
@@ -204,7 +206,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             contentPanel.add(createStatPanel(raster.getStx(), null));
             histograms = new Histogram[] {raster.getStx().getHistogram()};
             exportAsCsvAction = new ExportAsCsvAction(null);
-            exportAsShapefileAction = new ExportAsShapefileAction(null);
+            putStatisticsIntoVectorDataAction = new PutStatisticsIntoVectorDataAction(null);
             exportButton.setEnabled(true);
         } else {
             contentPanel.add(new JLabel(DEFAULT_STATISTICS_TEXT));
@@ -278,10 +280,10 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             @Override
             protected void done() {
                 try {
-                    exportAsCsvAction = new ExportAsCsvAction(selectedMasks);
-                    exportAsShapefileAction = new ExportAsShapefileAction(selectedMasks);
-                    exportButton.setEnabled(true);
                     get();
+                    exportAsCsvAction = new ExportAsCsvAction(selectedMasks);
+                    putStatisticsIntoVectorDataAction = new PutStatisticsIntoVectorDataAction(selectedMasks);
+                    exportButton.setEnabled(true);
                 } catch (Exception e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
@@ -546,7 +548,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             public void actionPerformed(ActionEvent e) {
                 JPopupMenu viewPopup = new JPopupMenu("Export");
                 viewPopup.add(exportAsCsvAction);
-                viewPopup.add(exportAsShapefileAction);
+                viewPopup.add(putStatisticsIntoVectorDataAction);
                 final Rectangle buttonBounds = export.getBounds();
                 viewPopup.show(export, 1, buttonBounds.height + 1);
             }
@@ -670,19 +672,22 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         }
     }
 
-    private class ExportAsShapefileAction extends AbstractAction {
-
-        private static final String PROPERTY_KEY_EXPORT_DIR = "user.statistics.export.dir";
+    private class PutStatisticsIntoVectorDataAction extends AbstractAction {
 
         private final Mask[] selectedMasks;
-        private final Map<SimpleFeatureType, List<VectorDataNode>> featureType2VDN = new HashMap<SimpleFeatureType, List<VectorDataNode>>();
+        private final Map<SimpleFeatureType, VectorDataNode> featureType2VDN = new HashMap<SimpleFeatureType, VectorDataNode>();
         private final Map<SimpleFeatureType, List<Mask>> featureType2Mask = new HashMap<SimpleFeatureType, List<Mask>>();
         private final Map<Mask, Histogram> mask2Histogram = new HashMap<Mask, Histogram>();
         private final Map<Mask, String> mask2RegionName = new HashMap<Mask, String>();
 
-        public ExportAsShapefileAction(Mask[] selectedMasks) {
-            super("Export as Shapefile");
+        public PutStatisticsIntoVectorDataAction(Mask[] selectedMasks) {
+            super("Put statistics into vector data");
             this.selectedMasks = selectedMasks;
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return super.isEnabled() && selectedMasks != null;
         }
 
         @Override
@@ -690,32 +695,12 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             if (selectedMasks[0] == null) {
                 return;
             }
-            boolean hasErrors = false;
-            boolean hasSuccess = false;
-            String exportDir = VisatApp.getApp().getPreferences().getPropertyString(PROPERTY_KEY_EXPORT_DIR);
-            File baseDir = null;
-            if (exportDir != null) {
-                baseDir = new File(exportDir);
-            }
-            FolderChooser folderChooser = new FolderChooser(baseDir);
-            File outputDirectory;
-            int result = folderChooser.showOpenDialog(StatisticsPanel.this);
-            if (result == FolderChooser.APPROVE_OPTION) {
-                outputDirectory = folderChooser.getSelectedFile();
-                VisatApp.getApp().getPreferences().setPropertyString(PROPERTY_KEY_EXPORT_DIR, outputDirectory.toString());
-            } else {
-                return;
-            }
 
             for (final SimpleFeatureType featureType : getFeatureTypes()) {
-                String targetShapefile =
-                        outputDirectory.getAbsolutePath() + File.separator + featureType.getTypeName() + ".shp";
-                ShapefileOutputter shapefileOutputter = ShapefileOutputter.createShapefileOutputter(
+                MyShapefileOutputter shapefileOutputter = new MyShapefileOutputter(
                         featureType,
                         getFeatureCollection(featureType),
-                        targetShapefile,
                         new BandNameCreator());
-
                 shapefileOutputter.initialiseOutput(
                         new Product[]{getRaster().getProduct()},
                         new String[]{getRaster().getName()},
@@ -746,42 +731,32 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                     shapefileOutputter.addToOutput(getRaster().getName(), mask2RegionName.get(mask), statistics);
                 }
 
-                try {
-                    shapefileOutputter.finaliseOutput();
-                    hasSuccess = true;
-                } catch (IOException e1) {
-                    JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Unable to export statistics to '" + targetShapefile + "'. Error:\n" +
-                                                  e1.getMessage(),
-                                                  "Statistics export",
-                                                  JOptionPane.ERROR_MESSAGE);
-                    hasErrors = true;
-                }
+                exchangeVDN(featureType, shapefileOutputter);
+                JOptionPane.showMessageDialog(getParentDialogContentPane(),
+                                              "The vector data have successfully been extended with the computed statistics.",
+                                              "Extending vector data with statistics",
+                                              JOptionPane.INFORMATION_MESSAGE);
             }
-
-            JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                          createErrorMessage(hasErrors, hasSuccess, outputDirectory),
-                                          "Statistics export",
-                                          JOptionPane.INFORMATION_MESSAGE);
         }
 
-        private String createErrorMessage(boolean hasErrors, boolean hasSuccess, File outputDirectory) {
-            StringBuilder message = new StringBuilder();
-            if (hasSuccess) {
-                message.append("The statistics have successfully been exported to '")
-                       .append(outputDirectory)
-                       .append("'.");
+        private void exchangeVDN(SimpleFeatureType featureType, MyShapefileOutputter shapefileOutputter) {
+            final VectorDataNode originalVDN = featureType2VDN.get(featureType);
+            final VectorDataNode vectorDataNode = shapefileOutputter.updateVectorDateNode(originalVDN);
+            getProduct().getVectorDataGroup().remove(originalVDN);
+            originalVDN.dispose();
+            getProduct().getVectorDataGroup().add(vectorDataNode);
+            final JInternalFrame internalFrame = VisatApp.getApp().findInternalFrame(originalVDN);
+            if (internalFrame != null) {
+                try {
+                    internalFrame.setClosed(true);
+                } catch (PropertyVetoException ignored) {
+                    // ok
+                }
             }
-            if (hasErrors && hasSuccess) {
-                message.append("\nHowever, there ");
+            final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
+            if (sceneView != null) {
+                sceneView.setLayersVisible(vectorDataNode);
             }
-            if (hasErrors && !hasSuccess) {
-                message.append("\nThere ");
-            }
-            if (hasErrors) {
-                message.append("were issues exporting some of the statistics.");
-            }
-            return message.toString();
         }
 
         private Histogram getHistogram(Mask mask) {
@@ -795,26 +770,19 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
 
         private String[] getRegionIds(SimpleFeatureType featureType) {
             List<String> result = new ArrayList<String>();
-            for (VectorDataNode vectorDataNode : featureType2VDN.get(featureType)) {
-                // assuming only a single feature per VDN
-                FeatureIterator<SimpleFeature> features = vectorDataNode.getFeatureCollection().features();
-                SimpleFeature feature = features.next();
-                result.add(feature.getIdentifier().toString());
-                features.close();
+            final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureType2VDN.get(featureType).getFeatureCollection();
+            final FeatureIterator<SimpleFeature> featureIterator = featureCollection.features();
+            while (featureIterator.hasNext()) {
+                final SimpleFeature simpleFeature = featureIterator.next();
+                result.add(simpleFeature.getIdentifier().toString());
+
             }
+            featureIterator.close();
             return result.toArray(new String[result.size()]);
         }
 
         private FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatureCollection(SimpleFeatureType featureType) {
-            DefaultFeatureCollection result = null;
-            for (VectorDataNode vectorDataNode : featureType2VDN.get(featureType)) {
-                if (result == null) {
-                    result = new DefaultFeatureCollection(vectorDataNode.getFeatureCollection());
-                } else {
-                    result.addAll(vectorDataNode.getFeatureCollection());
-                }
-            }
-            return result;
+            return featureType2VDN.get(featureType).getFeatureCollection();
         }
 
         private SimpleFeatureType[] getFeatureTypes() {
@@ -828,14 +796,11 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                     if (!result.contains(featureType)) {
                         result.add(featureType);
                     }
-                    if (!featureType2VDN.containsKey(featureType)) {
-                        featureType2VDN.put(featureType, new ArrayList<VectorDataNode>());
-                    }
                     if (!featureType2Mask.containsKey(featureType)) {
                         featureType2Mask.put(featureType, new ArrayList<Mask>());
                     }
                     featureType2Mask.get(featureType).add(selectedMask);
-                    featureType2VDN.get(featureType).add(vectorDataNode);
+                    featureType2VDN.put(featureType, vectorDataNode);
                     setMaskRegionName(selectedMask, vectorDataNode);
                 }
             }
@@ -847,6 +812,22 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             FeatureIterator<SimpleFeature> features = vectorDataNode.getFeatureCollection().features();
             mask2RegionName.put(selectedMask, features.next().getIdentifier().toString());
             features.close();
+        }
+    }
+
+    private static class MyShapefileOutputter extends ShapefileOutputter {
+
+        private MyShapefileOutputter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures, BandNameCreator bandNameCreator) {
+            super(originalFeatureType, originalFeatures, null, bandNameCreator);
+        }
+
+        private VectorDataNode updateVectorDateNode(VectorDataNode vectorDataNode) {
+            final ListFeatureCollection featureCollection = new ListFeatureCollection(getUpdatedFeatureType(), getFeatures());
+            final VectorDataNode update = new VectorDataNode(vectorDataNode.getName(), featureCollection, vectorDataNode.getPlacemarkDescriptor());
+            update.setPermanent(vectorDataNode.isPermanent());
+            update.setModified(true);
+            update.setDescription(vectorDataNode.getDescription());
+            return update;
         }
     }
 }

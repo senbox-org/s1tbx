@@ -84,8 +84,8 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
         return new ShapefileOutputter(originalFeatureType, originalFeatures, targetShapefile, bandNameCreator);
     }
 
-    private ShapefileOutputter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures,
-                               String targetShapefile, BandNameCreator bandNameCreator) {
+    protected ShapefileOutputter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures,
+                                 String targetShapefile, BandNameCreator bandNameCreator) {
         this.originalFeatureType = originalFeatureType;
         this.originalFeatures = originalFeatures;
         this.targetShapefile = targetShapefile;
@@ -101,7 +101,9 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
         for (final String algorithmName : algorithmNames) {
             for (String bandName : bandNames) {
                 final String attributeName = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
-                typeBuilder.add(attributeName, Double.class);
+                if (originalFeatureType.getDescriptor(attributeName) == null) {
+                    typeBuilder.add(attributeName, Double.class);
+                }
             }
         }
         typeBuilder.setName(originalFeatureType.getName());
@@ -160,6 +162,14 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
         final VectorDataNode vectorDataNode = new VectorDataNode("some_name", fc);
         final File targetFile = new File(targetShapefile);
         exportVectorDataNode(vectorDataNode, targetFile);
+    }
+
+    protected List<SimpleFeature> getFeatures() {
+        return features;
+    }
+
+    protected SimpleFeatureType getUpdatedFeatureType() {
+        return updatedFeatureType;
     }
 
     private static SimpleFeature createUpdatedFeature(SimpleFeatureBuilder builder, SimpleFeature baseFeature, String name, Number value) {
