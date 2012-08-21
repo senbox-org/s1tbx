@@ -184,8 +184,8 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         GridBagUtils.addToPanel(backgroundPanel, export, gbc, "insets=5, gridx=0, gridy=1, anchor=WEST, weighty=0.0");
 
         JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.add(backgroundPanel, new Integer(0));
-        layeredPane.add(hideAndShowButton, new Integer(1));
+        layeredPane.add(backgroundPanel);
+        layeredPane.add(hideAndShowButton);
         add(layeredPane);
     }
 
