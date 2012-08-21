@@ -106,7 +106,6 @@ class MultipleRoiComputePanel extends JPanel {
             public void valueChanged(ListSelectionEvent e) {
                 refreshButton.setEnabled(true);
                 if (!e.getValueIsAdjusting()) {
-                    int[] indices = maskNameList.getCheckBoxListSelectedIndices();
                     selectAndEnableCheckBoxes();
                 }
             }
