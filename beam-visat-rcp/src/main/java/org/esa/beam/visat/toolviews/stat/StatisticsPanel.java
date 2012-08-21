@@ -721,6 +721,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                                 "sigma",
                                 "p90",
                                 "p95",
+                                "pxx_max_error",
                                 "total"
                         },
                         null,
@@ -736,6 +737,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                     statistics.put("sigma", histogram.getStandardDeviation()[0]);
                     statistics.put("p90", histogram.getPTileThreshold(0.9)[0]);
                     statistics.put("p95", histogram.getPTileThreshold(0.95)[0]);
+                    statistics.put("pxx_max_error", getBinSize(histogram));
                     statistics.put("total", histogram.getTotals()[0]);
                     shapefileOutputter.addToOutput(getRaster().getName(), mask2RegionName.get(mask), statistics);
                 }
