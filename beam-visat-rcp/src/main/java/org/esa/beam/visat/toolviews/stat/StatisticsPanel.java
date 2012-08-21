@@ -343,7 +343,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                 new Object[]{"P80 threshold:", histogram.getPTileThreshold(0.80)[0]},
                 new Object[]{"P85 threshold:", histogram.getPTileThreshold(0.85)[0]},
                 new Object[]{"P90 threshold:", histogram.getPTileThreshold(0.90)[0]},
-                new Object[]{"P95 threshold:", histogram.getPTileThreshold(0.95)[0]},
+                new Object[]{"PXX max error:", getBinSize(histogram)},
         };
 
         JPanel plotContainerPanel = new JPanel(new GridLayout(1, 2));
@@ -367,10 +367,9 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 final Component label = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                Number number = (Number) value;
                 if (value instanceof Float || value instanceof Double) {
                     setHorizontalTextPosition(RIGHT);
-                    setText(String.format("%.4f", number.doubleValue()));
+                    setText(String.format("%.4f", ((Number)value).doubleValue()));
                 }
                 return label;
             }
@@ -389,6 +388,10 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         statPanel.add(plotContainerPanel, BorderLayout.CENTER);
 
         return statPanel;
+    }
+
+    private double getBinSize(Histogram histogram) {
+        return (histogram.getHighValue(0) - histogram.getLowValue(0)) / histogram.getNumBins(0);
     }
 
     private String getSubPanelTitle(Mask mask) {
@@ -489,6 +492,12 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             sb.append(unit);
             sb.append("\n");
         }
+
+        sb.append("PXX threshold max error:\t");
+        sb.append(getBinSize(stx.getHistogram()));
+        sb.append("\t");
+        sb.append(unit);
+        sb.append("\n");
 
         return sb.toString();
     }
