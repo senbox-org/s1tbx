@@ -336,7 +336,7 @@ public class StatisticsOpTest {
                     median = entry.getValue().doubleValue();
                 } else if(key.equalsIgnoreCase("sigma")) {
                     sigma = entry.getValue().doubleValue();
-                } else if(key.startsWith("p")) {
+                } else if(key.startsWith("p") && !key.startsWith("pxx")) {
                     percentiles[percentileIndex++] = entry.getValue().doubleValue();
                 }
             }
