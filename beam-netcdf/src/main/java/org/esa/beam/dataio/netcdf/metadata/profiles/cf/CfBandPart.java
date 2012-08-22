@@ -83,7 +83,8 @@ public class CfBandPart extends ProfilePartIO {
         p.setAutoGrouping(getAutoGrouping(ctx));
     }
 
-    private static void addBand(ProfileReadContext ctx, Product p, Variable variable, int[] origin, String bandBasename) {
+    private static void addBand(ProfileReadContext ctx, Product p, Variable variable, int[] origin,
+                                String bandBasename) {
         final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
         if (variable.getDataType() == DataType.LONG) {
             final Band lowerBand = p.addBand(bandBasename + "_lsb", rasterDataType);
@@ -252,8 +253,9 @@ public class CfBandPart extends ProfilePartIO {
 
     private static void addFlagCodingIfApplicable(Product p, Band band, Variable variable, String flagCodingName,
                                                   boolean msb) {
-        Attribute flagValuesAttribute = flagValuesAttribute = variable.findAttribute("flag_values");
+        Attribute flagValuesAttribute = variable.findAttribute("flag_values");
         if (flagValuesAttribute == null) {
+            // in the common case that the flag values attribute is not present, use the flag masks as flag values
             flagValuesAttribute = variable.findAttribute("flag_masks");
         }
         final Attribute flagMeaningsAttribute = variable.findAttribute("flag_meanings");
@@ -261,7 +263,7 @@ public class CfBandPart extends ProfilePartIO {
         if (flagValuesAttribute != null && flagMeaningsAttribute != null) {
             if (!p.getFlagCodingGroup().contains(flagCodingName)) {
                 final FlagCoding flagCoding = new FlagCoding(flagCodingName);
-                final String[] flagMeanings = flagMeaningsAttribute.getStringValue().split(" ");
+                final String[] flagMeanings = getFlagMeanings(flagMeaningsAttribute);
                 for (int i = 0; i < flagValuesAttribute.getLength(); i++) {
                     if (i < flagMeanings.length) {
                         final String flagMeaning = flagMeanings[i];
@@ -277,7 +279,8 @@ public class CfBandPart extends ProfilePartIO {
                                                            flagValuesAttribute.getNumericValue(i).shortValue()), null);
                                 break;
                             case INT:
-                                flagCoding.addFlag(flagMeaning, flagValuesAttribute.getNumericValue(i).intValue(), null);
+                                flagCoding.addFlag(flagMeaning, flagValuesAttribute.getNumericValue(i).intValue(),
+                                                   null);
                                 break;
                             case LONG:
                                 final long value = flagValuesAttribute.getNumericValue(i).longValue();
@@ -300,5 +303,18 @@ public class CfBandPart extends ProfilePartIO {
             }
             band.setSampleCoding(p.getFlagCodingGroup().get(flagCodingName));
         }
+    }
+
+    private static String[] getFlagMeanings(Attribute flagMeaningsAttribute) {
+        final int flagMeaningsCount = flagMeaningsAttribute.getLength();
+        if (flagMeaningsCount > 1) {
+            // handle a common misunderstanding of CF conventions, where flag meanings are stored as array of strings
+            final String[] flagMeanings = new String[flagMeaningsCount];
+            for (int i = 0; i < flagMeanings.length; i++) {
+                flagMeanings[i] = flagMeaningsAttribute.getStringValue(i);
+            }
+            return flagMeanings;
+        }
+        return flagMeaningsAttribute.getStringValue().split(" ");
     }
 }
