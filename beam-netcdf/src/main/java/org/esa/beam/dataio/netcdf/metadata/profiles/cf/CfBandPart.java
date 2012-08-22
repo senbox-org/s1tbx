@@ -258,7 +258,10 @@ public class CfBandPart extends ProfilePartIO {
             // in the common case that the flag values attribute is not present, use the flag masks as flag values
             flagValuesAttribute = variable.findAttribute("flag_masks");
         }
-        final Attribute flagMeaningsAttribute = variable.findAttribute("flag_meanings");
+        Attribute flagMeaningsAttribute = variable.findAttribute("flag_meanings");
+        if (flagMeaningsAttribute == null) {
+            flagMeaningsAttribute = variable.findAttribute("flag_meaning");
+        }
 
         if (flagValuesAttribute != null && flagMeaningsAttribute != null) {
             if (!p.getFlagCodingGroup().contains(flagCodingName)) {
