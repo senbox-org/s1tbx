@@ -252,32 +252,35 @@ public class CfBandPart extends ProfilePartIO {
 
     private static void addFlagCodingIfApplicable(Product p, Band band, Variable variable, String flagCodingName,
                                                   boolean msb) {
-        final Attribute flagMaskAttribute = variable.findAttribute("flag_masks");
+        Attribute flagValuesAttribute = flagValuesAttribute = variable.findAttribute("flag_values");
+        if (flagValuesAttribute == null) {
+            flagValuesAttribute = variable.findAttribute("flag_masks");
+        }
         final Attribute flagMeaningsAttribute = variable.findAttribute("flag_meanings");
 
-        if (flagMaskAttribute != null && flagMeaningsAttribute != null) {
+        if (flagValuesAttribute != null && flagMeaningsAttribute != null) {
             if (!p.getFlagCodingGroup().contains(flagCodingName)) {
                 final FlagCoding flagCoding = new FlagCoding(flagCodingName);
                 final String[] flagMeanings = flagMeaningsAttribute.getStringValue().split(" ");
-                for (int i = 0; i < flagMaskAttribute.getLength(); i++) {
+                for (int i = 0; i < flagValuesAttribute.getLength(); i++) {
                     if (i < flagMeanings.length) {
                         final String flagMeaning = flagMeanings[i];
-                        switch (flagMaskAttribute.getDataType()) {
+                        switch (flagValuesAttribute.getDataType()) {
                             case BYTE:
                                 flagCoding.addFlag(flagMeaning,
                                                    DataType.unsignedByteToShort(
-                                                           flagMaskAttribute.getNumericValue(i).byteValue()), null);
+                                                           flagValuesAttribute.getNumericValue(i).byteValue()), null);
                                 break;
                             case SHORT:
                                 flagCoding.addFlag(flagMeaning,
                                                    DataType.unsignedShortToInt(
-                                                           flagMaskAttribute.getNumericValue(i).shortValue()), null);
+                                                           flagValuesAttribute.getNumericValue(i).shortValue()), null);
                                 break;
                             case INT:
-                                flagCoding.addFlag(flagMeaning, flagMaskAttribute.getNumericValue(i).intValue(), null);
+                                flagCoding.addFlag(flagMeaning, flagValuesAttribute.getNumericValue(i).intValue(), null);
                                 break;
                             case LONG:
-                                final long value = flagMaskAttribute.getNumericValue(i).longValue();
+                                final long value = flagValuesAttribute.getNumericValue(i).longValue();
                                 if (msb) {
                                     final long flagMask = value >>> 32;
                                     if (flagMask > 0) {
