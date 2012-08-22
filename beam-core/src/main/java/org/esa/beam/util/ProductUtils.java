@@ -1267,11 +1267,6 @@ public class ProductUtils {
 
     /**
      * Copies the geocoding from the source product to target product.
-     * <p/>
-     * <p>If the geo-coding in the source product is a {@link TiePointGeoCoding} or a {@link PixelGeoCoding},
-     * the method expects existing latitude and longitude tie-point grids respectively existing latitude and longitude
-     * bands in the target product. The method will NOT automatically copy them as well.
-     * This behaviour may change in the future.</p>
      *
      * @param sourceProduct the source product
      * @param targetProduct the target product
