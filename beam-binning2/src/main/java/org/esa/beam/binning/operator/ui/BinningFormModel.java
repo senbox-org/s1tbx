@@ -29,19 +29,21 @@ import java.beans.PropertyChangeListener;
  */
 interface BinningFormModel {
 
-    String PROPERTY_KEY_SOURCE_PRODUCTS = "sourceProducts";
-    String PROPERTY_KEY_VARIABLE_CONFIGS = "variableConfigs";
-    String PROPERTY_KEY_REGION = "region";
-    String PROPERTY_KEY_COMPUTE_REGION = "compute";
-    String PROPERTY_KEY_GLOBAL = "global";
-    String PROPERTY_KEY_EXPRESSION = "expression";
-    String PROPERTY_KEY_TEMPORAL_FILTER = "temporalFilter";
-    String PROPERTY_KEY_START_DATE = "startDate";
-    String PROPERTY_KEY_END_DATE = "endDate";
-    String PROPERTY_KEY_OUTPUT_BINNED_DATA = "outputBinnedData";
-    String PROPERTY_KEY_TARGET_HEIGHT = "targetHeight";
-    String PROPERTY_KEY_SUPERSAMPLING = "supersampling";
-    String PROPERTY_KEY_MANUAL_WKT = "manualWktKey";
+    static String PROPERTY_KEY_SOURCE_PRODUCTS = "sourceProducts";
+    static String PROPERTY_KEY_VARIABLE_CONFIGS = "variableConfigs";
+    static String PROPERTY_KEY_REGION = "region";
+    static String PROPERTY_KEY_COMPUTE_REGION = "compute";
+    static String PROPERTY_KEY_GLOBAL = "global";
+    static String PROPERTY_KEY_EXPRESSION = "expression";
+    static String PROPERTY_KEY_TEMPORAL_FILTER = "temporalFilter";
+    static String PROPERTY_KEY_START_DATE = "startDate";
+    static String PROPERTY_KEY_END_DATE = "endDate";
+    static String PROPERTY_KEY_OUTPUT_BINNED_DATA = "outputBinnedData";
+    static String PROPERTY_KEY_TARGET_HEIGHT = "targetHeight";
+    static String PROPERTY_KEY_SUPERSAMPLING = "supersampling";
+    static String PROPERTY_KEY_MANUAL_WKT = "manualWktKey";
+
+    static int DEFAULT_NUM_ROWS = 2160;
 
     void setProperty(String key, Object value) throws ValidationException;
 

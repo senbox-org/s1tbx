@@ -163,7 +163,7 @@ class BinningFormModelImpl implements BinningFormModel {
     @Override
     public int getNumRows() {
         if (getPropertyValue(PROPERTY_KEY_TARGET_HEIGHT) == null) {
-            return 2160;
+            return DEFAULT_NUM_ROWS;
         }
         return (Integer) getPropertyValue(PROPERTY_KEY_TARGET_HEIGHT);
     }

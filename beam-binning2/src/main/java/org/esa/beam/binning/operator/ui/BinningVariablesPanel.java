@@ -43,6 +43,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 /**
  * The panel in the binning operator UI which allows for specifying the configuration of binning variables.
@@ -150,8 +152,10 @@ class BinningVariablesPanel extends JPanel {
     private Component createSuperSamplingAndTargetHeightPanel() {
         final JLabel targetHeightLabel = new JLabel("Target height (px):");
         final JLabel superSamplingLabel = new JLabel("Supersampling:");
-        final JTextField targetHeightTextField = new IntegerTextField("2160");
-        final JTextField superSamplingTextField = new IntegerTextField("1");
+        final JTextField targetHeightTextField = new IntegerTextField(BinningFormModel.DEFAULT_NUM_ROWS);
+        final JLabel resolutionLabel = new JLabel();
+        updateResolutionLabel(targetHeightTextField, resolutionLabel);
+        final JTextField superSamplingTextField = new IntegerTextField(1);
         targetHeightTextField.setPreferredSize(new Dimension(120, 20));
         targetHeightTextField.setMinimumSize(new Dimension(120, 20));
         superSamplingTextField.setPreferredSize(new Dimension(120, 20));
@@ -161,17 +165,38 @@ class BinningVariablesPanel extends JPanel {
         binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, Integer.class));
         binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, targetHeightTextField);
         binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, superSamplingTextField);
-        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).setPropertyValue(2160);
+        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).setPropertyValue(BinningFormModel.DEFAULT_NUM_ROWS);
         binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING).setPropertyValue(1);
+
+        binningFormModel.getBindingContext().getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                updateResolutionLabel(targetHeightTextField, resolutionLabel);
+            }
+        });
 
         final JPanel panel = GridBagUtils.createPanel();
         GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
         GridBagUtils.addToPanel(panel, targetHeightLabel, gbc, "anchor=NORTHWEST,weightx=0,insets=3,insets.top=8");
-        GridBagUtils.addToPanel(panel, targetHeightTextField, gbc, "gridx=2,weightx=1,insets.top=3,insets.left=13");
-        GridBagUtils.addToPanel(panel, superSamplingLabel, gbc, "gridy=1,gridx=0,weightx=0,insets.top=8,insets.left=3");
-        GridBagUtils.addToPanel(panel, superSamplingTextField, gbc, "gridx=2,weightx=1,insets.top=3,insets.left=13");
+        GridBagUtils.addToPanel(panel, targetHeightTextField, gbc, "gridx=2,weightx=0,insets.top=3,insets.left=13");
+        GridBagUtils.addToPanel(panel, resolutionLabel, gbc, "gridx=3,weightx=1,insets.left=3,insets.top=5,fill=HORIZONTAL");
+        GridBagUtils.addToPanel(panel, superSamplingLabel, gbc, "gridy=1,gridx=0,weightx=0,insets.top=8,insets.left=3,fill=NONE");
+        GridBagUtils.addToPanel(panel, superSamplingTextField, gbc, "gridx=2,weightx=1,gridwidth=2,insets.top=3,insets.left=13");
 
         return panel;
+    }
+
+    private static void updateResolutionLabel(JTextField targetHeightTextField, JLabel resolutionLabel) {
+        resolutionLabel.setText("Spatial resolution: ~ " + getResolutionString(Integer.parseInt(targetHeightTextField.getText())));
+    }
+
+    static String getResolutionString(int numRows) {
+        final double RE = 6378.145;
+        final double resolution = (RE * Math.PI) / (numRows - 1);
+        final DecimalFormatSymbols formatSymbols = new DecimalFormatSymbols();
+        formatSymbols.setDecimalSeparator('.');
+        final DecimalFormat decimalFormat = new DecimalFormat("#.##", formatSymbols);
+        return decimalFormat.format(resolution) + " km/pixel";
     }
 
     private boolean hasSourceProducts() {
@@ -198,8 +223,8 @@ class BinningVariablesPanel extends JPanel {
 
         private final static String disallowedChars = "`~!@#$%^&*()_+=\\|\"':;?/>.<,- ";
 
-        public IntegerTextField(String defaultValue) {
-            super(defaultValue);
+        public IntegerTextField(int defaultValue) {
+            super(defaultValue + "");
         }
 
         @Override
