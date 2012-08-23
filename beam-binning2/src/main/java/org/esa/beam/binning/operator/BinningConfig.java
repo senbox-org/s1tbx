@@ -92,6 +92,8 @@ public class BinningConfig {
     /**
      * List of aggregators. Aggregators generate the bands in the binned output products.
      */
+    // todo - use this instead (nf, LC-aggregation)
+    //@Parameter(alias = "aggregators", domConverter = AggregatorConfigDomConverter.class)
     @Parameter(alias = "aggregators", itemAlias = "aggregator")
     AggregatorConfig[] aggregatorConfigs;
 

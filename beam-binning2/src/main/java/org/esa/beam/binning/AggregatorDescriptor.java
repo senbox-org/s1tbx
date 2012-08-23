@@ -28,7 +28,10 @@ import com.bc.ceres.binding.PropertySet;
 public interface AggregatorDescriptor {
     String getName();
 
+    // todo - put away, not needed, use createAggregatorConfig() instead  (nf, LC-aggregation)
     PropertyDescriptor[] getParameterDescriptors();
+    // AggregatorConfig createAggregatorConfig();
 
     Aggregator createAggregator(VariableContext varCtx, PropertySet configuration);
+
 }
