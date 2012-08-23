@@ -342,7 +342,7 @@ public class StatisticsOp extends Operator implements Output {
         return histogram.getPTileThreshold(percentile * 0.01)[0];
     }
 
-    static int computeBinCount(int percentilePrecision) {
+    public static int computeBinCount(int percentilePrecision) {
         if (percentilePrecision < 0) {
             throw new IllegalArgumentException("percentilePrecision < 0");
         } else if (percentilePrecision > MAX_PERCENTILE_PRECISION) {

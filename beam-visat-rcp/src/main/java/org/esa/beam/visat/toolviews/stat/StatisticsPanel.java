@@ -19,6 +19,7 @@ package org.esa.beam.visat.toolviews.stat;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import com.jidesoft.swing.TitledSeparator;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -33,6 +34,7 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.statistics.BandNameCreator;
 import org.esa.beam.statistics.CsvOutputter;
 import org.esa.beam.statistics.ShapefileOutputter;
+import org.esa.beam.statistics.StatisticsOp;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.FileUtils;
@@ -57,6 +59,7 @@ import javax.media.jai.Histogram;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -67,6 +70,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -117,10 +122,11 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     private Histogram[] histograms;
     private StatisticsPanel.ExportAsCsvAction exportAsCsvAction;
     private PutStatisticsIntoVectorDataAction putStatisticsIntoVectorDataAction;
+    private int precision = -1;
 
     public StatisticsPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, helpID, TITLE_PREFIX);
-        setMinimumSize(new Dimension(1000, 380));
+        setMinimumSize(new Dimension(1000, 390));
         resultText = new StringBuilder();
         popupHandler = new PopupHandler();
     }
@@ -141,7 +147,8 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         final JPanel rightPanel = GridBagUtils.createPanel();
         GridBagConstraints extendedOptionsPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1,insets.right=-2");
         GridBagUtils.addToPanel(rightPanel, computePanel, extendedOptionsPanelConstraints, "gridy=0,fill=BOTH,weighty=1");
-        GridBagUtils.addToPanel(rightPanel, exportAndHelpPanel, extendedOptionsPanelConstraints, "gridy=1,anchor=SOUTHWEST,fill=HORIZONTAL,weighty=0");
+        GridBagUtils.addToPanel(rightPanel, createPrecisionPanel(), extendedOptionsPanelConstraints, "gridy=1,fill=BOTH,weighty=1");
+        GridBagUtils.addToPanel(rightPanel, exportAndHelpPanel, extendedOptionsPanelConstraints, "gridy=2,anchor=SOUTHWEST,fill=HORIZONTAL,weighty=0");
 
         final ImageIcon collapseIcon = UIUtils.loadImageIcon("icons/PanelRight12.png");
         final ImageIcon collapseRolloverIcon = ToolButtonFactory.createRolloverIcon(collapseIcon);
@@ -189,6 +196,53 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         layeredPane.add(backgroundPanel);
         layeredPane.add(hideAndShowButton);
         add(layeredPane);
+    }
+
+    private JPanel createPrecisionPanel() {
+        final JPanel precisionPanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbc = new GridBagConstraints();
+        final JLabel label = new JLabel("Statistical Precision:");
+        final JTextField textField = new JTextField("3");
+        final JCheckBox checkBox = new JCheckBox("Auto precision");
+        checkBox.setSelected(true);
+        checkBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                label.setEnabled(!checkBox.isSelected());
+                textField.setEnabled(!checkBox.isSelected());
+                if (!checkBox.isSelected()) {
+                    updatePrecision(textField);
+                } else {
+                    precision = -1;
+                }
+                computePanel.updateEnablement();
+            }
+        });
+
+        label.setEnabled(false);
+        textField.setEnabled(false);
+        textField.setToolTipText("Specify the number of significant figures you want to retrieve.");
+        textField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updatePrecision(textField);
+                computePanel.updateEnablement();
+            }
+        });
+
+        GridBagUtils.addToPanel(precisionPanel, new TitledSeparator("Statistical Precision", SwingConstants.CENTER), gbc, "fill=HORIZONTAL, weightx=1.0,anchor=NORTH,gridwidth=2");
+        GridBagUtils.addToPanel(precisionPanel, checkBox, gbc, "gridy=1,insets.left=5,insets.top=2");
+        GridBagUtils.addToPanel(precisionPanel, label, gbc, "gridy=2, insets.left=26,weightx=0.0,fill=NONE,anchor=WEST,gridwidth=1");
+        GridBagUtils.addToPanel(precisionPanel, textField, gbc, "gridx=1,weightx=1.0,fill=HORIZONTAL,insets.right=5,insets.left=5");
+        return precisionPanel;
+    }
+
+    private void updatePrecision(JTextField textField) {
+        try {
+            precision = Integer.parseInt(textField.getText());
+        } catch (NumberFormatException e1) {
+            // do nothing, old precision is kept
+        }
     }
 
     @Override
@@ -239,15 +293,26 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             protected Object doInBackground(ProgressMonitor pm) {
                 pm.beginTask(title, selectedMasks.length);
                 try {
+                    final int binCount;
+                    if (precision > 0) {
+                        binCount = StatisticsOp.computeBinCount(precision);
+                    } else {
+                        binCount = StxFactory.DEFAULT_BIN_COUNT;
+                    }
                     for (int i = 0; i < selectedMasks.length; i++) {
                         final Mask mask = selectedMasks[i];
                         final Stx stx;
                         ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
                         if (mask == null) {
-                            stx = new StxFactory().withResolutionLevel(0).create(getRaster(), subPm);
+                            stx = new StxFactory()
+                                    .withHistogramBinCount(binCount)
+                                    .create(getRaster(), subPm);
                             getRaster().setStx(stx);
                         } else {
-                            stx = new StxFactory().withRoiMask(mask).create(getRaster(), subPm);
+                            stx = new StxFactory()
+                                    .withHistogramBinCount(binCount)
+                                    .withRoiMask(mask)
+                                    .create(getRaster(), subPm);
                         }
                         histograms[i] = stx.getHistogram();
                         publish(new ComputeResult(stx, mask));

@@ -261,7 +261,7 @@ class MultipleRoiComputePanel extends JPanel {
         updateEnablement();
     }
 
-    private void updateEnablement() {
+    void updateEnablement() {
         boolean hasMasks = (product != null && product.getMaskGroup().getNodeCount() > 0);
         boolean canSelectMasks = hasMasks && useRoiCheckBox.isSelected();
         useRoiCheckBox.setEnabled(hasMasks);
