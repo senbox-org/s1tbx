@@ -30,6 +30,7 @@ import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.BoundsInputPanel;
 import org.esa.beam.util.Debug;
+import org.esa.beam.util.StringUtils;
 
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
@@ -115,7 +116,7 @@ class BinningFormModelImpl implements BinningFormModel {
     @Override
     public String getValidExpression() {
         final String propertyValue = getPropertyValue(PROPERTY_KEY_EXPRESSION);
-        if (propertyValue == null) {
+        if (StringUtils.isNullOrEmpty(propertyValue)) {
             return "true";
         }
         return propertyValue;
