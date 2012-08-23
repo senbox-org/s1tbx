@@ -45,9 +45,16 @@ public class BinningConfigTest {
 
     @Test
     public void testPlanetaryGrid() {
-        PlanetaryGrid grid = new BinningConfig().createPlanetaryGrid();
+        BinningConfig localConfig = new BinningConfig();
+        PlanetaryGrid grid = localConfig.createPlanetaryGrid();
         assertEquals(2160, grid.getNumRows());
         assertEquals(SEAGrid.class, grid.getClass());
+
+        localConfig.setPlanetaryGrid("org.esa.beam.binning.operator.BinningConfigTest$GaussianGrid");
+        localConfig.setNumRows(2000);
+        grid = localConfig.createPlanetaryGrid();
+        assertEquals(2000, grid.getNumRows());
+        assertEquals(GaussianGrid.class, grid.getClass());
 
         grid = config.createPlanetaryGrid();
         assertEquals(4320, grid.getNumRows());
@@ -137,6 +144,55 @@ public class BinningConfigTest {
             return BinningConfig.fromXml(FileUtils.readText(reader));
         } finally {
             reader.close();
+        }
+    }
+
+    public static class GaussianGrid implements PlanetaryGrid {
+
+        int numRows;
+
+        public GaussianGrid(int numRows) {
+            this.numRows = numRows;
+        }
+
+        @Override
+        public long getBinIndex(double lat, double lon) {
+            return 0;
+        }
+
+        @Override
+        public int getRowIndex(long bin) {
+            return 0;
+        }
+
+        @Override
+        public long getNumBins() {
+            return 0;
+        }
+
+        @Override
+        public int getNumRows() {
+            return numRows;
+        }
+
+        @Override
+        public int getNumCols(int row) {
+            return 0;
+        }
+
+        @Override
+        public long getFirstBinIndex(int row) {
+            return 0;
+        }
+
+        @Override
+        public double getCenterLat(int row) {
+            return 0;
+        }
+
+        @Override
+        public double[] getCenterLatLon(long bin) {
+            return new double[0];
         }
     }
 }

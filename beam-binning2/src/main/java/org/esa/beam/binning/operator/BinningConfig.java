@@ -42,6 +42,8 @@ import org.esa.beam.binning.support.VariableContextImpl;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.ParameterBlockConverter;
 
+import java.lang.reflect.Constructor;
+
 /**
  * Configuration for the binning.
  *
@@ -52,7 +54,18 @@ import org.esa.beam.framework.gpf.annotations.ParameterBlockConverter;
 public class BinningConfig {
 
     /**
-     * Number of rows in the binning grid.
+     * Specifies the planetary grid used for the binning. It must be the fully qualified
+     * name of a class implementing the {@link PlanetaryGrid} interface.
+     * <p/>
+     * If the {@code numRows} is given (meaning it is greater than 0), the planetary grid class
+     * must have a public one-argument constructor which takes the {@code numRows} as input.
+     * Otherwise a public no-arg constructor is expected.
+     */
+    @Parameter(defaultValue = "org.esa.beam.binning.support.SEAGrid")
+    String planetaryGrid;
+
+    /**
+     * Number of rows in the planetary grid.
      */
     @Parameter
     int numRows;
@@ -81,6 +94,14 @@ public class BinningConfig {
      */
     @Parameter(alias = "aggregators", itemAlias = "aggregator")
     AggregatorConfig[] aggregatorConfigs;
+
+    public String getPlanetaryGrid() {
+        return planetaryGrid;
+    }
+
+    public void setPlanetaryGrid(String planetaryGrid) {
+        this.planetaryGrid = planetaryGrid;
+    }
 
     public int getNumRows() {
         return numRows;
@@ -141,11 +162,32 @@ public class BinningConfig {
                                       getSuperSampling() != null ? getSuperSampling() : 1);
     }
 
+    /**
+     * Creates the planetary grid used for the binning.
+     *
+     * @return A newly created planetary grid instance used for the binning.
+     * @throws IllegalArgumentException if either the {@code numRows} parameter is less or equal zero or
+     *                                  the {@code planetaryGrid} parameter denotes a class that couldn't be instantiated.
+     */
     public PlanetaryGrid createPlanetaryGrid() {
-        if (numRows == 0) {
-            numRows = SEAGrid.DEFAULT_NUM_ROWS;
+        if (planetaryGrid == null) {
+            if (numRows > 0) {
+                return new SEAGrid(numRows);
+            } else {
+                return new SEAGrid();
+            }
+        } else {
+            try {
+                if (numRows > 0) {
+                    Constructor<?> constructor = Class.forName(planetaryGrid).getConstructor(Integer.TYPE);
+                    return (PlanetaryGrid) constructor.newInstance(numRows);
+                } else {
+                    return (PlanetaryGrid) Class.forName(planetaryGrid).newInstance();
+                }
+            } catch (Exception e) {
+                throw new IllegalArgumentException(planetaryGrid, e);
+            }
         }
-        return new SEAGrid(numRows);
     }
 
     private BinManager createBinManager(VariableContext variableContext) {
