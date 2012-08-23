@@ -348,9 +348,6 @@ public class BinningOp extends Operator implements Output {
         if (binningConfig == null) {
             throw new OperatorException("Missing operator parameter 'binningConfig'");
         }
-        if (binningConfig.getMaskExpr() == null) {
-            throw new OperatorException("Missing operator parameter 'binningConfig.maskExpr'");
-        }
         if (binningConfig.getNumRows() <= 2) {
             throw new OperatorException("Operator parameter 'binningConfig.numRows' must be greater than 2");
         }
