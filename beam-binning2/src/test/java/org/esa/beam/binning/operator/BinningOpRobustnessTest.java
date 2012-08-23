@@ -8,8 +8,7 @@ import org.junit.Test;
 
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Norman Fomferra
@@ -45,7 +44,7 @@ public class BinningOpRobustnessTest {
         final BinningOp binningOp = new BinningOp();
         binningOp.setSourceProduct(BinningOpTest.createSourceProduct());
         binningOp.setBinningConfig(new BinningConfig());        // not ok, numRows == 0
-        testThatOperatorExceptionIsThrown(binningOp, ".*parameter 'binningConfig.maskExpr'.*");
+        testThatOperatorExceptionIsThrown(binningOp, ".*parameter 'binningConfig.numRows'.*");
     }
 
 //    @Test
