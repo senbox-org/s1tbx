@@ -102,7 +102,7 @@ class PrecisePercentile {
         return masks;
     }
 
-    private double getBinWidth(Histogram histogram) {
+    static double getBinWidth(Histogram histogram) {
         return (histogram.getHighValue(0) - histogram.getLowValue(0)) / histogram.getNumBins(0);
     }
 }

@@ -96,6 +96,34 @@ public class StatisticsOpTest {
         assertEquals(0.804474, outputter.percentiles[0], 1E-4);
         assertEquals(0.804474, outputter.percentiles[1], 1E-4);
     }
+    @Test
+    public void testStatisticsOp_WithPrecisePercentiles() throws Exception {
+        final StatisticsOp statisticsOp = new StatisticsOp();
+        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
+        bandConfiguration.sourceBandName = "algal_2";
+        statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
+        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
+        statisticsOp.doOutputAsciiFile = false;
+        statisticsOp.percentilePrecision = 6;
+
+        final MyOutputter outputter = new MyOutputter();
+        statisticsOp.outputters.add(outputter);
+
+        statisticsOp.initialize();
+
+        assertEquals("4_pixels.1", outputter.region);
+        assertEquals("algal_2", outputter.bandName);
+        assertEquals(4, outputter.pixels);
+        assertEquals(0.804474, outputter.maximum, 1E-6);
+        assertEquals(0.695857, outputter.minimum, 1E-6);
+        assertEquals(0.749427, outputter.average, 1E-6);
+        assertEquals(0.721552, outputter.median, 1E-6);
+        assertEquals(0.042935, outputter.sigma, 1E-6);
+        assertEquals(2, outputter.percentiles.length);
+        assertEquals(0.80447364, outputter.percentiles[0], 1E-6);
+        assertEquals(0.80447364, outputter.percentiles[1], 1E-6);
+    }
 
     @Test
     public void testStatisticsOp_WithExpression() throws Exception {
@@ -276,6 +304,21 @@ public class StatisticsOpTest {
         }
     }
 
+    @Test
+    public void testComputeBinCount() throws Exception {
+        assertEquals(1000, StatisticsOp.computeBinCount(3));
+        assertEquals(10000, StatisticsOp.computeBinCount(4));
+        assertEquals(1000000, StatisticsOp.computeBinCount(6));
+        assertEquals(1024 * 1024, StatisticsOp.computeBinCount(7));
+        assertEquals(1024 * 1024, StatisticsOp.computeBinCount(700));
+        try {
+            StatisticsOp.computeBinCount(-1);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            // ok
+        }
+    }
+
     private Product getTestProduct() throws IOException {
         return ProductIO.readProduct(getClass().getResource("testProduct1.dim").getFile());
     }
@@ -336,7 +379,7 @@ public class StatisticsOpTest {
                     median = entry.getValue().doubleValue();
                 } else if(key.equalsIgnoreCase("sigma")) {
                     sigma = entry.getValue().doubleValue();
-                } else if(key.startsWith("p") && !key.startsWith("pxx")) {
+                } else if(key.startsWith("p") && !key.endsWith("error")) {
                     percentiles[percentileIndex++] = entry.getValue().doubleValue();
                 }
             }
