@@ -120,6 +120,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
 
     public StatisticsPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, helpID, TITLE_PREFIX);
+        setMinimumSize(new Dimension(1000, 380));
         resultText = new StringBuilder();
         popupHandler = new PopupHandler();
     }
@@ -182,7 +183,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         backgroundPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         GridBagUtils.addToPanel(backgroundPanel, contentScrollPane, gbc, "fill=BOTH, weightx=1.0, weighty=1.0, anchor=NORTH");
-        GridBagUtils.addToPanel(backgroundPanel, rightPanel, gbc, "gridx=1, fill=VERTICAL, weightx=0.0, gridheight=2");
+        GridBagUtils.addToPanel(backgroundPanel, rightPanel, gbc, "gridx=1, fill=VERTICAL, weightx=0.0");
 
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.add(backgroundPanel);
