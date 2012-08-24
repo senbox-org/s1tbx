@@ -44,7 +44,7 @@ package org.esa.beam.binning;
  * <li>{@link #computeOutput(Vector, WritableVector)}</li>
  * </ol>
  * <p/>
- * Note for implementors: Aggregators have no state, in order to exchange information within the spatial or temporal
+ * Note for implementors: Aggregators should have no state. In order to exchange information within the spatial or temporal
  * binning calling sequences, use the {@link BinContext}.
  *
  * @author Norman Fomferra
