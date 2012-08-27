@@ -16,22 +16,24 @@
 package org.esa.beam.framework.dataop.barithm;
 
 import com.bc.jexp.ParseException;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.junit.Test;
 
-public class BandArithmeticUtilsTest extends TestCase {
+import static org.junit.Assert.*;
 
+public class BandArithmeticUtilsTest {
+
+    @Test
     public void testGetRefRasterDataSymbols() throws ParseException {
         FlagCoding fc = createFlagCoding();
         Product p1 = createProduct(fc, 1);
 
         RasterDataNode[] rasters;
 
-        rasters = BandArithmetic.getRefRasters("c + w * q - w",
-                                               new Product[]{p1});
+        rasters = BandArithmetic.getRefRasters("c + w * q - w", p1);
         assertNotNull(rasters);
         assertEquals(3, rasters.length);
         assertSame(p1.getBand("c"), rasters[0]);
@@ -41,8 +43,7 @@ public class BandArithmeticUtilsTest extends TestCase {
         Product p2 = createProduct(fc, 2);
         Product p3 = createProduct(fc, 3);
 
-        rasters = BandArithmetic.getRefRasters("c + ($2.w - $1.w) * $3.q + ($2.l - $1.l) * $3.q",
-                                               new Product[]{p1, p3, p2});
+        rasters = BandArithmetic.getRefRasters("c + ($2.w - $1.w) * $3.q + ($2.l - $1.l) * $3.q", p1, p3, p2);
         assertNotNull(rasters);
         assertEquals(6, rasters.length);
         assertSame(p1.getBand("c"), rasters[0]);
@@ -53,31 +54,24 @@ public class BandArithmeticUtilsTest extends TestCase {
         assertSame(p1.getBand("l"), rasters[5]);
     }
 
+    @Test
     public void testGetValidMaskExpression() throws ParseException {
         FlagCoding fc = createFlagCoding();
         Product p1 = createProduct(fc, 1);
 
         String vme;
 
-        vme = BandArithmetic.getValidMaskExpression("c + w * q - w",
-                                                    new Product[]{p1}, 0,
-                                                    null);
-        assertEquals("(f.CLOUD && !f.INVALID) " +
-                "&& (f.WATER && !f.INVALID)", vme);
+        vme = BandArithmetic.getValidMaskExpression("c + w * q - w", new Product[]{p1}, 0, null);
+        assertEquals("(f.CLOUD && !f.INVALID) " + "&& (f.WATER && !f.INVALID)", vme);
 
-        vme = BandArithmetic.getValidMaskExpression("c + w * q - w",
-                                                    new Product[]{p1}, 0,
-                                                    "c >= 0.0");
-        assertEquals("(c >= 0.0) " +
-                "&& (f.CLOUD && !f.INVALID) " +
-                "&& (f.WATER && !f.INVALID)", vme);
+        vme = BandArithmetic.getValidMaskExpression("c + w * q - w", new Product[]{p1}, 0, "c >= 0.0");
+        assertEquals("(c >= 0.0) " + "&& (f.CLOUD && !f.INVALID) " + "&& (f.WATER && !f.INVALID)", vme);
 
         Product p2 = createProduct(fc, 2);
         Product p3 = createProduct(fc, 3);
 
         vme = BandArithmetic.getValidMaskExpression("c + ($2.w - $1.w) * $3.q + ($2.l - $1.l) * $3.c",
-                                                    new Product[]{p1, p3, p2}, 0,
-                                                    null);
+                                                    new Product[]{p1, p3, p2}, 0, null);
         assertEquals("(f.CLOUD && !f.INVALID) " +
                 "&& ($2.f.WATER && !$2.f.INVALID) " +
                 "&& (f.WATER && !f.INVALID) " +
@@ -86,8 +80,7 @@ public class BandArithmeticUtilsTest extends TestCase {
                 "&& ($3.f.CLOUD && !$3.f.INVALID)", vme);
 
         vme = BandArithmetic.getValidMaskExpression("c + ($2.w - $1.w) * $3.q + ($2.l - $1.l) * $3.c",
-                                                    new Product[]{p1, p3, p2}, 0,
-                                                    "c >= 0.0");
+                                                    new Product[]{p1, p3, p2}, 0, "c >= 0.0");
         assertEquals("(c >= 0.0) " +
                 "&& (f.CLOUD && !f.INVALID) " +
                 "&& ($2.f.WATER && !$2.f.INVALID) " +
@@ -96,9 +89,7 @@ public class BandArithmeticUtilsTest extends TestCase {
                 "&& (f.LAND && !f.INVALID) " +
                 "&& ($3.f.CLOUD && !$3.f.INVALID)", vme);
         
-        vme = BandArithmetic.getValidMaskExpression("$2.w",
-                                                    new Product[]{p1, p2}, 0,
-                                                    null);
+        vme = BandArithmetic.getValidMaskExpression("$2.w", new Product[]{p1, p2}, 0, null);
         assertEquals("($2.f.WATER && !$2.f.INVALID)", vme);
     }
 
