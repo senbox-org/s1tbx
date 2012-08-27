@@ -16,7 +16,11 @@
 package org.esa.beam.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.sun.media.imageio.plugins.tiff.*;
+import com.sun.media.imageio.plugins.tiff.BaselineTIFFTagSet;
+import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
+import com.sun.media.imageio.plugins.tiff.TIFFField;
+import com.sun.media.imageio.plugins.tiff.TIFFImageReadParam;
+import com.sun.media.imageio.plugins.tiff.TIFFTag;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFRenderedImage;
@@ -24,7 +28,23 @@ import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.esa.beam.dataio.geotiff.internal.GeoKeyEntry;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.FilterBand;
+import org.esa.beam.framework.datamodel.GcpDescriptor;
+import org.esa.beam.framework.datamodel.GcpGeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.geotiff.EPSGCodes;
@@ -47,7 +67,9 @@ import javax.imageio.stream.ImageInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
@@ -57,7 +79,12 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class GeoTiffProductReader extends AbstractProductReader {
 
@@ -87,26 +114,18 @@ public class GeoTiffProductReader extends AbstractProductReader {
     }
 
     @Override
-    protected synchronized void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY,
-                                                       int sourceWidth, int sourceHeight,
-                                                       int sourceStepX, int sourceStepY,
-                                                       Band destBand,
-                                                       int destOffsetX, int destOffsetY,
-                                                       int destWidth, int destHeight,
-                                                       ProductData destBuffer, ProgressMonitor pm) throws IOException {
+    protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY,
+                                          int sourceWidth, int sourceHeight,
+                                          int sourceStepX, int sourceStepY,
+                                          Band destBand,
+                                          int destOffsetX, int destOffsetY,
+                                          int destWidth, int destHeight,
+                                          ProductData destBuffer, ProgressMonitor pm) throws IOException {
         final int destSize = destWidth * destHeight;
         pm.beginTask("Reading data...", 3);
         try {
-            TIFFImageReadParam readParam = (TIFFImageReadParam) imageReader.getDefaultReadParam();
-            readParam.setSourceSubsampling(sourceStepX, sourceStepY,
-                                           sourceOffsetX % sourceStepX,
-                                           sourceOffsetY % sourceStepY);
-            TIFFRenderedImage subsampledImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(FIRST_IMAGE,
-                                                                                                    readParam);
-            pm.worked(1);
-
-            final Raster data = subsampledImage.getData(new Rectangle(destOffsetX, destOffsetY,
-                                                                      destWidth, destHeight));
+            final Raster data = readRect(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY, destOffsetX,
+                                         destOffsetY, destWidth, destHeight, pm);
             double[] dArray = new double[destSize];
             Integer bandIdx = bandMap.get(destBand);
             if (bandIdx == null) {
@@ -126,6 +145,22 @@ public class GeoTiffProductReader extends AbstractProductReader {
             pm.done();
         }
 
+    }
+
+    private synchronized Raster readRect(int sourceOffsetX, int sourceOffsetY, int sourceStepX, int sourceStepY,
+                                         int destOffsetX,
+                                         int destOffsetY, int destWidth, int destHeight, ProgressMonitor pm) throws
+                                                                                                             IOException {
+        TIFFImageReadParam readParam = (TIFFImageReadParam) imageReader.getDefaultReadParam();
+        readParam.setSourceSubsampling(sourceStepX, sourceStepY,
+                                       sourceOffsetX % sourceStepX,
+                                       sourceOffsetY % sourceStepY);
+        TIFFRenderedImage subsampledImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(FIRST_IMAGE,
+                                                                                                readParam);
+        pm.worked(1);
+
+        return subsampledImage.getData(new Rectangle(destOffsetX, destOffsetY,
+                                                     destWidth, destHeight));
     }
 
     @Override
@@ -183,7 +218,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
             if (tiffInfo.containsField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION)) {
                 final TIFFField field1 = tiffInfo.getField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION);
                 productName = field1.getAsString(0);
-            }else if (inputFile != null) {
+            } else if (inputFile != null) {
                 productName = FileUtils.getFilenameWithoutExtension(inputFile);
             } else {
                 productName = "geotiff";
@@ -201,12 +236,12 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
 
         TiffTagToMetadataConverter.addTiffTagsToMetadata(imageMetadata, tiffInfo, product.getMetadataRoot());
-        
+
         if (inputFile != null) {
             initMetadata(product, inputFile);
             product.setFileLocation(inputFile);
         }
-        setPreferrdTiling(product);
+        setPreferredTiling(product);
 
         return product;
     }
@@ -262,7 +297,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
     }
 
-    private void setPreferrdTiling(Product product) throws IOException {
+    private void setPreferredTiling(Product product) throws IOException {
         final Dimension dimension;
         if (isBadTiling()) {
             dimension = JAIUtils.computePreferredTileSize(imageReader.getWidth(FIRST_IMAGE),
