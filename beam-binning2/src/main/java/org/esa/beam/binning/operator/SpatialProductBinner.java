@@ -30,6 +30,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Point;
@@ -75,7 +76,6 @@ public class SpatialProductBinner {
 
         final VariableContext variableContext = spatialBinner.getBinningContext().getVariableContext();
 
-        final int sliceWidth = product.getSceneRasterWidth();
         for (int i = 0; i < variableContext.getVariableCount(); i++) {
             String variableName = variableContext.getVariableName(i);
             String variableExpr = variableContext.getVariableExpression(i);
@@ -96,25 +96,29 @@ public class SpatialProductBinner {
 
         final String maskExpr = variableContext.getValidMaskExpression();
         final MultiLevelImage maskImage = ImageManager.getInstance().getMaskImage(maskExpr, product);
+        final int sliceWidth = product.getSceneRasterWidth();
         final int sliceHeight = maskImage.getTileHeight();
-        boolean compatibleTileSizes = areTileSizesCompatible(maskImage, sliceWidth, sliceHeight);
+        boolean hasFullWidthTiles = areTileSizesCompatible(maskImage, sliceWidth, sliceHeight);
 
         final MultiLevelImage[] varImages = new MultiLevelImage[variableContext.getVariableCount()];
         for (int i = 0; i < variableContext.getVariableCount(); i++) {
             final String nodeName = variableContext.getVariableName(i);
             final RasterDataNode node = getRasterDataNode(product, nodeName);
             final MultiLevelImage varImage = node.getGeophysicalImage();
-            compatibleTileSizes = compatibleTileSizes && areTileSizesCompatible(varImage, sliceWidth, sliceHeight);
+            hasFullWidthTiles = hasFullWidthTiles && areTileSizesCompatible(varImage, sliceWidth, sliceHeight);
             varImages[i] = varImage;
         }
 
         final GeoCoding geoCoding = product.getGeoCoding();
 
         long numObsTotal = 0;
-        if (compatibleTileSizes) {
+        if (hasFullWidthTiles) {
             final Point[] tileIndices = maskImage.getTileIndices(null);
             progressMonitor.beginTask("Spatially binning of " + product.getName(), tileIndices.length);
             for (Point tileIndex : tileIndices) {
+                int currentTileIndex = maskImage.getNumXTiles() * tileIndex.y + tileIndex.x;
+                StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
                 final ObservationSlice observationSlice = createObservationSlice(geoCoding,
                                                                                  maskImage, varImages,
                                                                                  tileIndex,
@@ -122,6 +126,7 @@ public class SpatialProductBinner {
                 spatialBinner.processObservationSlice(observationSlice);
                 numObsTotal += observationSlice.getSize();
                 progressMonitor.worked(1);
+                stopWatch.stopAndTrace(String.format("Processed tile %d of %d", currentTileIndex, tileIndices.length));
             }
             progressMonitor.done();
         } else {
@@ -130,6 +135,9 @@ public class SpatialProductBinner {
             int currentSliceHeight = sliceHeight;
             progressMonitor.beginTask("Spatially binning of " + product.getName(), numSlices);
             for (int sliceIndex = 0; sliceIndex < numSlices; sliceIndex++) {
+                StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+
                 int sliceY = sliceIndex * sliceHeight;
                 if (sliceY + sliceHeight > sceneHeight) {
                     currentSliceHeight = sceneHeight - sliceY;
@@ -144,6 +152,7 @@ public class SpatialProductBinner {
                 spatialBinner.processObservationSlice(observationSlice);
                 numObsTotal += observationSlice.getSize();
                 progressMonitor.worked(1);
+                stopWatch.stopAndTrace(String.format("Processed slice %d of %d", sliceIndex, numSlices));
             }
             progressMonitor.done();
         }
