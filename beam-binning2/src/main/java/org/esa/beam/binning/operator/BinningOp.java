@@ -560,7 +560,7 @@ public class BinningOp extends Operator implements Output {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        getLogger().info(String.format("Spatial binning of %d bins", spatialBinMap.size()));
+        getLogger().info(String.format("Temporal binning of %d bins", spatialBinMap.size()));
         final TemporalBinner temporalBinner = new TemporalBinner(binningContext);
         final ArrayList<TemporalBin> temporalBins = new ArrayList<TemporalBin>();
         for (Map.Entry<Long, List<SpatialBin>> entry : spatialBinMap.entrySet()) {
@@ -568,7 +568,7 @@ public class BinningOp extends Operator implements Output {
             temporalBins.add(temporalBin);
         }
         stopWatch.stop();
-        getLogger().info(String.format("Spatial binning of %d bins done, took %s", spatialBinMap.size(), stopWatch));
+        getLogger().info(String.format("Temporal binning of %d bins done, took %s", spatialBinMap.size(), stopWatch));
 
         return temporalBins;
     }
