@@ -17,11 +17,14 @@
 package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.binning.operator.AggregatorConfig;
+import org.esa.beam.binning.AggregatorConfig;
+import org.esa.beam.binning.AggregatorDescriptor;
+import org.esa.beam.binning.AggregatorDescriptorRegistry;
 import org.esa.beam.binning.operator.BinningConfig;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.binning.operator.FormatterConfig;
@@ -95,13 +98,22 @@ public class BinningDialog extends SingleTargetProductDialog {
         return createBinningConfig(variableConfigs, aggregatorConfigs);
     }
 
-    private AggregatorConfig createAggregatorConfig(String name, String varName, Float fillValue, Double weightCoeff, int percentile) {
-        final AggregatorConfig aggregatorConfig = new AggregatorConfig();
-        aggregatorConfig.setAggregatorName(name);
-        aggregatorConfig.setVarName(varName);
-        aggregatorConfig.setFillValue(fillValue);
-        aggregatorConfig.setWeightCoeff(weightCoeff);
-        aggregatorConfig.setPercentage(percentile);
+    private AggregatorConfig createAggregatorConfig(String aggregatorName, String varName, Float fillValue, Double weightCoeff, int percentile) {
+        AggregatorDescriptor aggregatorDescriptor = AggregatorDescriptorRegistry.getInstance().getAggregatorDescriptor(aggregatorName);
+        final AggregatorConfig aggregatorConfig = aggregatorDescriptor.createAggregatorConfig();
+        PropertyContainer pc = PropertyContainer.createObjectBacked(aggregatorConfig);
+        if (pc.isPropertyDefined("varName")) {
+            pc.setValue("varName", varName);
+        }
+        if (pc.isPropertyDefined("fillValue")) {
+            pc.setValue("fillValue", fillValue);
+        }
+        if (pc.isPropertyDefined("weightCoeff")) {
+            pc.setValue("weightCoeff", weightCoeff);
+        }
+        if (pc.isPropertyDefined("percentage")) {
+            pc.setValue("percentage", percentile);
+        }
         return aggregatorConfig;
     }
 

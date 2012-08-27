@@ -5,6 +5,10 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.core.Assert;
+import org.esa.beam.binning.AggregatorConfig;
+import org.esa.beam.binning.AggregatorDescriptor;
+import org.esa.beam.binning.AggregatorDescriptorRegistry;
 
 /**
  * @author Norman Fomferra
@@ -28,7 +32,8 @@ public class AggregatorConfigDomConverter implements DomConverter {
         AggregatorConfig[] aggregatorConfigs = new AggregatorConfig[childCount];
         for (int i = 0; i < childCount; i++) {
             DomElement child = parentElement.getChild(i);
-            String aggregatorName = child.getChild("type").getValue();
+            DomElement typeElement = child.getChild("type");
+            String aggregatorName = typeElement.getValue();
             AggregatorConfig aggregatorConfig = createAggregatorConfig(aggregatorName);
             childConverter.convertDomToValue(child, aggregatorConfig);
             aggregatorConfigs[i] = aggregatorConfig;
@@ -37,21 +42,19 @@ public class AggregatorConfigDomConverter implements DomConverter {
     }
 
     private AggregatorConfig createAggregatorConfig(String aggregatorName) {
-        // todo - use this instead (nf, LC-aggregation)
-        // final AggregatorDescriptor aggregatorDescriptor = AggregatorDescriptorRegistry.getInstance().getAggregatorDescriptor(aggregatorName);
-        // return aggregatorDescriptor.createAggregatorConfig();
-        return new AggregatorConfig(aggregatorName);
+        Assert.notNull(aggregatorName, "aggregatorName");
+        final AggregatorDescriptor aggregatorDescriptor = AggregatorDescriptorRegistry.getInstance().getAggregatorDescriptor(aggregatorName);
+        Assert.argument(aggregatorDescriptor != null, String.format("Unknown aggregator name '%s'", aggregatorName));
+        return aggregatorDescriptor.createAggregatorConfig();
     }
 
     @Override
     public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
-        DomElement aggregators = parentElement.createChild("aggregators");
         AggregatorConfig[] aggregatorConfigs = (AggregatorConfig[]) value;
         for (AggregatorConfig aggregatorConfig : aggregatorConfigs) {
-            DomElement aggregator = aggregators.createChild("aggregator");
+            DomElement aggregator = parentElement.createChild("aggregator");
             childConverter.convertValueToDom(aggregatorConfig, aggregator);
         }
-        parentElement.addChild(aggregators);
 
     }
 }

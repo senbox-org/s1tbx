@@ -16,9 +16,9 @@
 
 package org.esa.beam.binning.aggregators;
 
-import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.binning.*;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 
 import java.util.Arrays;
 
@@ -28,7 +28,7 @@ import java.util.Arrays;
 public class AggregatorMinMax extends AbstractAggregator {
     private final int varIndex;
 
-    public AggregatorMinMax(VariableContext varCtx, String varName, Float fillValue) {
+    public AggregatorMinMax(VariableContext varCtx, String varName, Number fillValue) {
         super(Descriptor.NAME, createFeatureNames(varName, "min", "max"), fillValue);
 
         if (varCtx == null) {
@@ -90,6 +90,22 @@ public class AggregatorMinMax extends AbstractAggregator {
                 '}';
     }
 
+    public static class Config extends AggregatorConfig {
+        @Parameter
+        String varName;
+        @Parameter
+        Float fillValue;
+
+        public Config() {
+            super(Descriptor.NAME);
+        }
+
+        @Override
+        public String[] getVarNames() {
+            return new String[]{varName};
+        }
+    }
+
     public static class Descriptor implements AggregatorDescriptor {
 
         public static final String NAME = "MIN_MAX";
@@ -100,19 +116,17 @@ public class AggregatorMinMax extends AbstractAggregator {
         }
 
         @Override
-        public PropertyDescriptor[] getParameterDescriptors() {
-
-            return new PropertyDescriptor[]{
-                    new PropertyDescriptor("varName", String.class),
-                    new PropertyDescriptor("fillValue", Float.class),
-            };
-        }
-
-        @Override
-        public Aggregator createAggregator(VariableContext varCtx, PropertySet propertySet) {
+        public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
+            PropertySet propertySet = aggregatorConfig.asPropertySet();
             return new AggregatorMinMax(varCtx,
                                         (String) propertySet.getValue("varName"),
                                         (Float) propertySet.getValue("fillValue"));
         }
+
+        @Override
+        public AggregatorConfig createAggregatorConfig() {
+            return new Config();
+        }
+
     }
 }

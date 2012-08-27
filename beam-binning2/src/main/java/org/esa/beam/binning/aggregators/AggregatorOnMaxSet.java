@@ -16,9 +16,9 @@
 
 package org.esa.beam.binning.aggregators;
 
-import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.binning.*;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 
 import java.util.Arrays;
 
@@ -116,6 +116,21 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
         return featureNames;
     }
 
+    public static class Config extends AggregatorConfig {
+        @Parameter
+        String[] varNames;
+
+        public Config() {
+            super(Descriptor.NAME);
+        }
+
+        @Override
+        public String[] getVarNames() {
+            return varNames;
+        }
+    }
+
+
     public static class Descriptor implements AggregatorDescriptor {
 
         public static final String NAME = "ON_MAX_SET";
@@ -124,19 +139,15 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
         public String getName() {
             return NAME;
         }
-
         @Override
-        public PropertyDescriptor[] getParameterDescriptors() {
-
-            return new PropertyDescriptor[]{
-                    new PropertyDescriptor("varNames", String[].class),
-            };
+        public AggregatorConfig createAggregatorConfig() {
+            return new Config();
         }
 
         @Override
-        public Aggregator createAggregator(VariableContext varCtx, PropertySet propertySet) {
-            return new AggregatorOnMaxSet(varCtx,
-                                          (String[]) propertySet.getValue("varNames"));
+        public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
+            PropertySet propertySet = aggregatorConfig.asPropertySet();
+            return new AggregatorOnMaxSet(varCtx, (String[]) propertySet.getValue("varNames"));
         }
     }
 }

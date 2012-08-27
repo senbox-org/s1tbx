@@ -34,7 +34,6 @@ package org.esa.beam.binning.operator;
 
 
 import com.bc.ceres.binding.BindingException;
-import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.binning.*;
 import org.esa.beam.binning.support.BinningContextImpl;
 import org.esa.beam.binning.support.SEAGrid;
@@ -92,9 +91,7 @@ public class BinningConfig {
     /**
      * List of aggregators. Aggregators generate the bands in the binned output products.
      */
-    // todo - use this instead (nf, LC-aggregation)
-    //@Parameter(alias = "aggregators", domConverter = AggregatorConfigDomConverter.class)
-    @Parameter(alias = "aggregators", itemAlias = "aggregator")
+    @Parameter(alias = "aggregators", domConverter = AggregatorConfigDomConverter.class)
     AggregatorConfig[] aggregatorConfigs;
 
     public String getPlanetaryGrid() {
@@ -203,7 +200,7 @@ public class BinningConfig {
             AggregatorConfig aggregatorConfig = aggregatorConfigs[i];
             AggregatorDescriptor descriptor = AggregatorDescriptorRegistry.getInstance().getAggregatorDescriptor(aggregatorConfig.getAggregatorName());
             if (descriptor != null) {
-                aggregators[i] = descriptor.createAggregator(variableContext, PropertyContainer.createObjectBacked(aggregatorConfig));
+                aggregators[i] = descriptor.createAggregator(variableContext, aggregatorConfig);
             } else {
                 throw new IllegalArgumentException("Unknown aggregator type: " + aggregatorConfig.getAggregatorName());
             }
@@ -234,19 +231,13 @@ public class BinningConfig {
         //
         if (aggregatorConfigs != null) {
             for (AggregatorConfig aggregatorConfig : aggregatorConfigs) {
-                String varName = aggregatorConfig.getVarName();
-                if (varName != null) {
+                String[] varNames = aggregatorConfig.getVarNames();
+                for (String varName : varNames) {
                     variableContext.defineVariable(varName);
-                } else {
-                    String[] varNames = aggregatorConfig.getVarNames();
-                    if (varNames != null) {
-                        for (String varName1 : varNames) {
-                            variableContext.defineVariable(varName1);
-                        }
-                    }
                 }
             }
         }
+
         return variableContext;
     }
 

@@ -16,9 +16,9 @@
 
 package org.esa.beam.binning.aggregators;
 
-import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.binning.*;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 
 import java.util.Arrays;
 
@@ -29,7 +29,7 @@ public final class AggregatorAverage extends AbstractAggregator {
     private final int varIndex;
     private final WeightFn weightFn;
 
-    public AggregatorAverage(VariableContext varCtx, String varName, Double weightCoeff, Float fillValue) {
+    public AggregatorAverage(VariableContext varCtx, String varName, Double weightCoeff, Number fillValue) {
         super(Descriptor.NAME,
               createFeatureNames(varName, "sum", "sum_sq"),
               createFeatureNames(varName, "sum", "sum_sq", "weights"),
@@ -109,6 +109,36 @@ public final class AggregatorAverage extends AbstractAggregator {
                 '}';
     }
 
+    public static class Config extends AggregatorConfig {
+        @Parameter(notEmpty = true, notNull = true)
+        String varName;
+        @Parameter
+        Double weightCoeff;
+        @Parameter
+        Float fillValue;
+
+
+        public Config() {
+            this(null, null, null);
+        }
+
+        public Config(String varName, Double weightCoeff, Float fillValue) {
+            super(Descriptor.NAME);
+            this.varName = varName;
+            this.weightCoeff = weightCoeff;
+            this.fillValue = fillValue;
+        }
+
+        public void setVarName(String varName) {
+            this.varName = varName;
+        }
+
+        @Override
+        public String[] getVarNames() {
+            return new String[]{varName};
+        }
+    }
+
     public static class Descriptor implements AggregatorDescriptor {
 
         public static final String NAME = "AVG";
@@ -119,21 +149,17 @@ public final class AggregatorAverage extends AbstractAggregator {
         }
 
         @Override
-        public PropertyDescriptor[] getParameterDescriptors() {
-
-            return new PropertyDescriptor[]{
-                    new PropertyDescriptor("varName", String.class),
-                    new PropertyDescriptor("weightCoeff", Double.class),
-                    new PropertyDescriptor("fillValue", Float.class),
-            };
+        public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
+            PropertySet propertySet = aggregatorConfig.asPropertySet();
+            return new AggregatorAverage(varCtx,
+                                         (String) propertySet.getValue("varName"),
+                                         (Double) propertySet.getValue("weightCoeff"),
+                                         (Float) propertySet.getValue("fillValue"));
         }
 
         @Override
-        public Aggregator createAggregator(VariableContext varCtx, PropertySet propertySet) {
-            return new AggregatorAverage(varCtx,
-                                         propertySet.<String>getValue("varName"),
-                                         propertySet.<Double>getValue("weightCoeff"),
-                                         propertySet.<Float>getValue("fillValue"));
+        public AggregatorConfig createAggregatorConfig() {
+            return new Config();
         }
     }
 }

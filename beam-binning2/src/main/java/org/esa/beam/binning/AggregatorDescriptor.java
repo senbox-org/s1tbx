@@ -16,9 +16,6 @@
 
 package org.esa.beam.binning;
 
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.PropertySet;
-
 /**
  * A descriptor for aggregators.
  *
@@ -26,12 +23,10 @@ import com.bc.ceres.binding.PropertySet;
  * @author Norman
  */
 public interface AggregatorDescriptor {
+
     String getName();
 
-    // todo - put away, not needed, use createAggregatorConfig() instead  (nf, LC-aggregation)
-    PropertyDescriptor[] getParameterDescriptors();
-    // AggregatorConfig createAggregatorConfig();
+    AggregatorConfig createAggregatorConfig();
 
-    Aggregator createAggregator(VariableContext varCtx, PropertySet configuration);
-
+    Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig);
 }

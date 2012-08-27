@@ -16,9 +16,9 @@
 
 package org.esa.beam.binning.aggregators;
 
-import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.binning.*;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 
 import java.util.Arrays;
 
@@ -34,7 +34,7 @@ public class AggregatorAverageML extends AbstractAggregator {
     private final int varIndex;
     private final WeightFn weightFn;
 
-    public AggregatorAverageML(VariableContext ctx, String varName, Double weightCoeff, Float fillValue) {
+    public AggregatorAverageML(VariableContext ctx, String varName, Double weightCoeff, Number fillValue) {
         super(Descriptor.NAME,
               createFeatureNames(varName, "sum", "sum_sq"),
               createFeatureNames(varName, "sum", "sum_sq", "weights"),
@@ -112,6 +112,24 @@ public class AggregatorAverageML extends AbstractAggregator {
                 '}';
     }
 
+    public static class Config extends AggregatorConfig {
+        @Parameter
+        String varName;
+        @Parameter
+        Double weightCoeff;
+        @Parameter
+        Float fillValue;
+
+        public Config() {
+            super(Descriptor.NAME);
+        }
+
+        @Override
+        public String[] getVarNames() {
+            return new String[]{varName};
+        }
+    }
+
     public static class Descriptor implements AggregatorDescriptor {
 
         public static final String NAME = "AVG_ML";
@@ -122,21 +140,17 @@ public class AggregatorAverageML extends AbstractAggregator {
         }
 
         @Override
-        public PropertyDescriptor[] getParameterDescriptors() {
-
-            return new PropertyDescriptor[]{
-                    new PropertyDescriptor("varName", String.class),
-                    new PropertyDescriptor("weightCoeff", Double.class),
-                    new PropertyDescriptor("fillValue", Float.class),
-            };
+        public AggregatorConfig createAggregatorConfig() {
+            return new Config();
         }
 
         @Override
-        public Aggregator createAggregator(VariableContext varCtx, PropertySet propertySet) {
+        public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
+            PropertySet propertySet = aggregatorConfig.asPropertySet();
             return new AggregatorAverageML(varCtx,
-                                           propertySet.<String>getValue("varName"),
-                                           propertySet.<Double>getValue("weightCoeff"),
-                                           propertySet.<Float>getValue("fillValue"));
+                                           (String) propertySet.getValue("varName"),
+                                           (Double) propertySet.getValue("weightCoeff"),
+                                           (Float) propertySet.getValue("fillValue"));
         }
     }
 }

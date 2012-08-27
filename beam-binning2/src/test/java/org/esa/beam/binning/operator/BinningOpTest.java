@@ -3,12 +3,9 @@ package org.esa.beam.binning.operator;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.main.GPT;
@@ -27,7 +24,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedMap;
 
-import static java.lang.Math.*;
+import static java.lang.Math.sqrt;
 import static org.junit.Assert.*;
 
 /**
@@ -647,11 +644,10 @@ public class BinningOpTest {
     }
 
     static BinningConfig createBinningConfig() {
-        final AggregatorConfig aggregatorConfig = new AggregatorConfig();
-        aggregatorConfig.setAggregatorName("AVG");
-        aggregatorConfig.setVarName("chl");
+        AggregatorAverage.Config c = new AggregatorAverage.Config();
+        c.setVarName("chl");
         final BinningConfig binningConfig = new BinningConfig();
-        binningConfig.setAggregatorConfigs(aggregatorConfig);
+        binningConfig.setAggregatorConfigs(c);
         binningConfig.setNumRows(180);
         binningConfig.setMaskExpr("true");
         return binningConfig;
