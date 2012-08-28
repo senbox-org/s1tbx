@@ -8,7 +8,6 @@ import com.bc.ceres.swing.binding.BindingContext;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.util.Debug;
 import org.geotools.feature.NameImpl;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
@@ -68,7 +67,6 @@ class CorrelativeFieldSelector {
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value != null) {
-//                    this.setText(((AttributeDescriptor) value).getType().getName().getLocalPart());
                     this.setText(((AttributeDescriptor) value).getName().getLocalPart());
                 }
                 return this;
@@ -136,26 +134,12 @@ class CorrelativeFieldSelector {
         }
     }
 
-    public void tryToSelectNamedPointDataSource(String pointDataSourceName) {
-        final int itemCount = pointDataSourceList.getItemCount();
-        for (int i = 0; i < itemCount; i++) {
-            final VectorDataNode vdn = (VectorDataNode) pointDataSourceList.getItemAt(i);
-            if (vdn.getName().equals(pointDataSourceName)) {
-                pointDataSourceList.setSelectedItem(vdn);
-                break;
-            }
-        }
+    public void tryToSelectPointDataSource(VectorDataNode pointDataSource) {
+                pointDataSourceList.setSelectedItem(pointDataSource);
     }
 
-    public void tryToSelectNamedDataField(String dataFieldName) {
-        final int itemCount = dataFieldList.getItemCount();
-        for (int i = 0; i < itemCount; i++) {
-            final AttributeDescriptor ad = (AttributeDescriptor) dataFieldList.getItemAt(i);
-            if (ad.getName().getLocalPart().equals(dataFieldName)) {
-                dataFieldList.setSelectedItem(ad);
-                break;
-            }
-        }
+    public void tryToSelectDataField(AttributeDescriptor dataField) {
+                dataFieldList.setSelectedItem(dataField);
     }
 
     private class NullAttributeDescriptor implements AttributeDescriptor {

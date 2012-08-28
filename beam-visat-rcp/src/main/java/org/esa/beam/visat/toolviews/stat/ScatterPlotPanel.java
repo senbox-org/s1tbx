@@ -38,7 +38,6 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.feature.FeatureCollection;
 import org.jfree.chart.ChartFactory;
@@ -193,17 +192,9 @@ class ScatterPlotPanel extends ChartPagePanel {
             public void propertyChange(PropertyChangeEvent evt) {
                 if (getRaster() != null) {
                     final VectorDataNode pointDataSourceValue = scatterPlotModel.pointDataSource;
-                    String pointDataSourceName = "";
-                    if (pointDataSourceValue != null) {
-                        pointDataSourceName = pointDataSourceValue.getName();
-                    }
                     final AttributeDescriptor dataFieldValue = scatterPlotModel.dataField;
-                    String dataFieldName = "";
-                    if (dataFieldValue != null) {
-                        dataFieldName = dataFieldValue.getName().getLocalPart();
-                    }
                     final UserSettings userSettings = getUserSettings(getRaster().getProduct());
-                    userSettings.set(getRaster().getName(), pointDataSourceName, dataFieldName);
+                    userSettings.set(getRaster().getName(), pointDataSourceValue, dataFieldValue);
                 }
             }
         };
@@ -214,6 +205,7 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     @Override
     protected void handleLayerContentChanged() {
+        System.out.println("     handleLayerContentChanged");
         computeChartDataIfPossible();
     }
 
@@ -254,23 +246,25 @@ class ScatterPlotPanel extends ChartPagePanel {
 
         if (raster != null) {
             final String rasterName = raster.getName();
+
             final UserSettings userSettings = getUserSettings(product);
-            final String pointDataSourceName = userSettings.getPointDataSourceName(rasterName);
-            final String dataFieldName = userSettings.getDataFieldName(rasterName);
+            final VectorDataNode userSelectedPointDataSource = userSettings.getPointDataSource(rasterName);
+            final AttributeDescriptor userSelectedDataField = userSettings.getDataField(rasterName);
 
             correlativeFieldSelector.updatePointDataSource(product);
             correlativeFieldSelector.updateDataField();
 
-            if (StringUtils.isNotNullAndNotEmpty(pointDataSourceName)) {
-                correlativeFieldSelector.tryToSelectNamedPointDataSource(pointDataSourceName);
+            if (userSelectedPointDataSource != null) {
+                correlativeFieldSelector.tryToSelectPointDataSource(userSelectedPointDataSource);
             }
-            if (StringUtils.isNotNullAndNotEmpty(dataFieldName)) {
-                correlativeFieldSelector.tryToSelectNamedDataField(dataFieldName);
+            if (userSelectedDataField != null) {
+                correlativeFieldSelector.tryToSelectDataField(userSelectedDataField);
             }
         }
 
         if (isRasterChanged()) {
             getPlot().getRangeAxis().setLabel(getAxisLabel(raster, "X", false));
+            System.out.println("     updateComponents");
             computeChartDataIfPossible();
         }
     }
@@ -294,6 +288,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     public void nodeRemoved(ProductNodeEvent event) {
         if (event.getSourceNode() instanceof VectorDataNode) {
             updateComponents();
+            System.out.println("     nodeRemoved");
             computeChartDataIfPossible();
         }
     }
@@ -322,6 +317,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         final PropertyChangeListener recomputeListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
+                System.out.println("     recomputeListener");
                 computeChartDataIfPossible();
             }
         };
@@ -657,6 +653,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
         } else {
             scatterpointsDataset.removeAllSeries();
+            System.out.println("     scatterpointsDataset.removeAllSeries();");
             acceptableDeviationDataset.removeAllSeries();
             regressionDataset.removeAllSeries();
             getPlot().removeAnnotation(r2Annotation);
@@ -677,6 +674,8 @@ class ScatterPlotPanel extends ChartPagePanel {
 
             @Override
             protected ComputedData[] doInBackground() throws Exception {
+                System.out.println("     startComputing scatter data;");
+
                 final ArrayList<ComputedData> computedDataList = new ArrayList<ComputedData>();
 
                 final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = scatterPlotModel.pointDataSource.getFeatureCollection();
@@ -800,6 +799,7 @@ class ScatterPlotPanel extends ChartPagePanel {
 
                     computingData = true;
                     scatterpointsDataset.addSeries(scatterValues);
+                    System.out.println("     scatterpointsDataset.addSeries(scatterValues);");
 
                     xAxis.setAutoRange(true);
                     yAxis.setAutoRange(true);
@@ -1026,27 +1026,29 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     private static class UserSettings {
-        Map<String, String> pointDataSourceNames = new HashMap<String, String>();
-        Map<String, String> dataFieldNames = new HashMap<String, String>();
+        Map<String, VectorDataNode> pointDataSource = new HashMap<String, VectorDataNode>();
+        Map<String, AttributeDescriptor> dataField = new HashMap<String, AttributeDescriptor>();
 
-        public void set(String rasterName, String pointDataSourceName, String dataFieldName) {
-            pointDataSourceNames.put(rasterName, pointDataSourceName);
-            dataFieldNames.put(rasterName, dataFieldName);
+        public void set(String rasterName, VectorDataNode pointDataSourceValue, AttributeDescriptor dataFieldValue) {
+            if (pointDataSourceValue != null && dataFieldValue != null ) {
+                pointDataSource.put(rasterName, pointDataSourceValue);
+                dataField.put(rasterName, dataFieldValue);
+            }
         }
 
-        public String getPointDataSourceName(String rasterName) {
-            return pointDataSourceNames.get(rasterName);
+        public VectorDataNode getPointDataSource(String rasterName) {
+            return pointDataSource.get(rasterName);
         }
 
-        public String getDataFieldName(String rasterName) {
-            return dataFieldNames.get(rasterName);
+        public AttributeDescriptor getDataField(String rasterName) {
+            return dataField.get(rasterName);
         }
 
         public void dispose() {
-            pointDataSourceNames.clear();
-            pointDataSourceNames = null;
-            dataFieldNames.clear();
-            dataFieldNames = null;
+            pointDataSource.clear();
+            pointDataSource = null;
+            dataField.clear();
+            dataField = null;
         }
     }
 }
