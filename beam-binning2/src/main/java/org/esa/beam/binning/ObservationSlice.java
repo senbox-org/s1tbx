@@ -27,7 +27,7 @@ import java.util.Iterator;
  *
  * @author Norman Fomferra
  */
-public final class ObservationSlice implements Iterable<Observation> {
+public class ObservationSlice implements Iterable<Observation> {
     private final Raster[] sourceTiles;
     private final ArrayList<Observation> observations;
 
