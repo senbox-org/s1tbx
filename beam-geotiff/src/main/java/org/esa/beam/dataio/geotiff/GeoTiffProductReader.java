@@ -19,7 +19,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.sun.media.imageio.plugins.tiff.BaselineTIFFTagSet;
 import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
 import com.sun.media.imageio.plugins.tiff.TIFFField;
-import com.sun.media.imageio.plugins.tiff.TIFFImageReadParam;
 import com.sun.media.imageio.plugins.tiff.TIFFTag;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
@@ -74,6 +73,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -124,8 +124,10 @@ public class GeoTiffProductReader extends AbstractProductReader {
         final int destSize = destWidth * destHeight;
         pm.beginTask("Reading data...", 3);
         try {
-            final Raster data = readRect(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY, destOffsetX,
-                                         destOffsetY, destWidth, destHeight, pm);
+            final Raster data = readRect(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                                         destOffsetX, destOffsetY, destWidth, destHeight);
+            pm.worked(1);
+
             double[] dArray = new double[destSize];
             Integer bandIdx = bandMap.get(destBand);
             if (bandIdx == null) {
@@ -148,19 +150,15 @@ public class GeoTiffProductReader extends AbstractProductReader {
     }
 
     private synchronized Raster readRect(int sourceOffsetX, int sourceOffsetY, int sourceStepX, int sourceStepY,
-                                         int destOffsetX,
-                                         int destOffsetY, int destWidth, int destHeight, ProgressMonitor pm) throws
-                                                                                                             IOException {
-        TIFFImageReadParam readParam = (TIFFImageReadParam) imageReader.getDefaultReadParam();
-        readParam.setSourceSubsampling(sourceStepX, sourceStepY,
-                                       sourceOffsetX % sourceStepX,
-                                       sourceOffsetY % sourceStepY);
-        TIFFRenderedImage subsampledImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(FIRST_IMAGE,
-                                                                                                readParam);
-        pm.worked(1);
+                                         int destOffsetX, int destOffsetY, int destWidth, int destHeight) throws
+                                                                                                          IOException {
+        ImageReadParam readParam = imageReader.getDefaultReadParam();
+        int subsamplingXOffset = sourceOffsetX % sourceStepX;
+        int subsamplingYOffset = sourceOffsetY % sourceStepY;
+        readParam.setSourceSubsampling(sourceStepX, sourceStepY, subsamplingXOffset, subsamplingYOffset);
+        RenderedImage subsampledImage = imageReader.readAsRenderedImage(FIRST_IMAGE, readParam);
 
-        return subsampledImage.getData(new Rectangle(destOffsetX, destOffsetY,
-                                                     destWidth, destHeight));
+        return subsampledImage.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
     }
 
     @Override
@@ -358,7 +356,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
                                                     product.getSceneRasterHeight());
         final GeoTiffIIOMetadataDecoder metadataDecoder = new GeoTiffIIOMetadataDecoder(metadata);
         final GeoTiffMetadata2CRSAdapter geoTiff2CRSAdapter = new GeoTiffMetadata2CRSAdapter(null);
-        final MathTransform toModel = geoTiff2CRSAdapter.getRasterToModel(metadataDecoder, false);
+        final MathTransform toModel = GeoTiffMetadata2CRSAdapter.getRasterToModel(metadataDecoder, false);
         CoordinateReferenceSystem crs;
         try {
             crs = geoTiff2CRSAdapter.createCoordinateSystem(metadataDecoder);
@@ -432,7 +430,6 @@ public class GeoTiffProductReader extends AbstractProductReader {
     private static boolean canCreateGcpGeoCoding(final double[] tiePoints) {
         int numTiePoints = tiePoints.length / 6;
 
-        final GcpGeoCoding.Method method;
         if (numTiePoints >= GcpGeoCoding.Method.POLYNOMIAL3.getTermCountP()) {
             return true;
         } else if (numTiePoints >= GcpGeoCoding.Method.POLYNOMIAL2.getTermCountP()) {
