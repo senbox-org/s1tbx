@@ -16,7 +16,6 @@
 
 package com.bc.ceres.resource;
 
-import java.io.IOException;
 
 /**
  * A [@link Resource} reading its content from a @{link String}.
@@ -26,11 +25,11 @@ public class StringResource extends Resource {
 
     private final String stringContent;
 
-    public StringResource(String path, String stringContent) throws IOException {
+    public StringResource(String path, String stringContent) {
         this(path, stringContent, null);
     }
 
-    public StringResource(String path, String stringContent, Resource origin) throws IOException {
+    public StringResource(String path, String stringContent, Resource origin) {
         super(path, origin);
         this.stringContent = stringContent;
     }
