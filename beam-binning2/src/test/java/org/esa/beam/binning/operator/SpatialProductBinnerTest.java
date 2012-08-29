@@ -59,6 +59,28 @@ public class SpatialProductBinnerTest {
     public void testProcessProduct() throws Exception {
 
         BinningContext ctx = createValidCtx();
+        Product product = createProduct();
+
+        MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
+        SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinProcessor),
+                                            1, new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
+        Assert.assertEquals(32 * 256, mySpatialBinProcessor.numObs);
+    }
+
+    @Test
+    public void testProcessProductWithSuperSampling() throws Exception {
+
+        BinningContext ctx = createValidCtx();
+        Product product = createProduct();
+
+        MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
+        int superSampling = 3;
+        SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinProcessor),
+                                            superSampling, new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
+        Assert.assertEquals(32 * 256 * superSampling * superSampling, mySpatialBinProcessor.numObs);
+    }
+
+    private Product createProduct() {
         Product product = new Product("p", "t", 32, 256);
         final TiePointGrid lat = new TiePointGrid("lat", 2, 2, 0f, 0f, 32f, 256f,
                                                   new float[]{+40f, +40f, -40f, -40f});
@@ -68,11 +90,7 @@ public class SpatialProductBinnerTest {
         product.addTiePointGrid(lon);
         product.setGeoCoding(new TiePointGeoCoding(lat, lon));
         product.setPreferredTileSize(32, 16);
-
-        MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
-        SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinProcessor),
-                                            1, new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
-        Assert.assertEquals(32 * 256, mySpatialBinProcessor.numObs);
+        return product;
     }
 
     @Test

@@ -23,8 +23,6 @@ import org.esa.beam.binning.SpatialBinner;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -143,12 +141,18 @@ public class SpatialProductBinner {
                     currentSliceHeight = sceneHeight - sliceY;
                 }
                 Rectangle sliceRect = new Rectangle(0, sliceIndex * sliceHeight, sliceWidth, currentSliceHeight);
+
+                stopWatch.stopAndTrace("Getting mask data");
                 final Raster maskTile = maskImage.getData(sliceRect);
+                stopWatch.stopAndTrace("Getting source data");
                 final Raster[] varTiles = new Raster[varImages.length];
                 for (int i = 0; i < varImages.length; i++) {
                     varTiles[i] = varImages[i].getData(sliceRect);
                 }
-                final ObservationSlice observationSlice = createObservationSlice(geoCoding, maskTile, varTiles, superSamplingSteps);
+                stopWatch.stopAndTrace("Creating observation slice");
+                final ObservationSlice observationSlice = createObservationSlice(geoCoding, maskTile, varTiles,
+                                                                                 superSamplingSteps);
+                stopWatch.stopAndTrace("Processing observation slice");
                 spatialBinner.processObservationSlice(observationSlice);
                 numObsTotal += observationSlice.getSize();
                 progressMonitor.worked(1);
@@ -187,30 +191,10 @@ public class SpatialProductBinner {
         return createObservationSlice(geoCoding, maskTile, varTiles, superSamplingSteps);
     }
 
-    private static ObservationSlice createObservationSlice(GeoCoding geoCoding, Raster maskTile, Raster[] varTiles, float[] superSamplingSteps) {
-        final ObservationSlice observationSlice = new ObservationSlice(varTiles,
-                                                                       maskTile.getWidth() * maskTile.getHeight());
-        final int y1 = maskTile.getMinY();
-        final int y2 = y1 + maskTile.getHeight();
-        final int x1 = maskTile.getMinX();
-        final int x2 = x1 + maskTile.getWidth();
-        final PixelPos pixelPos = new PixelPos();
-        final GeoPos geoPos = new GeoPos();
-        for (int y = y1; y < y2; y++) {
-            for (int x = x1; x < x2; x++) {
-                if (maskTile.getSample(x, y, 0) != 0) {
-                    final float[] samples = observationSlice.createObservationSamples(x, y);
-                    for (float dy : superSamplingSteps) {
-                        for (float dx : superSamplingSteps) {
-                            pixelPos.setLocation(x + dx, y + dy);
-                            geoCoding.getGeoPos(pixelPos, geoPos);
-                            observationSlice.addObservation(geoPos.lat, geoPos.lon, samples);
-                        }
-                    }
-                }
-            }
-        }
-        return observationSlice;
+    private static ObservationSlice createObservationSlice(GeoCoding geoCoding, Raster maskTile, Raster[] varTiles,
+                                                           float[] superSamplingSteps) {
+
+        return new ObservationSlice(varTiles, maskTile, geoCoding, superSamplingSteps);
     }
 
     private static RasterDataNode getRasterDataNode(Product product, String nodeName) {

@@ -1,59 +1,41 @@
-/*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, see http://www.gnu.org/licenses/
- */
-
 package org.esa.beam.binning;
 
-import org.esa.beam.binning.support.ObservationImpl;
+import org.esa.beam.framework.datamodel.GeoCoding;
 
 import java.awt.image.Raster;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
  * A "slice" of observations. A slice is a spatially contiguous area of observations.
  *
- * @author Norman Fomferra
+ * @author Marco Peters
  */
 public class ObservationSlice implements Iterable<Observation> {
-    private final Raster[] sourceTiles;
-    private final ArrayList<Observation> observations;
 
-    public ObservationSlice(Raster[] sourceTiles, int observationCapacity) {
+    private Raster[] sourceTiles;
+    private Raster maskTile;
+    private GeoCoding gc;
+    private float[] superSamplingSteps;
+    private int size;
+
+    public ObservationSlice(Raster[] sourceTiles, Raster maskTile, GeoCoding gc, float[] superSamplingSteps) {
         this.sourceTiles = sourceTiles;
-        this.observations = new ArrayList<Observation>(observationCapacity);
-    }
-
-    public float[] createObservationSamples(int x, int y) {
-        final float[] samples = new float[sourceTiles.length];
-        for (int i = 0; i < samples.length; i++) {
-            samples[i] = sourceTiles[i].getSampleFloat(x, y, 0);
-        }
-        return samples;
-    }
-
-    public void addObservation(double lat, double lon, float[] samples) {
-        observations.add(new ObservationImpl(lat, lon, samples));
-    }
-
-    public int getSize() {
-        return observations.size();
+        this.maskTile = maskTile;
+        this.gc = gc;
+        this.superSamplingSteps = superSamplingSteps;
+        this.size = maskTile.getWidth() * maskTile.getHeight() * superSamplingSteps.length * superSamplingSteps.length;
     }
 
     @Override
     public Iterator<Observation> iterator() {
-        return observations.iterator();
+//        if(superSamplingSteps.length == 1) {
+//            return new ObservationIteratorWithoutSuperSampling(sourceTiles, maskTile, gc);
+//        }
+        return new ObservationIterator(sourceTiles, maskTile, superSamplingSteps, gc);
     }
+
+    public int getSize() {
+        return size;
+    }
+
 }
