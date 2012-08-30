@@ -33,6 +33,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
+ * Note: this class is unused so far because it is not yet fit for purpose.
+ *
  * @author Thomas Storm
  */
 class MemoryMappedFileSpatialBinStore implements BinningOp.SpatialBinStore {

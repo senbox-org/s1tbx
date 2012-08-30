@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * Note: this class is unused so far because it is not yet fit for purpose.
+ *
  * @author Thomas Storm
  */
 class MemoryMappedTemporalBinSource implements TemporalBinSource {

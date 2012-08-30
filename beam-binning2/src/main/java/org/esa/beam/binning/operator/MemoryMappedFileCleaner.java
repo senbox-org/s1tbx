@@ -21,6 +21,7 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 
 /**
+ * Note: this class is unused so far because it is not yet fit for purpose.
  *
  * @author Thomas Storm
  */
