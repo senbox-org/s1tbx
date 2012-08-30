@@ -86,7 +86,7 @@ public class StatisticsOp extends Operator implements Output {
 
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     public static final String DEFAULT_PERCENTILES = "90,95";
-    private static final int MAX_PERCENTILE_PRECISION = 6;
+    private static final int MAX_PRECISION = 6;
 
     @SourceProducts(description =
                             "The source products to be considered for statistics computation. If not given, the " +
@@ -137,9 +137,9 @@ public class StatisticsOp extends Operator implements Output {
                notNull = false, defaultValue = DEFAULT_PERCENTILES)
     int[] percentiles;
 
-    @Parameter(description = "The number of significant figures used for percentile computation. Higher numbers indicate" +
+    @Parameter(description = "The number of significant figures used for statistics computation. Higher numbers indicate" +
                              " higher precision but may lead to a considerably longer computation time.", defaultValue = "5")
-    int percentilePrecision;
+    int precision;
 
     Set<Product> collectedProducts;
 
@@ -308,7 +308,7 @@ public class StatisticsOp extends Operator implements Output {
                 final Mask[] roiMasks = getMasksForBands(maskList, bands);
                 final Band[] bandsArray = bands.toArray(new Band[bands.size()]);
                 final Stx stx = new StxFactory()
-                        .withHistogramBinCount(computeBinCount(percentilePrecision))
+                        .withHistogramBinCount(computeBinCount(precision))
                         .create(ProgressMonitor.NULL, roiMasks, bandsArray);
                 final HashMap<String, Number> stxMap = new HashMap<String, Number>();
                 Histogram histogram = stx.getHistogram();
@@ -319,7 +319,7 @@ public class StatisticsOp extends Operator implements Output {
                 stxMap.put("total", histogram.getTotals()[0]);
                 stxMap.put("median", histogram.getPTileThreshold(0.5)[0]);
                 for (int percentile : percentiles) {
-                    if (percentilePrecision > MAX_PERCENTILE_PRECISION) {
+                    if (precision > MAX_PRECISION) {
                         final PrecisePercentile precisePercentile = PrecisePercentile.createPrecisePercentile(bandsArray,
                                                                                                               histogram,
                                                                                                               percentile * 0.01);
@@ -342,13 +342,13 @@ public class StatisticsOp extends Operator implements Output {
         return histogram.getPTileThreshold(percentile * 0.01)[0];
     }
 
-    public static int computeBinCount(int percentilePrecision) {
-        if (percentilePrecision < 0) {
-            throw new IllegalArgumentException("percentilePrecision < 0");
-        } else if (percentilePrecision > MAX_PERCENTILE_PRECISION) {
+    public static int computeBinCount(int precision) {
+        if (precision < 0) {
+            throw new IllegalArgumentException("precision < 0");
+        } else if (precision > MAX_PRECISION) {
             return 1024 * 1024;
         }
-        return (int) Math.pow(10, percentilePrecision);
+        return (int) Math.pow(10, precision);
     }
 
     private Mask[] getMasksForBands(List<Mask> allMasks, List<Band> bands) {

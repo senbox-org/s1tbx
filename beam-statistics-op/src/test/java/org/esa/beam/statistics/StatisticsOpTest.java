@@ -105,7 +105,7 @@ public class StatisticsOpTest {
         statisticsOp.sourceProducts = new Product[]{getTestProduct()};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
-        statisticsOp.percentilePrecision = 6;
+        statisticsOp.precision = 6;
 
         final MyOutputter outputter = new MyOutputter();
         statisticsOp.outputters.add(outputter);
