@@ -77,6 +77,9 @@ class SpectrumGraph extends AbstractDiagramGraph {
 
     @Override
     public double getYValueAt(int index) {
+        if (energies[index] == bands[index].getGeophysicalNoDataValue()) {
+            return Double.NaN;
+        }
         return energies[index];
     }
 

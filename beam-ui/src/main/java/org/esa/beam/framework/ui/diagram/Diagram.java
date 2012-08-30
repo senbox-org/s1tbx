@@ -19,8 +19,18 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.math.Range;
 
-import java.awt.*;
-import java.awt.geom.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -347,11 +357,13 @@ public class Diagram {
             for (int i = 0; i < n; i++) {
                 double xa = graph.getXValueAt(i);
                 double ya = graph.getYValueAt(i);
-                a.setLocation(xa, ya);
-                b1.setLocation(b2);
-                transform.transformA2B(a, b2);
-                if (i > 0) {
-                    g2d.draw(new Line2D.Double(b1, b2));
+                if (!Double.isNaN(ya)) {
+                    a.setLocation(xa, ya);
+                    b1.setLocation(b2);
+                    transform.transformA2B(a, b2);
+                    if (i > 0) {
+                        g2d.draw(new Line2D.Double(b1, b2));
+                    }
                 }
             }
             g2d.setStroke(new BasicStroke(0.5f));
@@ -359,15 +371,17 @@ public class Diagram {
                 for (int i = 0; i < n; i++) {
                     double xa = graph.getXValueAt(i);
                     double ya = graph.getYValueAt(i);
-                    a.setLocation(xa, ya);
-                    transform.transformA2B(a, b1);
-                    Rectangle2D.Double r = new Rectangle2D.Double(b1.getX() - 1.5,
-                                                                  b1.getY() - 1.5,
-                                                                  3.0, 3.0);
-                    g2d.setPaint(graph.getStyle().getFillPaint());
-                    g2d.fill(r);
-                    g2d.setColor(graph.getStyle().getOutlineColor());
-                    g2d.draw(r);
+                    if (!Double.isNaN(ya)) {
+                        a.setLocation(xa, ya);
+                        transform.transformA2B(a, b1);
+                        Rectangle2D.Double r = new Rectangle2D.Double(b1.getX() - 1.5,
+                                                                      b1.getY() - 1.5,
+                                                                      3.0, 3.0);
+                        g2d.setPaint(graph.getStyle().getFillPaint());
+                        g2d.fill(r);
+                        g2d.setColor(graph.getStyle().getOutlineColor());
+                        g2d.draw(r);
+                    }
                 }
             }
         }
