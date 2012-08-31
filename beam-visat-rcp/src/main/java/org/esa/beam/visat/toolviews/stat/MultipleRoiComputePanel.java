@@ -30,6 +30,7 @@ import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.Debug;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractButton;
@@ -46,10 +47,12 @@ import javax.swing.text.Position;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Enumeration;
 
 
 /**
@@ -218,20 +221,27 @@ class MultipleRoiComputePanel extends JPanel {
     }
 
     private void selectAndEnableCheckBoxes() {
-        final int length = maskNameList.getCheckBoxListSelectedIndices().length;
-        selectNoneCheckBox.setEnabled(length > 0);
-        selectAllCheckBox.setEnabled(length < maskNameList.getModel().getSize());
-        selectNoneCheckBox.setSelected(length == 0);
-        selectAllCheckBox.setSelected(length == maskNameList.getModel().getSize());
+        final int numEntries = maskNameList.getModel().getSize();
+        final int numSelected = maskNameList.getCheckBoxListSelectedIndices().length;
+        selectNoneCheckBox.setEnabled(numSelected > 0);
+        selectAllCheckBox.setEnabled(numSelected < numEntries);
+        selectNoneCheckBox.setSelected(numSelected == 0);
+        selectAllCheckBox.setSelected(numSelected == numEntries);
+    }
+
+    private String[] getSelectedMaskNames() {
+        final Object[] selectedValues = maskNameList.getCheckBoxListSelectedValues();
+        return StringUtils.toStringArray(selectedValues);
     }
 
     private void updateMaskListState() {
 
-        DefaultListModel maskNameListModel = new DefaultListModel();
+        final DefaultListModel maskNameListModel = new DefaultListModel();
+        final String[] currentSelectedMaskNames = getSelectedMaskNames();
 
         if (product != null) {
             final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
-            Mask[] masks = maskGroup.toArray(new Mask[0]);
+            final Mask[] masks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
             for (Mask mask : masks) {
                 maskNameListModel.addElement(mask.getName());
             }
@@ -258,6 +268,14 @@ class MultipleRoiComputePanel extends JPanel {
             Debug.trace(e);
         }
 
+        final String[] allNames = StringUtils.toStringArray(maskNameListModel.toArray());
+        for (int i = 0; i < allNames.length; i++) {
+            String name = allNames[i];
+            if (StringUtils.contains(currentSelectedMaskNames, name)) {
+                maskNameList.getCheckBoxListSelectionModel().addSelectionInterval(i,i);
+            }
+        }
+
         updateEnablement();
     }
 
@@ -272,6 +290,7 @@ class MultipleRoiComputePanel extends JPanel {
         refreshButton.setEnabled(raster != null && (!useRoiCheckBox.isSelected() || !(maskNameList.getSelectedIndices().length > 0)));
     }
 
+
     private class PNL implements ProductNodeListener {
 
         @Override
@@ -281,12 +300,21 @@ class MultipleRoiComputePanel extends JPanel {
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
-            handleEvent(event);
+//            handleEvent(event);
         }
 
         @Override
         public void nodeDataChanged(ProductNodeEvent event) {
-            handleEvent(event);
+            final ProductNode sourceNode = event.getSourceNode();
+            if (!(sourceNode instanceof Mask)) {
+                return;
+            }
+            final String maskName = ((Mask) sourceNode).getName();
+            final String[] selectedNames = getSelectedMaskNames();
+
+            if (StringUtils.contains(selectedNames, maskName)) {
+                refreshButton.setEnabled(true);
+            }
         }
 
         @Override
