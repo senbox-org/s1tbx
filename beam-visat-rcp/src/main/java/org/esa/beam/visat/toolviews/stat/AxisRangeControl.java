@@ -3,6 +3,8 @@ package org.esa.beam.visat.toolviews.stat;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.jidesoft.swing.TitledSeparator;
 import java.awt.GridBagConstraints;
@@ -73,6 +75,26 @@ class AxisRangeControl {
 
         bindingContext.getPropertySet().getDescriptor("min").setDescription("Minimum display value for " + axisName);
         bindingContext.getPropertySet().getDescriptor("max").setDescription("Maximum display value for " + axisName);
+
+        bindingContext.getPropertySet().getDescriptor("min").setValidator(new Validator() {
+            @Override
+            public void validateValue(Property property, Object value) throws ValidationException {
+                final Double max = bindingContext.getPropertySet().getValue("max");
+                if ((Double)value >= max ) {
+                    throw new ValidationException("min value has to be less than " + max);
+                }
+            }
+        });
+
+        bindingContext.getPropertySet().getDescriptor("max").setValidator(new Validator() {
+            @Override
+            public void validateValue(Property property, Object value) throws ValidationException {
+                final Double min = bindingContext.getPropertySet().getValue("min");
+                if ((Double)value <= min ) {
+                    throw new ValidationException("max value has to be greater than " + min);
+                }
+            }
+        });
 
         bindingContext.getBinding("min").addComponent(minLabel);
         bindingContext.getBinding("max").addComponent(maxLabel);

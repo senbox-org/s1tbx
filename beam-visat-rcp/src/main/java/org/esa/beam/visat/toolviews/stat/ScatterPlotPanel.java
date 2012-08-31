@@ -1032,7 +1032,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         Map<String, AttributeDescriptor> dataField = new HashMap<String, AttributeDescriptor>();
 
         public void set(String rasterName, VectorDataNode pointDataSourceValue, AttributeDescriptor dataFieldValue) {
-            if (pointDataSourceValue != null && dataFieldValue != null ) {
+            if (pointDataSourceValue != null && dataFieldValue != null) {
                 pointDataSource.put(rasterName, pointDataSourceValue);
                 dataField.put(rasterName, dataFieldValue);
             }
