@@ -171,7 +171,9 @@ class ScatterPlotPanel extends ChartPagePanel {
             @Override
             public void productRemoved(ProductManager.Event event) {
                 final UserSettings userSettings = userSettingsMap.remove(event.getProduct());
-                userSettings.dispose();
+                if (userSettings != null) {
+                    userSettings.dispose();
+                }
             }
         };
 
