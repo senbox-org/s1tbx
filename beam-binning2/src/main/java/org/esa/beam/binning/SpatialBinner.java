@@ -16,7 +16,11 @@ package org.esa.beam.binning;
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Produces spatial bins by processing a given "slice" of observations.
@@ -63,7 +67,7 @@ public class SpatialBinner {
     }
 
     /**
-     * @return The exceptions occured during processing.
+     * @return The exceptions occurred during processing.
      */
     public Exception[] getExceptions() {
         return exceptions.toArray(new Exception[exceptions.size()]);
