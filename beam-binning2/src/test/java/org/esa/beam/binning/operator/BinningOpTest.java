@@ -5,7 +5,11 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.main.GPT;
@@ -24,7 +28,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedMap;
 
-import static java.lang.Math.sqrt;
+import static java.lang.Math.*;
 import static org.junit.Assert.*;
 
 /**
@@ -99,6 +103,50 @@ public class BinningOpTest {
         } catch (OperatorException expected) {
             assertTrue(expected.getMessage().contains("before"));
         }
+    }
+
+    @Test
+    public void testBinningWithEmptyMaskExpression() throws Exception {
+
+        BinningConfig binningConfig = createBinningConfig();
+        binningConfig.setMaskExpr("");
+        FormatterConfig formatterConfig = createFormatterConfig();
+
+        float obs1 = 0.2F;
+
+        final BinningOp binningOp = new BinningOp();
+
+        binningOp.setSourceProducts(createSourceProduct(obs1));
+        binningOp.setStartDate("2002-01-01");
+        binningOp.setEndDate("2002-01-10");
+        binningOp.setBinningConfig(binningConfig);
+        binningOp.setFormatterConfig(formatterConfig);
+        binningOp.setRegion(new JtsGeometryConverter().parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
+
+        final Product targetProduct = binningOp.getTargetProduct();
+        assertNotNull(targetProduct);
+    }
+
+    @Test
+    public void testBinningWhenMaskExpressionIsNull() throws Exception {
+
+        BinningConfig binningConfig = createBinningConfig();
+        binningConfig.setMaskExpr(null);
+        FormatterConfig formatterConfig = createFormatterConfig();
+
+        float obs1 = 0.2F;
+
+        final BinningOp binningOp = new BinningOp();
+
+        binningOp.setSourceProducts(createSourceProduct(obs1));
+        binningOp.setStartDate("2002-01-01");
+        binningOp.setEndDate("2002-01-10");
+        binningOp.setBinningConfig(binningConfig);
+        binningOp.setFormatterConfig(formatterConfig);
+        binningOp.setRegion(new JtsGeometryConverter().parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
+
+        final Product targetProduct = binningOp.getTargetProduct();
+        assertNotNull(targetProduct);
     }
 
     /**
