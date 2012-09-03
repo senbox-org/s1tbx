@@ -5,134 +5,204 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 
-import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Implementation of Iterator interface which iterates over {@link Observation Observations}.
- * To better support a streaming processing instances of {@link Observation} are generated on the fly each time
- * {@link org.esa.beam.binning.ObservationIterator#next() next()} is called.
+ * Abstract implementation of Iterator interface which iterates over {@link org.esa.beam.binning.Observation Observations}.
+ * To better support a streaming processing, instances of {@link org.esa.beam.binning.Observation} can be  generated on
+ * the fly each time {@link ObservationIterator#next() next()} is called.
  *
  * @author Marco Peters
  */
-class ObservationIterator implements Iterator<Observation> {
+abstract class ObservationIterator implements Iterator<Observation> {
 
-    private Raster[] sourceTiles;
-    private Raster maskTile;
-    private GeoCoding gc;
-    private final SamplePointer pointer;
+    private Observation next;
+    private boolean nextValid;
+    private SamplePointer pointer;
+    private final GeoCoding gc;
 
-
-
-    ObservationIterator(Raster[] sourceTiles, Raster maskTile, float[] superSamplingSteps, GeoCoding gc) {
-        this.sourceTiles = sourceTiles;
-        this.maskTile = maskTile;
-        this.gc = gc;
-        int numSuperSamplingSteps = superSamplingSteps.length * superSamplingSteps.length;
-        Point2D.Float[] superSamplingPoints = new Point2D.Float[numSuperSamplingSteps];
-        int index = 0;
-        for (float dy : superSamplingSteps) {
-            for (float dx : superSamplingSteps) {
-                superSamplingPoints[index++] = new Point2D.Float(dx, dy);
-            }
+    public static ObservationIterator create(Raster[] sourceTiles, GeoCoding gc, Raster maskTile,
+                                             float[] superSamplingSteps) {
+        if (maskTile == null && superSamplingSteps.length == 1) {
+            SamplePointer pointer = SamplePointer.create(sourceTiles, sourceTiles[0].getBounds());
+            return new NoMaskNoSuperSamplingObservationIterator(gc, pointer);
         }
-        pointer = new SamplePointer(maskTile.getBounds(), superSamplingPoints);
+        if (maskTile == null) {
+            Point2D.Float[] superSamplingPoints = SamplePointer.createSamplingPoints(superSamplingSteps);
+            SamplePointer pointer = SamplePointer.create(sourceTiles, sourceTiles[0].getBounds(), superSamplingPoints);
+            return new NoMaskObservationIterator(gc, pointer);
+        }
+        if (superSamplingSteps.length == 1) {
+            SamplePointer pointer = SamplePointer.create(sourceTiles, maskTile.getBounds());
+            return new NoSuperSamplingObservationIterator(gc, pointer, maskTile);
+        }
+        Point2D.Float[] superSamplingPoints = SamplePointer.createSamplingPoints(superSamplingSteps);
+        SamplePointer pointer = SamplePointer.create(sourceTiles, maskTile.getBounds(), superSamplingPoints);
+        return new FullObservationIterator(gc, pointer, maskTile);
+    }
+
+    protected ObservationIterator(GeoCoding gc, SamplePointer pointer) {
+        this.pointer = pointer;
+        this.gc = gc;
+    }
+
+    public final SamplePointer getPointer() {
+        return pointer;
     }
 
     @Override
-    public boolean hasNext() {
-        return pointer.canMove();
+    public final boolean hasNext() {
+        ensureValidNext();
+        return next != null;
     }
 
     @Override
-    public Observation next() {
-        if (!hasNext()) {
+    public final Observation next() {
+        ensureValidNext();
+        if (next == null) {
             throw new NoSuchElementException("EMPTY");
         }
-        pointer.move();
-        int localX = pointer.getX();
-        int localY = pointer.getY();
-        final PixelPos pixelPos = new PixelPos();
-        final GeoPos geoPos = new GeoPos();
-        ObservationImpl observation = null;
-        if (maskTile.getSample(localX, localY, 0) != 0) {
-            final float[] samples = createObservationSamples(localX, localY);
-            Point2D.Float superSamplingPoint = pointer.getSuperSamplingPoint();
-            pixelPos.setLocation(localX + superSamplingPoint.x, localY + superSamplingPoint.y);
-            gc.getGeoPos(pixelPos, geoPos);
-            observation = new ObservationImpl(geoPos.lat, geoPos.lon, samples);
-        }
-        return observation;
-    }
-
-    private float[] createObservationSamples(int x, int y) {
-        final float[] samples = new float[sourceTiles.length];
-        for (int i = 0; i < samples.length; i++) {
-            samples[i] = sourceTiles[i].getSampleFloat(x, y, 0);
-        }
-        return samples;
+        nextValid = false;
+        return next;
     }
 
     @Override
-    public void remove() {
+    public final void remove() {
         throw new UnsupportedOperationException("Removing of elements is not allowed");
     }
 
-    static class SamplePointer {
+    private void ensureValidNext() {
+        if (!nextValid) {
+            next = getNextObservation();
+            nextValid = true;
+        }
+    }
 
-        private int x;
-        private int y;
-        private int x1;
-        private int x2;
-        private int y2;
-        private final Point2D.Float[] superSamplingPoints;
-        private int superSamplingIndex;
+    protected abstract Observation getNextObservation();
 
-        SamplePointer(Rectangle bounds, Point2D.Float[] superSamplingPoints) {
-            this.superSamplingPoints = superSamplingPoints;
-            x1 = bounds.x;
-            x2 = x1 + bounds.width;
-            x = x1;
-            y = bounds.y;
-            y2 = bounds.y + bounds.height;
-            superSamplingIndex = -1;
+    protected abstract boolean isSampleValid(int x, int y);
+
+    protected Observation createObservation(int x, int y) {
+        SamplePointer pointer = getPointer();
+        final float[] samples = pointer.createSamples();
+        Point2D.Float superSamplingPoint = pointer.getSuperSamplingPoint();
+        final PixelPos pixelPos = new PixelPos();
+        pixelPos.setLocation(x + superSamplingPoint.x, y + superSamplingPoint.y);
+        final GeoPos geoPos = getGeoPos(pixelPos);
+        return new ObservationImpl(geoPos.lat, geoPos.lon, samples);
+    }
+
+    protected GeoPos getGeoPos(PixelPos pixelPos) {
+        final GeoPos geoPos = new GeoPos();
+        gc.getGeoPos(pixelPos, geoPos);
+        return geoPos;
+    }
+
+    static class FullObservationIterator extends ObservationIterator {
+
+        private final Raster maskTile;
+
+
+        FullObservationIterator(GeoCoding gc, SamplePointer pointer, Raster maskTile) {
+            super(gc, pointer);
+            this.maskTile = maskTile;
         }
 
-        public int getX() {
-            return x;
-        }
-
-        public int getY() {
-            return y;
-        }
-
-        public Point2D.Float getSuperSamplingPoint() {
-            return superSamplingPoints[superSamplingIndex];
-        }
-
-        public void move() {
-            if (!canMove()) {
-                throw new IllegalStateException("End of Samples!");
-            }
-            superSamplingIndex++;
-            if (superSamplingIndex == superSamplingPoints.length) {
-                superSamplingIndex = 0;
-                x++;
-                if (x == x2) {
-                    x = x1;
-                    y++;
+        @Override
+        protected Observation getNextObservation() {
+            SamplePointer pointer = getPointer();
+            while (pointer.canMove()) {
+                pointer.move();
+                if (isSampleValid(pointer.getX(), pointer.getY())) {
+                    return createObservation(pointer.getX(), pointer.getY());
                 }
             }
+            return null;
         }
 
-        public boolean canMove() {
-            boolean canMoveX = x < x2 - 1;
-            boolean canMoveY = y < y2 - 1;
-            boolean canMoveSamplePoint = superSamplingIndex < superSamplingPoints.length - 1;
-            return canMoveX || canMoveY || canMoveSamplePoint;
+        @Override
+        protected boolean isSampleValid(int x, int y) {
+            return maskTile.getSample(x, y, 0) != 0;
+        }
+
+    }
+
+
+    static class NoSuperSamplingObservationIterator extends ObservationIterator {
+
+        private final Raster maskTile;
+
+
+        NoSuperSamplingObservationIterator(GeoCoding gc, SamplePointer pointer, Raster maskTile) {
+            super(gc, pointer);
+            this.maskTile = maskTile;
+        }
+
+        @Override
+        protected Observation getNextObservation() {
+            SamplePointer pointer = getPointer();
+            while (pointer.canMove()) {
+                pointer.move();
+                if (isSampleValid(pointer.getX(), pointer.getY())) {
+                    return createObservation(pointer.getX(), pointer.getY());
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected boolean isSampleValid(int x, int y) {
+            return maskTile.getSample(x, y, 0) != 0;
+        }
+
+    }
+
+    static class NoMaskObservationIterator extends ObservationIterator {
+
+
+        NoMaskObservationIterator(GeoCoding gc, SamplePointer pointer) {
+            super(gc, pointer);
+        }
+
+        @Override
+        protected Observation getNextObservation() {
+            SamplePointer pointer = getPointer();
+            if (pointer.canMove()) {
+                pointer.move();
+                return createObservation(pointer.getX(), pointer.getY());
+            }
+            return null;
+        }
+
+        @Override
+        protected boolean isSampleValid(int x, int y) {
+            return true;
+        }
+
+    }
+
+    private static class NoMaskNoSuperSamplingObservationIterator extends ObservationIterator {
+        public NoMaskNoSuperSamplingObservationIterator(GeoCoding gc, SamplePointer pointer) {
+            super(gc, pointer);
+        }
+
+        @Override
+        protected Observation getNextObservation() {
+            SamplePointer pointer = getPointer();
+            if (pointer.canMove()) {
+                pointer.move();
+                return createObservation(pointer.getX(), pointer.getY());
+            }
+            return null;
+
+        }
+
+        @Override
+        protected boolean isSampleValid(int x, int y) {
+            return true;
         }
     }
 }

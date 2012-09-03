@@ -5,12 +5,10 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Test;
 
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.geom.Point2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
-import java.util.Arrays;
+import java.util.NoSuchElementException;
 
 import static org.junit.Assert.*;
 
@@ -25,111 +23,133 @@ public class ObservationIteratorTest {
 
         int width = 18;
         int height = 36;
-        int size = width * height;
         Raster sourceTile = Raster.createBandedRaster(DataBuffer.TYPE_INT, width, height, 1, new Point(0, 0));
-        WritableRaster maskTile = Raster.createBandedRaster(DataBuffer.TYPE_BYTE, width, height, 1, new Point(0, 0));
-        int[] maskData = new int[size];
-        Arrays.fill(maskData, 1);
-        maskTile.setPixels(0, 0, width, height, maskData);
         CrsGeoCoding gc = new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, -180, 90, 10.0, 10.0);
-        ObservationIterator iterator = new ObservationIterator(new Raster[]{sourceTile}, maskTile,
-                                                               new float[]{0.5f}, gc);
+        ObservationIterator iterator = ObservationIterator.create(new Raster[]{sourceTile}, gc,
+                                                                  null, new float[]{0.5f});
 
         assertTrue(iterator.hasNext());
         Observation observation = iterator.next();
         assertNotNull(observation);
+        assertEquals(1, observation.size());
     }
 
     @Test
-    public void testSampleCounter() throws Exception {
-        Rectangle bounds = new Rectangle(0, 0, 2, 3);
-        float[] superSamplingSteps = new float[]{0.5f};
-        Point2D.Float center = new Point2D.Float(superSamplingSteps[0], superSamplingSteps[0]);
-        ObservationIterator.SamplePointer pointer = new ObservationIterator.SamplePointer(bounds,
-                                                                                          new Point2D.Float[]{center});
+    public void testValuesOfIteratedSamples() throws Exception {
 
-        assertTrue(pointer.canMove());
-        pointer.move();
+        int width = 12;
+        int height = 10;
+        Raster[] sourceRasters = createSourceRasters(width, height);
+        CrsGeoCoding gc = new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, -180, 90, 10.0, 10.0);
+        ObservationIterator iterator = ObservationIterator.create(sourceRasters, gc,
+                                                                  null, new float[]{0.5f});
 
-        assertEquals(0, pointer.getX());
-        assertEquals(0, pointer.getY());
-        assertEquals(center, pointer.getSuperSamplingPoint());
+        assertTrue(iterator.hasNext());
+        Observation observation = iterator.next();
+        assertNotNull(observation);
+        assertEquals(1, observation.get(0), 1.0e-6);
+        observation = iterate(iterator, 16);
+        assertEquals(17, observation.get(0), 1.0e-6);
+        observation = iterate(iterator, 45);
+        assertEquals(62, observation.get(0), 1.0e-6);
+        observation = iterate(iterator, 57);
+        assertEquals(119, observation.get(0), 1.0e-6);
+        observation = iterator.next();
+        assertEquals(120, observation.get(0), 1.0e-6);
+        assertFalse(iterator.hasNext());
 
-        assertTrue(pointer.canMove());
-        pointer.move();
-
-        assertEquals(1, pointer.getX());
-        assertEquals(0, pointer.getY());
-        assertEquals(center, pointer.getSuperSamplingPoint());
-
-        assertTrue(pointer.canMove());
-        pointer.move();
-
-        assertEquals(0, pointer.getX());
-        assertEquals(1, pointer.getY());
-
-        movePointer(pointer, 3);
-
-        assertEquals(1, pointer.getX());
-        assertEquals(2, pointer.getY());
-
-        assertFalse(pointer.canMove());
         try {
-            pointer.move();
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException expected) {
-        }
+            iterator.next();
+            fail("NoSuchElementException expected");
+        } catch (NoSuchElementException expected) {
 
-    }
-
-    private void movePointer(ObservationIterator.SamplePointer pointer, int steps) {
-        for (int i = 0; i < steps; i++) {
-            pointer.move();
         }
     }
 
     @Test
-    public void testSampleCounterWithSuperSampling() throws Exception {
-        Rectangle bounds = new Rectangle(0, 0, 2, 3);
-        Point2D.Float[] superSamplingPoints = {
-                new Point2D.Float(0.33f, 0.33f),
-                new Point2D.Float(0.66f, 0.66f),
-                new Point2D.Float(0.99f, 0.99f),
-        };
-        ObservationIterator.SamplePointer pointer = new ObservationIterator.SamplePointer(bounds,
-                                                                                          superSamplingPoints);
+    public void testIterationWithMask() throws Exception {
 
-        assertTrue(pointer.canMove());
-        pointer.move();
+        int width = 12;
+        int height = 10;
+        int size = width * height;
+        Raster[] sourceRasters = createSourceRasters(width, height);
 
-        assertEquals(0, pointer.getX());
-        assertEquals(0, pointer.getY());
-        assertEquals(superSamplingPoints[0], pointer.getSuperSamplingPoint());
+        WritableRaster maskTile = Raster.createBandedRaster(DataBuffer.TYPE_BYTE, width, height, 1, new Point(0, 0));
+        int[] maskData = new int[size];
+        for (int i = 0; i < maskData.length; i++) {
+            maskData[i] = i % 2;
+        }
+        maskTile.setPixels(0, 0, width, height, maskData);
+        CrsGeoCoding gc = new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, -180, 90, 10.0, 10.0);
+        ObservationIterator iterator = ObservationIterator.create(sourceRasters, gc,
+                                                                  maskTile, new float[]{0.5f});
 
-        assertTrue(pointer.canMove());
-        pointer.move();
-        assertEquals(0, pointer.getX());
-        assertEquals(0, pointer.getY());
-        assertEquals(superSamplingPoints[1], pointer.getSuperSamplingPoint());
+        assertTrue(iterator.hasNext());
+        Observation observation = iterator.next();
+        assertNotNull(observation);
+        assertEquals(2, observation.get(0), 1.0e-6);
+        observation = iterate(iterator, 16);
+        assertEquals(34, observation.get(0), 1.0e-6);
 
-        assertTrue(pointer.canMove());
-        pointer.move();
-        assertEquals(0, pointer.getX());
-        assertEquals(0, pointer.getY());
-        assertEquals(superSamplingPoints[2], pointer.getSuperSamplingPoint());
+        observation = iterate(iterator, 43);
+        assertEquals(120, observation.get(0), 1.0e-6);
 
-        assertTrue(pointer.canMove());
-        pointer.move();
-        assertEquals(1, pointer.getX());
-        assertEquals(0, pointer.getY());
-        assertEquals(superSamplingPoints[0], pointer.getSuperSamplingPoint());
+        assertFalse(iterator.hasNext());
 
-        movePointer(pointer, 13);
+        try {
+            iterator.next();
+            fail("NoSuchElementException expected");
+        } catch (NoSuchElementException expected) {
+        }
+    }
 
-        assertTrue(pointer.canMove());
-        assertEquals(1, pointer.getX());
-        assertEquals(2, pointer.getY());
-        assertEquals(superSamplingPoints[1], pointer.getSuperSamplingPoint());
+    @Test
+    public void testSuperSampling() throws Exception {
+
+        int width = 2;
+        int height = 3;
+        Raster[] sourceRasters = createSourceRasters(width, height);
+        CrsGeoCoding gc = new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, -180, 90, 10.0, 10.0);
+
+        ObservationIterator iterator = ObservationIterator.create(sourceRasters, gc,
+                                                                  null, new float[]{0.25f, 0.75f});
+
+        Observation observation = iterate(iterator, 16);
+        assertEquals(4, observation.get(0), 1.0e-6);
+        observation = iterator.next();
+        assertEquals(5, observation.get(0), 1.0e-6);
+        observation = iterator.next();
+        assertEquals(5, observation.get(0), 1.0e-6);
+        observation = iterator.next();
+        assertEquals(5, observation.get(0), 1.0e-6);
+        observation = iterator.next();
+        assertEquals(5, observation.get(0), 1.0e-6);
+        observation = iterator.next();
+        assertEquals(6, observation.get(0), 1.0e-6);
+        iterate(iterator, 3);
+        try {
+            iterator.next();
+            fail("NoSuchElementException expected");
+        } catch (NoSuchElementException expected) {
+        }
+    }
+
+    private Raster[] createSourceRasters(int width, int height) {
+        WritableRaster sourceTile = Raster.createBandedRaster(DataBuffer.TYPE_INT, width, height, 1, new Point(0, 0));
+        int[] sourceData = new int[width * height];
+        for (int i = 0; i < sourceData.length; i++) {
+            sourceData[i] = i+1;
+        }
+        sourceTile.setPixels(0, 0, width, height, sourceData);
+        return new Raster[]{sourceTile};
+    }
+
+    private Observation iterate(ObservationIterator iterator, int steps) {
+        Observation last = null;
+        for (int i = 0; i < steps; i++) {
+            last = iterator.next();
+        }
+        return last;
     }
 
 }

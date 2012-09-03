@@ -47,7 +47,8 @@ public class SpatialProductBinnerTest {
 
         try {
             MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
-            SpatialProductBinner.processProduct(new Product("p", "t", 32, 256), new SpatialBinner(ctx, mySpatialBinProcessor),
+            SpatialProductBinner.processProduct(new Product("p", "t", 32, 256),
+                                                new SpatialBinner(ctx, mySpatialBinProcessor),
                                                 1, new HashMap<Product, List<Band>>(), null);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
@@ -73,24 +74,46 @@ public class SpatialProductBinnerTest {
         BinningContext ctx = createValidCtx();
         Product product = createProduct();
 
-        MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
+        MySpatialBinConsumer mySpatialBinConsumer = new MySpatialBinConsumer();
         int superSampling = 3;
-        SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinProcessor),
+        SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinConsumer),
                                             superSampling, new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
-        Assert.assertEquals(32 * 256 * superSampling * superSampling, mySpatialBinProcessor.numObs);
+        Assert.assertEquals(32 * 256 * superSampling * superSampling, mySpatialBinConsumer.numObs);
     }
 
-    private Product createProduct() {
-        Product product = new Product("p", "t", 32, 256);
-        final TiePointGrid lat = new TiePointGrid("lat", 2, 2, 0f, 0f, 32f, 256f,
-                                                  new float[]{+40f, +40f, -40f, -40f});
-        final TiePointGrid lon = new TiePointGrid("lon", 2, 2, 0f, 0f, 32f, 256f,
-                                                  new float[]{-80f, +80f, -80f, +80f});
-        product.addTiePointGrid(lat);
-        product.addTiePointGrid(lon);
-        product.setGeoCoding(new TiePointGeoCoding(lat, lon));
-        product.setPreferredTileSize(32, 16);
-        return product;
+    @Test
+    public void testProcessProductWithMask() throws Exception {
+
+        BinningContext ctx = createValidCtx();
+        VariableContextImpl variableContext = (VariableContextImpl) ctx.getVariableContext();
+        variableContext.setMaskExpr("floor(X) % 2");
+        Product product = createProduct();
+
+        MySpatialBinConsumer mySpatialBinConsumer = new MySpatialBinConsumer();
+        SpatialBinner spatialBinner = new SpatialBinner(ctx, mySpatialBinConsumer);
+        long numObservations = SpatialProductBinner.processProduct(product, spatialBinner, 1,
+                                                                   new HashMap<Product, List<Band>>(),
+                                                                   ProgressMonitor.NULL);
+        assertEquals(32 / 2 * 256, numObservations);
+        assertEquals(numObservations, mySpatialBinConsumer.numObs);
+    }
+
+    @Test
+    public void testProcessProductWithMaskAndSuperSampling() throws Exception {
+
+        BinningContext ctx = createValidCtx();
+        VariableContextImpl variableContext = (VariableContextImpl) ctx.getVariableContext();
+        variableContext.setMaskExpr("floor(X) % 2");
+        Product product = createProduct();
+
+        MySpatialBinConsumer mySpatialBinConsumer = new MySpatialBinConsumer();
+        int superSampling = 3;
+        SpatialBinner spatialBinner = new SpatialBinner(ctx, mySpatialBinConsumer);
+        long numObservations = SpatialProductBinner.processProduct(product, spatialBinner, superSampling,
+                                                                   new HashMap<Product, List<Band>>(),
+                                                                   ProgressMonitor.NULL);
+        assertEquals(32 / 2 * 256 * superSampling * superSampling, numObservations);
+        assertEquals(numObservations, mySpatialBinConsumer.numObs);
     }
 
     @Test
@@ -114,6 +137,19 @@ public class SpatialProductBinnerTest {
         assertEquals(5f / 6, superSamplingSteps[2], 0.0001);
     }
 
+
+    private Product createProduct() {
+        Product product = new Product("p", "t", 32, 256);
+        final TiePointGrid lat = new TiePointGrid("lat", 2, 2, 0f, 0f, 32f, 256f,
+                                                  new float[]{+40f, +40f, -40f, -40f});
+        final TiePointGrid lon = new TiePointGrid("lon", 2, 2, 0f, 0f, 32f, 256f,
+                                                  new float[]{-80f, +80f, -80f, +80f});
+        product.addTiePointGrid(lat);
+        product.addTiePointGrid(lon);
+        product.setGeoCoding(new TiePointGeoCoding(lat, lon));
+        product.setPreferredTileSize(32, 16);
+        return product;
+    }
 
     private static BinningContext createValidCtx() {
         VariableContextImpl variableContext = new VariableContextImpl();

@@ -121,8 +121,7 @@ public class SpatialProductBinner {
                                                                                  maskImage, varImages,
                                                                                  tileIndex,
                                                                                  superSamplingSteps);
-                spatialBinner.processObservationSlice(observationSlice);
-                numObsTotal += observationSlice.getSize();
+                numObsTotal += spatialBinner.processObservationSlice(observationSlice);
                 progressMonitor.worked(1);
                 stopWatch.stopAndTrace(String.format("Processed tile %d of %d", currentTileIndex, tileIndices.length));
             }
@@ -153,8 +152,7 @@ public class SpatialProductBinner {
                 final ObservationSlice observationSlice = createObservationSlice(geoCoding, maskTile, varTiles,
                                                                                  superSamplingSteps);
                 stopWatch.stopAndTrace("Processing observation slice");
-                spatialBinner.processObservationSlice(observationSlice);
-                numObsTotal += observationSlice.getSize();
+                numObsTotal += spatialBinner.processObservationSlice(observationSlice);
                 progressMonitor.worked(1);
                 stopWatch.stopAndTrace(String.format("Processed slice %d of %d", sliceIndex, numSlices));
             }

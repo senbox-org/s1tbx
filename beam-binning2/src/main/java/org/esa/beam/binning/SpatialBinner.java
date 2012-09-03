@@ -78,12 +78,16 @@ public class SpatialBinner {
      * Will cause the {@link SpatialBinConsumer} to be invoked.
      *
      * @param observations The observations.
+     *
+     * @return The number of processed observations
      */
-    public void processObservationSlice(Iterable<Observation> observations) {
+    public long processObservationSlice(Iterable<Observation> observations) {
 
         finalizedBinMap.putAll(activeBinMap);
 
+        long observationCounter = 0;
         for (Observation observation : observations) {
+            observationCounter++;
             Long binIndex = planetaryGrid.getBinIndex(observation.getLatitude(), observation.getLongitude());
             SpatialBin bin = activeBinMap.get(binIndex);
             if (bin == null) {
@@ -101,6 +105,8 @@ public class SpatialBinner {
             }
             finalizedBinMap.clear();
         }
+
+        return observationCounter;
     }
 
     /**
@@ -108,9 +114,11 @@ public class SpatialBinner {
      * Convenience method for {@link #processObservationSlice(Iterable)}.
      *
      * @param observations The observations.
+     *
+     * @return The number of processed observations
      */
-    public void processObservationSlice(Observation... observations) {
-        processObservationSlice(Arrays.asList(observations));
+    public long processObservationSlice(Observation... observations) {
+        return processObservationSlice(Arrays.asList(observations));
     }
 
     /**
