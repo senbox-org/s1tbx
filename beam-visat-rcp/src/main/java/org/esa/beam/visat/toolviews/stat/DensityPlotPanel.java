@@ -26,6 +26,8 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.StxFactory;
@@ -129,6 +131,25 @@ class DensityPlotPanel extends ChartPagePanel {
         axisRangeControls[Y_VAR].getBindingContext().addPropertyChangeListener(rangeControlActionEnabler);
     }
 
+    @Override
+    public void nodeDataChanged(ProductNodeEvent event) {
+        super.nodeDataChanged(event);
+        if (!dataSourceConfig.useRoiMask) {
+            return;
+        }
+        final Mask roiMask = dataSourceConfig.roiMask;
+        if (roiMask == null) {
+            return;
+        }
+        final ProductNode sourceNode = event.getSourceNode();
+        if (!(sourceNode instanceof Mask)) {
+            return;
+        }
+        final String maskName = ((Mask) sourceNode).getName();
+        if (roiMask.getName().equals(maskName)) {
+            updateComponents();
+        }
+    }
 
     @Override
     protected void updateComponents() {
@@ -149,8 +170,8 @@ class DensityPlotPanel extends ChartPagePanel {
                     Debug.trace(ignored);
                 }
             }
-            refreshButton.setEnabled(xBandProperty.getValue() != null && yBandProperty.getValue() != null);
         }
+        refreshButton.setEnabled(xBandProperty.getValue() != null && yBandProperty.getValue() != null);
     }
 
     private void initParameters() {
