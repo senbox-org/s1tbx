@@ -107,7 +107,8 @@ class MultipleRoiComputePanel extends JPanel {
         maskNameList.getCheckBoxListSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                refreshButton.setEnabled(true);
+                updateEnablement();
+//                refreshButton.setEnabled(true);
                 if (!e.getValueIsAdjusting()) {
                     selectAndEnableCheckBoxes();
                 }
@@ -205,7 +206,6 @@ class MultipleRoiComputePanel extends JPanel {
                     product.removeProductNodeListener(productNodeListener);
                 }
                 product = null;
-                updateMaskListState();
             } else if (product != newRaster.getProduct()) {
                 if (product != null) {
                     product.removeProductNodeListener(productNodeListener);
@@ -214,8 +214,8 @@ class MultipleRoiComputePanel extends JPanel {
                 if (product != null) {
                     product.addProductNodeListener(productNodeListener);
                 }
-                updateMaskListState();
             }
+            updateMaskListState();
             refreshButton.setEnabled(raster != null);
         }
     }
@@ -287,9 +287,8 @@ class MultipleRoiComputePanel extends JPanel {
         maskNameList.setEnabled(canSelectMasks);
         selectAllCheckBox.setEnabled(canSelectMasks && maskNameList.getCheckBoxListSelectedIndices().length < maskNameList.getModel().getSize());
         selectNoneCheckBox.setEnabled(canSelectMasks && maskNameList.getCheckBoxListSelectedIndices().length > 0);
-        refreshButton.setEnabled(raster != null && (!useRoiCheckBox.isSelected() || !(maskNameList.getSelectedIndices().length > 0)));
+        refreshButton.setEnabled(raster != null);
     }
-
 
     private class PNL implements ProductNodeListener {
 
@@ -305,6 +304,9 @@ class MultipleRoiComputePanel extends JPanel {
 
         @Override
         public void nodeDataChanged(ProductNodeEvent event) {
+            if (!useRoiCheckBox.isSelected()) {
+                return;
+            }
             final ProductNode sourceNode = event.getSourceNode();
             if (!(sourceNode instanceof Mask)) {
                 return;
@@ -313,7 +315,7 @@ class MultipleRoiComputePanel extends JPanel {
             final String[] selectedNames = getSelectedMaskNames();
 
             if (StringUtils.contains(selectedNames, maskName)) {
-                refreshButton.setEnabled(true);
+                updateEnablement();
             }
         }
 

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
 
-    <symbolicName>beam-statistics</symbolicName>
+    <symbolicName>beam-statistics-op</symbolicName>
     <version>1.0</version>
     <name>BEAM statistics operator</name>
     <funding>EU</funding>
@@ -22,7 +22,7 @@
     <categories>Application,Processor,Geometry,VISAT,Level-3,Envisat,MERIS,AATSR,AVHRR,CHRIS</categories>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>beam-gpf</module>
     </dependency>
 
 </module>

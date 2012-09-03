@@ -236,6 +236,10 @@
     <dependency>
         <module>ceres-ui</module>
     </dependency>
+    <!-- TODO: replace this dependency! -->
+    <dependency>
+        <module>beam-statistics-op</module>
+    </dependency>
 
     <categories>System,Application,VISAT</categories>
 
