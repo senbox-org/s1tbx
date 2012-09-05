@@ -933,7 +933,7 @@ public class DimapHeaderWriterTest extends TestCase {
                 "            <Geoposition>" + LS +
                 "                <Geoposition_Points>" + LS +
                 "                    <TIE_POINT_GRID_NAME_LAT>lat</TIE_POINT_GRID_NAME_LAT>" + LS +
-                "                    <TIE_POINT_GRID_NAME_LON>lat</TIE_POINT_GRID_NAME_LON>" + LS +
+                "                    <TIE_POINT_GRID_NAME_LON>lon</TIE_POINT_GRID_NAME_LON>" + LS +
                 "                </Geoposition_Points>" + LS +
                 "            </Geoposition>" + LS +
                 "        </Pixel_Position_Estimator>" + LS +

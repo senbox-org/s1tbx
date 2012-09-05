@@ -205,8 +205,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             final float[] latTiePoints = tempLatImg.getData().getPixels(minX, minY, tpGridWidth, tpGridHeight, new float[tpGridWidth * tpGridHeight]);
             final float[] lonTiePoints = tempLonImg.getData().getPixels(minX, minY, tpGridWidth, tpGridHeight, new float[tpGridWidth * tpGridHeight]);
 
-            final TiePointGrid tpLatGrid = new TiePointGrid("tplat", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, latTiePoints, containsAngles);
-            final TiePointGrid tpLonGrid = new TiePointGrid("tplon", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, lonTiePoints, containsAngles);
+            final TiePointGrid tpLatGrid = new TiePointGrid("lat", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, latTiePoints, containsAngles);
+            final TiePointGrid tpLonGrid = new TiePointGrid("lon", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, lonTiePoints, containsAngles);
             pixelPosEstimator = new TiePointGeoCoding(tpLatGrid, tpLonGrid);
         }
 
