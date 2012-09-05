@@ -202,11 +202,14 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
             final int minX = tempLatImg.getMinX();
             final int minY = tempLatImg.getMinY();
-            final float[] latTiePoints = tempLatImg.getData().getPixel(minX, minY, new float[tpGridWidth * tpGridHeight]);
-            final float[] lonTiePoints = tempLonImg.getData().getPixel(minX, minY, new float[tpGridWidth * tpGridHeight]);
+            final float[] latTiePoints = tempLatImg.getData().getPixels(minX, minY, tpGridWidth, tpGridHeight, new float[tpGridWidth * tpGridHeight]);
+            final float[] lonTiePoints = tempLonImg.getData().getPixels(minX, minY, tpGridWidth, tpGridHeight, new float[tpGridWidth * tpGridHeight]);
 
-            final TiePointGrid tpLatGrid = new TiePointGrid("lat", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, latTiePoints, containsAngles);
-            final TiePointGrid tpLonGrid = new TiePointGrid("lat", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, lonTiePoints, containsAngles);
+            final TiePointGrid tpLatGrid = new TiePointGrid("tplat", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, latTiePoints, containsAngles);
+            final TiePointGrid tpLonGrid = new TiePointGrid("tplon", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, lonTiePoints, containsAngles);
+            final Product product = latBand.getProduct();
+            product.addTiePointGrid(tpLatGrid);
+            product.addTiePointGrid(tpLonGrid);
             pixelPosEstimator = new TiePointGeoCoding(tpLatGrid, tpLonGrid);
         }
 
@@ -226,8 +229,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
         }
         initialized = false;
-
-
     }
 
     /**
