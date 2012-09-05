@@ -41,7 +41,7 @@ public class ProductTemporalBinRendererTest {
             for (int x = 0; x < region.width; x++) {
                 if (x == 0 && y == 3) {
                     binRenderer.renderMissingBin(x, y);
-                }else {
+                } else {
                     binRenderer.renderBin(x, y, temporalBin, null);
                 }
             }
@@ -73,9 +73,7 @@ public class ProductTemporalBinRendererTest {
                                                               new JtsGeometryConverter().parse(worldWKT));
         ProductData.UTC startTime = ProductData.UTC.parse("12-May-2006 11:50:10");
         ProductData.UTC endTime = ProductData.UTC.parse("12-May-2006 11:55:15");
-        return new ProductTemporalBinRenderer(binningContext, tempFile,
-                                              "NetCDF-BEAM", region,
-                                              1.0, startTime, endTime);
+        return new ProductTemporalBinRenderer(binningContext, tempFile, "NetCDF-BEAM", region, 1.0, startTime, endTime);
     }
 
 }
