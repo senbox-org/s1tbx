@@ -629,6 +629,7 @@ public class BinningOpTest {
         assertEquals("01-JAN-2002 00:00:00.000000", targetProduct.getStartTime().format());
         assertEquals("10-JAN-2002 00:00:00.000000", targetProduct.getEndTime().format());
         assertNotNull(targetProduct.getBand("num_obs"));
+        assertEquals(ProductData.TYPE_INT32, targetProduct.getBand("num_obs").getDataType());
         assertNotNull(targetProduct.getBand("num_passes"));
         assertNotNull(targetProduct.getBand("chl_mean"));
         assertNotNull(targetProduct.getBand("chl_sigma"));
