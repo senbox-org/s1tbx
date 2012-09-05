@@ -207,9 +207,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
             final TiePointGrid tpLatGrid = new TiePointGrid("tplat", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, latTiePoints, containsAngles);
             final TiePointGrid tpLonGrid = new TiePointGrid("tplon", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, lonTiePoints, containsAngles);
-            final Product product = latBand.getProduct();
-            product.addTiePointGrid(tpLatGrid);
-            product.addTiePointGrid(tpLonGrid);
             pixelPosEstimator = new TiePointGeoCoding(tpLatGrid, tpLonGrid);
         }
 
