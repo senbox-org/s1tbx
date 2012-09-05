@@ -23,12 +23,16 @@ import org.esa.beam.binning.TemporalBinRenderer;
 import org.esa.beam.binning.WritableVector;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 
@@ -79,7 +83,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
             product.getMetadataRoot().addElement(metadataElement);
         }
 
-        numObsBand = product.addBand("num_obs", ProductData.TYPE_INT16);
+        numObsBand = product.addBand("num_obs", ProductData.TYPE_INT32);
         numObsBand.setNoDataValue(-1);
         numObsBand.setNoDataValueUsed(true);
         numObsLine = numObsBand.createCompatibleRasterData(outputRegion.width, 1);
