@@ -136,20 +136,24 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
 
     @Override
     public void renderBin(int x, int y, TemporalBin temporalBin, WritableVector outputVector) throws IOException {
-        setData(x, temporalBin, outputVector);
         if (y != yLast) {
             completeLine();
             yLast = y;
         }
+        setData(x, temporalBin, outputVector);
     }
 
     @Override
     public void renderMissingBin(int x, int y) throws IOException {
-        setNoData(x);
         if (y != yLast) {
             completeLine();
             yLast = y;
         }
+        setNoData(x);
+    }
+
+    public Product getProduct() {
+        return product;
     }
 
     private void completeLine() throws IOException {
