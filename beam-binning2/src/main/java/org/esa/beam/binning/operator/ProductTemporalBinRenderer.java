@@ -152,10 +152,6 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
         setNoData(x);
     }
 
-    public Product getProduct() {
-        return product;
-    }
-
     private void completeLine() throws IOException {
         writeLine(yLast);
         initLine();
