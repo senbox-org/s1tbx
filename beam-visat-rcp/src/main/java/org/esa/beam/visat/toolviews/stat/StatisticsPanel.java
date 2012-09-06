@@ -25,23 +25,16 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.StxFactory;
-import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.statistics.BandNameCreator;
 import org.esa.beam.statistics.CsvOutputter;
-import org.esa.beam.statistics.ShapefileOutputter;
 import org.esa.beam.statistics.StatisticsOp;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
-import org.geotools.data.collection.ListFeatureCollection;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -52,8 +45,6 @@ import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.xy.XIntervalSeries;
 import org.jfree.data.xy.XIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import javax.media.jai.Histogram;
 import javax.swing.AbstractAction;
@@ -61,7 +52,6 @@ import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
@@ -89,15 +79,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A general pane within the statistics window.
@@ -105,7 +92,7 @@ import java.util.Map;
  * @author Norman Fomferra
  * @author Marco Peters
  */
-class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.ComputeMasks {
+class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.ComputeMasks, PutStatisticsIntoVectorDataAction.StatisticalDataProvider {
 
     private static final String DEFAULT_STATISTICS_TEXT = "No statistics computed yet.";  /*I18N*/
     private static final String TITLE_PREFIX = "Statistics";
@@ -261,7 +248,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             contentPanel.add(createStatPanel(raster.getStx(), null));
             histograms = new Histogram[] {raster.getStx().getHistogram()};
             exportAsCsvAction = new ExportAsCsvAction(null);
-            putStatisticsIntoVectorDataAction = new PutStatisticsIntoVectorDataAction(null);
+            putStatisticsIntoVectorDataAction = new PutStatisticsIntoVectorDataAction(this);
             exportButton.setEnabled(true);
         } else {
             contentPanel.add(new JLabel(DEFAULT_STATISTICS_TEXT));
@@ -270,6 +257,11 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
 
         contentPanel.revalidate();
         contentPanel.repaint();
+    }
+
+    @Override
+    public Histogram[] getHistograms() {
+        return histograms;
     }
 
     private static class ComputeResult {
@@ -348,7 +340,10 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                 try {
                     get();
                     exportAsCsvAction = new ExportAsCsvAction(selectedMasks);
-                    putStatisticsIntoVectorDataAction = new PutStatisticsIntoVectorDataAction(selectedMasks);
+                    if (putStatisticsIntoVectorDataAction == null) {
+                        putStatisticsIntoVectorDataAction = new PutStatisticsIntoVectorDataAction(StatisticsPanel.this);
+                    }
+                    putStatisticsIntoVectorDataAction.setSelectedMasks(selectedMasks);
                     exportButton.setEnabled(true);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -456,7 +451,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         return statPanel;
     }
 
-    private double getBinSize(Histogram histogram) {
+    static double getBinSize(Histogram histogram) {
         return (histogram.getHighValue(0) - histogram.getLowValue(0)) / histogram.getNumBins(0);
     }
 
@@ -747,164 +742,8 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         }
     }
 
-    private class PutStatisticsIntoVectorDataAction extends AbstractAction {
-
-        private final Mask[] selectedMasks;
-        private final Map<SimpleFeatureType, VectorDataNode> featureType2VDN = new HashMap<SimpleFeatureType, VectorDataNode>();
-        private final Map<SimpleFeatureType, List<Mask>> featureType2Mask = new HashMap<SimpleFeatureType, List<Mask>>();
-        private final Map<Mask, Histogram> mask2Histogram = new HashMap<Mask, Histogram>();
-        private final Map<Mask, String> mask2RegionName = new HashMap<Mask, String>();
-
-        public PutStatisticsIntoVectorDataAction(Mask[] selectedMasks) {
-            super("Put statistics into vector data");
-            this.selectedMasks = selectedMasks;
-        }
-
-        @Override
-        public boolean isEnabled() {
-            return super.isEnabled() && selectedMasks != null;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (selectedMasks[0] == null) {
-                return;
-            }
-
-            for (final SimpleFeatureType featureType : getFeatureTypes()) {
-                MyShapefileOutputter shapefileOutputter = new MyShapefileOutputter(
-                        featureType,
-                        getFeatureCollection(featureType),
-                        new BandNameCreator());
-                shapefileOutputter.initialiseOutput(
-                        new Product[]{getRaster().getProduct()},
-                        new String[]{getRaster().getName()},
-                        new String[]{
-                                "minimum",
-                                "maximum",
-                                "median",
-                                "average",
-                                "sigma",
-                                "p90",
-                                "p95",
-                                "pxx_max_error",
-                                "total"
-                        },
-                        null,
-                        null,
-                        getRegionIds(featureType));
-                for (final Mask mask : getMasks(featureType)) {
-                    HashMap<String, Number> statistics = new HashMap<String, Number>();
-                    Histogram histogram = getHistogram(mask);
-                    statistics.put("minimum", histogram.getLowValue(0));
-                    statistics.put("maximum", histogram.getHighValue(0));
-                    statistics.put("median", histogram.getPTileThreshold(0.5)[0]);
-                    statistics.put("average", histogram.getMean()[0]);
-                    statistics.put("sigma", histogram.getStandardDeviation()[0]);
-                    statistics.put("p90", histogram.getPTileThreshold(0.9)[0]);
-                    statistics.put("p95", histogram.getPTileThreshold(0.95)[0]);
-                    statistics.put("pxx_max_error", getBinSize(histogram));
-                    statistics.put("total", histogram.getTotals()[0]);
-                    shapefileOutputter.addToOutput(getRaster().getName(), mask2RegionName.get(mask), statistics);
-                }
-
-                exchangeVDN(featureType, shapefileOutputter);
-                JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                              "The vector data have successfully been extended with the computed statistics.",
-                                              "Extending vector data with statistics",
-                                              JOptionPane.INFORMATION_MESSAGE);
-            }
-        }
-
-        private void exchangeVDN(SimpleFeatureType featureType, MyShapefileOutputter shapefileOutputter) {
-            final VectorDataNode originalVDN = featureType2VDN.get(featureType);
-            final VectorDataNode vectorDataNode = shapefileOutputter.updateVectorDateNode(originalVDN);
-            getProduct().getVectorDataGroup().remove(originalVDN);
-            originalVDN.dispose();
-            getProduct().getVectorDataGroup().add(vectorDataNode);
-            final JInternalFrame internalFrame = VisatApp.getApp().findInternalFrame(originalVDN);
-            if (internalFrame != null) {
-                try {
-                    internalFrame.setClosed(true);
-                } catch (PropertyVetoException ignored) {
-                    // ok
-                }
-            }
-            final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
-            if (sceneView != null) {
-                sceneView.setLayersVisible(vectorDataNode);
-            }
-        }
-
-        private Histogram getHistogram(Mask mask) {
-            return mask2Histogram.get(mask);
-        }
-
-        private Mask[] getMasks(SimpleFeatureType featureType) {
-            final List<Mask> masks = featureType2Mask.get(featureType);
-            return masks.toArray(new Mask[masks.size()]);
-        }
-
-        private String[] getRegionIds(SimpleFeatureType featureType) {
-            List<String> result = new ArrayList<String>();
-            final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureType2VDN.get(featureType).getFeatureCollection();
-            final FeatureIterator<SimpleFeature> featureIterator = featureCollection.features();
-            while (featureIterator.hasNext()) {
-                final SimpleFeature simpleFeature = featureIterator.next();
-                result.add(simpleFeature.getIdentifier().toString());
-
-            }
-            featureIterator.close();
-            return result.toArray(new String[result.size()]);
-        }
-
-        private FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatureCollection(SimpleFeatureType featureType) {
-            return featureType2VDN.get(featureType).getFeatureCollection();
-        }
-
-        private SimpleFeatureType[] getFeatureTypes() {
-            List<SimpleFeatureType> result = new ArrayList<SimpleFeatureType>();
-            for (int i = 0; i < selectedMasks.length; i++) {
-                final Mask selectedMask = selectedMasks[i];
-                mask2Histogram.put(selectedMask, histograms[i]);
-                if (selectedMask.getImageType().getName().equals(Mask.VectorDataType.TYPE_NAME)) {
-                    VectorDataNode vectorDataNode = Mask.VectorDataType.getVectorData(selectedMask);
-                    SimpleFeatureType featureType = vectorDataNode.getFeatureType();
-                    if (!result.contains(featureType)) {
-                        result.add(featureType);
-                    }
-                    if (!featureType2Mask.containsKey(featureType)) {
-                        featureType2Mask.put(featureType, new ArrayList<Mask>());
-                    }
-                    featureType2Mask.get(featureType).add(selectedMask);
-                    featureType2VDN.put(featureType, vectorDataNode);
-                    setMaskRegionName(selectedMask, vectorDataNode);
-                }
-            }
-
-            return result.toArray(new SimpleFeatureType[result.size()]);
-        }
-
-        private void setMaskRegionName(Mask selectedMask, VectorDataNode vectorDataNode) {
-            FeatureIterator<SimpleFeature> features = vectorDataNode.getFeatureCollection().features();
-            mask2RegionName.put(selectedMask, features.next().getIdentifier().toString());
-            features.close();
-        }
-    }
-
-    private static class MyShapefileOutputter extends ShapefileOutputter {
-
-        private MyShapefileOutputter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures, BandNameCreator bandNameCreator) {
-            super(originalFeatureType, originalFeatures, null, bandNameCreator);
-        }
-
-        private VectorDataNode updateVectorDateNode(VectorDataNode vectorDataNode) {
-            final ListFeatureCollection featureCollection = new ListFeatureCollection(getUpdatedFeatureType(), getFeatures());
-            final VectorDataNode update = new VectorDataNode(vectorDataNode.getName(), featureCollection, vectorDataNode.getPlacemarkDescriptor());
-            update.setPermanent(vectorDataNode.isPermanent());
-            update.setModified(true);
-            update.setDescription(vectorDataNode.getDescription());
-            return update;
-        }
+    @Override
+    public RasterDataNode getRasterDataNode() {
+        return getRaster();
     }
 }
