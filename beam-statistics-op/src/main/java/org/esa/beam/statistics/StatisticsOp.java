@@ -19,25 +19,6 @@ package org.esa.beam.statistics;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.core.ProgressMonitor;
-import java.awt.Color;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.net.MalformedURLException;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import javax.media.jai.Histogram;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
@@ -65,6 +46,26 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import javax.media.jai.Histogram;
+import java.awt.Color;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 /**
  * An operator that is used to compute statistics for any number of source products, restricted to regions given by an
  * ESRI shapefile.
@@ -87,9 +88,8 @@ public class StatisticsOp extends Operator implements Output {
     public static final String DEFAULT_PERCENTILES = "90,95";
     private static final int MAX_PRECISION = 6;
 
-    @SourceProducts(description =
-                                "The source products to be considered for statistics computation. If not given, the " +
-                                "parameter 'sourceProductPaths' must be provided.")
+    @SourceProducts(description = "The source products to be considered for statistics computation. If not given, " +
+                                  "the parameter 'sourceProductPaths' must be provided.")
     Product[] sourceProducts;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
@@ -98,22 +98,19 @@ public class StatisticsOp extends Operator implements Output {
                              "'?' (matches any single character).")
     String[] sourceProductPaths;
 
-    @Parameter(description =
-                           "An ESRI shapefile, providing the considered geographical region(s) given as polygons. If " +
-                           "null, all pixels are considered.")
+    @Parameter(description = "An ESRI shapefile, providing the considered geographical region(s) given as polygons. " +
+                             "If null, all pixels are considered.")
     File shapefile;
 
     // todo se ask really true?
-    @Parameter(description =
-                           "The start date. If not given, taken from the 'oldest' source product. Products that have " +
-                           "a start date before the start date given by this parameter are not considered.",
+    @Parameter(description = "The start date. If not given, taken from the 'oldest' source product. Products that " +
+                             "have a start date before the start date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC startDate;
 
     // todo se ask really true?
-    @Parameter(description =
-                           "The end date. If not given, taken from the 'youngest' source product. Products that have " +
-                           "an end date after the end date given by this parameter are not considered.",
+    @Parameter(description = "The end date. If not given, taken from the 'youngest' source product. Products that " +
+                             "have an end date after the end date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
@@ -138,8 +135,9 @@ public class StatisticsOp extends Operator implements Output {
                notNull = false, defaultValue = DEFAULT_PERCENTILES)
     int[] percentiles;
 
-    @Parameter(description = "The number of significant figures used for statistics computation. Higher numbers indicate" +
-                             " higher precision but may lead to a considerably longer computation time.", defaultValue = "5")
+    @Parameter(description = "The number of significant figures used for statistics computation. Higher numbers " +
+                             "indicate higher precision but may lead to a considerably longer computation time.",
+               defaultValue = "5")
     int precision;
 
     Set<Product> collectedProducts;
@@ -200,7 +198,8 @@ public class StatisticsOp extends Operator implements Output {
 
         final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
         try {
-            featureCollection = FeatureUtils.loadShapefileForProduct(shapefile, product, crsProvider, ProgressMonitor.NULL);
+            featureCollection = FeatureUtils.loadShapefileForProduct(shapefile, product, crsProvider,
+                                                                     ProgressMonitor.NULL);
         } catch (Exception e) {
             throw new OperatorException("Unable to load shapefile '" + shapefile.getAbsolutePath() + "'.", e);
         }
@@ -209,7 +208,8 @@ public class StatisticsOp extends Operator implements Output {
         final List<VectorDataNode> result = new ArrayList<VectorDataNode>();
         while (featureIterator.hasNext()) {
             final SimpleFeature simpleFeature = featureIterator.next();
-            final DefaultFeatureCollection fc = new DefaultFeatureCollection(simpleFeature.getID(), simpleFeature.getFeatureType());
+            final DefaultFeatureCollection fc = new DefaultFeatureCollection(simpleFeature.getID(),
+                                                                             simpleFeature.getFeatureType());
             fc.add(simpleFeature);
             String name = getFeatureName(simpleFeature);
             result.add(new VectorDataNode(name, fc));
@@ -242,7 +242,8 @@ public class StatisticsOp extends Operator implements Output {
         final String[] algorithmNames = getAlgorithmNames();
         final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
         for (Outputter outputter : outputters) {
-            outputter.initialiseOutput(allSourceProducts, bandNames, algorithmNames, startDate, endDate, regionNames.toArray(new String[regionNames.size()]));
+            outputter.initialiseOutput(allSourceProducts, bandNames, algorithmNames, startDate, endDate,
+                                       regionNames.toArray(new String[regionNames.size()]));
         }
     }
 
@@ -268,7 +269,8 @@ public class StatisticsOp extends Operator implements Output {
     void setupOutputter() {
         if (doOutputAsciiFile) {
             try {
-                final StringBuilder metadataFileName = new StringBuilder(FileUtils.getFilenameWithoutExtension(outputAsciiFile));
+                final StringBuilder metadataFileName = new StringBuilder(
+                        FileUtils.getFilenameWithoutExtension(outputAsciiFile));
                 metadataFileName.append("_metadata.txt");
                 final File metadataFile = new File(outputAsciiFile.getParent(), metadataFileName.toString());
                 metadataOutputStream = new PrintStream(new FileOutputStream(metadataFile));
@@ -285,7 +287,9 @@ public class StatisticsOp extends Operator implements Output {
                 final FileOutputStream outputStream = new FileOutputStream(file);
                 bandMappingOutputStream = new PrintStream(outputStream);
                 BandNameCreator bandNameCreator = new BandNameCreator(bandMappingOutputStream);
-                outputters.add(ShapefileOutputter.createShapefileOutputter(shapefile.toURI().toURL(), outputShapefile.getAbsolutePath(), bandNameCreator));
+                outputters.add(ShapefileOutputter.createShapefileOutputter(shapefile.toURI().toURL(),
+                                                                           outputShapefile.getAbsolutePath(),
+                                                                           bandNameCreator));
             } catch (MalformedURLException e) {
                 throw new OperatorException("Unable to create shapefile outputter", e);
             } catch (FileNotFoundException e) {
@@ -309,8 +313,8 @@ public class StatisticsOp extends Operator implements Output {
                 final Mask[] roiMasks = getMasksForBands(maskList, bands);
                 final Band[] bandsArray = bands.toArray(new Band[bands.size()]);
                 final Stx stx = new StxFactory()
-                            .withHistogramBinCount(computeBinCount(precision))
-                            .create(ProgressMonitor.NULL, roiMasks, bandsArray);
+                        .withHistogramBinCount(computeBinCount(precision))
+                        .create(ProgressMonitor.NULL, roiMasks, bandsArray);
                 final HashMap<String, Number> stxMap = new HashMap<String, Number>();
                 Histogram histogram = stx.getHistogram();
                 stxMap.put("minimum", histogram.getLowValue(0));
@@ -321,9 +325,10 @@ public class StatisticsOp extends Operator implements Output {
                 stxMap.put("median", histogram.getPTileThreshold(0.5)[0]);
                 for (int percentile : percentiles) {
                     if (precision > MAX_PRECISION) {
-                        final PrecisePercentile precisePercentile = PrecisePercentile.createPrecisePercentile(bandsArray,
-                                                                                                              histogram,
-                                                                                                              percentile * 0.01);
+                        final PrecisePercentile precisePercentile = PrecisePercentile.createPrecisePercentile(
+                                bandsArray,
+                                histogram,
+                                percentile * 0.01);
                         stxMap.put(getPercentileName(percentile), precisePercentile.percentile);
                         stxMap.put("pxx_max_error", precisePercentile.maxError);
                     } else {
@@ -361,7 +366,8 @@ public class StatisticsOp extends Operator implements Output {
                     masks[i] = mask;
                     break;
                 } else {
-                    masks[i] = band.getProduct().addMask("emptyMask", "false", "mask that accepts no value", Color.RED, 0.5);
+                    masks[i] = band.getProduct().addMask("emptyMask", "false", "mask that accepts no value",
+                                                         Color.RED, 0.5);
                 }
             }
         }
@@ -390,7 +396,8 @@ public class StatisticsOp extends Operator implements Output {
             band = product.getBand(configuration.sourceBandName);
             band.setNoDataValueUsed(true);
         } else {
-            band = product.addBand(configuration.expression.replace(" ", "_"), configuration.expression, ProductData.TYPE_FLOAT64);
+            band = product.addBand(configuration.expression.replace(" ", "_"), configuration.expression,
+                                   ProductData.TYPE_FLOAT64);
         }
         if (band == null) {
             throw new OperatorException(MessageFormat.format("Band ''{0}'' does not exist in product ''{1}''.",
@@ -427,7 +434,8 @@ public class StatisticsOp extends Operator implements Output {
             throw new OperatorException("Parameter 'precision' must be greater than or equal to 0");
         }
         if ((sourceProducts == null || sourceProducts.length == 0) && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
-            throw new OperatorException("Either source products must be given or parameter 'sourceProductPaths' must be specified");
+            throw new OperatorException(
+                    "Either source products must be given or parameter 'sourceProductPaths' must be specified");
         }
         for (BandConfiguration configuration : bandConfigurations) {
             if (configuration.sourceBandName == null && configuration.expression == null) {
@@ -468,7 +476,7 @@ public class StatisticsOp extends Operator implements Output {
                 }
             }
             for (File file : fileSet) {
-                if (!isProductAlreadyOpened(products,file)) {
+                if (!isProductAlreadyOpened(products, file)) {
                     try {
                         Product sourceProduct = ProductIO.readProduct(file);
                         if (sourceProduct != null) {
@@ -517,8 +525,8 @@ public class StatisticsOp extends Operator implements Output {
         String sourceBandName;
 
         @Parameter(description =
-                               "The band maths expression serving as input band. If empty, parameter 'sourceBandName'" +
-                               "must be provided.")
+                           "The band maths expression serving as input band. If empty, parameter 'sourceBandName'" +
+                           "must be provided.")
         String expression;
 
         @Parameter(description = "The band maths expression serving as criterion for whether to consider pixels for " +
@@ -558,7 +566,8 @@ public class StatisticsOp extends Operator implements Output {
 
     public interface Outputter {
 
-        void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate,
+        void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames,
+                              ProductData.UTC startDate, ProductData.UTC endDate,
                               String[] regionIds);
 
         void addToOutput(String bandName, String regionId, Map<String, Number> statistics);
