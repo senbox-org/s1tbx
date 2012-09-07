@@ -16,27 +16,23 @@
 
 package org.esa.beam.statistics;
 
+import static org.junit.Assert.*;
+
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
-import org.esa.beam.framework.dataio.ProductIO;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-
-import static org.junit.Assert.*;
+import org.junit.*;
 
 /**
  * @author Thomas Storm
@@ -75,7 +71,7 @@ public class StatisticsOpTest {
         final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
-        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
 
@@ -102,7 +98,7 @@ public class StatisticsOpTest {
         final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
-        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
         statisticsOp.precision = 6;
@@ -131,7 +127,7 @@ public class StatisticsOpTest {
         final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
         bandConfiguration.expression = "algal_2 * PI";
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
-        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
 
@@ -160,7 +156,7 @@ public class StatisticsOpTest {
         bandConfiguration.sourceBandName = "algal_2";
         bandConfiguration.validPixelExpression = "algal_2 > 0.7";
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
-        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
 
@@ -185,27 +181,9 @@ public class StatisticsOpTest {
     @Test
     public void testGetBand() throws Exception {
         final StatisticsOp.BandConfiguration configuration = new StatisticsOp.BandConfiguration();
-
-        final Product testProduct = getTestProduct();
-        try {
-            StatisticsOp.getBand(configuration, testProduct);
-            fail();
-        } catch (OperatorException expected) {
-            assertTrue(expected.getMessage().contains("must contain either a source band name or an expression"));
-        }
-
-        configuration.sourceBandName = "algal_2";
-        final Band band = StatisticsOp.getBand(configuration, testProduct);
-        assertEquals("algal_2", band.getName());
+        final Product testProduct = TestUtil.getTestProduct();
 
         configuration.expression = "algal_2 * PI";
-        try {
-            StatisticsOp.getBand(configuration, testProduct);
-            fail();
-        } catch (OperatorException expected) {
-            assertTrue(expected.getMessage().contains("must contain either a source band name or an expression"));
-        }
-
         configuration.sourceBandName = null;
         final Band virtualBand = StatisticsOp.getBand(configuration, testProduct);
         assertEquals("algal_2_*_PI", virtualBand.getName());
@@ -227,7 +205,7 @@ public class StatisticsOpTest {
         parameters.put("bandConfigurations", new StatisticsOp.BandConfiguration[]{
                 bandConfiguration_1,
         });
-        GPF.createProduct("StatisticsOp", parameters, getTestProduct());
+        GPF.createProduct("StatisticsOp", parameters, TestUtil.getTestProduct());
 
         assertFalse(getTestFile("statisticsOutput.put").exists());
         assertTrue(getTestFile("statisticsOutput.out").exists());
@@ -241,7 +219,7 @@ public class StatisticsOpTest {
         final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
         statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
-        statisticsOp.sourceProducts = new Product[]{getTestProduct()};
+        statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
         statisticsOp.percentiles = new int[] {20, 51, 90};
@@ -282,29 +260,6 @@ public class StatisticsOpTest {
     }
 
     @Test
-    public void testValidateInput() throws Exception {
-        final StatisticsOp statisticsOp = new StatisticsOp();
-        statisticsOp.startDate = ProductData.UTC.parse("2010-01-31 14:46:23", "yyyy-MM-ss hh:mm:ss");
-        statisticsOp.endDate = ProductData.UTC.parse("2010-01-31 14:45:23", "yyyy-MM-ss hh:mm:ss");
-
-        try {
-            statisticsOp.validateInput();
-            fail();
-        } catch (OperatorException expected) {
-            assertTrue(expected.getMessage().contains("before start date"));
-        }
-
-        statisticsOp.endDate = ProductData.UTC.parse("2010-01-31 14:47:23", "yyyy-MM-ss hh:mm:ss");
-
-        try {
-            statisticsOp.validateInput();
-            fail();
-        } catch (OperatorException expected) {
-            assertTrue(expected.getMessage().contains("must be given"));
-        }
-    }
-
-    @Test
     public void testComputeBinCount() throws Exception {
         assertEquals(1000, StatisticsOp.computeBinCount(3));
         assertEquals(10000, StatisticsOp.computeBinCount(4));
@@ -319,8 +274,18 @@ public class StatisticsOpTest {
         }
     }
 
-    private Product getTestProduct() throws IOException {
-        return ProductIO.readProduct(getClass().getResource("testProduct1.dim").getFile());
+    @Test
+    public void testProductAlreadyOpened() {
+        final File file = new File("test.file");
+
+        final Product product = new Product("name", "type", 20, 40);
+        product.setFileLocation(file);
+
+        final ArrayList<Product> products = new ArrayList<Product>();
+        products.add(product);
+
+        assertTrue(StatisticsOp.isProductAlreadyOpened(products, file));
+        assertFalse(StatisticsOp.isProductAlreadyOpened(products, new File("other.path")));
     }
 
     private static void assertConversionException(Converter converter, String text) {
@@ -388,6 +353,36 @@ public class StatisticsOpTest {
         @Override
         public void finaliseOutput() throws IOException {
         }
+    }
+
+    @Test
+    public void testCollectSourceProducts() throws IOException {
+        final StatisticsOp statisticsOp = new StatisticsOp();
+        final Product testProduct = TestUtil.getTestProduct();
+        final Product[] testProductArray = {testProduct};
+        statisticsOp.sourceProducts = testProductArray;
+        statisticsOp.sourceProductPaths = new String[] {testProduct.getFileLocation().getAbsolutePath()};
+
+        final Product[] collectedProducts = statisticsOp.collectSourceProducts();
+        assertArrayEquals(testProductArray, collectedProducts);
+        for (Product collectedProduct : collectedProducts) {
+            collectedProduct.dispose();
+        }
+    }
+
+    @Test
+    public void testCollectSourceProducts_UseOnlySourceProductPaths() throws IOException {
+        final StatisticsOp statisticsOp = new StatisticsOp();
+        final Product testProduct = TestUtil.getTestProduct();
+        statisticsOp.sourceProductPaths = new String[] {testProduct.getFileLocation().getAbsolutePath()};
+
+        final Product[] collectedProducts = statisticsOp.collectSourceProducts();
+        assertEquals(1, collectedProducts.length);
+        assertEquals(testProduct.getFileLocation().getAbsolutePath(), collectedProducts[0].getFileLocation().getAbsolutePath());
+        for (Product collectedProduct : collectedProducts) {
+            collectedProduct.dispose();
+        }
+        testProduct.dispose();
     }
 
     static File getTestFile(String fileName) {

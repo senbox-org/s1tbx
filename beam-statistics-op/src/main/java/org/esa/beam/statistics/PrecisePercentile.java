@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -43,15 +43,12 @@ class PrecisePercentile {
 
     private PrecisePercentile(RasterDataNode[] raster, Histogram histogram, double percentile) {
         final double imprecisePercentile = histogram.getPTileThreshold(percentile)[0];
-        int binIdx = 0;
+        int percentileBinIndex = 0;
         int count = 0;
-        int percentileBinIndex = -1;
-        while (histogram.getBinLowValue(0, binIdx) < imprecisePercentile) {
-            percentileBinIndex = binIdx;
-            count += histogram.getBinSize(0, binIdx);
-            binIdx++;
+        while (histogram.getBinLowValue(0, percentileBinIndex) < imprecisePercentile) {
+            count += histogram.getBinSize(0, percentileBinIndex);
+            percentileBinIndex++;
         }
-        percentileBinIndex++;
 
         final Histogram higherResolutionHistogram = createHigherResolutionHistogram(raster, histogram, percentileBinIndex);
 

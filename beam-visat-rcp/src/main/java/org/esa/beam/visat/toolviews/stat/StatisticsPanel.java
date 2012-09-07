@@ -20,6 +20,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.jidesoft.swing.TitledSeparator;
+import java.util.Map;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -706,9 +707,9 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                         null,
                         regionIds);
 
+                final Map<String, Number> statistics = new HashMap<String, Number>();
                 for (int i = 0; i < histograms.length; i++) {
                     final Histogram histogram = histograms[i];
-                    HashMap<String, Number> statistics = new HashMap<String, Number>();
                     statistics.put("minimum", histogram.getLowValue(0));
                     statistics.put("maximum", histogram.getHighValue(0));
                     statistics.put("median", histogram.getPTileThreshold(0.5)[0]);
@@ -718,6 +719,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                     statistics.put("p95", histogram.getPTileThreshold(0.95)[0]);
                     statistics.put("total", histogram.getTotals()[0]);
                     csvOutputter.addToOutput(getRaster().getName(), regionIds[i], statistics);
+                    statistics.clear();
                 }
                 csvOutputter.finaliseOutput();
             } catch (IOException exception) {
