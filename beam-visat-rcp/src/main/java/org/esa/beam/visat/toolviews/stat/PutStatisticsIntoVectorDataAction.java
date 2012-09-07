@@ -17,6 +17,7 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
@@ -42,8 +43,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* @author Thomas Storm
-*/
+ * @author Thomas Storm
+ */
 class PutStatisticsIntoVectorDataAction extends AbstractAction {
 
     private Mask[] selectedMasks;
@@ -85,10 +86,11 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
         }
 
         for (final SimpleFeatureType featureType : getFeatureTypes()) {
-            MyShapefileOutputter shapefileOutputter = new MyShapefileOutputter(
-                    featureType,
-                    getFeatureCollection(featureType),
-                    new BandNameCreator());
+            ShapefileOutputter shapefileOutputter = ShapefileOutputter.createShapefileOutputter(featureType,
+                                                                                                getFeatureCollection(
+                                                                                                        featureType),
+                                                                                                null,
+                                                                                                new BandNameCreator());
             shapefileOutputter.initialiseOutput(
                     new Product[]{provider.getRasterDataNode().getProduct()},
                     new String[]{provider.getRasterDataNode().getName()},
@@ -118,7 +120,8 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
                 statistics.put("p95", histogram.getPTileThreshold(0.95)[0]);
                 statistics.put("pxx_max_error", StatisticsPanel.getBinSize(histogram));
                 statistics.put("total", histogram.getTotals()[0]);
-                shapefileOutputter.addToOutput(provider.getRasterDataNode().getName(), mask2RegionName.get(mask), statistics);
+                shapefileOutputter.addToOutput(provider.getRasterDataNode().getName(), mask2RegionName.get(mask),
+                                               statistics);
             }
 
             exchangeVDN(featureType, shapefileOutputter);
@@ -129,9 +132,9 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
         }
     }
 
-    private void exchangeVDN(SimpleFeatureType featureType, MyShapefileOutputter shapefileOutputter) {
+    private void exchangeVDN(SimpleFeatureType featureType, ShapefileOutputter shapefileOutputter) {
         final VectorDataNode originalVDN = featureType2VDN.get(featureType);
-        final VectorDataNode vectorDataNode = shapefileOutputter.updateVectorDateNode(originalVDN);
+        final VectorDataNode vectorDataNode = updateVectorDataNode(shapefileOutputter, originalVDN);
         provider.getRasterDataNode().getProduct().getVectorDataGroup().remove(originalVDN);
         originalVDN.dispose();
         provider.getRasterDataNode().getProduct().getVectorDataGroup().add(vectorDataNode);
@@ -149,6 +152,19 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
         }
     }
 
+    private static VectorDataNode updateVectorDataNode(ShapefileOutputter shapefileOutputter,
+                                                       VectorDataNode originalVDN) {
+        final SimpleFeatureType updatedFeatureType = shapefileOutputter.getUpdatedFeatureType();
+        final List<SimpleFeature> features = shapefileOutputter.getFeatures();
+        final ListFeatureCollection featureCollection = new ListFeatureCollection(updatedFeatureType, features);
+        final PlacemarkDescriptor placemarkDescriptor = originalVDN.getPlacemarkDescriptor();
+        final VectorDataNode update = new VectorDataNode(originalVDN.getName(), featureCollection, placemarkDescriptor);
+        update.setPermanent(originalVDN.isPermanent());
+        update.setModified(true);
+        update.setDescription(originalVDN.getDescription());
+        return update;
+    }
+
     private Histogram getHistogram(Mask mask) {
         return mask2Histogram.get(mask);
     }
@@ -160,7 +176,8 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
 
     private String[] getRegionIds(SimpleFeatureType featureType) {
         List<String> result = new ArrayList<String>();
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureType2VDN.get(featureType).getFeatureCollection();
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureType2VDN.get(
+                featureType).getFeatureCollection();
         final FeatureIterator<SimpleFeature> featureIterator = featureCollection.features();
         while (featureIterator.hasNext()) {
             final SimpleFeature simpleFeature = featureIterator.next();
@@ -210,22 +227,6 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
 
     public void setSelectedMasks(Mask[] selectedMasks) {
         this.selectedMasks = selectedMasks;
-    }
-
-    private static class MyShapefileOutputter extends ShapefileOutputter {
-
-        private MyShapefileOutputter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures, BandNameCreator bandNameCreator) {
-            super(originalFeatureType, originalFeatures, null, bandNameCreator);
-        }
-
-        private VectorDataNode updateVectorDateNode(VectorDataNode vectorDataNode) {
-            final ListFeatureCollection featureCollection = new ListFeatureCollection(getUpdatedFeatureType(), getFeatures());
-            final VectorDataNode update = new VectorDataNode(vectorDataNode.getName(), featureCollection, vectorDataNode.getPlacemarkDescriptor());
-            update.setPermanent(vectorDataNode.isPermanent());
-            update.setModified(true);
-            update.setDescription(vectorDataNode.getDescription());
-            return update;
-        }
     }
 
     static interface StatisticalDataProvider {

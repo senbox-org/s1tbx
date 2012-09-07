@@ -164,11 +164,11 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
         exportVectorDataNode(vectorDataNode, targetFile);
     }
 
-    protected List<SimpleFeature> getFeatures() {
+    public List<SimpleFeature> getFeatures() {
         return features;
     }
 
-    protected SimpleFeatureType getUpdatedFeatureType() {
+    public SimpleFeatureType getUpdatedFeatureType() {
         return updatedFeatureType;
     }
 
