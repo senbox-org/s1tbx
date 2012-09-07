@@ -663,7 +663,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             }
             BeamFileChooser fileChooser = new BeamFileChooser(baseDir);
             File outputAsciiFile;
-            int result = fileChooser.showOpenDialog(StatisticsPanel.this);
+            int result = fileChooser.showSaveDialog(StatisticsPanel.this);
             if (result == JFileChooser.APPROVE_OPTION) {
                 outputAsciiFile = fileChooser.getSelectedFile();
                 VisatApp.getApp().getPreferences().setPropertyString(PROPERTY_KEY_EXPORT_DIR, outputAsciiFile.getParent());
