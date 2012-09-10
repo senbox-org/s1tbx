@@ -1,10 +1,5 @@
 package org.esa.beam.statistics;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
@@ -13,6 +8,12 @@ import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class EsriShapeFileWriter {
 
@@ -43,7 +44,6 @@ public class EsriShapeFileWriter {
             transaction.rollback();
             throw new IOException("Cannot write shapefile. Error:\n" + e.getMessage(), e);
         } finally {
-            final boolean released = dataStore.getLockingManager().release("X", transaction);
             dataStore.dispose();
             transaction.close();
         }

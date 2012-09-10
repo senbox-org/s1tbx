@@ -16,13 +16,15 @@
 
 package org.esa.beam.statistics;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
-import org.junit.*;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -71,12 +73,12 @@ public class CsvStatisticsWriterTest {
 
     @Test
     public void testFinaliseOutput() throws Exception {
-        csvStatisticsWriter.initialiseOutput(new String[]{
-                    "p90",
-                    "p95",
-                    "max",
-                    "min"
-        });
+        csvStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(null, new String[]{
+                "p90",
+                "p95",
+                "max",
+                "min"
+        }));
         addOutput();
         csvStatisticsWriter.finaliseOutput();
         csvStream.close();
@@ -84,7 +86,7 @@ public class CsvStatisticsWriterTest {
                      "werdohl\tnormalised_cow_density_index_(ncdi)\t\t\t2.0000\t3.0000\n" +
                      "bielefeld\tnormalised_cow_density_index_(ncdi)\t\t\t1.0000\t3.0000\n" +
                      "bielefeld\tnormalised_pig_density_index_(npdi)\t3.0000\t0.5000\t1.0000\t2.0000\n"
-                    , csvOutput.toString());
+                , csvOutput.toString());
     }
 
     @Test

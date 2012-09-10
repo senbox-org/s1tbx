@@ -16,16 +16,6 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import java.awt.event.ActionEvent;
-import java.beans.PropertyVetoException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.media.jai.Histogram;
-import javax.swing.AbstractAction;
-import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -33,13 +23,25 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.statistics.BandNameCreator;
-import org.esa.beam.statistics.FeaturesStatisticsWriter;
+import org.esa.beam.statistics.FeatureStatisticsWriter;
+import org.esa.beam.statistics.StatisticsOutputContext;
 import org.esa.beam.visat.VisatApp;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+
+import javax.media.jai.Histogram;
+import javax.swing.AbstractAction;
+import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
+import java.awt.event.ActionEvent;
+import java.beans.PropertyVetoException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Thomas Storm
@@ -85,22 +87,25 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
         }
 
         for (final SimpleFeatureType featureType : getFeatureTypes()) {
-            FeaturesStatisticsWriter featuresStatisticsWriter = FeaturesStatisticsWriter.createShapefileOutputter(featureType,
-                                                                                                                  getFeatureCollection(
-                                                                                                                              featureType),
-                                                                                                                  new BandNameCreator());
-            featuresStatisticsWriter.initialiseOutput(new String[]{provider.getRasterDataNode().getName()},
-                                                new String[]{
-                                                            "minimum",
-                                                            "maximum",
-                                                            "median",
-                                                            "average",
-                                                            "sigma",
-                                                            "p90",
-                                                            "p95",
-                                                            "pxx_max_error",
-                                                            "total"
-                                                });
+            FeatureStatisticsWriter featureStatisticsWriter = FeatureStatisticsWriter.createFeatureStatisticsWriter(featureType,
+                                                                                                                    getFeatureCollection(
+                                                                                                                            featureType),
+                                                                                                                    null,
+                                                                                                                    new BandNameCreator());
+            featureStatisticsWriter.initialiseOutput(
+                    StatisticsOutputContext.create(
+                            new String[]{provider.getRasterDataNode().getName()},
+                            new String[]{
+                                    "minimum",
+                                    "maximum",
+                                    "median",
+                                    "average",
+                                    "sigma",
+                                    "p90",
+                                    "p95",
+                                    "pxx_max_error",
+                                    "total"
+                            }));
             for (final Mask mask : getMasks(featureType)) {
                 HashMap<String, Number> statistics = new HashMap<String, Number>();
                 Histogram histogram = getHistogram(mask);
@@ -113,11 +118,11 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
                 statistics.put("p95", histogram.getPTileThreshold(0.95)[0]);
                 statistics.put("pxx_max_error", StatisticsPanel.getBinSize(histogram));
                 statistics.put("total", histogram.getTotals()[0]);
-                featuresStatisticsWriter.addToOutput(provider.getRasterDataNode().getName(), mask2RegionName.get(mask),
-                                               statistics);
+                featureStatisticsWriter.addToOutput(provider.getRasterDataNode().getName(), mask2RegionName.get(mask),
+                                                    statistics);
             }
 
-            exchangeVDN(featureType, featuresStatisticsWriter);
+            exchangeVDN(featureType, featureStatisticsWriter);
             JOptionPane.showMessageDialog(VisatApp.getApp().getApplicationWindow(),
                                           "The vector data have successfully been extended with the computed statistics.",
                                           "Extending vector data with statistics",
@@ -125,9 +130,9 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
         }
     }
 
-    private void exchangeVDN(SimpleFeatureType featureType, FeaturesStatisticsWriter featuresStatisticsWriter) {
+    private void exchangeVDN(SimpleFeatureType featureType, FeatureStatisticsWriter featureStatisticsWriter) {
         final VectorDataNode originalVDN = featureType2VDN.get(featureType);
-        final VectorDataNode vectorDataNode = createVectorDataNode(featuresStatisticsWriter, originalVDN);
+        final VectorDataNode vectorDataNode = createVectorDataNode(featureStatisticsWriter, originalVDN);
         final ProductNodeGroup<VectorDataNode> vectorDataNodeGroup = provider.getVectorDataNodeGroup();
         vectorDataNodeGroup.remove(originalVDN);
         originalVDN.dispose();
@@ -146,10 +151,10 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
         }
     }
 
-    private static VectorDataNode createVectorDataNode(FeaturesStatisticsWriter featuresStatisticsWriter,
+    private static VectorDataNode createVectorDataNode(FeatureStatisticsWriter featureStatisticsWriter,
                                                        VectorDataNode originalVDN) {
-        final SimpleFeatureType updatedFeatureType = featuresStatisticsWriter.getUpdatedFeatureType();
-        final List<SimpleFeature> features = featuresStatisticsWriter.getFeatures();
+        final SimpleFeatureType updatedFeatureType = featureStatisticsWriter.getUpdatedFeatureType();
+        final List<SimpleFeature> features = featureStatisticsWriter.getFeatures();
         final ListFeatureCollection featureCollection = new ListFeatureCollection(updatedFeatureType, features);
         final PlacemarkDescriptor placemarkDescriptor = originalVDN.getPlacemarkDescriptor();
         final VectorDataNode vectorDataNode = new VectorDataNode(originalVDN.getName(), featureCollection, placemarkDescriptor);

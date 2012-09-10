@@ -29,7 +29,7 @@ import java.util.Set;
  *
  * @author Thomas Storm
  */
-public class CsvStatisticsWriter {
+public class CsvStatisticsWriter implements StatisticsOutputter {
 
     private final PrintStream csvOutput;
 
@@ -42,11 +42,13 @@ public class CsvStatisticsWriter {
         statisticsContainer = new Statistics();
     }
 
-    public void initialiseOutput(String[] algorithmNames) {
-        Arrays.sort(algorithmNames);
-        this.algorithmNames = algorithmNames;
+    @Override
+    public void initialiseOutput(StatisticsOutputContext statisticsOutputContext) {
+        Arrays.sort(statisticsOutputContext.algorithmNames);
+        this.algorithmNames = statisticsOutputContext.algorithmNames;
     }
 
+    @Override
     public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
         if (!statisticsContainer.containsBand(bandName)) {
             statisticsContainer.put(bandName, new BandStatistics());
@@ -61,6 +63,7 @@ public class CsvStatisticsWriter {
         }
     }
 
+    @Override
     public void finaliseOutput() throws IOException {
         if (algorithmNames == null) {
             throw new IllegalStateException(getClass().getSimpleName() + " not initialised.");

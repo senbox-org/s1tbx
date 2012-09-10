@@ -16,23 +16,26 @@
 
 package org.esa.beam.statistics;
 
-import static org.junit.Assert.*;
-
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.util.io.FileUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -76,7 +79,7 @@ public class StatisticsOpTest {
         statisticsOp.doOutputAsciiFile = false;
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.outputter = outputter;
+        statisticsOp.statisticsOutputters.add(outputter);
 
         statisticsOp.initialize();
 
@@ -105,7 +108,7 @@ public class StatisticsOpTest {
         statisticsOp.precision = 6;
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.outputter = outputter;
+        statisticsOp.statisticsOutputters.add(outputter);
 
         statisticsOp.initialize();
 
@@ -133,7 +136,7 @@ public class StatisticsOpTest {
         statisticsOp.doOutputAsciiFile = false;
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.outputter = outputter;
+        statisticsOp.statisticsOutputters.add(outputter);
 
         statisticsOp.initialize();
 
@@ -162,7 +165,7 @@ public class StatisticsOpTest {
         statisticsOp.doOutputAsciiFile = false;
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.outputter = outputter;
+        statisticsOp.statisticsOutputters.add(outputter);
 
         statisticsOp.initialize();
 
@@ -226,7 +229,7 @@ public class StatisticsOpTest {
         statisticsOp.percentiles = new int[]{20, 51, 90};
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.outputter = outputter;
+        statisticsOp.statisticsOutputters.add(outputter);
 
         statisticsOp.initialize();
 
@@ -297,7 +300,7 @@ public class StatisticsOpTest {
         }
     }
 
-    private static class MyOutputter extends Outputter {
+    private static class MyOutputter implements StatisticsOutputter {
 
         int pixels;
         double minimum;
@@ -314,9 +317,9 @@ public class StatisticsOpTest {
         }
 
         @Override
-        public void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
+        public void initialiseOutput(StatisticsOutputContext statisticsOutputContext) {
             int numPercentiles = 0;
-            for (String algorithmName : algorithmNames) {
+            for (String algorithmName : statisticsOutputContext.algorithmNames) {
                 if (algorithmName.matches("p\\d\\d")) {
                     numPercentiles++;
                 }

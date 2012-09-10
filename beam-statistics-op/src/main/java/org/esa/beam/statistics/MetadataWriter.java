@@ -1,46 +1,56 @@
 package org.esa.beam.statistics;
 
-import java.io.PrintStream;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
 
-public class MetadataWriter {
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Map;
+
+public class MetadataWriter implements StatisticsOutputter {
 
     private final PrintStream printStream;
 
     public MetadataWriter(PrintStream printStream) {
         this.printStream = printStream;
     }
-
-    public void writeMetadata(Product[] sourceProducts, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
+    @Override
+    public void initialiseOutput(StatisticsOutputContext statisticsOutputContext) {
         printStream.append("# BEAM Statistics export\n")
-                    .append("#\n")
-                    .append("# Products:\n");
-        for (Product sourceProduct : sourceProducts) {
+                .append("#\n")
+                .append("# Products:\n");
+        for (Product sourceProduct : statisticsOutputContext.sourceProducts) {
             printStream.append("#              ")
-                        .append(sourceProduct.getName())
-                        .append("\n");
+                    .append(sourceProduct.getName())
+                    .append("\n");
         }
-        if (startDate != null) {
+        if (statisticsOutputContext.startDate != null) {
             printStream
-                        .append("#\n")
-                        .append("# Start Date: ")
-                        .append(startDate.format())
-                        .append("\n");
+                    .append("#\n")
+                    .append("# Start Date: ")
+                    .append(statisticsOutputContext.startDate.format())
+                    .append("\n");
         }
-        if (endDate != null) {
+        if (statisticsOutputContext.endDate != null) {
             printStream
-                        .append("#\n")
-                        .append("# End Date: ")
-                        .append(endDate.format())
-                        .append("\n");
+                    .append("#\n")
+                    .append("# End Date: ")
+                    .append(statisticsOutputContext.endDate.format())
+                    .append("\n");
         }
         printStream.append("#\n");
         printStream.append("# Regions:\n");
-        for (String regionId : regionIds) {
+        for (String regionId : statisticsOutputContext.regionIds) {
             printStream.append("#              ")
-                        .append(regionId)
-                        .append("\n");
+                    .append(regionId)
+                    .append("\n");
         }
+    }
+
+    @Override
+    public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
+    }
+
+    @Override
+    public void finaliseOutput() throws IOException {
     }
 }

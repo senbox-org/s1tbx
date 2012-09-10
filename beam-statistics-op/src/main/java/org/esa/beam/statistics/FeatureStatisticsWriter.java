@@ -16,13 +16,6 @@
 
 package org.esa.beam.statistics;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.FeatureUtils;
 import org.geotools.data.FeatureSource;
@@ -32,6 +25,15 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 //todo Rename class and update class documentation
 /**
@@ -44,8 +46,9 @@ import org.opengis.feature.simple.SimpleFeatureType;
  *
  * @author Thomas Storm
  */
-public class FeaturesStatisticsWriter {
+public class FeatureStatisticsWriter implements StatisticsOutputter {
 
+    private final String targetShapefile;
     private final FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures;
     private final SimpleFeatureType originalFeatureType;
     private final BandNameCreator bandNameCreator;
@@ -53,7 +56,7 @@ public class FeaturesStatisticsWriter {
     private SimpleFeatureType updatedFeatureType;
     final List<SimpleFeature> features;
 
-    public static FeaturesStatisticsWriter createShapefileOutputter(URL originalShapefile, BandNameCreator bandNameCreator) {
+    public static FeatureStatisticsWriter createFeatureStatisticsWriter(URL originalShapefile, String targetShapefile, BandNameCreator bandNameCreator) {
         final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
         final FeatureCollection<SimpleFeatureType, SimpleFeature> features;
         try {
@@ -62,28 +65,30 @@ public class FeaturesStatisticsWriter {
         } catch (IOException e) {
             throw new OperatorException("Unable to initialise the output.", e);
         }
-        return new FeaturesStatisticsWriter(featureSource.getSchema(), features, bandNameCreator);
+        return new FeatureStatisticsWriter(featureSource.getSchema(), targetShapefile, features, bandNameCreator);
     }
 
-    public static FeaturesStatisticsWriter createShapefileOutputter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures,
-                                                                    BandNameCreator bandNameCreator) {
-        return new FeaturesStatisticsWriter(originalFeatureType, originalFeatures, bandNameCreator);
+    public static FeatureStatisticsWriter createFeatureStatisticsWriter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures, String targetShapefile,
+                                                                        BandNameCreator bandNameCreator) {
+        return new FeatureStatisticsWriter(originalFeatureType, targetShapefile, originalFeatures, bandNameCreator);
     }
 
-    protected FeaturesStatisticsWriter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures,
-                                       BandNameCreator bandNameCreator) {
+    protected FeatureStatisticsWriter(SimpleFeatureType originalFeatureType, String targetShapefile, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures,
+                                      BandNameCreator bandNameCreator) {
         this.originalFeatureType = originalFeatureType;
+        this.targetShapefile = targetShapefile;
         this.originalFeatures = originalFeatures;
         this.bandNameCreator = bandNameCreator;
         features = new ArrayList<SimpleFeature>();
     }
 
-    public void initialiseOutput(String[] bandNames, String[] algorithmNames) {
-        Arrays.sort(algorithmNames);
+    @Override
+    public void initialiseOutput(StatisticsOutputContext statisticsOutputContext) {
+        Arrays.sort(statisticsOutputContext.algorithmNames);
         final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
         typeBuilder.init(originalFeatureType);
-        for (final String algorithmName : algorithmNames) {
-            for (String bandName : bandNames) {
+        for (final String algorithmName : statisticsOutputContext.algorithmNames) {
+            for (String bandName : statisticsOutputContext.bandNames) {
                 final String attributeName = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
                 if (originalFeatureType.getDescriptor(attributeName) == null) {
                     typeBuilder.add(attributeName, Double.class);
@@ -94,6 +99,7 @@ public class FeaturesStatisticsWriter {
         updatedFeatureType = typeBuilder.buildFeatureType();
     }
 
+    @Override
     public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
         final SimpleFeatureBuilder simpleFeatureBuilder = new SimpleFeatureBuilder(updatedFeatureType);
         final List<SimpleFeature> markedToRemove = new ArrayList<SimpleFeature>();
@@ -133,6 +139,11 @@ public class FeaturesStatisticsWriter {
                 return;
             }
         }
+    }
+
+    @Override
+    public void finaliseOutput() throws IOException {
+        EsriShapeFileWriter.write(features, new File(targetShapefile));
     }
 
     public List<SimpleFeature> getFeatures() {

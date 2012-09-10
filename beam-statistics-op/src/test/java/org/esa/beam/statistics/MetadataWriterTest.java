@@ -1,13 +1,16 @@
 package org.esa.beam.statistics;
 
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.text.ParseException;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.junit.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class MetadataWriterTest {
 
@@ -25,13 +28,13 @@ public class MetadataWriterTest {
     }
 
     @Test
-    public void testSomething() throws ParseException {
+    public void testWriteMetadata() throws ParseException {
         final Product[] sourceProducts = {new Product("MER_RR__2PBCMsomething", "type", 10, 10)};
         final ProductData.UTC startDate = ProductData.UTC.parse("2010-01-01", "yyyy-MM-dd");
         final ProductData.UTC endDate = ProductData.UTC.parse("2011-01-01", "yyyy-MM-dd");
         final String[] regionIds = {"bullerbue", "bielefeld"};
 
-        metadataWriter.writeMetadata(sourceProducts, startDate, endDate, regionIds);
+        metadataWriter.initialiseOutput(StatisticsOutputContext.create(sourceProducts, null, null, startDate, endDate, regionIds));
 
         assertEquals("# BEAM Statistics export\n" +
                      "#\n" +

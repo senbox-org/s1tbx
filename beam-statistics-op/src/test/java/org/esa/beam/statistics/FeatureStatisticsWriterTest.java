@@ -16,45 +16,37 @@
 
 package org.esa.beam.statistics;
 
-import java.util.List;
-import org.esa.beam.util.FeatureUtils;
-import org.esa.beam.util.io.FileUtils;
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.FeatureCollection;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
  */
-public class FeaturesStatisticsWriterTest {
+public class FeatureStatisticsWriterTest {
 
     @Test
     public void testSingleShape() throws Exception {
         final URL originalShapefile = getClass().getResource("4_pixels.shp");
-        final FeaturesStatisticsWriter featuresStatisticsWriter = FeaturesStatisticsWriter.createShapefileOutputter(originalShapefile, new BandNameCreator());
+        final FeatureStatisticsWriter featureStatisticsWriter = FeatureStatisticsWriter.createFeatureStatisticsWriter(originalShapefile, null, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 
-        featuresStatisticsWriter.initialiseOutput(new String[]{"algal_2"}, algorithmNames);
+        featureStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(new String[]{"algal_2"}, algorithmNames));
 
         HashMap<String, Number> statistics = new HashMap<String, Number>();
         statistics.put("p90", 0.1);
-        featuresStatisticsWriter.addToOutput("algal_2", "4_pixels.1", statistics);
+        featureStatisticsWriter.addToOutput("algal_2", "4_pixels.1", statistics);
 
         statistics.clear();
         statistics.put("p95", 0.195);
-        featuresStatisticsWriter.addToOutput("algal_2", "4_pixels.1", statistics);
+        featureStatisticsWriter.addToOutput("algal_2", "4_pixels.1", statistics);
 
-        final List<SimpleFeature> features = featuresStatisticsWriter.getFeatures();
+        final List<SimpleFeature> features = featureStatisticsWriter.getFeatures();
 
         assertEquals(1, features.size());
 
@@ -70,37 +62,40 @@ public class FeaturesStatisticsWriterTest {
     @Test
     public void testThreeShapes() throws Exception {
         final URL originalShapefile = getClass().getResource("polygons.shp");
-        final FeaturesStatisticsWriter featuresStatisticsWriter = FeaturesStatisticsWriter.createShapefileOutputter(originalShapefile, new BandNameCreator());
+        final FeatureStatisticsWriter featureStatisticsWriter = FeatureStatisticsWriter.createFeatureStatisticsWriter(originalShapefile, null, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 
-        featuresStatisticsWriter.initialiseOutput(new String[]{"algal_2", "algal_2"}, algorithmNames);
+        featureStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(new String[]{
+                "algal_2",
+                "algal_2"
+        }, algorithmNames));
 
         HashMap<String, Number> statistics = new HashMap<String, Number>();
 
         statistics.put("p90", 1.90);
-        featuresStatisticsWriter.addToOutput("algal_2", "polygons.1", statistics);
+        featureStatisticsWriter.addToOutput("algal_2", "polygons.1", statistics);
 
         statistics.clear();
         statistics.put("p90", 2.90);
-        featuresStatisticsWriter.addToOutput("algal_2", "polygons.2", statistics);
+        featureStatisticsWriter.addToOutput("algal_2", "polygons.2", statistics);
 
         statistics.clear();
         statistics.put("p90", 3.90);
-        featuresStatisticsWriter.addToOutput("algal_2", "polygons.3", statistics);
+        featureStatisticsWriter.addToOutput("algal_2", "polygons.3", statistics);
 
         statistics.clear();
         statistics.put("p95", 1.95);
-        featuresStatisticsWriter.addToOutput("algal_2", "polygons.1", statistics);
+        featureStatisticsWriter.addToOutput("algal_2", "polygons.1", statistics);
 
         statistics.clear();
         statistics.put("p95", 2.95);
-        featuresStatisticsWriter.addToOutput("algal_2", "polygons.2", statistics);
+        featureStatisticsWriter.addToOutput("algal_2", "polygons.2", statistics);
 
         statistics.clear();
         statistics.put("p95", 3.95);
-        featuresStatisticsWriter.addToOutput("algal_2", "polygons.3", statistics);
+        featureStatisticsWriter.addToOutput("algal_2", "polygons.3", statistics);
 
-        final List<SimpleFeature> features = featuresStatisticsWriter.features;
+        final List<SimpleFeature> features = featureStatisticsWriter.features;
 
         assertEquals(3, features.size());
 

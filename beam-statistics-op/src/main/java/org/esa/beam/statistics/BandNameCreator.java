@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Provides a method used by {@link FeaturesStatisticsWriter} in order to create unique attribute names and a mapping file.
+ * Provides a method used by {@link FeatureStatisticsWriter} in order to create unique attribute names and a mapping file.
  *
  * @author Thomas Storm
  */

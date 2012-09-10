@@ -16,18 +16,20 @@
 
 package org.esa.beam.statistics;
 
-import static org.junit.Assert.*;
+import org.esa.beam.util.FeatureUtils;
+import org.geotools.data.FeatureSource;
+import org.geotools.feature.FeatureCollection;
+import org.junit.After;
+import org.junit.Test;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
-import org.esa.beam.util.FeatureUtils;
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.FeatureCollection;
-import org.junit.*;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -68,20 +70,20 @@ public class EsriShapeFileWriterTest {
 
     private List<SimpleFeature> get4PixelsFeaturesWithAdaptedStatistic() {
         final URL originalShapefile = getClass().getResource("4_pixels.shp");
-        final FeaturesStatisticsWriter featuresStatisticsWriter = FeaturesStatisticsWriter.createShapefileOutputter(originalShapefile, new BandNameCreator());
+        final FeatureStatisticsWriter featureStatisticsWriter = FeatureStatisticsWriter.createFeatureStatisticsWriter(originalShapefile, null, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 
-        featuresStatisticsWriter.initialiseOutput(new String[]{"algal_2"}, algorithmNames);
+        featureStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(new String[]{"algal_2"}, algorithmNames));
 
         HashMap<String, Number> statistics = new HashMap<String, Number>();
         statistics.put("p90", 0.1);
-        featuresStatisticsWriter.addToOutput("algal_2", "4_pixels.1", statistics);
+        featureStatisticsWriter.addToOutput("algal_2", "4_pixels.1", statistics);
 
         statistics.clear();
         statistics.put("p95", 0.195);
-        featuresStatisticsWriter.addToOutput("algal_2", "4_pixels.1", statistics);
+        featureStatisticsWriter.addToOutput("algal_2", "4_pixels.1", statistics);
 
-        return featuresStatisticsWriter.getFeatures();
+        return featureStatisticsWriter.getFeatures();
     }
 
     static File getTestFile(String fileName) {
