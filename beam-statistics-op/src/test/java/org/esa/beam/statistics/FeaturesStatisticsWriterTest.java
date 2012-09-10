@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,14 +9,14 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
 package org.esa.beam.statistics;
 
-import org.esa.beam.framework.datamodel.Product;
+import java.util.List;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.geotools.data.FeatureSource;
@@ -36,51 +36,29 @@ import static org.junit.Assert.*;
 /**
  * @author Thomas Storm
  */
-public class ShapefileOutputterTest {
-
-    static final File TESTDATA_DIR = new File("target/statistics-test-io");
-
-    @Before
-    public void setUp() throws Exception {
-        TESTDATA_DIR.mkdirs();
-        if (!TESTDATA_DIR.isDirectory()) {
-            fail("Can't create test I/O directory: " + TESTDATA_DIR);
-        }
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        if (!FileUtils.deleteTree(TESTDATA_DIR)) {
-            System.out.println("Warning: failed to completely delete test I/O directory:" + TESTDATA_DIR);
-        }
-    }
+public class FeaturesStatisticsWriterTest {
 
     @Test
     public void testSingleShape() throws Exception {
         final URL originalShapefile = getClass().getResource("4_pixels.shp");
-        final String targetShapefile = getTestFile("4_pixels_output.shp").getAbsolutePath();
-        final ShapefileOutputter shapefileOutputter = ShapefileOutputter.createShapefileOutputter(originalShapefile, targetShapefile, new BandNameCreator());
+        final FeaturesStatisticsWriter featuresStatisticsWriter = FeaturesStatisticsWriter.createShapefileOutputter(originalShapefile, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 
-        shapefileOutputter.initialiseOutput(new Product[0], new String[]{"algal_2"}, algorithmNames,
-                                            null, null, null);
+        featuresStatisticsWriter.initialiseOutput(new String[]{"algal_2"}, algorithmNames);
 
         HashMap<String, Number> statistics = new HashMap<String, Number>();
         statistics.put("p90", 0.1);
-        shapefileOutputter.addToOutput("algal_2", "4_pixels.1", statistics);
+        featuresStatisticsWriter.addToOutput("algal_2", "4_pixels.1", statistics);
 
         statistics.clear();
         statistics.put("p95", 0.195);
-        shapefileOutputter.addToOutput("algal_2", "4_pixels.1", statistics);
+        featuresStatisticsWriter.addToOutput("algal_2", "4_pixels.1", statistics);
 
-        shapefileOutputter.finaliseOutput();
-
-        final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = FeatureUtils.getFeatureSource(new File(targetShapefile).toURI().toURL());
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures();
+        final List<SimpleFeature> features = featuresStatisticsWriter.getFeatures();
 
         assertEquals(1, features.size());
 
-        final SimpleFeature simpleFeature = features.features().next();
+        final SimpleFeature simpleFeature = features.get(0);
 
         assertNotNull(simpleFeature.getProperty("p90_lgl2"));
         assertNotNull(simpleFeature.getProperty("p95_lgl2"));
@@ -92,43 +70,41 @@ public class ShapefileOutputterTest {
     @Test
     public void testThreeShapes() throws Exception {
         final URL originalShapefile = getClass().getResource("polygons.shp");
-        final String targetShapefile = getTestFile("polygons_output.shp").getAbsolutePath();
-        final ShapefileOutputter shapefileOutputter = ShapefileOutputter.createShapefileOutputter(originalShapefile, targetShapefile, new BandNameCreator());
+        final FeaturesStatisticsWriter featuresStatisticsWriter = FeaturesStatisticsWriter.createShapefileOutputter(originalShapefile, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 
-        shapefileOutputter.initialiseOutput(new Product[0], new String[]{"algal_2", "algal_2"}, algorithmNames,
-                                            null, null, null);
+        featuresStatisticsWriter.initialiseOutput(new String[]{"algal_2", "algal_2"}, algorithmNames);
 
         HashMap<String, Number> statistics = new HashMap<String, Number>();
 
         statistics.put("p90", 1.90);
-        shapefileOutputter.addToOutput("algal_2", "polygons.1", statistics);
+        featuresStatisticsWriter.addToOutput("algal_2", "polygons.1", statistics);
 
         statistics.clear();
         statistics.put("p90", 2.90);
-        shapefileOutputter.addToOutput("algal_2", "polygons.2", statistics);
+        featuresStatisticsWriter.addToOutput("algal_2", "polygons.2", statistics);
 
         statistics.clear();
         statistics.put("p90", 3.90);
-        shapefileOutputter.addToOutput("algal_2", "polygons.3", statistics);
+        featuresStatisticsWriter.addToOutput("algal_2", "polygons.3", statistics);
 
         statistics.clear();
         statistics.put("p95", 1.95);
-        shapefileOutputter.addToOutput("algal_2", "polygons.1", statistics);
+        featuresStatisticsWriter.addToOutput("algal_2", "polygons.1", statistics);
 
         statistics.clear();
         statistics.put("p95", 2.95);
-        shapefileOutputter.addToOutput("algal_2", "polygons.2", statistics);
+        featuresStatisticsWriter.addToOutput("algal_2", "polygons.2", statistics);
 
         statistics.clear();
         statistics.put("p95", 3.95);
-        shapefileOutputter.addToOutput("algal_2", "polygons.3", statistics);
+        featuresStatisticsWriter.addToOutput("algal_2", "polygons.3", statistics);
 
-        shapefileOutputter.finaliseOutput();
+        final List<SimpleFeature> features = featuresStatisticsWriter.features;
 
-        assertEquals(3, shapefileOutputter.features.size());
+        assertEquals(3, features.size());
 
-        for (SimpleFeature feature : shapefileOutputter.features) {
+        for (SimpleFeature feature : features) {
             if (feature.getID().contains("1")) {
                 assertNotNull(feature.getProperty("p90_lgl2"));
                 assertNotNull(feature.getProperty("p95_lgl2"));
@@ -149,9 +125,5 @@ public class ShapefileOutputterTest {
                 assertEquals(3.95, (Double) feature.getProperty("p95_lgl2").getValue(), 1E-6);
             }
         }
-    }
-
-    static File getTestFile(String fileName) {
-        return new File(TESTDATA_DIR, fileName);
     }
 }

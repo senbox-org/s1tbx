@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,25 +9,23 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
 package org.esa.beam.statistics;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.FeatureUtils;
-import org.geotools.data.DataStore;
-import org.geotools.data.DataUtilities;
-import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
-import org.geotools.data.shapefile.ShapefileDataStoreFactory;
-import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -35,16 +33,7 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+//todo Rename class and update class documentation
 /**
  * Writes the given output to a new shapefile.
  * It works like this:
@@ -55,11 +44,8 @@ import java.util.Map;
  *
  * @author Thomas Storm
  */
-public class ShapefileOutputter implements StatisticsOp.Outputter {
+public class FeaturesStatisticsWriter {
 
-    private static final String FILE_EXTENSION_SHAPEFILE = ".shp";
-
-    private final String targetShapefile;
     private final FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures;
     private final SimpleFeatureType originalFeatureType;
     private final BandNameCreator bandNameCreator;
@@ -67,7 +53,7 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
     private SimpleFeatureType updatedFeatureType;
     final List<SimpleFeature> features;
 
-    public static ShapefileOutputter createShapefileOutputter(URL originalShapefile, String targetShapefile, BandNameCreator bandNameCreator) {
+    public static FeaturesStatisticsWriter createShapefileOutputter(URL originalShapefile, BandNameCreator bandNameCreator) {
         final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
         final FeatureCollection<SimpleFeatureType, SimpleFeature> features;
         try {
@@ -76,25 +62,23 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
         } catch (IOException e) {
             throw new OperatorException("Unable to initialise the output.", e);
         }
-        return createShapefileOutputter(featureSource.getSchema(), features, targetShapefile, bandNameCreator);
+        return new FeaturesStatisticsWriter(featureSource.getSchema(), features, bandNameCreator);
     }
 
-    public static ShapefileOutputter createShapefileOutputter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures,
-                                                              String targetShapefile, BandNameCreator bandNameCreator) {
-        return new ShapefileOutputter(originalFeatureType, originalFeatures, targetShapefile, bandNameCreator);
+    public static FeaturesStatisticsWriter createShapefileOutputter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures,
+                                                                    BandNameCreator bandNameCreator) {
+        return new FeaturesStatisticsWriter(originalFeatureType, originalFeatures, bandNameCreator);
     }
 
-    protected ShapefileOutputter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures,
-                                 String targetShapefile, BandNameCreator bandNameCreator) {
+    protected FeaturesStatisticsWriter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures,
+                                       BandNameCreator bandNameCreator) {
         this.originalFeatureType = originalFeatureType;
         this.originalFeatures = originalFeatures;
-        this.targetShapefile = targetShapefile;
         this.bandNameCreator = bandNameCreator;
         features = new ArrayList<SimpleFeature>();
     }
 
-    @Override
-    public void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
+    public void initialiseOutput(String[] bandNames, String[] algorithmNames) {
         Arrays.sort(algorithmNames);
         final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
         typeBuilder.init(originalFeatureType);
@@ -110,7 +94,6 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
         updatedFeatureType = typeBuilder.buildFeatureType();
     }
 
-    @Override
     public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
         final SimpleFeatureBuilder simpleFeatureBuilder = new SimpleFeatureBuilder(updatedFeatureType);
         final List<SimpleFeature> markedToRemove = new ArrayList<SimpleFeature>();
@@ -152,18 +135,6 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
         }
     }
 
-    @Override
-    public void finaliseOutput() throws IOException {
-        if (features.isEmpty()) {
-            return;
-        }
-        final DefaultFeatureCollection fc = new DefaultFeatureCollection("some_id", updatedFeatureType);
-        fc.addAll(features);
-        final VectorDataNode vectorDataNode = new VectorDataNode("some_name", fc);
-        final File targetFile = new File(targetShapefile);
-        exportVectorDataNode(vectorDataNode, targetFile);
-    }
-
     public List<SimpleFeature> getFeatures() {
         return features;
     }
@@ -176,49 +147,5 @@ public class ShapefileOutputter implements StatisticsOp.Outputter {
         builder.init(baseFeature);
         builder.set(name, value);
         return builder.buildFeature(baseFeature.getID());
-    }
-
-    private static void exportVectorDataNode(VectorDataNode vectorDataNode, File file) throws IOException {
-        List<SimpleFeature> simpleFeatures = new ArrayList<SimpleFeature>();
-        final FeatureIterator<SimpleFeature> featureIterator = vectorDataNode.getFeatureCollection().features();
-        Class<?> geometryClass = null;
-        while (featureIterator.hasNext()) {
-            final SimpleFeature simpleFeature = featureIterator.next();
-            if (geometryClass != null && !simpleFeature.getDefaultGeometry().getClass().equals(geometryClass)) {
-                throw new IllegalStateException("Different geometry type within shapefile detected. Geometries must all be of same type.");
-            }
-            geometryClass = simpleFeature.getDefaultGeometry().getClass();
-            simpleFeatures.add(simpleFeature);
-        }
-        writeEsriShapefile(simpleFeatures, file);
-    }
-
-    private static void writeEsriShapefile(List<SimpleFeature> features, File file) throws IOException {
-        String basename = file.getName();
-        if (basename.endsWith(FILE_EXTENSION_SHAPEFILE)) {
-            basename = basename.substring(0, basename.length() - 4);
-        }
-        File shapefile = new File(file.getParentFile(), basename + FILE_EXTENSION_SHAPEFILE);
-
-        ShapefileDataStoreFactory factory = new ShapefileDataStoreFactory();
-        Map map = Collections.singletonMap("url", shapefile.toURI().toURL());
-        DataStore dataStore = factory.createNewDataStore(map);
-        SimpleFeature simpleFeature = features.get(0);
-        SimpleFeatureType simpleFeatureType = simpleFeature.getType();
-        String typeName = simpleFeatureType.getName().getLocalPart();
-        dataStore.createSchema(simpleFeatureType);
-        FeatureStore<SimpleFeatureType, SimpleFeature> featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore.getFeatureSource(typeName);
-        DefaultTransaction transaction = new DefaultTransaction("X");
-        featureStore.setTransaction(transaction);
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = DataUtilities.collection(features);
-        featureStore.addFeatures(featureCollection);
-        try {
-            transaction.commit();
-        } catch (Exception e) {
-            transaction.rollback();
-            throw new IOException("Cannot write shapefile. Error:\n" + e.getMessage(), e);
-        } finally {
-            transaction.close();
-        }
     }
 }

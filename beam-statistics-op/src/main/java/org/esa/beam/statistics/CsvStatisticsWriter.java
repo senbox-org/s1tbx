@@ -16,9 +16,6 @@
 
 package org.esa.beam.statistics;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -32,58 +29,24 @@ import java.util.Set;
  *
  * @author Thomas Storm
  */
-public class CsvOutputter implements StatisticsOp.Outputter {
+public class CsvStatisticsWriter {
 
-    private final PrintStream metadataOutput;
     private final PrintStream csvOutput;
 
     final Statistics statisticsContainer;
 
     private String[] algorithmNames;
 
-    public CsvOutputter(PrintStream metadataOutput, PrintStream csvOutput) {
-        this.metadataOutput = metadataOutput;
+    public CsvStatisticsWriter(PrintStream csvOutput) {
         this.csvOutput = csvOutput;
         statisticsContainer = new Statistics();
     }
 
-    @Override
-    public void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate,
-                                 String[] regionIds) {
+    public void initialiseOutput(String[] algorithmNames) {
         Arrays.sort(algorithmNames);
         this.algorithmNames = algorithmNames;
-        metadataOutput.append("# BEAM Statistics export\n")
-                .append("#\n")
-                .append("# Products:\n");
-        for (Product sourceProduct : sourceProducts) {
-            metadataOutput.append("#              ")
-                    .append(sourceProduct.getName())
-                    .append("\n");
-        }
-        if (startDate != null) {
-            metadataOutput
-                    .append("#\n")
-                    .append("# Start Date: ")
-                    .append(startDate.format())
-                    .append("\n");
-        }
-        if (endDate != null) {
-            metadataOutput
-                    .append("#\n")
-                    .append("# End Date: ")
-                    .append(endDate.format())
-                    .append("\n");
-        }
-        metadataOutput.append("#\n");
-        metadataOutput.append("# Regions:\n");
-        for (String regionId : regionIds) {
-            metadataOutput.append("#              ")
-                    .append(regionId)
-                    .append("\n");
-        }
     }
 
-    @Override
     public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
         if (!statisticsContainer.containsBand(bandName)) {
             statisticsContainer.put(bandName, new BandStatistics());
@@ -98,7 +61,6 @@ public class CsvOutputter implements StatisticsOp.Outputter {
         }
     }
 
-    @Override
     public void finaliseOutput() throws IOException {
         if (algorithmNames == null) {
             throw new IllegalStateException(getClass().getSimpleName() + " not initialised.");

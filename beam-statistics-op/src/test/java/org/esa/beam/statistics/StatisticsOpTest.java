@@ -76,7 +76,7 @@ public class StatisticsOpTest {
         statisticsOp.doOutputAsciiFile = false;
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.outputters.add(outputter);
+        statisticsOp.outputter = outputter;
 
         statisticsOp.initialize();
 
@@ -92,6 +92,7 @@ public class StatisticsOpTest {
         assertEquals(0.804474, outputter.percentiles[0], 1E-4);
         assertEquals(0.804474, outputter.percentiles[1], 1E-4);
     }
+
     @Test
     public void testStatisticsOp_WithPrecisePercentiles() throws Exception {
         final StatisticsOp statisticsOp = new StatisticsOp();
@@ -104,7 +105,7 @@ public class StatisticsOpTest {
         statisticsOp.precision = 6;
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.outputters.add(outputter);
+        statisticsOp.outputter = outputter;
 
         statisticsOp.initialize();
 
@@ -132,7 +133,7 @@ public class StatisticsOpTest {
         statisticsOp.doOutputAsciiFile = false;
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.outputters.add(outputter);
+        statisticsOp.outputter = outputter;
 
         statisticsOp.initialize();
 
@@ -161,7 +162,7 @@ public class StatisticsOpTest {
         statisticsOp.doOutputAsciiFile = false;
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.outputters.add(outputter);
+        statisticsOp.outputter = outputter;
 
         statisticsOp.initialize();
 
@@ -203,7 +204,7 @@ public class StatisticsOpTest {
         parameters.put("doOutputShapefile", true);
         parameters.put("shapefile", new File(getClass().getResource("4_pixels.shp").toURI()));
         parameters.put("bandConfigurations", new StatisticsOp.BandConfiguration[]{
-                bandConfiguration_1,
+                    bandConfiguration_1,
         });
         GPF.createProduct("StatisticsOp", parameters, TestUtil.getTestProduct());
 
@@ -222,10 +223,10 @@ public class StatisticsOpTest {
         statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
-        statisticsOp.percentiles = new int[] {20, 51, 90};
+        statisticsOp.percentiles = new int[]{20, 51, 90};
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.outputters.add(outputter);
+        statisticsOp.outputter = outputter;
 
         statisticsOp.initialize();
 
@@ -296,7 +297,7 @@ public class StatisticsOpTest {
         }
     }
 
-    private static class MyOutputter implements StatisticsOp.Outputter {
+    private static class MyOutputter extends Outputter {
 
         int pixels;
         double minimum;
@@ -332,19 +333,19 @@ public class StatisticsOpTest {
             int percentileIndex = 0;
             for (Map.Entry<String, Number> entry : map.entrySet()) {
                 final String key = entry.getKey();
-                if(key.equalsIgnoreCase("total")) {
+                if (key.equalsIgnoreCase("total")) {
                     pixels = entry.getValue().intValue();
-                } else if(key.equalsIgnoreCase("minimum")) {
+                } else if (key.equalsIgnoreCase("minimum")) {
                     minimum = entry.getValue().doubleValue();
-                } else if(key.equalsIgnoreCase("maximum")) {
+                } else if (key.equalsIgnoreCase("maximum")) {
                     maximum = entry.getValue().doubleValue();
-                } else if(key.equalsIgnoreCase("average")) {
+                } else if (key.equalsIgnoreCase("average")) {
                     average = entry.getValue().doubleValue();
-                } else if(key.equalsIgnoreCase("median")) {
+                } else if (key.equalsIgnoreCase("median")) {
                     median = entry.getValue().doubleValue();
-                } else if(key.equalsIgnoreCase("sigma")) {
+                } else if (key.equalsIgnoreCase("sigma")) {
                     sigma = entry.getValue().doubleValue();
-                } else if(key.startsWith("p") && !key.endsWith("error")) {
+                } else if (key.startsWith("p") && !key.endsWith("error")) {
                     percentiles[percentileIndex++] = entry.getValue().doubleValue();
                 }
             }
@@ -361,7 +362,7 @@ public class StatisticsOpTest {
         final Product testProduct = TestUtil.getTestProduct();
         final Product[] testProductArray = {testProduct};
         statisticsOp.sourceProducts = testProductArray;
-        statisticsOp.sourceProductPaths = new String[] {testProduct.getFileLocation().getAbsolutePath()};
+        statisticsOp.sourceProductPaths = new String[]{testProduct.getFileLocation().getAbsolutePath()};
 
         final Product[] collectedProducts = statisticsOp.collectSourceProducts();
         assertArrayEquals(testProductArray, collectedProducts);
@@ -374,7 +375,7 @@ public class StatisticsOpTest {
     public void testCollectSourceProducts_UseOnlySourceProductPaths() throws IOException {
         final StatisticsOp statisticsOp = new StatisticsOp();
         final Product testProduct = TestUtil.getTestProduct();
-        statisticsOp.sourceProductPaths = new String[] {testProduct.getFileLocation().getAbsolutePath()};
+        statisticsOp.sourceProductPaths = new String[]{testProduct.getFileLocation().getAbsolutePath()};
 
         final Product[] collectedProducts = statisticsOp.collectSourceProducts();
         assertEquals(1, collectedProducts.length);

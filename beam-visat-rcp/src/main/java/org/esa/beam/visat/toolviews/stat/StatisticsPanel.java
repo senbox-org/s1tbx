@@ -20,33 +20,25 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.jidesoft.swing.TitledSeparator;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.framework.datamodel.StxFactory;
-import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.statistics.CsvOutputter;
-import org.esa.beam.statistics.StatisticsOp;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.io.BeamFileChooser;
-import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.visat.VisatApp;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.StandardXYBarPainter;
-import org.jfree.chart.renderer.xy.XYBarRenderer;
-import org.jfree.data.xy.XIntervalSeries;
-import org.jfree.data.xy.XIntervalSeriesCollection;
-import org.jfree.ui.RectangleInsets;
-
 import javax.media.jai.Histogram;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -68,24 +60,34 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.List;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
+import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.statistics.CsvStatisticsWriter;
+import org.esa.beam.statistics.MetadataWriter;
+import org.esa.beam.statistics.StatisticsOp;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.io.BeamFileChooser;
+import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.visat.VisatApp;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.data.xy.XIntervalSeries;
+import org.jfree.data.xy.XIntervalSeriesCollection;
+import org.jfree.ui.RectangleInsets;
 
 /**
  * A general pane within the statistics window.
@@ -247,7 +249,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         if (raster != null && raster.isStxSet() && raster.getStx().getResolutionLevel() == 0) {
             resultText.append(createText(raster.getStx(), null));
             contentPanel.add(createStatPanel(raster.getStx(), null));
-            histograms = new Histogram[] {raster.getStx().getHistogram()};
+            histograms = new Histogram[]{raster.getStx().getHistogram()};
             exportAsCsvAction = new ExportAsCsvAction(null);
             putStatisticsIntoVectorDataAction = new PutStatisticsIntoVectorDataAction(this);
             exportButton.setEnabled(true);
@@ -298,14 +300,14 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                         ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
                         if (mask == null) {
                             stx = new StxFactory()
-                                    .withHistogramBinCount(binCount)
-                                    .create(getRaster(), subPm);
+                                        .withHistogramBinCount(binCount)
+                                        .create(getRaster(), subPm);
                             getRaster().setStx(stx);
                         } else {
                             stx = new StxFactory()
-                                    .withHistogramBinCount(binCount)
-                                    .withRoiMask(mask)
-                                    .create(getRaster(), subPm);
+                                        .withHistogramBinCount(binCount)
+                                        .withRoiMask(mask)
+                                        .create(getRaster(), subPm);
                         }
                         histograms[i] = stx.getHistogram();
                         publish(new ComputeResult(stx, mask));
@@ -395,17 +397,17 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         ChartPanel percentilePanel = createChartPanel(percentileSeries, "Percentile (%)", "Value Threshold", new Color(127, 0, 0));
 
         Object[][] tableData = new Object[][]{
-                new Object[]{"#Pixels total:", histogram.getTotals()[0]},
-                new Object[]{"Minimum:", histogram.getLowValue()[0]},
-                new Object[]{"Maximum:", histogram.getHighValue()[0]},
-                new Object[]{"Mean:", histogram.getMean()[0]},
-                new Object[]{"Sigma:", histogram.getStandardDeviation()[0]},
-                new Object[]{"Median:", histogram.getPTileThreshold(0.5)[0]},
-                new Object[]{"P75 threshold:", histogram.getPTileThreshold(0.75)[0]},
-                new Object[]{"P80 threshold:", histogram.getPTileThreshold(0.80)[0]},
-                new Object[]{"P85 threshold:", histogram.getPTileThreshold(0.85)[0]},
-                new Object[]{"P90 threshold:", histogram.getPTileThreshold(0.90)[0]},
-                new Object[]{"PXX max error:", getBinSize(histogram)},
+                    new Object[]{"#Pixels total:", histogram.getTotals()[0]},
+                    new Object[]{"Minimum:", histogram.getLowValue()[0]},
+                    new Object[]{"Maximum:", histogram.getHighValue()[0]},
+                    new Object[]{"Mean:", histogram.getMean()[0]},
+                    new Object[]{"Sigma:", histogram.getStandardDeviation()[0]},
+                    new Object[]{"Median:", histogram.getPTileThreshold(0.5)[0]},
+                    new Object[]{"P75 threshold:", histogram.getPTileThreshold(0.75)[0]},
+                    new Object[]{"P80 threshold:", histogram.getPTileThreshold(0.80)[0]},
+                    new Object[]{"P85 threshold:", histogram.getPTileThreshold(0.85)[0]},
+                    new Object[]{"P90 threshold:", histogram.getPTileThreshold(0.90)[0]},
+                    new Object[]{"PXX max error:", getBinSize(histogram)},
         };
 
         JPanel plotContainerPanel = new JPanel(new GridLayout(1, 2));
@@ -431,7 +433,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                 final Component label = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 if (value instanceof Float || value instanceof Double) {
                     setHorizontalTextPosition(RIGHT);
-                    setText(String.format("%.4f", ((Number)value).doubleValue()));
+                    setText(String.format("%.4f", ((Number) value).doubleValue()));
                 }
                 return label;
             }
@@ -584,14 +586,14 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
 
     private static ChartPanel getHistogramPlotPanel(XIntervalSeriesCollection dataset, String xAxisLabel, String yAxisLabel, Color color) {
         JFreeChart chart = ChartFactory.createHistogram(
-                null,
-                xAxisLabel,
-                yAxisLabel,
-                dataset,
-                PlotOrientation.VERTICAL,
-                false,  // Legend?
-                true,   // tooltips
-                false   // url
+                    null,
+                    xAxisLabel,
+                    yAxisLabel,
+                    dataset,
+                    PlotOrientation.VERTICAL,
+                    false,  // Legend?
+                    true,   // tooltips
+                    false   // url
         );
         final XYPlot xyPlot = chart.getXYPlot();
         //xyPlot.setForegroundAlpha(0.85f);
@@ -613,7 +615,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
 
     private AbstractButton getExportButton() {
         final AbstractButton export = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Export24.gif"),
-                                                                         false);
+                                                                     false);
         export.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -675,7 +677,8 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                 metadataOutputStream = new PrintStream(new FileOutputStream(metadataFile));
                 csvOutputStream = new PrintStream(new FileOutputStream(outputAsciiFile));
 
-                CsvOutputter csvOutputter = new CsvOutputter(metadataOutputStream, csvOutputStream);
+                CsvStatisticsWriter csvStatisticsWriter = new CsvStatisticsWriter(csvOutputStream);
+                final MetadataWriter metadataWriter = new MetadataWriter(metadataOutputStream);
 
                 String[] regionIds;
                 if (masks != null) {
@@ -688,24 +691,20 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                         }
                     }
                 } else {
-                    regionIds = new String[] {"full_scene"};
+                    regionIds = new String[]{"full_scene"};
                 }
-                csvOutputter.initialiseOutput(
-                        new Product[]{getRaster().getProduct()},
-                        new String[]{getRaster().getName()},
-                        new String[]{
-                                "minimum",
-                                "maximum",
-                                "median",
-                                "average",
-                                "sigma",
-                                "p90",
-                                "p95",
-                                "total"
-                        },
-                        null,
-                        null,
-                        regionIds);
+                final String[] algorithmNames = {
+                            "minimum",
+                            "maximum",
+                            "median",
+                            "average",
+                            "sigma",
+                            "p90",
+                            "p95",
+                            "total"
+                };
+                metadataWriter.writeMetadata(new Product[]{getRaster().getProduct()}, null, null, regionIds);
+                csvStatisticsWriter.initialiseOutput(algorithmNames);
 
                 final Map<String, Number> statistics = new HashMap<String, Number>();
                 for (int i = 0; i < histograms.length; i++) {
@@ -718,10 +717,10 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                     statistics.put("p90", histogram.getPTileThreshold(0.9)[0]);
                     statistics.put("p95", histogram.getPTileThreshold(0.95)[0]);
                     statistics.put("total", histogram.getTotals()[0]);
-                    csvOutputter.addToOutput(getRaster().getName(), regionIds[i], statistics);
+                    csvStatisticsWriter.addToOutput(getRaster().getName(), regionIds[i], statistics);
                     statistics.clear();
                 }
-                csvOutputter.finaliseOutput();
+                csvStatisticsWriter.finaliseOutput();
             } catch (IOException exception) {
                 JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                               "Failed to export statistics.\nAn error occurred:" +
@@ -747,5 +746,10 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     @Override
     public RasterDataNode getRasterDataNode() {
         return getRaster();
+    }
+
+    @Override
+    public ProductNodeGroup<VectorDataNode> getVectorDataNodeGroup() {
+        return getRasterDataNode().getProduct().getVectorDataGroup();
     }
 }

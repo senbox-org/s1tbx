@@ -142,7 +142,7 @@ public class StatisticsOp extends Operator implements Output {
 
     Set<Product> collectedProducts;
 
-    final Set<Outputter> outputters = new HashSet<Outputter>();
+    Outputter outputter = new Outputter();
 
     final Map<Product, VectorDataNode[]> productVdnMap = new HashMap<Product, VectorDataNode[]>();
 
@@ -241,10 +241,8 @@ public class StatisticsOp extends Operator implements Output {
         }
         final String[] algorithmNames = getAlgorithmNames();
         final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
-        for (Outputter outputter : outputters) {
-            outputter.initialiseOutput(allSourceProducts, bandNames, algorithmNames, startDate, endDate,
-                                       regionNames.toArray(new String[regionNames.size()]));
-        }
+        outputter.initialiseOutput(allSourceProducts, bandNames, algorithmNames, startDate, endDate,
+                                   regionNames.toArray(new String[regionNames.size()]));
     }
 
     private String[] getAlgorithmNames() {
@@ -275,7 +273,8 @@ public class StatisticsOp extends Operator implements Output {
                 final File metadataFile = new File(outputAsciiFile.getParent(), metadataFileName.toString());
                 metadataOutputStream = new PrintStream(new FileOutputStream(metadataFile));
                 csvOutputStream = new PrintStream(new FileOutputStream(outputAsciiFile));
-                outputters.add(new CsvOutputter(metadataOutputStream, csvOutputStream));
+                outputter.setMetadataWriter(new MetadataWriter(metadataOutputStream));
+                outputter.setCsvStatisticsWriter(new CsvStatisticsWriter(csvOutputStream));
             } catch (FileNotFoundException e) {
                 throw new OperatorException(e);
             }
@@ -287,15 +286,16 @@ public class StatisticsOp extends Operator implements Output {
                 final FileOutputStream outputStream = new FileOutputStream(file);
                 bandMappingOutputStream = new PrintStream(outputStream);
                 BandNameCreator bandNameCreator = new BandNameCreator(bandMappingOutputStream);
-                outputters.add(ShapefileOutputter.createShapefileOutputter(shapefile.toURI().toURL(),
-                                                                           outputShapefile.getAbsolutePath(),
-                                                                           bandNameCreator));
+                final FeaturesStatisticsWriter featuresStatisticsWriter = FeaturesStatisticsWriter.createShapefileOutputter(shapefile.toURI().toURL(),
+                                                                                                                            bandNameCreator);
+                outputter.setFeaturesStatisticsWriter(featuresStatisticsWriter, outputShapefile.getAbsoluteFile());
             } catch (MalformedURLException e) {
                 throw new OperatorException("Unable to create shapefile outputter", e);
             } catch (FileNotFoundException e) {
                 throw new OperatorException("Unable to create shapefile outputter", e);
             }
         }
+
     }
 
     void computeOutput(Product[] allSourceProducts) {
@@ -336,9 +336,7 @@ public class StatisticsOp extends Operator implements Output {
                         stxMap.put("pxx_max_error", PrecisePercentile.getBinWidth(histogram));
                     }
                 }
-                for (Outputter outputter : outputters) {
-                    outputter.addToOutput(bands.get(0).getName(), regionName, stxMap);
-                }
+                outputter.addToOutput(bands.get(0).getName(), regionName, stxMap);
             }
             bands.clear();
         }
@@ -408,9 +406,7 @@ public class StatisticsOp extends Operator implements Output {
 
     void writeOutput() {
         try {
-            for (Outputter outputter : outputters) {
-                outputter.finaliseOutput();
-            }
+            outputter.finaliseOutput();
         } catch (IOException e) {
             throw new OperatorException("Unable to write output.", e);
         } finally {
@@ -564,7 +560,7 @@ public class StatisticsOp extends Operator implements Output {
 
     }
 
-    public interface Outputter {
+    public interface HorstOutputter {
 
         void initialiseOutput(Product[] sourceProducts, String[] bandNames, String[] algorithmNames,
                               ProductData.UTC startDate, ProductData.UTC endDate,
