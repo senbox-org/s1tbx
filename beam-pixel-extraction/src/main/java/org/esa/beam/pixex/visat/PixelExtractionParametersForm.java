@@ -56,7 +56,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.TableCellEditor;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkGroup;
@@ -96,7 +95,6 @@ class PixelExtractionParametersForm {
     private JComboBox timeUnitComboBox;
     private String allowedTimeDifference = "";
     private JComboBox aggregationStrategyChooser;
-    private JTable coordinateTable;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -429,7 +427,7 @@ class PixelExtractionParametersForm {
             }
         }
 
-        coordinateTable = new JTable(coordinateTableModel);
+        JTable coordinateTable = new JTable(coordinateTableModel);
         coordinateTable.setName("coordinateTable");
         coordinateTable.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
         coordinateTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -439,6 +437,8 @@ class PixelExtractionParametersForm {
         coordinateTable.setPreferredScrollableViewportSize(new Dimension(250, 100));
         coordinateTable.getColumnModel().getColumn(1).setCellEditor(new FloatCellEditor(-90, 90));
         coordinateTable.getColumnModel().getColumn(2).setCellEditor(new FloatCellEditor(-180, 180));
+        coordinateTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+
         final DefaultDateModel dateModel = new DefaultDateModel();
         final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd'T'HH:mm:ss"); // ISO 8601
         dateModel.setDateFormat(dateFormat);
@@ -486,13 +486,6 @@ class PixelExtractionParametersForm {
     public void setActiveProduct(Product product) {
         activeProduct = product;
         updateExpressionComponents();
-    }
-
-    public void stopEditing() {
-        final TableCellEditor cellEditor = coordinateTable.getCellEditor();
-        if (cellEditor != null) {
-            cellEditor.stopCellEditing();
-        }
     }
 
     private class AddPopupListener implements ActionListener {
