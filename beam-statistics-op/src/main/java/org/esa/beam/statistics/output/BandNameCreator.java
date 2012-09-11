@@ -25,7 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Provides a method used by {@link FeatureStatisticsWriter} in order to create unique attribute names and a mapping file.
+ * Provides the possibility to create unique attribute names for combinations of an algorithm name and a band name.
+ * Additionally, the mapping between original algorithm and band name and the resulting unique name may be written to
+ * a print stream.
  *
  * @author Thomas Storm
  */
@@ -51,7 +53,16 @@ public class BandNameCreator {
         mappedNames = new HashMap<String, String>();
     }
 
-    String createUniqueAttributeName(String algorithmName, String sourceBandName) {
+    /**
+     * Creates an unique name -- unique in the scope of each instance of this class -- from the given input parameters.
+     * The unique names created are maximally 10 characters in length.
+     *
+     * @param algorithmName  The name of the algorithm.
+     * @param sourceBandName The name of the source band.
+     *
+     * @return A unique name for the combination of both.
+     */
+    public String createUniqueAttributeName(String algorithmName, String sourceBandName) {
         final String desiredAttributeName = algorithmName + "_" + sourceBandName;
         if (mappedNames.containsKey(desiredAttributeName)) {
             return mappedNames.get(desiredAttributeName);

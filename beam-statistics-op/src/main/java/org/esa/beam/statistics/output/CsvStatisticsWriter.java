@@ -25,29 +25,45 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Writes the output to two files: the first file contains metadata, the second file contains the actual statistics.
+ * Writes the statistics to an instance of {@link PrintStream}.
+ * The format written is a tab-separated CSV ASCII file, containing the actual statistics.
  *
  * @author Thomas Storm
  */
 public class CsvStatisticsWriter implements StatisticsOutputter {
 
     private final PrintStream csvOutput;
-
+    private String[] algorithmNames;
     final Statistics statisticsContainer;
 
-    private String[] algorithmNames;
-
+    /**
+     * Creates a new instance.
+     *
+     * @param csvOutput The target print stream where the statistics are written to.
+     */
     public CsvStatisticsWriter(PrintStream csvOutput) {
         this.csvOutput = csvOutput;
         statisticsContainer = new Statistics();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param statisticsOutputContext A context providing meta-information about the statistics.
+     */
     @Override
     public void initialiseOutput(StatisticsOutputContext statisticsOutputContext) {
         Arrays.sort(statisticsOutputContext.algorithmNames);
         this.algorithmNames = statisticsOutputContext.algorithmNames;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param bandName   The name of the band the statistics have been computed for.
+     * @param regionId   The id of the region the statistics have been computed for.
+     * @param statistics The actual statistics as map. Keys are the algorithm names, values are the actual statistical values.
+     */
     @Override
     public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
         if (!statisticsContainer.containsBand(bandName)) {
@@ -63,21 +79,18 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IOException Never.
+     */
     @Override
     public void finaliseOutput() throws IOException {
         if (algorithmNames == null) {
             throw new IllegalStateException(getClass().getSimpleName() + " not initialised.");
         }
 
-        csvOutput.append("# Region")
-                .append("\t")
-                .append("Band");
-
-        for (String algorithmName : algorithmNames) {
-            csvOutput.append("\t")
-                    .append(algorithmName);
-        }
-        csvOutput.append("\n");
+        writeHeader();
 
         for (String bandName : statisticsContainer.getBandNames()) {
             final BandStatistics bandStatistics = statisticsContainer.getDataForBandName(bandName);
@@ -96,6 +109,18 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
                 csvOutput.append("\n");
             }
         }
+    }
+
+    private void writeHeader() {
+        csvOutput.append("# Region")
+                .append("\t")
+                .append("Band");
+
+        for (String algorithmName : algorithmNames) {
+            csvOutput.append("\t")
+                    .append(algorithmName);
+        }
+        csvOutput.append("\n");
     }
 
     static String getValueAsString(Number numberValue) {

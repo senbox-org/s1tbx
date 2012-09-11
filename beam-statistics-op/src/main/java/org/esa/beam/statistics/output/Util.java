@@ -27,6 +27,13 @@ import javax.media.jai.Histogram;
  */
 public class Util {
 
+    /**
+     * Returns the 'best' name of the given feature.
+     *
+     * @param simpleFeature The feature to inquire the name of.
+     *
+     * @return The name if such an attribute exists in the feature, or the feature's id as last resort.
+     */
     public static String getFeatureName(SimpleFeature simpleFeature) {
         if (simpleFeature.getAttribute("name") != null) {
             return simpleFeature.getAttribute("name").toString();
@@ -36,6 +43,11 @@ public class Util {
         return simpleFeature.getID();
     }
 
+    /**
+     * Returns the width of the bin cells in the given histogram.
+     * @param histogram The histogram to inquire the bin cell width of.
+     * @return The width of the bin cells in the histogram.
+     */
     public static double getBinWidth(Histogram histogram) {
         return (histogram.getHighValue(0) - histogram.getLowValue(0)) / histogram.getNumBins(0);
     }

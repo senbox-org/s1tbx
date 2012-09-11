@@ -87,11 +87,10 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
         }
 
         for (final SimpleFeatureType featureType : getFeatureTypes()) {
-            FeatureStatisticsWriter featureStatisticsWriter = FeatureStatisticsWriter.createFeatureStatisticsWriter(featureType,
-                                                                                                                    getFeatureCollection(
-                                                                                                                            featureType),
-                                                                                                                    null,
-                                                                                                                    new BandNameCreator());
+            FeatureStatisticsWriter featureStatisticsWriter =
+                    FeatureStatisticsWriter.createFeatureStatisticsWriter(getFeatureCollection(featureType),
+                                                                          null,
+                                                                          new BandNameCreator());
             featureStatisticsWriter.initialiseOutput(
                     StatisticsOutputContext.create(
                             new String[]{provider.getRasterDataNode().getName()},

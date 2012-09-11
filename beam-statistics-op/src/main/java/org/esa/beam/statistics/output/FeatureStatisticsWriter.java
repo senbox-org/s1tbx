@@ -35,14 +35,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//todo Rename class and update class documentation
 /**
- * Writes the given output to a new shapefile.
- * It works like this:
- * 1) the original shapefile is being opened and its features are loaded
- * 2) the feature type of the original shapefile is being extended by the statistical means that have been computed
- * 3) for each feature, the statistical value is being added
- * 4) the resulting feature type and features are written as new shapefile
+ * Instances of <code>FeatureStatisticsWriter</code> enrich shapefiles or features with statistics.
+ * <p/>
+ * This is done like this:<br/>
+ * <ol>
+ * <li>the original shapefile is being opened and its features are loaded</li>
+ * <li>a new feature type is created on the basis of the feature type of the original shapefile</li>
+ * <li>this new feature type is being extended by the statistical means that have been computed</li>
+ * <li>for each original feature, a new feature is created</li>
+ * <li>the statistical values are added to each new feature</li>
+ * <li>the new features are made availabe by the {@link #getFeatures()}-method</li>
+ * <li>within the {@link #finaliseOutput()}-method, the resulting feature type and features are written to a new shapefile</li>
+ * </ol>
+ * Instances are created by using one of the factory methods this class provides.
  *
  * @author Thomas Storm
  */
@@ -56,6 +62,16 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
     private SimpleFeatureType updatedFeatureType;
     final List<SimpleFeature> features;
 
+    /**
+     * Factory method for creating a new instance of <code>FeatureStatisticsWriter</code>. This method opens and reads
+     * the original shapefile. Use this method if the shapefile has not yet been read.
+     *
+     * @param originalShapefile An URL pointing to the original shapefile that shall is to be enriched with statistics.
+     * @param targetShapefile   A file path where the target shapefile shall be written to.
+     * @param bandNameCreator   An instance of {@link BandNameCreator}.
+     *
+     * @return An instance of <code>FeatureStatisticsWriter</code>.
+     */
     public static FeatureStatisticsWriter createFeatureStatisticsWriter(URL originalShapefile, String targetShapefile, BandNameCreator bandNameCreator) {
         final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
         final FeatureCollection<SimpleFeatureType, SimpleFeature> features;
@@ -68,13 +84,23 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
         return new FeatureStatisticsWriter(featureSource.getSchema(), targetShapefile, features, bandNameCreator);
     }
 
-    public static FeatureStatisticsWriter createFeatureStatisticsWriter(SimpleFeatureType originalFeatureType, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures, String targetShapefile,
+    /**
+     * Factory method for creating a new instance of <code>FeatureStatisticsWriter</code>. This method utilises the
+     * original features. Use this method if the shapefile has already been read.
+     *
+     * @param originalFeatures The features to be enriched with statistics.
+     * @param targetShapefile  A file path where the target shapefile shall be written to.
+     * @param bandNameCreator  An instance of {@link org.esa.beam.statistics.output.BandNameCreator}.
+     *
+     * @return An instance of <code>FeatureStatisticsWriter</code>.
+     */
+    public static FeatureStatisticsWriter createFeatureStatisticsWriter(FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures, String targetShapefile,
                                                                         BandNameCreator bandNameCreator) {
-        return new FeatureStatisticsWriter(originalFeatureType, targetShapefile, originalFeatures, bandNameCreator);
+        return new FeatureStatisticsWriter(originalFeatures.getSchema(), targetShapefile, originalFeatures, bandNameCreator);
     }
 
-    protected FeatureStatisticsWriter(SimpleFeatureType originalFeatureType, String targetShapefile, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures,
-                                      BandNameCreator bandNameCreator) {
+    private FeatureStatisticsWriter(SimpleFeatureType originalFeatureType, String targetShapefile, FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures,
+                                    BandNameCreator bandNameCreator) {
         this.originalFeatureType = originalFeatureType;
         this.targetShapefile = targetShapefile;
         this.originalFeatures = originalFeatures;
@@ -82,6 +108,11 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
         features = new ArrayList<SimpleFeature>();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param statisticsOutputContext A context providing meta-information about the statistics.
+     */
     @Override
     public void initialiseOutput(StatisticsOutputContext statisticsOutputContext) {
         Arrays.sort(statisticsOutputContext.algorithmNames);
@@ -99,6 +130,14 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
         updatedFeatureType = typeBuilder.buildFeatureType();
     }
 
+    /**
+     * {@inheritDoc}
+     * After calling this method, the updated features can be retrieved by using {@link #getFeatures()}.
+     *
+     * @param bandName   The name of the band the statistics have been computed for.
+     * @param regionId   The id of the region the statistics have been computed for.
+     * @param statistics The actual statistics as map. Keys are the algorithm names, values are the actual statistical values.
+     */
     @Override
     public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
         final SimpleFeatureBuilder simpleFeatureBuilder = new SimpleFeatureBuilder(updatedFeatureType);
@@ -141,15 +180,31 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation writes the enriched features to the specified target shapefile.
+     * </p>
+     *
+     * @throws IOException If writing fails.
+     */
     @Override
     public void finaliseOutput() throws IOException {
         EsriShapeFileWriter.write(features, new File(targetShapefile));
     }
 
+    /**
+     * Returns the features enriched with statistics.
+     * @return the features enriched with statistics.
+     */
     public List<SimpleFeature> getFeatures() {
         return features;
     }
 
+    /**
+     * Returns the updated feature type.
+     * @return the updated feature type.
+     */
     public SimpleFeatureType getUpdatedFeatureType() {
         return updatedFeatureType;
     }

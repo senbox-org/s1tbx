@@ -15,11 +15,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class EsriShapeFileWriter {
+class EsriShapeFileWriter {
 
     private static final String FILE_EXTENSION_SHAPEFILE = ".shp";
 
-    public static void write(List<SimpleFeature> features, File file) throws IOException {
+    static void write(List<SimpleFeature> features, File file) throws IOException {
         String basename = file.getName();
         if (basename.endsWith(FILE_EXTENSION_SHAPEFILE)) {
             basename = basename.substring(0, basename.length() - 4);
