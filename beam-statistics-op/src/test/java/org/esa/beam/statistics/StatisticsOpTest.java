@@ -384,7 +384,7 @@ public class StatisticsOpTest {
 
         final Product[] collectedProducts = statisticsOp.collectSourceProducts();
         assertEquals(1, collectedProducts.length);
-        assertEquals(testProduct.getFileLocation().getAbsolutePath(), collectedProducts[0].getFileLocation().getAbsolutePath());
+        assertEquals(testProduct.getFileLocation().getAbsolutePath().toLowerCase(), collectedProducts[0].getFileLocation().getAbsolutePath().toLowerCase());
         for (Product collectedProduct : collectedProducts) {
             collectedProduct.dispose();
         }
