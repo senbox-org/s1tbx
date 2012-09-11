@@ -38,6 +38,8 @@ public class StatisticsOutputContext {
      */
     public final String[] regionIds;
 
+
+    // todo doku ... add context object to factory ... initialize Context object
     /**
      * Factory method for creating a fully specified instance.
      *
