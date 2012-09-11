@@ -35,6 +35,13 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.statistics.output.BandNameCreator;
+import org.esa.beam.statistics.output.CsvStatisticsWriter;
+import org.esa.beam.statistics.output.FeatureStatisticsWriter;
+import org.esa.beam.statistics.output.MetadataWriter;
+import org.esa.beam.statistics.output.StatisticsOutputContext;
+import org.esa.beam.statistics.output.StatisticsOutputter;
+import org.esa.beam.statistics.output.Util;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.io.WildcardMatcher;
@@ -211,7 +218,7 @@ public class StatisticsOp extends Operator implements Output {
             final DefaultFeatureCollection fc = new DefaultFeatureCollection(simpleFeature.getID(),
                                                                              simpleFeature.getFeatureType());
             fc.add(simpleFeature);
-            String name = getFeatureName(simpleFeature);
+            String name = Util.getFeatureName(simpleFeature);
             result.add(new VectorDataNode(name, fc));
         }
 
@@ -219,15 +226,6 @@ public class StatisticsOp extends Operator implements Output {
             regionNames.add(vectorDataNode.getName());
         }
         return result.toArray(new VectorDataNode[result.size()]);
-    }
-
-    static String getFeatureName(SimpleFeature simpleFeature) {
-        if (simpleFeature.getAttribute("name") != null) {
-            return simpleFeature.getAttribute("name").toString();
-        } else if (simpleFeature.getAttribute("NAME") != null) {
-            return simpleFeature.getAttribute("NAME").toString();
-        }
-        return simpleFeature.getID();
     }
 
     void initializeOutput(Product[] allSourceProducts) {
@@ -338,7 +336,7 @@ public class StatisticsOp extends Operator implements Output {
                         stxMap.put("pxx_max_error", precisePercentile.maxError);
                     } else {
                         stxMap.put(getPercentileName(percentile), computePercentile(percentile, histogram));
-                        stxMap.put("pxx_max_error", PrecisePercentile.getBinWidth(histogram));
+                        stxMap.put("pxx_max_error", Util.getBinWidth(histogram));
                     }
                 }
                 for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {

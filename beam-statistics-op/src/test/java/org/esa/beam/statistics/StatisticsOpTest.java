@@ -23,6 +23,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.statistics.output.StatisticsOutputContext;
+import org.esa.beam.statistics.output.StatisticsOutputter;
 import org.esa.beam.util.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;

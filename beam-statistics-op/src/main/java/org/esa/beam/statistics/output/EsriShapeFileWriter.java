@@ -1,4 +1,4 @@
-package org.esa.beam.statistics;
+package org.esa.beam.statistics.output;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;

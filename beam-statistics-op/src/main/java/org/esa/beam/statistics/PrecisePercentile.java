@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.StxFactory;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.statistics.output.Util;
 
 import javax.media.jai.Histogram;
 import java.awt.Color;
@@ -52,7 +53,7 @@ class PrecisePercentile {
 
         final Histogram higherResolutionHistogram = createHigherResolutionHistogram(raster, histogram, percentileBinIndex);
 
-        maxError = getBinWidth(higherResolutionHistogram);
+        maxError = Util.getBinWidth(higherResolutionHistogram);
 
         double temporaryPercentile = Double.NaN;
         int i = 0;
@@ -69,7 +70,7 @@ class PrecisePercentile {
         return new StxFactory()
                 .withHistogramBinCount(histogram.getNumBins()[0])
                 .withMinimum(histogram.getBinLowValue(0, binContainingPercentile))
-                .withMaximum(histogram.getBinLowValue(0, binContainingPercentile) + getBinWidth(histogram))
+                .withMaximum(histogram.getBinLowValue(0, binContainingPercentile) + Util.getBinWidth(histogram))
                 .create(ProgressMonitor.NULL, masks, raster)
                 .getHistogram();
     }
@@ -89,7 +90,7 @@ class PrecisePercentile {
                                                     histogram.getBinLowValue(0, binContainingPercentile),
                                                     rasterName,
                                                     histogram.getBinLowValue(0, binContainingPercentile) +
-                                                    getBinWidth(histogram));
+                                                    Util.getBinWidth(histogram));
             masks[i] = raster.getProduct().addMask("filterMask",
                                                    expression,
                                                    "mask containing only values within provided intervals",
@@ -99,7 +100,4 @@ class PrecisePercentile {
         return masks;
     }
 
-    static double getBinWidth(Histogram histogram) {
-        return (histogram.getHighValue(0) - histogram.getLowValue(0)) / histogram.getNumBins(0);
-    }
 }

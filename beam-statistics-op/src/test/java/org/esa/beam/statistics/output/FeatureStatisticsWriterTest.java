@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.statistics;
+package org.esa.beam.statistics.output;
 
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
@@ -32,7 +32,7 @@ public class FeatureStatisticsWriterTest {
 
     @Test
     public void testSingleShape() throws Exception {
-        final URL originalShapefile = getClass().getResource("4_pixels.shp");
+        final URL originalShapefile = getClass().getResource("../4_pixels.shp");
         final FeatureStatisticsWriter featureStatisticsWriter = FeatureStatisticsWriter.createFeatureStatisticsWriter(originalShapefile, null, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 
@@ -61,7 +61,7 @@ public class FeatureStatisticsWriterTest {
 
     @Test
     public void testThreeShapes() throws Exception {
-        final URL originalShapefile = getClass().getResource("polygons.shp");
+        final URL originalShapefile = getClass().getResource("../polygons.shp");
         final FeatureStatisticsWriter featureStatisticsWriter = FeatureStatisticsWriter.createFeatureStatisticsWriter(originalShapefile, null, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 

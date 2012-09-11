@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.statistics;
+package org.esa.beam.statistics.output;
 
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.FeatureUtils;
@@ -107,7 +107,7 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
         for (SimpleFeature feature : features) {
             for (String algorithmName : statistics.keySet()) {
                 final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
-                if (StatisticsOp.getFeatureName(feature).equals(regionId)) {
+                if (Util.getFeatureName(feature).equals(regionId)) {
                     SimpleFeature featureToUpdate;
                     if (markedToAdd.get(regionId) != null) {
                         featureToUpdate = markedToAdd.get(regionId);
@@ -129,7 +129,7 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
         final FeatureIterator<SimpleFeature> featureIterator = originalFeatures.features();
         while (featureIterator.hasNext()) {
             final SimpleFeature originalFeature = featureIterator.next();
-            if (StatisticsOp.getFeatureName(originalFeature).equals(regionId)) {
+            if (Util.getFeatureName(originalFeature).equals(regionId)) {
                 SimpleFeature feature = originalFeature;
                 for (String algorithmName : statistics.keySet()) {
                     final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);

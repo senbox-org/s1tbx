@@ -14,8 +14,9 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.statistics;
+package org.esa.beam.statistics.output;
 
+import org.esa.beam.statistics.TestUtil;
 import org.esa.beam.util.FeatureUtils;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
@@ -69,7 +70,7 @@ public class EsriShapeFileWriterTest {
     }
 
     private List<SimpleFeature> get4PixelsFeaturesWithAdaptedStatistic() {
-        final URL originalShapefile = getClass().getResource("4_pixels.shp");
+        final URL originalShapefile = getClass().getResource("../4_pixels.shp");
         final FeatureStatisticsWriter featureStatisticsWriter = FeatureStatisticsWriter.createFeatureStatisticsWriter(originalShapefile, null, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 

@@ -14,8 +14,10 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.statistics;
+package org.esa.beam.statistics.output;
 
+import org.esa.beam.statistics.output.CsvStatisticsWriter;
+import org.esa.beam.statistics.output.StatisticsOutputContext;
 import org.junit.Before;
 import org.junit.Test;
 
