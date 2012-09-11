@@ -134,6 +134,7 @@ class PixelExtractionDialog extends ModelessDialog {
 
     @Override
     protected void onOK() {
+        parametersForm.stopEditing();
         parameterMap.put("coordinates", parametersForm.getCoordinates());
         parameterMap.put("expression", parametersForm.getExpression());
         parameterMap.put("timeDifference", parametersForm.getAllowedTimeDifference());

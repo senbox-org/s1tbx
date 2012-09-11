@@ -22,23 +22,17 @@ import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.jidesoft.combobox.DefaultDateModel;
 import com.jidesoft.grid.DateCellEditor;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkGroup;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.DecimalTableCellRenderer;
-import org.esa.beam.framework.ui.FloatCellEditor;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.product.ProductExpressionPane;
-import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.pixex.Coordinate;
-import org.esa.beam.pixex.PixExOp;
-import org.jfree.ui.DateCellRenderer;
-import org.opengis.feature.simple.SimpleFeature;
-
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.util.Date;
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -62,17 +56,23 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.util.Date;
+import javax.swing.table.TableCellEditor;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkGroup;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.DecimalTableCellRenderer;
+import org.esa.beam.framework.ui.FloatCellEditor;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.product.ProductExpressionPane;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.pixex.Coordinate;
+import org.esa.beam.pixex.PixExOp;
+import org.jfree.ui.DateCellRenderer;
+import org.opengis.feature.simple.SimpleFeature;
 
 class PixelExtractionParametersForm {
 
@@ -96,6 +96,7 @@ class PixelExtractionParametersForm {
     private JComboBox timeUnitComboBox;
     private String allowedTimeDifference = "";
     private JComboBox aggregationStrategyChooser;
+    private JTable coordinateTable;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -428,7 +429,7 @@ class PixelExtractionParametersForm {
             }
         }
 
-        final JTable coordinateTable = new JTable(coordinateTableModel);
+        coordinateTable = new JTable(coordinateTableModel);
         coordinateTable.setName("coordinateTable");
         coordinateTable.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
         coordinateTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -485,6 +486,13 @@ class PixelExtractionParametersForm {
     public void setActiveProduct(Product product) {
         activeProduct = product;
         updateExpressionComponents();
+    }
+
+    public void stopEditing() {
+        final TableCellEditor cellEditor = coordinateTable.getCellEditor();
+        if (cellEditor != null) {
+            cellEditor.stopCellEditing();
+        }
     }
 
     private class AddPopupListener implements ActionListener {
