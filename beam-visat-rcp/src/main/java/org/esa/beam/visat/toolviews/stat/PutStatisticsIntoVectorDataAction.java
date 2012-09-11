@@ -19,7 +19,6 @@ package org.esa.beam.visat.toolviews.stat;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.statistics.output.BandNameCreator;
@@ -53,9 +52,9 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
     private final Map<SimpleFeatureType, List<Mask>> featureType2Mask = new HashMap<SimpleFeatureType, List<Mask>>();
     private final Map<Mask, Histogram> mask2Histogram = new HashMap<Mask, Histogram>();
     private final Map<Mask, String> mask2RegionName = new HashMap<Mask, String>();
-    private final StatisticalDataProvider provider;
+    private final StatisticalExportContext provider;
 
-    PutStatisticsIntoVectorDataAction(StatisticalDataProvider provider) {
+    PutStatisticsIntoVectorDataAction(StatisticalExportContext provider) {
         super("Put statistics into vector data");
         this.provider = provider;
     }
@@ -211,15 +210,6 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
 
     public void setSelectedMasks(Mask[] selectedMasks) {
         this.selectedMasks = selectedMasks;
-    }
-
-    static interface StatisticalDataProvider {
-
-        RasterDataNode getRasterDataNode();
-
-        Histogram[] getHistograms();
-
-        ProductNodeGroup<VectorDataNode> getVectorDataNodeGroup();
     }
 
 }

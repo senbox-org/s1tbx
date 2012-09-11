@@ -21,7 +21,6 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.jidesoft.swing.TitledSeparator;
 import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
@@ -31,14 +30,8 @@ import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.statistics.output.CsvStatisticsWriter;
-import org.esa.beam.statistics.output.MetadataWriter;
 import org.esa.beam.statistics.StatisticsOp;
-import org.esa.beam.statistics.output.StatisticsOutputContext;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.io.BeamFileChooser;
-import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.visat.VisatApp;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -51,11 +44,9 @@ import org.jfree.data.xy.XIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import javax.media.jai.Histogram;
-import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
@@ -83,13 +74,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A general pane within the statistics window.
@@ -97,7 +82,7 @@ import java.util.Map;
  * @author Norman Fomferra
  * @author Marco Peters
  */
-class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.ComputeMasks, PutStatisticsIntoVectorDataAction.StatisticalDataProvider {
+class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.ComputeMasks, StatisticalExportContext {
 
     private static final String DEFAULT_STATISTICS_TEXT = "No statistics computed yet.";  /*I18N*/
     private static final String TITLE_PREFIX = "Statistics";
@@ -112,7 +97,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     private final StringBuilder resultText;
     private boolean init;
     private Histogram[] histograms;
-    private StatisticsPanel.ExportAsCsvAction exportAsCsvAction;
+    private ExportStatisticsAsCsvAction exportAsCsvAction;
     private PutStatisticsIntoVectorDataAction putStatisticsIntoVectorDataAction;
     private int precision = -1;
 
@@ -252,7 +237,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             resultText.append(createText(raster.getStx(), null));
             contentPanel.add(createStatPanel(raster.getStx(), null));
             histograms = new Histogram[]{raster.getStx().getHistogram()};
-            exportAsCsvAction = new ExportAsCsvAction(null);
+            exportAsCsvAction = new ExportStatisticsAsCsvAction(null);
             putStatisticsIntoVectorDataAction = new PutStatisticsIntoVectorDataAction(this);
             exportButton.setEnabled(true);
         } else {
@@ -344,7 +329,10 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             protected void done() {
                 try {
                     get();
-                    exportAsCsvAction = new ExportAsCsvAction(selectedMasks);
+                    if (exportAsCsvAction == null) {
+                        exportAsCsvAction = new ExportStatisticsAsCsvAction(StatisticsPanel.this);
+                    }
+                    exportAsCsvAction.setSelectedMasks(selectedMasks);
                     if (putStatisticsIntoVectorDataAction == null) {
                         putStatisticsIntoVectorDataAction = new PutStatisticsIntoVectorDataAction(StatisticsPanel.this);
                     }
@@ -632,6 +620,16 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         return export;
     }
 
+    @Override
+    public RasterDataNode getRasterDataNode() {
+        return getRaster();
+    }
+
+    @Override
+    public ProductNodeGroup<VectorDataNode> getVectorDataNodeGroup() {
+        return getRasterDataNode().getProduct().getVectorDataGroup();
+    }
+
     private class PopupHandler extends MouseAdapter {
 
         @Override
@@ -644,116 +642,4 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         }
     }
 
-    private class ExportAsCsvAction extends AbstractAction {
-
-        private static final String PROPERTY_KEY_EXPORT_DIR = "user.statistics.export.dir";
-        private final Mask[] masks;
-
-        public ExportAsCsvAction(Mask[] masks) {
-            super("Export as CSV");
-            this.masks = masks;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            PrintStream metadataOutputStream = null;
-            PrintStream csvOutputStream = null;
-            String exportDir = VisatApp.getApp().getPreferences().getPropertyString(PROPERTY_KEY_EXPORT_DIR);
-            File baseDir = null;
-            if (exportDir != null) {
-                baseDir = new File(exportDir);
-            }
-            BeamFileChooser fileChooser = new BeamFileChooser(baseDir);
-            File outputAsciiFile;
-            int result = fileChooser.showSaveDialog(StatisticsPanel.this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                outputAsciiFile = fileChooser.getSelectedFile();
-                VisatApp.getApp().getPreferences().setPropertyString(PROPERTY_KEY_EXPORT_DIR, outputAsciiFile.getParent());
-            } else {
-                return;
-            }
-            try {
-                final StringBuilder metadataFileName = new StringBuilder(FileUtils.getFilenameWithoutExtension(outputAsciiFile));
-                metadataFileName.append("_metadata.txt");
-                final File metadataFile = new File(outputAsciiFile.getParent(), metadataFileName.toString());
-                metadataOutputStream = new PrintStream(new FileOutputStream(metadataFile));
-                csvOutputStream = new PrintStream(new FileOutputStream(outputAsciiFile));
-
-                CsvStatisticsWriter csvStatisticsWriter = new CsvStatisticsWriter(csvOutputStream);
-                final MetadataWriter metadataWriter = new MetadataWriter(metadataOutputStream);
-
-                String[] regionIds;
-                if (masks != null) {
-                    regionIds = new String[masks.length];
-                    for (int i = 0; i < masks.length; i++) {
-                        if (masks[i] != null) {
-                            regionIds[i] = masks[i].getName();
-                        } else {
-                            regionIds[i] = "\t";
-                        }
-                    }
-                } else {
-                    regionIds = new String[]{"full_scene"};
-                }
-                final String[] algorithmNames = {
-                            "minimum",
-                            "maximum",
-                            "median",
-                            "average",
-                            "sigma",
-                            "p90",
-                            "p95",
-                            "total"
-                };
-                final StatisticsOutputContext outputContext = StatisticsOutputContext.create(
-                        new Product[]{getRaster().getProduct()}, algorithmNames, regionIds);
-                metadataWriter.initialiseOutput(outputContext);
-                csvStatisticsWriter.initialiseOutput(outputContext);
-
-                final Map<String, Number> statistics = new HashMap<String, Number>();
-                for (int i = 0; i < histograms.length; i++) {
-                    final Histogram histogram = histograms[i];
-                    statistics.put("minimum", histogram.getLowValue(0));
-                    statistics.put("maximum", histogram.getHighValue(0));
-                    statistics.put("median", histogram.getPTileThreshold(0.5)[0]);
-                    statistics.put("average", histogram.getMean()[0]);
-                    statistics.put("sigma", histogram.getStandardDeviation()[0]);
-                    statistics.put("p90", histogram.getPTileThreshold(0.9)[0]);
-                    statistics.put("p95", histogram.getPTileThreshold(0.95)[0]);
-                    statistics.put("total", histogram.getTotals()[0]);
-                    csvStatisticsWriter.addToOutput(getRaster().getName(), regionIds[i], statistics);
-                    statistics.clear();
-                }
-                csvStatisticsWriter.finaliseOutput();
-            } catch (IOException exception) {
-                JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                              "Failed to export statistics.\nAn error occurred:" +
-                                              exception.getMessage(),
-                                              "Statistics export",
-                                              JOptionPane.ERROR_MESSAGE);
-            } finally {
-                if (metadataOutputStream != null) {
-                    metadataOutputStream.close();
-                }
-                if (csvOutputStream != null) {
-                    csvOutputStream.close();
-                }
-            }
-            JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                          "The statistics have successfully been exported to '" + outputAsciiFile +
-                                          "'.",
-                                          "Statistics export",
-                                          JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-
-    @Override
-    public RasterDataNode getRasterDataNode() {
-        return getRaster();
-    }
-
-    @Override
-    public ProductNodeGroup<VectorDataNode> getVectorDataNodeGroup() {
-        return getRasterDataNode().getProduct().getVectorDataGroup();
-    }
 }
