@@ -120,12 +120,8 @@ public class ShowImageViewAction extends ExecCommand {
             }
         };
         final Product product = selectedProductNode.getProduct();
+        product.addProductNodeListener(pnl);
         internalFrame.addInternalFrameListener(new InternalFrameAdapter() {
-            @Override
-            public void internalFrameOpened(InternalFrameEvent event1) {
-                product.addProductNodeListener(pnl);
-            }
-
             @Override
             public void internalFrameClosed(InternalFrameEvent event11) {
                 product.removeProductNodeListener(pnl);
