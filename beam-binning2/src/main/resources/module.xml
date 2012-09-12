@@ -80,5 +80,18 @@
             <operatorName>Binning</operatorName>
         </action>
     </extension>
+    <extension point="beam-ui:actions">
+        <action>
+            <id>importBinnedProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>Binned_data_product</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>Binned SEADAS data</text>
+            <shortDescr>Import a SeaDAS-Level-3-alike NetCDF file.</shortDescr>
+            <description>Import a SeaDAS-Level-3-alike NetCDF file.</description>
+            <!--<helpId>importMerisBinnedL3Product</helpId>-->
+            <!--<placeAfter>importEnvisatProduct</placeAfter>-->
+        </action>
+    </extension>
 
 </module>
