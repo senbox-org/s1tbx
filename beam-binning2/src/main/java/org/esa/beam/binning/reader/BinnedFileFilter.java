@@ -7,9 +7,9 @@ import java.io.File;
 public class BinnedFileFilter extends BeamFileFilter {
 
     public BinnedFileFilter() {
-        super(BinnedProductReaderPlugin.FORMAT_NAME,
-              BinnedProductReaderPlugin.FILE_EXTENSION,
-              BinnedProductReaderPlugin.FORMAT_DESCRIPTION);
+        super(BinnedProductReaderPluginX.FORMAT_NAME,
+              BinnedProductReaderPluginX.FILE_EXTENSION,
+              BinnedProductReaderPluginX.FORMAT_DESCRIPTION);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class BinnedFileFilter extends BeamFileFilter {
      */
     public static boolean isBinnedName(String name) {
         return name.indexOf("-bins") != -1
-                && name.endsWith(BinnedProductReaderPlugin.FILE_EXTENSION);
+                && name.endsWith(BinnedProductReaderPluginX.FILE_EXTENSION);
     }
 
 }
