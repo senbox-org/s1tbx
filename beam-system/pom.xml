@@ -425,7 +425,9 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.8.2</version>
-                <scope>test</scope>
+                <!-- junit is also used in production code e.g. GlobalTestConfig, therefore we
+                can't declare the test scope -->
+                <!--<scope>test</scope>-->
             </dependency>
 
             <dependency>
