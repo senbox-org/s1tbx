@@ -48,7 +48,7 @@ public class BinnedProductReader extends AbstractProductReader {
      *
      * @param readerPlugIn the plug-in which created this reader instance
      */
-    public BinnedProductReader(BinnedProductReaderPluginX readerPlugIn) {
+    public BinnedProductReader(BinnedProductReaderPlugin readerPlugIn) {
         super(readerPlugIn);
     }
 
