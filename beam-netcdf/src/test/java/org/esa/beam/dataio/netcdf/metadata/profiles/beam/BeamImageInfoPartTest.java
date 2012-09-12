@@ -16,7 +16,6 @@
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import junit.framework.TestCase;
-import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamImageInfoPart;
 import ucar.nc2.Attribute;
 
 import static org.mockito.Mockito.*;
