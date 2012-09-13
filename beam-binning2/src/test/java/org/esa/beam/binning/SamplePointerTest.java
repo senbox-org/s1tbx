@@ -12,6 +12,22 @@ import static org.junit.Assert.*;
 
 public class SamplePointerTest {
 
+
+    @Test
+    public void testCreationOfSamplingPoints() throws Exception {
+        Point2D.Float[] points = SamplePointer.createSamplingPoints(new float[]{1.0f / 6.0f, 3.0f / 6.0f, 5.0f / 6.0f});
+        assertEquals(9, points.length);
+        assertEquals(new Point2D.Float(1.0f / 6.0f, 1.0f / 6.0f), points[0]);
+        assertEquals(new Point2D.Float(3.0f / 6.0f, 1.0f / 6.0f), points[1]);
+        assertEquals(new Point2D.Float(5.0f / 6.0f, 1.0f / 6.0f), points[2]);
+        assertEquals(new Point2D.Float(1.0f / 6.0f, 3.0f / 6.0f), points[3]);
+        assertEquals(new Point2D.Float(3.0f / 6.0f, 3.0f / 6.0f), points[4]);
+        assertEquals(new Point2D.Float(5.0f / 6.0f, 3.0f / 6.0f), points[5]);
+        assertEquals(new Point2D.Float(1.0f / 6.0f, 5.0f / 6.0f), points[6]);
+        assertEquals(new Point2D.Float(3.0f / 6.0f, 5.0f / 6.0f), points[7]);
+        assertEquals(new Point2D.Float(5.0f / 6.0f, 5.0f / 6.0f), points[8]);
+    }
+
     @Test
     public void testSamplePointerAllValid() throws Exception {
         int width = 2;
