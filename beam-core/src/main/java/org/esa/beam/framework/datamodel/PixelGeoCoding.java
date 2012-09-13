@@ -750,26 +750,40 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         final int y1 = y;
         final int y2 = y1 + h - 1;
 
-        // todo - solve 180° longitude problem here
         GeoPos geoPos = new GeoPos();
         getGeoPosInternal(x1, y1, geoPos);
         final float lat0 = geoPos.lat;
-        final float lon0 = geoPos.lon;
+        float lon0 = geoPos.lon;
         getGeoPosInternal(x1, y2, geoPos);
         final float lat1 = geoPos.lat;
-        final float lon1 = geoPos.lon;
+        float lon1 = geoPos.lon;
         getGeoPosInternal(x2, y1, geoPos);
         final float lat2 = geoPos.lat;
-        final float lon2 = geoPos.lon;
+        float lon2 = geoPos.lon;
         getGeoPosInternal(x2, y2, geoPos);
         final float lat3 = geoPos.lat;
-        final float lon3 = geoPos.lon;
+        float lon3 = geoPos.lon;
 
         final float epsL = EPS;
         final float latMin = min(lat0, min(lat1, min(lat2, lat3))) - epsL;
         final float latMax = max(lat0, max(lat1, max(lat2, lat3))) + epsL;
-        final float lonMin = min(lon0, min(lon1, min(lon2, lon3))) - epsL;
-        final float lonMax = max(lon0, max(lon1, max(lon2, lon3))) + epsL;
+        float lonMin;
+        float lonMax;
+        if (isCrossingMeridianInsideQuad(crossingMeridianAt180, lon0, lon1, lon2, lon3)) {
+            final float signumLon = Math.signum(lon);
+            if (signumLon > 0f) {
+                // position is in a region with positive longitudes, so cut negative longitudes from quad area
+                lonMax = 180.0f;
+                lonMin = getPositiveLonMin(lon0, lon1, lon2, lon3);
+            } else {
+                // position is in a region with negative longitudes, so cut positive longitudes from quad area
+                lonMin = -180.0f;
+                lonMax = getNegativeLonMax(lon0, lon1, lon2, lon3);
+            }
+        } else {
+            lonMin = min(lon0, min(lon1, min(lon2, lon3))) - epsL;
+            lonMax = max(lon0, max(lon1, max(lon2, lon3))) + epsL;
+        }
 
         boolean pixelFound = false;
         final boolean definitelyOutside = lat < latMin || lat > latMax || lon < lonMin || lon > lonMax;
@@ -801,6 +815,52 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                     depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
         }
         return pixelFound;
+    }
+
+    static float getNegativeLonMax(float lon0, float lon1, float lon2, float lon3) {
+        float lonMax;
+        lonMax = -180.0f;
+        if (lon0 < 0.0f) {
+            lonMax = lon0;
+        }
+        if (lon1 < 0.0f) {
+            lonMax = max(lon1, lonMax);
+        }
+        if (lon2 < 0.0f) {
+            lonMax = max(lon2, lonMax);
+        }
+        if (lon3 < 0.0f) {
+            lonMax = max(lon3, lonMax);
+        }
+        return lonMax;
+    }
+
+    static float getPositiveLonMin(float lon0, float lon1, float lon2, float lon3) {
+        float lonMin;
+        lonMin = 180.0f;
+        if (lon0 >= 0.0f) {
+            lonMin = lon0;
+        }
+        if (lon1 >= 0.0f) {
+            lonMin = min(lon1, lonMin);
+        }
+        if (lon2 >= 0.0f) {
+            lonMin = min(lon2, lonMin);
+        }
+        if (lon3 >= 0.0f) {
+            lonMin = min(lon3, lonMin);
+        }
+        return lonMin;
+    }
+
+    static boolean isCrossingMeridianInsideQuad(boolean crossingMeridianInsideProduct, float lon0, float lon1, float lon2, float lon3) {
+        if (!crossingMeridianInsideProduct) {
+            return false;
+        }
+        float lonMin = min(lon0, min(lon1, min(lon2, lon3)));
+        float lonMax = max(lon0, max(lon1, max(lon2, lon3)));
+
+        return Math.abs(lonMax - lonMin) > 180.0;
     }
 
     private void getGeoPosInternal(int pixelX, int pixelY, GeoPos geoPos) {
