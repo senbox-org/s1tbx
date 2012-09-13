@@ -130,7 +130,8 @@ abstract class SamplePointer {
 
     private static final class SamplePointerNoSuperSampling extends SamplePointer {
 
-        public static final Point2D.Float CENTER = new Point2D.Float(0.5f, 0.5f);
+        private static final Point2D.Float CENTER = new Point2D.Float(0.5f, 0.5f);
+
         private int x;
         private int y;
         private int x1;
