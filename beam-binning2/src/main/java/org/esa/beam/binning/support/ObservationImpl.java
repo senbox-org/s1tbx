@@ -32,11 +32,7 @@ public final class ObservationImpl implements Observation {
         this(latitude, longitude, 0.0f);
     }
 
-    public ObservationImpl(double latitude, double longitude, float measurement) {
-        this(latitude, longitude, new float[]{measurement});
-    }
-
-    public ObservationImpl(double latitude, double longitude, float[] measurements) {
+    public ObservationImpl(double latitude, double longitude, float... measurements) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.measurements = measurements;
