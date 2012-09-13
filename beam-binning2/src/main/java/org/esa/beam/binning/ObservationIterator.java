@@ -26,22 +26,19 @@ abstract class ObservationIterator implements Iterator<Observation> {
 
     public static ObservationIterator create(Raster[] sourceTiles, GeoCoding gc, Raster maskTile,
                                              float[] superSamplingSteps) {
-        if (maskTile == null && superSamplingSteps.length == 1) {
-            SamplePointer pointer = SamplePointer.create(sourceTiles, sourceTiles[0].getBounds());
-            return new NoMaskNoSuperSamplingObservationIterator(gc, pointer);
+
+        SamplePointer pointer;
+        if (superSamplingSteps.length == 1) {
+            pointer = SamplePointer.create(sourceTiles, sourceTiles[0].getBounds());
+        }else{
+            Point2D.Float[] superSamplingPoints = SamplePointer.createSamplingPoints(superSamplingSteps);
+            pointer = SamplePointer.create(sourceTiles, sourceTiles[0].getBounds(), superSamplingPoints);
         }
         if (maskTile == null) {
-            Point2D.Float[] superSamplingPoints = SamplePointer.createSamplingPoints(superSamplingSteps);
-            SamplePointer pointer = SamplePointer.create(sourceTiles, sourceTiles[0].getBounds(), superSamplingPoints);
             return new NoMaskObservationIterator(gc, pointer);
+        } else {
+            return new FullObservationIterator(gc, pointer, maskTile);
         }
-        if (superSamplingSteps.length == 1) {
-            SamplePointer pointer = SamplePointer.create(sourceTiles, maskTile.getBounds());
-            return new NoSuperSamplingObservationIterator(gc, pointer, maskTile);
-        }
-        Point2D.Float[] superSamplingPoints = SamplePointer.createSamplingPoints(superSamplingSteps);
-        SamplePointer pointer = SamplePointer.create(sourceTiles, maskTile.getBounds(), superSamplingPoints);
-        return new FullObservationIterator(gc, pointer, maskTile);
     }
 
     protected ObservationIterator(GeoCoding gc, SamplePointer pointer) {
@@ -130,36 +127,6 @@ abstract class ObservationIterator implements Iterator<Observation> {
 
     }
 
-
-    static class NoSuperSamplingObservationIterator extends ObservationIterator {
-
-        private final Raster maskTile;
-
-
-        NoSuperSamplingObservationIterator(GeoCoding gc, SamplePointer pointer, Raster maskTile) {
-            super(gc, pointer);
-            this.maskTile = maskTile;
-        }
-
-        @Override
-        protected Observation getNextObservation() {
-            SamplePointer pointer = getPointer();
-            while (pointer.canMove()) {
-                pointer.move();
-                if (isSampleValid(pointer.getX(), pointer.getY())) {
-                    return createObservation(pointer.getX(), pointer.getY());
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected boolean isSampleValid(int x, int y) {
-            return maskTile.getSample(x, y, 0) != 0;
-        }
-
-    }
-
     static class NoMaskObservationIterator extends ObservationIterator {
 
 
@@ -182,27 +149,5 @@ abstract class ObservationIterator implements Iterator<Observation> {
             return true;
         }
 
-    }
-
-    private static class NoMaskNoSuperSamplingObservationIterator extends ObservationIterator {
-        public NoMaskNoSuperSamplingObservationIterator(GeoCoding gc, SamplePointer pointer) {
-            super(gc, pointer);
-        }
-
-        @Override
-        protected Observation getNextObservation() {
-            SamplePointer pointer = getPointer();
-            if (pointer.canMove()) {
-                pointer.move();
-                return createObservation(pointer.getX(), pointer.getY());
-            }
-            return null;
-
-        }
-
-        @Override
-        protected boolean isSampleValid(int x, int y) {
-            return true;
-        }
     }
 }
