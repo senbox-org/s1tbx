@@ -87,10 +87,10 @@ public interface PlanetaryGrid {
     double getCenterLat(int row);
 
     /**
-     * Gets geographical longitude and latitude (in this order) for the center of the given bin.
+     * Gets geographical latitude and longitude (in this order) for the center of the given bin.
      *
      * @param bin The bin index. Must be in the range 0 to {@link #getNumBins()} - 1.
-     * @return longitude and latitude (in this order)
+     * @return latitude and longitude (in this order)
      */
     double[] getCenterLatLon(long bin);
 }
