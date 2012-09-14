@@ -25,12 +25,19 @@ public class BinnedProductReaderPlugin implements ProductReaderPlugIn {
         if (!BinnedFileFilter.isBinnedName(name)) {
             return DecodeQualification.UNABLE;
         }
-        final NetcdfFile netcdfFile;
         try {
-            netcdfFile = NetcdfFile.open(path);
+            NetcdfFile netcdfFile = null;
+            try {
+                netcdfFile = NetcdfFile.open(path);
+            } finally {
+                if (netcdfFile != null) {
+                    netcdfFile.close();
+                }
+            }
         } catch (IOException e) {
             return DecodeQualification.UNABLE;
         }
+
         return DecodeQualification.INTENDED;
     }
 

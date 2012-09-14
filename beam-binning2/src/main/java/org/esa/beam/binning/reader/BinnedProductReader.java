@@ -35,12 +35,12 @@ public class BinnedProductReader extends AbstractProductReader {
 
     public static final String COL_INDEX_BAND_NAME = "col_index";
 
-    private NetcdfFile _netcdfFile;
-    private Product _product;
+    private NetcdfFile netcdfFile;
+    private Product product;
     private PlanetaryGrid planetaryGrid;
-    private int _sceneRasterWidth;
-    private int _sceneRasterHeight;
-    private RowInfo[] _rowInfos;
+    private int sceneRasterWidth;
+    private int sceneRasterHeight;
+    private RowInfo[] rowInfos;
     private Map<Band, VariableMetadata> bandMap;
 
     /**
@@ -63,18 +63,18 @@ public class BinnedProductReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         String path = getInput().toString();
-        _netcdfFile = NetcdfFile.open(path);
+        netcdfFile = NetcdfFile.open(path);
         bandMap = new HashMap<Band, VariableMetadata>(10);
         try {
             int numRows = 0;
-            for (Dimension dimension : _netcdfFile.getDimensions()) {
+            for (Dimension dimension : netcdfFile.getDimensions()) {
                 if (dimension.getName().equals("bin_index")) {
                     numRows = dimension.getLength();
                 }
             }
             planetaryGrid = createPlanetaryGrid(numRows);
             Geometry roiGeometry = null;
-            for (Attribute attribute : _netcdfFile.getGlobalAttributes()) {
+            for (Attribute attribute : netcdfFile.getGlobalAttributes()) {
                 if (attribute.getName().equals("region")) {
                     WKTReader wktReader = new WKTReader();
                     try {
@@ -85,24 +85,24 @@ public class BinnedProductReader extends AbstractProductReader {
                 }
             }
             final Rectangle sceneRasterRectangle = Reprojector.computeRasterSubRegion(planetaryGrid, roiGeometry);
-            _sceneRasterHeight = sceneRasterRectangle.height;
-            _sceneRasterWidth = sceneRasterRectangle.width;
+            sceneRasterHeight = sceneRasterRectangle.height;
+            sceneRasterWidth = sceneRasterRectangle.width;
             File productFile = new File(path);
-            _product = new Product(FileUtils.getFilenameWithoutExtension(productFile),
+            product = new Product(FileUtils.getFilenameWithoutExtension(productFile),
                                    "Binned SeaDas data",
-                                   _sceneRasterWidth,
-                                   _sceneRasterHeight,
+                                   sceneRasterWidth,
+                                   sceneRasterHeight,
                                    this);
 
-            MetadataUtils.readNetcdfMetadata(_netcdfFile, _product.getMetadataRoot());
+            MetadataUtils.readNetcdfMetadata(netcdfFile, product.getMetadataRoot());
 
-            for (Variable variable : _netcdfFile.getVariables()) {
+            for (Variable variable : netcdfFile.getVariables()) {
                 addBand(variable.getName());
             }
-            _product.setQuicklookBandName("bl_nobs");
-            _product.setFileLocation(productFile);
+            product.setQuicklookBandName("bl_nobs");
+            product.setFileLocation(productFile);
 
-            if (_product.getNumBands() == 0) {
+            if (product.getNumBands() == 0) {
                 throw new IOException("No bands found.");
             }
 
@@ -113,7 +113,7 @@ public class BinnedProductReader extends AbstractProductReader {
             throw e;
         }
 
-        return _product;
+        return product;
     }
 
     private PlanetaryGrid createPlanetaryGrid(int numRows) {
@@ -216,8 +216,8 @@ public class BinnedProductReader extends AbstractProductReader {
         VariableMetadata variableMetadata = bandMap.get(destBand);
         boolean readColIndex = variableMetadata == null; // this band has no variables associated
 
-        final int height = _sceneRasterHeight;
-        final int width = _sceneRasterWidth;
+        final int height = sceneRasterHeight;
+        final int width = sceneRasterWidth;
         final PlanetaryGrid grid = planetaryGrid;
 
         pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceHeight);
@@ -280,9 +280,10 @@ public class BinnedProductReader extends AbstractProductReader {
 //                        final int[] idxValues;
                     final int[] binValues;
                     try {
-                        synchronized (_netcdfFile) {
+                        synchronized (netcdfFile) {
 //                                idxValues = (int[]) idxVariable.read(lineOffsets, lineLengths).getStorage();
-                            binValues = (int[]) binVariable.read(lineOffsets, lineLengths).getStorage();
+                            final Object storage = binVariable.read(lineOffsets, lineLengths).getStorage();
+                            binValues = (int[]) storage;
                         }
                     } catch (InvalidRangeException e) {
                         // ?!?!?!?
@@ -338,14 +339,14 @@ public class BinnedProductReader extends AbstractProductReader {
             IOException {
         super.close();
 
-        if (_netcdfFile != null) {
-            _netcdfFile.close();
-            _netcdfFile = null;
+        if (netcdfFile != null) {
+            netcdfFile.close();
+            netcdfFile = null;
         }
         bandMap.clear();
-        _product = null;
+        product = null;
         planetaryGrid = null;
-        _rowInfos = null;
+        rowInfos = null;
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -357,11 +358,11 @@ public class BinnedProductReader extends AbstractProductReader {
         float pixelY = 0.0f;
         float easting = -180f;
         float northing = +90f;
-        float pixelSizeX = 360.0f / _sceneRasterWidth;
-        float pixelSizeY = 180.0f / _sceneRasterHeight;
+        float pixelSizeX = 360.0f / sceneRasterWidth;
+        float pixelSizeY = 180.0f / sceneRasterHeight;
         try {
-            _product.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84,
-                                                   _sceneRasterWidth, _sceneRasterHeight,
+            product.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84,
+                                                  sceneRasterWidth, sceneRasterHeight,
                                                    easting, northing,
                                                    pixelSizeX, pixelSizeY,
                                                    pixelX, pixelY));
@@ -390,17 +391,17 @@ public class BinnedProductReader extends AbstractProductReader {
             if (varName.startsWith("bl") && !varName.equals("bl_bin_num") && !varName.equals("bl_nobs") && !varName.equals("bl_nscenes")) {
                 dataType = ProductData.TYPE_FLOAT32;
             }
-            Band band = new Band(variableMetadata.name, dataType, _sceneRasterWidth, _sceneRasterHeight);
+            Band band = new Band(variableMetadata.name, dataType, sceneRasterWidth, sceneRasterHeight);
             band.setDescription(variableMetadata.description);
             band.setNoDataValue(variableMetadata.fillValue);
             band.setNoDataValueUsed(variableMetadata.fillValue != Double.NaN);
-            _product.addBand(band);
+            product.addBand(band);
             bandMap.put(band, variableMetadata);
         }
     }
 
     private VariableMetadata getVariableMetadata(String varName) {
-        final Variable variable = _netcdfFile.getRootGroup().findVariable(varName);
+        final Variable variable = netcdfFile.getRootGroup().findVariable(varName);
         if (variable == null) {
             return null;
         }
