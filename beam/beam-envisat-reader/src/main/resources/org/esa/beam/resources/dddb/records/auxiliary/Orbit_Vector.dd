@@ -1,0 +1,22 @@
+Orbit_Vectors|Contains an orbit vector
+#
+utc_time|String		|UTC|27|1	|*|UTC of Orbit State Vector|1|
+blank_1|Spare		|*|1|1		|*|Spare|2|
+delta_ut1|String	|s|8|1		|*|Delta UT1 = UT1-UTC|3|
+blank_2|Spare		|*|1|1		|*|Spare|4|
+abs_orbit|String	|*|6|1		|*|Absolute Orbit number|5|
+blank_3|Spare		|*|1|1		|*|Spare|6|
+x_pos|String		|m|12|1		|*|X position in Earth fixed reference frame|7|
+blank_4|Spare		|*|1|1		|*|Spare|8|
+y_pos|String		|m|12|1		|*|Y position in Earth fixed reference frame|9|
+blank_5|Spare		|*|1|1		|*|Spare|10|
+z_pos|String		|m|12|1		|*|Z position in Earth fixed reference frame|11|
+blank_6|Spare		|*|1|1		|*|Spare|12|
+x_vel|String		|m/s|12|1	|*|X velocity relative to Earth fixed reference frame|13|
+blank_7|Spare		|*|1|1		|*|Spare|14|
+y_vel|String		|m/s|12|1	|*|Y velocity relative to Earth fixed reference frame|15|
+blank_8|Spare		|*|1|1		|*|Spare|16|
+z_vel|String		|m/s|12|1	|*|Z velocity relative to Earth fixed reference frame|17|
+blank_9|Spare		|*|1|1		|*|Spare|18|
+qual_flags|String	|*|6|1		|*|Quality Flags (TBD by ESA)|19|
+newline_char|Spare	|*|1|1		|*|Spare|20|

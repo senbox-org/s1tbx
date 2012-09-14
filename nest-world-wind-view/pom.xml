@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<project>
+    <parent>
+        <groupId>org.esa.nest</groupId>
+        <artifactId>nest</artifactId>
+        <version>5.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>NEST World Wind View</name>
+    <groupId>org.esa.nest</groupId>
+    <artifactId>nest-world-wind-view</artifactId>
+    <version>5.0</version>
+
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-visat-rcp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>gov.nasa</groupId>
+            <artifactId>nasa-worldwind</artifactId>
+        </dependency>
+		<dependency>
+            <groupId>org.processing</groupId>
+            <artifactId>jogl</artifactId>
+        </dependency>
+		<dependency>
+            <groupId>org.processing</groupId>
+            <artifactId>gluegen-rt</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

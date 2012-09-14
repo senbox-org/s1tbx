@@ -1,0 +1,5 @@
+MER_FSG_1P_MDSR_18|Corrected Latitude MDS(18)|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Start time of the Data Set Record|1|
+quality_flag|UChar|flag|1|1|*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+latitude|SLong|(1e-6) degrees|4|sceneRasterWidth|*|DEM corrected Latitude|3|

@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Map Projection</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Map Reprojection </td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Reprojection Operator</h3>
+<p> The Map Projection Operator applies a selected&nbsp;Map Projection
+to the input product and creates a new transposed output
+product.&nbsp;</p><p>
+</p><div style="text-align: center;"><img style="width: 545px; height: 541px;" alt="" src="images/ReprojectionProjectionParameters.png"><br></div><br><br><p>The following
+parameters are used by the Operator:
+</p>
+<h5>Coordinate Reference System (CRS)</h5>
+
+            <p class="i1">
+                <b>Custom CRS:</b>
+                The transformation used by the projection can be selected. Also the geodetic datum and
+                transformation parameters can be set, if possible for the selected transformation.
+            </p>
+
+            <p class="i1">
+                <b>Predefined CRS:</b>
+                By clicking on the <b>Select...</b> button a new dialog is shown
+                where a
+                predefined
+                CRS can be selected.
+            </p>
+
+            <p class="i1">
+                <b>Use CRS of:</b>
+                A product can be selected to use its projected Coordinate Reference System. This will have the effect
+                that source
+                product will cover the same geographic region on the same CRS. Which means that both products are
+                collocated.
+            </p>
+
+            <h5>Output Settings</h5>
+
+            <p class="i1">
+                <b>Preserve resolution:</b>
+                If unchecked the <b>Output Parameters...</b> is enabled and the upcoming
+                dialog lets you edit the output parameters like
+                easting and northing of the reference pixel, the pixel size and the scene height and width.
+            </p>
+
+            <p class="i1">
+                <b>Reproject tie-point grids:</b>
+                Specifies whether or not the tie-point grids shall be included. If they are reprojected they will appear
+                as bands in
+                the target product and not any more as tie-point grids.
+            </p>
+
+            <p class="i1">
+                <b>No-data value:</b>
+                The default no-data value is used for output pixels in the projected band which have either no
+                corresponding pixel
+                in the source product or the source pixel is invalid.
+            </p>
+
+            <p class="i1">
+                <b>Resampling Method:</b>
+                You can select one resampling method for the projection.
+                For a brief description have a look at Resampling
+                Methods.
+            </p>
+
+            <h5>Output Information</h5>
+
+            <p class="i1">
+                Displays some information about the output, like scene width and height, the geographic coordinate of
+                the scene center and short description of the selected CRS.<br>
+                When clicking the <b>Show WKT...</b> button the corresponding Well-Known Text of the currently defined
+                CRS is shown.
+            </p>
+<hr>
+</body></html>

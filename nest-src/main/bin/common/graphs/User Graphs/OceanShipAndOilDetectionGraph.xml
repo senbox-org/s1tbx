@@ -1,0 +1,103 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters>
+      <file></file>
+    </parameters>
+  </node>
+  <node id="2-Create-LandMask">
+    <operator>Create-LandMask</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+        <band>Amplitude</band>
+      </sourceBands>
+      <landMask>true</landMask>
+	  <geometry></geometry>
+	  <invertGeometry>false</invertGeometry>
+	  <byPass>false</byPass>
+    </parameters>
+  </node>
+  <node id="3-AdaptiveThresholding">
+    <operator>AdaptiveThresholding</operator>
+    <sources>
+      <sourceProduct refid="2-Create-LandMask"/>
+    </sources>
+    <parameters>
+      <targetWindowSizeInMeter>75</targetWindowSizeInMeter>
+      <guardWindowSizeInMeter>400.0</guardWindowSizeInMeter>
+      <backgroundWindowSizeInMeter>1000.0</backgroundWindowSizeInMeter>
+      <pfa>6.5</pfa>
+    </parameters>
+  </node>
+  <node id="4-Object-Discrimination">
+    <operator>Object-Discrimination</operator>
+    <sources>
+      <sourceProduct refid="3-AdaptiveThresholding"/>
+    </sources>
+    <parameters>
+      <minTargetSizeInMeter>80.0</minTargetSizeInMeter>
+      <maxTargetSizeInMeter>400.0</maxTargetSizeInMeter>
+    </parameters>
+  </node>
+  <node id="5-Oil-Spill-Detection">
+    <operator>Oil-Spill-Detection</operator>
+    <sources>
+      <sourceProduct refid="4-Object-Discrimination"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+        <band>Amplitude</band>
+      </sourceBands>
+      <backgroundWindowSize>61</backgroundWindowSize>
+      <k>2.0</k>
+    </parameters>
+  </node>
+  <node id="6-Oil-Spill-Clustering">
+    <operator>Oil-Spill-Clustering</operator>
+    <sources>
+      <sourceProduct refid="5-Oil-Spill-Detection"/>
+    </sources>
+    <parameters>
+      <minClusterSizeInKm2>0.1</minClusterSizeInKm2>
+    </parameters>
+  </node>
+  <node id="8-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="6-Oil-Spill-Clustering"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>ship_and_oill_spill_result.dim</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description>Chain to process object and oil spill detection on products over ocean.</Description>
+    <node id="1-Read">
+      <displayPosition y="23.0" x="27.0"/>
+    </node>
+    <node id="2-Create-LandMask">
+      <displayPosition y="23.0" x="123.0"/>
+    </node>
+    <node id="3-AdaptiveThresholding">
+      <displayPosition y="74.0" x="112.0"/>
+    </node>
+    <node id="4-Object-Discrimination">
+      <displayPosition y="119.0" x="112.0"/>
+    </node>
+    <node id="5-Oil-Spill-Detection">
+      <displayPosition y="164.0" x="120.0"/>
+    </node>
+    <node id="6-Oil-Spill-Clustering">
+      <displayPosition y="205.0" x="119.0"/>
+    </node>
+    <node id="8-Write">
+      <displayPosition y="205.0" x="263.0"/>
+    </node>
+  </applicationData>
+</graph>

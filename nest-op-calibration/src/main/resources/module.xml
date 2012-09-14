@@ -1,0 +1,107 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>nest-op-calibration</symbolicName>
+    <version>5.0</version>
+    <name>NEST Calibration Operator</name>
+    <description>NEST Calibration Operator</description>
+	
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2012 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>European Space Agency</funding>
+
+    <dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
+    <dependency>
+        <module>beam-envisat-reader</module>
+    </dependency>
+    <dependency>
+        <module>nest-io</module>
+    </dependency>
+
+    <categories>VISAT,Processing</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>Calibration</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Radiometric Correction</text>
+            <parent>sartools</parent>
+        </action>
+
+        <action>
+	        <id>CalibrationOp</id>
+	        <helpId>CalibrationOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Calibration</parent>
+	        <text>Calibrate</text>
+	        <dialogTitle>Calibration</dialogTitle>
+            <shortDescr>Invoke the Calibration operator</shortDescr>
+            <operatorName>Calibration</operatorName>
+            <targetProductNameSuffix>_Calib</targetProductNameSuffix>
+        </action>
+
+        <action>
+	        <id>RemoveAntennaPatternOp</id>
+	        <helpId>RemoveAntennaPatternOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Calibration</parent>
+	        <text>Remove Antenna Pattern</text>
+	        <dialogTitle>Remove Antenna Pattern</dialogTitle>
+            <shortDescr>Remove the Antenna Pattern for ASAR and ERS products</shortDescr>
+            <operatorName>RemoveAntennaPattern</operatorName>
+            <targetProductNameSuffix>_-AntPat</targetProductNameSuffix>
+            <placeAfter>CalibrationOp</placeAfter>
+        </action>
+
+        <action>
+            <id>importXCAProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ENVISAT</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>View ASAR XCA Product</text>
+            <shortDescr>Import an ENVISAT External Calibration.</shortDescr>
+            <description>Import an ENVISAT External Calibration.</description>
+            <parent>Calibration</parent>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <separatorBefore>true</separatorBefore>
+            <placeAfter>Sigma0toBeta0</placeAfter>
+        </action>
+
+        <action>
+            <id>Sigma0toGamma0</id>
+            <class>org.esa.nest.dat.Sigma0toGamma0Action</class>
+            <text>Sigma0 to Gamma0</text>
+            <shortDescr>Add a Gamma0 virtual band</shortDescr>
+            <parent>Calibration</parent>
+            <placeAfter>RemoveAntennaPatternOp</placeAfter>
+            <context>band</context>
+            <helpId>Sigma0toGamma0</helpId>
+        </action>
+
+        <action>
+            <id>Sigma0toBeta0</id>
+            <class>org.esa.nest.dat.Sigma0toBeta0Action</class>
+            <text>Sigma0 to Beta0</text>
+            <shortDescr>Add a Beta0 virtual band</shortDescr>
+            <parent>Calibration</parent>
+            <placeAfter>Sigma0toGamma0</placeAfter>
+            <context>band</context>
+            <helpId>Sigma0toBeta0</helpId>
+        </action>
+
+    </extension>
+	
+	<extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+			<id>calibrationHelp</id>
+            <path>doc/help/calibration.hs</path>
+        </helpSet>
+    </extension>
+</module>

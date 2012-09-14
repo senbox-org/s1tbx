@@ -1,0 +1,83 @@
+<html>
+<head>
+    <title>Help - Import AVHRR/3</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp; Import AVHRR/3</td>
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border=0></a></td>
+    </tr>
+</table>
+
+<h3>Import AVHRR/3</h3>
+
+<p>The NOAA AVHRR/3 reader enables DAT to import NOAA AVHRR/3 HRPT and AVHRR/3 LAC Level-1b data
+    products.</p>
+
+<p class="inote"><b>Note: </b>The AVHRR/3 reader is implemented in line with the "NOAA KLM user's
+    guide" (<a href="http://www2.ncdc.noaa.gov/doc/klm/">http://www2.ncdc.noaa.gov/doc/klm/</a>) and
+    is capable of reading data products in version v2 to v4.</p>
+
+<p class="inote"><b>Note: </b>
+    A good source for AVHRR/3 data products is <a href="http://www.class.noaa.gov/">http://www.class.noaa.gov/</a>
+</p>
+
+<h4>Data Calibration</h4>
+
+<p>While AVHRR pixel data is read into memory it is calibrated on the fly. Scan lines with
+    calibration errors are detected and corresponding sample values are set to a special no-data-value.
+    DAT will excludes those no-data-values from pixels statistics and displays them in a separate
+    image overlay.</p>
+
+<h4>Features</h4>
+
+<p>The AVHRR/3 reader supports data products from the NOAA -15, -16, -17, and -18, as well as from
+    the NOAA-N' satellites. The following features characterize the reader:</p>
+<ul>
+    <li>autodetection of the existence of an Archive Retrieval System (ARS) Header Record.</li>
+    <li>autodetection of products in 8 bit, 10 bit and 16 bit format, as long as they contain all 5
+        AVHRR bands.</li>
+    <li>autodetection whether band 3a or band 3b or both are present in a single scene.</li>
+    <li>reading of products which contain AVHRR/3 Local Area Coverage (LAC) and High Resolution
+        Picture Transmission (HRPT) data sets.</li>
+    <li>reading extensive Metadata from the header record.</li>
+    <li>calibrating the raw values by applying calibration coefficients contained in the metadata.</li>
+    <li>reading different quality flags.</li>
+    <li>setting the no data value, if either the data or the calibration coefficients are invalid.</li>
+    <li>geolocating the data products according to the given navigation data (solar zenith angle,
+        satellite zenith angle, relative azimuth angle, latitude, longitude).</li>
+    <li>setting the start and end date of the data acquisition.</li>
+</ul>
+
+<p>
+    From Format version 4, which is produced since 25 January 2006 (see <a
+        href="http://www.osdpd.noaa.gov/PSB/PPP/notices/notice_files/jan2506.html">http://www.osdpd.noaa.gov/PSB/PPP/notices/notice_files/jan2506.html</a>),
+    the product contains the CLAVR-x&nbsp; (<u><b>Cl</b></u>ouds from <u><b>AV</b></u>HR<b><u>R</u></b>
+    E<b><u>x</u></b>tended cloud mask) cloud band. A draft of the CLAVR-x cloud mask
+    theoretical basis document can be found at
+    <a href="http://cimss.ssec.wisc.edu/clavr/clavrx_docs/clavrx_mask_atbd.pdf">http://cimss.ssec.wisc.edu/clavr/clavrx_docs/clavrx_mask_atbd.pdf</a>
+    .<br>
+</p>
+
+<p>The reader has been tested with products obtained from the NOAA CLASS server which conforms to
+    the format version 2 used for the NOAA -15, -16 and -17 satellites. Recently, NOAA has changed to
+    the new version 3 format. The AVHRR/3 reader already supports both existing 10-bit packed
+    format versions. AVHRR/3 data products can optionally have an Archive Retrieval System (ARS) Header
+    Record. If this header is present, it is automatically detected by the reader. In particular, the
+    AVHRR/3 reader implementation has the following features:</p>
+<ol>
+    <li>Read geometry data at tie-points.</li>
+    <li>Provide geometry data at pixels using interpolation.</li>
+    <li>Read raw counts and calibrate them to geo-physical values for all spectral channels.</li>
+    <li>Channel 3a/3b usage detection.</li>
+</ol>
+
+<hr>
+</body>
+</html>
+

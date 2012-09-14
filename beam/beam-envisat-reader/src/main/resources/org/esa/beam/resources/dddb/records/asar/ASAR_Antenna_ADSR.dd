@@ -1,0 +1,7 @@
+ASAR_Antenna_ADSR|Antenna Elevation patterns(s)|*
+#
+zero_doppler_time|@/types/UTC.dd        |MJD  |12|1|*|Zero Doppler azimuth time at which pattern applies|1|
+attach_flag      |UChar                 |flag | 1|1|*|Attachment Flag (always set to zero for this ADSR)|2|
+beam_id          |String                |ascii| 3|1|*|Beam ID to which pattern applies SS1 to SS5 or NS&Oslash;|3|
+elevation_pattern|@+ASAR_Antenna_ADSR.sd/elevation_pattern.dd|*    | *|1|*|Antenna Elevation Pattern|4|
+spare_1          |Spare                 |*    |14|1|*|Spare|5|

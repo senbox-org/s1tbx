@@ -1,0 +1,652 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+    
+    
+  
+  <title>Help - The Preferences Dialog</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+
+<table class="header">
+
+    <tbody>
+    <tr class="header">
+
+        <td class="header">&nbsp; The Preferences Dialog</td>
+
+
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<p> On the left side of the Preferences dialog window you can see a thematical
+    tree where you can select the context of the settings you want to change. In
+    the following example, a screen shot is shown where the settings for the user
+    interface behavior can be edited.<br>
+
+    <br>
+
+
+</p>
+<p align="center"><img src="images/PreferencesDialog.jpg" border="0"></p>
+
+
+
+<h4><a name="uibehavior">UI Behavior</a></h4>
+
+
+<p>This preferences page contains general user interface behavior and memory
+    management settings.</p>
+
+<ul>
+
+    <li><b>Show navigation window when image views are opened</b><br>
+
+        If an image view is opened the <a href="NavigationWindow.html">navigation window</a>
+        will also be opened.
+    </li>
+
+    <li><b>Open image view for new (virtual) bands</b><br>
+
+        Currently, this option only affects the <a href="BandArithmetics.html">band
+        arithmetic tool</a>. If this option is selected, a new image view is automatically
+        created and opened for any new bands created in the band arithmetic tool.
+    </li>
+
+    <li><b>Show only pixel values of loaded or displayed bands</b><br>
+
+        If selected, the pixel info view will only show pixel values of bands which have their raster data completely
+        loaded into memory or which are currently displayed as an image. If this option is not selected,
+        DAT displays <b>all</b> bands contained in a product.
+        For those bands which are not loaded, DAT reads the sample values directly
+        from the product file. Depending on your computer's I/O performance and the
+        location of the product file (e.g., CD-ROM, harddrive, network) this can have
+        an impact on DAT's runtime performance.
+    </li>
+
+
+
+    <li><b>On product open, warn if product size exceeds</b> <br>
+
+        If a product being opened has a file size greater than the size put in here,
+        then DAT asks you whether or not you want to create a spectral or spatial
+        subset of this product in order to reduce the required memory.
+    </li>
+
+    <li><b>On low memory, warn if free RAM falls below</b><br>
+
+        Here you can enter a value in megabytes, which uses DAT to decide to pop-up
+        a low memory message box. Set this value to zero, if you don't want to get
+        any warnings.
+    </li>
+
+    <li><b>On image open, load raster data only if size is below</b><br>
+
+        The value entered here is the number of megabytes a band's raster can have so that it is completely loaded into
+        memory before the image is displayed. If raster data is completely loaded into memory, DAT can perform
+        many computations much faster.
+        If you set this value to zero, DAT will never load and store raster data in memory for image
+        creation and will reload missing raster data from the product file any time it needs it.
+    </li>
+
+    <li><b>Un-load raster data when closing images</b><br>
+
+        In order to display images, DAT holds a raster data buffer which contains
+        the geophysical measurement values for the tie point grid or band being displayed.
+        Depending on the product size, these buffers require huge amounts of memory.
+        After these buffers have been un-loaded and an image view is opened again
+        for the same band, DAT needs to reallocate the buffer memory and to read
+        the data from disk again.
+    </li>
+
+
+
+    <li><b>Check for new version on DAT start</b><br>
+
+        Checks on application start, if a new version of DAT is available.
+    </li>
+
+    <li><b>Show all suppressed tips and messages again</b> <br>
+
+        Some dialogs of DAT can be disabled by checking the option "Don't show
+        this message again". You can select this option to enable all message and tip dialog boxes again.
+    </li>
+
+</ul>
+
+
+
+<h4><a name="uiappearance">UI Appearance</a></h4>
+
+<ul>
+
+    <li><b>UI Font:</b><br>
+
+        Sets DAT user interface font name and size.
+    </li>
+
+    <li><b>UI Look and Feel:</b><br>
+
+        Lets you select the appearance (Look and Feel) of the user interface of DAT.
+    </li>
+
+</ul><h4><a name="productsettings">Product Settings</a></h4>
+
+
+<ul>
+
+    <li><b>Consider products as spatially compatible, if their geo-locations differ less than</b><br>
+
+        This value affects the product compatibility check performed by the band arithmetic tool.
+        The check is performed in order to decide which bands from which products can be used as
+        data source in a band arithmetic expression. The value must be given in degrees. Use small values,
+        e.g., 0.0001 degrees, to perform a high accuracy check. This will ensure that products completely overlap
+        each other in space.
+    </li>
+
+</ul>
+
+
+<h4><a name="geolocationdisplay">Geo-location Display</a></h4>
+
+
+<p>
+    DAT uses an image coordinate system whose origin (x=0, y=0) is the upper left corner of the
+    upper left pixel. Image X-coordinates increase to the right, Y-values increase downwards.
+    The center of the pixel in the origin is then located at (x=0.5, y=0.5).
+</p>
+
+<ul>
+
+    <li><b>Relative pixel-X/Y offset</b><br>
+
+        Defines a relative offset used to display image coordinates and associated geo-location information.
+        Note that the offset is exclusively used for coordinate value display; it does not affect the geo-coding
+        information associated with a data product.
+    </li>
+
+    <li><b>Show floating-point image coordinates</b><br>
+
+        Select this option to display image coordinates as floating point values, e.g., in the
+        geo-location section of the <a href="ProductBrowser.html#pixelView">pixel info view</a>. If not selected,
+        image coordinates are displayed as integer values.
+    </li>
+
+
+</ul>
+
+
+
+<h4><a name="dataio">Data Input/Output</a></h4>
+
+<ul>
+
+    <li><b>Save product header (MPH, SPH)</b><br>
+
+        This options allows you to include/exclude the main product header (MPH) and
+        specific product header (SPH) of ENVISAT products in/from the file being saved.
+        If this option is selected, DAT stores the MPH and SPH as meta-data in the
+        BEAM-DIMAP (XML) header.<br>
+
+        It is recommended to always include this meta data.
+    </li>
+
+    <li><b>Save product history (History)</b><br>
+
+        This option switches the saving of the processing history of the product on
+        or off. It is recommended to always include this meta data to be able to track
+        the processing stages and the original product.
+    </li>
+
+    <li><b>Save product annotation data sets (ADS)</b><br>
+
+        This options allows you to include/exclude all annotation data sets (ADS) of
+        ENVISAT products in/from the file being saved. If this option is selected,
+        DAT stores ADS as meta-data in the BEAM-DIMAP (XML) header.<br>
+
+        For ENVISAT products, location and annotation data sets (provided at tie-points)
+        need not to be stored as meta data, since DAT automatically converts them
+        into <i>tie point grids</i>, which are separately saved.
+    </li>
+
+    <li><b>Use incremental Save</b><br>
+
+        If this option is selected (recommended), DAT will only save the modifications
+        applied to a product, such as bands modified or created with band arithmetic
+        tool or the removal of bands. Otherwise, a save operation will always write the entire product.&nbsp;
+    </li>
+
+</ul>
+
+
+<h4><a name="layerproperties">Layer Properties -&gt;</a> </h4>
+
+<ul>
+
+    <li><b>Use anti-aliasing for rendering text and vector graphics</b><br>
+
+        If this option is selected, DAT uses anti-aliasing to smooth vector graphics
+        within image views.
+    </li>
+
+</ul>
+
+<h4><a name="imagedisplay">Image Display</a></h4>
+
+<ul>
+
+    <li><b>Interpolation method </b><br>
+
+        Here you can choose how neighbouring pixel colours are interpolated. Choose
+        
+    <ul>
+
+            <li><em>Nearest Neighbour</em> to prevent colours from being mixed,</li>
+
+            <li><em>Bi-linear</em> or <em>Bi-Cubic</em> to smooth the image.</li>
+
+        
+    </ul>
+
+    </li>
+
+</ul>
+
+
+<p class="inote">Note: choosing other than Nearest Neighbour may slow down image handling. But: on Mac OS X,&nbsp;Bi-linear
+    is the System Default and therefore fastest. </p>
+
+
+<ul>
+
+    <li><b>Tile cache capacity</b><br>
+
+        The amount of memory the image tile cache can allocate. Allocating more memory can improve the speed of the
+        image processing.
+    </li>
+
+</ul>
+
+
+<ul>
+
+    <li><b>Background colour</b><br>
+
+        Choose a background colour for the image displayed in the <a href="ProductSceneView.html">image view</a>.
+    </li>
+
+    <li><b>Show image border </b><br>
+
+        Here you can specify if an image border should be visible in the <a href="ProductSceneView.html">image view</a>.
+        If yes, you can also set the border size and colour.
+    </li>
+
+    <li><b>Show pixel border in magnified views </b><br>
+
+        Define whether a border should be drawn around a pixel under magnification when the mouse cursor points at it.
+    </li>
+
+</ul>
+
+<h4><a name="nodataoverlay">No-data overlay</a></h4>
+
+
+<p>This preferences page provides options to customize DAT's <a href="NoDataOverlay.html">no-data overlay</a>.</p>
+
+<ul>
+
+    <li><b>Color:</b><br>
+
+        Sets the fill colour of a ROI.
+    </li>
+
+    <li><b>Transparency:</b><br>
+
+        Sets the transparency of a filled ROI.
+    </li>
+
+</ul>
+
+
+<h4><a name="graticuleoverlay">Graticule Overlay</a></h4>
+
+
+<p>This preferences page provides options to customize DAT's graticule overlay.</p>
+
+<ul>
+
+    <li><b>Grid behaviour:</b>
+        
+    <ul>
+
+            <li><b>Compute latitude and longitude steps</b><br>
+
+                The step size of the grid lines will be computed automatically.
+            </li>
+
+            <li><b>Average grid size in pixels</b><br>
+
+                Defines the size in pixels of the grid cells.
+            </li>
+
+            <li><b>Latitude step (dec. degree):</b><br>
+
+                Sets the grid latitude step in decimal degrees.
+            </li>
+
+            <li><b>Longitude step (dec. degree):</b><br>
+
+                Sets the grid longitude step in decimal degrees.
+            </li>
+
+        
+    </ul>
+
+    </li>
+
+
+    <li><b>Line appearance:</b>
+        
+    <ul>
+
+            <li><b>Line colour:</b><br>
+
+                Sets the colour of the grid lines.
+            </li>
+
+            <li><b>Line width:</b><br>
+
+                Sets the width of the grid lines.
+            </li>
+
+            <li><b>line transparency:</b><br>
+
+                Sets the transparency of the grid lines.
+            </li>
+
+        
+    </ul>
+
+    </li>
+
+
+    <li><b>Text appearance:</b>
+        
+    <ul>
+
+            <li><b>Show text labels:</b><br>
+
+                Sets the visibility of the text labels.
+            </li>
+
+            <li><b>Text foreground colour:</b><br>
+
+                Sets the colour of the graticule text (latitude and longitude values).
+            </li>
+
+            <li><b>Text background colour:</b><br>
+
+                Sets the background colour of the graticule text (latitude and longitude values).
+            </li>
+
+            <li><b>Text background transparency:</b><br>
+
+                Sets the transparency of the background colour of the graticule text.
+            </li>
+
+        
+    </ul>
+
+
+    </li>
+
+</ul>
+
+
+
+<h4><a name="pinOverlay">Pin Overlay</a></h4>
+
+
+<p>This preferences page provides options to customize DAT's pin overlay.</p>
+
+<ul>
+
+    <li><b>Show text labels:</b><br>
+
+        Shows the labels of the displayed pins.
+    </li>
+
+    <li><b>Text foreground layer:</b><br>
+
+        Sets the foreground colour of the labels.
+    </li>
+
+    <li><b>Text background layer:</b><br>
+
+        Sets the background colour for the labels.
+    </li>
+
+    <li><b>Text background transparency:</b><br>
+
+        Sets the transparency of the background for the labels.
+    </li>
+
+</ul>
+
+
+
+<h4><a name="gcpOverlay">GCP Overlay</a></h4>
+
+
+<p>This preferences page provides options to customize DAT's GCP overlay.</p>
+
+<ul>
+
+    <li><b>Show text labels:</b><br>
+
+        Shows the lables of the displayed GCPs.
+    </li>
+
+    <li><b>Text foreground layer:</b><br>
+
+        Sets the foreground colour of the labels.
+    </li>
+
+    <li><b>Text background layer:</b><br>
+
+        Sets the background colour for the labels.
+    </li>
+
+    <li><b>Text background transparency:</b><br>
+
+        Sets the transparency of the background for the labels.
+    </li>
+
+</ul>
+
+
+
+<h4><a name="shapefigureoverlay">Shape Figure Overlay </a></h4>
+
+
+<p>This preferences page provides options to customize DAT's shape overlay.</p>
+
+<ul>
+
+    <li><b>Outline appearance:</b>
+        
+    <ul>
+
+            <li><b>Outline shape</b><br>
+
+                If selected, the outline of a ROI is also drawn.
+            </li>
+
+            <li><b>Shape outline colour:</b><br>
+
+                Sets the colour of a shape's outline.
+            </li>
+
+            <li><b>Shape outline transparency:</b><br>
+
+                Sets the transparency of a shape's outline. Low values produce high coverage.
+            </li>
+
+            <li><b>Shape outline width:</b><br>
+
+                Sets the width of a ROI's outline.
+            </li>
+
+        
+    </ul>
+
+    </li>
+
+
+    <li><b>Fill appearance:</b>
+        
+    <ul>
+
+            <li><b>Fill shape</b><br>
+
+                If selected, the shape area is also drawn.
+            </li>
+
+            <li><b>Shape fill colour:</b><br>
+
+                Sets the colour of a shape's area.
+            </li>
+
+            <li><b>Shape fill transparency:</b><br>
+
+                Sets the transparency of a shape's area. Low values produce high coverage.
+            </li>
+
+        
+    </ul>
+
+    </li>
+
+</ul>
+
+
+<h4><a name="roioverlay">ROI Overlay</a></h4>
+
+
+<p>This preferences page provides options to customize DAT's ROI overlay.</p>
+
+<ul>
+
+    <li><b>Color:</b><br>
+
+        Sets the fill colour of a ROI.
+    </li>
+
+    <li><b>Transparency:</b><br>
+
+        Sets the transparency of a filled ROI.
+    </li>
+
+</ul>
+
+
+
+<h4><a name="rgbprofiles">RGB Profiles</a></h4>
+
+
+<p>This preference page is used to edit the RGB profiles used for RGB image creation
+    from various product types. A RGB-Profile defines the arithmetical band expressions
+    to be used for the red, green and blue components of an RGB image.
+    For detailed information about RGB-Profiles please refer to the chapter
+    <a href="RGBImageProfile.html">RGB-Image Profile</a> located at <i>DAT/Tools/Imaging Tools</i>
+</p>
+
+<b>Profile</b> Lets you Select one of the actual stored RGB-Profiles to use for creation of the new image view.
+<ul>
+
+    <li>Use the <img src="images/icons/Open24.gif" alt="Open" border="0"> to open a stored
+        <a href="RGBImageProfile.html#profileFile">RGB-Profile file</a>.
+    </li>
+
+    <li>Use the <img src="images/icons/Save24.gif" alt="Save" border="0"> to save the currently displayed RGB-Profile.
+    </li>
+
+    <li>Use the <img src="images/icons/Remove24.gif" alt="Remove" border="0"> to delete the currently displayed
+        RGB-Profile.
+    </li>
+
+</ul>
+
+<b>RGB Channels</b>
+<ul>
+
+    <li><b>Red</b> - Defines the arithmetical expression for the red channel.<br>
+  </li>
+
+    <li><b>Green</b> - Defines the arithmetical expression for the green channel.<br>
+  </li>
+
+    <li><b>Blue</b> - Defines the arithmetical expression for the blue channel.<br>
+  </li>
+
+</ul>
+
+
+<p>Use the <img src="images/icons/NextDialogButton.gif" alt="Opens the Arithmetic Expression Editor" border="0"> to
+    to edit the expression for the specific channel by using the <a href="ExpressionEditor.html">expression editor</a>.
+</p>
+
+
+
+<p class="inote"><b>Note: </b>
+    The arithmetical expressions are not validated by DAT; keep careful to use the correct syntax.<br>
+
+    Please refer to the <a href="ExpressionEditor.html">Arithmetic Expression Editor</a>
+    documentation for the syntax and capabilities of expressions. <br>
+
+</p>
+
+
+<h4><a name="logging">Logging</a></h4>
+
+
+<p>This preferences page provides options to customize DAT's logging behavior.</p>
+
+<ul>
+
+    <li><b>Enable logging</b><br>
+
+        If this option is selected, DAT writes a log file which can be used to reconstruct
+        user interactions and to trace system failures.
+    </li>
+
+    <li><b>Log filename prefix:</b><br>
+
+        Here you can enter a prefix for the log file name. The disk file name will
+        be assembled using this prefix plus a log file version number and an identification
+        number. Log files are always written in the folder <b>log</b>
+located in the NEST user directory. Under windows, this folder would be
+c:\Document and Settings\user\.nest\. Under Linux, this folder would be
+/home/user/.nest/.</li>
+
+    <li><b>Echo log output (effective only with console)</b><br>
+
+        If DAT is started with a text console window using the <b><i>%NEST_HOME%</i>/DAT.bat</b> (Windows) or
+        <b><i>$NEST_HOME</i>/DAT.sh</b> (Linux)
+        scripts, the log file entries are also printed out to the console window.
+    </li>
+
+    <li><b>Log extra debugging information</b><br>
+
+        Sets DAT into the debugging mode which can be helpful to find software bugs.
+    </li>
+
+</ul>
+
+
+
+<hr>
+</body></html>

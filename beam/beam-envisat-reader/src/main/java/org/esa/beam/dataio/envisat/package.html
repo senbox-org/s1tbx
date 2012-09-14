@@ -1,0 +1,233 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+    <TITLE>org.esa.beam.dataio.envisat</TITLE>
+    <!--
+
+      $Id: package.html,v 1.1 2006/09/18 06:34:33 marcop Exp $
+
+      Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+
+      This program is free software; you can redistribute it and/or modify it
+      under the terms of the GNU General Public License as published by the
+      Free Software Foundation. This program is distributed in the hope it will
+      be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+      of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+      See the GNU General Public License for more details.
+
+    -->
+</HEAD>
+
+<BODY bgColor=white>
+
+Provides an implementation for the ENVISAT product reader plug-in and defines several
+stand-alone classes for the direct access of ENVISAT data products.
+
+<H3>ENVISAT Product Reader Plug-in</H3>
+
+<p>The ENVISAT product reader is implemented by two classes
+<OL>
+    <LI>{@link org.esa.beam.dataio.envisat.EnvisatProductReaderPlugIn} - The plug-in which serves as a factory for
+        the actual reader
+    <LI>{@link org.esa.beam.dataio.envisat.EnvisatProductReader} - The "worker" class doing the reading, one
+        instance per product file
+</OL>
+
+<p>The "normal" way to obtain an instance of an ENVISAT product reader through the
+    product I/O framework of the MERIS/(A)ATSR Toolbox is very simple:
+
+<pre>
+    // Get a reader instance for the ENVISAT format
+    ProductReader reader = ProductIO.getReader("ENVISAT");
+</pre>
+
+<p>Once the reader is obtained the product can be read into memory:
+
+<pre>
+    // Read the product, no subset given
+    Product product = reader.readProduct("E:/data/MERIS/L1B/MER_FR__1P.prd", null);
+</pre>
+
+<p><I>Important</I>: The product I/O framework does not automatically load the raster data
+    of geophysical bands contained in the product. This must be done explicitely. In the
+    following code snippet an entire band is loaded:
+
+<pre>
+    // get the band named radiance_2
+    RsBand band = product.getBand("radiance_2");
+    // load the entire band
+    Raster raster = band.loadData();
+    // ... do something with the raster data in 'raster'
+</pre>
+
+<p>If just a portion of a band is desired, e.g. in order to read a band line-by-line,
+    the product reader should be used instead:
+
+<pre>
+    // Create a raster for a single scan line.
+    Raster lineRaster = band.createCompatibleRaster(new Rectangle(0, 0, band.getWidth(), 1));
+    float[] lineData = ((DataBufferFloat) lineRaster.getDataBuffer()).getData();
+    // The offset where reading begins (in the data product's pixel co-ordinates)
+    Point offset = new Point(0, 0);
+    // Read line-by-line
+    for (int y = 0; y &lt; band.getHeight(); y++) {
+    offset.y = y;
+    // The next read call modifies the contents in 'lineData'
+    reader.readBandData(band, lineRaster, offset);
+    // ... do something with the data in 'lineData'
+    }
+</pre>
+
+<p>The {@link org.esa.beam.dataio.envisat.EnvisatProductReader} class implements the {@link
+    org.esa.beam.framework.dataio.ProductReader}
+    interface by delegating low level read operations to an instance of the {@link
+    org.esa.beam.dataio.envisat.ProductFile} class.
+    Developers can also use <code>ProductFile</code> class directly in order to access ENVISAT
+    product files. There is no need to use use the product I/O framework.
+
+<H3>Direct Product File Access (doing it without the product I/O framework)</H3>
+
+<p>The classes in this package provide direct reading of ENVISAT data in two different ways:
+<OL>
+    <LI>Raw data access - data is read in its raw and native form, without applying any modifications to it.
+    <LI>Geophysical data access - data is first read in its raw form, but then decoded and scaled
+        in order to retrieve the true geophysical parameters in their actual physical units. Tie point
+        datasets are used to create additional geophysical parameters. A band created from tie points
+        has the same resolution as the other bands - pixels are retrieved by linear interpolation
+        between four tie points.
+</OL>
+
+<H4>Raw Data Access</H4>
+
+<p>The starting point in both cases is the <code>ProductFile</code> class. It has a static method which
+    allows to open a data product file. From the opened product file a record reader for raw data access
+    can be obtained for each of the datasets contained in the product. The record reader is - as the name says -
+    used to read single records. Records are again composed of fields carrying the data. Each field can have
+    multiple data elements stored in an native array type. For example, in ENVISAT products all samples of a
+    scan line are stored in a single field as part of a measurement dataset record ('MDSR' in ENVISAT
+    terminology). The following code snipped shows how to read a measurement dataset in it's raw form
+    record-by-record:
+
+<pre>
+    ProductFile file = ProductFile.open("E:/data/MERIS/L1B/MER_FR__1P.prd");
+    RecordReader reader = file.getRecordReader("Norm._rho_surf_-_MDS(2)");
+    // Pre-create a record with a well defined structure
+    Record record = reader.createCompatibleRecord();
+    // Process all records
+    int n = reader.getNumRecords();
+    for (int i = 0; i &lt; n; i++) {
+    // Read the record from the file
+    reader.readRecord(i, record);
+    // we know from the ENVISAT spec., samples are stored in the 3rd field
+    Field field = record.getFieldAt(2);
+    // we know from the ENVISAT spec., samples are stored as 2241 (unsigned) 16-bit values
+    short[] samples = (short[]) field.getData();
+    // ... do something with the data
+    }
+</pre>
+
+In this example we pre-created the record before we read data into it. By passing this record
+to the <code>reader.readRecord()</code> method it gets recycled, and the field data is
+overwritten each time the method is called. If record data should remain in the fields,
+new records should be created for each read call: Then, replace the
+<pre>
+    reader.readRecord(i, record);
+</pre>
+by the non-recycling call
+<pre>
+    record = reader.readRecord(i, null);
+</pre>
+
+Now, each time the method is called a new record is created, read-in and returned.
+
+<H4>Geophysical Data Access</H4>
+
+Geophysical data is read into Java's in-build {@link java.awt.image.WritableRaster WritableRaster}s. As for raw data,
+first the file is opened using the static <code>ProductFile.open</code> method. But this time a <tag>BandReader</tag>
+is used instead of a <tag>RercordReader</tag>. Then, a raster compatible for the desired band is created and data
+finally read into it. The following snippet shows this programming model:
+
+<pre>
+    ProductFile file = ProductFile.open("E:/data/MERIS/L1B/MER_FR__1P.prd");
+    BandReader reader = file.getBandReader("radiance_2");
+    // Create a raster covering the entrire product scene
+    Raster raster = reader.createCompatibleRaster();
+    readBandRaster(raster, null, 1, 1);
+    float[] data = ((DataBufferFloat) raster.getDataBuffer()).getData();
+    // ... do something with the data in 'data'
+    file.close();
+</pre>
+
+
+Reading the complete band is not often the best choice, particulary if multiple
+huge band rasters have to be processed. The one should consider reading the band
+line by line as shown in the following example:
+
+<pre>
+    ProductFile file = ProductFile.open("E:/data/MERIS/L1B/MER_FR__1P.prd");
+    int sceneWidth = file.getNumColumns();
+    int sceneHeight = file.getNumLines();
+    BandReader reader = file.getBandReader("radiance_2");
+    // Define the area from which to read (in the product's pixel co-ordinates)
+    Rectangle sourceArea = new Rectangle(0, 0, sceneWidth, 1);
+    // Create a raster covering one single scan line
+    WritableRaster lineRaster = reader.createCompatibleRaster(sourceArea, 1, 1);
+    float[] lineData = ((DataBufferFloat) lineRaster.getDataBuffer()).getData();
+    for (int y = 0; y &lt; sceneHeight; y++) {
+    sourceArea.y = y;
+    // The next read call modifies the contents in 'lineData'
+    reader.readBandRaster(lineRaster, sourceArea, 1, 1);
+    // ... do something with the data in 'lineData'
+    }
+    file.close();
+</pre>
+
+<H2>Package Specification</H2>
+(none)
+
+<H2>Related Documentation </H2>
+
+For more general information about the ENVISAT data format please refer to the <A
+        href="http://envisat.esa.int/dataproducts/product-concept.html">ENVISAT Data Product Concept </A>
+in the web.
+
+<p>This implementation of the data product reading algorithms are based on the internal ESA documents
+    describing the <i>ENVISAT-1 PRODUCT SPECIFICATION (PO-RS-MDA-GS-2009)</i> as part of the ENVISAT
+    payload data segment:
+
+    <LD>
+        <LI><i>VOLUME 5: PRODUCT STRUCTURES</i>
+        <LI><i>VOLUME 7: AATSR PRODUCT SPECIFICATION</i>
+        <LI><i>VOLUME 11: MERIS PRODUCT SPECIFICATION</i>
+    </LD>
+
+    @see org.esa.beam.framework.dataio.ProductReader
+    @see org.esa.beam.framework.datamodel.Product
+    @see org.esa.beam.framework.datamodel.Band
+
+    @see org.esa.beam.dataio.envisat.ProductFile
+    @see org.esa.beam.dataio.envisat.RecordReader
+    @see org.esa.beam.dataio.envisat.Record
+    @see org.esa.beam.dataio.envisat.Field
+    @see org.esa.beam.dataio.envisat.BandLineReader
+    @see java.awt.Rectangle
+    @see java.awt.image.WritableRaster
+
+</BODY>
+</HTML>

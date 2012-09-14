@@ -1,0 +1,6 @@
+standard_parallel_parameters|Standard Parallel parameters|*
+#
+para1|Float|deg|4|1|*|Standard parallel1, deg|36a|
+para2|Float|deg|4|1|*|Standard parallel2, deg|36b|
+para3|Float|deg|4|1|*|Standard parallel3, deg|36c|
+para4|Float|deg|4|1|*|Standard parallel4, deg|36d|

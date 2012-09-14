@@ -1,0 +1,122 @@
+ASAR_Wave_Param_ADSR|Wave Mode processing parameters|*
+#
+first_zero_doppler_time|@/types/UTC.dd|MJD|12|1|*|First Zero Doppler Azimuth time of MDS which this data set describesTime of first range line in the MDS described by this data set|1|
+attach_flag|UChar|flag|1|1|*|Attachment Flag (always set to zero for this ADSR)|2|
+last_zero_doppler_time|@/types/UTC.dd|MJD|12|1|*|Last Zero Doppler Azimuth time of MDS which this data set describesTime of last range line in the MDS described by this data set|3|
+work_order_id|String|ascii|12|1|*|Work Order ID (left-justified)|4|
+time_diff|Float|s|4|1|*|Time difference between sensing time of first input line and zero Doppler time of first output image line (tdelta). (TBC)May be used during child product extraction from a stripline product (TBC). Left blank (set to zero) for non-stripline products|5|
+swath_id|String|ascii|3|1|*|Swath number IS1, IS2, IS3, IS4, IS5, IS6, or IS7 for IM, WV and AP modes.Set to WS&Oslash; for WS and GM modes|6|
+range_spacing|Float|m|4|1|*|Range sample spacing|7|
+azimuth_spacing|Float|m|4|1|*|Azimuth sample spacing at image center|8|
+line_time_interval|Float|s|4|1|*|Azimuth sample spacing in time (Line Time Interval)|9|
+num_output_lines|ULong|lines|4|1|*|Number of output range lines in the image described by this ADS|10|
+num_samples_per_line|ULong|samples|4|1|*|Number of samples per output range line (includes zero filled samples)|11|
+data_type|String|ascii|5|1|*|Output data typeSWORD, UWORD, or UBYTE|12|
+spare_1|Spare|*|51|1|*|Spare|13|
+data_analysis_flag|UChar|flag|1|1|*|Raw Data Analysis used for Raw Data Correction 0 = correction done using default parameters1 = correction done using raw data analysis results|14|
+ant_elev_corr_flag|UChar|flag|1|1|*|Antenna Elevation Pattern Correction Applied 0 = no correction applied1 = correction applied|15|
+chirp_extract_flag|UChar|flag|1|1|*|reconstructed Chirp used 0 = nominal chirp replica used1 = reconstructed chirp used|16|
+srgr_flag|UChar|flag|1|1|*|Slant Range to Ground Range Conversion Applied0 = no conversion applied1 = conversion applied|17|
+dop_cen_flag|UChar|flag|1|1|*|Doppler Centroid Estimation Performed0 = no estimation done1 = estimation done|18|
+dop_amb_flag|UChar|flag|1|1|*|Doppler Ambiguity Estimation Performed0 = no estimate done1 = estimate done|19|
+range_spread_comp_flag|UChar|flag|1|1|*|Range-spreading loss compensation Applied0 = no compensation applied1 = compensation applied|20|
+detected_flag|UChar|flag|1|1|*|Detection Applied0 = output product is complex1 = output product was detected|21|
+look_sum_flag|UChar|flag|1|1|*|Look Summation Performed0 = product is single look1 = product is multi-looked|22|
+rms_equal_flag|UChar|flag|1|1|*|RMS Equalization performed 0= rms equalization not performed during FBAQ decoding, 1 = rms equalization performed during FBAQ decoding|23|
+ant_scal_flag|UChar|flag|1|1|*|Antenna Elevationscaling Factor applied 0= no scaling factor applied, 1 =  scaling factor applied|24|
+vga_com_echo_flag|UChar|flag|1|1|*|Receive Gain Droop Compensation applied to Echo. 0=no compression, 1=compensation applied.|24a|
+vga_com_cal_flag|UChar|flag|1|1|*|Receive Gain Droop Compensation applied to Calibration Pulse P2. 0=no compression, 1=compensation applied.|24b|
+vga_com_nom_time_flag|UChar|flag|1|1|*|Nominal time delay applied for Receive Gain Droop Compensation  of Calibration Pulse P2 order zero. 0=do not use nominal time delay (compensation depends on P2 time delay), 1= use nominal time delay (constant)|24c|
+gm_range_comp_inverse_filter_flag|UChar|flag|1|1|*|Inverse filter used for range compression. (GM Mode only).|24d|
+spare_2|Spare|*|6|1|*|Spare|25|
+raw_data_analysis|@+ASAR_Wave_Param_ADSR.sd/raw_data_analysis.dd|*|*|2|*|Raw Data Analysis|26|
+spare_3|Spare|*|32|1|*|Spare|27|
+start_time|@+ASAR_Wave_Param_ADSR.sd/start_time.dd|*|*|2|*|Time of first input line|28|
+parameter_codes|@+ASAR_Wave_Param_ADSR.sd/parameter_codes.dd|*|*|1|*|Data Set parameter codes|29|
+spare_4|Spare|*|60|1|*|Spare|30|
+error_counters|@+ASAR_Wave_Param_ADSR.sd/error_counters.dd|*|*|1|*|Error counters|31|
+spare_5|Spare|*|26|1|*|Spare|32|
+image_parameters|@+ASAR_Wave_Param_ADSR.sd/image_parameters.dd|*|*|1|*|Image Data Set parameters|33|
+spare_6|Spare|*|82|1|*|Spare|34|
+first_proc_range_samp|ULong|samples|4|1|*|First processed input range sample, first sample is 1|35|
+range_ref|Float|m|4|1|*|Range spreading loss reference range|36|
+range_samp_rate|Float|Hz|4|1|*|Range sampling rate|37|
+radar_freq|Float|Hz|4|1|*|Radar Frequency|38|
+num_looks_range|UShort|looks|2|1|*|Number of range looks|39|
+filter_range|String|ascii|7|1|*|Matched filter window type:HAMMING or KAISER&Oslash; or NONE&Oslash;&Oslash;&Oslash;|40|
+filter_coef_range|Float|*|4|1|*|Window coefficient for range-matched filter|41|
+bandwidth|@+ASAR_Wave_Param_ADSR.sd/bandwidth.dd|*|*|1|*|Bandwidth|42|
+nominal_chirp|@+ASAR_Wave_Param_ADSR.sd/nominal_chirp.dd|*|*|5|*|Nominal Chirp|43|
+spare_7|Spare|*|60|1|*|Spare|44|
+num_lines_proc|ULong|lines|4|1|*|Number of input lines processed|45|
+num_look_az|UShort|looks|2|1|*|Number of Azimuth Looks|46|
+look_bw_az|Float|Hz|4|1|*|Azimuth Look Bandwidth (null to null) -- this is the nominal value only for GM, WS, and AP.|47|
+to_bw_az|Float|Hz|4|1|*|Processed Azimuth bandwidth (null to null) -- this field is used only for IM products and WV imagettes. Filled with zeros otherwise.|48|
+filter_az|String|ascii|7|1|*|Matched filter window type:HAMMING or KAISER&Oslash; or NONE&Oslash;&Oslash;&Oslash;|49|
+filter_coef_az|Float|*|4|1|*|Window coefficient for azimuth-matched filter|50|
+az_fm_rate|Float|Hz/sHz/s2Hz/s3|4|3|*|3 co-efficients for Azimuth FM rate:Azimuth FM rate = C0 + C1(tSR-t0) + C2(tSR - t0)2tSR = 2 way slant range time|51|
+ax_fm_origin|Float|ns|4|1|*|2 way slant range time origin (t0) for Azimuth FM rate calculation|52|
+dop_amb_conf|Float|*|4|1|*|Doppler Centroid Ambiguity Confidence MeasureValue between 0 and 1, 0 = poorest confidence, 1= highest confidence|53|
+spare_8|Spare|*|68|1|*|Spare|54|
+calibration_factors|@+ASAR_Wave_Param_ADSR.sd/calibration_factors.dd|*|*|2|*|Calibration factors|55|
+noise_estimation|@+ASAR_Wave_Param_ADSR.sd/noise_estimation.dd|*|*|1|*|Noise Estimation|56|
+spare_9|Spare|*|64|1|*|Spare|57|
+spare_10|Spare|*|12|1|*|Spare|58|
+output_statistics|@+ASAR_Wave_Param_ADSR.sd/output_statistics.dd|*|*|2|*|Output Data Statistics|59|
+spare_11|Spare|*|52|1|*|Spare|60|
+echo_comp|String|ascii|4|1|*|Compression Method used for echo samples FBAQ, S&amp;M&Oslash;, NONE|61|
+echo_comp_ratio|String|ascii|3|1|*|Compression Ratio for echo samples8/4, 8/3, 8/2, or 8/8|62|
+init_cal_comp|String|ascii|4|1|*|Compression Method used for initial calibration samples FBAQ, S&amp;M&Oslash;, NONE|63|
+init_cal_ratio|String|ascii|3|1|*|Compression Ratio for initial calibration samples8/4, 8/3, 8/2, or 8/8|64|
+per_cal_comp|String|ascii|4|1|*|Compression Method used for periodic calibration samples FBAQ, S&amp;M&Oslash;, NONE|65|
+per_cal_ratio|String|ascii|3|1|*|Compression Ratio for periodic calibration samples8/4, 8/3, 8/2, or 8/8|66|
+noise_comp|String|ascii|4|1|*|Compression Method used for noise samples FBAQ, S&amp;M&Oslash;, NONE|67|
+noise_comp_ratio|String|ascii|3|1|*|Compression Ratio for noise samples8/4, 8/3, 8/2, or 8/8|68|
+spare_12|Spare|*|64|1|*|Spare|69|
+beam_overlap|ULong|*|4|4|*|Number of slant range samples in beam overlap(1-2, 2-3, 3-4, 4-5)|70|
+beam_param|Float|*|4|4|*|Beam merge algorithm parameter. Used for beam merging, one value per merge region (1-2, 2-3, 3-4, 4-5).|70a|
+lines_per_burst|ULong|lines|4|5|*|Number of lines per burst for this image 5 values for beams SS1 to SS5 in WS and GM modes.One value for AP mode, all others set to zero.|71|
+spare_13|Spare|*|28|1|*|Spare|72|
+orbit_state_vectors|@+ASAR_Wave_Param_ADSR.sd/orbit_state_vectors.dd|*|*|5|*|Orbit State Vectors|73|
+spare_14|Spare|*|64|1|*|Spare|74|
+slant_range_time|Float|ns|4|1|*|2-way slant range time origin (t0)|75|
+dop_coef|Float|HzHz/sHz/s2Hz/s3Hz/s4|4|5|*|Doppler centroid coefficients as a function of slant range time: D0, D1, D2, D3, and D4.where Doppler Centroid = D0 + D1(tSR-t0) + D2(tSR-t0)2 + D3(tSR-t0)3 + D4(tSR-t0)4|76|
+dop_conf|Float|*|4|1|*|Doppler Centroid Confidence MeasureValue between 0 and 1, 0 = poorest confidence, 1= highest confidence|77|
+dop_conf_below_thresh|UChar|flag|1|1|*|Doppler Centroid Confidence below threshold flag. 0=confidence above threshold, centroid calculated from data; 1=confidence below threshold, centroid calculated from orbit.|77a|
+spare_15|Spare|*|13|1|*|Spare|78|
+chirp_width|Float|samples|4|1|*|3-dB pulse width of chirp replica cross-correlation function between  extract chirp and nominal chirp|79|
+chirp_sidelobe|Float|dB|4|1|*|First side lobe level of chirp replica cross-correlation function between  reconstructed chirp and nominal chirp|80|
+chirp_islr|Float|dB|4|1|*|ISLR of chirp replica cross-correlation function between  reconstructed chirp and nominal chirp|81|
+chirp_peak_loc|Float|samples|4|1|*|Peak location of cross-correlation function between  reconstructed chirp and nominal chirp|82|
+chirp_power|Float|*|4|1|*|Chirp power|83|
+elev_corr_factor|Float|*|4|1|*|Elevation gain correction scaling factor applied to range compressed samples|84|
+spare_16|Spare|*|16|1|*|Spare|85|
+cal_info|@+ASAR_Wave_Param_ADSR.sd/cal_info.dd|*|*|32|*|calibration pulse info: structure repeated 32 times, from row 1 to row 32|86|
+spare_17|Spare|*|16|1|*|Spare|87|
+first_line_time|@/types/UTC.dd|MJD|12|1|*|Zero Doppler Time at first line of imagette|88|
+first_line_tie_points|@+ASAR_Wave_Param_ADSR.sd/first_line_tie_points.dd|*|*|1|*|Imagette First Line Tie Points|89|
+mid_line_time|@/types/UTC.dd|MJD|12|1|*|Zero Doppler Time at centre line of imagette|90|
+mid_range_line_nums|ULong|*|4|1|*|Range line number of the center range line|91|
+mid_line_tie_points|@+ASAR_Wave_Param_ADSR.sd/mid_line_tie_points.dd|*|*|1|*|Imagette Mid Line Tie Points|92|
+last_line_time|@/types/UTC.dd|MJD|12|1|*|Zero Doppler Time at last line of imagette|93|
+last_line_num|ULong|*|4|1|*|Range line number of the last range line|94|
+last_line_tie_points|@+ASAR_Wave_Param_ADSR.sd/last_line_tie_points.dd|*|*|1|*|Imagette Last Line Tie Points|95|
+swst_offset|Float|ns|4|1|*|Wave cell SWST offset from center of the sub-swath to start of imagette. 208 ns increments|96|
+ground_range_bias|Float|km|4|1|*|Wave cell Ground range bias from centre of the Sub-Swath to the centre of the imagette (Ground range, km)|97|
+elev_angle_bias|Float|deg|4|1|*|Wave cell Elevation angle biasfrom centre of the Sub-Swath elevation to the centre of the imagette (deg)|98|
+imagette_range_len|Float|m|4|1|*|Imagette length in range (m)|99|
+imagette_az_len|Float|m|4|1|*|Imagette length in azimuth (m)|100|
+imagette_range_res|Float|m|4|1|*|Nominal Imagette resolution in slant range (m)|101|
+ground_res|Float|m|4|1|*|Nominal resolution in ground range|102|
+imagette_az_res|Float|m|4|1|*|Nominal Imagette resolution in azimuth (m)|103|
+platform_alt|Float|m|4|1|*|Altitude (platform to ellipsoid) in metres (centre of wave cell)|104|
+platform_vel|Float|m/s|4|1|*|Platform Velocity (m/s)w.r.t moving earth|105|
+slant_range|Float|m|4|1|*|Range to centre of imagette (m)from platform to target|106|
+cw_drift|Float|*|4|1|*|CW signal drift|107|
+wave_subcycle|UShort|*|2|1|*|Wave sub-cycle (1 or 2) of this wave cell|108|
+earth_radius|Float|m|4|1|*|Earth Radius at imagette center sample|109|
+sat_height|Float|m|4|1|*|Satellite distance to earth center|110|
+first_sample_slant_range|Float|m|4|1|*|Distance from satellite to first range pixel in the full SLC image|111|
+spare_18|Spare|*|12|1|*|Spare|112|
+elevation_pattern|@+ASAR_Wave_Param_ADSR.sd/elevation_pattern.dd|*|*|1|*|Antenna Elevation Pattern|113|
+spare_19|Spare|*|14|1|*|Spare|114|

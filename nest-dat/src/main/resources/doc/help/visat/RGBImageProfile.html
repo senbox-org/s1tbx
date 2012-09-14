@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - RGB-Image Profile</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            RGB-Image Profile</td>
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+<h3>RGB-Image Profile</h3>
+
+<p>In this window you are asked to define the RGB channels for a new
+    <a href="ProductSceneView.html#rgbSupport">RGB image view</a>. You are able to load defined RGB-Profiles or to create
+    and store
+    new&nbsp;profiles.</p>
+
+<p align="center"><img style="width: 410px; height: 230px;" alt="" src="images/RGBProfileSelect.jpg"></p>
+
+
+<h4>Profile</h4> Selects one of the actual stored RGB-Profiles to use for creation of the new image view.
+<ul>
+    <li>Use the <img src="images/icons/Open24.gif" alt="Open" border="0"> to open a stored
+        <a href="#profileFile">RGB-Profile file</a>.</li>
+    <li>Use the <img src="images/icons/Save24.gif" alt="Save" border="0"> to save the currently displayed RGB-Profile.
+    </li>
+    <li>Use the <img src="images/icons/Remove24.gif" alt="Remove" border="0"> to delete the currently displayed
+        RGB-Profile.</li>
+</ul>
+<h4>RGB Channels</h4>
+
+<p>
+    <b>Red</b> - Defines the arithmetical expression for the red channel.<br>
+    <b>Green</b> - Defines the arithmetical expression for the green channel.<br>
+    <b>Blue</b> - Defines the arithmetical expression for the blue channel.<br>
+</p>
+
+<p>Use the <img src="images/icons/NextDialogButton.gif" alt="Opens the Arithmetic Expression Editor" border="0"> to&nbsp;edit the expression for the specific channel by using the <a href="ExpressionEditor.html">expression editor</a>.
+</p>
+
+<h4>Store RGB Channels</h4>
+Stores the RGB channels into the current product as virtual bands.
+
+<br><br>
+
+<h3><a name="profileFile">RGB-Profile File</a></h3>
+RGB-Profile files must have the extension ".rgb". Multiple default profiles provided are located
+in the <i>$NEST_HOME$</i>/auxdata/rgb_profiles.<br>
+
+A RGB-Profile file contains several entries. The syntax of an entry is '<i>EntryName</i> = <i>EntryValue</i>'.
+Normally one entry is written in one line, but you can use the '\' character to indicate that the next line
+also belongs to the value. Empty lines and lines beginning with the '#' character are ignored.<br>
+The possible entries for an RGB-Profile are listed in the following table:
+<p>
+    <table align="center">
+        <tbody><tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>name</td>
+            <td>String</td>
+            <td>The name of the RGB-Profile, if given it is displayed instead of the file name.</td>
+        </tr>
+        <tr>
+            <td>internal</td>
+            <td>Boolean</td>
+            <td>The default value is <i>false</i>, if given and set to <i>true</i> it indicates that this RGB-Profile
+                can not be
+                deleted from the user interface (but does not prevent from overwriting the file).</td>
+        </tr>
+        <tr>
+            <td>red or r</td>
+            <td>String</td>
+            <td>The arithmetic expression used to create the red channel. This entry is manadatory.</td>
+        </tr>
+        <tr>
+            <td>green or g</td>
+            <td>String</td>
+            <td>The arithmetic expression used to create the green channel. This entry is manadatory.</td>
+        </tr>
+        <tr>
+            <td>blue or b</td>
+            <td>String</td>
+            <td>The arithmetic expression used to create the blue channel. This entry is manadatory.</td>
+        </tr>
+    </tbody></table>
+</p><pre><br>    </pre>
+<p></p>
+
+
+<hr>
+</body></html>

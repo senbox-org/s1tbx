@@ -1,0 +1,18 @@
+<archetype>
+    <id>maven-nest-gpf-archetype</id>
+    <allowPartial>true</allowPartial>
+    <sources>
+        <source>src/main/java/SingleTileOperator.java</source>
+		<source>src/main/java/SingleTileOpAction.java</source>
+    </sources>
+    <testSources>
+        <source>src/test/java/SingleTileOperatorTest.java</source>
+    </testSources>
+    <resources>
+        <resource>readme.html</resource>
+        <resource>src/main/resources/module.xml</resource>
+        <resource>src/main/resources/about.html</resource>
+        <resource>src/main/resources/license.txt</resource>
+        <resource>src/main/resources/META-INF/services/org.esa.beam.framework.gpf.OperatorSpi</resource>
+    </resources>
+</archetype>

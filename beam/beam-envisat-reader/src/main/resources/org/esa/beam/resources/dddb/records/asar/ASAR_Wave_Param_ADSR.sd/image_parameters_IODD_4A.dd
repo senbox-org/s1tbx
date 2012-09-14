@@ -1,0 +1,16 @@
+image_parameters|Image Data Set parameters|*
+#
+swst_value|Float|s|4|5|*|Sampling Window Start time of first processed line|33a|
+last_swst_value|Float|s|4|5|*|Sampling Window Start time of last processed line|33b|
+swst_changes|ULong|*|4|5|*|Number of Sample Window Start Time changes within a beam|33c|
+prf_value|Float|Hz|4|5|*|Pulse Repetition Frequency|33d|
+tx_pulse_len_value|Float|s|4|5|*|Tx pulse length|33e|
+tx_pulse_bw_value|Float|Hz|4|5|*|Tx pulse bandwidth|33f|
+echo_win_len_value|Float|s|4|5|*|Echo Window Length|33g|
+up_value|Float|dB|4|5|*|Upconverter Level - Upconverter gain set on the instrument|33h|
+down_value|Float|dB|4|5|*|Downconverter Level - Downconverter gain set on the instrument|33i|
+resamp_value|Float|*|4|5|*|Resampling factor|33j|
+beam_adj_value|Float|deg.|4|5|*|Beam adjustment delta|33k|
+beam_set_value|UShort|*|2|5|*|Antenna Beam Set Number|33l|
+tx_monitor_value|Float|*|4|5|*|Auxiliary Tx Monitor Level|33m|
+rank	|ULong	|*	|4|5|*|Number of PRI between transmitted pulse and return echo|33n|

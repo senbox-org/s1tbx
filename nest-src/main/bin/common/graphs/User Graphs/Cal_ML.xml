@@ -1,0 +1,65 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters>
+      <file>G:\RS\RollingArchive\Global Monitoring Mode\ASA_GM1_1PNPDE20090713_231652_000001502080_00402_38532_6299.N1</file>
+    </parameters>
+  </node>
+  <node id="2-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="4-Multilook"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>I:\out\na2\target.dim</file>
+    </parameters>
+  </node>
+  <node id="3-Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+        <band>Amplitude</band>
+      </sourceBands>
+      <auxFile>Latest Auxiliary File</auxFile>
+      <externalAuxFile/>
+	  <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="4-Multilook">
+    <operator>Multilook</operator>
+    <sources>
+      <sourceProduct refid="3-Calibration"/>
+    </sources>
+    <parameters>
+      <sourceBands/>
+      <nRgLooks>2</nRgLooks>
+      <nAzLooks>2</nAzLooks>
+      <outputIntensity>true</outputIntensity>
+      <note>Currently, detection for complex data is performed without any resampling</note>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="1-Read">
+      <displayPosition y="134.0" x="37.0"/>
+    </node>
+    <node id="2-Write">
+      <displayPosition y="135.0" x="455.0"/>
+    </node>
+    <node id="3-Calibration">
+      <displayPosition y="133.0" x="137.0"/>
+    </node>
+    <node id="4-Multilook">
+      <displayPosition y="138.0" x="275.0"/>
+    </node>
+  </applicationData>
+</graph>

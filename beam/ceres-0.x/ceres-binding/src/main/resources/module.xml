@@ -1,0 +1,37 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>ceres-binding</symbolicName>
+    <version>5.0-0.14</version>
+    <name>Ceres Binding</name>
+
+    <description>
+        The Ceres Binding API is used to bind GUI widgets to value models.
+        Value models can be any kind of data source.
+    </description>
+
+    <changelog>
+        <![CDATA[
+        <p>Changes in 0.13</p>
+        [CERES-056] Use latest XStream library<br/>
+        <p>Changes in 0.12</p>
+        [CERES-52] Enums are note correctly converted<br/>
+        [CERES-51] Boolean text converter should accept numbers<br/>
+        <p>Changes in 0.10</p>
+        [CERES-45] Terminology change in the Ceres Binding API<br/>
+        [CERES-40] Inconsistent handling of focus-lost events on text components<br/>
+        <p>Changes in 0.7</p>
+        [CERES-23] Default value for primitive types is not set<br/>
+        <p>Changes in 0.6.1</p>
+        [CERES-19] JRadioButtons inside a ButtonGroup don't update their ValueContainer.<br/>
+        ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2011 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <categories>Binding</categories>
+</module>

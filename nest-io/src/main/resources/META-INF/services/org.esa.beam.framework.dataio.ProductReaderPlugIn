@@ -1,0 +1,12 @@
+org.esa.nest.dataio.ceos.ers.ERSProductReaderPlugIn
+org.esa.nest.dataio.ceos.jers.JERSProductReaderPlugIn
+org.esa.nest.dataio.ceos.radarsat.RadarsatProductReaderPlugIn
+org.esa.nest.dataio.ceos.alos.AlosPalsarProductReaderPlugIn
+org.esa.nest.dataio.imageio.ImageIOReaderPlugIn
+org.esa.nest.dataio.envi.NestEnviProductReaderPlugIn
+org.esa.nest.dataio.geotiff.NestGeoTiffProductReaderPlugIn
+org.esa.nest.dataio.polsarpro.PolsarProProductReaderPlugIn
+org.esa.nest.dataio.terrasarx.TerraSarXProductReaderPlugIn
+org.esa.nest.dataio.radarsat2.Radarsat2ProductReaderPlugIn
+org.esa.nest.dataio.cosmo.CosmoSkymedReaderPlugIn
+org.esa.nest.dataio.gtopo30.GTOPO30ReaderPlugIn

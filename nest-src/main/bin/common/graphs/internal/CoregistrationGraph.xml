@@ -1,0 +1,86 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-ProductSet-Reader">
+    <operator>ProductSet-Reader</operator>
+    <sources/>
+    <parameters>
+      <fileList></fileList>
+    </parameters>
+  </node>
+  <node id="2-CreateStack">
+    <operator>CreateStack</operator>
+    <sources>
+      <sourceProduct refid="1-ProductSet-Reader"/>
+    </sources>
+    <parameters>
+      <masterBands>
+      </masterBands>
+      <sourceBands>
+      </sourceBands>
+      <resamplingType>NONE</resamplingType>
+      <extent>Master</extent>
+    </parameters>
+  </node>
+  <node id="3-GCP-Selection">
+    <operator>GCP-Selection</operator>
+    <sources>
+      <sourceProduct refid="2-CreateStack"/>
+    </sources>
+    <parameters>
+      <numGCPtoGenerate>200</numGCPtoGenerate>
+      <coarseRegistrationWindowWidth>64</coarseRegistrationWindowWidth>
+      <coarseRegistrationWindowHeight>64</coarseRegistrationWindowHeight>
+      <rowInterpFactor>2</rowInterpFactor>
+      <columnInterpFactor>2</columnInterpFactor>
+      <maxIteration>2</maxIteration>
+      <gcpTolerance>0.5</gcpTolerance>
+      <applyFineRegistration>false</applyFineRegistration>
+      <fineRegistrationWindowWidth>64</fineRegistrationWindowWidth>
+      <fineRegistrationWindowHeight>64</fineRegistrationWindowHeight>
+      <coherenceWindowSize>3</coherenceWindowSize>
+      <coherenceThreshold>0.6</coherenceThreshold>
+      <useSlidingWindow>false</useSlidingWindow>
+      <computeOffset>false</computeOffset>
+    </parameters>
+  </node>
+  <node id="4-Warp">
+    <operator>Warp</operator>
+    <sources>
+      <sourceProduct refid="3-GCP-Selection"/>
+    </sources>
+    <parameters>
+      <rmsThreshold>1.0</rmsThreshold>
+      <warpPolynomialOrder>1</warpPolynomialOrder>
+      <interpolationMethod>Bilinear interpolation</interpolationMethod>
+      <openResidualsFile>false</openResidualsFile>
+    </parameters>
+  </node>
+  <node id="5-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="4-Warp"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>coregistered_stack.dim</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+	<node id="1-ProductSet-Reader">
+      <displayPosition y="102.0" x="21.0"/>
+    </node>
+    <node id="2-CreateStack">
+      <displayPosition y="101.0" x="154.0"/>
+    </node>
+    <node id="3-GCP-Selection">
+      <displayPosition y="100.0" x="248.0"/>
+    </node>
+    <node id="4-Warp">
+      <displayPosition y="100.0" x="356.0"/>
+    </node>
+    <node id="5-Write">
+      <displayPosition y="100.0" x="434.0"/>
+    </node>
+  </applicationData>
+</graph>

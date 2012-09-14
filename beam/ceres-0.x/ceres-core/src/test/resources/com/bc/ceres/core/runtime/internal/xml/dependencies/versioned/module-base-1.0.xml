@@ -1,0 +1,7 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-base</symbolicName>
+    <name>Module Base</name>
+    <description>This is the base module.</description>
+    <version>1.0</version>
+</module>

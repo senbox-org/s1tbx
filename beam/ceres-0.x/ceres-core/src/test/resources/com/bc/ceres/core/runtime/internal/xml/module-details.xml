@@ -1,0 +1,23 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+
+    <symbolicName>module-details</symbolicName>
+    <name>Module Details</name>
+    <version>9.9.9</version>
+
+
+    <contactAddress>john.doe@acme.com</contactAddress>
+    <vendor>ACME Inc.</vendor>
+    <copyright>GNU</copyright>
+
+    <description>
+        Lorem ipsum ex sint omnes intellegebat vis, mucius nostrum usu id. No probo probatus qui, has ceteros
+        nostrum dissentias an, affert torquatos vim ut. In eos nulla quaerendum, est labore appareat ea. Admodum
+        assueverit constituam ut vis, oratio fabulas nostrum te vel. Id eam utamur deleniti consulatu. Quo utinam graeco
+        consetetur at. Nam nullam nominati interpretaris ei.
+    </description>
+
+    <url>http://www.acme.com/docs</url>
+
+
+</module>

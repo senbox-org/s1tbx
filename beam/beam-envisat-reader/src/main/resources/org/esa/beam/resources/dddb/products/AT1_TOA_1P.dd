@@ -1,0 +1,31 @@
+AT1_TOA_1P|ERS/ATSR Gridded brightness temperature and reflectance|*
+#                                                    
+MPH                           |@/records/MPH.dd                         |1247                          |Main Product Header
+SPH                           |@/records/aatsr/ATS_TOA_1P_sph.dd        |*                             |Level 1B SPH
+DSD                           |@/records/DSD.dd                         |*                             |Data Set Descriptor array
+SUMMARY_QUALITY_ADS           |@/records/aatsr/ATS_TOA_1P_ADSR_sq.dd    |SUMMARY_QUALITY_ADS           |Summary Quality ADS
+GEOLOCATION_ADS               |@/records/aatsr/ATS_TOA_1P_ADSR_loc.dd   |GEOLOCATION_ADS               |Grid pixel latitude and longtitude  topographic corrections ADS
+SCAN_PIXEL_X_AND_Y_ADS        |@/records/aatsr/ATS_TOA_1P_ADSR_scan.dd  |SCAN_PIXEL_X_AND_Y_ADS        |Scan pixel x and y ADS
+NADIR_VIEW_SOLAR_ANGLES_ADS   |@/records/aatsr/ATS_TOA_1P_ADSR_sa.dd    |NADIR_VIEW_SOLAR_ANGLES_ADS   |Nadir view solar angles ADS
+FWARD_VIEW_SOLAR_ANGLES_ADS   |@/records/aatsr/ATS_TOA_1P_ADSR_sa.dd    |FWARD_VIEW_SOLAR_ANGLES_ADS   |Forward view solar angles ADS
+VISIBLE_CALIB_COEFS_GADS      |@/records/aatsr/ATS_VC1_AX_GADS.dd       |VISIBLE_CALIB_COEFS_GADS      |Visible calibration coefficients GADS
+NADIR_VIEW_SCAN_PIX_NUM_ADS   |@/records/aatsr/ATS_TOA_1P_ADSR_pix.dd   |NADIR_VIEW_SCAN_PIX_NUM_ADS   |Scan and pixel number  nadir view ADS
+FWARD_VIEW_SCAN_PIX_NUM_ADS   |@/records/aatsr/ATS_TOA_1P_ADSR_pix.dd   |FWARD_VIEW_SCAN_PIX_NUM_ADS   |Scan and pixel number forward view ADS
+11500_12500_NM_NADIR_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |11500_12500_NM_NADIR_TOA_MDS  |12 micron nadir view MDS
+10400_11300_NM_NADIR_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |10400_11300_NM_NADIR_TOA_MDS  |11 micron nadir view MDS
+03505_03895_NM_NADIR_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |03505_03895_NM_NADIR_TOA_MDS  |3.7 micron nadir view MDS
+01580_01640_NM_NADIR_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |01580_01640_NM_NADIR_TOA_MDS  |1.6 micron nadir view MDS
+00855_00875_NM_NADIR_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |00855_00875_NM_NADIR_TOA_MDS  |0.87 micron nadir view MDS
+00649_00669_NM_NADIR_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |00649_00669_NM_NADIR_TOA_MDS  |0.67 micron nadir view MDS
+00545_00565_NM_NADIR_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |00545_00565_NM_NADIR_TOA_MDS  |0.55 micron nadir view MDS
+11500_12500_NM_FWARD_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |11500_12500_NM_FWARD_TOA_MDS  |12 micron forward view MDS
+10400_11300_NM_FWARD_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |10400_11300_NM_FWARD_TOA_MDS  |11 micron forward view MDS
+03505_03895_NM_FWARD_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |03505_03895_NM_FWARD_TOA_MDS  |3.7 micron forward view MDS
+01580_01640_NM_FWARD_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |01580_01640_NM_FWARD_TOA_MDS  |1.6 micron forward view MDS
+00855_00875_NM_FWARD_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |00855_00875_NM_FWARD_TOA_MDS  |0.87 micron forward view MDS
+00649_00669_NM_FWARD_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |00649_00669_NM_FWARD_TOA_MDS  |0.67 micron forward view MDS
+00545_00565_NM_FWARD_TOA_MDS  |@/records/aatsr/ATS_TOA_1P_MDSR_brgt.dd  |00545_00565_NM_FWARD_TOA_MDS  |0.55 micron forward view MDS
+NADIR_VIEW_CONFIDENCE_MDS     |@/records/aatsr/ATS_TOA_1P_MDSR_conf.dd  |NADIR_VIEW_CONFIDENCE_MDS     |Confidence words nadir view MDS
+FWARD_VIEW_CONFIDENCE_MDS     |@/records/aatsr/ATS_TOA_1P_MDSR_conf.dd  |FWARD_VIEW_CONFIDENCE_MDS     |Confidence words forward view MDS
+NADIR_VIEW_CLOUD_MDS          |@/records/aatsr/ATS_TOA_1P_MDSR_cl.dd    |NADIR_VIEW_CLOUD_MDS          |Cloud flag nadir view MDS
+FWARD_VIEW_CLOUD_MDS          |@/records/aatsr/ATS_TOA_1P_MDSR_cl.dd    |FWARD_VIEW_CLOUD_MDS          |Cloud flag forward view MDS

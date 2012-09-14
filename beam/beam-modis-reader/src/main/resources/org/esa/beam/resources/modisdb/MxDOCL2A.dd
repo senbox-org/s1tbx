@@ -1,0 +1,31 @@
+# This file contains the product structure for the MODIS L2 1km resolution products
+
+META  | StructMeta | StructMetadata.0
+#----------------------------------------------------------------------------------------------------------------------------------------
+# The folowing block describes the structure of the scientific datases (SDS)
+# The meaning of the fields:
+#   1 - SDS - keyword
+#   2 - the name of the set of bands as they appear in the HDF file
+#   3 - whether the band is a spectral band or not (true or false)
+#   4 - the scaling method (lin, exp or '*' - no scaling)
+#   5 - the name of the attribute containing the scaling factors - or '*' - no scaling
+#   6 - the name of the attribute containing the scaling offsets - or '*' - no scaling
+#   7 - the name of the attribute containing the physical unit
+#   8 - the spectral band index or the name of the attribute containing the spectral band indices - or '@' and a band name when the band indices are referenced somewhere else in the product
+#   9 - the attribute name containing a description for the band
+# 1   | 2                      | 3     | 4   | 5     | 6         | 7     | 8 | 9
+SDS   | CZCS_pigment           | false | sli | Slope | Intercept | Units | * | Long_name
+SDS   | chlor_MODIS            | false | sli | Slope | Intercept | Units | * | Long_name
+SDS   | pigment_c1_total       | false | sli | Slope | Intercept | Units | * | Long_name
+SDS   | chlor_fluor_ht         | false | sli | Slope | Intercept | Units | * | Long_name
+SDS   | chlor_fluor_base       | false | sli | Slope | Intercept | Units | * | Long_name
+SDS   | chlor_fluor_effic      | false | sli | Slope | Intercept | Units | * | Long_name
+SDS   | susp_solids_conc       | false | sli | Slope | Intercept | Units | * | Long_name
+SDS   | cocco_pigmnt_conc      | false | sli | Slope | Intercept | Units | * | Long_name
+SDS   | cocco_conc_detach      | false | p10 | Slope | Intercept | Units | * | Long_name
+SDS   | calcite_conc           | false | sli | Slope | Intercept | Units | * | Long_name
+SDS   | K_490                  | false | sli | Slope | Intercept | Units | * | Long_name
+SDS   | phycoeryth_conc        | false | sli | Slope | Intercept | Units | * | Long_name
+SDS   | phycou_conc            | false | sli | Slope | Intercept | Units | * | Long_name
+#---------------------------------------------------------------------------------------
+GEO   | MxDOCQC

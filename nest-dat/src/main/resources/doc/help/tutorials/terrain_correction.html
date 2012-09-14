@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Terrain Correction</title>
+
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Orthorectification
+Tutorial</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Terrain Correction</h3><p><font size="-1">The <a href="../operators/RangeDopplerGeocodingOp.html">Terrain Correction</a>
+Operator will
+produce&nbsp;an orthorectified product in the WGS 84 geogreaphic
+coordinates. The&nbsp;Range Doppler
+orthorectification method [1] is implemented for geocoding SAR images from a single 2D
+raster radar geometry. It uses available orbit
+state
+vector information in the metadata or <a href="../operators/ApplyOrbitFileOp.html">external
+precise orbit</a>, the radar timing annotations, the slant to ground range
+conversion parameters together with the reference DEM data to derive the precise
+geolocation information.&nbsp;Optionally radiometric normalisation can be applied to the
+orthorectified image to produce <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;">0</sup>, <span style="font-style: italic;">&#947;</span><sup style="font-style: italic;">0</sup> or <span style="font-style: italic;">&#946;</span><sup style="font-style: italic;">0</sup>
+output.<br></font></p><br><p>The <a href="../operators/EllipsoidCorrectionRDOp.html">Ellipsoid Correction RD</a> and 
+<a href="../operators/GeolocationGridGeocodingOp.html">Ellipsoid Correction GG</a>
+Operators will&nbsp;produce ellipsoid corrected products in the WGS 84
+geographic coordinates. The Terrain Correction Operator should be used
+whenever DEM is available. The Ellipsoid Correction (RD and GG) should
+be used only when DEM is not available.
+</p><h4>Orthorectification Algorithm</h4><p>The
+Range Doppler Terrain Correction Operator implements the Range Doppler
+orthorectification method [1] for geocoding SAR images from&nbsp;single 2D
+raster radar geometry. It uses available orbit
+state
+vector information in the metadata or <a href="../operators/ApplyOrbitFileOp.html">external
+precise orbit</a> (only for ERS and ASAR), the radar timing annotations, the slant to ground range
+conversion parameters together with the reference DEM data to derive the precise
+geolocation information.&nbsp;</p><h4>Products Supported</h4><ul><li>ASAR (IMS, IMP, IMM, APP, APM, WSM) and ERS products (SLC, IMP) are fully supported.</li><li>RADARSAT-2 (all products)</li><li>TerraSAR-X (SSC only)</li><li>Cosmo-Skymed</li></ul><h4>DEMs Supported</h4><p>Right now only the DEMs with geographic coordinates (P<sub>lat</sub>, P<sub>lon</sub>, P<sub>h</sub>) referred to global geodetic ellipsoid reference WGS84 (and height in meters) are properly supported.</p><p>STRM v.4 (3&#8221; tiles) from the Joint Research Center
+FTP (xftp.jrc.it) are downloaded automatically for&nbsp; the area covered by the image to be
+orthorectified. The tiles will be downloaded to the folder
+C:\AuxData\DEMs\SRTM_DEM\tiff or the folder specified in the Settings.</p><p>The
+Test Connectivity functionality under the Help tab in the main menu bar
+allows the user to verify if the SRTM downloading is working properly. </p><p>Please
+note that for ACE and SRTM, the height information (being referred to
+geoid EGM96) is automatically corrected to obtain height relative to
+the WGS84 ellipsoid. For Aster Dem height correction is already
+applied. </p><p>Note also that the SRTM DEM covers area between -60
+and 60 degrees latitude. Therefore, for orthorectification of product
+of high latitude area, different DEM should be used. </p><p>User can also use external DEM file in Geotiff format which, as specified above, must be with geographic coordinates&nbsp;(P<sub>lat</sub>, P<sub>lon</sub>, P<sub>h</sub>) referred to global geodetic ellipsoid reference WGS84 (and height in meters) </p><h4>Pixel Spacing</h4><p>Besides
+the default suggested pixel spacing computed with parameters in the
+metadata, user can specify output pixel spacing for the orthorectified
+image.</p><p> The
+pixel spacing can be entered in both meters and degrees. If the pixel
+spacing in one unit is entered, then &nbsp;the pixel spacing in another
+unit is computed
+automatically.</p><p> The calculations of the pixel spacing in meters and in
+degrees&nbsp;are given by the following equations:&nbsp;<span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB"></span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB"></span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span><span style="font-size: 8pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></p><p style="margin-left: 40px;">pixelSpacingInDegree = pixelSpacingInMeter / EquatorialEarthRadius * 180 / PI;</p><p style="margin-left: 40px;">pixelSpacingInMeter = pixelSpacingInDegree * PolarEarthRadius&nbsp; * PI / 180;</p><p>where&nbsp;EquatorialEarthRadius = 6378137.0 m and PolarEarthRadius = 6356752.314245 m as given in WGS84.&nbsp;</p><h4>Radiometric Normalization</h4><p>This option implements a radiometric normalization based on the approach proposed by Kellndorfer et al., TGRS, Sept. 1998 where <br></p><div style="text-align: center;"><img style="width: 233px; height: 67px;" alt="" src="images/range_doppler_eq5.jpg"></div><p></p><p>In current implementation <span style="font-style: italic;">&#952;</span><sub style="font-style: italic;">DEM</sub>
+is the local incidence angle projected into the range plane and defined
+as the angle between the incoming radiation vector and the projected
+surface normal vector into range plane[2]. The range plane is the plane
+formed by the satellite position, backscattering element position and
+the earth centre.&nbsp;</p><p>Note that among&nbsp;<span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup>, <span style="font-style: italic;">&#947;</span><sup style="font-style: italic;"><sub>0</sub></sup> and <span style="font-style: italic;">&#946;</span><sup style="font-style: italic;"><sub>0</sub></sup> bands output in the target product, only&nbsp;<span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup> is real band while <span style="font-style: italic;">&#947;</span><sup style="font-style: italic;"><sub>0</sub></sup> and <span style="font-style: italic;">&#946;</span><sup style="font-style: italic;"><sub>0</sub></sup> are virtual bands expressed in terms of <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup>&nbsp;and incidence angle. Therefore, <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup>&nbsp;and incidence angle are automatically saved and output if <span style="font-style: italic;">&#947;</span><sup style="font-style: italic;"><sub>0</sub></sup> or <span style="font-style: italic;">&#946;</span><sup style="font-style: italic;"><sub>0</sub></sup> is selected.</p><p>For <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup> and <span style="font-style: italic;">&#947;</span><sup style="font-style: italic;"><sub>0</sub></sup>&nbsp;calculation,
+by default the projected local incidence angle from DEM [2] (local
+incidence angle projected into range plane) option is selected, but the
+option of incidence angle from ellipsoid correction (incidence angle
+from tie points of the source product) is also available.<br></p><h4>ENVISAT ASAR</h4>
+<p>
+The correction factors [3] applied to the original image depend on
+the product being complex or detected and&nbsp;the selection of Auxiliary
+file (ASAR XCA file).&nbsp;</p><h4>Complex Product (IMS, APS)</h4><ul><li><span style="font-weight: bold;">Latest AUX File</span>&nbsp;(&amp; use projected local incidence angle computed from DEM):<p>The
+most recent ASAR XCA available from the installation folder \auxdata\envisat compatible with product date is
+automatically selected. According to this XCA file, calibration
+constant, range spreading loss and antenna pattern gain are obtained.</p></li><ul><li><span style="text-decoration: underline;">Applied factors</span>:</li></ul><ul><ol><li><p>apply projected local incidence angle into the range plane correction</p></li><li><p>apply calibration constant correction based on the XCA file<br></p></li><li><p>apply range spreading loss correction based on the XCA file and DEM geometry<br></p></li><li><p>apply antenna pattern gain correction based on the XCA file and DEM geometry<br></p></li></ol></ul><li><span style="font-weight: bold;">External AUX File</span>&nbsp;(&amp; use projected local incidence angle computed from DEM):<p>User
+can select a specific ASAR XCA file available from the installation
+folder \auxdata\envisat or from another repository. According to
+this selected XCA file, calibration constant, range spreading loss and
+antenna pattern gain are computed.</p></li><ul><li><span style="text-decoration: underline;">Applied factors</span>:</li></ul><ul><ol><li><p>apply projected local incidence angle into the range plane correction</p></li><li><p>apply calibration constant correction based on the selected XCA file<br></p></li><li><p>apply range spreading loss correction based on the selected XCA file and DEM geometry<br></p></li><li><p>apply antenna pattern gain correction based on the selected XCA file and DEM geometry<br></p></li></ol></ul></ul><h4>Detected Product (IMP, IMM, APP, APM, WSM)</h4><ul><li><span style="font-weight: bold;">Latest AUX File</span>&nbsp;(&amp; use projected local incidence angle computed from DEM):<p>The
+most recent ASAR XCA available compatible with product date is
+automatically selected. Basically with this option all the correction
+factors applied to the original SAR image based on product XCA file
+used during the focusing, such as antenna pattern gain and range
+spreading loss, are removed first. Then new factors computed according
+to the new ASAR XCA file together with calibration constant and local
+incidence angle correction factors are applied during the radiometric
+normalisation process.</p></li><ul><li><span style="text-decoration: underline;">Applied factors</span>:</li></ul><ul><ol><li><p>remove antenna pattern gain correction based on product XCA file</p></li><li><p>remove range spreading loss correction based on product XCA file<br></p></li><li><p>apply projected local incidence angle into the range plane correction<br></p></li><li><p>apply calibration constant correction based on new XCA file</p></li><li><p>apply range spreading loss correction based on new XCA file and DEM geometry</p></li><li><p>apply new antenna pattern gain correction based on new XCA file and DEM geometry<br></p></li></ol></ul><li><span style="font-weight: bold;">Product AUX File</span>&nbsp;(&amp; use projected local incidence angle computed from DEM):<p>The
+product ASAR XCA file employed during the focusing is used. With this
+option the antenna pattern gain and range spreading loss are kept from
+the original product and only the calibration constant and local
+incidence angle correction factors are applied during the radiometric
+normalisation process.</p></li><ul><li><span style="text-decoration: underline;">Applied factors</span>:</li></ul><ul><ol><li><p>apply projected local incidence angle into the range plane correction</p></li><li><p>apply calibration constant correction based on product XCA file<br></p></li></ol></ul></ul><ul><li><span style="font-weight: bold;">External AUX File</span>&nbsp;(&amp; use projected local incidence angle computed from DEM):<p>The
+User
+can select a specific ASAR XCA file available from the installation
+folder \auxdata\envisat or from another repository. Basically with
+this option all the correction factors applied to the original SAR
+image based on product XCA file used during the focusing, such as
+antenna pattern gain and range spreading loss, are removed first. Then
+new factors computed according to the new selected ASAR XCA file
+together with calibration constant and local incidence angle correction
+factors are applied during the radiometric normalisation process.</p></li><ul><li><span style="text-decoration: underline;">Applied factors</span>:</li></ul><ul><ol><li><p>remove antenna pattern gain correction based on product XCA file</p></li><li><p>remove range spreading loss correction based on product XCA file<br></p></li><li><p>apply projected local incidence angle into the range plane correction<br></p></li><li><p>apply calibration constant correction based on new selected XCA file</p></li><li><p>apply range spreading loss correction based on new selected XCA file and DEM geometry</p></li><li><p>apply new antenna pattern gain correction based on new selected XCA file and DEM geometry<br></p></li></ol></ul></ul><p>
+Please note that if the product has been previously multilooked then
+the radiometric normalization does not correct the antenna pattern and
+range spreading loss and only constant and incidence angle corrections
+are applied. This is because the original antenna pattern and the range
+spreading loss correction cannot be properly removed due to the pixel
+averaging by multilooking. <br></p><p>If
+user needs to apply a radiometric normalization, multilook and terrain
+correction to a product, then user graph
+&#8220;RemoveAntPat_Multilook_Orthorectify&#8221; could be used.<br></p><h4>ERS 1&amp;2</h4>
+<p>For ERS 1&amp;2 the radiometric normalization cannot be applied directly to original ERS product.<br></p><p>Because
+of the Analogue to Digital Converter (ADC) power loss correction , a
+step before is required to properly handle the data. It is necessary to
+employ the Remove Antenna Pattern Operator which performs the following
+operations:</p><p>&nbsp;For Single look complex (SLC, IMS) products<br></p><ul><li>apply ADC correction</li></ul><p>For Ground range (PRI, IMP) products:</p><ul><li>remove antenna pattern gain</li><li>remove range spreading loss</li><li>apply ADC correction<span style="font-weight: bold;"></span></li></ul><p>After
+having applied the Remove Antenna Pattern Operator to ERS data, the
+radiometric normalisation can be performed during the Terrain
+Correction.<br></p><p>The applied factors in case of "USE projected angle from the DEM" selection are:<br></p><ol><li>apply projected local incidence angle into the range plane correction</li><li>apply absolute calibration constant correction</li><li>apply range spreading loss correction based on product metadata and DEM geometry</li><li>apply new antenna pattern gain correction based on product metadata and DEM geometry</li></ol><p>To apply radiometric normalization and terrain correction for ERS, user can also use one of the following user graphs:<br></p><ul><li>RemoveAntPat_Orthorectify</li><li>RemoveAntPat_Multilook_Orthorectify</li></ul><h4>RADARSAT-2</h4><ul><li>In
+case of "USE projected angle from the DEM" selection, the radiometric
+normalisation is performed applying the product LUTs and multiplying by
+(sin &#61553;DEM/sin &#61553;el), where &#61553;DEM is projected local incidence angle into
+the range plane and &#61553;el is the incidence angle computed from the tie
+point grid respect to ellipsoid.</li><li>In case of selection of "USE
+incidence angle from Ellipsoid", the radiometric normalisation is
+performed applying the product LUT.</li></ul><p>These LUTs allow one to
+convert the digital numbers found in the output product to
+sigma-nought, beta-nought, or gamma-nought values (depending on which
+LUT is used).<br></p><h4>TerraSAR-X</h4><ul><li>In case of "USE projected angle from the DEM" selection, the radiometric normalisation is performed applying<br><ol><li>projected local incidence angle into the range plane correction</li><li>absolute calibration constant correction</li></ol></li><li>In case of " USE incidence angle from Ellipsoid " selection, the radiometric normalisation is performed applying<br><ol><li>projected local incidence angle into the range plane correction</li><li>absolute calibration constant correction</li></ol></li></ul>Please note that the simplified approach&nbsp; where Noise Equivalent Beta Naught is neglected has been implemented.<br><h4>Cosmo-SkyMed</h4><ul><li>In case of "USE projected angle from the DEM" selection, the radiometric normalisation is performed deriving <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup><sub style="font-style: italic;">Ellipsoid</sub> [7] and then multiplying by (sin<span style="font-style: italic;">&#952;</span><sub style="font-style: italic;">DEM</sub> /&nbsp;sin<span style="font-style: italic;">&#952;</span><sub style="font-style: italic;">el</sub>), where <span style="font-style: italic;">&#952;</span><sub style="font-style: italic;">DEM</sub>&nbsp;is the projected local incidence angle into the range plane and <span style="font-style: italic;">&#952;</span><sub style="font-style: italic;">el</sub>&nbsp;is the incidence angle computed from the tie point grid respect to ellipsoid.</li><li>In case of selection of "USE incidence angle from Ellipsoid", the radiometric normalisation is performed deriving <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup><sub style="font-style: italic;">Ellipsoid</sub> [7] <br></li></ul><span style="text-decoration: underline; font-weight: bold;">Definitions:</span><br><ol><li>The
+local incidence angle is defined as the angle between the normal vector
+of the backscattering element (i.e. vector perpendicular to the ground
+surface) and the incoming radiation vector (i.e. vector formed by the
+satellite position and the backscattering element position) [2].</li><li>The
+projected local incidence angle from DEM is defined as the angle
+between the incoming radiation vector (as defined above) and the
+projected surface normal vector into range plane. Here range plane is
+the plane formed by the satellite position, backscattering element
+position and the earth centre [2].<br></li></ol><h4>Steps to Produce Orthorectified Image</h4>
+&nbsp;&nbsp;&nbsp;The following steps should be followed to produce an orthorectified image:<br><ol><li>From the Geometry menu select Terrain Correction. This will call up the dialog for the <a href="../operators/RangeDopplerGeocodingOp.html">Terrain Correction</a>
+Operator (Figure 1).</li><li>Select your source bands.</li><li>Select
+the Digital Elevation Model (DEM) to use. You can select 30
+second GETASSE30 or ACE DEMs if they are installed on your
+computer.&nbsp;Preferably, select the SRTM 3 second DEM which has much
+better
+resolution and can be downloaded as need automatically if you
+have an internet connection.&nbsp;Alternatively,
+you could also browse for an External DEM tile.&nbsp;Currently only DEM in Geotiff format with geographic coordinates (P<sub>lat</sub>, P<sub>lon</sub>, P<sub>h</sub>) referred to global geodetic ellipsoid reference WGS84 (and height in meters)&nbsp;is accepted.</li><li>Select the interpolation methods to use for the DEM resampling and the target image resampling.</li><li>Optionally
+select the Pixel Spacing in meters for&nbsp;the orthorectified image. By default the pixel spacing computed from&nbsp;the
+original SAR image is used.&nbsp;For details, the reader is referred to <span style="font-weight: bold;">Pixel Spacing</span> section above.</li><li>Optionally
+select the Pixel Spacing in degrees for&nbsp;the orthorectified image.
+By default it is computed from the pixel spacing in meters. If any of
+the two pixel spacing is changed, the other one is updated accordingly.&nbsp;For details, the reader is referred to <span style="font-weight: bold;">Pixel Spacing</span> section above.</li><li>Optionally select Map Projection. The orthorectified image will be
+presented with the user selected map projection. By default the output
+image will be expressed in WGS84 latlong geographic coordinate.</li><li>Optionally select to save the DEM as a band and the local incidence angle.</li><li>Optionally select to apply Radiometric Normalizatin to output <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;">0</sup>, <span style="font-style: italic;">&#947;</span><sup style="font-style: italic;">0</sup> or <span style="font-style: italic;">&#946;</span><sup style="font-style: italic;">0</sup> of the orthorectified image.&nbsp;</li><li>Press Run to process the data.</li></ol><p></p><br><div style="text-align: center;"><img style="width: 624px; height: 651px;" alt="" src="images/range_doppler_dlg.JPG"><br><br><span style="font-weight: bold;">Figure 1. Terrain Correction operator dialog box.</span><br></div><br><br><p><br>Below
+are some sample images showing the Terrain Correction result of an ASAR
+IMS product
+ASA_IMS_1PNUPA20081003_092731_000000162072_00351_34473_2366.N1,
+acquired on&nbsp;October 3, 2008,&nbsp;imaging the area around Rome in
+Central Italy. <br></p><p> The ASAR IMS image has been multi-looked with 2 Range looks and 10 Azimuth Looks before to be orthorectified. <br><br>The
+DEM employed is the SRTM 3 second Version 4 and since the SRTM height
+information is referred to geoid EGM96, not WGS84 ellipsoid, correction
+has been applied to obtain height relative to the WGS84 ellipsoid (this
+is done automatically)<br><br>Figure 2 is in the original SAR geometry after multi-looking 2-10. <br><br>The orthorectified image and its radiometric normalised image &#963;0 are shown in Figure 3&nbsp; and Figure 4 respectively. <br><br>Figures 5 and 6 are a zoom of the figure 3 and 4.<br><br>The radiometric scale is in dB/m^2.<br></p><div style="text-align: center;"><img style="width: 592px; height: 616px;" alt="" src="images/IMP_orig.jpg"><br><br><span style="font-weight: bold;">Figure 3. Original SAR Geometry after multi-looking 2-10.</span>&nbsp;</div><br><br><div style="text-align: center;"><img style="width: 722px; height: 569px;" alt="" src="images/IMP_amp.jpg">&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;<img style="width: 693px; height: 545px;" alt="" src="images/IMP_sigma.jpg"><br><br><div style="text-align: left;"><span style="font-weight: bold;">&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; Figure 3. Orthrectified image. &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;
+&nbsp;Figure 4. Radiometric normalized image.</span><br></div></div><br><br><br><div style="text-align: center;"><img style="width: 739px; height: 489px;" alt="" src="images/IMP_amp_zoom.jpg">&nbsp;&nbsp; &nbsp;<img style="width: 739px; height: 490px;" alt="" src="images/IMP_sigma_zoom.jpg"><br><br><div style="text-align: left;"><span style="font-weight: bold;">&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;Figure 5. Zoom in of the
+orthorectified image. &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp;&nbsp;Figure 6.&nbsp;</span><sup><span style="font-weight: bold;"></span></sup><span style="font-weight: bold;">Zoom in of the radiometric normalized image</span><span style="font-weight: bold;"></span><sup><span style="font-weight: bold;"></span></sup><span style="font-weight: bold;">. &nbsp;</span></div></div><br><br><p>After
+Terrain Correction your SAR data will be closer to the real world
+geometry and you will be able to overlay layers from other sources
+correctly.</p><p style="font-weight: bold;"><i ,j=""> Reference:</i></p><p> [1] Small D., Schubert A.,&nbsp;Guide to ASAR Geocoding, RSL-ASAR-GC-AD, Issue 1.0, March 2008</p><p>[2]&nbsp;Schreier G., SAR Geocoding: Data and Systems, Wichmann 1993</p>
+
+
+<p>[3] Rosich B., Meadows P., Absolute calibration of ASAR Level 1 products,
+ESA/ESRIN, ENVI-CLVL-EOPG-TN-03-0010, Issue 1, Rev. 5, October 2004</p><p>[4]
+Laur H., Bally P., Meadows P., Sánchez J., Schättler B., Lopinto E.
+&amp; Esteban D., ERS SAR Calibration: Derivation of &#963;0 in ESA ERS SAR
+PRI Products, ESA/ESRIN, ES-TN-RS-PM-HL09, Issue 2, Rev. 5f, November
+2004&nbsp;</p><p>[5] RADARSAT-2 PRODUCT FORMAT DEFINITION - RN-RP-51-2713 Issue 1/7: March 14, 2008</p><p>[6] Radiometric Calibration of TerraSAR-X data - TSXX-ITD-TN-0049-radiometric_calculations_I1.00.doc, 2008</p><p>[7] For further details about Cosmo-SkyMed calibration please contact Cosmo-SkyMed Help Desk at&nbsp;<font color="black" face="Arial" size="2"><span style="font-size: 10pt; font-family: Arial;" lang="EN-GB"><a href="mailto:info.cosmo@e-geos.it" moz-do-not-send="true">info.cosmo@e-geos.it</a></span></font></p><p></p><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<hr>
+</body></html>

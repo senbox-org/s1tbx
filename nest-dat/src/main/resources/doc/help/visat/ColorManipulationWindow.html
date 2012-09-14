@@ -1,0 +1,391 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+
+    
+    
+  
+  
+  
+  <title>Help - The Colour Manipulation Window</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+
+    
+  
+  <link rel="stylesheet" href="../style.css"></head>
+<body>
+
+
+<table class="header">
+
+
+    <tbody>
+
+    <tr class="header">
+
+
+        <td class="header">&nbsp;
+            The Colour Manipulation Window
+        </td>
+
+
+
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+
+
+    </tr>
+
+
+  
+  </tbody>
+</table>
+
+
+
+<h3>Overview</h3>
+
+
+
+<p>If you are opening an image view of a data product's band or tie-point grid, DAT either loads image settings
+    from the product itself (BEAM-DIMAP format only) or uses default colour settings. The colour manipulation window is
+    used to modify the colours used for the image.
+    Depending on the type of the source data used for the images,
+    the colour manipulation window offers four different editors:
+</p>
+
+
+
+<div align="center">
+    
+<table border="0" width="700">
+
+
+        <tbody>
+
+    <tr align="center">
+
+
+            <td><img src="images/ColManip1BSSmall.png" border="0"></td>
+
+
+            <td><img src="images/ColManip1BTSmall.png" border="0"></td>
+
+
+        </tr>
+
+
+        <tr align="center">
+
+
+            <td>
+                <b>A.1</b>: Editor for images of a single, spectral/geophysical band
+                in <b>Sliders</b> mode
+            </td>
+
+
+            <td>
+                <b>A.2</b>: Editor for images of a single, spectral/geophysical band
+                in <b>Table</b> mode
+            </td>
+
+
+        </tr>
+
+
+        <tr align="center">
+
+
+            <td><img src="images/ColManip1BISmall.png" border="0"></td>
+
+
+            <td><img src="images/ColManipRGBSmall.png" border="0"></td>
+
+
+        </tr>
+
+
+        <tr align="center">
+
+
+            <td>
+                <b>B.</b>: Editor for images of a single, index-coded band
+            </td>
+
+
+            <td>
+                <b>C.</b> Editor for images using separate R,G,B channels
+            </td>
+
+
+        </tr>
+
+
+    
+  
+  </tbody>
+</table>
+
+
+</div>
+
+
+
+<p>To open the colour manipulation window, use the corresponding icon
+    <img src="images/icons/ContrastStretch24.gif" alt="Contrast/Palette Window" border="0">
+    icon in the main toolbar or select <b><a href="ViewMenu.html">View</a>/Tool Windows/Colour Manipulation</b>
+    from the main menu.
+</p>
+
+
+
+<p>Changes in the colour manipulation window will be become effective only if
+    the <b>Apply</b> button is pressed.
+</p>
+
+
+
+
+<h3>A. Editor for images of a single, spectral/geophysical band</h3>
+
+
+
+<p>Images of a single, spectral/geophysical band use a colour palette to assign a colour to a sample value in the source
+    band. By default, the editor is in a mode where sliders are used to modify the colour palette and thereby
+    change the assignment of sample values to colours:
+</p>
+
+
+
+<p align="center"><img src="images/ColManip1BS.png"></p>
+
+
+
+
+<h4>Colour Palette Modifications</h4>
+
+
+
+<p> As the white diagonal line above the histogram indicates, the colour palette will
+    be linearly applied to the samples of the source band of the current <a href="ProductSceneView.html">image view</a>.
+The label below the slider indicates the sample value assigned to the
+position of the slider in the histogram. By moving a slider with the
+mouse you can easily change its sample value. You may also double-click
+the label; then a text field appears where you can enter a sample
+value. When you move a slider, the colours in the palette will change
+accordingly. You can also click between two sliders in order to move
+the nearest slider of both under the mouse cursor.
+</p>
+
+
+
+<p>Slider colours are changed by clicking a slider. A popup window appears, where you can select the new colour.
+    If you select <b>None</b>, a fully transparent slider results. In the <b>More Options</b> panels you can adjust the
+    <b><a href="#nodata">No-Data Colour</a></b> and apply a
+        <b><a href="#histomatch">Histogram Matching</a></b> to enhance the contrast of the final image.
+</p>
+
+
+
+<p> If you right-click on a slider, a context menu will pop up. The available actions are
+    <b>Add slider</b>, <b>Remove slider</b>, <b>Center slider sample</b> and <b>Center slider colour</b>.
+    Some actions may be disabled when the action cannot be performed.
+</p>
+
+
+
+<h4>Table Mode</h4>
+
+
+
+<p>By changing the <b>Editor</b> option from <b>Sliders</b> to <b>Table</b>, the sample value to colour assignment can
+    be done in a table:</p>
+
+
+
+<p align="center"><img src="images/ColManip1BT.png"></p>
+
+
+
+<p>Here you can enter the colour and sample values directly by clicking into a table cell.</p>
+
+
+
+<h3>B. Editor for images of a single, index-coded band</h3>
+
+
+
+<p>Images of a single, index-coded band, look-up discrete colours from a
+    fixed-size table:</p>
+
+
+
+<p align="center"><img src="images/ColManip1BI.png"></p>
+
+
+
+<p>Labels and colours are simply changed by clicking into the corresponding table cell.
+    In the <b>More Options</b> panels you can adjust the <b><a href="#nodata">No-Data Colour</a></b>.</p>
+
+
+
+<h3>Editor for images using separate R,G,B channels</h3>
+
+
+
+<p>Images using separate R,G,B channels obtain their colours from the samples of three arbitrary bands. In the
+    editor, users
+    can switch between the channels in order to edit the contrast stretch range and gamma value of each channel
+    separately.</p>
+
+
+
+<p align="center"><img src="images/ColManipRGB.png"></p>
+
+
+
+<p>In this mode the sliders are used for contrast stretching in each of the R,G,B channels.
+    In the <b>More Options</b> panels, you can adjust the <b><a href="#nodata">No-Data Colour</a></b> and
+    <b><a href="#histomatch">Histogram Matching</a></b> for the final image. The <b>Source Band</b> and <b>Gamma</b>
+    options
+    apply to each channel. The gamma value is used to adapt the transfer function which quantises the band's
+    sample values to colour values. A gamma value of <code>0.7</code> for the blue channel enhances most
+    RGB images.
+</p>
+
+
+
+
+<h3>Common Functions</h3>
+
+
+
+<h4><a name="nodata">No-Data Colour</a></h4>
+
+
+
+<p><a name="nodata">In the <b>More Options</b> panel of all editors you can adjust the <b>No-Data Colour</b>. This colour which
+    will be used for no-data pixels in the source band(s). If you select <b>None</b>, no-data sample will be
+    transparent in the image.</a></p>
+
+
+
+<h4><a name="histomatch">Histogram Matching</a></h4>
+
+
+
+<p><a name="histomatch">It is sometimes desirable to transform an image so that its histogram matches that of a
+    specified functional form. It is possible to apply an equalized or normalized
+    histogram matching to images which can often improve image quality.
+</a></p>
+
+
+
+<h4><a name="multiassign">Multiple Assignment of the current Settings</a></h4>
+
+
+
+<p>
+<a name="multiassign">    A click on the <img src="images/icons/MultiAssign24.gif"> icon opens a dialog where you can select
+    the bands to which you can assign the current colour palette. If the destination band has a similar
+    pixel value range, the slider positions are exactly preserved; otherwise, they are proportionally distributed
+    over the valid range of the destination band.</a></p>
+
+
+
+<h4><a name="multiassign">Import and Export of the Colour Palette</a></h4>
+
+
+
+<p><a name="multiassign"> Click the <img src="images/icons/Import24.gif"> icon to import colour palette definition files and the <img src="images/icons/Export24.gif"> icon to export the current colour manipulation settings.
+</a></p>
+
+
+
+<p><a name="multiassign">The colour palette information used for the current image can also be exported into an image file.
+    Click the context menu item </a><a href="../writers/ExportColorLegend.html">Export Color Legend</a>
+    over an open image view in order export the colour legend.
+</p>
+
+
+
+<p>The colour palette can be also exported as a <a href="../writers/ExportColorPalette.html">Color Palette Table</a>.
+    Choose from the <b>File</b> menu <b>Color Palette</b> to export the table as a *.csv or *.txt file.
+</p>
+
+
+
+
+
+
+<h4><a name="autoadjust">Slider Auto-Adjustment</a></h4>
+
+
+
+<p>
+<a name="autoadjust">    A click on the <img src="images/icons/Auto95Percent24.gif">
+    icon adjusts the sliders to cover 95% of all pixels in the band.
+</a></p>
+
+
+
+<p>
+<a name="autoadjust">    A click on the <img src="images/icons/Auto100Percent24.gif">
+    icon adjusts the sliders to cover 100% (the full range) of all pixels in the band.
+</a></p>
+
+
+
+<p>
+<a name="autoadjust">    A click on the <img src="images/icons/EvenDistribution.gif">
+    icon distributes the inner sliders evenly between the first and the last slider.
+</a></p>
+
+
+
+<h4><a name="zommingintohisto">Zooming into the histogram</a></h4>
+
+
+
+<p>
+<a name="zommingintohisto">    Click on the <img src="images/icons/ZoomIn24V.gif">
+    icon to zoom in vertically or on the
+    <img src="images/icons/ZoomIn24H.gif">
+    icon to
+    zoom into the histogram horizontally.
+</a></p>
+
+
+
+<h4><a name="zommingoutofhisto">Zooming out of the histogram</a></h4>
+
+
+
+<p><a name="zommingoutofhisto"> Click on the <img src="images/icons/ZoomOut24V.gif">
+    icon to zoom out vertically or on the
+    <img src="images/icons/ZoomOut24H.gif">icon
+    to zoom out of the histogram horizontally.
+</a></p>
+
+
+
+<h4><a name="zommingoutofhisto">Reset</a></h4>
+
+
+
+<p><a name="zommingoutofhisto">The reset icon <img src="images/icons/Undo24.gif"> is used to revert the window to use default values.
+</a></p>
+
+
+
+<h4><a name="contexthelp">Context help</a></h4>
+
+
+
+<p><a name="contexthelp"> The help icon <img src="images/icons/Help24.gif"> opens the&nbsp;Help for the current context.
+</a></p>
+
+
+
+
+<hr>
+</body></html>

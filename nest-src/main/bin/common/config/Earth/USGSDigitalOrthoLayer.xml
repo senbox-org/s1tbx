@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--$Id: USGSDigitalOrthoLayer.xml,v 1.1 2010-04-05 17:38:21 lveci Exp $-->
+<Layer version="1" layerType="TiledImageLayer">
+    <DisplayName>USGS Digital Ortho</DisplayName>
+    <Service serviceName="WWTileService">
+        <URL>http://worldwind25.arc.nasa.gov/tile/tile.aspx</URL>
+    </Service>
+    <DatasetName>101dds</DatasetName>
+    <DataCacheName>Earth/USGS Digital Ortho</DataCacheName>
+    <FormatSuffix>.dds</FormatSuffix>
+    <NumLevels count="10" numEmpty="2"/>
+    <TileOrigin>
+        <LatLon units="degrees" latitude="-90" longitude="-180"/>
+    </TileOrigin>
+    <LevelZeroTileDelta>
+        <LatLon units="degrees" latitude="3.2" longitude="3.2"/>
+    </LevelZeroTileDelta>
+    <TileSize>
+        <Dimension width="512" height="512"/>
+    </TileSize>
+    <Sector>
+        <SouthWest>
+            <LatLon units="degrees" latitude="17.84" longitude="-168.67"/>
+        </SouthWest>
+        <NorthEast>
+            <LatLon units="degrees" latitude="71.55" longitude="-65.15"/>
+        </NorthEast>
+    </Sector>
+    <ActiveAltitudes max="7e3"/>
+</Layer>

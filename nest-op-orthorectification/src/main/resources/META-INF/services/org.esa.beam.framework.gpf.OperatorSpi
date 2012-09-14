@@ -1,0 +1,9 @@
+org.esa.nest.gpf.CreateElevationOp$Spi
+org.esa.nest.gpf.RangeDopplerGeocodingOp$Spi
+org.esa.nest.gpf.GeolocationGridGeocodingOp$Spi
+org.esa.nest.gpf.EllipsoidCorrectionRDOp$Spi
+org.esa.nest.gpf.MapReProjectionOp$Spi
+org.esa.nest.gpf.SARSimulationOp$Spi
+org.esa.nest.gpf.SARSimTerrainCorrectionOp$Spi
+org.esa.nest.gpf.MosaicOp$Spi
+org.esa.nest.gpf.ALOSDeskewingOp$Spi

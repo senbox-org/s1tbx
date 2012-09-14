@@ -1,0 +1,31 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+
+    <symbolicName>nest-help</symbolicName>
+    <name>Help</name>
+    <version>5.0</version>
+    <packaging>dir</packaging>
+
+	<vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2012 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>European Space Agency</funding>
+	
+    <description>Provides the software user manual.</description>
+
+    <categories>System,Help</categories>
+
+    <dependency>
+        <module>beam-ui</module>
+    </dependency>
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <id>beam-help</id>
+            <path>doc/help/nest.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

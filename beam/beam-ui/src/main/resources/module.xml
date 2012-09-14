@@ -1,0 +1,226 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-ui</symbolicName>
+    <version>5.0-4.10.4</version>
+    <name>BEAM User Interface Library</name>
+    <activator>org.esa.beam.BeamUiActivator</activator>
+
+
+    <description>This module provides user interface components used e.g. by VISAT.</description>
+    <changelog>
+        <![CDATA[
+        <p>Changes in 4.10<br/>
+        [BEAM-1384] Synchronise image views via geographical center coordinates<br/>
+        [BEAM-1379] Log-scaled data and log-scaled display shall be independent<br/>
+        [BEAM-1377] Spatial Subset From View fails without error message<br/>
+        [BEAM-1314] Processor menus are not visible on Mac<br/>
+        [BEAM-1286] Link images shall use currently displayed image setting when a new band is opened<br/>
+        <p>Changes in 4.9<br/>
+        [BEAM-1292] Reprojection dialog shifts image if pixel size is changed<br/>
+        [BEAM-1184] Reprojection dialog does not remember values<br/>
+        [BEAM-1183] Improve reprojection UI usability<br/>
+        [BEAM-1180] Allow dragging files into VISAT<br/>
+        [BEAM-0009] Define subsets with geographical co-ordinates<br/>
+        </p>
+        <p>Changes in 4.8<br/>
+        [BEAM-1159] Auto-group bands according to their names<br/>
+        [BEAM-1147] Signed byte data type interpreted as unsigned byte<br/>
+        </p>
+        <p>Changes in 4.7<br/>
+        [BEAM-1007] Geo-location / Tie Point Grid consistency<br/>
+        </p>
+        <p>Changes in 4.6<br/>
+        [BEAM-976] Time Info displays wrong UTC time<br/>
+        [BEAM-958] PixelInfo blocks the EDT while updating its table<br/>
+        [BEAM-954] PixelInfoView updates too often<br/>
+        [BEAM-931] Shapes are not displayed while drawing<br/>
+        [BEAM-925] Events (open, shown, hidden) shall be delegated to tool view<br/>
+        [BEAM-880] Pixel info view has a typo<br/>
+        [BEAM-879] Cannot display flag values<br/>
+        </p>
+        <p>Changes in 4.2<br/>
+        [BEAM-820] Deactivate auto docking of tool views by default<br/>
+        [BEAM-819] Newly opened products should not be expanded<br/>
+        [BEAM-726] Memory not fully released after closing a product<br/>
+        [BEAM-712] Processors produce visat.exe zombies<br/>
+        [BEAM-694] Bandarithmetic gives acces to latitude and longitude using the provided geocoding<br/>
+        </p>
+        <p>Changes in 4.0.1<br/>
+        [BEAM-622] Use mouse wheel for zooming<br/>
+        [BEAM-614] Not possible to re-select item in Arithmetic Expression Editor<br/>
+        </p>
+        ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>ceres-ui</module>
+    </dependency>
+    <dependency>
+        <module>ceres-binding</module>
+    </dependency>
+
+    <categories>System,Library</categories>
+
+    <extensionPoint id="helpSets"/>
+
+    <!--
+       todo - Describe configuration elements
+    -->
+    <extensionPoint id="applicationDescriptors">
+        <applicationDescriptor type="org.esa.beam.framework.ui.application.ApplicationDescriptor"
+                               class="@descriptorClass"
+                               autoConfig="true">
+            <descriptorClass type="java.lang.Class">
+                org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor
+            </descriptorClass>
+            <applicationId type="java.lang.String"/>
+            <!-- ID of the ceres application -->
+            <displayName type="java.lang.String"/>
+            <frameIcon field="iconPath" type="java.lang.String"/>
+            <resourceBundle type="java.lang.String"/>
+            <excludedActions type="java.lang.String[]">
+                <!-- Here: IDs of actions you wish to exclude from your application -->
+                <!-- e.g. <id>helpTopics</id> -->
+            </excludedActions>
+            <excludedToolViews type="java.lang.String[]">
+                <!-- Here:  IDs of tool views you wish to exclude from your application -->
+                <!-- e.g. <id>org.esa.beam.visat.toolviews.lm.LayersToolView</id> -->
+            </excludedToolViews>
+        </applicationDescriptor>
+    </extensionPoint>
+
+    <!--
+       todo - Describe configuration elements
+    -->
+    <extensionPoint id="toolViews">
+        <toolView type="org.esa.beam.framework.ui.application.ToolViewDescriptor"
+                  class="@descriptorClass"
+                  autoConfig="true">
+            <descriptorClass type="java.lang.Class">
+                org.esa.beam.framework.ui.application.support.DefaultToolViewDescriptor
+            </descriptorClass>
+            <class field="toolViewClass" type="java.lang.Class"/>
+            <title type="java.lang.String"/>
+            <description type="java.lang.String"/>
+            <accelerator type="javax.swing.KeyStroke"/>
+            <icon field="iconPath" type="java.lang.String"/>
+            <mnemonic type="char"/>
+        </toolView>
+    </extensionPoint>
+
+    <!--
+       todo - Describe configuration elements
+    -->
+    <extensionPoint id="actions">
+        <action type="org.esa.beam.framework.ui.command.Command"
+                class="@class"
+                autoConfig="false">
+            <id type="java.lang.String"/>
+            <class type="java.lang.Class"/>
+            <parent type="java.lang.String"/>
+            <text type="java.lang.String"/>
+            <context type="java.lang.String"/>
+            <mnemonic type="char"/>
+            <accelerator type="javax.swing.KeyStroke"/>
+            <placeAtContextTop type="boolean"/>
+            <placeBefore type="java.lang.String"/>
+            <placeAfter type="java.lang.String"/>
+            <separatorBefore type="boolean"/>
+            <separatorAfter type="boolean"/>
+            <shortDescr type="java.lang.String"/>
+            <description type="java.lang.String"/>
+            <smallIcon type="java.lang.String"/>
+            <largeIcon type="java.lang.String"/>
+            <helpId type="java.lang.String"/>
+        </action>
+
+    </extensionPoint>
+
+    <!--
+       The extension point 'layerEditors' comprises any number of 'layerEditor' elements.
+       These are mappings from a specific layer or layer type to an appropriate layer editor or editor factory.
+    -->
+    <extensionPoint id="layerEditors">
+        <layerEditor type="org.esa.beam.framework.ui.layer.LayerEditorDescriptor"
+                     class="@descriptorClass"
+                     autoConfig="true">
+            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.layer.DefaultLayerEditorDescriptor
+            </descriptorClass>
+
+            <!--
+                 Either 'editor' or 'editorFactory' must be given:
+                 - 'editor' must be a 'org.esa.beam.framework.ui.layer.LayerEditor'
+                 - 'editorFactory' must be a 'com.bc.ceres.core.ExtensionFactory' that produces
+                    instances of 'org.esa.beam.framework.ui.layer.LayerEditor'.
+             -->
+            <editor field="layerEditorClass" type="java.lang.Class"/>
+            <editorFactory field="layerEditorFactoryClass" type="java.lang.Class"/>
+
+            <!--
+                 At least 'layer' or 'layerType' must be given:
+                 - 'layer' must be a 'com.bc.ceres.glayer.Layer'
+                 - 'layerType' must be a 'com.bc.ceres.glayer.LayerType'.
+             -->
+            <layer field="layerClass" type="java.lang.Class"/>
+            <layerType field="layerTypeClass" type="java.lang.Class"/>
+
+        </layerEditor>
+    </extensionPoint>
+
+    <!--
+       todo - Describe configuration elements
+    -->
+    <extensionPoint id="layerSources">
+        <layerSource type="org.esa.beam.framework.ui.layer.LayerSourceDescriptor"
+                     class="@descriptorClass"
+                     autoConfig="true">
+            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.layer.DefaultLayerSourceDescriptor
+            </descriptorClass>
+            <id field="id" type="java.lang.String"/>
+            <name field="name" type="java.lang.String"/>
+            <description field="description" type="java.lang.String"/>
+            <class field="layerSourceClass" type="java.lang.Class"/>
+            <layerType field="layerTypeClassName" type="java.lang.String"/>
+        </layerSource>
+    </extensionPoint>
+
+
+    <!--
+        Experimental code added by Norman.
+        Demonstrates how we create layers for special feature types, e.g. "org.esa.beam.TrackPoint".
+        See class org.esa.beam.framework.ui.product.TrackLayerTypeFactory.
+    -->
+    <extension point="ceres-core:adapters">
+        <adapter>
+            <extensibleType>org.esa.beam.framework.datamodel.VectorDataNode</extensibleType>
+            <extensionFactory>org.esa.beam.framework.ui.product.TrackLayerTypeFactory</extensionFactory>
+        </adapter>
+    </extension>
+
+</module>

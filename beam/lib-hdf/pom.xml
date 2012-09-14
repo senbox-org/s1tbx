@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.esa.beam</groupId>
+        <artifactId>beam</artifactId>
+        <version>5.0-4.10.4</version>
+    </parent>
+
+    <name>HDF Library</name>
+    <groupId>ncsa.hdf</groupId>
+    <artifactId>lib-hdf</artifactId>
+    <version>${hdf.version}</version>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>ncsa.hdf</groupId>
+            <artifactId>jhdf</artifactId>
+            <version>${hdf.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ncsa.hdf</groupId>
+            <artifactId>jhdf5</artifactId>
+            <version>${hdf.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-jars</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <stripVersion>true</stripVersion>
+                            <artifactItems>
+
+                                <artifactItem>
+                                    <groupId>ncsa.hdf</groupId>
+                                    <artifactId>jhdf</artifactId>
+                                    <version>${hdf.version}</version>
+                                    <outputDirectory>src/main/resources/lib</outputDirectory>
+                                </artifactItem>
+
+                                <artifactItem>
+                                    <groupId>ncsa.hdf</groupId>
+                                    <artifactId>jhdf5</artifactId>
+                                    <version>${hdf.version}</version>
+                                    <outputDirectory>src/main/resources/lib</outputDirectory>
+                                </artifactItem>
+
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-natives</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ncsa.hdf</groupId>
+                                    <artifactId>hdf-natives</artifactId>
+                                    <version>${hdf.version}</version>
+                                    <type>zip</type>
+                                    <outputDirectory>src/main/resources/lib</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

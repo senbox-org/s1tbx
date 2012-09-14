@@ -1,0 +1,54 @@
+#
+# 1) product_type
+# 2) description
+#
+MER_FR__1P_IODD5|MERIS Level 1b Full Resolution Geophysical Product
+
+#
+# 1) band_name
+# 2) dataset_name
+# 3) sample_offset
+# 4) band_datatype
+# 5) spectr_band_index
+# 6) scaling_method
+# 7) scaling_offset
+# 8) scaling_factor
+# 9) bit_expr
+# 10) flags_definition_file
+# 11) unit
+# 12) description
+#
+#1          |2                |3   |4    |5 |6           |7  |8                       |9                |10                         |11            |12
+#-----------|-----------------|----|-----|--|------------|---|------------------------|-----------------|---------------------------|--------------|------------------------------------------------------------------
+latitude    |Tie_points_ADS.3 |*   |Float|* |Linear_Scale|0.0|1.0E-06                 |*                |*                          |deg           |Latitude of the tie points (WGS-84), positive N
+longitude   |Tie_points_ADS.4 |*   |Float|* |Linear_Scale|0.0|1.0E-06                 |*                |*                          |deg           |Longitude of the tie points (WGS-84), Greenwich origin, positive E
+dem_alt     |Tie_points_ADS.5 |*   |Float|* |Linear_Scale|0.0|Scaling_Factor_GADS.1.1 |*                |*                          |m             |Digital elevation model altitude
+dem_rough   |Tie_points_ADS.6 |*   |Float|* |Linear_Scale|0.0|Scaling_Factor_GADS.2.1 |*                |*                          |m             |Digital elevation model roughness
+lat_corr    |Tie_points_ADS.7 |*   |Float|* |Linear_Scale|0.0|1.0E-06                 |*                |*                          |deg           |Digital elevation model latitude corrections
+lon_corr    |Tie_points_ADS.8 |*   |Float|* |Linear_Scale|0.0|1.0E-06                 |*                |*                          |deg           |Digital elevation model longitude corrections
+sun_zenith  |Tie_points_ADS.9 |*   |Float|* |Linear_Scale|0.0|1.0E-06                 |*                |*                          |deg           |Sun zenith angle
+sun_azimuth |Tie_points_ADS.10|*   |Float|* |Linear_Scale|0.0|1.0E-06                 |*                |*                          |deg           |Sun azimuth angles
+view_zenith |Tie_points_ADS.11|*   |Float|* |Linear_Scale|0.0|1.0E-06                 |*                |*                          |deg           |Viewing zenith angles
+view_azimuth|Tie_points_ADS.12|*   |Float|* |Linear_Scale|0.0|1.0E-06                 |*                |*                          |deg           |Viewing azimuth angles
+zonal_wind  |Tie_points_ADS.13|*   |Float|* |Linear_Scale|0.0|Scaling_Factor_GADS.3.1 |*                |*                          |m/s           |Zonal wind
+merid_wind  |Tie_points_ADS.14|*   |Float|* |Linear_Scale|0.0|Scaling_Factor_GADS.4.1 |*                |*                          |m/s           |Meridional wind
+atm_press   |Tie_points_ADS.15|*   |Float|* |Linear_Scale|0.0|Scaling_Factor_GADS.5.1 |*                |*                          |hPa           |Mean sea level pressure
+ozone       |Tie_points_ADS.16|*   |Float|* |Linear_Scale|0.0|Scaling_Factor_GADS.6.1 |*                |*                          |DU            |Total ozone
+rel_hum     |Tie_points_ADS.17|*   |Float|* |Linear_Scale|0.0|Scaling_Factor_GADS.7.1 |*                |*                          |%             |Relative humidity
+radiance_1  |Radiance_1.3     |*   |Float|1 |Linear_Scale|0.0|Scaling_Factor_GADS.8.1 |!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 1
+radiance_2  |Radiance_2.3     |*   |Float|2 |Linear_Scale|0.0|Scaling_Factor_GADS.8.2 |!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 2
+radiance_3  |Radiance_3.3     |*   |Float|3 |Linear_Scale|0.0|Scaling_Factor_GADS.8.3 |!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 3
+radiance_4  |Radiance_4.3     |*   |Float|4 |Linear_Scale|0.0|Scaling_Factor_GADS.8.4 |!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 4
+radiance_5  |Radiance_5.3     |*   |Float|5 |Linear_Scale|0.0|Scaling_Factor_GADS.8.5 |!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 5
+radiance_6  |Radiance_6.3     |*   |Float|6 |Linear_Scale|0.0|Scaling_Factor_GADS.8.6 |!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 6
+radiance_7  |Radiance_7.3     |*   |Float|7 |Linear_Scale|0.0|Scaling_Factor_GADS.8.7 |!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 7
+radiance_8  |Radiance_8.3     |*   |Float|8 |Linear_Scale|0.0|Scaling_Factor_GADS.8.8 |!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 8
+radiance_9  |Radiance_9.3     |*   |Float|9 |Linear_Scale|0.0|Scaling_Factor_GADS.8.9 |!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 9
+radiance_10 |Radiance_10.3    |*   |Float|10|Linear_Scale|0.0|Scaling_Factor_GADS.8.10|!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 10
+radiance_11 |Radiance_11.3    |*   |Float|11|Linear_Scale|0.0|Scaling_Factor_GADS.8.11|!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 11
+radiance_12 |Radiance_12.3    |*   |Float|12|Linear_Scale|0.0|Scaling_Factor_GADS.8.12|!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 12
+radiance_13 |Radiance_13.3    |*   |Float|13|Linear_Scale|0.0|Scaling_Factor_GADS.8.13|!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 13
+radiance_14 |Radiance_14.3    |*   |Float|14|Linear_Scale|0.0|Scaling_Factor_GADS.8.14|!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 14
+radiance_15 |Radiance_15.3    |*   |Float|15|Linear_Scale|0.0|Scaling_Factor_GADS.8.15|!l1_flags.INVALID|*                          |mW/(m^2*sr*nm)|TOA radiance band 15
+l1_flags    |Flags.3          |1OF2|UChar|* |*           |*  |*                       |*                |@/flags/MER_RR__1P_flags.dd|*             |Level 1b classification and quality flags
+ssi         |Flags.3          |2OF2|UChar|* |*           |*  |*                       |*                |*                          |*             |Spectral shift index

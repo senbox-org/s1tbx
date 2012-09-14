@@ -1,0 +1,98 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+
+<head>
+    <title>BEAM GPF Module beam-cluster-analysis</title>
+</head>
+
+<body>
+
+<h3>About BEAM GPF Module beam-cluster-analysis, Version 1.0</h3>
+
+<h4>Module Content</h4>
+This module comprises the following sources and resources:
+<ul>
+    <li><code>readme.html</code> - this file</li>
+    <li><code><a href="pom.xml">pom.xml</a></code> - the Maven 2 project model (POM) file, see below</li>
+    <li><code><a href="src/main/java">src/main/java</a></code> - the Java source code</li>
+    <li><code><a href="src/main/resources/module.xml">src/main/resources/module.xml</a></code> - the BEAM module
+        manifest</li>
+    <li><code><a href="src/main/resources/about.html">src/main/resources/about.html</a></code> - information about the
+        module</li>
+    <li><code><a href="src/main/resources/license.txt">src/main/resources/license.txt</a></code> - a copy of the GPL
+    </li>
+    <li><code><a href="src/test/java">src/test/java</a></code> - source code of the JUnit tests</li>
+</ul>
+
+<h4>Module Development</h4>
+
+<p>This project requires the Apache <a href="http://maven.apache.org/">Maven 2</a>
+    software project management and comprehension tool to be installed and set-up on your computer.
+    To start development, open a console window or a shell and <code>cd</code> into the directory where
+    you have unpacked this module's contents.
+</p>
+
+<p>To build the module, type</p>
+<pre>
+    mvn package
+</pre>
+
+
+<p>To install the module (and make it available as dependency in other modules), type</p>
+<pre>
+    mvn clean install
+</pre>
+
+<p>To create the project files for your IDE, type</p>
+<pre>
+    mvn idea:idea
+</pre>
+resp.
+<pre>
+    mvn eclipse:eclipse
+</pre>
+
+<h4>Module License</h4>
+
+<!-- TODO: Adapt to your license (compatible with GPL) -->
+<p>
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation. This program is distributed in the hope it will
+    be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the <a href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a>
+    for more details.
+</p>
+
+<p>
+    You have received a <a href="src/main/resources/license.txt">copy</a> of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+</p>
+
+<!-- TODO: Adapt to your company -->
+<p>
+    <i>Copyright &copy; 2007 by Brockmann Consult (info@brockmann-consult.de)</i>
+</p>
+
+</body>
+</html>

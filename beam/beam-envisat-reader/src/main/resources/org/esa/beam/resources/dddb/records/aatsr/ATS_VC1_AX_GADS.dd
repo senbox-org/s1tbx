@@ -1,0 +1,34 @@
+ATS_VC1_AX_GADS|Visible calibration coefficients GADS|*
+#
+dsr_time       |@/types/UTC.dd|MJD |12 |1 |* |Time of cal in MJD format                         |1  |
+attach_flag    |UChar         |flag|1  |1 |* |Attachment flag (always set to zero for this flag)|2  |
+spare_1        |Spare         |*   |3  |1 |* |Spare                                             |3  |
+slp_16_mic     |Float         |*   |4  |1 |* |1.6 micron slope                                  |4  |
+slp_087_mic    |Float         |*   |4  |1 |* |0.870 micron slope                                |5  |
+slp_067_mic    |Float         |*   |4  |1 |* |0.670 micron slope                                |6  |
+slp_055_mic    |Float         |*   |4  |1 |* |0.555 micron slope                                |7  |
+asc_time       |@/types/UTC.dd|MJD |12 |1 |* |UTC at ascending node crossing, in MJD format     |8  |
+ave_mon_cnt    |Float         |*   |4  |1 |* |Average Monitor count                             |9  |
+sd_mon_cnt     |Float         |*   |4  |1 |* |Standard deviation of Monitor count               |10 |
+sol_irr_16     |Float         |*   |4  |1 |* |Solar irradiance (1.6 micron)                     |11 |
+sol_irr_087    |Float         |*   |4  |1 |* |Solar irradiance (0.870 micron)                   |12 |
+sol_irr_067    |Float         |*   |4  |1 |* |Solar irradiance (0.670 micron)                   |13 |
+sol_irr_055    |Float         |*   |4  |1 |* |Solar irradiance (0.555 micron)                   |14 |
+ave_vispix_16  |Float         |*   |4  |1 |* |Average VISCAL Pixel Counts (1.6 (m)              |15 |
+ave_vispix_087 |Float         |*   |4  |1 |* |Average VISCAL Pixel Counts (0.87 (m)             |16 |
+ave_vispix_067 |Float         |*   |4  |1 |* |Average VISCAL Pixel Counts (0.67 (m)             |17 |
+ave_vispix_055 |Float         |*   |4  |1 |* |Average VISCAL Pixel Counts (0.55 (m)             |18 |
+vis_pixnois_16 |Float         |*   |4  |1 |* |VISCAL Pixel Noise (1.6 micron)                   |19 |
+vis_pixnois_087|Float         |*   |4  |1 |* |VISCAL Pixel Noise (0.87 micron)                  |20 |
+vis_pixnois_067|Float         |*   |4  |1 |* |VISCAL Pixel Noise (0.67 micron)                  |21 |
+vis_pixnois_055|Float         |*   |4  |1 |* |VISCAL Pixel Noise (0.55 micron)                  |22 |
+ave_xbb_16     |Float         |*   |4  |1 |* |Average -X BB Pixel Counts (1.6 (m)               |23 |
+ave_xbb_cnt_087|Float         |*   |4  |1 |* |Average -X BB Pixel Counts (0.87 (m)              |24 |
+ave_xbb_cnt_067|Float         |*   |4  |1 |* |Average -X BB Pixel Counts (0.67 (m)              |25 |
+ave_xbb_cnt_055|Float         |*   |4  |1 |* |Average -X BB Pixel Counts (0.55 (m)              |26 |
+xbb_nois_16    |Float         |*   |4  |1 |* |-X BB Pixel Noise (1.6 micron)                    |27 |
+xbb_nois_087   |Float         |*   |4  |1 |* |-X BB Pixel Noise (0.87 micron)                   |28 |
+xbb_nois_067   |Float         |*   |4  |1 |* |-X BB Pixel Noise (0.67 micron)                   |29 |
+xbb_nois_055   |Float         |*   |4  |1 |* |-X BB Pixel Noise (0.55 micron)                   |30 |
+parity_char    |SShort        |*   |2  |1 |* |(Reserved for parity indicator)                   |31 |
+spare_2        |Spare         |*   |20 |1 |* |Spare                                             |32 |

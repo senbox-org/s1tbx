@@ -1,0 +1,59 @@
+# This file contains the product structure for the MODIS TERRA/AQUA Surface Reflectance Daily L2G Global 1km and 500m products
+
+META | StructMeta | StructMetadata.0
+#---------------------------------------------------------------------------------------------------------------------
+# The folowing block describes the structure of the scientific datases (SDS)
+# The meaning of the fields:
+#   1 - SDS - keyword
+#   2 - the name of the set of bands as they appear in the HDF file
+#   3 - whether the band is a spectral band or not (true or false)
+#   4 - the scaling method (lin, exp or '*' - no scaling)
+#   5 - the name of the attribute containing the scaling factors - or '*' - no scaling
+#   6 - the name of the attribute containing the scaling offsets - or '*' - no scaling
+#   7 - the name of the attribute containing the physical unit
+#   8 - the name of the attribute containing the spectral band indices - or '@' and a band name when the band indices are referenced somewhere else in the product
+#   9 - the attribute name containing a description for the band
+#  10 - the spectral wavelength in nm (nanomater) units
+#  11 - the spectral bandwidth in nm (nanomater) units
+#  12 - the (zero-based) spectral band index
+#
+# 1  | 2                     | 3     | 4   | 5            | 6          | 7     | 8 | 9         | 10    | 11 | 12
+#----+-----------------------+-------+-----+--------------+------------+-------+---+-----------+-------+----+---+
+SDS  | num_observations_500m | false | *   | *            | *          | *     | * | long_name
+SDS  | sur_refl_b01_1        | true  | lin | scale_factor | add_offset | units | * | long_name | 645   | 50 | 2
+SDS  | sur_refl_b02_1        | true  | lin | scale_factor | add_offset | units | * | long_name | 858.5 | 35 | 3
+SDS  | sur_refl_b03_1        | true  | lin | scale_factor | add_offset | units | * | long_name | 469   | 20 | 0
+SDS  | sur_refl_b04_1        | true  | lin | scale_factor | add_offset | units | * | long_name | 555   | 20 | 1
+SDS  | sur_refl_b05_1        | true  | lin | scale_factor | add_offset | units | * | long_name | 1240  | 20 | 4
+SDS  | sur_refl_b06_1        | true  | lin | scale_factor | add_offset | units | * | long_name | 1640  | 24 | 5
+SDS  | sur_refl_b07_1        | true  | lin | scale_factor | add_offset | units | * | long_name | 2130  | 50 | 6
+SDS  | QC_500m_1             | false | *   | *            | *          | units | * | long_name
+SDS  | obscov_500m_1         | false | lin | scale_factor | add_offset | units | * | long_name
+SDS  | iobs_res_1            | false | *   | *            | *          | *     | * | long_name
+SDS  | q_scan_1              | false | *   | *            | *          | *     | * | long_name
+
+
+#---------------------------------------------------------------------------------------------------------------------
+# The folowing block describes the structure of the tie point grids
+# The meaning of the fields:
+#   1 - TIEP - keyword
+#   2 - the name of tiepointgrid as they appear in the HDF file
+#   3 - the name of the attribute containing the scaling factors - or '*' - no scaling
+#   4 - the name of the attribute containing the scaling offsets - or '*' - no scaling
+#   5 - the name of the attribute containing the physical unit
+#   6 - offset X
+#   7 - offset Y
+#   8 - subsampling X
+#   9 - subsampling Y
+#
+# 1  | 2                     | 3            | 4          | 5     | 6 | 7 | 8 | 9
+#----+-----------------------+--------------+------------+-------+---+---+---+---
+#TIEP | num_observations_1km  | *            | *          | *     | 1 | 1 | 2 | 2
+#TIEP | state_1km_1           | *            | *          | units | 1 | 1 | 2 | 2
+#TIEP | SensorZenith_1        | scale_factor | *          | units | 1 | 1 | 2 | 2
+#TIEP | SensorAzimuth_1       | scale_factor | *          | units | 1 | 1 | 2 | 2
+#TIEP | Range_1               | scale_factor | *          | units | 1 | 1 | 2 | 2
+#TIEP | SolarZenith_1         | scale_factor | *          | units | 1 | 1 | 2 | 2
+#TIEP | SolarAzimuth_1        | scale_factor | *          | units | 1 | 1 | 2 | 2
+#TIEP | gflags_1              | *            | *          | units | 1 | 1 | 2 | 2
+#TIEP | orbit_pnt_1           | *            | *          | *     | 1 | 1 | 2 | 2

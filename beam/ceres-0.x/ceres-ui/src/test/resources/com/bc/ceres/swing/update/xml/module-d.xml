@@ -1,0 +1,19 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-d</symbolicName>
+    <description>This is Module D</description>
+    <version>3</version>
+
+    <activator>com.bc.modules.ModuleDActivator</activator>
+    <categories>
+        Apple,ORANGE,Clouds
+    </categories>
+
+    <dependency>
+        <module>module-a</module>
+    </dependency>
+
+    <extensionPoint id="ep-1"/>
+    <extensionPoint id="ep-2"/>
+
+</module>

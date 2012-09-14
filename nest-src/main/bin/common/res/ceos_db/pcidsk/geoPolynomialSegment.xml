@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ceos version="1.0" mission="alos">
+	<rec name="Text describing segment contents" type="1" num="64"/> 
+	<rec name="skipBytes" type="0" num="64"/> 
+	<rec name="Creation time and date" type="1" num="16"/> 
+	<rec name="Last update time and date" type="1" num="16"/>
+	<rec name="skipBytes" type="0" num="224"/> 
+	<rec name="segment history 1" type="1" num="80"/> 
+	<rec name="segment history 2" type="1" num="80"/>
+	<rec name="segment history 3" type="1" num="80"/>
+	<rec name="segment history 4" type="1" num="80"/>
+	<rec name="segment history 5" type="1" num="80"/>
+	<rec name="segment history 6" type="1" num="80"/>	
+	<rec name="segment history 7" type="1" num="80"/>
+	<rec name="segment history 8" type="1" num="80"/>
+	
+	<rec name="Transform type" type="1" num="16"/>
+	<rec name="Input coordinate system" type="1" num="16"/>
+	<rec name="Output coordinate system" type="1" num="16"/>
+	<rec name="Number of X coeficients" type="2" num="8"/>
+	<rec name="Number of Y coeficients" type="2" num="8"/>
+	<rec name="skipBytes" type="0" num="148"/> 
+	<struct nloop="55">
+		<rec name="X transform coefficients" type="5" num="26"/>
+	</struct>
+	<struct nloop="55">
+		<rec name="Y transform coefficients" type="5" num="26"/>
+	</struct>
+</ceos>

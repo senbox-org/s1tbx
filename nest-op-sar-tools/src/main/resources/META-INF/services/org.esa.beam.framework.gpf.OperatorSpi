@@ -1,0 +1,16 @@
+org.esa.nest.gpf.DataAnalysisOp$Spi
+org.esa.nest.gpf.SRGROp$Spi
+org.esa.nest.gpf.MultilookOp$Spi
+org.esa.nest.gpf.OversamplingOp$Spi
+org.esa.nest.gpf.UndersamplingOp$Spi
+org.esa.nest.gpf.ConvertDataTypeOp$Spi
+org.esa.nest.gpf.DeburstWSSOp$Spi
+org.esa.nest.gpf.orbits.ApplyOrbitFileOp$Spi
+org.esa.nest.gpf.filtering.FilterOperator$Spi
+org.esa.nest.gpf.filtering.SpeckleFilterOp$Spi
+org.esa.nest.gpf.filtering.MultiTemporalSpeckleFilterOp$Spi
+org.esa.nest.gpf.FillHoleOp$Spi
+org.esa.nest.gpf.ReplaceMetadataOp$Spi
+org.esa.nest.gpf.LinearTodBOp$Spi
+org.esa.nest.gpf.BandSelectOp$Spi
+org.esa.nest.gpf.ImportVectorOp$Spi

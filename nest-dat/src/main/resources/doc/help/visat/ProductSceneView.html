@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+    
+    
+  
+  <title>Help - Image View</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+
+<table class="header">
+
+    <tbody>
+    <tr class="header">
+
+        <td class="header">&nbsp;
+            Image View</td>
+
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+
+<h3>Image View</h3>
+
+
+<p>
+    The image view displays the sample values of raster datasets such as bands and tie-point grids as an image.
+</p>
+
+
+<p align="center"><img style="width: 726px; height: 556px;" alt="" src="images/ImageView.jpg"></p>
+
+
+<p style="margin-bottom: 0pt;"><br></p><h4><a name="sliderBar">Slider Bar</a></h4>
+
+<p>
+<a name="sliderBar">    By default the horizontal and vertical slider bars are disabled for the image view.
+    You can activate the sliders again in the preferences dialog in the section
+    </a>Layer Properties.<br>
+    If the slider bars are visible you have also a small button&nbsp;in the
+    lower right corner of the image view which zooms to the fill image bounds if you click on it
+</p>
+
+<h4><a name="navControl">Navigation Control</a></h4>
+
+<p>
+<a name="navControl">    The navigation control, which is located in the upper left corner of the image view, can be used to
+    pan, zoom and rotate the image. The visibility of the control is dimmed if the mouse pointer is not
+    located over the and it becomes visible when the mouse gets near the control.<br>
+    If you rotate the image, you can use the <b>CTRL</b>-Key to change the stepping of the rotation angle from
+    continuous values to a discrete stepping of quarter of 90°.<br>
+    The left image shows the dimmed version of the control the right one shows the active control with a rotation.
+    You can deactivate the navigation control in the preferences dialog in the section </a>Layer Properties
+</p><h4>Multiple Windows of the same band</h4>
+
+
+<p>It is possible to open more than one window of the same band to have several views on the band. This can be done
+    by right-clicking on the band name in the <b>Product Scene View</b>. The windows will be numbered according to their
+    appearance:</p>
+
+
+<p><img src="images/MultipleImageViews.jpg" height="649" width="789"></p>
+
+<h4><a name="contextmenu"></a>Context Menu
+</h4>
+
+
+<p>When you right-click the mouse over the image view a popup menu comes up:
+</p>
+
+
+<p align="center"><img style="width: 217px; height: 191px;" alt="" src="images/PopupMenuImageView.jpg"></p>
+
+
+<p style="margin-bottom: 0pt;">Entries:</p>
+
+<ul style="margin-top: 0pt;">
+
+    <li><b>Copy Pixel Info to Clipboard</b> - copies all sample values at the current
+        pixel position, their names and physical units (which you also can see in
+        the pixel view) to the clipboard</li>
+
+    <li><b><a href="GeometryManagement.html">Show ROI Overlay</a></b>
+        - toggles the visibility state of the ROI overlay</li>
+
+    
+
+    <li><b><a href="ShowGraticuleOverlay.html">Show Graticule
+        Overlay</a></b> - toggles the visibility state of the graticule overlay</li>
+
+    <li><b><a href="PinManagement.html">Show Pin Overlay</a></b>
+        - toggles the visibility state of the pin overlay</li>
+
+    <li><b><a href="ProductSubsetDialog.html">Create Subset from View</a></b> - opens a new product subset dialog,
+        with predefined spatial subset scene from the current image view</li>
+
+</ul>
+
+
+
+<p class="inote"><b>Note:</b> The <b>Copy Pixel Info to Clipboard</b> command copies information as tabulator-separated
+    text
+    into the clipboard and may therefore be pasted directly into a spreadsheet application (e.g. MS Excel).</p>
+
+
+
+<h4><a name="rgbSupport">RGB Image Support</a></h4>
+
+On creating an RGB image view you are prompted to select or create a <a href="RGBImageProfile.html">RGB-Profile</a>.
+You have also the possiblity to create new and change existing profiles in the
+<a href="PreferencesDialog.html#rgbprofiles">user preferences</a>.
+<p>
+
+</p>
+<p class="inote"><b>Note:</b> The band to be used for each of the channels in the current RGB image view
+    can be changed at any time in the <a href="ColorManipulationWindow.html">Contrast Stretch / Color
+    Palette</a>
+    window.
+</p>
+
+
+<hr>
+</body></html>

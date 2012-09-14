@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--$Id: LegacyBMNGSurfaceLayer.xml,v 1.1 2010-04-05 17:38:21 lveci Exp $-->
+<Layer version="1" layerType="TiledImageLayer">
+    <!-- Defines the original WWJ Blue Marble imagery that uses the WW tile service. Made obsolete by the WMS version -->
+    <DisplayName>NASA Blue Marble</DisplayName>
+    <Service serviceName="WWTileService">
+        <URL>http://worldwind25.arc.nasa.gov/tile/tile.aspx</URL>
+    </Service>
+    <DatasetName>bmng.topo.bathy.200405dds</DatasetName>
+    <DataCacheName>Earth/BMNG/BMNG(Shaded + Bathymetry) Tiled - Version 1.1 - 5.2004</DataCacheName>
+    <FormatSuffix>.dds</FormatSuffix>
+    <NumLevels count="5" numEmpty="0"/>
+    <TileOrigin>
+        <LatLon units="degrees" latitude="-90" longitude="-180"/>
+    </TileOrigin>
+    <LevelZeroTileDelta>
+        <LatLon units="degrees" latitude="36" longitude="36"/>
+    </LevelZeroTileDelta>
+    <TileSize>
+        <Dimension width="512" height="512"/>
+    </TileSize>
+    <Sector>
+        <SouthWest>
+            <LatLon units="degrees" latitude="-90" longitude="-180"/>
+        </SouthWest>
+        <NorthEast>
+            <LatLon units="degrees" latitude="90" longitude="180"/>
+        </NorthEast>
+    </Sector>
+    <ForceLevelZeroLoads>true</ForceLevelZeroLoads>
+    <RetainLevelZeroTiles>true</RetainLevelZeroTiles>
+    <UseTransparentTextures>false</UseTransparentTextures>
+</Layer>

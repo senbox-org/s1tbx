@@ -1,0 +1,129 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<project
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.esa.beam</groupId>
+        <artifactId>beam</artifactId>
+        <version>5.0-4.10.4</version>
+    </parent>
+
+    <name>BEAM Core API</name>
+    <groupId>org.esa.beam</groupId>
+    <artifactId>beam-core</artifactId>
+    <version>5.0-4.10.4</version>
+
+    <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-binio</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-glayer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-jai</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.media.jai</groupId>
+            <artifactId>jai-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.media.jai</groupId>
+            <artifactId>jai-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.media.jai</groupId>
+            <artifactId>mlibwrapper-jai</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.media</groupId>
+            <artifactId>jai-imageio</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.media</groupId>
+            <artifactId>clibwrapper-jiio</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdom</groupId>
+            <artifactId>jdom</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bc.jnn</groupId>
+            <artifactId>jnn</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>Jama</groupId>
+            <artifactId>Jama</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-main</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-referencing</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-geotiff</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-epsg-hsql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-shapefile</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-cql</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>com.vividsolutions</groupId>
+            <artifactId>jts</artifactId>     
+		</dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

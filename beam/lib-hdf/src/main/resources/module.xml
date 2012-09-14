@@ -1,0 +1,49 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>lib-hdf</symbolicName>
+    <name>HDF Library</name>
+    <version>2.7</version>
+    <packaging>dir</packaging>
+    <native>true</native>
+    <categories>Library,HDF</categories>
+
+    <description>A wrapper module for the native libraries used to read data products in HDF format.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2010 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <lib>lib/jhdf.jar</lib>
+    </dependency>
+    <dependency>
+        <lib>lib/jhdf5.jar</lib>
+    </dependency>
+
+    <changelog>
+        <![CDATA[
+        <p>Changes in 2.7<br/>
+            [BEAM-1279] Add 64-bit HDF libaries for all platforms<br/>
+        </p>
+        ]]>
+    </changelog>
+
+</module>

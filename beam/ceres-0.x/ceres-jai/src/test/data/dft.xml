@@ -1,0 +1,38 @@
+<!--
+
+-->
+
+<operation>
+    <source id="s0">
+        <op>FileLoad</op>
+        <parameter>in.jpg</parameter>
+    </source>
+    <source id="s1">
+        <op>DFT</op>
+        <source refid="s0"/>
+        <parameter>SCALING_NONE</parameter>
+        <parameter>REAL_TO_COMPLEX</parameter>
+    </source>
+    <source id="s2">
+        <op>MultiplyConst</op>
+        <source refid="s1"/>
+        <parameter>0.8</parameter>
+    </source>
+    <source id="s3">
+        <op>IDFT</op>
+        <source refid="s2"/>
+        <parameter>SCALING_DIMENSIONS</parameter>
+        <parameter>COMPLEX_TO_REAL</parameter>
+    </source>
+    <source id="s4">
+        <op>Format</op>
+        <source refid="s3"/>
+        <parameter>0</parameter>
+    </source>
+    <target>
+        <op>FileStore</op>
+        <source refid="s4"/>
+        <parameter>dft.tiff</parameter>
+        <parameter>TIFF</parameter>
+    </target>
+</operation>

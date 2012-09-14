@@ -1,0 +1,5 @@
+MER_RR__2P_MDSR_19|Level 2 MDS(19) aerosol epsilon or cloud type and optical thickness|*
+#
+dsr_time       |@/types/UTC.dd |MJD  |12 |1                  |*|Start Time of DSR|1|
+quality_flag   |UChar          |flag |1  |1                  |*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+aer_cl_opt_pix |UChar          |*    |1  |2*sceneRasterWidth |*|Aerosol Angstrom exponent or cloud type and optical thickness pixels, interleaved by pixel|3|

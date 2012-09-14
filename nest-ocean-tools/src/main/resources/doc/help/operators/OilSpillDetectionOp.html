@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+    
+    
+  
+  <title>Help - Oil Spill Detection</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+
+<table class="header">
+
+    <tbody>
+    <tr class="header">
+
+        <td class="header">&nbsp;Oil Spill Detection</td>
+
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+
+<h3>Oil Spill Detection</h3>&nbsp;&nbsp;&nbsp;The operator detects dark spot&nbsp;such as oil spill&nbsp;on sea surface from SAR imagery.<h4>Major Processing Steps</h4>&nbsp;&nbsp;&nbsp;The oil spill detection operation consists of the following four operations:<br><ol><li><span style="font-weight: bold;">Pre-processing:</span> Calibration and speckle filtering are applied to source image in this step.</li><li><span style="font-weight: bold;">Land-sea masking:</span> Land-sea mask is created in this step to ensure that detection is focused only on area of interest.</li><li><span style="font-weight: bold;">Dark spot detection:</span> Dark spots are detected in this step with an adaptive thresholding method.</li><li><span style="font-weight: bold;">Clustering and discrimination:</span>
+Pixels detected as part of the dark spot are clustered and then
+eliminated based on the dimension of the cluster and user selected
+minimum cluster size.</li></ol>&nbsp;&nbsp;&nbsp;For details of calibration and speckle filtering operations, the readers are referred to the <a href="./CalibrationOp.html">Calibration</a> operator and the <a href="SpeckleFilterOp.html">Speckle Filter</a> operator.
+&nbsp;Here it is assumed that the calibration and speckle filtering have
+been performed before applying the oil spill detection operator.
+<br>
+&nbsp;&nbsp;&nbsp;For details of land-sea mask generation, the readers are&nbsp;referred to the <a href="CreateLandMask.html">Create Land Mask</a> operator. 
+<br>
+<h4>Adaptive Threshold Algorithm</h4>&nbsp;&nbsp;&nbsp;The dark spots are detected using an adaptive thresholding method.<br><ol><li>First the local mean backscatter level is estimated using
+pixels&nbsp;in a large window.</li><li>Then&nbsp;the detecting threshold is set
+k decibel&nbsp;below the estimated local mean backscatter level. Pixels
+within the window with values lower than the threshold are detected as
+dark spot. k is a user selected parameter (see parameter Threshold
+Shift below).</li><li>Shift the window to next window position and repeat step 1 and 2.</li></ol><h4>Discrimination</h4><ol><li>First the contiguous detected pixels are clustered into a single cluster.</li><li>Then clusters with their sizes smaller than user selected Minimum Cluster Size&nbsp;are eliminated.</li></ol><h4>Visualize Detected Oil Spill</h4><p>The oil spill detection bit
+mask is output as a separated band. To&nbsp;view the oil spill detection
+results, the following steps should be followed:<br></p><ol><li>Bring up the image. </li><li>Go to&nbsp;<a href="../visat/LayerManagerWindow.html">Layer Manager</a> and add the oil spill bit mask band as a layer.</li></ol>
+<h4>Parameters Used</h4>&nbsp;&nbsp;&nbsp;For dark spot detection, the following parameters are used (see figure 1):
+<ol>
+<li>Source Bands: All bands (real or virtual) of the source product.
+User can select one or more bands for producing multi-looked images. If
+no bands are selected, then by default all bands are selected. </li>
+<li>Background Window Size: The window size in pixels for computing local mean backscatter level.</li>
+<li>Threshold Shift (dB): The detecting threshold is lower than the local mean backscatter level by this amount.</li></ol><img style="width: 600px; height: 500px;" alt="" src="images/oil_spill_detection_dlg.jpg">&nbsp;<br><br>&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;Figure 1. Oil Spill Detection Operator dialog box.
+<br><br><br>&nbsp;&nbsp;&nbsp;For clustering and discrimination, the following parameters are used (see Figure 2):<br><ol><li>Minimum
+Cluster Size: The minimum&nbsp;cluster size in square kilometer.
+Cluster with size smaller than this size is eliminated. </li></ol><img style="width: 600px; height: 500px;" alt="" src="images/oil_spill_clustering_dlg.jpg"><br><br>&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;Figure 2. Oil Spill Clustering operator dialog box.
+<br><br><p style="font-style: italic;">Reference:</p><p> [1] A. S. Solberg, C. Brekke and R. Solberg, "Algorithms
+for oil spill detection in Radarsat and ENVISAT&nbsp;SAR images",
+Geoscience and Remote Sensing Symposium, 2004. IGARSS '04. Proceedings.
+2004 IEEE International,&nbsp;20-24 Sept. 2004, page 4909-4912, vol.7.</p>
+
+<hr>
+</body></html>

@@ -1,0 +1,27 @@
+MER_FSG_1P|MERIS Full Resolution Full Swath Geo/Ortho-corrected TOA Radiance|
+#
+MPH                |@/records/MPH.dd                         |1247               |Main Product Header
+SPH                |@/records/meris/MER_RR__1P_sph.dd        |*                  |Level 1b SPH
+DSD                |@/records/DSD.dd                         |*                  |Data Set Descriptor array
+Quality_ADS        |@/records/meris/MER_RR__1P_ADSR_sq.dd    |Quality ADS        |Level 1b Summary Quality ADS(SQ ADS)
+Scaling_Factor_GADS|@/records/meris/MER_RR__1P_GADS_sfgi.dd  |Scaling Factor GADS|Level 1b GADS Scaling Factor and General  Info
+Tie_points_ADS     |@/records/meris/MER_RR__1P_ADSR_tie_pt.dd|Tie points ADS     |Level 1b ADS Tie Point Location and Auxilliary Data (LADS)
+Radiance_1         |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(1)    |Level 1b MDS (1) TOA Radiance
+Radiance_2         |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(2)    |Level 1b MDS (2) TOA Radiance
+Radiance_3         |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(3)    |Level 1b MDS (3) TOA Radiance
+Radiance_4         |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(4)    |Level 1b MDS (4) TOA Radiance
+Radiance_5         |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(5)    |Level 1b MDS (5) TOA Radiance
+Radiance_6         |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(6)    |Level 1b MDS (6) TOA Radiance
+Radiance_7         |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(7)    |Level 1b MDS (7) TOA Radiance
+Radiance_8         |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(8)    |Level 1b MDS (8) TOA Radiance
+Radiance_9         |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(9)    |Level 1b MDS (9) TOA Radiance
+Radiance_10        |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(10)   |Level 1b MDS (10) TOA Radiance
+Radiance_11        |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(11)   |Level 1b MDS (11) TOA Radiance
+Radiance_12        |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(12)   |Level 1b MDS (12) TOA Radiance
+Radiance_13        |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(13)   |Level 1b MDS (13) TOA Radiance
+Radiance_14        |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(14)   |Level 1b MDS (14) TOA Radiance
+Radiance_15        |@/records/meris/MER_RR__1P_MDSR_1_15.dd  |Radiance MDS(15)   |Level 1b MDS (15) TOA Radiance
+Flags              |@/records/meris/MER_RR__1P_MDSR_16.dd    |Flags MDS(16)      |Level 1b MDS (16) Flags & Detector Index
+Longitude          |@/records/meris/MER_FSG_1P_MDSR_17.dd    |Corrected Longitude MDS(17)      |Level 1b MDS Longitude
+Latitude           |@/records/meris/MER_FSG_1P_MDSR_18.dd    |Corrected Latitude MDS(18)       |Level 1b MDS Latitude
+Altitude           |@/records/meris/MER_FSG_1P_MDSR_19.dd    |Altitude MDS(19)       |Level 1b MDS Altitude

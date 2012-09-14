@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE map
+        PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/map_2_0.dtd">
+
+<map version="2.0">
+
+	<!--Analysis Operators-->
+	<mapID target="DataAnalysisOp" url="operators/DataAnalysisOp.html"/>
+	
+	<!--Utility Operators-->
+	<mapID target="ConvertDatatypeOp" url="operators/ConvertDatatypeOp.html"/>
+	<mapID target="FillHoleOp" url="operators/FillHoleOp.html"/>
+	<mapID target="FilterOperator" url="operators/FilterOperator.html"/>
+    <mapID target="OverSampleOp" url="operators/OverSampleOp.html"/>
+	<mapID target="UnderSampleOp" url="operators/UnderSampleOp.html"/>
+
+	<!--SAR Operators-->
+	<mapID target="ApplyOrbitFileOp" url="operators/ApplyOrbitFileOp.html"/>		
+	<mapID target="MultilookOp" url="operators/MultilookOp.html"/>	
+	<mapID target="SpeckleFilterOp" url="operators/SpeckleFilterOp.html"/>	
+	<mapID target="MultiTemporalSpeckleFilterOp" url="operators/MultiTemporalSpeckleFilterOp.html"/>		
+	<mapID target="WSSDeburstOp" url="operators/WSSDeburstOp.html"/>
+	<mapID target="WSSMosaic" url="operators/WSSMosaicOp.html"/>
+</map>

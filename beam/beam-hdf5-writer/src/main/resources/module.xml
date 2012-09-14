@@ -1,0 +1,43 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-hdf5-writer</symbolicName>
+    <version>5.0-1.0</version>
+    <name>HDF5 Product Writer</name>
+
+
+    <description>Enables BEAM to write data products as HDF5 files.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>lib-hdf</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat-rcp</module>
+        <optional>true</optional>
+    </dependency>
+    
+
+    <categories>Writer,HDF</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>exportHdf5Product</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>HDF5</formatName>
+            <mnemonic>5</mnemonic>
+            <shortDescr>Export product to HDF5 format.</shortDescr>
+            <description>Export the selected product to HDF5 format.</description>
+            <helpId>exportHdf5Product</helpId>
+        </action>
+    </extension>
+
+</module>

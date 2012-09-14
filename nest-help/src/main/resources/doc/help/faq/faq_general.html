@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Frequently Asked Questions</title>
+
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp;Frequently Asked
+Questions</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>General F.A.Q.</h3>
+<h4>What SAR products are supported?</h4><p>NEST supports ENVISAT, ERS-1, ERS-2, and RADARSAT-2 fully.</p><p>NEST also supports TerraSAR-X, Cosmo-Skymed, ALOS PALSAR, RADARSAT-1 and JERS with the exception of some special product types.</p><p>For more details on what product types are supported, please refer to the <a href="http://www.array.ca/nest-web/docs/Supported_Products_4B-1.0.xls">supported products spreadsheet</a>.</p><h4>How is NEST licenced?</h4><p>NEST is licensed under the <a href="http://www.gnu.org/licenses/gpl.html">GNU GPL</a><br></p><h4>If I write an application using NEST API am I forced to distribute that application?</h4><p>No.
+The license gives you the option to distribute your application if you
+want to. You do not have to exercise this option in the license.<br></p><h4>If I wanted to distribute an application using NEST what license would I need to use?</h4><p>The <a href="http://www.gnu.org/licenses/gpl.html">GNU GPL</a><br></p><h4>I am a commercial user. Is there any restriction on the use of NEST?</h4><p>NEST can be used internally ("in-house") without restriction, but only redistributed in other software that is under the&nbsp;<a href="http://www.gnu.org/licenses/gpl.html">GNU GPL</a> unless permission is granted from all copyright holders. </p>
+<h4>I can't open an ENVISAT product.</h4><p>First, try to open the products with Enviview <a href="http://earth.esa.int/enviview/"><font color="blue" size="3"><u>http://earth.esa.int/enviview/</u></font></a>.
+If that works then it could be a version not supported by NEST. Let us
+know and we'll try to get it supported asap. If both Enviview and NEST are
+not able to read the product, then it could be that the file is corrupt
+or compressed.&nbsp;</p><p>Some
+users have had difficulty when decompressing files using Winzip.
+Deactivate the CR/LF translation option in winzip (this option is
+activated by default).</p><h4>When I open a RADARSAT-2 image I don't get any metadata</h4><p>A
+RADARSAT-2 product should be opened through it's product.xml file to
+ensure that the RADARSAT-2 product reader will recognize all files and
+import the whole product.</p><h4>How do I import a PolSARPro result?</h4><p>Use
+the PolSARPro reader and select the folder containing all the indivual
+band files. When imported, all individual bands will show up within one
+product.</p><h4>What method is used for Oil Spill Detection?</h4><p>The
+method currently implemented in NEST for oil spill detection is an
+adaptive thresholding dark spots detection algorithm. It first
+estimates the mean backscatter level in a large window, then set a
+threshold which is k decibel below the estimated mean backscatter
+level. Pixels with backscatter&nbsp; values lower than the threshold
+are considered as potential oil spill. Finally the detected pixels are
+clustered and discriminated. Only those clusters that are larger enough
+will be saved as detection result. Here in the algorithm, the user has
+fully control of the window size for estimating the mean backscatter
+level, the parameter k for setting the threshold, and the minimum
+cluster size.<br>&nbsp;<br>The method is based on the following
+reference in which a much more complicated pyramid approach was
+proposed. In NEST however one level detection is implemented.<br><br>&nbsp;A.
+S. Solberg, C. Brekke and R. Solberg, "Algorithms for oil spill
+detection in Radarsat and ENVISAT SAR images", Geoscience and Remote
+Sensing Symposium, 2004. IGARSS '04. Proceedings. 2004 IEEE
+International, 20-24 Sept. 2004, page 4909-4912, vol.7.</p><h4>Can I use the Apply-Orbit-File Operator on JERS-1, Radarsat-1. ALOS, etc.?</h4><p>No.
+The orbit corrections are only for ENVISAT, ERS-1 and ERS-2.&nbsp;If
+the orbit state vectors in your products are not accurate then this
+would be a problem when orthorectifying. You should be using the
+SARSimulation Terrain Correction to coregister your image with a
+simulated SAR image generated from the DEM and then terrain correcting.</p><h4>What external DEM does NEST support?</h4><p>Currently only WGS84-latlong
+<span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">(</span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">P</span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB">&#1488; </span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">, P</span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB">&#1488;</span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">, P</span><span style="font-size: 8pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">h</span></i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">)</span>&nbsp;DEM&nbsp;in meters is accepted as geographic system. User can specify one tile (i.e. one file) of the DEM.</p><h4>What are the definitions of local incidence angle and projected local incidence angle?</h4><p><span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB"></span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB"></span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span><span style="font-size: 8pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span> The
+local incidence angle is defined as the angle between the normal vector
+of the backscattering element (i.e. vector perpendicular to the ground
+surface) and the incoming radiation vector (i.e. vector formed by the
+satellite position and the backscattering element position).</p><p>The projected local incidence angle is defined as the angle between the
+incoming radiation vector (as defined above) and the projected surface
+normal vector into range plane. Here range plane is the plane formed by
+the satellite position, backscattering element position and the earth
+center.</p><p>For
+more information on the definitions, derivations and calculations of
+the angles please see section 14.3.4 in "SAR Geocoding: Data and
+Systems" by Gunter Schreier.</p><h4>In coregistration I get "Not enough valid GCPs in slave". How can I fix this?</h4><p>Some
+products can have a significant error in their georeferencing. You may
+need to set the coarse registration window in the GCP Selection tab to
+something larger such as 512 or 1024. Also, increasing the number of
+GCPs will give you a better chance of having more surviving. For fine
+registration, you could reduce the coherence threshold. In the warp,
+check 'show residuals' to see a summary of where GCPs are being shifted
+to and what their RMS values are. Set the RMS threshold to a value where you can get lots of representative GCPs at the smallest RMS.</p><h4>I've closed my tool views (world map, layer manager, navigation, etc). How can I get them back?</h4><p>In the top menu go to View -&gt; Manage Layout and select <span style="font-weight: bold;">Reset Layout</span> or <span style="font-weight: bold;">Load Tabbed Layout</span>.</p><h4>Why can I not orthorectify my image over the Arctic?</h4><p>It
+will depend on the DEM and output map projection. The default SRTM DEM
+is only available from +60 to -60 deg latitude. At the polar regions
+you will need to use either the low resolution GETASSE30, ASTER GDEM up
+to 83 deg or your own external DEM. Also, for the polar regions, using
+a polar map projection will give you a better result.</p><h4>Is training and support available for NEST?</h4><p>ESA
+provides introductory training at some conference workshops and support
+for technical problems through the NEST website forum. Personalized
+training courses and technical support subscriptions are available by
+contacting <a href="mailto:nest_pr@array.ca?Subject=NEST_Support">Array</a>.</p>
+<hr>
+</body></html>

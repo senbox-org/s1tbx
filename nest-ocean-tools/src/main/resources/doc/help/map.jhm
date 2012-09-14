@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE map
+        PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/map_2_0.dtd">
+
+<map version="2.0">
+
+    <!--Ocean Tools-->
+	<mapID target="ObjectDetection" url="operators/ObjectDetection.html"/>
+	<mapID target="OilSpillDetection" url="operators/OilSpillDetectionOp.html"/>
+	<mapID target="CreateLandMask" url="operators/CreateLandMask.html"/>
+	<mapID target="WindFieldEstimation" url="operators/WindFieldEstimationOp.html"/>
+
+</map>

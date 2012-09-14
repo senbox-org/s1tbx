@@ -1,0 +1,230 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - Geometry Management</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;Geometry Management</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+<h2>The Geometry Concept</h2>
+
+<table>
+    <tbody><tr>
+        <td style="border-width: 0pt;">As oppossed to the bands and
+            tie-point
+            grids contained in satellite data products - which are all kinds of <i>raster data</i> - a geometry refers
+            to
+            <i>vector data</i>. Thus a geometry can be a point, line or polygon. Geometries
+            are part of the a product's data model, and stored (restored) to (from)
+            <a href="../readers/BeamDimapFormat.html">BEAM-DIMAP</a> product files. A product can comprise a number of
+            named
+            <i>geometry containers</i>. Each container may virtually comprise any number of geometries.
+            New geometries are always added to the geometry container selected in <b>Geometries</b> node of the
+            <a href="">Products View</a> tool window as shown in the screenshot the right.
+            If there isn't a single geometry container yet,&nbsp;a default container named <b>geometry </b>will be created.&nbsp;
+        </td>
+        <td style="border-width: 0pt;">
+            <img src="images/ProductsViewWithGeometry.png" alt="Products view with geometries">
+        </td>
+    </tr>
+</tbody></table>
+
+
+<h2>Relationship with Pins and Ground Control Points (GCP)</h2>
+
+<p>
+    Pins and Ground Control Points are placemarks treated as point geometries. Thus, geometry editing such as moving or
+    deleting is the same as for other geometries as described below in chapter 'Working with Geometries'. Despite this,
+    the pins and GCPs of a data product are still managed as described in
+    <a href="PinManagement.html">Pin Management</a> and <a href="GcpManagement.html">GCP Management</a>, respectively.
+</p>
+
+<h2>Relationship with Masks and Regions of Interest (ROI)</h2>
+
+<p>
+    The geometries in a geometry container can be directly used as a ROI for raster data analysis.
+    The way how this is established is closely related to the new <a href="MaskROIManagement.html">Mask and ROI
+    Management</a>.
+    Once a new geometry container has been added to the data product, an associated <i>geometry mask</i> is created by
+    rendering the geometry onto the product's intrinsic raster data grid.
+</p>
+
+<div align="center">
+    <table>
+        <tbody><tr>
+            <td style="border-width: 0pt;"><img src="images/GeometryPlain.png" alt="Geometry Plain"></td>
+            <td style="border-width: 0pt;"><img src="images/GeometryROI.png" alt="Geometry ROI"></td>
+        </tr>
+        <tr>
+            <td style="border-width: 0pt;" align="center">Polygon geometry (vector data)</td>
+            <td style="border-width: 0pt;" align="center">Resulting mask (raster data)</td>
+        </tr>
+    </tbody></table>
+</div>
+<p>
+    The associated mask will always have the
+    same name as the geometry container which created it and can serve as possible ROI for the selected band or
+    tie-point
+    grid without any additional user interaction.
+    Once the geometry is created (e.g. simply by drawing it, see below), its associated geometry mask can be used as ROI
+    in the various analysis tools, such as the <a href="StatisticsDialog.html">Statistics</a>,
+    <a href="HistogramDialog.html">Histogram</a>, and <a href="ScatterplotDialog.html">Scatter Plot</a> tool windows.
+    Multiple geometry ROIs can be defined by creating new geometry containers as described below.
+</p>
+
+<h2>Working with Geometries</h2>
+
+<h3>Creating a new geometry</h3>
+
+<p>
+    Once you have opened an image view, new geometries are created by using the various drawing tools provided through the <b>Interactions Toolbar</b>:
+</p>
+
+<table>
+    <tbody><tr>
+        <td style="border-width: 0pt;"><img src="images/icons/DrawLineTool24.gif" alt="Line"></td>
+        <td style="border-width: 0pt;"><b>Line</b>: Press left mouse button for the start point, drag line to end point and
+            release left mouse button.
+        </td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/DrawPolylineTool24.gif" alt="Polyline"></td>
+        <td style="border-width: 0pt;"><b>Polyline</b>: Single-click (press and release) left mouse button for the start
+            point, move line segment and click to add a
+            vertex point, move to end point and double-click to finalize the polyline.
+        </td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/DrawRectangleTool24.gif" alt="Rectangle"></td>
+        <td style="border-width: 0pt;"><b>Rectangle</b>: Press left mouse button for the start point, drag line to end point
+            and release left mouse button.
+        </td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/DrawEllipseTool24.gif" alt="Ellipse"></td>
+        <td style="border-width: 0pt;"><b>Ellipse</b>: Similar to rectangle; Press left mouse button for the start point,
+            drag line to end point and release left
+            mouse button.
+        </td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/DrawPolygonTool24.gif" alt="Polygon"></td>
+        <td style="border-width: 0pt;"><b>Polygon</b>: Similar to polyline; Single-click (press and release) left mouse
+            button for the start point, move
+            line segment and click to add a vertex point, move to end point and double-click to close the polygon.
+        </td>
+    </tr>
+</tbody></table>
+
+<p></p>
+
+
+<h3>Creating a new geometry container</h3>
+
+<p>
+    Use the menu item <b>Tools / Create Geometry Container</b> or the corresponding tool button from the
+    <b>Interaction Toolbar</b> to create a new geometry container.
+</p>
+
+<table>
+    <tbody><tr>
+        <td style="border-width: 0pt;"><img src="images/icons/NewVectorDataNode24.gif" alt="Container"></td>
+        <td style="border-width: 0pt;">Clicking the button opens a dialog for creating a new geometry container.
+            You will be prompted to enter a unique name for the new container.
+        </td>
+    </tr>
+</tbody></table>
+
+
+<h3>Editing geometries</h3>
+
+<p>
+    Geometries may be edited in a number of ways once they have been selected. Note that editing or deleting a geometry
+    will automatically affect the mask associated with the geometry's container.
+    Use the <b>Select</b> tool to select geometries which shall be edited:
+</p>
+
+<table>
+    <tbody><tr>
+        <td style="border-width: 0pt;"><img src="images/icons/SelectTool24.gif" alt="Select"></td>
+        <td style="border-width: 0pt;">Select a single geometry by clicking it. Select one or more geometries by dragging a
+            selection
+            rectangle around them. Hold down the <b>control</b> key while selecting in order to add or remove
+            geometries from the current selection set.
+        </td>
+    </tr>
+</tbody></table>
+
+<p>Clicking selected geometries multiple times lets them step through a number of selection modes allowing for different
+    editing modes which are further described below.
+</p>
+
+<table>
+    <tbody><tr>
+        <td style="border-width: 0pt;"><img src="images/GeometrySelMode1.png" alt="Geometry Selection Mode 1"></td>
+        <td style="border-width: 0pt;"><img src="images/GeometrySelMode2.png" alt="Geometry Selection Mode 2"></td>
+        <td style="border-width: 0pt;"><img src="images/GeometrySelMode3.png" alt="Geometry Selection Mode 3"></td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;" align="center">Selection mode 1</td>
+        <td style="border-width: 0pt;" align="center">Selection mode 2</td>
+        <td style="border-width: 0pt;" align="center">Selection mode 3</td>
+    </tr>
+</tbody></table>
+
+
+<p>
+    <b>Move:</b> Selected shapes can be moved to another location simply by dragging them with the mouse.
+</p>
+
+<p>
+    <b>Move vertex:</b> If single selected geometries are clicked once again, the selection mode changes depending on
+    the
+    geometry type. The first mode lets you move the vertexes of lineal and polygonal geometries by dragging the
+    appearing
+    vertex handles.
+</p>
+
+<p>
+    <b>Scale:</b> The next selection mode (click again) lets you scale the size of a geometry by dragging the
+    appearing size handles.
+</p>
+
+<p>
+    <b>Cut, Copy, Paste:</b> Use these commands from the <b>Edit</b> menu or use the keys <b>Control X</b>,
+    <b>Control C</b>, <b>Control V</b> to cut or copy geometries into the operating system's clipboard and
+    to paste them into the same or another view.
+</p>
+
+<p>
+    <b>Delete:</b> Use the command from the <b>Edit</b> menu or use the <b>Delete</b> key.
+</p>
+
+
+<h3>Importing geometry data</h3>
+
+<p>
+    You can use the <a href="ImportGeometry.html">Import Geometry</a> command to import geometries from
+    <i>plain text files</i> or from <i>ESRI Shapefiles</i>.
+</p>
+
+<p>
+    <b>Plain text (*.txt):</b> Imports a single geometry (polyline or polygon) from a plain text file
+    having the format described in <a href="ImportGeometry.html">Import Geometry</a>.
+</p>
+
+<p>
+    <b>ESRI Shapefile (*.shp)</b>: Multiple geometries can be imported from a Shapefile.
+    The geometry coordinates used in the Shapefile will be converted to the coordinates reference system used by the
+    current data product. Note that there is only&nbsp;limited support regarding the various style settings which
+    may be attached to a specific Shapefile. It allso currently ignore all the attribute data that usually
+    comes with a Shapefile.&nbsp;
+</p>
+
+<hr>
+</body></html>

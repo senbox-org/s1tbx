@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+<!DOCTYPE toc
+        PUBLIC
+        "-//Sun Microsystems Inc.//DTD
+     JavaHelp TOC Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+
+<toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
+
+    <tocitem text="General">
+        <tocitem text="Overview" target="Overview"/>
+		<tocitem text="Supported Products" target="SupportedProducts"/>
+    </tocitem>
+	
+	<tocitem text="DAT">
+	</tocitem>
+	
+	<tocitem text="Graph Processing">
+		<tocitem text="Introduction" target="introduction"/>
+		<tocitem text="Graph Tools">
+			<tocitem text="Graph Processing Tool" target="gpt"/>
+			<tocitem text="Command Line Reference" target="commandLineReference"/>
+		</tocitem>
+	</tocitem>
+	
+	<tocitem text="Development">
+        <tocitem text="General Design" target="general_design"/>
+		<tocitem text="Detailed Design" target="detailed_design"/>
+		<tocitem text="Open Source Development" target="open_source"/>
+		<tocitem text="Building the Source" target="build_source"/>
+		<tocitem text="Developing a Reader" target="developing_reader"/>
+		<tocitem text="Developing a Writer" target="developing_writer"/>
+		<tocitem text="Developing an Operator" target="developing_operator"/>
+	</tocitem>
+	
+	<tocitem text="F.A.Q.">
+        <tocitem text="Installation" target="faq_installation"/>
+		<tocitem text="General" target="faq_general"/>
+	</tocitem>
+		
+</toc>

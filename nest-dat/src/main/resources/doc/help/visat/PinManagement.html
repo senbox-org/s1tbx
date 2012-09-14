@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - Pin Management</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            Pin Management</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+<h4>Pin Management in DAT</h4>
+
+<p>
+    A pin is a marker for a certain geographical position within a geo-referenced image.
+    The properties of a pin are
+</p><ul>
+    <li>the geographical co-ordinate,</li>
+    <li>a graphical symbol,</li>
+    <li>the name (label),</li>
+    <li>and a textual description.</li>
+</ul>
+
+<p>
+    Pins are displayed as symbols at their geographical positions in image views associated
+    with the current product. Pins are stored in the current product and available again if the
+    product is re-opened.<br></p><p>
+    In DAT, pins can be used to "freeze" the
+    <a href="ProductBrowser.html#pixelView">pixel info view</a> to the selected pin in order to display
+    the values of the pixel associated with the selected pin.<br></p><p>
+    New pins can be created with the <a href="#pinTool">pin tool</a> and removed using the
+    <a href="EditMenu.html#deletePin">delete pin</a> command in the Edit Menu.
+    It is also possible to create and remove pins by using the <a href="#pinManager">pin manager</a>.
+
+
+</p><h4><a name="pinTool">The Pin Tool &nbsp;&nbsp;</a><img src="images/icons/PinTool24.gif"></h4>
+
+<p>
+    The pin tool is used to create a new pin&nbsp;and also to select an existing pin.
+    If the pin tool is active, a click into an image view creates a new pin at the
+    current cursor position. If you click on an existing pin, it becomes the selected pin.
+    If you double-click on an existing pin, the <a href="#editPinDialog">Edit Pin</a> dialog appears and
+    lets you&nbsp;edit the properties of the selected pin.
+
+
+</p><h4><a name="pinManager">The Pin Manager &nbsp;&nbsp;</a><img src="images/icons/PinManager24.gif"></h4>
+
+<p>
+    The pin manager is used to display all pins stored in the current product within a
+    table and provides some pin related operations.
+
+</p><p align="center"><img src="images/PinManager.png"></p>
+
+<p>If you click on a pin within the table, it becomes the selected pin.
+    Double-clicking on a pin in the table opens the <a href="#editPinDialog">Edit Pin</a> dialog.
+    You can also change the values for <code>X, Y , Lat and Lon</code> of the pin by editing the table cells directly.
+</p>
+
+<p>In the following, the tool buttons of the pin manager are explained.</p>
+
+<table border="0" cellpadding="2" cellspacing="0">
+    <tbody><tr><td><img src="images/icons/New24.gif"></td><td>Creates a new pin and adds it to the product.</td></tr>
+    <tr><td><img src="images/icons/Copy24.gif"></td><td>Creates a new pin by cloning the selected pin.</td></tr>
+    <tr><td><img src="images/icons/Edit24.gif"></td><td>Opens the edit dialog for the selected pin.</td></tr>
+    <tr><td><img src="images/icons/Remove24.gif"></td><td>Removes the selected pin from the current product.</td></tr>
+    <tr><td><img src="images/icons/Import24.gif"></td><td>Imports multiple pins from a flat text or XML file.</td>
+    </tr>
+    <tr><td><img src="images/icons/Export24.gif"></td><td>Exports the selected pins to an XML file.</td></tr>
+    <tr><td><img src="images/icons/Filter24.gif"></td><td>Enables the expansion of the table with pixel values.</td>
+    </tr>
+    <tr><td><img src="images/icons/ExportTable.gif"></td><td>Exports selected part of the displayed table to a flat text
+        file.
+        The exported text is tabulator-separated and may therefore be imported directly into a spreadsheet application
+        (e.g. MS Excel).</td></tr>
+    <tr>
+        <td><img src="images/icons/ZoomTo24.gif"></td>
+        <td>Centers the image view on the selected pin. </td>
+    </tr>
+
+</tbody></table>
+
+<h4><a name="editPinDialog">The Edit Pin Dialog</a></h4>
+
+<p>
+    The pin edit dialog is used to edit the properties of a pin after a new pin has been created or after a
+    selected pin has been double-clicked. This dialog is also available in the pin manager.
+
+</p><p align="center"><img src="images/PinEditor.png"></p>
+
+<p>The editable pin properties are
+</p><ul>
+    <li>the geographical co-ordinate, which can also be given as pixel position</li>
+    <li>the outline and fill colour for the graphical symbol,</li>
+    <li>the name for the pin</li>
+    <li>and a textual description.</li>
+</ul>
+
+<hr>
+</body></html>

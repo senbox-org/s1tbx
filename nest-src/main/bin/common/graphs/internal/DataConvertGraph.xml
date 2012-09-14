@@ -1,0 +1,44 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters>
+      <file></file>
+    </parameters>
+  </node>
+  <node id="2-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="3-Convert-Datatype"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file></file>
+    </parameters>
+  </node>
+  <node id="3-Convert-Datatype">
+    <operator>Convert-Datatype</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+      </sourceBands>
+      <targetDataType>uint8</targetDataType>
+      <targetScalingStr>Linear (peak clipped histogram)</targetScalingStr>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="1-Read">
+      <displayPosition y="134.0" x="37.0"/>
+    </node>
+    <node id="2-Write">
+      <displayPosition y="135.0" x="455.0"/>
+    </node>
+    <node id="3-Convert-Datatype">
+      <displayPosition y="133.0" x="202.0"/>
+    </node>
+  </applicationData>
+</graph>

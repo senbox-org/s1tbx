@@ -1,0 +1,51 @@
+ASA_XCA_AX_GADS|Contains ASAR external calibration data|+dsr_length
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Time of creation of this file|1|
+dsr_length|ULong|bytes|4|1|*|Length of this DSR in bytes|2|
+ext_cal_im_hh|Float|*|4|7|*|External Calibration scaling factors for IM mode, HH polar. (7 values from swath IS1 to IS7)|3|
+ext_cal_im_vv|Float|*|4|7|*|External Calibration scaling factors for IM mode, VV polar. (7 values from swath IS1 to IS7)|4|
+ext_cal_im_pri_hh|Float|*|4|7|*|External Calibration scaling factors for IM mode, PRI HH polar. (7 values from swath IS1 to IS7)|4a|
+ext_cal_im_pri_vv|Float|*|4|7|*|External Calibration scaling factors for IM mode, PRI VV polar. (7 values from swath IS1 to IS7)|4b|
+ext_cal_im_geo_hh|Float|*|4|7|*|External Calibration scaling factors for IM mode, GEO HH polar. (7 values from swath IS1 to IS7)|4c|
+ext_cal_im_geo_vv|Float|*|4|7|*|External Calibration scaling factors for IM mode, GEO VV polar. (7 values from swath IS1 to IS7)|4d|
+ext_cal_im_med_hh|Float|*|4|7|*|External Calibration scaling factors for IM mode, MED HH polar. (7 values from swath IS1 to IS7)|4e|
+ext_cal_im_med_vv|Float|*|4|7|*|External Calibration scaling factors for IM mode, MED VV polar. (7 values from swath IS1 to IS7)|4f|
+ext_cal_ap_hh|Float|*|4|7|*|External Calibration scaling factors for AP mode, HH polar. (7 values from swath IS1 to IS7)|5|
+ext_cal_ap_vv|Float|*|4|7|*|External Calibration scaling factors for AP mode, VV polar. (7 values from swath IS1 to IS7)|6|
+ext_cal_ap_hv|Float|*|4|7|*|External Calibration scaling factors for AP mode, HV polar. (7 values from swath IS1 to IS7)|7|
+ext_cal_ap_vh|Float|*|4|7|*|External Calibration scaling factors for AP mode, VH polar. (7 values from swath IS1 to IS7)|8|
+ext_cal_ap_pri_hh|Float|*|4|7|*|External Calibration scaling factors for AP mode, PRI HH polar. (7 values from swath IS1 to IS7)|8a|
+ext_cal_ap_pri_vv|Float|*|4|7|*|External Calibration scaling factors for AP mode, PRI VV polar. (7 values from swath IS1 to IS7)|8b|
+ext_cal_ap_pri_hv|Float|*|4|7|*|External Calibration scaling factors for AP mode, PRI HV polar. (7 values from swath IS1 to IS7)|8c|
+ext_cal_ap_pri_vh|Float|*|4|7|*|External Calibration scaling factors for AP mode, PRI VH polar. (7 values from swath IS1 to IS7)|8d|
+ext_cal_ap_geo_hh|Float|*|4|7|*|External Calibration scaling factors for AP mode, GEO HH polar. (7 values from swath IS1 to IS7)|8e|
+ext_cal_ap_geo_vv|Float|*|4|7|*|External Calibration scaling factors for AP mode, GEO VV polar. (7 values from swath IS1 to IS7)|8f|
+ext_cal_ap_geo_hv|Float|*|4|7|*|External Calibration scaling factors for AP mode, GEO HV polar. (7 values from swath IS1 to IS7)|8g|
+ext_cal_ap_geo_vh|Float|*|4|7|*|External Calibration scaling factors for AP mode, GEO VH polar. (7 values from swath IS1 to IS7)|8h|
+ext_cal_ap_med_hh|Float|*|4|7|*|External Calibration scaling factors for AP mode, MED HH polar. (7 values from swath IS1 to IS7)|8i|
+ext_cal_ap_med_vv|Float|*|4|7|*|External Calibration scaling factors for AP mode, MED VV polar. (7 values from swath IS1 to IS7)|8j|
+ext_cal_ap_med_hv|Float|*|4|7|*|External Calibration scaling factors for AP mode, MED HV polar. (7 values from swath IS1 to IS7)|8k|
+ext_cal_ap_med_vh|Float|*|4|7|*|External Calibration scaling factors for AP mode, MED VH polar. (7 values from swath IS1 to IS7)|8l|
+ext_cal_wv_hh|Float|*|4|7|*|External Calibration scaling factors for WV mode, HH polar. (7 values from swath IS1 to IS7)|9|
+ext_cal_wv_vv|Float|*|4|7|*|External Calibration scaling factors for WV mode, VV polar. (7 values from swath IS1 to IS7)|10|
+ext_cal_ws_hh|Float|*|4|1|*|External Calibration scaling factors for WS mode, HH polar.|11|
+ext_cal_ws_vv|Float|*|4|1|*|External Calibration scaling factors for WS mode, VV polar.|12|
+ext_cal_gm_hh|Float|*|4|1|*|External Calibration scaling factors for GM mode, HH polar.|13|
+ext_cal_gm_vv|Float|*|4|1|*|External Calibration scaling factors for GM mode, VV polar.|14|
+elev_ang_is1|Float|deg.|4|1|*|Center of swath elevation angle for IS1|15|
+elev_ang_is2|Float|deg.|4|1|*|Center of swath elevation angle for IS2|16|
+elev_ang_is3_ss2|Float|deg.|4|1|*|Center of swath elevation angle for IS3 / SS2|17|
+elev_ang_is4_ss3|Float|deg.|4|1|*|Center of swath elevation angle for IS4 / SS3|18|
+elev_ang_is5_ss4|Float|deg.|4|1|*|Center of swath elevation angle for IS5 / SS4|19|
+elev_ang_is6_ss5|Float|deg.|4|1|*|Center of swath elevation angle for IS6 / SS5|20|
+elev_ang_is7|Float|deg.|4|1|*|Center of swath elevation angle for IS7|21|
+elev_ang_ss1|Float|deg.|4|1|*|Center of swath elevation angle for SS1|22|
+pattern_is1|Float|dB|4|804|*|Two-way Antenna Elevation Pattern Gain Table for IS1 (pattern is defined from Center of swath elevation angle - 5 deg. to Center of Swath elevation angle + 5 deg. in 0.05 degree steps.)|23|
+pattern_is2|Float|dB|4|804|*|Two-way Antenna Elevation Pattern Gain Table for IS2 (pattern is defined from Center of swath elevation angle - 5 deg. to Center of Swath elevation angle + 5 deg. in 0.05 degree steps.)|24|
+pattern_is3_ss2|Float|dB|4|804|*|Two-way Antenna Elevation Pattern Gain Table for IS3 / SS2 (pattern is defined from Center of swath elevation angle - 5 deg. to Center of Swath elevation angle + 5 deg. in 0.05 degree steps.)|25|
+pattern_is4_ss3|Float|dB|4|804|*|Two-way Antenna Elevation Pattern Gain Table for IS4 / SS3 (pattern is defined from Center of swath elevation angle - 5 deg. to Center of Swath elevation angle + 5 deg. in 0.05 degree steps.)|26|
+pattern_is5_ss4|Float|dB|4|804|*|Two-way Antenna Elevation Pattern Gain Table for IS5 / SS4 (pattern is defined from Center of swath elevation angle - 5 deg. to Center of Swath elevation angle + 5 deg. in 0.05 degree steps.)|27|
+pattern_is6_ss5|Float|dB|4|804|*|Two-way Antenna Elevation Pattern Gain Table for IS6 / SS5 (pattern is defined from Center of swath elevation angle - 5 deg. to Center of Swath elevation angle + 5 deg. in 0.05 degree steps.)|28|
+pattern_is7|Float|dB|4|804|*|Two-way Antenna Elevation Pattern Gain Table for IS7 (pattern is defined from Center of swath elevation angle - 5 deg. to Center of Swath elevation angle + 5 deg. in 0.05 degree steps.)|29|
+pattern_ss1|Float|dB|4|804|*|Two-way Antenna Elevation Pattern Gain Table for SS1 (pattern is defined from Center of swath elevation angle - 5 deg. to Center of Swath elevation angle + 5 deg. in 0.05 degree steps. )|30|
+spare_1|Spare|*|32|1|*|Spare|31|

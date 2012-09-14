@@ -1,0 +1,44 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.Xpp3DomElement">
+      <file>$file</file>
+    </parameters>
+  </node>
+  <node id="2-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="3-MapProjection"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.Xpp3DomElement">
+      <formatName>BEAM-DIMAP</formatName>
+      <file>targetMapProj.dim</file>
+    </parameters>
+  </node>
+  <node id="3-MapProjection">
+    <operator>MapProjection</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.Xpp3DomElement">
+      <sourceBands>
+        <band>Amplitude</band>
+      </sourceBands>
+      <projectionName>Geographic Lat/Lon</projectionName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="1-Read">
+      <displayPosition y="134.0" x="37.0"/>
+    </node>
+    <node id="2-Write">
+      <displayPosition y="135.0" x="455.0"/>
+    </node>
+    <node id="3-MapProjection">
+      <displayPosition y="135.0" x="291.0"/>
+    </node>
+  </applicationData>
+</graph>

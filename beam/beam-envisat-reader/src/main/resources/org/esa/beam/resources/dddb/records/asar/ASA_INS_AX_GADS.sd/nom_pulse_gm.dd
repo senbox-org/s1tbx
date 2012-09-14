@@ -1,0 +1,5 @@
+nom_pulse_gm|Nominal values of amplitude and phase of the transmitted chirp for GM Mode. Parameters repeated for each sub-swath (5 times), from swath SS1 to SS5:|*
+#
+pulse_amp_coeff|Float|-, s-1, s-2, s-3|4|4|*|4 pulse amplitude coefficients|46a|
+pulse_phs_coeff|Float|cyclesHz,Hz/s,Hz/s2|4|4|*|4 pulse phase coefficients|46b|
+pulse_duration|Float|s|4|1|*|Nominal pulse duration|46c|

@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Remove Antenna Pattern</title>
+
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Remove Antenna Pattern</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Remove Antenna Pattern Operator</h3>
+<br><p>This operator removes&nbsp;antenna pattern&nbsp;and&nbsp;range
+spreading loss corrections applied to the original ASAR and ERS
+products. For ERS product, it also&nbsp;removes replica pulse power
+correction and applies the analogue to digital converter (ADC) power
+less correction. This operator cannot be applied to multilooked product. Details of the functions of the operator are given
+below.</p><h4>ASAR Products</h4>
+<p>
+For ground range detected products, the following corrections are removed:</p>
+<ul><li><p>antenna pattern gain</p></li><li><p>range spreading loss</p></li></ul>
+<p>
+For slant range complex products, such as ASAR IMS, APS products, no
+antenna pattern or&nbsp;range spreading correction has been applied,
+therefore the operater is not applicable to these products.</p>
+<h4>ERS Products</h4><p>For&nbsp;ground range products, the following operations are performed:</p>
+
+<ul><li><p>remove antenna pattern gain</p></li><li><p>remove range spreading loss</p></li><li><p>remove replica pulse power (ERS-2 only)</p></li><li><p>apply ADC correction</p></li></ul>
+<p>For&nbsp;slant range products, the following operations are performed:</p>
+
+<ul><li><p>remove replica pulse power (ERS-2 only)</p></li><li><p>apply ADC correction</p></li></ul><h4>Other Products</h4><p>For other products, such as ALOS PALSAR and RadarSAT-2 products, the&nbsp;operator is not applicable.</p>
+
+<p></p><p>
+The parameter used by the operator is as follows:
+</p><ol>
+<li>Source Band: All bands (amplitude or intensity) of the source product. User can
+select one or more bands. If no bands are selected, then by
+default, all bands are used for the operation. The operator is able to detect
+the right input band.</li></ol>
+<br>
+
+<br><p><img style="width: 500px; height: 500px;" alt="" src="images/remove_antenna_pattern_dlg.jpg"></p><p></p><p>Reference:</p><p>[1] Rosich B., Meadows P., Absolute calibration of ASAR Level 1 products,
+ESA/ESRIN, ENVI-CLVL-EOPG-TN-03-0010, Issue 1, Rev. 5, October 2004</p><p> [2] Laur H., Bally P., Meadows P., Sánchez J., Schättler B., Lopinto E.
+&amp; Esteban D., ERS SAR Calibration: Derivation of &#963;0 in ESA ERS SAR PRI
+Products, ESA/ESRIN, ES-TN-RS-PM-HL09, Issue 2, Rev. 5f, November 2004</p><p></p>
+<hr>
+</body></html>

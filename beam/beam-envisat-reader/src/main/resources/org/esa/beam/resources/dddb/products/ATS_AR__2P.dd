@@ -1,0 +1,21 @@
+ATS_AR__2P|AATSR averaged geophysical product|
+#
+MPH                        |@/records/MPH.dd                            |1247                       |Main Product Header
+SPH                        |@/records/aatsr/ATS_AR__2P_sph.dd           |*                          |Level 2 SPH
+DSD                        |@/records/DSD.dd                            |*                          |Data Set Descriptor array
+SEA_ST_50_KM_CELL_MDS      |@/records/aatsr/ATS_AR__2P_MDSR_sst_large.dd|SEA_ST_50_KM_CELL_MDS      |SST record 50 km cell MDS
+SEA_ST_17_KM_CELL_MDS      |@/records/aatsr/ATS_AR__2P_MDSR_sst_small.dd|SEA_ST_17_KM_CELL_MDS      |SST record 17 km cell MDS
+SEA_ST_10_MIN_CELL_MDS     |@/records/aatsr/ATS_AR__2P_MDSR_sst_small.dd|SEA_ST_10_MIN_CELL_MDS     |SST record 10 arc minute cell MDS
+SEA_ST_30_MIN_CELL_MDS     |@/records/aatsr/ATS_AR__2P_MDSR_sst_large.dd|SEA_ST_30_MIN_CELL_MDS     |SST record 30 arc minute cell MDS
+LAND_ST_50_KM_CELL_MDS     |@/records/aatsr/ATS_AR__2P_MDSR_lst_large.dd|LAND_ST_50_KM_CELL_MDS     |LST record 50 km cell MDS
+LAND_ST_17_KM_CELL_MDS     |@/records/aatsr/ATS_AR__2P_MDSR_lst_small.dd|LAND_ST_17_KM_CELL_MDS     |LST record 17 km cell MDS
+LAND_ST_10_MIN_CELL_MDS    |@/records/aatsr/ATS_AR__2P_MDSR_lst_small.dd|LAND_ST_10_MIN_CELL_MDS    |LST record 10 arc minute cell MDS
+LAND_ST_30_MIN_CELL_MDS    |@/records/aatsr/ATS_AR__2P_MDSR_lst_large.dd|LAND_ST_30_MIN_CELL_MDS    |LST record 30 arc minute cell MDS
+BT_TOA_LAND_50_KM_CELL_MDS |@/records/aatsr/ATS_AR__2P_MDSR_lr_large.dd |BT_TOA_LAND_50_KM_CELL_MDS |BT/TOA Land record 50 km cell MDS
+BT_TOA_LAND_17_KM_CELL_MDS |@/records/aatsr/ATS_AR__2P_MDSR_lr_small.dd |BT_TOA_LAND_17_KM_CELL_MDS |BT/TOA Land record 17 km cell MDS
+BT_TOA_LAND_10_MIN_CELL_MDS|@/records/aatsr/ATS_AR__2P_MDSR_lr_small.dd |BT_TOA_LAND_10_MIN_CELL_MDS|BT/TOA Land record 10 arc minute cell MDS
+BT_TOA_LAND_30_MIN_CELL_MDS|@/records/aatsr/ATS_AR__2P_MDSR_lr_large.dd |BT_TOA_LAND_30_MIN_CELL_MDS|BT/TOA Land record 30 arc minute cell MDS
+BT_TOA_SEA_50_KM_CELL_MDS  |@/records/aatsr/ATS_AR__2P_MDSR_sr_large.dd |BT_TOA_SEA_50_KM_CELL_MDS  |BT/TOA Sea record 50 km cell MDS
+BT_TOA_SEA_17_KM_CELL_MDS  |@/records/aatsr/ATS_AR__2P_MDSR_sr_small.dd |BT_TOA_SEA_17_KM_CELL_MDS  |BT/TOA Sea record 17 km cell MDS
+BT_TOA_SEA_10_MIN_CELL_MDS |@/records/aatsr/ATS_AR__2P_MDSR_sr_small.dd |BT_TOA_SEA_10_MIN_CELL_MDS |BT/TOA Sea record 10 arc minute cell MDS
+BT_TOA_SEA_30_MIN_CELL_MDS |@/records/aatsr/ATS_AR__2P_MDSR_sr_large.dd |BT_TOA_SEA_30_MIN_CELL_MDS |BT/TOA Sea record 30 arc minute cell MDS

@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+
+    
+    
+  
+  
+  
+  <title>Help - Speckle Filter</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+
+
+<table class="header">
+
+
+    <tbody>
+
+    <tr class="header">
+
+
+        <td class="header">&nbsp; General Design</td>
+
+
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+
+
+    </tr>
+
+
+  
+  </tbody>
+</table>
+
+
+
+<h3>NEST Architecture</h3>
+
+
+
+
+
+
+
+<p class="Paranum" style="">NEST&nbsp;consists of a collection of processing modules and data product readers and
+writers. </p>
+
+
+
+<p class="Paranum" style="">All
+modules are centered on the Generic Product Model (GPM) of the BEAM-NEST
+Core.&nbsp; The GPM is a common, unified data
+model designed so that all data readers convert data into this data model and
+all analysis and processing tools use this data model exclusively.</p>
+<p class="Paranum" style="">Data product reader modules&nbsp;ingest all the data of a particular product, including metadata and
+transform it into the GPM data structure. The GPM is abstract enough to
+handle all types of data products without losing any information. The
+NEST tools&nbsp;have only one interface to the GPM in order to work
+with the data. Data product writers are able to take the data from the
+GPM and produce an external file format. With a GPM, file conversions
+from one file format to another are easily achieved with the
+appropriate reader and writer modules. Furthermore, the DAT, tools and
+future plug-ins are not&nbsp;dependent on which data products are supported
+or any specific complexities of the file formats. </p>
+
+
+
+<p class="Paranum" style="">NEST&#8217;s
+primary goal is to read in ESA and
+third part SAR data products, provide tools for calibration, orthorectification, co-registration,
+interferometry, and data manipulation, and then convert the data into common
+file formats used by other 3rd party SAR software.</p>
+
+
+
+
+<div style="text-align: center;"><img style="width: 798px; height: 456px;" alt="NEST Data Flow" src="images/data_flow.jpg"><br>
+
+<div style="text-align: left;"><br>
+
+<br>
+
+<br>
+
+<br>
+
+<h3>Built on Beam</h3>
+
+
+
+<p class="Paranum" style="">The NEST
+architecture is built upon the proven and extensible architecture of BEAM.
+&nbsp;BEAM features an Application Programming
+Interface (API) that was
+designed and developed from the beginning to be used by 3rd parties
+to extend BEAM or re-use it in their own applications.</p>
+
+<p class="Paranum" style="">BEAM is an application suite which
+facilitates the
+utilization, viewing and processing of MERIS, AATSR and ASAR data
+products of
+the ESA ENVISAT environmental satellite. &nbsp;It provides a multitude
+of tools and functions to visualize, analyze, manipulate and modify
+earth
+observation data. </p>
+
+</div>
+
+</div>
+
+
+
+<p class="Paranum" style="">Although BEAM has
+been intended specifically for optical data, the BEAM architecture has been
+designed and developed to facilitate the extension and re-use of its code base
+such that it is feasible to use BEAM&#8217;s core framework as the building blocks to
+develop a Synthetic Aperture Radar (SAR) toolbox.</p>
+
+
+
+<p class="Paranum" style="">NEST and BEAM&nbsp;share a
+common core that enables the exchange of modules between the two toolboxes. &nbsp;This
+common core is&nbsp;maintained cooperatively by both Array Systems Computing
+Inc., the developers of NEST and Brockmann Consult, the developers of BEAM. </p>
+
+<p class="Paranum" style="">The majority of the NEST functionality
+is encapsulated in BEAM plug-in modules. &nbsp;As such, some modules are interchangeable
+between the two systems.</p>
+
+<p class="Paranum" style="text-align: center;"><img style="width: 652px; height: 293px;" alt="Beam Branch" src="images/beam_branch.jpg"><br>
+
+</p>
+
+<br>
+
+
+<hr>
+</body></html>

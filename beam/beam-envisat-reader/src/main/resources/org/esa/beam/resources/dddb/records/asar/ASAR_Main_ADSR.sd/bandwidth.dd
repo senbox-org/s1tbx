@@ -1,0 +1,4 @@
+bandwidth|Bandwidth|*
+#
+look_bw_range|Float|Hz|4|5|*|Range Look Bandwidth (null to null)|42a|
+tot_bw_range |Float|Hz|4|5|*|Total processed range bandwidth (null to null)|42b|

@@ -1,0 +1,34 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>nest-core</symbolicName>
+    <version>5.0</version>
+    <name>NEST Core</name>
+
+    <description>
+        NEST Core
+    </description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2012 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>European Space Agency</funding>
+	
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat-rcp</module>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+        <module>beam-envisat-reader</module>
+    </dependency>
+    
+    <categories>System</categories>
+
+
+</module>

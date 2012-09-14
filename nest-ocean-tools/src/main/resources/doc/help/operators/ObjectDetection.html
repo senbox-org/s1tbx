@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+    
+    
+  
+  <title>Help - Object Detection</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+
+<table class="header">
+
+    <tbody>
+    <tr class="header">
+
+        <td class="header">&nbsp;Object Detection</td>
+
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+
+<h3>Object Detection</h3><p>The operator detects object such as ships on sea surface from SAR imagery.</p><h4>Major Processing Steps</h4><p>The object detection operation consists of the following four major operations:</p><ol><li><span style="font-weight: bold;">Pre-processing:</span> Calibration is applied to source image to&nbsp;make further pre-screening&nbsp;easier and more accurate.</li><li><span style="font-weight: bold;">Land-sea masking:</span> A land-sea mask is generated to ensure that detection is focused only on the area of interest.</li><li><span style="font-weight: bold;">Pre-screening:</span> Objects are detected with&nbsp;a&nbsp;Constant False Alarm Rate(CFAR) detector.</li><li><span style="font-weight: bold;">Discrimination:</span> False alarms are rejected based on object dimension.</li></ol><p>For details of calibration, the reader is&nbsp;referred to the <a href="./CalibrationOp.html">Calibration</a> operator. 
+
+&nbsp;Here it is assumed that the calibration pre-processing step has been performed before applying object detection.
+</p>
+<p>For details of land-sea mask generation, the reader is&nbsp;referred to the <a href="./CreateLandMask.html">Create Land Mask</a> operator.&nbsp;</p><h4>Two-Parameter Constant False Alarm Rate (CFAR) Detector<br></h4><p>The
+detector used in pre-screening operation is the two-parameter constant
+false alarm rate (CFAR) detector. The basic idea is to searche pixels
+which are unusually bright when compared to
+pixels in surrounding area.</p><p> Let <span style="font-style: italic;">x<small><small>t</small></small></span> be the pixel under test and <span style="font-style: italic;">T</span> be a given threshold, then the detection criterion can be expressed as </p><div style="margin-left: 80px;"><p><img style="width: 199px; height: 30px;" alt="" src="images/object_detection_window_eq_2.jpg"></p></div><p>Let  <span style="font-style: italic;">f(x)</span> be the ocean clutter probability density function and <span style="font-style: italic;">x</span> range through the possible pixel values, then the&nbsp;<span style="font-style: italic;"></span>probability of false alarm (PFA) is given by</p><div style="margin-left: 80px;"><p><img style="width: 150px; height: 46px;" alt="" src="images/object_detection_window_eq_1.jpg"></p></div><p>and the above detection criterion is equivalent to the criterion below</p><div style="margin-left: 80px;"><p><img style="width: 273px; height: 47px;" alt="" src="images/object_detection_window_eq_3.jpg"></p></div><p>If&nbsp;Gaussian distribution is assumed for the ocean clutter, the above detection criterion can be further expressed as</p><div style="margin-left: 80px;"><p><img style="width: 255px; height: 34px;" alt="" src="images/object_detection_window_eq_4.jpg"></p></div><p>where <span style="font-style: italic;">&#956;</span><sub style="font-style: italic;">b</sub> is the background mean, <span style="font-style: italic;">&#963;</span><sub style="font-style: italic;">b</sub> is the background standard deviation and <span style="font-style: italic;">t</span> is a detector design parameter which is computed from PFA by the following equation</p><div style="margin-left: 80px;"><p><img style="width: 190px; height: 59px;" alt="" src="images/object_detection_window_eq_5.jpg"></p></div><p>The valid PFA value&nbsp;is in range [0, 1].</p><p>In
+real implementation of the two-parameter CFAR detector,&nbsp;a
+setup&nbsp;shown in Figure 1 is employed. The target window contains
+the pixel under test,&nbsp;the background &#8220;ring&#8221; contains pixels
+for&nbsp;estimating&nbsp;the underlying background statistics while the
+guard &#8220;ring&#8221; separates the target window from the background ring so
+that&nbsp;no pixels of an extended target are included in the
+background&nbsp;ring. The background mean <span style="font-style: italic;">&#956;</span><sub style="font-style: italic;">b</sub>&nbsp;and the&nbsp;standard deviation <span style="font-style: italic;">&#963;</span><sub style="font-style: italic;">b</sub> used in the criterion are estimated from the pixles in the background ring.<br></p><p>In case that the target window contains more than one pixels, this operator uses the following detection criterion</p><div style="margin-left: 80px;"><p><img style="width: 255px; height: 34px;" alt="" src="images/object_detection_window_eq_6.jpg"></p></div><p>where <span style="font-style: italic;">&#956;</span><sub style="font-style: italic;">t</sub> is the&nbsp;mean value of pixels in the target window. In this case, <span style="font-style: italic;">t</span> should be replaced by <span style="font-style: italic;">t</span>&#8730;<span style="font-style: italic;">n</span> (where <span style="font-style: italic;">n</span> is the number of pixels in the target window) in the PFA calculation.</p><h4>Adaptive Threshold Algorithm</h4><p>The object detection&nbsp;is performed  in an adaptive manner by the Adaptive
+Thresholding operator. For each pixel under test, there are three
+windows, namely target window, guard window and background window,
+surrounding it (see Figure 1).&nbsp;</p><p>Normally
+the target window size should be about the size of the smallest object
+to detect, the guard window size should be about the size of the
+largest object, and the background window size should be large enough
+to estimate accurately the local statistics.<br></p><p>The operator</p><ul><li>First &nbsp;computes detector design parameter <span style="font-style: italic;">t</span> from user selected PFA using equation above.</li><li>Then computes background mean&nbsp;<span style="font-style: italic;">&#956;</span><sub style="font-style: italic;">b</sub> and&nbsp;standard deviation&nbsp;<span style="font-style: italic;">&#963;</span><sub style="font-style: italic;">b</sub> using pixels in the&nbsp;background&nbsp;ring.</li><li>Next computes the mean value <span style="font-style: italic;">&#956;</span><sub style="font-style: italic;">t </sub>of&nbsp;the target window.</li><li>If&nbsp;<span style="font-style: italic;">&#956;<small><small>t</small></small></span> &gt;&nbsp;<span style="font-style: italic;">&#956;</span><sub style="font-style: italic;">b +&nbsp;</sub><span style="font-style: italic;">&#963;</span><sub style="font-style: italic;">b*</sub><span style="font-style: italic;">t</span>, then the center pixel is detected as part of an object, otherwise not an object.</li><li>Move all windows by one pixel to detect the next pixel.</li></ul><br><div style="margin-left: 80px;"><img style="width: 216px; height: 217px;" alt="" src="images/object_detection_window_set_up.jpg">&nbsp;<br></div><p>Figure 1. Window setup for adaptive thresholding algorithm.</p><h4>Discrimination</h4><p>The&nbsp;discrimination
+operation is conducted by the Object Discrimination operator.
+During this operation, false&nbsp;detections are eliminated based on simple target
+measurements.</p><ol><li> The operator first clusters contiguous detected pixels
+into a single cluster.</li><li> Then&nbsp;the width and length information of the clusters are extracted.</li><li>Finally based on these measurements and user input
+discrimination criteria, clusters that are too big or too small are
+eliminated.</li></ol><h4>Parameters Used</h4><p>For Adaptive Thresholding operator,&nbsp;the following parameters are used (see Figure 2):
+</p><ol>
+<li>Target Window Size (m): The target window size in meters. It should be set to the size of the smallest target to detect.</li>
+<li>Guard Window Size (m):&nbsp;The guard window size in meters. It should be set to the size of the largest target to detect.</li>
+<li>Background Window Size (m): The background window size in meters.
+It should be far larger than the guard window size to ensure accurate
+calculation of the background statistics.</li>
+<li>PFA (10^(-x)): Here user enters a positive number for parameter x,
+and the PFA value is computed by 10^(-x). For example, if user enters x
+= 6, then PFA = 10^(-6) which is 0.000001.</li>
+
+</ol>
+<p><img style="width: 600px; height: 500px;" alt="" src="images/object_detection_dlg_1.jpg">
+</p><p><br>&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;Figure 2. Adaptive Thresholding Operator dialog box.
+</p><p><br></p><p>
+For Object Discrimination operator, the following parameters are used (see Figure 3):
+</p>
+<ol>
+<li><p>Minimum Target Size (m): Target with dimension&nbsp;smaller than this threshold is eliminated.</p></li>
+<li><p>Maximum Target Size (m): Target with dimension larger than this threshold is eliminated.</p></li>
+</ol>
+<p><img style="width: 600px; height: 500px;" alt="" src="images/object_detection_dlg_2.jpg">
+</p><br>&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp;Figure 3. Object Discrimination Operator
+dialog box.<br><h4>Visualize Detected Objects</h4><p>To&nbsp;view the object detection results, the following steps should be followed:<br></p><ol><li>Bring up the image. </li><li>Go to&nbsp;<a href="../visat/LayerManagerWindow.html">Layer Manager</a> and add layer called "Object Detection Results".</li></ol><p>The
+detected object will be circled
+on top of the image view (see example in the figure below).&nbsp;An
+Object Detection Report will also be produced in XML in the .nest/log
+folder.</p><p></p><p><img style="width: 791px; height: 801px;" alt="" src="images/object_detections.jpg"></p><div style="text-align: left;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Figure 4. Object Detection
+Results overlayed on the image.
+</div><p></p><p></p><p style="font-style: italic;">Reference:</p><p>[1] D. J. Crisp, "The State-of-the-Art in Ship
+Detection in Synthetic Aperture Radar Imagery." DSTO&#8211;RR&#8211;0272, 2004-05.</p>
+
+<hr>
+</body></html>

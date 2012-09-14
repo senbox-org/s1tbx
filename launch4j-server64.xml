@@ -1,0 +1,25 @@
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>C:\build\4B\nest\target\nest-4B-1.1-bin.dir\bin\ceres-launcher.jar</jar>
+  <outfile>C:\build\4B\nest\target\nest-4B-1.1-bin.dir\nest-dat64.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir></chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <customProcName>true</customProcName>
+  <stayAlive>false</stayAlive>
+  <manifest></manifest>
+  <icon>C:\build\4B\nest\nest-src\main\assembly\dat.ico</icon>
+  <jre>
+    <path>jre</path>
+    <minVersion>1.6.0</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>jdkOnly</jdkPreference>
+    <initialHeapPercent>20</initialHeapPercent>
+    <maxHeapPercent>80</maxHeapPercent>
+    <opt>-Dceres.context=nest</opt>
+  </jre>
+</launch4jConfig>

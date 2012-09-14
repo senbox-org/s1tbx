@@ -1,0 +1,7 @@
+ASAR_Wave_Geolocation_ADSR|Wave Mode Geolocation ADS|*
+#
+zero_doppler_time|@/types/UTC.dd|MJD|12|1|*|Zero Doppler Time of first line of the first line of the imagette|1|
+attach_flag|UChar|flag|1|1|*|Attachment Flag (set to 1 if unable to compute the cross spectra for a given SLC imagette (i.e. no Cross Spectra MDSR corresponding to this ADSR), set to 0 otherwise)|2|
+center_lat|SLong|(1e-6) degrees|4|1|*|Geodetic latitude of center point (positive north) This is the center point of the wave cell. It is calculated after the cross spectra processing, and thus may differ from the center sample latitude of the SLC imagette if slant range to ground range conve|3|
+center_long|SLong|(1e-6) degrees|4|1|*|Geodetic longitude of center point (positive east)This is the center point of the wave cell. It is calculated after the cross spectra processing, and thus may differ from the center sample latitude of the SLC imagette if slant range to ground range conver|4|
+heading|Float|*|4|1|*|Subsatellite Track Heading. Relative to North of centre point.|5|

@@ -1,0 +1,28 @@
+raw_data_analysis|Raw Data Analysis|*
+#
+num_gaps|ULong|gaps|4|1|*|Number of input data gaps (a gap is defined as a predetermined number of range lines)|26a|
+num_missing_lines|ULong|lines|4|1|*|Number of missing lines, excluding data gaps|26b|
+range_samp_skip|ULong|samples|4|1|*|Range sample skipping factor for raw data analysis|26c|
+range_lines_skip|ULong|lines|4|1|*|Range lines skipping factor for raw data analysis|26d|
+calc_i_bias|Float|*|4|1|*|Calculated I channel bias|26e|
+calc_q_bias|Float|*|4|1|*|Calculated Q channel bias|26f|
+calc_i_std_dev|Float|*|4|1|*|Calculated I channel standard deviation|26g|
+calc_q_std_dev|Float|*|4|1|*|Calculated Q channel standard deviation|26h|
+calc_gain|Float|*|4|1|*|Calculated I/Q gain imbalance|26i|
+calc_quad|Float|*|4|1|*|Calculated I/Q quadrature departure|26j|
+i_bias_max|Float|*|4|1|*|I bias upper bound|26k|
+i_bias_min|Float|*|4|1|*|I bias lower bound|26l|
+q_bias_max|Float|*|4|1|*|Q bias upper bound|26m|
+q_bias_min|Float|*|4|1|*|Q bias lower bound|26n|
+gain_min|Float|*|4|1|*|I/Q gain lower bound|26o|
+gain_max|Float|*|4|1|*|I/Q gain upper bound|26p|
+quad_min|Float|*|4|1|*|I/Q quadrature departure lower bound|26q|
+quad_max|Float|*|4|1|*|I/Q quadrature departure upper bound|26r|
+i_bias_flag|UChar|flag|1|1|*|I bias significance0 = I bias falls within acceptable range1 = I bias falls outside acceptable range|26s|
+q_bias_flag|UChar|flag|1|1|*|Q bias Significance0 = Q bias falls within acceptable range1 = Q bias falls outside acceptable range|26t|
+gain_flag|UChar|flag|1|1|*|I/Q Gain Significance0 = Gain falls within acceptable range1 = Gain falls outside acceptable range|26u|
+quad_flag|UChar|flag|1|1|*|I/Q Quadrature Departure Significance0 = Quadrature departure falls within acceptable range1 =Quadrature departure falls outside acceptable range|26v|
+used_i_bias|Float|*|4|1|*|I channel bias used for correction (may be different from measured value)|26w|
+used_q_bias|Float|*|4|1|*|Q channel bias used for correction(may be different from measured value)|26x|
+used_gain|Float|*|4|1|*|I/Q gain imbalance used for correction(may be different from measured value)|26y|
+used_quad|Float|*|4|1|*|I/Q quadrature departure used for correction(may be different from measured value)|26z|

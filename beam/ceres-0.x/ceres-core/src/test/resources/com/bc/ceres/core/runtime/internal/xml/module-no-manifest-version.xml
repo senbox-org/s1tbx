@@ -1,0 +1,5 @@
+<!-- This is the minimal module -->
+<module>
+    <!-- omitted manifest version tag causes exception -->
+    <symbolicName>minimal-module</symbolicName>
+</module>

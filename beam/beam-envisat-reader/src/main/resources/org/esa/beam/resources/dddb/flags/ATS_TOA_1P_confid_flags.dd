@@ -1,0 +1,12 @@
+ATS_TOA_1P_confid_flags|AATSR TOA Level 1b Confidence Flag Codings
+#
+BLANKING       |  0 | Blanking Pulse
+COSMETIC       |  1 | Cosmetic Fill Pixel
+SCAN_ABSENT    |  2 | Entire scan absent from telemetry
+ABSENT         |  3 | Pixel absent from telemetry
+NOT_DECOMPR    |  4 | Pixel not decompressed owing to error in packet validation
+NO_SIGNAL      |  5 | No signal in some channel (zero count)
+SATURATION     |  6 | Saturation in some channel (maximum count)
+OUT_OF_RANGE   |  7 | Derived radiance of some channel outside range of calibration
+NO_CALIB_PARAM |  8 | Calibration Parameters unavailable for pixel
+UNFILLED       |  9 | Pixel unfilled (cosmetic fill algorithm unable to find nearest neighbour pixel)

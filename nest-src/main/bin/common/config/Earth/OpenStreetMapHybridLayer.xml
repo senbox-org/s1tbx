@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--$Id: OpenStreetMapHybridLayer.xml,v 1.1 2010-04-05 17:38:21 lveci Exp $-->
+<Layer version="1" layerType="TiledImageLayer">
+    <!--Default OpenStreetMap hybrid layer with transparency.-->
+    <DisplayName>OpenStreetMap</DisplayName>
+    <Service serviceName="OGC:WMS" version="1.1.1">
+        <GetCapabilitiesURL>http://t2.hypercube.telascience.org/tiles</GetCapabilitiesURL>
+        <GetMapURL>http://t2.hypercube.telascience.org/tiles</GetMapURL>
+        <LayerNames>osm-4326-hybrid</LayerNames>
+    </Service>
+    <!-- Wed, 25 Feb 2009 00:00:00 PDT -->
+    <LastUpdate>1235548800000</LastUpdate>
+    <DataCacheName>Earth/OSM-WMS/osm-4326-hybrid</DataCacheName>
+    <ImageFormat>image/png</ImageFormat>
+    <AvailableImageFormats>
+        <ImageFormat>image/png</ImageFormat>
+    </AvailableImageFormats>
+    <FormatSuffix>.dds</FormatSuffix>
+    <NumLevels count="20" numEmpty="0"/>
+    <TileOrigin>
+        <LatLon units="degrees" latitude="-90" longitude="-180"/>
+    </TileOrigin>
+    <LevelZeroTileDelta>
+        <LatLon units="degrees" latitude="180" longitude="180"/>
+    </LevelZeroTileDelta>
+    <TileSize>
+        <Dimension width="256" height="256"/>
+    </TileSize>
+    <Sector>
+        <SouthWest>
+            <LatLon units="degrees" latitude="-90" longitude="-180"/>
+        </SouthWest>
+        <NorthEast>
+            <LatLon units="degrees" latitude="90" longitude="180"/>
+        </NorthEast>
+    </Sector>
+    <UseTransparentTextures>true</UseTransparentTextures>
+</Layer>

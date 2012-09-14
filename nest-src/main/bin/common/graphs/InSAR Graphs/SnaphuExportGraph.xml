@@ -1,0 +1,75 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="2-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="3-BandSelect">
+    <operator>BandSelect</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+    </parameters>
+  </node>
+  <node id="4-SnaphuExport">
+    <operator>SnaphuExport</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+      <sourceProduct refid="2-Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <statCostMode>DEFO</statCostMode>
+      <initMethod>MST</initMethod>
+    </parameters>
+  </node>
+  <node id="5-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="3-BandSelect"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <formatName>BEAM-DIMAP</formatName>
+      <file>/d1/target.dim</file>
+    </parameters>
+  </node>
+  <node id="6-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="4-SnaphuExport"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <formatName>Snaphu</formatName>
+      <file>/d1/target_snaphu.hdr</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="1-Read">
+      <displayPosition y="51.0" x="75.0"/>
+    </node>
+    <node id="2-Read">
+      <displayPosition y="138.0" x="47.0"/>
+    </node>
+    <node id="3-BandSelect">
+      <displayPosition y="51.0" x="211.0"/>
+    </node>
+    <node id="4-SnaphuExport">
+      <displayPosition y="138.0" x="231.0"/>
+    </node>
+    <node id="5-Write">
+      <displayPosition y="51.0" x="359.0"/>
+    </node>
+    <node id="6-Write">
+      <displayPosition y="138.0" x="403.0"/>
+    </node>
+  </applicationData>
+</graph>

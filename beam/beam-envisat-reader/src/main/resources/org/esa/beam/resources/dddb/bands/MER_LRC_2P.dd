@@ -1,0 +1,44 @@
+#
+# 1) product_type
+# 2) description
+#
+MER_LRC_2P|MERIS Level 2 Extracted Cloud Thickness and Water Vapour for Meteo Users
+
+#
+# 1) band_name
+# 2) dataset_name
+# 3) sample_offset
+# 4) band_datatype
+# 5) spectr_band_index
+# 6) scaling_method
+# 7) scaling_offset
+# 8) scaling_factor
+# 9) bit_expr
+# 10) flags_definition_file
+# 11) unit
+# 12) description
+#
+# WARNING: MERIS Spec. (iss. 1 rev. F)
+# does not say where the scaling factors for the tie point datasets come from!
+#
+#1             |2                   |3   |4    |5 |6           |7                      |8                      |9          |10                         |11    |12
+#--------------|--------------------|----|-----|--|------------|-----------------------|-----------------------|-----------|---------------------------|------|------------------------------------------------------------------
+latitude       |Tie_points_ADS.3    |*   |Float|* |Linear_Scale|0.0                    |1.0E-06                |*          |*                          |deg   |Latitude of the tie points (WGS-84), positive N
+longitude      |Tie_points_ADS.4    |*   |Float|* |Linear_Scale|0.0                    |1.0E-06                |*          |*                          |deg   |Longitude of the tie points (WGS-84), Greenwich origin, positive E
+dem_alt        |Tie_points_ADS.5    |*   |Float|* |Linear_Scale|0.0                    |1.0                    |*          |*                          |m     |Digital elevation model altitude
+dem_rough      |Tie_points_ADS.6    |*   |Float|* |Linear_Scale|0.0                    |1.0                    |*          |*                          |m     |Digital elevation model roughness
+lat_corr       |Tie_points_ADS.7    |*   |Float|* |Linear_Scale|0.0                    |1.0E-06                |*          |*                          |deg   |Digital elevation model latitude corrections
+lon_corr       |Tie_points_ADS.8    |*   |Float|* |Linear_Scale|0.0                    |1.0E-06                |*          |*                          |deg   |Digital elevation model longitude corrections
+sun_zenith     |Tie_points_ADS.9    |*   |Float|* |Linear_Scale|0.0                    |1.0E-06                |*          |*                          |deg   |Sun zenith angle
+sun_azimuth    |Tie_points_ADS.10   |*   |Float|* |Linear_Scale|0.0                    |1.0E-06                |*          |*                          |deg   |Sun azimuth angles
+view_zenith    |Tie_points_ADS.11   |*   |Float|* |Linear_Scale|0.0                    |1.0E-06                |*          |*                          |deg   |Viewing zenith angles
+view_azimuth   |Tie_points_ADS.12   |*   |Float|* |Linear_Scale|0.0                    |1.0E-06                |*          |*                          |deg   |Viewing azimuth angles
+zonal_wind     |Tie_points_ADS.13   |*   |Float|* |Linear_Scale|0.0                    |0.1                    |*          |*                          |m/s   |Zonal wind
+merid_wind     |Tie_points_ADS.14   |*   |Float|* |Linear_Scale|0.0                    |0.1                    |*          |*                          |m/s   |Meridional wind
+atm_press      |Tie_points_ADS.15   |*   |Float|* |Linear_Scale|0.0                    |0.1                    |*          |*                          |hPa   |Mean sea level pressure
+ozone          |Tie_points_ADS.16   |*   |Float|* |Linear_Scale|0.0                    |0.01                   |*          |*                          |DU    |Total ozone
+rel_hum        |Tie_points_ADS.17   |*   |Float|* |Linear_Scale|0.0                    |0.1                    |*          |*                          |dl    |Relative humidity
+water_vapour   |Vapour_Content.3    |*   |Float|* |Linear_Scale|Scaling_Factor_GADS.6.1|Scaling_Factor_GADS.3.1|*          |*                          |g/cm^2|Water vapour content
+cloud_opt_thick|Cloud_Type_OT.3     |*   |Float|* |Linear_Scale|Scaling_Factor_GADS.4.1|Scaling_Factor_GADS.1.1|l2_flags.CLOUD|*                          |dl    |Cloud optical thickness
+cloud_top_press|Cloud_Top_Pressure.3|*   |Float|* |Linear_Scale|Scaling_Factor_GADS.5.1|Scaling_Factor_GADS.2.1|l2_flags.CLOUD|*                          |hPa   |Cloud top pressure
+l2_flags       |Flags.3             |3TOI|ULong|* |*           |*                      |*                      |*          |@/flags/MER_RR__2P_flags.dd|*     |Level 2 classification and quality flags

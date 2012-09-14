@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Quick Start DAT</title>
+
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Quick Start With The
+DAT</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Opening Products</h3><p>Image Products can be opened by either the Open Raster Dataset menu item in the File menu</p><div style="text-align: left;"><p><img style="width: 341px; height: 408px;" alt="" src="images/open_raster.jpg"></p></div><p></p><p>or by selecting the reader directly from the Product Readers menu.</p><p><img style="width: 604px; height: 776px;" alt="" src="images/product_readers.jpg"></p><p>The
+Open Raster&nbsp;menu item will try to automatically determine which
+reader to use and it can open one or multiple data products stored on
+the hard disk in DAT. You can select more than one product, e.g. by
+pressing&nbsp;<b>CTRL</b> and selecting the desired products with the mouse.</p><p>By
+selecting the specific Product Reader, the path to datasets of that
+type can be stored and reused the next time you open a similar product.</p><p style="text-align: justify;"><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">After having opened
+the product, the data is listed in the&nbsp;</span>Products View<span style="text-decoration: underline;"></span><span lang="EN-GB"> where you&nbsp;can
+examine product structure and&nbsp;metadata.</span></p><p style="text-align: justify;">A Product consists of the following:</p><p style="text-align: justify;">
+
+</p><ul><li><!--[if !supportLists]--><span lang="EN-GB"><span style=""><span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;"></span></span></span><b style=""><span lang="EN-GB">Identification</span></b><span lang="EN-GB">: Basic information on
+the product (</span><st1:city><st1:place><span lang="EN-GB">Mission</span></st1:place></st1:city><span lang="EN-GB">, Product type, Acquisition time, Track and Orbit) <o:p></o:p></span></li></ul>
+
+<ul><li><!--[if !supportLists]--><span lang="EN-GB"><span style=""><span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">
+</span></span></span><!--[endif]--><b style=""><span lang="EN-GB">Metadata</span></b><span lang="EN-GB">: This includes all the original metadata within
+the product,&nbsp;</span><span lang="EN-GB">the Processing_graph history&nbsp;recording the processing that was done and the Abstracted Metadata which is the important metadata fields used by the Operators in a common format. <o:p></o:p></span></li></ul>
+
+<ul><li><!--[if !supportLists]--><span lang="EN-GB"><span style=""><span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">
+</span></span></span><!--[endif]--><b style=""><span lang="EN-GB">Tie Point Grids</span></b><span lang="EN-GB">: Raster grids created
+interpolating the tie-points information within the product. The interpolation
+is done on the fly according to the product.<o:p></o:p></span></li></ul>
+
+<ul><li><!--[if !supportLists]--><span lang="EN-GB"><span style=""><span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">
+</span></span></span><!--[endif]--><b style=""><span lang="EN-GB">Bands</span></b><span lang="EN-GB">: <i style="">The actual bands</i> inside the
+product and <i style="">virtual band</i>s created&nbsp;from expressions. Different icons are used to distinguish these bands. <o:p></o:p></span></li></ul>
+<p style="text-align: justify;">The information in the metadata and the bands created&nbsp;can vary according to
+the product.<span lang="EN-GB"></span></p><p style="text-align: justify;"><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">Below is&nbsp;an example of an ENVISAT ASAR IMP product opened in the Products View.</span></p><p style="text-align: justify;"><img style="width: 476px; height: 594px;" alt="" src="images/products_view.jpg"><span lang="EN-GB"></span></p><p style="text-align: justify;"><span lang="EN-GB"></span></p><p style="text-align: justify;"><span lang="EN-GB">Double click on the Abstracted Metadata to view all critical fields.</span></p><p style="text-align: justify;"><span lang="EN-GB"><img style="width: 827px; height: 988px;" alt="" src="images/abstract_metadata.jpg"></span></p><p style="text-align: justify;"><span lang="EN-GB"></span></p><p style="text-align: justify;"><span lang="EN-GB"> Double click on a band to open it in an </span>Image View.<span lang="EN-GB"> <o:p></o:p></span></p>
+<br><p> After you have opened an Image View
+you can modify the colors of the image using the colour
+manipulation window or overlay an opaque or semi-transparent
+bitmask with the bitmask
+overlay window. Both windows operate in non-modal mode, which
+means they float over DAT's main frame, and you can place them somewhere
+on your desktop.</p>
+<p>To see what    region of the world is covered by the data product, select the World Map View from the View/ToolViews menu.</p><br><h3>Changing Default Paths</h3><p>Open the Settings dialog from the Edit menu. The Settings dialog&nbsp;<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">allows you to customize the default data path directories</span><span lang="EN-GB"> for your&nbsp;Digital
+Elevation models and&nbsp;orbit
+files.
+For DELFT Precise Orbits and SRTM 3sec DEM, the Toolbox will automatically
+download required files as needed and place them in the folders
+specified in the Settings dialog. For ACE 30src DEM, you will need to
+download the files manually and place them in the folder specified in
+the Settings dialog. </span></p><h3>Creating A Project</h3>
+<p class="MsoNormal" style="text-align: justify;"><span lang="EN-GB">With Projects<b style=""><span style="color: red;"></span></b>, you can organise and store complex processing over multiple datasets. <o:p></o:p></span>The main advantage of using Projects is
+that it automatically organizes the processed images in separate directories</p><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span><p>Start by creating a <img style="width: 20px; height: 20px;" alt="" src="images/project-new.png" align="middle"> New Project&nbsp;from
+the File menu. From the New Project dialog, browse for a folder and
+enter the project name. A new Project folder with the Project name
+given will be created along with a Project XML file which will store
+information about your Project.</p><p>Next, use the Product Library to browse and select data products to import or double click on them to open them directly.</p><p>From the Project View you can double click on a product to open it in the Product View.</p><p>From the Product View you can examine a products metadata or double click on a band to open it in an Image View.</p><br><hr>
+</body></html>

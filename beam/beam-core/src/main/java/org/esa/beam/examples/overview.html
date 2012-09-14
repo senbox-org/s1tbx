@@ -1,0 +1,118 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+    <TITLE>examples</TITLE>
+    <!--
+
+      $Id: overview.html,v 1.2 2007/02/09 11:05:57 marcop Exp $
+
+      Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+
+      This program is free software; you can redistribute it and/or modify it
+      under the terms of the GNU General Public License as published by the
+      Free Software Foundation. This program is distributed in the hope it will
+      be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+      of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+      See the GNU General Public License for more details.
+
+      You should have received a copy of the GNU General Public License
+      along with this program; if not, write to the Free Software
+      Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+    -->
+</HEAD>
+
+<BODY bgColor=white>
+
+This is the documentation for the Java source code examples provided along with
+the BEAM Software. It shows the basic concepts on how to use the BEAM Java API
+for your own applications:
+
+<ul>
+    <li>{@link org.esa.beam.examples.data_export}: very simple examples showing how to read data
+        from a product and write them out: The package conatins three source
+        files:
+        <ul>
+            <li><a href="{@docRoot}/data_export/BandWriterMain.java.txt">BandWriterMain.java</a></li>
+            <li><a href="{@docRoot}/data_export/BitmaskWriterMain.java.txt">BitmaskWriterMain.java</a></li>
+            <li><a href="{@docRoot}/data_export/TiePointGridWriterMain.java.txt">TiePointGridWriterMain.java</a></li>
+        </ul>
+    </li>
+    <li>{@link org.esa.beam.examples.ndvi_simple}: a very simple NDVI (normalized differential
+        vegetation index) processor. The package contains a single source file:
+        <ul>
+            <li><a href="{@docRoot}/ndvi_simple/NdviSimpleMain.java.txt">NdviSimpleMain.java</a>
+        </ul>
+    </li>
+    <li>{@link org.esa.beam.examples.ndvi_processor}: a more advanced NDVI processor which uses parts
+        of the BEAM processing framework. The example comprises two source files:
+        <ul>
+            <li><a href="{@docRoot}/ndvi_processor/NdviProcessorMain.java.txt">NdviProcessorMain.java</a>
+            <li><a href="{@docRoot}/ndvi_processor/NdviProcessor.java.txt">NdviProcessor.java</a>
+            <li><a href="{@docRoot}/ndvi_processor/NdviProcReq.xml">a NDVI processing request file</a>
+        </ul>
+    </li>
+</ul>
+
+<p>
+    You can also download the bundled examples as a single <a href="{@docRoot}/../examples.zip">ZIP file</a>.
+    In order to compile the examples, the ZIP file also contains a <code>build.xml</code> file for use
+    with the open source tool
+    <a href="http://jakarta.apache.org/ant/"><code>ant</code></a> (a kind of <code>make</code> for Java)
+    developed by the <a href="http://www.apache.org">Apache Software Foundation</a>.
+</p>
+
+<p>
+    Newcomers who want to develop export tools and data processors are invited to look at
+    {@link org.esa.beam.examples.data_export} and {@link org.esa.beam.examples.ndvi_simple} first.
+    The first package contains basic tools which lets you extract geophysical data from
+    products. The {@link org.esa.beam.examples.ndvi_simple} package contains a few lines of code showing you how to
+    compute the NDVI value from a MERIS Level 1b input product.
+</p>
+
+<p>
+    Once you are familiar with the basic concepts, please examine the {@link org.esa.beam.examples.ndvi_processor}
+    example
+    contained in this package. {@link org.esa.beam.examples.ndvi_processor.NdviProcessorMain} implements is a
+    fully functional data processor which uses some important concepts and mechanisms of the BEAM
+    processing framework. Don't be afraid, it is still very easy code. It can be used as a template
+    for your own data processors.
+</p>
+
+
+<p>This is the list of the most important API packages used by the examples:
+    <ol>
+        <li>
+            <a href="{@docRoot}/../api-doc/org/esa/beam/framework/datamodel/package-summary.html">The <code>
+                org.esa.beam.framework.datamodel</code> package.</a>
+        </li>
+        <li>
+            <a href="{@docRoot}/../api-doc/org/esa/beam/framework/dataio/package-summary.html">The <code>
+                org.esa.beam.framework.dataio</code> package.</a>
+        </li>
+        <li>
+            <a href="{@docRoot}/../api-doc/org/esa/beam/util/package-summary.html">The <code>org.esa.beam.util</code>
+                package.</a>
+        </li>
+    </ol>
+
+</p>
+
+</BODY>
+</HTML>

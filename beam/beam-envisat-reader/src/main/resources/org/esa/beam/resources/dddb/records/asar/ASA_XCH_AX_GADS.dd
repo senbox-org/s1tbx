@@ -1,0 +1,7 @@
+ASA_XCH_AX_GADS|Contains ASAR external characterization data|+dsr_length
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Time of characterization|1|
+dsr_length|ULong|bytes|4|1|*|Length of this DSR in bytes|2|
+complex_loop_factors|Float|*|4|128|*|Complex Loop Paths Characterization Factors relative to free space (from External Characterization data). 64 complex (I,Q) values of gnp where n is the index of the row (1 to 32) and p is the index of the polarization (H=1, V=2) (TBC) Arranged H: 1 to 32, then V: 1-32)|3|
+pointing_error|Float|*|4|1|*|Antenna pointing error DP1 (from External Characterization data)|4|
+spare_1|Spare|*|64|1|*|Spare|5|

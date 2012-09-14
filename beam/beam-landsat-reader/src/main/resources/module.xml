@@ -1,0 +1,84 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-landsat-reader</symbolicName>
+    <version>5.0-1.3</version>
+    <name>Landsat TM Product Reader</name>
+    <description>
+        A product reader for Landsat TM 5 (FAST and GeoTIFF) files.
+    </description>
+
+    <vendor>Christian Berwanger (ai0263@umwelt-campus.de)</vendor>
+    <copyright>(C) 2006 by Brockmann Consult</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+        From 1.2 to 1.2.100:<br/>
+            [BEAM-1186] The Landsat GeoTIFF reader should handle invalid input gracefully<br/>
+        From 1.1.2 to 1.2:<br/>
+            [BEAM-1167] The Landsat reader should support products in GeoTIFF<br/>
+        From 1.1.1 to 1.1.2:<br/>
+            [BEAM-945] Landsat reader does not consider the center information in header file<br/>
+        From 1.1 to 1.1.1:<br/>
+            [BEAM-874] Ensure thread safety of product reader<br/>
+        From 1.0 to 1.1:<br/>
+            [BEAM-653] Landsat reads the raw data (unsigned bytes) wrong<br/>
+        ]]>
+    </changelog>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-geotiff</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat-rcp</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader, Landsat</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>importLandsatTMProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <parent>importOptical</parent>
+            <text>Landsat 5 TM (FAST)</text>
+            <formatName>FAST L5</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>L</mnemonic>
+            <shortDescr>Import a Landsat TM (Fast) data product or product subset.</shortDescr>
+            <description>Import a Landsat TM (in Fast format) data product or product subset.</description>
+            <helpId>importLandsatTMProduct</helpId>
+        </action>
+        <action>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <id>importLandsatGeoTIFFProduct</id>
+            <helpId>importLandsatTMProduct</helpId>
+            <formatName>LandsatGeoTIFF</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>Landsat 5 TM (GeoTIFF)</text>
+            <mnemonic>G</mnemonic>
+            <shortDescr>Import a Landsat TM (GeoTIFF) data product or product subset.</shortDescr>
+            <description>Import a Landsat TM (in GeoTIFF format) data product or product subset.</description>
+			<parent>importOptical</parent>
+        </action>
+    </extension>
+
+    <extension point="beam-core:rgbProfiles">
+        <rgbProfile>
+            <name>LandsatTM 3,2,1</name>
+            <red>radiance_3</red>
+            <green>radiance_2</green>
+            <blue>radiance_1</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>LandsatTM 4,3,2</name>
+            <red>radiance_4</red>
+            <green>radiance_3</green>
+            <blue>radiance_2</blue>
+        </rgbProfile>
+    </extension>
+</module>

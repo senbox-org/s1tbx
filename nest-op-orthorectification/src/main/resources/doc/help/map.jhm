@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE map
+        PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/map_2_0.dtd">
+
+<map version="2.0">
+
+    <!--Geometry Operators-->
+	<mapID target="CreateElevationOp" url="operators/CreateElevationOp.html"/>
+	<mapID target="RangeDopplerGeocodingOp" url="operators/RangeDopplerGeocodingOp.html"/>
+	<mapID target="SARSimGeocodingOp" url="operators/SARSimTerrainCorrectionOp.html"/>
+	<mapID target="SARSimOp" url="operators/SARSimulationOp.html"/>
+	<mapID target="GeolocationGridGeocodingOp" url="operators/GeolocationGridGeocodingOp.html"/>
+	<mapID target="EllipsoidCorrectionRDOp" url="operators/EllipsoidCorrectionRDOp.html"/>
+	<mapID target="MapProjectionOp" url="operators/MapProjectionOp.html"/>
+	<mapID target="SRGROp" url="operators/SRGROp.html"/>
+	<mapID target="MosaicOp" url="operators/MosaicOp.html"/>
+	
+</map>

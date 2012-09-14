@@ -1,0 +1,14 @@
+data_config_im|Default data processing configuration table for IM mode|*
+#
+echo_comp_method|String|ascii|4|1|*|Compression Method used for echo samples FBAQ, S+M&Oslash;, NONE|65a|
+echo_comp_ratio|String|ascii|3|1|*|Compression Ratio for echo samples: 8/4, 8/3, 8/2, 8/8|65b|
+echo_resamp_flag|UChar|flag|1|1|*|Resampling applied to echo samples? (1=yes, 0=no)|65c|
+init_cal_comp_method|String|ascii|4|1|*|Compression Method used for initial calibration samples FBAQ, S+M&Oslash;, NONE|65d|
+init_cal_comp_ratio|String|ascii|3|1|*|Compression Ratio for initial calibration samples8/4, 8/3, 8/2, 8/8|65e|
+init_cal_resamp_flag|UChar|flag|1|1|*|Resampling applied to initial calibration samples? (1=yes, 0=no)|65f|
+per_cal_comp_method|String|ascii|4|1|*|Compression Method used for periodic calibration samples FBAQ, S+M&Oslash;, NONE|65g|
+per_cal_comp_ratio|String|ascii|3|1|*|Compression Ratio for periodic calibration samples: 8/4, 8/3, 8/2, 8/8|65h|
+per_cal_resamp_flag|UChar|flag|1|1|*|Resampling applied to periodic calibration samples? (1=yes, 0=no)|65i|
+noise_comp_method|String|ascii|4|1|*|Compression Method used for noise samples FBAQ, S+M&Oslash;, NONE|65j|
+noise_comp_ratio|String|ascii|3|1|*|Compression Ratio for noise samples: 8/4, 8/3, 8/2, 8/8|65k|
+noise_resamp_flag|UChar|flag|1|1|*|Resampling applied to noise samples? (1=yes, 0=no)|65l|

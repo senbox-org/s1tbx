@@ -1,0 +1,22 @@
+<archetype>
+    <id>maven-nest-archetype</id>
+    <allowPartial>true</allowPartial>
+    <sources>
+        <source>src/main/java/MyProductReader.java</source>
+        <source>src/main/java/MyProductReaderPlugIn.java</source>
+        <source>src/main/java/MyProductWriter.java</source>
+        <source>src/main/java/MyProductWriterPlugIn.java</source>
+    </sources>
+    <resources>
+        <resource>readme.html</resource>
+        <resource>src/main/resources/module.xml</resource>
+        <resource>src/main/resources/about.html</resource>
+        <resource>src/main/resources/license.txt</resource>
+        <resource>src/main/resources/META-INF/services/org.esa.beam.framework.dataio.ProductReaderPlugIn</resource>
+        <resource>src/main/resources/META-INF/services/org.esa.beam.framework.dataio.ProductWriterPlugIn</resource>
+    </resources>
+    <testSources>
+        <source>src/test/java/MyProductReaderTest.java</source>
+        <source>src/test/java/MyProductWriterTest.java</source>
+    </testSources>
+</archetype>

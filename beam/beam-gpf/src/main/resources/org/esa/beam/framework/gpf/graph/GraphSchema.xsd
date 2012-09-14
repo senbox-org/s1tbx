@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+    <xs:element name="graph" type="GraphType"/>
+    <xs:complexType name="GraphType">
+        <xs:sequence>
+            <xs:element name="id" type="xs:string"/>
+            <xs:element name="node" type="NodeType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="NodeType">
+        <xs:sequence>
+            <xs:element name="id" type="xs:string"/>
+            <xs:element name="operator" type="xs:string"/>
+            <xs:element name="sources" type="xs:anyType" minOccurs="0"/>
+            <xs:element name="parameters" type="xs:anyType" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - Band Arithmetics</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            Band Arithmetic</td>
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+
+<h3>Band Arithmetic</h3>
+
+<p>The band arithmetic tool is used to create new image sample values derived
+    from existing bands, tie-point grids and flags. The source data can originate
+    from all currently open and spatially compatible input products. The source
+    data is combined by an arithmetic expression to generate the target data. By
+    default, a new image view is automatically opened for the new sample values.
+    You can disable this behaviour in the preferences dialog.</p>
+
+<p>Please refer to the
+    <a href="ExpressionEditor.html">expression editor</a> documentation for the syntax and capablities of
+    expressions.</p>
+
+<p>After the new band has been created (or an existing one has been overwritten), you can change to DAT's <a href="ProductBrowser.html">Product View</a> in order to open an image view in
+    order to inspect the resulting samples.</p>
+
+<p align="center"><img style="border: 0px solid ; width: 271px; height: 342px;" alt="" src="images/BandArithmetic.jpg"></p><h4>Parameters</h4>
+
+<p class="i1"><a name="targetProduct"><b>Target Product:</b></a><br>
+    Select the target product where the new band will be added.
+</p>
+
+<p class="i1">
+    <b>Name:</b><br>
+    Specifies the name of the new band. The name must not be empty and the target product must not contain a
+    band with the same name.
+</p>
+
+<p class="i1">
+    <b>Description:</b><br>
+    An optional description can be entered here.
+</p>
+
+<p class="i1">
+    <b>Unit:</b><br>
+    An optional unit can be entered here.
+</p>
+
+<p class="i1">
+    <b>Virtual (save expression only, don't write data)</b><br>
+    If the option is checked a virtual band is created.
+    This means that only the expression is stored and the data is re-computed if needed.
+    If this option is unchecked, the data is computed once and stored in the product.
+</p>
+
+<p class="i1">
+    <b>Replace NaN and infinity results by</b><br>
+    Sometimes an expression can result to a NaN (Not a Number)or inifinity value, in these
+    cases these values will be replaced by the value specifed here. This value will also be used
+    as the no-data value of the band.
+</p><h4>Expression:</h4>
+
+<p class="i1"> This field takes the arithmetic expression which is used to create new data
+    samples. Please refer to the <a href="ExpressionEditor.html">expression editor</a>
+    documentation for the syntax and capabilities of expressions. </p>
+
+<p class="i1">
+    <b>Edit Expression...</b> button<br>
+    Opens the <a href="ExpressionEditor.html">expression editor</a> which provides a
+    a convenient way to create valid arithmetic expressions.
+</p><h4>OK, Cancel and Help</h4>
+
+<p class="i1">
+    <b>OK</b><br>
+    Computes the new sample data and closes the dialog. Refer to the preferences dialog for an option to
+    specify whether or not to automatically open an image view for the new data samples.
+</p>
+
+<p class="i1">
+    <b>Cancel</b><br>
+    Closes the dialogue and all changes are reverted.
+</p>
+
+<p class="i1">
+    <b>Help</b><br>
+    Opens this help page.
+</p><hr>
+</body></html>

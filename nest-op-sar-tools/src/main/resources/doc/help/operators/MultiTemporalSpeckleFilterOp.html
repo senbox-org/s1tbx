@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+    
+    
+  
+  <title>Help - Multi-Temporal Speckle Filter</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+
+<table class="header">
+
+    <tbody>
+    <tr class="header">
+
+        <td class="header">&nbsp;Speckle Filter</td>
+
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+
+<h3>Multi-Temporal Speckle Filter Operator</h3>
+<p>
+SAR images have inherent salt and pepper like texturing called speckles which
+degrade the quality of the image and make interpretation of features more
+difficult. The speckles are caused by random constructive and destructive interference
+of the de-phased but coherent return waves scattered by the elementary scatters
+within each resolution cell. Multi-temporal filtering is one of the commonly used
+speckle noise reduction techniques.
+</p>
+
+<h4>Multi-Temporal Speckle Filtering</h4><p>
+For a sequence of <span style="font-style: italic;">N</span> registered multitemporal images, with intensity at position
+(<span style="font-style: italic;">x, y</span>) in the <span style="font-style: italic;">k</span>th image denoted by <span style="font-style: italic;">I</span><sub style="font-style: italic;">k</sub><span style="font-style: italic;">(x, y)</span>, the temporal filtered images are
+given by:
+</p>
+<br><div style="margin-left: 40px;"><img style="width: 255px; height: 58px;" alt="" src="images/multi_temporal_filter_eq_1.jpg"><br></div>
+<br>&nbsp;&nbsp;&nbsp;for <span style="font-style: italic;">k</span> = 1, ..., <span style="font-style: italic;">N</span>, where <span style="font-style: italic;">E</span>[<span style="font-style: italic;">I</span>] is the local mean value of pixels in a window centered at (<span style="font-style: italic;">x, y</span>) in image <span style="font-style: italic;">I</span>.
+
+<br><h4>Pre-Processing Steps</h4>&nbsp;&nbsp;&nbsp;The operator has the following two pre-processing steps:<br>
+<ol>
+<li>The first step is calibration in which &#963;<sup><sub>0</sub></sup>
+is derived from the digital number at each pixel. This ensures that
+values of from different times and in different parts of the image are
+comparable.</li>
+<li>The second step is registration of the multitemporal images.</li>
+</ol>
+&nbsp;&nbsp;&nbsp;Here it is assumed that pre-processing has been performed before applying
+this operator. The input to the operator is assumed to be a product
+with multiple calibrated and co-registrated bands.
+<br><h4>Parameters Used</h4>
+&nbsp;&nbsp;&nbsp;The following parameters are used by the operator:
+<ol>
+<li>Source Band: All bands (real or virtual) of the source product. User can
+select one or more bands for producing the filtered image. If no bands are
+selected, then by default all bands will be selected.</li><li>Window
+Size: Dimension of the sliding window that is used in computing spatial
+average in each image of the temporal sequence. The supported window sizes are
+3x3, 5x5, 7x7, 9x9 and 11x11.</li>
+</ol>
+<img style="width: 500px; height: 500px;" alt="" src="images/multi_temporal_filter_dlg.jpg">
+<br>
+<br>
+<br>
+Reference: S. Quegan, T. L. Toan, J. J. Yu, F. Ribbes and N. Floury, &#8220;Multitemporal
+ERS SAR Analysis Applied to Forest Mapping&#8221;, IEEE Transactions on
+Geoscience and Remote Sensing, vol. 38, no. 2, March 2000.
+
+<hr>
+</body></html>

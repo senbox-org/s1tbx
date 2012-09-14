@@ -1,0 +1,30 @@
+# This file contains the product structure for the MODIS L2 1km resolution products
+
+META  | StructMeta | StructMetadata.0
+#----------------------------------------------------------------------------------------------------------------------------------------
+# The folowing block describes the structure of the scientific datases (SDS)
+# The meaning of the fields:
+#   1 - SDS - keyword
+#   2 - the name of the set of bands as they appear in the HDF file
+#   3 - whether the band is a spectral band or not (true or false)
+#   4 - the scaling method (lin, exp or '*' - no scaling)
+#   5 - the name of the attribute containing the scaling factors - or '*' - no scaling
+#   6 - the name of the attribute containing the scaling offsets - or '*' - no scaling
+#   7 - the name of the attribute containing the physical unit
+#   8 - the spectral band index or the name of the attribute containing the spectral band indices - or '@' and a band name when the band indices are referenced somewhere else in the product
+#   9 - the attribute name containing a description for the band
+# 1   | 2                      | 3     | 4   | 5     | 6         | 7     | 8  | 9
+SDS   | nLw_412                | true  | sli | Slope | Intercept | Units | 8  | Long_name
+SDS   | nLw_443                | true  | sli | Slope | Intercept | Units | 9  | Long_name
+SDS   | nLw_488                | true  | sli | Slope | Intercept | Units | 10 | Long_name
+SDS   | nLw_531                | true  | sli | Slope | Intercept | Units | 11 | Long_name
+SDS   | nLw_551                | true  | sli | Slope | Intercept | Units | 12 | Long_name
+SDS   | nLw_667                | true  | sli | Slope | Intercept | Units | 13 | Long_name
+SDS   | nLw_678                | true  | sli | Slope | Intercept | Units | 14 | Long_name
+SDS   | Tau_865                | false | sli | Slope | Intercept | Units | *  | Long_name
+SDS   | Eps_78                 | false | sli | Slope | Intercept | Units | *  | Long_name
+SDS   | aer_model1             | false | sli | Slope | Intercept | Units | *  | Long_name
+SDS   | aer_model2             | false | sli | Slope | Intercept | Units | *  | Long_name
+SDS   | eps_clr_water          | false | sli | Slope | Intercept | Units | *  | Long_name
+#----------------------------------------------------------------------------------------
+GEO   | MxDOCQC

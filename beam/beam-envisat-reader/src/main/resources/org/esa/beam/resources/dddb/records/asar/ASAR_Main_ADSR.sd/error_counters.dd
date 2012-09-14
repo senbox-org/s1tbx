@@ -1,0 +1,12 @@
+error_counters|Error counters|*
+#
+num_err_swst        |ULong|*|4|1|*|Number of errors detected in Sampling Window start time field.|31a|
+num_err_pri         |ULong|*|4|1|*|Number of errors detected in PRI code field|31b|
+num_err_tx_pulse_len|ULong|*|4|1|*|Number of errors detected in Tx pulse length field|31c|
+num_err_tx_pulse_bw |ULong|*|4|1|*|Number of errors detected in Tx pulse bandwidth field.|31d|
+num_err_echo_win_len|ULong|*|4|1|*|Number of errors detected in Echo Window Length field.|31e|
+num_err_up          |ULong|*|4|1|*|Number of errors detected in Upconverter Level field.|31f|
+num_err_down        |ULong|*|4|1|*|Number of errors detected in Downconverter Level field.|31g|
+num_err_resamp      |ULong|*|4|1|*|Number of errors detected in Resampling factor for echo data field.|31h|
+num_err_beam_adj    |ULong|*|4|1|*|Number of errors detected in Beam adjustment delta field.|31i|
+num_err_beam_set_num|ULong|*|4|1|*|Number of errors detected in Antenna Beam Set Number field.|31j|

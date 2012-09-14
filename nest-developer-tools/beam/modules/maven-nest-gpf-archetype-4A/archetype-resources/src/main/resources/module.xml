@@ -1,0 +1,42 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>${artifactId}</symbolicName>
+    <version>${version}</version>
+    <name>${artifactId}</name>
+    <description>NEST GPF Module ${artifactId}</description>
+	
+	<licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	
+	<dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+        <module>nest-core</module>
+    </dependency>
+	<dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
+	
+	<extension point="beam-ui:actions">
+		<action>
+            <id>myOperators</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>My Operators</text>
+            <parent>sartools</parent>
+        </action>
+
+        <action>
+            <id>${artifactId}</id>
+            <class>org.esa.nest.SingleTileOpAction</class>
+            <text>${artifactId}</text>
+            <shortDescr>${artifactId}</shortDescr>
+            <parent>myOperators</parent>
+            <helpId>${artifactId}</helpId>
+        </action>
+
+	</extension>
+</module>

@@ -1,0 +1,4 @@
+noise_estimation|Noise Estimation|*
+#
+noise_power_corr|Float|*|4|5|*|Noise power correction factors|56a|
+num_noise_lines|ULong|*|4|5|*|Number of noise lines used to calculate factors|56b|

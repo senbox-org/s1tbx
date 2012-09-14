@@ -1,0 +1,28 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+
+    <symbolicName>ceres-binio</symbolicName>
+    <version>5.0-0.14</version>
+    <name>Ceres Binary I/O Library</name>
+
+    <categories>System,Library</categories>
+
+    <description>
+        The Ceres Binary I/O Library provides a generic access to binary data structures.
+    </description>
+
+    <changelog>
+        <![CDATA[
+            <p/>Changes from 0.8 to 0.9:<br/>
+            [CERES-31] BINIO shall directly support BINX schemas<br/>
+            [CERES-30] BINIO API revision required<br/>
+        ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2011 by Brockmann Consult GmbH</copyright>
+    <url>http://www.brockmann-consult.de/</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+</module>

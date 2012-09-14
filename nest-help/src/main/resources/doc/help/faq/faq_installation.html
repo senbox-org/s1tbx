@@ -1,0 +1,29 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Frequently Asked Questions</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp;Frequently Asked
+Questions</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Installation F.A.Q.</h3>
+<h4>What is the minimum required hardware to run NEST</h4><p>It is recommended to have at least 2GB of memory. NEST can work with only 1GB but may run slower.</p><p>To run the 3D WorldWind View, it is recommended to have a 3D graphics card with updated drivers.</p><p>NEST has been tested to work on 32 and 64 bit Windows XP, Vista, Windows 7 and Linux.</p><h4>I can't start up the DAT</h4><p>Try
+running from the command line to see any errors using dat.bat on
+Windows or dat.sh on Linux. If the error mentions something to do with
+any of "WorldWind, native library, JOGL, glugen, or OpenGL" then it may be a problem with WorldWind:</p><p>Try first to update your drivers (<a class="wiki external" target="_blank" href="http://worldwind.arc.nasa.gov/java/video.html" rel="external">How to update windows drivers</a>) (<a class="wiki external" target="_blank" href="http://ati.amd.com/support/driver.html" rel="external">ATI/AMD</a> - <a class="wiki external" target="_blank" href="http://www.nvidia.com/content/drivers/drivers.asp" rel="external">Nvidia</a> - <a class="wiki external" target="_blank" href="http://www.intel.com/support/graphics/index.htm" rel="external">Intel</a>)</p><p>If
+that doesn't work, then try removing WorldWind by deleting the file
+from your NEST installation folder
+NEST4C/modules/nest-world-wind-view-3C.jar</p><h4>When I start the DAT it says it could not create the Java virtual machine</h4><p>In dat.bat or dat.sh try reducing the Java maximum heap size -Xmx1024M value to somthing smaller like -Xmx800M</p><h4>How can I get WorldWind to work? I see a blank window in the World View.</h4><p>To use the WorldWind World Map and 3D View, a 3D video card with updated drivers is necessary.<br>
+Update your video card drivers. (<a class="wiki external" target="_blank" href="http://worldwind.arc.nasa.gov/java/video.html" rel="external">How to update windows drivers</a>) (<a class="wiki external" target="_blank" href="http://ati.amd.com/support/driver.html" rel="external">ATI/AMD</a> - <a class="wiki external" target="_blank" href="http://www.nvidia.com/content/drivers/drivers.asp" rel="external">Nvidia</a> - <a class="wiki external" target="_blank" href="http://www.intel.com/support/graphics/index.htm" rel="external">Intel</a>)</p><h4>The installer is not working for me</h4><p>Try downloading the Java binary version of NEST. It is simply a zipped folder without an installer.</p><p>If you would like to run he gpt from any folder, you will need to set the NEST_HOME path to where ever you unzip it.</p><p>For example on Windows go to Control Panel -&gt; System -&gt; Advanced -&gt; Evironment Variables</p><p><img style="width: 384px; height: 434px;" alt="" src="images/win_env_var.jpg"></p><p>Add a variable for NEST_HOME to point to the installation folder and also include %NEST_HOME% in the PATH variable.</p><p>On Linux,&nbsp;set these environment variables in .profile or .bash_profile in your home directory<br>&nbsp;&nbsp;&nbsp; export NEST_HOME=installation folder<br>&nbsp;&nbsp;&nbsp; export PATH=$PATH:$NEST_HOME</p><p>Then either restart your terminal or type </p><p>&nbsp;&nbsp;&nbsp; source ~/.bashrc</p><p>Also, make sure the paths in NEST4B/config/settings.xml are appropriate for your file system.</p><h4>How can I improve performance?</h4><p>Performance in NEST drops considerably when using virtual memory. If you have more than 2Gb of RAM and wish to use all of it, on
+a 64-bit OS you should be using a 64-bit version of Java. You may then
+set the heap size for the Java virtual machine to something larger such
+as -Xmx4096M</p><p>To
+do so, open in a text editor your gpt.bat on Windows or gpt.sh on Linux found in your NEST installation folder
+and replace the -Xmx1024M value with something larger like -Xmx4096M.
+You may do the same with dat.bat or dat.sh.</p><p>In Windows you may set these for the exe in nest-dat.l4j.ini</p><p>For Windows64, the 64-bit Windows version of NEST should already come with 64-bit Java and be ready for use.</p><h4>How can I move the .nest folder somewhere else?</h4><p>By default NEST creates a windows_user_home_folder\.nest (~/.nest on Linux)<br><br>The .nest folder is used to store temporary data such as preferences, logs, etc.<br>&nbsp;<br>If you would like to change the location of this folder:<br><br>Edit the file NESTInstallFolder\config\nest.config<br><br>change the line<br>#nest.application_tmp_folder = c:\\AuxData<br><br>to<br>nest.application_tmp_folder = your_new_path</p><h4>How to change the AuxData folder</h4><p>Edit the file NESTInstallFolder\config\settings_win.xml or setting_unix.xml</p><p>Change the AuxDataPath value to your new path and restart the Toolbox.</p><p></p>
+<hr>
+</body></html>

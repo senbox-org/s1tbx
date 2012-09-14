@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Develop Reader</title>
+
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Developing A Reader</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Readers</h3>To create a reader plugin implement the ProductReaderPlugIn interface.<br>
+<br>
+<div style="margin-left: 40px;">public interface ProductReaderPlugIn extends ProductIOPlugIn {<br><br>&nbsp;&nbsp;&nbsp; /**<br>&nbsp;&nbsp;&nbsp;&nbsp; * Gets the qualification of the product reader to decode a given input object.<br>&nbsp;&nbsp;&nbsp;&nbsp; *<br>&nbsp;&nbsp;&nbsp;&nbsp; * @param input the input object<br>&nbsp;&nbsp;&nbsp;&nbsp; * @return&nbsp; the decode qualification<br>&nbsp;&nbsp;&nbsp;&nbsp; */<br>&nbsp;&nbsp;&nbsp; DecodeQualification getDecodeQualification(Object input);<br><br>&nbsp;&nbsp;&nbsp; /**<br>&nbsp;&nbsp;&nbsp;&nbsp; * Returns an array containing the classes that represent valid input types for this reader.<br>&nbsp;&nbsp;&nbsp;&nbsp; * &lt;p/&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;
+* &lt;p&gt; Intances of the classes returned in this array are valid
+objects for the &lt;code&gt;setInput&lt;/code&gt; method of the<br>&nbsp;&nbsp;&nbsp;&nbsp;
+* &lt;code&gt;ProductReader&lt;/code&gt; interface (the method will not
+throw an &lt;code&gt;InvalidArgumentException&lt;/code&gt; in this<br>&nbsp;&nbsp;&nbsp;&nbsp; * case).<br>&nbsp;&nbsp;&nbsp;&nbsp; *<br>&nbsp;&nbsp;&nbsp;&nbsp; * @return an array containing valid input types, never &lt;code&gt;null&lt;/code&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; */<br>&nbsp;&nbsp;&nbsp; Class[] getInputTypes();<br><br>&nbsp;&nbsp;&nbsp; /**<br>&nbsp;&nbsp;&nbsp;&nbsp;
+* Creates an instance of the actual product reader class. This method
+should never return &lt;code&gt;null&lt;/code&gt;.<br>&nbsp;&nbsp;&nbsp;&nbsp; *<br>&nbsp;&nbsp;&nbsp;&nbsp; * @return a new reader instance, never &lt;code&gt;null&lt;/code&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; */<br>&nbsp;&nbsp;&nbsp; ProductReader createReaderInstance();<br>}<br></div>
+<br>The reader plugin should create a new instance of your reader in createReaderInstance().<br><br>To
+create a&nbsp;reader implementation,&nbsp;extend the
+AbstractProductReader. In readProductNodesImpl(), read your data files
+and create a new Product object.<br><br>In readBandRasterDataImpl() fill the destination buffer with band data for the requested rectangular area.<h3>Maven DataIO Archetype</h3>
+The Maven 2 Archetype Plugin for NEST data I/O modules is used to
+create archetypes for NEST data I/O modules.<br>
+<br>
+A Maven Archetype is a template toolkit for generating a new module
+package. By using the Maven Archetype you can create a module structure
+easily and get started adding your code to the module.<br>
+<br>
+A DataIO Archetype will generate a product reader and writer within the
+same package.<br>
+Before beginning, make sure that you have built the NEST source code and
+do a <span style="font-weight: bold;">maven install</span>
+to ensure that all dependencies are in the repository.<br>
+<br>
+From the command line type the following from the NEST source code root
+folder.:<br>
+<br>
+<blockquote> <code>mvn archetype:create<br>
+-DarchetypeGroupId=org.esa.nest.maven<br>
+-DarchetypeArtifactId=maven-nest-dataio-archetype<br>
+-DarchetypeVersion=1.0<br>
+-DgroupId=<i>myGroupId</i><br>
+-DartifactId=<i>myArtifactId</i><br>
+-Dversion=<i>myVersion</i><br>
+-DpackageName=<i>myPackageName</i> </code> </blockquote>
+<p>where </p>
+<ul>
+<li><code><i>myGroupId</i></code> will
+become the <code>groupId</code> of the generated POM</li>
+<li><code><i>myArtifactId</i></code>
+will become the <code>artifactId</code> of the generated
+POM and the&nbsp;NEST module's <code>symbolicName</code>.</li>
+<li><code><i>myVersion</i></code> will
+become the <code>version</code> of the generated POM
+and&nbsp;NEST module. Defaults to <code>1.0-SNAPSHOT</code>.</li>
+<li><code><i>myPackageName</i></code>
+will become the source package name. Defaults to the value of <code><i>myGroupId</i>
+</code>.</li>
+</ul>
+<p>Please also refer to the documentation of the <a href="http://maven.apache.org/plugins/maven-archetype-plugin/">Maven
+2 Archetype Plugin</a>.
+</p>
+<h4>Example</h4>
+<blockquote> <code>mvn archetype:create
+-DarchetypeGroupId=org.esa.nest.maven -DarchetypeArtifactId=maven-</code><code>nest</code><code>-dataio-archetype
+-DarchetypeVersion=1.0 -DgroupId=org.esa.nest -DartifactId=</code><code>nest</code><code>-sar-io
+</code> </blockquote>
+<h3>Publishing a Reader</h3>Reader implementations are published via the Java service
+provider interface (SPI). A JAR publishes its readers in the resource
+file <tt>META-INF/services/</tt>org.esa.beam.framework.dataio.ProductReaderPlugIn.
+In this file add your reader SPI eg:
+org.esa.nest.dataio.radarsat2.Radarsat2ProductReaderPlugIn<br><br><h3>Adding Menu Item Actions</h3>
+In the modules.xml file found in the resources folder of the package,
+add an Action to create a menu item in the DAT. State the class of the Action to be called and the text to show in the
+menu item. &nbsp; <br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;action&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;id&gt;importRadarsat2Product&lt;/id&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;class&gt;org.esa.beam.visat.actions.ProductImportAction&lt;/class&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;formatName&gt;Radarsat 2&lt;/formatName&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;shortDescr&gt;Import a Radarsat2 data product or product
+subset.&lt;/shortDescr&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;description&gt;Import a Radarsat2 data product or product
+subset.&lt;/description&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;largeIcon&gt;icons/Import24.gif&lt;/largeIcon&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;placeAfter&gt;importRadarsatProduct&lt;/placeAfter&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;helpId&gt;importRadarsat2Product&lt;/helpId&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/action&gt;<br>
+<br>
+<br>
+<hr>
+</body></html>

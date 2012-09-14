@@ -1,0 +1,9 @@
+ASA_WVS_1P|ASAR Wave Mode Imagette Cross Spectra|
+#
+MPH                  |@/records/MPH.dd                            |1247                 |Main Product Header
+SPH                  |@/records/asar/ASAR_Wave_Base_SPH.dd        |*                    |ASAR Wave Mode  Products Base SPH
+DSD                  |@/records/DSD.dd                            |*                    |Data Set Descriptor array
+SQ_ADS               |@/records/asar/ASAR_Wave_SQ_ADSR.dd         |SQ ADS               |SQ ADSRs
+GEOLOCATION_GRID_ADS |@/records/asar/ASAR_Wave_Geolocation_ADSR.dd|GEOLOCATION ADS      |Wave Mode Geolocation ADS
+PROCESSING_PARAMS_ADS|@/records/asar/ASAR_Wave_Param_ADSR.dd      |PROCESSING PARAMS ADS|Wave Mode processing parameters
+CROSS_SPECTRA_MDS    |@/records/asar/ASAR_Spectra_MDSR.dd         |CROSS SPECTRA MDS    |Measurement Data Set containing spectra. 1 MDSR per spectra.

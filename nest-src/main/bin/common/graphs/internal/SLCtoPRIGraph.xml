@@ -1,0 +1,80 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters>
+      <file></file>
+    </parameters>
+  </node>
+  <node id="2-Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+        <band>Intensity</band>
+      </sourceBands>
+      <externalAuxFile/>
+	  <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="3-SRGR">
+    <operator>SRGR</operator>
+    <sources>
+      <sourceProduct refid="2-Calibration"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+      </sourceBands>
+      <warpPolynomialOrder>4</warpPolynomialOrder>
+	  <interpolationMethod>Linear interpolation</interpolationMethod>
+    </parameters>
+  </node>
+  <node id="4-Multilook">
+    <operator>Multilook</operator>
+    <sources>
+      <sourceProduct refid="3-SRGR"/>
+    </sources>
+    <parameters>
+	  <sourceBands>
+      </sourceBands>
+      <nRgLooks>1</nRgLooks>
+	  <nAzLooks>1</nAzLooks>
+	  <outputIntensity>true</outputIntensity>
+      <note>Currently, detection for complex data is done without any resampling</note>
+    </parameters>
+  </node>
+  <node id="5-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="4-Multilook"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>pri_ml_gr.dim</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="1-Read">
+      <displayPosition y="134.0" x="37.0"/>
+    </node>
+	<node id="2-Calibration">
+      <displayPosition y="135.0" x="135.0"/>
+    </node>
+    <node id="3-SRGR">
+      <displayPosition y="204.0" x="138.0"/>
+    </node>
+    <node id="4-Multilook">
+      <displayPosition y="203.0" x="250.0"/>
+    </node>
+    <node id="5-Write">
+      <displayPosition y="203.0" x="360.0"/>
+    </node>
+  </applicationData>
+</graph>

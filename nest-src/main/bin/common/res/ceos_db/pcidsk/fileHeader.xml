@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ceos version="1.0" mission="alos">
+	<rec name="File type" type="1" num="8"/> 
+	<rec name="Software version" type="1" num="8"/> 
+	<rec name="File size in blocks" type="2" num="16"/> 
+	<rec name="skipBytes" type="0" num="16"/>
+	<rec name="File id" type="1" num="64"/> 
+	<rec name="Generating Facility" type="1" num="32"/> 
+	<rec name="First line of descriptive text" type="1" num="64"/> 
+	<rec name="Second line of descriptive text" type="1" num="64"/> 
+	<rec name="File creation time and date" type="1" num="16"/> 
+	<rec name="Last update time and date" type="1" num="16"/> 
+
+	<!-- Image data -->
+	<rec name="Start block of image data" type="2" num="16"/> 
+	<rec name="Number of blocks of image data" type="2" num="16"/> 
+	<rec name="Start block of image headers" type="2" num="16"/> 
+	<rec name="Number of blocks of image header data" type="2" num="8"/> 
+	<rec name="Interleaving" type="1" num="8"/> 
+	<rec name="skipBytes" type="0" num="8"/> 
+	<rec name="Number of image channels" type="2" num="8"/> 
+	<rec name="Image size in X (pixel) direction" type="2" num="8"/> 
+	<rec name="Image size in Y (line ) direction" type="2" num="8"/> 
+	<rec name="Pixel ground size interpretation" type="1" num="8"/> 
+	<rec name="Size of pixel in X direction" type="5" num="16"/> 
+	<rec name="Size of pixel in Y direction" type="5" num="16"/> 
+	
+	<!-- Segment pointers -->
+	<rec name="Start block of Segment Pointers" type="2" num="16"/> 
+	<rec name="Number of blocks of Segment Pointers" type="2" num="8"/> 
+	
+	<!-- Image data -->
+	<rec name="Number of 8-bit image channels" type="2" num="4"/> 
+	<rec name="Number of signed 16-bit image channels" type="2" num="4"/>
+	<rec name="Number of unsigned 16-bit image channels" type="2" num="4"/>
+	<rec name="Number of 32-bit real image channels" type="2" num="4"/>
+	<rec name="skipBytes" type="0" num="32"/> 
+	
+</ceos>

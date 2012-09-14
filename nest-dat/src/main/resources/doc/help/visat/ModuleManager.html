@@ -1,0 +1,140 @@
+<html>
+<head>
+    <title>Help - Module Manager</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Module Manager</td>
+
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border=0 ></a></td>
+    </tr>
+</table>
+
+
+<h3>Module Manager Overview</h3>
+
+<p><i>Modules</i> are an integral part of the software architecture.
+    A module is a versioned and updatable software component. The entire software is composed of
+    exchangeable modules. A few modules provide system functionality such as software
+    libraries and programming interfaces whilst others act as plug-ins which add extra
+    functionality to the system, such as product data readers, writers and processors.
+    <!-- todo - for information regarding the architecture ... -->
+</p>
+
+<p>The module manager is used to inspect installed modules, install new modules, update and uninstall existing
+    modules.
+</p>
+
+<p align="center"><img src="images/ModuleManager.jpg" alt="Module Manager"></p>
+
+<p>To inspect a module, select it in the <b>Installed Modules</b> tab and browse the information panel below
+    the modules table.
+    In order to install a new, uninstall or update an existing module, select the module first,
+    then click the corresponding <b>Install</b>, <b>Update</b> or <b>Uninstall</b> action button
+    above the modules table. This will assign the action to the module. You can also select multiple modules.
+    By right-clicking the selected modules, a context menu with the available actions will pop up.
+</p>
+
+<p> If <b>Module Updates</b> or <b>Available Modules</b> tabs are selected the first time, the module manager
+    will establish an internet connection to a remote module repository and download the available list of
+    modules. The settings for the repository connection can be adjusted in the
+    <a href="PreferencesDialog.html">Preferences Dialog</a>.
+</p>
+
+<p> The actions are not performed before the <b>OK</b> button is clicked. The module manager may detect
+    that the current set of actions will lead to an inconsistent software state. This mainly happens if
+    dependencies on modules exists which are scheduled for uninstallation. In this case an error message
+    will be displayed and no action will be performed. All actions are performed in the background
+    so that you can continue working. If an error occurs during the execution of action (e.g.
+    connection failure, I/O errors), a rollback will be performed and all changes will become undone.
+</p>
+
+<p class="inote">Note: All modules are stored in a directory named <code>modules</code> which is
+    located in the installation directory. You can also manually install modules by copying a
+    module file into the <code>modules</code> directory. Module files are usually named
+    <code>&lt;name&gt;-&lt;version&gt;.jar</code>. Similary modules are uninstalled by removing the
+    corresponding file from this directory.
+    If you observe difficulties by using the module manager (e.g. unsupported proxy settings)
+    you may want to download modules from the home page using an internet browser
+    and install/uinstall them without the module manager.</p>
+
+<h3>Module Manager Components</h3>
+
+<p>
+    <b>Install</b> button<br>
+    <blockquote>
+        Assigns the install action to all selected modules in the <b>Available Modules</b> tab.
+    </blockquote>
+</p>
+
+<p class="i1">
+    <b>Update</b> button<br>
+    <blockquote>
+        Assigns the update action to all selected modules in the <b>Module Updates</b> tab and to
+        updatable modules in the <b>Installed Modules</b> tab.
+    </blockquote>
+</p>
+
+<p>
+    <b>Uninstall</b> button<br>
+    <blockquote>
+        Assigns the uninstall action to all selected modules in the <b>Installed Modules</b> tab.
+        Note that system modules can only be updated, not uninstalled.
+    </blockquote>
+</p>
+
+<p>
+    <b>Clear</b> button<br>
+    <blockquote>
+        Removes all actions of all selected modules.
+    </blockquote>
+</p>
+
+<p>
+    <b>Filter category</b> drop-down list<br>
+    <blockquote>
+        If a category is selected from this list, only modules belonging to that category will be shown
+        in the module tables.
+    </blockquote>
+</p>
+
+<p>
+    <b>Installed Modules</b> tab<br>
+    <blockquote>
+        Displays all installed modules in a table.
+    </blockquote>
+</p>
+
+<p>
+    <b>Module Updates</b> tab<br>
+    <blockquote>
+        Displays all modules for which an update exists in the remote module repository.
+        If not already done, selecting this tab will cause the module manager
+        to synchronize the installed modules with the modules in the remote module repository.
+    </blockquote>
+</p>
+
+<p>
+    <b>Available Modules</b> tab<br>
+    <blockquote>
+        Displays all available modules of the remote module repository.
+        If not already done, selecting this tab will cause the module manager
+        to synchronize the installed modules with the modules in the remote module repository.
+    </blockquote>
+</p>
+
+<p>
+    <b>Module Information</b> group<br>
+    <blockquote>
+        Displays information details such as the module's vendor and licensing for a single selected module.
+    </blockquote>
+</p>
+
+<hr>
+</body>
+</html>

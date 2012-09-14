@@ -1,0 +1,77 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+
+    <symbolicName>beam-cluster-analysis</symbolicName>
+    <version>5.0-1.1.1</version>
+    <name>BEAM Cluster Analysis</name>
+
+    <description>
+        Cluster analysis.
+    </description>
+
+    <changelog>
+        <![CDATA[
+        Changes in 1.1:<br/>
+        [BEAM-841] EM clustering does not come to an end for small scenes<br/>
+        [BEAM-839] Improper initialization of EM clustering algorithm<br/>
+        ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-visat-rcp</module>
+        <optional>true</optional>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+
+    <categories>VISAT,Processing,Image Analysis</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>imageAnalysis</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <parent>data</parent>
+            <text>Image Analysis</text>
+            <mnemonic>A</mnemonic>
+            <shortDescr>Image analysis tools.</shortDescr>
+            <placeAfter>Binning</placeAfter>
+        </action>
+        <action>
+            <id>emClusterAnalysis</id>
+            <helpId>clusterAnalysisEM</helpId>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <parent>imageAnalysis</parent>
+            <text>EM Cluster Analysis...</text>
+            <mnemonic>C</mnemonic>
+            <operatorName>EMClusterAnalysis</operatorName>
+            <dialogTitle>EM Cluster Analysis</dialogTitle>
+            <targetProductNameSuffix>_em</targetProductNameSuffix>
+        </action>
+        <action>
+            <id>kmeansClusterAnalysis</id>
+            <helpId>clusterAnalysisKMeans</helpId>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <parent>imageAnalysis</parent>
+            <text>K-Means Cluster Analysis...</text>
+            <mnemonic>C</mnemonic>
+            <operatorName>KMeansClusterAnalysis</operatorName>
+            <dialogTitle>K-Means Cluster Analysis</dialogTitle>
+            <targetProductNameSuffix>_kmeans</targetProductNameSuffix>
+        </action>
+    </extension>
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/clusteranalysis.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

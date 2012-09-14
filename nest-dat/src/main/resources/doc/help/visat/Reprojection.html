@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - Reprojection</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            Reprojection
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html">
+            <img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+<h3>Reprojection Dialog</h3>
+
+<p>Use Reporjection to create new product with a projected Coordinate Reference System (CRS). &nbsp;
+
+</p><h4>I/O Parameters</h4>
+<table border="0">
+    <tbody><tr>
+        <td style="border-width: 0pt;" valign="top">
+            <h5>Source Product</h5>
+
+            <p class="i1">
+                <b>Name:</b>
+                Here the user specifies the name of the source product. The combo box presents
+                a list of all products opened. The user may select one of these
+                or, by clicking on the button next to the combo box, choose a product
+                from the file system.
+
+            </p><h5>Target Product</h5>
+
+            <p class="i1">
+                <b>Name:</b>
+                Used to specify the name of the target product.
+            </p>
+
+            <p class="i1">
+                <b>Save as:</b>
+                Used to specify whether the target product should be saved to the file system. The
+                combo box presents a list of file formats, currently BEAM-DIMAP, GeoTIFF, and HDF5.
+                The text field allows to specify a target directory.
+            </p>
+
+            <p class="i1">
+                <b>Open in DAT:</b>
+                Used to specify whether the target product should be opened. When
+                the target product is not saved, it is opened&nbsp;automatically.
+            </p></td>
+        <td style="border-width: 0pt;" valign="top"><img src="images/ReprojectionIOParameters.png"></td>
+    </tr>
+</tbody></table>
+
+<h4>Projection Parameters</h4>
+<table border="0">
+    <tbody><tr>
+        <td style="border-width: 0pt;" valign="top">
+            <h5>Coordinate Reference System (CRS)</h5>
+
+            <p class="i1">
+                <b>Custom CRS:</b>
+                The transformation used by the projection can be selected. Also the geodetic datum and
+                transformation parameters can be set, if possible for the selected transformation.
+            </p>
+
+            <p class="i1">
+                <b>Predefined CRS:</b>
+                By clicking on the <b>Select...</b> button a new <a href="SelectCrsDialog.html">dialog</a> is shown
+                where a
+                predefined
+                CRS can be selected.
+            </p>
+
+            <p class="i1">
+                <b>Use CRS of:</b>
+                A product can be selected to use its projected Coordinate Reference System. This will have the effect
+                that source
+                product will cover the same geographic region on the same CRS. Which means that both products are
+                collocated.
+            </p>
+
+            <h5>Output Settings</h5>
+
+            <p class="i1">
+                <b>Preserve resolution:</b>
+                If unchecked the <b>Output Parameters...</b> is enabled and the upcoming
+                <a href="ReprojectionOutputParametersDialog.html">dialog</a> lets you edit the output parameters like
+                easting and northing of the reference pixel, the pixel size and the scene height and width.
+            </p>
+
+            <p class="i1">
+                <b>Reproject tie-point grids:</b>
+                Specifies whether or not the tie-point grids shall be included. If they are reprojected they will appear
+                as bands in
+                the target product and not any more as tie-point grids.
+            </p>
+
+            <p class="i1">
+                <b>No-data value:</b>
+                The default no-data value is used for output pixels in the projected band which have either no
+                corresponding pixel
+                in the source product or the source pixel is invalid.
+            </p>
+
+            <p class="i1">
+                <b>Resampling Method:</b>
+                You can select one resampling method for the projection.
+                For a brief description have a look at <a href="../general/ResamplingMethods.html">Resampling
+                Methods</a>.
+            </p>
+
+            <h5>Output Information</h5>
+
+            <p class="i1">
+                Displays some information about the output, like scene width and height, the geographic coordinate of
+                the scene center and short description of the selected CRS.<br>
+                When clicking the <b>Show WKT...</b> button the corresponding Well-Known Text of the currently defined
+                CRS is shown.
+            </p>
+        </td>
+        <td style="border-width: 0pt;" valign="top"><img src="images/ReprojectionProjectionParameters.png">
+        </td>
+    </tr>
+</tbody></table>
+
+
+<hr>
+</body></html>

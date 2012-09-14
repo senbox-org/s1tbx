@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--$Id: USGSUrbanAreaOrthoLayer.xml,v 1.1 2010-04-05 17:38:21 lveci Exp $-->
+<Layer version="1" layerType="TiledImageLayer">
+    <DisplayName>USGS Urban Area Ortho</DisplayName>
+    <Service serviceName="WWTileService">
+        <URL>http://worldwind25.arc.nasa.gov/tile/tile.aspx</URL>
+    </Service>
+    <DatasetName>104dds</DatasetName>
+    <DataCacheName>Earth/USGS Urban Area Ortho</DataCacheName>
+    <AvailableImageFormats>
+        <ImageFormat>image/jpg</ImageFormat>
+    </AvailableImageFormats>
+    <FormatSuffix>.dds</FormatSuffix>
+    <NumLevels count="12" numEmpty="2"/>
+    <TileOrigin>
+        <LatLon units="degrees" latitude="-90.0" longitude="-180.0"/>
+    </TileOrigin>
+    <LevelZeroTileDelta>
+        <LatLon units="degrees" latitude="3.2" longitude="3.2"/>
+    </LevelZeroTileDelta>
+    <TileSize>
+        <Dimension height="512" width="512"/>
+    </TileSize>
+    <Sector>
+        <SouthWest>
+            <LatLon units="degrees" latitude="17.84" longitude="-168.67"/>
+        </SouthWest>
+        <NorthEast>
+            <LatLon units="degrees" latitude="71.55" longitude="-65.15"/>
+        </NorthEast>
+    </Sector>
+    <ActiveAltitudes max="10e3d"/>
+    <SplitScale>0.8</SplitScale>
+    <RetrievalTimeouts>
+        <ReadTimeout>
+            <Time units="milliseconds" value="30000"/>
+        </ReadTimeout>
+        <ConnectTimeout>
+            <Time units="milliseconds" value="30000"/>
+        </ConnectTimeout>
+        <StaleRequestLimit>
+            <Time units="milliseconds" value="30000"/>
+        </StaleRequestLimit>
+    </RetrievalTimeouts>
+</Layer>

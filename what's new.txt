@@ -1,0 +1,13 @@
+New in NEST 4C
+
+Find optimal InSAR master
+
+Imrpoved Coregistration
+Improved SAR Simulation Terrain Correction
+Improved PolSAR Pro Import/Export
+Export ENVI with georeferencing
+Export ArcInfo Binary Grid
+ASTER GDEM v2
+
+Batch process using the output format specified in the graph
+More robust ALOS PALSAR reader

@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - Pixel Geo-Coding</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+<body>
+
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            Pixel Geo-Coding</td>
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+<h3>Pixel Geo-Coding</h3>
+
+<p>The Pixel Geo-Coding can be used if the user has two bands filled with accurate latitude and longitude values
+    for each pixel.
+    For example the FSG and FRG products have corrected latitude ("corr_lat") and longitude ("corr_lon") bands.
+    These bands can be used to replace the current geo-coding associated with the product.
+</p>
+<a name="attach"><h4>Attach Pixel Geo-Coding</h4>
+</a> <img src="images/PixelGeoCoding.jpg" border="0" height="211" width="257">
+<br>
+<br>
+<ul>
+    <li>
+        <b>Longitude Band</b><br>
+        The band which keeps the longitude values for each pixel.
+    </li>
+    <li>
+        <b>Latitude Band</b><br>
+        The band which keeps the latitude values for each pixel.
+    </li>
+    <li>
+        <b>Valid Mask</b><br>
+        This mask is used by the search algorithm when trying to find the pixel position for a given lat/lon.
+        Only pixels which meet the expression are included in the search.
+    </li>
+    <li>
+        <b>Search Radius</b><br>
+        This value is used by the search algorithm when trying to find the pixel position for a given lat/lon.
+        A higher value means that the area to search for the proper pixel position is greater and the risk not to
+        find the searched value is smaller. The greater the value is, the longer takes the search.
+    </li>
+</ul>
+
+<a name="detach"><h4>Detach Pixel Geo-Coding</h4></a>
+
+<p>Just detaches the current pixel geo-coding and restores the previous geo-coding.</p>
+<br>
+<hr>
+</body></html>

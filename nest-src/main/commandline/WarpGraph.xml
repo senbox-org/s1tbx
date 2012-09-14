@@ -1,0 +1,43 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters>
+      <file>$file</file>
+    </parameters>
+  </node>
+  <node id="2-Warp">
+    <operator>Warp</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters>
+      <rmsThreshold>1.0</rmsThreshold>
+      <warpPolynomialOrder>1</warpPolynomialOrder>
+      <interpolationMethod>Bilinear interpolation</interpolationMethod>
+    </parameters>
+  </node>
+  <node id="3-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="2-Warp"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>$target</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description>Warp</Description>
+    <node id="1-Read">
+      <displayPosition y="104.0" x="96.0"/>
+    </node>
+    <node id="2-Warp">
+      <displayPosition y="105.0" x="203.0"/>
+    </node>
+    <node id="3-Write">
+      <displayPosition y="105.0" x="300.0"/>
+    </node>
+  </applicationData>
+</graph>

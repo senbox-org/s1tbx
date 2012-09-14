@@ -1,0 +1,8 @@
+ATS_TOA_1P_ADSR_pix|Scan and pixel number nadir view ADS|*
+#
+dsr_time       |@/types/UTC.dd |MJD  |12 |1   |* |Nadir UTC time in MJD format                     |1 |
+attach_flag    |UChar          |flag |1  |1   |* |Attachment flag (always set to zero for this ADS)|2 |
+spare_1        |Spare          |*    |3  |1   |* |Spare                                            |3 |
+img_scan_y     |SLong          |m    |4  |1   |* |image scan y coordinate                          |4 |
+instr_scan_num |UShort         |*    |2  |512 |* |instrument scan number                           |5 |
+pix_num        |UShort         |*    |2  |512 |* |pixel number                                     |6 |

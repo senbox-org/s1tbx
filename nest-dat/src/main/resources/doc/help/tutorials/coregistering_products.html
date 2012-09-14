@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Coregistration</title>
+
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Coregistration Tutorial</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Coregistering&nbsp;Products</h3><p>
+Image co-registration is fundamental for Interferometry SAR (InSAR)
+imaging and its applications, such as DEM map generation and analysis.
+To obtain a high quality InSAR image, the individual complex images
+need to be co-registered to sub-pixel accuracy.</p><p><br>The
+toolbox will accurately&nbsp;co-register one&nbsp;or more&nbsp;slave
+images with respect to a master image. The co-registration function is
+fully automatic, in the sense that it does not require the user to
+manually select ground control points (GCPs) for the master and slave
+images.</p><p><br>Images
+may be fully or only partly overlapping and may be from acquisitions
+taken at different times using multiple sensors or from multiple
+passages of the same satellite.</p><p><br>The achievable
+co-registration accuracy for images in the same acquisition geometry
+and over flat areas will be better than 0.2 pixels for two real images
+and better than 0.05 pixels for two complex images.</p><p><br>The image co-registration is accomplished in three major processing steps (see Figure 1) with three operators: <a href="../operators/CollocateOp.html">Create Stack operator</a>,&nbsp;<a href="../operators/GCPSelectionOp.html">GCP Selection operator</a> and&nbsp;<a href="../operators/WarpOp.html">Warp operator</a>. </p><br><img style="width: 404px; height: 448px;" alt="" src="images/coregistration_diagram.jpg"><br><div style="margin-left: 80px;">Figure 1. Image co-registration<br></div><h4>Input Images</h4><p>The input images for the co-registration function can be
+complex&nbsp;or real. But all&nbsp;images must belong to the same type
+(i.e. they must all be complex or all real) and have the same
+projection system (all slant range or all ground range projected or all
+geocoded). &nbsp; If the images are not in the same projection, the
+slave image(s) should be
+reprojected into the same projection system as that of the master
+image.
+</p><h4>Create Stack</h4><p>The
+Create Stack operator&nbsp;collocates the master and slave images.
+Basically the slave image data is resampled into the geographical
+raster of the master image. By doing so the master and slave images
+share the same geopositioning information and have the same dimension.
+For details of the Create Stack operator,&nbsp;readers are referred to <a href="../operators/CollocateOp.html">Create Stack operator</a>.
+For coregistration of detected products it is ok to use the resamling
+methods. For coregistration of complex products for interferometry, the
+option to not do any resampling in the CreateStack should be used.</p><h4>GCP Selection</h4><p>The
+GCP Selection operator then creates an alignment between&nbsp;master
+and slave images by matching the user
+selected master GCPs to their corresponding slave GCPs. There are two
+stages for the operation: coarse registration and fine registration.
+For real images co-registration, the coarse registration is applied.
+The registration&nbsp;is achieved by maximizing the
+cross-correlation between master and slave images on a series of
+imagettes defined across the images. For complex image co-registration,
+the additional fine registration is applied. The registration is
+achieved by maximizing the&nbsp;coherence between master and
+slave&nbsp;images at a series
+of imagettes defined across the images.&nbsp;For details of
+the&nbsp;GCP Selection operator, readers are referred to&nbsp;<a href="../operators/GCPSelectionOp.html">GCP Selection operator</a>.</p><h4>Warp</h4><p>With
+the master-slave GCP pairs selected, a warp function is created by the
+Warp operator, which&nbsp;maps pixels
+in the slave image into pixels in the master image.&nbsp;For details of
+the&nbsp;Warp operator, readers are referred to <a href="../operators/WarpOp.html">Warp operator</a>.</p><h4>Co-Registration from the DAT</h4>&nbsp;&nbsp;&nbsp;Detailed steps of using this operator are given below:<br><ol><li>From the SAR Tools menu, select Coregistration.</li><li>Add a master product to the ProductSet Reader.</li><li>Add any slave products to the ProductSet reader or drag and drop products from a Project.</li><li>In the CreateStack tab, select one source band from the master and one
+source band from the slave for detected products. If you are using
+complex data products, select&nbsp;bands i and q for the master and select
+bands i and q from the slaves. &nbsp;For interferometric processing, select no resampling and Master extents in the CreateStack.</li><li>In the GCP Selection tab enter the number of GCPs to create.</li><li>In the Warp tab select the RMS threshold and warp polynomial order.</li><li>In the Target tab enter in the output product name and location.</li><li>Press the Run button to begin processing.</li></ol><br><br><br><br><br><br>
+<hr>
+</body></html>

@@ -1,0 +1,73 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>nest-graph-builder</symbolicName>
+    <version>5.0</version>
+    <name>NEST Graph Builder</name>
+
+    <description>
+        NEST Graph Builder
+    </description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2012 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>European Space Agency</funding>
+	
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>ceres-ui</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat-rcp</module>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+	<dependency>
+        <module>nest-core</module>
+    </dependency>
+    
+    <categories>System</categories>
+
+    <extension point="beam-ui:actions">
+
+        <action>
+            <id>openGraphBuilderDialog</id>
+            <class>org.esa.nest.dat.actions.OpenGraphBuilderDialogAction</class>
+            <parent>graphs</parent>
+            <text>Graph Builder</text>
+            <mnemonic>G</mnemonic>
+            <separatorAfter>true</separatorAfter>
+            <shortDescr>Open Graph Builder dialog.</shortDescr>
+            <description>Open Graph Builder dialog.</description>
+            <smallIcon>/org/esa/nest/icons/cog16.png</smallIcon>
+            <largeIcon>/org/esa/nest/icons/cog.png</largeIcon>
+            <helpId>GraphBuilderDialog</helpId>
+        </action>
+
+        <action>
+            <id>batchProcessing</id>
+            <class>org.esa.nest.dat.actions.BatchProcessingAction</class>
+            <parent>graphs</parent>
+            <text>Batch Processing</text>
+            <shortDescr>Batch Process a Graph</shortDescr>
+            <description>Batch Process a Graph On Multiple Products</description>
+            <smallIcon>/org/esa/nest/icons/icon_cogs24.png</smallIcon>
+            <largeIcon>/org/esa/nest/icons/icon_cogs.png</largeIcon>
+            <helpId>batchProcessing</helpId>
+        </action>
+
+    </extension>
+
+	<extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+			<id>graphHelp</id>
+            <path>doc/help/graph.hs</path>
+        </helpSet>
+    </extension>
+</module>

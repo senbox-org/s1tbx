@@ -1,0 +1,44 @@
+ATS_AR__2P_MDSR_sr_small|BT/TOA Sea record 17 km cell MDS|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Nadir UTC time in MJD format|1|
+quality_flag|UChar|flag|1|1|*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+spare_1|Spare|*|3|1|*|Spare|3|
+lat|SLong|(1e-6) degrees|4|1|*|Latitude of cell|4|
+lon|SLong|(1e-6) degrees|4|1|*|Longitude of cell|5|
+m_actrk_pix_num|SShort|*|2|1|*|Mean across-track pixel number|6|
+pix_nad|SShort|*|2|1|*|Number of filled pixels in cell, nadir view|7|
+pix_ss_nad|SShort|*|2|1|*|Number of filled pixels in cell over sea surface, nadir view|8|
+clpix_ss_nad|SShort|*|2|1|*|Percentage of cloudy pixels in cell over sea surface, nadir view|9|
+sa_12bt_clr_nad|SLong|K/1000|4|1|*|Spatially averaged 12 micron BT of all clear pixels (nadir view)|10|
+sa_11bt_clr_nad|SLong|K/1000|4|1|*|Spatially averaged 11 micron BT of all clear pixels (nadir view)|11|
+sa_37bt_clr_nad|SLong|K/1000|4|1|*|Spatially averaged 3.7 micron BT of all clear pixels (nadir view)|12|
+sa_16toa_clr_nad|SShort|%/100|2|1|*|Spatially averaged 1.6 micron TOA reflectance of all clear pixels (nadir view)|13|
+sa_87toa_clr_nad|SShort|%/100|2|1|*|Spatially averaged 0.87 micron TOA reflectance of all clear pixels (nadir view)|14|
+sa_67toa_clr_nad|SShort|%/100|2|1|*|Spatially averaged 0.67 micron TOA reflectance of all clear pixels (nadir view)|15|
+sa_55toa_clr_nad|SShort|%/100|2|1|*|Spatially averaged 0.55 micron TOA reflectance of all clear pixels (nadir view)|16|
+sa_12bt_cl_nad|SLong|K/1000|4|1|*|Spatially averaged 12 micron BT of all cloudy pixels (nadir view)|17|
+sa_11bt_cl_nad|SLong|K/1000|4|1|*|Spatially averaged 11 micron BT of all cloudy pixels (nadir view)|18|
+sa_37bt_cl_nad|SLong|K/1000|4|1|*|Spatially averaged 3.7 micron BT of all cloudy pixels (nadir view)|19|
+sa_16toa_cl_nad|SShort|%/100|2|1|*|Spatially averaged 1.6 micron TOA reflectance of all cloudy pixels (nadir view)|20|
+sa_87toa_cl_nad|SShort|%/100|2|1|*|Spatially averaged 0.87 micron TOA reflectance of all cloudy pixels (nadir view)|21|
+sa_67toa_cl_nad|SShort|%/100|2|1|*|Spatially averaged 0.67 micron TOA reflectance of all cloudy pixels (nadir view)|22|
+sa_55toa_cl_nad|SShort|%/100|2|1|*|Spatially averaged 0.55 micron TOA reflectance of all cloudy pixels (nadir view)|23|
+fail_flag_nad|UShort|*|2|1|*|Pixel threshold failure flags for averages, nadir view|24|
+pix_for|SShort|*|2|1|*|Number of filled pixels in cell, forward view|25|
+pix_ss_for|SShort|*|2|1|*|Number of filled pixels in cell over sea surface, forward view|26|
+perc_cl_pix_ss_for|SShort|*|2|1|*|Percentage of cloudy pixels in cell over sea surface, forward view|27|
+sa_12bt_clr_for|SLong|K/1000|4|1|*|Spatially averaged 12 micron BT of all clear pixels (forward view)|28|
+sa_11bt_clr_for|SLong|K/1000|4|1|*|Spatially averaged 11 micron BT of all clear pixels (forward view)|29|
+sa_37bt_clr_for|SLong|K/1000|4|1|*|Spatially averaged 3.7 micron BT of all clear pixels (forward view)|30|
+sa_16toa_clr_for|SShort|%/100|2|1|*|Spatially averaged 1.6 micron TOA reflectance of all clear pixels (forward view)|31|
+sa_87toa_clr_for|SShort|%/100|2|1|*|Spatially averaged 0.87 micron TOA reflectance of all clear pixels (forward view)|32|
+sa_67toa_clr_for|SShort|%/100|2|1|*|Spatially averaged 0.67 micron TOA reflectance of all clear pixels (forward view)|33|
+sa_55toa_clr_for|SShort|%/100|2|1|*|Spatially averaged 0.55 micron TOA reflectance of all clear pixels (forward view)|34|
+sa_12bt_cl_for|SLong|K/1000|4|1|*|Spatially averaged 12 micron BT of all cloudy pixels (forward view)|35|
+sa_11bt_cl_for|SLong|K/1000|4|1|*|Spatially averaged 11 micron BT of all cloudy pixels (forward view)|36|
+sa_37bt_cl_for|SLong|K/1000|4|1|*|Spatially averaged 3.7 micron BT of all cloudy pixels (forward view)|37|
+sa_16toa_cl_for|SShort|%/100|2|1|*|Spatially averaged 1.6 micron TOA reflectance of all cloudy pixels (forward view)|38|
+sa_87toa_cl_for|SShort|%/100|2|1|*|Spatially averaged 0.87 micron TOA reflectance of all cloudy pixels (forward view)|39|
+sa_67toa_cl_for|SShort|%/100|2|1|*|Spatially averaged 0.67 micron TOA reflectance of all cloudy pixels (forward view)|40|
+sa_55toa_cl_for|SShort|%/100|2|1|*|Spatially averaged 0.55 micron TOA reflectance of all cloudy pixels (forward view)|41|
+fail_flag_for|UShort|*|2|1|*|Pixel threshold failure flags for averages, foward view|42|

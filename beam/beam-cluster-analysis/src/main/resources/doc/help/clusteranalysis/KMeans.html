@@ -1,0 +1,207 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>K-Means (KM) Cluster Analysis Tool</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            K-Means Cluster Analysis
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/BeamHeader.jpg" border="0"></a>
+        </td>
+    </tr>
+</tbody></table>
+
+<h3>Introduction</h3>
+
+<p>
+    <strong>Cluster analysis</strong> (or <strong>clustering</strong>) is the classification of objects into different
+    groups, or more precisely, the partitioning of a data set into subsets (<strong>clusters</strong> or
+    <strong>classes</strong>), so that the data in each subset
+    (ideally) share some common trait - often proximity according to some defined distance measure. Data clustering is a
+    common
+    technique for statistical data analysis, which is used in many fields, including machine learning, data mining,
+    pattern recognition, image analysis and bioinformatics. The computational task of classifying the data set into
+    <em>k</em> clusters is often referred to as <em>k</em>-clustering.
+</p>
+
+<h3>Algorithm</h3>
+
+<p>
+    The k-means clustering tool is capable of working with arbitrary large scenes. Given the number
+    of clusters <em>k</em>, the basic algorithm implemented is:
+</p>
+
+<ol>
+    <li>
+        Randomly choose <em>k</em> pixels whose samples define the initial cluster centers.
+    </li>
+    <li>
+        Assign each pixel to the nearest cluster center as defined by the Euclidean distance.
+    </li>
+    <li>
+        Recalculate the cluster centers as the arithmetic means of all samples from all pixels in a cluster.
+    </li>
+    <li>
+        Repeat steps 2 and 3 until the convergence criterion is met.
+    </li>
+</ol>
+
+<p>
+    The convergence criterion is met when the maximum number of iterations specified by the user is
+    exceeded or when the cluster centers did not change between two iterations. This algorithm should be your primary
+    choice for performing a cluster analysis. <em>For the anylysis of large scenes, this algorithm is strongly
+    remmended.</em>
+</p>
+
+<p>
+    The result of the cluster analysis is written to a band named <strong>class_indices</strong>. The
+    values in this band indicate the class indices, where a value '0' refers to the first
+    cluster, a value of '1' refers to the second cluster, etc. The class indices are sorted according
+    to the number of members in the corresponding cluster, i.e. a class index of '0' refers to the
+    cluster with the most members.
+</p>
+
+<p>
+    Note that an index coding is attached to the <strong>class_indices</strong> band, which can be edited
+    in the <a href="../visat/ColorManipulationWindow.html#editingIndexCodedBands">Color Manipulation Window</a>.
+    It is possible to change the label and the color associated with a class index. The last columns of the
+    color manipulation window lists the location of the cluster centers. The cluster centers are also listed
+    in the <strong>Cluster-Analysis</strong> group of the product metadata.
+</p>
+
+<p align="center">
+    <img src="images/kmeans-color-manip.png" alt="Color Manipulation Window">
+</p>
+
+<h3>User Interface</h3>
+
+<p>
+    The k-means cluster analysis tool can be invoked by selecting
+    the <b>K-Means Cluster Analysis</b> command in the <b>Image Analysis</b> submenu. In the command line it is
+    available by means of the Graph Processing Tool <code>gpt</code>. Please type <code>gpt KMeansClusterAnalysis -h</code> for further information.
+</p>
+
+<p>
+    Selecting the <b>K-Means Cluster Analysis</b> command from the Image Analysis menu pops up the
+    following dialog:
+</p>
+
+<p align="center">
+    <img src="images/kmeans-io-parameters.png" alt="K-Means Cluster Analysis Dialog">
+</p>
+
+<h5>Source Product Group</h5>
+
+<p class="i1">
+    <b>Name:</b>
+    Here the user specifies the name of the source product. The combo box presents
+    a list of all products open in DAT. The user may select one of these
+    or, by clicking on the button next to the combo box, choose a product
+    from the file system.
+</p>
+
+<h5>Target Product Group</h5>
+
+<p class="i1">
+    <b>Name:</b>
+    Used to specify the name of the target product.
+</p>
+
+<p class="i1">
+    <b>Save as:</b>
+    Used to specify whether the target product should be saved to the file system. The
+    combo box presents a list of file formats, currently BEAM-DIMAP, GeoTIFF, and HDF5.
+    The text field allows to specify a target directory.
+</p>
+
+<p class="i1">
+    <b>Open in DAT:</b>
+    Used to specify whether the target product should be opened in DAT. When the
+    the target product is not saved, it is opened in DAT automatically.
+</p>
+
+<p align="center">
+    <img src="images/kmeans-proc-parameters.png" alt="K-Means Cluster Analysis Dialog"/>
+</p>
+
+<h5>Processing Parameters Panel</h5>
+
+<p class="i1">
+    <b>Number of clusters:</b>
+    Use this field to specify the number of clusters. The default is 14 clusters.
+</p>
+
+<p class="i1">
+    <b>Number of iterations:</b>
+    Use this field to specify the maximum number of iterations to be carried out. The default is 30 iterations.
+    The cluster analysis stops when the maximum number of iterations is exceeded.
+</p>
+
+<p class="i1">
+    <b>Random seed:</b>
+    The KM algorithm starts with a pseudo-random distribution of initial clusters. The random seed initializes
+    the pseudo-random number generator, which is used to generate the initial clusters. By changing the random
+    seed, you can start with different initial clusters. Any positive integral number will be a perfect random
+    seed. The default seed is 31415.
+</p>
+
+<p class="i1">
+    <b>Source band names:</b>
+    Use this field to specify the names of the source bands. Press the control key while selecting or deselecting
+    individual bands.
+</p>
+
+<p class="i1">
+    <b>Region of interest:</b>
+    Use this field to restrict the cluster analysis to a region-of-interest (ROI). The combo box allows to select the
+    band which provides the ROI.
+</p>
+
+<h5>Button Group</h5>
+
+<p class="i1">
+    <b>Run</b>
+    Creates the target product. The cluster analysis is actually deferred until its band data are accessed, either by
+    writing the product to a file or by viewing its band data. When the <b>Save as</b> option is checked, the cluster
+    analysis is triggered automatically.
+</p>
+
+<p class="i1">
+    <b>Close</b>
+    Closes the dialog.
+</p>
+
+<p class="i1">
+    <b>Help</b>
+    Displays this page in the Help.
+</p>
+
+<h3>Further information</h3>
+
+<p>A good starting point for obtaining further information on cluster analysis terms and algorithms is the <a href="http://en.wikipedia.org/wiki/Data_clustering">Wikipedia entry on data clustering</a>.
+</p>
+
+<br>
+<hr>
+</body></html>

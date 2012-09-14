@@ -1,0 +1,47 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-envi-reader</symbolicName>
+    <version>5.0-1.2</version>
+    <name>ENVI Product Reader</name>
+
+    <description>
+        Enables BEAM to read data products in ESRI-ENVI format.
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2011 by Brockmann Consult GmbH</copyright>
+    <url>http://www.brockmann-consult.de/</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader</categories>
+
+    <extension point="beam-ui:actions">
+        <!--action>
+            <text>Import ENVI Product</text>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ENVI</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Import an ENVI data product.</shortDescr>
+            <shortDescr>Import an ENVI data product.</shortDescr>
+        </action-->
+
+        <action>
+            <id>exportENVI</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>ENVI</formatName>
+            <text>ENVI</text>
+            <shortDescr>Export ENVI product</shortDescr>
+            <helpId>exportENVI</helpId>
+        </action>
+    </extension>
+
+</module>

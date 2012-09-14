@@ -1,0 +1,68 @@
+This is the CHANGELOG file for the ENVISAT Data Description Database (DDDB)
+as part of the MERIS/(A)ATSR Toolbox.
+
+==========================================================================
+ Changes in Version 0.5
+==========================================================================
+
+
+2001/12/04
+
+Initial version obtained from Olivier Colin at ESA/ESRIN. The database was
+called ENVISAT Data Dictionary.
+
+
+2002/01/07
+
+All files not related to the ENVISAT products considered in the MA-Toolbox
+have been removed. This was done in order to reduce the effort of changing
+the database format to suit the needs of the MA-Toolbox software components.
+These are the remaining product types:
+ASA_APG_1P.dd ASA_APM_1P.dd ASA_APP_1P.dd ASA_APS_1P.dd ASA_GM1_1P.dd
+ASA_IMG_1P.dd ASA_IMM_1P.dd ASA_IMP_1P.dd ASA_IMS_1P.dd ASA_WSM_1P.dd
+ASA_WVI_1P.dd ASA_WVS_1P.dd ASA_WVW_2P.dd
+ATS_AR__2P.dd ATS_MET_2P.dd ATS_NL__0P.dd ATS_NR__2P.dd ATS_TOA_1P.dd
+MER_FR__1P.dd MER_FR__2P.dd MER_LRC_2P.dd MER_RRC_2P.dd MER_RRV_2P.dd
+MER_RR__1P.dd MER_RR__2P.dd
+
+
+2002/01/17
+
+Replaced "!REF_TBD!" in ./records/meris/MER_FR__1P_ADSR_tie_pt.dd by "num_tie_points_across"
+Replaced several "!REF_TBD!" in ./records/meris/MER_FR__2P_MDSR_*.dd by "line_length"
+
+2002/01/17
+
+Replaced "!REF_TBD!" in ./records/meris/MER_FR__1P_ADSR_tie_pt.dd by "num_tie_points_across"
+Replaced several "!REF_TBD!" in ./records/meris/MER_FR__2P_MDSR_*.dd by "line_length"
+
+2002/01/30
+We only need the DSD names in all ./product/*.dd files. MER_FR__2P.dd, ATS_NR__2P.dd
+ATS_TOA_1P.dd have prototypically been changed.
+
+2002/02/11
+Created two new directories './bands' & './flags'
+
+2002/04/02
+Adapted DDDB to latest esa notes
+bands/MER_FR_2P.dd - renamed 'YS,_SPM________-_MDS(16).3' to 'YS, SPM, Rect. Rho- MDS(16)'
+bands/MER_RR_2P.dd - renamed 'YS,_SPM________-_MDS(16).3' to 'YS, SPM, Rect. Rho- MDS(16)'
+bands/MER_LRC_2P.dd - added dataset 'cl_top_press', adapted scaling factors
+bands/MER_RRC_2P.dd - added dataset 'cl_top_press', adapted scaling factors
+bands/MER_RRV_2P.dd - adapted scaling factors
+products/MER_FR_2P.dd - renamed 'YS,_SPM________-_MDS(16).3' to 'YS, SPM, Rect. Rho- MDS(16)'
+products/MER_RR_2P.dd - renamed 'YS,_SPM________-_MDS(16).3' to 'YS, SPM, Rect. Rho- MDS(16)'
+products/MER_LRC_2P.dd - renamed bands
+products/MER_RRC_2P.dd - changed band description
+records/meris/MER_FR__2P_MDSR_16.dd - changed band description
+records/meris/MER_RR__2P_MDSR_16.dd - changed band description
+
+2007/01/17
+Added support for
+SAR_IMP_1P, SAR_IMG_1P, AT1_TOA_1P, AT2_TOA_1P from ERS-1/2 in ENVISAT format
+
+2008/03/19
+Added support for versions 3H, 3K, 4A and 4B of ASAR products
+
+2008/04/25
+Added support for ASA_XCA_AX, DOR_POR_AX and DOR_VOR_AX 

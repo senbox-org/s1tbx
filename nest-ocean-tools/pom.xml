@@ -1,0 +1,43 @@
+<?xml version="1.0"?><project>
+  <parent>
+    <artifactId>nest</artifactId>
+    <groupId>org.esa.nest</groupId>
+    <version>5.0</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  
+  <groupId>org.esa.nest</groupId>
+  <artifactId>nest-ocean-tools</artifactId>
+  <name>NEST Ocean Tools</name>
+  <version>5.0</version>
+  <description>Provides operators for ocean SAR applications</description>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.esa.nest</groupId>
+      <artifactId>nest-dat</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.esa.nest</groupId>
+      <artifactId>nest-graph-builder</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.esa.nest</groupId>
+      <artifactId>nest-reader-dem</artifactId>
+    </dependency>
+	<dependency>
+      <groupId>edu.emory.mathcs</groupId>
+      <artifactId>jtransforms</artifactId>
+    </dependency>
+  </dependencies>
+  
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.bc.maven.plugins</groupId>
+                <artifactId>maven-javahelp-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+  
+</project>

@@ -1,0 +1,94 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>nest-op-coregistration</symbolicName>
+    <version>5.0</version>
+    <name>NEST Coregistration</name>
+    <description>NEST Coregistration</description>
+	
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2012 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>European Space Agency</funding>
+	
+	<dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+        <module>beam-nest-common</module>
+    </dependency>
+    <dependency>
+        <module>nest-dat</module>
+    </dependency>
+    <dependency>
+        <module>nest-core</module>
+    </dependency>
+	<dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
+    <dependency>
+        <module>jdoris-core</module>
+    </dependency>
+
+    <extension point="beam-ui:layerSources">
+        <layerSource>
+            <id>gcp-vector-layer-source</id>
+            <name>GCP Movement Vector</name>
+            <description>Show where GCPs have moved</description>
+            <class>org.esa.nest.dat.layersrc.GCPVectorLayerSource</class>
+        </layerSource>
+    </extension>
+
+    <extension point="beam-ui:actions">
+
+        <action>
+	        <id>CreateStack</id>
+	        <helpId>CreateStack</helpId>
+	        <class>org.esa.nest.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>tools</parent>
+	        <text>Create Stack</text>
+	        <dialogTitle>Create Stack</dialogTitle>
+            <shortDescr>Stacks together several products without coregistering</shortDescr>
+            <graphFile>CreateStackGraph.xml</graphFile>
+        </action>
+
+        <action>
+	        <id>CoregistrationGraph</id>
+	        <helpId>Coregistration</helpId>
+	        <class>org.esa.nest.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>sartools</parent>
+	        <text>Automatic Coregistration</text>
+            <shortDescr>Perform Automatic Coregistration</shortDescr>
+	        <dialogTitle>Automatic Coregistration</dialogTitle>
+            <graphFile>CoregistrationGraph.xml</graphFile>
+        </action>
+
+        <action>
+            <id>PCAStatistic</id>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Principal Component Analysis</text>
+            <operatorName>PCA</operatorName>
+	        <dialogTitle>Principal Component Analysis</dialogTitle>
+            <targetProductNameSuffix>_pca</targetProductNameSuffix>
+            <shortDescr>Principal Component Analysis</shortDescr>
+            <parent>imageAnalysis</parent>
+            <helpId>PCA</helpId>
+        </action>
+
+    </extension>
+
+	<extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+			<id>coregistrationHelp</id>
+            <path>doc/help/coregistration.hs</path>
+        </helpSet>
+    </extension>
+</module>

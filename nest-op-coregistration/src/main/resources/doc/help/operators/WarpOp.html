@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Warp Operator</title>
+
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Warp</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Warp Operator</h3>
+<br>
+The Warp operator is a component of <a href="../tutorials/coregistering_products.html">coregistration</a>. This operator computes a warp function from the master-slave ground control point (GCP) pairs produced
+by <a href="GCPSelectionOp.html">GCP Selection operator</a>, and generates the final co-registered image. <br><h4>Compute Warp Polynomial</h4>&nbsp;&nbsp;
+Once the valid master-slave GCP pairs are&nbsp;known, a polynomial of a
+certain order is computed using a least square method, which
+maps&nbsp;the master GCPs&nbsp;onto the slave GCPs. This function is
+known as the warp function and is used to perform the co-registration.
+Generally the warp function computed with the initial master-slave GCPs
+is&nbsp;not the final warp function used in co-registration because it
+normally introduces large errors for GCPs. These GCPs must be removed.
+Therefore the warp function is
+determined in an iterative manner.<br>
+<ol>
+<li>First&nbsp;a warp function is computed using the initial master-slave GCP pairs.</li>
+<li>Then&nbsp;the master GCPs are mapped to the slave image with the&nbsp;warp function,
+and&nbsp;the residuals between the mapped master GCPs and&nbsp;their corresponding slave GCPs are computed. The root
+mean square&nbsp;(RMS) and the standard deviation for the residuals are also computed.</li>
+<li>Next,&nbsp;the master-slave GCP pairs are filtered with the mean
+RMS. GCP pairs with RMS greater than the mean RMS&nbsp;are eliminated.</li><li>The
+same procedure (step 1 to 3) is repeated up to 2 times if needed and
+each time&nbsp;the remaining master-slave GCP pairs from previous
+elimination are used.</li>
+<li>Finally&nbsp;the master-slave GCP pairs are filtered with the user
+selected RMS threshold and the final warp function is computed with the
+remaining master-slave GCP pairs.</li></ol>&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; The WARP polynomial order is specified by user in the dialog box.<br><ul><li>The valid values for the&nbsp;polynomial order are
+1, 2 and 3.</li><li>For most cases where the input images do not suffer from a high level of
+distortion, linear&nbsp;warp is generally enough and is recommended as&nbsp;default.</li><li>Higher order warp should be used only&nbsp;when image suffers from a high level distortion and a very good co-registration
+accuracy is required.</li><li>Higher order&nbsp;warp requires more GCPs and can introduce large distortions
+in image regions containing only a few GCPs.</li></ul>
+<h4>Generate Co-Registered Image</h4>&nbsp;&nbsp;&nbsp;With the
+determination of&nbsp;warp function which maps&nbsp;pixels in the master
+image to the slave image, the co-registered image can be obtained with
+interpolation. Currently the following interpolation methods are
+supported:<br>
+<ol>
+<li>Nearest-neighbour interpolation</li>
+<li>Bilinear interpolation</li>
+<li>Bicubic interpolation</li>
+<li>Cubic interpolation (4 and 6 points)</li>
+<li>Truncated sinc interpolation (6, 8 and 16 points)</li>
+
+</ol><h4>Interpolation for InSAR</h4>&nbsp;&nbsp;&nbsp;
+
+For interferometric applications Cubic or Truncated sinc kernels are recommended.
+These kernels assure the optimal interpolation in terms of Signal-to-Noise ratio.  
+
+<h4>Residual File</h4>&nbsp;&nbsp;&nbsp;The residual file is a
+text file containing information about master and slave GCPs before and
+after each elimination. The residual for a GCP pair is&nbsp;the errors
+introduced by the warping function and can be used as a good indicator
+of the quality of the warp function. It is often very useful to check
+the information contained within the&nbsp;residual file to see if the
+co-registration process can be considered to have been successful. For
+example, the "RMS mean" value&nbsp;can be used as an approximate figure
+of merit for the co-registration. User can view the residual file by
+checkmarking the "Show Residuals" box in the dialog box. Detailed
+information contained in the residual file are listed below:<br><ul><li>Band name</li><li>Warp coefficients</li><li>Master GCP coordinates</li><li>Slave GCP coordinates</li><li>Row and column residuals</li><li>Root
+mean square errors (RMS)</li><li>Row&nbsp;residual mean</li><li>Row residual standard deviation</li><li>Column residual mean</li><li>Column residual standard deviation</li><li>RMS mean</li><li>RMS&nbsp;standard deviation</li></ul>
+<h4>Parameters Used</h4>&nbsp;&nbsp;&nbsp;The following parameters are used by the operator:<br>
+<ol>
+<li>RMS Threshold: The criterion for eliminating invalid GCPs. In general, the
+smaller the threshold, the better the GCP quality, but lower the number of GCPs.</li>
+<li>Warp Polynomial Order: The degree of the warp polynomial.&nbsp;</li>
+<li>Interpolation Method: The interpolation method used computing co-registered slave image
+pixel value.</li>
+<li>Show Residuals: Display GCP residual file if selected.</li>
+</ol>
+<br>
+<img style="width: 600px; height: 500px;" alt="" src="images/warp_dlg.jpg">
+<br><br><br><a href="../tutorials/coregistering_products.html"></a><br>
+<hr>
+</body></html>

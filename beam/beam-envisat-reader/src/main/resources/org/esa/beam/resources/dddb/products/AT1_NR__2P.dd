@@ -1,0 +1,13 @@
+AT1_NR__2P|ATSR1/ERS geophysical product (full resolution)|
+#
+MPH                        |@/records/MPH.dd                       |1247                       |Main Product Header
+SPH                        |@/records/aatsr/ATS_NR__2P_sph.dd      |*                          |Level 2 SPH
+DSD                        |@/records/DSD.dd                       |*                          |Data Set Descriptor array
+SUMMARY_QUALITY_ADS        |@/records/aatsr/ATS_NR__2P_ADSR_sq.dd  |SUMMARY_QUALITY_ADS        |Summary Quality ADS
+GEOLOCATION_ADS            |@/records/aatsr/ATS_TOA_1P_ADSR_loc.dd |GEOLOCATION_ADS            |Grid pixel latitude and longtitude  topographic corrections ADS
+SCAN_PIXEL_X_AND_Y_ADS     |@/records/aatsr/ATS_TOA_1P_ADSR_scan.dd|SCAN_PIXEL_X_AND_Y_ADS     |Scan pixel x and y ADS
+NADIR_VIEW_SOLAR_ANGLES_ADS|@/records/aatsr/ATS_TOA_1P_ADSR_sa.dd  |NADIR_VIEW_SOLAR_ANGLES_ADS|Nadir view solar angles ADS
+FWARD_VIEW_SOLAR_ANGLES_ADS|@/records/aatsr/ATS_TOA_1P_ADSR_sa.dd  |FWARD_VIEW_SOLAR_ANGLES_ADS|Forward view solar angles ADS
+NADIR_VIEW_SCAN_PIX_NUM_ADS|@/records/aatsr/ATS_TOA_1P_ADSR_pix.dd |NADIR_VIEW_SCAN_PIX_NUM_ADS|Scan and pixel number nadir view ADS
+FWARD_VIEW_SCAN_PIX_NUM_ADS|@/records/aatsr/ATS_TOA_1P_ADSR_pix.dd |FWARD_VIEW_SCAN_PIX_NUM_ADS|Scan and pixel number forward view ADS
+DISTRIB_SST_CLOUD_LAND_MDS |@/records/aatsr/ATS_NR__2P_MDSR_dp.dd  |DISTRIB_SST_CLOUD_LAND_MDS |Distributed product MDS

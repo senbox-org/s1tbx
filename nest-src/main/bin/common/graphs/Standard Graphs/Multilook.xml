@@ -1,0 +1,43 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters/>
+  </node>
+  <node id="2-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="3-Multilook"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>multilooked.dim</file>
+    </parameters>
+  </node>
+  <node id="3-Multilook">
+    <operator>Multilook</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters>
+      <sourceBands/>
+      <nRgLooks>2</nRgLooks>
+      <nAzLooks>2</nAzLooks>
+	  <outputIntensity>true</outputIntensity>
+      <note>Currently, detection for complex data is performed without any resampling</note>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="1-Read">
+      <displayPosition y="134.0" x="37.0"/>
+    </node>
+    <node id="2-Write">
+      <displayPosition y="135.0" x="455.0"/>
+    </node>
+    <node id="3-Multilook">
+      <displayPosition y="134.0" x="220.0"/>
+    </node>
+  </applicationData>
+</graph>

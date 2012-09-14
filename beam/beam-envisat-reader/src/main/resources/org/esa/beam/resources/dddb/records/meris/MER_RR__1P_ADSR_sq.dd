@@ -1,0 +1,6 @@
+MER_RR__1P_ADSR_sq|Level 1b Summary Quality ADS(SQ ADS)|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Time of the first line in the MDS corresponding to this record.|1|
+attach_flag|UChar|flag|1|1|*|Attachment Flag (Set to 1 if all the records in all the bands are blank for the period corresponding to this record, set to zero otherwise)|2|
+range_flag|UShort|flag|2|5|*|Out of Range flag. For every band, when the number of out of range samples is above a given threshold then it is set to TRUE, otherwise it is left to FALSE. The 15 flags for all the bands of a module are stored in an unsigned integer. To have this information for every MERIS module, five unsigned integers are needed.|3|
+range_blind_flag|UShort|flag|2|5|*|Out of Range blind flag.  Flags set to TRUE when the number of out of range blind spectral samples per module is above a given threshold. Flag ordering same as described in field 3.|4|

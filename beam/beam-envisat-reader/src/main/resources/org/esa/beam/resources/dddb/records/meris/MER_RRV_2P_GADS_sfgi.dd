@@ -1,0 +1,7 @@
+MER_RRV_2P_GADS_sfgi|Level 2 GADS Scaling Factor and Offsets|*
+#
+sf_toa_veg_ind|Float|*|4|1|*|scaling factor - TOA Vegetation Index|1|
+sf_boa_veg_ind|Float|*|4|1|*|scaling factor - BOA Vegetation Index|2|
+off_toa_veg_ind|Float|*|4|1|*|offset-TOA Vegetation Index|3|
+off_boa_veg_ind|Float|*|4|1|*|offset-BOA Vegetation Index|4|
+spare_1|Spare|*|60|1|*|Spare|5|

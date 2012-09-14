@@ -1,0 +1,316 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="0-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters>
+      <file></file>
+    </parameters>
+  </node>
+  <node id="1-DeburstWSS">
+    <operator>DeburstWSS</operator>
+    <sources>
+      <sourceProduct refid="0-Read"/>
+    </sources>
+    <parameters>
+      <subSwath>SS1</subSwath>
+      <produceIntensitiesOnly>true</produceIntensitiesOnly>
+      <average>false</average>
+    </parameters>
+  </node>
+  <node id="2-DeburstWSS">
+    <operator>DeburstWSS</operator>
+    <sources>
+      <sourceProduct refid="0-Read"/>
+    </sources>
+    <parameters>
+      <subSwath>SS2</subSwath>
+      <produceIntensitiesOnly>true</produceIntensitiesOnly>
+      <average>false</average>
+    </parameters>
+  </node>
+  <node id="3-DeburstWSS">
+    <operator>DeburstWSS</operator>
+    <sources>
+      <sourceProduct refid="0-Read"/>
+    </sources>
+    <parameters>
+      <subSwath>SS3</subSwath>
+      <produceIntensitiesOnly>true</produceIntensitiesOnly>
+      <average>false</average>
+    </parameters>
+  </node>
+  <node id="4-DeburstWSS">
+    <operator>DeburstWSS</operator>
+    <sources>
+      <sourceProduct refid="0-Read"/>
+    </sources>
+    <parameters>
+      <subSwath>SS4</subSwath>
+      <produceIntensitiesOnly>true</produceIntensitiesOnly>
+      <average>false</average>
+    </parameters>
+  </node>
+  <node id="5-DeburstWSS">
+    <operator>DeburstWSS</operator>
+    <sources>
+      <sourceProduct refid="0-Read"/>
+    </sources>
+    <parameters>
+      <subSwath>SS5</subSwath>
+      <produceIntensitiesOnly>true</produceIntensitiesOnly>
+      <average>false</average>
+    </parameters>
+  </node>
+  <node id="6-Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="1-DeburstWSS"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+        <band>Intensity_SS1</band>
+      </sourceBands>
+      <externalAuxFile/>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="7-Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="2-DeburstWSS"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+        <band>Intensity_SS2</band>
+      </sourceBands>
+      <externalAuxFile/>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="8-Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="3-DeburstWSS"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+        <band>Intensity_SS3</band>
+      </sourceBands>
+      <externalAuxFile/>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="9-Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="4-DeburstWSS"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+        <band>Intensity_SS4</band>
+      </sourceBands>
+      <externalAuxFile/>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="10-Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="5-DeburstWSS"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+        <band>Intensity_SS5</band>
+      </sourceBands>
+      <externalAuxFile/>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="11-Multilook">
+    <operator>Multilook</operator>
+    <sources>
+      <sourceProduct refid="6-Calibration"/>
+    </sources>
+    <parameters>
+      <sourceBands/>
+      <nRgLooks>2</nRgLooks>
+      <nAzLooks>1</nAzLooks>
+      <note>Currently, detection for complex data is performed without any resampling</note>
+    </parameters>
+  </node>
+  <node id="12-Multilook">
+    <operator>Multilook</operator>
+    <sources>
+      <sourceProduct refid="7-Calibration"/>
+    </sources>
+    <parameters>
+      <sourceBands/>
+      <nRgLooks>2</nRgLooks>
+      <nAzLooks>1</nAzLooks>
+      <note>Currently, detection for complex data is performed without any resampling</note>
+    </parameters>
+  </node>
+  <node id="13-Multilook">
+    <operator>Multilook</operator>
+    <sources>
+      <sourceProduct refid="8-Calibration"/>
+    </sources>
+    <parameters>
+      <sourceBands/>
+      <nRgLooks>2</nRgLooks>
+      <nAzLooks>1</nAzLooks>
+      <note>Currently, detection for complex data is performed without any resampling</note>
+    </parameters>
+  </node>
+  <node id="14-Multilook">
+    <operator>Multilook</operator>
+    <sources>
+      <sourceProduct refid="9-Calibration"/>
+    </sources>
+    <parameters>
+      <sourceBands/>
+      <nRgLooks>2</nRgLooks>
+      <nAzLooks>1</nAzLooks>
+      <note>Currently, detection for complex data is performed without any resampling</note>
+    </parameters>
+  </node>
+  <node id="15-Multilook">
+    <operator>Multilook</operator>
+    <sources>
+      <sourceProduct refid="10-Calibration"/>
+    </sources>
+    <parameters>
+      <sourceBands/>
+      <nRgLooks>2</nRgLooks>
+      <nAzLooks>1</nAzLooks>
+      <note>Currently, detection for complex data is performed without any resampling</note>
+    </parameters>
+  </node>
+  <node id="17-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="11-Multilook"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>SS1.dim</file>
+    </parameters>
+  </node>
+  <node id="19-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="12-Multilook"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>SS2.dim</file>
+    </parameters>
+  </node>
+  <node id="20-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="13-Multilook"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>SS3.dim</file>
+    </parameters>
+  </node>
+  <node id="21-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="14-Multilook"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>SS4.dim</file>
+    </parameters>
+  </node>
+  <node id="22-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="15-Multilook"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>SS5.dim</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="0-Read">
+      <displayPosition y="134.0" x="37.0"/>
+    </node>
+    <node id="1-DeburstWSS">
+      <displayPosition y="41.0" x="129.0"/>
+    </node>
+    <node id="2-DeburstWSS">
+      <displayPosition y="86.0" x="132.0"/>
+    </node>
+    <node id="3-DeburstWSS">
+      <displayPosition y="134.0" x="133.0"/>
+    </node>
+    <node id="4-DeburstWSS">
+      <displayPosition y="175.0" x="133.0"/>
+    </node>
+    <node id="5-DeburstWSS">
+      <displayPosition y="214.0" x="132.0"/>
+    </node>
+    <node id="6-Calibration">
+      <displayPosition y="41.0" x="240.0"/>
+    </node>
+    <node id="7-Calibration">
+      <displayPosition y="86.0" x="239.0"/>
+    </node>
+    <node id="8-Calibration">
+      <displayPosition y="134.0" x="241.0"/>
+    </node>
+    <node id="9-Calibration">
+      <displayPosition y="175.0" x="240.0"/>
+    </node>
+    <node id="10-Calibration">
+      <displayPosition y="214.0" x="239.0"/>
+    </node>
+    <node id="11-Multilook">
+      <displayPosition y="41.0" x="343.0"/>
+    </node>
+    <node id="12-Multilook">
+      <displayPosition y="85.0" x="342.0"/>
+    </node>
+    <node id="13-Multilook">
+      <displayPosition y="133.0" x="342.0"/>
+    </node>
+    <node id="14-Multilook">
+      <displayPosition y="175.0" x="343.0"/>
+    </node>
+    <node id="15-Multilook">
+      <displayPosition y="214.0" x="344.0"/>
+    </node>
+    <node id="17-Write">
+      <displayPosition y="40.0" x="440.0"/>
+    </node>
+    <node id="19-Write">
+      <displayPosition y="85.0" x="440.0"/>
+    </node>
+    <node id="20-Write">
+      <displayPosition y="133.0" x="439.0"/>
+    </node>
+    <node id="21-Write">
+      <displayPosition y="175.0" x="439.0"/>
+    </node>
+    <node id="22-Write">
+      <displayPosition y="215.0" x="437.0"/>
+    </node>
+  </applicationData>
+</graph>

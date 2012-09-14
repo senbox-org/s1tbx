@@ -1,0 +1,12 @@
+{
+    IBClasses = (
+        {CLASS = AMApplicationStub; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            CLASS = ApplicationStubDelegate; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = AMApplicationStub; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+    ); 
+    IBVersion = 1; 
+}

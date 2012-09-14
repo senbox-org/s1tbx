@@ -1,0 +1,7 @@
+ASAR_Dop_Cen_Grid_ADSR|Doppler Centroid Grid ADSRs|*
+#
+zero_doppler_time	   |@/types/UTC.dd            |MJD  |12|1|*|Zero Doppler azimuth time at which estimate applies|1|
+attach_flag            |UChar                     |flag | 1|1|*|Attachment Flag (always set to zero for this ADSR)|2|
+slant_range_time       |Float                     |ns   | 4|100|*|2-way slant range time origin (t0)|3|
+dop_coef               |Float                     |Hz   | 4|100|*|Fine Doppler centroid frequency estimate. This is the original estimated Doppler centroid frequncy befor any polynomial fitting is applied|4|
+spare_1                |Spare                     |*    |400|1|*|Spare|5|

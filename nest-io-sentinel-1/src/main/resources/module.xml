@@ -1,0 +1,45 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>nest-io-sentinel-1</symbolicName>
+    <version>5.0</version>
+    <name>NEST Sentinel-1 Reader</name>
+
+    <description>Reads Sentinel-1 SAFE format products</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2012 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>European Space Agency</funding>
+	
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>nest-core</module>
+    </dependency>
+	<dependency>
+        <module>nest-io</module>
+    </dependency>
+    <dependency>
+        <module>beam-geotiff</module>
+    </dependency>
+		
+    <categories>Reader</categories>
+
+    <extension point="beam-ui:actions">
+
+		<action>
+            <id>importS1Product</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>Sentinel-1</formatName>
+            <shortDescr>Import a Sentinel-1 product</shortDescr>
+            <description>Import a Sentinel-1 product</description>
+			<largeIcon>icons/Import24.gif</largeIcon>
+            <helpId>importS1Product</helpId>
+        </action>
+
+    </extension>
+
+</module>

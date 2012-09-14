@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+    
+    <title>Cluster Analysis Tools</title><link rel="stylesheet" href="../style.css"></head>
+
+
+<body>
+
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            Cluster Analysis
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border="0"></a>
+        </td>
+    </tr>
+</tbody></table>
+
+<h3>Introduction</h3>
+
+<p>
+    <strong>Cluster analysis</strong> (or <strong>clustering</strong>) is the classification of objects into different
+    groups, or more precisely, the partitioning of a data set into subsets (<strong>clusters</strong> or
+    <strong>classes</strong>), so that the data in each subset
+    (ideally) share some common trait - often proximity according to some defined distance measure. Data clustering is a
+    common
+    technique for statistical data analysis, which is used in many fields, including machine learning, data mining,
+    pattern recognition, image analysis and bioinformatics. The computational task of classifying the data set into
+    <em>k</em> clusters is often referred to as <em>k</em>-clustering.
+</p>
+
+<h5>Types of clustering</h5>
+
+<p>
+    Data clustering algorithms can be hierarchical. Hierarchical algorithms find successive clusters using previously
+    established clusters. Hierarchical algorithms can be agglomerative or divisive. Agglomerative algorithms begin with
+    each element as a separate cluster and merge them into successively larger
+    clusters. Divisive algorithms begin with the whole set and proceed to divide it into successively smaller clusters.
+    <strong>Partitional</strong> algorithms typically determine all clusters at once, but can also be used as divisive
+    algorithms in the hierarchical clustering.
+</p>
+
+<h5>Distance measures</h5>
+
+<p>
+    An important step in any clustering is to select a distance measure, which will determine how the similarity of two
+    elements is calculated. This will influence the shape of the clusters, as some elements may be close to one another
+    according to one distance and further away according to another.
+</p>
+
+<p>
+    Particularly important distance measures are the <strong>Euclidean distance</strong> which leads to a spherical
+    shape of the
+    clusters, and the <strong>Mahalanobis distance</strong>, which leads to arbitrary elliptic shapes, reflecting
+    the different scales and correlations in the data.
+</p>
+
+<h3>Cluster analysis tools</h3>
+
+<dl>
+    <dt><a href="KMeans.html">K-means clustering</a></dt>
+    <dd>
+        This algorithm assigns each pixel to the cluster whose center is nearest. The center is the arithmetic mean of
+        all pixels belonging to the cluster. The main advantages of this algorithm are its simplicity and speed, which
+        allows it to run on large datasets. Its disadvantage is that it does not take into account different scales and
+        correlations in the data. It minimizes intra-cluster variance, but does not ensure that the result has a global
+        minimum of variance. This algorithm should be your primary choice for performing a cluster analysis. <em>For
+        the analysis of large scenes, this algorithm is strongly recommended.</em>
+    </dd>
+    <dt><a href="EM.html">EM clustering</a></dt>
+    <dd>
+        This algorithm is a generalization of the <a href="KMeans.html">k-means</a> algorithm where the clusters are
+        ellipsoids defined by a center and a covariance matrix. The main advantage of this algorithm is that it is not
+        affected by different scales of the data dimensions and correlations between them. Its disadvantage is
+        considerably less speed, which practically limits the applicability to smaller datasets only. It minimizes the
+        intra-cluster variances but does not ensure that the result has a global minimum of variance. Use this algorithm
+        when you want to perform a cluster analysis of a small scene or region-of-interest and are not satisfied with the
+        results obtained from the <a href="KMeans.html">k-means</a> algorithm.
+    </dd>
+</dl>
+
+<h3>Further information</h3>
+
+<p>A good starting point for obtaining further information on cluster analysis terms and algorithms is the <a href="http://en.wikipedia.org/wiki/Data_clustering">Wikipedia entry on data clustering</a>.
+</p>
+
+<br>
+<hr>
+</body></html>

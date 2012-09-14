@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Abstracted Metadata</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header" width="100%">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp;&nbsp;Abstracted
+Metadata </td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h1>Abstracted Metadata</h1>
+<p>A&nbsp;variety of data products can be ingested into a
+common internal representation. &nbsp;For metadata, this is done
+using the Abstracted Metadata.</p>
+
+<p style="text-align: justify;">The Abstracted Metadata is
+an extract of information and parameters from the actual
+metadata of the product. The idea behind this is firstly to list the
+needed
+parameters to run tools and algorithms and secondly to
+modify these in line
+with the processing over the product. In fact, the parameters
+read from
+the abstracted metadata can be changed&nbsp;as&nbsp;the
+result of any processing. According to this concept,
+the
+abstracted metadata can be considered a dynamic header.</p>
+<p style="text-align: justify;">Each Product Reader knows
+how to read a particular file format and map the metadata to the
+Abstracted Metadata. For any fields that do not exist in a product, a
+defualt dummy value of&nbsp;<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">99999
+is used.</span> </p>
+<p>The abstracted metadata can be edited and
+changed after having saved the product in the internal <a href="../readers/BeamDimapFormat.html">BEAM DIMAP</a> format.
+Therefore if external information
+are available, for instance the user can modify and update the dummy
+values in
+the abstracted metadata.</p>
+<br>
+<p style="text-align: center;"><img style="width: 827px; height: 988px;" alt="" src="images/abstract_metadata.jpg"></p>
+<p style="text-align: center;"></p><p style="text-align: left;">You may
+search through the metadata by clicking on the Search Metadata menu
+item in the SAR Tools Menu. Enter a partial string of a meatadata field
+name and all entries will be shown in a metadata table.</p>
+<h3>Importing Metadata</h3>
+<p>If you are importing a file with no metadata, for example a
+bitmap or JPEG with the ImageIO reader or extra metadata for an ENVI
+product, you can create an XML file that will be read in as the
+Abstracted Metadata and be used within the processing.</p>
+<p>The filename for the metadata data should be called either
+metadata.xml or filename.xml when importing filename.hdr or filename.jpg</p>
+<p>The format of the file should be as follows:</p>
+<pre style="margin-left: 40px;">&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;Metadata&gt;<br>&nbsp;&lt;AbstractedMetadata&gt;<br>&nbsp; &lt;attrib name="PRODUCT" value="ProductName" type="10" /&gt;<br>&nbsp; &lt;attrib name="PRODUCT_TYPE" value="protuctType" type="10" /&gt;<br>&nbsp; &lt;attrib name="SPH_DESCRIPTOR" value=" " type="10" /&gt;<br>&nbsp; &lt;attrib name="MISSION" value="ENVISAT" type="10" /&gt;<br>&nbsp; &lt;attrib name="PROC_TIME" value="09-MAY-2008 19:53:39.000000" type="51" unit="utc" /&gt;<br>&nbsp; &lt;attrib name="CYCLE" value="68" type="12" /&gt;<br>&nbsp; &lt;attrib name="REL_ORBIT" value="257" type="12" /&gt;<br>&nbsp; &lt;attrib name="ABS_ORBIT" value="32375" type="12" /&gt;<br>&nbsp; &lt;attrib name="STATE_VECTOR_TIME" value="09-MAY-2008 19:12:47.666422" type="51" unit="utc" /&gt;<br>&nbsp; &lt;attrib name="VECTOR_SOURCE" value="FP" type="10" /&gt;<br>&nbsp; &lt;attrib name="first_line_time" value="09-MAY-2008 19:24:42.913160" type="51" unit="utc" /&gt;<br>&nbsp; &lt;attrib name="last_line_time" value="09-MAY-2008 19:25:18.745011" type="51" unit="utc" /&gt;<br>&nbsp; &lt;attrib name="SWATH" value="IS6" type="10" /&gt;<br>&nbsp; &lt;attrib name="PASS" value="ASCENDING" type="10" /&gt;<br>&nbsp; &lt;attrib name="SAMPLE_TYPE" value="DETECTED" type="10" /&gt;<br>&nbsp; &lt;attrib name="mds1_tx_rx_polar" value="VV" type="10" /&gt;<br>&nbsp; &lt;attrib name="ALGORITHM" value="SPECAN" type="10" /&gt;<br>&nbsp; &lt;attrib name="AZIMUTH_LOOKS" value="8" type="12" /&gt;<br>&nbsp; &lt;attrib name="RANGE_LOOKS" value="10" type="12" /&gt;<br>&nbsp; &lt;attrib name="RANGE_SPACING" value="75.0" type="31" unit="m" /&gt;<br>&nbsp; &lt;attrib name="AZIMUTH_SPACING" value="75.0" type="31" unit="m" /&gt;<br>&nbsp; &lt;attrib name="pulse_repetition_frequency" value="1705.227294921875" type="31" unit="Hz" /&gt;<br>&nbsp; &lt;attrib name="LINE_TIME_INTERVAL" value="0.0113141304" type="31" unit="s" /&gt;<br>&nbsp; &lt;attrib name="srgr_flag" value="1" type="20" unit="flag" /&gt;<br>&nbsp; &lt;attrib name="isMapProjected" value="0" type="12" unit="flag" /&gt;<br>&nbsp; &lt;attrib name="ant_elev_corr_flag" value="1" type="20" unit="flag" /&gt;<br>&nbsp; &lt;attrib name="range_spread_comp_flag" value="1" type="20" unit="flag"&nbsp; /&gt;<br>&nbsp; &lt;attrib name="replica_power_corr_flag" value="0" type="20" unit="flag"&nbsp; /&gt;<br>&nbsp; &lt;attrib name="abs_calibration_flag" value="0" type="20" unit="flag" desc="Product calibrated" /&gt;<br>&nbsp; &lt;attrib name="calibration_factor" value="8282833.5" type="31" unit="" /&gt;<br>&nbsp; &lt;attrib name="range_sampling_rate" value="19.20768" type="31" unit="MHz" /&gt;<br>&nbsp;&lt;/AbstractedMetadata&gt;<br>&nbsp;&lt;tie-point-grids&gt;<br>&nbsp; &lt;slant_range_time unit="" desc=""&gt;<br>&nbsp;&nbsp; &lt;row value="6551873.5,6883743.5" /&gt;<br>&nbsp;&nbsp; &lt;row value="6555548.0,6887433.0" /&gt;<br>&nbsp; &lt;/slant_range_time&gt;<br>&nbsp; &lt;incident_angle unit="" desc=""&gt;<br>&nbsp;&nbsp; &lt;row value="38.975224,42.915314" /&gt;<br>&nbsp;&nbsp; &lt;row value="38.978363,42.916718" /&gt;<br>&nbsp; &lt;/incident_angle&gt;<br>&nbsp; &lt;latitude unit="" desc=""&gt;<br>&nbsp;&nbsp; &lt;row value="45,45" /&gt;<br>&nbsp;&nbsp; &lt;row value="-45,-45" /&gt;<br>&nbsp; &lt;/latitude&gt;<br>&nbsp; &lt;longitude unit="" desc=""&gt;<br>&nbsp;&nbsp; &lt;row value="-90,90" /&gt;<br>&nbsp;&nbsp; &lt;row value="-90,90" /&gt;<br>&nbsp; &lt;/longitude&gt;<br>&nbsp;&lt;/tie-point-grids&gt;<br>&lt;/Metadata&gt;</pre>
+<p>Only name and value are required for each attribute the others
+could be optional. Also, not all attributes are required. If any are
+missing then<br>
+defaults will be used.</p>
+<p>Any elements placed in tie-point-grids will be imported as a
+tie-point
+grid band and be interpolated to the image raster dimensions at run
+time.<br>
+The latitude and longitude tie points will be used to create the
+product geocoding.</p>
+<p>You can export the metadata from a currently opened product by
+clicking on Export Metadata in the Product Writers menu.</p>
+<p></p>
+<hr>
+</body></html>

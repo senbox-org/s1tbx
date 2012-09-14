@@ -1,0 +1,26 @@
+# This file contains all MODIS product types supported by the reader
+
+# product type | corresp. desc file
+MOD021KM       | MOD021KM.dd
+MYD021KM       | MYD021KM.dd
+MOD021KM_IMAPP | MOD021KM_IMAPP.dd
+MOD02HKM       | MOD02HKM.dd
+MYD02HKM       | MYD02HKM.dd
+MOD02QKM       | MOD02QKM.dd
+MYD02QKM       | MYD02QKM.dd
+MODOCL2        | MxDOCL2.dd
+MYDOCL2        | MxDOCL2.dd
+MODOCL2A       | MxDOCL2A.dd
+MYDOCL2A       | MxDOCL2A.dd
+MODOCL2B       | MxDOCL2B.dd
+MYDOCL2B       | MxDOCL2B.dd
+MOD28L2        | MxD28L2.dd
+MYD28L2        | MxD28L2.dd
+MODOCQC        | MxdOCQC.dd
+MYDOCQC        | MxdOCQC.dd
+MOD13A2        | MxD13A2.dd
+MYD13A2        | MxD13A2.dd
+MOD15A2        | MxD15A2.dd
+MYD15A2        | MxD15A2.dd
+MOD09GA        | MxD09GA.dd
+MYD09GA        | MxD09GA.dd

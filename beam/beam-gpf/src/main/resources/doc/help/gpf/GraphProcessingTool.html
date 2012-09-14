@@ -1,0 +1,120 @@
+<!--
+  ~ Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+
+<head>
+    <title>BEAM gpt</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            BEAM gpt
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="images/BeamHeader.jpg"
+                                                                                     border=0></a>
+        </td>
+    </tr>
+</table>
+
+<h1>The BEAM Graph Processing Tool (gpt)</h1>
+
+<pre>
+    Usage:
+      gpt &lt;op&gt;|&lt;graph-file&gt; [options] [&lt;source-file-1&gt; &lt;source-file-2&gt; ...]
+
+    Description:
+      This tool is used to execute BEAM raster data operators in batch-mode. The
+      operators can be used stand-alone or combined as a directed acyclic graph
+      (DAG). Processing graphs are represented using XML. More info about
+      processing graphs, the operator API, and the graph XML format can be found
+      in the BEAM documentation.
+
+    Arguments:
+      &lt;op&gt;               Name of an operator. See below for the list of &lt;op&gt;s.
+      &lt;graph-file&gt;       Operator graph file (XML format).
+      &lt;source-file-i&gt;    The &lt;i&gt;th source product file. The actual number of source
+                         file arguments is specified by &lt;op&gt;. May be optional for
+                         operators which use the -S option.
+
+    Options:
+      -h                 Displays command usage. If &lt;op&gt; is given, the specific
+                         operator usage is displayed.
+      -e                 Displays more detailed error messages. Displays a stack
+                         trace, if an exception occurs.
+      -t &lt;file&gt;          The target file. Default value is './target.dim'.
+      -f &lt;format&gt;        Output file format, e.g. 'GeoTIFF', 'HDF5',
+                         'BEAM-DIMAP'. If not specified, format will be derived
+                         from the target filename extension, if any, otherwise the
+                         default format is 'BEAM-DIMAP'. Ony used, if the graph
+                         in &lt;graph-file&gt; does not specify its own 'Write' operator.
+      -p &lt;file&gt;          A (Java Properties) file containing processing
+                         parameters in the form &lt;name&gt;=&lt;value&gt; or a XML file
+                         containing a a parameter DOM for the operator. Entries in this
+                         file are overwritten by the -P&lt;name&gt;=&lt;value&gt; command-line
+                         option (see below). The following variables are substituted in
+                         the parameters file:
+                             ${gpt.operator} (given by the 'op' argument)
+                             ${gpt.graphFile} (given by the 'graph-file' argument)
+                             ${gpt.parametersFile} (given by the -p option)
+                             ${gpt.targetFile} (given by the -t option)
+                             ${gpt.targetFormat} (given by the -f option)
+      -c &lt;cache-size&gt;    Sets the tile cache size in bytes. Value can be suffixed
+                         with 'K', 'M' and 'G'. Must be less than maximum
+                         available heap space. If equal to or less than zero, tile
+                         caching will be completely disabled. The default tile
+                         cache size is '512M'.
+      -q &lt;parallelism&gt;   Sets the maximum parallelism used for the computation, i.e.
+                         the maximum number of parallel (native) threads.
+                         The default parallelism is '8'.
+      -x                 Clears the internal tile cache after writing a complete
+                         row of tiles to the target product file. This option may
+                         be useful if you run into memory problems.
+      -T&lt;target&gt;=&lt;file&gt;  Defines a target product. Valid for graphs only. &lt;target&gt;
+                         must be the identifier of a node in the graph. The node's
+                         output will be written to &lt;file&gt;.
+      -S&lt;source&gt;=&lt;file&gt;  Defines a source product. &lt;source&gt; is specified by the
+                         operator or the graph. In an XML graph, all occurrences of
+                         ${&lt;source&gt;} will be replaced with references to a source
+                         product located at &lt;file&gt;.
+      -P&lt;name&gt;=&lt;value&gt;   Defines a processing parameter, &lt;name&gt; is specific for the
+                         used operator or graph. In an XML graph, all occurrences of
+                         ${&lt;name&gt;} will be replaced with &lt;value&gt;. Overwrites
+                         parameter values specified by the '-p' option.
+
+    Operators:
+      BandMaths                  Create a product with one or more bands using mathematical expressions.
+      Collocate                  Collocates two products based on their geo-codings.
+      EMClusterAnalysis          Performs an expectation-maximization (EM) cluster analysis.
+      KMeansClusterAnalysis      Performs a K-Means cluster analysis.
+      Meris.CorrectRadiometry    Performs radiometric corrections on MERIS L1b data products.
+      Mosaic                     Creates a mosaic out of a set of source products.
+      N1Patcher                  No description available.
+      PixEx                      Generates a CSV file from a given pixel location and source products.
+      Read                       Reads a product from disk.
+      Reproject                  Reprojection of a source product to a target Coordinate Reference System.
+      Subset                     Create a spatial and/or spectral subset of data product.
+      Unmix                      Performs a linear spectral unmixing.
+      Write                      Writes a data product to a file.
+</pre>
+
+<hr/>
+</body>
+</html>

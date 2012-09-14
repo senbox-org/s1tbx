@@ -1,0 +1,489 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+
+    
+    
+  
+  
+  
+  <title>Help - Definitions, Acronyms, Abbreviations</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+
+    
+  
+  <link rel="stylesheet" href="../style.css"></head>
+
+<body>
+
+
+
+<table class="header" width="100%">
+
+
+    <tbody>
+
+    <tr class="header">
+
+
+        <td class="header">&nbsp;
+            Definitions, Acronyms, Abbreviations</td>
+
+
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+
+
+    </tr>
+
+
+  
+  </tbody>
+</table>
+
+
+
+<h3>Definition of Terms</h3>
+
+
+
+<table>
+
+
+
+    <tbody>
+
+    <tr>
+
+      <td>Product</td>
+
+
+        <td>An object that contains remote sensing data for a&nbsp;scene on the earth. A product can contain meta-data, geo-coding
+information, tie-point grids and bands. All band raster datasets within
+a product have the same pixel resolution and share the same geo-coding.
+</td>
+
+    </tr>
+
+
+
+    <tr>
+
+      <td>Band</td>
+
+
+        <td>A raster dataset of a product. The band's sample values are usually the
+            measurements of a sensor.
+        </td>
+
+    </tr>
+
+
+
+    <tr>
+
+      <td>Tie-point grid</td>
+
+
+        <td>An auxiliary (geophysical) raster dataset of a product. Tie-point grids usually provide less sample values
+            than a band. Missing values, with respect to the full pixel resolution of a product, are obtained by a
+            linear interpolation. The tie-point grid data normally does&nbsp;not originate from the sensor which provided
+            the product's measurement data.
+        </td>
+
+    </tr>
+
+
+
+    
+
+
+    
+
+
+    
+
+
+
+    <tr>
+
+      <td>Geo-Coding</td>
+
+
+        <td>Provides the geodetic co-ordinates for a given pixel of a product.
+            An image is geo-coded if it is somehow possible to find the geographical latitude and longitude values for
+            any pixel.
+            ENVISAT products store their geo-coding information in the tie-point grids
+            named <code>latitude</code> and <code>longitude</code>. If a product has been map transformed,
+            it is known to be geo-referenced and as such, tie-point information is no longer required.
+        </td>
+
+    </tr>
+
+
+
+    <tr>
+
+      <td>Geo-Reference</td>
+
+
+        <td>An image is geo-referenced if any point in the image can be found in a corresponding reference
+            map by a linear transformation. Every pixel in the image has the same size if expressed in map units.
+            Geo-referencing a
+            geo-coded image includes image warping, applying a well known map projection and pixel re-sampling.
+        </td>
+
+    </tr>
+
+
+
+
+    <tr>
+
+      <td>Map</td>
+
+
+        <td>Graphic representation of the physical features (natural, artificial, or both) of a part or the whole of the
+            Earth's surface, by means of signs and symbols or photographic imagery, at an established scale, on a
+            specified
+            projection, and with the means of orientation indicated.
+        </td>
+
+    </tr>
+
+
+
+    <tr>
+
+      <td>Map Projection</td>
+
+
+        <td>Orderly system of lines on a plane representing a corresponding system of
+            imaginary lines on an adopted terrestrial or celestial datum surface. Also,
+            the mathematical concept for such a system. For maps of the Earth, a projection
+            consists of a graticule of lines representing parallels of latitude and
+            meridians of longitude or a grid. </td>
+
+
+    </tr>
+
+
+
+    <tr>
+
+      <td>Graticule</td>
+
+
+        <td>Network of parallels and meridians on a map or chart. A geographic graticule is a system of coordinates of
+            latitude and longitude used to define the position of a point on the surface of the Earth with respect to
+            the
+            reference ellipsoid.
+        </td>
+
+    </tr>
+
+
+
+    <tr>
+
+      <td>Grid</td>
+
+
+        <td>In connection with maps: a network of uniformly spaced parallel lines intersecting at right angles.
+            When superimposed on a map, it usually carries the name of the projection used for the map &#8211; that is,
+            Lambert grid,
+            transverse Mercator grid, universal transverse Mercator grid.
+        </td>
+
+    </tr>
+
+
+
+    <tr>
+
+      <td>Pixel coordinates</td>
+
+
+        <td>Pixel values always refer to the upper
+            left corner of the pixel. Pixel co-ordinates are always zero based, the pixel at <code>X=0,Y=0</code> refers
+            to the upper left
+            pixel of an image and the upper left corner of that pixel.
+        </td>
+
+    </tr>
+
+
+
+    <tr>
+
+      <td>Pixel value</td>
+
+
+        <td>In general a composite of red, green and blue <i>sample values</i> resulting in a colour as part of an
+            image.&nbsp;
+        </td>
+
+    </tr>
+
+
+
+    <tr>
+
+      <td>Geodetic co-ordinates</td>
+
+
+        <td>Geodetic co-ordinates are given as latitude and longitude values and always refer -
+            if not otherwise stated - to the WGS-84 ellipsoid.
+            The geodetic co-ordinates of a pixel, always refer to the upper left corner of the pixel.
+        </td>
+
+    </tr>
+
+
+
+
+  
+  </tbody>
+</table>
+
+
+
+<h3>Acronyms, Abbreviations</h3>
+
+
+
+<table>
+
+
+    <tbody>
+
+    <tr>
+
+      <td>AATSR</td>
+
+ <td>Advanced Along Track Scanning Radiometer </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>ADS</td>
+
+ <td>Annotation Data Set in an ENVISAT data product</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>ASAR</td>
+
+ <td>Advanced Synthetic Aperture Radar</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>BEAM</td>
+
+ <td>Acronym for Basic ENVISAT Toolbox for (A)ATSR and MERIS</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>COTS</td>
+
+ <td>Commercial Off-The-Shelf Software</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>ECSS</td>
+
+ <td>European Co-operation for Space Standardisation (documents available at ESTEC at the
+        Requirements and Standards Division)</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>EnviView</td>
+
+ <td>Software developed at ESTEC to visualise and analyse the Envisat data. See User services
+        section at <a href="http://envisat.esa.int/">http://envisat.esa.int/</a></td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>EO</td>
+
+ <td>Earth Observation</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>ESA</td>
+
+ <td>European Space Agency (see <a href="http://www.esa.it/export/esaCP/index.html">http://www.esa.it/export/esaCP/index.html</a>)</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>ESRIN</td>
+
+ <td>European Space Research Institute (see <a href="http://www.esa.it/export/esaCP/index.html">http://www.esa.it/export/esaCP/index.html</a>)</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>ESTEC</td>
+
+ <td>European Space Research and Technology Centre (see
+        <a href="http://www.esa.it/export/esaCP/index.html">http://www.esa.it/export/esaCP/index.html</a>)</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>ENVISAT</td>
+
+ <td>ESA satellite (see <a href="http://envisat.esa.int/">http://envisat.esa.int/</a>)</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>GADS</td>
+
+ <td> Global Annotation Data Set in an ENVISAT data product</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>HDF</td>
+
+ <td>Hierarchical Data Format (see <a href="http://www.hdfinfo.com/">http://www.hdfinfo.com/</a>)</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>HDF-EOS</td>
+
+ <td>Extended HDF format (see <a href="http://ecsinfo.gsfc.nasa.gov/iteams/HDF-EOS/HDF-EOS.html">http://ecsinfo.gsfc.nasa.gov/iteams/HDF-EOS/HDF-EOS.html</a>)</td>
+
+
+    </tr>
+
+
+    
+
+    <tr>
+
+      <td>MDS</td>
+
+ <td>Measurement Data Set in an ENVISAT data product</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>MERIS</td>
+
+ <td>Medium Resolution Imaging Spectrometer Instrument (see <a href="http://envisat.esa.int/">http://envisat.esa.int/</a>)</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>MODIS</td>
+
+ <td>Moderate Resolution Imaging Spectroradiometer (see <a href="http://modis.gsfc.nasa.gov/MODIS/">http://modis.gsfc.nasa.gov/MODIS/</a>)</td>
+
+
+    </tr>
+
+
+    <tr>
+
+      <td>MPH</td>
+
+ <td>Main Product Header in an ENVISAT data product</td>
+
+    </tr>
+
+
+    <tr>
+      <td>NEST</td>
+      <td>Next ESA SAR Toolbox</td>
+    </tr>
+    <tr>
+
+      <td>OSSD</td>
+
+ <td>Open Source Software Development</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>SAR</td>
+
+ <td>Synthetic Aperture Radar (<a href="http://earth.esa.int">http://earth.esa.int</a>)</td>
+
+    </tr>
+
+
+    
+
+    
+
+    <tr>
+
+      <td>SPH</td>
+
+ <td>Specific Product Header in an ENVISAT data product</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>SW</td>
+
+ <td>Software</td>
+
+    </tr>
+
+
+  
+  </tbody>
+</table>
+
+
+
+<hr>
+
+</body></html>

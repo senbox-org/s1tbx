@@ -1,0 +1,7 @@
+#BEAM Color Palette Definition File
+color0=0,0,0
+color1=255,0,0
+numPoints=2
+sample0=0
+sample1=100
+autoDistribute=true

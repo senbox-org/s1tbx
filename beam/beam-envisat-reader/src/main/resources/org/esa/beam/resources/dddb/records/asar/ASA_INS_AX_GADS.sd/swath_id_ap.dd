@@ -1,0 +1,4 @@
+swath_id_ap|Default Swath Identification Table for AP : The default swaths corresponding to the Antenna Beam Set Parameter -- may be changed by macro-command during mission|*
+#
+swath_num|UShort|*|2|7|*|Swath numbers (IS1 to IS7 or SS1 to SS5)|78a|
+beam_set_num|UShort|*|2|7|*|Antenna Beam Set numbers (IS1 to IS7 or SS1 to SS5)|78b|

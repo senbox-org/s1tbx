@@ -1,0 +1,5 @@
+central_meridian_parameters|Central meridian parameters|*
+#
+central_m1|Float|deg|4|1|*|Central meridian1, deg|37a|
+central_m2|Float|deg|4|1|*|Central meridian2, deg|37b|
+central_m3|Float|deg|4|1|*|Central meridian3, deg|37c|

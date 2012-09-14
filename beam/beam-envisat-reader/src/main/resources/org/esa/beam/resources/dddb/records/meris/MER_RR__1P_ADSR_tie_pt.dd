@@ -1,0 +1,19 @@
+MER_RR__1P_ADSR_tie_pt|Level 2 ADS Tie Points Location & Aux. Data ( L ADS)|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Start time of the measurement|1|
+attach_flag|UChar|flag|1|1|*|Attachment Flag (set to 1 if all MDSRs corresponding to this ADSR are blank, set to zero otherwise)|2|
+lat_tie_pt|SLong|(1e-6) degrees|4|tiePointGridWidth|*|Latitude of the tie points WGS84, positive N|3|
+long_tie_pt|SLong|(1e-6) degrees|4|tiePointGridWidth|*|Longitude of the tie points WGS84, Greenwich origin, positive E|4|
+dem_alt_tie_pt|SLong|m|4|tiePointGridWidth|*|DEM altitude|5|
+dem_rough|ULong|m|4|tiePointGridWidth|*|DEM roughness|6|
+dem_lat_corrc|SLong|(1e-6) degrees|4|tiePointGridWidth|*|DEM latitude corrections|7|
+dem_long_corrc|SLong|(1e-6) degrees|4|tiePointGridWidth|*|DEM longitude corrections|8|
+sun_zen_ang|ULong|(1e-6) degrees|4|tiePointGridWidth|*|Sun zenith angles|9|
+sun_azi_ang|SLong|(1e-6) degrees|4|tiePointGridWidth|*|Sun azimuth angles|10|
+vw_zen_ang|ULong|(1e-6) degrees|4|tiePointGridWidth|*|Viewing zenith angles|11|
+vw_azi_ang|SLong|(1e-6) degrees|4|tiePointGridWidth|*|Viewing azimuth angles|12|
+zon_wind|SShort|m*s-1|2|tiePointGridWidth|*|Zonal winds|13|
+meri_wind|SShort|m*s-1|2|tiePointGridWidth|*|Meridional winds|14|
+atm_pres|UShort|hPa|2|tiePointGridWidth|*|Mean sea level pressures|15|
+tot_ozone|UShort|DU|2|tiePointGridWidth|*|Total ozone|16|
+rel_humid|UShort|%|2|tiePointGridWidth|*|Relative humidity|17|

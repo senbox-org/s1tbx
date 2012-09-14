@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+    
+    
+  
+  <title>Help - Speckle Filter</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+
+<table class="header">
+
+    <tbody>
+    <tr class="header">
+
+        <td class="header">&nbsp; Detailed Design</td>
+
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+
+<h3>BEAM-NEST Core</h3>
+
+
+<p class="Paranum" style=""><span style=""><span class="msoIns"></span></span>The common BEAM-NEST Core architecture
+consists of various plug-in modules which are&nbsp;independently developed,
+modified and versioned. &nbsp;The core
+framework is made up of the beam-core,
+beam-gpf, beam-processing, beam-ui and beam-visat modules.<span style=""><o:p></o:p></span></p>
+
+<div style="text-align: center;"><img style="width: 646px; height: 416px;" alt="Beam-Nest Core" src="images/beam-nest_core.jpg"><br>
+<br>
+
+
+</div>
+<p class="Paranum" style="">The
+core modules make use of ceres-core, ceres-ui and ceres-binding. These modules
+package utility classes for module registration, versioning, application
+building and swing user interface helper functions.</p>
+
+
+<p class="Paranum" style="">The beam-core contains most of
+the managers and data model including the data IO for the product readers and
+format writers. &nbsp;The beam-gpf is the Graph Processing Framework (GPF), which implements
+the new processing framework introduced in version 4 of the software. &nbsp;Processing tasks are implemented as Operators.
+&nbsp;The GPF provides a way to execute a
+chain of sequential processing steps on an image. &nbsp;The beam-processing
+is the old version 3 processing framework, which will not be used by NEST
+directly but may still have dependencies for some BEAM operators. &nbsp;The beam-ui
+provides the user interface framework for creating applications, windows and
+dialogs. &nbsp;Beam-visat is the primary application and user interface to the
+tools in BEAM. &nbsp;VISAT supports extensions
+for views for displaying data,&nbsp;actions to add menu items and toolbar buttons
+to trigger user initiated events.</p>
+
+<p>For more information, please refer to the <a href="https://www.array.ca/nest2/devel-upload/web/apidocs/index.html">Detailed NEST API JavaDoc.</a></p>
+<br>
+
+
+
+
+<br>
+
+<hr>
+</body></html>

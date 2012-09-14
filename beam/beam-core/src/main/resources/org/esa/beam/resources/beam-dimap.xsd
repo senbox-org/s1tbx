@@ -1,0 +1,457 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:annotation>
+        <xsd:documentation xml:lang="DE">
+            Schema fuer BEAM-DIMAP Header-File-Format.
+            Copyright 2001 ???    Alle Rechte vorbehalten ???
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:element name="Dimap_Document" type="BEAM_Dimap_Document"/>
+
+    <xsd:complexType name="BEAM_Dimap_Document">
+        <xsd:sequence>
+            <xsd:element name="Metadata_Id" type="BEAM_Metadata_Id"/>
+            <xsd:element name="Dataset_Id" type="BEAM_Dataset_Id"/>
+            <xsd:element name="Dataset_Use" type="BEAM_Dataset_Use" minOccurs="0"/>
+            <xsd:element name="Production" type="BEAM_Production"/>
+            <xsd:element name="Coordinate_Reference_System" type="BEAM_Geocoding"/>
+            <xsd:element name="Flag_Coding" type="BEAM_Flag_Coding" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="Raster_Dimensions" type="BEAM_Raster_Dimensions"/>
+            <xsd:element name="Data_Access" type="BEAM_Data_Access" minOccurs="0"/>
+            <xsd:element name="Tie_Point_Grids" type="BEAM_Tie_Point_Grids" minOccurs="0"/>
+            <xsd:element name="Image_Display" type="BEAM_Image_Display" minOccurs="0"/>
+            <xsd:element name="Bitmask_Definition" type="BEAM_Bitmask_Definition" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="Image_Interpretation" type="BEAM_Image_Interpretation" minOccurs="0"/>
+            <xsd:element name="Dataset_Sources" type="BEAM_Dataset_Sources" minOccurs="0"/>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="BEAM_FileName" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Metadata_Id">
+        <xsd:sequence>
+            <xsd:element name="METADATA_FORMAT" type="BEAM_METADATA_FORMAT" fixed="DIMAP"/>
+            <xsd:element name="METADATA_PROFILE" type="xsd:sting" fixed="BEAM-DATAMODEL-V1"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_METADATA_FORMAT">
+        <xsd:attribute name="version">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:pattern value="(\d{1,3}\.){0,2}\d{1,3}\.\d{1,3}"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Dataset_Id">
+        <xsd:sequence>
+            <xsd:element name="DATASET_SERIES" type="xsd:string" fixed="BEAM-PRODUCT"/>
+            <xsd:element name="DATASET_NAME" type="BEAM_Identifier"/>
+            <xsd:element name="DATASET_DESCRIPTION" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Dataset_Use">
+        <xsd:sequence>
+            <xsd:element name="DATASET_CONTENT" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="DATASET_COMMENTS" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Production">
+        <xsd:sequence>
+            <xsd:element name="DATASET_PRODUCER_NAME" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="PRODUCT_TYPE" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Geocoding">
+        <xsd:choice>
+            <xsd:element name="Geocoding_Tie_Point_Grids" type="BEAM_Tie_Point_Geocoding"/>
+            <xsd:element name="Geocoding_Map" type="BEAM_Map_Geocoding"/>
+        </xsd:choice>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Tie_Point_Geocoding">
+        <xsd:sequence>
+            <xsd:element name="TIE_POINT_GRID_NAME_LAT" type="BEAM_Identifier"/>
+            <xsd:element name="TIE_POINT_GRID_NAME_LON" type="BEAM_Identifier"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Map_Geocoding">
+        <xsd:sequence>
+            <xsd:element name="MAP_INFO">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:pattern value=".*,\d*\.\d*,\d*\.\d*,\d*\.\d*,\d*\.\d*,\d*\.\d*,\d*\.\d*,.*, units=.*, \d*, \d*"/>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Flag_Coding">
+        <xsd:sequence>
+            <xsd:element name="Flag" maxOccurs="unbounded">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="Flag_Name" type="BEAM_Identifier"/>
+                        <xsd:element name="Flag_Index" type="xsd:positiveInteger"/>
+                        <xsd:element name="Flag_description" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="BEAM_Identifier" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Raster_Dimensions">
+        <xsd:sequence>
+            <xsd:element name="NCOLS" type="xsd:positiveInteger"/>
+            <xsd:element name="NROWS" type="xsd:positiveInteger"/>
+            <xsd:element name="NBANDS" type="xsd:nonNegativeInteger"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Data_Access">
+        <xsd:sequence>
+            <xsd:element name="DATA_FILE_FORMAT" fixed="ENVI"/>
+            <xsd:element name="DATA_FILE_FORMAT_DESC" fixed="ENVI File Format"/>
+            <xsd:element name="DATA_FILE_ORGANISATION" fixed="BAND_SEPARATE"/>
+            <xsd:choice>
+                <xsd:sequence>
+                    <xsd:element name="Data_File" type="BEAM_Data_File" maxOccurs="unbounded"/>
+                    <xsd:element name="Tie_Point_Grid_File" type="BEAM_Tie_Point_Grid_File" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+                <xsd:sequence>
+                    <xsd:element name="Data_File" type="BEAM_Data_File" minOccurs="0" maxOccurs="unbounded"/>
+                    <xsd:element name="Tie_Point_Grid_File" type="BEAM_Tie_Point_Grid_File" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Data_File">
+        <xsd:sequence>
+            <xsd:element name="DATA_FILE_PATH" fixed="">
+                <xsd:complexType>
+                    <xsd:attribute name="href" type="BEAM_ENVI_HEADER_FilePath" use="required"/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="BAND_INDEX" type="xsd:nonNegativeInteger"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Tie_Point_Grid_File">
+        <xsd:sequence>
+            <xsd:element name="TIE_POINT_GRID_FILE_PATH" fixed="">
+                <xsd:complexType>
+                    <xsd:attribute name="href" type="BEAM_ENVI_HEADER_FilePath" use="required"/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="TIE_POINT_GRID_INDEX" type="xsd:nonNegativeInteger"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Tie_Point_Grids">
+        <xsd:sequence>
+            <xsd:element name="NUM_TIE_POINT_GRIDS" type="xsd:positiveInteger"/>
+            <xsd:element name="Tie_Point_Grid_Info" maxOccurs="unbounded">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="TIE_POINT_GRID_INDEX" type="xsd:nonNegativeInteger"/>
+                        <xsd:element name="TIE_POINT_DESCRIPTION" type="xsd:string"/>
+                        <xsd:element name="PHYSICAL_UNIT" type="xsd:string"/>
+                        <xsd:element name="TIE_POINT_GRID_NAME" type="BEAM_Identifier"/>
+                        <xsd:element name="DATA_TYPE" type="BEAM_DATA_TYPE"/>
+                        <xsd:element name="NCOLS" type="xsd:positiveInteger"/>
+                        <xsd:element name="NROWS" type="xsd:positiveInteger"/>
+                        <xsd:element name="OFFSET_X" type="xsd:float"/>
+                        <xsd:element name="OFFSET_Y" type="xsd:float"/>
+                        <xsd:element name="STEP_X" type="xsd:float"/>
+                        <xsd:element name="STEP_Y" type="xsd:float"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Image_Display">
+        <xsd:sequence>
+            <xsd:element name="Band_Statistics" type="BEAM_Band_Statistics" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="Bitmask_Overlay" type="BEAM_Bitmask_Overlay" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="ROI_Definition" type="BEAM_ROI_Definition" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Band_Statistics">
+        <xsd:sequence>
+            <xsd:element name="BAND_INDEX" type="xsd:nonNegativeInteger"/>
+            <xsd:element name="STX_MIN" type="xsd:float"/>
+            <xsd:element name="STX_MAX" type="xsd:float"/>
+            <xsd:element name="HISTOGRAM" type="BEAM_CSV_Integer"/>
+            <xsd:element name="NUM_COLORS" type="xsd:nonNegativeInteger"/>
+            <xsd:element name="Color_Palette_Point" minOccurs="2" maxOccurs="unbounded">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="SAMPLE" type="xsd:double"/>
+                        <xsd:element name="COLOR" type="BEAM_COLOR" fixed=""/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Bitmask_Overlay">
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:element name="BAND_INDEX" type="xsd:nonNegativeInteger"/>
+                <xsd:element name="TIE_POINT_GRID_INDEX" type="xsd:nonNegativeInteger"/>
+            </xsd:choice>
+            <xsd:element name="BITMASK" fixed="">
+                <xsd:complexType>
+                    <xsd:attribute name="names" type="BEAM_CSV_Identifiers" use="required"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_ROI_Definition">
+        <xsd:sequence>
+            <xsd:element name="EXPRESSION" type="xsd:string"/>
+            <xsd:element name="VALUE_RANGE_MAX" type="xsd:float"/>
+            <xsd:element name="VALUE_RANGE_MIN" type="xsd:float"/>
+            <xsd:element name="BITMASK_ENABLED" type="BEAM_Boolean"/>
+            <xsd:element name="INVERTED" type="BEAM_Boolean"/>
+            <xsd:element name="OR_COMBINED" type="BEAM_Boolean"/>
+            <xsd:element name="SHAPE_ENABLED" type="BEAM_Boolean"/>
+            <xsd:element name="VALUE_RANGE_ENABLED" type="BEAM_Boolean"/>
+            <xsd:element name="ROI_ONE_DIMENSIONS" type="BEAM_Boolean"/>
+            <xsd:element name="Shape_Figure" type="BEAM_Shape_Figure"/>
+            <xsd:choice>
+                <xsd:element name="Shape_Figure" type="BEAM_Shape_Figure_Simple"/>
+                <xsd:element name="Shape_Figure" type="BEAM_Shape_Figure_Path"/>
+            </xsd:choice>
+            <xsd:element name="BAND_INDEX" type="xsd:nonNegativeInteger"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Shape_Figure_Simple">
+        <xsd:attribute name="type" type="BEAM_Shape_Types" use="required"/>
+        <xsd:attribute name="value" type="BEAM_CSV_floats" use="required"/> <!-- @todo 3 se/se - BEAM_CSV_floats -->
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Shape_Figure_Path">
+        <xsd:sequence>
+            <xsd:sequence maxOccurs="unbounded">
+                <xsd:element name="SEGMENT" fixed="" maxOccurs="unbounded">
+                    <xsd:complexType>
+                        <xsd:attribute name="type" type="BEAM_SEGMET_Types" use="required"/>
+                        <xsd:attribute name="value" type="BEAM_CSV_floats" use="required"/> <!-- @todo 3 se/se - BEAM_CSV_floats -->
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="SEGMENT" fixed="">
+                    <xsd:complexType>
+                        <xsd:attribute name="type" fixed="close" use="required"/>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:sequence>
+        <xsd:attribute name="type" fixed="Path" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Bitmask_Definition">
+        <xsd:sequence>
+            <xsd:element name="DESCRIPTION" type="BEAM_DESCRIPTION" fixed=""/>
+            <xsd:element name="EXPRESSION" type="BEAM_EXPRESSION" fixed=""/>
+            <xsd:element name="COLOR" type="BEAM_COLOR" fixed=""/>
+            <xsd:element name="TRANSPARENCY" type="BEAM_TRANSPARENCY" fixed=""/>
+        </xsd:sequence>
+        <xsd:attribute name="name" use="required" type="BEAM_Identifier"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_DESCRIPTION">
+        <xsd:attribute name="value" type="xsd:string" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_EXPRESSION">
+        <xsd:attribute name="value" use="required">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:pattern value=".*"/>  <!-- @todo 3 se/se - pattern oder restrictionen fuer expressions -->
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_COLOR">
+        <xsd:attribute name="red" type="xsd:unsignedByte" use="required"/>
+        <xsd:attribute name="green" type="xsd:unsignedByte" use="required"/>
+        <xsd:attribute name="blue" type="xsd:unsignedByte" use="required"/>
+        <xsd:attribute name="alpha" type="xsd:unsignedByte" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_TRANSPARENCY">
+        <xsd:attribute name="value" use="required">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:float">
+                    <xsd:minInclusive value="0"/>
+                    <xsd:maxInclusive value="1"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Image_Interpretation">
+        <xsd:sequence>
+            <xsd:element name="Spectral_Band_Info" type="BEAM_Spectral_Band_Info" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Spectral_Band_Info">
+        <xsd:sequence>
+            <xsd:element name="BAND_INDEX" type="xsd:nonNegativeInteger"/>
+            <xsd:element name="BAND_DESCRIPTION" type="xsd:string"/>
+            <xsd:element name="BAND_NAME" type="BEAM_Identifier"/>
+            <xsd:element name="DATA_TYPE" type="BEAM_DataTypeString"/>
+            <xsd:element name="PHYSICAL_UNIT" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="SOLAR_FLUX" type="xsd:float"/>
+            <xsd:element name="SPECTRAL_BAND_INDEX" type="xsd:nonNegativeInteger" minOccurs="0"/>
+            <xsd:element name="BAND_WAVELEN" type="xsd:float"/>
+            <xsd:element name="FLAG_CODING_NAME" type="BEAM_Identifier"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_Dataset_Sources">
+        <xsd:sequence>
+            <xsd:element name="MDElem" type="BEAM_MD_RootElem"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_MD_RootElem">
+        <xsd:sequence>
+            <xsd:element name="MDElem" type="BEAM_MD_Elem" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="name" fixed="metadata" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_MD_Elem">
+        <xsd:sequence>
+            <xsd:element name="MDElem" type="BEAM_MD_Elem" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="MDATTR" type="BEAM_MD_ATTR" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="BEAM_Identifier" use="required"/>
+        <xsd:attribute name="desc" type="xsd:string"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="BEAM_MD_ATTR">
+        <xsd:attribute name="name" type="BEAM_Identifier" use="required"/>
+        <xsd:attribute name="desc" type="xsd:string"/>
+        <xsd:attribute name="unit" type="xsd:string"/>
+        <xsd:attribute name="type" type="BEAM_DataTypeString" use="required"/>
+        <xsd:attribute name="mode" type="BEAM_ReadWriteMode"/>
+        <xsd:attribute name="elems" type="BEAM_Attrib_Elems"/>
+    </xsd:complexType>
+
+    <!-- Simple Types - - - - - -->
+
+    <xsd:simpleType name="BEAM_SEGMET_Types">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="moveTo"/>
+            <xsd:enumeration value="lineTo"/>
+            <xsd:enumeration value="quadTo"/>
+            <xsd:enumeration value="cubicTo"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="BEAM_Shape_Types">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="Line2D"/>
+            <xsd:enumeration value="Rectangle2D"/>
+            <xsd:enumeration value="Ellipse2D"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="BEAM_Attrib_Elems">
+        <xsd:restriction base="xsd:integer">
+            <xsd:minInclusive value="2"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="BEAM_NUMBER_DATA_TYPE">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="int8"/>
+            <xsd:enumeration value="int16"/>
+            <xsd:enumeration value="int32"/>
+            <xsd:enumeration value="uint8"/>
+            <xsd:enumeration value="uint16"/>
+            <xsd:enumeration value="uint32"/>
+            <xsd:enumeration value="float32"/>
+            <xsd:enumeration value="float64"/>
+            <xsd:length value="1"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="BEAM_DataTypeString">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="int8"/>
+            <xsd:enumeration value="int16"/>
+            <xsd:enumeration value="int32"/>
+            <xsd:enumeration value="uint8"/>
+            <xsd:enumeration value="uint16"/>
+            <xsd:enumeration value="uint32"/>
+            <xsd:enumeration value="float32"/>
+            <xsd:enumeration value="float64"/>
+            <xsd:enumeration value="ascii"/>
+            <xsd:enumeration value="utc"/>
+            <xsd:length value="1"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="BEAM_ReadWriteMode">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="rw"/>
+            <xsd:enumeration value="r"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="BEAM_CSV_Integer">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="(\d+,)*\d+"/>   <!-- @todo 3 se/se - Pattern so correct? -->
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="BEAM_CSV_Identifiers">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="([a-zA-Z_][a-zA-Z0-9._]*,)*[a-zA-Z_][a-zA-Z0-9._]*"/>   <!-- @todo 3 se/se - Pattern so correct? -->
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="BEAM_Identifier">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="[a-zA-Z_][a-zA-Z0-9._]*"/>   <!-- @todo 3 se/se - Pattern so correct? -->
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="BEAM_FileName">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="[a-zA-Z_][a-zA-Z0-9._]*(.dim|.DIM)"/>   <!-- @todo 3 se/se - Pattern fuer *.dim oder *.DIM so correct?-->
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="BEAM_ENVI_HEADER_FilePath">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="[a-zA-Z_][a-zA-Z0-9._/]*(.hdr|.HDR)"/>   <!-- @todo 3 se/se - Pattern fuer *.hdr oder *.HDR so correct?-->
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="BEAM_Boolean">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="true"/>
+            <xsd:enumeration value="false"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+</xsd:schema>

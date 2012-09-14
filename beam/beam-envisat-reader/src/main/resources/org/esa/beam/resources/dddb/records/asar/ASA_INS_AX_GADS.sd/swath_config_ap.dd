@@ -1,0 +1,7 @@
+swath_config_ap|Default Swath configuration table for AP|*
+#
+num_samp_windows_echo|UShort|*|2|7|*|Number of sample windows per source packet for echo samples, initial calibration samples (from beam 1 (IS1 or SS1) to beam 7 (IS7))|71a|
+num_samp_windows_init_cal|UShort|*|2|7|*|Number of sample windows per source packet for initial calibration samples (from beam 1 to beam 7)|71b|
+num_samp_windows_per_cal|UShort|*|2|7|*|Number of sample windows per source packet for periodic calibration samples (from beam 1 to beam 7)|71c|
+num_samp_windows_noise|UShort|*|2|7|*|Number of sample windows per source packet for noise samples (from beam 1 to beam 7)|71d|
+resample_factor|Float|*|4|7|*|Resampling factor (beam 1 to beam 7)|71e|

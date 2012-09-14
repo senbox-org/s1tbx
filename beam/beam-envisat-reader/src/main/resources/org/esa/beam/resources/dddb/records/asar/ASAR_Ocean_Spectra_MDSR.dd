@@ -1,0 +1,31 @@
+ASAR_Ocean_Spectra_MDSR|Ocean Wave spectrum.|*
+#
+zero_doppler_time|@/types/UTC.dd|MJD|12|1|*|First Zero Doppler Azimuth time of the wave cellTime of first range line in the SLC Imagette MDS described by this data set|1|
+quality_flag|UChar|flag|1|1|*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+range_spectral_res|Float|*|4|1|*|Range spectral bin size of the cartesian cross spectrum|3|
+az_spectral_res|Float|*|4|1|*|Azimuth spectral bin size of the cartesian cross spectrum|4|
+spare_1|Spare|*|4|1|*|Spare|5|
+spec_tot_energy|Float|*|4|1|*|Spectrum Total Energy|6|
+spec_max_energy|Float|*|4|1|*|Spectrum Max Energy|7|
+spec_max_dir|Float|deg|4|1|*|Direction of Spectrum Max (deg)on higher resolution grid|8|
+spec_max_wl|Float|m|4|1|*|Wavelength of Spectrum Max (m)on higher resolution grid|9|
+az_image_shift_var|Float|m^2|4|1|*|Variance of the azimuth image shift caused by the orbital velocity|10|
+az_cutoff|Float|m|4|1|*|Azimuthal Clutter Cut-off length (m)|11|
+nonlinear_spectral_width|Float|m|4|1|*|Spectral width of the non-linear part of the cross spectra|12|
+image_intensity|Float|*|4|1|*|Image intensity|13|
+image_variance|Float|*|4|1|*|Normalised image variance|14|
+spare_2|Spare|*|56|1|*|Spare|15-22|
+min_spectrum|Float|m^4|4|1|*|Min value of ocean wave spectrum|23|
+max_spectrum|Float|m^4|4|1|*|Max value of ocean wave spectrum|24|
+spare_3|Spare|*|8|1|*|Spare|25-26|
+wind_speed|Float|m/s|4|1|*|Forcast Wind speed (if provided)|27|
+wind_direction|Float|deg|4|1|*|Forcast Wind direction (if provided)|27|
+SAR_wave_height|Float|m|4|1|*|SAR swell wave height|27|
+SAR_az_shift_var|Float|m^2|4|1|*|Variance of the azimuth shift computed from the SAR swell wave spectra|27|
+backscatter|Float|dB|4|1|*|Backscattering coefficient|27|
+confidence|SLong|*|4|1|*|Confidence measure of the swell inversion|27|
+signal_to_noise|Float|*|4|1|*|Average signal-to-noise ratio|27|
+radar_vel_corr|Float|m/s|4|1|*|Radar velocity off-set correction|27|
+cmod_cal_const|Float|*|4|1|*|Calibration constant - CMOD|27|
+spare_4|Spare|*|28|1|*|Spare|27|
+ocean_spectra|UChar|*|1|sceneRasterWidth|*|Ocean Wave Swell spectra polar grid. Number of bins in wavelength and direction defined in SPH (nominally 24 by 36). Arranged as 24 wavelength cells from shortest to longest wavelength, for zero degrees, then 10 degrees, up to 350 degrees.|28|

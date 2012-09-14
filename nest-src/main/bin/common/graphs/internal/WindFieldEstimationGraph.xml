@@ -1,0 +1,63 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters>
+      <file></file>
+    </parameters>
+  </node>
+  <node id="2-Create-LandMask">
+    <operator>Create-LandMask</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+        <band>Sigma0</band>
+      </sourceBands>
+      <landMask>true</landMask>
+	  <useSRTM>true</useSRTM>
+	  <geometry></geometry>
+	  <invertGeometry>false</invertGeometry>
+	  <byPass>false</byPass>
+    </parameters>
+  </node>
+  <node id="3-Wind-Field-Estimation">
+    <operator>Wind-Field-Estimation</operator>
+    <sources>
+      <sourceProduct refid="2-Create-LandMask"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+        <band>Sigma0</band>
+      </sourceBands>
+      <windowSizeInKm>20</windowSizeInKm>
+    </parameters>
+  </node>
+  <node id="4-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="3-Wind-Field-Estimation"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>wind_field_estimation.dim</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="1-Read">
+      <displayPosition y="93.0" x="30.0"/>
+    </node>
+    <node id="2-Create-LandMask">
+      <displayPosition y="93.0" x="225.0"/>
+    </node>
+    <node id="3-Wind-Field-Estimation">
+      <displayPosition y="167.0" x="232.0"/>
+    </node>
+    <node id="4-Write">
+      <displayPosition y="230.0" x="199.0"/>
+    </node>
+  </applicationData>
+</graph>

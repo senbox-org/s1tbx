@@ -1,0 +1,8 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-b</symbolicName>
+    <name>Module B</name>
+    <description>This is Module B</description>
+    <version>1.0.2</version>
+
+</module>

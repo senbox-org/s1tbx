@@ -1,0 +1,13 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-a</symbolicName>
+    <name>Module A</name>
+    <version>1.0</version>
+
+    <description>This module has a dependency to module-base-2.0 which does not exist.</description>
+
+    <dependency>
+        <module>module-base</module>
+        <version>1.0</version>
+    </dependency>
+</module>

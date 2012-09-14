@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<binx xmlns="http://www.edikt.org/binx/2003/06/binx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.edikt.org/binx/2003/06/binx binx.xsd">
+    <definitions>
+        <defineType typeName="FixedFloat32ArrayType">
+            <struct>
+                <arrayFixed varName="af">
+                    <float-32/>
+                    <dim indexTo="7"/>
+                </arrayFixed>
+            </struct>
+        </defineType>
+    </definitions>
+    <dataset src=" ">
+        <unsignedByte-8 varName="magic1"/>
+        <useType typeName="FixedFloat32ArrayType" varName="data1"/>
+        <unsignedByte-8 varName="magic2"/>
+    </dataset>
+</binx>

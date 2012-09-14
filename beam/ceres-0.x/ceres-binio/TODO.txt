@@ -1,0 +1,14 @@
+
+- ADDRESS THREAD-SAFETY, SYNCHRONIZE!!! Many of the <X>Instance classes maintain state --> they need to be synchronized!
+- OPTIMIZE: Avoid frequent instance creatitons of sequence elements and compound members or make it more efficient
+- OPTIMIZE: Allow registering a segment size limit hint for collections types in order to allow for large segment creation for
+            minimzed I/O access
+- Sequences of simple element types will always use a Segment with of sizeof(simpletype) * numElements
+  This will lead to problems for huge numbers of elements!!!
+- Add metadata to compound member, e.g. label, unit, description, factor, scaling, etc
+- External typedefs in XML or kind-of IDL
+- Converter API: register converter,
+  o Format.registerConverter(Member m, Converter c);
+  o Format.registerConverter(Type from, Type to, Converter c);
+  o Converter example: DOUBLE = a * UINT + b
+

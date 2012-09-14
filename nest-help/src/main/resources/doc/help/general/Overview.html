@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>BEAM Help</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header" width="100%">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; NEST Overview </td>
+<td class="header" align="right"><a href="../general/NestOverview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Next ESA SAR Toolbox</h3>
+<h4>Overview</h4><p>The Next ESA SAR Toolbox (NEST) is an open source (<a href="http://www.gnu.org/copyleft/gpl.html">GNU GPL</a>)
+ toolbox for reading, post-processing, analysing and visualising the 
+large archive of data (from Level 1) from ESA SAR missions including 
+ERS-1 &amp; 2, ENVISAT and in the future Sentinel-1. In addition, NEST 
+supports handling of products from third party missions including 
+JERS-1, ALOS PALSAR, TerraSAR-X, Radarsat-2 and Cosmo-Skymed. NEST has 
+been built using the <a href="http://www.brockmann-consult.de/cms/web/beam/" target="_blank">BEAM</a> Earth Observation Toolbox and Development Platform.</p>
+<h4>Architecture Highlights</h4>
+<ul><li><span style="font-size: smaller;">Display and Analysis Tool (DAT): integrated graphical user-friendly interface</span></li><li><span style="font-size: smaller;">Graph Processing Framework (GPF): user-defined processing chains</span></li><li><span style="font-size: smaller;">Graphical or command-line execution</span></li><li><span style="font-size: smaller;">Tiled memory management for working with very large data products</span></li><li><span style="font-size: smaller;">Data abstraction models to handle all SAR missions in a common way</span></li><li><span style="font-size: smaller;">Modular design for easy modifications and upgrades</span></li><li><span style="font-size: smaller;">Users are able&nbsp; to add their own modules via APIs</span></li><li><span style="font-size: smaller;">Multithreading and Multi-core processor support</span></li><li><span style="font-size: smaller;">Integrated WorldWind visualisation</span></li></ul><h4>Main Features</h4>
+<ul><li><span style="font-size: smaller;">Product library for scanning and cataloging large archives efficiently</span></li><li><span style="font-size: smaller;">Absolute calibration (ENVISAT ASAR, ERS 1&amp;2, ALOS PALSAR, RADARSAT-2, TerraSAR-X, Cosmo-SkyMed)</span></li><li><span style="font-size: smaller;">Multilooking &amp; speckle (single and multitemporal) filtering</span></li><li><span style="font-size: smaller;">ERS/ASAR precise orbit handling (Doris, Prare and Delft orb.)</span></li><li><span style="font-size: smaller;">Automatic Coregistration of detected and complex products</span></li><li><span style="font-size: smaller;">Range-Doppler and SAR Simulation Terrain Correction</span></li><li><span style="font-size: smaller;">Radiometric normalization during Terrain Correction</span></li><li><span style="font-size: smaller;">Ellipsoid correction, Map Reprojection, Mosaicking</span></li><li><span style="font-size: smaller;">Statistics, Data Analysis and ROI tools</span></li><li><span style="font-size: smaller;">Export to GeoTiff, HDF 4 &amp; 5, NetCDF, PolSARPro, Envi formats</span></li><li><span style="font-size: smaller;">Subset, Resample and Band Arithmetic</span></li><li><span style="font-size: smaller;">LUT and Layer Management</span></li><li><span style="font-size: smaller;">Automatic DEM download and tile selection (SRTM, ASTER, etc)</span></li><li><span style="font-size: smaller;">Debursting of ASAR WSS</span></li><li><span style="font-size: smaller;">Ocean tools: basic routines for oil spill detection, ship detection and wind field estimation from SAR data</span></li><li><span style="font-size: smaller;">Fully integrated and featured InSAR processor (jDORIS)</span><u style=""><br>
+    </u></li></ul><p>NEST is being developed by <a href="http://www.array.ca/">Array Systems Computing Inc.</a>
+ of Toronto Canada under ESA Contract number 20698/07/I-LG.&nbsp; InSAR 
+functionalities are being developed by&nbsp;PPO.labs and Delft
+ University of Technology.<span style="font-weight: bold;"></span></p><ul>
+</ul>
+
+<h2>Supported Product Formats:</h2>
+<h4 style="margin-left: 40px;">SAR Data Products</h4>
+<ul>
+<ul>
+<li>ENVISAT ASAR,&nbsp;MERIS, AATSR</li>
+<li>ERS AMI 1 &amp; 2 (CEOS &amp; Envisat format from
+PGS and VMP)</li>
+<li>JERS SAR</li>
+<li>ALOS PALSAR</li>
+<li>ASAR Wave Products</li>
+<li>Radarsat 1</li>
+<li>Radarsat 2</li>
+<li>TerraSar-X</li>
+<li>Cosmo-Skymed</li></ul>
+</ul>
+<h4 style="margin-left: 40px;">Common EO Data Formats</h4><ul><ul><li>DIMAP</li><li>GeoTIFF</li><li>HDF 4 &amp; HDF 5</li><li>NetCDF</li><li>ENVI</li><li>PolsarPro</li><li>Generic Binary&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;</li></ul></ul><h4 style="margin-left: 40px;">Digital Elevation Models</h4>
+<ul>
+<ul>
+<li>SRTM</li>
+<li>ASTER Global DEM</li><li>ACE</li>
+<li>GETASSE30</li>
+<li>GTOPO30 tiles</li>
+</ul>
+</ul><p>For further details on which products are support, please see the <a href="www.array.ca/nest-web/docs/Supported_Mission-Product_vs_Operators_table.xls">Supported_Mission-Product_vs_Operators_table.xls</a></p>
+<ul>
+</ul>
+
+<h4>Source Code</h4>
+<p>The complete NEST software has been developed under the GNU
+public license and comes with full source code in Java<sup>TM</sup>.</p>
+<p>An
+Application Programming Interface (API) is provided with NEST to allow
+easy extension by users to add new data readers/writers of other
+formats and to support data formats of future missions. Plug-in modules
+can be developed separately and shared by the user community.
+Processors can be easily extended without needing to know about the
+complexities of the whole software.</p>
+<h4>Supported Platforms</h4>
+<p>NEST is programmed in Java&#8482; to allow a maximum
+portability. The NEST software has been successfully tested under MS
+Windows&#8482;&nbsp;XP<sup>®</sup>, Vista and 7 as well as under Linux,
+Solaris<sup>®</sup> and Mac OS X operating systems.</p>
+<hr>
+</body></html>

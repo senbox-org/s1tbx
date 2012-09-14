@@ -1,0 +1,67 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-ProductSet-Reader">
+    <operator>ProductSet-Reader</operator>
+    <sources/>
+    <parameters>
+      <fileList>$filelist</fileList>
+    </parameters>
+  </node>
+  <node id="2-CreateStack">
+    <operator>CreateStack</operator>
+    <sources>
+      <sourceProduct refid="1-ProductSet-Reader"/>
+    </sources>
+    <parameters>
+      <masterBands/>
+      <sourceBands/>
+      <resamplingType>NEAREST_NEIGHBOUR</resamplingType>
+	  <extent>Master</extent>
+    </parameters>
+  </node>
+  <node id="3-GCP-Selection">
+    <operator>GCP-Selection</operator>
+    <sources>
+      <sourceProduct refid="2-CreateStack"/>
+    </sources>
+    <parameters>
+	  <numGCPtoGenerate>200</numGCPtoGenerate>
+      <coarseRegistrationWindowWidth>128</coarseRegistrationWindowWidth>
+      <coarseRegistrationWindowHeight>128</coarseRegistrationWindowHeight>
+      <rowInterpFactor>2</rowInterpFactor>
+      <columnInterpFactor>2</columnInterpFactor>
+      <maxIteration>2</maxIteration>
+      <gcpTolerance>0.5</gcpTolerance>
+	  <applyFineRegistration>true</applyFineRegistration>
+      <fineRegistrationWindowWidth>128</fineRegistrationWindowWidth>
+      <fineRegistrationWindowHeight>128</fineRegistrationWindowHeight>
+      <coherenceWindowSize>3</coherenceWindowSize>
+      <coherenceThreshold>0.4</coherenceThreshold>
+    </parameters>
+  </node>
+  <node id="4-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="3-GCP-Selection"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>$target</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description>GCP Selection</Description>
+    <node id="2-CreateStack">
+      <displayPosition y="102.0" x="201.0"/>
+    </node>
+    <node id="3-GCP-Selection">
+      <displayPosition y="170.0" x="195.0"/>
+    </node>
+    <node id="4-Write">
+      <displayPosition y="170.0" x="319.0"/>
+    </node>
+    <node id="1-ProductSet-Reader">
+      <displayPosition y="102.0" x="72.0"/>
+    </node>
+  </applicationData>
+</graph>

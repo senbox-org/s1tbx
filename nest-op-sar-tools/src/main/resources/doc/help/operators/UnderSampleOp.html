@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+  
+  <title>Help - Undersample</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Undersample</td>
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h3>Undersample Operator</h3>
+
+<p>This operator downsamples a real or complex image using sub-sampling method or kernel
+filtering method.</p>
+<h4>Undersampling Method</h4>
+<ul><li>Sub-sampling method: The image is downsampled with user specified sub-sampling
+rates in both range and azimuth directions. For complex image, the i and q bands in
+the image are downsampled separately, and the downsampled image is still a complex
+image.</li><li>Kernel-filtering method: The image is downsampled with a pre-defined low-pass kernel moving across
+the image with a step-size determined by the size of the required output image.&nbsp;For complex
+image, intensity image is computed from the i and q bands before kernel filtering is
+applied. The downsampled image is always real image.
+</li></ul><h4>Undersampled Image Size</h4><p>
+User can determine the output image size by specifying
+</p><ul>
+<li>the output image size, or</li>
+<li>the pixel spacings, or </li>
+<li>the downsampling ratios.</li>
+</ul>
+<h4>Low-Pass Kernel</h4><ul><li>The pre-defined low-pass kernel has three dimensions: 3x3, 5x5 and 7x7.</li><li>The elements of the low-pass kernel are all 1's.</li></ul>
+<h4>Parameters Used</h4><p>If the sub-sampling method is selected for the downsampling, then the following
+parameters are used by the operator:</p>
+<ol>
+<li> Source Band: All bands (real or virtual) of the source product. User can
+select one or more bands for producing downsampled images. If no bands are
+selected, then by default all bands are selected.</li>
+<li> Under-Sampling Method: Sub-Sampling method.</li>
+<li> Sub-Sampling in X: User provided sub-sampling rate in range.</li>
+<li> Sub-Sampling in Y: User provided sub-sampling rate in azimuth.</li>
+</ol>
+<br><img style="width: 500px; height: 500px;" alt="" src="images/under_sample_dlg_1.jpg">
+
+<p></p><p>
+If the Kernel Filtering method is selected for the downsampling, and the downsampled
+image is output by image size, then the following parameters are used by the operator:
+</p>
+<ol>
+<li> Source Band: All bands (real or virtual) of the source product. User can
+select one or more bands for producing downsampled images. If no bands are
+selected, then by default all bands are selected.</li>
+<li> Under-Sampling Method: Kernel Filtering method.</li><li>Filter Size: The kernel filter size.
+</li><li> Output Image By: The method for determining output image dimension.
+</li><li> Output Image Rows: The row size of the downsampled image.
+</li><li> Output Image Columns: The column size of the downsampled image.
+</li></ol>
+<br><img style="width: 500px; height: 500px;" alt="" src="images/under_sample_dlg_2.jpg">
+
+<p></p><p>
+If the Kernel Filtering method is selected for the downsampling, and the downsampled
+image is output by image dimension ratio, then the following parameters are used by
+the operator:
+</p>
+<ol>
+<li> Source Band: All bands (real or virtual) of the source product. User can
+select one or more bands for producing downsampled images. If no bands are
+selected, then by default all bands are selected.</li>
+<li> Under-Sampling Method: Kernel Filtering method.</li><li>Filter Size: The kernel filter size.
+</li><li> Output Image By: The method for determining output image dimension.
+</li><li> Width Ratio: The ratio of the downsampled image width and the source image width.
+</li><li> Height Ratio: The ratio of the downsampled image height and the source image height.
+</li></ol>
+<br><img style="width: 500px; height: 500px;" alt="" src="images/under_sample_dlg_3.jpg">
+
+<p></p><p>
+If the Kernel Filtering method is selected for the downsampling, and the downsampled
+image is output by pixel spacing, then the following parameters are used by the operator:
+</p>
+<ol>
+<li> Source Band: All bands (real or virtual) of the source product. User can
+select one or more bands for producing downsampled images. If no bands are
+selected, then by default all bands are selected.</li>
+<li> Under-Sampling Method: Kernel Filtering method.</li><li>Filter Size: The kernel filter size.
+</li><li> Output Image By: The method for determining output image dimension.
+</li><li> Range Spacing: The range pixel spacing of the downsampled image in meters.
+</li><li> Azimuth Spacing: The azimuth pixel spacing of the downsampled image in meters.
+</li></ol>
+<br><img style="width: 500px; height: 500px;" alt="" src="images/under_sample_dlg_4.jpg">
+
+<br>
+
+<hr>
+</body></html>

@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+  <title>Help - SRGR Operator</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; SRGR Operator</td>
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h3>Slant Range to Ground Range Operator</h3><p>
+&nbsp;&nbsp;&nbsp;The operator re-projects images from slant range (range spacing
+proportional to echo delay) to ground range (range spacing proportional
+to distance from nadir along a predetermined ellipsoid). The operator
+works on complex or real slant range product.</p><p>Note: The SRGR operator is not required before terrain correcting since terrain corrected results are always in ground range.
+</p><h4>Major Processing Steps</h4>&nbsp;&nbsp;&nbsp;The slant range to ground range conversion consists of the following major steps:<ol><li>Create a warp polynomial of given order that maps ground range pixels to slant range pixels.</li><li>For each ground range pixel, compute its corresponding pixel position in the slant range image using warp polynomial.</li><li>Compute pixel value using user selected interpolation method.</li></ol><h4>Interpolation Methods Supported</h4>&nbsp;&nbsp; The operator supports the following interpolation methods:<ul><li>Nearest-Neighbour interpolation</li><li>linear interpolation</li><li>Cubic interpolation</li><li>Cubic2 interpolation</li><li>Sinc interpolation</li></ul><h4>Parameters Used</h4>&nbsp;&nbsp;&nbsp;The following parameters are used by the operator:
+<ol>
+<li>Source Band: All bands (real or virtual) of the source product. User can
+select one or more bands for producing ground range images. If no bands are
+selected, then by default all bands are selected.</li>
+<li>Warp Polynomial Order: The degree of WARP polynomial. It should be a positive integer.</li><li>Interpolation Method: User can select interpolation method used in SRGR conversion.</li>
+</ol>
+<img style="width: 500px; height: 500px;" alt="" src="images/srgr_dlg.jpg"><br>
+
+<hr>
+</body></html>

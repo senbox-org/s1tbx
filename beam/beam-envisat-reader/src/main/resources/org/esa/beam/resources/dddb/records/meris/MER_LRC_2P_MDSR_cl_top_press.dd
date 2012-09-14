@@ -1,0 +1,5 @@
+MER_LRC_2P_MDSR_cl_top_press|Level 2 MDS Cloud Top Pressure|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Start Time of DSR|1|
+quality_flag|UChar|flag|1|1|*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+cl_top_press_pix|UChar|*|1|sceneRasterWidth|*|cloud top pressure pixel #1- #281|3|

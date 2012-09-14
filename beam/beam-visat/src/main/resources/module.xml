@@ -1,0 +1,234 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-visat</symbolicName>
+    <version>5.0-4.10.4</version>
+    <name>BEAM VISAT Application</name>
+
+    <description>
+        A desktop application used to open, browse, visualise,
+        analyse and manipulate data products of a number of EO sensors.
+    </description>
+
+    <extension point="beam-ui:applicationDescriptors">
+        <applicationDescriptor>
+            <applicationId>VisatMain</applicationId>
+            <displayName>VISAT</displayName>
+            <version>5.0-5.0</version>
+            <buildId>${beam.build.id}</buildId>
+            <buildDate>${beam.build.date}</buildDate>
+            <excludedToolViews>
+                <!-- place tool view IDs here you wish to exclude from your application -->
+                <!-- e.g. <id>org.esa.beam.visat.toolviews.lm.LayersToolView</id> -->
+            </excludedToolViews>
+        </applicationDescriptor>
+    </extension>
+
+    <changelog>
+        <![CDATA[
+        <p>Changes in 4.10<br/>
+          [BEAM-1385] Import images as products (missing RGB product reader)<br/>
+          [BEAM-1384] Synchronise image views via geographical center coordinates<br/>
+          [BEAM-1360] Auto-grouping of product sometimes wrong<br/>
+          [BEAM-1356] Scene view of a band can not be opened if all values are NaN<br/>
+          [BEAM-1352] When exporting a product a SubsetInfo is always added to metadata tree<br/>
+          [BEAM-1323] Add "magic stick" to VISAT that lets users create masks of similar pixels<br/>
+        </p>
+        <p>Changes in 4.9<br/>
+          [BEAM-1297] Add DEM-corrected latitude/longitude bands in satellite coordinates<br/>
+          [BEAM-1292] Reprojection dialog shifts image if pixel size is changed<br/>
+          [BEAM-1291] Virtual bands may compute wrong results for non-zero levels of image pyramids<br/>
+          [BEAM-1284] Reprojection should preserve log-scaling of bands<br/>
+          [BEAM-1276] Add VISAT scripting support for the Python language<br/>
+          [BEAM-1275] Add meta information as header to export of transects<br/>
+          [BEAM-1274] Add wavelength in all exports<br/>
+          [BEAM-1251] Allow setting start and stop time<br/>
+          [BEAM-1248] Title of transect-plot dialog is not updated if band selection changes<br/>
+          [BEAM-1228] Rangefinder does not work<br/>
+          [BEAM-1204] Reprojection changes product type<br/>        
+          [BEAM-1203] Application returns with exit code zero in error case<br/>
+          [BEAM-1192] Title in histogram does not adjust to current band<br/>
+          [BEAM-1194] Open RGB in image view leads to "Unknown band:" error<br/>
+          [BEAM-1184] Reprojection dialog does not remember values<br/>
+          [BEAM-1183] Improve reprojection UI usability<br/>
+          [BEAM-1180] Allow dragging files into VISAT<br/>
+          [BEAM-1177] Index out of bounds for RGB View<br/>
+          [BEAM-1067] Histogram title doesn't update when changing band<br/>
+          [BEAM-1055] No-data colour option in Colour Manipulation window has no effect<br/>
+          [BEAM-0009] Define subsets with geographical co-ordinates<br/>
+        </p>
+        <p>Changes in 4.8:<br/>
+          [BEAM-1169] On KDE (linux) the Java Desktop-API is not supported.<br/>        
+          [BEAM-1159] Auto-group bands according to their names<br/>
+          [BEAM-1152] Export View as Image - transformation error<br/>
+          [BEAM-1121] Range Finder Tool yields NaN values<br/>
+          [BEAM-1118] Deletion of masks<br/>
+          [BEAM-1111] Placemarks are not correctly moved if multiple are selected<br/>
+          [BEAM-1110] Don't show empty masks for pins and GCPs<br/>
+          [BEAM-1109] Pixel Info View does not update if "Snap to selected pin" is clicked<br/>
+          [BEAM-1108] Import of Pins/GCPs fails<br/>
+          [BEAM-1106] ToolViews do not reflect the selected state correctly in all cases<br/>
+          [BEAM-1105] NullPointerException is thrown, if editor for geometry layer is visible<br/>
+          [BEAM-1097] Exception when reprojection results in large target product<br/>
+          [BEAM-1095] Pixel position is updated when geo-location is changed for GCPs<br/>
+          [BEAM-1094] Not possible to add placemarks if scrollbars are used<br/>
+          [BEAM-1093] Dragging does not work in Layer Manager<br/>
+          [BEAM-1057] Navigation rotation edit field prevents rotating image<br/>
+        </p>
+        <p>Changes in 4.7:<br/>
+          [BEAM-1076] Revise statistics to use multiple ROIs<br/>
+          [BEAM-1075] Reengineer map projection by exploiting GeoTools API capabilities<br/>
+          [BEAM-1074] Introduce new mask and ROI management<br/>
+          [BEAM-1073] Introduce new geometry management<br/>
+          [BEAM-1072] Access raw counts of bands in band maths expressions<br/>
+          [BEAM-1069] Include wavelength into band property but spectrum view does not work<br/>
+          [BEAM-1062] Mis-spelling of Band Maths<br/>
+          [BEAM-1040] Exchange 'no data' with 'NaN' in text exports<br/>
+          [BEAM-1028] Navigation window not fully functional on Unix/GTK+<br/>
+          [BEAM-1025] Installer does not run after Java update on Mac OS X<br/>
+          [BEAM-1024] VISAT does not launch after Java update on Mac OS X<br/>
+          [BEAM-1023] Can not overlay compatible products<br/>
+          [BEAM-1021] File chooser boxes shall support "component documents"<br/>
+          [BEAM-1019] Blue Marble Layer can not be restored from saved session<br/>
+          [BEAM-1018] Value range of ROI does not consider no-data value<br/>
+          [BEAM-1016] Add "Zoom to Layer"-Button to Layer Manager<br/>
+          [BEAM-1014] ROI not considered when using value range<br/>
+          [BEAM-1011] World Map Tool View to utilise new layer capabilities<br/>
+          [BEAM-1010] Show cursor position in other views<br/>
+          [BEAM-1007] Geo-location / Tie Point Grid consistency<br/>
+          [BEAM-1005] Incorrect scatter plot axes<br/>
+          [BEAM-1004] X and Y variables always zero in band arithmetic<br/>
+          [BEAM-1002] Editing bitmask overlays is not possible using the nimbus or GTK look & feel<br/>
+          [BEAM-1001] SelectedProduct can be null in BandArithmetic<br/>
+          [BEAM-1000] Spelling error in band arithmetic<br/>
+          [BEAM-991] Yaxis of scatterplot does not show the right values<br/>
+          [BEAM-979] History of recent products incorrect<br/>
+          [BEAM-962] Provide VISAT action to open a GPF operator GUI<br/>
+          [BEAM-646] World map incorrect on AATSR orbits<br/>
+          [BEAM-456] ROI includes also no-data pixels if "Include pixel by conditions" is selected<br/>
+          [BEAM-494] Provide support for more map-projections<br/>
+          [BEAM-484] Simplify ROI/Shape management<br/>
+          [BEAM-471] Provide delete command<br/>
+          [BEAM-456] ROI includes also no-data pixels if "Include pixel by conditions" is selected<br/>
+        </p>
+        <p>Changes in 4.6:<br/>
+          [BEAM-998] VISAT fails to import shapes from ESRI Shapefiles<br/>
+          [BEAM-997] VISAT should display a band's coordinate system<br/>
+          [BEAM-996] Let user specify dimension of exported images<br/>
+          [BEAM-995] Exporting image yields out-of-memory error<br/>
+          [BEAM-994] VISAT "Save As" command shall not close views anymore<br/>
+          [BEAM-976] Time Info displays wrong UTC time<br/>
+          [BEAM-974] NullPointerException when importing pins defined by pixel position<br/>
+          [BEAM-939] No-data samples not considered in band math<br/>
+          [BEAM-937] Colour palette sometimes incorrectly imported<br/>
+          [BEAM-932] Inconsistent handling of adding and copying bitmasks<br/>
+          [BEAM-931] Shapes are not displayed while drawing<br/>
+          [BEAM-930] Navigation Window disregards manual scaling factor editing<br/>
+          [BEAM-928] Statistics shall be shown immediately if already computed<br/>
+          [BEAM-927] Mean and standard deviation of statistics are inexact<br/>
+          [BEAM-925] Events (open, shown, hidden) shall be delegated to tool view<br/>
+          [BEAM-921] Sometimes pin manager cannot delete pins<br/>
+          [BEAM-920] Pins in view out-of-sync with those in pin manager<br/>
+          [BEAM-919] Spectrum view often causes severe problems with pins<br/>
+          [BEAM-917] Value of a single pixel is not considered in histogram<br/>
+          [BEAM-916] Colour manipulation shall allow values outside of histogram range<br/>
+          [BEAM-913] Histogram disappears for RGB channel in colour manipulation<br/>
+          [BEAM-909] Expression or no-data changes of virtual band disregarded in image view<br/>
+          [BEAM-904] Image export does not clip to the product bounds<br/>
+          [BEAM-899] Colour manipulation window disregards RGB source band changes<br/>
+          [BEAM-896] Missing "Color Manipulation" histogram<br/>
+          [BEAM-895] "Zoom to selected Pin" in Pin Manager incorrectly moves image view<br/>
+          [BEAM-893] Inconsistent handling of colour palettes in VISAT colour manipulation window<br/>
+          [BEAM-892] VISAT colour manipulation window shall signal inexact statistics<br/>
+          [BEAM-879] Cannot display flag values<br/>
+          [BEAM-782] Using spatial subset when creating new arithmetic band causes exception<br/>
+        </p>
+        <p>Changes in 4.5:<br/>
+          [BEAM-876] Remove "Load Data" and "Unload Data" actions from context menu<br/>
+          [BEAM-875] The drop down list of projection in the map projection dialog should be sorted alphabetically<br/>
+          [BEAM-873] Provide a new navigation control within the scene view<br/>
+          [BEAM-872] Adapt Navigation View to new imaging behavior<br/>
+          [BEAM-870] Remove the "Zoom-Plus" and "Zoom-Minus" buttons from statistic panels<br/>
+          [BEAM-869] Provide a layer manager<br/>
+          [BEAM-868] Imaging shall be based on tiling and image pyramids<br/>
+          [BEAM-863] Improved behaviour when windows are tiled<br/>
+          [BEAM-862] Creating ASAR NRCS band leads to exception<br/>
+          [BEAM-861] Histogram on color manipulation editor showing wrong max value<br/>
+          [BEAM-853] Context menu is not shown correctly on Mac OS X<br/>
+          [BEAM-845] Created JPEG Images have false colours<br/>
+          [BEAM-842] Context menu is not triggered on linux<br/>
+         </p>
+
+        <p>Changes in 4.2<br>
+        [BEAM-837] Search in VISAT Help does not work<br>
+        [BEAM-810] Provide VISAT application framework<br>
+        [BEAM-797] Colour manipulation for index and non-index bands<br>
+        [BEAM-787] C-Function code for x approximation is printed twice<br>
+        [BEAM-735] Not able to orthorectify MERIS_FRS products<br>
+        [BEAM-734] VISAT tile cache capacity cannot be changed<br>
+        [BEAM-730] Export of pixel data shall include auxdata<br>
+        [BEAM-728] Map-projection dialog shall allow for tie-point grid inclusion<br>
+        [BEAM-726] Memory not fully released after closing a product<br>
+        [BEAM-718] Show all product formats in reopen menu<br>
+        [BEAM-716] Module repository location from preferences overwrites location from beam.config<br>
+        [BEAM-710] Not able to copy a product using new product dialog<br>
+        [BEAM-709] Open dialog should use 'All Files' as default filter<br>
+         </p>
+        <p>Changes in 4.1<br>
+        [BEAM-482] Pins shall not be selected by default<br>
+        [BEAM-603] Select multiple pins<br>
+        [BEAM-613] Product not shown in product tree view<br>
+        [BEAM-632] Make pins available for all product types<br>
+        [BEAM-633] Ask before removing pins<br>
+        [BEAM-634] Make pin size independent of zoom factor<br>
+        [BEAM-636] Make pin labels nicer<br>
+        [BEAM-660] Speedup image creation process<br>
+        [BEAM-671] Pin pixel coordinates should be floating point numbers<br>
+        [BEAM-672] Include spectral unmixing tool<br>
+        [BEAM-673] Allow for multiple spectra in spectrum view<br>
+        [BEAM-677] Support for ground control points (GCPs)<br>
+        [BEAM-678] Change pin location by dragging<br>
+        [BEAM-684] Pixel-info view functions only if initially visible<br>
+        [BEAM-696] Placemarks should be copied to output product<br>
+        [BEAM-698] Sortable table of pins and GCPs<br>
+        [BEAM-699] Editable cells of pin and GCP tables<br>
+         </p>
+        ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(c) Copyright 2002-2011 by Brockmann Consult and contributors.&lt;br/&gt;All rights reserved.</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-visat-rcp</module>
+    </dependency>
+    <dependency>
+        <module>beam-help</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>System,Application,VISAT</categories>
+
+    <extension point="ceres-core:applications">
+        <application id="VisatMain" class="org.esa.beam.visat.VisatMain"/>
+    </extension>
+
+</module>

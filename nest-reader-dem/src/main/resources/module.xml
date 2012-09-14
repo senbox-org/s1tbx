@@ -1,0 +1,81 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>nest-reader-dem</symbolicName>
+    <version>5.0</version>
+    <name>NEST DEM Reader</name>
+
+    <description>Enables NEST to read the SRTM, ACE and D-TED digital elevation models.</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2012 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>European Space Agency</funding>
+	
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>nest-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-geotiff</module>
+    </dependency>
+		
+    <categories>Reader,DEM</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>importDEM</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>DEM</text>
+            <parent>importRasterData</parent>
+        </action>
+
+        <action>
+            <id>importACEDEMProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ACE</formatName>
+            <text>ACE DEM Tile</text>
+            <parent>importDEM</parent>
+            <shortDescr>Import a ACE DEM tile or tile subset.</shortDescr>
+            <description>Import a ACE DEM tile or tile subset.</description>
+            <helpId>importACEProduct</helpId>
+        </action>
+
+		<action>
+            <id>importGETASSE30Product</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>GETASSE30</formatName>
+            <text>GETASSE30 DEM Tile</text>
+            <parent>importDEM</parent>
+            <shortDescr>Import a GETASSE30 DEM tile or tile subset.</shortDescr>
+            <description>Import a GETASSE30 DEM tile or tile subset.</description>
+            <helpId>importGETASSE30Product</helpId>
+        </action>
+		
+        <action>
+            <id>importSRTMGeoTIFFDEMProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>GeoTIFF</formatName>
+            <text>SRTM GeoTIFF DEM Tile</text>
+            <parent>importDEM</parent>
+            <shortDescr>Import a SRTM DEM tile or tile subset.</shortDescr>
+            <description>Import a SRTM DEM tile or tile subset.</description>
+            <helpId>importSRTMProduct</helpId>
+        </action>
+
+        <action>
+            <id>importAsterDEMProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>GeoTIFF</formatName>
+            <text>ASTER GeoTIFF DEM Tile</text>
+            <parent>importDEM</parent>
+            <shortDescr>Import a ASTER DEM tile or tile subset.</shortDescr>
+            <description>Import a ASTER DEM tile or tile subset.</description>
+            <helpId>importASTERProduct</helpId>
+        </action>
+    </extension>
+
+</module>

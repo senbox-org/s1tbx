@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - Export GeoTIFF</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            Export GeoTIFF
+        </td>
+
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+
+<h3>Export GeoTIFF Product</h3>
+
+<p>This command allows to export the data of the current product to a GeoTIFF file.</p>
+
+<p>GeoTIFF is an extension to the TIFF 6.0 specification. These image files contain
+    additional information about their georeference and their spatial resolution. A wide range of
+    projected coordinate systems are supported including UTM, US State Plane, and National Grids.
+    For further information have a look at the following documentation:
+</p><ul>
+    <li><a href="http://www.remotesensing.org/geotiff/geotiff.html">GeoTIFF Homepage</a></li>
+    <li><a href="http://partners.adobe.com/public/developer/tiff/index.html">TIFF Specification</a></li>
+</ul>
+
+<h3>Constraints on created GeoTIFF product files</h3>
+
+<p>Exported GeoTIFF files contain additional information beside the
+tags defined by the GeoTIFF specification. The BEAM-DIMAP header is
+used to hold this additional information. This allows a better support
+of several&nbsp;features including:
+</p>
+<ul>
+    <li>Name and type of the product.</li>
+    <li>Name, description and unit of each band.</li>
+    <li>The properties of no-data and scaling for each band.</li>
+    <li>The index coding of a band.</li>
+    <li>Virtual and filtered bands.</li>
+    <li>etc.</li>
+</ul>
+<p>
+    For features and limitations of the GeoTIFF export and constraints of interaction with other GIS tools are given in
+    the following list:
+</p>
+<ul>
+    <li>All bands of a GeoTiff file must have the same data type.
+Therefore a common data type is identified which is suitable for all
+bands. Double precision data type is not supported. </li>
+    <li>The data of a band is always written raw and unscaled.
+    </li>
+    <li>Virtual and filtered bands can only be reimported by the Toolbox.</li>
+    <li>All projections available in Reprojection are also supported by the GeoTIFF
+        writer.
+        As a fallback, if a map projection or other geocoding is not directly supported, a tie-point grid is written to
+        the GeoTiff file.<br>
+        The exported GeoTiff files were tested for compatibility with ENVI and ArcGis. While the files are fully
+        compatible with ENVI, ArcGIS has problems to understanding stereographic projections.
+    </li>
+    <li>An index coded band can only be correctly decoded by other GIS tools, if it is written as an image with one
+        band.
+    </li>
+</ul>
+
+<hr>
+</body></html>

@@ -1,0 +1,4 @@
+start_time|Time of first input line|*
+#
+first_obt|ULong|*|4|2|*|On-board binary time of first input line processedLSB accurate to 15.26 ms. (Contained in two long integers)|28a|
+first_mjd|@/types/UTC.dd|MJD|12|1|*|Sensing time (MJD format) of first input line processedconverted from satellite binary time|28b|

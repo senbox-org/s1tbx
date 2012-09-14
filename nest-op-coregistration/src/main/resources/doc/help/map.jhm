@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE map
+        PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/map_2_0.dtd">
+
+<map version="2.0">
+
+	<!--Analysis Operators-->
+	<mapID target="PCA" url="operators/PCAOp.html"/>
+	
+	<!--Utility Operators-->
+	<mapID target="CreateStackOp" url="operators/CollocateOp.html"/>
+	
+	<!--SAR Operators-->
+    <mapID target="GCPSelectionOp" url="operators/GCPSelectionOp.html"/>
+	<mapID target="WarpOp" url="operators/WarpOp.html"/>
+	
+</map>

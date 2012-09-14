@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Settings>	
+	<AuxDataPath value="c:\AuxData"/>
+	<demPath value="${AuxDataPath}\DEMs"/>
+	
+	<AuxData>
+		<ersAuxDataPath value="${NEST_HOME}\auxdata\ers"/>
+		<envisatAuxDataPath value="${NEST_HOME}\auxdata\envisat"/>
+		<egm96AuxDataPath value="${NEST_HOME}\auxdata\egm96"/>
+		<smosDGGDataPath value="${AuxDataPath}\smos\dgg"/>
+		<smosLSMaskDataPath value="${AuxDataPath}\smos\lsmask"/>
+	</AuxData>
+	<DEM label="Digital Elevation Models">
+		<aceDEMDataPath value="${demPath}\ACE_DEM\ACE"/>
+		<ace2_5MinDEMDataPath value="${demPath}\ACE2\5M_HEIGHTS" />
+		<gtopo30DEMDataPath value="${demPath}\GTOPO30\dem"/>
+		<srtm3GeoTiffDEMDataPath value="${demPath}\SRTM_DEM\tiff"/>
+		<srtm1GridDEMDataPath value="\\nas\cds\internal\physiography\topographic_relief\elevation\data\nationaldatasets\1seconddem\1secSRTM-DSMv1\Data"/>
+		<AsterDEMDataPath value="${demPath}\ASTER"/>
+		<Getasse30DEMDataPath value="${demPath}\GETASSE30"/>
+		
+		<srtm3GeoTiffDEM_FTP value="xftp.jrc.it"/>
+		<srtm3GeoTiffDEM_remotePath value="/pub/srtmV4/tiff/"/>
+	</DEM>
+	<OrbitFiles label="Orbit Files">
+		<dorisFTP value="diss-nas-fp.eo.esa.int"/>
+		<dorisFTP_user value="dorisusr"/>
+		<dorisFTP_pass value="env_data"/>
+		<dorisFTP_por_remotePath value="/por"/>
+		<dorisFTP_vor_remotePath value="/vor_gdr_d"/>
+		<dorisVOROrbitPath value="${AuxDataPath}\Orbits\Doris\vor"/>
+		<dorisPOROrbitPath value="${AuxDataPath}\Orbits\Doris\por"/>
+		
+		<delftEnvisatOrbitPath value="${AuxDataPath}\Orbits\Delft Precise Orbits\ODR.ENVISAT1\eigen-cg03c"/>
+		<delftERS1OrbitPath value="${AuxDataPath}\Orbits\Delft Precise Orbits\ODR.ERS-1\dgm-e04"/>
+		<delftERS2OrbitPath value="${AuxDataPath}\Orbits\Delft Precise Orbits\ODR.ERS-2\dgm-e04"/>
+		
+		<delftFTP value="dutlru2.lr.tudelft.nl"/>
+		<delftFTP_ENVISAT_precise_remotePath value="/pub/orbits/ODR.ENVISAT1/eigen-cg03c/"/>
+		<delftFTP_ERS1_precise_remotePath value="/pub/orbits/ODR.ERS-1/dgm-e04/"/>
+		<delftFTP_ERS2_precise_remotePath value="/pub/orbits/ODR.ERS-2/dgm-e04/"/>		
+		
+		<prareFTP value="esaftp.dfd.dlr.de"/>
+		<prareFTP_user value="dpafftp"/>
+		<prareFTP_pass value="sunshine"/>
+		<prareFTP_ERS1_remotePath value="/orbprc/ERS1"/>
+		<prareFTP_ERS2_remotePath value="/orbprc/ERS2"/>
+		<prareERS1OrbitPath value="${AuxDataPath}\Orbits\ers_precise_orb\ERS1"/>
+		<prareERS2OrbitPath value="${AuxDataPath}\Orbits\ers_precise_orb\ERS2"/>
+	</OrbitFiles>
+</Settings>

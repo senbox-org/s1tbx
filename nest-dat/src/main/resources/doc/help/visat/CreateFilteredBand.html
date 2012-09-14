@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - Image Filtering</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+<body>
+
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            Image Filtering</td>
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+<h3>Image Filtering</h3>
+
+<p>The operator creates filtered image bands&nbsp;by applying
+convolution or non-linear filters to the selected band. Filters are
+used to perform common image processing operations e.g. sharpening,
+blurring or edge enhancement.</p>
+
+<p class="inote">
+    <b>Note:</b>
+    When storing a product containing a filtered band, the data of the band is not stored with the product.
+    Only the information how to compute the data is stored. This behaviour is similar to virtual bands.
+</p>
+
+<h4>DAT supports the following filters</h4>
+
+<ul>
+    <li><b>Detect Lines</b><br>
+        Horizontal Edges, Vertical Edges, Left Diagonal Edges, Right Diagonal Edges, Compass Edge Detector, <br>Roberts Cross North-West, Roberts Cross North-East</li>
+    <li><b>Detect Gradients (Emboss)</b><br>
+        Sobel North, Sobel South, Sobel West, Sobel East, Sobel North East</li>
+    <li><b>Smooth and Blurr</b><br>
+        Arithmetic 3x3 Mean, Arithmetic 4x4 Mean, Arithmetic 5x5 Mean,
+        Low-Pass 3x3, Low-Pass 5x5</li>
+    <li><b>Sharpen</b><br>
+        High-Pass 3x3 #1, High-Pass 3x3 #2, High-Pass 5x5</li>
+    <li><b>Enhance Discontinuities</b><br>
+        Laplace 3x3, Laplace 5x5</li>
+    <li><b>Non-Linear Filters</b><br>
+        Minimum 3x3, Minimum 5x5, Maximum 3x3, Maximum 5x5, Mean 3x3, Mean 5x5, <br>
+        Median 3x3, Median 5x5, Standard Deviation 3x3, Standard Deviation 5x5, <br>
+        Root-Mean-Square 3x3, Root-Mean-Square 5x5</li>
+</ul>
+
+<h4>DAT also supports user defined filters</h4><ul><li>The operator
+also supports user defined convolution filter kernel. The user define
+kernel can be browsed and selected from User Defined Kernel file in the
+UI.</li><li>The user defined kernel must be saved in ASCII file in a
+matrix format. The first line of the file contains two integers to
+indicate the dimension (rows and columns) of the matrix. For example, a
+user defined 3x3 low-pass filter&nbsp;can be saved in file lop_3_3.txt in the following format:</li></ul><div style="margin-left: 40px;">3 3<span style="font-weight: bold;"></span><br>1 1 1<br>1 1 1<br>1 1 1<br></div><h4>Example images</h4>
+
+<p align="center">
+    <table align="center">
+        <tbody><tr>
+            
+    <td> <img src="images/FilterCompassEdgeDetector.jpg" align="middle" border="0" height="368" width="491"> 
+      <p align="center">Compass Edge Detector Filter</p>
+            </td>
+            
+    <td> <img src="images/FilterLowPass5x5.jpg" align="middle" border="0" height="368" width="491"><br>
+
+                <p align="center">Low-Pass 5x5 Filter</p>
+            </td>
+        </tr>
+        <tr>
+            
+    <td> <img src="images/FilterHighPass3x3_2.jpg" align="middle" border="0" height="368" width="491">
+      <p align="center">High-Pass 3x3 #2 Filter</p>
+            </td>
+            
+    <td> <img src="images/FilterLaplace3x3.jpg" align="middle" border="0" height="368" width="491">
+      <p align="center">Laplace 3x3</p>
+            </td>
+        </tr>
+    </tbody></table>
+</p>
+<br><h4>DAT also supports user defined filters</h4><ol><li>Source Bands:&nbsp;All bands (real or virtual) of the source product. User can
+select one or more bands for producing filtered images. If no bands are
+selected, then by default all bands are selected.</li><li>Filters: Pre-defined filters.</li><li>User Defined Kernel File: User defined filter kernel file.</li></ol><img style="width: 576px; height: 624px;" alt="" src="images/image_filtering_dlg.jpg">
+<br>
+<hr>
+</body></html>

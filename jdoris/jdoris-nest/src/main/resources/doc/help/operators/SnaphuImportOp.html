@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><title>Help - Snaphu Data Import</title>
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Snaphu Data Import</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>Importing results from SNAPHU processing in NEST</h3>
+
+<h4>Important note</h4>
+
+<p>
+    It is strongly advised before executing graph for exporting NEST data for SNAPHU processing for user to get familiar
+    with general principles of doing <a href="Unwrapping.html">phase unwrapping in NEST</a>.
+</p>
+
+<h4>
+    SNAPHU Data Import Graph
+</h4>
+
+<p>
+    The main purpose of SNAPHU data import function is two-fold:
+<ol>
+    <li>
+        To import results of SNAPHU processing in NEST,
+    </li>
+    <li>
+        To construct NEST Interferometric product that will contain unwrapped phase band, and the metadata of the source
+        interferometric product.
+    </li>
+</ol>
+
+<p>
+    The import graph is visualized in the figure below.
+</p>
+
+<img style="" alt="" src="../images/SnaphuImportGraph_fig0.jpg"><br/>
+
+<p>
+    In the export graph, there are two readers, and one writer. <strong>Two readers</strong> are reading the phase
+    product, constructed during <a href="SnaphuExportOp.html">exporting data for SNAPHU processing</a>, and other reader
+    is reading imported unwrapped result of SNAPHU processing as "Generic Binary". Snaphu Import operator arranges the
+    metadata and bands, and constructs the unwrapped phase product compatible for further utilization within NEST. Finally,
+    writer saves the product in NEST/BEAM DIMAP format.
+</p>
+
+<p>Specifically the import graph performs the following:</p>
+
+<dl>
+    <dt><strong>1-Read-Phase:</strong></dt>
+    <dd>Reads the "phase-only" interferometric product constructed during Snaphu Data Export step.</dd>
+
+    <dt><strong>2-Read-Unwrapper-Phase:</strong></dt>
+    <dd>Reads the "unwrapped-phase-only" product ingested in NEST using Generic Binary Readers. <b>Note</b> that
+    due to restrictions of the framework currently it is not possible to chain the generic binary reader in the graph, and hence
+    it is not possible to ingest unwrapped data directly into NEST. This has to be done outside Snaphu Import graph.</dd>
+
+    <dt><strong>3-SnaphuImport:</strong></dt>
+    <dd>Arranges the metadata and merges the bands of the source product into a unwrapped phase product. In this step
+        metadata and bands are arranged in a compatible form for further NEST InSAR processing.
+    </dd>
+
+    <dt><strong>4-Write:</strong></dt>
+    <dd>Writes "unwrapped phase product" in the standard NEST/BEAM DIMAP format.</dd>
+</dl>
+
+<br>
+<hr>
+</body>
+</html>

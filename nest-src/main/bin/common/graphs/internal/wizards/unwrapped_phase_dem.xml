@@ -1,0 +1,68 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file></file>
+    </parameters>
+  </node>
+  <node id="2-GoldsteinPhaseUnwrap">
+    <operator>GoldsteinPhaseUnwrap</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <branchCutMethod>Minimum Spanning Tree Branch-cut</branchCutMethod>
+      <maxRadius>4</maxRadius>
+    </parameters>
+  </node>
+  <node id="3-Stitch">
+    <operator>Stitch</operator>
+    <sources>
+      <sourceProduct refid="2-GoldsteinPhaseUnwrap"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="4-DEMGeneration">
+    <operator>DEMGeneration</operator>
+    <sources>
+      <sourceProduct refid="3-Stitch"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <demName>SRTM 3Sec</demName>
+      <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
+      <externalDEMFile/>
+      <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+    </parameters>
+  </node>
+    <node id="5-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="4-DEMGeneration"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <formatName>BEAM-DIMAP</formatName>
+      <file>insar_elevation</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="1-Read">
+      <displayPosition y="128.0" x="55.0"/>
+    </node>
+    <node id="2-GoldsteinPhaseUnwrap">
+      <displayPosition y="127.0" x="160.0"/>
+    </node>
+    <node id="3-Stitch">
+      <displayPosition y="179.0" x="190.0"/>
+    </node>
+    <node id="4-DEMGeneration">
+      <displayPosition y="243.0" x="171.0"/>
+    </node>
+	<node id="5-Write">
+      <displayPosition y="240.0" x="321.0"/>
+    </node>
+  </applicationData>
+</graph>

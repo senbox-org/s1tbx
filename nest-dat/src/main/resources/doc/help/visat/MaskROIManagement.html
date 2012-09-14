@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - Mask and ROI Management</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;Mask and ROI Management</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+<h2>The Mask Concept</h2>
+
+
+<p>Masks are useful to mask out image pixels either solely for image display or for
+    image analysis. In the latter case we refer to a mask in the role of a <i>region of interest</i> (ROI).
+    Currently&nbsp;three basic types of masks are supported differing in the way the mask is defined:
+</p>
+
+<ol>
+    <li>Masks defined by a <i><a href="#BandMath">band math expression</a></i></li>
+    <li>Masks defined by a simple <i><a href="#Range">sample value range</a></i></li>
+    <li>Masks defined by <i><a href="#Geometry">geometry</a> such as lines and polygons</i></li>
+</ol>
+
+<p>
+    In data modelling terms, a mask is a product node similar to a band or tie-point grid. It has a unique name and
+    comprises a image (raster data) whose sample data type is Boolean. Each data product may comprise virtually any
+    number of masks.
+</p>
+
+<p>
+    Not only the mask definitions but also their use in conjunction with a raster data set such as a band or tie-point
+    grid are part of the data model stored within the product. A product "remembers" for a certain band or tie-point
+    grid
+</p>
+<ul>
+    <li>which masks have been switched visible and</li>
+    <li>which masks are in use as ROI.</li>
+</ul>
+
+<p>
+    A number of product formats define a default mask set. E.g. the Envisat MERIS L1 and L2 product types define a mask
+    for each of their quality flags.
+</p>
+
+<h2>Working with Masks</h2>
+
+<table>
+    <tbody><tr>
+        <td style="border-width: 0pt;"><a name="MaskRoiManager"><img src="images/icons/MaskManager24.png" alt="Mask Manager"></a></td>
+        <td style="border-width: 0pt;">Masks are managed by the <b>Mask and ROI Manager</b> tool window.
+            To bring up this tool window click the tool button in the <b>Tool Windows</b>&gt; tool bar or select the
+            corresponding menu item in <b>View / Tool Windows / Mask and ROI Manager</b>.
+        </td>
+    </tr>
+</tbody></table>
+
+<p>
+    The manager allows creating new masks, editing mask properties and delete existing masks. It also allows
+    for creating new masks based on logical combinations of existing masks. Furthermore masks may be
+    imported and exported. If an <a href="ProductSceneView.html">image view</a> is selected, the manager tool
+    window can also be used to
+    control the visibility and its role as a possible ROI for the currently displayed band. When the mask's ROI role
+    is selected, it becomes available in the various raster data analysis tools, such as
+    the <a href="StatisticsDialog.html">Statistics</a>, <a href="HistogramDialog.html">Histogram</a>,
+    and <a href="ScatterplotDialog.html">Scatter Plot</a> tool windows.
+</p>
+
+<div align="center">
+    <table>
+        <tbody><tr>
+            <td style="border-width: 0pt;"><img src="images/MaskROIManager.png" alt="Mask / ROI Manager"></td>
+        </tr>
+        <tr>
+            <td style="border-width: 0pt;" align="center">Mask and ROI Manager tool window</td>
+        </tr>
+    </tbody></table>
+</div>
+
+<table>
+    <tbody><tr>
+        <td style="border-width: 0pt;"><a name="BandMath"><img src="images/icons/BandMath24.png" alt="Band Math"></a></td>
+        <td style="border-width: 0pt;"><b>Band math expression:</b> Adds a new mask to the product which is based on a band
+            math expression.
+            The expression can reference any bands, tie-point grids, single flags or other masks defined in the data
+            product. For more information on band math please refer to <a href="BandArithmetics.html">Band Maths</a>.
+        </td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><a name="Range"><img src="images/icons/Range24.png" alt="Range"></a></td>
+        <td style="border-width: 0pt;"><b>Value range:</b> Adds a new mask to the product which is based on a value range
+            of the selected band. All pixels whose sample values fall within the value range are part of the mask.
+        </td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><a name="Geometry"><img src="images/icons/NewVectorDataNode24.gif" alt="Geometry"></a></td>
+        <td style="border-width: 0pt;"><b>Geometry:</b> Adds a new mask to the product which is based on the geometries
+            contained in an associated geometry container. The command effectively creates a new geometry container
+            which in turn causes the creation of an associated geometry mask. For more information about geometry and
+            geometry containers have a look into the <a href="GeometryManagement.html">Geometry Management</a>.
+        </td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/Union24.png" alt="Union"></td>
+        <td style="border-width: 0pt;"><b>Union:</b> Creates the logical union of two or more selected masks.</td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/Intersection24.png" alt="Intersection"></td>
+        <td style="border-width: 0pt;"><b>Intersection:</b> Creates the logical intersection of two or more selected masks.</td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/Difference24.png" alt="Difference"></td>
+        <td style="border-width: 0pt;"><b>Difference:</b> Creates the logical difference of two or more selected masks (in top-down order).</td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/InvDifference24.png" alt="Inv. Difference"></td>
+        <td style="border-width: 0pt;"><b>Inv. Difference:</b> Creates the logical difference of two or more selected masks (in bottom-up order).</td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/Complement24.png" alt="Complement"></td>
+        <td style="border-width: 0pt;"><b>Complement:</b> Creates the logical complement one or more selected masks.</td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/Copy24.gif" alt="Copy"></td>
+        <td style="border-width: 0pt;"><b>Copy:</b> Creates a copy of the selected mask.</td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/Edit24.gif" alt="Copy"></td>
+        <td style="border-width: 0pt;"><b>Edit:</b> Edits the definition of the selected mask.
+            Double-clicking a mask entry in the table has the same effect.</td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/Remove24.gif" alt="Remove"></td>
+        <td style="border-width: 0pt;"><b>Delete:</b> Deletes the selected mask.</td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/Import24.gif" alt="Import"></td>
+        <td style="border-width: 0pt;"><b>Import:</b> Imports a mask from a plain text file.</td>
+    </tr>
+    <tr>
+        <td style="border-width: 0pt;"><img src="images/icons/Export24.gif" alt="Export"></td>
+        <td style="border-width: 0pt;"><b>Export:</b> Exports the selected masks to a plain text file.</td>
+    </tr>
+</tbody></table>
+
+
+<hr>
+</body></html>

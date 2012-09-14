@@ -1,0 +1,645 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>nest-dat</symbolicName>
+    <version>5.0</version>
+    <name>NEST Display and Analysis Tool</name>
+
+    <description>NEST Display and Analysis Tool</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2012 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>European Space Agency</funding>
+	
+    <dependency>
+        <module>beam-visat-rcp</module>
+    </dependency>
+	<dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>nest-core</module>
+    </dependency>
+    <dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
+	
+    <categories>Application,DAT</categories>
+
+    <extension point="ceres-core:applications">
+        <application id="DatMain" class="org.esa.nest.dat.DatMain"/>
+    </extension>
+
+    <extension point="beam-ui:applicationDescriptors">
+            <applicationDescriptor>
+                <applicationId>DatMain</applicationId>
+                <displayName>NEST DAT</displayName>
+                <frameIcon>/org/esa/nest/icons/dat.png</frameIcon>
+                <image>/org/esa/nest/icons/dat.png</image>
+                <excludedActions>
+                    <id>orthorectificationAction</id>
+                    <id>showDataSources</id>
+                    <id>new</id>
+                    <id>open</id>
+                    <id>createAsarNrcsBands</id>
+                    <id>showHomePage</id>
+                    <id>about</id>
+                    <id>createXYDisplacementBandsAction</id>
+                    <id>productGrabber</id>
+                    <id>createFilteredBand</id>
+                    <id>mosaicAction</id>
+                    <id>selectTool</id>
+                    <id>PCAOp</id>
+                    <id>importMermaid</id>
+                    <id>importSeaDASTrack</id>
+                </excludedActions>
+                <excludedToolViews>
+                    <id>org.esa.beam.visat.toolviews.spectrum.SpectrumToolView</id>
+                    <id>org.esa.beam.visat.toolviews.worldmap.WorldMapToolView</id>
+                </excludedToolViews>
+            </applicationDescriptor>
+    </extension>
+
+
+    <extension point="beam-ui:toolViews">
+
+        <toolView>
+            <id>org.esa.nest.dat.toolviews.Projects.ProjectsToolView</id>
+            <class>org.esa.nest.dat.toolviews.Projects.ProjectsToolView</class>
+            <title>Project</title>
+            <tabTitle>Project</tabTitle>
+            <mnemonic>P</mnemonic>
+            <accelerator>ctrl alt P</accelerator>
+            <smallIcon>/org/esa/nest/icons/project_view22.png</smallIcon>
+            <largeIcon>/org/esa/nest/icons/project_view30.png</largeIcon>
+            <description>Project View.</description>
+            <initState>DOCKED</initState>
+            <initSide>WEST</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.stat.StatisticsToolView</id>
+            <class>org.esa.beam.visat.toolviews.stat.StatisticsToolView</class>
+            <title>Analysis View</title>
+            <tabTitle>Statistics</tabTitle>
+            <mnemonic>t</mnemonic>
+            <accelerator>ctrl alt T</accelerator>
+            <description>Display statistics for a selected band.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/Statistics16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/Statistics24.gif</largeIcon>
+            <helpId>statisticsToolView</helpId>
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.nest.dat.toolviews.worldmap.NestWorldMapToolView</id>
+            <class>org.esa.nest.dat.toolviews.worldmap.NestWorldMapToolView</class>
+            <title>Beam World Map</title>
+            <tabTitle>Beam World Map</tabTitle>
+            <mnemonic>W</mnemonic>
+            <accelerator>ctrl alt W</accelerator>
+            <description>Display product boundaries in a world map.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/WorldMap16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/WorldMap24.gif</largeIcon>
+            <helpId>showWorldMapWnd</helpId>
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.nest.dat.toolviews.productlibrary.ProductLibraryToolView</id>
+            <class>org.esa.nest.dat.toolviews.productlibrary.ProductLibraryToolView</class>
+            <title>Product Library - Local Catalogue</title>
+            <tabTitle>Product Library</tabTitle>
+            <mnemonic>D</mnemonic>
+            <accelerator>ctrl alt D</accelerator>
+            <smallIcon>/org/esa/beam/resources/images/icons/product_library16.png</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/product_library24.png</largeIcon>
+            <description>Product Library.</description>
+            <initState>ICONIFIED</initState>
+            <initSide>EAST</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+    </extension>
+
+    <extension point="beam-ui:actions">
+
+        <action>
+            <id>showProcessorsToolBar</id>
+            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
+            <context>processorsToolBar</context>
+            <parent>toolBars</parent>
+            <text>Processor Tool Bar</text>
+            <selected>true</selected>
+            <toggle>true</toggle>
+            <shortDescr>Toggle visibility of the tool bar.</shortDescr>
+            <helpId>showViewsToolBar</helpId>
+        </action>
+
+        <action>
+            <id>showLabelsToolBar</id>
+            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
+            <context>labelsToolBar</context>
+            <parent>toolBars</parent>
+            <text>Labels Tool Bar</text>
+            <selected>true</selected>
+            <toggle>true</toggle>
+            <shortDescr>Toggle visibility of the tool bar.</shortDescr>
+            <helpId>showViewsToolBar</helpId>
+        </action>
+
+      <action>
+            <id>newProject</id>
+            <class>org.esa.nest.dat.actions.NewProjectAction</class>
+            <parent>file</parent>
+            <text>New Project...</text>
+            <accelerator>control P</accelerator>
+            <shortDescr>Create a new project</shortDescr>
+            <description>Create a new project</description>
+            <smallIcon>/org/esa/nest/icons/project-new.png</smallIcon>
+            <largeIcon>/org/esa/nest/icons/project-new.png</largeIcon>
+            <helpId>newProject</helpId>
+      </action>
+
+      <action>
+            <id>loadProject</id>
+            <class>org.esa.nest.dat.actions.LoadProjectAction</class>
+            <parent>file</parent>
+            <text>Load Project...</text>
+            <accelerator>control L</accelerator>
+            <placeAfter>newProject</placeAfter>
+            <shortDescr>Load a project</shortDescr>
+            <description>Load a project</description>
+            <smallIcon>/org/esa/nest/icons/project_sm.png</smallIcon>
+            <largeIcon>/org/esa/nest/icons/project.png</largeIcon>
+            <helpId>loadProject</helpId>
+      </action>
+
+      <action>
+            <id>saveProject</id>
+            <class>org.esa.nest.dat.actions.SaveProjectAction</class>
+            <parent>file</parent>
+            <text>Save Project</text>
+            <placeAfter>loadProject</placeAfter>
+            <shortDescr>Save current project</shortDescr>
+            <description>Save current project</description>
+            <smallIcon>icons/Save16.gif</smallIcon>
+            <largeIcon>icons/Save24.gif</largeIcon>
+      </action>
+
+      <action>
+            <id>saveProjectAs</id>
+            <class>org.esa.nest.dat.actions.SaveProjectAsAction</class>
+            <parent>file</parent>
+            <text>Save Project As...</text>
+            <placeAfter>saveProject</placeAfter>
+            <shortDescr>Save current project to a new location</shortDescr>
+            <description>Save current project to a new location</description>
+            <smallIcon>icons/Save16.gif</smallIcon>
+            <largeIcon>icons/Save24.gif</largeIcon>
+      </action>
+
+      <action>
+            <id>closeProject</id>
+            <class>org.esa.nest.dat.actions.CloseProjectAction</class>
+            <parent>file</parent>
+            <text>Close Project</text>
+            <placeAfter>saveProjectAs</placeAfter>
+            <shortDescr>Close current project</shortDescr>
+            <description>Close current project</description>
+      </action>
+
+      <action>
+            <id>openRaster</id>
+            <class>org.esa.beam.visat.actions.OpenAction</class>
+            <parent>file</parent>
+            <text>Open Raster Product</text>
+            <mnemonic>O</mnemonic>
+            <accelerator>control O</accelerator>
+            <separatorBefore>true</separatorBefore>
+            <placeAfter>closeProject</placeAfter>
+            <shortDescr>Open a raster data product.</shortDescr>
+            <description>Open a raster data product.</description>
+            <smallIcon>icons/Open16.gif</smallIcon>
+            <largeIcon>icons/Open24.gif</largeIcon>
+            <helpId>open</helpId>
+      </action>
+
+      <action>
+            <id>showProductLibrary</id>
+            <class>org.esa.nest.dat.actions.ShowProductLibraryAction</class>
+            <parent>file</parent>
+            <text>Product Library</text>
+            <placeAfter>openRaster</placeAfter>
+            <shortDescr>Show Product Library Metadata Database</shortDescr>
+            <description>Show Product Library Metadata Database</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/product_library16.png</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/product_library24.png</largeIcon>
+      </action>
+
+      <action>
+            <parent>file</parent>
+            <id>createSubset</id>
+            <class>org.esa.beam.visat.actions.NewAction</class>
+            <text>Create Subset</text>
+            <shortDescr>Create a new Subset data product.</shortDescr>
+            <description>Create a new Subset data product.</description>
+            <smallIcon>icons/New16.gif</smallIcon>
+            <largeIcon>icons/New24.gif</largeIcon>
+            <helpId>new</helpId>
+            <context>product</context>
+            <placeAfter>showProductLibrary</placeAfter>
+      </action>
+
+      <!--action>
+            <id>openVector</id>
+            <class>org.esa.nest.dat.actions.OpenVectorAction</class>
+            <parent>file</parent>
+            <placeAfter>openRaster</placeAfter>
+            <text>Open Vector Dataset</text>
+            <mnemonic>V</mnemonic>
+            <accelerator>control V</accelerator>
+            <shortDescr>Open a vector product.</shortDescr>
+            <description>Open a vector product.</description>
+            <smallIcon>icons/Open16.gif</smallIcon>
+            <largeIcon>icons/Open24.gif</largeIcon>
+            <helpId>open</helpId>
+      </action-->
+
+        <action>
+            <id>reopen</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <parent>file</parent>
+            <text>Reopen</text>
+            <mnemonic>R</mnemonic>
+            <placeAfter>createSubset</placeAfter>
+            <shortDescr>Re-open a BEAM-DIMAP data product.</shortDescr>
+            <longDescr>Re-open a BEAM-DIMAP data product.</longDescr>
+            <smallIcon>icons/History16.gif</smallIcon>
+            <largeIcon>icons/History24.gif</largeIcon>
+            <helpID>reopen</helpID>
+        </action>
+
+        <action>
+            <id>save</id>
+            <class>org.esa.beam.visat.actions.SaveAction</class>
+            <parent>file</parent>
+            <text>Save</text>
+            <mnemonic>S</mnemonic>
+            <placeAfter>Session</placeAfter>
+            <separatorBefore>true</separatorBefore>
+            <shortDescr>Save a BEAM-DIMAP data product.</shortDescr>
+            <description>Save a BEAM-DIMAP data product.</description>
+            <accelerator>control S</accelerator>
+            <smallIcon>icons/Save16.gif</smallIcon>
+            <largeIcon>icons/Save24.gif</largeIcon>
+            <helpId>save</helpId>
+        </action>
+
+        <action>
+            <id>saveAs</id>
+            <class>org.esa.beam.visat.actions.SaveAsAction</class>
+            <parent>file</parent>
+            <text>Save As...</text>
+            <mnemonic>A</mnemonic>
+            <placeAfter>save</placeAfter>
+            <separatorAfter>true</separatorAfter>
+            <shortDescr>Save a BEAM-DIMAP data product with a different name.</shortDescr>
+            <description>Save a BEAM-DIMAP data product with a different name.</description>
+            <smallIcon>icons/SaveAs16.gif</smallIcon>
+            <largeIcon>icons/SaveAs24.gif</largeIcon>
+            <helpId>saveAs</helpId>
+            <context>product</context>
+        </action>
+
+        <action>
+            <id>close</id>
+            <class>org.esa.beam.visat.actions.CloseAction</class>
+            <parent>file</parent>
+            <text>Close</text>
+            <mnemonic>C</mnemonic>
+            <accelerator>control W</accelerator>
+            <placeAfter>saveAs</placeAfter>
+            <shortDescr>Close an open data product.</shortDescr>
+            <description>Close an open data product.</description>
+            <smallIcon>icons/Close16.gif</smallIcon>
+            <largeIcon>icons/Close24.gif</largeIcon>
+            <helpId>close</helpId>
+            <context>product</context>
+        </action>
+
+        <action>
+            <id>closeAll</id>
+            <class>org.esa.beam.visat.actions.CloseAllAction</class>
+            <parent>file</parent>
+            <text>Close All</text>
+            <placeAfter>close</placeAfter>
+            <shortDescr>Closes all opened data products.</shortDescr>
+            <description>Closes all opened data products.</description>
+            <smallIcon>icons/Close16.gif</smallIcon>
+            <largeIcon>icons/Close24.gif</largeIcon>
+            <helpId>closeAll</helpId>
+            <context>product</context>
+        </action>
+
+        <action>
+            <id>closeAllOthers</id>
+            <class>org.esa.nest.dat.actions.CloseAllOthersAction</class>
+            <parent>file</parent>
+            <text>Close All Others</text>
+            <placeAfter>closeAll</placeAfter>
+            <shortDescr>Closes all opened data products other than the one selected.</shortDescr>
+            <description>Closes all opened data products other than the one selected.</description>
+            <smallIcon>icons/Close16.gif</smallIcon>
+            <largeIcon>icons/Close24.gif</largeIcon>
+            <helpId>closeAll</helpId>
+            <context>product</context>
+        </action>
+
+        <action>
+            <id>loadTabbedLayout</id>
+            <class>org.esa.nest.dat.actions.LoadTabbedLayoutAction</class>
+            <parent>layout</parent>
+            <text>Load Tabbed Layout</text>
+            <shortDescr>Load the tabbed layout.</shortDescr>
+        </action>
+
+        <action>
+            <id>loadSideBySideLayout</id>
+            <class>org.esa.nest.dat.actions.LoadSideBySideLayoutAction</class>
+            <parent>layout</parent>
+            <text>Load Side by Side Layout</text>
+            <shortDescr>Load the layout with Project and Product views side by side.</shortDescr>
+        </action>
+
+        <action>
+            <id>showNestForum</id>
+            <parent>help</parent>
+            <class>org.esa.nest.dat.actions.ShowForumPageAction</class>
+            <text>User Help Forum</text>
+            <separatorAfter>true</separatorAfter>
+            <shortDescr>Opens the NEST forum.</shortDescr>
+            <description>Opens the NEST forum page with the default web browser.</description>
+            <placeAfter>helpTopics</placeAfter>
+        </action>
+
+        <!--action>
+            <id>showSupport</id>
+            <parent>help</parent>
+            <class>org.esa.nest.dat.actions.ShowSupportPageAction</class>
+            <text>Technical Support</text>
+            <shortDescr>Professional Technical Support</shortDescr>
+            <description>Professional Technical Support by Array Systems Computing Inc.</description>
+            <placeAfter>helpTopics</placeAfter>
+        </action>
+
+        <action>
+            <id>showTraining</id>
+            <parent>help</parent>
+            <class>org.esa.nest.dat.actions.ShowTrainingPageAction</class>
+            <text>Training Courses</text>
+            <shortDescr>User Training Courses</shortDescr>
+            <description>User Training Courses</description>
+            <placeAfter>showSupport</placeAfter>
+        </action>
+
+        <action>
+            <id>showGeoint</id>
+            <parent>help</parent>
+            <class>org.esa.nest.dat.actions.ShowGeointPageAction</class>
+            <text>Upgrade to NEST Pro</text>
+            <separatorAfter>true</separatorAfter>
+            <shortDescr>The GEOINT SAR Toolbox and Support</shortDescr>
+            <description>The GEOINT SAR Toolbox and Support</description>
+            <placeAfter>showTraining</placeAfter>
+        </action-->
+
+        <action>
+            <id>showNestHomePage</id>
+            <parent>help</parent>
+            <class>org.esa.nest.dat.actions.ShowHomePageAction</class>
+            <text>NEST Home Page</text>
+            <mnemonic>B</mnemonic>
+            <shortDescr>Opens the NEST home page.</shortDescr>
+            <description>Opens the NEST home page with the default web browser.</description>
+            <placeAfter>helpTopics</placeAfter>
+        </action>
+
+        <action>
+            <id>testConnectivity</id>
+            <parent>help</parent>
+            <class>org.esa.nest.dat.actions.TestConnectivityAction</class>
+            <text>Test Connectivity</text>
+            <shortDescr>Test FTP connection for automatic downloads of DEMs</shortDescr>
+            <placeAfter>checkForUpdate</placeAfter>
+        </action>
+
+        <action>
+            <id>ReportABug</id>
+            <parent>help</parent>
+            <class>org.esa.nest.dat.actions.ReportABugAction</class>
+            <text>Report a Bug</text>
+            <shortDescr>Email a bug to Array</shortDescr>
+            <description>Email a problem with NEST to Array</description>
+            <placeAfter>helpTopics</placeAfter>
+        </action>
+
+        <action>
+            <id>RequestFeature</id>
+            <parent>help</parent>
+            <class>org.esa.nest.dat.actions.RequestFeatureAction</class>
+            <text>Request a Feature</text>
+            <shortDescr>Email a request for a new feature</shortDescr>
+            <description>Email a new feature request to Array</description>
+            <placeAfter>ReportABug</placeAfter>
+        </action>
+
+        <action>
+            <id>aboutDAT</id>
+            <parent>help</parent>
+            <class>org.esa.beam.visat.actions.AboutAction</class>
+            <text>About the Toolbox</text>
+            <mnemonic>A</mnemonic>
+            <accelerator>ctrl alt A</accelerator>
+            <shortDescr>Displays information about this software.</shortDescr>
+            <description>Displays information about this software.</description>
+            <smallIcon>icons/About16.gif</smallIcon>
+            <largeIcon>icons/About24.gif</largeIcon>
+            <helpId>about</helpId>
+            <placeAfter>RequestFeature</placeAfter>
+            <separatorBefore>true</separatorBefore>
+        </action>
+
+        <action>
+            <id>launchPolsarPro</id>
+            <parent>polarimetrictools</parent>
+            <class>org.esa.nest.dat.actions.LaunchPolsarProAction</class>
+            <text>Launch PolSARPro</text>
+            <shortDescr>Start PolSARPro</shortDescr>
+			<separatorBefore>true</separatorBefore>
+            <separatorAfter>true</separatorAfter>
+            <smallIcon>/org/esa/nest/icons/esa.png</smallIcon>
+            <largeIcon>/org/esa/nest/icons/esa.png</largeIcon>
+        </action>
+
+        <action>
+            <id>MetadataTools</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Metadata</text>
+            <parent>tools</parent>
+            <placeAfter>Resampling</placeAfter>
+        </action>
+
+        <action>
+            <id>editMetadata</id>
+            <class>org.esa.nest.dat.actions.EditMetadataAction</class>
+            <text>Edit Metadata</text>
+            <shortDescr>Edit product metadata</shortDescr>
+            <description>Edit product metadata</description>
+            <helpId>editMetadata</helpId>
+            <parent>MetadataTools</parent>
+            <placeBefore>searchMetadata</placeBefore>
+            <context>metadataNode</context>
+            <largeIcon>/org/esa/nest/icons/metadata_edit.png</largeIcon>
+        </action>
+
+        <action>
+            <id>searchMetadata</id>
+            <class>org.esa.nest.dat.actions.SearchMetadataAction</class>
+            <text>Search Metadata Name</text>
+            <shortDescr>Search product metadata</shortDescr>
+            <description>Search product metadata</description>
+            <helpId>searchMetadata</helpId>
+            <parent>MetadataTools</parent>
+            <context>metadataNode</context>
+        </action>
+
+        <action>
+            <id>searchMetadataValue</id>
+            <class>org.esa.nest.dat.actions.SearchMetadataValueAction</class>
+            <text>Search Metadata Value</text>
+            <shortDescr>Search product metadata for a value</shortDescr>
+            <description>Search product metadata for a value</description>
+            <helpId>searchMetadata</helpId>
+            <parent>MetadataTools</parent>
+            <placeAfter>searchMetadata</placeAfter>
+            <context>metadataNode</context>
+        </action>
+
+        <action>
+            <id>exportProductMetadata</id>
+            <class>org.esa.beam.visat.actions.ExportMetadataAction</class>
+            <text>Export Metadata as Text</text>
+            <shortDescr>Export the currently displayed metadata.</shortDescr>
+            <description>Export the currently displayed metadata as tab-separated text.</description>
+            <helpId>exportMetadata</helpId>
+            <parent>MetadataTools</parent>
+        </action>
+
+        <action>
+            <id>exportProductMetadataXML</id>
+            <class>org.esa.nest.dat.actions.ExportMetadataXMLAction</class>
+            <text>Export Metadata as XML</text>
+            <shortDescr>Export the currently displayed metadata to XML.</shortDescr>
+            <description>Export the currently displayed metadata as XML.</description>
+            <helpId>exportMetadata</helpId>
+            <parent>MetadataTools</parent>
+        </action>
+
+        <action>
+            <id>selectLayerTool</id>
+            <class>org.esa.beam.visat.actions.ToolAction</class>
+            <interactor>org.esa.nest.dat.layers.SelectLayerInteractor</interactor>
+            <interactorListener>org.esa.beam.visat.actions.SelectionInteractorInterceptor</interactorListener>
+            <parent>tools</parent>
+            <text>Select</text>
+            <shortDescr>Select Layer Tool</shortDescr>
+            <largeIcon>icons/SelectTool24.gif</largeIcon>
+            <selected>false</selected>
+            <helpId>selectTool</helpId>
+        </action>
+
+        <action>
+            <id>showLayersToolBar</id>
+            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
+            <context>layersToolBar</context>
+            <parent>toolBars</parent>
+            <text>Layers Tool Bar</text>
+            <mnemonic>L</mnemonic>
+            <placeAfter>showAnalysisToolBar</placeAfter>
+            <placeBefore>showToolsToolBar</placeBefore>
+            <selected>false</selected>
+            <toggle>true</toggle>
+            <shortDescr>Toggle visibility of the layers tool bar.</shortDescr>
+            <description>Toggle visibility of the layers tool bar.</description>
+            <helpId>showLayersToolBar</helpId>
+        </action>
+
+        <action>
+            <id>showImageViewHSV</id>
+            <class>org.esa.nest.dat.actions.ShowImageViewHSVAction</class>
+            <parent>view</parent>
+            <placeAfter>showImageViewRGB</placeAfter>
+            <text>Open HSV Image View...</text>
+            <mnemonic>H</mnemonic>
+            <shortDescr>Open HSV image view.</shortDescr>
+            <description>Open an HSV image view for the selected product.</description>
+            <context>product</context>
+            <smallIcon>icons/ImageView16.gif</smallIcon>
+            <largeIcon>icons/ImageView24.gif</largeIcon>
+            <helpId>hsvImageProfile</helpId>
+        </action>
+
+        <action>
+            <id>showPolarWaveView</id>
+            <class>org.esa.nest.dat.actions.ShowCrossSpectraViewAction</class>
+            <text>Open Polar Wave View</text>
+            <shortDescr>Open Polar Wave View</shortDescr>
+            <parent>view</parent>
+            <context>band</context>
+            <helpId>showPolarWaveView</helpId>
+        </action>
+
+        <action>
+            <id>openSettingsDialog</id>
+            <parent>edit</parent>
+            <class>org.esa.nest.dat.actions.OpenSettingsDialogAction</class>
+            <text>Settings...</text>
+            <shortDescr>Edit Settings</shortDescr>
+            <description>Edit Settings and Preferences</description>
+            <smallIcon>icons/Preferences16.gif</smallIcon>
+            <largeIcon>icons/Preferences24.gif</largeIcon>
+            <helpId>settings</helpId>
+        </action>
+
+        <action>
+            <parent>exportRasterData</parent>
+            <id>exportKmzProduct</id>
+            <class>org.esa.nest.dat.actions.ExportKmzProductAction</class>
+            <text>Export Product as Google Earth KMZ...</text>
+            <shortDescr>Export the product as Google Earth KMZ file.</shortDescr>
+            <description>Export the product as Google Earth KMZ file.</description>
+            <helpId>exportKmzFile</helpId>
+            <placeAfter>exportKmzFile</placeAfter>
+        </action>
+
+    </extension>
+
+	<extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+			<id>DATHelp</id>
+            <path>doc/help/dat.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

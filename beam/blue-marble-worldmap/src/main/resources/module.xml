@@ -1,0 +1,48 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+
+    <symbolicName>blue-marble-worldmap</symbolicName>
+    <name>NASA Blue Marble Worldmap</name>
+    <version>5.0-1.0.1</version>
+    <description>
+        This module provides a NASA Blue Marble world map layer in WGS84.
+    </description>
+    <packaging>dir</packaging>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2009 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam/</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+        <p>Changes in 1.0.1:<br/>
+          [BEAM-1019] Blue Marble Layer can not be restored from saved session<br/>
+        </p>
+        ]]>
+    </changelog>
+
+    <categories>System,World-Map</categories>
+
+    <dependency>
+        <module>ceres-glayer</module>
+    </dependency>
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+
+    <dependency>
+        <module>beam-ui</module>
+        <optional>true</optional>
+    </dependency>
+
+    <extension point="beam-ui:layerSources">
+        <layerSource>
+            <id>blue-marble-source</id>
+            <name>World Map (NASA Blue Marble)</name>
+            <description>Adds NASA Blue Marble image layer to the background.</description>
+            <layerType>org.esa.beam.worldmap.BlueMarbleLayerType</layerType>
+        </layerSource>
+    </extension>
+</module>

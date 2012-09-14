@@ -1,0 +1,120 @@
+ASA_INS_AX_GADS|Contains ASAR instrument characterization data|+dsr_length
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Time of creation|1|
+dsr_length|ULong|bytes|4|1|*|Length of this DSR in bytes|2|
+radar_freq|Float|Hz|4|1|*|Radar Frequency|3|
+samp_rate|Float|Hz|4|1|*|Radar Sampling Rate|4|
+offset_freq|Float|Hz|4|1|*|Offset frequency for wave mode calibration pulses|5|
+cal_pulse_im_hh_1|@+ASA_INS_AX_GADS.sd/cal_pulse_im_hh_1.dd|*|*|7|*|Image mode HH polarization calibration data for pulse 1, swaths IS1 to IS7.|6|
+cal_pulse_im_vv_1|@+ASA_INS_AX_GADS.sd/cal_pulse_im_vv_1.dd|*|*|7|*|Image mode VV polarization calibration data for pulse 1, swaths IS1 to IS7.|7|
+cal_pulse_im_hh_2|@+ASA_INS_AX_GADS.sd/cal_pulse_im_hh_2.dd|*|*|7|*|Image mode HH polarization calibration data for pulse 2, swaths IS1 to IS7.|8|
+cal_pulse_im_vv_2|@+ASA_INS_AX_GADS.sd/cal_pulse_im_vv_2.dd|*|*|7|*|Image mode VV polarization calibration data for pulse 2, swaths IS1 to IS7.|9|
+cal_pulse_im_hh_3|@+ASA_INS_AX_GADS.sd/cal_pulse_im_hh_3.dd|*|*|7|*|Image mode HH polarization calibration data for pulse 3, swaths IS1 to IS7.|10|
+cal_pulse_im_vv_3|@+ASA_INS_AX_GADS.sd/cal_pulse_im_vv_3.dd|*|*|7|*|Image mode VV polarization calibration data for pulse 3, swaths IS1 to IS7.|11|
+cal_pulse_ap_hh_1|@+ASA_INS_AX_GADS.sd/cal_pulse_ap_hh_1.dd|*|*|7|*|AP mode HH polarization calibration data for pulse 1, swaths IS1 to IS7.|12|
+cal_pulse_ap_vv_1|@+ASA_INS_AX_GADS.sd/cal_pulse_ap_vv_1.dd|*|*|7|*|AP mode VV polarization calibration data for pulse 1, swaths IS1 to IS7.|13|
+cal_pulse_ap_hv_1|@+ASA_INS_AX_GADS.sd/cal_pulse_ap_hv_1.dd|*|*|7|*|AP mode HV polarization calibration data for pulse 1, swaths IS1 to IS7.|14|
+cal_pulse_ap_vh_1|@+ASA_INS_AX_GADS.sd/cal_pulse_ap_vh_1.dd|*|*|7|*|AP mode VH polarization calibration data for pulse 1, swaths IS1 to IS7.|15|
+cal_pulse_ap_hh_2|@+ASA_INS_AX_GADS.sd/cal_pulse_ap_hh_2.dd|*|*|7|*|AP mode HH polarization calibration data for pulse 2, swaths IS1 to IS7.|16|
+cal_pulse_ap_vv_2|@+ASA_INS_AX_GADS.sd/cal_pulse_ap_vv_2.dd|*|*|7|*|AP mode VV polarization calibration data for pulse 2, swaths IS1 to IS7.|17|
+cal_pulse_ap_hv_2|@+ASA_INS_AX_GADS.sd/cal_pulse_ap_hv_2.dd|*|*|7|*|AP mode HV polarization calibration data for pulse 2, swaths IS1 to IS7.|18|
+cal_pulse_ap_vh_2|@+ASA_INS_AX_GADS.sd/cal_pulse_ap_vh_2.dd|*|*|7|*|AP mode VH polarization calibration data for pulse 2, swaths IS1 to IS7.|19|
+cal_pulse_ap_hh_3|@+ASA_INS_AX_GADS.sd/cal_pulse_ap_hh_3.dd|*|*|7|*|AP mode HH polarization calibration data for pulse 3, swaths IS1 to IS7.|20|
+cal_pulse_ap_vv_3|@+ASA_INS_AX_GADS.sd/cal_pulse_ap_vv_3.dd|*|*|7|*|AP mode VV polarization calibration data for pulse 3, swaths IS1 to IS7.|21|
+cal_pulse_ap_hv_3|@+ASA_INS_AX_GADS.sd/cal_pulse_ap_hv_3.dd|*|*|7|*|AP mode HV polarization calibration data for pulse 3, swaths IS1 to IS7.|22|
+cal_pulse_ap_vh_3|@+ASA_INS_AX_GADS.sd/cal_pulse_ap_vh_3.dd|*|*|7|*|AP mode VH polarization calibration data for pulse 3, swaths IS1 to IS7.|23|
+cal_pulse_wv_hh_1|@+ASA_INS_AX_GADS.sd/cal_pulse_wv_hh_1.dd|*|*|7|*|WV mode HH polarization calibration data for pulse 1, swaths IS1 to IS7.|24|
+cal_pulse_wv_vv_1|@+ASA_INS_AX_GADS.sd/cal_pulse_wv_vv_1.dd|*|*|7|*|WV mode VV polarization calibration data for pulse 1, swaths IS1 to IS7.|25|
+cal_pulse_wv_hh_2|@+ASA_INS_AX_GADS.sd/cal_pulse_wv_hh_2.dd|*|*|7|*|WV mode HH polarization calibration data for pulse 2, swaths IS1 to IS7.|26|
+cal_pulse_wv_vv_2|@+ASA_INS_AX_GADS.sd/cal_pulse_wv_vv_2.dd|*|*|7|*|WV mode VV polarization calibration data for pulse 2, swaths IS1 to IS7.|27|
+cal_pulse_wv_hh_3|@+ASA_INS_AX_GADS.sd/cal_pulse_wv_hh_3.dd|*|*|7|*|WV mode HH polarization calibration data for pulse 3, swaths IS1 to IS7.|28|
+cal_pulse_wv_vv_3|@+ASA_INS_AX_GADS.sd/cal_pulse_wv_vv_3.dd|*|*|7|*|WV mode VV polarization calibration data for pulse 3, swaths IS1 to IS7.|29|
+cal_pulse_ws_hh_1|@+ASA_INS_AX_GADS.sd/cal_pulse_ws_hh_1.dd|*|*|5|*|WS mode HH polarization calibration data for pulse 1, swaths SS1 to SS5.|30|
+cal_pulse_ws_vv_1|@+ASA_INS_AX_GADS.sd/cal_pulse_ws_vv_1.dd|*|*|5|*|WS mode VV polarization calibration data for pulse 1, swaths SS1 to SS5.|31|
+cal_pulse_ws_hh_2|@+ASA_INS_AX_GADS.sd/cal_pulse_ws_hh_2.dd|*|*|5|*|WS mode HH polarization calibration data for pulse 2, swaths SS1 to SS5.|32|
+cal_pulse_ws_vv_2|@+ASA_INS_AX_GADS.sd/cal_pulse_ws_vv_2.dd|*|*|5|*|WS mode VV polarization calibration data for pulse 2, swaths SS1 to SS5.|33|
+cal_pulse_ws_hh_3|@+ASA_INS_AX_GADS.sd/cal_pulse_ws_hh_3.dd|*|*|5|*|WS mode HH polarization calibration data for pulse 3, swaths SS1 to SS5.|34|
+cal_pulse_ws_vv_3|@+ASA_INS_AX_GADS.sd/cal_pulse_ws_vv_3.dd|*|*|5|*|WS mode VV polarization calibration data for pulse 3, swaths SS1 to SS5.|35|
+cal_pulse_gm_hh_1|@+ASA_INS_AX_GADS.sd/cal_pulse_gm_hh_1.dd|*|*|5|*|GM mode HH polarization calibration data for pulse 1, swaths SS1 to SS5.|36|
+cal_pulse_gm_vv_1|@+ASA_INS_AX_GADS.sd/cal_pulse_gm_vv_1.dd|*|*|5|*|GM mode VV polarization calibration data for pulse 1, swaths SS1 to SS5.|37|
+cal_pulse_gm_hh_2|@+ASA_INS_AX_GADS.sd/cal_pulse_gm_hh_2.dd|*|*|5|*|GM mode HH polarization calibration data for pulse 2, swaths SS1 to SS5.|38|
+cal_pulse_gm_vv_2|@+ASA_INS_AX_GADS.sd/cal_pulse_gm_vv_2.dd|*|*|5|*|GM mode VV polarization calibration data for pulse 2, swaths SS1 to SS5.|39|
+cal_pulse_gm_hh_3|@+ASA_INS_AX_GADS.sd/cal_pulse_gm_hh_3.dd|*|*|5|*|GM mode HH polarization calibration data for pulse 3, swaths SS1 to SS5.|40|
+cal_pulse_gm_vv_3|@+ASA_INS_AX_GADS.sd/cal_pulse_gm_vv_3.dd|*|*|5|*|GM mode VV polarization calibration data for pulse 3, swaths SS1 to SS5.|41|
+nom_pulse_im|@+ASA_INS_AX_GADS.sd/nom_pulse_im.dd|*|*|7|*|Nominal values of amplitude and phase of the transmitted chirp for Image Mode. Parameters repeated for each swath (7 times), from swath IS1 to IS7:|42|
+nom_pulse_ap|@+ASA_INS_AX_GADS.sd/nom_pulse_ap.dd|*|*|7|*|Nominal values of amplitude and phase of the transmitted chirp for AP Mode. Parameters repeated for each swath (7 times), from swath IS1 to IS7:|43|
+nom_pulse_wv|@+ASA_INS_AX_GADS.sd/nom_pulse_wv.dd|*|*|7|*|Nominal values of amplitude and phase of the transmitted chirp for WV Mode. Parameters repeated for each swath (7 times), from swath IS1 to IS7:|44|
+nom_pulse_ws|@+ASA_INS_AX_GADS.sd/nom_pulse_ws.dd|*|*|5|*|Nominal values of amplitude and phase of the transmitted chirp for WS Mode. Parameters repeated for each sub-swath (5 times), from swath SS1 to SS5:|45|
+nom_pulse_gm|@+ASA_INS_AX_GADS.sd/nom_pulse_gm.dd|*|*|5|*|Nominal values of amplitude and phase of the transmitted chirp for GM Mode. Parameters repeated for each sub-swath (5 times), from swath SS1 to SS5:|46|
+az_pattern|Float|dB|4|101|*|2 way antenna azimuth pattern(pattern values are from beam center - 0.25 deg to beam center + 0.25 deg. in 0.005 degree steps. TBC by ESA)|47|
+range_gate_bias|Float|s|4|1|*|Range Gate bias|48|
+adc_lut_i|Float|*|4|255|*|Look Up Table for ADC Characterization (I Channel)Contains 255 normalized amplitude levels corresponding to voltage thresholds. First value in LUT is for -127, last value is for +127. Format as is given in PO-TN-MMS-SR-0248.|49|
+adc_lut_q|Float|*|4|255|*|Look Up Table for ADC Characterization (Q Channel)Contains 255 normalized amplitude levels corresponding to voltage thresholds. First value in LUT is for -127, last value is for +127. Format as is given in PO-TN-MMS-SR-0248.|50|
+spare_1|Spare|*|60|1|*|Spare|51|
+full8_lut_i|Float|*|4|256|*|Reconstruction Look Up Table for Full 8-bit Quantization (I Channel)Contains normalized amplitude levels corresponding to sample codewords. First value in LUT is for codeword 0, last value is for +255 (binary offset format). Format as is given in PO-TN-MM|52|
+full8_lut_q|Float|*|4|256|*|Reconstruction Look Up Table for Full 8-bit Quantization (Q Channel)Contains normalized amplitude levels corresponding to sample codewords. First value in LUT is for codeword 0, last value is for +255 (binary- offset format). Format as is given in PO-TN-M|53|
+fbaq4_lut_i|Float|*|4|4096|*|Reconstruction Look Up Table for FBAQ 4-bit Quantization (I Channel)Gives 4096 normalized amplitude reconstruction levels which include ADC correction. Format as is given in PO-TN-MMS-SR-0248.|54|
+fbaq3_lut_i|Float|*|4|2048|*|Reconstruction Look Up Table for FBAQ 3-bit Quantization (I Channel)Gives 2048 normalized amplitude reconstruction levels which include ADC correction. Format as is given in PO-TN-MMS-SR-0248.|55|
+fbaq2_lut_i|Float|*|4|1024|*|Reconstruction Look Up Table for FBAQ 2-bit Quantization (I Channel)Gives 1024 normalized amplitude reconstruction levels which include ADC correction. Format as is given in PO-TN-MMS-SR-0248.|56|
+fbaq4_lut_q|Float|*|4|4096|*|Reconstruction Look Up Table for FBAQ 4-bit Quantization (Q Channel)Gives 4096 normalized amplitude reconstruction levels which include ADC correction. Format as is given in PO-TN-MMS-SR-0248.|57|
+fbaq3_lut_q|Float|*|4|2048|*|Reconstruction Look Up Table for FBAQ 3-bit Quantization (Q Channel)Gives 2048 normalized amplitude reconstruction levels which include ADC correction. Format as is given in PO-TN-MMS-SR-0248.|58|
+fbaq2_lut_q|Float|*|4|1024|*|Reconstruction Look Up Table for FBAQ 2-bit Quantization (Q Channel)Gives 1024 normalized amplitude reconstruction levels which include ADC correction. Format as is given in PO-TN-MMS-SR-0248.|59|
+fbaq4_no_adc|Float|values from-127 to +127|4|4096|*|Reconstruction Look Up Table for FBAQ 4-bit Quantization (no ADC)This is the FBAQ reconstruction LUT which does not have ADC correction incorporated into it. It gives 4096 reconstruction levels which decodes FBAQ codewords to floating point values on the|60|
+fbaq3_no_adc|Float|values from-127 to +127|4|2048|*|Reconstruction Look Up Table for FBAQ 3-bit Quantization (no ADC)This is the FBAQ reconstruction LUT which does not have ADC correction incorporated into it. It gives 2048 reconstruction levels which decodes FBAQ codewords to floating point values on the|61|
+fbaq2_no_adc|Float|values from-127 to +127-|4|1024|*|Reconstruction Look Up Table for FBAQ 2-bit Quantization (No ADC)This is the FBAQ reconstruction LUT which does not have ADC correction incorporated into it. It gives 1024 reconstruction levels which decodes FBAQ codewords to floating point values on the|62|
+sm_lut_i|Float|*|4|16|*|Reconstruction Look Up Table for Sign + Magnitude Quantization (I Channel)Contains normalized amplitude reconstruction levels corresponding to sample codewords. First value in LUT is for threshold -7, last value is for threshold +7. Format as is given in|63|
+sm_lut_q|Float|*|4|16|*|Reconstruction Look Up Table for Sign + Magnitude Quantization (Q Channel)Contains normalized amplitude reconstruction levels corresponding to sample codewords. First value in LUT is for threshold -7, last value is for threshold +7. Format as is given in|64|
+data_config_im|@+ASA_INS_AX_GADS.sd/data_config_im.dd|*|*|1|*|Default data processing configuration table for IM mode|65|
+data_config_ap|@+ASA_INS_AX_GADS.sd/data_config_ap.dd|*|*|1|*|Default data processing configuration table for AP mode|66|
+data_config_ws|@+ASA_INS_AX_GADS.sd/data_config_ws.dd|*|*|1|*|Default data processing configuration table for WS mode|67|
+data_config_gm|@+ASA_INS_AX_GADS.sd/data_config_gm.dd|*|*|1|*|Default data processing configuration table for GM mode|68|
+data_config_wv|@+ASA_INS_AX_GADS.sd/data_config_wv.dd|*|*|1|*|Default data processing configuration table for WV mode|69|
+swath_config_im|@+ASA_INS_AX_GADS.sd/swath_config_im.dd|*|*|1|*|Default Swath configuration table for IM|70|
+swath_config_ap|@+ASA_INS_AX_GADS.sd/swath_config_ap.dd|*|*|1|*|Default Swath configuration table for AP|71|
+swath_config_ws|@+ASA_INS_AX_GADS.sd/swath_config_ws.dd|*|*|1|*|Default Swath configuration table for WS (note las two fields of each entry are set to zero)|72|
+swath_config_gm|@+ASA_INS_AX_GADS.sd/swath_config_gm.dd|*|*|1|*|Default Swath configuration table for GM (note las two fields of each entry are set to zero)|73|
+swath_config_wv|@+ASA_INS_AX_GADS.sd/swath_config_wv.dd|*|*|1|*|Default Swath configuration table for WV|74|
+per_cal_widows_ec|UShort|*|2|1|*|Number of periodic calibration sample windows per source packet for External Characterization mode|75|
+per_cal_windows_ms|UShort|*|2|1|*|Number of periodic calibration sample windows per source packet for Module Stepping mode|76|
+swath_id_im|@+swath_id_im.dd|*|*|1|*|Default Swath Identification Table for IM: The default swaths corresponding to the Antenna Beam Set Parameter -- may be changed by macro-command during mission|77|
+swath_id_ap|@+ASA_INS_AX_GADS.sd/swath_id_ap.dd|*|*|1|*|Default Swath Identification Table for AP : The default swaths corresponding to the Antenna Beam Set Parameter -- may be changed by macro-command during mission|78|
+swath_id_ws|@+ASA_INS_AX_GADS.sd/swath_id_ws.dd|*|*|1|*|Default Swath Identification Table for WS: The default swaths corresponding to the Antenna Beam Set Parameter -- may be changed by macro-command during mission|79|
+swath_id_gm|@+ASA_INS_AX_GADS.sd/swath_id_gm.dd|*|*|1|*|Default Swath Identification Table for GM: The default swaths corresponding to the Antenna Beam Set Parameter -- may be changed by macro-command during mission|80|
+swath_id_wv|@+ASA_INS_AX_GADS.sd/swath_id_wv.dd|*|*|1|*|Default Swath Identification Table for WV: The default swaths corresponding to the Antenna Beam Set Parameter -- may be changed by macro-command during mission|81|
+init_cal_beam_set_wv|UShort|*|2|1|*|Beam Set number for Wave Mode initial calibration|82|
+beam_set_ec|UShort|*|2|1|*|Beam Set number for External Characterization Mode|83|
+beam_set_ms|UShort|*|2|1|*|Beam Set number for Module Stepping Mode|84|
+cal_seq|UShort|*|2|32|*|Calibration Row Sequence Table(32 numbers give the Row number sequence used during initial and periodic calibration)|85|
+timeline_im|@+ASA_INS_AX_GADS.sd/timeline_im.dd|*|*|1|*|Mode timelines for IM|86|
+timeline_ap|@+ASA_INS_AX_GADS.sd/timeline_ap.dd|*|*|1|*|Mode timelines for AP|87|
+timeline_ws|@+ASA_INS_AX_GADS.sd/timeline_ws.dd|*|*|1|*|Mode timelines for WS|88|
+timeline_gm|@+ASA_INS_AX_GADS.sd/timeline_gm.dd|*|*|1|*|Mode timelines for GM|89|
+timeline_wv|@+ASA_INS_AX_GADS.sd/timeline_wv.dd|*|*|1|*|Mode timelines for WV|90|
+m_ec|UShort|*|2|1|*|M value (see field above) for External Characterization|91|
+spare_2|Spare|*|64|1|*|Spare|92|
+ref_elev_angle_is1|Float|deg.|4|1|*|Reference elevation angle for IS1|93|
+ref_elev_angle_is2|Float|deg.|4|1|*|Reference elevation angle for IS2|94|
+ref_elev_angle_is3_ss2|Float|deg.|4|1|*|Reference elevation angle for IS3 / SS2|95|
+ref_elev_angle_is4_ss3|Float|deg.|4|1|*|Reference elevation angle for IS4 / SS3|96|
+ref_elev_angle_is5_ss4|Float|deg.|4|1|*|Reference elevation angle for IS5 / SS4|97|
+ref_elev_angle_is6_ss5|Float|deg.|4|1|*|Reference elevation angle for IS6 / SS5|98|
+ref_elev_angle_is7|Float|deg.|4|1|*|Reference elevation angle for IS7|99|
+ref_elev_angle_ss1|Float|deg.|4|1|*|Reference elevation angle for SS1|100|
+spare_3|Spare|*|64|1|*|Spare|101|
+cal_loop_ref_is1|Float|*|4|128|*|Calibration Loop Characterization Factors at the Swath Reference Elevation Angle for IS1(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, follow|102|
+cal_loop_ref_is2|Float|*|4|128|*|Calibration Loop Characterization Factors at the Swath Reference Elevation Angle for IS2(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, follow|103|
+cal_loop_ref_is3_ss2|Float|*|4|128|*|Calibration Loop Characterization Factors at the Swath Reference Elevation Angle for IS3/SS2(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, fo|104|
+cal_loop_ref_is4_ss3|Float|*|4|128|*|Calibration Loop Characterization Factors at the Swath Reference Elevation Angle for IS4/SS3(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, fo|105|
+cal_loop_ref_is5_ss4|Float|*|4|128|*|Calibration Loop Characterization Factors at the Swath Reference Elevation Angle for IS5/SS4(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, fo|106|
+cal_loop_ref_is6_ss5|Float|*|4|128|*|Calibration Loop Characterization Factors at the Swath Reference Elevation Angle for IS6/SS5(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, fo|107|
+cal_loop_ref_is7|Float|*|4|128|*|Calibration Loop Characterization Factors at the Swath Reference Elevation Angle for IS7(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, follow|108|
+cal_loop_ref_iss1|Float|*|4|128|*|Calibration Loop Characterization Factors at the Swath Reference Elevation Angle for SS1(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, follow|109|
+cal_loop_cen_is1|Float|*|4|128|*|Calibration Loop Characterization Factors at the Center of Swath Elevation Angle for IS1(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, follow|110|
+cal_loop_cen_is2|Float|*|4|128|*|Calibration Loop Characterization Factors at the Center of Swath Elevation Angle for IS2(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, follow|111|
+cal_loop_cen_is3_ss2|Float|*|4|128|*|Calibration Loop Characterization Factors at the Center of Swath Elevation Angle for IS3/SS2(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, fo|112|
+cal_loop_cen_is4_ss3|Float|*|4|128|*|Calibration Loop Characterization Factors at the Center of Swath Elevation Angle for IS4/SS3(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, fo|113|
+cal_loop_cen_is5_ss4|Float|*|4|128|*|Calibration Loop Characterization Factors at the Center of Swath Elevation Angle for IS5/SS4(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, fo|114|
+cal_loop_cen_is6_ss5|Float|*|4|128|*|Calibration Loop Characterization Factors at the Center of Swath Elevation Angle for IS6/SS5(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, fo|115|
+cal_loop_cen_is7|Float|*|4|128|*|Calibration Loop Characterization Factors at the Center of Swath Elevation Angle for IS7(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, follow|116|
+cal_loop_cen_iss1|Float|*|4|128|*|Calibration Loop Characterization Factors at the Center of Swath Elevation Angle for SS1(complex factor characterizing the path through the calibration loop and from the calibration coupler to the antenna face) 32 complex values for H polarization, follow|117|
+spare_4|Spare|*|1024|1|*|Spare|118|

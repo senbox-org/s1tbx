@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - Export Color Palette</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            Export Color Palette</td>
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+<h3>Exporting a Color Palette Table</h3>
+To export the <i>Color Palette Table,</i> click the menu item <b>Color Palette...</b> in the File Menu.
+The <i>Color Palette Table</i> used by the current image view can
+be exported to a *.txt or a *.csv file.<br>
+When exporting the <i>colour palette table</i> of an RGB image, the red channel is used.<br>
+
+<h4>File Format</h4>
+The exported file is separated into two sections. The <i>Header Section</i> contains general information about the
+exported colour palette. The <i>Data Section</i> contains the <i>Color Palette Table</i>.
+When exporting the colour palette, the variables in curly braces are replaced by their current value.
+<p>
+    <b>Header Section</b><br>
+    # Band: {BAND_NAME}<br>
+    # Sample unit: {SAMPLE_UNIT}<br>
+    # Minimum sample value: {MIN_VALUE}<br>
+    # Maximum sample value: {MAX_VALUE}<br>
+    # Number of colors: {COLOR_COUNT}
+</p>
+<br>
+
+<p>
+    <b>Data Section</b><br>
+    ID;Sample;RGB<br>
+    {COLOR_INDEX};{SAMPLE_VALUE};{RED}, {GREEN}, {BLUE}
+</p>
+
+
+<hr>
+</body></html>

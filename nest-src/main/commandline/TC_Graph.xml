@@ -1,0 +1,71 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.Xpp3DomElement">
+      <file>$file</file>
+    </parameters>
+  </node>
+  <node id="2-Terrain-Correction">
+    <operator>Terrain-Correction</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.Xpp3DomElement">
+      <sourceBands>
+        <band>Amplitude</band>
+      </sourceBands>
+      <demName>SRTM 3Sec GeoTiff</demName>
+      <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+      <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
+      <imgResamplingMethod>BILINEAR_INTERPOLATION</imgResamplingMethod>
+      <pixelSpacing>0.0</pixelSpacing>
+      <projectionName>Geographic Lat/Lon</projectionName>
+      <saveDEM>false</saveDEM>
+      <saveLocalIncidenceAngle>false</saveLocalIncidenceAngle>
+      <saveProjectedLocalIncidenceAngle>false</saveProjectedLocalIncidenceAngle>
+      <saveSelectedSourceBand>false</saveSelectedSourceBand>
+      <applyRadiometricNormalization>true</applyRadiometricNormalization>
+      <saveSigmaNought>true</saveSigmaNought>
+      <saveGammaNought>false</saveGammaNought>
+      <saveBetaNought>false</saveBetaNought>
+      <incidenceAngleForSigma0>Use projected local incidence angle from DEM</incidenceAngleForSigma0>
+      <incidenceAngleForGamma0>Use projected local incidence angle from DEM</incidenceAngleForGamma0>
+    </parameters>
+  </node>
+  <node id="3-DataType">
+      <operator>Convert-Datatype</operator>
+      <sources>
+        <source>2-Terrain-Correction</source>
+      </sources>
+      <parameters>
+        <targetDataType>int32</targetDataType>
+      </parameters>
+    </node>
+  <node id="4-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="3-DataType"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.Xpp3DomElement">
+      <formatName>BEAM-DIMAP</formatName>
+      <file>$target</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="1-Read">
+      <displayPosition y="134.0" x="37.0"/>
+    </node>
+    <node id="2-Terrain-Correction">
+      <displayPosition y="135.0" x="218.0"/>
+    </node>
+	<node id="3-DataType">
+      <displayPosition y="135.0" x="455.0"/>
+    </node>
+	<node id="4-Write">
+      <displayPosition y="135.0" x="455.0"/>
+    </node>
+  </applicationData>
+</graph>

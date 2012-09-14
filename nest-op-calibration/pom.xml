@@ -1,0 +1,42 @@
+<?xml version="1.0"?><project>
+  <parent>
+    <artifactId>nest</artifactId>
+    <groupId>org.esa.nest</groupId>
+	<version>5.0</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  
+  <groupId>org.esa.nest</groupId>
+  <artifactId>nest-op-calibration</artifactId>
+  <name>NEST Calibration Operator</name>
+  <version>5.0</version>
+  <description>Calibrates ENVISAT ASAR, ERS 1/2, ALOS Palsar products</description>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.esa.nest</groupId>
+      <artifactId>nest-graph-builder</artifactId>
+    </dependency>
+        <dependency>
+      <groupId>org.esa.beam</groupId>
+      <artifactId>beam-envisat-reader</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.esa.nest</groupId>
+      <artifactId>nest-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.esa.nest</groupId>
+      <artifactId>nest-reader-dem</artifactId>
+    </dependency>
+  </dependencies>
+  
+	<build>
+        <plugins>
+            <plugin>
+                <groupId>com.bc.maven.plugins</groupId>
+                <artifactId>maven-javahelp-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

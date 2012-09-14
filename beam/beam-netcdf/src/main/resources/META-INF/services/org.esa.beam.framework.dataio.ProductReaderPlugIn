@@ -1,0 +1,4 @@
+org.esa.beam.dataio.netcdf.GenericNetCdfReaderPlugIn
+org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfNetCdfReaderPlugIn
+org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos.HdfEosNetCdfReaderPlugIn
+org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamNetCdfReaderPlugIn

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ceos version="1.0" mission="alos">
+	<rec name="Flag" type="1" num="1"/> 
+	<rec name="Type" type="2" num="3"/> 
+	<rec name="Name" type="1" num="8"/> 
+	<rec name="Start block of segment" type="2" num="11"/>
+	<rec name="Number of blocks in segment" type="2" num="9"/> 	
+</ceos>

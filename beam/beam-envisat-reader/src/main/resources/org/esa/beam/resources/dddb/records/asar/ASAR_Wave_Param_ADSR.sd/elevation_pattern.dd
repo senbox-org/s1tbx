@@ -1,0 +1,5 @@
+elevation_pattern|Antenna Elevation Pattern|*
+#
+slant_range_time|Float|ns|4|11|*|2 way slant range times|113a|
+elevation_angles|Float|degrees|4|11|*|Corresponding elevation angles|113b|
+antenna_pattern|Float|dB|4|11|*|Corresponding two-way antenna elevation pattern values|113c|

@@ -1,0 +1,5 @@
+MER_RR__2P_MDSR_15|Level 2 MDS(15) algal index I  TOAVI|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Start Time of DSR|1|
+quality_flag|UChar|flag|1|1|*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+algal_toavi_cl_pix|UChar|mg.m-3, or -, or hPa|1|sceneRasterWidth|*|Algal I or TOAVI or cloud top pressure pixels|3|

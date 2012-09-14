@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--$Id: NAIPCaliforniaWMSLayer.xml,v 1.1 2010-04-05 17:38:21 lveci Exp $-->
+<Layer version="1" layerType="TiledImageLayer">
+    <DisplayName>NAIP California (WMS)</DisplayName>
+    <Service serviceName="OGC:WMS" version="1.1.1">
+        <GetCapabilitiesURL>http://giifmap.cnr.berkeley.edu/cgi-bin/naip.wms?</GetCapabilitiesURL>
+        <GetMapURL>http://giifmap.cnr.berkeley.edu/cgi-bin/naip.wms?</GetMapURL>
+        <LayerNames>naip2005C</LayerNames>
+    </Service>
+    <!-- Wed, 25 Feb 2009 00:00:00 PDT -->
+    <LastUpdate>1235548800000</LastUpdate>
+    <DataCacheName>Earth/NAIP/California</DataCacheName>
+    <ImageFormat>image/png</ImageFormat>
+    <AvailableImageFormats>
+        <ImageFormat>image/png</ImageFormat>
+    </AvailableImageFormats>
+    <FormatSuffix>.dds</FormatSuffix>
+    <NumLevels count="14" numEmpty="0"/>
+    <TileOrigin>
+        <LatLon units="degrees" latitude="-90" longitude="-180"/>
+    </TileOrigin>
+    <LevelZeroTileDelta>
+        <LatLon units="degrees" latitude="36" longitude="36"/>
+    </LevelZeroTileDelta>
+    <TileSize>
+        <Dimension width="512" height="512"/>
+    </TileSize>
+    <Sector>
+        <SouthWest>
+            <LatLon units="degrees" latitude="32.2006" longitude="-124.45"/>
+        </SouthWest>
+        <NorthEast>
+            <LatLon units="degrees" latitude="42.0421" longitude="-113.222"/>
+        </NorthEast>
+    </Sector>
+    <UseTransparentTextures>true</UseTransparentTextures>
+    <ScreenCredit creditType="ScreenImage">
+        <FileName>images/usda_logo-32x32.png</FileName>
+        <Link>http://www.fsa.usda.gov/FSA</Link>
+    </ScreenCredit>
+    <RetrievalTimeouts>
+        <ReadTimeout>
+            <Time units="milliseconds" value="30000"/>
+        </ReadTimeout>
+    </RetrievalTimeouts>
+</Layer>

@@ -1,0 +1,15 @@
+ASAR_Chirp_ADSR|chirp parameters|*
+#
+zero_doppler_time|@/types/UTC.dd     |MJD    |12| 1|*|Zero Doppler azimuth time in azimuth at which estimate applies|1|
+attach_flag      |UChar              |flag   | 1| 1|*|Attachment Flag (always set to zero for this ADSR)|2|
+beam_id          |String             |ascii  | 3| 1|*|Beam ID: SS1, SS2, SS3, SS4, or SS5 for WS and GM images. Set to NS&Oslash; for AP, IM, and WV images.|3|
+polar            |String             |ascii  | 3| 1|*|Tx/Rx polarization H/H, H/V, V/V, or V/H|4|
+chirp_width      |Float              |samples| 4| 1|*|3-dB pulse width of chirp replica cross-correlation function between reconstructed chirp and nominal chirp|5|
+chirp_sidelobe   |Float              |dB     | 4| 1|*|First side lobe level of chirp replica cross-correlation function between reconstructed chirp and nominal chirp|6|
+chirp_islr       |Float              |dB     | 4| 1|*|ISLR of chirp replica cross-correlation function between reconstructed chirp and nominal chirp|7|
+chirp_peak_loc   |Float              |samples| 4| 1|*|Peak location of cross-correlation function between reconstructed chirp and nominal chirp|8|
+chirp_power      |Float              |dB     | 4| 1|*|Chirp power|9|
+elev_corr_factor |Float              |*      | 4| 1|*|Elevation gain correction scaling factor applied to range compressed samples|10|
+spare_1          |Spare              |*      |16| 1|*|Spare|11|
+cal_pulse_info   |@+ASAR_Chirp_ADSR.sd/cal_pulse_info.dd|*      | *|32|*|This structure is repeated 32 times: once for each antenna row|12|
+spare_2          |Spare              |*      |16| 1|*|Spare|13|

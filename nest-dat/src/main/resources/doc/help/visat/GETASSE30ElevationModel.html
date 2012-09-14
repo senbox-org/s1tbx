@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - GETASSE30 Elevation Model</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            GETASSE30 Elevation Model</td>
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+
+<h3>GETASSE30 Elevation Model</h3>
+
+<p>
+    GETASSE30 stands for <b>G</b>lobal <b>E</b>arth <b>T</b>opography <b>A</b>nd <b>S</b>ea <b>S</b>urface <b>E</b>levation
+    at <b>30</b>
+arc second resolution. This elevation model has been provided by Marc
+Bouvet (marc.bouvet@esa.int) of ESA/ESRIN. This documentation is also
+by courtesy of Marc Bouvet.
+</p><p>The DEM tiles will be downloaded automatically by the software as needed.</p><h4>The GETASSE30 Data Set</h4>
+
+<p>
+    GETASSE30 is a composite of four other DEM datasets. It&nbsp;uses the SRTM30 dataset, ACE dataset, Mean Sea Surface
+    (MSS) data and the
+    EGM96 ellipsoid as sources. The resulting GETASSE30 dataset represents the Earth Topography And Sea Surface
+    Elevation
+    with respect to the WGS84 ellipsoid at 30 arc second resolution. The dataset has no missing values, but at the
+    junction
+    of the arctic and antarctic continents there are some tens of strange negative values (down to -700 m) inherent to
+    the ACE dataset. All latitude/longitude values refer to the center of a pixel, not to one of its corners.
+    The GETASSE30 dataset is organised as multiple tiles.&nbsp;
+</p>
+
+<p align="center"> <img src="images/GETASSE30Example.jpg" border="0" height="300" width="300"><br>
+    Example of a GETASSE30 tile
+</p>
+
+<h4>The GETASSE30 Data</h4>
+<ol type="I">
+    <li>Mean sea surface height over sea and height over land, both referenced to the WGS84 ellipsoid.
+    <table>
+        <tbody><tr><td>Resolution:</td><td>30 arc second latitude and longitude</td></tr>
+        <tr><td>Unit:</td><td>meter</td></tr>
+        <tr><td>File name example:</td><td>45S045W.GETASSE30 where the first number is the latitude of the most
+            South West pixel and the second number its longitude</td></tr>
+        <tr><td>Data format:</td><td>binary, 1800*1800 signed 16-bit integer values, big endian order</td></tr>
+    </tbody></table>
+</li></ol>
+
+<p align="center"> <img src="images/GETASSE30ElevationData.jpg" border="0" height="318" width="636"><br>
+    The GETASSE30 elevation data
+</p>
+<br>
+There are 5 types of values:
+<ol>
+    <li>Over land, between 60N and -60S, where SRTM30 DEM data are available, the
+        output value is the sum of SRTM30 elevation and the EGM96 geoid height.</li>
+    <li>Over land, between 60N and -60S, where SRTM30 DEM data are not available, the
+        output value is the sum of ACE elevation and the EGM96 geoid height.</li>
+    <li>Over land, above 60N and -60S, where ACE data are available, the output value is the sum of
+        ACE elevation and the EGM96 geoid height.</li>
+    <li>Over sea, where neither ACE DEM nor SRTM30 data are not available, if MSS data are available,
+        then the output value is the MSS.</li>
+    <li>Over sea, where neither ACE DEM nor SRTM30 data are not available, if MSS data are not available,
+        then the output value is the EGM96 value.</li>
+</ol>
+<li>Flag
+    <ul>
+        <li>Pixels described as in 2) and 3) are flagged with the value 0</li>
+        <li>Pixels described as in 3) are flagged with the value 1</li>
+        <li>Pixels described as in 4) are flagged with the value 2</li>
+        <li>Pixels described as in 1) are flagged with the value 3</li>
+    </ul>
+    <table>
+        <tbody><tr><td>Resolution:</td><td>30 arc second latitude and longitude</td></tr>
+        <tr><td>Unit:</td><td>none</td></tr>
+        <tr><td>File name example:</td><td>45S045W.GETASSE30_flag where the first number is the latitude of the most
+            South West pixel and the second number its longitude</td></tr>
+        <tr><td>Data format:</td><td>binary, 1800*1800 unsigned 8-bit integer values, big endian order</td></tr>
+    </tbody></table>
+
+    
+  <p align="center"> <img src="images/GETASSE30Flags.jpg" border="0" height="331" width="664"><br>
+        The flag associated to the GETASSE30 data
+    </p>
+</li>
+
+<h4>Input Data used in GETASSE30 Generation</h4>
+<ul>
+    <li>ACE DEM at 30 arc second resolution referenced to the EGM96 geoid<br>
+        See ACE Report at <a href="http://www.cse.dmu.ac.uk/geomatics/products_ace_overview.html">http://www.cse.dmu.ac.uk/geomatics/products_ace_overview.html</a>
+    </li>
+    <li>SRTM30 data are reference to the EGM96 geoid<br>
+        See <a href="http://www2.jpl.nasa.gov/srtm/">http://www2.jpl.nasa.gov/srtm/</a></li>
+    <li>Mean Sea Surface (MSS) height at 2 minutes resolution referenced to the WGS84 ellipsoid.<br>
+        From the RA2 auxilliary file RA2_MSS_AXVIEC20031208_145545_20020101_000000_20200101_000000<br>
+        See RA2 product handbook at <a href="http://www.ENVISAT.esa.int">http://www.ENVISAT.esa.int</a></li>
+</ul>
+
+<hr>
+</body></html>

@@ -1,0 +1,19 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-b</symbolicName>
+    <name>Module B</name>
+    <description>This is Module B</description>
+    <version>2.4.2-SNAPSHOT</version>
+
+    <activator>com.bc.modules.ModuleBActivator</activator>
+    <dependency>
+        <module>module-a</module>
+    </dependency>
+    <extensionPoint id="ep-1"/>
+    <extensionPoint id="ep-2"/>
+    <extensionPoint id="ep-3"/>
+
+    <extension id="e-bb21" point="module-b:ep-2"/>
+    <extension id="e-bb22" point="module-b:ep-2"/>
+
+</module>

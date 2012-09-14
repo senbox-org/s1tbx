@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ceos version="1.0" mission="alos">
+	<rec name="Text describing Channel contents" type="1" num="64"/> 
+	<rec name="Name of file storing image data" type="1" num="64"/> 
+	<rec name="Creation time and date" type="1" num="16"/> 
+	<rec name="Last update time and date" type="1" num="16"/>
+	<rec name="Image data type" type="1" num="8"/>	
+	<rec name="Offset in bytes to first pixel" type="2" num="16"/>
+	<rec name="Offset in bytes between groups of pixels" type="2" num="8"/>
+	<rec name="Offet in bytes between lines" type="2" num="8"/>
+	<rec name="Channel lock flag" type="1" num="1"/>
+	<rec name="Pixel data swap flag" type="1" num="1"/>
+	<rec name="Data measurement units" type="1" num="16"/>
+	<rec name="Additive constant for scaling" type="5" num="16"/>
+	<rec name="Multiplicative constant for scaling" type="5" num="16"/>
+	<rec name="IHi.2 File XOff" type="2" num="8"/>
+	<rec name="IHi.2 File YOff" type="2" num="8"/>
+	<rec name="IHi.2 File XSize" type="2" num="8"/>
+	<rec name="IHi.2 File YSize" type="2" num="8"/>
+	<rec name="Channel to use of Source File" type="2" num="8"/>
+	<rec name="skipBytes" type="0" num="94"/>
+	<rec name="Image channel history 1" type="1" num="80"/>
+	<rec name="Image channel history 2" type="1" num="80"/>
+	<rec name="Image channel history 3" type="1" num="80"/>
+	<rec name="Image channel history 4" type="1" num="80"/>
+	<rec name="Image channel history 5" type="1" num="80"/>
+	<rec name="Image channel history 6" type="1" num="80"/>
+	<rec name="Image channel history 7" type="1" num="80"/>	
+	<rec name="Image channel history 8" type="1" num="80"/>	
+</ceos>

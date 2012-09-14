@@ -1,0 +1,56 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters/>
+  </node>
+  <node id="2-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="4-Calibration"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>target.dim</file>
+    </parameters>
+  </node>
+  <node id="3-Apply-Orbit-File">
+    <operator>Apply-Orbit-File</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters>
+      <orbitType>DORIS Precise VOR</orbitType>
+    </parameters>
+  </node>
+  <node id="4-Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="3-Apply-Orbit-File"/>
+    </sources>
+    <parameters>
+      <sourceBands/>
+      <externalAuxFile/>
+	  <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="1-Read">
+      <displayPosition y="134.0" x="37.0"/>
+    </node>
+    <node id="2-Write">
+      <displayPosition y="134.0" x="401.0"/>
+    </node>
+    <node id="3-Apply-Orbit-File">
+      <displayPosition y="134.0" x="132.0"/>
+    </node>
+    <node id="4-Calibration">
+      <displayPosition y="134.0" x="279.0"/>
+    </node>
+  </applicationData>
+</graph>

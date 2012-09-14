@@ -1,0 +1,9 @@
+MER_RAC_AX|MERIS Radiometric Calibration|
+#
+MPH            |@/records/MPH.dd                                  |1247                      |Main Product Header
+SPH            |@/records/SPH.dd       				              |*                         |Specific Product Header
+GADS           |@/records/meris/MER_RAC_AX_GADS.dd                |GADS Corr. Control Params |GADS Corr. Control Params
+Gain_FR        |@/records/meris/MER_RAC_AX_ADSR_Gain_FR.dd        |ADS Gain FR               |ADS Gain FR
+Gain_RR        |@/records/meris/MER_RAC_AX_ADSR_Gain_RR.dd        |ADS Gain RR               |ADS Gain RR
+Degradation_FR |@/records/meris/MER_RAC_AX_ADSR_Degradation_FR.dd |ADS Degradation FR        |ADS Degradation FR
+Degradation_RR |@/records/meris/MER_RAC_AX_ADSR_Degradation_RR.dd |ADS Degradation RR        |ADS Degradation RR

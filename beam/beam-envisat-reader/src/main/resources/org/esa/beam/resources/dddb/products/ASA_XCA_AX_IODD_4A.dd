@@ -1,0 +1,5 @@
+ASA_XCA_AX|ASAR External Calibration|
+#
+MPH                       |@/records/MPH.dd                     |1247                      |Main Product Header
+SPH                       |@/records/SPH.dd       				|*                         |ASAR Aux Products SPH
+auxiliary_data            |@/records/asar/ASA_XCA_AX_GADS_IODD_4A.dd|ASAR auxiliary data   |ASAR auxiliary data

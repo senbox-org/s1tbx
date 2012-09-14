@@ -1,0 +1,55 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-arcbingrid-reader</symbolicName>
+    <version>3.0</version>
+    <name>Arc/Info Binary Grid Reader</name>
+
+    <description>
+        <![CDATA[
+        This module provides a product reader for importing Arc/Info Binary Grid data products into BEAM/VISAT.
+        ]]>
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2010 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+          <p>Changes in 1.1:<br/>
+          [GBOX-001] 'Arc/Info Binary Grid Reader' does not work<br/>
+          </p>
+                ]]>
+    </changelog>
+
+    <dependency>
+        <module>ceres-binio</module>
+    </dependency>
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <id>importArcBinGrid</id>
+            <helpId>importArcBinGrid</helpId>
+            <formatName>ARC_INFO_BIN_GRID</formatName>
+            <useAllFileFilter>false</useAllFileFilter>
+            <text>ArcInfo Binary Grid</text>
+            <mnemonic/>
+            <shortDescr>Import a Arc/Info Binary Grids product or product subset.</shortDescr>
+            <description>Import a Arc/Info Binary Grids product or product subset.</description>
+            <parent>importFileFormats</parent>
+        </action>
+    </extension>
+
+</module>

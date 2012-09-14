@@ -1,0 +1,96 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters>
+      <file></file>
+    </parameters>
+  </node>
+  <node id="2-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="5-Terrain-Correction"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>target.dim</file>
+    </parameters>
+  </node>
+  <node id="3-Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters>
+      <sourceBands/>
+      <auxFile>Latest Auxiliary File</auxFile>
+      <externalAuxFile/>
+	  <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>true</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="4-Multilook">
+    <operator>Multilook</operator>
+    <sources>
+      <sourceProduct refid="3-Calibration"/>
+    </sources>
+    <parameters>
+      <sourceBands/>
+      <nRgLooks>1</nRgLooks>
+      <nAzLooks>1</nAzLooks>
+      <outputIntensity>true</outputIntensity>
+      <note>Currently, detection for complex data is performed without any resampling</note>
+    </parameters>
+  </node>
+  <node id="5-Terrain-Correction">
+    <operator>Terrain-Correction</operator>
+    <sources>
+      <sourceProduct refid="4-Multilook"/>
+    </sources>
+    <parameters>
+      <sourceBands/>
+      <demName>SRTM 3Sec</demName>
+      <externalDEMFile/>
+      <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+      <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
+      <imgResamplingMethod>BILINEAR_INTERPOLATION</imgResamplingMethod>
+      <pixelSpacingInMeter>0</pixelSpacingInMeter>
+      <pixelSpacingInDegree>0</pixelSpacingInDegree>
+      <mapProjection>WGS84(DD)</mapProjection>
+	  <nodataValueAtSea>true</nodataValueAtSea>
+      <saveDEM>false</saveDEM>
+      <saveLocalIncidenceAngle>false</saveLocalIncidenceAngle>
+      <saveProjectedLocalIncidenceAngle>false</saveProjectedLocalIncidenceAngle>
+      <saveSelectedSourceBand>true</saveSelectedSourceBand>
+      <applyRadiometricNormalization>false</applyRadiometricNormalization>
+      <saveSigmaNought>false</saveSigmaNought>
+      <saveGammaNought>false</saveGammaNought>
+      <saveBetaNought>false</saveBetaNought>
+      <incidenceAngleForSigma0>Use projected local incidence angle from DEM</incidenceAngleForSigma0>
+      <incidenceAngleForGamma0>Use projected local incidence angle from DEM</incidenceAngleForGamma0>
+      <auxFile>Latest Auxiliary File</auxFile>
+      <externalAuxFile/>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="1-Read">
+      <displayPosition y="134.0" x="37.0"/>
+    </node>
+    <node id="2-Write">
+      <displayPosition y="135.0" x="455.0"/>
+    </node>
+    <node id="3-Calibration">
+      <displayPosition y="135.0" x="132.0"/>
+    </node>
+    <node id="4-Multilook">
+      <displayPosition y="134.0" x="226.0"/>
+    </node>
+    <node id="5-Terrain-Correction">
+      <displayPosition y="133.0" x="310.0"/>
+    </node>
+  </applicationData>
+</graph>

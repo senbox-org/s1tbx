@@ -1,0 +1,75 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>BEAM Help - Import GeoTIFF</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp; Import GeoTIFF</td>
+        
+    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a></td>
+    </tr>
+</table>
+
+<h3>Import GeoTIFF</h3>
+
+<p>This command allows to import the data of a GeoTIFF file.</p>
+
+<p>GeoTIFF is an extension to the TIFF 6.0 specification. These image files contain
+    additional information about thier georeference and their spatial resolution. A wide range of
+    projected coordinate systems are supported including UTM, US State Plane, and National Grids.
+    For further information have a look at the following documentations:
+<ul>
+    <li><a href="http://www.remotesensing.org/geotiff/geotiff.html">GeoTIFF Homepage</a></li>
+    <li><a href="http://partners.adobe.com/public/developer/tiff/index.html">TIFF Specification</a></li>
+</ul>
+
+<h3>Constraints of reading GeoTIFF product files</h3>
+
+<p>If an GeoTiff file was exported by BEAM, the reader can recover information from a special tag
+    used by the <a href="ExportGeoTIFF.html">GeoTIFF writer</a>.<br/>
+    This includes:
+</p>
+<ul>
+    <li>Name and type of the product.</li>
+    <li>Name, description and unit of each band.</li>
+    <li>The properties of no-data and scaling for each band.</li>
+    <li>The index coding of a band.</li>
+    <li>Virtual and filtered bands.</li>
+    <li>etc.</li>
+</ul>
+<p>
+    For features and limitations of the GeoTIFF import and constraints see the following list:
+</p>
+<ul>
+    <li>Only the first image of a GeoTIFF file is considered.</li>
+    <li>The size of images is limited to a pixel count of 2<sup>32</sup>.</li>
+    <li>The GeoTIFF reader supports the projections available in BEAM,
+       model transformations and tie-points.</li>
+    <li>Color maps are considered and converted to an index coding.</li>
+</ul>
+
+
+<hr>
+</body>
+</html>
+

@@ -1,0 +1,65 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-nest-common</symbolicName>
+    <version>5.0</version>
+    <name>BEAM-NEST Common Library</name>
+
+
+    <description>This is a shared module of BEAM containing functionalities from NEST.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+        <module>nest-core</module>
+    </dependency>
+
+    <changelog>
+        <![CDATA[
+        <p>Changes in 4.1:<br/>
+
+        </p>]]>
+    </changelog>
+
+    <categories>System,Library</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>PCAOp</id>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <text>Principal Component Analysis</text>
+            <operatorName>PCA</operatorName>
+	        <dialogTitle>Principal Component Analysis</dialogTitle>
+            <targetProductNameSuffix>_pca</targetProductNameSuffix>
+            <shortDescr>Principal Component Analysis</shortDescr>
+            <parent>imageAnalysis</parent>
+            <helpId>PCA</helpId>
+        </action>
+    </extension>
+
+</module>

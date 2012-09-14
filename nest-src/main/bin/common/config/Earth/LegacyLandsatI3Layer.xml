@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--$Id: LegacyLandsatI3Layer.xml,v 1.1 2010-04-05 17:38:21 lveci Exp $-->
+<Layer version="1" layerType="TiledImageLayer">
+    <!-- Defines the original WWJ Landsat I3 imagery that uses the WW tile service. Made obsolete by the WMS version -->
+    <DisplayName>i-cubed Landsat</DisplayName>
+    <Service serviceName="WWTileService">
+        <URL>http://worldwind25.arc.nasa.gov/lstile/lstile.aspx</URL>
+    </Service>
+    <!-- Thu, 22 Mar 2007 00:00:00 PDT -->
+    <LastUpdate>1174546800000</LastUpdate>
+    <DatasetName>esat_worlddds</DatasetName>
+    <DataCacheName>Earth/NASA LandSat I3</DataCacheName>
+    <FormatSuffix>.dds</FormatSuffix>
+    <NumLevels count="10" numEmpty="4"/>
+    <TileOrigin>
+        <LatLon units="degrees" latitude="-90" longitude="-180"/>
+    </TileOrigin>
+    <LevelZeroTileDelta>
+        <LatLon units="degrees" latitude="36" longitude="36"/>
+    </LevelZeroTileDelta>
+    <TileSize>
+        <Dimension width="512" height="512"/>
+    </TileSize>
+    <Sector>
+        <SouthWest>
+            <LatLon units="degrees" latitude="-90" longitude="-180"/>
+        </SouthWest>
+        <NorthEast>
+            <LatLon units="degrees" latitude="90" longitude="180"/>
+        </NorthEast>
+    </Sector>
+    <UseTransparentTextures>true</UseTransparentTextures>
+</Layer>

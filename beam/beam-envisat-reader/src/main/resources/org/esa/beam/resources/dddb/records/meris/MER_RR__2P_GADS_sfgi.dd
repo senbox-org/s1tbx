@@ -1,0 +1,45 @@
+MER_RR__2P_GADS_sfgi|Level 2 GADS Scaling Factors and Offsets|*
+#
+sf_alt|Float|*|4|1|*|scaling factor - altitude|1|
+sf_rough|Float|*|4|1|*|scaling factor - roughness|2|
+sf_zon_wind|Float|*|4|1|*|scaling factor - zonal wind|3|
+sf_merr_wind|Float|*|4|1|*|scaling factor - meridional wind|4|
+sf_atm_pres|Float|*|4|1|*|scaling factor - atmospheric pressure|5|
+sf_ozone|Float|*|4|1|*|scaling factor - ozone|6|
+sf_rel_humid|Float|*|4|1|*|scaling factor - relative humidity|7|
+sf_reflec|Float|*|4|13|*|scaling factor - reflectances|8|
+sf_algal_pig_ind|Float|*|4|1|*|scaling factor - Algal pigment index|9|
+sf_yellow_subs|Float|*|4|1|*|scaling factor - Yellow substance|10|
+sf_susp_sed|Float|*|4|1|*|scaling factor - Suspended sediment|11|
+sf_aero_epsilon|Float|*|4|1|*|scaling factor - Aerosol epsilon|12|
+sf_aer_opt_thick|Float|*|4|1|*|scaling factor - Aerosol optical thickness|13|
+sf_cl_opt_thick|Float|*|4|1|*|scaling factor - Cloud optical thickness|14|
+sf_surf_pres|Float|*|4|1|*|scaling factor - Surface pressure|15|
+sf_wvapour|Float|*|4|1|*|scaling factor - Water vapour|16|
+sf_photosyn_rad|Float|*|4|1|*|scaling factor - Photosynthetically active radiation|17|
+sf_toa_veg|Float|*|4|1|*|scaling factor - TOA Vegetation index|18|
+sf_boa_veg|Float|*|4|1|*|scaling factor - BOA Vegetation index|19|
+sf_cloud_albedo|Float|*|4|1|*|scaling factor - Cloud Albedo|20|
+sf_cloud_top_press|Float|*|4|1|*|scaling factor - Cloud Top Pressure|21|
+off_reflec|Float|*|4|13|*|offset - reflectances|22|
+off_algal|Float|log10(mg.m-3)|4|1|*|offset - Algal pigment index|23|
+off_yellow_subs|Float|log(m-1)|4|1|*|offset - Yellow substance|24|
+off_total_susp|Float|log10(g.m-3)|4|1|*|offset - Total suspended matter|25|
+off_aero_epsilon|Float|*|4|1|*|offset - Aerosol epsilon|26|
+off_aer_opt_thick|Float|*|4|1|*|offset - Aerosol optical thickness|27|
+off_cl_opt_thick|Float|*|4|1|*|offset - Cloud optical thickness|28|
+off_surf_pres|Float|hPa|4|1|*|offset - Surface pressure|29|
+off_wvapour|Float|g.cm-2|4|1|*|offset - Water vapour|30|
+off_photosyn_rad|Float|W.m-2|4|1|*|offset - Photosynthetically active radiation|31|
+off_toa_veg|Float|*|4|1|*|offset - TOA Vegetation index|32|
+off_boa_veg|Float|*|4|1|*|offset - BOA Vegetation index|33|
+off_cloud_albedo|Float|*|4|1|*|offset - Cloud Albedo|34|
+off_cloud_top_press|Float|hPa|4|1|*|offset - Cloud Top Pressure|35|
+gain_set|UChar|*|1|5*16|*|Gain setting|36|
+sampl_rate|ULong|(10-6) s|4|1|*|sampling rate|37|
+sun_spec_flux|Float|LU|4|15|*|Sun Spectral Flux (for bands 1-15)|38|
+sf_rect_refl_nir|Float|*|4|1|*|scaling factor - Rectified near infrared reflectance|39|
+off_rect_refl_nir|Float|*|4|1|*|offset - Rectified near infrared reflectance|40|
+sf_rect_refl_red|Float|*|4|1|*|scaling factor - Rectified infrared reflectance|41|
+off_rect_refl_red|Float|*|4|1|*|offset - Rectified infrared reflectance|42|
+spare_1|Spare|*|1|44|*|spare|43|

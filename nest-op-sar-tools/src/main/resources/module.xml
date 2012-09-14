@@ -1,0 +1,282 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>nest-op-sar-tools</symbolicName>
+    <version>5.0</version>
+    <name>NEST SAR Tools</name>
+    <description>NEST SAR Tools</description>
+	
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2012 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>European Space Agency</funding>
+	
+	<dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+      <module>nest-core</module>
+    </dependency>
+    <dependency>
+      <module>nest-graph-builder</module>
+    </dependency>
+    <dependency>
+      <module>nest-dat</module>
+    </dependency>
+
+    <categories>Processing</categories>
+
+    <extension point="beam-ui:actions">
+
+        <action>
+	        <id>SlantRangeGroundRangeOp</id>
+	        <helpId>SRGROp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>geometry</parent>
+	        <text>Slant Range to Ground Range</text>
+	        <operatorName>SRGR</operatorName>
+	        <dialogTitle>Converts from slant range to ground range</dialogTitle>
+            <targetProductNameSuffix>_GrdRg</targetProductNameSuffix>
+            <placeAfter>DEMTools</placeAfter>
+        </action>
+
+        <action>
+	        <id>MultilookOp</id>
+	        <helpId>MultilookOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>sartools</parent>
+	        <text>Multilooking</text>
+	        <operatorName>Multilook</operatorName>
+	        <dialogTitle>Multilook</dialogTitle>
+            <shortDescr>Multilook an image</shortDescr>
+            <targetProductNameSuffix>_ML</targetProductNameSuffix>
+	    </action>
+
+        <action>
+            <id>Resampling</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Resampling</text>
+            <parent>tools</parent>
+            <placeAfter>DatasetConversion</placeAfter>
+        </action>
+
+        <action>
+	        <id>OverSampleOp</id>
+	        <helpId>OverSampleOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Resampling</parent>
+	        <text>Oversample</text>
+	        <operatorName>Oversample</operatorName>
+	        <dialogTitle>Oversample an image</dialogTitle>
+            <targetProductNameSuffix>_OvrS</targetProductNameSuffix>
+        </action>
+
+        <action>
+	        <id>UnderSampleOp</id>
+	        <helpId>UnderSampleOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Resampling</parent>
+	        <text>Undersample</text>
+	        <operatorName>Undersample</operatorName>
+	        <dialogTitle>Undersample an image</dialogTitle>
+            <targetProductNameSuffix>_UndS</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>DatasetConversion</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Dataset Conversion</text>
+            <parent>tools</parent>
+            <placeAfter>createSubsetFromView</placeAfter>
+        </action>
+
+        <action>
+	        <id>ConvertDatatypeOp</id>
+	        <helpId>ConvertDatatypeOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>DatasetConversion</parent>
+	        <text>Convert Datatype</text>
+	        <operatorName>Convert-Datatype</operatorName>
+	        <dialogTitle>Change the datatype of the product</dialogTitle>
+            <targetProductNameSuffix>_Cnv</targetProductNameSuffix>
+	    </action>
+
+        <action>
+	        <id>SLCtoPRI</id>
+	        <helpId>SLCtoPRI</helpId>
+	        <class>org.esa.nest.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>DatasetConversion</parent>
+	        <text>Complex to Detected GR</text>
+            <shortDescr>Convert a SLC product to a detected ground range product</shortDescr>
+	        <dialogTitle>Complex to Detected Ground Range</dialogTitle>
+            <graphFile>SLCtoPRIGraph.xml</graphFile>
+        </action>
+
+        <action>
+            <id>AmplitudeToIntensityOp</id>
+            <class>org.esa.nest.dat.AmplitudeToIntensityOpAction</class>
+            <text>Amplitude to/from Intensity</text>
+            <shortDescr>Change the data Amplitude to/from Intensity</shortDescr>
+            <parent>DatasetConversion</parent>
+            <context>band</context>
+            <helpId>AmplitudeToIntensityOp</helpId>
+        </action>
+
+        <action>
+            <id>LinearTodBOp</id>
+            <class>org.esa.nest.dat.LinearTodBOpAction</class>
+            <text>Linear to/from dB</text>
+            <shortDescr>Change the data Linear to/from dB</shortDescr>
+            <parent>DatasetConversion</parent>
+            <context>band</context>
+            <helpId>LinearTodBOp</helpId>
+        </action>
+
+        <action>
+            <id>ScaleData</id>
+            <class>org.esa.nest.dat.ScaleDataAction</class>
+            <text>Scale Data</text>
+            <shortDescr>Scale data using a virtual band</shortDescr>
+            <parent>DatasetConversion</parent>
+            <context>band</context>
+            <helpId>ScaleData</helpId>
+        </action>
+
+        <action>
+            <id>ASARWSS</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>ASAR WSS</text>
+            <placeAfter>SpeckleFilteringGroup</placeAfter>
+            <parent>sartools</parent>
+        </action>
+
+        <action>
+	        <id>WSSDeburstOp</id>
+	        <helpId>WSSDeburstOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>ASARWSS</parent>
+	        <text>ASAR WSS Deburst</text>
+	        <operatorName>DeburstWSS</operatorName>
+	        <dialogTitle>ASAR WSS Deburst operator</dialogTitle>
+            <shortDescr>Deburst an ASAR WSS product</shortDescr>
+            <targetProductNameSuffix>_Deburst</targetProductNameSuffix>
+        </action>
+
+        <action>
+	        <id>WSSMosaicOp</id>
+	        <helpId>WSSMosaicOp</helpId>
+	        <class>org.esa.nest.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>ASARWSS</parent>
+	        <text>WSS Deburst, Calibrate and Detect</text>
+            <shortDescr>Graph to deburst and detect a WSS product. Run Mosaic afterwards to combine</shortDescr>
+	        <dialogTitle>WSS Deburst, Calibrate and Detect</dialogTitle>
+            <graphFile>WSSDetectGraph.xml</graphFile>
+            <placeAfter>WSSDeburstOp</placeAfter>
+        </action>
+
+        <action>
+	        <id>applyOrbitFile</id>
+	        <helpId>ApplyOrbitFileOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>tools</parent>
+	        <text>Apply Orbit File</text>
+	        <operatorName>Apply-Orbit-File</operatorName>
+	        <dialogTitle>Apply Orbit File to Product</dialogTitle>
+            <targetProductNameSuffix>_Orb</targetProductNameSuffix>
+			<placeBefore>Calibration</placeBefore>
+            <separatorAfter>true</separatorAfter>
+	    </action>
+
+        <action>
+            <id>replaceMetadata</id>
+            <class>org.esa.nest.dat.ReplaceMetadataAction</class>
+            <text>Replace Metadata</text>
+            <shortDescr>Replace product metadata with that of another product</shortDescr>
+            <description>Replace product metadata with that of another product</description>
+            <parent>MetadataTools</parent>
+            <context>metadataNode</context>
+        </action>
+
+        <action>
+            <id>SpeckleFilteringGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Speckle Filtering</text>
+            <parent>sartools</parent>
+            <placeAfter>Calibration</placeAfter>
+        </action>
+
+        <action>
+	        <id>SpeckleFilterOp</id>
+	        <helpId>SpeckleFilterOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>SpeckleFilteringGroup</parent>
+	        <text>Single Product Speckle Filter</text>
+	        <operatorName>Speckle-Filter</operatorName>
+	        <dialogTitle>Speckle filtering</dialogTitle>
+            <shortDescr>Invoke the Speckle Filter operator on a single product</shortDescr>
+            <targetProductNameSuffix>_Spk</targetProductNameSuffix>
+	    </action>
+
+        <action>
+	        <id>MultiTemporalSpeckleFilterOp</id>
+	        <helpId>MultiTemporalSpeckleFilterOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>SpeckleFilteringGroup</parent>
+	        <text>Multi-temporal Product Speckle Filter</text>
+	        <operatorName>Multi-Temporal-Speckle-Filter</operatorName>
+            <shortDescr>Speckle filter a stack</shortDescr>
+            <dialogTitle>Multi-temporal Speckle filtering</dialogTitle>
+            <targetProductNameSuffix>_Spk</targetProductNameSuffix>
+	    </action>
+
+        <action>
+	        <id>FillHoleOp</id>
+	        <helpId>FillHoleOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>DEMTools</parent>
+	        <text>Fill DEM Hole</text>
+	        <operatorName>Fill-Hole</operatorName>
+	        <dialogTitle>Fill holes in DEM product</dialogTitle>
+            <shortDescr>Fill holes in a DEM product</shortDescr>
+            <targetProductNameSuffix>_Filled</targetProductNameSuffix>
+	    </action>
+
+        <action>
+	        <id>ImageFilterOp</id>
+	        <helpId>FilterOperator</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>tools</parent>
+	        <text>Image Filtering</text>
+	        <operatorName>Image-Filter</operatorName>
+	        <dialogTitle>Image filtering</dialogTitle>
+            <shortDescr>Apply an image filter</shortDescr>
+            <targetProductNameSuffix>_Filt</targetProductNameSuffix>
+	    </action>
+
+    </extension>
+
+	<extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+			<id>sartoolsHelp</id>
+            <path>doc/help/sartools.hs</path>
+        </helpSet>
+    </extension>
+</module>

@@ -1,0 +1,55 @@
+#
+# 1) product_name
+# 2) description
+#
+AT2_TOA_1P|ERS-2/ATSR-2 Gridded brightness temperature and reflectance
+
+#
+# 1) band_name
+# 2) dataset_name
+# 3) sample_offset
+# 4) band_datatype
+# 5) spectr_band_index
+# 6) scaling_method
+# 7) scaling_offset
+# 8) scaling_factor
+# 9) bit_expr
+# 10) flags_definition_file
+# 11) unit
+# 12) description
+#
+#1                |2                             |3|4     |5|6           |7  |8      |9                     |10                                |11 |12
+#-----------------|------------------------------|-|------|-|------------|---|-------|----------------------|----------------------------------|---|----------------------------------------------------
+latitude          |GEOLOCATION_ADS.5             |*|Float |*|Linear_Scale|0.0|1.0E-06|*                     |*                                 |deg|Latitudes
+longitude         |GEOLOCATION_ADS.6             |*|Float |*|Linear_Scale|0.0|1.0E-06|*                     |*                                 |deg|Longitudes
+lat_corr_nadir    |GEOLOCATION_ADS.7             |*|Float |*|Linear_Scale|0.0|1.0E-06|*                     |*                                 |deg|Latitude corrections, nadir view
+lon_corr_nadir    |GEOLOCATION_ADS.8             |*|Float |*|Linear_Scale|0.0|1.0E-06|*                     |*                                 |deg|Longitude corrections, nadir view
+lat_corr_fward    |GEOLOCATION_ADS.9             |*|Float |*|Linear_Scale|0.0|1.0E-06|*                     |*                                 |deg|Latitude corrections, forward view
+lon_corr_fward    |GEOLOCATION_ADS.10            |*|Float |*|Linear_Scale|0.0|1.0E-06|*                     |*                                 |deg|Longitude corrections, forward view
+altitude          |GEOLOCATION_ADS.11            |*|Float |*|Linear_Scale|0.0|1.0    |*                     |*                                 |m  |Topographic altitude
+sun_elev_nadir    |NADIR_VIEW_SOLAR_ANGLES_ADS.5 |*|Float |*|Linear_Scale|0.0|1.0E-03|*                     |*                                 |deg|Solar elevation, nadir view
+view_elev_nadir   |NADIR_VIEW_SOLAR_ANGLES_ADS.6 |*|Float |*|Linear_Scale|0.0|1.0E-03|*                     |*                                 |deg|Satellite elevation, nadir view
+sun_azimuth_nadir |NADIR_VIEW_SOLAR_ANGLES_ADS.7 |*|Float |*|Linear_Scale|0.0|1.0E-03|*                     |*                                 |deg|Solar azimuth, nadir view
+view_azimuth_nadir|NADIR_VIEW_SOLAR_ANGLES_ADS.8 |*|Float |*|Linear_Scale|0.0|1.0E-03|*                     |*                                 |deg|Satellite azimuth, nadir view
+sun_elev_fward    |FWARD_VIEW_SOLAR_ANGLES_ADS.5 |*|Float |*|Linear_Scale|0.0|1.0E-03|*                     |*                                 |deg|Solar elevation, forward view
+view_elev_fward   |FWARD_VIEW_SOLAR_ANGLES_ADS.6 |*|Float |*|Linear_Scale|0.0|1.0E-03|*                     |*                                 |deg|Satellite elevation, forward view
+sun_azimuth_fward |FWARD_VIEW_SOLAR_ANGLES_ADS.7 |*|Float |*|Linear_Scale|0.0|1.0E-03|*                     |*                                 |deg|Solar azimuth, forward view
+view_azimuth_fward|FWARD_VIEW_SOLAR_ANGLES_ADS.8 |*|Float |*|Linear_Scale|0.0|1.0E-03|*                     |*                                 |deg|Satellite azimuth, forward view
+btemp_nadir_1200  |11500_12500_NM_NADIR_TOA_MDS.5|*|Float |7|Linear_Scale|0.0|0.01   |btemp_nadir_1200 >= 0 |*                                 |K  |Brightness temperature, nadir view (11500-12500 nm)
+btemp_nadir_1100  |10400_11300_NM_NADIR_TOA_MDS.5|*|Float |6|Linear_Scale|0.0|0.01   |btemp_nadir_1100 >= 0 |*                                 |K  |Brightness temperature, nadir view (10400-11300 nm)
+btemp_nadir_0370  |03505_03895_NM_NADIR_TOA_MDS.5|*|Float |5|Linear_Scale|0.0|0.01   |btemp_nadir_0370 >= 0 |*                                 |K  |Brightness temperature, nadir view (3505-3895 nm)
+reflec_nadir_1600 |01580_01640_NM_NADIR_TOA_MDS.5|*|Float |4|Linear_Scale|0.0|0.01   |reflec_nadir_1600 >= 0|*                                 |%  |Refectance, nadir view (1580-1640 nm)
+reflec_nadir_0870 |00855_00875_NM_NADIR_TOA_MDS.5|*|Float |3|Linear_Scale|0.0|0.01   |reflec_nadir_0870 >= 0|*                                 |%  |Refectance, nadir view (855-875 nm)
+reflec_nadir_0670 |00649_00669_NM_NADIR_TOA_MDS.5|*|Float |2|Linear_Scale|0.0|0.01   |reflec_nadir_0670 >= 0|*                                 |%  |Refectance, nadir view (649-669 nm)
+reflec_nadir_0550 |00545_00565_NM_NADIR_TOA_MDS.5|*|Float |1|Linear_Scale|0.0|0.01   |reflec_nadir_0550 >= 0|*                                 |%  |Refectance, nadir view (545-565 nm)
+btemp_fward_1200  |11500_12500_NM_FWARD_TOA_MDS.5|*|Float |7|Linear_Scale|0.0|0.01   |btemp_fward_1200 >= 0 |*                                 |K  |Brightness temperature, forward view (11500-12500 nm)
+btemp_fward_1100  |10400_11300_NM_FWARD_TOA_MDS.5|*|Float |6|Linear_Scale|0.0|0.01   |btemp_fward_1100 >= 0 |*                                 |K  |Brightness temperature, forward view (10400-11300 nm)
+btemp_fward_0370  |03505_03895_NM_FWARD_TOA_MDS.5|*|Float |5|Linear_Scale|0.0|0.01   |btemp_fward_0370 >= 0 |*                                 |K  |Brightness temperature, forward view (3505-3895 nm)
+reflec_fward_1600 |01580_01640_NM_FWARD_TOA_MDS.5|*|Float |4|Linear_Scale|0.0|0.01   |reflec_fward_1600 >= 0|*                                 |%  |Refectance, forward view (1580-1640 nm)
+reflec_fward_0870 |00855_00875_NM_FWARD_TOA_MDS.5|*|Float |3|Linear_Scale|0.0|0.01   |reflec_fward_0870 >= 0|*                                 |%  |Refectance, forward view (855-875 nm)
+reflec_fward_0670 |00649_00669_NM_FWARD_TOA_MDS.5|*|Float |2|Linear_Scale|0.0|0.01   |reflec_fward_0670 >= 0|*                                 |%  |Refectance, forward view (649-669 nm)
+reflec_fward_0550 |00545_00565_NM_FWARD_TOA_MDS.5|*|Float |1|Linear_Scale|0.0|0.01   |reflec_fward_0550 >= 0|*                                 |%  |Refectance, forward view (545-565 nm)
+confid_flags_nadir|NADIR_VIEW_CONFIDENCE_MDS.5   |*|UShort|*|*           |*  |*      |*                     |@/flags/ATS_TOA_1P_confid_flags.dd|*  |Confidence flags, nadir view
+confid_flags_fward|FWARD_VIEW_CONFIDENCE_MDS.5   |*|UShort|*|*           |*  |*      |*                     |@/flags/ATS_TOA_1P_confid_flags.dd|*  |Confidence flags, forward view
+cloud_flags_nadir |NADIR_VIEW_CLOUD_MDS.5        |*|UShort|*|*           |*  |*      |*                     |@/flags/ATS_TOA_1P_cloud_flags.dd |*  |Cloud flags, nadir view
+cloud_flags_fward |FWARD_VIEW_CLOUD_MDS.5        |*|UShort|*|*           |*  |*      |*                     |@/flags/ATS_TOA_1P_cloud_flags.dd |*  |Cloud flags, forward view

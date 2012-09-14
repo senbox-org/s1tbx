@@ -1,0 +1,49 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-csv-dataio</symbolicName>
+    <version>5.0-4.10.4</version>
+    <name>CSV Product Reader</name>
+
+    <description>Enables BEAM to read data products from CSV files.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2012 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat-rcp</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader,CSV</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>importCsvProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>CSV</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <shortDescr>Import a CSV data product.</shortDescr>
+            <description>Import a CSV data product.</description>
+            <helpId>importCsvProduct</helpId>
+            <parent>importFileFormats</parent>
+        </action>
+        <action>
+            <id>exportCsvProduct</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <text>CSV</text>
+            <formatName>CSV</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Writes a product in CSV format</shortDescr>
+            <description>Writes a product in CSV format</description>
+            <helpId>exportCsvProduct</helpId>
+        </action>
+    </extension>
+
+</module>

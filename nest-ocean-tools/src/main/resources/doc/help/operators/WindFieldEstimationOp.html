@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+    
+    
+  
+  <title>Help - Wind Field Estimation</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+
+<table class="header">
+
+    <tbody>
+    <tr class="header">
+
+        <td class="header">&nbsp;Wind Field Estimation</td>
+
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+
+<h3>Wind Field Estimation</h3>&nbsp;&nbsp;&nbsp;As the wind blows across the ocean
+surface, it generates surface roughness generally aligned with the wind
+direction. Consequently the radar backscatter from this roughened
+surface is related to the wind speed and direction. This operator
+retrieves wind speed and direction from C-band SAR imagery. <br><h4>Major Processing Steps</h4>&nbsp;&nbsp;The general approach for the wind field retrieval is as the follows:<br><ol><li>First a land-sea mask is generated to ensure that the estimation&nbsp;is focused only on the sea surface area.</li><li>Then the SAR image is divided into grid using user specified window size. </li><li>For
+each grid, a wind direction (with 180° ambiguity) is estimated from
+features in the SAR image using&nbsp;a frequency domain method. </li><li>With
+the wind direction estimated for the grid, finally the wind speed is
+estimated by using CMOD5 model for the Normalized Radar Cross Section
+(NRCS).</li></ol>
+&nbsp;&nbsp;For details of land-sea mask generation, the reader is&nbsp;referred to the <a href="CreateLandMask.html">Create Land Mask</a> operator.<br><h4>Wind Direction Estimation</h4>&nbsp;&nbsp;
+The wind direction is estimated from the features in the SAR image.
+Detailed steps for the estimation&nbsp;are given below:<br><ol><li>For
+each window within which a wind direction will be estimated, a local
+FFT size is determined. The FFT size is 2/3 of the window size,
+therefore four spectra can be computed in the window with&nbsp;each
+spectra region has a 50% overlap with the neighboring spectrum.</li><li>Each window is flattened by applying a large average filter, then dividing by the filtered image.</li><li>The FFT&#8217;s are applied and the four resulting spectra are averaged.</li><li>An
+annulus is applied to the spectrum to zero out any energy outside of a
+wavenumber region. The limits of the annulus are set to wave lengths of
+3 km to 15 km.</li><li>A 3x3 median filter is then applied to the spectrum to remove noise.</li><li>A
+2D polynomial is fit to the resulting spectral samples and the
+direction through the origin which has the largest quadratic term (i.e.
+the widest extent) is determined. The wind direction is then assumed to
+be 90 degree from this direction.<br></li></ol><h4>Wind Speed Estimation</h4><ul><li>&nbsp; &nbsp;The wind speed is estimated using the CMOD5 model for NRCS developed by Hersbach <span style="font-style: italic;">et al</span>.
+[1]&nbsp;for VV-polarized C-band scatterometry.</li><li>&nbsp;&nbsp;&nbsp;For ENVISAT HH-polarized product, where CMOD5 model is not directly
+applicable, the operator first converts the NRCS at HH polarization
+into a corresponding NRCS for VV polarization with the following
+equation, then applies the CMOD5 model to the converted NRCS:</li></ul><br><div style="margin-left: 40px;"><img style="width: 255px; height: 67px;" alt="" src="images/wind_field_estimation_eq_1.jpg"><br></div><br><div style="margin-left: 40px;">where <span style="font-style: italic;">&#952;</span> is the incidence angle and &#945; is set to 1.<br></div><br>&nbsp;&nbsp;&nbsp; For details of the CMOD5 model, the readers are referred to [1].<br><h4>Products Supported</h4><ul><li>&nbsp; &nbsp;The
+operator now is only supported for ERS and ENVISAT (VV- and
+HH-polarized) products. The source product is assumed to have been calibrated
+before applying the operator.</li></ul><h4>Parameters Used</h4>&nbsp;&nbsp;&nbsp;The following parameters are used by the operator:
+<ol>
+<li>Source Bands: All bands (real or virtual) of the source product.
+User can select one or more bands for producing multi-looked images. If
+no bands are selected, then by default all bands are selected. </li>
+<li>Window Size: The dimension of a window for which wind direction and speed are estimated.</li><br></ol><div style="margin-left: 40px;"><img style="width: 600px; height: 500px;" alt="" src="images/wind_field_estimation_dlg.jpg">&nbsp;<br></div>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Figure 1. Wind Field Estimation dialog box<br><h4>Visualize Estimated Wind Direction</h4>&nbsp;&nbsp;&nbsp;To&nbsp;view the estimated wind directions, the following steps should be followed:<br><ol><li>Bring up the image. </li><li>Go to layer manager and add layer called "Wind Field Estimation Results".</li></ol>&nbsp;&nbsp;&nbsp;Then
+wind directions will be displayed as shown in the example below. Note
+that the wind direction is indicated by double headed arrows because&nbsp;a 180°
+ambiguity exists in the estimated wind direction. Also for those grids
+in which land pixels are found, the wind directions are not estimated and
+hence not displayed.<br><br><div style="margin-left: 40px;"><img style="width: 236px; height: 456px;" alt="" src="images/wind_field_estimation_example.jpg"><br></div>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Figure 2. Example of wind direction display<br><h4>Wind Field Retrieval Result Report</h4>&nbsp;&nbsp;&nbsp;The
+wind field estimation&nbsp;results are saved into an xml file
+.nest/log/wind_field_report.xml with the following information given
+for each window in which wind estimation is made:<br><ol><li><span style="font-style: italic;">lat</span>: Latitude of the central point in the window. </li><li><span style="font-style: italic;">lon</span>: Longitude of&nbsp;the central point in the window.</li><li><span style="font-style: italic;">speed</span>: Estimated wind speed in m/s.</li><li><span style="font-style: italic;">dx</span>: X component of the estimated wind vector.</li><li><span style="font-style: italic;">dy</span>: Y component of the estimated wind vector.</li><li><span style="font-style: italic;">ratio</span>: In estimating wind direction, the spectrum of a given window is matched with a 2D polynomial (like f(x,y) = ax<sup>2</sup> + bxy + cy<sup>2</sup>
++ dx + ey +f). The ratio in the report is the ratio of the minor semi
+axes over the major semi axes of the 2D polynomial. Generally
+speaking,&nbsp;the smaller the ratio value, the more reliable the
+estimated wind direction.<br></li></ol><p style="font-style: italic;">Reference:</p><p>
+[1] H. Hersbach, CMOD5, &#8220;An Improved Geophysical Model Function for ERS
+C-Band Scatterometry&#8221;, Report of the European Centre Medium-Range
+Weather Forecasts (ECMWF), 2003.</p><p>[2] C. C. Wackerman, W. G.
+Pichel, P. Clemente-Colon, &#8220;Automated Estimation of Wind Vectors from
+SAR&#8221;, 12th Conference on Interactions of the Sea and Atmosphere, 2003.<br></p>
+
+<hr>
+</body></html>

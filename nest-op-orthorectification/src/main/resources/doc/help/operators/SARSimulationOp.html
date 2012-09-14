@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - SAR Simulation</title>
+
+
+<link rel="stylesheet" href="../style.css"></head><body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">SAR Simulation</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>SAR Simulation Operator</h3>
+<p>
+The operator generates simulated SAR image using DEM, the Geocoding and orbit state vectors
+from a given SAR image, and mathematical modeling of SAR imaging geometry. The simulated SAR
+image will have the same dimension and resolution as the original SAR image.</p><h4>Major Processing Steps</h4>
+
+<p>Some major steps of the simulation procedure are listed below:</p>
+<ol><li>First&nbsp;a DEM image is created from the original SAR image. The DEM image
+has the same dimension as the original SAR image. The pixel value of the DEM image is the
+elevation of the corresponding pixel in the original SAR image.<a href="SARSimulationOp.html"></a></li><li>Then, for each cell in the
+DEM image, its pixel position (row/column indices) in the simulated SAR image is computed
+based on the SAR model.</li><li>Finally, the backscattered power &#963;<sub>0</sub> for the pixel is computed&nbsp;using backscattering model.</li></ol><h4>DEM Supported</h4><p>Right now only the DEMs with geographic coordinates <span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">(</span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">P</span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB">&#1488;</span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">, P</span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB">&#1488;</span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">, P</span><span style="font-size: 8pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">h</span></i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">)</span>&nbsp;referred to global geodetic ellipsoid reference WGS84 in meters are properly supported.&nbsp;</p><p>By default the&nbsp;following DEMs are available:</p><ul><li> ACE</li><li>GETASSE30</li><li> SRTM 3Sec GeoTiff</li><li>ASTER GDEM</li></ul><p>Since
+the&nbsp;height information in ACE and SRTM is referred to geoid EGM96, not&nbsp;WGS84
+ellipsoid,&nbsp;correction has been applied to obtain height
+relative to the WGS84 ellipsoid.&nbsp;</p><p>User can also use external DEM file which, as specified above, must be WGS84 <span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">(</span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">P</span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB">&#1488; </span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">, P</span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB">&#1488;</span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">, P</span><span style="font-size: 8pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">h</span></i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">)</span>&nbsp;DEM in meters.</p><h4>Layover-Shadow Mask Generation</h4><p>Besides producing simulated image, this operator
+can also generate layover-shadow mask for the simulated image using the
+2-pass algorithm given in section 7.4 in [2]. For details of
+layover-shadow mask generation, reader is referred to <a href="SARSimTerrainCorrectionOp.html">SAR Simulation Terrain Correction operator.</a></p><h4>Parameters Used&nbsp;</h4><p>The following parameters are used by the operator:
+</p>
+<ol>
+<li> Source Band: All bands (real or virtual) of the source product. User can select one
+or more bands for producing simulated image. If no bands are selected, then by default all
+bands are selected. The selected band will be output as a band in the target product
+together with the simulated image.</li>
+<li> Digital Elevation Model: DEM types. Choose from the automatically
+tiled DEMs or specify using a single external DEM file by selecting
+"External DEM".</li>
+<li> DEM Resampling Method: Interpolation method for obtaining
+elevation values from the
+original DEM file. The following interpolation methods are available:
+nearest neighbour, bilinear, cubic convolution, binsinc and bicubic
+interpolations.
+</li><li> External DEM: User specificed external DEM file. Currently only WGS84-latlong
+DEM&nbsp;in meters is accepted as geographic system.</li><li>Save Layover-Shadow Mask as band: Checkbox indicating that layover-shadow mask is saved as a band in the target product.</li></ol>
+<br><p><img style="width: 500px; height: 501px;" alt="" src="images/sar_simulation_dlg.jpg"></p>
+
+<p></p><h4>Detailed Simulation Algorithm</h4>
+
+<p>Detailed procedure is as the follows:</p>
+<ol><li>Get data for the following parameters from the metadata of the SAR image product:</li><ul><li>radar wave length</li><li>range spacing</li><li>first_line_time</li><li>line_time_interval</li><li>slant range to 1st pixel</li><li>orbit state vectors</li><li>slant range to ground range conversion coefficients</li></ul><li> Compute satellite position and velocity for each azimuth time by interpolating the
+orbit state vectors;</li><li> Repeat the following steps for each cell in the DEM image:</li><ol type="1)"><li>Get latitude, longitude and elevation for the cell;</li><li>Convert (latitude, longitude, elevation) to Cartesian coordinate P(X, Y, Z);</li><li>Compute zero Doppler time t for point P(x, y, z) using Doppler frequency function;</li><li>Compute SAR sensor position S(X, Y, Z) at time t;</li><li>Compute slant range r = |S - P|;</li><li>Compute bias-corrected zero Doppler time tc = t + r*2/c, where c is the light speed;</li><li>Update satellite position S(tc) and slant range r(tc) = |S(tc) &#8211; P| for the bias-corrected zero Doppler time tc;</li><li>Compute azimuth index Ia in the source image using zero Doppler time tc;</li><li>Compute range index Ir in the source image using slant range r(tc);</li><li>Compute local incidence angle;</li><li>Compute backscattered power and save it as value for pixel ((int)Ia, (int)Ir);</li></ol></ol><p><span style="font-style: italic;">Reference:</span></p><p>[1] Liu H., Zhao Z., Lezek K. C., Correction of Positional Errors and Geometric Distortions
+in Topographic Maps and DEMs Using a Rigorous SAR Simulation Technique, Photogrammetric
+Engineering &amp; Remote Sensing, Vol. 70, No. 9, Sep. 2004</p><p>[2] Gunter Schreier, <span style="font-style: italic;">SAR geocoding: data and systems</span>, Wichmann-Verlag, Karlsruhe, Germany, 1993</p>
+<br>
+
+<hr>
+</body></html>

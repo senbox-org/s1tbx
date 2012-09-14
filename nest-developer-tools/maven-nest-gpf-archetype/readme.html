@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+
+    
+  <title>Maven 2 Archetype Plugin for BEAM GPF modules</title>
+</head>
+
+
+
+
+<body>
+
+
+<h3>About the Maven 2 Archetype Plugin for NEST GPF modules</h3>
+
+
+<p>The Maven 2 Archetype Plugin for NEST GPF modules is used to create archetypes
+    for&nbsp;NEST GPF (Graph Processing Framework) modules. </p>
+
+
+<h4>Usage</h4>
+
+
+<p>After installing this plugin using</p>
+
+<p>
+    </p>
+<blockquote>
+        <code>mvn clean install</code>
+    </blockquote>
+
+
+<p>it can be used to create archetypes for&nbsp;NEST modules as follows:</p>
+
+<p>
+    </p>
+<blockquote>
+        <code>mvn archetype:create<br />
+
+            -DarchetypeGroupId=org.esa.</code><code>nest</code><code>.maven<br />
+
+            -DarchetypeArtifactId=maven-</code><code>nest</code><code>-gpf-archetype<br />
+
+            -DarchetypeVersion=1.0<br />
+
+            -DgroupId=<i>myGroupId</i><br />
+
+            -DartifactId=<i>myArtifactId</i><br />
+
+            -Dversion=<i>myVersion</i><br />
+
+            -DpackageName=<i>myPackageName</i>
+        </code>
+    </blockquote>
+
+
+
+<p>where
+    </p>
+<ul>
+
+        <li><code><i>myGroupId</i></code> will become the <code>groupId</code> of the generated POM</li>
+
+        <li><code><i>myArtifactId</i></code> will become the <code>artifactId</code> of the generated POM and the&nbsp;NEST
+            module's
+            <code>symbolicName</code>.</li>
+
+        <li><code><i>myVersion</i></code> will become the <code>version</code>
+            of the generated POM and&nbsp;NEST module. Defaults to <code>1.0-SNAPSHOT</code>.</li>
+
+        <li><code><i>myPackageName</i></code> will become the source package name. Defaults to the value of <code><i>myGroupId</i>
+        </code>.</li>
+
+    
+</ul>
+
+
+
+<p>Please also refer to the documentation of the
+    <a href="http://maven.apache.org/plugins/maven-archetype-plugin/">Maven 2 Archetype Plugin</a>.
+</p>
+
+
+<h4>Example</h4>
+
+
+<blockquote>
+        <code>mvn archetype:create
+            -DarchetypeGroupId=org.esa.nest.maven
+            -DarchetypeArtifactId=maven-</code><code>nest</code><code>-gpf-archetype
+            -DarchetypeVersion=1.0
+            -DgroupId=org.esa.nest
+            -DartifactId=nest-sar-op
+        </code>
+    </blockquote>
+
+
+
+<h4>License</h4>
+
+
+<p>
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation. This program is distributed in the hope it will
+    be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the <a href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a>
+    for more details.
+</p>
+
+
+<p>
+    You have received a <a href="license.txt">copy</a> of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+</p>
+
+
+
+
+</body>
+</html>

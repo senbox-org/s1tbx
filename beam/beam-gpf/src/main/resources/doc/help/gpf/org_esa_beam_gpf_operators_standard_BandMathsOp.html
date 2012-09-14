@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>BandMaths Operator</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;BandMaths Operator</td>
+        <td class="header" align="right">
+           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+        </td>
+    </tr>
+</table>
+<h1>BandMaths Operator Description</h1>
+<h2>Overview</h2>
+<table>
+  <tr><td><b>Name:</b></td><td><code>BandMaths</code></td></tr>
+  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.gpf.operators.standard.BandMathsOp</code></td></tr>
+  <tr><td><b>Purpose:</b></td><td>Create a product with one or more bands using mathematical expressions.</td></tr>
+  <tr><td><b>Version:</b></td><td>1.0</td></tr>
+</table>
+<h2>Description</h2>
+<p>
+ This band maths operator can be used to create a product with multiple bands based on mathematical expression.<br/>
+ All products specified as source must have the same width and height, otherwise the operator will fail.
+ The geo-coding information and metadata for the target product is taken from the first source product.
+ </p>
+ <p>
+ To reference a band of one of the source products within an expression use the following syntax:<br/>
+ <br/>
+ <code>sourceProducts<b>#</b>.bandName</code><br/>
+ <br/>
+ Where <b>#</b> means the index of the source product. The index is zero based.<br/>
+ The bands of the first source product (<code>sourceProducts<b>0</b></code>) can be referenced without this
+ product identifier.
+ </p>
+ <p>
+ When using this operator from the command-line Graph XML file must be provided in order to
+ specify all parameters. Here is some sample XML of how to use a <code>BandMaths</code> node within
+ a graph:
+ </p>
+ <pre>
+      &lt;node id="bandMathsNode"&gt;
+        &lt;operator&gt;BandMaths&lt;/operator&gt;
+        &lt;sources&gt;
+            &lt;sourceProducts&gt;readNode&lt;/sourceProducts&gt;
+        &lt;/sources&gt;
+        &lt;parameters&gt;
+            &lt;targetBands&gt;
+                &lt;targetBand&gt;
+                    &lt;name&gt;reflec_13&lt;/name&gt;
+                    &lt;expression&gt;radiance_13 / (PI * SOLAR_FLUX_13)&lt;/expression&gt;
+                    &lt;description&gt;TOA reflectance in channel 13&lt;/description&gt;
+                    &lt;type&gt;float&lt;/type&gt;
+                    &lt;validExpression&gt;reflec_13 &gt;= 0&lt;/validExpression&gt;
+                    &lt;noDataValue&gt;-999&lt;/noDataValue&gt;
+                    &lt;spectralBandIndex&gt;13&lt;/spectralBandIndex&gt;
+                &lt;/targetBand&gt;
+                &lt;targetBand&gt;
+                    &lt;name&gt;reflec_14&lt;/name&gt;
+                    &lt;expression&gt;radiance_14 / (PI * SOLAR_FLUX_14)&lt;/expression&gt;
+                    &lt;description&gt;TOA reflectance in channel 14&lt;/description&gt;
+                    &lt;type&gt;float&lt;/type&gt;
+                    &lt;validExpression&gt;reflec_14 &gt;= 0&lt;/validExpression&gt;
+                    &lt;noDataValue&gt;-999&lt;/noDataValue&gt;
+                    &lt;spectralBandIndex&gt;14&lt;/spectralBandIndex&gt;
+                &lt;/targetBand&gt;
+            &lt;/targetBands&gt;
+            &lt;variables&gt;
+                &lt;variable&gt;
+                    &lt;name&gt;SOLAR_FLUX_13&lt;/name&gt;
+                    &lt;type&gt;float&lt;/type&gt;
+                    &lt;value&gt;914.18945&lt;/value&gt;
+                &lt;/variable&gt;
+                &lt;variable&gt;
+                    &lt;name&gt;SOLAR_FLUX_14&lt;/name&gt;
+                    &lt;type&gt;float&lt;/type&gt;
+                    &lt;value&gt;882.8275&lt;/value&gt;
+                &lt;/variable&gt;
+                 &lt;variable&gt;
+                    &lt;name&gt;PI&lt;/name&gt;
+                    &lt;type&gt;double&lt;/type&gt;
+                    &lt;value&gt;3.1415&lt;/value&gt;
+                &lt;/variable&gt;
+            &lt;/variables&gt;
+        &lt;/parameters&gt;
+    &lt;/node&gt;
+ </pre>
+<h2>Sources</h2>
+<table>
+<tr>
+  <th>Name</th>
+  <th>Description</th>
+</tr>
+<tr>
+  <td><code>sourceProducts</code></td>
+  <td>Any number of source products.</td>
+</tr>
+</table>
+<h2>Parameters</h2>
+<table>
+<tr>
+  <th>Name</th>
+  <th>Data Type</th>
+  <th>Default</th>
+  <th>Description</th>
+  <th>Constraints</th>
+</tr>
+<tr>
+  <td><code>targetBands</code></td>
+  <td><code>BandDescriptor[]</code></td>
+  <td><code></code></td>
+  <td>List of descriptors defining the target bands.</td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>variables</code></td>
+  <td><code>Variable[]</code></td>
+  <td><code></code></td>
+  <td>List of variables which can be used within the expressions.</td>
+  <td></td>
+</tr>
+</table>
+<hr/>
+</body>
+</html>

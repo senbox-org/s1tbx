@@ -1,0 +1,5 @@
+MER_RR__2P_MDSR_16|Level 2 MDS(16) yellow substance  total suspended matter  or rectified reflectances|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Start Time of DSR|1|
+quality_flag|UChar|flag|1|1|*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+ys_tsm_pix|UChar|*|1|2*sceneRasterWidth|*|Yellow Substance, Total Suspended Matter or Rectified Reflectances pixels, interleaved by pixel|3|

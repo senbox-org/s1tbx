@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - PCA</title>
+
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Principal Component
+Analysis</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Principal Component Analysis Operator</h3>
+
+<p>This operator generates the principal component images from a
+stack of
+co-registered detected images.
+&nbsp;The Principal Component Analysis (PCA) consists of a
+remapping of
+the information of the input co-registered images into a new set of
+images. &nbsp;The output images are scaled to prevent negative
+pixel
+values.</p>
+<h4>Major Processing Steps<br></h4><p>
+The PCA operator consists of the following major steps:</p>
+<ol>
+<li>
+<p>Average the pixels across the input images to compute a
+mean image. Optionally subtract the computed mean image from each input image.</p>
+</li>
+<li>
+<p>Subtract the mean value of each input image (or image from
+step 1) from itself to produce zero-mean images.</p>
+</li>
+<li>
+<p>Compute covariance matrix from the zero-mean images given
+in step 2.</p>
+</li>
+<li>
+<p>Perform eigenvalue decomposition of the covariance matrix.</p>
+</li>
+<li>
+<p>Compute
+PCA images by multiplying the eigenvector matrix by the zero-mean
+images given in step2. Here the user can select the eigenvectors
+instead of using all vectors. The selection is done with a user input
+threshold, which is in percentage, on the eigenvalues. For example, in
+the case of three input images, a1, a2 and a3 (where a1 » a2&nbsp;»
+a3) are the eigenvalues, if the threshold is 80% and (a1+a2) » 80%,
+then a3 will not used in computing the PCA images.&nbsp;Only two PCA images will be produced.</p>
+</li>
+</ol>
+<h4>Parameters Used<br></h4><p>
+The following parameters are used by the operator:
+</p>
+<ol>
+<li>
+<p> Source Bands:&nbsp;All bands (real or virtual) of the source
+product. You may select one or more bands for performing PCA. If no
+bands are selected, then by default all bands will be selected.<br></p>
+</li>
+<li>
+<p> Eigenvalue Threshold: The threshold used in the
+eigenvalue selection for producing the final PCA images.
+</p>
+</li>
+<li>
+<p> Show eigenvalues: Checkbox indicating that eigenvalues
+are displayed automatically.
+</p>
+</li>
+<li>
+<p> Subtract Mean Image: Checkbox indicating that the mean
+image
+of user selected input images will be subtracted from each input image
+before&nbsp;Principal Component Analysis is applied.</p></li>
+</ol><img style="width: 500px; height: 411px;" alt="" src="images/pca_dlg.jpg"><br><br><br>
+<hr>
+</body></html>

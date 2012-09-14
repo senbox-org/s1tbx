@@ -1,0 +1,86 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-geotiff</symbolicName>
+    <version>5.0-1.2</version>
+    <name>GeoTIFF Product Module</name>
+    <description>A module for reading and writing GeoTIFF Data Products</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+        Changes in 1.2:<br/>
+        [BEAM-1383] GeoTIFF product reader should support reading from InputStreams<br/>
+        [BEAM-1340] GeoTIFF products with a single TAG_MODEL_TIE_POINT entry should be supported<br/>
+        [BEAM-1336] ArrayIndexOutOfBoundsException occurs when reading GeoTIFF<br/>
+        Changes in 1.1.1:<br/>
+        [BEAM-1290] GeoTIFF writer can't write very large files<br/>
+        Changes in 1.0.2:<br/>
+        [BEAM-957] "Search" tab missing VISAT help<br/>
+        Changes in 1.0.1:<br/>
+        [BEAM-898] Display TIFF and GeoTIFF tags in metadata<br/>
+        [BEAM-891] Model transformation is not applied if GeoTiff is projected<br/>
+        [BEAM-889] Virtual bands are added as empty images to GeoTIFF files<br/>
+        ]]>
+    </changelog>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat-rcp</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader,Writer,GeoTIFF,VISAT</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>importGeoTIFFProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>GeoTIFF</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>O</mnemonic>
+            <shortDescr>Import a GeoTIFF data product or subset.</shortDescr>
+            <description>Import a GeoTIFF data product or product subset.</description>
+            <helpId>importGeoTIFFProduct</helpId>
+        </action>
+        <action>
+            <id>exportGeoTIFFProduct</id>
+            <class>org.esa.beam.dataio.geotiff.GeoTiffExportAction</class>
+            <formatName>GeoTIFF</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>O</mnemonic>
+            <text>GeoTIFF</text>
+            <shortDescr>Export a GeoTIFF data product or subset.</shortDescr>
+            <description>Export a GeoTIFF data product or product subset.</description>
+            <helpId>exportGeoTIFFProduct</helpId>
+        </action>
+    </extension>
+
+    <!--extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/geotiff.hs</path>
+        </helpSet>
+    </extension-->
+</module>

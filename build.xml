@@ -1,0 +1,25 @@
+<project name="beam-javahelp-index" basedir=".">
+
+    <!--
+        use the build.properties file to set, for instance, the jhindexer path:
+        jhindexer = P:/Ongoing/BEAM/software/javahelp20_02/javahelp/bin/jhindexer.bat
+    -->
+    <target name="set-jhindexer">
+        <property file="build.properties"/>
+
+        <condition property="jhindexer-is-set">
+            <isset property="jhindexer"/>
+        </condition>
+    </target>
+
+    <target name="create-jh-search-db" depends="set-jhindexer" if="jhindexer-is-set">
+        <echo>Creating Search Database for Java Help</echo>
+        <delete includeEmptyDirs="true" failonerror="false">
+            <fileset dir="${helpdir}/JavaHelpSearch"/>
+        </delete>
+        <exec dir="${helpdir}" executable="${jhindexer}" failifexecutionfails="false">
+            <arg line="."/>
+        </exec>
+    </target>
+
+</project>

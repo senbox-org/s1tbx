@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Mosaic</title>
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../style.css"></head><body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Mosaic </td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Mosaic Operator</h3>
+<p> The Mosaic Operator combines overlapping products into a single composite product.
+&nbsp;The mosaicking is achieved based on the geocoding of the source
+products therefore the geocoding needs to be very accurate. It is
+recommended that the source products be Terrain Corrected and
+Radiometric Corrected first.</p>
+<p></p>
+<div style="text-align: left;"><img style="width: 600px; height: 500px;" alt="" src="images/mosaic_dlg.jpg"><br>
+</div>
+<br>
+<br>
+<p>The following
+parameters are used by the Operator:<br>
+</p>
+
+<ol>
+  <li>Source Bands: All bands (real or virtual) of the source
+product. You may
+select one or more bands. If no bands are
+selected, then by default all bands will be processed.</li>
+  <li>Resampling Method: Choice of Nearest Neighbour, Bilinear, Cubic, Bi-Sinc or Bi-Cubic resampling.</li>
+  <li>Pixel Size (m): The output scene pixel spacing in meters.<br>
+  </li>
+  <li>Scene Width (pixels): The output scene width in pixels.</li>
+  <li>Scene Height (pixels): The output scene height in pixels.</li>
+  <li>Feather (pixels): The number of pixels skipped on the boundary of the source images.<br>
+  </li>
+  <li>Weight Average of Overlap: Averaging option to blend overlapping pixels. To achieve better mosaic result, the Normalizer checkbox below should be selected as well.<br>
+  </li>
+  <li>Normalizer: Normalization option to remove mean and normalize standard deviation.&nbsp;</li>
+</ol>
+<br><p>Below is an example of a mosaic of ASA_GM1 products that have
+been Terrain Corrected and Radiometric Corrected. Overlapping areas
+have been&nbsp;normalized and averaged.&nbsp;</p><p><img style="width: 1117px; height: 781px;" alt="" src="images/mosaic_australia.jpg"></p>
+<hr>
+</body></html>

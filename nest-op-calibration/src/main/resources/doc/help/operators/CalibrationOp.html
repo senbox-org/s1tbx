@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Calibration</title>
+
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp;&nbsp;Calibration</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Calibration Operator&nbsp;</h3>
+<p>The objective of SAR calibration is to provide imagery in which the pixel values
+can be directly related to the radar backscatter of the scene. Though uncalibrated
+SAR imagery is sufficient for qualitative use, calibrated SAR images are essential
+to quantitative use of SAR data.</p>
+
+<p>Typical SAR data processing, which produces level 1 images, does not include
+radiometric corrections and significant radiometric bias remains. Therefore,
+it is necessary to apply the radiometric correction to SAR images so that the
+pixel values of the SAR images truly represent the radar backscatter of the
+reflecting surface. The radiometric correction is also necessary for the
+comparison of SAR images acquired with different sensors, or acquired from
+the same sensor but at different times, in different modes, or processed by
+different processors.</p>
+
+<p>This Operator performs different calibrations for ASAR, ERS, ALOS and Radarsat-2 products
+deriving the sigma nought images. Optionally gamma nought and beta nought images
+can also be created.</p><h4>Product Supported</h4><ul><li><p>ASAR (IMS, IMP, IMM, APP, APS, APM, WSM) and ERS products (SLC, IMP) are fully supported</p></li><li><p>Third party SAR mission: not fully supported. Please refer to Supported_Products_4A.xls file available from <span style="text-decoration: underline;">http://liferay.array.ca:8080/web/nest/documentation</span></p></li></ul><h4>ASAR Calibration</h4>
+<p>
+For ground range detected products, the following corrections are applied:</p>
+<ul>
+<li><p>incidence angle</p></li>
+<li><p>absolute calibration constant</p></li>
+</ul>
+<p>In
+the event that the antenna pattern used to process an ASAR product is
+superseded, the operator&nbsp;removes the original antenna pattern,
+and apply a new, updated one. The old&nbsp;antenna pattern gain data is
+obtained
+from the external XCA filespecified in the metadata of the source
+product. The new&nbsp;antenna pattern gain data and the&nbsp;calibration constant
+are obtained from the user specified XCA file. For XCA file selection,
+user has the following options:</p><ul><li>latest auxiliary file (the most recent XCA file available in the local repository)</li><li>product auxiliary file (the XCA file specified in the product metadata)</li><li>external auxilary file (user provided XCA file)</li></ul><p>If
+"product auxiliary file" is selected, then no retro-calibration is
+performed, i.e. no antenna pattern gain is removed or applied. By
+default the latest XCA file available for the product&nbsp;is used. <span style="font-weight: bold;"></span></p><p>
+</p><p>For slant range complex products, the following corrections are applied:</p>
+<ul>
+<li><p>incidence angle</p></li>
+<li><p>absolute calibration constant</p></li>
+<li><p>range spreading loss</p></li>
+<li><p>antenna pattern gain</p></li>
+</ul><p>The&nbsp;antenna pattern gain data and the&nbsp;calibration constant
+are obtained from the user specified XCA file. For XCA file selection,
+user has the following options:</p><ul><li>latest auxiliary file (the most recent XCA file available in the local repository)</li><li>external auxilary file (user provided XCA file)</li></ul><p>By default, the latest auxiliary file available for the product will be used for the calibration.</p><p></p><p>
+The default output of calibration is sigma0 image. User can also
+select&nbsp;gamma0 and beta0 images outputting as virtual bands in the
+target product.</p><br><p>In the following, the calibration process is related to the different type of
+ASAR products.</p>
+
+
+<h4 style="font-style: italic;"><small><font size="3"><small>IMS Products</small></font></small></h4>
+<p>The sigma nought image can be derived from ESA&#8217;s ASAR level 1 IMS products as
+the follows (adapted from [1]):</p>
+<br><img style="width: 650px; height: 190px;" alt="" src="images/calibration_eq1.jpg"><br>&nbsp;&nbsp;&nbsp; where
+<ul><li><span style="font-style: italic;">DN</span><sub style="font-style: italic;">i,j</sub><sup style="font-style: italic;">2</sup> is the pixel intensity for pixel i, j</li><li><span style="font-style: italic;">K</span> is the absolute calibration constant<span style="font-style: italic;"></span></li><li><span style="font-style: italic;">&#945;</span><sub style="font-style: italic;">i,j</sub> is incidence angle</li><li><span style="font-style: italic;">R</span><sub style="font-style: italic;">i,j</sub> is the slant range distance</li><li><span style="font-style: italic;">R</span><sub style="font-style: italic;">ref</sub><span style="font-style: italic;"> </span>is the reference slant range distance</li><li><span style="font-style: italic;">&#952;</span><sub style="font-style: italic;">i,j</sub> is the look angle</li><li><span style="font-style: italic;">G</span> is the antenna pattern gain</li></ul>
+<h4 style="font-style: italic;"><small><font size="3"><small>APS Products</small></font></small></h4>
+<p>The methodology to derive the sigma nought is the same of the IMS data but an
+additional factor (<span style="font-style: italic;">R</span><i ,j=""> / R<sub>ref</sub></i>) must be taken into account:</p>
+<i ,j=""><img style="width: 700px; height: 190px;" alt="" src="images/calibration_eq2.jpg">
+
+<br>
+</i><h4><small><i ,j=""><font size="3"><small>IMP, APP, IMM, APM, WSM Products</small></font></i></small></h4><i ,j="">
+</i><p>In contrast to IMS and APS products, ASAR ground range imageries
+(IMP, APP, IMM,
+APM, WSM) have all been applied antenna gain pattern compensation
+(based on ellipsoid
+approximations) and range spreading loss correction during the
+formation of the images. Therefore the antenna pattern correction
+applied to the image must be
+removed when updated external XCA file is availab for the product.
+</p>
+<p>The sigma nought image can be derived from ESA&#8217;s ASAR level 1 IMP, APP,
+IMM, APM, WSM products as the follows (adapted from [1]):</p>
+<i ,j=""><img style="width: 650px; height: 190px;" alt="" src="images/calibration_eq3.jpg"><br></i>&nbsp;&nbsp;For detailed ASAR calibration algorithm, reader is referred to [1].
+<h4>ERS Calibration</h4>
+<p>The operator is able to calibrate ERS VMP, ERS PGS CEOS and ERS PGS ENVISAT ESA
+standard products generated by different ESA Processing and Archiving Facilities,
+such as the German PAF (D-PAF), the Italian PAF (I-PAF) and the United-Kingdom PAF
+(UK-PAF), and at the acquisitions stations such as PDHS-K (Kiruna) and PDHS-E (Esrin).&nbsp;</p><p>For ERS-1 ground range product, the following&nbsp;corrections are applied:</p>
+
+<ul>
+<li><p>incidence angle</p></li>
+<li><p>calibration constant</p></li>
+<li><p>replica pulse power variations</p></li>
+<li><p>analogue to digital converter non-linearity</p></li></ul>
+<p>For ERS-1 slant range product, the following&nbsp;corrections are applied:</p>
+
+<ul><li><p>incidence angle</p></li><li><p>calibration constant</p></li><li><p>analogue to digital converter non-linearity</p></li><li><p>antenna elevation pattern</p></li><li><p>range spreading loss</p></li></ul>
+<p>For ERS-2 ground range product, the following&nbsp;corrections are applied:</p>
+
+<ul><li><p>incidence angle</p></li><li><p>calibration constant</p></li><li><p>analogue to digital converter non-linearity</p></li></ul>
+<p>For ERS-2 slant range product, the following&nbsp;corrections are applied:</p>
+
+<ul><li><p>incidence angle</p></li><li><p>calibration constant</p></li><li><p>analogue to digital converter non-linearity</p></li><li><p>antenna elevation pattern</p></li><li><p>range spreading loss</p></li></ul>&nbsp;&nbsp;For detailed ERS product calibration algorithm, reader is referred to [2].
+
+
+<h4>ALOS PALSAR Calibration</h4>
+<p>
+The operator performs absolute radiometric calibration for ALOS PALSAR
+level 1.1 or 1.5 products. For ALOS PALSAR L1.1 and L1.5 products, the
+following corrections have&nbsp;already been applied:
+</p>
+<ul>
+<li><p>range spreading loss correction</p></li>
+<li><p>antenna pattern gain correction</p></li>
+<li><p>incidence angle correction</p></li>
+</ul>
+<p>
+Therefore the operator applies only the absolute calibration constant correction to
+the products.&nbsp;&nbsp;</p><p>For detailed ALOS PALSAR product calibration algorithm, reader is referred to [3].</p><h4>Radarsat-2 Calibration</h4>
+<p>
+The operator performs absolute radiometric calibration for Radarsat 2
+products by applying the sigma0, beta0 and gamma0 look up tables
+provided in the product.</p><p>For detailed Radarsat-2 product calibration algorithm, reader is referred to [4].</p><h4>TerraSAR-X</h4>
+<p>The operator performs absolute radiometric calibration for
+TerraSAR-X products by applying the simplified approach where Noise
+Equivalent Beta Naught is neglected. Only Calibration constant
+correction and Incidence angle correction are applied. </p><p>For detailed TerraSAR-X product calibration algorithm, reader is referred to [5].</p><h4>Cosmo-SkyMed</h4>
+<p>The operator performs absolute radiometric calibration for Cosmo-SkyMed products by applying few product factor corrections.</p><p>For detailed Cosmo-SkyMed product calibration algorithm, reader is referred to [6].</p><h4>Parameters Used</h4><p>
+The parameters used by the operator are as follows:
+</p><ol><li>Source Band: All bands (real or virtual) of the source product. User can
+select one or more bands for calibration. If no bands are selected, then by
+default, all bands are used for calibration. The operator is able to detect
+the right input band.</li><li>Auxiliary
+File: User selected XCA file for antenna pattern correction. The
+following options are available: Latest Auxiliary File, Product
+Auxiliary
+File (for detected product only) and External Auxiliary File. By
+default,&nbsp;the Latest Auxiliary
+File&nbsp;is used.</li><li>Scale in dB: Checkbox indicating that the calibrated product is saved in dB scale.
+If&nbsp;not checkmarked, then the product is saved in linear scale.</li><li>Create gamma0 virtual band: Checkbox indicating that gamma0 image is
+created as a virtual band.&nbsp;If&nbsp;not checkmarked,  no gamma0 image is created.</li><li>Create beta0 virtual band: Checkbox indicating that beta0 image is
+created as a virtual band.&nbsp;If&nbsp;not checkmarked,  no beta0 image is created.</li></ol>
+
+<p><img style="width: 500px; height: 500px;" alt="" src="images/calibrator_dlg.jpg"></p><p></p><p style="font-weight: bold;">Reference:</p><p>[1] Rosich B., Meadows P., Absolute calibration of ASAR Level 1 products,
+ESA/ESRIN, ENVI-CLVL-EOPG-TN-03-0010, Issue 1,&nbsp;Revision 5, October 2004</p><p>[2]&nbsp;Laur H., Bally P., Meadows P., Sánchez J., Schättler B., Lopinto E.
+&amp; Esteban D., ERS SAR Calibration: Derivation of &#963;0 in ESA ERS SAR PRI
+Products, ESA/ESRIN, ES-TN-RS-PM-HL09, Issue 2, Rev. 5f, November 2004</p><p>[3]&nbsp;Lavalle M., Absolute Radiometric and Polarimetric Calibration
+of ALOS PALSAR Products, Issue 1, Revision 2, 01/04/2008
+</p>
+<p>[4] RADARSAT Data Product Specification, RSI-GS-026, Revision 3, May 8, 2000</p><p>[5] Radiometric Calibration of TerraSAR-X data - TSXX-ITD-TN-0049-radiometric_calculations_I1.00.doc, 2008</p><p>[6] For further details about Cosmo-SkyMed calibration please contact Cosmo-SkyMed Help Desk at&nbsp;<font color="black" face="Arial" size="2"><span style="font-size: 10pt; font-family: Arial;" lang="EN-GB"><a href="mailto:info.cosmo@e-geos.it" moz-do-not-send="true">info.cosmo@e-geos.it</a></span></font></p><p></p>
+
+<hr>
+</body></html>

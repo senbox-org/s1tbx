@@ -1,0 +1,5 @@
+#geometry1:POLYGON(0.0, 1.0, 1.1)
+featureId	station:string	lat:float	lon:float	date_time:time	radiance_1:float	radiance_2:float	testTime:time
+0	AMRU1	30.0	50.0	2010-06-01T12:45:00	NaN	13.4	2011-06-01T10:45:00
+1	AMRU1	30.0	50.0	2010-06-01T12:48:00	18.3	2.4	[null]
+2	AMRU2	40.0	120.0	[null]	10.5	10.6	2011-06-01T12:45:00

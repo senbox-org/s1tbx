@@ -1,0 +1,10 @@
+MER_RR__1P_flags|MERIS RR Level 1b Flag Codings
+#
+COSMETIC   | 0 | Pixel is cosmetic
+DUPLICATED | 1 | Pixel has been duplicated (filled in)
+GLINT_RISK | 2 | Pixel has glint risk
+SUSPECT    | 3 | Pixel is suspect
+LAND_OCEAN | 4 | Pixel is over land, not ocean
+BRIGHT     | 5 | Pixel is bright
+COASTLINE  | 6 | Pixel is part of a coastline
+INVALID    | 7 | Pixel is invalid

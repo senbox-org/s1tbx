@@ -1,0 +1,168 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>nest-op-orthorectification</symbolicName>
+    <version>5.0</version>
+    <name>NEST Orthorectification</name>
+    <description>NEST Orthorectification</description>
+	
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2012 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>European Space Agency</funding>
+	
+	<dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat-rcp</module>
+        <optional>true</optional>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+      <module>nest-core</module>
+    </dependency>
+    <dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
+    <dependency>
+      <module>nest-op-calibration</module>
+    </dependency>
+    <dependency>
+      <module>nest-op-coregistration</module>
+    </dependency>
+	<dependency>
+      <module>nest-reader-dem</module>
+    </dependency>
+
+    <categories>Processing</categories>
+
+    <extension point="beam-ui:actions">
+
+        <action>
+            <id>TerrainCorrection</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Terrain Correction</text>
+            <parent>geometry</parent>
+        </action>
+
+        <action>
+	        <id>RangeDopplerGeocodingOp</id>
+	        <helpId>RangeDopplerGeocodingOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>TerrainCorrection</parent>
+	        <text>Range-Doppler Terrain Correction</text>
+	        <operatorName>Terrain-Correction</operatorName>
+	        <dialogTitle>Range Doppler Terrain Correction</dialogTitle>
+            <shortDescr>Terrain Correction Range-Doppler Method</shortDescr>
+            <targetProductNameSuffix>_TC</targetProductNameSuffix>
+            <separatorAfter>true</separatorAfter>
+        </action>
+
+        <action>
+	        <id>SARSimGeocodingOp</id>
+	        <helpId>SARSimGeocodingOp</helpId>
+	        <class>org.esa.nest.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>TerrainCorrection</parent>
+	        <text>SAR-Simulation Terrain Correction</text>
+            <shortDescr>Perform Orthorectification using a simulated SAR image</shortDescr>
+	        <dialogTitle>SAR-Simulation Terrain Correction</dialogTitle>
+            <graphFile>SARSimTCGraph.xml</graphFile>             
+            <placeAfter>RangeDopplerGeocodingOp</placeAfter>
+        </action>
+
+        <action>
+	        <id>SARSimulationOp</id>
+	        <helpId>SARSimOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>TerrainCorrection</parent>
+	        <text>SAR Simulation</text>
+	        <operatorName>SAR-Simulation</operatorName>
+	        <dialogTitle>Simulate a SAR image</dialogTitle>
+            <shortDescr>Simulate a SAR image based on a DEM</shortDescr>
+            <targetProductNameSuffix>_Sim</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>EllipsoidCorrection</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Ellipsoid Correction</text>
+            <parent>geometry</parent>
+            <placeAfter>TerrainCorrection</placeAfter>
+        </action>
+
+        <action>
+	        <id>GeolocationGridGeocodingOp</id>
+	        <helpId>GeolocationGridGeocodingOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>EllipsoidCorrection</parent>
+	        <text>Geolocation-Grid</text>
+	        <operatorName>Ellipsoid-Correction-GG</operatorName>
+	        <dialogTitle>Ellipsoid Correction - Geolocation Grid</dialogTitle>
+            <shortDescr>Ellipsoid Correction Geolocation-Grid Method</shortDescr>
+            <targetProductNameSuffix>_EC</targetProductNameSuffix>
+        </action>
+
+        <action>
+	        <id>EllipsoidCorrectionRDOp</id>
+	        <helpId>EllipsoidCorrectionRDOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>EllipsoidCorrection</parent>
+	        <text>Average Height Range-Doppler</text>
+	        <operatorName>Ellipsoid-Correction-RD</operatorName>
+	        <dialogTitle>Ellipsoid Correction - Range Doppler</dialogTitle>
+            <shortDescr>Ellipsoid Correction Range-Doppler Method Assuming Average Height</shortDescr>
+            <targetProductNameSuffix>_EC</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>DEMTools</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>DEM Tools</text>
+            <parent>geometry</parent>
+            <placeAfter>EllipsoidCorrection</placeAfter>
+        </action>
+
+        <action>
+	        <id>MosaicOp</id>
+	        <helpId>MosaicOp</helpId>
+	        <class>org.esa.nest.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>geometry</parent>
+	        <text>Mosaic</text>
+            <shortDescr>Mosaic various images together</shortDescr>
+	        <dialogTitle>Mosaic</dialogTitle>
+            <graphFile>MosaicGraph.xml</graphFile>
+        </action>
+
+        <action>
+            <id>ALOSDeskewingOp</id>
+            <helpId>ALOSDeskewingOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>geometry</parent>
+            <text>ALOS Deskewing</text>
+            <operatorName>ALOS-Deskewing</operatorName>
+            <dialogTitle>Deskew ALOS product</dialogTitle>
+            <shortDescr>Deskew ALOS product</shortDescr>
+            <targetProductNameSuffix>_DS</targetProductNameSuffix>
+            <placeAfter>SlantRangeGroundRangeOp</placeAfter>
+        </action>
+    </extension>
+
+	<extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+			<id>orthorectificationHelp</id>
+            <path>doc/help/orthorectification.hs</path>
+        </helpSet>
+    </extension>
+</module>

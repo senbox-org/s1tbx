@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - GCP Management</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            GCP Management
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+<h4>GCP Management in DAT</h4>
+
+<p>
+    A GCP is a marker for a certain geographical position within a geo-referenced image.
+    The properties of a GCP are
+</p><ul>
+    <li>the geographical co-ordinate,</li>
+    <li>a graphical symbol,</li>
+    <li>the name (label),</li>
+    <li>and a textual description.</li>
+</ul>
+<p>
+    In contrast to a pin a GCP is fixed to a geographical position while the pin is not.
+    GCPs can be used to create a <a href="#gcpGeoCoding">GCP geo-coding</a> for a product or improve an existing
+    geo-coding.
+</p>
+
+<p>
+    GCPs are displayed as symbols at their geographical positions in image views associated
+    with the current product. GCPs are stored in the current product and available again if the
+    product is re-opened.<br>
+
+    New GCPs can be created with the <a href="#gcpTool">GCP tool</a>
+    It is also possible to create and remove GCPs by using the <a href="#gcpManager">GCP manager</a>.
+
+
+</p><h4><a name="gcpTool">The GCP Tool &nbsp;&nbsp;</a><img src="images/icons/GcpTool24.gif"></h4>
+
+<p>
+    The GCP tool is used to create a new GCP but and also to select an existing GCP.
+    If the GCP tool is active, a click into an image view creates a new GCP at the
+    current cursor position. If you click on an existing GCP, it becomes the selected GCP.
+    If you double-click on an existing GCP the <a href="#editGcpDialog">Edit GCP</a> dialog appears
+    and lets you the edit the properties of the selected GCP.
+
+
+</p><h4><a name="gcpManager">The GCP Manager &nbsp;&nbsp;</a><img src="images/icons/GcpManager24.gif"></h4>
+
+<p>
+    The GCP manager is used to display all GCPs stored in the current product within a
+    table and provides some GCP related operations.
+
+</p><p align="center"><img src="images/GcpManager.png"></p>
+
+<p>
+    If you click on a GCP within the table it becomes the selected GCP.
+    Double-clicking on GCP in the table opens the <a href="#editGcpDialog">Edit GCP</a>.
+    You can also change the values for <code>X, Y, Lat and Lon</code> of the GCP by editing the table cells directly. 
+</p>
+
+<p>In the following, the tool buttons of the GCP manager are explained.</p>
+
+<table border="0" cellpadding="2" cellspacing="0">
+    <tbody><tr>
+        <td><img src="images/icons/New24.gif"></td>
+        <td>Creates a new GCP and adds it to the product.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/Copy24.gif"></td>
+        <td>Creates a new GCP by cloning the selected GCP.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/Edit24.gif"></td>
+        <td>Opens the edit dialog for the selected GCP.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/Remove24.gif"></td>
+        <td>Removes the selected GCP from the current product.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/Import24.gif"></td>
+        <td>Imports a single GCP from a flat text or XML file.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/Export24.gif"></td>
+        <td>Exports a single GCP to an XML file.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/Filter24.gif"></td>
+        <td>Enables the expansion of the table with pixel values.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/ExportTable.gif"></td>
+        <td>Exports all values of the displayed table to a flat text
+            file.
+            The exported text is tabulator-separated and may therefore be imported directly into a spreadsheet application
+            (e.g. MS Excel).
+        </td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/ZoomTo24.gif"></td>
+        <td>Centers the image view on the selected GCP.</td>
+    </tr>
+
+</tbody></table>
+
+<h4><a name="editGcpDialog">The Edit GCP Dialog</a></h4>
+
+<p>
+    The GCP edit dialog is used to edit the properties of a GCP after a new GCP has been created or after a
+    selected GCP has been double-clicked. This dialog is also available in the GCP manager.
+
+</p><p align="center"><img src="images/GcpEditor.png"></p>
+
+<p>The editable GCP properties are
+</p><ul>
+    <li>the geographical co-ordinate, which can also be given as pixel position</li>
+    <li>the name for the GCP</li>
+    <li>and a textual description.</li>
+</ul>
+
+<h4><a name="gcpGeoCoding">GCP Geo-Coding</a></h4>
+<p>
+    This geo-coding is calculated by using the defined GCPs as reference points and the given polynomial method type.
+    You can choose between the <code>linear, quadratic or a cubic</code> polynomial method.
+    The <code>status</code> field below the polynomial method chooser shows you if you already have enough GCPs
+    defined for the currently chosen method or if the geo-coding is already attached to the product.<br>
+    On the lower left hand side, information about the currently attached GCP geo-coding is displayed.
+    It shows the used polynomial method and the overall <code>RMSE</code> for the latitudes and longitudes.
+    In the table you can see the deviation (<code>Delta Lat</code> and <code>Delta Lon</code>) for each GCP from the
+    given to the calculated geo-position.
+    If you attach a GCP geo-coding to the product, the former geo-coding is preserved and will be restored if you detach
+    the GCP geo-coding.
+</p>
+
+<hr>
+</body></html>

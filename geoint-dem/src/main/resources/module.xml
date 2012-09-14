@@ -1,0 +1,33 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>geoint-dem</symbolicName>
+    <version>3.0</version>
+    <name>GEOINT DEM Readers</name>
+
+    <description>GEOINT DEM Readers</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2012 by Array Systems Computing Inc</copyright>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>Department of National Defence Canadian Forces</funding>
+
+    <dependency>
+        <module>beam-visat-rcp</module>
+    </dependency>
+	<dependency>
+        <module>nest-reader-dem</module>
+    </dependency>
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+
+	
+    <categories>Application,DAT</categories>
+
+    <extension point="beam-ui:toolViews">
+
+    </extension>
+
+
+</module>

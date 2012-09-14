@@ -1,0 +1,286 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - Expression Editor</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+
+    <style type="text/css">
+        #top {
+        }
+    </style></head>
+<body>
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            Expression Editor</td>
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+<h4><a name="top"></a>The Arithmetic Expression Editor</h4>
+
+<p>DAT's expression editor provides a convenient way to construct arithmetic
+    expressions with <a href="#syntax">C syntax</a> from various data sources, such
+    as bands, tie-point grids and flag values. You can combine these data sources
+    by a number of <a href="#op3">comparison</a>, <a href="#op1">arithmetic</a>,
+    <a href="#op4">logical</a> and <a href="#op5">binary</a> operators or use them
+    as arguments for <a href="#func">mathematical functions</a>.</p>
+
+<p align="center"><img src="images/ExpressionEditor.jpg" border="0" height="347" width="586"></p>
+
+
+<h4>Product:</h4>
+
+<p>Selects the current input product providing source bands, tie-point grids and flags.</p>
+
+<h4>Data Sources:</h4>
+
+<p>The list of available data sources provided by the selected input product.
+    Click on a data source to move it into the expression text field.</p>
+
+<p class="i1">
+    <b>Show Bands</b> checkbox<br>
+    Checks whether or not the bands of a product are shown in the list of available data sources.</p>
+
+<p class="i1">
+    <b>Show Tie Point Grids</b> checkbox<br>
+    Checks whether or not the tie-point grids of a product are shown in the list of available data sources.</p>
+
+<p class="i1">
+    <b>Show single Flags</b> checkbox<br>
+    Checks whether or not the flags of a product are shown in the list of available data sources.</p>
+
+<h4>Expression:</h4>
+
+<p>The expression text field. You can also directly edit the expression here.</p>
+
+
+<table style="margin-top: 0pt;">
+    <tbody><tr>
+        <td><b>Select All</b> Button</td>
+        <td>Selects the entire text in the expression text field.</td>
+    </tr>
+    <tr>
+        <td><b>Clear</b> Button</td>
+        <td>Clears the entire text in the expression text field.</td>
+    </tr>
+    <tr>
+        <td><b>Undo</b> Button</td>
+        <td>Undoes multiple last edits in the expression text field.</td>
+    </tr>
+</tbody></table>
+
+<h4>OK Button</h4>
+
+<p>Accepts the expression.</p>
+
+<a name="syntax"></a><h4>Expression Syntax</h4>
+
+The syntax for valid expressions used in DAT is almost the same as used in the C, C++ or Java programming languages.
+However, currently not supported are any kind of type conversions or type castings or object accessing operations.
+
+<h4>Supported Operators and Functions</h4>
+
+<p class="inote">Important note: The operators listed here are enumerated in decreasing operator precedence
+    (or increasing operator priority). If not otherwise stated, binary operators always bind (and evaluate) from left
+    to right, so that <code>A - B - C - D</code> is equivalent to <code>((A - B) - C) - D</code>.</p>
+
+<a name="op2"></a><h5>Ternary Conditional Operator</h5>
+
+<p>This operator returns a value depending on a given boolean expression <i>X</i>.</p>
+<table>
+    <tbody><tr><td><code> A <b>?</b> B <b>:</b> C </code></td><td> if <i>A</i> then <i>B</i>, else <i>C</i></td></tr>
+</tbody></table>
+
+<a name="op4"></a><h5>Binary Logical Operators</h5>
+
+<p>These operators are meant to be used in conjunction with a data product's
+    quality flags. The arguments must always be boolean.</p>
+<table>
+    <tbody><tr><td><code> X <b>||</b> Y <br> X <b>or</b> Y </code></td>
+        <td> Logical OR </td></tr>
+    <tr><td><code> X <b>&amp;&amp;</b> Y <br> X <b>and</b> Y </code></td>
+        <td> Logical AND </td></tr>
+</tbody></table>
+
+<a name="op3"></a><h5>Binary Comparison Operator</h5>
+
+<p>These operators return boolean values <code>true</code> or <code>false</code>.
+    You can use the conditional operator to convert the boolean return value into
+    a real number, for example <code>(radiance_13 &lt;= 0) ? 0 : 10*sqrt(radiance_13)</code></p>
+<table>
+    <tbody><tr>
+        <td width="85"><code> X <b>==</b> Y </code></td>
+        <td width="197"> Equal to </td>
+    </tr>
+    <tr>
+        <td width="85"><code> X <b>!=</b> Y </code></td>
+        <td width="197"> Not equal to </td>
+    </tr>
+    <tr>
+        <td width="85"><code> X <b>&lt;</b> Y </code></td>
+        <td width="197"> Less than </td>
+    </tr>
+    <tr>
+        <td width="85"><code> X <b>&lt;=</b> Y </code></td>
+        <td width="197"> Less than or equal to </td>
+    </tr>
+    <tr>
+        <td width="85"><code> X <b>&gt;</b> Y </code></td>
+        <td width="197"> Greater then </td>
+    </tr>
+    <tr>
+        <td width="85"><code> X <b>&gt;=</b> Y </code></td>
+        <td width="197"> Greater then or equal to </td>
+    </tr>
+</tbody></table>
+
+
+<a name="op5"></a><h5>Binary Bitwise Operators</h5>
+<table>
+    <tbody><tr>
+        <td width="68"><code> X <b>|</b> Y </code></td>
+        <td width="107"> Bitwise OR </td>
+    </tr>
+    <tr>
+        <td width="68"><code> X <b>^</b> Y </code></td>
+        <td width="107"> Bitwise XOR </td>
+    </tr>
+    <tr>
+        <td width="68"><code> X <b>&amp;</b> Y </code></td>
+        <td width="107"> Bitwise AND </td>
+    </tr>
+</tbody></table>
+
+<a name="op1"></a><h5>Arithmetic Operators</h5>
+
+<table>
+    <tbody><tr>
+        <td width="79"><code> X <b>+</b> Y </code></td>
+        <td width="155"> Plus
+    </td></tr>
+    <tr>
+        <td width="79"><code> X <b>-</b> Y </code></td>
+        <td width="155"> Minus </td>
+    </tr>
+    <tr>
+        <td width="79"><code> X <b>*</b> Y </code></td>
+        <td width="155"> Divison </td>
+    </tr>
+    <tr>
+        <td width="79"><code> X <b>/</b> Y </code></td>
+        <td width="155"> Multiplication </td>
+    </tr>
+    <tr>
+        <td width="79"><code> X <b>%</b> Y </code></td>
+        <td width="155"> Modulo (remainder) </td>
+    </tr>
+</tbody></table>
+
+<a name="op6"></a><h5>Unary Operators</h5>
+<table>
+    <tbody><tr>
+        <td width="88"><code><b>+</b> X </code></td>
+        <td width="514"> Arithmetic positive sign, no actual operation, equivalent
+            to 1 * <i>X</i></td>
+    </tr>
+    <tr>
+        <td width="88"><code><b>-</b> X </code></td>
+        <td width="514"> Arithmetic negation, equivalent to -1 * <i>X</i></td>
+    </tr>
+    <tr>
+        <td width="88"><code><b>!</b> X </code><br>
+            <code><b>not</b> X </code></td>
+        <td width="514"> Logical NOT of boolean argument <i>X</i></td>
+    </tr>
+    <tr>
+        <td width="88"><code><b>~</b> X </code></td>
+        <td width="514"> Bitwise NOT of integer argument <i>X</i></td>
+    </tr>
+</tbody></table>
+
+<a href="const"></a> <h5>Mathematical Constants</h5>
+<table>
+    <tbody><tr><td><b><code>PI</code></b></td> <td><b>PI = 3.14159265358979323846</b>. The double value that is closer than any
+        other to <i>PI</i></td></tr>
+    <tr><td><b><code>E</code></b></td> <td><b>E = 2.7182818284590452354</b>. The double value that is closer than any
+        other to <i>E</i>, the base of the natural logarithms </td></tr>
+    <tr><td><b><code>NaN</code></b></td> <td><b>NaN = 0.0 / 0.0</b>. A constant holding a Not-a-Number (NaN) value </td>
+    </tr>
+    <tr><td><b><code>X</code></b></td> <td><b>The X-position of the current pixel.</b></td></tr>
+    <tr><td><b><code>Y</code></b></td> <td><b>The Y-position of the current pixel.</b></td></tr>
+</tbody></table>
+
+<a name="func"></a><h5>Mathematical Functions</h5>
+<table>
+    <tbody><tr><td><b><code>sqrt(</code></b> X <b><code>)</code></b></td>  <td> Returns square root of <i>X</i></td></tr>
+    <tr><td><b><code>pow(</code></b> X <b><code>,</code></b> Y <b><code>)</code></b></td>  <td><i>X</i> raised to the
+        power of <i>Y</i></td></tr>
+    <tr><td><b><code>exp(</code></b> X <b><code>)</code></b></td>  <td> Returns euler's number <i>e</i> raised to the
+        power of <i>X</i></td></tr>
+    <tr><td><b><code>exp10(</code></b> X <b><code>)</code></b></td>  <td> Returns the value of <i>10</i> raised to the
+        power of <i>X</i></td></tr>
+    <tr><td><b><code>log(</code></b> X <b><code>)</code></b></td>  <td> Returns the natural logarithm (base <i>e</i>) of
+        <i>X</i></td></tr>
+    <tr><td><b><code>log10(</code></b> X <b><code>)</code></b></td>  <td> Returns the common logarithm, the logarithm
+        with base 10 of <i>X</i>. </td></tr>
+    <tr><td><b><code>sin(</code></b> X <b><code>)</code></b></td>  <td> Returns the trigonometric sine of an angle
+        <i>X</i> in radians</td></tr>
+    <tr><td><b><code>cos(</code></b> X <b><code>)</code></b></td>  <td> Returns the trigonometric cosine of an angle <i>X</i>
+        in radians</td></tr>
+    <tr><td><b><code>tan(</code></b> X <b><code>)</code></b></td>  <td> Returns the trigonometric tangent of an angle
+        <i>X</i> in radians</td></tr>
+    <tr><td><b><code>asin(</code></b> X <b><code>)</code></b></td>  <td> Returns the trigonometric arc-sine of <i>X</i>
+    </td></tr>
+    <tr><td><b><code>acos(</code></b> X <b><code>)</code></b></td>  <td> Returns the trigonometric arc-cosine of
+        <i>X</i></td></tr>
+    <tr><td><b><code>atan(</code></b> X <b><code>)</code></b></td>  <td> Returns the trigonometric arc-tangent of
+        <i>X</i></td></tr>
+    <tr><td><b><code>atan2(</code></b> Y <b><code>,</code></b> X <b><code>)</code></b></td>  <td> Returns the angle of
+        polar co-ordinate of <i>X</i>,<i>Y</i></td></tr>
+    <tr><td><b><code>ampl(</code></b> R <b><code>,</code></b> I <b><code>)</code></b></td>  <td> Returns the amplitude
+        function of a complex argument, same as sqrt(<i>R</i> * <i>R</i> + <i>I</i> * <i>I</i>) </td></tr>
+    <tr><td><b><code>phase(</code></b> R <b><code>,</code></b> I <b><code>)</code></b></td>  <td> Returns the phase
+        function of a complex argument, same as atan2(<i>I</i>, <i>R</i>) </td></tr>
+    <tr><td><b><code>rad(</code></b> X <b><code>)</code></b></td>  <td> Converts <i>X</i> from decimal degree to radian
+    </td></tr>
+    <tr><td><b><code>deg(</code></b> X <b><code>)</code></b></td>  <td> Converts <i>X</i> from radian to decimal degree
+    </td></tr>
+    <tr><td><b><code>abs(</code></b> X <b><code>)</code></b></td>  <td> Returns the absolute value of <i>X</i></td></tr>
+    <tr><td><b><code>sign(</code></b> X <b><code>)</code></b></td>  <td> Returns the sign of <i>A</i>, always one of -1,
+        0, +1</td></tr>
+    <tr><td><b><code>min(</code></b> X <b><code>,</code></b> Y <b><code>)</code></b></td>  <td> Returns the smaller
+        value of <i>X</i> and <i>Y</i></td></tr>
+    <tr><td><b><code>max(</code></b> X <b><code>,</code></b> Y <b><code>)</code></b></td>  <td> Returns the greater
+        value of <i>X</i> and <i>Y</i></td></tr>
+    <tr><td><b><code>floor(</code></b> X <b><code>)</code></b></td>  <td> Returns the largest (closest to positive
+        infinity) double value that is less than or equal to <i>X</i> and is equal to a mathematical integer </td></tr>
+    <tr><td><b><code>round(</code></b> X <b><code>)</code></b></td>  <td> Returns the closest long to <i>X</i>. The
+        result is rounded to an integer by adding 1/2, taking the floor of the result, and casting the result to type
+        long </td></tr>
+    <tr><td><b><code>ceil(</code></b> X <b><code>)</code></b></td>  <td> Returns the smallest (closest to negative
+        infinity) double value that is greater than or equal to <i>X</i> and is equal to a mathematical integer </td>
+    </tr>
+    <tr><td><b><code>rint(</code></b> X <b><code>)</code></b></td>  <td> Returns the double value that is closest in
+        value to <i>X</i> and is equal to a mathematical integer. If two double values that are mathematical integers
+        are equally close, the result is the integer value that is even </td></tr>
+    <tr><td><b><code>feq(</code></b> X <b><code>,</code></b> Y <b><code>)</code></b></td>  <td> Performs a fuzzy equal
+        operation for the <i>X</i> and <i>Y</i> arguments </td></tr>
+    <tr><td><b><code>feq(</code></b> X <b><code>,</code></b> Y <b><code>,</code></b> EPS <b><code>)</code></b></td>
+        <td> Performs a fuzzy equal operation for the <i>X</i> and <i>Y</i> arguments by using <i>EPS</i> as maximum
+            deviation </td></tr>
+    <tr><td><b><code>fneq(</code></b> X <b><code>,</code></b> Y <b><code>)</code></b></td>  <td> Performs a fuzzy not
+        equal operation for the <i>X</i> and <i>Y</i> arguments </td></tr>
+    <tr><td><b><code>fneq(</code></b> X <b><code>,</code></b> Y <b><code>,</code></b> EPS <b><code>)</code></b></td>
+        <td> Performs a fuzzy not equal operation for the <i>X</i> and <i>Y</i> arguments by using <i>EPS</i> as maximum
+            deviation </td></tr>
+    <tr><td><b><code>nan(</code></b> X <b><code>)</code></b></td>  <td> Returns true if <i>X</i> is a Not-a-Number (NaN)
+        value, false otherwise </td></tr>
+    <tr><td><b><code>inf(</code></b> X <b><code>)</code></b></td>  <td> Returns true if <i>X</i> is infinitely large in
+        magnitude, false otherwise </td></tr>
+</tbody></table>
+
+
+<hr>
+</body></html>

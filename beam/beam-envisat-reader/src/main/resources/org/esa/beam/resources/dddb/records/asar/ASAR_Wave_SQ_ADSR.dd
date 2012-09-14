@@ -1,0 +1,61 @@
+ASAR_Wave_SQ_ADSR|SQ ADSRs|*
+#
+zero_doppler_time|@/types/UTC.dd|MJD|12|1|*|Zero doppler time at which SQ information applies|1|
+attach_flag|UChar|flag|1|1|*|Attachment Flag. Set to 1 if PF-ASAR was unable to produce an imagette for the wave cell. The fields in other DSR's corresponding to this one are set to zero, apart from the Zero Doppler Time.|2|
+input_mean_flag|UChar|flag|1|1|*|Input data mean outside nominal range flag0 = mean of I and Q input values are both within specified range from expected mean. For expected mean of x, the measured mean must fall between x-threshold to x+threshold.1 = otherwise|3|
+input_std_dev_flag|UChar|flag|1|1|*|Input data standard deviation outside nominal range flag0 = standard deviation values of I and Q input values are both within specified range of expected standard deviation. For expected std. dev. x, the measured std. dev. must fall between x-threshold to|4|
+input_gaps_flag|UChar|flag|1|1|*|Significant gaps in the input data flagAn input data gap is defined as a contiguous block of N missing lines (the value of N is predefined for each product)0 = number of input gaps &lt;= threshold value1 = number of input data gaps &gt; threshold value|5|
+input_missing_lines_flag|UChar|flag|1|1|*|Missing lines significant flag 0 = percentage of missing lines &lt;= threshold value 1 = percentage of missing lines &gt; threshold valueThe number of missing lines is the number of lines missing from the input data excluding data gaps.|6|
+dop_cen_flag|UChar|flag|1|1|*|Doppler Centroid Uncertain flag0 = confidence measure &gt;= specified value1 = Error message generated if confidence measure &lt; specified value(note: if more than one Doppler centroid estimation is performed in a slice the flag is set if any confidence measur|7|
+dop_amb_flag|UChar|flag|1|1|*|Doppler ambiguity estimate uncertain flag0 = confidence measure &gt;= specified value1 = confidence measure &lt; specified value|8|
+output_mean_flag|UChar|flag|1|1|*|Output data mean outside nominal range flag0 = mean of I and Q output values for SLC image or mean of detected pixels for a detected product, are both within specified range from expected mean. For expected mean of x, the measured mean must fall between x|9|
+output_std_dev_flag|UChar|flag|1|1|*|Output data standard deviation outside nominal range flag0 = std. dev. of I and Q output values for SLC image or std. dev. of detected pixels for a detected product, are both within specified range from expected std. dev. For expected std. dev. of x, the|10|
+chirp_flag|UChar|flag|1|1|*|Chirp extraction failed or is of low quality flag 0 = able to extract all chirps or chirp extraction not requested (nominal chirp used) AND all quality measures were acceptable.1 = unable to extract a chirp during processing and chirp extraction was reque|11|
+missing_data_sets_flag|UChar|flag|1|1|*|Data sets missing flag0 = all data sets which are supposed to be in the product are present1 = any data sets (including ADSs) are missing from the product which are supposed to be included under normal circumstances. Which data sets are missing can be det|12|
+invalid_downlink_flag|UChar|flag|1|1|*|Invalid downlink parameters flag0 = all parameters read from the downlinked data were valid1 = displayed if any downlink parameter is out of range and therefore a default value has been used during processing.|13|
+spare_1|Spare|*|7|1|*|Spare|14|
+thresh_chirp_broadening|Float|%|4|1|*|Threshold for setting the chirp quality flag. Maximum percentage broadening permitted in cross-correlation pulse width compared to theoretical width.|15|
+thresh_chirp_sidelobe|Float|dB|4|1|*|Threshold for setting the chirp quality flag - First sidelobe of the chirp cross correlation function|16|
+thresh_chirp_islr|Float|dB|4|1|*|Threshold for setting the chirp quality flag - ISLR of the chirp cross correlation function|17|
+thresh_input_mean|Float|*|4|1|*|Threshold for setting the mean of input data quality flag - For an expected mean value of x, this is the value T, such that the measured mean must fall between the x-T and x+T.|18|
+exp_input_mean|Float|*|4|1|*|Expected mean input value for this product for both I and Q.|19|
+thresh_input_std_dev|Float|*|4|1|*|Threshold for setting the standard deviation of input data quality flag - For an expected std. dev. value of y, this is the value D, such that the measured std. dev. must fall between the y-D and y+D.|20|
+exp_input_std_dev|Float|*|4|1|*|Expected input std. dev. for this product for both I and Q.|21|
+thresh_dop_cen|Float|*|4|1|*|Threshold for setting the Doppler Centroid quality flag - Threshold for Doppler Centroid confidence|22|
+thresh_dop_amb|Float|*|4|1|*|Threshold for setting the Doppler Centroid ambiguity quality flag - Threshold for setting the Doppler Centroid ambiguity confidence flag|23|
+thresh_output_mean|Float|*|4|1|*|Threshold for setting the mean of output data quality flag - For an expected mean value of x, this is the value T, such that the measured mean must fall between the x-T and x+T.|24|
+exp_output_mean|Float|*|4|1|*|Expected mean output value for this product. For an SLC product this is the expected mean of both the I and Q values.|25|
+thresh_output_std_dev|Float|*|4|1|*|Threshold for setting the standard deviation of output data quality flag - For an expected std. dev. value of y, this is the value D, such that the measured std. dev. must fall between the y-D and y+D.|26|
+exp_output_std_dev|Float|*|4|1|*|Expected output std. dev. for this product. For an SLC product this is the expected output std. dev. for both I and Q values.|27|
+thresh_input_missing_lines|Float|%|4|1|*|Threshold for setting the missing lines quality flag - maximum percentage of missing lines to total lines.|28|
+thresh_input_gaps|Float|*|4|1|*|Threshold for setting the missing gaps quality flag - maximum number of missing gaps allowed.|29|
+lines_per_gaps|ULong|lines|4|1|*|Number of missing lines which constitute a gap|30|
+spare_2|Spare|*|15|1|*|Spare|31|
+input_mean|Float|*|4|2|*|Input data mean (i channel, q channel|32|
+input_std_dev|Float|*|4|2|*|Input data standard deviation (i channel, q channel)|33|
+num_gaps|Float|*|4|1|*|Number of gaps (composed of a predetermined number of consecutive missing lines)|34|
+num_missing_lines|Float|*|4|1|*|Number of missing lines (excluding gaps)|35|
+output_mean|Float|*|4|2|*|Output data mean (detected samples, followed by zero, or i channel followed by q channel for SLC)|36|
+output_std_dev|Float|*|4|2|*|Output data standard deviation (detected samples followed by zero,  or i channel followed by q channel for SLC)|37|
+tot_errors|ULong|*|4|1|*|Total number of errors detected in ISP headers|38|
+Spare_3|Spare|*|16|1|*|Spare|39|
+land_flag|UChar|flag|1|1|*|Land Flag 0 = no land in imagette1 = land in imagette|40|
+look_conf_flag|UChar|flag|1|1|*|Look image statistics confidence parameter flag 1 = The ratio of the standard deviation to the mean of the first look image is outside the range given by a minimum and a maximum threshold.0 =otherwise|41|
+inter_look_conf_flag|UChar|flag|1|1|*|Inter-look confidence statistics confidence parameter flag1 = The normalised deviation of the two inter-look sub-images is greater than a maximum threshold.0 = otherwise|42|
+az_cutoff_flag|UChar|flag|1|1|*|Azimuth cut-off convergence measure flag1 = The normalised RMS error between the fitted co-variance profile is greater than a maximum threshold.0 = otherwise|43|
+az_cutoff_iteration_flag|UChar|flag|1|1|*|Azimuth cut-off Iteration count overflow flag1 = The Azimuth cut-off fit did not converge within a minimum number of iterations.0 = otherwise|44|
+phase_flag|UChar|flag|1|1|*|Phase information confidence measure flag1 = The imaginary spectral peak is less than a minimum threshold, and the zero lag shift is greater than a minimum threshold.0 = otherwise|45|
+spare_4|Spare|*|4|1|*|Spare|46|
+look_conf_thresh|Float|*|4|2|*|Look image statistics confidence parameter thresholds (minimum and maximum)|47|
+inter_look_conf_thresh|Float|*|4|1|*|Inter-look confidence statistics confidence parameter threshold|48|
+az_cutoff_thresh|Float|*|4|1|*|Azimuth cut-off convergence measure threshold|49|
+az_cutoff_iterations_thresh|ULong|*|4|1|*|Azimuth cut-off Iteration count overflow threshold|50|
+phase_peak_thresh|Float|*|4|1|*|Phase information confidence measure threshold for the spectral peak|51|
+phase_cross_thresh|Float|m|4|1|*|Phase information confidence measure threshold for cross covariance peak offset|52|
+spare_5|Spare|*|12|1|*|Spare|53|
+look_conf|Float|*|4|1|*|Look image statistics confidence parameterThe ratio of the standard deviation to the mean of the first look image|54|
+inter_look_conf|Float|*|4|1|*|Inter-look confidence statistics confidence parameter.The normalised deviation of the two inter-look sub-images|55|
+az_cutoff|Float|*|4|1|*|Azimuth cut-off convergence measureThe normalised RMS error between the fitted co-variance profile|56|
+phase_peak_conf|Float|*|4|1|*|Phase information confidence measure for the spectral peakThe imaginary spectral peak|57|
+phase_cross_conf|Float|m|4|1|*|Phase information confidence measure for cross covariance peak offset|58|
+spare_6|Spare|*|12|1|*|Spare|59|

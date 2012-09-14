@@ -1,0 +1,2 @@
+org.esa.beam.cluster.EMClusterOp$Spi
+org.esa.beam.cluster.KMeansClusterOp$Spi

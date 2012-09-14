@@ -1,0 +1,12 @@
+ASAR_Geo_Grid_ADSR|Geolocation Grid ADSRs|*
+#
+first_zero_doppler_time|@/types/UTC.dd            |MJD  |12|1|*|Zero Doppler Time in azimuth of first line of the granule. Gives azimuth location of grid line for first line of the granule.|1|
+attach_flag            |UChar                     |flag | 1|1|*|Attachment Flag (set to 1 if all MDSRs corresponding to this ADSR are blank, set to zero otherwise).|2|
+line_num               |ULong                     |*    | 4|1|*|Range line number corresponding to the first line of the granule|3|
+num_lines              |ULong                     |lines| 4|1|*|Number of output lines in this granule|4|
+sub_sat_track          |Float                     |deg. | 4|1|*|Subsatellite track heading (relative to North) for first line of granule. This is the heading on the ground (includes Earth rotation).|5|
+first_line_tie_points  |@+ASAR_Geo_Grid_ADSR.sd/first_line_tie_points.dd|*    | *|1|*|First Line Tie Points|6|
+spare_1                |Spare                     |*    |22|1|*|Spare|7|
+last_zero_doppler_time |@/types/UTC.dd            |MJD  |12|1|*|Zero doppler time for the last line of the granule|8|
+last_line_tie_points   |@+ASAR_Geo_Grid_ADSR.sd/last_line_tie_points.dd |*    |* |1|*|Last Line Tie Points|9|
+spare_2                |Spare                     |*    |22|1|*|Spare|10|

@@ -1,0 +1,74 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="2-Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <auxFile>Latest Auxiliary File</auxFile>
+      <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="3-ALOS-Deskewing">
+    <operator>ALOS-Deskewing</operator>
+    <sources>
+      <sourceProduct refid="2-Calibration"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+    </parameters>
+  </node>
+  <node id="4-Multilook">
+    <operator>Multilook</operator>
+    <sources>
+      <sourceProduct refid="3-ALOS-Deskewing"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <nRgLooks>1</nRgLooks>
+      <nAzLooks>1</nAzLooks>
+      <outputIntensity>true</outputIntensity>
+      <note>Currently, detection for complex data is performed without any resampling</note>
+    </parameters>
+  </node>
+  <node id="5-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="4-ALOS-Deskewing"/>
+      <sourceProduct refid="4-Multilook"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <formatName>BEAM-DIMAP</formatName>
+      <file>alos_Cal_Deskewed_ML.dim</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="1-Read">
+      <displayPosition y="41.0" x="47.0"/>
+    </node>
+    <node id="2-Calibration">
+      <displayPosition y="92.0" x="42.0"/>
+    </node>
+    <node id="3-ALOS-Deskewing">
+      <displayPosition y="146.0" x="29.0"/>
+    </node>
+    <node id="4-Multilook">
+      <displayPosition y="198.0" x="48.0"/>
+    </node>
+    <node id="5-Write">
+      <displayPosition y="195.0" x="174.0"/>
+    </node>
+  </applicationData>
+</graph>

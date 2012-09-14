@@ -1,0 +1,27 @@
+#
+# 1) product_name
+# 2) description
+#
+SAR_IM__BP|ERS Image Mode Browse Product
+#
+# 1) band_name
+# 2) dataset_name
+# 3) sample_offset
+# 4) band_datatype
+# 5) spectr_band_index
+# 6) scaling_method
+# 7) scaling_offset
+# 8) scaling_factor
+# 9) bit_expr
+# 10) flags_definition_file
+# 11) unit
+# 12) description
+#
+#1                |2                             |3   |4     |5|6           |7  |8      |9|10                                |11 |12
+#-----------------|------------------------------|----|------|-|------------|---|-------|-|----------------------------------|---|----------------------------------------------------
+slant_range_time  |GEOLOCATION_GRID_ADS.7        |*   |Float |*|Linear_Scale|0.0|1.0    |*|*                                 |ns |2 way slant range time
+incident_angle    |GEOLOCATION_GRID_ADS.8        |*   |Float |*|Linear_Scale|0.0|1.0    |*|*                                 |deg|Incident angle
+latitude          |GEOLOCATION_GRID_ADS.9        |*   |Float |*|Linear_Scale|0.0|1.0E-06|*|*                                 |deg|Latitude of the tie points (WGS-84), positive N
+longitude         |GEOLOCATION_GRID_ADS.10       |*   |Float |*|Linear_Scale|0.0|1.0E-06|*|*                                 |deg|Longitude of the tie points (WGS-84), Greenwich origin, positive E
+Amplitude         |MDS1.4                        |*   |Float |*|Linear_Scale|0.0|1.0    |*|*                                 |amplitude  |Image Mode Browse Image
+Intensity	  	  |=pow(Amplitude,2)			 |*   |Float |*|Linear_Scale|0.0|1.0	|*|*								 |intensity  |Intensity

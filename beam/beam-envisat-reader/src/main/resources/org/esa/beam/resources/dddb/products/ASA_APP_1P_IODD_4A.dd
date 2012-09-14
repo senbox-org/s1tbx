@@ -1,0 +1,16 @@
+ASA_APP_1P|ASAR Alternating Polarization Mode Precision Image|
+#
+MPH                       |@/records/MPH.dd                     |1247                      |Main Product Header
+SPH                       |@/records/asar/ASAR_Image_SPH.dd     |*                         |ASAR Image Products SPH
+DSD                       |@/records/DSD.dd                     |*                         |Data Set Descriptor array
+MDS1_SQ_ADS               |@/records/asar/ASAR_SQ1_Image_ADSR_IODD_4A.dd|MDS1 SQ ADS               |SQ ADSRs
+MDS2_SQ_ADS               |@/records/asar/ASAR_SQ1_Image_ADSR_IODD_4A.dd|MDS2 SQ ADS               |SQ ADSRs
+MAIN_PROCESSING_PARAMS_ADS|@/records/asar/ASAR_Main_ADSR_IODD_4A.dd     |MAIN PROCESSING PARAMS ADS|Main Processing parameters
+DOP_CENTROID_COEFFS_ADS   |@/records/asar/ASAR_Dop_Cen_ADSR_IODD_4A.dd  |DOP CENTROID COEFFS ADS   |Doppler Centroid Parameters
+SR_GR_ADS                 |@/records/asar/ASAR_SRGR_ADSR.dd     |SR GR ADS                 |Slant Range to Ground Range conversion parameters
+CHIRP_PARAMS_ADS          |@/records/asar/ASAR_Chirp_ADSR_IODD_3K.dd    |CHIRP PARAMS ADS          |chirp parameters
+ANTENNA_ELEV_PATTERN_ADS  |@/records/asar/ASAR_Antenna_ADSR.dd  |MDS1 ANTENNA ELEV PATT ADS  |Antenna Elevation patterns(s)
+ANTENNA_ELEV_PATTERN_ADS2 |@/records/asar/ASAR_Antenna_ADSR.dd  |MDS2 ANTENNA ELEV PATT ADS  |Antenna Elevation patterns(s)
+GEOLOCATION_GRID_ADS      |@/records/asar/ASAR_Geo_Grid_ADSR_IODD_4A.dd |GEOLOCATION GRID ADS      |Geolocation Grid ADSRs
+MDS1                      |@/records/asar/ASAR_Image_MDSR_Gen.dd|MDS1                      |Measurement Data Set 1
+MDS2                      |@/records/asar/ASAR_Image_MDSR_Gen.dd|MDS2                      |Measurement Data Set 2

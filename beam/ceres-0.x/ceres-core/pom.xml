@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.bc.ceres</groupId>
+        <artifactId>ceres</artifactId>
+        <version>5.0-0.14</version>
+    </parent>
+
+    <groupId>com.bc.ceres</groupId>
+    <artifactId>ceres-core</artifactId>
+    <packaging>jar</packaging>
+    <name>Ceres Runtime</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-launcher</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

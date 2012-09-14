@@ -1,0 +1,74 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-modis-reader</symbolicName>
+    <version>5.0-1.2</version>
+    <name>MODIS (MOD,MXD,MYD) Product Reader</name>
+
+
+    <description>A reader for MODIS (MOD,MXD,MYD) products.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+        Changes in 1.2:<br/>
+        Support for MOD09GA and MYD09GA products<br/>
+
+        Changes in 1.1:<br/>
+        [BEAM-923] Wrong exception type thrown on format errors<br/>
+        ]]>
+    </changelog>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>lib-hdf</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat-rcp</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader,MODIS,HDF,VISAT</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>importModisProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <text>MODIS (MOD,MXD,MYD)</text>
+            <formatName>MODIS</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>M</mnemonic>
+            <shortDescr>Import a MODIS data product data product or product subset.</shortDescr>
+            <description>Import a MODIS (MOD, MXD, MYD) data product data product or product subset.</description>
+            <helpId>importModisProduct</helpId>
+            <parent>importOptical</parent>
+        </action>
+    </extension>
+
+    <extension point="beam-core:rgbProfiles">
+        <rgbProfile>
+            <name>MOD021KM High Quality</name>
+            <red>log(1 + 0.04 * EV_1KM_RefSB.8 + 0.35 * EV_1KM_RefSB.9 + 0.03 * EV_1KM_RefSB.10 + 0.17 * EV_1KM_RefSB.11
+                + 0.43 * EV_1KM_RefSB.12 + 1.00 * EV_1KM_RefSB.13lo + 0.13 * EV_1KM_RefSB.14lo + 0.05 *
+                EV_1KM_RefSB.15)</red>
+            <green>log(1 + 0.02 * EV_1KM_RefSB.9 + 0.21 * EV_1KM_RefSB.10 + 0.86 * EV_1KM_RefSB.11 + 1.00 *
+                EV_1KM_RefSB.12 + 0.38 * EV_1KM_RefSB.13lo + 0.04 * EV_1KM_RefSB.14lo + 0.02 * EV_1KM_RefSB.15)</green>
+            <blue>log(1 + 0.21 * EV_1KM_RefSB.8 + 1.75 * EV_1KM_RefSB.9 + 0.47 * EV_1KM_RefSB.10 + 0.04 *
+                EV_1KM_RefSB.11 + 0.01 * EV_1KM_RefSB.12)</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>MOD021KM Night</name>
+            <red>EV_1KM_Emissive.32</red>
+            <green>EV_1KM_Emissive.31</green>
+            <blue>EV_1KM_Emissive.21</blue>
+        </rgbProfile>
+
+    </extension>
+
+</module>

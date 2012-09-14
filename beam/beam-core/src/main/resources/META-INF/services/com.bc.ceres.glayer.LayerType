@@ -1,0 +1,6 @@
+org.esa.beam.glayer.GraticuleLayerType
+org.esa.beam.glayer.NoDataLayerType
+org.esa.beam.glayer.RasterImageLayerType
+org.esa.beam.glayer.RgbImageLayerType
+org.esa.beam.glayer.MaskCollectionLayerType
+org.esa.beam.glayer.MaskLayerType

@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><title>Help - Phase to Height conversion</title>
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Phase to Height conversion (InSAR operator)</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<h3>Phase to Height conversion</h3>
+
+<p>
+    This operator converts the unwrapped interferometric phase to the heights in the radar coded system. This
+    functionality is sometimes referred to as "slant-to-height" conversion.
+</p>
+
+<p>
+    Implementation is performed following the Schwabisch method, that uses polynomials to compare the actual phase with
+    the flat earth (reference) phase.
+</p>
+
+<p>
+    The Schwabisch method, is a fast method that yields the radar coded heights. It builds on the idea to first
+    compute the reference phase at a number of discrete heights and then to compare the actual phase from the
+    interferogram with these pre-computed values to determine the height.
+</p>
+
+<p>
+    An obstacle with this method is that the interferograms that are used as input do not contain the reference
+    phase anymore, so that has to be pre-computed and included in the height-estimation procedure.
+</p>
+
+<h4>Operator parameters:</h4>&nbsp;&nbsp;
+
+<ol>
+    <li>
+        <b>Number of estimation points:</b> The number of locations to compute the reference phase at different
+        altitudes.
+    </li>
+    <li>
+        <b>Number of height samples:</b> Number of height samples in range [0,5000) at which the reference phase will be
+        estimated.
+    </li>
+    <li>
+        <b>Degree of 1D polynomial:</b> Degree of the one-dimensional polynomial to "fit" the reference phase through.
+    </li>
+    <li>
+        <b>Degree of 2D polynomial:</b> Degree of the two-dimensional polynomial to fit the reference phase through.
+    </li>
+    <li>
+        <b>Orbit interpolation degree:</b> Defaults to a polynomial of degree (number of state vectors)-1, but smaller
+        than degree 5.
+    </li>
+</ol>
+
+<h4>Source Products:</h4>&nbsp;
+<!--&nbsp;-->
+<p>
+    Unwrapped interferometric product.
+</p>
+
+<h4>Output bands:</h4>&nbsp;
+<!--&nbsp;-->
+<p> The height estimated from the unwrapped interferogram. The heights are stored meters, while 0.0 height indicates
+    the problem with unwrapping.
+</p>
+
+<h4>Implementation notes:</h4>&nbsp;
+<!--&nbsp;-->
+<p><i>(More details on algorithmic implementation COMING SOON!)</i></p>
+
+<br>
+<br>
+<hr>
+</body>
+</html>

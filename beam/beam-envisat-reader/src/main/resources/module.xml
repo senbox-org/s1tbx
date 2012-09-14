@@ -1,0 +1,177 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-envisat-reader</symbolicName>
+    <version>5.0-1.5</version>
+    <name>Envisat Product Reader</name>
+
+    <description>Enables BEAM to read ENVISAT data products.</description>
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2008 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <changelog><![CDATA[
+       <p>Changes from version 1.4 to 1.5:<br/>
+       [BEAM-1364] Inaccurate AATSR geo-location<br/>
+       [BEAM-1343] For AATSR NR products, all land pixels should be visible in the LST band<br/>
+       [BEAM-1341] The Envisat reader should read AMORGOS output for MER_RR_1P input (MER_RRG_1P)<br/>
+       [BEAM-943] ProductIOException occures in VISAT by saving product as DIMAP, if some band names have been changed<br/>
+       <p>Changes from version 1.3.200 to 1.4:<br/>
+       [BEAM-1214] MERIS L2 products low_pressure flag is raised over water<br/>
+       [BEAM-1242] Support MERIS FSG L2 products<br/>
+       [BEAM-1237] Update MERIS L2 flags for IODD version 8<br/>
+       [BEAM-1213] Unit of yellow_subs in MERIS product not correct<br/>
+       </p>
+       <p>Changes from version 1.3.101 to 1.3.200:<br/>
+       [BEAM-1160] Auto-grouping of bands shall be controlled by data model<br/>
+       [BEAM-1162] The Envisat reader should support reformatted / line-interleaved products<br/>
+       </p>
+       <p>Changes from version 1.3 to 1.3.101:<br/>
+       [BEAM-1034] Envisat reader should create PixelGeoCoding for FSG/FRG products automatically<br/>
+       [BEAM-1032] Orthorectification not applicable for MER_FRS_2P<br/>
+       </p>
+       <p>Changes from version 1.2.1 to 1.3:<br/>
+       [BEAM-898] ATSR active fire bitmasks<br/>
+       [BEAM-922] Wrong exception type thrown on format errors<br/>
+       </p>
+       <p>Changes from version 1.2 to 1.2.1:<br/>
+       [BEAM-874] Ensure thread safety of product reader<br/>
+       [BEAM-871] Envisat reader inefficiently reads single lines when tiles are requested<br/>
+       </p>
+       <p>Changes from version 1.1.100 to 1.2:<br/>
+       [BEAM-828] New ASAR products for envisat reader<br/>
+       [BEAM-803] Add support for all ASAR products and format versions<br/>
+       </p>
+       <p>Changes from version 1.1 to 1.1.100:<br/>
+       [BEAM-802] Take attachment flag into account<br/>
+       </p>
+       Changes in version 1.1:<br/>
+       [BEAM-620] Generify detection of product type<br/>
+       [BEAM-624] Support for AT1_NR__2P and AT2_NR__2P products in ENVISAT-format<br/>
+       [BEAM-656] Support for MERIS band subset<br/>
+       [BEAM-683] Add capability to read from zipped products<br/>
+       </p>]]></changelog>
+
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat-rcp</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader,Envisat,MERIS,AATSR,ASAR,ERS</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>importEnvisatASARProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ENVISAT</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>ENVISAT ASAR</text>
+            <shortDescr>Import an ENVISAT ASAR data product or product subset.</shortDescr>
+            <description>Import an ENVISAT ASAR data product or product subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+        </action>
+        <action>
+            <id>importEnvisatProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ENVISAT</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>ENVISAT (MERIS,AATSR)</text>
+            <shortDescr>Import an ENVISAT (MERIS,AATSR) data product or product subset.</shortDescr>
+            <description>Import an ENVISAT MERIS, AATSR data product or product subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <parent>importOptical</parent>
+        </action>
+        <action>
+            <id>importErsSARProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ERS1/2</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>ERS 1 / 2 SAR (.E1, .E2)</text>
+            <shortDescr>Import an ERS1/2 SAR data product or product subset.</shortDescr>
+            <description>Import an ERS1/2 SAR data product or product subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <placeAfter>importEnvisatASARProduct</placeAfter>
+        </action>
+        <action>
+            <id>importErsProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ERS1/2</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>ERS 1 / 2 ATSR</text>
+            <shortDescr>Import an ERS1/2 ATSR data product or product subset.</shortDescr>
+            <description>Import an ERS1/2 ATSR data product or product subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <parent>importOptical</parent>
+        </action>
+    </extension>
+
+    <extension point="beam-core:rgbProfiles">
+        <rgbProfile>
+            <name>AATSR L1b - Forward, Day</name>
+            <red>reflec_fward_0870</red>
+            <green>reflec_fward_0670</green>
+            <blue>reflec_fward_0550</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>AATSR L1b - Nadir, Day</name>
+            <red>reflec_nadir_0870</red>
+            <green>reflec_nadir_0670</green>
+            <blue>reflec_nadir_0550</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>MERIS L1b - 13,4,2</name>
+            <red>radiance_13</red>
+            <green>radiance_4</green>
+            <blue>radiance_2</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>MERIS L1b - 13,5,1</name>
+            <red>radiance_13</red>
+            <green>radiance_5</green>
+            <blue>radiance_1</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>MERIS L1b - Tristimulus</name>
+            <red>log(1.0 + 0.35 * radiance_2 + 0.60 * radiance_5 + radiance_6 + 0.13 * radiance_7)</red>
+            <green>log(1.0 + 0.21 * radiance_3 + 0.50 * radiance_4 + radiance_5 + 0.38 * radiance_6)</green>
+            <blue>log(1.0 + 0.21 * radiance_1 + 1.75 * radiance_2 + 0.47 * radiance_3 + 0.16 * radiance_4)</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>MERIS L2 - 13,5,1</name>
+            <red>reflec_13</red>
+            <green>reflec_5</green>
+            <blue>reflec_1</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>MERIS L2 - Tristimulus</name>
+            <red>log(0.05 + 0.35 * reflec_2 + 0.60 * reflec_5 + reflec_6 + 0.13 * reflec_7)</red>
+            <green>log(0.05 + 0.21 * reflec_3 + 0.50 * reflec_4 + reflec_5 + 0.38 * reflec_6)</green>
+            <blue>log(0.05 + 0.21 * reflec_1 + 1.75 * reflec_2 + 0.47 * reflec_3 + 0.16 * reflec_4)</blue>
+        </rgbProfile>
+
+    </extension>
+
+
+</module>

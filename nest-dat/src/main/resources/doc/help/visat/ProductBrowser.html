@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+    
+    
+  
+  <title>Help - The Product Browser</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+    
+  <link rel="stylesheet" href="../style.css"></head>
+<body>
+
+<table class="header">
+
+    <tbody>
+    <tr class="header">
+
+        <td class="header">&nbsp;
+            DAT's Products View</td>
+
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a>
+    </td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+
+<h4><a name="productView">Products View</a></h4>
+
+
+<p><a name="productView">All products when&nbsp;opened are added to the Products View's
+    open product list. The product list is a tree view with up to five root nodes for each open product:
+</a></p>
+<ul>
+
+  <a name="productView">    <li>Bands - contains all measured spectral/geophysical and quality raster datasets of a product (mandatory)</li>
+
+    <li>Tie-point grids - contains all tie-point grid raster datasets (optional)</li>
+
+    <li>Flag Codings - contains flag coding metadata for quality flags datasets (optional)</li>
+
+    <li>Index Codings - contains index coding metadata for classification bands (optional)</li>
+
+    <li>Metadata - contains additional metadata (optional)</li>
+
+  </a>
+</ul>
+
+
+<p>
+<a name="productView">    You can quickly open an </a><a href="ProductSceneView.html">image view</a>
+for a band or tie-point grid by double-clicking on an item of the
+expanded product root nodes. A Metadata View is opened if you click on
+a metadata node.&nbsp;
+</p><div style="text-align: center;"><img style="width: 325px; height: 327px;" alt="" src="images/ProductsView.jpg"></div><p>The information concerning each pixel can be analysed interactively in the
+    pixel information view.</p>
+
+
+<br>
+
+
+<h4><a name="pixelView">Pixel Info View</a></h4>
+
+
+<p><a name="pixelView">The&nbsp;Pixel View displays
+    pixel information&nbsp;while you move the mouse over the band image
+    view.</a></p>
+
+
+<p align="center"><a name="pixelView"><img style="width: 324px; height: 448px;" alt="" src="images/PixelView.jpg"></a></p>
+
+
+<p><a name="pixelView">You can un-dock each section within the Pixel View using the floating-button (<img src="images/icons/FloatingButton.gif" border="0">),
+    and dock it back by using the docking-button (<img src="images/icons/DockingButton.gif" border="0">) in the header
+    bar.</a></p>
+
+
+<p><a name="pixelView">The information displayed belongs to the current image pixel beneath the mouse pointer:</a></p>
+
+<ul>
+
+  <a name="pixelView">    <li><b>Geo-location:</b><br>
+
+        Displays the image position, the geographic-location and also the map co-ordinates if the current
+        product is map-projected.
+    </li>
+
+    <li><b>Tie Point Grids:</b><br>
+
+        Shows the values of the tie-point grids.
+    </li>
+
+    <li><b>Time Info:</b><br>
+
+        The time information associated with the current line.
+    </li>
+
+    <li><b>Bands:</b><br>
+
+        The value of the pixel beneath the mouse pointer.
+    </li>
+
+    <li><b>Flags:</b><br>
+
+        Displays the state of the flags at the current pixel.
+    </li>
+
+  </a>
+</ul>
+
+
+
+
+
+<p>
+<a name="pixelView">    If a pin is selected in the current image view, you can select <b>Snap to selected pin</b>
+    in order to "freeze" the pixel information to the position of the currently selected pin.
+</a></p><p class="inote"><a name="pixelView">Note: Flag values are only displayed if a corresponding flag dataset has been loaded.
+    Use the right mouse button over a flag dataset in the product view in order to load a flag dataset's sample
+    values.</a></p>
+
+
+<p class="inote"><a name="pixelView">Note: In the </a><a href="PreferencesDialog.html">preferences dialog</a> you can deselect the
+    option that only pixel values of displayed or loaded bands are shown.</p>
+
+
+
+<hr>
+</body></html>

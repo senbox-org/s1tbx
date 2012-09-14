@@ -1,0 +1,6 @@
+ATS_MET_2P|AATSR Spatially Averaged Sea Surface Temperature for Meteo Users|
+#
+MPH                   |@/records/MPH.dd                             |1247                  |Main Product Header
+SPH                   |@/records/aatsr/ATS_MET_2P_sph.dd            |*                     |SPH
+DSD                   |@/records/DSD.dd                             |*                     |Data Set Descriptor array
+SEA_ST_10_MIN_CELL_MDS|@/records/aatsr/ATS_MET_2P_meteo_user_prod.dd|SEA_ST_10_MIN_CELL_MDS|10-arcminute mds

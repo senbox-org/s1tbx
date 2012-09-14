@@ -1,0 +1,6 @@
+org.esa.nest.gpf.oceantools.CreateLandMaskOp$Spi
+org.esa.nest.gpf.oceantools.AdaptiveThresholdingOp$Spi
+org.esa.nest.gpf.oceantools.ObjectDiscriminationOp$Spi
+org.esa.nest.gpf.oceantools.OilSpillDetectionOp$Spi
+org.esa.nest.gpf.oceantools.OilSpillClusteringOp$Spi
+org.esa.nest.gpf.oceantools.WindFieldEstimationOp$Spi

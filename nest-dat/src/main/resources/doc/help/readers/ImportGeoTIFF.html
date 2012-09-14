@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - Import GeoTIFF</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp; Import GeoTIFF</td>
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+<h3>Import GeoTIFF</h3>
+
+<p>This command allows to import the data of a GeoTIFF file.</p>
+
+<p>GeoTIFF is an extension to the TIFF 6.0 specification. These image files contain
+    additional information about their georeference and their spatial resolution. A wide range of
+    projected coordinate systems are supported including UTM, US State Plane, and National Grids.
+    For further information have a look at the following documentations:
+</p><ul>
+    <li><a href="http://www.remotesensing.org/geotiff/geotiff.html">GeoTIFF Homepage</a></li>
+    <li><a href="http://partners.adobe.com/public/developer/tiff/index.html">TIFF Specification</a></li>
+</ul>
+
+<h3>Constraints of reading GeoTIFF product files</h3>
+
+<p>If a GeoTiff file was exported by the toolbox, the reader can recover information from a special tag
+    used by the <a href="../writers/ExportGeoTIFF.html">GeoTIFF writer</a>.<br>
+    This includes:
+</p>
+<ul>
+    <li>Name and type of the product.</li>
+    <li>Name, description and unit of each band.</li>
+    <li>The properties of no-data and scaling for each band.</li>
+    <li>The index coding of a band.</li>
+    <li>Virtual and filtered bands.</li>
+    
+</ul>
+<p>
+    For features and limitations of the GeoTIFF import and constraints see the following list:
+</p>
+<ul>
+    <li>Only the first image of a GeoTIFF file is considered.</li>
+    <li>The size of images is limited to a pixel count of 2<sup>32</sup>.</li>
+    <li>The GeoTIFF reader supports the projections available in the toolbox,
+       model transformations and tie-points.</li>
+    <li>Color maps are considered and converted to an index coding.</li>
+</ul>
+
+
+<hr>
+</body></html>

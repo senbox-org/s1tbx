@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+    
+    
+  
+  <title>Help - Speckle Filter</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+
+<table class="header">
+
+    <tbody>
+    <tr class="header">
+
+        <td class="header">&nbsp;Speckle Filter</td>
+
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+
+<h3>Speckle Filter Operator</h3>&nbsp;&nbsp;&nbsp;SAR images have inherent salt and pepper like texturing called speckles which
+degrade the quality of the image and make interpretation of features more
+difficult. Speckles are caused by random constructive and destructive interference
+of the de-phased but coherent return waves scattered by the elementary scatters
+within each resolution cell. Speckle noise reduction can be applied either by
+spatial filtering or multilook processing.<br><h4>Filters Supported</h4>
+&nbsp;&nbsp;&nbsp;The operator supports&nbsp;the following
+speckle&nbsp;filters&nbsp;for handling speckle noise of
+different&nbsp;distributions (Gaussian, multiplicative or
+Gamma):
+<br>
+<ul>
+  <li>Mean</li>
+  <li>Median&nbsp;</li>
+  <li>Frost</li><li>Lee</li><li>Refined Lee</li><li>Gamma-MAP</li></ul><h4>Parameters Used</h4>&nbsp;&nbsp;&nbsp;For most filters, the following parameters should be selected (see figure 1 for example):
+<ol>
+<li>Source Band: All bands (real or virtual) of the source product. User can
+select one or more bands for producing filtered images. If no bands are
+selected, then by default all bands will be selected. For complex product,
+only the intensity band can be selected.</li>
+<li>Filter: The speckle filter.</li>
+<li>Size X: The filtering kernel width.</li>
+<li>Size Y: The filtering kernel height.</li>
+<li>Frost Damping Factor: The damping factor for Frost filter.</li>
+</ol>
+<img style="width: 500px; height: 500px;" alt="" src="images/speckle_filter_dlg_1.jpg"><br><br><div style="text-align: left;">&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp;Figure 1. Dialog box for Mean filter.<br></div><br>For Frost filter, one extral parameter&nbsp;should be selected (see figure 2):
+<ol><li>Frost Damping Factor: The damping factor for Frost filter.</li></ol><span style="font-size: 10pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"><span class="msoIns"><ins cite="mailto:Array" datetime="2008-12-10T10:32"></ins></span></span><img style="width: 500px; height: 500px;" alt="" src="images/speckle_filter_dlg_2.jpg"><br><br>&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Figure 2. Dialog box for Froster
+filter<br><br>For Refined Lee filter, &nbsp;the following parameter should be selected (see Figure 3):<br><ol><li>Edge Threshold: A threshold for detecting edges. &nbsp;Area of 7x7
+pixels with local variance lower than this threshold is considered flat
+&nbsp;and normal Local Statistics Filter is used for the filtering. If
+the local variance is greater than the threshold, then the area is
+considered as edge area and Refined Lee filter will be used for the
+filtering. </li></ol><br><img style="width: 500px; height: 500px;" alt="" src="images/speckle_filter_dlg_3.jpg"><br><br>&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; Figure 3. Dialog box for Refined Lee filter.<br>
+<p><span style="font-style: italic;"> Reference:&nbsp;</span></p><p>[1] J. S. Lee, E. Pottier, <span style="font-style: italic;">Polarimetric SAR Radar Imaging: From Basic to Applications</span>, CRC Press, Taylor &amp; Francis Group, 2009.</p><p>[2] G. S. Robinson, &#8220;Edge
+Detection by Compass Gradient Masks&#8221;, Computer Graphics and Image
+Processing, vol. 6, No. 5, Oct. 1977, pp 492-502.</p><p>[3]
+V. S. Frost, J. A. Stiles, K. S. Shanmugan, J. C. Holtzman, \A Model
+for Radar Images and Its Application to Adaptive Digital Filtering of
+Multiplicative Noise", IEEE Transactions on Pattern Analysis and
+Machine Intelligence, Vol. PAMI-4, pp. 157-166, 1982<br></p><p>[4] Mansourpour M., Rajabi M.A., Blais J.A.R., &#8220;Effects and Performance
+of Speckle Noise Reduction Filters on Active Radar and SAR Images&#8221;, http://people.ucalgary.ca/~blais/Mansourpour2006.pdf</p>
+
+<hr>
+</body></html>

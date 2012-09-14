@@ -1,0 +1,46 @@
+ASAR_Map_GADS|Map Projection parameters|*
+#
+map_descriptor|String|ascii|32|1|*|Map projection descriptorone of:UNIVERSAL_TRANSVERSE_MERCATOR&Oslash;&Oslash;&Oslash;UNIVERSAL_POLAR_STEREOGRAPHIC&Oslash;&Oslash;&Oslash;LAMBERT_CONFORMAL_CONIC&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;TRANSVERSE_MERCATOR&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;MERCATOR&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;POLAR_STEREOGRAPHIC&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;&Oslash;|1|
+samples|ULong|*|4|1|*|Number of samples per line|2|
+lines|ULong|*|4|1|*|Number of lines|3|
+sample_spacing|Float|m|4|1|*|Nominal inter-sample distance|4|
+line_spacing|Float|m|4|1|*|Nominal inter-line distance|5|
+orientation|Float|deg|4|1|*|Output scene centre orientation|6|
+spare_1|Spare|*|40|1|*|Spare|7|
+heading|Float|deg|4|1|*|Platform heading, degrees|8|
+ellipsoid_name|String|ascii|32|1|*|Reference ellipsoid name|9|
+semi_major|Float|m|4|1|*|Ellipsoid semi-major axis, metres|10|
+semi_minor|Float|m|4|1|*|Ellipsoid semi-minor axis, metres|11|
+shift_dx|Float|m|4|1|*|Datum shift parameter referenced to Greenwich: dx (metres)|12|
+shift_dy|Float|m|4|1|*|Datum shift parameter perpendicular to Greenwich: dy (metres)|13|
+shift_dz|Float|m|4|1|*|Datum shift parameter direction of the rotation axis: dz (metres)|14|
+avg_height|Float|*|4|1|*|average scene height above ellipsoid used for geocoding|15|
+spare_2|Spare|*|12|1|*|Spare|16|
+projection_description|String|ascii|32|1|*|Map projection alphanumeric description|17|
+utm_descriptor|String|ascii|32|1|*|UTM descriptorUNIVERSAL_TRANSVERSE_MERCATOR&Oslash;&Oslash;&Oslash;|18|
+utm_zone|String|ascii|4|1|*|UTM zone signature|19|
+utm_origin_easting|Float|m|4|1|*|Map origin, false easting|20|
+utm_origin_northing|Float|m|4|1|*|Map origin, false northing|21|
+utm_center_long|SLong|(1e-6) degrees|4|1|*|Projection centre longitude, deg|22|
+utm_center_lat|SLong|(1e-6) degrees|4|1|*|Projection centre latitude, deg|23|
+utm_para1|Float|deg|4|1|*|1st standard parallel, deg|24|
+utm_para2|Float|deg|4|1|*|2nd standard parallel, deg|25|
+utm_scale|Float|*|4|1|*|Scale factor|26|
+ups_descriptor|String|ascii|32|1|*|UPS descriptor|27|
+ups_center_long|SLong|(1e-6) degrees|4|1|*|Projection centre longitude, deg|28|
+ups_center_lat|SLong|(1e-6) degrees|4|1|*|Projection centre latitude, deg|29|
+ups_scale|Float|*|4|1|*|Scale factor|30|
+nsp_descriptor|String|ascii|32|1|*|NSP descriptor|31|
+origin_easting|Float|m|4|1|*|Map origin, false easting|32|
+origin_northing|Float|m|4|1|*|Map origin, false northing|33|
+center_long|SLong|(1e-6) degrees|4|1|*|Projection centre longitude, deg|34|
+center_lat|SLong|(1e-6) degrees|4|1|*|Projection centre latitude, deg|35|
+standard_parallel_parameters|@+ASAR_Map_GADS.sd/standard_parallel_parameters.dd|*|*|1|*|Standard Parallel parameters|36|
+central_meridian_parameters|@+ASAR_Map_GADS.sd/central_meridian_parameters.dd|*|*|1|*|Central meridian parameters|37|
+projection_parameters|@+ASAR_Map_GADS.sd/projection_parameters.dd|*|*|1|*|Projection dependent parameters|38|
+position_northings_eastings|@+ASAR_Map_GADS.sd/position_northings_eastings.dd|*|*|1|*|Positioning Information in Northings and Eastings|39|
+position_lat_long|@+ASAR_Map_GADS.sd/position_lat_long.dd|*|*|1|*|Positioning Information in Latitude Longitude|40|
+spare_7|Spare|*|32|1|*|Spare|41|
+image_to_map_coefs|Float|*|4|8|*|8 coefficients to convert a line(L) and sample (S) position to the map projection frame of reference, say (E,N)E = A11 + A12*L + A13 *S + A14 *L*SN = A21 + A22*L + A23 *S + A24 *L*S|42|
+map_to_image_coefs|Float|*|4|8|*|8 coefficients to convert from the map projection (E,N) to line (L) and sample(S) position in the imageL = B11 + B12*E + B13 *N + B14 *E*NS = B21 + B22*E + B23 *N + B24 *E*N|43|
+spare_8|Spare|*|35|1|*|Spare|44|

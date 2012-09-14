@@ -1,0 +1,33 @@
+MER_RR__2P_flags|MERIS Level 2 Flag Codings
+#
+LAND             | 23      | Land product available
+CLOUD            | 22      | Cloud product available
+WATER            | 21      | Water product available
+PCD_1_13         | 20      | Uncertain normalized surface reflectance
+PCD_14           | 19      | Uncertain total water vapour content
+PCD_15           | 18      | Uncertain algal pigment index 1 or cloud top pressure or top of atmosphere vegetation index
+PCD_16           | 17      | Uncertain yellow substance and total suspended matter or rectified reflectances
+PCD_17           | 16      | Uncertain algal pigment index 2 or bottom of atmosphere vegetation index
+PCD_18           | 15      | Uncertain PAR or cloud albedo or land surface pressure
+PCD_19           | 14      | Uncertain aerosol type and optical thickness or cloud optical thickness
+COASTLINE        | 13      | Coastline pixel
+COSMETIC         | 12      | Cosmetic pixel (from level-1b)
+SUSPECT          | 11      | Suspect pixel (from level-1b)
+OOADB            | 10      | Aerosol model is out of aerosol model database
+ABSOA_DUST       |  9      | Dust-like absorbing aerosol selected for atmosphere correction
+CASE2_S          |  8 & 21 | Turbid (sediment dominated Case 2) water
+CASE2_ANOM       |  7 & 21 | Anomalous scattering water
+TOAVI_BRIGHT     |  7 & 23 | Bright pixel flagged by MGVI processing
+CASE2_Y          |  6 & 21 | Yellow substance loaded water
+TOAVI_BAD        |  6 & 23 | Bad pixel flagged by MGVI processing
+ICE_HAZE         |  5 & 21 | Ice or high aerosol load pixel
+TOAVI_CSI        |  5 & 23 | Cloud, snow or ice over land pixel acc. to MGVI processing
+MEDIUM_GLINT     |  4 & 21 | Corrected for glint (water)
+TOAVI_WS         |  4 & 23 | Water/shadow pixel acc. to MGVI processing (land)
+LARS_ON          |  3 & 23 | Land aerosol remote sensing turned on
+BPAC_ON          |  3 & 21 | Bright pixels atmospheric correction activated (water)
+HIGH_GLINT       |  2 & 21 | High (uncorrected) glint (water)
+TOAVI_INVAL_REC  |  2 & 23 | Invalid rectification (land)
+LOW_SUN          |  1      | Sun low above horizon (or conversely high sun zenith angle)
+LOW_PRESSURE     |  0      | Computed pressure is lower than ECMWF one (land, cloud)
+WHITE_SCATTERER  |  0 & 21 | Presence of white scatterer in water

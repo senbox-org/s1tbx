@@ -1,0 +1,3 @@
+org.esa.nest.dataio.dem.ace.ACEReaderPlugIn
+org.esa.nest.dataio.dem.getasse30.GETASSE30ReaderPlugIn
+org.esa.nest.dataio.dem.ace2_5min.ACE2_5MinReaderPlugIn

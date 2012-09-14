@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Develop Operator</title>
+
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Developing An Operator</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Operators</h3><p>
+The Operator interface is simple to extend. An Operator basically takes
+a source product as input and creates a new target product within
+initialize(). The algorithm implementation for what your operator does
+will go inside computTile() or computeTiles(). Operators work on the
+data tile by tile. The size of the tile may be dependent on the requests
+of other Operators in the graph.</p>
+<p><span class="code-keyword">&nbsp;&nbsp;&nbsp; public</span> <span class="code-keyword">interface</span> Operator {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; OperatorSpi getSpi();<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Product initialize(OperatorContext context);<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; void computeTile(Tile targetTile, ProgressMonitor pm);<br>&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; void computeTileStack(Rectangle
+targetTileRectangle, ProgressMonitor pm);<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; void dispose();<br>&nbsp;&nbsp;&nbsp; }</p>
+<p>The <tt>computeTile</tt> and <tt>computeTile<span style="font-family: Verdana,Arial,Helvetica,sans-serif;">Stack</span></tt> methods express different application requirements. Clients may either implement <tt>computeTile</tt> or <tt>computeTile<span style="font-family: Verdana,Arial,Helvetica,sans-serif;">Stack</span></tt>
+or both. In general, the algorithm dictates which of the methods will
+be implemented. Some algorithms can compute their output bands
+independently (band-arithmetic, radiance to reflectance conversion),
+other cannot. </p>
+
+<p>The GPF selects the method which best fits&nbsp;the application requirements:</p>
+<ul><li>In order to display an image of a band, the GPF is asked to
+compute tiles of single bands. The GPF therefore will prefer calling
+the <tt>computeTile</tt> method, if implemented. Otherwise it has to call <tt>computeTileStack</tt>, which might not be the best choice in this case.</li><li>In
+order to process in batch-mode or to save a product to disk, the GPF is asked to compute the tiles of all bands of a product.
+The GPF therefore will prefer calling the <tt>computeTileStack</tt> method, if implemented. Otherwise it will consecutively call the <tt>computeTile</tt> for each output band</li></ul>
+<h3>Maven GPF Archetype</h3><p>
+The Maven 2 Archetype Plugin for NEST GPF modules is used to create
+archetypes for NEST&nbsp;GPF modules.</p>
+<p><br>
+A
+Maven Archetype is a template toolkit for generating a new module
+package. By using the Maven Archetype you can create a module structure
+easily and get started adding your code to the module.</p>
+<p><br>
+A GPF Archetype will generate a single tile and a multi tile Operator
+within the same package.</p><p>
+Before beginning, make sure that you have built the NEST source code and
+do a <span style="font-weight: bold;">maven install</span>
+to ensure that all dependencies are in the repository.</p>
+<p><br>
+From the command line type the following from the NEST source code root
+folder:</p>
+<br>
+<blockquote> <code>mvn archetype:create<br>
+-DarchetypeGroupId=org.esa.</code><code>nest</code><code>.maven<br>
+-DarchetypeArtifactId=maven-</code><code>nest</code><code>-gpf-archetype<br>
+-DarchetypeVersion=1.0<br>
+-DgroupId=<i>myGroupId</i><br>
+-DartifactId=<i>myArtifactId</i><br>
+-Dversion=<i>myVersion</i><br>
+-DpackageName=<i>myPackageName</i> </code> </blockquote>
+<p>where </p>
+<ul>
+<li><code><i>myGroupId</i></code> will
+become the <code>groupId</code> of the generated POM</li>
+<li><code><i>myArtifactId</i></code>
+will become the <code>artifactId</code> of the generated
+POM and the&nbsp;NEST module's <code>symbolicName</code>.</li>
+<li><code><i>myVersion</i></code> will
+become the <code>version</code> of the generated POM
+and&nbsp;NEST module. Defaults to <code>1.0-SNAPSHOT</code>.</li>
+<li><code><i>myPackageName</i></code>
+will become the source package name. Defaults to the value of <code><i>myGroupId</i>
+</code>.</li>
+</ul>
+<p>Please also refer to the documentation of the <a href="http://maven.apache.org/plugins/maven-archetype-plugin/">Maven
+2 Archetype Plugin</a>.
+</p>
+<h4>Example</h4>
+<blockquote> <code>mvn archetype:create
+-DarchetypeGroupId=org.esa.nest.maven -DarchetypeArtifactId=maven-</code><code>nest</code><code>-gpf-archetype
+-DarchetypeVersion=1.0 -DgroupId=org.esa.nest -DartifactId=nest-sar-op </code>
+</blockquote><h3>Publishing an Operator</h3><p>Operator implementations are published via the Java service
+provider interface (SPI). A JAR publishes its operators in the resource
+file <tt>META-INF/services/org.esa.beam.framework.gpf.OperatorSpi</tt>. In this file add your operator SPI eg: org.esa.nest.gpf.MultilookOp$Spi</p><p><br>In
+your Operator package add a class to extend the OperatorSpi interface.
+This class may also serve as a factory for new operator instances.</p><br>&nbsp;&nbsp;&nbsp; public static class Spi extends OperatorSpi {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public Spi() {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super(MultilookOp.class);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; }<h3>Adding Menu Item Actions</h3><p>
+In the modules.xml file found in the resources folder of the package,
+add an Action to create a menu item in the DAT. State the class of the Action to be called and the text to show in the
+menu item. &nbsp; </p>
+<br>
+&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;&nbsp;
+&lt;action&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;id&gt;SlantRangeGroundRangeOp&lt;/id&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;class&gt;org.esa.nest.dat.SRGROpAction&lt;/class&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;text&gt;Slant Range to Ground Range&lt;/text&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;shortDescr&gt;Converts a product to/from slant range
+to/from ground
+range&lt;/shortDescr&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;parent&gt;geometry&lt;/parent&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;helpId&gt;SRGROp&lt;/helpId&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/action&gt;<br>
+<br><p>
+The Action class should extend AbstractVisatAction and override the
+handler for actionPerformed</p>
+<p><br>
+public class SRGROpAction extends AbstractVisatAction {</p>
+<p><br>
+&nbsp;&nbsp;&nbsp; private DefaultSingleTargetProductDialog
+dialog;</p>
+<p><br>
+&nbsp;&nbsp;&nbsp; @Override</p><p>
+&nbsp;&nbsp;&nbsp; public void actionPerformed(CommandEvent
+event) {</p>
+<p><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if (dialog == null) {</p><p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+dialog = new DefaultSingleTargetProductDialog("SRGR", getAppContext(),
+"Slant Range to Ground Range", getHelpId());</p><p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+dialog.setTargetProductNameSuffix("_GR");</p><p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p><p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+dialog.show();</p>
+<p><br>
+&nbsp;&nbsp;&nbsp; }</p>
+<p><br><code></code></p>
+
+<blockquote><code> </code> </blockquote>
+<br>
+<hr>
+</body></html>

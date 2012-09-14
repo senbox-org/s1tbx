@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+    <title>Help - Product Subset</title><link rel="stylesheet" href="../style.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
+<body>
+<table class="header">
+    <tbody><tr class="header">
+        <td class="header">&nbsp;
+            Product Subset</td>
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+</tbody></table>
+
+<h3>Product Subset Definition</h3>
+
+<p>This dialog appears from various import and export file selection dialogs and
+    always if a new product has to be created from a base product, such as in
+    the map projection or band arithmetic dialogs.</p>
+
+<p align="center"><img src="images/SubsetDialog.jpg"><br>
+</p>
+
+<p>The dialog is divided into four tabs, each providing specific subset options.<br>
+
+</p><h4>Spatial Subset</h4>
+
+<p>If you are not interested in the whole image, you may specify an area
+    of the product to be loaded. You can select the area either by dragging the blue
+    surrounding rectangle in the preview (see figure above) or by editing the appropriate
+    fields. If you drag the rectangle, the field values change simultaneously. <br>
+    You can also specify a sub-sampling, by setting the values of
+    <code>Scene step X</code> and <code>Scene step Y</code>.
+</p>
+
+<h4>Band Subset</h4>
+
+<p>This tab is used to select the bands you want to have in your product subset.</p>
+
+<h4>Tie-Point Grid Subset</h4>
+
+<p>As with bands, this tab is used to select the tie-point grids you want to have in your product subset.
+    The tie-point grids named <code>latitude</code> and <code>longitude</code> can not be deselected
+    because they provide essential geo-coding information.</p>
+
+<h4>Metadata Subset</h4>
+
+<p>The tab lets you select/deselect meta-data records and tables. By default, all meta-data tables are deselected,
+    because they can be very huge for <a href="../general/ENVISAT-products/index.html">ENVISAT products</a> and may reduce
+    DAT's performance.</p>
+
+<hr>
+</body></html>

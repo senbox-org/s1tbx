@@ -1,0 +1,9 @@
+ASA_WVW_2P|ASAR Wave Mode Wave Spectra|
+#
+MPH                  |@/records/MPH.dd                            |1247                 |Main Product Header
+SPH                  |@/records/asar/ASAR_Wave_Base_SPH.dd        |*                    |ASAR Wave Mode  Products Base SPH
+DSD                  |@/records/DSD.dd                            |*                    |Data Set Descriptor array
+SQ_ADS               |@/records/asar/ASAR_Wave_SQ_ADSR.dd         |SQ ADS               |SQ ADSRs
+GEOLOCATION_GRID_ADS |@/records/asar/ASAR_Wave_Geolocation_ADSR.dd|GEOLOCATION ADS      |Wave Mode Geolocation ADS
+PROCESSING_PARAMS_ADS|@/records/asar/ASAR_Wave_Param_ADSR_IODD_4A.dd |PROCESSING PARAMS ADS|Wave Mode processing parameters
+OCEAN_WAVE_SPECTRA_MDS     |@/records/asar/ASAR_Ocean_Spectra_MDSR.dd   |OCEAN WAVE SPECTRA MDS     |Ocean Wave Spectra

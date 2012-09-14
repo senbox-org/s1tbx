@@ -1,0 +1,66 @@
+<html>
+<head>
+    <title>Help - Export GCP</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Export GCP</td>
+        
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border=0></a></td>
+    </tr>
+</table>
+
+<h3>Export Envi GCP File</h3>
+
+<p>This command allows to store the geo-coding information of the selected product
+    as ENVI GCP (Ground Control Points) file. </p>
+
+<h3>ENVI GCP File Format</h3>
+
+<p><i>Text taken from the <b><a href="http://www.ittvis.com/envi/index.asp">ENVI User's Guide</a></b></i>.</p>
+<br>
+
+<p>The ENVI Ground Control Point (GCP) files are ASCII files that contain the pixel
+    coordinates of tie points selected from a base and warp image using ENVI’s
+    registration utilities. They are assigned the file extension <code>.pts</code> by default and begin
+    with the keywords "ENVI Registration GCP File." For image-to-image registration,
+    pixel coordinates are listed in the order Base image X, Y, Warp Image X, Y. An
+    example of a typical image-to-image .pts file is shown here:</p>
+
+
+<pre>
+    ENVI Registration GCP File
+    921.00000 2538.0000 2098.0000 111.00000
+    1381.0000 2291.0000 2145.0000 85.000000
+    1669.0000 2116.0000 2174.0000 66.000000
+    119.00000 3032.0000 2017.0000 164.00000
+    1286.0000 3820.0000 2140.0000 240.00000
+    1294.0000 1754.0000 2132.0000 28.000000
+    1783.0000 1814.0000 2184.0000 34.000000
+    715.00000 4504.0000 2083.0000 312.00000
+    351.00000 1708.0000 2039.0000 27.000000
+    207.00000 2357.0000 2025.0000 98.000000
+</pre>
+
+<p>For image-to-map registration, coordinates are listed as map X, map Y, image X,
+    image Y. An example of a typical image-to-map .pts file is shown here:</p>
+
+<pre>
+    ENVI Registration GCP File
+    359459.810 4143531.300 288.000 496.000
+    367681.530 4141772.000 232.000 23.000
+    366343.470 4138660.500 458.000 35.000
+    362337.840 4145969.500 71.000 388.000
+    361339.910 4138479.300 569.000 301.000
+    354457.530 4140550.300 591.000 714.000
+    354352.590 4145685.000 261.000 819.000
+    359918.310 4142412.000 351.000 448.000
+    364900.910 4141752.300 290.000 172.000
+</pre>
+<hr>
+</body>
+</html>

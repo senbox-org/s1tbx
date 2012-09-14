@@ -1,0 +1,108 @@
+<!-- binary distribution -->
+
+<assembly>
+    <id>bin-win64</id>
+	
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <formats>
+        <format>dir</format>
+    </formats>
+
+    <files>
+        <file>
+            <source>readme.txt</source>
+            <filtered>true</filtered>
+        </file>
+    </files>
+
+    <fileSets>
+
+		<fileSet>
+            <directory>nest-src/main/bin/common/</directory>
+            <outputDirectory></outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>nest-src/main/licenses</directory>
+            <outputDirectory>licenses</outputDirectory>
+        </fileSet>
+		
+		<fileSet>
+            <directory>nest-src/main/commandline</directory>
+            <outputDirectory>commandline</outputDirectory>
+        </fileSet>
+		
+        <fileSet>
+            <directory>nest-src/main/bin/win64</directory>
+            <outputDirectory></outputDirectory>
+            <lineEnding>dos</lineEnding>
+            <includes>
+                <include>**/*.bat</include>
+				<include>**/*.ini</include>
+            </includes>
+        </fileSet>
+
+		<fileSet>
+            <directory>nest-src/main/bin/win64</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>**/*.exe</include>
+				<include>**/*.dll</include>
+            </includes>
+        </fileSet>
+		
+		<fileSet>
+            <directory>../../dist/jdk7/win64/jre</directory>
+            <outputDirectory>jre</outputDirectory>
+        </fileSet>
+    </fileSets>
+
+    <moduleSets>
+
+        <!-- (1) Artifacts that go into 'bin', 'lib' or 'modules' -->
+        <moduleSet>
+            <excludes>
+				<exclude>org.esa.nest:nest-bootstrap</exclude>
+				<exclude>org.esa.nest:nest-src</exclude>
+				<exclude>org.esa.nest.maven:maven-nest-dataio-archetype</exclude>
+				<exclude>org.esa.nest.maven:maven-nest-gpf-archetype</exclude>
+                <exclude>com.bc.ceres:ceres-*</exclude>
+            </excludes>
+
+            <binaries>
+				<outputDirectory>modules</outputDirectory>
+				<unpack>false</unpack>
+                <outputFileNameMapping>${artifactId}-${version}.${extension}</outputFileNameMapping>
+                <includeDependencies>false</includeDependencies>
+                <dependencySets>
+                    <dependencySet>
+                        <outputDirectory>bin</outputDirectory>
+                        <outputFileNameMapping>${artifactId}.${extension}</outputFileNameMapping>
+                        <includes>
+                            <include>com.bc.ceres:ceres-launcher</include>
+                        </includes>
+                    </dependencySet>
+                    <dependencySet>
+                        <outputDirectory>lib</outputDirectory>
+						<outputFileNameMapping>${artifactId}-${version}.${extension}</outputFileNameMapping>
+                        <excludes>
+							<exclude>ncsa.hdf:lib-hdf</exclude>
+							<exclude>org.esa.nest:nest-core</exclude>
+							<exclude>org.esa.nest:nest-graph-builder</exclude>
+							<exclude>org.esa.nest:nest-op-calibration</exclude>
+							<exclude>org.esa.nest:nest-op-coregistration</exclude>
+							<exclude>org.esa.nest:nest-reader-dem</exclude>
+							<exclude>org.esa.nest:nest-io</exclude>
+							<exclude>org.esa.nest:nest-dat</exclude>
+							<exclude>org.jdoris:jdoris-core</exclude>
+                            <exclude>org.esa.beam:beam-*</exclude>
+                        </excludes>
+                    </dependencySet>
+                </dependencySets>
+            </binaries>
+
+        </moduleSet>
+
+    </moduleSets>
+
+</assembly>

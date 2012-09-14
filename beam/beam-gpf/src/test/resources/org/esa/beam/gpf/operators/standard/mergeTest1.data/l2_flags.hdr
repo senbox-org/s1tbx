@@ -1,0 +1,12 @@
+ENVI
+description = {Level 2 classification and quality flags - Unit: 1}
+samples = 11
+lines = 11
+bands = 1
+header offset = 0
+file type = ENVI Standard
+data type = 3
+interleave = bsq
+byte order = 1
+data gain values = {1.0}
+data offset values = {0.0}

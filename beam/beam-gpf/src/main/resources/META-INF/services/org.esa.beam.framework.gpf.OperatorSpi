@@ -1,0 +1,8 @@
+org.esa.beam.gpf.operators.standard.ReadOp$Spi
+org.esa.beam.gpf.operators.standard.MergeOp$Spi
+org.esa.beam.gpf.operators.standard.WriteOp$Spi
+org.esa.beam.gpf.operators.standard.SubsetOp$Spi
+org.esa.beam.gpf.operators.standard.WriteRGBOp$Spi
+org.esa.beam.gpf.operators.standard.PassThroughOp$Spi
+org.esa.beam.gpf.operators.standard.BandMathsOp$Spi
+org.esa.beam.gpf.operators.standard.reproject.ReprojectionOp$Spi

@@ -1,0 +1,5 @@
+MER_RR__1P_MDSR_1_15|Level 1b MDS (1) TOA Radiance|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Start time of the Data Set Record|1|
+quality_flag|UChar|flag|1|1|*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+toa_rad|UShort|LU|2|sceneRasterWidth|*|TOA radiance|3|

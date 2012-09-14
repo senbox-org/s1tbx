@@ -1,0 +1,7 @@
+first_line_tie_points|First Line Tie Points|*
+#
+samp_numbers     |ULong|*             |4|11|*|Range sample number. Gives the range location of the grid points. First range sample is 1, last is M. Zero filled samples are included.|6a|
+slant_range_times|Float|ns            |4|11|*|2 way slant range time to range sample|6b|
+angles           |Float|deg.          |4|11|*|Incidence Angle at range sample|6c|
+lats             |SLong|(1e-6) degrees|4|11|*|geodetic latitude (positive north)|6d|
+longs            |SLong|(1e-6) degrees|4|11|*|geodetic longitude (positive east)|6e|
