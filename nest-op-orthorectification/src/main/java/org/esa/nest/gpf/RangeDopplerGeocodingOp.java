@@ -433,6 +433,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                 throw new OperatorException("Detected ALOS PALSAR products are currently not supported");
         }
 
+        /*
         if (mission.contains("TSX") || mission.contains("TDX")) {
             final String sample = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
             final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE).toUpperCase();
@@ -440,7 +441,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                  throw new OperatorException("Only TerraSAR-X (SSC) products are currently supported");
             }
         }
-
+        */
         if (mission.equals("RS1")) {
             //throw new OperatorException("RadarSAT-1 product is currently not supported");
         }
@@ -980,6 +981,11 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                     rangeIndex = computeRangeIndex(srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC,
                             rangeSpacing, zeroDoppler, slantRange, nearEdgeSlantRange, srgrConvParams);
+
+                    if (rangeIndex == -1.0) {
+                        saveNoDataValueToTarget(index, trgTiles);
+                        continue;
+                    }
 
                     // temp fix for descending Radarsat2
                     if (!nearRangeOnLeft) {
