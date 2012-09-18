@@ -1,7 +1,8 @@
 package org.esa.beam.binning.reader;
 
-import java.io.File;
 import org.esa.beam.util.io.BeamFileFilter;
+
+import java.io.File;
 
 public class BinnedFileFilter extends BeamFileFilter {
 
@@ -26,14 +27,14 @@ public class BinnedFileFilter extends BeamFileFilter {
      * Checks if the given file name is valid.
      *
      * @param name the file name
-     *
      * @return true, if so.
      */
     public static boolean isBinnedName(String name) {
         return name != null
-               && name.startsWith("ESACCI-OC-")
-               && name.contains("L3")
-               && name.endsWith(BinnedProductReaderPlugin.FILE_EXTENSION);
+                && ((name.startsWith("ESACCI-OC-")
+                && name.contains("L3"))
+                || name.contains("-bins"))
+                && name.endsWith(BinnedProductReaderPlugin.FILE_EXTENSION);
     }
 
 }

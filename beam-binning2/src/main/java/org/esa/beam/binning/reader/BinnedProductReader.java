@@ -7,17 +7,19 @@ import com.vividsolutions.jts.io.WKTReader;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.Reprojector;
 import org.esa.beam.binning.support.SEAGrid;
+import org.esa.beam.binning.support.SeadasGrid;
 import org.esa.beam.dataio.netcdf.util.MetadataUtils;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.io.FileUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
@@ -40,8 +42,12 @@ public class BinnedProductReader extends AbstractProductReader {
     private PlanetaryGrid planetaryGrid;
     private int sceneRasterWidth;
     private int sceneRasterHeight;
-    private RowInfo[] rowInfos;
     private Map<Band, VariableMetadata> bandMap;
+    /**
+     * Key: BinIndex in PlanetaryGrid
+     * Value: BinIndex in bin_list
+     */
+    private Map<Integer, Integer> indexMap;
 
     /**
      * Constructs a new MERIS Binned Level-3 product reader.
@@ -66,6 +72,7 @@ public class BinnedProductReader extends AbstractProductReader {
         netcdfFile = NetcdfFile.open(path);
         bandMap = new HashMap<Band, VariableMetadata>(10);
         try {
+            //create grid
             int numRows = 0;
             for (Dimension dimension : netcdfFile.getDimensions()) {
                 if (dimension.getName().equals("bin_index")) {
@@ -73,6 +80,8 @@ public class BinnedProductReader extends AbstractProductReader {
                 }
             }
             planetaryGrid = createPlanetaryGrid(numRows);
+
+            //determine sceneRasterWidth and -Height
             Geometry roiGeometry = null;
             for (Attribute attribute : netcdfFile.getGlobalAttributes()) {
                 if (attribute.getName().equals("region")) {
@@ -82,28 +91,46 @@ public class BinnedProductReader extends AbstractProductReader {
                     } catch (ParseException e) {
                         //todo error handling
                     }
+                    break;
                 }
             }
             final Rectangle sceneRasterRectangle = Reprojector.computeRasterSubRegion(planetaryGrid, roiGeometry);
             sceneRasterHeight = sceneRasterRectangle.height;
             sceneRasterWidth = sceneRasterRectangle.width;
+
             File productFile = new File(path);
             product = new Product(FileUtils.getFilenameWithoutExtension(productFile),
-                                   "Binned SeaDas data",
-                                   sceneRasterWidth,
-                                   sceneRasterHeight,
-                                   this);
+                                  "Binned SeaDas data",
+                                  sceneRasterWidth,
+                                  sceneRasterHeight,
+                                  this);
 
             MetadataUtils.readNetcdfMetadata(netcdfFile, product.getMetadataRoot());
 
+            //read geophysical band values
             for (Variable variable : netcdfFile.getVariables()) {
-                addBand(variable.getName());
+                final String bandName = variable.getName();
+                if (!bandName.startsWith("bi_") && !bandName.equals("bl_bin_num") &&
+                        !bandName.equals("bl_nobs") && !bandName.equals("bl_nscenes") &&
+                        !bandName.equals("bl_weights")) {
+                    addBand(bandName);
+                }
             }
-            product.setQuicklookBandName("bl_nobs");
+            product.setQuicklookBandName("water_class1");
             product.setFileLocation(productFile);
-
             if (product.getNumBands() == 0) {
                 throw new IOException("No bands found.");
+            }
+
+            //create indexMap
+            final Variable bl_bin_num = netcdfFile.findVariable(NetcdfFile.escapeName("bl_bin_num"));
+            synchronized (netcdfFile) {
+                final Object storage = bl_bin_num.read().getStorage();
+                int[] binIndexes = (int[]) storage;
+                indexMap = new HashMap<Integer, Integer>(binIndexes.length);
+                for (int i = 0; i < binIndexes.length; i++) {
+                    indexMap.put(binIndexes[i], i);
+                }
             }
 
             initGeoCoding();
@@ -112,7 +139,6 @@ public class BinnedProductReader extends AbstractProductReader {
             dispose();
             throw e;
         }
-
         return product;
     }
 
@@ -158,169 +184,53 @@ public class BinnedProductReader extends AbstractProductReader {
         if (sourceStepX != 1 || sourceStepY != 1) {
             throw new IOException("Sub-sampling is not supported by this product reader.");
         }
-
         if (sourceWidth != destWidth || sourceHeight != destHeight) {
             throw new IllegalStateException("sourceWidth != destWidth || sourceHeight != destHeight");
         }
-
-//        final Variable idxVariable = _netcdfFile.getRootGroup().findVariable("idx");
-//        short[] rasterData = (short[]) destBuffer.getElems();
-
-        Number[] rasterData;
-        final String destBandName = destBand.getName();
-        if (destBuffer.getType() == ProductData.TYPE_INT32) {
-            final int[] elems = (int[]) destBuffer.getElems();
-            rasterData = new Integer[elems.length];
-            for (int i = 0; i < elems.length; i++) {
-                rasterData[i] = elems[i];
-            }
-        } else if (destBuffer.getType() == ProductData.TYPE_FLOAT32) {
-            final float[] elems = (float[]) destBuffer.getElems();
-            rasterData = new Float[elems.length];
-            for (int i = 0; i < elems.length; i++) {
-                rasterData[i] = elems[i];
-            }
-        } else if (destBuffer.getType() == ProductData.TYPE_FLOAT64) {
-            final double[] elems = (double[]) destBuffer.getElems();
-            rasterData = new Double[elems.length];
-            for (int i = 0; i < elems.length; i++) {
-                rasterData[i] = elems[i];
-            }
-        } else {
-            final double[] elems = (double[]) destBuffer.getElems();
-            rasterData = new Double[elems.length];
-            for (int i = 0; i < elems.length; i++) {
-                rasterData[i] = elems[i];
-            }
-        }
-//        if (destBandName.equals("bi_vsize") || destBandName.equals("bi_hsize")) {
-//            rasterData = (Double[]) destBuffer.getElems();
-//        } else if (destBandName.startsWith("bl") && !destBandName.equals("bl_bin_num") && !destBandName.equals("bl_nobs")
-//                && !destBandName.equals("bl_nscenes")) {
-//            rasterData = (Float[]) destBuffer.getElems();
-//        } else {
-//            destBuffer.getType()
-//            for (Object o : (Object[]) destBuffer.getElems()) {
-//                try {
-//                    Integer i = (Integer) o;
-//                } catch (ClassCastException e) {
-//                    System.out.println("numberValue = " + o.toString());
-//                }
-//            }
-//            rasterData = (Integer[]) destBuffer.getElems();
-//        }
-
-//        if (_rowInfos == null) {
-//            _rowInfos = createRowInfos();
-//        }
+        float[] rasterData = (float[]) destBuffer.getElems();
         VariableMetadata variableMetadata = bandMap.get(destBand);
-        boolean readColIndex = variableMetadata == null; // this band has no variables associated
-
-        final int height = sceneRasterHeight;
-        final int width = sceneRasterWidth;
-        final PlanetaryGrid grid = planetaryGrid;
-
+        //todo check whether grid is y-flipped / see CfGeocodingPart:createConventionBasedMapGeoCoding
+        final SeadasGrid seadasGrid = new SeadasGrid(planetaryGrid);
         pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceHeight);
         try {
-            if (readColIndex) {
-                for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
-                    if (pm.isCanceled()) {
-                        break;
-                    }
-                    final int rowIndex = (height - 1) - y;
-                    final double centerLat = grid.getCenterLat(rowIndex);
-                    for (int x = sourceOffsetX; x < sourceOffsetX + sourceWidth; x++) {
-                        final double lon = x * 360.0 / width;
-                        final int colIndex = (int) grid.getBinIndex(centerLat, lon);
-//                        final int colIndex = grid.getColIndex(rowIndex, lon);
-                        final int rasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
-                        rasterData[rasterIndex] = (short) colIndex;
-                    }
-                    pm.worked(1);
-                }
-            } else {
-                final Variable binVariable = variableMetadata.variable;
-
-                final Number fillValueN = getAttributeNumericValue(binVariable, "_FillValue");
-
-                Number fillValue = fillValueN != null ? fillValueN.shortValue() : 0;
-
-                if (destBuffer.getType() == ProductData.TYPE_INT32) {
-                    fillValue = fillValueN != null ? fillValueN.intValue() : 0;
-                } else if (destBuffer.getType() == ProductData.TYPE_FLOAT32) {
-                    fillValue = fillValueN != null ? fillValueN.floatValue() : 0;
-                } else if (destBuffer.getType() == ProductData.TYPE_FLOAT64) {
-                    fillValue = fillValueN != null ? fillValueN.doubleValue() : 0;
-                } else {
-                    fillValue = fillValueN != null ? fillValueN.intValue() : 0;
-                }
-
-                int[] lineOffsets = new int[1];
-                int[] lineLengths = new int[1];
-
-                Arrays.fill(rasterData, fillValue);
-
-                for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
-                    if (pm.isCanceled()) {
-                        break;
-                    }
-                    final int rowIndex = (height - 1) - y;
-                    final RowInfo rowInfo = new RowInfo((int) grid.getFirstBinIndex(rowIndex), grid.getNumCols(rowIndex));
-//                    final RowInfo rowInfo = _rowInfos[rowIndex];
-//                    if (rowInfo != null) {
-
-                    final int lineOffset = rowInfo.offset;
-                    final int lineLength = rowInfo.length;
-
-                    lineOffsets[0] = lineOffset;
-                    lineLengths[0] = lineLength;
-
-                    lineLengths[0] = grid.getNumRows();
-                    lineOffsets[0] = 0;
-//                        final int[] idxValues;
-                    final int[] binValues;
-                    try {
-                        synchronized (netcdfFile) {
-//                                idxValues = (int[]) idxVariable.read(lineOffsets, lineLengths).getStorage();
-                            final Object storage = binVariable.read(lineOffsets, lineLengths).getStorage();
-                            binValues = (int[]) storage;
+            final Variable binVariable = variableMetadata.variable;
+            final Number fillValueN = getAttributeNumericValue(binVariable, "_FillValue");
+            float fillValue = fillValueN != null ? fillValueN.floatValue() : 0;
+            Arrays.fill(rasterData, fillValue);
+            //todo variable values are read and written for each pixel distinctly: Alternatively: Read pixels for whole destination rectangle
+            for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
+                for (int x = sourceOffsetX; x < sourceOffsetX + sourceWidth; x++) {
+                    final GeoPos geoPos = product.getGeoCoding().getGeoPos(new PixelPos(x + 0.5f, y + 0.5f), null);
+                    final long seaGridBinIndex = planetaryGrid.getBinIndex(geoPos.lat, geoPos.lon);
+                    final long binIndex = seadasGrid.convertBinIndex(seaGridBinIndex);
+                    if (indexMap.containsKey((int) binIndex)) {
+                        final int otherBinIndex = indexMap.get((int) binIndex);
+                        if (otherBinIndex > 0) {
+                            float value = getVariableValueForBinIndex(binVariable, otherBinIndex);
+                            final int rasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
+                            rasterData[rasterIndex] = value;
                         }
-                    } catch (InvalidRangeException e) {
-                        // ?!?!?!?
-                        throw new IOException("Format problem.");
                     }
-
-                    int lineIndex0 = 0;
-                    for (int x = sourceOffsetX; x < sourceOffsetX + sourceWidth; x++) {
-                        final double lon = x * 360.0 / width;
-//                            final int binIndex = grid.getBinIndex(rowIndex, lon);
-                        final long binIndex = grid.getBinIndex(grid.getCenterLat(rowIndex), lon);
-//                            int lineIndex = -1;
-//                            for (int i = lineIndex0; i < lineLength; i++) {
-//                                if (idxValues[i] >= binIndex) {
-//                                    if (idxValues[i] == binIndex) {
-//                                        lineIndex = i;
-//                                    }
-//                                    lineIndex0 = i;
-//                                    break;
-//                                }
-//                            }
-//                            if (lineIndex >= 0) {
-                        final int rasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
-//                            final Band bl_bin_num_band = _product.getBand("bl_bin_num");
-//                            final int rasterDataIndex = bl_bin_num_band.getData().getElemIntAt((int) binIndex);
-                        final int rasterDataIndex = grid.getRowIndex(binIndex);
-//                            rasterData[rasterIndex] = binValues[rasterDataIndex];
-//                            }
-                    }
-                    pm.worked(1);
-//                    }
                 }
             }
+            pm.worked(1);
         } finally {
             pm.done();
         }
+    }
 
+    private float getVariableValueForBinIndex(Variable binVariable, int binIndex) throws IOException {
+        final int[] lineOffset = {binIndex};
+        final int[] lineLength = {1};
+        float value;
+        try {
+            //todo find reason why exceptions are thrown here
+            final Object storage = binVariable.read(lineOffset, lineLength).getFloat(0);
+            value = (Float) storage;
+        } catch (Exception e) {
+            throw new IOException("Format problem.");
+        }
+        return value;
     }
 
     /**
@@ -346,7 +256,6 @@ public class BinnedProductReader extends AbstractProductReader {
         bandMap.clear();
         product = null;
         planetaryGrid = null;
-        rowInfos = null;
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -363,9 +272,9 @@ public class BinnedProductReader extends AbstractProductReader {
         try {
             product.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84,
                                                   sceneRasterWidth, sceneRasterHeight,
-                                                   easting, northing,
-                                                   pixelSizeX, pixelSizeY,
-                                                   pixelX, pixelY));
+                                                  easting, northing,
+                                                  pixelSizeX, pixelSizeY,
+                                                  pixelX, pixelY));
         } catch (FactoryException e) {
             throw new IOException(e);
         } catch (TransformException e) {
@@ -384,13 +293,7 @@ public class BinnedProductReader extends AbstractProductReader {
     private void addBand(String varName) {
         VariableMetadata variableMetadata = getVariableMetadata(varName);
         if (variableMetadata != null) {
-            int dataType = ProductData.TYPE_INT32;
-            if (varName.equals("bi_vsize") || varName.equals("bi_hsize")) {
-                dataType = ProductData.TYPE_FLOAT64;
-            }
-            if (varName.startsWith("bl") && !varName.equals("bl_bin_num") && !varName.equals("bl_nobs") && !varName.equals("bl_nscenes")) {
-                dataType = ProductData.TYPE_FLOAT32;
-            }
+            int dataType = ProductData.TYPE_FLOAT32;
             Band band = new Band(variableMetadata.name, dataType, sceneRasterWidth, sceneRasterHeight);
             band.setDescription(variableMetadata.description);
             band.setNoDataValue(variableMetadata.fillValue);
