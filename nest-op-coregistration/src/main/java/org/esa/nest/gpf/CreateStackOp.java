@@ -91,15 +91,20 @@ public class CreateStackOp extends Operator {
     private final Map<Product, int[]> slaveOffsettMap = new HashMap<Product, int[]>(10);
 
     private boolean appendToMaster = false;
+    private boolean productPixelSpacingChecked = false;
 
     @Override
     public void initialize() throws OperatorException {
 
         try {
-            if(sourceProduct == null)
+            if(sourceProduct == null) {
                 return;
-            if(sourceProduct.length < 2)
+            }
+
+            if(sourceProduct.length < 2) {
                 throw new OperatorException("Please select at least two source products");
+            }
+
             for(final Product prod : sourceProduct) {
                 if (prod.getGeoCoding() == null) {
                     throw new OperatorException(
@@ -644,6 +649,10 @@ public class CreateStackOp extends Operator {
 
             if (resamplingType.contains("NONE")) { // without resampling
 
+                if (!productPixelSpacingChecked) {
+                    checkProductPixelSpacings();
+                }
+
                 final float noDataValue = (float) targetBand.getGeophysicalNoDataValue();
                 final Rectangle targetRectangle = targetTile.getRectangle();
                 final ProductData trgData = targetTile.getDataBuffer();
@@ -824,6 +833,41 @@ public class CreateStackOp extends Operator {
     private static boolean isValidPixelExpressionUsed(final RasterDataNode sourceRaster) {
         final String validPixelExpression = sourceRaster.getValidPixelExpression();
         return validPixelExpression != null && !validPixelExpression.trim().isEmpty();
+    }
+
+    private synchronized void checkProductPixelSpacings() throws OperatorException {
+
+        if (productPixelSpacingChecked) {
+            return;
+        }
+
+        try {
+            double savedRangeSpacing = 0.0;
+            double savedAzimuthSpacing = 0.0;
+            for(final Product prod : sourceProduct) {
+                final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(prod);
+                if (absRoot == null) {
+                    throw new OperatorException(
+                            MessageFormat.format("Product ''{0}'' has no abstract metadata.", prod.getName()));
+                }
+
+                final double rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
+                final double azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
+                if(savedRangeSpacing > 0.0 && savedAzimuthSpacing > 0.0 &&
+                  (Math.abs(rangeSpacing - savedRangeSpacing) > 0.001 ||
+                   Math.abs(azimuthSpacing - savedAzimuthSpacing) > 0.001)) {
+                    throw new OperatorException("Resampling type cannot be NONE because pixel spacings" +
+                                    " are different for master and slave products");
+                } else {
+                    savedRangeSpacing = rangeSpacing;
+                    savedAzimuthSpacing = azimuthSpacing;
+                }
+            }
+        } catch(Throwable e) {
+            throw new OperatorException(e.getMessage());
+        }
+
+        productPixelSpacingChecked = true;
     }
 
     private static class ResamplingRaster implements Resampling.Raster {
