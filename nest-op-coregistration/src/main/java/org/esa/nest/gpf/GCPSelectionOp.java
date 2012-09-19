@@ -739,8 +739,18 @@ public class GCPSelectionOp extends Operator {
 
         try {
             final double[] mI = getMasterImagette(mGCPPixelPos);
+            if (!checkImagetteValidity(masterBand1.getNoDataValue(), mI)) {
+                return false;
+            }
             //System.out.println("Master imagette:");
             //outputRealImage(mI);
+
+            double[] sI = getSlaveImagette(slaveBand, slaveBand2, sGCPPixelPos);
+            if (!checkImagetteValidity(slaveBand.getNoDataValue(), sI)) {
+                return false;
+            }
+            //System.out.println("Slave imagette:");
+            //outputRealImage(sI);
 
             double rowShift = gcpTolerance + 1;
             double colShift = gcpTolerance + 1;
@@ -756,10 +766,6 @@ public class GCPSelectionOp extends Operator {
                     return false;
                 }
 
-                final double[] sI = getSlaveImagette(slaveBand, slaveBand2, sGCPPixelPos);
-                //System.out.println("Slave imagette:");
-                //outputRealImage(sI);
-
                 final double[] shift = {0,0};
                 if (!getSlaveGCPShift(shift, mI, sI)) {
                     return false;
@@ -769,6 +775,7 @@ public class GCPSelectionOp extends Operator {
                 colShift = shift[1];
                 sGCPPixelPos.x += (float) colShift;
                 sGCPPixelPos.y += (float) rowShift;
+                sI = getSlaveImagette(slaveBand, slaveBand2, sGCPPixelPos);
                 numIter++;
             }
 
@@ -1136,6 +1143,16 @@ public class GCPSelectionOp extends Operator {
         // Retrieve both the maximum and minimum pixel value
         final double[][] extrema = (double[][]) op.getProperty("extrema");
         return extrema[1][0];
+    }
+
+    private static boolean checkImagetteValidity(final double noDataValue, final double[] I) {
+
+        for (double v:I) {
+            if (v == noDataValue){
+                return false;
+            }
+        }
+        return true;
     }
 
     // This function is for debugging only.
