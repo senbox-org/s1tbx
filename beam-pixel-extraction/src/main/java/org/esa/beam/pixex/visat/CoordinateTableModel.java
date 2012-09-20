@@ -92,9 +92,9 @@ class CoordinateTableModel extends AbstractPlacemarkTableModel {
                 return ((Point)getPlacemarkAt(rowIndex).getFeature().getDefaultGeometry()).getY();
             case 2:
                 if (placemarkHasGeoPos(rowIndex)) {
-                    return getPlacemarkAt(rowIndex).getGeoPos().getLat();
+                    return getPlacemarkAt(rowIndex).getGeoPos().getLon();
                 }
-                return ((Point)getPlacemarkAt(rowIndex).getFeature().getDefaultGeometry()).getY();
+                return ((Point)getPlacemarkAt(rowIndex).getFeature().getDefaultGeometry()).getX();
             case 3:
                 return getPlacemarkAt(rowIndex).getFeature().getAttribute(Placemark.PROPERTY_NAME_DATETIME);
             default:
