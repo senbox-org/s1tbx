@@ -59,7 +59,7 @@ public class PixExFormatStrategyTest_writeHeader {
                 "# Created on:\t" + new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date())));
         assertThat(reader.readLine(), equalTo(""));
         assertThat(reader.readLine(),
-                   equalTo("Expression result\tProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)\trad_1\trad_2\tuncert"));
+                   equalTo("Expression result\tProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH_mm_ss)\trad_1\trad_2\tuncert"));
 
     }
 
@@ -84,7 +84,7 @@ public class PixExFormatStrategyTest_writeHeader {
                 "# Created on:\t" + new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date())));
         assertThat(reader.readLine(), equalTo(""));
         assertThat(reader.readLine(),
-                   equalTo("ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)\trad_1\trad_2\tuncert"));
+                   equalTo("ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH_mm_ss)\trad_1\trad_2\tuncert"));
     }
 
     @Test
@@ -107,7 +107,7 @@ public class PixExFormatStrategyTest_writeHeader {
                 "# Created on:\t" + new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date())));
         assertThat(reader.readLine(), equalTo(""));
         assertThat(reader.readLine(),
-                   equalTo("ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)\tvarA\tvarB\tvar C"));
+                   equalTo("ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH_mm_ss)\tvarA\tvarB\tvar C"));
     }
 
     @Test
@@ -138,7 +138,7 @@ public class PixExFormatStrategyTest_writeHeader {
         assertThat(reader.readLine(), equalTo(""));
         assertThat(reader.readLine(), startsWith("# Wavelength:\t \t \t \t \t \t \t \t \t500.0\t501.0\t502.0"));
         assertThat(reader.readLine(),
-                   equalTo("ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)\tvarA\tvarB\tvar C"));
+                   equalTo("ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH_mm_ss)\tvarA\tvarB\tvar C"));
     }
 
     /*/////////////////////////////

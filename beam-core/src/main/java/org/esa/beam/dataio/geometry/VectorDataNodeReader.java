@@ -77,6 +77,7 @@ public class VectorDataNodeReader {
     private final Product product;
     private final FeatureUtils.FeatureCrsProvider crsProvider;
     private final PlacemarkDescriptorProvider placemarkDescriptorProvider;
+    private final boolean convertToVertices;
     private final CsvReader reader;
 
     private static final String[] LONGITUDE_IDENTIFIERS = new String[]{"lon", "long", "longitude", "lon_IS"};
@@ -87,10 +88,11 @@ public class VectorDataNodeReader {
     private InterpretationStrategy interpretationStrategy;
 
     private VectorDataNodeReader(String sourceName, Product product, Reader reader, FeatureUtils.FeatureCrsProvider crsProvider,
-                                 PlacemarkDescriptorProvider placemarkDescriptorProvider, char delimiterChar) throws IOException {
+                                 PlacemarkDescriptorProvider placemarkDescriptorProvider, boolean convertToVertices, char delimiterChar) throws IOException {
         this.product = product;
         this.crsProvider = crsProvider;
         this.placemarkDescriptorProvider = placemarkDescriptorProvider;
+        this.convertToVertices = convertToVertices;
         this.geoCoding = product.getGeoCoding();
         this.sourceName = sourceName;
         this.reader = new CsvReader(reader, new char[]{delimiterChar}, true, "#");
@@ -116,7 +118,30 @@ public class VectorDataNodeReader {
     public static VectorDataNode read(String sourceName, Reader reader, Product product, FeatureUtils.FeatureCrsProvider crsProvider,
                                       PlacemarkDescriptorProvider placemarkDescriptorProvider, CoordinateReferenceSystem modelCrs,
                                       char delimiterChar, ProgressMonitor pm) throws IOException {
-        return new VectorDataNodeReader(sourceName, product, reader, crsProvider, placemarkDescriptorProvider, delimiterChar).read(modelCrs, pm);
+        return new VectorDataNodeReader(sourceName, product, reader, crsProvider, placemarkDescriptorProvider, true, delimiterChar).read(modelCrs, pm);
+    }
+
+    /**
+     * Reads a {@link VectorDataNode} from the given input.
+     *
+     * @param sourceName                  The name of the data source; typically a file name.
+     * @param reader                      A reader for the CSV data.
+     * @param product                     The product the vector data will be added to.
+     * @param crsProvider                 A strategy for receiving the CRS of the vector data.
+     * @param placemarkDescriptorProvider A strategy for receiving the placemark descriptor.
+     * @param modelCrs                    The model CRS of the target product.
+     * @param delimiterChar               The separation character of the CSV data.
+     * @param pm                          A progress monitor.
+     *
+     * @return A {@link VectorDataNode} containing features according to the input data, or <code>null</code> if no
+     *         placemark descriptor can be found.
+     *
+     * @throws IOException if the vector data could not be read.
+     */
+    public static VectorDataNode read(String sourceName, Reader reader, Product product, FeatureUtils.FeatureCrsProvider crsProvider,
+                                      PlacemarkDescriptorProvider placemarkDescriptorProvider, CoordinateReferenceSystem modelCrs,
+                                      char delimiterChar, boolean convertToVertices, ProgressMonitor pm) throws IOException {
+        return new VectorDataNodeReader(sourceName, product, reader, crsProvider, placemarkDescriptorProvider, convertToVertices, delimiterChar).read(modelCrs, pm);
     }
 
     VectorDataNode read(CoordinateReferenceSystem modelCrs, ProgressMonitor pm) throws IOException {
@@ -152,7 +177,7 @@ public class VectorDataNodeReader {
         }
         placemarkDescriptor.setUserDataOf(featureType);
 
-        if (placemarkDescriptor instanceof PointDescriptor && clippedCollection.size() > 0) {
+        if (convertToVertices && placemarkDescriptor instanceof PointDescriptor && clippedCollection.size() > 0) {
             clippedCollection = convertPointsToVertices(clippedCollection);
         }
 
@@ -261,10 +286,6 @@ public class VectorDataNodeReader {
         hasLatLon = latIndex != -1 && lonIndex != -1;
         if (!hasGeometry && (latIndex == -1 || lonIndex == -1)) {
             throw new IOException("Neither lat/lon nor geometry column provided.");
-        }
-
-        if (!hasGeometry && geoCoding == null) {
-            throw new IOException("No geometry provided in product without geo-coding.");
         }
 
         if (hasGeometry && !hasFeatureTypeName) {
@@ -411,7 +432,7 @@ public class VectorDataNodeReader {
             coordList.add(pt.getCoordinate());
         }
 
-        if (coordList.size() > 0) {
+        if (coordList.size() >= 2) {
             final GeometryFactory geometryFactory = new GeometryFactory();
             SimpleFeatureType featureType;
             SimpleFeatureBuilder featureBuilder;

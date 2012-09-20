@@ -22,17 +22,23 @@ import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.jidesoft.combobox.DefaultDateModel;
 import com.jidesoft.grid.DateCellEditor;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.util.Date;
+import com.vividsolutions.jts.geom.Point;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkGroup;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.DecimalTableCellRenderer;
+import org.esa.beam.framework.ui.FloatCellEditor;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.product.ProductExpressionPane;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.pixex.Coordinate;
+import org.esa.beam.pixex.PixExOp;
+import org.jfree.ui.DateCellRenderer;
+import org.opengis.feature.simple.SimpleFeature;
+
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -56,22 +62,19 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkGroup;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.DecimalTableCellRenderer;
-import org.esa.beam.framework.ui.FloatCellEditor;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.product.ProductExpressionPane;
-import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.pixex.Coordinate;
-import org.esa.beam.pixex.PixExOp;
-import org.jfree.ui.DateCellRenderer;
-import org.opengis.feature.simple.SimpleFeature;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.util.Date;
 
 class PixelExtractionParametersForm {
 
@@ -95,6 +98,7 @@ class PixelExtractionParametersForm {
     private JComboBox timeUnitComboBox;
     private String allowedTimeDifference = "";
     private JComboBox aggregationStrategyChooser;
+    private JCheckBox outputOriginalMeasurementsBox;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -111,11 +115,11 @@ class PixelExtractionParametersForm {
         Coordinate[] coordinates = new Coordinate[coordinateTableModel.getRowCount()];
         for (int i = 0; i < coordinateTableModel.getRowCount(); i++) {
             final Placemark placemark = coordinateTableModel.getPlacemarkAt(i);
-            GeoPos geoPos = placemark.getGeoPos();
             SimpleFeature feature = placemark.getFeature();
+            final Point point = (Point) feature.getDefaultGeometry();
             final Date dateTime = (Date) feature.getAttribute(Placemark.PROPERTY_NAME_DATETIME);
             final Coordinate.OriginalValue[] originalValues = PixExOp.getOriginalValues(feature);
-            coordinates[i] = new Coordinate(placemark.getName(), geoPos.lat, geoPos.lon, dateTime, originalValues);
+            coordinates[i] = new Coordinate(placemark.getName(), (float)point.getY(), (float)point.getX(), dateTime, originalValues);
         }
         return coordinates;
     }
@@ -171,6 +175,13 @@ class PixelExtractionParametersForm {
         for (Component timeDeltaComponent : timeDeltaComponents) {
             mainPanel.add(timeDeltaComponent);
         }
+
+        coordinateTableModel.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                updateOutputOriginalMeasurementsBox();
+            }
+        });
 
         final BindingContext bindingContext = new BindingContext(container);
 
@@ -228,9 +239,10 @@ class PixelExtractionParametersForm {
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
         final JPanel panel = new JPanel(tableLayout);
-        final JCheckBox outputOriginalMeasurementsBox = new JCheckBox("Output original measurements");
+        outputOriginalMeasurementsBox = new JCheckBox("Output original measurements");
         bindingContext.bind("outputOriginalMeasurements", outputOriginalMeasurementsBox);
         panel.add(outputOriginalMeasurementsBox);
+        updateOutputOriginalMeasurementsBox();
         return panel;
     }
 
@@ -312,6 +324,18 @@ class PixelExtractionParametersForm {
     private void updateUi() {
         handleWindowSpinnerChange();
         updateExpressionComponents();
+        updateOutputOriginalMeasurementsBox();
+    }
+
+    private void updateOutputOriginalMeasurementsBox() {
+        outputOriginalMeasurementsBox.setEnabled(false);
+        final Coordinate[] coordinates = getCoordinates();
+        for (Coordinate coordinate : coordinates) {
+            if (coordinate.getOriginalValues().length > 0) {
+                outputOriginalMeasurementsBox.setEnabled(true);
+                return;
+            }
+        }
     }
 
     private void updateExpressionComponents() {

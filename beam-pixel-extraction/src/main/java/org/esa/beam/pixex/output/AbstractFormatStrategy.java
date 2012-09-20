@@ -25,7 +25,7 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
             "PixelX",
             "PixelY",
             "Date(yyyy-MM-dd)",
-            "Time(HH:mm:ss)"
+            "Time(HH_mm_ss)"
     };
 
     private static final DateFormat DATE_FORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd\tHH:mm:ss");

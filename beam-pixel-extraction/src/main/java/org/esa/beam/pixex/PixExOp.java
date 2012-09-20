@@ -242,7 +242,7 @@ public class PixExOp extends Operator implements Output {
     private AggregatorStrategy aggregatorStrategy;
     private FormatStrategy formatStrategy;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "ConstantConditions"})
     public static Coordinate.OriginalValue[] getOriginalValues(SimpleFeature feature) {
         List<AttributeDescriptor> originalAttributeDescriptors = (List<AttributeDescriptor>) feature.getFeatureType().getUserData().get(
                 "originalAttributeDescriptors");

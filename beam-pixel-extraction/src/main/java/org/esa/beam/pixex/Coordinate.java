@@ -49,8 +49,7 @@ public class Coordinate {
     }
 
     public Coordinate(String name, Float lat, Float lon, Date dateTime) {
-        this(name, lat, lon, dateTime, null);
-        originalValues = new OriginalValue[0];
+        this(name, lat, lon, dateTime, new OriginalValue[0]);
     }
 
     public Coordinate(String name, Float lat, Float lon, Date dateTime, OriginalValue[] originalValues) {

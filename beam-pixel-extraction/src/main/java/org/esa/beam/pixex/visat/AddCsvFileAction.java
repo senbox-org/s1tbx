@@ -65,7 +65,7 @@ class AddCsvFileAction extends AbstractAction {
 
     private BeamFileChooser getFileChooser(String lastDir) {
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        fileChooser.setFileFilter(new BeamFileFilter("CSV", ".csv", "CSV files"));
+        fileChooser.setFileFilter(new BeamFileFilter("CSV", new String[]{".csv", ".txt", ".ascii"}, "CSV files"));
         fileChooser.setCurrentDirectory(new File(lastDir));
         return fileChooser;
     }

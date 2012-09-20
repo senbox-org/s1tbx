@@ -438,19 +438,19 @@ public class PixExOpTest {
         assertEquals(56.0123, (double) coordinates.get(0).getLat(), 0.0001);
         assertEquals(6.2345, (double) coordinates.get(0).getLon(), 0.0001);
         final Coordinate.OriginalValue[] originalValues = coordinates.get(0).getOriginalValues();
-        assertEquals(5, originalValues.length);
-        assertEquals("test1.1", originalValues[2].value);
-        assertEquals(0.2F, originalValues[3].value);
-        assertEquals(0.3F, originalValues[4].value);
+        assertEquals(4, originalValues.length);
+        assertEquals("test1.1", originalValues[1].value);
+        assertEquals(0.2F, originalValues[2].value);
+        assertEquals(0.3F, originalValues[3].value);
 
         assertEquals("1", coordinates.get(1).getName());
         assertEquals(56.0124, (double) coordinates.get(1).getLat(), 0.0001);
         assertEquals(6.2346, (double) coordinates.get(1).getLon(), 0.0001);
         final Coordinate.OriginalValue[] originalValues1 = coordinates.get(1).getOriginalValues();
-        assertEquals(5, originalValues.length);
-        assertEquals("test1.2", originalValues1[2].value);
-        assertEquals(0.21F, originalValues1[3].value);
-        assertEquals(0.31F, originalValues1[4].value);
+        assertEquals(4, originalValues.length);
+        assertEquals("test1.2", originalValues1[1].value);
+        assertEquals(0.21F, originalValues1[2].value);
+        assertEquals(0.31F, originalValues1[3].value);
     }
 
     public static File getOutputDir(String methodName, Class testClass) {
