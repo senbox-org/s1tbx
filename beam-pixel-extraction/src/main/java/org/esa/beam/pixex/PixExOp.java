@@ -78,7 +78,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -343,6 +342,9 @@ public class PixExOp extends Operator implements Output {
                 }
             }
 
+            if (!measurementsFound) {
+                getLogger().log(Level.WARNING, "No measurements extracted.");
+            }
 
         } finally {
             measurementWriter.close();
@@ -427,7 +429,7 @@ public class PixExOp extends Operator implements Output {
     public static Set<File> getSourceProductFileSet(String[] sourceProductPaths1, File[] inputPaths1, Logger logger) {
         Set<File> sourceProductFileSet = new TreeSet<File>();
         String[] paths = getSourceProductPaths(sourceProductPaths1, inputPaths1);
-        if (paths != null) {
+        if (paths != null && paths.length != 0) {
             for (String path : paths) {
                 try {
                     WildcardMatcher.glob(path, sourceProductFileSet);
@@ -657,7 +659,7 @@ public class PixExOp extends Operator implements Output {
                 return false;
             }
             return extractMeasurements(product);
-        } catch (IOException e) {
+        } catch (Exception e) {
             getLogger().warning("Unable to read product from file '" + file.getAbsolutePath() + "'.");
         } finally {
             if (product != null) {
@@ -762,14 +764,6 @@ public class PixExOp extends Operator implements Output {
         final Product product = new Product("dummy", "dummy", 2, 2);
         product.addBand("dummy", ProductData.TYPE_INT8);
         setTargetProduct(product);
-    }
-
-    private static class DirectoryFileFilter implements FileFilter {
-
-        @Override
-        public boolean accept(File pathname) {
-            return pathname.isDirectory();
-        }
     }
 
     private static class ProductComparator implements Comparator<Product> {
