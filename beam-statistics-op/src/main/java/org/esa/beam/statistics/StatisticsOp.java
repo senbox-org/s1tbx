@@ -72,6 +72,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.logging.Level;
 
 /**
  * An operator that is used to compute statistics for any number of source products, restricted to regions given by an
@@ -175,6 +176,7 @@ public class StatisticsOp extends Operator implements Output {
         initializeOutput(allSourceProducts);
         computeOutput(allSourceProducts);
         writeOutput();
+        getLogger().log(Level.INFO, "Successfully computed statistics.");
     }
 
 

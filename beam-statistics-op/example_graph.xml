@@ -19,7 +19,7 @@
         <doOutputAsciiFile>true</doOutputAsciiFile>
         <outputAsciiFile>c:\temp\output\outputAscii_NS2012.txt</outputAsciiFile>
         <percentiles>20,50,90,95</percentiles>
-        <percentilePrecision>5</percentilePrecision>
+        <precision>5</precision>
       </parameters>
     </node>
   </graph>
