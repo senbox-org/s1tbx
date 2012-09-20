@@ -148,7 +148,7 @@ public class StatisticsOp extends Operator implements Output {
 
     @Parameter(description = "The number of significant figures used for statistics computation. Higher numbers " +
                              "indicate higher precision but may lead to a considerably longer computation time.",
-               defaultValue = "5")
+               defaultValue = "3")
     int precision;
 
     Set<Product> collectedProducts;
