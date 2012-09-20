@@ -88,14 +88,14 @@ public class StatisticsOpTest {
         assertEquals("4_pixels.1", outputter.region);
         assertEquals("algal_2", outputter.bandName);
         assertEquals(4, outputter.pixels);
-        assertEquals(0.804474, outputter.maximum, 1E-4);
-        assertEquals(0.695857, outputter.minimum, 1E-4);
-        assertEquals(0.749427, outputter.average, 1E-4);
-        assertEquals(0.721552, outputter.median, 1E-4);
-        assertEquals(0.042935, outputter.sigma, 1E-4);
+        assertEquals(0.804474, outputter.maximum, 1E-3);
+        assertEquals(0.695857, outputter.minimum, 1E-3);
+        assertEquals(0.749427, outputter.average, 1E-3);
+        assertEquals(0.721552, outputter.median, 1E-3);
+        assertEquals(0.042935, outputter.sigma, 1E-3);
         assertEquals(2, outputter.percentiles.length);
-        assertEquals(0.804474, outputter.percentiles[0], 1E-4);
-        assertEquals(0.804474, outputter.percentiles[1], 1E-4);
+        assertEquals(0.804474, outputter.percentiles[0], 1E-3);
+        assertEquals(0.804474, outputter.percentiles[1], 1E-3);
     }
 
     @Test
@@ -145,14 +145,14 @@ public class StatisticsOpTest {
         assertEquals("4_pixels.1", outputter.region);
         assertEquals("algal_2_*_PI", outputter.bandName);
         assertEquals(4, outputter.pixels);
-        assertEquals(2.527328, outputter.maximum, 1E-4);
-        assertEquals(2.186098, outputter.minimum, 1E-4);
-        assertEquals(2.354394, outputter.average, 1E-4);
-        assertEquals(2.266823, outputter.median, 1E-4);
-        assertEquals(0.134885, outputter.sigma, 1E-4);
+        assertEquals(2.527328, outputter.maximum, 1E-3);
+        assertEquals(2.186098, outputter.minimum, 1E-3);
+        assertEquals(2.354394, outputter.average, 1E-3);
+        assertEquals(2.266823, outputter.median, 1E-3);
+        assertEquals(0.134885, outputter.sigma, 1E-3);
         assertEquals(2, outputter.percentiles.length);
-        assertEquals(2.527328, outputter.percentiles[0], 1E-4);
-        assertEquals(2.527328, outputter.percentiles[1], 1E-4);
+        assertEquals(2.527328, outputter.percentiles[0], 1E-3);
+        assertEquals(2.527328, outputter.percentiles[1], 1E-3);
     }
 
     @Test
@@ -238,15 +238,15 @@ public class StatisticsOpTest {
         assertEquals("4_pixels.1", outputter.region);
         assertEquals("algal_2", outputter.bandName);
         assertEquals(4, outputter.pixels);
-        assertEquals(0.804474, outputter.maximum, 1E-4);
-        assertEquals(0.695857, outputter.minimum, 1E-4);
-        assertEquals(0.749427, outputter.average, 1E-4);
-        assertEquals(0.721552, outputter.median, 1E-4);
-        assertEquals(0.042935, outputter.sigma, 1E-4);
+        assertEquals(0.804474, outputter.maximum, 1E-3);
+        assertEquals(0.695857, outputter.minimum, 1E-3);
+        assertEquals(0.749427, outputter.average, 1E-3);
+        assertEquals(0.721552, outputter.median, 1E-3);
+        assertEquals(0.042935, outputter.sigma, 1E-3);
         assertEquals(3, outputter.percentiles.length);
-        assertEquals(0.6958565, outputter.percentiles[0], 1E-4);
-        assertEquals(0.775825, outputter.percentiles[1], 1E-4);
-        assertEquals(0.804474, outputter.percentiles[2], 1E-4);
+        assertEquals(0.6958565, outputter.percentiles[0], 1E-3);
+        assertEquals(0.775825, outputter.percentiles[1], 1E-3);
+        assertEquals(0.804474, outputter.percentiles[2], 1E-3);
     }
 
     @Test
