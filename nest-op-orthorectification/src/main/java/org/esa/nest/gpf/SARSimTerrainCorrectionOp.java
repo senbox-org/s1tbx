@@ -699,6 +699,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
             WarpOp.computeWARPPolynomial(warpData, warpPolynomialOrder, masterGCPGroup); // compute initial warp polynomial
             WarpOp.outputCoRegistrationInfo(
                     sourceProduct, warpPolynomialOrder, warpData, i != 1, threshold, ++parseIdex, srcBand.getName());
+            if(warpData.notEnoughGCPs) continue;
 
             threshold = (float)warpData.rmsMean;
             if (threshold > rmsThreshold && WarpOp.eliminateGCPsBasedOnRMS(warpData, threshold)) {
@@ -1004,7 +1005,11 @@ public class SARSimTerrainCorrectionOp extends Operator {
                             final String[] srcBandName = targetBandNameToSourceBandName.get(tileData.bandName);
                             final Band srcBand = sourceProduct.getBand(srcBandName[0]);
                             final PixelPos pixelPos = new PixelPos();
-                            WarpOp.getWarpedCoords(warpDataMap.get(srcBand), warpPolynomialOrder,
+                            WarpOp.WarpData warpData = warpDataMap.get(srcBand);
+                            if (warpData.notEnoughGCPs) {
+                                continue;
+                            }
+                            WarpOp.getWarpedCoords(warpData, warpPolynomialOrder,
                                                    rangeIndex, azimuthIndex, pixelPos);
                             if (pixelPos.x < 0.0 || pixelPos.x >= srcMaxRange || pixelPos.y < 0.0 || pixelPos.y >= srcMaxAzimuth) {
                                 tileData.tileDataBuffer.setElemDoubleAt(index, tileData.noDataValue);
