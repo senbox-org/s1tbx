@@ -430,8 +430,8 @@ public class WarpOp extends Operator {
             }
 
             final WarpData warpData = warpDataMap.get(band);
-            if(warpData.rms != null) {
-                for (int i = 0; i < warpData.rms.length; i++) {
+            if(warpData.numValidGCPs > 0) {
+                for (int i = 0; i < warpData.numValidGCPs; i++) {
                     final MetadataElement gcpElem = new MetadataElement("GCP"+i);
                     warpDataElem.addElement(gcpElem);
 
@@ -441,7 +441,9 @@ public class WarpOp extends Operator {
                     gcpElem.setAttributeDouble("slv_x", warpData.slaveGCPCoords[2 * i]);
                     gcpElem.setAttributeDouble("slv_y", warpData.slaveGCPCoords[2 * i + 1]);
 
-                    gcpElem.setAttributeDouble("rms", warpData.rms[i]);
+                    if (!warpData.notEnoughGCPs) {
+                        gcpElem.setAttributeDouble("rms", warpData.rms[i]);
+                    }
                 }
             }
         }
@@ -529,9 +531,9 @@ public class WarpOp extends Operator {
             final WarpData warpData, final int warpPolynomialOrder, final ProductNodeGroup<Placemark> masterGCPGroup) {
 
         getNumOfValidGCPs(warpData, warpPolynomialOrder);
-        if(warpData.notEnoughGCPs) return;
 
         getMasterAndSlaveGCPCoordinates(warpData, masterGCPGroup);
+        if(warpData.notEnoughGCPs) return;
 
         warpData.computeWARP(warpPolynomialOrder);
 
@@ -755,8 +757,13 @@ public class WarpOp extends Operator {
                                                  final float threshold, final int parseIndex, final String bandName)
             throws OperatorException {
 
-        final float[] xCoeffs = warpData.jaiWarp.getXCoeffs();
-        final float[] yCoeffs = warpData.jaiWarp.getYCoeffs();
+        float[] xCoeffs = null;
+        float[] yCoeffs = null;
+
+        if (!warpData.notEnoughGCPs) {
+            xCoeffs = warpData.jaiWarp.getXCoeffs();
+            yCoeffs = warpData.jaiWarp.getYCoeffs();
+        }
 
         final File residualFile = getResidualsFile(sourceProduct);
         PrintStream p = null; // declare a print stream object
@@ -779,17 +786,19 @@ public class WarpOp extends Operator {
             p.print("------------------------ Band: " + bandName + " (Parse " + parseIndex + ") ------------------------");
             p.println();
 
-            p.println();
-            p.println("WARP coefficients:");
-            for (float xCoeff : xCoeffs) {
-                p.print(xCoeff + ", ");
-            }
+            if (!warpData.notEnoughGCPs) {
+                p.println();
+                p.println("WARP coefficients:");
+                for (float xCoeff : xCoeffs) {
+                    p.print(xCoeff + ", ");
+                }
 
-            p.println();
-            for (float yCoeff : yCoeffs) {
-                p.print(yCoeff + ", ");
+                p.println();
+                for (float yCoeff : yCoeffs) {
+                    p.print(yCoeff + ", ");
+                }
+                p.println();
             }
-            p.println();
 
             if (appendFlag) {
                 p.println();
@@ -805,36 +814,51 @@ public class WarpOp extends Operator {
             }
             p.println();
 
-            p.println();
-            p.println("No. | Master GCP x | Master GCP y | Slave GCP x |" +
-                    " Slave GCP y | Row Residual | Col Residual |    RMS    |");
-            p.println("-------------------------------------------------" +
-                    "--------------------------------------------------------");
-            for (int i = 0; i < warpData.rms.length; i++) {
-                p.format("%2d  |%13.3f |%13.3f |%12.3f |%12.3f |%13.3f |%13.3f |%10.3f |",
-                        i, warpData.masterGCPCoords[2 * i], warpData.masterGCPCoords[2 * i + 1],
-                        warpData.slaveGCPCoords[2 * i], warpData.slaveGCPCoords[2 * i + 1],
-                        warpData.rowResiduals[i], warpData.colResiduals[i], warpData.rms[i]);
+            if (!warpData.notEnoughGCPs) {
+
                 p.println();
+                p.println("No. | Master GCP x | Master GCP y | Slave GCP x |" +
+                        " Slave GCP y | Row Residual | Col Residual |    RMS    |");
+                p.println("-------------------------------------------------" +
+                        "--------------------------------------------------------");
+                for (int i = 0; i < warpData.rms.length; i++) {
+                    p.format("%2d  |%13.3f |%13.3f |%12.3f |%12.3f |%13.3f |%13.3f |%10.3f |",
+                            i, warpData.masterGCPCoords[2 * i], warpData.masterGCPCoords[2 * i + 1],
+                            warpData.slaveGCPCoords[2 * i], warpData.slaveGCPCoords[2 * i + 1],
+                            warpData.rowResiduals[i], warpData.colResiduals[i], warpData.rms[i]);
+                    p.println();
+                }
+
+                p.println();
+                p.print("Row residual mean = " + warpData.rowResidualMean);
+                p.println();
+                p.print("Row residual std = " + warpData.rowResidualStd);
+                p.println();
+
+                p.println();
+                p.print("Col residual mean = " + warpData.colResidualMean);
+                p.println();
+                p.print("Col residual std = " + warpData.colResidualStd);
+                p.println();
+
+                p.println();
+                p.print("RMS mean = " + warpData.rmsMean);
+                p.println();
+                p.print("RMS std = " + warpData.rmsStd);
+                p.println();
+
+            } else {
+
+                p.println();
+                p.println("No. | Master GCP x | Master GCP y | Slave GCP x | Slave GCP y |");
+                p.println("---------------------------------------------------------------");
+                for (int i = 0; i < warpData.numValidGCPs; i++) {
+                    p.format("%2d  |%13.3f |%13.3f |%12.3f |%12.3f |",
+                            i, warpData.masterGCPCoords[2 * i], warpData.masterGCPCoords[2 * i + 1],
+                            warpData.slaveGCPCoords[2 * i], warpData.slaveGCPCoords[2 * i + 1]);
+                    p.println();
+                }
             }
-
-            p.println();
-            p.print("Row residual mean = " + warpData.rowResidualMean);
-            p.println();
-            p.print("Row residual std = " + warpData.rowResidualStd);
-            p.println();
-
-            p.println();
-            p.print("Col residual mean = " + warpData.colResidualMean);
-            p.println();
-            p.print("Col residual std = " + warpData.colResidualStd);
-            p.println();
-
-            p.println();
-            p.print("RMS mean = " + warpData.rmsMean);
-            p.println();
-            p.print("RMS std = " + warpData.rmsStd);
-            p.println();
             p.println();
             p.println();
 
