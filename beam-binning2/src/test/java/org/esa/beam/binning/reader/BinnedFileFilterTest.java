@@ -6,6 +6,14 @@ import org.junit.*;
 
 public class BinnedFileFilterTest {
 
+    private final String startsWith_oc_cci = "ESACCI-OC-";
+    private final String mustContain_oc_cci = "L3";
+
+    private final String mustContain_bins = "-bins";
+
+    private final String endsWith = ".nc";
+    private final String any = "__any_text__";
+
     @Before
     public void setUp() throws Exception {
     }
@@ -15,16 +23,18 @@ public class BinnedFileFilterTest {
     }
 
     @Test
-    public void testIsBinnedName() {
-        final String startsWith = "ESACCI-OC-";
-        final String mustContain = "L3";
-        final String endsWith = ".nc";
-        final String any = "__any_text__";
+    public void testIsBinnedName_OC_CCI() {
+        assertEquals(false, BinnedFileFilter.isBinnedName("DoNotStartExpected" + any + mustContain_oc_cci + any + endsWith));
+        assertEquals(false, BinnedFileFilter.isBinnedName(startsWith_oc_cci + any + "doNotContainExpected" + any + endsWith));
+        assertEquals(false, BinnedFileFilter.isBinnedName(startsWith_oc_cci + any + mustContain_oc_cci + any + "endsNotWithExpected"));
 
-        assertEquals(false, BinnedFileFilter.isBinnedName("DoNotStartExpected" + any + mustContain + any + endsWith));
-        assertEquals(false, BinnedFileFilter.isBinnedName(startsWith + any + "doNotContainExpected" + any + endsWith));
-        assertEquals(false, BinnedFileFilter.isBinnedName(startsWith + any + mustContain + any + "endsNotWithExpected"));
+        assertEquals(true, BinnedFileFilter.isBinnedName(startsWith_oc_cci + any + mustContain_oc_cci + any + endsWith));
+    }
 
-        assertEquals(true, BinnedFileFilter.isBinnedName(startsWith + any + mustContain + any + endsWith));
+    @Test
+    public void testIsBinnedName_BEAM_Binning() {
+        assertEquals(false, BinnedFileFilter.isBinnedName("StartsWithAnything" + "doNotContain_bins" + "continuesWithAnything" + endsWith));
+
+        assertEquals(true, BinnedFileFilter.isBinnedName("StartsWithAnything" + mustContain_bins + "continuesWithAnything" + endsWith));
     }
 }
