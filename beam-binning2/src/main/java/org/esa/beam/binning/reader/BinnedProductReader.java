@@ -48,6 +48,8 @@ public class BinnedProductReader extends AbstractProductReader {
      * Value: BinIndex in bin_list
      */
     private Map<Integer, Integer> indexMap;
+    private Variable currentVariable;
+    private float[] storage;
 
     /**
      * Constructs a new MERIS Binned Level-3 product reader.
@@ -132,7 +134,7 @@ public class BinnedProductReader extends AbstractProductReader {
                     indexMap.put(binIndexes[i], i);
                 }
             }
-
+            currentVariable = null;
             initGeoCoding();
 
         } catch (IOException e) {
@@ -194,10 +196,10 @@ public class BinnedProductReader extends AbstractProductReader {
         pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceHeight);
         try {
             final Variable binVariable = variableMetadata.variable;
+            updateStorage(binVariable);
             final Number fillValueN = getAttributeNumericValue(binVariable, "_FillValue");
             float fillValue = fillValueN != null ? fillValueN.floatValue() : 0;
             Arrays.fill(rasterData, fillValue);
-            //todo variable values are read and written for each pixel distinctly: Alternatively: Read pixels for whole destination rectangle
             for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
                 for (int x = sourceOffsetX; x < sourceOffsetX + sourceWidth; x++) {
                     final GeoPos geoPos = product.getGeoCoding().getGeoPos(new PixelPos(x + 0.5f, y + 0.5f), null);
@@ -206,9 +208,8 @@ public class BinnedProductReader extends AbstractProductReader {
                     if (indexMap.containsKey((int) binIndex)) {
                         final int otherBinIndex = indexMap.get((int) binIndex);
                         if (otherBinIndex > 0) {
-                            float value = getVariableValueForBinIndex(binVariable, otherBinIndex);
                             final int rasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
-                            rasterData[rasterIndex] = value;
+                            rasterData[rasterIndex] = storage[otherBinIndex];
                         }
                     }
                 }
@@ -219,18 +220,15 @@ public class BinnedProductReader extends AbstractProductReader {
         }
     }
 
-    private float getVariableValueForBinIndex(Variable binVariable, int binIndex) throws IOException {
-        final int[] lineOffset = {binIndex};
-        final int[] lineLength = {1};
-        float value;
-        try {
-            //todo find reason why exceptions are thrown here
-            final Object storage = binVariable.read(lineOffset, lineLength).getFloat(0);
-            value = (Float) storage;
-        } catch (Exception e) {
-            throw new IOException("Format problem.");
+    private void updateStorage(Variable binVariable) throws IOException {
+        if (!binVariable.equals(currentVariable)) {
+            try {
+                storage = (float[]) binVariable.read().getStorage();
+                currentVariable = binVariable;
+            } catch (IOException e) {
+                throw new IOException("Format problem.");
+            }
         }
-        return value;
     }
 
     /**
@@ -331,6 +329,7 @@ public class BinnedProductReader extends AbstractProductReader {
         return att != null ? att.getStringValue() : null;
     }
 
+
     private static class VariableMetadata {
         final Variable variable;
         final String name;
@@ -342,19 +341,6 @@ public class BinnedProductReader extends AbstractProductReader {
             this.name = name;
             this.description = description;
             this.fillValue = fillValue;
-        }
-    }
-
-    private static final class RowInfo {
-
-        // offset of row within file
-        final int offset;
-        // number of bins per row
-        final int length;
-
-        public RowInfo(int offset, int length) {
-            this.offset = offset;
-            this.length = length;
         }
     }
 
