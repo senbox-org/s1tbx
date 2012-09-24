@@ -35,8 +35,6 @@ import java.util.Map;
 
 public class BinnedProductReader extends AbstractProductReader {
 
-    public static final String COL_INDEX_BAND_NAME = "col_index";
-
     private NetcdfFile netcdfFile;
     private Product product;
     private PlanetaryGrid planetaryGrid;
@@ -48,8 +46,7 @@ public class BinnedProductReader extends AbstractProductReader {
      * Value: BinIndex in bin_list
      */
     private Map<Integer, Integer> indexMap;
-    private Variable currentVariable;
-    private float[] storage;
+    private Map<Variable, float[]> storages;
 
     /**
      * Constructs a new MERIS Binned Level-3 product reader.
@@ -134,7 +131,8 @@ public class BinnedProductReader extends AbstractProductReader {
                     indexMap.put(binIndexes[i], i);
                 }
             }
-            currentVariable = null;
+            storages = new HashMap<Variable, float[]>();
+
             initGeoCoding();
 
         } catch (IOException e) {
@@ -196,7 +194,7 @@ public class BinnedProductReader extends AbstractProductReader {
         pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceHeight);
         try {
             final Variable binVariable = variableMetadata.variable;
-            updateStorage(binVariable);
+            updateStorages(binVariable);
             final Number fillValueN = getAttributeNumericValue(binVariable, "_FillValue");
             float fillValue = fillValueN != null ? fillValueN.floatValue() : 0;
             Arrays.fill(rasterData, fillValue);
@@ -209,7 +207,7 @@ public class BinnedProductReader extends AbstractProductReader {
                         final int otherBinIndex = indexMap.get((int) binIndex);
                         if (otherBinIndex > 0) {
                             final int rasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
-                            rasterData[rasterIndex] = storage[otherBinIndex];
+                            rasterData[rasterIndex] = storages.get(binVariable)[otherBinIndex];
                         }
                     }
                 }
@@ -220,11 +218,10 @@ public class BinnedProductReader extends AbstractProductReader {
         }
     }
 
-    private void updateStorage(Variable binVariable) throws IOException {
-        if (!binVariable.equals(currentVariable)) {
+    private void updateStorages(Variable binVariable) throws IOException {
+        if (!storages.containsKey(binVariable)) {
             try {
-                storage = (float[]) binVariable.read().getStorage();
-                currentVariable = binVariable;
+                storages.put(binVariable, (float[]) binVariable.read().getStorage());
             } catch (IOException e) {
                 throw new IOException("Format problem.");
             }
@@ -252,6 +249,8 @@ public class BinnedProductReader extends AbstractProductReader {
             netcdfFile = null;
         }
         bandMap.clear();
+        indexMap.clear();
+        storages.clear();
         product = null;
         planetaryGrid = null;
     }
