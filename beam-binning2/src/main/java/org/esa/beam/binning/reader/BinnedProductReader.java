@@ -47,6 +47,7 @@ public class BinnedProductReader extends AbstractProductReader {
      */
     private Map<Integer, Integer> indexMap;
     private Map<Variable, float[]> storages;
+    private boolean yFlipped;
 
     /**
      * Constructs a new MERIS Binned Level-3 product reader.
@@ -96,6 +97,7 @@ public class BinnedProductReader extends AbstractProductReader {
             final Rectangle sceneRasterRectangle = Reprojector.computeRasterSubRegion(planetaryGrid, roiGeometry);
             sceneRasterHeight = sceneRasterRectangle.height;
             sceneRasterWidth = sceneRasterRectangle.width;
+            yFlipped = planetaryGrid.getCenterLat(planetaryGrid.getNumRows()) - 1 < planetaryGrid.getCenterLat(0);
 
             File productFile = new File(path);
             product = new Product(FileUtils.getFilenameWithoutExtension(productFile),
@@ -123,16 +125,17 @@ public class BinnedProductReader extends AbstractProductReader {
 
             //create indexMap
             final Variable bl_bin_num = netcdfFile.findVariable(NetcdfFile.escapeName("bl_bin_num"));
-            synchronized (netcdfFile) {
-                final Object storage = bl_bin_num.read().getStorage();
-                int[] binIndexes = (int[]) storage;
-                indexMap = new HashMap<Integer, Integer>(binIndexes.length);
-                for (int i = 0; i < binIndexes.length; i++) {
-                    indexMap.put(binIndexes[i], i);
+            if (bl_bin_num != null) {
+                synchronized (netcdfFile) {
+                    final Object storage = bl_bin_num.read().getStorage();
+                    int[] binIndexes = (int[]) storage;
+                    indexMap = new HashMap<Integer, Integer>(binIndexes.length);
+                    for (int i = 0; i < binIndexes.length; i++) {
+                        indexMap.put(binIndexes[i], i);
+                    }
                 }
             }
             storages = new HashMap<Variable, float[]>();
-
             initGeoCoding();
 
         } catch (IOException e) {
@@ -189,8 +192,10 @@ public class BinnedProductReader extends AbstractProductReader {
         }
         float[] rasterData = (float[]) destBuffer.getElems();
         VariableMetadata variableMetadata = bandMap.get(destBand);
-        //todo check whether grid is y-flipped / see CfGeocodingPart:createConventionBasedMapGeoCoding
-        final SeadasGrid seadasGrid = new SeadasGrid(planetaryGrid);
+        SeadasGrid seadasGrid = null;
+        if (yFlipped) {
+            seadasGrid = new SeadasGrid(planetaryGrid);
+        }
         pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceHeight);
         try {
             final Variable binVariable = variableMetadata.variable;
@@ -201,14 +206,28 @@ public class BinnedProductReader extends AbstractProductReader {
             for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
                 for (int x = sourceOffsetX; x < sourceOffsetX + sourceWidth; x++) {
                     final GeoPos geoPos = product.getGeoCoding().getGeoPos(new PixelPos(x + 0.5f, y + 0.5f), null);
-                    final long seaGridBinIndex = planetaryGrid.getBinIndex(geoPos.lat, geoPos.lon);
-                    final long binIndex = seadasGrid.convertBinIndex(seaGridBinIndex);
-                    if (indexMap.containsKey((int) binIndex)) {
-                        final int otherBinIndex = indexMap.get((int) binIndex);
-                        if (otherBinIndex > 0) {
-                            final int rasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
-                            rasterData[rasterIndex] = storages.get(binVariable)[otherBinIndex];
+                    long binIndex;
+                    if (yFlipped) {
+                        final long seaGridBinIndex = planetaryGrid.getBinIndex(geoPos.lat, geoPos.lon);
+                        binIndex = seadasGrid.convertBinIndex(seaGridBinIndex);
+                    } else {
+                        binIndex = planetaryGrid.getBinIndex(geoPos.lat, geoPos.lon);
+                    }
+                    if (indexMap != null) {
+                        if (indexMap.containsKey((int) binIndex)) {
+                            final int otherBinIndex = indexMap.get((int) binIndex);
+                            if (otherBinIndex > 0) {
+                                final int rasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
+                                rasterData[rasterIndex] = storages.get(binVariable)[otherBinIndex];
+                            }
                         }
+                    } else {
+                        final int rasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
+                        int offset = 0;
+                        if (yFlipped) {
+                            offset = 1;
+                        }
+                        rasterData[rasterIndex] = storages.get(binVariable)[(int) binIndex - offset];
                     }
                 }
             }
@@ -250,7 +269,7 @@ public class BinnedProductReader extends AbstractProductReader {
         }
         bandMap.clear();
         indexMap.clear();
-        storages.clear();
+//        storages.clear();
         product = null;
         planetaryGrid = null;
     }
