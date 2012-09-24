@@ -97,7 +97,7 @@ public class BinnedProductReader extends AbstractProductReader {
             final Rectangle sceneRasterRectangle = Reprojector.computeRasterSubRegion(planetaryGrid, roiGeometry);
             sceneRasterHeight = sceneRasterRectangle.height;
             sceneRasterWidth = sceneRasterRectangle.width;
-            yFlipped = planetaryGrid.getCenterLat(planetaryGrid.getNumRows()) - 1 < planetaryGrid.getCenterLat(0);
+            yFlipped = planetaryGrid.getCenterLat(planetaryGrid.getNumRows() - 1) < planetaryGrid.getCenterLat(0);
 
             File productFile = new File(path);
             product = new Product(FileUtils.getFilenameWithoutExtension(productFile),
