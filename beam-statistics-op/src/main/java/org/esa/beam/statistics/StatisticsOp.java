@@ -80,8 +80,8 @@ import java.util.logging.Level;
  * <p/>
  * It writes two different sorts of output:<br/>
  * <ul>
- *     <li>an ASCII file in tab-separated CSV format, in which the statistics are mapped to the source regions</li>
- *     <li>a shapefile that corresponds to the input shapefile, enriched with the statistics for the regions defined by the shapefile</li>
+ * <li>an ASCII file in tab-separated CSV format, in which the statistics are mapped to the source regions</li>
+ * <li>a shapefile that corresponds to the input shapefile, enriched with the statistics for the regions defined by the shapefile</li>
  * </ul>
  * <p/>
  * Unlike most other operators, that can compute single {@link org.esa.beam.framework.gpf.Tile tiles},
@@ -246,11 +246,11 @@ public class StatisticsOp extends Operator implements Output {
         final String[] algorithmNames = getAlgorithmNames();
         final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
         final StatisticsOutputContext statisticsOutputContext = StatisticsOutputContext.create(allSourceProducts,
-                                                                                            bandNames,
-                                                                                            algorithmNames,
-                                                                                            startDate,
-                                                                                            endDate,
-                                                                                            regionNames.toArray(new String[regionNames.size()]));
+                                                                                               bandNames,
+                                                                                               algorithmNames,
+                                                                                               startDate,
+                                                                                               endDate,
+                                                                                               regionNames.toArray(new String[regionNames.size()]));
         for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
             statisticsOutputter.initialiseOutput(statisticsOutputContext);
         }
@@ -442,7 +442,8 @@ public class StatisticsOp extends Operator implements Output {
         if (precision < 0) {
             throw new OperatorException("Parameter 'precision' must be greater than or equal to 0");
         }
-        if ((sourceProducts == null || sourceProducts.length == 0) && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
+        if ((sourceProducts == null || sourceProducts.length == 0) &&
+            (sourceProductPaths == null || sourceProductPaths.length == 0)) {
             throw new OperatorException(
                     "Either source products must be given or parameter 'sourceProductPaths' must be specified");
         }
@@ -494,7 +495,7 @@ public class StatisticsOp extends Operator implements Output {
                         } else {
                             logReadProductError(file.getAbsolutePath());
                         }
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         logReadProductError(file.getAbsolutePath());
                     }
                 }
