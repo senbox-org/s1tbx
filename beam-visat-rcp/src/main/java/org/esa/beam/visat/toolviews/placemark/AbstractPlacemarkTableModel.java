@@ -276,27 +276,27 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         placemarkList.clear();
     }
 
-    protected void setGeoPosLat(Object value, Placemark placemark) {
-        if (value instanceof Float) {
+    protected void setGeoPosLat(Object lat, Placemark placemark) {
+        if (lat instanceof Float) {
             float lon;
             if (placemark.getGeoPos() == null) {
                 lon = Float.NaN;
             } else {
                 lon = placemark.getGeoPos().lon;
             }
-            placemark.setGeoPos(new GeoPos((Float) value, lon));
+            placemark.setGeoPos(new GeoPos((Float) lat, lon));
         }
     }
 
-    protected void setGeoPosLon(Object value, Placemark placemark) {
-        if (value instanceof Float) {
+    protected void setGeoPosLon(Object lon, Placemark placemark) {
+        if (lon instanceof Float) {
             float lat;
             if (placemark.getGeoPos() == null) {
                 lat = Float.NaN;
             } else {
                 lat = placemark.getGeoPos().lat;
             }
-            placemark.setGeoPos(new GeoPos(lat, (Float) value));
+            placemark.setGeoPos(new GeoPos(lat, (Float) lon));
         }
     }
 

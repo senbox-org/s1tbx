@@ -116,10 +116,14 @@ class PixelExtractionParametersForm {
         for (int i = 0; i < coordinateTableModel.getRowCount(); i++) {
             final Placemark placemark = coordinateTableModel.getPlacemarkAt(i);
             SimpleFeature feature = placemark.getFeature();
-            final Point point = (Point) feature.getDefaultGeometry();
             final Date dateTime = (Date) feature.getAttribute(Placemark.PROPERTY_NAME_DATETIME);
             final Coordinate.OriginalValue[] originalValues = PixExOp.getOriginalValues(feature);
-            coordinates[i] = new Coordinate(placemark.getName(), (float)point.getY(), (float)point.getX(), dateTime, originalValues);
+            if (placemark.getGeoPos() == null) {
+                final Point point = (Point) feature.getDefaultGeometry();
+                coordinates[i] = new Coordinate(placemark.getName(), (float)point.getY(), (float)point.getX(), dateTime, originalValues);
+            } else {
+                coordinates[i] = new Coordinate(placemark.getName(), placemark.getGeoPos().getLat(), placemark.getGeoPos().getLon(), dateTime, originalValues);
+            }
         }
         return coordinates;
     }
