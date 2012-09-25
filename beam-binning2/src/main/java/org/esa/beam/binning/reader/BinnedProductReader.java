@@ -40,7 +40,7 @@ public class BinnedProductReader extends AbstractProductReader {
     private PlanetaryGrid planetaryGrid;
     private int sceneRasterWidth;
     private int sceneRasterHeight;
-    private Map<Band, VariableMetadata> bandMap;
+    private Map<Band, Variable> bandMap;
     /**
      * Key: BinIndex in PlanetaryGrid
      * Value: BinIndex in bin_list
@@ -70,7 +70,7 @@ public class BinnedProductReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
         String path = getInput().toString();
         netcdfFile = NetcdfFile.open(path);
-        bandMap = new HashMap<Band, VariableMetadata>(10);
+        bandMap = new HashMap<Band, Variable>();
         try {
             //create grid
             int numRows = 0;
@@ -83,15 +83,13 @@ public class BinnedProductReader extends AbstractProductReader {
 
             //determine sceneRasterWidth and -Height
             Geometry roiGeometry = null;
-            for (Attribute attribute : netcdfFile.getGlobalAttributes()) {
-                if (attribute.getName().equals("region")) {
-                    WKTReader wktReader = new WKTReader();
-                    try {
-                        roiGeometry = wktReader.read(attribute.getStringValue());
-                    } catch (ParseException e) {
-                        //todo error handling
-                    }
-                    break;
+            final Attribute region = netcdfFile.findGlobalAttributeIgnoreCase("region");
+            if (region != null) {
+                WKTReader wktReader = new WKTReader();
+                try {
+                    roiGeometry = wktReader.read(region.getStringValue());
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
             }
             final Rectangle sceneRasterRectangle = Reprojector.computeRasterSubRegion(planetaryGrid, roiGeometry);
@@ -191,14 +189,13 @@ public class BinnedProductReader extends AbstractProductReader {
             throw new IllegalStateException("sourceWidth != destWidth || sourceHeight != destHeight");
         }
         float[] rasterData = (float[]) destBuffer.getElems();
-        VariableMetadata variableMetadata = bandMap.get(destBand);
+        Variable binVariable = bandMap.get(destBand);
         SeadasGrid seadasGrid = null;
         if (yFlipped) {
             seadasGrid = new SeadasGrid(planetaryGrid);
         }
         pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceHeight);
         try {
-            final Variable binVariable = variableMetadata.variable;
             updateStorages(binVariable);
             final Number fillValueN = getAttributeNumericValue(binVariable, "_FillValue");
             float fillValue = fillValueN != null ? fillValueN.floatValue() : 0;
@@ -269,7 +266,7 @@ public class BinnedProductReader extends AbstractProductReader {
         }
         bandMap.clear();
         indexMap.clear();
-//        storages.clear();
+        storages.clear();
         product = null;
         planetaryGrid = null;
     }
@@ -308,6 +305,7 @@ public class BinnedProductReader extends AbstractProductReader {
 
     private void addBand(String varName) {
         VariableMetadata variableMetadata = getVariableMetadata(varName);
+        final Variable variable = netcdfFile.getRootGroup().findVariable(varName);
         if (variableMetadata != null) {
             int dataType = ProductData.TYPE_FLOAT32;
             Band band = new Band(variableMetadata.name, dataType, sceneRasterWidth, sceneRasterHeight);
@@ -315,7 +313,7 @@ public class BinnedProductReader extends AbstractProductReader {
             band.setNoDataValue(variableMetadata.fillValue);
             band.setNoDataValueUsed(variableMetadata.fillValue != Double.NaN);
             product.addBand(band);
-            bandMap.put(band, variableMetadata);
+            bandMap.put(band, variable);
         }
     }
 
@@ -346,7 +344,6 @@ public class BinnedProductReader extends AbstractProductReader {
         final Attribute att = variable.findAttribute(attributeName);
         return att != null ? att.getStringValue() : null;
     }
-
 
     private static class VariableMetadata {
         final Variable variable;
