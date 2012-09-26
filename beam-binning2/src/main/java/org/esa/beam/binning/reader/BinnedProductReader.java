@@ -12,6 +12,7 @@ import org.esa.beam.util.io.FileUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
+import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -216,13 +217,20 @@ public class BinnedProductReader extends AbstractProductReader {
 //        if (sourceWidth != destWidth || sourceHeight != destHeight) {
 //            throw new IllegalStateException("sourceWidth != destWidth || sourceHeight != destHeight");
 //        }
-        float[] destRasterData = (float[]) destBuffer.getElems();
         Variable binVariable = bandMap.get(destBand);
         pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceHeight);
         try {
             final Number fillValueN = getAttributeNumericValue(binVariable, "_FillValue");
             float fillValue = fillValueN != null ? fillValueN.floatValue() : 0;
-            Arrays.fill(destRasterData, fillValue);
+            if (destBuffer.getType() == ProductData.TYPE_FLOAT32) {
+                float[] destRasterData = (float[]) destBuffer.getElems();
+                Arrays.fill(destRasterData, fillValue);
+            } else if (destBuffer.getType() == ProductData.TYPE_INT32) {
+                int[] destRasterData = (int[]) destBuffer.getElems();
+                Arrays.fill(destRasterData, (int) fillValue);
+            } else {
+                throw new IOException("Format problem. Band datatype should be float32 or int32.");
+            }
             for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
 
                 int lineIndex = y;
@@ -246,17 +254,17 @@ public class BinnedProductReader extends AbstractProductReader {
                         origin[0] = startBinIndex;
                         shape[0] = extent;
                     }
-                    final float[] lineValues;
+                    final Array lineValues;
                     try {
                         synchronized (netcdfFile) {
-                            lineValues = (float[]) binVariable.read(origin, shape).getStorage();
+                            lineValues = binVariable.read(origin, shape);
                         }
                     } catch (InvalidRangeException e) {
                         throw new IOException("Format problem.");
                     }
 
-                    for (int i = 0; i < lineValues.length; i++) {
-                        if (lineValues[i] != fillValue) {
+                    for (int i = 0; i < lineValues.getSize(); i++) {
+                        if (lineValues.getFloat(i) != fillValue) {
                             int binIndexInGrid;
                             if (indexMap != null) {
                                 binIndexInGrid = binIndexes[indexMap.get(binOffset) + i];
@@ -270,7 +278,7 @@ public class BinnedProductReader extends AbstractProductReader {
                             if (destStart <= destEnd) {
                                 for (int x = destStart; x < destEnd; x++) {
                                     final int destRasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
-                                    destRasterData[destRasterIndex] = lineValues[i];
+                                    destBuffer.setElemFloatAt(destRasterIndex,lineValues.getFloat(i));
                                 }
                             }
                         }
