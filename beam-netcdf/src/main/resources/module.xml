@@ -32,6 +32,9 @@
     <changelog>
         <![CDATA[
         Changes in 1.1.2:<br/>
+        Extend MetadataUtils with maxNumValuesRead in methods
+            readNetcdfMetadata(NetcdfFile, MetadataElement, int maxNumValuesRead)
+            readVariableDescriptions(List<Variable>, String, int maxNumValuesRead)
         [BEAM-1421] - A file in NetCDF-BEAM format, which was created using the BandMaths gpf operator, can not be opened in VISAT<br/>
         Changes in 1.1.1:<br/>
         Adapted to new Maven-architecture<br/>
