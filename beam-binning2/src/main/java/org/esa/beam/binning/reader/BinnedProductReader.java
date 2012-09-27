@@ -1,6 +1,11 @@
 package org.esa.beam.binning.reader;
 
 import com.bc.ceres.core.ProgressMonitor;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.dataio.netcdf.util.MetadataUtils;
 import org.esa.beam.framework.dataio.AbstractProductReader;
@@ -19,12 +24,6 @@ import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class BinnedProductReader extends AbstractProductReader {
@@ -203,6 +202,7 @@ public class BinnedProductReader extends AbstractProductReader {
      * @param destWidth     the width of region to be decode given in the band's raster co-ordinates
      * @param destHeight    the height of region to be decode given in the band's raster co-ordinates
      * @param pm            a monitor to inform the user about progress
+     *
      * @throws java.io.IOException if  an I/O error occurs
      * @see #getSubsetDef
      */
@@ -211,12 +211,12 @@ public class BinnedProductReader extends AbstractProductReader {
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-//        if (sourceStepX != 1 || sourceStepY != 1) {
-//            throw new IOException("Sub-sampling is not supported by this product reader.");
-//        }
-//        if (sourceWidth != destWidth || sourceHeight != destHeight) {
-//            throw new IllegalStateException("sourceWidth != destWidth || sourceHeight != destHeight");
-//        }
+        if (sourceStepX != 1 || sourceStepY != 1) {
+            throw new IOException("Sub-sampling is not supported by this product reader.");
+        }
+        if (sourceWidth != destWidth || sourceHeight != destHeight) {
+            throw new IllegalStateException("sourceWidth != destWidth || sourceHeight != destHeight");
+        }
         Variable binVariable = bandMap.get(destBand);
         pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceHeight);
         try {
@@ -264,7 +264,8 @@ public class BinnedProductReader extends AbstractProductReader {
                     }
 
                     for (int i = 0; i < lineValues.getSize(); i++) {
-                        if (lineValues.getFloat(i) != fillValue) {
+                        final float value = lineValues.getFloat(i);
+                        if (value != fillValue) {
                             int binIndexInGrid;
                             if (indexMap != null) {
                                 binIndexInGrid = binIndexes[indexMap.get(binOffset) + i];
@@ -275,11 +276,9 @@ public class BinnedProductReader extends AbstractProductReader {
                             final int[] xValuesForBin = getXValuesForBin(binIndexInGrid, lineIndex);
                             final int destStart = Math.max(xValuesForBin[0], sourceOffsetX);
                             final int destEnd = Math.min(xValuesForBin[1], sourceOffsetX + sourceWidth);
-                            if (destStart <= destEnd) {
-                                for (int x = destStart; x < destEnd; x++) {
-                                    final int destRasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
-                                    destBuffer.setElemFloatAt(destRasterIndex,lineValues.getFloat(i));
-                                }
+                            for (int x = destStart; x < destEnd; x++) {
+                                final int destRasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
+                                destBuffer.setElemFloatAt(destRasterIndex, value);
                             }
                         }
                     }
@@ -324,7 +323,7 @@ public class BinnedProductReader extends AbstractProductReader {
      */
     @Override
     public void close() throws
-            IOException {
+                        IOException {
         super.close();
 
         if (netcdfFile != null) {
@@ -420,6 +419,7 @@ public class BinnedProductReader extends AbstractProductReader {
     }
 
     private static class VariableMetadata {
+
         final Variable variable;
         final String name;
         final String description;
