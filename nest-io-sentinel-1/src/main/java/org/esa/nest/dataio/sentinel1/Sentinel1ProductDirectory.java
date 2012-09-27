@@ -25,6 +25,7 @@ import org.esa.nest.datamodel.AbstractMetadataIO;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
+import org.esa.nest.gpf.Sentinel1Utils;
 import org.esa.nest.util.Constants;
 import org.esa.nest.util.XMLSupport;
 import org.jdom.Element;
@@ -151,8 +152,8 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, org+' '+name+' '+version);
             } else if(id.equals("acquisitionPeriod")) {
                 final MetadataElement acquisitionPeriod = findElement(metadataObject, "acquisitionPeriod");
-                final ProductData.UTC startTime = getTime(acquisitionPeriod, "startTime");
-                final ProductData.UTC stopTime = getTime(acquisitionPeriod, "stopTime");
+                final ProductData.UTC startTime = Sentinel1Utils.getTime(acquisitionPeriod, "startTime");
+                final ProductData.UTC stopTime = Sentinel1Utils.getTime(acquisitionPeriod, "stopTime");
                 product.setStartTime(startTime);
                 product.setEndTime(stopTime);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
@@ -213,8 +214,8 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         final String swath = adsHeader.getAttributeString("swath");
         final String pol = adsHeader.getAttributeString("polarisation");
 
-        final ProductData.UTC startTime = getTime(adsHeader, "startTime");
-        final ProductData.UTC stopTime = getTime(adsHeader, "stopTime");
+        final ProductData.UTC startTime = Sentinel1Utils.getTime(adsHeader, "startTime");
+        final ProductData.UTC stopTime = Sentinel1Utils.getTime(adsHeader, "stopTime");
 
         final String bandRootName = swath +'_'+ pol;
         final MetadataElement bandAbsRoot = AbstractMetadata.addBandAbstractedMetadata(absRoot, bandRootName);
@@ -259,13 +260,14 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         }
         return null;
     }
-
+    /*
     private ProductData.UTC getTime(final MetadataElement elem, final String tag) {
         String start = elem.getAttributeString(tag, AbstractMetadata.NO_METADATA_STRING);
         start = start.replace("T", "_");
 
         return AbstractMetadata.parseUTC(start, dateFormat);
     }
+    */
     /*
     private static void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbitInformation) {
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
