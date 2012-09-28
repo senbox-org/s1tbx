@@ -46,8 +46,26 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         final String filename = file.getName().toUpperCase();
         if (filename.startsWith(Sentinel1Constants.PRODUCT_HEADER_PREFIX)  &&
                 filename.endsWith(Sentinel1Constants.getIndicationKey())) {
-            // todo check annotation files that start with S1
-            return DecodeQualification.INTENDED;
+            // check annotation files that start with S1
+            final File annotationFolder = new File(file.getParentFile(), "annotation");
+            if(annotationFolder.exists()) {
+                return checkFolder(annotationFolder);
+            } else {
+                final File measurementFolder = new File(file.getParentFile(), "measurement");
+                return checkFolder(measurementFolder);
+            }
+        }
+        return DecodeQualification.UNABLE;
+    }
+
+    private static DecodeQualification checkFolder(final File folder) {
+        final File[] files = folder.listFiles();
+        if(files != null) {
+            for(File f : files) {
+                if(f.isFile() && f.getName().startsWith("s1")) {
+                    return DecodeQualification.INTENDED;
+                }
+            }
         }
         return DecodeQualification.UNABLE;
     }

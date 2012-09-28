@@ -20,11 +20,13 @@ import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.w3c.dom.Node;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.image.*;
@@ -95,7 +97,9 @@ public class ImageIOFile {
         reader = iioReader;
         reader.setInput(stream);
 
-        //IIOMetadata iioMetadata = reader.getImageMetadata(0);
+        IIOMetadata iioMetadata = reader.getImageMetadata(0);
+        String[] formatNames = iioMetadata.getMetadataFormatNames();
+        Node n = iioMetadata.getAsTree(iioMetadata.getNativeMetadataFormatName());
 
         name = inputFile.getName();
         numImages = reader.getNumImages(true);
@@ -105,6 +109,7 @@ public class ImageIOFile {
         final ImageTypeSpecifier its = reader.getRawImageType(0); 
         if(its != null) {
             numBands = reader.getRawImageType(0).getNumBands();
+            int bitsPerBand = reader.getRawImageType(0).getBitsPerBand(0);
             dataType = bufferImageTypeToProductType(its.getBufferedImageType());
 
             if(its.getBufferedImageType() == BufferedImage.TYPE_BYTE_INDEXED) {

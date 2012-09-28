@@ -109,11 +109,12 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     protected void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(root);
 
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
 
-        final MetadataElement productElem = root.getElement("product");
+        final MetadataElement productElem = origProdRoot.getElement("product");
 
         // sourceAttributes
         final MetadataElement sourceAttributes = productElem.getElement("sourceAttributes");
@@ -418,8 +419,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     @Override
     protected void addGeoCoding(final Product product) {
 
-        final MetadataElement root = product.getMetadataRoot();
-        final MetadataElement productElem = root.getElement("product");
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product.getMetadataRoot());
+        final MetadataElement productElem = origProdRoot.getElement("product");
         final MetadataElement imageAttributes = productElem.getElement("imageAttributes");
         final MetadataElement geographicInformation = imageAttributes.getElement("geographicInformation");
         final MetadataElement geolocationGrid = geographicInformation.getElement("geolocationGrid");
@@ -512,8 +513,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         double sceneCenterLatitude = sceneCenterPos.lat; // in deg
 
         // get near range incidence angle
-        final MetadataElement root = product.getMetadataRoot();
-        final MetadataElement productElem = root.getElement("product");
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product.getMetadataRoot());
+        final MetadataElement productElem = origProdRoot.getElement("product");
         final MetadataElement imageGenerationParameters = productElem.getElement("imageGenerationParameters");
         final MetadataElement sarProcessingInformation = imageGenerationParameters.getElement("sarProcessingInformation");
         final MetadataElement incidenceAngleNearRangeElem = sarProcessingInformation.getElement("incidenceAngleNearRange");

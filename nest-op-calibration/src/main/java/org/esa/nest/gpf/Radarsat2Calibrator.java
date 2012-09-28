@@ -127,8 +127,8 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
      * Get antenna pattern gain array from metadata.
      */
     private void getLUT() {
-        final MetadataElement root = sourceProduct.getMetadataRoot();
-        final MetadataElement lutSigmaElem = root.getElement(lutsigma);
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct.getMetadataRoot());
+        final MetadataElement lutSigmaElem = origProdRoot.getElement(lutsigma);
 
         if(lutSigmaElem != null) {
             offset = lutSigmaElem.getAttributeDouble("offset", 0);
@@ -163,10 +163,10 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
         abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
 
-        final MetadataElement root = targetProduct.getMetadataRoot();
-        root.removeElement(root.getElement(lutsigma));
-        root.removeElement(root.getElement(lutgamma));
-        root.removeElement(root.getElement(lutbeta));
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct.getMetadataRoot());
+        origProdRoot.removeElement(origProdRoot.getElement(lutsigma));
+        origProdRoot.removeElement(origProdRoot.getElement(lutgamma));
+        origProdRoot.removeElement(origProdRoot.getElement(lutbeta));
     }
 
     /**
@@ -313,10 +313,11 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
         }
     }
 
-    public void removeFactorsForCurrentTile(Band targetBand, Tile targetTile, String srcBandName) throws OperatorException {
+    public void removeFactorsForCurrentTile(final Band targetBand, final Tile targetTile,
+                                            final String srcBandName) throws OperatorException {
 
-        Band sourceBand = sourceProduct.getBand(targetBand.getName());
-        Tile sourceTile = calibrationOp.getSourceTile(sourceBand, targetTile.getRectangle());
+        final Band sourceBand = sourceProduct.getBand(targetBand.getName());
+        final Tile sourceTile = calibrationOp.getSourceTile(sourceBand, targetTile.getRectangle());
         targetTile.setRawSamples(sourceTile.getRawSamples());
     }    
 }

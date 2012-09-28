@@ -60,11 +60,12 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     protected void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(root);
 
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
 
-        final MetadataElement level1Elem = root.getElementAt(1);
+        final MetadataElement level1Elem = origProdRoot.getElementAt(0);
         final MetadataElement generalHeader = level1Elem.getElement("generalHeader");
         final MetadataElement productInfo = level1Elem.getElement("productInfo");
         final MetadataElement productSpecific = level1Elem.getElement("productSpecific");

@@ -67,9 +67,11 @@ public class XMLProductDirectory {
         xmlDoc = XMLSupport.LoadXML(xmlHeader.getAbsolutePath());
 
         final File[] fileList = imgFolder.listFiles();
-        for (File file : fileList) {
-            addImageFile(file);
-        }   
+        if(fileList != null) {
+            for (File file : fileList) {
+                addImageFile(file);
+            }
+        }
     }
 
     protected void addImageFile(final File file) throws IOException {
@@ -156,7 +158,7 @@ public class XMLProductDirectory {
     private void addMetaData(final Product product) throws IOException {
         final MetadataElement root = product.getMetadataRoot();
         final Element rootElement = xmlDoc.getRootElement();
-        AbstractMetadataIO.AddXMLMetadata(rootElement, root);
+        AbstractMetadataIO.AddXMLMetadata(rootElement, AbstractMetadata.getOriginalProductMetadata(root));
 
         addAbstractedMetadataHeader(product, root);
     }

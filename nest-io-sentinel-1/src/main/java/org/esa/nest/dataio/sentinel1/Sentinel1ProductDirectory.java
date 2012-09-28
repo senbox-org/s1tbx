@@ -26,7 +26,6 @@ import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.gpf.Sentinel1Utils;
-import org.esa.nest.util.Constants;
 import org.esa.nest.util.XMLSupport;
 import org.jdom.Element;
 
@@ -43,10 +42,20 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
 
     private final transient Map<String, String> imgBandMetadataMap = new HashMap<String, String>(4);
 
-    final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
-
     public Sentinel1ProductDirectory(final File headerFile, final File imageFolder) {
         super(headerFile, imageFolder);
+    }
+
+    protected void addImageFile(final File file) throws IOException {
+        final String name = file.getName().toLowerCase();
+        if ((name.endsWith("tif") || name.endsWith("tiff")) && !name.contains("browse")) {
+            final ImageIOFile img = new ImageIOFile(file, ImageIOFile.getTiffIIOReader(file));
+            bandImageFileMap.put(img.getName(), img);
+
+            setSceneWidthHeight(img.getSceneWidth(), img.getSceneHeight());
+        } else if(name.endsWith(".nc")) {
+
+        }
     }
 
     @Override
@@ -57,12 +66,11 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         Band lastRealBand = null;
         String unit;
 
-        final Set<String> keys = bandImageFileMap.keySet();                           // The set of keys in the map.
-        for (String key : keys) {
-            final ImageIOFile img = bandImageFileMap.get(key);
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
+            final ImageIOFile img = stringImageIOFileEntry.getValue();
             final String imgName = img.getName().toLowerCase();
-            final MetadataElement bandMetadata = AbstractMetadata.getBandMetadata(AbstractMetadata.getAbstractedMetadata(product),
-                    imgBandMetadataMap.get(imgName));
+            final MetadataElement bandMetadata = absRoot.getElement(imgBandMetadataMap.get(imgName));
             final String swath = bandMetadata.getAttributeString(AbstractMetadata.swath);
             final String pol = bandMetadata.getAttributeString(AbstractMetadata.polarization);
             final int width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
@@ -122,11 +130,12 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
     protected void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(root);
 
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
 
-        final MetadataElement XFDU = root.getElement("XFDU");
+        final MetadataElement XFDU = origProdRoot.getElement("XFDU");
         final MetadataElement informationPackageMap = XFDU.getElement("informationPackageMap");
         final MetadataElement contentUnit = informationPackageMap.getElement("contentUnit");
 
@@ -189,66 +198,124 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         }
 
         // get metadata for each band
-        final Set<String> keys = bandImageFileMap.keySet();                           // The set of keys in the map.
-        for (String key : keys) {
-            final ImageIOFile img = bandImageFileMap.get(key);
-            addBandAbstractedMetadata(absRoot, XFDU, img.getName());
+        addBandAbstractedMetadata(absRoot, origProdRoot);
+        addCalibrationAbstractedMetadata(origProdRoot);
+        addNoiseAbstractedMetadata(origProdRoot);
+    }
+
+    private void addBandAbstractedMetadata(final MetadataElement absRoot,
+                                           final MetadataElement origProdRoot) throws IOException {
+
+        MetadataElement annotationElement = origProdRoot.getElement("annotation");
+        if(annotationElement == null) {
+            annotationElement = new MetadataElement("annotation");
+            origProdRoot.addElement(annotationElement);
+        }
+        final File annotationFolder = new File(getBaseDir(), "annotation");
+        final File[] files = annotationFolder.listFiles();
+        if(files == null) return;
+
+        for(File metadataFile : files) {
+            if(!metadataFile.isFile())
+                continue;
+
+            org.jdom.Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
+            final Element rootElement = xmlDoc.getRootElement();
+            final MetadataElement nameElem = new MetadataElement(metadataFile.getName());
+            annotationElement.addElement(nameElem);
+            AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
+
+            final MetadataElement prodElem = nameElem.getElement("product");
+            final MetadataElement adsHeader = prodElem.getElement("adsHeader");
+
+            final String swath = adsHeader.getAttributeString("swath");
+            final String pol = adsHeader.getAttributeString("polarisation");
+
+            final ProductData.UTC startTime = Sentinel1Utils.getTime(adsHeader, "startTime");
+            final ProductData.UTC stopTime = Sentinel1Utils.getTime(adsHeader, "stopTime");
+
+            final String bandRootName = swath +'_'+ pol;
+            final MetadataElement bandAbsRoot = AbstractMetadata.addBandAbstractedMetadata(absRoot, bandRootName);
+            final String imgName = FileUtils.exchangeExtension(metadataFile.getName(), ".tiff");
+            imgBandMetadataMap.put(imgName, bandRootName);
+
+            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.SWATH, swath);
+            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.polarization, pol);
+            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.annotation, metadataFile.getName());
+            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.first_line_time, startTime);
+            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.last_line_time, stopTime);
+
+            final MetadataElement imageAnnotation = prodElem.getElement("imageAnnotation");
+            final MetadataElement imageInformation = imageAnnotation.getElement("imageInformation");
+
+            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.range_spacing,
+                    imageInformation.getAttributeDouble("rangePixelSpacing"));
+            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.azimuth_spacing,
+                    imageInformation.getAttributeDouble("azimuthPixelSpacing"));
+            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.line_time_interval,
+                    imageInformation.getAttributeDouble("azimuthTimeInterval"));
+            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.num_samples_per_line,
+                    imageInformation.getAttributeInt("numberOfSamples"));
+            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.num_output_lines,
+                    imageInformation.getAttributeInt("numberOfLines"));
         }
     }
 
-    private void addBandAbstractedMetadata(final MetadataElement absRoot, final MetadataElement XFDU,
-                                           final String imgName) throws IOException {
+    private void addCalibrationAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {
 
-        final String annotation = FileUtils.exchangeExtension(imgName, ".xml");
-        final File metadataFile = new File(getBaseDir(), "annotation"+File.separator+annotation);
+        MetadataElement calibrationElement = origProdRoot.getElement("calibration");
+        if(calibrationElement == null) {
+            calibrationElement = new MetadataElement("calibration");
+            origProdRoot.addElement(calibrationElement);
+        }
+        final File calFolder = new File(getBaseDir(), "annotation"+File.separator+"calibration");
+        final File[] files = calFolder.listFiles();
+        if(files == null) return;
 
-        org.jdom.Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
-        final Element rootElement = xmlDoc.getRootElement();
-        final MetadataElement nameElem = new MetadataElement(annotation);
-        XFDU.addElement(nameElem);
-        AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
+        for(File metadataFile : files) {
+            if(metadataFile.getName().startsWith("calibration")) {
 
-        final MetadataElement prodElem = nameElem.getElement("product");
-        final MetadataElement adsHeader = prodElem.getElement("adsHeader");
-
-        final String swath = adsHeader.getAttributeString("swath");
-        final String pol = adsHeader.getAttributeString("polarisation");
-
-        final ProductData.UTC startTime = Sentinel1Utils.getTime(adsHeader, "startTime");
-        final ProductData.UTC stopTime = Sentinel1Utils.getTime(adsHeader, "stopTime");
-
-        final String bandRootName = swath +'_'+ pol;
-        final MetadataElement bandAbsRoot = AbstractMetadata.addBandAbstractedMetadata(absRoot, bandRootName);
-        imgBandMetadataMap.put(imgName, bandRootName);
-
-        AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.SWATH, swath);
-        AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.polarization, pol);
-        AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.annotation, annotation);
-        AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.first_line_time, startTime);
-        AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.last_line_time, stopTime);
-
-        final MetadataElement imageAnnotation = prodElem.getElement("imageAnnotation");
-        final MetadataElement imageInformation = imageAnnotation.getElement("imageInformation");
-
-        AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.range_spacing,
-                imageInformation.getAttributeDouble("rangePixelSpacing"));
-        AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.azimuth_spacing,
-                imageInformation.getAttributeDouble("azimuthPixelSpacing"));
-        AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.line_time_interval,
-                imageInformation.getAttributeDouble("azimuthTimeInterval"));
-        AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.num_samples_per_line,
-                imageInformation.getAttributeInt("numberOfSamples"));
-        AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.num_output_lines,
-                imageInformation.getAttributeInt("numberOfLines"));
+                org.jdom.Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
+                final Element rootElement = xmlDoc.getRootElement();
+                final String name = metadataFile.getName().replace("calibration-","");
+                final MetadataElement nameElem = new MetadataElement(name);
+                calibrationElement.addElement(nameElem);
+                AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
+            }
+        }
     }
 
-    private MetadataElement findElement(final MetadataElement elem, final String name) {
+    private void addNoiseAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {
+
+        MetadataElement calibrationElement = origProdRoot.getElement("noise");
+        if(calibrationElement == null) {
+            calibrationElement = new MetadataElement("noise");
+            origProdRoot.addElement(calibrationElement);
+        }
+        final File calFolder = new File(getBaseDir(), "annotation"+File.separator+"calibration");
+        final File[] files = calFolder.listFiles();
+        if(files == null) return;
+
+        for(File metadataFile : files) {
+            if(metadataFile.getName().startsWith("noise")) {
+
+                org.jdom.Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
+                final Element rootElement = xmlDoc.getRootElement();
+                final String name = metadataFile.getName().replace("noise-","");
+                final MetadataElement nameElem = new MetadataElement(name);
+                calibrationElement.addElement(nameElem);
+                AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
+            }
+        }
+    }
+
+    private static MetadataElement findElement(final MetadataElement elem, final String name) {
         final MetadataElement metadataWrap = elem.getElement("metadataWrap");
         final MetadataElement xmlData = metadataWrap.getElement("xmlData");
         return xmlData.getElement(name);
     }
 
-    private MetadataElement findElementContaining(final MetadataElement parent, final String elemName,
+    private static MetadataElement findElementContaining(final MetadataElement parent, final String elemName,
                                                   final String attribName, final String attValue) {
         final MetadataElement[] elems = parent.getElements();
         for(MetadataElement elem : elems) {
@@ -397,13 +464,13 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         // replaced by call to addGeoCoding(band)
     }
 
-    protected void addGeoCoding(final Band band, final String imgXMLName, final String suffix) {
+    protected static void addGeoCoding(final Band band, final String imgXMLName, final String suffix) {
 
         final Product product = band.getProduct();
         final String annotation = FileUtils.exchangeExtension(imgXMLName, ".xml");
-        final MetadataElement root = product.getMetadataRoot();
-        final MetadataElement XFDU = root.getElement("XFDU");
-        final MetadataElement imgElem = XFDU.getElement(annotation);
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product.getMetadataRoot());
+        final MetadataElement annotationElem = origProdRoot.getElement("annotation");
+        final MetadataElement imgElem = annotationElem.getElement(annotation);
         final MetadataElement productElem = imgElem.getElement("product");
         final MetadataElement geolocationGrid = productElem.getElement("geolocationGrid");
         final MetadataElement geolocationGridPointList = geolocationGrid.getElement("geolocationGridPointList");

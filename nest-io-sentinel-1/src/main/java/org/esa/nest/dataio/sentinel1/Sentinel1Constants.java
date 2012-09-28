@@ -18,13 +18,13 @@ package org.esa.nest.dataio.sentinel1;
 import java.io.File;
 
 /**
- * Several constants used for reading Sentinel-1 products.
+ * Several constants used for reading SENTINEL-1 products.
  */
 public class Sentinel1Constants {
 
-    private final static String[] FORMAT_NAMES = new String[]{"Sentinel-1"};
+    private final static String[] FORMAT_NAMES = new String[]{"SENTINEL-1"};
     private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"safe"};
-    private final static String PLUGIN_DESCRIPTION = "Sentinel-1 Products";      /*I18N*/
+    private final static String PLUGIN_DESCRIPTION = "SENTINEL-1 Products";      /*I18N*/
 
     public final static String PRODUCT_HEADER_PREFIX = "MANIFEST";
 

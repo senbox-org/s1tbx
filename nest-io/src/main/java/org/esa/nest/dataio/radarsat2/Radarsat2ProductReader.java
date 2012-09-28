@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 import org.esa.nest.dataio.imageio.ImageIOFile;
+import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.util.XMLSupport;
 import org.jdom.Element;
@@ -118,11 +119,11 @@ public class Radarsat2ProductReader extends AbstractProductReader {
         final File gammaLUT = new File(folder, lutgamma+".xml");
         final File betaLUT = new File(folder, lutbeta+".xml");
 
-        final MetadataElement root = product.getMetadataRoot();
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product.getMetadataRoot());
 
-        readCalibrationLUT(sigmaLUT, lutsigma, root);
-        readCalibrationLUT(gammaLUT, lutgamma, root);
-        readCalibrationLUT(betaLUT, lutbeta, root);
+        readCalibrationLUT(sigmaLUT, lutsigma, origProdRoot);
+        readCalibrationLUT(gammaLUT, lutgamma, origProdRoot);
+        readCalibrationLUT(betaLUT, lutbeta, origProdRoot);
     }
 
     private static void readCalibrationLUT(final File file, final String lutName, final MetadataElement root) throws IOException {

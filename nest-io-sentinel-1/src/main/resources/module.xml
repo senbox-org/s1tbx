@@ -33,9 +33,9 @@
 		<action>
             <id>importS1Product</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>Sentinel-1</formatName>
-            <shortDescr>Import a Sentinel-1 product</shortDescr>
-            <description>Import a Sentinel-1 product</description>
+            <formatName>SENTINEL-1</formatName>
+            <shortDescr>Import a SENTINEL-1 product</shortDescr>
+            <description>Import a SENTINEL-1 product</description>
 			<largeIcon>icons/Import24.gif</largeIcon>
             <helpId>importS1Product</helpId>
         </action>
