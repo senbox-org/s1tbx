@@ -221,15 +221,13 @@ class BinningVariablesPanel extends JPanel {
 
     private static class IntegerTextField extends JTextField {
 
-        private final static String disallowedChars = "`~!@#$%^&*()_+=\\|\"':;?/>.<,- ";
-
         public IntegerTextField(int defaultValue) {
             super(defaultValue + "");
         }
 
         @Override
         protected void processKeyEvent(KeyEvent e) {
-            if (!Character.isLetter(e.getKeyChar()) && disallowedChars.indexOf(e.getKeyChar()) == -1) {
+            if (Character.isDigit(e.getKeyChar())) {
                 super.processKeyEvent(e);
             }
         }
