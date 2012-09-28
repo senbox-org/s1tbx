@@ -78,7 +78,11 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
 
             final String suffix = swath +'_'+ pol;
 
-            for(int i=0; i < img.getNumImages(); ++i) {
+            int numImages = img.getNumImages();
+            if(isSLC()) {
+                numImages *= 2; // real + imaginary
+            }
+            for(int i=0; i < numImages; ++i) {
 
                 if(isSLC()) {
                     for(int b=0; b < img.getNumBands(); ++b) {
@@ -90,7 +94,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                             unit = Unit.IMAGINARY;
                         }
 
-                        final Band band = new Band(bandName, img.getDataType(), width, height);
+                        final Band band = new Band(bandName, ProductData.TYPE_INT16, width, height);
                         band.setUnit(unit);
 
                         product.addBand(band);

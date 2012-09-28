@@ -89,7 +89,7 @@ public class XMLProductDirectory {
         sceneHeight = height;
     }
 
-    protected boolean isSLC() {
+    public boolean isSLC() {
         return isSLC;
     }
 

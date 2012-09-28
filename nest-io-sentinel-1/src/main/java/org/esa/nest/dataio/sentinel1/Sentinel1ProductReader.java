@@ -22,9 +22,17 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
+import org.esa.nest.dataio.generic.GenericReader;
 import org.esa.nest.dataio.imageio.ImageIOFile;
+import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.ReaderUtils;
 
+import javax.imageio.ImageReadParam;
+import java.awt.*;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 
@@ -108,9 +116,69 @@ public class Sentinel1ProductReader extends AbstractProductReader {
 
         final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
         if(bandInfo != null && bandInfo.img != null) {
-            bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
+            if(dataDir.isSLC()) {
+                boolean oneOfTwo = true;
+                if(destBand.getUnit().equals(Unit.IMAGINARY))
+                    oneOfTwo = false;
+
+                readSLCRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                        bandInfo.bandSampleOffset, bandInfo.img, oneOfTwo);
+            } else {
+                bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
                                                 destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
                                                 bandInfo.bandSampleOffset);
+            }
+        }
+    }
+
+    public synchronized void readSLCRasterBand(final int sourceOffsetX, final int sourceOffsetY,
+                                                   final int sourceStepX, final int sourceStepY,
+                                                   final ProductData destBuffer,
+                                                   final int destOffsetX, final int destOffsetY,
+                                                   final int destWidth, final int destHeight,
+                                                   final int imageID, final ImageIOFile img,
+                                                   final boolean oneOfTwo) throws IOException {
+
+        final ImageReadParam param = img.getReader().getDefaultReadParam();
+        param.setSourceSubsampling(sourceStepX, sourceStepY,
+                sourceOffsetX % sourceStepX,
+                sourceOffsetY % sourceStepY);
+
+        final RenderedImage image = img.getReader().readAsRenderedImage(0, param);
+        final Raster data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+
+        final DataBuffer dataBuffer = data.getDataBuffer();
+        final SampleModel sampleModel = data.getSampleModel();
+
+        try {
+            final int destSize = destWidth * destHeight;
+            final double[] srcArray = new double[destSize];
+            sampleModel.getSamples(0, 0, destWidth, destHeight, imageID, srcArray, dataBuffer);
+
+            final short[] destArray = new short[destWidth * destHeight];
+            if (oneOfTwo)
+                copyLine1Of2(srcArray, destArray, sourceStepX);
+            else
+                copyLine2Of2(srcArray, destArray, sourceStepX);
+
+            System.arraycopy(destArray, 0, destBuffer.getElems(), 0, destSize);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void copyLine1Of2(final double[] srcArray, final short[] destArray, final int sourceStepX) {
+        final int length = destArray.length;
+        for (int i = 0; i < length; i += sourceStepX) {
+            destArray[i] = (short)srcArray[i];
+        }
+    }
+
+    public static void copyLine2Of2(final double[] srcArray, final short[] destArray, final int sourceStepX) {
+        final int length = destArray.length;
+        for (int i = 0; i < length; i += sourceStepX) {
+            destArray[i] = (short)((int)srcArray[i] >> 16);
         }
     }
 }
