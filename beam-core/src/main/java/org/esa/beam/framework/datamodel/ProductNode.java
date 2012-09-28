@@ -198,7 +198,7 @@ public abstract class ProductNode extends ExtensibleObject {
      * any of the character  <code>\/:*?"&lt;&gt;|</code>
      *
      * @param name the name to test
-     * @return <code>true</code> if the name is a valid node ifentifier, <code>false</code> otherwise
+     * @return <code>true</code> if the name is a valid node identifier, <code>false</code> otherwise
      */
     public static boolean isValidNodeName(final String name) {
         if (name == null || "or".equalsIgnoreCase(name) || "and".equalsIgnoreCase(name) || "not".equalsIgnoreCase(
