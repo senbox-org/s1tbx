@@ -3,8 +3,10 @@ package org.esa.beam.binning.reader;
 import com.bc.ceres.core.ProgressMonitor;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.dataio.netcdf.util.MetadataUtils;
@@ -46,6 +48,9 @@ public class BinnedProductReader extends AbstractProductReader {
     private int[] binIndexes;
     private double pixelSizeX;
 
+    private final Map<Band, Array> bandDataCacheMap;
+    private final List<Band> bandDataCacheFiFo;
+
     /**
      * Constructs a new MERIS Binned Level-3 product reader.
      *
@@ -53,6 +58,8 @@ public class BinnedProductReader extends AbstractProductReader {
      */
     public BinnedProductReader(BinnedProductReaderPlugin readerPlugIn) {
         super(readerPlugIn);
+        bandDataCacheMap = new HashMap();
+        bandDataCacheFiFo = new ArrayList<Band>();
     }
 
     /**
@@ -111,8 +118,6 @@ public class BinnedProductReader extends AbstractProductReader {
                     binExtents = (int[]) storage;
                 }
             }
-
-
         } catch (IOException e) {
             dispose();
             throw e;
@@ -243,27 +248,45 @@ public class BinnedProductReader extends AbstractProductReader {
                 if (binOffset > 0) {
                     int[] origin = {0};
                     int[] shape = {1};
+                    final int startBinIndex;
+                    final int endBinIndex;
                     if (indexMap != null) {
                         final Integer binIndexInBinList = indexMap.get(binOffset);
                         origin[0] = binIndexInBinList;
-                        shape[0] = binExtents[lineIndex];
+                        final int binExtent = binExtents[lineIndex];
+                        shape[0] = binExtent;
+                        startBinIndex = 0;
+                        endBinIndex = binExtent;
                     } else {
-                        final int startBinIndex = getBinIndexInGrid(sourceOffsetX, lineIndex);
-                        final int endBinIndex = getBinIndexInGrid(sourceOffsetX + sourceWidth - 1, lineIndex);
+                        startBinIndex = getBinIndexInGrid(sourceOffsetX, lineIndex);
+                        endBinIndex = getBinIndexInGrid(sourceOffsetX + sourceWidth - 1, lineIndex);
                         final int extent = endBinIndex - startBinIndex + 1;
-                        origin[0] = startBinIndex;
+                        origin[0] = 0;
                         shape[0] = extent;
                     }
                     final Array lineValues;
                     try {
-                        synchronized (netcdfFile) {
-                            lineValues = binVariable.read(origin, shape);
+                        if (indexMap != null) {
+                            synchronized (netcdfFile) {
+                                lineValues = binVariable.read(origin, shape);
+                            }
+                        } else if (getCachedBandData(destBand) != null) {
+                            lineValues = getCachedBandData(destBand);
+                        } else {
+                            synchronized (netcdfFile) {
+                                lineValues = binVariable.read();
+                            }
                         }
                     } catch (InvalidRangeException e) {
                         throw new IOException("Format problem.");
                     }
 
-                    for (int i = 0; i < lineValues.getSize(); i++) {
+                    if (indexMap == null) {
+                        appendBandDataToCache(destBand, lineValues);
+                    }
+
+                    for (int i = startBinIndex; i < endBinIndex; i++) {
+//                    for (int i = 0; i < lineValues.getSize(); i++) {
                         final float value = lineValues.getFloat(i);
                         if (value != fillValue) {
                             int binIndexInGrid;
@@ -290,15 +313,31 @@ public class BinnedProductReader extends AbstractProductReader {
         }
     }
 
+    private Array getCachedBandData(Band band) {
+        return bandDataCacheMap.get(band);
+    }
+
+    private void appendBandDataToCache(Band band, Array bandData) {
+        if (bandDataCacheMap.containsKey(band)) {
+            return;
+        }
+        if (bandDataCacheFiFo.size() > 9) {
+            final Band toRemove = bandDataCacheFiFo.remove(0);
+            bandDataCacheMap.remove(toRemove);
+        }
+        bandDataCacheMap.put(band, bandData);
+        bandDataCacheFiFo.add(band);
+    }
+
     private int[] getXValuesForBin(int binIndexInGrid, int row) {
-        final int numberOfBinsInRow = planetaryGrid.getNumCols(row);
-        final int firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row);
-        final int binIndexInRow = binIndexInGrid - firstBinIndex;
+        final double numberOfBinsInRow = planetaryGrid.getNumCols(row);
+        final double firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row);
+        final double binIndexInRow = binIndexInGrid - firstBinIndex;
         final double longitudeExtent = 360.0 / numberOfBinsInRow;
         final double smallestLongitude = (binIndexInRow * longitudeExtent);
         final double largestLongitude = smallestLongitude + longitudeExtent;
-        final int startX = (int) (smallestLongitude / pixelSizeX);
-        final int endX = (int) (largestLongitude / pixelSizeX);
+        final int startX = (int) Math.floor(smallestLongitude / pixelSizeX);
+        final int endX = (int) Math.ceil(largestLongitude / pixelSizeX);
         return new int[]{startX, endX};
     }
 
