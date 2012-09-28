@@ -132,13 +132,14 @@ public class StxFactory {
     /**
      * Computes statistics for the given set of raster data nodes.
      *
-     * @param pm       A progress monitor.
-     * @param roiMasks An array of roi masks.
+     *
+     * @param roiMasks An array of roi masks, must be <code>null</code> or have the same length as <code>rasters</code>.
      * @param rasters  The raster data nodes.
+     * @param pm       A progress monitor.
      *
      * @return The statistics.
      */
-    public Stx create(ProgressMonitor pm, Mask[] roiMasks, RasterDataNode[] rasters) {
+    public Stx create(Mask[] roiMasks, RasterDataNode[] rasters, ProgressMonitor pm) {
         double minimum = this.minimum != null ? this.minimum.doubleValue() : Double.NaN;
         double maximum = this.maximum != null ? this.maximum.doubleValue() : Double.NaN;
         double mean = this.mean != null ? this.mean.doubleValue() : Double.NaN;
@@ -260,9 +261,9 @@ public class StxFactory {
      */
     public Stx create(RasterDataNode raster, ProgressMonitor pm) {
         if(roiMask != null) {
-            return create(pm, new Mask[] {roiMask}, new RasterDataNode[]{raster});
+            return create(new Mask[] {roiMask}, new RasterDataNode[]{raster}, pm);
         }
-        return create(pm, null, new RasterDataNode[]{raster});
+        return create(null, new RasterDataNode[]{raster}, pm);
     }
 
     static void accumulate(RasterDataNode rasterDataNode,

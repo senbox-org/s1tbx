@@ -323,7 +323,7 @@ public class StatisticsOp extends Operator implements Output {
                 final Band[] bandsArray = bands.toArray(new Band[bands.size()]);
                 final Stx stx = new StxFactory()
                         .withHistogramBinCount(computeBinCount(precision))
-                        .create(ProgressMonitor.NULL, roiMasks, bandsArray);
+                        .create(roiMasks, bandsArray, ProgressMonitor.NULL);
                 final HashMap<String, Number> stxMap = new HashMap<String, Number>();
                 Histogram histogram = stx.getHistogram();
                 stxMap.put("minimum", histogram.getLowValue(0));
