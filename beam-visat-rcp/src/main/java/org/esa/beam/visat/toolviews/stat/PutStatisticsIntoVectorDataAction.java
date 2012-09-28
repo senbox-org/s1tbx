@@ -24,6 +24,7 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.statistics.output.BandNameCreator;
 import org.esa.beam.statistics.output.FeatureStatisticsWriter;
 import org.esa.beam.statistics.output.StatisticsOutputContext;
+import org.esa.beam.statistics.output.Util;
 import org.esa.beam.visat.VisatApp;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.FeatureCollection;
@@ -39,8 +40,10 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Thomas Storm
@@ -49,7 +52,7 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
 
     private Mask[] selectedMasks;
     private final Map<SimpleFeatureType, VectorDataNode> featureType2VDN = new HashMap<SimpleFeatureType, VectorDataNode>();
-    private final Map<SimpleFeatureType, List<Mask>> featureType2Mask = new HashMap<SimpleFeatureType, List<Mask>>();
+    private final Map<SimpleFeatureType, Set<Mask>> featureType2Mask = new HashMap<SimpleFeatureType, Set<Mask>>();
     private final Map<Mask, Histogram> mask2Histogram = new HashMap<Mask, Histogram>();
     private final Map<Mask, String> mask2RegionName = new HashMap<Mask, String>();
     private final StatisticalExportContext provider;
@@ -167,7 +170,7 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
     }
 
     private Mask[] getMasks(SimpleFeatureType featureType) {
-        final List<Mask> masks = featureType2Mask.get(featureType);
+        final Set<Mask> masks = featureType2Mask.get(featureType);
         return masks.toArray(new Mask[masks.size()]);
     }
 
@@ -191,7 +194,7 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
                     result.add(featureType);
                 }
                 if (!featureType2Mask.containsKey(featureType)) {
-                    featureType2Mask.put(featureType, new ArrayList<Mask>());
+                    featureType2Mask.put(featureType, new HashSet<Mask>());
                 }
                 featureType2Mask.get(featureType).add(selectedMask);
                 featureType2VDN.put(featureType, vectorDataNode);
@@ -204,7 +207,7 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
 
     private void setMaskRegionName(Mask selectedMask, VectorDataNode vectorDataNode) {
         FeatureIterator<SimpleFeature> features = vectorDataNode.getFeatureCollection().features();
-        mask2RegionName.put(selectedMask, features.next().getIdentifier().toString());
+        mask2RegionName.put(selectedMask, Util.getFeatureName(features.next()));
         features.close();
     }
 
