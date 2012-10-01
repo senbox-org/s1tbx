@@ -1,14 +1,6 @@
 package org.esa.beam.binning.reader;
 
 import com.bc.ceres.core.ProgressMonitor;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.dataio.netcdf.util.MetadataUtils;
 import org.esa.beam.framework.dataio.AbstractProductReader;
@@ -28,6 +20,15 @@ import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 public class BinnedProductReader extends AbstractProductReader {
 
@@ -42,7 +43,6 @@ public class BinnedProductReader extends AbstractProductReader {
      * Value: BinIndex in bin_list
      */
     private Map<Integer, Integer> indexMap;
-    private boolean yFlipped;
     private int[] binOffsets;
     private int[] binExtents;
     private int[] binIndexes;
@@ -81,8 +81,6 @@ public class BinnedProductReader extends AbstractProductReader {
             initBands();
 
             initPlanetaryGrid();
-            detectYFlipping();
-
 
             //create indexMap
             final Variable bl_bin_num = netcdfFile.findVariable(NetcdfFile.escapeName("bl_bin_num"));
@@ -151,10 +149,6 @@ public class BinnedProductReader extends AbstractProductReader {
 
     private void initPlanetaryGrid() {
         planetaryGrid = new SEAGrid(sceneRasterHeight);
-    }
-
-    private void detectYFlipping() {
-        yFlipped = planetaryGrid.getCenterLat(planetaryGrid.getNumRows() - 1) < planetaryGrid.getCenterLat(0);
     }
 
     private int getLargestDimensionSize() {
@@ -232,11 +226,7 @@ public class BinnedProductReader extends AbstractProductReader {
             }
             for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
 
-                int lineIndex = y;
-                if (yFlipped) {
-                    lineIndex = sceneRasterHeight - y - 1;
-                }
-
+                int lineIndex = sceneRasterHeight - y - 1;
 
                 final int binOffset = binOffsets[lineIndex];
                 if (binOffset > 0) {
