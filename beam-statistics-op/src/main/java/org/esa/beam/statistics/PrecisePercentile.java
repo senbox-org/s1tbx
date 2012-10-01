@@ -71,7 +71,7 @@ class PrecisePercentile {
                 .withHistogramBinCount(histogram.getNumBins()[0])
                 .withMinimum(histogram.getBinLowValue(0, binContainingPercentile))
                 .withMaximum(histogram.getBinLowValue(0, binContainingPercentile) + Util.getBinWidth(histogram))
-                .create(ProgressMonitor.NULL, masks, raster)
+                .create(masks, raster, ProgressMonitor.NULL)
                 .getHistogram();
     }
 

@@ -95,7 +95,7 @@ public class PrecisePercentileTest {
         final Band raster2 = createBand(createBandData(400, false, 0, peaks));
         final Histogram impreciseHistogram = new StxFactory()
                 .withHistogramBinCount(30)
-                .create(ProgressMonitor.NULL, null, new RasterDataNode[]{raster1, raster2})
+                .create(null, new RasterDataNode[]{raster1, raster2}, ProgressMonitor.NULL)
                 .getHistogram();
 
         final double imprecise5thPercentile = impreciseHistogram.getPTileThreshold(0.05)[0];

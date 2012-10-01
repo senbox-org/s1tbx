@@ -40,6 +40,7 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.SwingWorker;
@@ -229,6 +230,11 @@ public class ExportGeometryAction extends ExecCommand {
         sftb.setCRS(original.getCoordinateReferenceSystem());
         sftb.setDefaultGeometry(original.getGeometryDescriptor().getLocalName());
         sftb.add(original.getGeometryDescriptor().getLocalName(), geometryType);
+        for (AttributeDescriptor descriptor : original.getAttributeDescriptors()) {
+            if (!original.getGeometryDescriptor().getLocalName().equals(descriptor.getLocalName())) {
+                sftb.add(descriptor);
+            }
+        }
         sftb.setName("FT_" + geometryType.getSimpleName());
         return sftb.buildFeatureType();
     }

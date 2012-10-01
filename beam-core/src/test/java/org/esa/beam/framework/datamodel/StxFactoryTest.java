@@ -175,7 +175,7 @@ public class StxFactoryTest {
     public void testCreateStxForMultipleBands() throws Exception {
         final Band testBand1 = createTestBand(ProductData.TYPE_FLOAT64, 10, 10, -100);
         final Band testBand2 = createTestBand(ProductData.TYPE_FLOAT64, 10, 10, -200);
-        Stx stx = new StxFactory().withHistogramBinCount(2097152).create(ProgressMonitor.NULL, null, new RasterDataNode[] {testBand1, testBand2});
+        Stx stx = new StxFactory().withHistogramBinCount(2097152).create(null, new RasterDataNode[] {testBand1, testBand2}, ProgressMonitor.NULL);
         assertEquals(100, stx.getMinimum(), 1E-3);
         assertEquals(299, stx.getMaximum(), 1E-3);
         assertEquals(199.5, stx.getMean(), 1E-3);
@@ -189,7 +189,7 @@ public class StxFactoryTest {
     public void testCreateStxForNullBands() throws Exception {
         final Band testBand1 = createTestBand(ProductData.TYPE_FLOAT64, 10, 10, -100);
         final Band testBand2 = null;
-        Stx stx = new StxFactory().withHistogramBinCount(524288).create(ProgressMonitor.NULL, null, new RasterDataNode[] {testBand1, testBand2});
+        Stx stx = new StxFactory().withHistogramBinCount(524288).create(null, new RasterDataNode[] {testBand1, testBand2}, ProgressMonitor.NULL);
         assertEquals(100, stx.getMinimum(), 1E-3);
         assertEquals(199, stx.getMaximum(), 1E-3);
         assertEquals(149.5, stx.getMean(), 1E-3);
@@ -207,7 +207,7 @@ public class StxFactoryTest {
         final Mask roiMask2 = testBand2.getProduct().addMask("validMask", "X < 5", "testValidMask", Color.gray, Double.NaN);
         Stx stx = new StxFactory()
                 .withHistogramBinCount(2097152)
-                .create(ProgressMonitor.NULL, new Mask[] {roiMask, roiMask2}, new RasterDataNode[]{testBand1, testBand2});
+                .create(new Mask[] {roiMask, roiMask2}, new RasterDataNode[]{testBand1, testBand2}, ProgressMonitor.NULL);
         assertEquals(100, stx.getMinimum(), 1E-3);
         assertEquals(294, stx.getMaximum(), 1E-3);
         assertEquals(197, stx.getMean(), 1E-3);
