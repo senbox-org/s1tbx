@@ -259,7 +259,7 @@ public abstract class ProductNode extends ExtensibleObject {
     }
 
     /**
-     * Returns the product reader for the product to which this node belongs to. The method thrws an
+     * Returns the product reader for the product to which this node belongs to. The method throws an
      * <code>IllegalStateException</code> if no such reader exists.
      *
      * @return the product reader, never <code>null</code>
@@ -285,7 +285,7 @@ public abstract class ProductNode extends ExtensibleObject {
     }
 
     /**
-     * Returns the product writer for the product to which this node belongs to. The method thrws an
+     * Returns the product writer for the product to which this node belongs to. The method throws an
      * <code>IllegalStateException</code> if no such writer exists.
      *
      * @return the product writer, never <code>null</code>
