@@ -3,11 +3,12 @@ package org.esa.beam.binning.reader;
 import com.bc.ceres.core.ProgressMonitor;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Hashtable;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.dataio.netcdf.util.MetadataUtils;
 import org.esa.beam.framework.dataio.AbstractProductReader;
@@ -33,7 +34,6 @@ public class BinnedProductReader extends AbstractProductReader {
     private NetcdfFile netcdfFile;
     private Product product;
     private SEAGrid planetaryGrid;
-    //    private PlanetaryGrid planetaryGrid;
     private int sceneRasterWidth;
     private int sceneRasterHeight;
     private Map<Band, Variable> bandMap;
@@ -49,7 +49,6 @@ public class BinnedProductReader extends AbstractProductReader {
     private double pixelSizeX;
 
     private final Map<Band, Array> bandDataCacheMap;
-    private final List<Band> bandDataCacheFiFo;
 
     /**
      * Constructs a new MERIS Binned Level-3 product reader.
@@ -58,8 +57,7 @@ public class BinnedProductReader extends AbstractProductReader {
      */
     public BinnedProductReader(BinnedProductReaderPlugin readerPlugIn) {
         super(readerPlugIn);
-        bandDataCacheMap = new HashMap();
-        bandDataCacheFiFo = new ArrayList<Band>();
+        bandDataCacheMap = new Hashtable<Band, Array>();
     }
 
     /**
@@ -259,8 +257,8 @@ public class BinnedProductReader extends AbstractProductReader {
                         endBinIndex = binExtent;
                     } else {
                         startBinIndex = getBinIndexInGrid(sourceOffsetX, lineIndex);
-                        endBinIndex = getBinIndexInGrid(sourceOffsetX + sourceWidth - 1, lineIndex);
-                        final int extent = endBinIndex - startBinIndex + 1;
+                        endBinIndex = getBinIndexInGrid(sourceOffsetX + sourceWidth - 1, lineIndex) + 1;
+                        final int extent = endBinIndex - startBinIndex;
                         origin[0] = 0;
                         shape[0] = extent;
                     }
@@ -270,11 +268,14 @@ public class BinnedProductReader extends AbstractProductReader {
                             synchronized (netcdfFile) {
                                 lineValues = binVariable.read(origin, shape);
                             }
-                        } else if (getCachedBandData(destBand) != null) {
-                            lineValues = getCachedBandData(destBand);
                         } else {
-                            synchronized (netcdfFile) {
-                                lineValues = binVariable.read();
+                            final Array cachedBandData = getCachedBandData(destBand);
+                            if (cachedBandData != null) {
+                                lineValues = cachedBandData;
+                            } else {
+                                synchronized (netcdfFile) {
+                                    lineValues = binVariable.read();
+                                }
                             }
                         }
                     } catch (InvalidRangeException e) {
@@ -286,7 +287,6 @@ public class BinnedProductReader extends AbstractProductReader {
                     }
 
                     for (int i = startBinIndex; i < endBinIndex; i++) {
-//                    for (int i = 0; i < lineValues.getSize(); i++) {
                         final float value = lineValues.getFloat(i);
                         if (value != fillValue) {
                             int binIndexInGrid;
@@ -317,24 +317,26 @@ public class BinnedProductReader extends AbstractProductReader {
         return bandDataCacheMap.get(band);
     }
 
-    private void appendBandDataToCache(Band band, Array bandData) {
+    private void appendBandDataToCache(final Band band, Array bandData) {
         if (bandDataCacheMap.containsKey(band)) {
             return;
         }
-        if (bandDataCacheFiFo.size() > 9) {
-            final Band toRemove = bandDataCacheFiFo.remove(0);
-            bandDataCacheMap.remove(toRemove);
-        }
         bandDataCacheMap.put(band, bandData);
-        bandDataCacheFiFo.add(band);
+        final Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                bandDataCacheMap.remove(band);
+            }
+        }, 2000);
     }
 
     private int[] getXValuesForBin(int binIndexInGrid, int row) {
-        final double numberOfBinsInRow = planetaryGrid.getNumCols(row);
-        final double firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row);
+        final int numberOfBinsInRow = planetaryGrid.getNumCols(row);
+        final int firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row);
         final double binIndexInRow = binIndexInGrid - firstBinIndex;
         final double longitudeExtent = 360.0 / numberOfBinsInRow;
-        final double smallestLongitude = (binIndexInRow * longitudeExtent);
+        final double smallestLongitude = binIndexInRow * longitudeExtent;
         final double largestLongitude = smallestLongitude + longitudeExtent;
         final int startX = (int) Math.floor(smallestLongitude / pixelSizeX);
         final int endX = (int) Math.ceil(largestLongitude / pixelSizeX);
