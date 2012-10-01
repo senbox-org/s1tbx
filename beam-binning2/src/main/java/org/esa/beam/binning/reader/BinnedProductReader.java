@@ -138,11 +138,7 @@ public class BinnedProductReader extends AbstractProductReader {
     }
 
     private void readMetadata() {
-        if (netcdfFile.findDimension("bin_index") != null) {
-            MetadataUtils.readNetcdfMetadata(netcdfFile, product.getMetadataRoot(), sceneRasterHeight);
-        } else {
-            MetadataUtils.readNetcdfMetadata(netcdfFile, product.getMetadataRoot(), 100000);
-        }
+        MetadataUtils.readNetcdfMetadata(netcdfFile, product.getMetadataRoot(), sceneRasterHeight);
     }
 
     private void initProduct() {
