@@ -84,6 +84,7 @@ public final class AbstractMetadata {
 
     public static final String PASS = "PASS";
     public static final String SAMPLE_TYPE = "SAMPLE_TYPE";
+    public static final String sample_type = "sample_type";
     public static final String mds1_tx_rx_polar = "mds1_tx_rx_polar";
     public static final String mds2_tx_rx_polar = "mds2_tx_rx_polar";
     public static final String mds3_tx_rx_polar = "mds3_tx_rx_polar";
@@ -332,12 +333,11 @@ public final class AbstractMetadata {
 
         addAbstractedAttribute(bandRoot, first_line_time, ProductData.TYPE_UTC, "utc", "First zero doppler azimuth time");
         addAbstractedAttribute(bandRoot, last_line_time, ProductData.TYPE_UTC, "utc", "Last zero doppler azimuth time");
-        addAbstractedAttribute(bandRoot, line_time_interval, ProductData.TYPE_FLOAT64, "s", "");
+        addAbstractedAttribute(bandRoot, line_time_interval, ProductData.TYPE_FLOAT64, "s", "Time per line");
 
-        addAbstractedAttribute(bandRoot, range_spacing, ProductData.TYPE_FLOAT64, "m", "Range sample spacing");
-        addAbstractedAttribute(bandRoot, azimuth_spacing, ProductData.TYPE_FLOAT64, "m", "Azimuth sample spacing");
         addAbstractedAttribute(bandRoot, num_output_lines, ProductData.TYPE_UINT32, "lines", "Raster height");
         addAbstractedAttribute(bandRoot, num_samples_per_line, ProductData.TYPE_UINT32, "samples", "Raster width");
+        addAbstractedAttribute(absRoot, sample_type, ProductData.TYPE_ASCII, "", "DETECTED or COMPLEX");
 
         addAbstractedAttribute(bandRoot, calibration_factor, ProductData.TYPE_FLOAT64, "", "Calibration constant");
 

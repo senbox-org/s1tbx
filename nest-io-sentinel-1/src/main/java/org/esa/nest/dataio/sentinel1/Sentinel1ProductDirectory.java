@@ -219,6 +219,12 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         final File[] files = annotationFolder.listFiles();
         if(files == null) return;
 
+        // collect range and azimuth spacing
+        double rangeSpacingTotal = 0;
+        double azimuthSpacingTotal = 0;
+        boolean commonMetadataRetrieved = false;
+
+        int numBands = 0;
         for(File metadataFile : files) {
             if(!metadataFile.isFile())
                 continue;
@@ -252,17 +258,52 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
             final MetadataElement imageAnnotation = prodElem.getElement("imageAnnotation");
             final MetadataElement imageInformation = imageAnnotation.getElement("imageInformation");
 
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.range_spacing,
-                    imageInformation.getAttributeDouble("rangePixelSpacing"));
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.azimuth_spacing,
-                    imageInformation.getAttributeDouble("azimuthPixelSpacing"));
+            rangeSpacingTotal += imageInformation.getAttributeDouble("rangePixelSpacing");
+            azimuthSpacingTotal += imageInformation.getAttributeDouble("azimuthPixelSpacing");
+
             AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.line_time_interval,
                     imageInformation.getAttributeDouble("azimuthTimeInterval"));
             AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.num_samples_per_line,
                     imageInformation.getAttributeInt("numberOfSamples"));
             AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.num_output_lines,
                     imageInformation.getAttributeInt("numberOfLines"));
+            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.sample_type,
+                    imageInformation.getAttributeString("pixelValue").toUpperCase());
+
+            if(!commonMetadataRetrieved) {
+                // these should be the same for all swaths
+                // set to absRoot
+
+                final MetadataElement generalAnnotation = prodElem.getElement("generalAnnotation");
+                final MetadataElement productInformation = generalAnnotation.getElement("productInformation");
+
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
+                        productInformation.getAttributeDouble("radarFrequency"));
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+                        imageInformation.getAttributeDouble("azimuthTimeInterval"));
+
+                final MetadataElement processingInformation = imageAnnotation.getElement("processingInformation");
+                final MetadataElement swathProcParamsList = processingInformation.getElement("swathProcParamsList");
+                final MetadataElement swathProcParams = swathProcParamsList.getElement("swathProcParams");
+                final MetadataElement rangeProcessing = swathProcParams.getElement("rangeProcessing");
+                final MetadataElement azimuthProcessing = swathProcParams.getElement("azimuthProcessing");
+
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
+                        rangeProcessing.getAttributeDouble("numberOfLooks"));
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
+                        azimuthProcessing.getAttributeDouble("numberOfLooks"));
+
+                commonMetadataRetrieved = true;
+            }
+
+            ++numBands;
         }
+
+        // set average to absRoot
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
+                rangeSpacingTotal / (double)numBands);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
+                azimuthSpacingTotal / (double)numBands);
     }
 
     private void addCalibrationAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {
