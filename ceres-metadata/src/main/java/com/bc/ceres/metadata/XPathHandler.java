@@ -1,4 +1,4 @@
-package com.bc.ceres.standalone;
+package com.bc.ceres.metadata;
 
 import com.bc.ceres.resource.ReaderResource;
 import net.sf.saxon.Configuration;

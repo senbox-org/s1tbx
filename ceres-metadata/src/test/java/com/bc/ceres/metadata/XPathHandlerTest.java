@@ -1,4 +1,4 @@
-package com.bc.ceres.standalone;
+package com.bc.ceres.metadata;
 
 import org.junit.Test;
 

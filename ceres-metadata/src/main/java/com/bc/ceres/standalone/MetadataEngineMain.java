@@ -2,6 +2,7 @@ package com.bc.ceres.standalone;
 
 import com.bc.ceres.metadata.DefaultSimpleFileSystem;
 import com.bc.ceres.metadata.MetadataResourceEngine;
+import com.bc.ceres.metadata.XPathHandler;
 import org.apache.velocity.VelocityContext;
 
 import java.util.Arrays;
