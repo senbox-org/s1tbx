@@ -58,4 +58,12 @@ public interface SimpleFileSystem {
      * @throws IOException If an I/O error occurs
      */
     String[] list(String path) throws IOException;
+
+    /**
+     * Checks, if the given path is a file or not (then e.g. a directory)
+     *
+     * @param path to a file or directory
+     * @return true, if given path is a file on the fs
+     */
+    boolean isFile(String path);
 }

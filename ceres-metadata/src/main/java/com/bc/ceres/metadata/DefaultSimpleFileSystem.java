@@ -51,4 +51,9 @@ public class DefaultSimpleFileSystem implements SimpleFileSystem {
             return null;
         }
     }
+
+    @Override
+    public boolean isFile(String path) {
+        return new File(path).isFile();
+    }
 }

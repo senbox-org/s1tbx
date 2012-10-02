@@ -44,6 +44,14 @@ public class SimpleFileSystemMock implements SimpleFileSystem {
         return this.listMap.get(path);
     }
 
+    @Override
+    public boolean isFile(String path) {
+        boolean directory = "\\root\\foo".equals(path) ||
+                "C:\\Users\\bettina\\Software-Tests\\own-software\\ceres-metadata-0.13.2-SNAPSHOT\\data\\out".equals(path) ||
+                "/root/foo/".equals(path);
+        return !directory;
+    }
+
     public void setReader(String name, Reader reader) {
         readerMap.put(name, reader);
     }

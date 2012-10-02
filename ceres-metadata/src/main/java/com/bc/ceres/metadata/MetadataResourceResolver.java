@@ -73,17 +73,25 @@ public class MetadataResourceResolver {
     public TargetResourceInfo getTargetName(String templatePath, String targetPath) {
         String templateName = getBasename(templatePath);
         String templateBaseName = templateName.substring(0, templateName.length() - VELOCITY_TEMPLATE_EXTENSION.length());
-        String targetName = removeFileExtension(targetPath) + "-" + templateBaseName;
 
+        String targetPathWithoutExtension = removeFileExtension(targetPath);
+        String targetName;
+        if (targetPath.equals(targetPathWithoutExtension)) {
+            targetName = targetPath + "/" + templateBaseName;
+        } else {
+            targetName = targetPathWithoutExtension + "-" + templateBaseName;
+        }
         return new TargetResourceInfo(templateName, templateBaseName, targetName);
     }
 
-    static String removeFileExtension(String fileName) {
-        int i = fileName.lastIndexOf('.');
-        if (i > 0) {
-            return fileName.substring(0, i);
+    String removeFileExtension(String path) {
+        if (simpleFileSystem.isFile(path)) {
+            int i = path.lastIndexOf('.');
+            if (i > 0) {
+                return path.substring(0, i);
+            }
         }
-        return fileName;
+        return path;
     }
 
     static String getBasename(String path) {

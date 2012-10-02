@@ -26,10 +26,17 @@ public class MetadataResourceResolverTest {
 
     @Test
     public void testRemovefileExtension() throws Exception {
-        assertEquals("foo", MetadataResourceResolver.removeFileExtension("foo.txt"));
-        assertEquals("foo", MetadataResourceResolver.removeFileExtension("foo"));
-        assertEquals("foo/bar", MetadataResourceResolver.removeFileExtension("foo/bar.baz"));
-        assertEquals("foo\\bar", MetadataResourceResolver.removeFileExtension("foo\\bar.baz"));
+        MetadataResourceResolver metadataResourceResolver = new MetadataResourceResolver(new SimpleFileSystemMock());
+
+        assertEquals("foo", metadataResourceResolver.removeFileExtension("foo.txt"));
+        assertEquals("foo", metadataResourceResolver.removeFileExtension("foo"));
+        assertEquals("foo/bar", metadataResourceResolver.removeFileExtension("foo/bar.baz"));
+        assertEquals("foo\\bar", metadataResourceResolver.removeFileExtension("foo\\bar.baz"));
+        //directories
+        assertEquals("\\root\\foo", metadataResourceResolver.removeFileExtension("\\root\\foo"));
+        String directory = "C:\\Users\\bettina\\Software-Tests\\own-software\\ceres-metadata-0.13.2-SNAPSHOT\\data\\out";
+        assertEquals(directory, metadataResourceResolver.removeFileExtension(directory));
+        assertEquals("/root/foo/", metadataResourceResolver.removeFileExtension("/root/foo/"));
     }
 
     @Test
