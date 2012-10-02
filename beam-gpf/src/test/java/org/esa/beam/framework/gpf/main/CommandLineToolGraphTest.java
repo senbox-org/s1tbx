@@ -367,5 +367,10 @@ public class CommandLineToolGraphTest extends TestCase {
         public boolean fileExists(String fileName) {
             return false;
         }
+
+        @Override
+        public boolean isFile(String path) {
+            return true;
+        }
     }
 }

@@ -251,6 +251,11 @@ public class CommandLineToolMultiSourceGraphTest {
         }
 
         @Override
+        public boolean isFile(String path) {
+            return true;
+        }
+
+        @Override
         public boolean fileExists(String fileName) {
             return false;
         }
