@@ -118,4 +118,9 @@ class DefaultCommandLineContext implements CommandLineContext {
     public boolean fileExists(String fileName) {
         return new File(fileName).exists();
     }
+
+    @Override
+    public boolean isFile(String path) {
+        return new File(path).isFile();
+    }
 }
