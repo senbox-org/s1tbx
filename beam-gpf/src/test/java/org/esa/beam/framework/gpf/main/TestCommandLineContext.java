@@ -71,4 +71,9 @@ public class TestCommandLineContext extends DefaultCommandLineContext {
         Set<String> strings = textFiles.keySet();
         return strings.toArray(new String[strings.size()]);
     }
+
+    @Override
+    public boolean isFile(String path) {
+        return true;
+    }
 }
