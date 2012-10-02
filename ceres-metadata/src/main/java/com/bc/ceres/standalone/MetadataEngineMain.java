@@ -37,6 +37,7 @@ import java.util.Map;
 public class MetadataEngineMain {
     public static final String KEY_METADATA = "metadata";
     public static final String KEY_SOURCES = "sourcePaths";
+    public static final String KEY_XPATH = "xpath";
     public static final String KEY_TARGET = "targetPath";
     public static final String KEY_SYSTEM = "system";
     public static final String KEY_ARGS = "commandLineArgs";
@@ -80,6 +81,7 @@ public class MetadataEngineMain {
         for (String key : sourcePaths.keySet()) {
             metadataResourceEngine.readRelatedResource(key, sourcePaths.get(key));
         }
+        velocityContext.put(KEY_XPATH, new XPathHandler());
         velocityContext.put(KEY_SOURCES, sourcePaths);
 
         velocityContext.put(KEY_SYSTEM, System.getProperties());

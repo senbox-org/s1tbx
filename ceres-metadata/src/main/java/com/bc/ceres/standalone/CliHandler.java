@@ -5,7 +5,6 @@ import org.apache.commons.cli.*;
 import java.util.HashMap;
 
 /**
- *
  * Encapsulates the command line arguments handling.
  *
  * @author Bettina
@@ -56,15 +55,17 @@ public class CliHandler {
         CommandLine commandLine = parser.parse(options, args);
         String[] optionValues = commandLine.getOptionValues(optionName);
 
-        HashMap<String, String> templates = new HashMap<String, String>();
-        for (String optionValue : optionValues) {
-            String[] splits = optionValue.split("=");
-            if (splits.length != 2) {
-                throw new IllegalArgumentException("Pattern for values of the option -" + optionName + " is: key=value");
+        HashMap<String, String> keyValues = new HashMap<String, String>();
+        if (optionValues != null) {
+            for (String optionValue : optionValues) {
+                String[] splits = optionValue.split("=");
+                if (splits.length != 2) {
+                    throw new IllegalArgumentException("Pattern for values of the option -" + optionName + " is: key=value");
+                }
+                keyValues.put(splits[0], splits[1]);
             }
-            templates.put(splits[0], splits[1]);
         }
-        return templates;
+        return keyValues;
     }
 
     private String parse(String optionValue) throws ParseException {
@@ -83,8 +84,9 @@ public class CliHandler {
 
         OptionBuilder.hasArg();
         OptionBuilder.withArgName("filePath");
-        OptionBuilder.withDescription("The absolute item path (e.g. a product), the metadata file will be placed next to the item " +
-                "with the name 'itemName-templateName.templateSuffix'. Refer to as $targetPath in velocity templates.");
+        OptionBuilder.withDescription("The absolute item path (e.g. a product), the metadata file will be placed next to the item. " +
+                "It gets the name 'itemName-templateName.templateSuffix'. Refer to as $targetPath in velocity templates. If the targetPath is a " +
+                "directory, the metadata file will get the name of the velocity template without the suffix *.vm");
         OptionBuilder.isRequired();
         options.addOption(OptionBuilder.create("t"));
 

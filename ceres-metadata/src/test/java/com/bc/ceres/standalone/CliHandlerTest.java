@@ -42,8 +42,9 @@ public class CliHandlerTest {
         assertTrue(option.isRequired());
         assertNull(option.getValue());
         assertEquals("filePath", option.getArgName());
-        String desc = "The absolute item path (e.g. a product), the metadata file will be placed next to the item with the " +
-                "name 'itemName-templateName.templateSuffix'. Refer to as $targetPath in velocity templates.";
+        String desc = "The absolute item path (e.g. a product), the metadata file will be placed next to the item. It gets the name " +
+                "'itemName-templateName.templateSuffix'. Refer to as $targetPath in velocity templates. If the targetPath is a " +
+                "directory, the metadata file will get the name of the velocity template without the suffix *.vm";
         assertEquals(desc, option.getDescription());
 
         option = options.getOption("-S");
@@ -96,6 +97,18 @@ public class CliHandlerTest {
         assertEquals("foo/baa/prod.N1", sourceItemFiles.get("source1"));
         assertEquals("foo/bah/MER.N1", sourceItemFiles.get("source2"));
         assertEquals("foo/bar/ATS.N1", sourceItemFiles.get("source3"));
+    }
+
+    @Test
+    public void testFetchSourceItemFiles() throws Exception {
+        command = new String[]{
+                "-v", "template1=/my/template/dir/veltemp.vm.txt",
+                "-t", "/my/out/product.n1"};
+        cliHandler = new CliHandler(command);
+
+        HashMap<String, String> sourceItemFiles = cliHandler.fetchSourceItemFiles();
+        assertNotNull(sourceItemFiles);
+        assertEquals(0, sourceItemFiles.size());
     }
 
     @Test
