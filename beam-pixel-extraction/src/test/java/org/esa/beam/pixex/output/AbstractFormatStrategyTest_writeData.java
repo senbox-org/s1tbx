@@ -1,8 +1,6 @@
 package org.esa.beam.pixex.output;
 
 import java.awt.Rectangle;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import org.esa.beam.framework.datamodel.Product;
@@ -10,7 +8,6 @@ import org.esa.beam.measurement.Measurement;
 import org.junit.*;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 
 public class AbstractFormatStrategyTest_writeData {
