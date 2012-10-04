@@ -36,8 +36,10 @@
         <!--XPath-->
         <dependency>
             <groupId>net.sf.saxon</groupId>
-            <artifactId>saxon</artifactId>
-            <version>8.7</version>
+            <!--<artifactId>saxon</artifactId>-->
+            <artifactId>Saxon-HE</artifactId>
+            <!--<version>8.7</version>-->
+            <version>9.4</version>
         </dependency>
     </dependencies>
 
