@@ -660,7 +660,9 @@ public class PixExOp extends Operator implements Output {
             }
             return extractMeasurements(product);
         } catch (Exception e) {
-            getLogger().warning("Unable to read product from file '" + file.getAbsolutePath() + "'.");
+            final Logger logger = getLogger();
+            logger.warning("Unable to extract measurements from product file '" + file.getAbsolutePath() + "'.");
+            logger.log(Level.WARNING, e.getMessage(), e);
         } finally {
             if (product != null) {
                 product.dispose();

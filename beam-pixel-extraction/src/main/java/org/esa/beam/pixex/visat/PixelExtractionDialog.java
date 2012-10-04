@@ -196,7 +196,6 @@ class PixelExtractionDialog extends ModelessDialog {
                 } else {
                     message = "The pixel extraction tool has run successfully and written the result file to to std.out.";
                 }
-
                 JOptionPane.showMessageDialog(getJDialog(), message);
             } catch (InterruptedException ignore) {
             } catch (ExecutionException e) {

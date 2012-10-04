@@ -149,6 +149,8 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
             } else {
                 writer.printf(Locale.ENGLISH, "%s", value);
             }
+        } else if (value == null) {
+            writer.printf(Locale.ENGLISH, "");
         } else {
             writer.printf(Locale.ENGLISH, value.toString());
         }
