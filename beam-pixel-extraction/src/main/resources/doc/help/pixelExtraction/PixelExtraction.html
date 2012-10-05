@@ -190,9 +190,13 @@
 <h3>The User Interface</h3>
 
 <p>
-    The user interface of the Pixel Extraction Tool mainly consists of the Input/Output-pane and the
-    Parameters-pane, as well as three buttons to start the extraction process, close the
-    dialog, and open this help.
+    The user interface of the Pixel Extraction Tool consists of two panes: the first is an Input/Output-pane, which
+    allows the user to specify the input paths of the products that shall be considered, to specify an output directory
+    for the extracted values, a prefix the output files shall share, and a field that allows the user to extract the
+    time from the product filename, which may come in handy when there are products that don't carry time information
+    readable by the BEAM reader. The Input/Output-pane is explained in detail within the next section.
+    The second pane is dedicated to specify a number of parameters and is explained thoroughly in the section after the
+    next.
 </p>
 
 <h4>The Input/Output Pane</h4>
@@ -217,6 +221,14 @@
     <li>by specifying a directory</li>
     <li>or by specifying a directory recursively (indicated by '**' in the list)</li>
 </ul>
+
+<p class="i1">
+    <b>Time extraction:</b>
+    If the products carry no time information that is readable by the BEAM reader, it is possible to extract the time
+    information from the product filename. In order to do so, the date/time pattern needs to be provided (which would be,
+    e.g., ddMMyyyy_HHmmss for files like sst_26012010_164712.nc), and the pattern in the filename needs to be provided,
+    telling the software if the pattern appears once or twice.
+</p>
 
 <p class="i1">
     <b>Output directory:</b>
@@ -269,6 +281,19 @@
 </p>
 
 <p class="i1">
+    <b>Pixel value aggregation method:</b>
+    The user can choose between a number of aggregation methods when a window size bigger than 1x1 is used. Choosing
+    such an aggregation method, the pixel values from the window are all aggregated, so that only a single aggregated
+    value for each coordinate will be exported. The aggregation methods that may be used are:
+    <ul>
+        <li><b>min</b>, exports the minimum of the window values</li>
+        <li><b>max</b>, exports the maximum of the window values</li>
+        <li><b>mean</b>, exports mean and standard deviation of the window values</li>
+        <li><b>median</b>, exports the median of the window values</li>
+    </ul>
+</p>
+
+<p class="i1">
     <b>Expression:</b>
     A band maths expression can be specified to filter the values to output. The "Edit Expression..."-button
     opens the expression editor, which can be used for easily editing an expression. It is only available if the
@@ -287,8 +312,16 @@
 
 <p class="i1">
     <b>KMZ coordinates:</b>
-    All coordinates considered for the output are collected in one KMZ file. Which can be used to display the
+    All coordinates considered for the output are collected in one KMZ file, which can be used to display the
     coordinates in Google Earth.
+</p>
+
+<p class="i1">
+    <b>Match with original input:</b>
+    The pixel extraction allows outputting of correlative data in addition to the data that is extracted. This checkbox
+    is only enabled if coordinates that carry correlative data have been added. Such coordinates can be provided within
+    CSV files. Supported formats of these CSV files are the output format of the pixel extraction, and any other CSV
+    format BEAM can import.
 </p>
 
 <p>&nbsp;</p>
