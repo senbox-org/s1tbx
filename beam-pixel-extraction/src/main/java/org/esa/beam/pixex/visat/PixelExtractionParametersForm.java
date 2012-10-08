@@ -290,7 +290,7 @@ class PixelExtractionParametersForm {
 
     private Component[] createTimeDeltaComponents(TableLayout tableLayout) {
         final JLabel boxLabel = new JLabel("Allowed time difference:");
-        final JCheckBox box = new JCheckBox("Use time difference constrain");
+        final JCheckBox box = new JCheckBox("Use time difference constraint");
         final Component horizontalSpacer = tableLayout.createHorizontalSpacer();
 
         final Component horizontalSpacer2 = tableLayout.createHorizontalSpacer();
