@@ -80,7 +80,6 @@ public class BinnedProductReader extends AbstractProductReader {
             initGeoCoding();
             readMetadata();
             initBands();
-
             initPlanetaryGrid();
 
             //create indexMap
@@ -146,6 +145,7 @@ public class BinnedProductReader extends AbstractProductReader {
         final String productType = netcdfFile.findGlobalAttribute("title").getStringValue();
         product = new Product(productName, productType, sceneRasterWidth, sceneRasterHeight, this);
         product.setFileLocation(productFile);
+        product.setAutoGrouping("adg:aph:atot:bl_Rrs:chlor_a:Rrs:water");
     }
 
     private void initPlanetaryGrid() {
