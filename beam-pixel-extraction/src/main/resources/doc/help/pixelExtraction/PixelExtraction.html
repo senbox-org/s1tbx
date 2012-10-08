@@ -190,13 +190,19 @@
 <h3>The User Interface</h3>
 
 <p>
-    The user interface of the Pixel Extraction Tool consists of two panes: the first is an Input/Output-pane, which
-    allows the user to specify the input paths of the products that shall be considered, to specify an output directory
-    for the extracted values, a prefix the output files shall share, and a field that allows the user to extract the
-    time from the product filename, which may come in handy when there are products that don't carry time information
-    readable by the BEAM reader. The Input/Output-pane is explained in detail within the next section.
-    The second pane is dedicated to specify a number of parameters and is explained thoroughly in the section after the
-    next.
+    The user interface of the Pixel Extraction Tool consists of two panes. The first is an Input/Output-pane, which
+    allows the user to specify
+<ul>
+    <li>the input paths of the products that shall be considered</li>
+    <li>an output directory for the extracted values</li>
+    <li>a prefix the output files shall share</li>
+    <li>a field that allows the user to extract the time from the product filename. This field may come in handy when
+        there are products that don't carry time information readable by the BEAM reader.
+    </li>
+</ul>
+The Input/Output-pane is explained in detail within the next section.
+The second pane is dedicated to specify a number of parameters and is explained thoroughly in the section after the
+next.
 </p>
 
 <h4>The Input/Output Pane</h4>
@@ -225,7 +231,8 @@
 <p class="i1">
     <b>Time extraction:</b>
     If the products carry no time information that is readable by the BEAM reader, it is possible to extract the time
-    information from the product filename. In order to do so, the date/time pattern needs to be provided (which would be,
+    information from the product filename. In order to do so, the date/time pattern needs to be provided (which would
+    be,
     e.g., ddMMyyyy_HHmmss for files like sst_26012010_164712.nc), and the pattern in the filename needs to be provided,
     telling the software if the pattern appears once or twice.
 </p>
@@ -255,17 +262,23 @@
     <b>Coordinates:</b>
     The coordinates table shows the user-specified geographic coordinates which are used to extract the values.
     They consist of a name and their latitude/longitude-values. Initially, the table is filled with the pins of the
-    product
-    currently selected in VISAT. Additional coordinates may be added either by creating new coordinates or by reading
-    them
-    from a pin file.<br/>
-    Additionally to the standard format of a pin file, the coordinates file file can have a 'DateTime' column.
-    The format of the time value follows the ISO8601 pattern: yyyy-MM-dd'T'HH:mm:ss
+    product currently selected in VISAT. Additional coordinates may be added by
+<ul>
+    <li>creating new coordinates</li>
+    <li>reading them from a pin file.
+        In addition to the standard format of a pin file, the coordinates file can have a 'DateTime' column.
+        The format of the time value follows the ISO8601 pattern: yyyy-MM-dd'T'HH:mm:ss.
+    </li>
+    <li>reading them from a file in the output CSV-format described above.
+        This allows to compare the results from multiple runs of the Pixel Extraction Tool.
+    </li>
+</ul>
+
 </p>
 
 <p class="i1">
     <b>Allowed time difference:</b>
-    Specifies how big the difference might be between the time at the pixel and the time of the coordinate.
+    Specifies how big the difference might be between the time of a pixel and the time of the coordinate.
 </p>
 
 <p class="i1">
@@ -276,7 +289,8 @@
 <p class="i1">
     <b>Window size:</b>
     The window size specifies the number of pixels surrounding the pixels derived from the given geographic
-    coordinates to be exported. That is, when setting the window size to 3, the values for 9 pixels will be extracted.
+    coordinates to be exported. That is, when setting the window size to 3, the values for 3x3=9 pixels will be
+    extracted.
     The window size must be odd.
 </p>
 
@@ -284,13 +298,14 @@
     <b>Pixel value aggregation method:</b>
     The user can choose between a number of aggregation methods when a window size bigger than 1x1 is used. Choosing
     such an aggregation method, the pixel values from the window are all aggregated, so that only a single aggregated
-    value for each coordinate will be exported. The aggregation methods that may be used are:
-    <ul>
-        <li><b>min</b>, exports the minimum of the window values</li>
-        <li><b>max</b>, exports the maximum of the window values</li>
-        <li><b>mean</b>, exports mean and standard deviation of the window values</li>
-        <li><b>median</b>, exports the median of the window values</li>
-    </ul>
+    value for each coordinate will be exported. If <b>no aggregation</b> is selected, values of all pixels in the
+    window will be exported. The aggregation methods that may be used are:
+<ul>
+    <li><b>min</b>, exports the minimum of the window values</li>
+    <li><b>max</b>, exports the maximum of the window values</li>
+    <li><b>mean</b>, exports mean and standard deviation of the window values</li>
+    <li><b>median</b>, exports the median of the window values</li>
+</ul>
 </p>
 
 <p class="i1">
@@ -300,7 +315,7 @@
     input product list of the "Input/Output"-pane contains at least one data product; however, in any case an expression
     may manually be declared.<br>
     There are two options of how to use the expression: either the expression is used to filter the values to output,
-    that is, values which do not satisfy the expression are ignored. In the other case, the information if the value met
+    that is, values which do not satisfy the expression are ignored. In the other case, the information of the value met
     the expression is added to the output.
 </p>
 
@@ -318,10 +333,8 @@
 
 <p class="i1">
     <b>Match with original input:</b>
-    The pixel extraction allows outputting of correlative data in addition to the data that is extracted. This checkbox
-    is only enabled if coordinates that carry correlative data have been added. Such coordinates can be provided within
-    CSV files. Supported formats of these CSV files are the output format of the pixel extraction, and any other CSV
-    format BEAM can import.
+    The pixel extraction allows outputting of correlative data together with the data that is extracted. This checkbox
+    is only enabled if coordinates that carry correlative data have been added.
 </p>
 
 <p>&nbsp;</p>
