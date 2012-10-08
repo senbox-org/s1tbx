@@ -8,6 +8,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
@@ -195,7 +196,6 @@ public class BinnedProductReader extends AbstractProductReader {
      * @param destWidth     the width of region to be decode given in the band's raster co-ordinates
      * @param destHeight    the height of region to be decode given in the band's raster co-ordinates
      * @param pm            a monitor to inform the user about progress
-     *
      * @throws java.io.IOException if  an I/O error occurs
      * @see #getSubsetDef
      */
@@ -350,7 +350,7 @@ public class BinnedProductReader extends AbstractProductReader {
      */
     @Override
     public void close() throws
-                        IOException {
+            IOException {
         super.close();
 
         if (netcdfFile != null) {
@@ -402,9 +402,20 @@ public class BinnedProductReader extends AbstractProductReader {
             band.setDescription(variableMetadata.description);
             band.setNoDataValue(variableMetadata.fillValue);
             band.setNoDataValueUsed(variableMetadata.fillValue != Double.NaN);
+            band.setSpectralWavelength(getWavelengthFromBandName(varName));
             product.addBand(band);
             bandMap.put(band, variableMetadata.variable);
         }
+    }
+
+    private int getWavelengthFromBandName(String bandName) {
+        final String[] bandNameParts = bandName.split("_");
+        for (String bandNamePart : bandNameParts) {
+            if (StringUtils.isNumeric(bandNamePart, Integer.class)) {
+                return Integer.parseInt(bandNamePart);
+            }
+        }
+        return 0;
     }
 
     private VariableMetadata getVariableMetadata(String varName) {
