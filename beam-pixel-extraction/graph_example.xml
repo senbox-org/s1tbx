@@ -16,7 +16,7 @@
             <outputFilePrefix>pixex</outputFilePrefix>
             <exportExpressionResult>false</exportExpressionResult>
             <exportKmz>true</exportKmz>
-            <outputOriginalMeasurements>true</outputOriginalMeasurements>
+            <includeOriginalInput>true</includeOriginalInput>
             <scatterPlotVariableCombinations>
                 <variableCombination>
                     <originalVariableName>algal_2</originalVariableName>

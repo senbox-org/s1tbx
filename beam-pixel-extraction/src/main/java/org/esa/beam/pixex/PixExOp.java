@@ -128,9 +128,9 @@ public class PixExOp extends Operator implements Output {
     private PixExMeasurementReader measurements;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-                             "'*' (matches any character sequence in path names) and\n" +
-                             "'?' (matches any single character).")
+            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+            "'*' (matches any character sequence in path names) and\n" +
+            "'?' (matches any single character).")
     private String[] sourceProductPaths;
 
     @Parameter(description = "Deprecated since version 1.0, use parameter 'sourceProductPaths' instead.")
@@ -150,8 +150,8 @@ public class PixExOp extends Operator implements Output {
     private Coordinate[] coordinates;
 
     @Parameter(description = "The acceptable time difference compared to the time given for a coordinate.\n" +
-                             "The format is a number followed by (D)ay, (H)our or (M)inute. If no time difference is provided, " +
-                             "all input products are considered regardless of their time.",
+            "The format is a number followed by (D)ay, (H)our or (M)inute. If no time difference is provided, " +
+            "all input products are considered regardless of their time.",
                defaultValue = "")
     private String timeDifference = "";
 
@@ -159,7 +159,7 @@ public class PixExOp extends Operator implements Output {
     private File coordinatesFile;
 
     @Parameter(description = "Path to a CSV-file containing geo-coordinates associated with measurements according" +
-                             "to BEAM CSV format specification")
+            "to BEAM CSV format specification")
     private File matchupFile;
 
     @Parameter(description = "Side length of surrounding window (uneven)", defaultValue = "1",
@@ -176,13 +176,13 @@ public class PixExOp extends Operator implements Output {
     private String expression;
 
     @Parameter(description = "If true, the expression result is exported per pixel, otherwise the expression \n" +
-                             "is used as filter (all pixels in given window must be valid).",
+            "is used as filter (all pixels in given window must be valid).",
                defaultValue = "true")
     private Boolean exportExpressionResult;
 
     @Parameter(
             description = "If the window size is larger than 1, this parameter describes by which method a single \n" +
-                          "value shall be derived from the pixels.",
+                    "value shall be derived from the pixels.",
             defaultValue = NO_AGGREGATION,
             valueSet = {MIN_AGGREGATION, MAX_AGGREGATION, MEAN_AGGREGATION, MEDIAN_AGGREGATION, NO_AGGREGATION})
     private String aggregatorStrategyType;
@@ -195,20 +195,20 @@ public class PixExOp extends Operator implements Output {
     private int subSceneBorderSize;
 
     @Parameter(description = "If set to true, a Google KMZ file will be created, which contains the coordinates " +
-                             "where pixels are found.",
+            "where pixels are found.",
                defaultValue = "false")
     private boolean exportKmz;
 
     @Parameter(
             description = "If set to true, the sensing start and sensing stop should be extracted from the filename " +
-                          "of each input product.",
+                    "of each input product.",
             defaultValue = "false",
             label = "Extract time from product filename")
     private boolean extractTimeFromFilename;
 
     @Parameter(
             description = "Describes how a date/time section inside a product filename should be interpreted. " +
-                          "E.G. yyyyMMdd_hhmmss",
+                    "E.G. yyyyMMdd_hhmmss",
             validator = TimeStampExtractor.DateInterpretationPatternValidator.class,
             defaultValue = "yyyyMMdd",
             label = "Date/Time pattern")
@@ -220,11 +220,12 @@ public class PixExOp extends Operator implements Output {
                label = "Time extraction pattern in filename")
     private String filenameInterpretationPattern;
 
-    @Parameter(defaultValue = "false", description = "Determines if the original measurements shall be output, too.")
-    private boolean outputOriginalMeasurements;
+    @Parameter(defaultValue = "false", description = "Determines if the original input measurements shall be " +
+            "included in the output.")
+    private boolean includeOriginalInput;
 
     @Parameter(description = "Array of 2-tuples of variable names; " +
-                             "for each of these tuples a scatter plot will be exported.", notNull = false,
+            "for each of these tuples a scatter plot will be exported.", notNull = false,
                itemAlias = "variableCombination")
     private VariableCombination[] scatterPlotVariableCombinations;
 
@@ -355,7 +356,7 @@ public class PixExOp extends Operator implements Output {
 
     @SuppressWarnings("unchecked")
     private Measurement[] createOriginalMeasurements(List<Coordinate> coordinateList) {
-        if (!outputOriginalMeasurements) {
+        if (!includeOriginalInput) {
             return null;
         }
         Measurement[] result = new Measurement[coordinateList.size()];
@@ -392,7 +393,7 @@ public class PixExOp extends Operator implements Output {
     private FormatStrategy initFormatStrategy(PixExRasterNamesFactory rasterNamesFactory,
                                               Measurement[] originalMeasurements, ProductRegistry productRegistry) {
         FormatStrategy decoratedStrategy;
-        if (outputOriginalMeasurements) {
+        if (includeOriginalInput) {
             decoratedStrategy = new MatchupFormatStrategy(originalMeasurements, rasterNamesFactory, windowSize,
                                                           expression, exportExpressionResult);
         } else {

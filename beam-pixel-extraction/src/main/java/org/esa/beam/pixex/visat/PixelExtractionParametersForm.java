@@ -98,7 +98,7 @@ class PixelExtractionParametersForm {
     private JComboBox timeUnitComboBox;
     private String allowedTimeDifference = "";
     private JComboBox aggregationStrategyChooser;
-    private JCheckBox outputOriginalMeasurementsBox;
+    private JCheckBox includeOriginalInputBox;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -120,7 +120,7 @@ class PixelExtractionParametersForm {
             final Coordinate.OriginalValue[] originalValues = PixExOp.getOriginalValues(feature);
             if (placemark.getGeoPos() == null) {
                 final Point point = (Point) feature.getDefaultGeometry();
-                coordinates[i] = new Coordinate(placemark.getName(), (float)point.getY(), (float)point.getX(), dateTime, originalValues);
+                coordinates[i] = new Coordinate(placemark.getName(), (float) point.getY(), (float) point.getX(), dateTime, originalValues);
             } else {
                 coordinates[i] = new Coordinate(placemark.getName(), placemark.getGeoPos().getLat(), placemark.getGeoPos().getLon(), dateTime, originalValues);
             }
@@ -183,7 +183,7 @@ class PixelExtractionParametersForm {
         coordinateTableModel.addTableModelListener(new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent e) {
-                updateOutputOriginalMeasurementsBox();
+                updateIncludeOriginalInputBox();
             }
         });
 
@@ -230,12 +230,12 @@ class PixelExtractionParametersForm {
         mainPanel.add(tableLayout.createHorizontalSpacer());
 
         mainPanel.add(new JLabel("Match with original input:"));
-        mainPanel.add(createOutputOriginalMeasurementsBox(bindingContext));
+        mainPanel.add(createIncludeOriginalInputBox(bindingContext));
         mainPanel.add(tableLayout.createHorizontalSpacer());
 
     }
 
-    private JComponent createOutputOriginalMeasurementsBox(BindingContext bindingContext) {
+    private JComponent createIncludeOriginalInputBox(BindingContext bindingContext) {
         final TableLayout tableLayout = new TableLayout(1);
         tableLayout.setTablePadding(4, 4);
         tableLayout.setTableWeightX(1.0);
@@ -243,10 +243,10 @@ class PixelExtractionParametersForm {
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
         final JPanel panel = new JPanel(tableLayout);
-        outputOriginalMeasurementsBox = new JCheckBox("Output original measurements");
-        bindingContext.bind("outputOriginalMeasurements", outputOriginalMeasurementsBox);
-        panel.add(outputOriginalMeasurementsBox);
-        updateOutputOriginalMeasurementsBox();
+        includeOriginalInputBox = new JCheckBox("Include original input");
+        bindingContext.bind("includeOriginalInput", includeOriginalInputBox);
+        panel.add(includeOriginalInputBox);
+        updateIncludeOriginalInputBox();
         return panel;
     }
 
@@ -328,15 +328,15 @@ class PixelExtractionParametersForm {
     private void updateUi() {
         handleWindowSpinnerChange();
         updateExpressionComponents();
-        updateOutputOriginalMeasurementsBox();
+        updateIncludeOriginalInputBox();
     }
 
-    private void updateOutputOriginalMeasurementsBox() {
-        outputOriginalMeasurementsBox.setEnabled(false);
+    private void updateIncludeOriginalInputBox() {
+        includeOriginalInputBox.setEnabled(false);
         final Coordinate[] coordinates = getCoordinates();
         for (Coordinate coordinate : coordinates) {
             if (coordinate.getOriginalValues().length > 0) {
-                outputOriginalMeasurementsBox.setEnabled(true);
+                includeOriginalInputBox.setEnabled(true);
                 return;
             }
         }
