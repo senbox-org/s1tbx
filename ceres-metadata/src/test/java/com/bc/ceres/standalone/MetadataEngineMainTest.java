@@ -3,6 +3,7 @@ package com.bc.ceres.standalone;
 import com.bc.ceres.metadata.MetadataResourceEngine;
 import com.bc.ceres.metadata.SimpleFileSystemMock;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.StringReader;
@@ -21,6 +22,7 @@ public class MetadataEngineMainTest {
         metadataEngineMain = new MetadataEngineMain(metadataResourceEngine);
     }
 
+    @Ignore
     @Test
     public void testProcessMetadata_usingXPath() throws Exception {
         SimpleFileSystemMock simpleFileSystem = new SimpleFileSystemMock();
