@@ -49,6 +49,9 @@ class AddCsvFileAction extends AbstractAction {
                     final GenericPlacemarkDescriptor placemarkDescriptor = new GenericPlacemarkDescriptor(
                             extendedFeature.getFeatureType());
                     final Placemark placemark = placemarkDescriptor.createPlacemark(extendedFeature);
+                    if (extendedFeature.getAttribute("Name") != null) {
+                        placemark.setName(extendedFeature.getAttribute("Name").toString());
+                    }
                     setPlacemarkGeoPos(extendedFeature, placemark);
                     tableModel.addPlacemark(placemark);
                 }

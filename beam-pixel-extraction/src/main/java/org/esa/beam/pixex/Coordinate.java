@@ -38,7 +38,7 @@ public class Coordinate {
                description = "The date time of the coordinate in ISO 8601 format.\n The format pattern is 'yyyy-MM-dd'T'HH:mm:ssZ'",
                converter = ISO8601Converter.class)
     private Date dateTime;
-    @Parameter(description = "Original values associated with this coordinate.")
+    @Parameter(description = "Original values associated with this coordinate.", itemAlias = "originalValue")
     private OriginalValue[] originalValues;
 
     private int id;
@@ -105,9 +105,14 @@ public class Coordinate {
         String variableName;
 
         @Parameter(description = "The original value.")
-        Object value;
+        String value;
 
-        public OriginalValue(String variableName, Object value) {
+        @SuppressWarnings({"UnusedDeclaration"})
+        public OriginalValue() {
+            // needed for serialize/de-serialize
+        }
+
+        public OriginalValue(String variableName, String value) {
             this.variableName = variableName;
             this.value = value;
         }

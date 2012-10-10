@@ -254,7 +254,10 @@ public class PixExOp extends Operator implements Output {
         }
         List<Object> attributes = (List<Object>) feature.getUserData().get("originalAttributes");
         for (int j = 0; j < originalValues.length; j++) {
-            Object value = j == 0 ? feature.getID() : attributes.get(j);
+            String value = "";
+            if (attributes.get(j) != null) {
+                value = attributes.get(j).toString();
+            }
             originalValues[j] = new Coordinate.OriginalValue(originalAttributeDescriptors.get(j).getLocalName(),
                                                              value);
         }
@@ -361,21 +364,23 @@ public class PixExOp extends Operator implements Output {
         }
         Measurement[] result = new Measurement[coordinateList.size()];
         for (int i = 0; i < coordinateList.size(); i++) {
-            final Coordinate coordinate = coordinateList.get(i);
+            Coordinate coordinate = coordinateList.get(i);
             Coordinate.OriginalValue[] originalValues = coordinate.getOriginalValues();
-            Object[] values = new Object[originalValues.length];
-            String[] originalVariableNames = new String[originalValues.length];
-            for (int valueIndex = 0; valueIndex < originalValues.length; valueIndex++) {
-                final Coordinate.OriginalValue originalValue = originalValues[valueIndex];
-                values[valueIndex] = originalValue.value;
-                originalVariableNames[valueIndex] = originalValue.variableName;
+            Object[] values = new Object[0];
+            String[] originalVariableNames = new String[0];
+            if (originalValues != null) {
+                values = new Object[originalValues.length];
+                originalVariableNames = new String[originalValues.length];
+                for (int valueIndex = 0; valueIndex < originalValues.length; valueIndex++) {
+                    final Coordinate.OriginalValue originalValue = originalValues[valueIndex];
+                    values[valueIndex] = originalValue.value;
+                    originalVariableNames[valueIndex] = originalValue.variableName;
+                }
             }
-
             result[i] = new Measurement(coordinate.getID(), "", -1, -1, -1, null,
-                                        new GeoPos(coordinate.getLat(), coordinate.getLon()), values,
-                                        originalVariableNames, true);
+                                        new GeoPos(coordinate.getLat(), coordinate.getLon()),
+                                        values, originalVariableNames, true);
         }
-
         return result;
     }
 

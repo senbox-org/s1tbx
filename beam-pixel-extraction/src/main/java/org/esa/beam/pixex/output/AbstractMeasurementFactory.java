@@ -1,6 +1,5 @@
 package org.esa.beam.pixex.output;
 
-import java.awt.image.Raster;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Mask;
@@ -11,6 +10,8 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.MeasurementFactory;
 import org.esa.beam.util.ProductUtils;
+
+import java.awt.image.Raster;
 
 public abstract class AbstractMeasurementFactory implements MeasurementFactory {
 
@@ -58,8 +59,8 @@ public abstract class AbstractMeasurementFactory implements MeasurementFactory {
     }
 
     private static boolean pixelIsNotInBounds(RasterDataNode raster, int x, int y) {
-        final int height = raster.getRasterHeight();
-        final int width = raster.getRasterWidth();
+        int height = raster.getSceneRasterHeight();
+        int width = raster.getSceneRasterWidth();
         return x < 0 || x >= width || y < 0 || y >= height;
     }
 }

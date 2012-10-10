@@ -10,6 +10,21 @@
             <exportBands>true</exportBands>
             <exportTiePoints>true</exportTiePoints>
             <exportMasks>true</exportMasks>
+            <coordinates>
+                <coordinate>
+                    <name>coordinateName</name>
+                    <latitude>58.594948</latitude>
+                    <longitude>17.466019</longitude>
+                    <dateTime>2006-05-10T10:25:30</dateTime>
+                    <originalValues>
+                        <originalValue>
+                            <variableName>sampleName</variableName>
+                            <value>44.4</value>
+                        </originalValue>
+                    </originalValues>
+                    <id>200</id>
+                </coordinate>
+            </coordinates>
             <matchupFile>/path/to/file/matchups_sst.csv</matchupFile>
             <windowSize>1</windowSize>
             <outputDir>/path/to/outputdir</outputDir>
