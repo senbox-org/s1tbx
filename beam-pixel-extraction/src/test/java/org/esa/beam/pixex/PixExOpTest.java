@@ -63,35 +63,35 @@ public class PixExOpTest {
         final File outputDir = getOutputDir("testUsingGraph", getClass());
         String graphOpXml =
                 "<graph id=\"someGraphId\">\n" +
-                "    <version>1.0</version>\n" +
-                "    <node id=\"someNodeId\">\n" +
-                "      <operator>PixEx</operator>\n" +
-                "      <parameters>\n" +
-                "        <inputPaths>\n" +
-                "           " + parentDir +
-                "        </inputPaths>\n" +
-                "        <exportTiePoints>false</exportTiePoints>\n" +
-                "        <exportBands>true</exportBands>\n" +
-                "        <exportMasks>false</exportMasks>                \n" +
-                "        <coordinates>\n" +
-                "          <coordinate>\n" +
-                "            <latitude>" + coordinates[0].getLat() + "</latitude>\n" +
-                "            <longitude>" + coordinates[0].getLon() + "</longitude>\n" +
-                "            <name>" + coordinates[0].getName() + "</name>\n" +
-                "          </coordinate>\n" +
-                "          <coordinate>\n" +
-                "            <latitude>" + coordinates[1].getLat() + "</latitude>\n" +
-                "            <longitude>" + coordinates[1].getLon() + "</longitude>\n" +
-                "            <name>" + coordinates[1].getName() + "</name>\n" +
-                "          </coordinate>\n" +
-                "        </coordinates>\n" +
-                "        <windowSize>" + windowSize + "</windowSize>\n" +
-                "        <outputDir>" + outputDir.getAbsolutePath() + "</outputDir>\n" +
-                "        <outputFilePrefix>" + "testUsingGraph" + "</outputFilePrefix>\n" +
+                        "    <version>1.0</version>\n" +
+                        "    <node id=\"someNodeId\">\n" +
+                        "      <operator>PixEx</operator>\n" +
+                        "      <parameters>\n" +
+                        "        <inputPaths>\n" +
+                        "           " + parentDir +
+                        "        </inputPaths>\n" +
+                        "        <exportTiePoints>false</exportTiePoints>\n" +
+                        "        <exportBands>true</exportBands>\n" +
+                        "        <exportMasks>false</exportMasks>                \n" +
+                        "        <coordinates>\n" +
+                        "          <coordinate>\n" +
+                        "            <latitude>" + coordinates[0].getLat() + "</latitude>\n" +
+                        "            <longitude>" + coordinates[0].getLon() + "</longitude>\n" +
+                        "            <name>" + coordinates[0].getName() + "</name>\n" +
+                        "          </coordinate>\n" +
+                        "          <coordinate>\n" +
+                        "            <latitude>" + coordinates[1].getLat() + "</latitude>\n" +
+                        "            <longitude>" + coordinates[1].getLon() + "</longitude>\n" +
+                        "            <name>" + coordinates[1].getName() + "</name>\n" +
+                        "          </coordinate>\n" +
+                        "        </coordinates>\n" +
+                        "        <windowSize>" + windowSize + "</windowSize>\n" +
+                        "        <outputDir>" + outputDir.getAbsolutePath() + "</outputDir>\n" +
+                        "        <outputFilePrefix>" + "testUsingGraph" + "</outputFilePrefix>\n" +
 
-                "      </parameters>\n" +
-                "    </node>\n" +
-                "  </graph>";
+                        "      </parameters>\n" +
+                        "    </node>\n" +
+                        "  </graph>";
         Graph graph = GraphIO.read(new StringReader(graphOpXml));
 
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new PixExOp.Spi());
@@ -440,8 +440,8 @@ public class PixExOpTest {
         final Coordinate.OriginalValue[] originalValues = coordinates.get(0).getOriginalValues();
         assertEquals(4, originalValues.length);
         assertEquals("test1.1", originalValues[1].value);
-        assertEquals(0.2F, originalValues[2].value);
-        assertEquals(0.3F, originalValues[3].value);
+        assertEquals(0.2F, Float.parseFloat(originalValues[2].value), 0.001);
+        assertEquals(0.3F, Float.parseFloat(originalValues[3].value), 0.001);
 
         assertEquals("1", coordinates.get(1).getName());
         assertEquals(56.0124, (double) coordinates.get(1).getLat(), 0.0001);
@@ -449,8 +449,8 @@ public class PixExOpTest {
         final Coordinate.OriginalValue[] originalValues1 = coordinates.get(1).getOriginalValues();
         assertEquals(4, originalValues.length);
         assertEquals("test1.2", originalValues1[1].value);
-        assertEquals(0.21F, originalValues1[2].value);
-        assertEquals(0.31F, originalValues1[3].value);
+        assertEquals(0.21F, Float.parseFloat(originalValues1[2].value), 0.001);
+        assertEquals(0.31F, Float.parseFloat(originalValues1[3].value), 0.001);
     }
 
     public static File getOutputDir(String methodName, Class testClass) {
@@ -472,8 +472,8 @@ public class PixExOpTest {
                                             float lat, float lon, float x, float y) {
         for (Measurement measurement : measurementList) {
             if (measurement.getCoordinateName().equals(coordinateName) && id == measurement.getCoordinateID() &&
-                Float.compare(lat, measurement.getLat()) == 0 && Float.compare(lon, measurement.getLon()) == 0 &&
-                Float.compare(x, measurement.getPixelX()) == 0 && Float.compare(y, measurement.getPixelY()) == 0) {
+                    Float.compare(lat, measurement.getLat()) == 0 && Float.compare(lon, measurement.getLon()) == 0 &&
+                    Float.compare(x, measurement.getPixelX()) == 0 && Float.compare(y, measurement.getPixelY()) == 0) {
                 return;
             }
         }
@@ -493,7 +493,7 @@ public class PixExOpTest {
     }
 
     public static Product createTestProduct(String name, String type, String[] bandNames) throws FactoryException,
-                                                                                                 TransformException {
+            TransformException {
         Rectangle bounds = new Rectangle(360, 180);
         Product product = new Product(name, type, bounds.width, bounds.height);
         AffineTransform i2mTransform = new AffineTransform();
