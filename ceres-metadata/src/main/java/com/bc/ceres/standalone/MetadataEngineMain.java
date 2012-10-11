@@ -2,6 +2,7 @@ package com.bc.ceres.standalone;
 
 import com.bc.ceres.metadata.DefaultSimpleFileSystem;
 import com.bc.ceres.metadata.MetadataResourceEngine;
+import com.bc.ceres.metadata.XPathHandler;
 import org.apache.velocity.VelocityContext;
 
 import java.util.Arrays;
@@ -81,7 +82,7 @@ public class MetadataEngineMain {
         for (String key : sourcePaths.keySet()) {
             metadataResourceEngine.readRelatedResource(key, sourcePaths.get(key));
         }
-//        velocityContext.put(KEY_XPATH, new XPathHandler());
+        velocityContext.put(KEY_XPATH, new XPathHandler());
         velocityContext.put(KEY_SOURCES, sourcePaths);
 
         velocityContext.put(KEY_SYSTEM, System.getProperties());

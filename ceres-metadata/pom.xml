@@ -33,12 +33,6 @@
             <artifactId>commons-cli</artifactId>
             <version>1.2</version>
         </dependency>
-        <!--XPath-->
-        <!--<dependency>-->
-            <!--<groupId>net.sf.saxon</groupId>-->
-            <!--<artifactId>Saxon-HE</artifactId>-->
-            <!--<version>9.4</version>-->
-        <!--</dependency>-->
     </dependencies>
 
     <build>
