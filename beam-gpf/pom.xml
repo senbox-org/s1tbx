@@ -49,12 +49,6 @@
         <dependency>
             <groupId>com.bc.ceres</groupId>
             <artifactId>ceres-metadata</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.sf.saxon</groupId>
-                    <artifactId>Saxon-HE</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>velocity</groupId>
