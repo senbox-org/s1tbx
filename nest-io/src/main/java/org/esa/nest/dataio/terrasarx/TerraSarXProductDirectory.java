@@ -245,8 +245,6 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         // handle ATI products by copying abs metadata to slv metadata
         final String antennaReceiveConfiguration = acquisitionInfo.getAttributeString("antennaReceiveConfiguration");
         if(antennaReceiveConfiguration.equals("DRA")) {
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.coregistered_stack, 1);
-
             final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(product);
 
             // copy Abstracted Metadata
@@ -254,6 +252,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 final String fileName = cosFile.getName().toUpperCase();
                 if(fileName.contains("_SRA_"))
                     continue;
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.coregistered_stack, 1);
                 final MetadataElement targetSlaveMetadata = new MetadataElement(fileName);
                 targetSlaveMetadataRoot.addElement(targetSlaveMetadata);
                 ProductUtils.copyMetadata(absRoot, targetSlaveMetadata);
