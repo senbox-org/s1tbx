@@ -1,18 +1,13 @@
 package org.esa.beam.statistics.output;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.statistics.output.MetadataWriter;
-import org.esa.beam.statistics.output.StatisticsOutputContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.text.ParseException;
-
-import static org.junit.Assert.*;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.*;
 
 public class MetadataWriterTest {
 

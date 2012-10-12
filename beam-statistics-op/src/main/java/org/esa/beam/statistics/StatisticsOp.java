@@ -19,13 +19,31 @@ package org.esa.beam.statistics;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.ProductIO;
+import java.awt.Color;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.logging.Level;
+import javax.media.jai.Histogram;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.HistogramStxOp;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.framework.datamodel.StxFactory;
+import org.esa.beam.framework.datamodel.SummaryStxOp;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -52,27 +70,6 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import javax.media.jai.Histogram;
-import java.awt.Color;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.net.MalformedURLException;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.logging.Level;
 
 /**
  * An operator that is used to compute statistics for any number of source products, restricted to regions given by an
@@ -102,28 +99,28 @@ public class StatisticsOp extends Operator implements Output {
     private static final int MIN_PRECISION = 0;
 
     @SourceProducts(description = "The source products to be considered for statistics computation. If not given, " +
-            "the parameter 'sourceProductPaths' must be provided.")
+                                  "the parameter 'sourceProductPaths' must be provided.")
     Product[] sourceProducts;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-            "'*' (matches any character sequence in path names) and\n" +
-            "'?' (matches any single character).")
+                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+                             "'*' (matches any character sequence in path names) and\n" +
+                             "'?' (matches any single character).")
     String[] sourceProductPaths;
 
     @Parameter(description = "An ESRI shapefile, providing the considered geographical region(s) given as polygons. " +
-            "If null, all pixels are considered.")
+                             "If null, all pixels are considered.")
     File shapefile;
 
     // todo se ask really true?
     @Parameter(description = "The start date. If not given, taken from the 'oldest' source product. Products that " +
-            "have a start date before the start date given by this parameter are not considered.",
+                             "have a start date before the start date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC startDate;
 
     // todo se ask really true?
     @Parameter(description = "The end date. If not given, taken from the 'youngest' source product. Products that " +
-            "have an end date after the end date given by this parameter are not considered.",
+                             "have an end date after the end date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
@@ -132,7 +129,7 @@ public class StatisticsOp extends Operator implements Output {
     BandConfiguration[] bandConfigurations;
 
     @Parameter(description = "Determines if a copy of the input shapefile shall be created and augmented with the " +
-            "statistical data.")
+                             "statistical data.")
     boolean doOutputShapefile;
 
     @Parameter(description = "The target file for shapefile output.")
@@ -149,7 +146,7 @@ public class StatisticsOp extends Operator implements Output {
     int[] percentiles;
 
     @Parameter(description = "The number of significant figures used for statistics computation. Higher numbers " +
-            "indicate higher precision but may lead to a considerably longer computation time.",
+                             "indicate higher precision but may lead to a considerably longer computation time.",
                defaultValue = "3")
     int precision;
 
@@ -162,11 +159,8 @@ public class StatisticsOp extends Operator implements Output {
     final SortedSet<String> regionNames = new TreeSet<String>();
 
     private PrintStream metadataOutputStream;
-
     private PrintStream csvOutputStream;
-
     private PrintStream bandMappingOutputStream;
-    private StatisticsOutputContext statisticsOutputContext;
 
     @Override
     public void initialize() throws OperatorException {
@@ -180,67 +174,24 @@ public class StatisticsOp extends Operator implements Output {
 
 
         final StatisticComputer statisticComputer = new StatisticComputer(shapefile, bandConfigurations, computeBinCount(precision));
-
-        final ProductLoop productLoop = new ProductLoop(new ProductLoader(), statisticComputer, getLogger());
+        final ProductLoop productLoop = new ProductLoop(new ProductLoader(), statisticComputer, startDate, endDate, getLogger());
         productLoop.loop(sourceProducts, getProductsToLoad());
 
-
-        final List<Product> products = new ArrayList<Product>();
-        collectedProducts = new HashSet<Product>();
-        if (sourceProducts != null) {
-            Collections.addAll(products, sourceProducts);
-        }
-        if (sourceProductPaths != null) {
-            SortedSet<File> fileSet = new TreeSet<File>();
-            for (String filePattern : sourceProductPaths) {
-                try {
-                    WildcardMatcher.glob(filePattern, fileSet);
-                } catch (IOException e) {
-                    logReadProductError(filePattern);
-                }
-            }
-            for (File file : fileSet) {
-                if (!isProductAlreadyOpened(products, file)) {
-                    try {
-                        Product sourceProduct = ProductIO.readProduct(file);
-                        if (sourceProduct != null) {
-                            products.add(sourceProduct);
-                            collectedProducts.add(sourceProduct);
-                        } else {
-                            logReadProductError(file.getAbsolutePath());
-                        }
-                    } catch (Exception e) {
-                        logReadProductError(file.getAbsolutePath());
-                    }
-                }
-            }
+        if (startDate == null) {
+            startDate = productLoop.getOldestDate();
         }
 
-        if (products.size() == 0) {
+        if (endDate == null) {
+            endDate = productLoop.getNewestDate();
+        }
+
+        final String[] productNames = productLoop.getProductNames();
+        if (productNames.length == 0) {
             throw new OperatorException("No input products found.");
         }
+        final Map<BandConfiguration, StatisticComputer.StxOpMapping> results = statisticComputer.getResults();
+        final String[] algorithmNames = getAlgorithmNames();
 
-        final Product[] allSourceProducts = products.toArray(new Product[products.size()]);
-
-        //****************************************
-        //****************************************
-        //****************************************
-
-        if (shapefile != null) {
-            for (Product sourceProduct : allSourceProducts) {
-                final VectorDataNode[] vectorDataNodes = createVectorDataNodes(sourceProduct);
-                for (final VectorDataNode vectorDataNode : vectorDataNodes) {
-                    regionNames.add(vectorDataNode.getName());
-                }
-                productVdnMap.put(sourceProduct, vectorDataNodes);
-            }
-        } else {
-            regionNames.add("world");
-        }
-
-        //****************************************
-        //****************************************
-        //****************************************
 
         final List<String> bandNamesList = new ArrayList<String>();
         for (BandConfiguration bandConfiguration : bandConfigurations) {
@@ -250,44 +201,47 @@ public class StatisticsOp extends Operator implements Output {
                 bandNamesList.add(bandConfiguration.expression);
             }
         }
-        final String[] algorithmNames = getAlgorithmNames();
         final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
-        statisticsOutputContext = StatisticsOutputContext.create(allSourceProducts,
-                                                                 bandNames,
-                                                                 algorithmNames,
-                                                                 startDate,
-                                                                 endDate,
-                                                                 regionNames.toArray(new String[regionNames.size()]));
+
+
+        regionNames.clear();
+        for (StatisticComputer.StxOpMapping stxOpMapping : results.values()) {
+            regionNames.addAll(stxOpMapping.summaryMap.keySet());
+        }
+
+        final StatisticsOutputContext statisticsOutputContext = StatisticsOutputContext.create(productNames,
+                                                                                         bandNames,
+                                                                                         algorithmNames,
+                                                                                         startDate,
+                                                                                         endDate,
+                                                                                         regionNames.toArray(new String[regionNames.size()]));
+
         for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
             statisticsOutputter.initialiseOutput(statisticsOutputContext);
         }
 
-        //****************************************
-        //****************************************
-        //****************************************
-
-        final List<Band> bands = new ArrayList<Band>();
-        for (BandConfiguration configuration : bandConfigurations) {
-            final HashMap<String, List<Mask>> regionNameToMasks = new HashMap<String, List<Mask>>();
-            for (Product product : allSourceProducts) {
-                final Band band = getBand(configuration, product);
-                band.setValidPixelExpression(configuration.validPixelExpression);
-                bands.add(band);
-                fillRegionToMaskMap(regionNameToMasks, product);
+        for (Map.Entry<BandConfiguration, StatisticComputer.StxOpMapping> bandConfigurationStxOpMappingEntry : results.entrySet()) {
+            final BandConfiguration bandConfiguration = bandConfigurationStxOpMappingEntry.getKey();
+            final String bandName;
+            if (bandConfiguration.sourceBandName != null) {
+                bandName = bandConfiguration.sourceBandName;
+            } else {
+                bandName = bandConfiguration.expression;
             }
-            for (String regionName : regionNames) {
-                final List<Mask> maskList = regionNameToMasks.get(regionName);
-                final Mask[] roiMasks = getMasksForBands(maskList, bands);
-                final Band[] bandsArray = bands.toArray(new Band[bands.size()]);
-                final Stx stx = new StxFactory()
-                        .withHistogramBinCount(computeBinCount(precision))
-                        .create(roiMasks, bandsArray, ProgressMonitor.NULL);
+            final StatisticComputer.StxOpMapping stxOpMapping = bandConfigurationStxOpMappingEntry.getValue();
+            final Map<String,SummaryStxOp> summaryMap = stxOpMapping.summaryMap;
+            final Map<String, HistogramStxOp> histogramMap = stxOpMapping.histogramMap;
+            for (String regionName : summaryMap.keySet()) {
+
+                final SummaryStxOp summaryStxOp = summaryMap.get(regionName);
+                final Histogram histogram = histogramMap.get(regionName).getHistogram();
+
+
                 final HashMap<String, Number> stxMap = new HashMap<String, Number>();
-                Histogram histogram = stx.getHistogram();
-                stxMap.put("minimum", histogram.getLowValue(0));
-                stxMap.put("maximum", histogram.getHighValue(0));
-                stxMap.put("average", histogram.getMean()[0]);
-                stxMap.put("sigma", histogram.getStandardDeviation()[0]);
+                stxMap.put("minimum", summaryStxOp.getMinimum());
+                stxMap.put("maximum", summaryStxOp.getMaximum());
+                stxMap.put("average", summaryStxOp.getMean());
+                stxMap.put("sigma", summaryStxOp.getStandardDeviation());
                 stxMap.put("total", histogram.getTotals()[0]);
                 stxMap.put("median", histogram.getPTileThreshold(0.5)[0]);
                 for (int percentile : percentiles) {
@@ -295,15 +249,10 @@ public class StatisticsOp extends Operator implements Output {
                 }
                 stxMap.put("pxx_max_error", Util.getBinWidth(histogram));
                 for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
-                    statisticsOutputter.addToOutput(bands.get(0).getName(), regionName, stxMap);
+                    statisticsOutputter.addToOutput(bandName, regionName, stxMap);
                 }
             }
-            bands.clear();
         }
-
-        //****************************************
-        //****************************************
-        //****************************************
 
         try {
             for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
@@ -322,10 +271,6 @@ public class StatisticsOp extends Operator implements Output {
                 bandMappingOutputStream.close();
             }
         }
-
-        //****************************************
-        //****************************************
-        //****************************************
 
         getLogger().log(Level.INFO, "Successfully computed statistics.");
     }
@@ -440,7 +385,7 @@ public class StatisticsOp extends Operator implements Output {
         if (doOutputAsciiFile) {
             try {
                 final StringBuilder metadataFileName = new StringBuilder(
-                        FileUtils.getFilenameWithoutExtension(outputAsciiFile));
+                            FileUtils.getFilenameWithoutExtension(outputAsciiFile));
                 metadataFileName.append("_metadata.txt");
                 final File metadataFile = new File(outputAsciiFile.getParent(), metadataFileName.toString());
                 metadataOutputStream = new PrintStream(new FileOutputStream(metadataFile));
@@ -609,9 +554,9 @@ public class StatisticsOp extends Operator implements Output {
             throw new OperatorException("Parameter 'precision' must be less than or equal to " + MAX_PRECISION);
         }
         if ((sourceProducts == null || sourceProducts.length == 0) &&
-                (sourceProductPaths == null || sourceProductPaths.length == 0)) {
+            (sourceProductPaths == null || sourceProductPaths.length == 0)) {
             throw new OperatorException(
-                    "Either source products must be given or parameter 'sourceProductPaths' must be specified");
+                        "Either source products must be given or parameter 'sourceProductPaths' must be specified");
         }
         for (BandConfiguration configuration : bandConfigurations) {
             if (configuration.sourceBandName == null && configuration.expression == null) {
@@ -698,16 +643,16 @@ public class StatisticsOp extends Operator implements Output {
     public static class BandConfiguration {
 
         @Parameter(description = "The name of the band in the source products. If empty, parameter 'expression' must " +
-                "be provided.")
+                                 "be provided.")
         String sourceBandName;
 
         @Parameter(description =
-                           "The band maths expression serving as input band. If empty, parameter 'sourceBandName'" +
-                                   "must be provided.")
+                               "The band maths expression serving as input band. If empty, parameter 'sourceBandName'" +
+                               "must be provided.")
         String expression;
 
         @Parameter(description = "The band maths expression serving as criterion for whether to consider pixels for " +
-                "computation.")
+                                 "computation.")
         String validPixelExpression;
 
         public BandConfiguration() {

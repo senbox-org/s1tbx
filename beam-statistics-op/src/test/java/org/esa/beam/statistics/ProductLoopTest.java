@@ -26,7 +26,7 @@ public class ProductLoopTest {
         statisticComputerMock = mock(StatisticComputer.class);
         productLoaderMock = mock(ProductLoader.class);
         loggerMock = mock(Logger.class);
-        productLoop = new ProductLoop(productLoaderMock, statisticComputerMock, loggerMock);
+        productLoop = new ProductLoop(productLoaderMock, statisticComputerMock, startDate, endDate, loggerMock);
     }
 
     @Test

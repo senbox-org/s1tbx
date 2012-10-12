@@ -16,8 +16,6 @@
 
 package org.esa.beam.statistics.output;
 
-import org.esa.beam.statistics.output.CsvStatisticsWriter;
-import org.esa.beam.statistics.output.StatisticsOutputContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -75,12 +73,12 @@ public class CsvStatisticsWriterTest {
 
     @Test
     public void testFinaliseOutput() throws Exception {
-        csvStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(null, new String[]{
+        csvStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(productNames, null, new String[]{
                 "p90",
                 "p95",
                 "max",
                 "min"
-        }));
+        }, startDate, endDate, regionNames.toArray(new String[regionNames.size()])));
         addOutput();
         csvStatisticsWriter.finaliseOutput();
         csvStream.close();

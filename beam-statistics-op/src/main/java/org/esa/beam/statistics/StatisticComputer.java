@@ -3,6 +3,16 @@ package org.esa.beam.statistics;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
+import java.awt.Shape;
+import java.awt.image.DataBuffer;
+import java.io.File;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.media.jai.Histogram;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.HistogramStxOp;
 import org.esa.beam.framework.datamodel.Mask;
@@ -23,29 +33,17 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.media.jai.Histogram;
-import java.awt.Shape;
-import java.awt.image.DataBuffer;
-import java.io.File;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class StatisticComputer {
 
     private final FeatureCollection<SimpleFeatureType, SimpleFeature> features;
     private final FeatureUtils.FeatureCrsProvider crsProvider;
     private final ProgressMonitor pm;
     private final StatisticsOp.BandConfiguration[] bandConfigurations;
-    private final Map<String, SummaryStxOp> summaryStxOps;
-    private final Map<String, HistogramStxOp> histogramStxOps;
-    private final int initialBinSize;
+    private final Map<StatisticsOp.BandConfiguration, StxOpMapping> stxOpMappings;
+    private final int initialBinCount;
 
-    public StatisticComputer(File shapefile, StatisticsOp.BandConfiguration[] bandConfigurations, int initialBinSize) {
-        this.initialBinSize = initialBinSize;
+    public StatisticComputer(File shapefile, StatisticsOp.BandConfiguration[] bandConfigurations, int initialBinCount) {
+        this.initialBinCount = initialBinCount;
         if (shapefile != null) {
             try {
                 features = FeatureUtils.loadFeatureCollectionFromShapefile(shapefile);
@@ -66,103 +64,54 @@ public class StatisticComputer {
         };
         pm = ProgressMonitor.NULL;
         this.bandConfigurations = bandConfigurations;
-        summaryStxOps = new HashMap<String, SummaryStxOp>();
-        histogramStxOps = new HashMap<String, HistogramStxOp>();
+        stxOpMappings = new HashMap<StatisticsOp.BandConfiguration, StxOpMapping>();
     }
 
     public void computeStatistic(Product product) {
         final FeatureCollection<SimpleFeatureType, SimpleFeature> productFeatures;
-        productFeatures = FeatureUtils.clipFeatureCollectionToProductBounds(features, product, crsProvider, pm);
-        final VectorDataNode[] vectorDataNodes = createVectorDataNodes(productFeatures);
+        VectorDataNode[] vectorDataNodes = null;
+        if(features != null) {
+            productFeatures = FeatureUtils.clipFeatureCollectionToProductBounds(features, product, crsProvider, pm);
+            vectorDataNodes = createVectorDataNodes(productFeatures);
+        }
         for (int i = 0; i < bandConfigurations.length; i++) {
             StatisticsOp.BandConfiguration bandConfiguration = bandConfigurations[i];
             final Band band = getBand(bandConfiguration, product);
-
-            for (int j = 0; j < vectorDataNodes.length; j++) {
-                VectorDataNode vectorDataNode = vectorDataNodes[j];
-                product.getVectorDataGroup().add(vectorDataNode);
-                final String vdnName = vectorDataNode.getName();
-                Mask currentMask = product.getMaskGroup().get(vdnName);
-                final Shape roiShape = currentMask.getValidShape();
-                final MultiLevelImage roiImage = currentMask.getSourceImage();
-                final SummaryStxOp summaryStxOp = getSummaryOp(vdnName);
-                StxFactory.accumulate(band, 0, roiImage, roiShape, summaryStxOp, SubProgressMonitor.create(pm, 50));
-                final double minimum = summaryStxOp.getMinimum();
-                final double maximum = summaryStxOp.getMaximum();
-                final HistogramStxOp histogramStxOp = getHistogramOp(vdnName, minimum, maximum, band);
-                StxFactory.accumulate(band, 0, roiImage, roiShape, histogramStxOp, SubProgressMonitor.create(pm, 50));
-                final Histogram histogram = histogramStxOp.getHistogram();
+            final StxOpMapping stxOpsMapping = getStxOpsMapping(bandConfiguration);
+            if (features != null) {
+                for (int j = 0; j < vectorDataNodes.length; j++) {
+                    VectorDataNode vectorDataNode = vectorDataNodes[j];
+                    product.getVectorDataGroup().add(vectorDataNode);
+                    final String vdnName = vectorDataNode.getName();
+                    Mask currentMask = product.getMaskGroup().get(vdnName);
+                    final Shape roiShape = currentMask.getValidShape();
+                    final MultiLevelImage roiImage = currentMask.getSourceImage();
+                    computeStatistic(vdnName, stxOpsMapping, band, roiShape, roiImage);
+                }
+            } else {
+                computeStatistic("world", stxOpsMapping, band, null, null);
             }
         }
-
-
-        // prepare Product
-        try {
-            // compute Statistic
-        } finally {
-            // remove Preparations
-        }
     }
 
-    private HistogramStxOp getHistogramOp(String vdnName, double minimum, double maximum, Band band) {
-        HistogramStxOp histogramStxOp = histogramStxOps.get(vdnName);
-        boolean intHistogram;
-        intHistogram = band.getGeophysicalImage().getSampleModel().getDataType() < DataBuffer.TYPE_FLOAT;
-        if (histogramStxOp == null) {
-            histogramStxOp = new HistogramStxOp(initialBinSize, minimum, maximum, intHistogram, false);
-        } else {
-            final Histogram oldHistogram = histogramStxOp.getHistogram();
-            final double oldMin = oldHistogram.getLowValue()[0];
-            final double oldMax = oldHistogram.getHighValue()[0];
-            if (minimum < oldMin || maximum > oldMax) {
-                final int oldNumBins = oldHistogram.getNumBins()[0];
-                double binSize = (oldMax - oldMin) / oldNumBins;
-                int numNewMinBins = 0;
-                int numNewMaxBins = 0;
-                if (minimum < oldMin) {
-                    final double minDiff = oldMin - minimum;
-                    numNewMinBins = (int) Math.ceil(minDiff / binSize);
-                }
-                if (maximum > oldMax) {
-                    final double maxDiff = maximum - oldMax;
-                    numNewMaxBins = (int) Math.ceil(maxDiff / binSize);
-                }
-                double newMinimum = oldMin - numNewMinBins * binSize;
-                double newMaximum = oldMax + numNewMaxBins * binSize;
-                int newNumBins = oldNumBins + numNewMinBins + numNewMaxBins;
-                int numberOfDivisions = 0;
-                while (newNumBins > 2 * initialBinSize) {
-                    if (newNumBins % 2 != 0) {
-                        newMaximum += binSize;
-                        newNumBins++;
-                    }
-                    newNumBins /= 2;
-                    binSize *= 2;
-                    numberOfDivisions++;
-                }
-                histogramStxOp = new HistogramStxOp(newNumBins, newMinimum, newMaximum, intHistogram, false);
-                // migrate data
-                final int[] oldBins = oldHistogram.getBins(0);
-                final Histogram newHistogram = histogramStxOp.getHistogram();
-                final int[] newBins = newHistogram.getBins(0);
-                for (int i = 0; i < oldBins.length; i++) {
-                    int newBinsIndex = numNewMinBins + (i / (int) Math.pow(2, numberOfDivisions));
-                    newBins[newBinsIndex] += oldBins[i];
-                }
-            }
-        }
-        histogramStxOps.put(vdnName, histogramStxOp);
-        return histogramStxOp;
+    private void computeStatistic(String regionName, StxOpMapping stxOpsMapping, Band band, Shape roiShape, MultiLevelImage roiImage) {
+        final SummaryStxOp summaryStxOp = stxOpsMapping.getSummaryOp(regionName);
+        StxFactory.accumulate(band, 0, roiImage, roiShape, summaryStxOp, SubProgressMonitor.create(pm, 50));
+        final double minimum = summaryStxOp.getMinimum();
+        final double maximum = summaryStxOp.getMaximum();
+        final HistogramStxOp histogramStxOp = stxOpsMapping.getHistogramOp(regionName, minimum, maximum, band);
+        StxFactory.accumulate(band, 0, roiImage, roiShape, histogramStxOp, SubProgressMonitor.create(pm, 50));
     }
 
-    private SummaryStxOp getSummaryOp(String vdnName) {
-        SummaryStxOp summaryStxOp = summaryStxOps.get(vdnName);
-        if (summaryStxOp == null) {
-            summaryStxOp = new SummaryStxOp();
-            summaryStxOps.put(vdnName, summaryStxOp);
+    private StxOpMapping getStxOpsMapping(StatisticsOp.BandConfiguration bandConfiguration) {
+        StxOpMapping stxOpMapping = stxOpMappings.get(bandConfiguration);
+        if (stxOpMapping == null){
+            stxOpMapping = new StxOpMapping(initialBinCount);
+            stxOpMappings.put(bandConfiguration, stxOpMapping);
         }
-        return summaryStxOp;
+        return stxOpMapping;
     }
+
 
     private VectorDataNode[] createVectorDataNodes(FeatureCollection<SimpleFeatureType, SimpleFeature> productFeatures) {
         final FeatureIterator<SimpleFeature> featureIterator = productFeatures.features();
@@ -193,5 +142,97 @@ public class StatisticComputer {
                                                              configuration.sourceBandName, product.getName()));
         }
         return band;
+    }
+
+    public Map<StatisticsOp.BandConfiguration, StxOpMapping> getResults() {
+        return stxOpMappings;
+    }
+
+    static class StxOpMapping {
+        final Map<String, SummaryStxOp> summaryMap;
+        final Map<String, HistogramStxOp> histogramMap;
+        private final int initialBinCount;
+
+        StxOpMapping(int initialBinCount) {
+            this.summaryMap = new HashMap<String, SummaryStxOp>();
+            this.histogramMap = new HashMap<String, HistogramStxOp>();
+            this.initialBinCount = initialBinCount;
+        }
+
+        private SummaryStxOp getSummaryOp(String vdnName) {
+            SummaryStxOp summaryStxOp = summaryMap.get(vdnName);
+            if (summaryStxOp == null) {
+                summaryStxOp = new SummaryStxOp();
+                summaryMap.put(vdnName, summaryStxOp);
+            }
+            return summaryStxOp;
+        }
+
+        private HistogramStxOp getHistogramOp(String vdnName, double minimum, double maximum, Band band) {
+            HistogramStxOp histogramStxOp = histogramMap.get(vdnName);
+            boolean intHistogram;
+            intHistogram = band.getGeophysicalImage().getSampleModel().getDataType() < DataBuffer.TYPE_FLOAT;
+            if (histogramStxOp == null) {
+                histogramStxOp = new HistogramStxOp(initialBinCount, minimum, maximum, intHistogram, false);
+                histogramMap.put(vdnName, histogramStxOp);
+            } else {
+                final Histogram oldHistogram = histogramStxOp.getHistogram();
+                final double oldMin = oldHistogram.getLowValue()[0];
+                final double oldMax = oldHistogram.getHighValue()[0];
+                if (minimum < oldMin || maximum > oldMax) {
+                    histogramStxOp = createExpandedHistogramOp(oldHistogram, minimum, maximum, intHistogram);
+                    histogramMap.put(vdnName, histogramStxOp);
+                }
+            }
+            return histogramStxOp;
+        }
+
+        private HistogramStxOp createExpandedHistogramOp(Histogram oldHistogram, double minimum, double maximum, boolean intHistogram) {
+            final double oldMin = oldHistogram.getLowValue()[0];
+            final double oldMax = oldHistogram.getHighValue()[0];
+            HistogramStxOp histogramStxOp;
+            final int oldBinCount = oldHistogram.getNumBins()[0];
+            double binWidth = computeBinWidth(oldMin, oldMax, oldBinCount);
+            int numNewMinBins = 0;
+            int numNewMaxBins = 0;
+            if (minimum < oldMin) {
+                final double minDiff = oldMin - minimum;
+                numNewMinBins = (int) Math.ceil(minDiff / binWidth);
+            }
+            if (maximum > oldMax) {
+                final double maxDiff = maximum - oldMax;
+                numNewMaxBins = (int) Math.ceil(maxDiff / binWidth);
+            }
+            double newMinimum = oldMin - numNewMinBins * binWidth;
+            double newMaximum = oldMax + numNewMaxBins * binWidth;
+            int newBinCount = oldBinCount + numNewMinBins + numNewMaxBins;
+
+            final int binRatio;
+            if (newBinCount > 2 * initialBinCount) {
+                binRatio = newBinCount / initialBinCount;
+                final int binRemainder = newBinCount % binRatio;
+                newMaximum += binRemainder * binWidth;
+                newBinCount = (newBinCount + binRemainder) / binRatio;
+            } else {
+                binRatio = 1;
+            }
+
+            histogramStxOp = new HistogramStxOp(newBinCount, newMinimum, newMaximum, intHistogram, false);
+            migrateOldHistogramData(oldHistogram, histogramStxOp.getHistogram(), numNewMinBins, binRatio);
+            return histogramStxOp;
+        }
+
+        private void migrateOldHistogramData(Histogram oldHistogram, Histogram newHistogram, int startOffset, int binRatio) {
+            final int[] oldBins = oldHistogram.getBins(0);
+            final int[] newBins = newHistogram.getBins(0);
+            for (int i = 0; i < oldBins.length; i++) {
+                int newBinsIndex = (startOffset + i) / binRatio;
+                newBins[newBinsIndex] += oldBins[i];
+            }
+        }
+
+        private double computeBinWidth(double min, double max, int binCount) {
+            return (max - min) / binCount;
+        }
     }
 }

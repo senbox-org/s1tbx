@@ -1,7 +1,5 @@
 package org.esa.beam.statistics.output;
 
-import org.esa.beam.framework.datamodel.Product;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Map;
@@ -38,9 +36,9 @@ public class MetadataWriter implements StatisticsOutputter {
         printStream.append("# BEAM Statistics export\n")
                 .append("#\n")
                 .append("# Products:\n");
-        for (Product sourceProduct : statisticsOutputContext.sourceProducts) {
+        for (String sourceProductName : statisticsOutputContext.sourceProductNames) {
             printStream.append("#              ")
-                    .append(sourceProduct.getName())
+                    .append(sourceProductName)
                     .append("\n");
         }
         if (statisticsOutputContext.startDate != null) {

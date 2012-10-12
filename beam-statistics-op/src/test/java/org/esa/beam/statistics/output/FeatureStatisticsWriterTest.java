@@ -36,7 +36,7 @@ public class FeatureStatisticsWriterTest {
         final FeatureStatisticsWriter featureStatisticsWriter = FeatureStatisticsWriter.createFeatureStatisticsWriter(originalShapefile, null, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 
-        featureStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(new String[]{"algal_2"}, algorithmNames));
+        featureStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(productNames, new String[]{"algal_2"}, algorithmNames, startDate, endDate, regionNames.toArray(new String[regionNames.size()])));
 
         HashMap<String, Number> statistics = new HashMap<String, Number>();
         statistics.put("p90", 0.1);
@@ -65,10 +65,10 @@ public class FeatureStatisticsWriterTest {
         final FeatureStatisticsWriter featureStatisticsWriter = FeatureStatisticsWriter.createFeatureStatisticsWriter(originalShapefile, null, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
 
-        featureStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(new String[]{
+        featureStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(productNames, new String[]{
                 "algal_2",
                 "algal_2"
-        }, algorithmNames));
+        }, algorithmNames, startDate, endDate, regionNames.toArray(new String[regionNames.size()])));
 
         HashMap<String, Number> statistics = new HashMap<String, Number>();
 

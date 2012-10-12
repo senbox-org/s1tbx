@@ -288,7 +288,7 @@ public class FeatureUtils {
         GeometryFactory gf = new GeometryFactory();
         GeoPos[] geoPositions = ProductUtils.createGeoBoundary(product, 100);
         Coordinate[] coordinates;
-        if (geoPositions.length >= 0 && geoPositions.length <= 3) {
+        if(geoPositions.length >= 0 && geoPositions.length <= 3) {
             coordinates = new Coordinate[0];
         } else {
             coordinates = new Coordinate[geoPositions.length + 1];
