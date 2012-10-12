@@ -3,16 +3,6 @@ package org.esa.beam.statistics;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
-import java.awt.Shape;
-import java.awt.image.DataBuffer;
-import java.io.File;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.media.jai.Histogram;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.HistogramStxOp;
 import org.esa.beam.framework.datamodel.Mask;
@@ -32,6 +22,17 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import javax.media.jai.Histogram;
+import java.awt.Shape;
+import java.awt.image.DataBuffer;
+import java.io.File;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class StatisticComputer {
 
@@ -70,13 +71,14 @@ public class StatisticComputer {
     public void computeStatistic(Product product) {
         final FeatureCollection<SimpleFeatureType, SimpleFeature> productFeatures;
         VectorDataNode[] vectorDataNodes = null;
-        if(features != null) {
+        if (features != null) {
             productFeatures = FeatureUtils.clipFeatureCollectionToProductBounds(features, product, crsProvider, pm);
             vectorDataNodes = createVectorDataNodes(productFeatures);
         }
         for (int i = 0; i < bandConfigurations.length; i++) {
             StatisticsOp.BandConfiguration bandConfiguration = bandConfigurations[i];
             final Band band = getBand(bandConfiguration, product);
+            band.setValidPixelExpression(bandConfiguration.validPixelExpression);
             final StxOpMapping stxOpsMapping = getStxOpsMapping(bandConfiguration);
             if (features != null) {
                 for (int j = 0; j < vectorDataNodes.length; j++) {
@@ -105,7 +107,7 @@ public class StatisticComputer {
 
     private StxOpMapping getStxOpsMapping(StatisticsOp.BandConfiguration bandConfiguration) {
         StxOpMapping stxOpMapping = stxOpMappings.get(bandConfiguration);
-        if (stxOpMapping == null){
+        if (stxOpMapping == null) {
             stxOpMapping = new StxOpMapping(initialBinCount);
             stxOpMappings.put(bandConfiguration, stxOpMapping);
         }

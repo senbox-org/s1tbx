@@ -26,7 +26,7 @@ public class ProductLoopTest {
         statisticComputerMock = mock(StatisticComputer.class);
         productLoaderMock = mock(ProductLoader.class);
         loggerMock = mock(Logger.class);
-        productLoop = new ProductLoop(productLoaderMock, statisticComputerMock, startDate, endDate, loggerMock);
+        productLoop = new ProductLoop(productLoaderMock, statisticComputerMock, null, null, loggerMock);
     }
 
     @Test
@@ -43,7 +43,8 @@ public class ProductLoopTest {
         final InOrder inOrder = inOrder(statisticComputerMock);
         inOrder.verify(statisticComputerMock).computeStatistic(same(productMock1));
         inOrder.verify(statisticComputerMock).computeStatistic(same(productMock2));
-        verifyNoMoreInteractions(productMock1, productMock2, statisticComputerMock, productLoaderMock, loggerMock);
+        verify(productMock1, never()).dispose();
+        verify(productMock2, never()).dispose();
     }
 
     @Test
@@ -66,7 +67,6 @@ public class ProductLoopTest {
         inOrder.verify(statisticComputerMock).computeStatistic(same(productMock2));
         verify(productMock1).dispose();
         verify(productMock2).dispose();
-        verifyNoMoreInteractions(productMock1, productMock2, statisticComputerMock, loggerMock);
     }
 
     @Test
@@ -91,7 +91,6 @@ public class ProductLoopTest {
         verify(productLoaderMock).loadProduct(eq(new File("1")));
         verify(productMock1).dispose();
         verify(productMock2, atLeastOnce()).getFileLocation();
-        verifyNoMoreInteractions(productMock1, productMock2, statisticComputerMock, productLoaderMock, loggerMock);
     }
 
     @Test

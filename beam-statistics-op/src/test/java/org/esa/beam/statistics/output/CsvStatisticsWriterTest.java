@@ -24,7 +24,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Thomas Storm
@@ -47,45 +47,47 @@ public class CsvStatisticsWriterTest {
         addOutput();
 
         assertEquals(csvStatisticsWriter.statisticsContainer.getDataForBandName("normalised_cow_density_index_(ncdi)")
-                                 .getDataForRegionName("werdohl")
-                                 .getDataForAlgorithmName("p95").doubleValue(), 3.0, 1E-6);
+                             .getDataForRegionName("werdohl")
+                             .getDataForAlgorithmName("p95").doubleValue(), 3.0, 1E-6);
         assertEquals(csvStatisticsWriter.statisticsContainer.getDataForBandName("normalised_cow_density_index_(ncdi)")
-                                 .getDataForRegionName("werdohl")
-                                 .getDataForAlgorithmName("p90").doubleValue(), 2.0, 1E-6);
+                             .getDataForRegionName("werdohl")
+                             .getDataForAlgorithmName("p90").doubleValue(), 2.0, 1E-6);
 
         assertEquals(csvStatisticsWriter.statisticsContainer.getDataForBandName("normalised_pig_density_index_(npdi)")
-                                 .getDataForRegionName("bielefeld")
-                                 .getDataForAlgorithmName("p90").doubleValue(), 1.0, 1E-6);
+                             .getDataForRegionName("bielefeld")
+                             .getDataForAlgorithmName("p90").doubleValue(), 1.0, 1E-6);
         assertEquals(csvStatisticsWriter.statisticsContainer.getDataForBandName("normalised_pig_density_index_(npdi)")
-                                 .getDataForRegionName("bielefeld")
-                                 .getDataForAlgorithmName("p95").doubleValue(), 2.0, 1E-6);
+                             .getDataForRegionName("bielefeld")
+                             .getDataForAlgorithmName("p95").doubleValue(), 2.0, 1E-6);
         assertEquals(csvStatisticsWriter.statisticsContainer.getDataForBandName("normalised_pig_density_index_(npdi)")
-                                 .getDataForRegionName("bielefeld")
-                                 .getDataForAlgorithmName("max").doubleValue(), 3.0, 1E-6);
+                             .getDataForRegionName("bielefeld")
+                             .getDataForAlgorithmName("max").doubleValue(), 3.0, 1E-6);
         assertEquals(csvStatisticsWriter.statisticsContainer.getDataForBandName("normalised_pig_density_index_(npdi)")
-                                 .getDataForRegionName("bielefeld")
-                                 .getDataForAlgorithmName("min").doubleValue(), 0.5, 1E-6);
+                             .getDataForRegionName("bielefeld")
+                             .getDataForAlgorithmName("min").doubleValue(), 0.5, 1E-6);
 
         assertEquals(csvStatisticsWriter.statisticsContainer.getDataForBandName("normalised_cow_density_index_(ncdi)")
-                                 .getDataForRegionName("bielefeld")
-                                 .getDataForAlgorithmName("p90").doubleValue(), 1.0, 1E-6);
+                             .getDataForRegionName("bielefeld")
+                             .getDataForAlgorithmName("p90").doubleValue(), 1.0, 1E-6);
     }
 
     @Test
     public void testFinaliseOutput() throws Exception {
+        final String[] productNames = new String[]{"prod_1"};
+        final String[] regionNames = new String[]{"region_1"};
         csvStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(productNames, null, new String[]{
                 "p90",
                 "p95",
                 "max",
                 "min"
-        }, startDate, endDate, regionNames.toArray(new String[regionNames.size()])));
+        }, null, null, regionNames));
         addOutput();
         csvStatisticsWriter.finaliseOutput();
         csvStream.close();
         assertEquals("# Region\tBand\tmax\tmin\tp90\tp95\n" +
-                     "werdohl\tnormalised_cow_density_index_(ncdi)\t\t\t2.0000\t3.0000\n" +
-                     "bielefeld\tnormalised_cow_density_index_(ncdi)\t\t\t1.0000\t3.0000\n" +
-                     "bielefeld\tnormalised_pig_density_index_(npdi)\t3.0000\t0.5000\t1.0000\t2.0000\n"
+                             "werdohl\tnormalised_cow_density_index_(ncdi)\t\t\t2.0000\t3.0000\n" +
+                             "bielefeld\tnormalised_cow_density_index_(ncdi)\t\t\t1.0000\t3.0000\n" +
+                             "bielefeld\tnormalised_pig_density_index_(npdi)\t3.0000\t0.5000\t1.0000\t2.0000\n"
                 , csvOutput.toString());
     }
 

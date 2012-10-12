@@ -92,7 +92,7 @@ public class StatisticsOpTest {
         assertEquals(0.695857, outputter.minimum, 1E-3);
         assertEquals(0.749427, outputter.average, 1E-3);
         assertEquals(0.721552, outputter.median, 1E-3);
-        assertEquals(0.042935, outputter.sigma, 1E-3);
+        assertEquals(0.049577, outputter.sigma, 1E-3);
         assertEquals(2, outputter.percentiles.length);
         assertEquals(0.804474, outputter.percentiles[0], 1E-3);
         assertEquals(0.804474, outputter.percentiles[1], 1E-3);
@@ -121,7 +121,7 @@ public class StatisticsOpTest {
         assertEquals(0.695857, outputter.minimum, 1E-6);
         assertEquals(0.749427, outputter.average, 1E-6);
         assertEquals(0.721552, outputter.median, 1E-6);
-        assertEquals(0.042935, outputter.sigma, 1E-6);
+        assertEquals(0.049577, outputter.sigma, 1E-6);
         assertEquals(2, outputter.percentiles.length);
         assertEquals(0.80447364, outputter.percentiles[0], 1E-6);
         assertEquals(0.80447364, outputter.percentiles[1], 1E-6);
@@ -149,7 +149,7 @@ public class StatisticsOpTest {
         assertEquals(2.186098, outputter.minimum, 1E-3);
         assertEquals(2.354394, outputter.average, 1E-3);
         assertEquals(2.266823, outputter.median, 1E-3);
-        assertEquals(0.134885, outputter.sigma, 1E-3);
+        assertEquals(0.155752, outputter.sigma, 1E-3);
         assertEquals(2, outputter.percentiles.length);
         assertEquals(2.527328, outputter.percentiles[0], 1E-3);
         assertEquals(2.527328, outputter.percentiles[1], 1E-3);
@@ -178,7 +178,7 @@ public class StatisticsOpTest {
         assertEquals(0.7216, outputter.minimum, 1E-4);
         assertEquals(0.7672, outputter.average, 1E-4);
         assertEquals(0.7758, outputter.median, 1E-4);
-        assertEquals(0.0344, outputter.sigma, 1E-4);
+        assertEquals(0.0421, outputter.sigma, 1E-4);
         assertEquals(2, outputter.percentiles.length);
         assertEquals(0.8044, outputter.percentiles[0], 1E-4);
         assertEquals(0.8044, outputter.percentiles[1], 1E-4);
@@ -242,7 +242,7 @@ public class StatisticsOpTest {
         assertEquals(0.695857, outputter.minimum, 1E-3);
         assertEquals(0.749427, outputter.average, 1E-3);
         assertEquals(0.721552, outputter.median, 1E-3);
-        assertEquals(0.042935, outputter.sigma, 1E-3);
+        assertEquals(0.049577, outputter.sigma, 1E-3);
         assertEquals(3, outputter.percentiles.length);
         assertEquals(0.6958565, outputter.percentiles[0], 1E-3);
         assertEquals(0.775825, outputter.percentiles[1], 1E-3);
