@@ -64,7 +64,9 @@ public class BinaryRecord {
     }
 
     public long getRecordEndPosition() {
-        return startPos + recordLength;
+        if(recordLength != null)
+            return startPos + recordLength;
+        return startPos;
     }
 
     public long getAbsolutPosition(final long relativePosition) {

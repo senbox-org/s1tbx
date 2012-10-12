@@ -2,6 +2,7 @@ org.esa.nest.dataio.ceos.ers.ERSProductReaderPlugIn
 org.esa.nest.dataio.ceos.jers.JERSProductReaderPlugIn
 org.esa.nest.dataio.ceos.radarsat.RadarsatProductReaderPlugIn
 org.esa.nest.dataio.ceos.alos.AlosPalsarProductReaderPlugIn
+org.esa.nest.dataio.ceos.basic.BasicCeosProductReaderPlugIn
 org.esa.nest.dataio.imageio.ImageIOReaderPlugIn
 org.esa.nest.dataio.envi.NestEnviProductReaderPlugIn
 org.esa.nest.dataio.geotiff.NestGeoTiffProductReaderPlugIn

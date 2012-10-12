@@ -224,7 +224,8 @@ public abstract class CEOSProductDirectory {
         }
         if(detailProcRec != null) {
             final String startTime = detailProcRec.getAttributeString("Processing start time");
-            return AbstractMetadata.parseUTC(startTime, dateFormat);
+            if(startTime != null)
+                return AbstractMetadata.parseUTC(startTime, dateFormat);
         }
         return new ProductData.UTC(0);
     }
@@ -237,7 +238,8 @@ public abstract class CEOSProductDirectory {
         }
         if(detailProcRec != null) {
             final String endTime = detailProcRec.getAttributeString("Processing stop time");
-            return AbstractMetadata.parseUTC(endTime, dateFormat);
+            if(endTime != null)
+                return AbstractMetadata.parseUTC(endTime, dateFormat);
         }
         return new ProductData.UTC(0);
     }

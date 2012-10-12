@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
+import org.esa.beam.visat.VisatApp;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.ReaderUtils;
 
@@ -94,6 +95,12 @@ public abstract class CEOSProductReader extends AbstractProductReader {
         product.getGcpGroup();
         product.setProductReader(this);
         product.setModified(false);
+
+        if(VisatApp.getApp() != null) {
+            VisatApp.getApp().showWarningDialog("This product is for an unknown mission in CEOS format.\n" +
+                                                "Some functionality may not be supported.\n" +
+                                                "Please contact nest_pr@array.ca for further support.");
+        }
 
         return product;
     }

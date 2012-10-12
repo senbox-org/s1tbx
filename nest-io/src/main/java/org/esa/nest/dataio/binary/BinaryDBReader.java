@@ -188,7 +188,10 @@ public final class BinaryDBReader {
             }
 
         } catch(Exception e) {
-            System.out.println(' ' +e.toString() + ':' +e.getCause().toString() + " for "+ name);
+            if(e.getCause() != null)
+                System.out.println(' ' +e.toString() + ':' +e.getCause().toString() + " for "+ name);
+            else
+                System.out.println(' ' +e.toString() + ':' + " for "+ name);
         }
     }
 
@@ -281,8 +284,10 @@ public final class BinaryDBReader {
             }
 
         } catch(Exception e) {
-            System.out.println(' ' +e.toString() + ':' +e.getCause().toString() + " for "+ name);
-
+            if(e.getCause() != null)
+                System.out.println(' ' +e.toString() + ':' +e.getCause().toString() + " for "+ name);
+            else
+                System.out.println(' ' +e.toString() + ':' + " for "+ name);
             //throw new IllegalBinaryFormatException(e.toString(), reader.getCurrentPos());
         }
     }
